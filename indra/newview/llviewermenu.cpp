@@ -3283,7 +3283,11 @@ void handle_object_edit()
     LLFloaterReg::showInstance("build");
 
     LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
-    gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+
+    if (gFloaterTools)
+    {
+        gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+    }
 
     LLViewerJoystick::getInstance()->moveObjects(true);
     LLViewerJoystick::getInstance()->setNeedsReset(true);
@@ -6722,11 +6726,8 @@ class LLAvatarEnableResetSkeleton : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        if (LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
-        {
-            return true;
-        }
-        return false;
+        LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+        return obj && obj->getAvatar();
     }
 };
 
@@ -9897,7 +9898,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickGLTFEdit(), "Advanced.ClickGLTFEdit", cb_info::UNTRUSTED_BLOCK);
     view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow", cb_info::UNTRUSTED_BLOCK);
     view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache", cb_info::UNTRUSTED_BLOCK);
-    view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain", cb_info::UNTRUSTED_BLOCK);
 
     #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
     view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");
@@ -9915,10 +9915,10 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedResetInterestLists(), "Advanced.ResetInterestLists");
 
     // Develop > Terrain
-    view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
-    view_listener_t::addMenu(new LLAdvancedTerrainCreateLocalPaintMap(), "Advanced.TerrainCreateLocalPaintMap");
-    view_listener_t::addMenu(new LLAdvancedTerrainEditLocalPaintMap(), "Advanced.TerrainEditLocalPaintMap");
-    view_listener_t::addMenu(new LLAdvancedTerrainDeleteLocalPaintMap(), "Advanced.TerrainDeleteLocalPaintMap");
+    view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedTerrainCreateLocalPaintMap(), "Advanced.TerrainCreateLocalPaintMap", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedTerrainEditLocalPaintMap(), "Advanced.TerrainEditLocalPaintMap", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedTerrainDeleteLocalPaintMap(), "Advanced.TerrainDeleteLocalPaintMap", cb_info::UNTRUSTED_BLOCK);
 
     // Advanced > UI
     registrar.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));  // sigh! this one opens the MEDIA browser

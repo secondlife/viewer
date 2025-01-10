@@ -35,7 +35,8 @@ uniform sampler2D exposureMap;
 uniform float dt;
 uniform vec2 noiseVec;
 
-uniform vec3 dynamic_exposure_params;
+uniform vec4 dynamic_exposure_params;
+uniform vec4 dynamic_exposure_params2;
 
 float lum(vec3 col)
 {
@@ -53,11 +54,11 @@ void main()
     L /= max_L;
     L = pow(L, 2.0);
     float s = mix(dynamic_exposure_params.z, dynamic_exposure_params.y, L);
-
 #ifdef USE_LAST_EXPOSURE
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
 
-    s = mix(prev, s, min(dt*2.0*abs(prev-s), 0.04));
+    float speed = -log(dynamic_exposure_params.w) / dynamic_exposure_params2.w;
+    s = mix(prev, s, 1 - exp(-speed * dt));
 #endif
 
     frag_color = max(vec4(s, s, s, dt), vec4(0.0));

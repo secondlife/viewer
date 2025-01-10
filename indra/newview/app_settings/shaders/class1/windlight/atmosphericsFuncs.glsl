@@ -41,6 +41,7 @@ uniform float scene_light_strength;
 uniform float sun_moon_glow_factor;
 uniform float sky_sunlight_scale;
 uniform float sky_ambient_scale;
+uniform int classic_mode;
 
 float getAmbientClamp() { return 1.0f; }
 
@@ -121,7 +122,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     // brightness of surface both sunlight and ambient
 
     sunlit = sunlight.rgb;
-    amblit = tmpAmbient;
+    amblit = pow(tmpAmbient.rgb, vec3(0.9)) * 0.57;
 
     additive *= vec3(1.0 - combined_haze);
 
@@ -142,18 +143,22 @@ float ambientLighting(vec3 norm, vec3 light_dir)
     return ambient;
 }
 
-
 // return lit amblit in linear space, leave sunlit and additive in sRGB space
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 additive,
                          out vec3 atten)
 {
     calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten);
 
+    amblit *= ambientLighting(norm, light_dir);
+
+    if (classic_mode < 1)
+    {
+        amblit = srgb_to_linear(amblit);
+        sunlit = srgb_to_linear(sunlit);
+    }
+
     // multiply to get similar colors as when the "scaleSoftClip" implementation was doubling color values
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)
     sunlit *= sky_sunlight_scale;
     amblit *= sky_ambient_scale;
-
-    amblit = srgb_to_linear(amblit);
-    amblit *= ambientLighting(norm, light_dir);
 }

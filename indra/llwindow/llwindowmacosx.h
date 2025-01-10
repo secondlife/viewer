@@ -62,6 +62,7 @@ public:
     bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL) override;
     bool setCursorPosition(LLCoordWindow position) override;
     bool getCursorPosition(LLCoordWindow *position) override;
+    bool isWarpMouse() const override { return !mCursorDecoupled; };
     void showCursor() override;
     void hideCursor() override;
     void showCursorFromMouseMove() override;
@@ -146,6 +147,9 @@ public:
     void destroySharedContext(void* context) override;
 
     void toggleVSync(bool enable_vsync) override;
+
+    // enable or disable multithreaded GL
+    static void setUseMultGL(bool use_mult_gl);
 
 protected:
     LLWindowMacOSX(LLWindowCallbacks* callbacks,

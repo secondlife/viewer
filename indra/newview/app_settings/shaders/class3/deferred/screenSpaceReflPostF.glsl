@@ -66,7 +66,7 @@ void main()
 
     vec4 fcol = texture(diffuseMap, tc);
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
+    if (GET_GBUFFER_FLAG(norm.w, GBUFFER_FLAG_HAS_PBR))
     {
         vec3 orm = specCol.rgb;
         float perceptualRoughness = orm.g;
@@ -81,7 +81,7 @@ void main()
 
     vec4 collectedColor = vec4(0);
 
-    float w = tapScreenSpaceReflection(4, tc, pos, norm.xyz, collectedColor, diffuseMap, 0);
+    float w = tapScreenSpaceReflection(4, tc, pos, norm.xyz, collectedColor, diffuseMap, 0.f);
 
     collectedColor.rgb *= specCol.rgb;
 

@@ -53,6 +53,7 @@
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
 #include "llkeyconflict.h" // for legacy keybinding support, remove later
+#include "lllandmarkactions.h"
 #include "llmarketplacefunctions.h"
 #include "llmarketplacenotifications.h"
 #include "llmd5.h"
@@ -272,10 +273,6 @@ using namespace LL;
 #include "llviewernetwork.h"
 // define a self-registering event API object
 #include "llappviewerlistener.h"
-
-#if LL_LINUX && LL_GTK
-#include "glib.h"
-#endif // (LL_LINUX) && LL_GTK
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
@@ -875,6 +872,8 @@ bool LLAppViewer::init()
     LLUrlAction::setOpenURLCallback(boost::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
     LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
     LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
+    LLUrlAction::setCreateLandmarkCallback(&LLLandmarkActions::showFloaterCreateLandmarkForUrl);
+    LLUrlAction::setCanCreateLandmarkCallback(&LLLandmarkActions::canCreateLandmarkForUrl);
     LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
     // Let code in llui access the viewer help floater
@@ -1051,53 +1050,6 @@ bool LLAppViewer::init()
             }
         }
     }
-
-#if LL_WINDOWS && ADDRESS_SIZE == 64
-    if (gGLManager.mIsIntel)
-    {
-        // Check intel driver's version
-        // Ex: "3.1.0 - Build 8.15.10.2559";
-        std::string version = ll_safe_string((const char *)glGetString(GL_VERSION));
-
-        const boost::regex is_intel_string("[0-9].[0-9].[0-9] - Build [0-9]{1,2}.[0-9]{2}.[0-9]{2}.[0-9]{4}");
-
-        if (boost::regex_search(version, is_intel_string))
-        {
-            // Valid string, extract driver version
-            std::size_t found = version.find("Build ");
-            std::string driver = version.substr(found + 6);
-            S32 v1, v2, v3, v4;
-            S32 count = sscanf(driver.c_str(), "%d.%d.%d.%d", &v1, &v2, &v3, &v4);
-            if (count > 0 && v1 <= 10)
-            {
-                LL_INFOS("AppInit") << "Detected obsolete intel driver: " << driver << LL_ENDL;
-
-                if (!gViewerWindow->getInitAlert().empty() // graphic initialization crashed on last run
-                    || LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion // viewer was updated
-                    || mNumSessions % 20 == 0 //periodically remind user to update driver
-                    )
-                {
-                    LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
-                    std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
-                    LL_INFOS("AppInit") << "Notifying user about obsolete intel driver for " << gpu_name << LL_ENDL;
-                    details.setArg("[VERSION]", driver);
-                    details.setArg("[GPUNAME]", gpu_name);
-                    S32 button = OSMessageBox(details.getString(),
-                        LLStringUtil::null,
-                        OSMB_YESNO);
-                    if (OSBTN_YES == button && gViewerWindow)
-                    {
-                        std::string url = LLWeb::escapeURL(LLTrans::getString("IntelDriverPage"));
-                        if (gViewerWindow->getWindow())
-                        {
-                            gViewerWindow->getWindow()->spawnWebBrowser(url, false);
-                        }
-                    }
-                }
-            }
-        }
-    }
-#endif
 
     // Obsolete? mExpectedGLVersion is always zero
 #if LL_WINDOWS
@@ -1477,6 +1429,7 @@ void sendGameControlInput()
 bool LLAppViewer::doFrame()
 {
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
+    LL_PROFILE_GPU_ZONE("Frame");
     {
     // and now adjust the visuals from previous frame.
     if(LLPerfStats::tunables.userAutoTuneEnabled && LLPerfStats::tunables.tuningFlag != LLPerfStats::Tunables::Nothing)
@@ -1566,24 +1519,26 @@ bool LLAppViewer::doFrame()
 
         if (!LLApp::isExiting())
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df JoystickKeyboard");
-            pingMainloopTimeout("Main:JoystickKeyboard");
-
-            // Scan keyboard for movement keys.  Command keys and typing
-            // are handled by windows callbacks.  Don't do this until we're
-            // done initializing.  JC
-            if (gViewerWindow
-                && (gHeadlessClient || gViewerWindow->getWindow()->getVisible())
-                && gViewerWindow->getActive()
-                && !gViewerWindow->getWindow()->getMinimized()
-                && LLStartUp::getStartupState() == STATE_STARTED
-                && (gHeadlessClient || !gViewerWindow->getShowProgress())
-                && !gFocusMgr.focusLocked())
             {
-                LLPerfStats::RecordSceneTime T (LLPerfStats::StatType_t::RENDER_IDLE);
-                joystick->scanJoystick();
-                gKeyboard->scanKeyboard();
-                gViewerInput.scanMouse();
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df JoystickKeyboard");
+                pingMainloopTimeout("Main:JoystickKeyboard");
+
+                // Scan keyboard for movement keys.  Command keys and typing
+                // are handled by windows callbacks.  Don't do this until we're
+                // done initializing.  JC
+                if (gViewerWindow
+                    && (gHeadlessClient || gViewerWindow->getWindow()->getVisible())
+                    && gViewerWindow->getActive()
+                    && !gViewerWindow->getWindow()->getMinimized()
+                    && LLStartUp::getStartupState() == STATE_STARTED
+                    && (gHeadlessClient || !gViewerWindow->getShowProgress())
+                    && !gFocusMgr.focusLocked())
+                {
+                    LLPerfStats::RecordSceneTime T(LLPerfStats::StatType_t::RENDER_IDLE);
+                    joystick->scanJoystick();
+                    gKeyboard->scanKeyboard();
+                    gViewerInput.scanMouse();
+                }
             }
 
             // Update state based on messages, user input, object idle.
@@ -2324,7 +2279,12 @@ bool LLAppViewer::initThreads()
 
     // get the number of concurrent threads that can run
     S32 cores = std::thread::hardware_concurrency();
-
+#if LL_DARWIN
+    if (!gGLManager.mIsApple)
+    {
+        cores /= 2;
+    }
+#endif
     U32 max_cores = gSavedSettings.getU32("EmulateCoreCount");
     if (max_cores != 0)
     {
@@ -2385,11 +2345,25 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
     }
 }
 
-void errorMSG(const std::string& title_string, const std::string& message_string)
+void errorHandler(const std::string& title_string, const std::string& message_string, S32 code)
 {
     if (!message_string.empty())
     {
         OSMessageBox(message_string, title_string.empty() ? LLTrans::getString("MBFatalError") : title_string, OSMB_OK);
+    }
+    switch (code)
+    {
+    case LLError::LLUserWarningMsg::ERROR_OTHER:
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_OTHER_CRASH);
+        break;
+    case LLError::LLUserWarningMsg::ERROR_BAD_ALLOC:
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_BAD_ALLOC);
+        break;
+    case LLError::LLUserWarningMsg::ERROR_MISSING_FILES:
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_MISSING_FILES);
+        break;
+    default:
+        break;
     }
 }
 
@@ -2404,7 +2378,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     LLError::addGenericRecorder(&errorCallback);
     //LLError::setTimeFunction(getRuntime);
 
-    LLError::LLUserWarningMsg::setHandler(errorMSG);
+    LLError::LLUserWarningMsg::setHandler(errorHandler);
 
 
     if (mSecondInstance)
@@ -2696,6 +2670,7 @@ bool LLAppViewer::initConfiguration()
         OSMessageBox(
             "Unable to load default settings file. The installation may be corrupted.",
             LLStringUtil::null,OSMB_OK);
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_MISSING_FILES);
         return false;
     }
 
@@ -3863,16 +3838,21 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
     bool sameVersion = false;
 
     std::string my_version(LLVersionInfo::instance().getChannelAndVersion());
-    char marker_version[MAX_MARKER_LENGTH];
+    char marker_data[MAX_MARKER_LENGTH];
     S32  marker_version_length;
 
     LLAPRFile marker_file;
     marker_file.open(marker_name, LL_APR_RB);
     if (marker_file.getFileHandle())
     {
-        marker_version_length = marker_file.read(marker_version, sizeof(marker_version));
-        std::string marker_string(marker_version, marker_version_length);
-        if ( 0 == my_version.compare( 0, my_version.length(), marker_version, 0, marker_version_length ) )
+        marker_version_length = marker_file.read(marker_data, sizeof(marker_data));
+        std::string marker_string(marker_data, marker_version_length);
+        size_t pos = marker_string.find('\n');
+        if (pos != std::string::npos)
+        {
+            marker_string = marker_string.substr(0, pos);
+        }
+        if ( 0 == my_version.compare( 0, my_version.length(), marker_string, 0, marker_string.length()) )
         {
             sameVersion = true;
         }
@@ -3884,6 +3864,50 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
         marker_file.close();
     }
     return sameVersion;
+}
+
+S32 LLAppViewer::getMarkerData(const std::string& marker_name) const
+{
+    bool sameVersion = false;
+
+    std::string my_version(LLVersionInfo::instance().getChannelAndVersion());
+    char marker_data[MAX_MARKER_LENGTH];
+    S32  marker_version_length;
+
+    LLAPRFile marker_file;
+    marker_file.open(marker_name, LL_APR_RB);
+    if (marker_file.getFileHandle())
+    {
+        marker_version_length = marker_file.read(marker_data, sizeof(marker_data));
+        marker_file.close();
+        std::string marker_string(marker_data, marker_version_length);
+        std::string data;
+        size_t pos = marker_string.find('\n');
+        if (pos != std::string::npos)
+        {
+            data = marker_string.substr(pos + 1, marker_version_length - pos - 1);
+            marker_string = marker_string.substr(0, pos);
+        }
+        if (0 == my_version.compare(0, my_version.length(), marker_string, 0, marker_string.length()))
+        {
+            sameVersion = true;
+        }
+        else
+        {
+            return -1;
+        }
+        LL_DEBUGS("MarkerFile") << "Compare markers for '" << marker_name << "': "
+            << "\n   mine '" << my_version << "'"
+            << "\n marker '" << marker_string << "'"
+            << "\n " << (sameVersion ? "same" : "different") << " version"
+            << LL_ENDL;
+        if (data.length() == 0)
+        {
+            return 0;
+        }
+        return std::stoi(data);
+    }
+    return -1;
 }
 
 void LLAppViewer::processMarkerFiles()
@@ -4020,17 +4044,23 @@ void LLAppViewer::processMarkerFiles()
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
     if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
     {
-        if (markerIsSameVersion(error_marker_file))
+        S32 marker_code = getMarkerData(error_marker_file);
+        if (marker_code >= 0)
         {
             if (gLastExecEvent == LAST_EXEC_LOGOUT_FROZE)
             {
                 gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
                 LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to LOGOUT_CRASH" << LL_ENDL;
             }
+            else if (marker_code > 0 && marker_code < (S32)LAST_EXEC_COUNT)
+            {
+                gLastExecEvent = (eLastExecEvent)marker_code;
+                LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
+            }
             else
             {
                 gLastExecEvent = LAST_EXEC_OTHER_CRASH;
-                LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
+                LL_INFOS("MarkerFile") << "Error marker '" << error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
             }
         }
         else
@@ -4969,6 +4999,20 @@ void LLAppViewer::idle()
 
     if (gTeleportDisplay)
     {
+        if (gAgent.getTeleportState() == LLAgent::TELEPORT_ARRIVING)
+        {
+            // Teleported, but waiting for things to load, start processing surface data
+            {
+                LL_RECORD_BLOCK_TIME(FTM_NETWORK);
+                gVLManager.unpackData();
+            }
+            {
+                LL_RECORD_BLOCK_TIME(FTM_REGION_UPDATE);
+                const F32 max_region_update_time = .001f; // 1ms
+                LLWorld::getInstance()->updateRegions(max_region_update_time);
+            }
+        }
+
         return;
     }
 
@@ -5297,10 +5341,7 @@ void LLAppViewer::sendLogoutRequest()
         gLogoutMaxTime = LOGOUT_REQUEST_TIME;
         mLogoutRequestSent = true;
 
-        if(LLVoiceClient::instanceExists())
-        {
-            LLVoiceClient::getInstance()->setVoiceEnabled(false);
-        }
+        LLVoiceClient::setVoiceEnabled(false);
     }
 }
 
@@ -5348,6 +5389,24 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
     gMainloopWork.post(work);
+}
+
+void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
+{
+    if (!mSecondInstance)
+    {
+        std::string error_marker = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+
+        LLAPRFile file;
+        file.open(error_marker, LL_APR_WB);
+        if (file.getFileHandle())
+        {
+            recordMarkerVersion(file);
+            std::string data = "\n" + std::to_string((S32)error_code);
+            file.write(data.data(), static_cast<S32>(data.length()));
+            file.close();
+        }
+    }
 }
 
 void LLAppViewer::outOfMemorySoftQuit()

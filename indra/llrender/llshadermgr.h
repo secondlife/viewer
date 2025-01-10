@@ -122,6 +122,7 @@ public:
         SKY_HDR_SCALE,                      //  "sky_hdr_scale"
         SKY_SUNLIGHT_SCALE,                 //  "sky_sunlight_scale"
         SKY_AMBIENT_SCALE,                  //  "sky_ambient_scale"
+        CLASSIC_MODE,                       //  "classic_mode"
         BLUE_HORIZON,                       //  "blue_horizon"
         BLUE_DENSITY,                       //  "blue_density"
         HAZE_HORIZON,                       //  "haze_horizon"

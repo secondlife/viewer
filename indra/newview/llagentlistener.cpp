@@ -729,15 +729,11 @@ void LLAgentListener::getID(LLSD const& event_data)
     Response response(llsd::map("id", gAgentID), event_data);
 }
 
-struct AvResultSet : public LL::ResultSet
+struct AvResultSet : public LL::VectorResultSet<LLVOAvatar*>
 {
-    AvResultSet() : LL::ResultSet("nearby_avatars") {}
-    std::vector<LLVOAvatar*> mAvatars;
-
-    int getLength() const override { return narrow(mAvatars.size()); }
-    LLSD getSingle(int index) const override
+    AvResultSet() : super("nearby_avatars") {}
+    LLSD getSingleFrom(LLVOAvatar* const& av) const override
     {
-        auto av = mAvatars[index];
         LLAvatarName av_name;
         LLAvatarNameCache::get(av->getID(), &av_name);
         LLVector3 region_pos = av->getCharacterPosition();
@@ -749,15 +745,11 @@ struct AvResultSet : public LL::ResultSet
     }
 };
 
-struct ObjResultSet : public LL::ResultSet
+struct ObjResultSet : public LL::VectorResultSet<LLViewerObject*>
 {
-    ObjResultSet() : LL::ResultSet("nearby_objects") {}
-    std::vector<LLViewerObject*> mObjects;
-
-    int getLength() const override { return narrow(mObjects.size()); }
-    LLSD getSingle(int index) const override
+    ObjResultSet() : super("nearby_objects") {}
+    LLSD getSingleFrom(LLViewerObject* const& obj) const override
     {
-        auto obj = mObjects[index];
         return llsd::map("id", obj->getID(),
                          "global_pos", ll_sd_from_vector3d(obj->getPositionGlobal()),
                          "region_pos", ll_sd_from_vector3(obj->getPositionRegion()),
@@ -791,7 +783,7 @@ void LLAgentListener::getNearbyAvatarsList(LLSD const& event_data)
         {
             if ((dist_vec_squared(avatar->getPositionGlobal(), agent_pos) <= radius))
             {
-                avresult->mAvatars.push_back(avatar);
+                avresult->mVector.push_back(avatar);
             }
         }
     }
@@ -813,7 +805,7 @@ void LLAgentListener::getNearbyObjectsList(LLSD const& event_data)
         {
             if ((dist_vec_squared(object->getPositionGlobal(), agent_pos) <= radius))
             {
-                objresult->mObjects.push_back(object);
+                objresult->mVector.push_back(object);
             }
         }
     }
@@ -824,7 +816,7 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
 {
     Response response(LLSD(), event_data);
     LLVector3 render_pos;
-    if (event_data.has("avatar_id") && (event_data["avatar_id"] != gAgentID))
+    if (event_data.has("avatar_id") && (event_data["avatar_id"].asUUID() != gAgentID))
     {
         LLUUID avatar_id(event_data["avatar_id"]);
         for (LLCharacter* character : LLCharacter::sInstances)

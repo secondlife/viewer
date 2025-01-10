@@ -226,7 +226,7 @@ void LLTextureBar::draw()
         { "WRT", LLColor4::purple },// WRITE_TO_CACHE
         { "WWT", LLColor4::orange },// WAIT_ON_WRITE
         { "END", LLColor4::red },   // DONE
-#define LAST_STATE 14
+#define LAST_STATE 13
         { "CRE", LLColor4::magenta }, // LAST_STATE+1
         { "FUL", LLColor4::green }, // LAST_STATE+2
         { "BAD", LLColor4::red }, // LAST_STATE+3

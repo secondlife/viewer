@@ -70,6 +70,7 @@ set(llcommon_SOURCE_FILES
     llmetrics.cpp
     llmortician.cpp
     llmutex.cpp
+    llpointer.cpp
     llpredicate.cpp
     llprocess.cpp
     llprocessor.cpp

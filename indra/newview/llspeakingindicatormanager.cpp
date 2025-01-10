@@ -133,6 +133,8 @@ private:
      * @see onChange()
      */
     speaker_ids_t mSwitchedIndicatorsOn;
+
+    boost::signals2::connection mVoiceChannelChanged;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -181,7 +183,7 @@ void SpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speaker
 //////////////////////////////////////////////////////////////////////////
 SpeakingIndicatorManager::SpeakingIndicatorManager()
 {
-    LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&SpeakingIndicatorManager::sOnCurrentChannelChanged, this, _1));
+    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&SpeakingIndicatorManager::sOnCurrentChannelChanged, this, _1));
     LLVoiceClient::addObserver(this);
 }
 

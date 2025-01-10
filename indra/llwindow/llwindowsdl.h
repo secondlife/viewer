@@ -80,6 +80,7 @@ public:
 
     bool getCursorPosition(LLCoordWindow *position) override;
 
+    bool isWarpMouse() const override { return true; }
     void showCursor() override;
     void hideCursor() override;
     bool isCursorHidden() override;
@@ -253,6 +254,8 @@ private:
         wl_surface *mSurface = nullptr;
         uint64_t mLastFrameEvent = 0;
     } mWaylandData;
+
+    bool mWaylandLoaded = false;
 
     bool isWaylandWindowNotDrawing() const;
 

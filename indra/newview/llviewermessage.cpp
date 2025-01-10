@@ -2139,6 +2139,21 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
     EInstantMessage dialog = (EInstantMessage)d;
     LLHost sender = msg->getSender();
 
+    LLSD metadata;
+    if (msg->getNumberOfBlocksFast(_PREHASH_MetaData) > 0)
+    {
+        S32 metadata_size = msg->getSizeFast(_PREHASH_MetaData, 0, _PREHASH_Data);
+        std::string metadata_buffer;
+        metadata_buffer.resize(metadata_size, 0);
+
+        msg->getBinaryDataFast(_PREHASH_MetaData, _PREHASH_Data, &metadata_buffer[0], metadata_size, 0, metadata_size );
+        std::stringstream metadata_stream(metadata_buffer);
+        if (LLSDSerialize::fromBinary(metadata, metadata_stream, metadata_size) == LLSDParser::PARSE_FAILURE)
+        {
+            metadata.clear();
+        }
+    }
+
     LLIMProcessing::processNewMessage(from_id,
         from_group,
         to_id,
@@ -2153,7 +2168,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
         position,
         binary_bucket,
         binary_bucket_size,
-        sender);
+        sender,
+        metadata);
 }
 
 void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id)
@@ -3181,7 +3197,8 @@ void send_agent_update(bool force_send, bool send_reliable)
     LL_PROFILE_ZONE_SCOPED;
     llassert(!gCubeSnapshot);
 
-    if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+    if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE
+        && gAgent.getTeleportState() != LLAgent::TELEPORT_ARRIVING)
     {
         // We don't care if they want to send an agent update, they're not allowed
         // until the target simulator is ready to receive them

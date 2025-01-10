@@ -32,24 +32,24 @@
 //
 
 // Defining these makes it easier if we ever need to change our tag
-#define RLV_WARNS		LL_WARNS("RLV")
-#define RLV_INFOS		LL_INFOS("RLV")
-#define RLV_DEBUGS		LL_DEBUGS("RLV")
-#define RLV_ENDL		LL_ENDL
-#define RLV_VERIFY(f)	(f)
+#define RLV_WARNS       LL_WARNS("RLV")
+#define RLV_INFOS       LL_INFOS("RLV")
+#define RLV_DEBUGS      LL_DEBUGS("RLV")
+#define RLV_ENDL        LL_ENDL
+#define RLV_VERIFY(f)   (f)
 
 #if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
     // Make sure we halt execution on errors
-    #define RLV_ERRS				LL_ERRS("RLV")
+    #define RLV_ERRS                LL_ERRS("RLV")
     // Keep our asserts separate from LL's
-    #define RLV_ASSERT(f)			if (!(f)) { RLV_ERRS << "ASSERT (" << #f << ")" << RLV_ENDL; }
-    #define RLV_ASSERT_DBG(f)		RLV_ASSERT(f)
+    #define RLV_ASSERT(f)           if (!(f)) { RLV_ERRS << "ASSERT (" << #f << ")" << RLV_ENDL; }
+    #define RLV_ASSERT_DBG(f)       RLV_ASSERT(f)
 #else
     // Don't halt execution on errors in release
-    #define RLV_ERRS				LL_WARNS("RLV")
+    #define RLV_ERRS                LL_WARNS("RLV")
     // We don't want to check assertions in release builds
     #ifdef RLV_DEBUG
-        #define RLV_ASSERT(f)		RLV_VERIFY(f)
+        #define RLV_ASSERT(f)       RLV_VERIFY(f)
         #define RLV_ASSERT_DBG(f)
     #else
         #define RLV_ASSERT(f)
@@ -142,9 +142,9 @@ namespace Rlv
 
     enum class EExceptionCheck
     {
-        Permissive,						// Exception can be set by any object
-        Strict,							// Exception must be set by all objects holding the restriction
-        Default,						// Permissive or strict will be determined by currently enforced restrictions
+        Permissive,                     // Exception can be set by any object
+        Strict,                         // Exception must be set by all objects holding the restriction
+        Default,                        // Permissive or strict will be determined by currently enforced restrictions
     };
 
     // Replace&remove in c++23

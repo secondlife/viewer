@@ -125,20 +125,16 @@ LLKeyData& LLKeyData::operator=(const LLKeyData& rhs)
 
 bool LLKeyData::operator==(const LLKeyData& rhs) const
 {
-    if (mMouse != rhs.mMouse) return false;
-    if (mKey != rhs.mKey) return false;
-    if (mMask != rhs.mMask) return false;
-    if (mIgnoreMasks != rhs.mIgnoreMasks) return false;
-    return true;
+    return
+        (mMouse       == rhs.mMouse) &&
+        (mKey         == rhs.mKey) &&
+        (mMask        == rhs.mMask) &&
+        (mIgnoreMasks == rhs.mIgnoreMasks);
 }
 
 bool LLKeyData::operator!=(const LLKeyData& rhs) const
 {
-    if (mMouse != rhs.mMouse) return true;
-    if (mKey != rhs.mKey) return true;
-    if (mMask != rhs.mMask) return true;
-    if (mIgnoreMasks != rhs.mIgnoreMasks) return true;
-    return false;
+    return ! (*this == rhs);
 }
 
 bool LLKeyData::canHandle(const LLKeyData& data) const

@@ -569,7 +569,7 @@ S32 LLTextEditor::indentLine( S32 pos, S32 spaces )
             LLWString wtext = getWText();
             if (wtext[pos] == ' ')
             {
-                delta_spaces += remove( pos, 1, false );
+                delta_spaces -= remove( pos, 1, false );
             }
         }
     }
@@ -1602,8 +1602,14 @@ void LLTextEditor::cleanStringForPaste(LLWString & clean_string)
     }
 }
 
-void LLTextEditor::pasteTextWithLinebreaksImpl(const LLWString & clean_string)
+void LLTextEditor::pasteTextWithLinebreaksImpl(const LLWString & clean_string, bool reset_cursor)
 {
+    if (reset_cursor)
+    {
+        deselect();
+        setCursorPos(getLength());
+    }
+
     std::basic_string<llwchar>::size_type start = 0;
     std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
 

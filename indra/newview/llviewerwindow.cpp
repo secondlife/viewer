@@ -268,9 +268,6 @@ static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
 static const char KEY_MOUSELOOK = 'M';
 
-static LLCachedControl<std::string> sSnapshotBaseName(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot"));
-static LLCachedControl<std::string> sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
-
 LLTrace::SampleStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
 
 
@@ -1330,7 +1327,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
                                 // Check the whitelist, if there's media (otherwise just show it)
                                 if (te->getMediaData() == NULL || te->getMediaData()->checkCandidateUrl(url))
                                 {
-                                    if ( obj != mDragHoveredObject)
+                                    if (obj != mDragHoveredObject)
                                     {
                                         // Highlight the dragged object
                                         LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
@@ -1935,6 +1932,11 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     }
 
     LLFontManager::initClass();
+
+    // fonts use an GL_UNSIGNED_BYTE image format,
+    // so they need convertion, init buffers if needed
+    LLImageGL::allocateConversionBuffer();
+
     // Init font system, load default fonts and generate basic glyphs
     // currently it takes aprox. 0.5 sec and we would load these fonts anyway
     // before login screen.
@@ -2007,6 +2009,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 std::string LLViewerWindow::getLastSnapshotDir()
 {
+    static LLCachedControl<std::string> sSnapshotDir(gSavedPerAccountSettings, "SnapshotBaseDir", "");
     return sSnapshotDir;
 }
 
@@ -3269,7 +3272,31 @@ void LLViewerWindow::clearPopups()
 
 void LLViewerWindow::moveCursorToCenter()
 {
-    if (! gSavedSettings.getBOOL("DisableMouseWarp"))
+    bool mouse_warp = false;
+    LLCachedControl<S32> mouse_warp_mode(gSavedSettings, "MouseWarpMode", 0);
+
+    switch (mouse_warp_mode())
+    {
+    case 0:
+        // For Windows:
+        // Mouse usually uses 'delta' position since it isn't aware of own location, keep it centered.
+        // Touch screen reports absolute or virtual absolute position and warping a physical
+        // touch is pointless, so don't move it.
+        //
+        // MacOS
+        // If 'decoupled', CGAssociateMouseAndMouseCursorPosition can make mouse stay in
+        // one place and not move, do not move it (needs testing).
+        mouse_warp = mWindow->isWarpMouse();
+        break;
+    case 1:
+        mouse_warp = true;
+        break;
+    default:
+        mouse_warp = false;
+        break;
+    }
+
+    if (mouse_warp)
     {
         S32 x = getWorldViewWidthScaled() / 2;
         S32 y = getWorldViewHeightScaled() / 2;
@@ -3777,7 +3804,7 @@ void LLViewerWindow::updateLayout()
 {
     LLToolMgr* tool_mgr = LLToolMgr::getInstance();
     LLTool* tool = tool_mgr->getCurrentTool();
-    LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime");
+    static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime");
     if (gFloaterTools != NULL
         && tool != NULL
         && tool != gToolNull
@@ -4706,6 +4733,7 @@ void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
     // Get a base file location if needed.
     if (force_picker || !isSnapshotLocSet())
     {
+        static LLCachedControl<std::string> sSnapshotBaseName(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot");
         std::string proposed_name(sSnapshotBaseName);
 
         // getSaveFile will append an appropriate extension to the proposed name, based on the ESaveFilter constant passed in.
@@ -4751,6 +4779,9 @@ void LLViewerWindow::onSelectionFailure(const snapshot_saved_signal_t::slot_type
 
 void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb)
 {
+    static LLCachedControl<std::string> sSnapshotBaseName(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot");
+    static LLCachedControl<std::string> sSnapshotDir(gSavedPerAccountSettings, "SnapshotBaseDir", "");
+
     std::string lastSnapshotDir = LLViewerWindow::getLastSnapshotDir();
     if (lastSnapshotDir.empty())
     {
@@ -4902,8 +4933,8 @@ void LLViewerWindow::playSnapshotAnimAndSound()
 
 bool LLViewerWindow::isSnapshotLocSet() const
 {
-    std::string snapshot_dir = sSnapshotDir;
-    return !snapshot_dir.empty();
+    static LLCachedControl<std::string> sSnapshotDir(gSavedPerAccountSettings, "SnapshotBaseDir", "");
+    return !sSnapshotDir().empty();
 }
 
 void LLViewerWindow::resetSnapshotLoc() const
@@ -5387,6 +5418,8 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         camera->setUserClipPlane(clipPlane);
     }
 
+    gPipeline.pushRenderTypeMask();
+
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
 
     U32 dynamic_render_types[] = {
@@ -5475,16 +5508,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         }
     }
 
-    if (!dynamic_render)
-    {
-        for (int i = 0; i < dynamic_render_type_count; ++i)
-        {
-            if (prev_dynamic_render_type[i])
-            {
-                gPipeline.toggleRenderType(dynamic_render_types[i]);
-            }
-        }
-    }
+    gPipeline.popRenderTypeMask();
 
     if (hide_hud)
     {

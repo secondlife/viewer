@@ -39,6 +39,7 @@
 
 #include "llagent.h"
 #include "llagentui.h"
+#include "llfloaterreg.h"
 #include "llinventorymodel.h"
 #include "lllandmarklist.h"
 #include "llslurl.h"
@@ -46,6 +47,7 @@
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapmessage.h"
+#include "llviewernetwork.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llworldmap.h"
@@ -233,13 +235,13 @@ void LLLandmarkActions::createLandmarkHere(
     const std::string& desc,
     const LLUUID& folder_id)
 {
-    if(!gAgent.getRegion())
+    if (!gAgent.getRegion())
     {
         LL_WARNS() << "No agent region" << LL_ENDL;
         return;
     }
-    LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-    if (!agent_parcel)
+
+    if (!LLViewerParcelMgr::getInstance()->getAgentParcel())
     {
         LL_WARNS() << "No agent parcel" << LL_ENDL;
         return;
@@ -263,6 +265,91 @@ void LLLandmarkActions::createLandmarkHere()
     const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
     createLandmarkHere(landmark_name, landmark_desc, folder_id);
+}
+
+void LLLandmarkActions::showFloaterCreateLandmarkForUrl(const std::string& url, const std::string& title)
+{
+    LLSLURL slurl(url);
+    if ((slurl.getType() != LLSLURL::LOCATION) &&
+        (slurl.getType() != LLSLURL::APP || slurl.getAppCmd() != LLSLURL::SLURL_REGION_PATH))
+    {
+        LL_INFOS() << "Unsupported URL: '" << url << "'" << LL_ENDL;
+        LLNotificationsUtil::add("CantCreateLandmark");
+        return;
+    }
+
+    S32 x = (S32)std::round(slurl.getPosition()[VX]);
+    S32 y = (S32)std::round(slurl.getPosition()[VY]);
+    S32 z = (S32)std::round(slurl.getPosition()[VZ]);
+    // When title == url we provide an empty string to create a human-readable title
+    showFloaterCreateLandmarkForCoords(slurl.getRegion(), x, y, z, title == url ? LLStringUtil::null : title);
+}
+
+void LLLandmarkActions::showFloaterCreateLandmarkForPos(const LLVector3d& global_pos, const std::string& title)
+{
+    if (LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromPosGlobal(global_pos))
+    {
+        std::string region_name = info->getName();
+        LLVector3 local_pos = info->getLocalPos(global_pos);
+        S32 x = ll_round(local_pos.mV[VX]);
+        S32 y = ll_round(local_pos.mV[VY]);
+        S32 z = ll_round(local_pos.mV[VZ]);
+        showFloaterCreateLandmarkForCoords(region_name, x, y, z, title);
+        return;
+    }
+
+    LL_WARNS() << "No region found for global pos " << global_pos << LL_ENDL;
+    LLNotificationsUtil::add("CantCreateLandmarkTryAgain");
+
+    S32 x = S32(global_pos.mdV[0] / REGION_WIDTH_UNITS);
+    S32 y = S32(global_pos.mdV[1] / REGION_WIDTH_UNITS);
+    LLWorldMapMessage::getInstance()->sendMapBlockRequest(x, y, x, y, true);
+}
+
+void LLLandmarkActions::showFloaterCreateLandmarkForCoords(const std::string& region_name,
+    S32 x, S32 y, S32 z, const std::string& title)
+{
+    LLSD data;
+    data["region"] = region_name;
+    data["x"] = x;
+    data["y"] = y;
+    data["z"] = z;
+    data["title"] = title.empty() ? llformat("%s (%d, %d, %d)", region_name.c_str(), x, y, z) : title;
+
+    LLFloaterReg::showInstance("add_landmark", data);
+}
+
+bool LLLandmarkActions::canCreateLandmarkForUrl(const std::string& url)
+{
+    if (LLApp::isExiting())
+        return false;
+
+    std::string cap = gAgent.getRegionCapability("CreateLandmarkForPosition");
+    if (cap.empty())
+        return false; // No region or cap is not supported by the region
+
+    LLSLURL slurl(url);
+    if (slurl.getType() == LLSLURL::LOCATION) // LLUrlEntryPlace
+    {
+        if (LLGridManager* gm = LLGridManager::getInstance())
+        {
+            std::string current_grid = gm->getGrid();
+            std::string grid_from_url = gm->getGrid(slurl.getGrid());
+            if (grid_from_url == current_grid) // The same grid location
+            {
+                return true;
+            }
+        }
+    }
+    else if (slurl.getType() == LLSLURL::APP)
+    {
+        if (slurl.getAppCmd() == LLSLURL::SLURL_REGION_PATH) // LLUrlEntryRegion
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb, bool escaped /* = true */)

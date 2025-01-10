@@ -1230,6 +1230,63 @@ void create_inventory_settings(const LLUUID& agent_id, const LLUUID& session_id,
         static_cast<U8>(settype), next_owner_perm, cb);
 }
 
+void create_inventory_landmark(const LLUUID& folder_id, const std::string& name, const std::string& desc,
+    const std::string& region_name, S32 x, S32 y, S32 z)
+{
+    if (LLApp::isExiting())
+        return;
+
+    LLViewerRegion* viewer_region = gAgent.getRegion();
+    if (!viewer_region)
+    {
+        LL_WARNS("CreateLandmark") << "No agent region" << LL_ENDL;
+        LLNotificationsUtil::add("CantCreateLandmark");
+        return;
+    }
+
+    std::string cap = viewer_region->getCapability("CreateLandmarkForPosition");
+    if (cap.empty())
+    {
+        LL_WARNS("CreateLandmark") << "Cap is not supported by the region '" << viewer_region->getName() << "'" << LL_ENDL;
+        LLNotificationsUtil::add("CantCreateLandmark");
+        return;
+    }
+
+    LLSD data;
+    data["folder_id"] = folder_id;
+    data["name"] = name;
+    data["desc"] = desc;
+    data["region_name"] = region_name;
+    data["x"] = x;
+    data["y"] = y;
+    data["z"] = z;
+
+    LLCoros::instance().launch("create_inventory_landmark", [&]()
+        {
+            LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+            LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+                httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("createLandmarkForPosition", httpPolicy));
+            LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+            LLSD result = httpAdapter->postAndSuspend(httpRequest, cap, data);
+
+            if (LLApp::isExiting())
+                return;
+
+            LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("CreateLandmark") << "Error " << status.getType() << ": '" << status.toString() << "'" << LL_ENDL;
+                LLNotificationsUtil::add(status.getType() == HTTP_PRECONDITION_FAILED ? "CantCreateLandmarkTryAgain" : "CantCreateLandmark");
+            }
+            else if (result.has("item_id"))
+            {
+                LL_INFOS("CreateLandmark") << "Created item id: '" << result["item_id"] << "'" << LL_ENDL;
+            }
+        });
+}
 
 void copy_inventory_item(
     const LLUUID& agent_id,

@@ -406,6 +406,7 @@ static void update_tp_display(bool minimized)
 void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 {
     LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Render");
+    LL_PROFILE_GPU_ZONE("Render");
 
     LLPerfStats::RecordSceneTime T (LLPerfStats::StatType_t::RENDER_DISPLAY); // render time capture - This is the main stat for overall rendering.
 
@@ -472,6 +473,35 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         {
             // true = minimized, do not show/update the TP screen. HB
             update_tp_display(true);
+        }
+
+        // Run texture subsystem to discard memory while backgrounded
+        if (!gNonInteractive)
+        {
+            LL_PROFILE_ZONE_NAMED("Update Images");
+
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Class");
+                LLViewerTexture::updateClass();
+            }
+
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Image Update Bump");
+                gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
+            }
+
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("List");
+                F32 max_image_decode_time = 0.050f * gFrameIntervalSeconds.value();          // 50 ms/second decode time
+                max_image_decode_time     = llclamp(max_image_decode_time, 0.002f, 0.005f);  // min 2ms/frame, max 5ms/frame)
+                gTextureList.updateImages(max_image_decode_time);
+            }
+
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("GLTF Materials Cleanup");
+                // remove dead gltf materials
+                gGLTFMaterialList.flushMaterials();
+            }
         }
         return;
     }
@@ -681,6 +711,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         if (gPipeline.RenderMirrors && !gSnapshot)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
+            LL_PROFILE_GPU_ZONE("hero manager")
             gPipeline.mHeroProbeManager.update();
             gPipeline.mHeroProbeManager.renderProbes();
         }
@@ -929,30 +960,17 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
         gGL.setColorMask(true, true);
 
-        if (LLPipeline::sRenderDeferred)
+        gPipeline.mRT->deferredScreen.bindTarget();
+        if (gUseWireframe)
         {
-            gPipeline.mRT->deferredScreen.bindTarget();
-            if (gUseWireframe)
-            {
-                constexpr F32 g = 0.5f;
-                glClearColor(g, g, g, 1.f);
-            }
-            else
-            {
-                glClearColor(1, 0, 1, 1);
-            }
-            gPipeline.mRT->deferredScreen.clear();
+            constexpr F32 g = 0.5f;
+            glClearColor(g, g, g, 1.f);
         }
         else
         {
-            gPipeline.mRT->screen.bindTarget();
-            if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
-            {
-                const LLColor4& col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
-                glClearColor(col.mV[VRED], col.mV[VGREEN], col.mV[VBLUE], 0.f);
-            }
-            gPipeline.mRT->screen.clear();
+            glClearColor(1, 0, 1, 1);
         }
+        gPipeline.mRT->deferredScreen.clear();
 
         gGL.setColorMask(true, false);
 

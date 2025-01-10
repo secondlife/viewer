@@ -114,18 +114,6 @@ Display* LLWindowSDL::get_SDL_Display(void)
 #include <wayland-client-protocol.h>
 #include <dlfcn.h>
 
-bool LLWindowSDL::isWaylandWindowNotDrawing() const
-{
-    if( Wayland != mServerProtocol || mWaylandData.mLastFrameEvent == 0 )
-        return false;
-
-    auto currentTime = LLTimer::getTotalTime();
-    if( (currentTime - mWaylandData.mLastFrameEvent) > 250000 )
-        return true;
-
-    return false;
-}
-
 uint32_t (*ll_wl_proxy_get_version)(struct wl_proxy *proxy);
 void (*ll_wl_proxy_destroy)(struct wl_proxy *proxy);
 int (*ll_wl_proxy_add_listener)(struct wl_proxy *proxy, void (**implementation)(void), void *data);
@@ -210,8 +198,22 @@ void LLWindowSDL::waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_
     pThis->setupWaylandFrameCallback(); // ask for a new frame
 }
 
+bool LLWindowSDL::isWaylandWindowNotDrawing() const
+{
+    if(!mWaylandLoaded || Wayland != mServerProtocol || mWaylandData.mLastFrameEvent == 0)
+        return false;
+
+    auto currentTime = LLTimer::getTotalTime();
+    if( (currentTime - mWaylandData.mLastFrameEvent) > 250000 )
+        return true;
+
+    return false;
+}
+
 void LLWindowSDL::setupWaylandFrameCallback()
 {
+    if(!mWaylandLoaded) return;
+
     static  wl_callback_listener frame_listener { nullptr };
     frame_listener.done = &LLWindowSDL::waylandFrameDoneCB;
 
@@ -403,12 +405,14 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     if(!mContext)
     {
         LL_WARNS() << "Cannot create GL context " << SDL_GetError() << LL_ENDL;
+        close();
         setupFailure("GL Context creation error", "Error", OSMB_OK);
     }
 
     if (SDL_GL_MakeCurrent(mWindow, mContext) != 0)
     {
         LL_WARNS() << "Failed to make context current. SDL: " << SDL_GetError() << LL_ENDL;
+        close();
         setupFailure("GL Context failed to set current failure", "Error", OSMB_OK);
     }
 
@@ -420,12 +424,10 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
             mFullscreen = true;
             mFullscreenWidth = mSurface->w;
             mFullscreenHeight = mSurface->h;
-            mFullscreenBits    = mSurface->format->BitsPerPixel;
             mFullscreenRefresh = -1;
 
             LL_INFOS() << "Running at " << mFullscreenWidth
                        << "x"   << mFullscreenHeight
-                       << "x"   << mFullscreenBits
                        << " @ " << mFullscreenRefresh
                        << LL_ENDL;
         }
@@ -436,19 +438,10 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
             mFullscreen = false;
             mFullscreenWidth   = -1;
             mFullscreenHeight  = -1;
-            mFullscreenBits    = -1;
             mFullscreenRefresh = -1;
 
             std::string error = llformat("Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
             setupFailure( error, "Error", OSMB_OK );
-        }
-    }
-    else
-    {
-        if (!mWindow)
-        {
-            LL_WARNS() << "createContext: window creation failure. SDL: " << SDL_GetError() << LL_ENDL;
-            setupFailure("Window creation error", "Error", OSMB_OK);
         }
     }
 
@@ -468,9 +461,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     LL_INFOS() << "  Stencil Bits " << S32(stencilBits) << LL_ENDL;
 
     GLint colorBits = redBits + greenBits + blueBits + alphaBits;
-    // fixme: actually, it's REALLY important for picking that we get at
-    // least 8 bits each of red,green,blue.  Alpha we can be a bit more
-    // relaxed about if we have to.
     if (colorBits < 32)
     {
         close();
@@ -504,26 +494,26 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     if ( SDL_GetWindowWMInfo(mWindow, &info) )
     {
         /* Save the information for later use */
-        if ( info.subsystem == SDL_SYSWM_X11 )
+        if (info.subsystem == SDL_SYSWM_X11)
         {
-            SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
             mX11Data.mDisplay = info.info.x11.display;
             mX11Data.mXWindowID = info.info.x11.window;
             mServerProtocol = X11;
             LL_INFOS() << "Running under X11" << LL_ENDL;
         }
-        else if ( info.subsystem == SDL_SYSWM_WAYLAND )
+        else if (info.subsystem == SDL_SYSWM_WAYLAND)
         {
 #ifdef LL_WAYLAND
-            if( !loadWaylandClient() ) {
-                SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
-                LL_ERRS() << "Failed to load wayland-client.so or grab required functions" << LL_ENDL;
-            } else {
-                SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
+            mWaylandLoaded = loadWaylandClient();
+            if(!mWaylandLoaded)
+            {
+                LL_WARNS() << "Failed to load wayland-client.so or grab required functions" << LL_ENDL;
             }
+#endif
 
             mWaylandData.mSurface = info.info.wl.surface;
             mServerProtocol = Wayland;
+
             setupWaylandFrameCallback();
 
             // If set (XWayland) remove DISPLAY, this will prompt dullahan to also use Wayland
@@ -531,15 +521,11 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
                 unsetenv("DISPLAY");
 
             LL_INFOS() << "Running under Wayland" << LL_ENDL;
-            LL_WARNS() << "Be aware that with at least SDL2 the window will not receive minimizing events, thus minimized state can only be estimated."
-                          "also setting the application icon via SDL_SetWindowIcon does not work." << LL_ENDL;
-#else
-            setupFailure("Viewer is running under Wayland, but was not compiled with full wayland support!\nYou can compile the viewer with wayland prelimiary support using COMPILE_WAYLAND_SUPPORT", "Error", OSMB_OK);
-#endif
+            LL_WARNS() << "Be aware that with at least SDL2 the window will not receive minimizing events, thus minimized state can only be estimated." << LL_ENDL;
         }
         else
         {
-            LL_WARNS() << "We're not running under X11 or Wayland?  Wild." << LL_ENDL;
+            LL_WARNS() << "Unsupported windowing system" << LL_ENDL;
         }
     }
     else
@@ -1268,6 +1254,7 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(U32 keysym, bool gain)
 
 void check_vm_bloat()
 {
+#if LL_LINUX
     // watch our own VM and RSS sizes, warn if we bloated rapidly
     static const std::string STATS_FILE = "/proc/self/stat";
     FILE *fp = fopen(STATS_FILE.c_str(), "r");
@@ -1351,6 +1338,7 @@ finally:
             free(ptr);
         fclose(fp);
     }
+#endif
 }
 
 
@@ -1949,9 +1937,9 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
     LL_INFOS() << "spawn_web_browser returning." << LL_ENDL;
 }
 
-void *LLWindowSDL::getPlatformWindow()
+void* LLWindowSDL::getPlatformWindow()
 {
-    return nullptr;
+    return (void*)mWindow;
 }
 
 void LLWindowSDL::bringToFront()
@@ -1968,6 +1956,8 @@ void LLWindowSDL::bringToFront()
 //static
 std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
 {
+    std::vector<std::string> rtns;
+#if LL_LINUX
     // Use libfontconfig to find us a nice ordered list of fallback fonts
     // specific to this system.
     std::string final_fallback("/usr/share/fonts/truetype/kochi/kochi-gothic.ttf");
@@ -1984,7 +1974,7 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     // renderable range if for some reason our FreeType actually fails
     // to use some of the fonts we want it to.
     const bool elide_unicode_coverage = true;
-    std::vector<std::string> rtns;
+
     FcFontSet *fs = nullptr;
     FcPattern *sortpat = nullptr;
 
@@ -2058,6 +2048,7 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     LL_INFOS() << "Using " << rtns.size() << "/" << found_font_count << " system fonts." << LL_ENDL;
 
     rtns.push_back(final_fallback);
+#endif
     return rtns;
 }
 

@@ -105,7 +105,7 @@ void LLDebugView::init()
     addChild(gSceneMonitorView);
     gSceneMonitorView->setRect(rect);
 
-    r.set(150, rect.getHeight() - 60, 820, 110);
+    r.set(150, rect.getHeight() - 60, 835, 110);
     LLTextureView::Params tvp;
     tvp.name("gTextureView");
     tvp.rect(r);

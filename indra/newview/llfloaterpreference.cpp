@@ -768,6 +768,17 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     // Load (double-)click to walk/teleport settings.
     updateClickActionViews();
 
+#if LL_LINUX
+    // Lixux doesn't support automatic mode
+    LLComboBox* combo = getChild<LLComboBox>("double_click_action_combo");
+    S32 mode = gSavedSettings.getS32("MouseWarpMode");
+    if (mode == 0)
+    {
+        combo->setValue("1");
+    }
+    combo->setEnabledByValue("0", false);
+#endif
+
     // Enabled/disabled popups, might have been changed by user actions
     // while preferences floater was closed.
     buildPopupLists();
@@ -1988,7 +1999,9 @@ void LLFloaterPreference::setPanelVisibility(const LLSD& name, bool visible)
     LLPanel * panel = tab_containerp->getPanelByName(name.asStringRef());
     if (NULL != panel)
     {
+        auto current_tab = tab_containerp->getCurrentPanel();
         tab_containerp->setTabVisibility(panel, visible);
+        tab_containerp->selectTabPanel(current_tab);
     }
 }
 

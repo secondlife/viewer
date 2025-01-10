@@ -1046,7 +1046,7 @@ void LLGLSLShader::bind()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    llassert(mProgramObject != 0);
+    llassert_always(mProgramObject != 0);
 
     gGL.flush();
 
@@ -1069,6 +1069,9 @@ void LLGLSLShader::bind()
         LLShaderMgr::instance()->updateShaderUniforms(this);
         mUniformsDirty = false;
     }
+
+    llassert_always(sCurBoundShaderPtr != nullptr);
+    llassert_always(sCurBoundShader == mProgramObject);
 }
 
 void LLGLSLShader::bind(U8 variant)
@@ -1880,6 +1883,23 @@ void LLGLSLShader::uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLf
         if (iter == mValue.end() || shouldChange(iter->second, vec))
         {
             glUniform3f(location, x, y, z);
+            mValue[location] = vec;
+        }
+    }
+}
+
+void LLGLSLShader::uniform4f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    GLint location = getUniformLocation(uniform);
+
+    if (location >= 0)
+    {
+        const auto& iter = mValue.find(location);
+        LLVector4 vec(x, y, z, w);
+        if (iter == mValue.end() || shouldChange(iter->second, vec))
+        {
+            glUniform4f(location, x, y, z, w);
             mValue[location] = vec;
         }
     }

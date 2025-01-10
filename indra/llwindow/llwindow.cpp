@@ -104,7 +104,6 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, bool fullscreen, U32 flags)
       mFullscreen(fullscreen),
       mFullscreenWidth(0),
       mFullscreenHeight(0),
-      mFullscreenBits(0),
       mFullscreenRefresh(0),
       mSupportedResolutions(NULL),
       mNumSupportedResolutions(0),
@@ -416,7 +415,11 @@ LLWindow* LLWindowManager::createWindow(
 
     if (use_gl)
     {
+#ifndef LL_DARWIN
+        // SDL2 is temporarily disabled on Mac
         init_sdl();
+#endif
+
 #if LL_WINDOWS
         new_window = new LLWindowWin32(callbacks,
             title, name, x, y, width, height, flags,

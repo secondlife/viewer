@@ -51,9 +51,9 @@ LLFloaterLUAScripts::LLFloaterLUAScripts(const LLSD &key)
     }, cb_info::UNTRUSTED_BLOCK });
     mCommitCallbackRegistrar.add("Script.Terminate", {[this](LLUICtrl*, const LLSD &userdata)
     {
-        if (mScriptList->hasSelectedItem())
+        std::vector<LLSD> coros = mScriptList->getAllSelectedValues();
+        for (auto coro_name : coros)
         {
-            std::string coro_name = mScriptList->getSelectedValue();
             LLCoros::instance().killreq(coro_name);
         }
     }, cb_info::UNTRUSTED_BLOCK });
@@ -97,7 +97,7 @@ void LLFloaterLUAScripts::draw()
 void LLFloaterLUAScripts::populateScriptList()
 {
     S32  prev_pos = mScriptList->getScrollPos();
-    LLSD prev_selected = mScriptList->getSelectedValue();
+    std::vector<LLSD> prev_selected = mScriptList->getAllSelectedValues();
     mScriptList->clearRows();
     mScriptList->updateColumns(true);
     std::map<std::string, std::string> scripts = LLLUAmanager::getScriptNames();
@@ -112,7 +112,10 @@ void LLFloaterLUAScripts::populateScriptList()
         mScriptList->addElement(row);
     }
     mScriptList->setScrollPos(prev_pos);
-    mScriptList->setSelectedByValue(prev_selected, true);
+    for (auto value : prev_selected)
+    {
+        mScriptList->setSelectedByValue(value, true);
+    }
 }
 
 void LLFloaterLUAScripts::onScrollListRightClicked(LLUICtrl *ctrl, S32 x, S32 y)
@@ -120,10 +123,13 @@ void LLFloaterLUAScripts::onScrollListRightClicked(LLUICtrl *ctrl, S32 x, S32 y)
     LLScrollListItem *item = mScriptList->hitItem(x, y);
     if (item)
     {
-        mScriptList->selectItemAt(x, y, MASK_NONE);
+        if (!item->getSelected())
+            mScriptList->selectItemAt(x, y, MASK_NONE);
+
         auto menu = mContextMenuHandle.get();
         if (menu)
         {
+            menu->setItemEnabled(std::string("open_folder"), (mScriptList->getNumSelected() == 1));
             menu->show(x, y);
             LLMenuGL::showPopup(this, menu, x, y);
         }

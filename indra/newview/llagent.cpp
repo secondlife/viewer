@@ -1282,16 +1282,15 @@ const LLVector3 &LLAgent::getPositionAgent()
 {
     if (isAgentAvatarValid())
     {
-        if(gAgentAvatarp->mDrawable.isNull())
+        if (gAgentAvatarp->mDrawable.isNull())
         {
             mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
         }
         else
-    {
-        mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
+        {
+            mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
+        }
     }
-    }
-
 
     return mFrameAgent.getOrigin();
 }
@@ -2497,7 +2496,10 @@ void LLAgent::endAnimationUpdateUI()
         gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
     }
 
-    gFloaterTools->dirty();
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 
     // Don't let this be called more than once if the camera
     // mode hasn't changed.  --JC

@@ -9597,6 +9597,22 @@ Are you sure you want to leave this call?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmLeaveAdhoc"
+   type="alertmodal">
+Are you sure you want to leave this conference chat?
+    <tag>confirm</tag>
+    <tag>voice</tag>
+    <usetemplate
+     ignoretext="Confirm before I leave conference chat"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes">
+      <unique/>
+    </usetemplate>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmMuteAll"
    type="alert">
 You have selected to mute all participants in a group call.
@@ -10175,12 +10191,6 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
-  <global name="UnsupportedIntelDriver">
-The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
-
-Do you want to check the Intel driver website?
-  </global>
-
   <global name="UnsupportedCPUAmount">
 796
   </global>
@@ -10347,6 +10357,14 @@ You are now the owner of object [OBJECT_NAME]
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="NowOwnObjectInv"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME] and it has been placed in your inventory.
+  </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CantRezOnLand"
    type="notify">
@@ -11962,10 +11980,20 @@ Cannot create landmark.
 
   <notification
    icon="alertmodal.tga"
+   name="CantCreateLandmarkTryAgain"
+   type="notify">
+   <tag>fail</tag>
+Cannot create landmark right now.
+Try again in a few seconds.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantCreateOutfit"
    type="notify">
    <tag>fail</tag>
-Cannot create outfit right now. Try again in a minute.
+Cannot create outfit right now.
+Try again in a minute.
   </notification>
 
   <notification
@@ -12602,5 +12630,4 @@ are wearing now.
        name="okbutton"
        yestext="OK"/>
   </notification>
-
 </notifications>

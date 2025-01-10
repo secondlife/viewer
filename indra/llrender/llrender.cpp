@@ -70,6 +70,7 @@ U32 LLTexUnit::sWhiteTexture = 0;
 bool LLRender::sGLCoreProfile = false;
 bool LLRender::sNsightDebugSupport = false;
 LLVector2 LLRender::sUIGLScaleFactor = LLVector2(1.f, 1.f);
+bool LLRender::sClassicMode = false;
 
 struct LLVBCache
 {
@@ -990,9 +991,13 @@ void LLRender::syncLightState()
         shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, LL_NUM_LIGHT_UNITS, diffuse[0].mV);
         shader->uniform3fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
         shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
-        //shader->uniform3fv(LLShaderMgr::AMBIENT, 1, mAmbientLightColor.mV);
-        //shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
-        //shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
+
+        if (sClassicMode)
+        {
+            shader->uniform3fv(LLShaderMgr::AMBIENT, 1, mAmbientLightColor.mV);
+            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
+            shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
+        }
     }
 }
 
@@ -1569,7 +1574,8 @@ void LLRender::flush()
     if (mCount > 0)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-        llassert(LLGLSLShader::sCurBoundShaderPtr != nullptr);
+        llassert_always(LLGLSLShader::sCurBoundShaderPtr != nullptr);
+
         if (!mUIOffset.empty())
         {
             sUICalls++;

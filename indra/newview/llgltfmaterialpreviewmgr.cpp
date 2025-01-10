@@ -462,8 +462,8 @@ bool LLGLTFPreviewTexture::render()
     // Set up camera and viewport
     const LLVector3 origin(0.0, 0.0, 0.0);
     camera.lookAt(origin, object_position);
-    camera.setAspect((F32)(mFullHeight / mFullWidth));
-    const LLRect texture_rect(0, mFullHeight, mFullWidth, 0);
+    camera.setAspect((F32)getFullHeight() / getFullWidth());
+    const LLRect texture_rect(0, getFullHeight(), getFullWidth(), 0);
     camera.setPerspective(NOT_FOR_SELECTION, texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight(), false, camera.getNear(), MAX_FAR_CLIP*2.f);
 
     // Generate sphere object on-the-fly. Discard afterwards. (Vertex buffer is
@@ -523,31 +523,19 @@ bool LLGLTFPreviewTexture::render()
     gPipeline.copyScreenSpaceReflections(&screen, &gPipeline.mSceneMap);
     gPipeline.generateLuminance(&screen, &gPipeline.mLuminanceMap);
     gPipeline.generateExposure(&gPipeline.mLuminanceMap, &gPipeline.mExposureMap, /*use_history = */ false);
-    gPipeline.gammaCorrect(&screen, &gPipeline.mPostMap);
+
+    LLRenderTarget* src = &gPipeline.mPostPingMap;
+    LLRenderTarget* dst = &gPipeline.mPostPongMap;
+    gPipeline.tonemap(&screen, dst);
+    std::swap(src, dst);
+
+    // Final render
     LLVertexBuffer::unbind();
-    gPipeline.generateGlow(&gPipeline.mPostMap);
-    gPipeline.combineGlow(&gPipeline.mPostMap, &screen);
-    gPipeline.renderDoF(&screen, &gPipeline.mPostMap);
-    gPipeline.applyFXAA(&gPipeline.mPostMap, &screen);
+    gPipeline.generateGlow(src);
+    gPipeline.combineGlow(src, nullptr);
 
     // *HACK: Restore mExposureMap (it will be consumed by generateExposure next frame)
     gPipeline.mExposureMap.swapFBORefs(gPipeline.mLastExposure);
-
-    // Final render
-
-    gDeferredPostNoDoFProgram.bind();
-
-    // From LLPipeline::renderFinalize: "Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems."
-    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, &screen);
-    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, mBoundTarget, true);
-
-    {
-        LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
-        gPipeline.mScreenTriangleVB->setBuffer();
-        gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-    }
-
-    gDeferredPostNoDoFProgram.unbind();
 
     // Clean up
     gPipeline.setupHWLights();

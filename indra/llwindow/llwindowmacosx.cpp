@@ -69,6 +69,41 @@ namespace
 
 bool LLWindowMacOSX::sUseMultGL = false;
 
+//static
+void LLWindowMacOSX::setUseMultGL(bool use_mult_gl)
+{
+    bool was_enabled = sUseMultGL;
+
+    sUseMultGL = use_mult_gl;
+
+    if (gGLManager.mInited)
+    {
+        CGLContextObj ctx = CGLGetCurrentContext();
+        //enable multi-threaded OpenGL (whether or not sUseMultGL actually changed)
+        if (sUseMultGL)
+        {
+            CGLError cgl_err;
+
+            cgl_err =  CGLEnable( ctx, kCGLCEMPEngine);
+
+            if (cgl_err != kCGLNoError )
+            {
+                LL_INFOS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
+                sUseMultGL = false;
+            }
+            else
+            {
+                LL_INFOS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
+            }
+        }
+        else if (was_enabled)
+        {
+            CGLDisable( ctx, kCGLCEMPEngine);
+            LL_INFOS("GLInit") << "Multi-threaded OpenGL disabled." << LL_ENDL;
+        }
+    }
+}
+
 // Cross-platform bits:
 
 bool check_for_card(const char* RENDERER, const char* bad_card)
@@ -705,23 +740,8 @@ bool LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
     // Disable vertical sync for swap
     toggleVSync(enable_vsync);
 
-    //enable multi-threaded OpenGL
-    if (sUseMultGL)
-    {
-        CGLError cgl_err;
-        CGLContextObj ctx = CGLGetCurrentContext();
+    setUseMultGL(sUseMultGL);
 
-        cgl_err =  CGLEnable( ctx, kCGLCEMPEngine);
-
-        if (cgl_err != kCGLNoError )
-        {
-            LL_INFOS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
-        }
-        else
-        {
-            LL_INFOS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
-        }
-    }
     makeFirstResponder(mWindow, mGLView);
 
     return true;
@@ -1037,7 +1057,7 @@ F32 LLWindowMacOSX::getGamma() const
         &greenGamma,
         &blueMin,
         &blueMax,
-        &blueGamma) == noErr)
+        &blueGamma) == static_cast<CGError>(noErr))
     {
         // So many choices...
         // Let's just return the green channel gamma for now.
@@ -1088,7 +1108,7 @@ bool LLWindowMacOSX::setGamma(const F32 gamma)
         &greenGamma,
         &blueMin,
         &blueMax,
-        &blueGamma) != noErr)
+        &blueGamma) != static_cast<CGError>(noErr))
     {
         return false;
     }
@@ -1103,7 +1123,7 @@ bool LLWindowMacOSX::setGamma(const F32 gamma)
         gamma,
         blueMin,
         blueMax,
-        gamma) != noErr)
+        gamma) != static_cast<CGError>(noErr))
     {
         return false;
     }
@@ -1155,7 +1175,7 @@ bool LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
     newPosition.y = screen_pos.mY;
 
     CGSetLocalEventsSuppressionInterval(0.0);
-    if(CGWarpMouseCursorPosition(newPosition) == noErr)
+    if(CGWarpMouseCursorPosition(newPosition) == static_cast<CGError>(noErr))
     {
         result = true;
     }

@@ -95,6 +95,7 @@ public:
 #if LL_WINDOWS
     virtual bool getCursorDelta(LLCoordCommon* delta) const = 0;
 #endif
+    virtual bool isWarpMouse() const = 0;
     virtual void showCursor() = 0;
     virtual void hideCursor() = 0;
     virtual bool isCursorHidden() = 0;
@@ -225,7 +226,6 @@ protected:
     bool        mFullscreen;
     S32         mFullscreenWidth;
     S32         mFullscreenHeight;
-    S32         mFullscreenBits;
     S32         mFullscreenRefresh;
     LLWindowResolution* mSupportedResolutions;
     S32         mNumSupportedResolutions;

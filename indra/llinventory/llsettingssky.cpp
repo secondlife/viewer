@@ -601,7 +601,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
 
         mSettingFlags |= other->mSettingFlags;
 
-        mCanAutoAdjust = false; // no point?
+        mCanAutoAdjust = other->mCanAutoAdjust;
 
         mSunRotation = slerp((F32)blendf, mSunRotation, other->mSunRotation);
         mMoonRotation = slerp((F32)blendf, mMoonRotation, other->mMoonRotation);
@@ -1176,6 +1176,11 @@ void LLSettingsSky::loadValuesFromLLSD()
     {
         mReflectionProbeAmbiance = (F32)settings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
     }
+
+    mHDRMax = 2.0f;
+    mHDRMin = 0.5f;
+    mHDROffset = 1.0f;
+    mTonemapMix = 1.0f;
 
     mSunTextureId = settings[SETTING_SUN_TEXTUREID].asUUID();
     mMoonTextureId = settings[SETTING_MOON_TEXTUREID].asUUID();
@@ -2025,6 +2030,46 @@ F32 LLSettingsSky::getDomeRadius() const
 F32 LLSettingsSky::getGamma() const
 {
     return mGamma;
+}
+
+F32 LLSettingsSky::getHDRMin(bool auto_adjust) const
+{
+    if (mCanAutoAdjust && !auto_adjust)
+        return 0.f;
+
+    return mHDRMin;
+}
+
+F32 LLSettingsSky::getHDRMax(bool auto_adjust) const
+{
+    if (mCanAutoAdjust && !auto_adjust)
+        return 0.f;
+
+    return mHDRMax;
+}
+
+F32 LLSettingsSky::getHDROffset(bool auto_adjust) const
+{
+    if (mCanAutoAdjust && !auto_adjust)
+        return 1.0f;
+
+    return mHDROffset;
+}
+
+F32 LLSettingsSky::getTonemapMix(bool auto_adjust) const
+{
+    if (mCanAutoAdjust && !auto_adjust)
+    {
+        // legacy settings do not support tonemaping
+        return 0.0f;
+    }
+
+    return mTonemapMix;
+}
+
+void LLSettingsSky::setTonemapMix(F32 mix)
+{
+    mTonemapMix = mix;
 }
 
 void LLSettingsSky::setGamma(F32 val)

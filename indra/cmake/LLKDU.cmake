@@ -23,4 +23,5 @@ if (USE_KDU)
           ${AUTOBUILD_INSTALL_DIR}/include/kdu
           ${LIBS_OPEN_DIR}/llkdu
           )
+  target_compile_definitions(ll::kdu INTERFACE KDU_X86_INTRINSICS=1 KDU_NO_THREADS=1)
 endif (USE_KDU)

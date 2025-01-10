@@ -1977,21 +1977,21 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
         return;
     }
 
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-
     if (index >= 0)
     {
         // Prespecified material
+        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
         me->loadMaterial(model_in, filename, index);
     }
     else if (model_in.materials.size() == 1)
     {
-        // Only one, just load it
+        // Only one material, just load it
+        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
         me->loadMaterial(model_in, filename, 0);
     }
     else
     {
-        // Promt user to select material
+        // Multiple materials, Promt user to select material
         std::list<std::string> material_list;
         std::vector<tinygltf::Material>::const_iterator mat_iter = model_in.materials.begin();
         std::vector<tinygltf::Material>::const_iterator mat_end = model_in.materials.end();
@@ -2009,15 +2009,19 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
             }
         }
 
-        material_list.push_back(me->getString("material_batch_import_text"));
+        material_list.push_back(LLTrans::getString("material_batch_import_text"));
 
         LLFloaterComboOptions::showUI(
-            [me, model_in, filename](const std::string& option, S32 index)
+            [model_in, filename](const std::string& option, S32 index)
         {
-            me->loadMaterial(model_in, filename, index);
+            if (index >= 0) // -1 on cancel
+            {
+                LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+                me->loadMaterial(model_in, filename, index);
+            }
         },
-            me->getString("material_selection_title"),
-            me->getString("material_selection_text"),
+            LLTrans::getString("material_selection_title"),
+            LLTrans::getString("material_selection_text"),
             material_list
             );
     }
@@ -3177,14 +3181,7 @@ void LLMaterialEditor::applyToSelection()
     {
         LL_WARNS("MaterialEditor") << "Not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
 
-        // Fallback local preview. Will be removed once override systems is finished and new cap is deployed everywhere.
-        LLPointer<LLFetchedGLTFMaterial> mat = new LLFetchedGLTFMaterial();
-        getGLTFMaterial(mat);
-        static const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
-        gGLTFMaterialList.addMaterial(placeholder, mat);
-        LLRenderMaterialFunctor mat_func(placeholder);
-        LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
-        selected_objects->applyToTEs(&mat_func);
+        LLNotificationsUtil::add("MissingMaterialCaps");
     }
 }
 

@@ -36,6 +36,7 @@
 
 uniform float emissive_brightness;  // fullbright flag, 1.0 == fullbright, 0.0 otherwise
 uniform int sun_up_factor;
+uniform int classic_mode;
 
 vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 vec3 scaleSoftClipFragLinear(vec3 l);
@@ -51,6 +52,7 @@ uniform mat3 normal_matrix;
 in vec3 vary_position;
 
 void mirrorClip(vec3 pos);
+vec4 encodeNormal(vec3 n, float env, float gbuffer_flag);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
@@ -176,8 +178,10 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
             }
         }
     }
-
-    return max(col, vec3(0.0, 0.0, 0.0));
+    float final_scale = 1.0;
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    return max(col * final_scale, vec3(0.0, 0.0, 0.0));
 }
 
 #else
@@ -327,11 +331,12 @@ void main()
     vec3 additive;
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
-
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    if (classic_mode > 0)
+        sunlit *= 1.35;
+    vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
-    vec3 ambenv;
+    vec3 ambenv = amblit;
     vec3 glossenv;
     vec3 legacyenv;
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env, true, amblit_linear);
@@ -339,8 +344,20 @@ void main()
     color = ambenv;
 
     float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
-    vec3 sun_contrib = min(da, shadow) * sunlit_linear;
-    color.rgb += sun_contrib;
+    if (classic_mode > 0)
+    {
+        da = pow(da,1.2);
+        vec3 sun_contrib = vec3(min(da, shadow));
+
+        color.rgb = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit_linear * 0.7);
+        sunlit_linear = srgb_to_linear(sunlit_linear);
+    }
+    else
+    {
+        vec3 sun_contrib = min(da, shadow) * sunlit_linear;
+        color.rgb += sun_contrib;
+    }
+
     color *= diffcol.rgb;
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
@@ -404,8 +421,10 @@ void main()
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);
     float al = max(diffcol.a, glare) * vertex_color.a;
-
-    frag_color = max(vec4(color, al), vec4(0));
+    float final_scale = 1;
+    if (classic_mode > 0)
+        final_scale = 1.1;
+    frag_color = max(vec4(color * final_scale, al), vec4(0));
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
@@ -414,8 +433,11 @@ void main()
 
     frag_data[0] = max(vec4(diffcol.rgb, emissive), vec4(0));        // gbuffer is sRGB for legacy materials
     frag_data[1] = max(vec4(spec.rgb, glossiness), vec4(0));           // XYZ = Specular color. W = Specular exponent.
-    frag_data[2] = vec4(norm, flag);   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
-    frag_data[3] = vec4(env, 0, 0, 0);
+    frag_data[2] = encodeNormal(norm, env, flag);   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+
+#if defined(HAS_EMISSIVE)
+    frag_data[3] = vec4(0, 0, 0, 0);
+#endif
 
 #endif
 }

@@ -130,7 +130,7 @@ vec4 prefilterEnvMap(vec3 R)
     float totalWeight = 0.0;
     float envMapDim = float(textureSize(reflectionProbes, 0).s);
     float roughness = mipLevel/max_probe_lod;
-    int numSamples = max(int(PROBE_FILTER_SAMPLES*roughness), 1);
+    uint numSamples = uint(max(PROBE_FILTER_SAMPLES*roughness, 1));
 
     float numMips = max_probe_lod+1;
 

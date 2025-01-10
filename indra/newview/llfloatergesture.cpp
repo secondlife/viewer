@@ -36,6 +36,7 @@
 
 #include "llagent.h"
 #include "llappearancemgr.h"
+#include "llcheckboxctrl.h"
 #include "llclipboard.h"
 #include "llgesturemgr.h"
 #include "llkeyboard.h"
@@ -208,9 +209,12 @@ bool LLFloaterGesture::postBuild()
     getChild<LLUICtrl>("new_gesture_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickNew, this));
     getChild<LLButton>("del_btn")->setClickedCallback(boost::bind(&LLFloaterGesture::onDeleteSelected, this));
 
-    getChildView("play_btn")->setVisible( true);
-    getChildView("stop_btn")->setVisible( false);
+    getChildView("play_btn")->setVisible(true);
+    getChildView("stop_btn")->setVisible(false);
     setDefaultBtn("play_btn");
+
+    mPlayAllInfinitely = getChild<LLCheckBoxCtrl>("play_all_infinitely");
+
     mGestureFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
 
     uuid_vec_t folders;
@@ -237,6 +241,47 @@ bool LLFloaterGesture::postBuild()
     return true;
 }
 
+void LLFloaterGesture::draw()
+{
+    LLFloater::draw();
+
+    static LLCachedControl<bool> sQAMode(gSavedSettings, "QAMode", false);
+    if (!sQAMode)
+    {
+        mPlayAllInfinitely->setVisible(false);
+    }
+    else
+    {
+        if (!mPlayAllInfinitely->getVisible())
+        {
+            mPlayAllInfinitely->setValue(false);
+            mPlayAllInfinitely->setVisible(true);
+        }
+        else if (mPlayAllInfinitely->getValue().asBoolean())
+        {
+            static U8 frame_nr = 0;
+            if (++frame_nr > 3)
+            {
+                frame_nr = 0;
+            }
+            else if (frame_nr == 1)
+            {
+                onClickPlay();
+            }
+            else if (frame_nr == 3)
+            {
+                LLScrollListItem* prev_item = mGestureList->getFirstSelected();
+                mGestureList->selectNextItem();
+                LLScrollListItem* next_item = mGestureList->getFirstSelected();
+                if (next_item == prev_item)
+                {
+                    mGestureList->selectFirstItem();
+                }
+                mGestureList->scrollToShowSelected();
+            }
+        }
+    }
+}
 
 void LLFloaterGesture::refreshAll()
 {

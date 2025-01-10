@@ -57,16 +57,19 @@
 #include "llsdutil.h"
 #include "lltimer.h"
 #include "stringize.h"
+#include "scope_exit.h"
 
 #if LL_WINDOWS
 #include <excpt.h>
 #endif
 
+thread_local std::unordered_map<std::string, int> LLCoros::mPrefixMap;
+thread_local std::unordered_map<std::string, LLCoros::id> LLCoros::mNameMap;
+
 // static
 bool LLCoros::on_main_coro()
 {
-    return (!LLCoros::instanceExists() ||
-            LLCoros::getName().empty());
+    return (!instanceExists() || get_CoroData().isMain);
 }
 
 // static
@@ -76,11 +79,11 @@ bool LLCoros::on_main_thread_main_coro()
 }
 
 // static
-LLCoros::CoroData& LLCoros::get_CoroData(const std::string&)
+LLCoros::CoroData& LLCoros::get_CoroData()
 {
     CoroData* current{ nullptr };
     // be careful about attempted accesses in the final throes of app shutdown
-    if (! wasDeleted())
+    if (instanceExists())
     {
         current = instance().mCurrent.get();
     }
@@ -89,14 +92,24 @@ LLCoros::CoroData& LLCoros::get_CoroData(const std::string&)
     // canonical values.
     if (! current)
     {
-        static std::atomic<int> which_thread(0);
-        // Use alternate CoroData constructor.
-        static thread_local CoroData sMain(which_thread++);
         // We need not reset() the local_ptr to this instance; we'll simply
         // find it again every time we discover that current is null.
-        current = &sMain;
+        current = &main_CoroData();
     }
     return *current;
+}
+
+LLCoros::CoroData& LLCoros::get_CoroData(id id)
+{
+    auto found = CoroData::getInstance(id);
+    return found? *found : main_CoroData();
+}
+
+LLCoros::CoroData& LLCoros::main_CoroData()
+{
+    // tell CoroData we're "main"
+    static thread_local CoroData sMain("");
+    return sMain;
 }
 
 //static
@@ -108,28 +121,28 @@ LLCoros::coro::id LLCoros::get_self()
 //static
 void LLCoros::set_consuming(bool consuming)
 {
-    auto& data(get_CoroData("set_consuming()"));
+    auto& data(get_CoroData());
     // DO NOT call this on the main() coroutine.
-    llassert_always(! data.mName.empty());
+    llassert_always(! data.isMain);
     data.mConsuming = consuming;
 }
 
 //static
 bool LLCoros::get_consuming()
 {
-    return get_CoroData("get_consuming()").mConsuming;
+    return get_CoroData().mConsuming;
 }
 
 // static
 void LLCoros::setStatus(const std::string& status)
 {
-    get_CoroData("setStatus()").mStatus = status;
+    get_CoroData().mStatus = status;
 }
 
 // static
 std::string LLCoros::getStatus()
 {
-    return get_CoroData("getStatus()").mStatus;
+    return get_CoroData().mStatus;
 }
 
 LLCoros::LLCoros():
@@ -186,9 +199,8 @@ void LLCoros::cleanupSingleton()
 
 std::string LLCoros::generateDistinctName(const std::string& prefix) const
 {
-    static int unique = 0;
-
-    // Allowing empty name would make getName()'s not-found return ambiguous.
+    // Empty name would trigger CoroData's constructor's special case for the
+    // main coroutine.
     if (prefix.empty())
     {
         LL_ERRS("LLCoros") << "LLCoros::launch(): pass non-empty name string" << LL_ENDL;
@@ -196,9 +208,11 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
 
     // If the specified name isn't already in the map, just use that.
     std::string name(prefix);
+    // maintain a distinct int suffix for each prefix
+    int& unique = mPrefixMap[prefix];
 
-    // Until we find an unused name, append a numeric suffix for uniqueness.
-    while (CoroData::getInstance(name))
+    // Until we find an unused name, append int suffix for uniqueness.
+    while (mNameMap.find(name) != mNameMap.end())
     {
         name = stringize(prefix, unique++);
     }
@@ -207,9 +221,16 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
 
 bool LLCoros::killreq(const std::string& name)
 {
-    auto found = CoroData::getInstance(name);
+    auto foundName = mNameMap.find(name);
+    if (foundName == mNameMap.end())
+    {
+        // couldn't find that name in map
+        return false;
+    }
+    auto found = CoroData::getInstance(foundName->second);
     if (! found)
     {
+        // found name, but CoroData with that ID key no longer exists
         return false;
     }
     // Next time the subject coroutine calls checkStop(), make it terminate.
@@ -224,14 +245,13 @@ bool LLCoros::killreq(const std::string& name)
 //static
 std::string LLCoros::getName()
 {
-    return get_CoroData("getName()").mName;
+    return get_CoroData().getName();
 }
 
-//static
-std::string LLCoros::logname()
+// static
+std::string LLCoros::getName(id id)
 {
-    auto& data(get_CoroData("logname()"));
-    return data.mName.empty()? data.getKey() : data.mName;
+    return get_CoroData(id).getName();
 }
 
 void LLCoros::saveException(const std::string& name, std::exception_ptr exc)
@@ -264,7 +284,7 @@ void LLCoros::printActiveCoroutines(const std::string& when)
     {
         LL_INFOS("LLCoros") << "-------------- List of active coroutines ------------";
         F64 time = LLTimer::getTotalSeconds();
-        for (auto& cd : CoroData::instance_snapshot())
+        for (const auto& cd : CoroData::instance_snapshot())
         {
             F64 life_time = time - cd.mCreationTime;
             LL_CONT << LL_NEWLINE
@@ -323,6 +343,33 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // run the code the caller actually wants in the coroutine
     try
     {
+        LL::scope_exit report{
+            [&corodata]
+            {
+                bool allzero = true;
+                for (const auto& [threshold, occurs] : corodata.mHistogram)
+                {
+                    if (occurs)
+                    {
+                        allzero = false;
+                        break;
+                    }
+                }
+                if (! allzero)
+                {
+                    LL_WARNS("LLCoros") << "coroutine " << corodata.mName;
+                    const char* sep = " exceeded ";
+                    for (const auto& [threshold, occurs] : corodata.mHistogram)
+                    {
+                        if (occurs)
+                        {
+                            LL_CONT << sep << threshold << " " << occurs << " times";
+                            sep = ", ";
+                        }
+                    }
+                    LL_ENDL;
+                }
+            }};
         LL::seh::catcher(callable);
     }
     catch (const Stop& exc)
@@ -364,8 +411,8 @@ void LLCoros::checkStop(callable_t cleanup)
 
     // do this AFTER the check above, because get_CoroData() depends on the
     // local_ptr in our instance().
-    auto& data(get_CoroData("checkStop()"));
-    if (data.mName.empty())
+    auto& data(get_CoroData());
+    if (data.isMain)
     {
         // Our Stop exception and its subclasses are intended to stop loitering
         // coroutines. Don't throw it from the main coroutine.
@@ -385,7 +432,7 @@ void LLCoros::checkStop(callable_t cleanup)
     {
         // Someone wants to kill this coroutine
         cleanup();
-        LLTHROW(Killed(stringize("coroutine ", data.mName, " killed by ", data.mKilledBy)));
+        LLTHROW(Killed(stringize("coroutine ", data.getName(), " killed by ", data.mKilledBy)));
     }
 }
 
@@ -425,7 +472,7 @@ LLBoundListener LLCoros::getStopListener(const std::string& caller,
     // This overload responds to viewer shutdown and to killreq(consumer).
     return LLEventPumps::instance().obtain("LLCoros")
         .listen(
-            LLEventPump::inventName(caller),
+            caller,
             [consumer, cleanup](const LLSD& event)
             {
                 auto status{ event["status"].asString() };
@@ -445,20 +492,51 @@ LLBoundListener LLCoros::getStopListener(const std::string& caller,
 }
 
 LLCoros::CoroData::CoroData(const std::string& name):
-    LLInstanceTracker<CoroData, std::string>(name),
+    super(boost::this_fiber::get_id()),
     mName(name),
-    mCreationTime(LLTimer::getTotalSeconds())
+    mCreationTime(LLTimer::getTotalSeconds()),
+    // Preset threshold times in mHistogram
+    mHistogram{
+        {0.004, 0},
+        {0.040, 0},
+        {0.400, 0},
+        {1.000, 0}
+    }
 {
+    // we expect the empty string for the main coroutine
+    if (name.empty())
+    {
+        isMain = true;
+        if (on_main_thread())
+        {
+            // main coroutine on main thread
+            mName = "main";
+        }
+        else
+        {
+            // main coroutine on some other thread
+            static std::atomic<int> main_no{ 0 };
+            mName = stringize("main", ++main_no);
+        }
+    }
+    // maintain LLCoros::mNameMap
+    LLCoros::mNameMap.emplace(mName, getKey());
 }
 
-LLCoros::CoroData::CoroData(int n):
-    // This constructor is used for the thread_local instance belonging to the
-    // default coroutine on each thread. We must give each one a different
-    // LLInstanceTracker key because LLInstanceTracker's map spans all
-    // threads, but we want the default coroutine on each thread to have the
-    // empty string as its visible name because some consumers test for that.
-    LLInstanceTracker<CoroData, std::string>("main" + stringize(n)),
-    mName(),
-    mCreationTime(LLTimer::getTotalSeconds())
+LLCoros::CoroData::~CoroData()
 {
+    // Don't try to erase the static main CoroData from our static
+    // thread_local mNameMap; that could run into destruction order problems.
+    if (! isMain)
+    {
+        LLCoros::mNameMap.erase(mName);
+    }
+}
+
+std::string LLCoros::CoroData::getName() const
+{
+    if (mStatus.empty())
+        return mName;
+    else
+        return stringize(mName, " (", mStatus, ")");
 }

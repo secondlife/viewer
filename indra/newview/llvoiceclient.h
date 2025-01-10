@@ -192,6 +192,9 @@ public:
     virtual LLVoiceDeviceList& getCaptureDevices()=0;
     virtual LLVoiceDeviceList& getRenderDevices()=0;
 
+    virtual bool isCaptureNoDevice() = 0;
+    virtual bool isRenderNoDevice() = 0;
+
     virtual void getParticipantList(std::set<LLUUID> &participants)=0;
     virtual bool isParticipant(const LLUUID& speaker_id)=0;
     //@}
@@ -392,6 +395,8 @@ public:
 
     void setCaptureDevice(const std::string& name);
     void setRenderDevice(const std::string& name);
+    bool isCaptureNoDevice();
+    bool isRenderNoDevice();
     void setHidden(bool hidden);
 
     const LLVoiceDeviceList& getCaptureDevices();
@@ -438,7 +443,7 @@ public:
     bool getUserPTTState();
     void toggleUserPTTState(void);
     void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
-    void setVoiceEnabled(bool enabled);
+    static void setVoiceEnabled(bool enabled);
 
     void setUsePTT(bool usePTT);
     void setPTTIsToggle(bool PTTIsToggle);
@@ -519,6 +524,7 @@ protected:
     LLPumpIO *m_servicePump;
 
     boost::signals2::connection  mSimulatorFeaturesReceivedSlot;
+    boost::signals2::connection  mRegionChangedCallbackSlot;
 
     LLCachedControl<bool> mVoiceEffectEnabled;
     LLCachedControl<std::string> mVoiceEffectDefault;
