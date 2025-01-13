@@ -1068,7 +1068,7 @@ void LLOutfitGalleryItem::setOutfitFavorite(bool is_favorite)
     mFavorite = is_favorite;
 
     static LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
-    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
+    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor : sDefaultTextColor);
 }
 
 void LLOutfitGalleryItem::setOutfitWorn(bool value)
@@ -1084,7 +1084,7 @@ void LLOutfitGalleryItem::setOutfitWorn(bool value)
     mOutfitNameText->setText(mOutfitName); // refresh LLTextViewModel to pick up font changes
 
     static LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
-    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
+    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor : sDefaultTextColor);
 }
 
 void LLOutfitGalleryItem::setSelected(bool value)
