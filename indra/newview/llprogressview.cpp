@@ -81,8 +81,6 @@ bool LLProgressView::postBuild()
 {
     mProgressBar = getChild<LLProgressBar>("login_progress_bar");
 
-    mLogosLabel = getChild<LLTextBox>("logos_lbl");
-
     mProgressText = getChild<LLTextBox>("progress_text");
     mMessageText = getChild<LLTextBox>("message_text");
 
@@ -234,33 +232,6 @@ void LLProgressView::drawStartTexture(F32 alpha)
     gGL.popMatrix();
 }
 
-void LLProgressView::drawLogos(F32 alpha)
-{
-    if (mLogosList.empty())
-    {
-        return;
-    }
-
-    // logos are tied to label,
-    // due to potential resizes we have to figure offsets out on draw or resize
-    S32 offset_x, offset_y;
-    mLogosLabel->localPointToScreen(0, 0, &offset_x, &offset_y);
-    std::vector<TextureData>::const_iterator iter = mLogosList.begin();
-    std::vector<TextureData>::const_iterator end = mLogosList.end();
-    for (; iter != end; iter++)
-    {
-        gl_draw_scaled_image_with_border(iter->mDrawRect.mLeft + offset_x,
-                             iter->mDrawRect.mBottom + offset_y,
-                             iter->mDrawRect.getWidth(),
-                             iter->mDrawRect.getHeight(),
-                             iter->mTexturep.get(),
-                             UI_VERTEX_COLOR % alpha,
-                             false,
-                             iter->mClipRect,
-                             iter->mOffsetRect);
-    }
-}
-
 void LLProgressView::draw()
 {
     static LLTimer timer;
@@ -276,7 +247,6 @@ void LLProgressView::draw()
         }
 
         LLPanel::draw();
-        drawLogos(alpha);
         return;
     }
 
@@ -289,7 +259,6 @@ void LLProgressView::draw()
 
         drawStartTexture(alpha);
         LLPanel::draw();
-        drawLogos(alpha);
 
         // faded out completely - remove panel and reveal world
         if (mFadeToWorldTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME )
@@ -324,7 +293,6 @@ void LLProgressView::draw()
     drawStartTexture(1.0f);
     // draw children
     LLPanel::draw();
-    drawLogos(1.0f);
 }
 
 void LLProgressView::setText(const std::string& text)
@@ -341,90 +309,6 @@ void LLProgressView::setMessage(const std::string& msg)
 {
     mMessage = msg;
     mMessageText->setValue(mMessage);
-}
-
-void LLProgressView::loadLogo(const std::string &path,
-                              const U8 image_codec,
-                              const LLRect &pos_rect,
-                              const LLRectf &clip_rect,
-                              const LLRectf &offset_rect)
-{
-    // We need these images very early, so we have to force-load them, otherwise they might not load in time.
-    if (!gDirUtilp->fileExists(path))
-    {
-        return;
-    }
-
-    LLPointer<LLImageFormatted> start_image_frmted = LLImageFormatted::createFromType(image_codec);
-    if (!start_image_frmted->load(path))
-    {
-        LL_WARNS("AppInit") << "Image load failed: " << path << LL_ENDL;
-        return;
-    }
-
-    LLPointer<LLImageRaw> raw = new LLImageRaw;
-    if (!start_image_frmted->decode(raw, 0.0f))
-    {
-        LL_WARNS("AppInit") << "Image decode failed " << path << LL_ENDL;
-        return;
-    }
-    // HACK: getLocalTexture allows only power of two dimentions
-    raw->expandToPowerOfTwo();
-
-    TextureData data;
-    data.mTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), false);
-    data.mDrawRect = pos_rect;
-    data.mClipRect = clip_rect;
-    data.mOffsetRect = offset_rect;
-    mLogosList.push_back(data);
-}
-
-void LLProgressView::initLogos()
-{
-    mLogosList.clear();
-
-    const U8 image_codec = IMG_CODEC_PNG;
-    const LLRectf default_clip(0.f, 1.f, 1.f, 0.f);
-    const S32 default_height = 28;
-    const S32 default_pad = 15;
-
-    S32 icon_width, icon_height;
-
-    // We don't know final screen rect yet, so we can't precalculate position fully
-    S32 texture_start_x = (S32)mLogosLabel->getFont()->getWidthF32(mLogosLabel->getWText().c_str()) + default_pad;
-    S32 texture_start_y = -7;
-
-    // Normally we would just preload these textures from textures.xml,
-    // and display them via icon control, but they are only needed on
-    // startup and preloaded/UI ones stay forever
-    // (and this code was done already so simply reused it)
-    std::string temp_str = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "textures", "3p_icons");
-
-    temp_str += gDirUtilp->getDirDelimiter();
-
-#ifdef LL_HAVOK
-    // original image size is 342x113, central element is on a larger side
-    // plus internal padding, so it gets slightly more height than desired 32
-    icon_width = 88;
-    icon_height = 29;
-    S32 pad_havok_y = -1;
-    loadLogo(temp_str + "havok_logo.png",
-        image_codec,
-        LLRect(texture_start_x, texture_start_y + pad_havok_y + icon_height, texture_start_x + icon_width, texture_start_y + pad_havok_y),
-        default_clip,
-        default_clip);
-
-    texture_start_x += icon_width + default_pad;
-#endif //LL_HAVOK
-
-    // 108x41
-    icon_width = 74;
-    icon_height = default_height;
-    loadLogo(temp_str + "vivox_logo.png",
-        image_codec,
-        LLRect(texture_start_x, texture_start_y + icon_height, texture_start_x + icon_width, texture_start_y),
-        default_clip,
-        default_clip);
 }
 
 void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
@@ -505,19 +389,11 @@ void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
 void LLProgressView::initTextures(S32 location_id, bool is_in_production)
 {
     initStartTexture(location_id, is_in_production);
-    initLogos();
-
-    childSetVisible("panel_icons", !mLogosList.empty());
-    childSetVisible("panel_top_spacer", mLogosList.empty());
 }
 
 void LLProgressView::releaseTextures()
 {
     gStartTexture = NULL;
-    mLogosList.clear();
-
-    childSetVisible("panel_top_spacer", true);
-    childSetVisible("panel_icons", false);
 }
 
 void LLProgressView::setCancelButtonVisible(bool b, const std::string& label)
