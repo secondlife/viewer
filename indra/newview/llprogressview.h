@@ -93,6 +93,13 @@ protected:
     LLFrameTimer mFadeToWorldTimer;
     LLFrameTimer mFadeFromLoginTimer;
     LLRect mOutlineRect;
+    LLView* mLayoutPanel4 = nullptr;
+    LLView* mLayoutMOTD = nullptr;
+    // Rects for resizing purposes
+    LLRect mMessageTextRectInitial;
+    LLRect mLayoutPanel4RectInitial;
+    LLRect mLayoutMOTDRectInitial;
+
     bool mMouseDownInActiveArea;
     bool mStartupComplete;
 

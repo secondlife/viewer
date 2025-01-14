@@ -2,9 +2,9 @@
 <panel name="login_progress_panel">
 	<layout_stack name="horizontal_centering">
 		<layout_panel name="center">
-			<layout_stack name="vertical_centering">
+			<layout_stack name="vertical_centering1">
 				<layout_panel name="panel4">
-					<layout_stack name="vertical_centering">
+					<layout_stack name="vertical_centering2">
 					</layout_stack>
 				</layout_panel>
 			</layout_stack>
