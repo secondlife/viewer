@@ -76,6 +76,7 @@ if (BUILD_HEADLESS)
           llcharacter
           llinventory
           llimage
+          llrenderheadless
           llfilesystem
           llmath
           llxml
