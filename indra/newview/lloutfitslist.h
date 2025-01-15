@@ -276,6 +276,7 @@ public:
     {}
     friend class LLUICtrlFactory;
 
+    void updateTitleColor();
     void drawFavoriteIcon();
 
     LLUUID mFolderID;
@@ -431,7 +432,7 @@ private:
     // Used to monitor COF changes for updating items worn state. See EXT-8636.
     uuid_vec_t                      mCOFLinkedItems;
 
-    LLOutfitListSortMenu*           mSortMenu;
+    LLOutfitListSortMenu*         mSortMenu;
 
     //bool                          mIsInitialized;
     /**
