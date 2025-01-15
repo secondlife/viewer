@@ -72,6 +72,7 @@ if (BUILD_HEADLESS)
   add_library (llrenderheadless
     ${llrender_SOURCE_FILES}
     )
+  target_include_directories( llrenderheadless  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
   set_property(TARGET llrenderheadless
     PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
@@ -81,9 +82,11 @@ if (BUILD_HEADLESS)
           llcommon
           llimage
           llmath
-          llrender
           llxml
           llfilesystem
+          llwindowheadless
+          ll::freetype
+          OpenGL::GL
           )
 endif (BUILD_HEADLESS)
 
@@ -101,6 +104,5 @@ target_link_libraries(llrender
         llwindow
         ll::freetype
         OpenGL::GL
-        OpenGL::GLU
         )
 
