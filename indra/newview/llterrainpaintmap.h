@@ -65,8 +65,8 @@ class LLTerrainQueue
 {
 public:
     LLTerrainQueue() = default;
-    LLTerrainQueue(LLTerrainQueue<T>& other);
-    LLTerrainQueue& operator=(LLTerrainQueue<T>& other);
+    LLTerrainQueue(const LLTerrainQueue<T>& other);
+    LLTerrainQueue& operator=(const LLTerrainQueue<T>& other);
 
     bool enqueue(std::shared_ptr<T>& t, bool dry_run = false);
     size_t size() const;
@@ -113,8 +113,8 @@ public:
     LLTerrainPaintQueue() = delete;
     // components determines what type of LLTerrainPaint is allowed. Must be 3 (RGB) or 4 (RGBA)
     LLTerrainPaintQueue(U8 components);
-    LLTerrainPaintQueue(LLTerrainPaintQueue& other);
-    LLTerrainPaintQueue& operator=(LLTerrainPaintQueue& other);
+    LLTerrainPaintQueue(const LLTerrainPaintQueue& other);
+    LLTerrainPaintQueue& operator=(const LLTerrainPaintQueue& other);
 
     bool enqueue(LLTerrainPaint::ptr_t& paint, bool dry_run = false);
     bool enqueue(LLTerrainPaintQueue& queue);

@@ -310,11 +310,7 @@ const LLVoiceVersionInfo LLVoiceClient::getVersion()
     }
     else
     {
-        LLVoiceVersionInfo result;
-        result.serverVersion = std::string();
-        result.voiceServerType = std::string();
-        result.mBuildVersion = std::string();
-        return result;
+        return {};
     }
 }
 

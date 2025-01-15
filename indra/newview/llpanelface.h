@@ -57,6 +57,18 @@ class LLRadioGroup;
 class PBRPickerAgentListener;
 class PBRPickerObjectListener;
 
+// This is specializations are needed to support std::unique_ptr<T> where T is an incomplete type
+namespace std {
+    template<> struct default_delete<PBRPickerAgentListener> {
+        constexpr default_delete() noexcept = default;
+        void operator()(PBRPickerAgentListener* ptr) const noexcept;
+    };
+    template<> struct default_delete<PBRPickerObjectListener> {
+        constexpr default_delete() noexcept = default;
+        void operator()(PBRPickerObjectListener* ptr) const noexcept;
+    };
+}
+
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
 //
 // The apply function optionally performs the edit which it implements
