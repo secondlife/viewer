@@ -1604,37 +1604,30 @@ bool LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 void LLOutfitAccordionCtrlTab::setFavorite(bool is_favorite)
 {
     mIsFavorite = is_favorite;
-    static LLUICachedControl<bool> highlight_color("InventoryFavoritesColorText", true);
-    if (!mIsSelected && mIsFavorite && highlight_color())
-    {
-        setTitleColor(LLUIColorTable::instance().getColor("InventoryFavoriteColor"));
-    }
-    else
-    {
-        setTitleColor(LLUIColorTable::instance().getColor("AccordionHeaderTextColor"));
-    }
+    updateTitleColor();
 }
 
 void LLOutfitAccordionCtrlTab::setOutfitSelected(bool val)
 {
     mIsSelected = val;
-    if (val)
+    setTitleFontStyle(mIsSelected ? "BOLD" : "NORMAL");
+    updateTitleColor();
+}
+
+void LLOutfitAccordionCtrlTab::updateTitleColor()
+{
+    static LLUICachedControl<bool> highlight_color("InventoryFavoritesColorText", true);
+    if (mIsFavorite && highlight_color())
     {
-        setTitleFontStyle("BOLD");
+        setTitleColor(LLUIColorTable::instance().getColor("InventoryFavoriteColor"));
+    }
+    else if (mIsSelected)
+    {
         setTitleColor(LLUIColorTable::instance().getColor("SelectedOutfitTextColor"));
     }
     else
     {
-        setTitleFontStyle("NORMAL");
-        static LLUICachedControl<bool> highlight_color("InventoryFavoritesColorText", true);
-        if (mIsFavorite && highlight_color())
-        {
-            setTitleColor(LLUIColorTable::instance().getColor("InventoryFavoriteColor"));
-        }
-        else
-        {
-            setTitleColor(LLUIColorTable::instance().getColor("AccordionHeaderTextColor"));
-        }
+        setTitleColor(LLUIColorTable::instance().getColor("AccordionHeaderTextColor"));
     }
 }
 
