@@ -276,6 +276,7 @@ public:
     {}
     friend class LLUICtrlFactory;
 
+    void updateTitleColor();
     void drawFavoriteIcon();
 
     LLUUID mFolderID;
