@@ -87,6 +87,7 @@ S32 LLViewerTexture::sRawCount = 0;
 S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
+U32 LLViewerTexture::sBiasTexturesUpdated = 0;
 
 S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
 constexpr S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
@@ -518,6 +519,7 @@ void LLViewerTexture::updateClass()
 
     bool is_sys_low = isSystemMemoryLow();
     bool is_low = is_sys_low || over_pct > 0.f;
+    F32 discard_bias = sDesiredDiscardBias;
 
     static bool was_low = false;
     static bool was_sys_low = false;
@@ -604,6 +606,12 @@ void LLViewerTexture::updateClass()
     }
 
     sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 4.f);
+    if (discard_bias != sDesiredDiscardBias)
+    {
+        // bias changed, reset texture update counter to
+        // let updates happen at an increased rate.
+        sBiasTexturesUpdated = 0;
+    }
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }
