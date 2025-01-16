@@ -766,7 +766,8 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
 
     S32 face_num = 0;
 
-    switch (params.getCurveType() & LL_PCODE_PROFILE_MASK)
+    U8 curve_type = params.getCurveType() & LL_PCODE_PROFILE_MASK;
+    switch (curve_type)
     {
     case LL_PCODE_PROFILE_SQUARE:
         {
@@ -981,7 +982,9 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
         }
         break;
     default:
-        LL_ERRS() << "Unknown profile: getCurveType()=" << params.getCurveType() << LL_ENDL;
+        LL_ERRS() << "Unknown profile: getCurveType()=" << (U32)params.getCurveType()
+                  << " with mask: " << (U32)curve_type
+                  << " params: " << params << LL_ENDL;
         break;
     };
 
