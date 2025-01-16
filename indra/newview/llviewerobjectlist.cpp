@@ -1309,7 +1309,10 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
     //              << objectp->getRegion()->getHost().getPort() << LL_ENDL;
     //}
 
-    removeFromLocalIDTable(objectp);
+    if (!mIndexAndLocalIDToUUID.empty())
+    {
+        removeFromLocalIDTable(objectp);
+    }
 
     if (objectp->onActiveList())
     {
@@ -1381,11 +1384,19 @@ void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 void LLViewerObjectList::killAllObjects()
 {
     // Used only on global destruction.
-    LLViewerObject *objectp;
 
+    // Mass cleanup to not clear lists one item at a time
+    mIndexAndLocalIDToUUID.clear();
+    mActiveObjects.clear();
+    mMapObjects.clear();
+
+    LLViewerObject *objectp;
     for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
     {
         objectp = *iter;
+        objectp->setOnActiveList(false);
+        objectp->setListIndex(-1);
+        objectp->mOnMap = false;
         killObject(objectp);
         // Object must be dead, or it's the LLVOAvatarSelf which never dies.
         llassert((objectp == gAgentAvatarp) || objectp->isDead());
@@ -1397,18 +1408,6 @@ void LLViewerObjectList::killAllObjects()
     {
         LL_WARNS() << "LLViewerObjectList::killAllObjects still has entries in mObjects: " << mObjects.size() << LL_ENDL;
         mObjects.clear();
-    }
-
-    if (!mActiveObjects.empty())
-    {
-        LL_WARNS() << "Some objects still on active object list!" << LL_ENDL;
-        mActiveObjects.clear();
-    }
-
-    if (!mMapObjects.empty())
-    {
-        LL_WARNS() << "Some objects still on map object list!" << LL_ENDL;
-        mMapObjects.clear();
     }
 }
 
