@@ -3,7 +3,7 @@ name: Build
 on:
   pull_request:
   push:
-    branches: ["main", "release/*", "project/*"]
+    branches: ["develop", "main", "release/*", "project/*"]
     tags: ["Second_Life*"]
 
 jobs:
