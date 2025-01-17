@@ -108,12 +108,6 @@ LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTextur
 
 const F64 log_2 = log(2.0);
 
-#if ADDRESS_SIZE == 32
-const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT / 2;
-#else
-const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
-#endif
-
 //----------------------------------------------------------------------------------------------
 //namespace: LLViewerTextureAccess
 //----------------------------------------------------------------------------------------------
@@ -1694,14 +1688,14 @@ void LLViewerFetchedTexture::processTextureStats()
 
         static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes", false);
 
+        U32 max_tex_res = MAX_IMAGE_SIZE_DEFAULT;
         if (mBoostLevel < LLGLTexture::BOOST_HIGH)
         {
             // restrict texture resolution to download based on RenderMaxTextureResolution
             static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
             // sanity clamp debug setting to avoid settings hack shenanigans
-            F32 tex_res = (F32)llclamp((S32)max_texture_resolution, 512, MAX_IMAGE_SIZE_DEFAULT);
-            tex_res *= tex_res;
-            mMaxVirtualSize = llmin(mMaxVirtualSize, tex_res);
+            max_tex_res = (U32)llclamp((U32)max_texture_resolution, 512, MAX_IMAGE_SIZE_DEFAULT);
+            mMaxVirtualSize = llmin(mMaxVirtualSize, (F32)(max_tex_res * max_tex_res));
         }
 
         if (textures_fullres)
@@ -1725,10 +1719,9 @@ void LLViewerFetchedTexture::processTextureStats()
         }
         else
         {
-            U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 2048 and max size ever is 4096
             if(!mKnownDrawWidth || !mKnownDrawHeight || (S32)mFullWidth <= mKnownDrawWidth || (S32)mFullHeight <= mKnownDrawHeight)
             {
-                if (mFullWidth > desired_size || mFullHeight > desired_size)
+                if (mFullWidth > max_tex_res || mFullHeight > max_tex_res)
                 {
                     mDesiredDiscardLevel = 1;
                 }
@@ -2958,14 +2951,14 @@ void LLViewerLODTexture::processTextureStats()
 
     static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes", false);
 
+    F32 max_tex_res = MAX_IMAGE_SIZE_DEFAULT;
     if (mBoostLevel < LLGLTexture::BOOST_HIGH)
     {
         // restrict texture resolution to download based on RenderMaxTextureResolution
         static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
         // sanity clamp debug setting to avoid settings hack shenanigans
-        F32 tex_res = (F32)llclamp((S32)max_texture_resolution, 512, MAX_IMAGE_SIZE_DEFAULT);
-        tex_res *= tex_res;
-        mMaxVirtualSize = llmin(mMaxVirtualSize, tex_res);
+        max_tex_res = (F32)llclamp((S32)max_texture_resolution, 512, MAX_IMAGE_SIZE_DEFAULT);
+        mMaxVirtualSize = llmin(mMaxVirtualSize, max_tex_res * max_tex_res);
     }
 
     if (textures_fullres)
@@ -3021,12 +3014,7 @@ void LLViewerLODTexture::processTextureStats()
         discard_level = floorf(discard_level);
 
         F32 min_discard = 0.f;
-        U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 2048 and max size ever is 4096
-        if (mBoostLevel <= LLGLTexture::BOOST_SCULPTED)
-        {
-            desired_size = DESIRED_NORMAL_TEXTURE_SIZE;
-        }
-        if (mFullWidth > desired_size || mFullHeight > desired_size)
+        if (mFullWidth > max_tex_res || mFullHeight > max_tex_res)
             min_discard = 1.f;
 
         discard_level = llclamp(discard_level, min_discard, (F32)MAX_DISCARD_LEVEL);
