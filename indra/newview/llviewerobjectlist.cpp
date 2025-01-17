@@ -164,21 +164,14 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
     return (((U64)index) << 32) | (U64)local_id;
 }
 
-bool LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject* objectp)
+bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
-    if(objectp && objectp->getRegion())
+    if(objectp && objectp->mRegionIndex != 0)
     {
         U32 local_id = objectp->mLocalID;
-        U32 ip = objectp->getRegion()->getHost().getAddress();
-        U32 port = objectp->getRegion()->getHost().getPort();
-        U64 ipport = (((U64)ip) << 32) | (U64)port;
-        U32 index = mIPAndPortToIndex[ipport];
-
-        // LL_INFOS() << "Removing object from table, local ID " << local_id << ", ip " << ip << ":" << port << LL_ENDL;
-
-        U64 indexid = (((U64)index) << 32) | (U64)local_id;
+        U64 indexid = (((U64)objectp->mRegionIndex) << 32) | (U64)local_id;
 
         std::map<U64, LLUUID>::iterator iter = mIndexAndLocalIDToUUID.find(indexid);
         if (iter == mIndexAndLocalIDToUUID.end())
@@ -190,6 +183,7 @@ bool LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject* objectp)
         if (iter->second == objectp->getID())
         {   // Full UUIDs match, so remove the entry
             mIndexAndLocalIDToUUID.erase(iter);
+            objectp->mRegionIndex = 0;
             return true;
         }
         // UUIDs did not match - this would zap a valid entry, so don't erase it
@@ -203,7 +197,8 @@ bool LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject* objectp)
 void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
                                           const U32 local_id,
                                           const U32 ip,
-                                          const U32 port)
+                                          const U32 port,
+                                          LLViewerObject* objectp)
 {
     U64 ipport = (((U64)ip) << 32) | (U64)port;
 
@@ -215,6 +210,7 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
         mIPAndPortToIndex[ipport] = index;
     }
 
+    objectp->mRegionIndex = index; // should never be zero, sSimulatorMachineIndex starts from 1
     U64 indexid = (((U64)index) << 32) | (U64)local_id;
 
     mIndexAndLocalIDToUUID[indexid] = id;
@@ -335,7 +331,8 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
             removeFromLocalIDTable(objectp);
             setUUIDAndLocal(fullid, entry->getLocalID(),
                             regionp->getHost().getAddress(),
-                            regionp->getHost().getPort());
+                            regionp->getHost().getPort(),
+                            objectp);
 
             if (objectp->mLocalID != entry->getLocalID())
             {   // Update local ID in object with the one sent from the region
@@ -582,7 +579,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             setUUIDAndLocal(fullid,
                             local_id,
                             gMessageSystem->getSenderIP(),
-                            gMessageSystem->getSenderPort());
+                            gMessageSystem->getSenderPort(),
+                            objectp);
 
             if (objectp->mLocalID != local_id)
             {   // Update local ID in object with the one sent from the region
@@ -1309,10 +1307,7 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
     //              << objectp->getRegion()->getHost().getPort() << LL_ENDL;
     //}
 
-    if (!mIndexAndLocalIDToUUID.empty())
-    {
-        removeFromLocalIDTable(objectp);
-    }
+    removeFromLocalIDTable(objectp);
 
     if (objectp->onActiveList())
     {
@@ -1396,6 +1391,7 @@ void LLViewerObjectList::killAllObjects()
         objectp = *iter;
         objectp->setOnActiveList(false);
         objectp->setListIndex(-1);
+        objectp->mRegionIndex = 0;
         objectp->mOnMap = false;
         killObject(objectp);
         // Object must be dead, or it's the LLVOAvatarSelf which never dies.
@@ -1508,9 +1504,9 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
                 mActiveObjects.push_back(objectp);
                 objectp->setListIndex(static_cast<S32>(mActiveObjects.size()) - 1);
             objectp->setOnActiveList(true);
-        }
-        else
-        {
+            }
+            else
+            {
                 llassert(idx < mActiveObjects.size());
                 llassert(mActiveObjects[idx] == objectp);
 
@@ -1862,7 +1858,8 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
     setUUIDAndLocal(uuid,
                     local_id,
                     regionp->getHost().getAddress(),
-                    regionp->getHost().getPort());
+                    regionp->getHost().getPort(),
+                    objectp);
     mObjects.push_back(objectp);
 
     updateActive(objectp);
@@ -1900,7 +1897,8 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
     setUUIDAndLocal(fullid,
                     local_id,
                     gMessageSystem->getSenderIP(),
-                    gMessageSystem->getSenderPort());
+                    gMessageSystem->getSenderPort(),
+                    objectp);
 
     mObjects.push_back(objectp);
 
