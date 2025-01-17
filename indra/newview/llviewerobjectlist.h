@@ -179,9 +179,10 @@ public:
     void setUUIDAndLocal(const LLUUID &id,
                                 const U32 local_id,
                                 const U32 ip,
-                                const U32 port); // Requires knowledge of message system info!
+                                const U32 port,
+                                LLViewerObject* objectp); // Requires knowledge of message system info!
 
-    bool removeFromLocalIDTable(const LLViewerObject* objectp);
+    bool removeFromLocalIDTable(LLViewerObject* objectp);
     // Used ONLY by the orphaned object code.
     U64 getIndex(const U32 local_id, const U32 ip, const U32 port);
 
