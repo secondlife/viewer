@@ -1438,7 +1438,8 @@ void LLTextBase::onVisibilityChange( bool new_visibility )
 //virtual
 void LLTextBase::setValue(const LLSD& value )
 {
-    setText(value.asString());
+    static const LLStyle::Params input_params = LLStyle::Params();
+    setText(value.asString(), input_params);
 }
 
 //virtual
@@ -3880,8 +3881,7 @@ bool LLInlineViewSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& w
         if (mForceNewLine)
         {
             // Chat, string can't be smaller then font height even if it is empty
-            LLStyleSP s(new LLStyle(LLStyle::Params().visible(true)));
-            height = s->getFont()->getLineHeight();
+            height = LLStyle::getDefaultFont()->getLineHeight();
 
             return true; // new line
         }
@@ -3945,9 +3945,7 @@ void LLInlineViewSegment::linkToDocument(LLTextBase* editor)
 
 LLLineBreakTextSegment::LLLineBreakTextSegment(S32 pos):LLTextSegment(pos,pos+1)
 {
-    LLStyleSP s( new LLStyle(LLStyle::Params().visible(true)));
-
-    mFontHeight = s->getFont()->getLineHeight();
+    mFontHeight = LLStyle::getDefaultFont()->getLineHeight();
 }
 LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLTextSegment(pos,pos+1)
 {
