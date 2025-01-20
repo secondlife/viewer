@@ -1239,7 +1239,7 @@ class LinuxManifest(ViewerManifest):
         if os.path.isdir(app_util):
             with self.prefix(app_util):
                 self.path("appearance-utility-bin")
-                self.path("appearance-utility-headless-bin")
+                self.path_optional("appearance-utility-headless-bin")
 
         # recurses, packaged again
         self.path("res-sdl")
