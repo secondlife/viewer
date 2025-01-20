@@ -764,9 +764,9 @@ LLPointer<LLControlVariable> setting_get_control(LLControlGroup& group, const st
     LLPointer<LLControlVariable> cntrl_ptr = group.getControl(setting);
     if (cntrl_ptr.isNull())
     {
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Unable to set up setting listener for " << setting
-            << ". Please reinstall viewer from  https ://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall."
-            << LL_ENDL;
+            << "." << LL_ENDL;
     }
     return cntrl_ptr;
 }
