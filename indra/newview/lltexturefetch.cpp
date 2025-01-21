@@ -2843,7 +2843,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S3
 bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 {
     LL_PROFILE_ZONE_SCOPED;
-    mRequestQueue.tryPost([=]()
+    mRequestQueue.tryPost([=, this]()
         {
             LLTextureFetchWorker* worker = getWorker(id);
             if (worker)
@@ -3571,8 +3571,8 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
     //if (! gViewerAssetStatsThread1)
     //  return true;
 
-    static volatile bool reporting_started(false);
-    static volatile S32 report_sequence(0);
+    static std::atomic_bool reporting_started(false);
+    static std::atomic_int report_sequence(0);
 
     // In mStatsSD, we have a copy we own of the LLSD representation
     // of the asset stats. Add some additional fields and ship it off.
