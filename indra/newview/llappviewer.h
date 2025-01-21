@@ -161,6 +161,7 @@ public:
     void saveExperienceCache();
 
     void removeMarkerFiles();
+    void recordSessionToMarker();
 
     void removeDumpDir();
     // LLAppViewer testing helpers.
@@ -289,7 +290,9 @@ private:
     void processMarkerFiles();
     static void recordMarkerVersion(LLAPRFile& marker_file);
     bool markerIsSameVersion(const std::string& marker_name) const;
-    S32 getMarkerData(const std::string& marker_name) const;
+    LLUUID getMarkerSessionId(const std::string& marker_name) const;
+    S32 getMarkerErrorCode(const std::string& marker_name) const;
+    bool getMarkerData(const std::string& marker_name, std::string &data) const;
 
     void idle();
     void idleShutdown();
@@ -367,6 +370,7 @@ extern bool gShowObjectUpdates;
 
 extern eLastExecEvent gLastExecEvent; // llstartup
 extern S32 gLastExecDuration; ///< the duration of the previous run in seconds (<0 indicates unknown)
+extern LLUUID gLastAgentSessionId; // will be set if agent logged in
 
 extern const char* gPlatform;
 

@@ -298,6 +298,7 @@ bool gUseQuickTime = true;
 
 eLastExecEvent gLastExecEvent = LAST_EXEC_NORMAL;
 S32 gLastExecDuration = -1; // (<0 indicates unknown)
+LLUUID gLastAgentSessionId;
 
 #if LL_WINDOWS
 #   define LL_PLATFORM_KEY "win"
@@ -3745,7 +3746,50 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
     return sameVersion;
 }
 
-S32 LLAppViewer::getMarkerData(const std::string& marker_name) const
+void LLAppViewer::recordSessionToMarker()
+{
+    std::string marker_version(LLVersionInfo::instance().getChannelAndVersion());
+    std::string uuid_str = "\n" + gAgentSessionID.asString();
+    if (marker_version.length() + uuid_str.length() > MAX_MARKER_LENGTH)
+    {
+        LL_WARNS_ONCE("MarkerFile") << "Version length (" << marker_version.length() << ")"
+            << " greater than maximum (" << MAX_MARKER_LENGTH << ")"
+            << ": marker matching may be incorrect"
+            << LL_ENDL;
+    }
+
+    mMarkerFile.seek(APR_SET, (S32)marker_version.length());
+    mMarkerFile.write(uuid_str.data(), (S32)uuid_str.length());
+}
+
+LLUUID LLAppViewer::getMarkerSessionId(const std::string& marker_name) const
+{
+    std::string data;
+    if (getMarkerData(marker_name, data))
+    {
+        return LLUUID(data);
+    }
+    return LLUUID();
+}
+
+S32 LLAppViewer::getMarkerErrorCode(const std::string& marker_name) const
+{
+    std::string data;
+    if (getMarkerData(marker_name, data))
+    {
+        if (data.empty())
+        {
+            return 0;
+        }
+        else
+        {
+            return std::stoi(data);
+        }
+    }
+    return -1;
+}
+
+bool LLAppViewer::getMarkerData(const std::string& marker_name, std::string& data) const
 {
     bool sameVersion = false;
 
@@ -3760,7 +3804,6 @@ S32 LLAppViewer::getMarkerData(const std::string& marker_name) const
         marker_version_length = marker_file.read(marker_data, sizeof(marker_data));
         marker_file.close();
         std::string marker_string(marker_data, marker_version_length);
-        std::string data;
         size_t pos = marker_string.find('\n');
         if (pos != std::string::npos)
         {
@@ -3773,20 +3816,16 @@ S32 LLAppViewer::getMarkerData(const std::string& marker_name) const
         }
         else
         {
-            return -1;
+            return false;
         }
         LL_DEBUGS("MarkerFile") << "Compare markers for '" << marker_name << "': "
             << "\n   mine '" << my_version << "'"
             << "\n marker '" << marker_string << "'"
             << "\n " << (sameVersion ? "same" : "different") << " version"
             << LL_ENDL;
-        if (data.length() == 0)
-        {
-            return 0;
-        }
-        return std::stoi(data);
+        return true;
     }
-    return -1;
+    return false;
 }
 
 void LLAppViewer::processMarkerFiles()
@@ -3807,6 +3846,10 @@ void LLAppViewer::processMarkerFiles()
         // File exists...
         // first, read it to see if it was created by the same version (we need this later)
         marker_is_same_version = markerIsSameVersion(mMarkerFileName);
+        if (marker_is_same_version)
+        {
+            gLastAgentSessionId = getMarkerSessionId(mMarkerFileName);
+        }
 
         // now test to see if this file is locked by a running process (try to open for write)
         marker_log_stream << "Checking exec marker file for lock...";
@@ -3923,7 +3966,7 @@ void LLAppViewer::processMarkerFiles()
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
     if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
     {
-        S32 marker_code = getMarkerData(error_marker_file);
+        S32 marker_code = getMarkerErrorCode(error_marker_file);
         if (marker_code >= 0)
         {
             if (gLastExecEvent == LAST_EXEC_LOGOUT_FROZE)
