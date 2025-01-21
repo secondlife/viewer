@@ -3553,7 +3553,7 @@ void LLViewerMediaTexture::setPlaying(bool playing)
         {
             LLFace* facep = *iter;
             const LLTextureEntry* te = facep->getTextureEntry();
-            if (te->getGLTFMaterial())
+            if (te && te->getGLTFMaterial())
             {
                 // PBR material, switch emissive and basecolor
                 switchTexture(LLRender::EMISSIVE_MAP, *iter);
