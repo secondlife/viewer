@@ -3841,7 +3841,12 @@ void LLPipeline::renderSelectedFaces(const LLColor4& color)
 
         for (auto facep : mSelectedFaces)
         {
-            if (!facep || facep->getDrawable()->isDead())
+            if (!facep || !facep->getViewerObject())
+            {
+                LLSelectMgr::getInstance()->clearSelections();
+                return;
+            }
+            if (!facep->getDrawable() || facep->getDrawable()->isDead())
             {
                 LL_ERRS() << "Bad face on selection" << LL_ENDL;
                 return;

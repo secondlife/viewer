@@ -1832,6 +1832,16 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 S32 bitmap_size =   parcel_mgr.mParcelsPerEdge
                                     * parcel_mgr.mParcelsPerEdge
                                     / 8;
+                S32 size = msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_Bitmap);
+                if (size != bitmap_size)
+                {
+                    // Might be better to ignore bitmap and drop highlights
+                    LL_WARNS("ParcelMgr") << "Parcel Bitmap size expected: " << bitmap_size
+                        << " actual " << size
+                        << ". Bitmap might be corrupted!" << LL_ENDL;
+                    bitmap_size = size;
+                }
+
                 U8* bitmap = new U8[ bitmap_size ];
                 msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
 

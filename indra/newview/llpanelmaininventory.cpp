@@ -2451,10 +2451,14 @@ void LLPanelMainInventory::updateCombinationVisibility()
 
         mCombinationGalleryLayoutPanel->setVisible(!is_gallery_empty);
         mCombinationListLayoutPanel->setVisible(show_inv_pane);
-        mCombinationInventoryPanel->getRootFolder()->setForceArrange(!show_inv_pane);
-        if(mCombinationInventoryPanel->hasVisibleItems())
+        LLFolderView* root_folder = mCombinationInventoryPanel->getRootFolder();
+        if (root_folder)
         {
-            mForceShowInvLayout = false;
+            root_folder->setForceArrange(!show_inv_pane);
+            if (mCombinationInventoryPanel->hasVisibleItems())
+            {
+                mForceShowInvLayout = false;
+            }
         }
         if(is_gallery_empty)
         {

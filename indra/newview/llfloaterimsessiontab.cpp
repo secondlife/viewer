@@ -684,7 +684,8 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD& args)
     chat_args["show_names_for_p2p_conv"] = !mIsP2PChat ||
             gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
-    mChatHistory->appendMessage(chat, chat_args);
+    static const LLStyle::Params input_append_params = LLStyle::Params();
+    mChatHistory->appendMessage(chat, chat_args, input_append_params);
 }
 
 void LLFloaterIMSessionTab::updateUsedEmojis(LLWStringView text)

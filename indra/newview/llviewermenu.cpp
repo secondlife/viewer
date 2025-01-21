@@ -5329,15 +5329,16 @@ void handle_take(bool take_separate)
     // MAINT-290
     // Reason: Showing the confirmation dialog resets object selection, thus there is nothing to derez.
     // Fix: pass selection to the confirm_take, so that selection doesn't "die" after confirmation dialog is opened
-    params.functor.function([take_separate](const LLSD &notification, const LLSD &response)
+    LLObjectSelectionHandle obj_selection = LLSelectMgr::instance().getSelection();
+    params.functor.function([take_separate, obj_selection](const LLSD &notification, const LLSD &response)
     {
         if (take_separate)
         {
-            confirm_take_separate(notification, response, LLSelectMgr::instance().getSelection());
+            confirm_take_separate(notification, response, obj_selection);
         }
         else
         {
-            confirm_take(notification, response, LLSelectMgr::instance().getSelection());
+            confirm_take(notification, response, obj_selection);
         }
     });
 

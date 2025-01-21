@@ -79,6 +79,7 @@ public:
 
     void setFont(const LLFontGL* font);
     const LLFontGL* getFont() const;
+    static const LLFontGL* getDefaultFont();
 
     const std::string& getLinkHREF() const { return mLink; }
     void setLinkHREF(const std::string& href);

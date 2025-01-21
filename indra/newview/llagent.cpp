@@ -4877,10 +4877,19 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
     LLXMLNodePtr root;
     bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 
-    if (!success || !root || !root->hasName( "teleport_messages" ))
+    if (!success)
     {
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Problem reading teleport string XML file: "
-               << xml_filename << LL_ENDL;
+            << xml_filename << LL_ENDL;
+        return;
+    }
+
+    if (!root || !root->hasName("teleport_messages"))
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Invalid teleport string XML file: "
+            << xml_filename << LL_ENDL;
         return;
     }
 
