@@ -1424,6 +1424,12 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
             size_t mem_size        = pixels * bytes_per_pixel;
 
             alpha_data = (U8*)ll_aligned_malloc_32(mem_size);
+            if (!alpha_data)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Failed to allocate " << mem_size << "bytes of memory for alpha_data." << LL_ENDL;
+                return;
+            }
 
             bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
 
@@ -1432,7 +1438,14 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                 if (gGLManager.mIsIntel)
                 { // work-around for broken intel drivers which cannot do glReadPixels on an RGBA FBO
                   // returning only the alpha portion without locking up downstream
-                    U8* temp = (U8*)ll_aligned_malloc_32(mem_size << 2); // allocate same size, but RGBA
+                    size_t temp_size = mem_size << 2;
+                    U8* temp = (U8*)ll_aligned_malloc_32(temp_size); // allocate same size, but RGBA
+                    if (!temp)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS() << "Failed to allocate " << temp_size << "bytes of memory for temp pixel buffer." << LL_ENDL;
+                        return;
+                    }
 
                     if (bound_target)
                     {
