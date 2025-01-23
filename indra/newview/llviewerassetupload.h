@@ -251,25 +251,19 @@ private:
 class LLScriptAssetUpload : public LLBufferedAssetUploadInfo
 {
 public:
-    enum TargetType_t
-    {
-        LSL2,
-        MONO
-    };
-
     LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);
-    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType,
+    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, std::string compileTarget,
             bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed);
 
     virtual LLSD        generatePostBody();
 
     LLUUID              getExerienceId() const { return mExerienceId; }
-    TargetType_t        getTargetType() const { return mTargetType; }
+    const std::string&  getCompileTarget() const { return mCompileTarget; }
     bool                getIsRunning() const { return mIsRunning; }
 
 private:
     LLUUID              mExerienceId;
-    TargetType_t        mTargetType;
+    std::string         mCompileTarget;
     bool                mIsRunning;
 
 };
