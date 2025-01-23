@@ -2925,8 +2925,6 @@ LLViewerLODTexture::LLViewerLODTexture(const std::string& url, FTType f_type, co
 void LLViewerLODTexture::init(bool firstinit)
 {
     mTexelsPerImage = 64*64;
-    mDiscardVirtualSize = 0.f;
-    mCalculatedDiscardLevel = -1.f;
 }
 
 //virtual
@@ -3007,8 +3005,6 @@ void LLViewerLODTexture::processTextureStats()
         {
             // Calculate the required scale factor of the image using pixels per texel
             discard_level = (F32)(log(mTexelsPerImage / mMaxVirtualSize) / log_4);
-            mDiscardVirtualSize = mMaxVirtualSize;
-            mCalculatedDiscardLevel = discard_level;
         }
 
         discard_level = floorf(discard_level);
