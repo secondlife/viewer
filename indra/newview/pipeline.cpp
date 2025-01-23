@@ -8396,13 +8396,13 @@ void LLPipeline::renderDeferredLighting()
 
         setupHWLights();  // to set mSun/MoonDir;
 
-        glm::vec4 tc(glm::make_vec4(mSunDir.mV));
+        glm::vec4 tc(mSunDir);
         tc = mat * tc;
-        mTransformedSunDir.set(glm::value_ptr(tc));
+        mTransformedSunDir.set(tc);
 
-        glm::vec4 tc_moon(glm::make_vec4(mMoonDir.mV));
+        glm::vec4 tc_moon(mMoonDir);
         tc_moon = mat * tc_moon;
-        mTransformedMoonDir.set(glm::value_ptr(tc_moon));
+        mTransformedMoonDir.set(tc_moon);
 
         if ((RenderDeferredSSAO && !gCubeSnapshot) || RenderShadowDetail > 0)
         {
@@ -8655,7 +8655,7 @@ void LLPipeline::renderDeferredLighting()
                             continue;
                         }
 
-                        glm::vec3 tc(glm::make_vec3(c));
+                        glm::vec3 tc(center);
                         tc = mul_mat4_vec3(mat, tc);
 
                         fullscreen_lights.push_back(LLVector4(tc.x, tc.y, tc.z, s));
@@ -8762,13 +8762,12 @@ void LLPipeline::renderDeferredLighting()
                     LLDrawable* drawablep = *iter;
                     LLVOVolume* volume = drawablep->getVOVolume();
                     LLVector3   center = drawablep->getPositionAgent();
-                    F32* c = center.mV;
                     F32         light_size_final = volume->getLightRadius() * 1.5f;
                     F32         light_falloff_final = volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF);
 
                     sVisibleLightCount++;
 
-                    glm::vec3 tc(glm::make_vec3(c));
+                    glm::vec3 tc(center);
                     tc = mul_mat4_vec3(mat, tc);
 
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
@@ -9903,10 +9902,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     LLVector3 lightDir = -caster_dir;
     lightDir.normVec();
 
-    glm::vec3 light_dir(glm::make_vec3(lightDir.mV));
-
     //create light space camera matrix
-
     LLVector3 at = lightDir;
 
     LLVector3 up = camera.getAtAxis();
@@ -9958,9 +9954,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
         //get good split distances for frustum
         for (U32 i = 0; i < fp.size(); ++i)
         {
-            glm::vec3 v(glm::make_vec3(fp[i].mV));
+            glm::vec3 v(fp[i]);
             v = mul_mat4_vec3(saved_view, v);
-            fp[i].setVec(glm::value_ptr(v));
+            fp[i] = LLVector3(v);
         }
 
         min = fp[0];
@@ -10109,9 +10105,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
             for (U32 i = 0; i < fp.size(); i++)
             {
-                glm::vec3 p = glm::make_vec3(fp[i].mV);
+                glm::vec3 p(fp[i]);
                 p = mul_mat4_vec3(view[j], p);
-                wpf.push_back(LLVector3(glm::value_ptr(p)));
+                wpf.push_back(LLVector3(p));
             }
 
             min = wpf[0];
@@ -10312,19 +10308,19 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                         view[j] = glm::inverse(view[j]);
                         //llassert(origin.isFinite());
 
-                        glm::vec3 origin_agent(glm::make_vec3(origin.mV));
+                        glm::vec3 origin_agent(origin);
 
                         //translate view to origin
                         origin_agent = mul_mat4_vec3(view[j], origin_agent);
 
-                        eye = LLVector3(glm::value_ptr(origin_agent));
+                        eye = LLVector3(origin_agent);
                         //llassert(eye.isFinite());
                         if (!hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA) && !gCubeSnapshot)
                         {
                             mShadowFrustOrigin[j] = eye;
                         }
 
-                        view[j] = look(LLVector3(glm::value_ptr(origin_agent)), lightDir, -up);
+                        view[j] = look(LLVector3(origin_agent), lightDir, -up);
 
                         F32 fx = 1.f/tanf(fovx);
                         F32 fz = 1.f/tanf(fovz);

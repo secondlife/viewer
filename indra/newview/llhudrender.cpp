@@ -106,7 +106,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
     LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
     glm::ivec4 viewport(world_view_rect.mLeft, world_view_rect.mBottom, world_view_rect.getWidth(), world_view_rect.getHeight());
 
-    glm::vec3 win_coord = glm::project(glm::make_vec3(render_pos.mV), get_current_modelview(), get_current_projection(), viewport);
+    glm::vec3 win_coord = glm::project(glm::vec3(render_pos), get_current_modelview(), get_current_projection(), viewport);
 
     //fonts all render orthographically, set up projection``
     gGL.matrixMode(LLRender::MM_PROJECTION);
