@@ -32,6 +32,7 @@ endif()
 if (NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
 endif()
+message(STATUS "Selected C++ Standard: '${CMAKE_CXX_STANDARD}'")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(Variables)
