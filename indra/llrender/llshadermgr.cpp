@@ -1479,6 +1479,8 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("searchTex");
     mReservedUniforms.push_back("blendTex");
 
+    mReservedUniforms.push_back("tonemapTex");
+
     llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
     std::set<std::string> dupe_check;

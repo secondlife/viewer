@@ -191,6 +191,15 @@ void LLViewerTextureList::doPreloadImages()
         image->setAddressMode(LLTexUnit::TAM_CLAMP);
         mImagePreloads.insert(image);
     }
+ 
+    LLViewerFetchedTexture::sTonemapImagep = LLViewerTextureManager::getFetchedTextureFromFile(
+        "TonyMcMapfaceLUTPacked.png", FTT_LOCAL_FILE, MIPMAP_NO,
+        LLViewerFetchedTexture::BOOST_UI
+    );
+
+    LLViewerFetchedTexture::sTonemapImagep->setFilteringOption(LLTexUnit::TFO_TRILINEAR);
+    LLViewerFetchedTexture::sTonemapImagep->mGLTexturep->setAllowCompression(false);
+
 }
 
 static std::string get_texture_list_name()

@@ -7179,6 +7179,10 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
         shader->uniform1i(tonemap_type, tonemap_type_setting);
         shader->uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
 
+        if (tonemap_type_setting() == 3) {
+            shader->bindTexture(LLShaderMgr::TONEMAP_TEX, LLViewerFetchedTexture::sTonemapImagep);
+        }
+
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 

@@ -515,6 +515,8 @@ public:
     // not sure why, but something is iffy about the loading of this particular texture, use the accessor instead of accessing directly
     static LLPointer<LLViewerFetchedTexture> sSmokeImagep; // Old "Default" translucent texture
     static LLViewerFetchedTexture* getSmokeImage();
+
+    static LLPointer<LLViewerFetchedTexture> sTonemapImagep;
 };
 
 //

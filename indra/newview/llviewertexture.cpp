@@ -80,6 +80,8 @@ LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap;
 LLTexturePipelineTester* LLViewerTextureManager::sTesterp = nullptr;
 F32 LLViewerFetchedTexture::sMaxVirtualSize = 8192.f*8192.f;
 
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sTonemapImagep = nullptr;
+
 const std::string sTesterName("TextureTester");
 
 S32 LLViewerTexture::sImageCount = 0;
@@ -462,6 +464,8 @@ void LLViewerTextureManager::cleanup()
 
     LLViewerFetchedTexture::sFlatNormalImagep = NULL;
     LLViewerFetchedTexture::sDefaultIrradiancePBRp = NULL;
+
+    LLViewerFetchedTexture::sTonemapImagep = NULL;
 
     LLViewerMediaTexture::cleanUpClass();
 }

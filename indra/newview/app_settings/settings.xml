@@ -10160,7 +10160,7 @@
     <key>RenderTonemapType</key>
     <map>
         <key>Comment</key>
-        <string>What tonemapper to use: 0 = Khronos Neutral, 1 = ACES</string>
+        <string>What tonemapper to use: 0 = Khronos Neutral, 1 = ACES, 2 = AgX, 3 = Tony McMapface</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>

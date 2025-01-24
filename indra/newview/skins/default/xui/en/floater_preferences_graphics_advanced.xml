@@ -1035,6 +1035,14 @@
        label="ACES"
        name="1"
        value="1"/>
+     <combo_box.item
+       label="AgX"
+       name="2"
+       value="2"/>
+     <combo_box.item
+       label="Tony McMapface"
+       name="3"
+       value="3"/>
   </combo_box>
   <slider
    control_name="RenderTonemapMix"
