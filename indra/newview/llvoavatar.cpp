@@ -7817,6 +7817,98 @@ bool LLVOAvatar::hasPendingAttachedMeshes()
     return false;
 }
 
+void mesh_loading_counter(LLViewerObject* objectp, S32& pending_meshes, S32& total_meshes, S32& pending_skins, S32& total_skins)
+{
+    if (!objectp || !objectp->getVolume())
+    {
+        return;
+    }
+    LLVolume* volp = objectp->getVolume();
+    const LLUUID& mesh_id = volp->getParams().getSculptID();
+    if (mesh_id.isNull())
+    {
+        // No mesh nor skin info needed
+        return;
+    }
+
+    if (!objectp->mDrawable)
+    {
+        return;
+    }
+
+    LLVOVolume* pvobj = objectp->mDrawable->getVOVolume();
+    if (pvobj)
+    {
+        if (!pvobj->isMesh())
+        {
+            // Not a mesh
+            return;
+        }
+
+        total_meshes++;
+
+        if (volp->isMeshAssetUnavaliable())
+        {
+            return;
+        }
+
+        if (!volp->isMeshAssetLoaded())
+        {
+            // Waiting for mesh
+            pending_meshes++;
+        }
+
+        const LLMeshSkinInfo* skin_data = pvobj->getSkinInfo();
+        if (skin_data)
+        {
+            // Skin info present, done
+            total_skins++;
+        }
+        else if (!gMeshRepo.hasSkinInfo(mesh_id))
+        {
+            total_skins++;
+            if (!pvobj->isSkinInfoUnavaliable())
+            {
+                pending_skins++;
+            }
+        }
+    }
+}
+
+void LLVOAvatar::countPendingAttachedMeshes(S32& pending_meshes, S32& total_meshes, S32& pending_skins, S32& total_skins)
+{
+    pending_meshes = 0;
+    total_meshes = 0;
+    pending_skins = 0;
+    total_skins = 0;
+    for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+        iter != mAttachmentPoints.end();
+        ++iter)
+    {
+        LLViewerJointAttachment* attachment = iter->second;
+        if (attachment)
+        {
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                attachment_iter != attachment->mAttachedObjects.end();
+                ++attachment_iter)
+            {
+                LLViewerObject* objectp = attachment_iter->get();
+                if (objectp && !objectp->isDead())
+                {
+                    mesh_loading_counter(objectp, pending_meshes, total_meshes, pending_skins, total_skins);
+                    LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
+                    for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
+                        iter1 != child_list.end(); ++iter1)
+                    {
+                        LLViewerObject* objectchild = *iter1;
+                        mesh_loading_counter(objectchild, pending_meshes, total_meshes, pending_skins, total_skins);
+                    }
+                }
+            }
+        }
+    }
+}
+
 //-----------------------------------------------------------------------------
 // detachObject()
 //-----------------------------------------------------------------------------
@@ -8430,6 +8522,25 @@ bool LLVOAvatar::updateIsFullyLoaded()
             }
         }
     }
+
+    S32 pending_meshes, total_meshes, pending_skins, total_skins;
+    // Avatar  Avatar 'HigurashiAome' gray  isFullyLoaded: 0 loading: 1 rez status gray current/expected attachment count 10/10 elapsed time since last attachment count change 26.6053 pending attachments: 0 pending/total meshes: 0/296 pending/total skinning: 2/5
+    LL_INFOS("Avatar") << avString()
+        << "Id: " << mID
+        << ". isFullyLoaded: " << isFullyLoaded()
+        << ". mFirstFullyVisible: " << mFirstFullyVisible
+        << ". Loading: " << loading
+        << ". Rez status: " << LLVOAvatar::rezStatusToString(rez_status)
+        << ". Rez time: " << mDebugExistenceTimer.getElapsedTimeF32()
+        << ". Current / expected attachment count: " << getAttachmentCount() << " / " << (S32)mSimAttachments.size()
+        << ". Elapsed time since last attachment count change: " << mLastCloudAttachmentChangeTime.getElapsedTimeF32()
+        << ". Pending attachments: " << (S32)mPendingAttachment.size();
+    {
+        countPendingAttachedMeshes(pending_meshes, total_meshes, pending_skins, total_skins);
+    }
+    LL_CONT << ". Pending / total meshes: " << pending_meshes << " / " << total_meshes
+        << ". Pending / total skins: " << pending_skins << " / " << total_skins << LL_ENDL;
+
     updateRezzedStatusTimers(rez_status);
     updateRuthTimer(loading);
     return processFullyLoadedChange(loading);

@@ -929,7 +929,11 @@ public:
     virtual bool        detachObject(LLViewerObject *viewer_object);
     static bool         getRiggedMeshID( LLViewerObject* pVO, LLUUID& mesh_id );
     void                cleanupAttachedMesh( LLViewerObject* pVO );
-    bool                hasPendingAttachedMeshes();
+    bool                hasPendingAttachedMeshes(); // includes skinning checks
+
+    // expensive, for debug purposes only
+    void                countPendingAttachedMeshes(S32& pending, S32& total_meshes, S32& pending_skins, S32& total_skins);
+
     static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
     /*virtual*/ bool    isWearingWearableType(LLWearableType::EType type ) const;
     LLViewerObject *    findAttachmentByID( const LLUUID & target_id ) const;
