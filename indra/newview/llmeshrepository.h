@@ -318,8 +318,8 @@ public:
     S32 mPhysicsMeshOffset = -1;
     S32 mPhysicsMeshSize = -1;
 
-    S32 mLodOffset[4] = { -1 };
-    S32 mLodSize[4] = { -1 };
+    S32 mLodOffset[LLModel::NUM_LODS] = { -1 };
+    S32 mLodSize[LLModel::NUM_LODS] = { -1 };
 
     bool m404 = false;
 };

@@ -1950,6 +1950,10 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
     LLMeshHeader header;
 
     llssize header_size = 0;
+    S32 skin_offset = -1;
+    S32 skin_size = -1;
+    S32 lod_offset[LLModel::NUM_LODS] = { -1 };
+    S32 lod_size[LLModel::NUM_LODS] = { -1 };
     if (data_size > 0)
     {
         llssize dsize = data_size;
@@ -1983,6 +1987,10 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
         else if (LLMeshRepository::getActualMeshLOD(header, 0) >= 0)
         {
             header_size += stream.tellg();
+            skin_offset = header.mSkinOffset;
+            skin_size = header.mSkinSize;
+            memcpy(lod_offset, header.mLodOffset, sizeof(lod_offset));
+            memcpy(lod_size, header.mLodSize, sizeof(lod_size));
         }
     }
     else
@@ -2001,26 +2009,48 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
         }
 
         // immediately request SkinInfo since we'll need it before we can render any LoD if it is present
+        if (skin_offset >= 0 && skin_size > 0)
         {
-            LLMutexLock lock(gMeshRepo.mMeshMutex);
-
-            if (gMeshRepo.mLoadingSkins.find(mesh_id) == gMeshRepo.mLoadingSkins.end())
             {
-                gMeshRepo.mLoadingSkins[mesh_id] = {}; // add an empty vector to indicate to main thread that we are loading skin info
+                LLMutexLock lock(gMeshRepo.mMeshMutex);
+
+                if (gMeshRepo.mLoadingSkins.find(mesh_id) == gMeshRepo.mLoadingSkins.end())
+                {
+                    gMeshRepo.mLoadingSkins[mesh_id] = {}; // add an empty vector to indicate to main thread that we are loading skin info
+                }
+            }
+
+            S32 offset = (S32)header_size + skin_offset;
+            bool request_skin = true;
+            if (offset + skin_size < MESH_HEADER_SIZE)
+            {
+                request_skin = !skinInfoReceived(mesh_id, data + offset, skin_size);
+            }
+            if (request_skin)
+            {
+                mSkinRequests.push_back(UUIDBasedRequest(mesh_id));
             }
         }
 
-        fetchMeshSkinInfo(mesh_id);
-
-        LLMutexLock lock(mMutex); // make sure only one thread access mPendingLOD at the same time.
+        std::array<S32, LLModel::NUM_LODS> pending_lods;
+        bool has_pending_lods = false;
+        {
+            LLMutexLock lock(mMutex); // make sure only one thread access mPendingLOD at the same time.
+            pending_lod_map::iterator iter = mPendingLOD.find(mesh_id);
+            if (iter != mPendingLOD.end())
+            {
+                pending_lods = iter->second;
+                mPendingLOD.erase(iter);
+                has_pending_lods = true;
+            }
+        }
 
         //check for pending requests
-        pending_lod_map::iterator iter = mPendingLOD.find(mesh_id);
-        if (iter != mPendingLOD.end())
+        if (has_pending_lods)
         {
-            for (S32 i = 0; i < iter->second.size(); ++i)
+            for (S32 i = 0; i < pending_lods.size(); ++i)
             {
-                if (iter->second[i] > 1)
+                if (pending_lods[i] > 1)
                 {
                     // mLoadingMeshes should be protecting from dupplciates, but looks
                     // like this is possible if object rezzes, unregisterMesh, then
@@ -2033,14 +2063,24 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
                     LL_INFOS(LOG_MESH) << "Multiple dupplicate requests for mesd ID:  " << mesh_id << " LOD: " << i
                         << LL_ENDL;
                 }
-                if (iter->second[i] > 0)
+                if (pending_lods[i] > 0 && lod_size[i] > 0)
                 {
-                    LODRequest req(mesh_params, i);
-                    mLODReqQ.push(req);
-                    LLMeshRepository::sLODProcessing++;
+                    // try to load from data we just received
+                    bool request_lod = true;
+                    S32 offset = (S32)header_size + lod_offset[i];
+                    if (offset + lod_size[i] <= MESH_HEADER_SIZE)
+                    {
+                        // initial request is 4096 bytes, it's big enough to fit this lod
+                        request_lod = lodReceived(mesh_params, i, data + offset, lod_size[i]) != MESH_OK;
+                    }
+                    if (request_lod)
+                    {
+                        LODRequest req(mesh_params, i);
+                        mLODReqQ.push(req);
+                        LLMeshRepository::sLODProcessing++;
+                    }
                 }
             }
-            mPendingLOD.erase(iter);
         }
     }
 
@@ -2267,7 +2307,6 @@ LLMeshUploadThread::~LLMeshUploadThread()
     mHttpRequest = NULL;
     delete mMutex;
     mMutex = NULL;
-
 }
 
 LLMeshUploadThread::DecompRequest::DecompRequest(LLModel* mdl, LLModel* base_model, LLMeshUploadThread* thread)
