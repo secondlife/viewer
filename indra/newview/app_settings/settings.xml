@@ -16041,7 +16041,7 @@
     <key>Comment</key>
     <string>Show star near favorited items in inventory</string>
     <key>Persist</key>
-    <integer>0</integer>
+    <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
@@ -16052,7 +16052,7 @@
     <key>Comment</key>
     <string>Show star near folders that contain favorites</string>
     <key>Persist</key>
-    <integer>0</integer>
+    <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
@@ -16063,7 +16063,7 @@
     <key>Comment</key>
     <string>render favorite items using InventoryFavoriteText as color</string>
     <key>Persist</key>
-    <integer>0</integer>
+    <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
@@ -16074,7 +16074,7 @@
     <key>Comment</key>
     <string>Defines behavior when hitting return on an inventory item</string>
     <key>Persist</key>
-    <integer>0</integer>
+    <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
