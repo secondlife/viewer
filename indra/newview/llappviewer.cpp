@@ -373,7 +373,6 @@ const int MAX_MARKER_LENGTH = 1024;
 const std::string MARKER_FILE_NAME("SecondLife.exec_marker");
 const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
 const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
-const std::string LLERROR_MARKER_FILE_NAME("SecondLife.llerror_marker");
 const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
 static bool gDoDisconnect = false;
 static std::string gLaunchFileOnQuit;
@@ -2220,6 +2219,7 @@ bool LLAppViewer::initThreads()
     return true;
 }
 
+// Callback for all LL_ERROR calls
 void errorCallback(LLError::ELevel level, const std::string &error_string)
 {
     if (level == LLError::LEVEL_ERROR)
@@ -2235,9 +2235,18 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         // haven't actually trashed anything yet, we can afford to write the whole
         // static info file.
         LLAppViewer::instance()->writeDebugInfo();
+
+        std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+        if (!LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
+        {
+            // If marker doesn't exist, create a marker with llerror code for next launch
+            // otherwise don't override existing file
+            LLAppViewer::instance()->createErrorMarker(LAST_EXEC_LLERROR_CRASH);
+        }
     }
 }
 
+// Callback for LLError::LLUserWarningMsg
 void errorHandler(const std::string& title_string, const std::string& message_string, S32 code)
 {
     if (!message_string.empty())
@@ -3938,29 +3947,6 @@ void LLAppViewer::processMarkerFiles()
             LL_INFOS("MarkerFile") << "Logout crash marker '"<< logout_marker_file << "' found, but versions did not match" << LL_ENDL;
         }
         LLAPRFile::remove(logout_marker_file);
-    }
-    // further refine based on whether or not a marker created during an llerr crash is found
-    std::string llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
-    if(LLAPRFile::isExist(llerror_marker_file, NULL, LL_APR_RB))
-    {
-        if (markerIsSameVersion(llerror_marker_file))
-        {
-            if ( gLastExecEvent == LAST_EXEC_LOGOUT_FROZE )
-            {
-                gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
-                LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' crashed, setting LastExecEvent to LOGOUT_CRASH" << LL_ENDL;
-            }
-            else
-            {
-                gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
-                LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' crashed, setting LastExecEvent to LLERROR_CRASH" << LL_ENDL;
-            }
-        }
-        else
-        {
-            LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' found, but versions did not match" << LL_ENDL;
-        }
-        LLAPRFile::remove(llerror_marker_file);
     }
     // and last refine based on whether or not a marker created during a non-llerr crash is found
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
