@@ -911,6 +911,7 @@ void LLMeshRepoThread::run()
         // On the other hand, this may actually be an effective and efficient scheme...
 
         mSignal->wait();
+        LL_PROFILE_ZONE_NAMED("mesh_thread_loop")
 
         if (LLApp::isExiting())
         {
@@ -1944,6 +1945,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 
 EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size)
 {
+    LL_PROFILE_ZONE_SCOPED;
     const LLUUID mesh_id = mesh_params.getSculptID();
     LLSD header_data;
 
@@ -2089,6 +2091,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
 
 EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (data == NULL || data_size == 0)
     {
         return MESH_NO_DATA;
@@ -2131,6 +2134,7 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
 
 bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLSD skin;
 
     if (data_size > 0)
@@ -2180,6 +2184,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 
 bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLSD decomp;
 
     if (data_size > 0)
@@ -2216,6 +2221,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 
 EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLSD physics_shape;
 
     LLModel::Decomposition* d = new LLModel::Decomposition();
@@ -3047,6 +3053,8 @@ void LLMeshRepoThread::notifyLoadedMeshes()
         return;
     }
 
+    LL_PROFILE_ZONE_SCOPED;
+
     if (!mLoadedQ.empty())
     {
         std::deque<LoadedMesh> loaded_queue;
@@ -3367,6 +3375,7 @@ void LLMeshHeaderHandler::processFailure(LLCore::HttpStatus status)
 void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* body_offset */,
                                       U8 * data, S32 data_size)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLUUID mesh_id = mMeshParams.getSculptID();
     bool success = (!MESH_HEADER_PROCESS_FAILED)
         && ((data != NULL) == (data_size > 0)); // if we have data but no size or have size but no data, something is wrong;
