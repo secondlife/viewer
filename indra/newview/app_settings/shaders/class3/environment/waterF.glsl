@@ -132,7 +132,60 @@ vec3 transform_normal(vec3 vNt)
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, vec3 amblit_linear);
 
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
+
+
 vec3 getPositionWithNDC(vec3 ndc);
+
+void generateWaveNormals(out vec3 wave1, out vec3 wave2, out vec3 wave3)
+{
+    // Generate all of our wave normals.
+    // We layer these back and forth.
+
+    vec2 bigwave = vec2(refCoord.w, view.w);
+
+    vec3 wave1_a = texture(bumpMap, bigwave, -2).xyz * 2.0 - 1.0;
+    vec3 wave2_a = texture(bumpMap, littleWave.xy).xyz * 2.0 - 1.0;
+    vec3 wave3_a = texture(bumpMap, littleWave.zw).xyz * 2.0 - 1.0;
+
+    vec3 wave1_b = texture(bumpMap2, bigwave).xyz * 2.0 - 1.0;
+    vec3 wave2_b = texture(bumpMap2, littleWave.xy).xyz * 2.0 - 1.0;
+    vec3 wave3_b = texture(bumpMap2, littleWave.zw).xyz * 2.0 - 1.0;
+
+    wave1 = BlendNormal(wave1_a, wave1_b);
+    wave2 = BlendNormal(wave2_a, wave2_b);
+    wave3 = BlendNormal(wave3_a, wave3_b);
+}
+
+void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave1, vec3 wave2, vec3 wave3, vec3 wavef)
+{
+    // We calculate the fresnel here.
+    // We do this by getting the dot product for each sets of waves, and applying scale and offset.
+    
+    df3 = vec3(
+        dot(viewVec, wave1),
+        dot(viewVec, (wave2 + wave3) * 0.5),
+        dot(viewVec, wave3)
+    ) * fresnelScale + fresnelOffset;
+
+    df3 *= df3;
+
+    df2 = vec2(
+        df3.x + df3.y + df3.z,
+        dot(viewVec, wavef) * fresnelScale + fresnelOffset
+    );
+}
+
+vec3 calculateReflection()
+{
+    return vec3(0);
+}
+
+void calculatePunctual(out vec3 diffuse, out vec3 specular)
+{
+
+}
 
 void main()
 {
@@ -148,29 +201,22 @@ void main()
     //normalize view vector
     vec3 viewVec = normalize(pos.xyz);
 
-    //get wave normals
-    vec2 bigwave = vec2(refCoord.w, view.w);
-    vec3 wave1_a = texture(bumpMap, bigwave, -2      ).xyz*2.0-1.0;
-    vec3 wave2_a = texture(bumpMap, littleWave.xy).xyz*2.0-1.0;
-    vec3 wave3_a = texture(bumpMap, littleWave.zw).xyz*2.0-1.0;
+    // Setup our waves.
 
-    vec3 wave1_b = texture(bumpMap2, bigwave      ).xyz*2.0-1.0;
-    vec3 wave2_b = texture(bumpMap2, littleWave.xy).xyz*2.0-1.0;
-    vec3 wave3_b = texture(bumpMap2, littleWave.zw).xyz*2.0-1.0;
+    vec3 wave1 = vec3(0);
+    vec3 wave2 = vec3(0);
+    vec3 wave3 = vec3(0);
 
-    //wave1_a = wave2_a = wave3_a = wave1_b = wave2_b = wave3_b = vec3(0,0,1);
-
-    vec3 wave1 = BlendNormal(wave1_a, wave1_b);
-    vec3 wave2 = BlendNormal(wave2_a, wave2_b);
-    vec3 wave3 = BlendNormal(wave3_a, wave3_b);
+    generateWaveNormals(wave1, wave2, wave3);
 
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 
-    //wave1 = transform_normal(wave1);
-    //wave2 = transform_normal(wave2);
-    //wave3 = transform_normal(wave3);
-
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
+
+    vec3 df3 = vec3(0);
+    vec2 df2 = vec2(0);
+
+    calculateFresnelFactors(df3, df2, normalize(view.xyz), wave1, wave2, wave3, wavef);
 
     vec3 waver = wavef*3;
 
@@ -197,7 +243,7 @@ void main()
     float dmod = sqrt(dist);
 
     //figure out distortion vector (ripply)
-    vec2 distort2 = distort + waver.xy * refScale / max(dmod, 1.0);
+    vec2 distort2 = distort + waver.xy * refScale / max(dmod, 1.0) * 2;
 
     distort2 = clamp(distort2, vec2(0), vec2(0.999));
 
@@ -217,8 +263,8 @@ void main()
     vec3 sunlit_linear = srgb_to_linear(sunlit);
 
 #ifdef TRANSPARENT_WATER
-    vec4 fb = texture(screenTex, distort2);
     float depth = texture(depthMap, distort2).r;
+    vec4 fb = texture(screenTex, distort2);
     vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
 
     if (refPos.z > pos.z-0.05)
@@ -244,6 +290,7 @@ void main()
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
     sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
+    //sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, true, amblit);
 
     irradiance       = vec3(0);
 
@@ -266,11 +313,11 @@ void main()
     vec3 diffPunc = vec3(0);
     vec3 specPunc = vec3(0);
 
-    pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
+    pbrPunctual(vec3(0), specularColor, 0.125, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
-    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
+    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * 2.75 * shadow;
 
-    vec3 color = punctual * sunlit_linear * 2.75 * shadow;
+    vec3 color = vec3(0);
     vec3 iblDiff;
     vec3 iblSpec;
     pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0, iblDiff, iblSpec);
@@ -278,22 +325,12 @@ void main()
     color += iblDiff + iblSpec;
 
     float nv = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
-    vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0);
-    float f = 1.0-brdf.y; //1.0 - (brdf.x+brdf.y);
-    f *= 0.9;
-    f *= f;
 
-    // incoming scale is [0, 1] with 0.5 being default
-    // shift to 0.5 to 1.5
-    f *= (fresnelScale - 0.5)+1.0;
+    df2.x = pow(df2.x, 2.2);
 
-    // incoming offset is [0, 1] with 0.5 being default
-    // shift from -1 to 1
-    f += (fresnelOffset - 0.5) * 2.0;
+    //color = ((1.0 - f) * color) + fb.rgb;
 
-    f = clamp(f, 0, 1);
-
-    color = ((1.0 - f) * color) + fb.rgb;
+    color = mix(fb.rgb, color.rgb, df2.x * 0.99999) + punctual.rgb;
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
 

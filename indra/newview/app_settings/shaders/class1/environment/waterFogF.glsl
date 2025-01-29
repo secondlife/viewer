@@ -69,8 +69,8 @@ vec4 getWaterFogViewNoClip(vec3 pos)
     float L = min(t1/t2*t3, 1.0);
 
     float D = pow(0.98, l*kd);
-
-    return vec4(srgb_to_linear(kc.rgb*L), D);
+    
+    return vec4(srgb_to_linear(kc.rgb)*L, D);
 }
 
 vec4 getWaterFogView(vec3 pos)
