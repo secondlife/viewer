@@ -44,7 +44,7 @@ public:
     LLPanelGroupBulkImpl(const LLUUID& group_id);
     ~LLPanelGroupBulkImpl();
 
-    static void callbackClickAdd(void* userdata);
+    void callbackClickAdd(LLPanelGroupBulk* panelp);
     static void callbackClickRemove(void* userdata);
 
     static void callbackClickCancel(void* userdata);
@@ -70,6 +70,7 @@ public:
 
     LLNameListCtrl*     mBulkAgentList;
     LLButton*           mOKButton;
+    LLButton*           mAddButton;
     LLButton*           mRemoveButton;
     LLTextBox*          mGroupName;
 
