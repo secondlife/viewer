@@ -320,6 +320,7 @@ public:
 
     S32 mLodOffset[LLModel::NUM_LODS] = { -1 };
     S32 mLodSize[LLModel::NUM_LODS] = { -1 };
+    S32 mHeaderSize = -1;
 
     bool m404 = false;
 };
@@ -341,7 +342,7 @@ public:
     LLCondition* mSignal;
 
     //map of known mesh headers
-    typedef boost::unordered_map<LLUUID, std::pair<U32, LLMeshHeader>> mesh_header_map; // pair is header_size and data
+    typedef boost::unordered_map<LLUUID, LLMeshHeader> mesh_header_map; // pair is header_size and data
     mesh_header_map mMeshHeader;
 
     class HeaderRequest : public RequestStats
