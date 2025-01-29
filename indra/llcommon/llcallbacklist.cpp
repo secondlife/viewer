@@ -68,14 +68,7 @@ bool LLCallbackList::containsFunction( callback_t func, void *data)
 {
     callback_pair_t t(func, data);
     callback_list_t::iterator iter = find(func,data);
-    if (iter != mCallbackList.end())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (iter != mCallbackList.end());
 }
 
 
@@ -84,7 +77,10 @@ bool LLCallbackList::deleteFunction( callback_t func, void *data)
     callback_list_t::iterator iter = find(func,data);
     if (iter != mCallbackList.end())
     {
-        mCallbackList.erase(iter);
+        // Don't (yet) erase the list entry because we might be indirectly
+        // called by a traversal of this same list. Defer removal until a
+        // subsequent traversal.
+        iter->first = nullptr;
         return true;
     }
     else
@@ -111,8 +107,16 @@ void LLCallbackList::callFunctions()
 {
     for (callback_list_t::iterator iter = mCallbackList.begin(); iter != mCallbackList.end(); )
     {
-        callback_list_t::iterator curiter = iter++;
-        curiter->first(curiter->second);
+        if (! iter->first)
+        {
+            // entry previously marked for deletion by deleteFunction()
+            iter = mCallbackList.erase(iter);
+        }
+        else
+        {
+            auto curiter = iter++;
+            curiter->first(curiter->second);
+        }
     }
 }
 

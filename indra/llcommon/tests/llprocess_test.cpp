@@ -29,6 +29,7 @@
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
 #include "stringize.h"
+#include "llcallbacklist.h"
 #include "llsdutil.h"
 #include "llevents.h"
 #include "llstring.h"
@@ -92,13 +93,13 @@ static std::string readfile(const std::string& pathname, const std::string& desc
 }
 
 /// Looping on LLProcess::isRunning() must now be accompanied by pumping
-/// "mainloop" -- otherwise the status won't update and you get an infinite
+/// gIdleCallbacks -- otherwise the status won't update and you get an infinite
 /// loop.
 void yield(int seconds=1)
 {
     // This function simulates waiting for another viewer frame
     sleep(seconds);
-    LLEventPumps::instance().obtain("mainloop").post(LLSD());
+    gIdleCallbacks.callFunctions();
 }
 
 void waitfor(LLProcess& proc, int timeout=60)

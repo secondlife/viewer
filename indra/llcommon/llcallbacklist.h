@@ -49,6 +49,7 @@ public:
     bool deleteFunction( callback_t func, void *data = NULL );      // removes the first instance of this function/data pair from the list, false if not found
     void callFunctions();                                                       // calls all functions
     void deleteAllFunctions();
+    bool empty() const { return mCallbackList.empty(); }
 
     static void test();
 

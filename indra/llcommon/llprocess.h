@@ -45,6 +45,7 @@
 #endif
 
 class LLEventPump;
+template <class> void trampoline(void*);
 
 class LLProcess;
 /// LLProcess instances are created on the heap by static factory methods and
@@ -364,7 +365,8 @@ public:
     class LL_COMMON_API BasePipe
     {
     public:
-        virtual ~BasePipe() = 0;
+        BasePipe();
+        virtual ~BasePipe();
 
         typedef std::size_t size_type;
         static const size_type npos;
@@ -382,6 +384,11 @@ public:
          * 123!
          */
         virtual size_type size() const = 0;
+
+    protected:
+        friend void trampoline<BasePipe>(void*);
+        void disconnect();
+        virtual void tick() = 0;
     };
 
     /// As returned by getWritePipe() or getOptWritePipe()

@@ -25,6 +25,7 @@
  */
 
 #include "linden_common.h"
+#include "llcallbacklist.h"
 #include "llprocess.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
@@ -62,10 +63,18 @@ static std::string whichfile(LLProcess::FILESLOT index)
     return STRINGIZE("file slot " << index);
 }
 
+// Pass (trampoline<CLASS>, instance) to gIdleCallbacks.addFunction() to
+// bounce calls to CLASS::tick().
+template <class CLASS>
+void trampoline(void* instance)
+{
+    reinterpret_cast<CLASS*>(instance)->tick();
+}
+
 /**
- * Ref-counted "mainloop" listener. As long as there are still outstanding
- * LLProcess objects, keep listening on "mainloop" so we can keep polling APR
- * for process status.
+ * Ref-counted gIdleCallbacks listener. As long as there are still outstanding
+ * LLProcess objects, keep listening so we can keep polling APR for process
+ * status.
  */
 class LLProcessListener
 {
@@ -78,29 +87,29 @@ public:
     void addPoll(const LLProcess&)
     {
         // Unconditionally increment mCount. If it was zero before
-        // incrementing, listen on "mainloop".
+        // incrementing, listen on gIdleCallbacks.
         if (mCount++ == 0)
         {
-            LL_DEBUGS("LLProcess") << "listening on \"mainloop\"" << LL_ENDL;
-            mConnection = LLEventPumps::instance().obtain("mainloop")
-                .listen("LLProcessListener", boost::bind(&LLProcessListener::tick, this, _1));
+            LL_DEBUGS("LLProcess") << "listening on gIdleCallbacks" << LL_ENDL;
+            gIdleCallbacks.addFunction(trampoline<LLProcessListener>, this);
         }
     }
 
     void dropPoll(const LLProcess&)
     {
         // Unconditionally decrement mCount. If it's zero after decrementing,
-        // stop listening on "mainloop".
+        // stop listening on gIdleCallbacks.
         if (--mCount == 0)
         {
-            LL_DEBUGS("LLProcess") << "disconnecting from \"mainloop\"" << LL_ENDL;
-            mConnection.disconnect();
+            LL_DEBUGS("LLProcess") << "disconnecting from gIdleCallbacks" << LL_ENDL;
+            gIdleCallbacks.deleteFunction(trampoline<LLProcessListener>, this);
         }
     }
 
 private:
-    /// called once per frame by the "mainloop" LLEventPump
-    bool tick(const LLSD&)
+    friend void trampoline<LLProcessListener>(void*);
+    /// called once per frame by gIdleCallbacks
+    void tick()
     {
         // Tell APR to sense whether each registered LLProcess is still
         // running and call handle_status() appropriately. We should be able
@@ -115,28 +124,38 @@ private:
         // would use the specific call in LLProcess::getStatus() if I knew
         // how. As it is, each call to apr_proc_other_child_refresh_all() will
         // call callbacks for ALL still-running child processes. That's why we
-        // centralize such calls, using "mainloop" to ensure it happens once
+        // centralize such calls, using gIdleCallbacks to ensure it happens once
         // per frame, and refcounting running LLProcess objects to remain
         // registered only while needed.
         LL_DEBUGS("LLProcess") << "calling apr_proc_other_child_refresh_all()" << LL_ENDL;
         apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
-        return false;
     }
 
-    /// If this object is destroyed before mCount goes to zero, stop
-    /// listening on "mainloop" anyway.
-    LLTempBoundListener mConnection;
-    unsigned mCount;
+    unsigned mCount{0};
 };
 static LLProcessListener sProcessListener;
 
 /*****************************************************************************
-*   WritePipe and ReadPipe
+*   BasePipe, WritePipe and ReadPipe
 *****************************************************************************/
-LLProcess::BasePipe::~BasePipe() {}
 const LLProcess::BasePipe::size_type
       // use funky syntax to call max() to avoid blighted max() macros
       LLProcess::BasePipe::npos((std::numeric_limits<LLProcess::BasePipe::size_type>::max)());
+
+LLProcess::BasePipe::BasePipe()
+{
+    gIdleCallbacks.addFunction(trampoline<BasePipe>, this);
+}
+
+LLProcess::BasePipe::~BasePipe()
+{
+    disconnect();
+}
+
+void LLProcess::BasePipe::disconnect()
+{
+    gIdleCallbacks.deleteFunction(trampoline<BasePipe>, this);
+}
 
 class WritePipeImpl: public LLProcess::WritePipe
 {
@@ -148,10 +167,6 @@ public:
         // Essential to initialize our std::ostream with our special streambuf!
         mStream(&mStreambuf)
     {
-        mConnection = LLEventPumps::instance().obtain("mainloop")
-            .listen(LLEventPump::inventName("WritePipe"),
-                    boost::bind(&WritePipeImpl::tick, this, _1));
-
 #if ! LL_WINDOWS
         // We can't count on every child process reading everything we try to
         // write to it. And if the child terminates with WritePipe data still
@@ -165,7 +180,7 @@ public:
     virtual std::ostream& get_ostream() { return mStream; }
     virtual size_type size() const { return mStreambuf.size(); }
 
-    bool tick(const LLSD&)
+    void tick()
     {
         typedef boost::asio::streambuf::const_buffers_type const_buffer_sequence;
         // If there's anything to send, try to send it.
@@ -240,14 +255,11 @@ public:
             // sent, we'll try again later.
             mStreambuf.consume(consumed);
         }
-
-        return false;
     }
 
 private:
     std::string mDesc;
     apr_file_t* mPipe;
-    LLTempBoundListener mConnection;
     boost::asio::streambuf mStreambuf;
     std::ostream mStream;
 };
@@ -265,19 +277,7 @@ public:
         mPump("ReadPipe", true),    // tweak name as needed to avoid collisions
         mLimit(0),
         mEOF(false)
-    {
-        mConnection = LLEventPumps::instance().obtain("mainloop")
-            .listen(LLEventPump::inventName("ReadPipe"),
-                    boost::bind(&ReadPipeImpl::tick, this, _1));
-    }
-
-    ~ReadPipeImpl()
-    {
-        if (mConnection.connected())
-        {
-            mConnection.disconnect();
-        }
-    }
+    {}
 
     // Much of the implementation is simply connecting the abstract virtual
     // methods with implementation data concealed from the base class.
@@ -357,11 +357,13 @@ public:
         return (found == end)? npos : (found - begin);
     }
 
-    bool tick(const LLSD&)
+    bool eof() const { return mEOF; }
+
+    void tick()
     {
         // Once we've hit EOF, skip all the rest of this.
         if (mEOF)
-            return false;
+            return;
 
         typedef boost::asio::streambuf::mutable_buffers_type mutable_buffer_sequence;
         // Try, every time, to read into our streambuf. In fact, we have no
@@ -402,7 +404,7 @@ public:
                         ll_apr_warn_status(err);
                     }
                     // Either way, though, we won't need any more tick() calls.
-                    mConnection.disconnect();
+                    disconnect();
                     // Ignore any subsequent calls we might get anyway.
                     mEOF = true;
                     state = CLOSED; // also break outer retry loop
@@ -459,15 +461,12 @@ public:
                        ("desc", mDesc)
                        ("eof", state == CLOSED));
         }
-
-        return false;
     }
 
 private:
     std::string mDesc;
     apr_file_t* mPipe;
     LLProcess::FILESLOT mIndex;
-    LLTempBoundListener mConnection;
     boost::asio::streambuf mStreambuf;
     std::istream mStream;
     LLEventStream mPump;
@@ -501,14 +500,14 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
         // started.
         if (params.postend.isProvided())
         {
-            LLEventPumps::instance().obtain(params.postend)
-                .post(LLSDMap
-                      // no "id"
-                      ("desc", getDesc(params))
-                      ("state", LLProcess::UNSTARTED)
-                      // no "data"
-                      ("string", e.what())
-                     );
+            LLEventPumps::instance().post(
+                params.postend,
+                llsd::map(
+                    // no "id"
+                    "desc", getDesc(params),
+                    "state", LLProcess::UNSTARTED,
+                    // no "data"
+                    "string", e.what()));
         }
 
         return LLProcessPtr();
@@ -703,7 +702,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
     // arrange to call status_callback()
     apr_proc_other_child_register(&mProcess, &LLProcess::status_callback, this, mProcess.in,
                                   mPool);
-    // and make sure we poll it once per "mainloop" tick
+    // and make sure we poll it once per frame
     sProcessListener.addPoll(*this);
     mStatus.mState = RUNNING;
 
@@ -994,7 +993,7 @@ void LLProcess::handle_status(int reason, int status)
     mStatus.mState = EXITED;
 
     // Make last-gasp calls for each of the ReadPipes we have on hand. Since
-    // they're listening on "mainloop", we can be sure they'll eventually
+    // they're listening on gIdleCallbacks, we can be sure they'll eventually
     // collect all pending data from the child. But we want to be able to
     // guarantee to our consumer that by the time we post on the "postend"
     // LLEventPump, our ReadPipes are already buffering all the data there
@@ -1004,10 +1003,9 @@ void LLProcess::handle_status(int reason, int status)
     {
         std::string error;
         ReadPipeImpl* ppipe = getPipePtr<ReadPipeImpl>(error, FILESLOT(i));
-        if (ppipe)
+        while (ppipe && ! ppipe->eof())
         {
-            static LLSD trivial;
-            ppipe->tick(trivial);
+            ppipe->tick();
         }
     }
 
@@ -1024,14 +1022,14 @@ void LLProcess::handle_status(int reason, int status)
     // If caller requested notification on child termination, send it.
     if (! mPostend.empty())
     {
-        LLEventPumps::instance().obtain(mPostend)
-            .post(LLSDMap
-                  ("id",     getProcessID())
-                  ("desc",   mDesc)
-                  ("state",  mStatus.mState)
-                  ("data",   mStatus.mData)
-                  ("string", getStatusString())
-                 );
+        LLEventPumps::instance().post(
+            mPostend,
+            llsd::map(
+                "id",     getProcessID(),
+                "desc",   mDesc,
+                "state",  mStatus.mState,
+                "data",   mStatus.mData,
+                "string", getStatusString()));
     }
 }
 

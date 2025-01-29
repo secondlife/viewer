@@ -22,6 +22,7 @@
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
 #include "wrapllerrs.h"             // CaptureLog
+#include "llcallbacklist.h"
 #include "llevents.h"
 #include "llprocess.h"
 #include "llstring.h"
@@ -73,7 +74,7 @@ void waitfor(const LLLeapVector& instances, int timeout=60)
         }
         // Found an instance that's still running. Wait and pump LLProcess.
         sleep(1);
-        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        gIdleCallbacks.callFunctions();
     }
     tut::ensure(STRINGIZE("at least 1 of " << instances.size()
                           << " LLLeap instances timed out ("
