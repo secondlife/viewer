@@ -4145,7 +4145,7 @@ U32 LLAppViewer::getTextureCacheVersion()
 U32 LLAppViewer::getDiskCacheVersion()
 {
     // Viewer disk cache version intorduced in Simple Cache Viewer, change if the cache format changes.
-    const U32 DISK_CACHE_VERSION = 1;
+    const U32 DISK_CACHE_VERSION = 2;
 
     return DISK_CACHE_VERSION ;
 }

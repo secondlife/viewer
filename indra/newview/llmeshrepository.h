@@ -307,19 +307,66 @@ public:
 
         m404 = header.has("404");
     }
+private:
+
+    enum EDiskCacheFlags {
+        FLAG_SKIN = 1 << LLModel::NUM_LODS,
+        FLAG_PHYSCONVEX = 1 << (LLModel::NUM_LODS + 1),
+        FLAG_PHYSMESH = 1 << (LLModel::NUM_LODS + 2),
+    };
+public:
+    U32 getFlags()
+    {
+        U32 flags = 0;
+        for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+        {
+            if (mLodInCache[i])
+            {
+                flags |= 1 << i;
+            }
+        }
+        if (mSkinInCache)
+        {
+            flags |= FLAG_SKIN;
+        }
+        if (mPhysicsConvexInCache)
+        {
+            flags |= FLAG_PHYSCONVEX;
+        }
+        if (mPhysicsMeshInCache)
+        {
+            flags |= FLAG_PHYSMESH;
+        }
+        return flags;
+    }
+
+    void setFromFlags(U32 flags)
+    {
+        for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+        {
+            mLodInCache[i] = (flags & (1 << i)) != 0;
+        }
+        mSkinInCache          = (flags & FLAG_SKIN) != 0;
+        mPhysicsConvexInCache = (flags & FLAG_PHYSCONVEX) != 0;
+        mPhysicsMeshInCache   = (flags & FLAG_PHYSMESH) != 0;
+    }
 
     S32 mVersion = -1;
     S32 mSkinOffset = -1;
     S32 mSkinSize = -1;
+    bool mSkinInCache = false;
 
     S32 mPhysicsConvexOffset = -1;
     S32 mPhysicsConvexSize = -1;
+    bool mPhysicsConvexInCache = false;
 
     S32 mPhysicsMeshOffset = -1;
     S32 mPhysicsMeshSize = -1;
+    bool mPhysicsMeshInCache = false;
 
     S32 mLodOffset[LLModel::NUM_LODS] = { -1 };
     S32 mLodSize[LLModel::NUM_LODS] = { -1 };
+    bool mLodInCache[LLModel::NUM_LODS] = { false };
     S32 mHeaderSize = -1;
 
     bool m404 = false;
@@ -472,7 +519,7 @@ public:
 
     bool fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry = true);
     bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, bool can_retry = true);
-    EMeshProcessingResult headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
+    EMeshProcessingResult headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size, U32 flags = 0);
     EMeshProcessingResult lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
     bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
     bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);

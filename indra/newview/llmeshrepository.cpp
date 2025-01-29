@@ -343,6 +343,8 @@ static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
 
 LLMeshRepository gMeshRepo;
 
+const U32 CACHE_PREAMBLE_VERSION = 1;
+const S32 CACHE_PREAMBLE_SIZE = sizeof(U32) * 3; //version, header_size, flags
 const S32 MESH_HEADER_SIZE = 4096;                      // Important:  assumption is that headers fit in this space
 
 
@@ -824,6 +826,14 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
     }
 
     gMeshRepo.uploadError(args);
+}
+
+void write_preamble(LLFileSystem &file, S32 header_bytes, S32 flags)
+{
+    LLMeshRepository::sCacheBytesWritten += CACHE_PREAMBLE_SIZE;
+    file.write((U8*)&CACHE_PREAMBLE_VERSION, sizeof(U32));
+    file.write((U8*)&header_bytes, sizeof(U32));
+    file.write((U8*)&flags, sizeof(U32));
 }
 
 LLMeshRepoThread::LLMeshRepoThread()
@@ -1387,18 +1397,19 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
 
     if (header_size > 0)
     {
-
         S32 version = header.mVersion;
         S32 offset = header_size + header.mSkinOffset;
         S32 size = header.mSkinSize;
+        bool in_cache = header.mSkinInCache;
 
         mHeaderMutex->unlock();
 
         if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
         {
             //check cache for mesh skin info
+            S32 disk_ofset = offset + CACHE_PREAMBLE_SIZE;
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
-            if (file.getSize() >= offset + size)
+            if (in_cache && file.getSize() >= disk_ofset + size)
             {
                 U8* buffer = new(std::nothrow) U8[size];
                 if (!buffer)
@@ -1418,7 +1429,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
                 }
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
-                file.seek(offset);
+                file.seek(disk_ofset);
                 file.read(buffer, size);
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
@@ -1515,14 +1526,16 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
         S32 version = header.mVersion;
         S32 offset = header_size + header.mPhysicsConvexOffset;
         S32 size = header.mPhysicsConvexSize;
+        bool in_cache = header.mPhysicsConvexInCache;
 
         mHeaderMutex->unlock();
 
         if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
         {
-            //check cache for mesh skin info
+            // check cache for mesh decomposition
+            S32 disk_ofset = offset + CACHE_PREAMBLE_SIZE;
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
-            if (file.getSize() >= offset+size)
+            if (in_cache && file.getSize() >= disk_ofset + size)
             {
                 U8* buffer = new(std::nothrow) U8[size];
                 if (!buffer)
@@ -1541,7 +1554,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
 
-                file.seek(offset);
+                file.seek(disk_ofset);
                 file.read(buffer, size);
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
@@ -1623,18 +1636,21 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
         S32 version = header.mVersion;
         S32 offset = header_size + header.mPhysicsMeshOffset;
         S32 size = header.mPhysicsMeshSize;
+        bool in_cache = header.mPhysicsMeshInCache;
 
         mHeaderMutex->unlock();
 
+        // todo: check header.mHasPhysicsMesh
         if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
         {
             //check cache for mesh physics shape info
+            S32 disk_ofset = offset + CACHE_PREAMBLE_SIZE;
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
-            if (file.getSize() >= offset+size)
+            if (in_cache && file.getSize() >= disk_ofset +size)
             {
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
-                file.seek(offset);
+                file.seek(disk_ofset);
                 U8* buffer = new(std::nothrow) U8[size];
                 if (!buffer)
                 {
@@ -1764,17 +1780,35 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
         if (size > 0)
         {
             // *NOTE:  if the header size is ever more than 4KB, this will break
-            static thread_local U8 buffer[MESH_HEADER_SIZE];
-            S32 bytes = llmin(size, MESH_HEADER_SIZE);
+            const S32 DISK_MINIMAL_READ = 4096;
+            static thread_local U8 buffer[DISK_MINIMAL_READ * 2];
+            S32 bytes = llmin(size, DISK_MINIMAL_READ);
             LLMeshRepository::sCacheBytesRead += bytes;
             ++LLMeshRepository::sCacheReads;
-            file.read(buffer, bytes);
-            if (headerReceived(mesh_params, buffer, bytes) == MESH_OK)
-            {
-                LL_DEBUGS(LOG_MESH) << "Mesh/Cache: Mesh header for ID " << mesh_params.getSculptID() << " - was retrieved from the cache." << LL_ENDL;
 
-                // Found mesh in cache
-                return true;
+            file.read(buffer, bytes);
+
+            U32 version = 0;
+            memcpy(&version, buffer, sizeof(U32));
+            if (version == CACHE_PREAMBLE_VERSION)
+            {
+                S32 header_size = 0;
+                memcpy(&header_size, buffer + sizeof(U32), sizeof(S32));
+                if (header_size + CACHE_PREAMBLE_SIZE > DISK_MINIMAL_READ)
+                {
+                    bytes = llmin(size , DISK_MINIMAL_READ * 2);
+                    file.read(buffer + DISK_MINIMAL_READ, bytes - DISK_MINIMAL_READ);
+                }
+                U32 flags = 0;
+                memcpy(&flags, buffer + 2 * sizeof(U32), sizeof(U32));
+                // Todo: parse and pass flags, they are the reason for the preamble
+                if (headerReceived(mesh_params, buffer + CACHE_PREAMBLE_SIZE, bytes, flags) == MESH_OK)
+                {
+                    LL_DEBUGS(LOG_MESH) << "Mesh/Cache: Mesh header for ID " << mesh_params.getSculptID() << " - was retrieved from the cache." << LL_ENDL;
+
+                    // Found mesh in cache
+                    return true;
+                }
             }
         }
     }
@@ -1841,14 +1875,15 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
         S32 version = header.mVersion;
         S32 offset = header_size + header.mLodOffset[lod];
         S32 size = header.mLodSize[lod];
+        bool in_cache = header.mLodInCache[lod];
         mHeaderMutex->unlock();
 
         if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
         {
-
+            S32 disk_ofset = offset + CACHE_PREAMBLE_SIZE;
             //check cache for mesh asset
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
-            if (file.getSize() >= offset+size)
+            if (in_cache && file.getSize() >= disk_ofset + size)
             {
                 U8* buffer = new(std::nothrow) U8[size];
                 if (!buffer)
@@ -1868,7 +1903,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
                 }
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
-                file.seek(offset);
+                file.seek(disk_ofset);
                 file.read(buffer, size);
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
@@ -1943,7 +1978,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
     return retval;
 }
 
-EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size)
+EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size, U32 flags)
 {
     LL_PROFILE_ZONE_SCOPED;
     const LLUUID mesh_id = mesh_params.getSculptID();
@@ -1988,12 +2023,40 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
         // make sure there is at least one lod, function returns -1 and marks as 404 otherwise
         else if (LLMeshRepository::getActualMeshLOD(header, 0) >= 0)
         {
-            header.mHeaderSize = stream.tellg();
+            header.mHeaderSize = (S32)stream.tellg();
             header_size += header.mHeaderSize;
             skin_offset = header.mSkinOffset;
             skin_size = header.mSkinSize;
+
             memcpy(lod_offset, header.mLodOffset, sizeof(lod_offset));
             memcpy(lod_size, header.mLodSize, sizeof(lod_size));
+
+            if (flags != 0)
+            {
+                header.setFromFlags(flags);
+            }
+            else
+            {
+                if (header.mSkinSize > 0 && header_size + header.mSkinOffset + header.mSkinSize < data_size)
+                {
+                    header.mSkinInCache = true;
+                }
+                if (header.mPhysicsConvexSize > 0 && header_size + header.mPhysicsConvexOffset + header.mPhysicsConvexSize < data_size)
+                {
+                    header.mPhysicsConvexInCache = true;
+                }
+                if (header.mPhysicsMeshSize > 0 && header_size + header.mPhysicsMeshOffset + header.mPhysicsMeshSize < data_size)
+                {
+                    header.mPhysicsMeshInCache = true;
+                }
+                for (S32 i = 0; i < LLModel::NUM_LODS; ++i)
+                {
+                    if (lod_size[i] > 0 && header_size + lod_offset[i] + lod_size[i] < data_size)
+                    {
+                        header.mLodInCache[i] = true;
+                    }
+                }
+            }
         }
     }
     else
@@ -2025,7 +2088,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
 
             S32 offset = (S32)header_size + skin_offset;
             bool request_skin = true;
-            if (offset + skin_size < MESH_HEADER_SIZE)
+            if (offset + skin_size < data_size)
             {
                 request_skin = !skinInfoReceived(mesh_id, data + offset, skin_size);
             }
@@ -2071,7 +2134,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
                     // try to load from data we just received
                     bool request_lod = true;
                     S32 offset = (S32)header_size + lod_offset[i];
-                    if (offset + lod_size[i] <= MESH_HEADER_SIZE)
+                    if (offset + lod_size[i] <= data_size)
                     {
                         // initial request is 4096 bytes, it's big enough to fit this lod
                         request_lod = lodReceived(mesh_params, i, data + offset, lod_size[i]) != MESH_OK;
@@ -3440,7 +3503,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
             // LLSD is smart and can work like smart pointer, is not thread safe.
             gMeshRepo.mThread->mHeaderMutex->unlock();
 
-            S32 bytes = lod_bytes + header_bytes;
+            S32 bytes = lod_bytes + header_bytes + CACHE_PREAMBLE_SIZE;
 
 
             // It's possible for the remote asset to have more data than is needed for the local cache
@@ -3453,6 +3516,11 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
                 LLMeshRepository::sCacheBytesWritten += data_size;
                 ++LLMeshRepository::sCacheWrites;
 
+                // write preamble
+                U32 flags = header.getFlags();
+                write_preamble(file, header_bytes, flags);
+
+                // write header
                 file.write(data, data_size);
 
                 S32 remaining = bytes - file.tell();
@@ -3521,11 +3589,35 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
             // good fetch from sim, write to cache
             LLFileSystem file(mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
 
-            S32 offset = mOffset;
+            S32 offset = mOffset + CACHE_PREAMBLE_SIZE;
             S32 size = mRequestedBytes;
 
             if (file.getSize() >= offset+size)
             {
+                S32 header_bytes = 0;
+                U32 flags = 0;
+                {
+                    LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
+
+                    LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshParams.getSculptID());
+                    if (header_it != gMeshRepo.mThread->mMeshHeader.end())
+                    {
+                        LLMeshHeader& header = header_it->second;
+                        // update header
+                        if (!header.mLodInCache[mLOD])
+                        {
+                            header.mLodInCache[mLOD] = true;
+                            header_bytes = header.mHeaderSize;
+                            flags = header.getFlags();
+                        }
+                        // todo: handle else because we shouldn't have requested twice?
+                    }
+                }
+                if (flags > 0)
+                {
+                    write_preamble(file, header_bytes, flags);
+                }
+
                 file.seek(offset);
                 file.write(data, size);
                 LLMeshRepository::sCacheBytesWritten += size;
@@ -3586,13 +3678,38 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
         // good fetch from sim, write to cache
         LLFileSystem file(mMeshID, LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
 
-        S32 offset = mOffset;
+        S32 offset = mOffset + CACHE_PREAMBLE_SIZE;
         S32 size = mRequestedBytes;
 
         if (file.getSize() >= offset+size)
         {
             LLMeshRepository::sCacheBytesWritten += size;
             ++LLMeshRepository::sCacheWrites;
+
+            S32 header_bytes = 0;
+            U32 flags = 0;
+            {
+                LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
+
+                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshParams.getSculptID());
+                if (header_it != gMeshRepo.mThread->mMeshHeader.end())
+                {
+                    LLMeshHeader& header = header_it->second;
+                    // update header
+                    if (!header.mSkinInCache)
+                    {
+                        header.mSkinInCache = true;
+                        header_bytes = header.mHeaderSize;
+                        flags = header.getFlags();
+                    }
+                    // todo: handle else because we shouldn't have requested twice?
+                }
+            }
+            if (flags > 0)
+            {
+                write_preamble(file, header_bytes, flags);
+            }
+
             file.seek(offset);
             file.write(data, size);
         }
@@ -3636,13 +3753,38 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
         // good fetch from sim, write to cache
         LLFileSystem file(mMeshID, LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
 
-        S32 offset = mOffset;
+        S32 offset = mOffset + CACHE_PREAMBLE_SIZE;
         S32 size = mRequestedBytes;
 
         if (file.getSize() >= offset+size)
         {
             LLMeshRepository::sCacheBytesWritten += size;
             ++LLMeshRepository::sCacheWrites;
+
+            S32 header_bytes = 0;
+            U32 flags = 0;
+            {
+                LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
+
+                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshParams.getSculptID());
+                if (header_it != gMeshRepo.mThread->mMeshHeader.end())
+                {
+                    LLMeshHeader& header = header_it->second;
+                    // update header
+                    if (!header.mPhysicsConvexInCache)
+                    {
+                        header.mPhysicsConvexInCache = true;
+                        header_bytes = header.mHeaderSize;
+                        flags = header.getFlags();
+                    }
+                    // todo: handle else because we shouldn't have requested twice?
+                }
+            }
+            if (flags > 0)
+            {
+                write_preamble(file, header_bytes, flags);
+            }
+
             file.seek(offset);
             file.write(data, size);
         }
@@ -3684,13 +3826,38 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
         // good fetch from sim, write to cache for caching
         LLFileSystem file(mMeshID, LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
 
-        S32 offset = mOffset;
+        S32 offset = mOffset + CACHE_PREAMBLE_SIZE;
         S32 size = mRequestedBytes;
 
         if (file.getSize() >= offset+size)
         {
             LLMeshRepository::sCacheBytesWritten += size;
             ++LLMeshRepository::sCacheWrites;
+
+            S32 header_bytes = 0;
+            U32 flags = 0;
+            {
+                LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
+
+                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshParams.getSculptID());
+                if (header_it != gMeshRepo.mThread->mMeshHeader.end())
+                {
+                    LLMeshHeader& header = header_it->second;
+                    // update header
+                    if (!header.mPhysicsMeshInCache)
+                    {
+                        header.mPhysicsMeshInCache = true;
+                        header_bytes = header.mHeaderSize;
+                        flags = header.getFlags();
+                    }
+                    // todo: handle else because we shouldn't have requested twice?
+                }
+            }
+            if (flags > 0)
+            {
+                write_preamble(file, header_bytes, flags);
+            }
+
             file.seek(offset);
             file.write(data, size);
         }
