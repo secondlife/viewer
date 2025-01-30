@@ -56,7 +56,7 @@ void main()
     vec4  pos          = getPositionWithDepth(tc, depth);
 
     vec4 fogged = getWaterFogView(pos.xyz);
-
+    fogged.a = max(pow(fogged.a, 1.7), 0);
     frag_color = max(fogged, vec4(0)); //output linear since local lights will be added to this shader's results
 
 }
