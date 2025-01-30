@@ -205,7 +205,7 @@ void main()
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
-    
+
     vec3 df3 = vec3(0);
     vec2 df2 = vec2(0);
 
