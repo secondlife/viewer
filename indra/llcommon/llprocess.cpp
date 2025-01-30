@@ -72,10 +72,12 @@ class LLProcessListener
 {
     LOG_CLASS(LLProcessListener);
 public:
-    ~LLProcessListener()
-    {
-        gIdleCallbacks.deleteFunction(statick, this);
-    }
+    // For neatness we'd theoretically call gIdleCallbacks.deleteFunction()
+    // in ~LLProcessListener(). The trouble is that gIdleCallbacks is likely
+    // to be destroyed before we are, leading to a shutdown crash. So leave
+    // our callback registered, trusting that if at static destruction time
+    // we're destroyed before gIdleCallbacks, no one will call
+    // gIdleCallbacks.callFunctions() anyway.
 
     void addPoll(const LLProcess&)
     {
