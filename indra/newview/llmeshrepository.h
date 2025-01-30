@@ -576,6 +576,11 @@ private:
 
     // Mutex:  mMutex must be alerady locked when calling
     void loadMeshLOD(const LLUUID &mesh_id, const LLVolumeParams& mesh_params, S32 lod);
+
+    // Threads:  Repo thread only
+    U8* getDiskCacheBuffer(S32 size);
+    S32 mDiskCacheBufferSize = 0;
+    U8* mDiskCacheBuffer = nullptr;
 };
 
 

@@ -895,6 +895,8 @@ LLMeshRepoThread::~LLMeshRepoThread()
     mHeaderMutex = NULL;
     delete mSignal;
     mSignal = NULL;
+    delete[] mDiskCacheBuffer;
+    mDiskCacheBuffer = NULL;
 }
 
 void LLMeshRepoThread::run()
@@ -1275,6 +1277,41 @@ void LLMeshRepoThread::loadMeshLOD(const LLUUID& mesh_id, const LLVolumeParams& 
     }
 }
 
+U8* LLMeshRepoThread::getDiskCacheBuffer(S32 size)
+{
+    if (mDiskCacheBufferSize < size)
+    {
+        const S32 MINIMUM_BUFFER_SIZE = 8192; // a minimum to avoid frequent early reallocations
+        size = llmax(MINIMUM_BUFFER_SIZE, size);
+        delete[] mDiskCacheBuffer;
+        try
+        {
+            mDiskCacheBuffer = new U8[size];
+        }
+        catch (std::bad_alloc&)
+        {
+            LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh thread's buffer, size: " << size << LL_ENDL;
+            mDiskCacheBuffer = NULL;
+
+            // Not sure what size is reasonable
+            // but if 30MB allocation failed, we definetely have issues
+            const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
+            if (size < MAX_SIZE)
+            {
+                LLAppViewer::instance()->outOfMemorySoftQuit();
+            } // else ignore failures for anomalously large data
+        }
+        mDiskCacheBufferSize = size;
+    }
+    else
+    {
+        // reusing old buffer, reset heading bytes to ensure
+        // old content won't be parsable if something fails.
+        memset(mDiskCacheBuffer, 0, 16);
+    }
+    return mDiskCacheBuffer;
+}
+
 // Mutex:  must be holding mMutex when called
 void LLMeshRepoThread::setGetMeshCap(const std::string & mesh_cap)
 {
@@ -1411,19 +1448,9 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
             if (in_cache && file.getSize() >= disk_ofset + size)
             {
-                U8* buffer = new(std::nothrow) U8[size];
+                U8* buffer = getDiskCacheBuffer(size);
                 if (!buffer)
                 {
-                    LL_WARNS(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
-
-                    // Not sure what size is reasonable for skin info,
-                    // but if 20MB allocation failed, we definetely have issues
-                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
-                    if (size < MAX_SIZE)
-                    {
-                        LLAppViewer::instance()->outOfMemorySoftQuit();
-                    } // else ignore failures for anomalously large data
-                    LLMutexLock locker(mMutex);
                     mSkinUnavailableQ.emplace_back(mesh_id);
                     return true;
                 }
@@ -1443,12 +1470,9 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
                 { //attempt to parse
                     if (skinInfoReceived(mesh_id, buffer, size))
                     {
-                        delete[] buffer;
                         return true;
                     }
                 }
-
-                delete[] buffer;
             }
 
             //reading from cache failed for whatever reason, fetch from sim
@@ -1537,18 +1561,9 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
             if (in_cache && file.getSize() >= disk_ofset + size)
             {
-                U8* buffer = new(std::nothrow) U8[size];
+                U8* buffer = getDiskCacheBuffer(size);
                 if (!buffer)
                 {
-                    LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
-
-                    // Not sure what size is reasonable for decomposition
-                    // but if 20MB allocation failed, we definetely have issues
-                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
-                    if (size < MAX_SIZE)
-                    {
-                        LLAppViewer::instance()->outOfMemorySoftQuit();
-                    } // else ignore failures for anomalously large decompositiions
                     return true;
                 }
                 LLMeshRepository::sCacheBytesRead += size;
@@ -1568,12 +1583,9 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
                 { //attempt to parse
                     if (decompositionReceived(mesh_id, buffer, size))
                     {
-                        delete[] buffer;
                         return true;
                     }
                 }
-
-                delete[] buffer;
             }
 
             //reading from cache failed for whatever reason, fetch from sim
@@ -1650,21 +1662,13 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
             {
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
-                file.seek(disk_ofset);
-                U8* buffer = new(std::nothrow) U8[size];
+
+                U8* buffer = getDiskCacheBuffer(size);
                 if (!buffer)
                 {
-                    LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
-
-                    // Not sure what size is reasonable for physcis
-                    // but if 20MB allocation failed, we definetely have issues
-                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
-                    if (size < MAX_SIZE)
-                    {
-                        LLAppViewer::instance()->outOfMemorySoftQuit();
-                    } // else ignore failures for anomalously large data
                     return true;
                 }
+                file.seek(disk_ofset);
                 file.read(buffer, size);
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
@@ -1678,12 +1682,9 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
                 { //attempt to parse
                     if (physicsShapeReceived(mesh_id, buffer, size) == MESH_OK)
                     {
-                        delete[] buffer;
                         return true;
                     }
                 }
-
-                delete[] buffer;
             }
 
             //reading from cache failed for whatever reason, fetch from sim
@@ -1885,18 +1886,9 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
             if (in_cache && file.getSize() >= disk_ofset + size)
             {
-                U8* buffer = new(std::nothrow) U8[size];
+                U8* buffer = getDiskCacheBuffer(size);
                 if (!buffer)
                 {
-                    LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
-
-                    // Not sure what size is reasonable for a mesh,
-                    // but if 20MB allocation failed, we definetely have issues
-                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
-                    if (size < MAX_SIZE)
-                    {
-                        LLAppViewer::instance()->outOfMemorySoftQuit();
-                    } // else ignore failures for anomalously large data
                     LLMutexLock lock(mMutex);
                     mUnavailableQ.push_back(LODRequest(mesh_params, lod));
                     return true;
@@ -1917,15 +1909,11 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
                 { //attempt to parse
                     if (lodReceived(mesh_params, lod, buffer, size) == MESH_OK)
                     {
-                        delete[] buffer;
-
                         LL_DEBUGS(LOG_MESH) << "Mesh/Cache: Mesh body for ID " << mesh_id << " - was retrieved from the cache." << LL_ENDL;
 
                         return true;
                     }
                 }
-
-                delete[] buffer;
             }
 
             //reading from cache failed for whatever reason, fetch from sim
