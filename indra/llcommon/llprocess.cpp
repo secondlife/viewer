@@ -63,14 +63,6 @@ static std::string whichfile(LLProcess::FILESLOT index)
     return STRINGIZE("file slot " << index);
 }
 
-// Pass (trampoline<CLASS>, instance) to gIdleCallbacks.addFunction() to
-// bounce calls to CLASS::tick().
-template <class CLASS>
-void trampoline(void* instance)
-{
-    reinterpret_cast<CLASS*>(instance)->tick();
-}
-
 /**
  * Ref-counted gIdleCallbacks listener. As long as there are still outstanding
  * LLProcess objects, keep listening so we can keep polling APR for process
@@ -80,9 +72,10 @@ class LLProcessListener
 {
     LOG_CLASS(LLProcessListener);
 public:
-    LLProcessListener():
-        mCount(0)
-    {}
+    ~LLProcessListener()
+    {
+        gIdleCallbacks.deleteFunction(statick, this);
+    }
 
     void addPoll(const LLProcess&)
     {
@@ -91,7 +84,7 @@ public:
         if (mCount++ == 0)
         {
             LL_DEBUGS("LLProcess") << "listening on gIdleCallbacks" << LL_ENDL;
-            gIdleCallbacks.addFunction(trampoline<LLProcessListener>, this);
+            gIdleCallbacks.addFunction(statick, this);
         }
     }
 
@@ -102,13 +95,15 @@ public:
         if (--mCount == 0)
         {
             LL_DEBUGS("LLProcess") << "disconnecting from gIdleCallbacks" << LL_ENDL;
-            gIdleCallbacks.deleteFunction(trampoline<LLProcessListener>, this);
+            gIdleCallbacks.deleteFunction(statick, this);
         }
     }
 
-private:
-    friend void trampoline<LLProcessListener>(void*);
-    /// called once per frame by gIdleCallbacks
+    LLBoundListener connect(const LLEventListener& listener)
+    {
+        return mSignal.connect(listener);
+    }
+
     void tick()
     {
         // Tell APR to sense whether each registered LLProcess is still
@@ -129,9 +124,21 @@ private:
         // registered only while needed.
         LL_DEBUGS("LLProcess") << "calling apr_proc_other_child_refresh_all()" << LL_ENDL;
         apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
+
+        // pass along this tick() to any registered BasePipes
+        static LLSD dummy;
+        mSignal(dummy);
+    }
+
+private:
+    /// called once per frame by gIdleCallbacks
+    static void statick(void* instance)
+    {
+        reinterpret_cast<LLProcessListener*>(instance)->tick();
     }
 
     unsigned mCount{0};
+    LLStandardSignal mSignal;
 };
 static LLProcessListener sProcessListener;
 
@@ -144,17 +151,22 @@ const LLProcess::BasePipe::size_type
 
 LLProcess::BasePipe::BasePipe()
 {
-    gIdleCallbacks.addFunction(trampoline<BasePipe>, this);
+    // Because mConnection is an LLTempBoundConnection, ~BasePipe() will
+    // disconnect automatically.
+    mConnection = sProcessListener.connect(
+        [this](const LLSD&)
+        {
+            tick();
+            return false;
+        });
 }
 
-LLProcess::BasePipe::~BasePipe()
-{
-    disconnect();
-}
+LLProcess::BasePipe::~BasePipe() {}
 
 void LLProcess::BasePipe::disconnect()
 {
-    gIdleCallbacks.deleteFunction(trampoline<BasePipe>, this);
+    // We can disconnect early when we know we've hit EOF on this pipe.
+    mConnection.disconnect();
 }
 
 class WritePipeImpl: public LLProcess::WritePipe
@@ -826,6 +838,13 @@ LLProcess::~LLProcess()
         apr_pool_destroy(mPool);
         mPool = NULL;
     }
+}
+
+void LLProcess::tick()
+{
+    // Forward this call to sProcessListener.tick(). This entry point is
+    // mostly because consumers have no other access to LLProcessListener.
+    sProcessListener.tick();
 }
 
 bool LLProcess::kill(const std::string& who)

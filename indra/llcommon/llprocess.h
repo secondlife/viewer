@@ -27,6 +27,7 @@
 #ifndef LL_LLPROCESS_H
 #define LL_LLPROCESS_H
 
+#include "llevents.h"
 #include "llinitparam.h"
 #include "llsdparam.h"
 #include "llexception.h"
@@ -45,7 +46,6 @@
 #endif
 
 class LLEventPump;
-template <class> void trampoline(void*);
 
 class LLProcess;
 /// LLProcess instances are created on the heap by static factory methods and
@@ -386,9 +386,10 @@ public:
         virtual size_type size() const = 0;
 
     protected:
-        friend void trampoline<BasePipe>(void*);
         void disconnect();
         virtual void tick() = 0;
+
+        LLTempBoundListener mConnection;
     };
 
     /// As returned by getWritePipe() or getOptWritePipe()
@@ -543,6 +544,15 @@ public:
      * stderr. Use this method for inspecting an LLProcess you did not create.
      */
     boost::optional<ReadPipe&> getOptReadPipe(FILESLOT slot);
+
+    /**
+     * Poll underlying LLProcess machinery. This is only needed in a context
+     * when gIdleCallbacks.callFunctions() is not being regularly called.
+     * This method is provided so caller can avoid callFunctions() at shutdown
+     * time, in case gIdleCallbacks still contains callbacks that weren't
+     * explicitly cleaned up but that are no longer viable.
+     */
+    void tick();
 
     /// little utilities that really should already be somewhere else in the
     /// code base
