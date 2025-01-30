@@ -623,6 +623,8 @@ void LLViewerShaderMgr::setShaders()
     else
     {
         // "ShaderLoading" and "Shader" need to be logged
+        LL_WARNS("Shader") << "Failed loading basic shaders.  Retrying with increased log level..." << LL_ENDL;
+
         LLError::ELevel lvl = LLError::getDefaultLevel();
         LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
         loadBasicShaders();
@@ -843,7 +845,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
         // Note usage of GL_VERTEX_SHADER
         if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER, &attribs) == 0)
         {
-            LL_WARNS("Shader") << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
+            LL_WARNS("Shader") << "Failed to load basic vertex shader " << i << ": " << shaders[i].first << LL_ENDL;
             return shaders[i].first;
         }
     }

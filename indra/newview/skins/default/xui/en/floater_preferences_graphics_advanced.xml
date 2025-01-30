@@ -126,7 +126,7 @@
       layout="topleft"
       top_delta="16"
       left="30"
-      width="130"
+      width="160"
       name="MaxTextureResolutionLabel"
       text_readonly_color="LabelDisabledColor">
         Maximum LOD resolution:
@@ -135,7 +135,7 @@
      control_name="RenderMaxTextureResolution"
      height="19"
      layout="topleft"
-     left_pad="40"
+     left_pad="10"
      top_delta="0"
      name="MaxTextureResolution"
      tool_tip="Maximum resolution for 'level of detail' textures"

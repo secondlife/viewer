@@ -1466,20 +1466,25 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 {
     S32 idx = objectp->getListIndex();
     if (idx != -1)
-    { //remove by moving last element to this object's position
-        llassert(mActiveObjects[idx] == objectp);
-
+    {
         objectp->setListIndex(-1);
 
-        S32 last_index = static_cast<S32>(mActiveObjects.size()) - 1;
-
-        if (idx != last_index)
+        S32 size = (S32)mActiveObjects.size();
+        if (size > 0) // mActiveObjects could have been cleaned already
         {
-            mActiveObjects[idx] = mActiveObjects[last_index];
-            mActiveObjects[idx]->setListIndex(idx);
-        }
+            // Remove by moving last element to this object's position
 
-        mActiveObjects.pop_back();
+            llassert(idx < size); // idx should be always within mActiveObjects, unless killAllObjects was called
+            llassert(mActiveObjects[idx] == objectp); // object should be there
+
+            S32 last_index = size - 1;
+            if (idx < last_index)
+            {
+                mActiveObjects[idx] = mActiveObjects[last_index];
+                mActiveObjects[idx]->setListIndex(idx);
+            } // else assume it's the last element, no need to swap
+            mActiveObjects.pop_back();
+        }
     }
 }
 

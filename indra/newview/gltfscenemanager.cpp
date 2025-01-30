@@ -975,9 +975,9 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
 
     LLVector4a t;
     agent_to_asset.affineTransform(gDebugRaycastStart, t);
-    start = glm::make_vec4(t.getF32ptr());
+    start = vec4(t);
     agent_to_asset.affineTransform(gDebugRaycastEnd, t);
-    end = glm::make_vec4(t.getF32ptr());
+    end = vec4(t);
 
     start.w = end.w = 1.0;
 

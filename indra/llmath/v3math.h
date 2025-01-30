@@ -31,6 +31,11 @@
 #include "llmath.h"
 
 #include "llsd.h"
+
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 class LLVector2;
 class LLVector4;
 class LLVector4a;
@@ -66,6 +71,11 @@ class LLVector3
         explicit LLVector3(const LLVector4a& vec);              // Initializes LLVector4 to (vec[0]. vec[1], vec[2])
         explicit LLVector3(const LLSD& sd);
 
+        // GLM interop
+        explicit LLVector3(const glm::vec3& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
+        explicit LLVector3(const glm::vec4& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
+        explicit inline operator glm::vec3() const; // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
+        explicit inline operator glm::vec4() const; // Initializes glm::vec4 to (vec[0]. vec[1], vec[2], 1)
 
         LLSD getValue() const;
 
@@ -92,6 +102,8 @@ class LLVector3
         inline void set(const F32 *vec);            // Sets LLVector3 to vec
         const LLVector3& set(const LLVector4 &vec);
         const LLVector3& set(const LLVector3d &vec);// Sets LLVector3 to vec
+        inline void set(const glm::vec4& vec); // Sets LLVector3 to vec
+        inline void set(const glm::vec3& vec); // Sets LLVector3 to vec
 
         inline void setVec(F32 x, F32 y, F32 z);    // deprecated
         inline void setVec(const LLVector3 &vec);   // deprecated
@@ -190,6 +202,20 @@ inline LLVector3::LLVector3(const F32 *vec)
     mV[VZ] = vec[VZ];
 }
 
+inline LLVector3::LLVector3(const glm::vec3& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
+}
+
+inline LLVector3::LLVector3(const glm::vec4& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
+}
+
 /*
 inline LLVector3::LLVector3(const LLVector3 &copy)
 {
@@ -257,6 +283,20 @@ inline void LLVector3::set(const F32 *vec)
     mV[0] = vec[0];
     mV[1] = vec[1];
     mV[2] = vec[2];
+}
+
+inline void LLVector3::set(const glm::vec4& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
+}
+
+inline void LLVector3::set(const glm::vec3& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
 }
 
 // deprecated
@@ -469,6 +509,17 @@ inline const LLVector3& operator/=(LLVector3 &a, F32 k)
 inline LLVector3 operator-(const LLVector3 &a)
 {
     return LLVector3( -a.mV[0], -a.mV[1], -a.mV[2] );
+}
+
+inline LLVector3::operator glm::vec3() const
+{
+    // Do not use glm::make_vec3 it can result in a buffer overrun on some platforms due to glm::vec3 being a simd vector internally
+    return glm::vec3(mV[VX], mV[VY], mV[VZ]);
+}
+
+inline LLVector3::operator glm::vec4() const
+{
+    return glm::vec4(mV[VX], mV[VY], mV[VZ], 1.f);
 }
 
 inline F32  dist_vec(const LLVector3 &a, const LLVector3 &b)
