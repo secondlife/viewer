@@ -165,7 +165,7 @@ void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave
 {
     // We calculate the fresnel here.
     // We do this by getting the dot product for each sets of waves, and applying scale and offset.
-    
+
     df3 = vec3(
         dot(viewVec, wave1),
         dot(viewVec, (wave2 + wave3) * 0.5),
