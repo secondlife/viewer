@@ -66,7 +66,7 @@ vec4 getWaterFogViewNoClip(vec3 pos)
     float t2 = kd + ks * es;
     float t3 = pow(F, t2*l) - 1.0;
 
-    float L = min(t1/t2*t3, 1.0);
+    float L = pow(min(t1/t2*t3, 1.0), 1.0/1.7);
 
     float D = pow(0.98, l*kd);
     

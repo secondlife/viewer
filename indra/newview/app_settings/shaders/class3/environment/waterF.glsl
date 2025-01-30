@@ -135,6 +135,9 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
 
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit);
+
 
 vec3 getPositionWithNDC(vec3 ndc);
 
@@ -177,16 +180,6 @@ void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave
     );
 }
 
-vec3 calculateReflection()
-{
-    return vec3(0);
-}
-
-void calculatePunctual(out vec3 diffuse, out vec3 specular)
-{
-
-}
-
 void main()
 {
     mirrorClip(vary_position);
@@ -203,16 +196,16 @@ void main()
 
     // Setup our waves.
 
-    vec3 wave1 = vec3(0);
-    vec3 wave2 = vec3(0);
-    vec3 wave3 = vec3(0);
+    vec3 wave1 = vec3(0, 0, 1);
+    vec3 wave2 = vec3(0, 0, 1);
+    vec3 wave3 = vec3(0, 0, 1);
 
     generateWaveNormals(wave1, wave2, wave3);
 
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
-
+    
     vec3 df3 = vec3(0);
     vec2 df2 = vec2(0);
 
@@ -280,19 +273,16 @@ void main()
     vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
 #endif
 
-    // fudge sample on other side of water to be a tad darker
-    fb.rgb *= 0.75;
-
-    float metallic = 0.0;
-    float perceptualRoughness = 0.05;
-    float gloss      = 1.0 - perceptualRoughness;
+    float metallic = 1.0;
+    float perceptualRoughness = 0.1;
+    float gloss      = 0.95;
 
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
+    vec3 legacyenv = vec3(0);
     sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
-    //sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, true, amblit);
-
-    irradiance       = vec3(0);
+    //sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, 1, true, amblit);
+    //sampleReflectionProbesLegacy(irradiance, radiance, legacyenv, distort2, pos.xyz, wave_ibl.xyz, gloss, 1, false, amblit);
 
     vec3 diffuseColor = vec3(0);
     vec3 specularColor = vec3(0);
@@ -304,36 +294,22 @@ void main()
     float ao = 1.0;
     vec3 light_dir = transform_normal(lightDir);
 
-    perceptualRoughness = 0.0;
-    metallic = 1.0;
-
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
 
     float nl = 0;
     vec3 diffPunc = vec3(0);
     vec3 specPunc = vec3(0);
 
-    pbrPunctual(vec3(0), specularColor, 0.125, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
+    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * 2.75 * shadow;
 
     vec3 color = vec3(0);
-    vec3 iblDiff;
-    vec3 iblSpec;
-    pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0, iblDiff, iblSpec);
 
-    color += iblDiff + iblSpec;
-
-    float nv = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
-
-    df2.x = pow(df2.x, 2.2);
-
-    //color = ((1.0 - f) * color) + fb.rgb;
-
-    color = mix(fb.rgb, color.rgb, df2.x * 0.99999) + punctual.rgb;
+    color = mix(fb.rgb, radiance * df2.x, df2.x * 0.99999) + punctual.rgb;
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
 
-    frag_color = max(vec4(color, spec), vec4(0));
+    frag_color = max(vec4(color.rgb, spec), vec4(0));
 }
 
