@@ -693,8 +693,8 @@ LLAppViewer::LLAppViewer()
                 LL_WARNS() << "Watchdog process died! " << event;
                 if (mWatchdog)
                 {
-                    auto& stderr = mWatchdog->getReadPipe(LLProcess::STDERR);
-                    LL_CONT << '\n' << stderr.read(stderr.size());
+                    auto& watcherr = mWatchdog->getReadPipe(LLProcess::STDERR);
+                    LL_CONT << '\n' << watcherr.read(watcherr.size());
                 }
                 LL_ENDL;
                 return false;
@@ -739,16 +739,16 @@ LLAppViewer::~LLAppViewer()
     // If we got to this destructor somehow, the app didn't hang.
     removeMarkerFiles();
     // Reassure the watchdog process that we're terminating voluntarily.
-    if (mWatchdog && mWatchdog.isRunning())
+    if (mWatchdog && mWatchdog->isRunning())
     {
-        auto& stdin = mWatchdog->getWritePipe();
-        stdin.get_ostream() << "OK" << std::flush;
+        auto& watchin = mWatchdog->getWritePipe();
+        watchin.get_ostream() << "OK" << std::flush;
         // Normally LLProcess pipes are serviced by gIdleCallbacks. But by
         // this point, nobody's calling gIdleCallbacks.callFunctions() any
         // more.
         // Does this need a timeout? Is it possible that even if the watchdog
         // continues waiting, APR will fail to deliver what we just wrote?
-        while (mWatchdog->isRunning() && stdin.size())
+        while (mWatchdog->isRunning() && watchin.size())
         {
             // Don't call gIdleCallbacks.callFunctions(), in case there remain
             // dangling pointers to subsystems that have been cleaned up.
