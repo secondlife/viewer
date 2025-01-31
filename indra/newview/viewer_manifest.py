@@ -748,7 +748,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
             deleted_dirs = set(itertools.chain.from_iterable(path_ancestors(d)
                                                              for d in deleted_file_dirs))
             # sort deepest hierarchy first
-            for d in sorted(deleted_dirs, key=lambda f: (f.count(os.path.sep), f), reverse=True):
+            for d in sorted(deleted_dirs, key=lambda f: (len(Path(f).parents), f), reverse=True):
                 result.append('RMDir ' + INSTDIR(d))
 
         return '\n'.join(result)
