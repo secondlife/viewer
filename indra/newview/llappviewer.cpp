@@ -678,7 +678,11 @@ LLAppViewer::LLAppViewer()
         // the whole point.
         watchdog.autokill = false;
         watchdog.attached = false;
+#if LL_WINDOWS
+        watchdog.executable = "pythonw";
+#else
         watchdog.executable = "python";
+#endif
         auto datadir = gDirUtilp->getAppRODataDir();
         if (gDirUtilp->getBaseFileName(datadir) == "newview")
         {
