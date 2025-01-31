@@ -679,7 +679,16 @@ LLAppViewer::LLAppViewer()
         watchdog.autokill = false;
         watchdog.attached = false;
         watchdog.executable = "python";
-        auto watchdog_script = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "watchdog.py");
+        auto datadir = gDirUtilp->getAppRODataDir();
+        if (gDirUtilp->getBaseFileName(datadir) == "newview")
+        {
+            // We're running in a Windows developer area, and gDirUtilp has
+            // set AppRODataDir to indra/newview for convenience. But it's not
+            // convenient for finding watchdog.py, which is in the built
+            // viewer image.
+            datadir = gDirUtilp->getExecutableDir();
+        }
+        auto watchdog_script = gDirUtilp->add(datadir, "watchdog.py");
         watchdog.args.add(watchdog_script);
         watchdog.args.add(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ""));
         watchdog.files.add(LLProcess::FileParam("pipe")); // stdin
@@ -694,7 +703,9 @@ LLAppViewer::LLAppViewer()
                 if (mWatchdog)
                 {
                     auto& watcherr = mWatchdog->getReadPipe(LLProcess::STDERR);
-                    LL_CONT << '\n' << watcherr.read(watcherr.size());
+                    auto err = watcherr.read(watcherr.size());
+                    LLStringUtil::trimTail(err);
+                    LL_CONT << '\n' << err;
                 }
                 LL_ENDL;
                 return false;
