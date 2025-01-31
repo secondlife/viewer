@@ -386,6 +386,8 @@ public:
 
     LLMutex*    mMutex;
     LLMutex*    mHeaderMutex;
+    LLMutex*    mLoadedMutex;
+    LLMutex*    mPendingMutex;
     LLCondition* mSignal;
 
     //map of known mesh headers
@@ -574,7 +576,7 @@ private:
                                     size_t offset, size_t len,
                                     const LLCore::HttpHandler::ptr_t &handler);
 
-    // Mutex:  mMutex must be alerady locked when calling
+    // Mutex: acquires mPendingMutex, mMutex and mHeaderMutex as needed
     void loadMeshLOD(const LLUUID &mesh_id, const LLVolumeParams& mesh_params, S32 lod);
 
     // Threads:  Repo thread only
