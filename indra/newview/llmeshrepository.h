@@ -517,8 +517,8 @@ public:
     typedef std::vector<std::pair<const LLVolumeParams&, S32> > lod_list_t;
     void loadMeshLODs(const lod_list_t& mesh_vect);
 
-    bool fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry = true);
-    bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, bool can_retry = true);
+    bool fetchMeshHeader(const LLVolumeParams& mesh_params);
+    bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
     EMeshProcessingResult headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size, U32 flags = 0);
     EMeshProcessingResult lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
     bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
@@ -537,7 +537,7 @@ public:
 
     //send request for skin info, returns true if header info exists
     //  (should hold onto mesh_id and try again later if header info does not exist)
-    bool fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry = true);
+    bool fetchMeshSkinInfo(const LLUUID& mesh_id);
 
     //send request for decomposition, returns true if header info exists
     //  (should hold onto mesh_id and try again later if header info does not exist)

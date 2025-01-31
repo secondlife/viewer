@@ -963,7 +963,7 @@ void LLMeshRepoThread::run()
                     {
                         incomplete.emplace_back(req);
                     }
-                    else if (!fetchMeshSkinInfo(req.mId, req.canRetry()))
+                    else if (!fetchMeshSkinInfo(req.mId))
                     {
                         if (req.canRetry())
                         {
@@ -1010,7 +1010,7 @@ void LLMeshRepoThread::run()
                     // failed to load before, wait a bit
                     incomplete.push_front(req);
                 }
-                else if (!fetchMeshLOD(req.mMeshParams, req.mLOD, req.canRetry()))
+                else if (!fetchMeshLOD(req.mMeshParams, req.mLOD))
                 {
                     if (req.canRetry())
                     {
@@ -1058,7 +1058,7 @@ void LLMeshRepoThread::run()
                     // failed to load before, wait a bit
                     incomplete.push_front(req);
                 }
-                else if (!fetchMeshHeader(req.mMeshParams, req.canRetry()))
+                else if (!fetchMeshHeader(req.mMeshParams))
                 {
                     if (req.canRetry())
                     {
@@ -1410,7 +1410,7 @@ LLCore::HttpHandle LLMeshRepoThread::getByteRange(const std::string & url,
 }
 
 
-bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
+bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 {
     LL_PROFILE_ZONE_SCOPED;
     if (!mHeaderMutex)
@@ -1491,15 +1491,10 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
                                        << LL_ENDL;
                     ret = false;
                 }
-                else if(can_retry)
+                else
                 {
                     handler->mHttpHandle = handle;
                     mHttpRequestSet.insert(handler);
-                }
-                else
-                {
-                    LLMutexLock locker(mMutex);
-                    mSkinUnavailableQ.emplace_back(mesh_id);
                 }
             }
             else
@@ -1767,7 +1762,7 @@ void LLMeshRepoThread::decActiveSkinRequests()
 }
 
 //return false if failed to get header
-bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry)
+bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 {
     LL_PROFILE_ZONE_SCOPED;
     ++LLMeshRepository::sMeshRequestCount;
@@ -1838,7 +1833,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
                                << LL_ENDL;
             retval = false;
         }
-        else if (can_retry)
+        else
         {
             handler->mHttpHandle = handle;
             mHttpRequestSet.insert(handler);
@@ -1849,7 +1844,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 }
 
 //return false if failed to get mesh lod.
-bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, bool can_retry)
+bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 {
     LL_PROFILE_ZONE_SCOPED;
     if (!mHeaderMutex)
@@ -1934,16 +1929,11 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
                                        << LL_ENDL;
                     retval = false;
                 }
-                else if (can_retry)
-                {
-                    handler->mHttpHandle = handle;
-                    mHttpRequestSet.insert(handler);
-                    // *NOTE:  Allowing a re-request, not marking as unavailable.  Is that correct?
-                }
                 else
                 {
-                    LLMutexLock lock(mMutex);
-                    mUnavailableQ.push_back(LODRequest(mesh_params, lod));
+                    // we already made a request, store the handle
+                    handler->mHttpHandle = handle;
+                    mHttpRequestSet.insert(handler);
                 }
             }
             else
