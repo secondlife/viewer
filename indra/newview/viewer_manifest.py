@@ -32,6 +32,7 @@ import itertools
 import json
 import os
 import os.path
+from pathlib import Path
 import plistlib
 import random
 import re
@@ -52,6 +53,12 @@ from indra.util.llmanifest import LLManifest, main, path_ancestors, CHANNEL_VEND
 import llsd
 
 class ViewerManifest(LLManifest):
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        # find base of repo
+        self.basedir = Path(os.pardir) / os.pardir
+        self.pkgdir = Path(self.args['build']) / os.pardir / 'packages'
+
     def is_packaging_viewer(self):
         # Some commands, files will only be included
         # if we are packaging the viewer on windows.
@@ -62,8 +69,8 @@ class ViewerManifest(LLManifest):
 
     def construct(self):
         super(ViewerManifest, self).construct()
-        self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
-        self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
+        self.path(src=self.basedir/"scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
+        self.path(src=self.basedir/"etc/message.xml", dst="app_settings/message.xml")
 
         if self.is_packaging_viewer():
             with self.prefix(src_dst="app_settings"):
@@ -75,7 +82,7 @@ class ViewerManifest(LLManifest):
                 # include the entire shaders directory recursively
                 self.path("shaders")
                 # include the extracted list of contributors
-                contributions_path = os.path.join(self.args['source'], "..", "..", "doc", "contributions.txt")
+                contributions_path = os.path.join(self.basedir, "doc", "contributions.txt")
                 contributor_names = self.extract_names(contributions_path)
                 self.put_in_file(contributor_names.encode(), "contributors.txt", src=contributions_path)
 
@@ -89,8 +96,7 @@ class ViewerManifest(LLManifest):
                 self.path("filters")
 
                 # ... and the included spell checking dictionaries
-                pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                with self.prefix(src=pkgdir):
+                with self.prefix(src=self.pkgdir):
                     self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
@@ -141,7 +147,7 @@ class ViewerManifest(LLManifest):
                 self.path("*.tga")
 
             # Include our fonts
-            with self.prefix(src="../packages/fonts",src_dst="fonts"):
+            with self.prefix(src=self.pkgdir/"fonts",src_dst="fonts"):
                 self.path("*.ttf")
                 self.path("*.txt")
 
@@ -165,6 +171,9 @@ class ViewerManifest(LLManifest):
                     with self.prefix(src="*/html", dst="*/html"):
                         self.path("*/*/*/*.js")
                         self.path("*/*/*.html")
+
+            # watchdog
+            self.path2basename(self.basedir/'indra'/'watchdog', 'watchdog.py')
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
@@ -275,13 +284,13 @@ class ViewerManifest(LLManifest):
 
         # All lines up to and including the first blank line are the file header; skip them
         lines.reverse() # so that pop will pull from first to last line
-        while not re.match("\s*$", lines.pop()) :
+        while not re.match(r"\s*$", lines.pop()) :
             pass # do nothing
 
         # A line that starts with a non-whitespace character is a name; all others describe contributions, so collect the names
         names = []
         for line in lines :
-            if re.match("\S", line) :
+            if re.match(r"\S", line) :
                 names.append(line.rstrip())
         # It's not fair to always put the same people at the head of the list
         random.shuffle(names)
@@ -495,10 +504,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
     def construct(self):
         super().construct()
 
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
-
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
@@ -520,7 +525,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 # for self.relpath().
                 appbase = self.relpath(
                     self.get_dst_prefix(),
-                    base=os.path.join(os.getcwd(), os.pardir, os.pardir),
+                    base=self.basedir.resolve(),
                     symlink=True)
                 self.set_github_output('viewer_app', appbase,
                                     # except for this stuff
@@ -531,7 +536,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                                 '*.bat',
                                                 '*.tar.xz')))
 
-            with self.prefix(src=os.path.join(pkgdir, "VMP")):
+            with self.prefix(src=os.path.join(self.pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SLVersionChecker.exe')
 
@@ -577,7 +582,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path_optional("vcruntime140_threads.dll")
 
             # SLVoice executable
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+            with self.prefix(src=os.path.join(self.pkgdir, 'bin', 'release')):
                 self.path("SLVoice.exe")
 
             # Vivox libraries
@@ -591,14 +596,14 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("BugSplatRc64.dll")
 
             if self.args['tracy'] == 'ON':
-                with self.prefix(src=os.path.join(pkgdir, 'bin')):
+                with self.prefix(src=os.path.join(self.pkgdir, 'bin')):
                     self.path("tracy-profiler.exe")
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("cube.dae")
 
-        with self.prefix(src=pkgdir):
+        with self.prefix(src=self.pkgdir):
             self.path("ca-bundle.crt")
 
         # Media plugins - CEF
@@ -619,7 +624,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
             config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-            with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
+            with self.prefix(src=os.path.join(self.pkgdir, 'bin', config)):
                 self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
@@ -637,13 +642,13 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path_optional("vcruntime140_1.dll")
 
             # CEF files common to all configurations
-            with self.prefix(src=os.path.join(pkgdir, 'resources')):
+            with self.prefix(src=os.path.join(self.pkgdir, 'resources')):
                 self.path("chrome_100_percent.pak")
                 self.path("chrome_200_percent.pak")
                 self.path("resources.pak")
                 self.path("icudtl.dat")
 
-            with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
+            with self.prefix(src=os.path.join(self.pkgdir, 'resources', 'locales'), dst='locales'):
                 self.path("am.pak")
                 self.path("ar.pak")
                 self.path("bg.pak")
@@ -698,7 +703,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("zh-CN.pak")
                 self.path("zh-TW.pak")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+            with self.prefix(src=os.path.join(self.pkgdir, 'bin', 'release')):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
                 self.path("plugins/")
@@ -838,9 +843,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
         # script)
         self.path(os.path.join(self.args['configuration'], self.channel() + ".app"), dst="")
 
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        relpkgdir = os.path.join(self.pkgdir, "lib", "release")
 
         with self.prefix(src="", dst="Contents"):  # everything goes in Contents
             bugsplat_db = self.args.get('bugsplat')
@@ -918,7 +921,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                     self.path("secondlife.icns")
 
                 # Copy in the updater script and helper modules
-                self.path(src=os.path.join(pkgdir, 'VMP'), dst="updater")
+                self.path(src=os.path.join(self.pkgdir, 'VMP'), dst="updater")
 
                 with self.prefix(src="", dst=os.path.join("updater", "icons")):
                     self.path2basename(self.icon_path(), "secondlife.ico")
@@ -937,7 +940,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 self.path("cube.dae")
                 self.path("SecondLife.nib")
 
-                with self.prefix(src=pkgdir,dst=""):
+                with self.prefix(src=self.pkgdir,dst=""):
                     self.path("ca-bundle.crt")
 
                 # Translations
@@ -1009,7 +1012,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 libfile_parent = self.get_dst_prefix()
                 dylibs=[]
                 # SLVoice executable
-                with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                with self.prefix(src=os.path.join(self.pkgdir, 'bin', 'release')):
                     self.path("SLVoice")
 
                 # Vivox libraries
@@ -1192,10 +1195,6 @@ class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
 
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
-
         self.path("licenses-linux.txt","licenses.txt")
         with self.prefix("linux_tools"):
             self.path("client-readme.txt","README-linux.txt")
@@ -1234,11 +1233,11 @@ class LinuxManifest(ViewerManifest):
                       "libmedia_plugin_gstreamer.so")
             self.path2basename("libvlc", "libmedia_plugin_libvlc.so")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
+        with self.prefix(src=os.path.join(self.pkgdir, 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
             self.path( "plugins.dat" )
             self.path( "*/*.so" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib' ), dst="lib"):
+        with self.prefix(src=os.path.join(self.pkgdir, 'lib' ), dst="lib"):
             self.path( "libvlc*.so*" )
 
         # llcommon
@@ -1248,7 +1247,7 @@ class LinuxManifest(ViewerManifest):
         self.path("featuretable_linux.txt")
         self.path("cube.dae")
 
-        with self.prefix(src=pkgdir):
+        with self.prefix(src=self.pkgdir):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
@@ -1300,9 +1299,7 @@ class Linux_i686_Manifest(LinuxManifest):
     def construct(self):
         super(Linux_i686_Manifest, self).construct()
 
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        relpkgdir = os.path.join(self.pkgdir, "lib", "release")
 
         with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libdb*.so")

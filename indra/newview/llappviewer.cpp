@@ -669,6 +669,43 @@ LLAppViewer::LLAppViewer()
 
     gLoggedInTime.stop();
 
+    // Start our watchdog child process. Any new crash before this point will,
+    // sadly, go unreported.
+    {
+        LLProcess::Params watchdog;
+        watchdog.desc = "watchdog process";
+        // The watchdog must persist beyond the lifespan of the viewer. That's
+        // the whole point.
+        watchdog.autokill = false;
+        watchdog.attached = false;
+        watchdog.executable = "python";
+        auto watchdog_script = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "watchdog.py");
+        watchdog.args.add(watchdog_script);
+        watchdog.args.add(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ""));
+        watchdog.files.add(LLProcess::FileParam("pipe")); // stdin
+        watchdog.files.add(LLProcess::FileParam("pipe")); // stdout
+        watchdog.files.add(LLProcess::FileParam("pipe")); // stderr
+        const char* pumpname = "WatchdogDead";
+        LLEventPumps::instance().obtain(pumpname).listen(
+            "LLAppViewer",
+            [this](const LLSD& event)
+            {
+                LL_WARNS() << "Watchdog process died! " << event;
+                if (mWatchdog)
+                {
+                    auto& stderr = mWatchdog->getReadPipe(LLProcess::STDERR);
+                    LL_CONT << '\n' << stderr.read(stderr.size());
+                }
+                LL_ENDL;
+                return false;
+            });
+        watchdog.postend = pumpname;
+        mWatchdog = LLProcess::create(watchdog);
+        // This is kind of moot, since we're so early the logging subsystem
+        // hasn't yet been initialized.
+        //LL_WARNS_IF(! mWatchdog) << "Failed to run " << watchdog_script << LL_ENDL;
+    }
+
     processMarkerFiles();
     //
     // OK to write stuff to logs now, we've now crash reported if necessary
@@ -701,6 +738,24 @@ LLAppViewer::~LLAppViewer()
 
     // If we got to this destructor somehow, the app didn't hang.
     removeMarkerFiles();
+    // Reassure the watchdog process that we're terminating voluntarily.
+    if (mWatchdog && mWatchdog.isRunning())
+    {
+        auto& stdin = mWatchdog->getWritePipe();
+        stdin.get_ostream() << "OK" << std::flush;
+        // Normally LLProcess pipes are serviced by gIdleCallbacks. But by
+        // this point, nobody's calling gIdleCallbacks.callFunctions() any
+        // more.
+        // Does this need a timeout? Is it possible that even if the watchdog
+        // continues waiting, APR will fail to deliver what we just wrote?
+        while (mWatchdog->isRunning() && stdin.size())
+        {
+            // Don't call gIdleCallbacks.callFunctions(), in case there remain
+            // dangling pointers to subsystems that have been cleaned up.
+            // Instead, service only this LLProcess.
+            mWatchdog->tick();
+        }
+    }
 }
 
 class LLUITranslationBridge : public LLTranslationBridge

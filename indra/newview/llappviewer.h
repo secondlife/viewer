@@ -46,6 +46,7 @@
 #include "llapp.h"
 #include "llapr.h"
 #include "llcontrol.h"
+#include "llprocess.h"
 #include "llsys.h"          // for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
@@ -325,6 +326,7 @@ private:
     struct SettingsFiles* mSettingsLocationList;
 
     LLWatchdogTimeout* mMainloopTimeout;
+    LLProcessPtr mWatchdog;
 
     // For performance and metric gathering
     class LLThread* mFastTimerLogThread;

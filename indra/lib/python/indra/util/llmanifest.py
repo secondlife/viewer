@@ -37,6 +37,7 @@ import glob
 import itertools
 import operator
 import os
+from pathlib import Path
 import re
 import shlex
 import shutil
@@ -57,23 +58,18 @@ class MissingError(ManifestError):
         super(MissingError, self).__init__(self.msg)
 
 def path_ancestors(path):
-    drive, path = os.path.splitdrive(os.path.normpath(path))
-    result = []
-    while len(path) > 0 and path != os.path.sep:
-        result.append(drive+path)
-        path, sub = os.path.split(path)
-    return result
+    return Path(path).parents
 
 def proper_windows_path(path, current_platform = sys.platform):
     """ This function takes an absolute Windows or Cygwin path and
     returns a path appropriately formatted for the platform it's
     running on (as determined by sys.platform)"""
-    path = path.strip()
+    path = str(path).strip()
     drive_letter = None
     rel = None
     match = re.match("/cygdrive/([a-z])/(.*)", path)
     if not match:
-        match = re.match('([a-zA-Z]):\\\(.*)', path)
+        match = re.match(r'([a-zA-Z]):\\\(.*)', path)
     if not match:
         return None         # not an absolute path
     drive_letter = match.group(1)
@@ -309,7 +305,7 @@ def main(extra=[]):
 class LLManifestRegistry(type):
     def __init__(cls, name, bases, dct):
         super(LLManifestRegistry, cls).__init__(name, bases, dct)
-        match = re.match("(\w+)Manifest", name)
+        match = re.match(r"(\w+)Manifest", name)
         if match:
            cls.manifests[match.group(1).lower()] = cls
 
@@ -391,10 +387,10 @@ class LLManifest(object, metaclass=LLManifestRegistry):
         if src_dst is not None:
             src = src_dst
             dst = src_dst
-        self.src_prefix.append(src)
-        self.artwork_prefix.append(src)
-        self.build_prefix.append(build)
-        self.dst_prefix.append(dst)
+        self.src_prefix.append(str(src))
+        self.artwork_prefix.append(str(src))
+        self.build_prefix.append(str(build))
+        self.dst_prefix.append(str(dst))
 
 ##      self.display_stacks()
 
@@ -551,7 +547,7 @@ class LLManifest(object, metaclass=LLManifestRegistry):
           b) schedule it for cleanup"""
         if not os.path.exists(path):
             raise ManifestError("Should be something at path " + path)
-        self.created_paths.append(path)
+        self.created_paths.append(str(path))
 
     def put_in_file(self, contents, dst, src=None):
         # write contents as dst
@@ -583,7 +579,7 @@ class LLManifest(object, metaclass=LLManifestRegistry):
         if src and (os.path.exists(src) or os.path.islink(src)):
             # ensure that destination path exists
             self.cmakedirs(os.path.dirname(dst))
-            self.created_paths.append(dst)
+            self.created_paths.append(str(dst))
             self.ccopymumble(src, dst)
         else:
             print("Doesn't exist:", src)
@@ -663,7 +659,7 @@ class LLManifest(object, metaclass=LLManifestRegistry):
                 method = getattr(self, methodname, None)
                 if method is not None:
                     method(src, dst)
-            self.file_list.append([src, dst])
+            self.file_list.append([str(src), str(dst)])
             return 1
         else:
             sys.stdout.write(" (excluding %r, %r)" % (src, dst))
@@ -795,11 +791,11 @@ class LLManifest(object, metaclass=LLManifestRegistry):
 
     def wildcard_regex(self, src_glob, dst_glob):
         src_re = re.escape(src_glob)
-        src_re = src_re.replace('\*', '([-a-zA-Z0-9._ ]*)')
+        src_re = src_re.replace(r'\*', '([-a-zA-Z0-9._ ]*)')
         dst_temp = dst_glob
         i = 1
         while dst_temp.count("*") > 0:
-            dst_temp = dst_temp.replace('*', '\g<' + str(i) + '>', 1)
+            dst_temp = dst_temp.replace('*', r'\g<' + str(i) + '>', 1)
             i = i+1
         return re.compile(src_re), dst_temp
 
