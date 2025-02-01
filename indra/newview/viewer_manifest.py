@@ -53,6 +53,9 @@ from indra.util.llmanifest import LLManifest, main, path_ancestors, CHANNEL_VEND
 import llsd
 
 class ViewerManifest(LLManifest):
+    exe_sfx = ""
+    lib_sfx = None
+
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         # find base of repo
@@ -171,6 +174,10 @@ class ViewerManifest(LLManifest):
                     with self.prefix(src="*/html", dst="*/html"):
                         self.path("*/*/*/*.js")
                         self.path("*/*/*.html")
+
+            # watchdog
+            self.path2basename(Path(self.args['build']).parent/'watchdog',
+                               'watchdog' + self.exe_sfx)
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
@@ -435,6 +442,8 @@ class ViewerManifest(LLManifest):
 
 
 class Windows_x86_64_Manifest(ViewerManifest):
+    exe_sfx = ".exe"
+    lib_sfx = ".dll"
     # We want the platform, per se, for every Windows build to be 'win'. The
     # VMP will concatenate that with the address_size.
     build_data_json_platform = 'win'
@@ -544,9 +553,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 with self.prefix(src="vmp_icons"):
                     self.path("*.png")
                     self.path("*.gif")
-
-        # watchdog
-        self.path2basename(Path(self.args['build']).parent/'watchdog', 'watchdog.exe')
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -821,6 +827,8 @@ class Windows_x86_64_Manifest(ViewerManifest):
 
 
 class Darwin_x86_64_Manifest(ViewerManifest):
+    exe_sfx = ""
+    lib_sfx = ".dylib"
     build_data_json_platform = 'mac'
     address_size = 64
 
@@ -915,9 +923,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # defer cross-platform file copies until we're in the
                 # nested Resources directory
                 super().construct()
-
-                # watchdog
-                self.path2basename(Path(self.args['build']).parent/'watchdog', 'watchdog')
 
                 # need .icns file referenced by Info.plist
                 with self.prefix(src=self.icon_path(), dst="") :
@@ -1193,6 +1198,8 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
 
 class LinuxManifest(ViewerManifest):
+    exe_sfx = ""
+    lib_sfx = ".so"
     build_data_json_platform = 'lnx'
 
     def construct(self):
@@ -1242,9 +1249,6 @@ class LinuxManifest(ViewerManifest):
 
         with self.prefix(src=os.path.join(self.pkgdir, 'lib' ), dst="lib"):
             self.path( "libvlc*.so*" )
-
-        # watchdog
-        self.path2basename(Path(self.args['build']).parent/'watchdog', 'watchdog')
 
         # llcommon
         if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):
