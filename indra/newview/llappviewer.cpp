@@ -683,8 +683,8 @@ LLAppViewer::LLAppViewer()
         {
             // We're running in a Windows developer area, and gDirUtilp has
             // set AppRODataDir to indra/newview for convenience. But it's not
-            // convenient for finding watchdog.py, which is in the built
-            // viewer image.
+            // convenient for finding watchdog, which is in the built viewer
+            // image.
             datadir = gDirUtilp->getExecutableDir();
         }
 #if LL_WINDOWS
@@ -694,6 +694,8 @@ LLAppViewer::LLAppViewer()
 #endif
         auto watchdog_path = gDirUtilp->add(datadir, watchdog_exe);
         watchdog.executable = watchdog_path;
+        // Pass watchdog our logs directory so it need not replicate the logic
+        // to discover where to write watchdog.log.
         watchdog.args.add(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ""));
         watchdog.files.add(LLProcess::FileParam("pipe")); // stdin
         watchdog.files.add(LLProcess::FileParam("pipe")); // stdout
