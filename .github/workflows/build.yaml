@@ -108,7 +108,7 @@ jobs:
           path: .master-message-template
 
       - name: Install autobuild and python dependencies
-        run: pip3 install autobuild llsd
+        run: pip3 install autobuild llsd PyInstaller
 
       - name: Cache autobuild packages
         id: cache-installables

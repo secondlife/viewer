@@ -172,9 +172,6 @@ class ViewerManifest(LLManifest):
                         self.path("*/*/*/*.js")
                         self.path("*/*/*.html")
 
-            # watchdog
-            self.path2basename(self.basedir/'indra'/'watchdog', 'watchdog.py')
-
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
             build_data_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),
@@ -548,6 +545,9 @@ class Windows_x86_64_Manifest(ViewerManifest):
                     self.path("*.png")
                     self.path("*.gif")
 
+        # watchdog
+        self.path2basename(Path(self.args['build']).parent/'watchdog', 'watchdog.exe')
+
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
@@ -916,6 +916,9 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # nested Resources directory
                 super().construct()
 
+                # watchdog
+                self.path2basename(Path(self.args['build']).parent/'watchdog', 'watchdog')
+
                 # need .icns file referenced by Info.plist
                 with self.prefix(src=self.icon_path(), dst="") :
                     self.path("secondlife.icns")
@@ -1239,6 +1242,9 @@ class LinuxManifest(ViewerManifest):
 
         with self.prefix(src=os.path.join(self.pkgdir, 'lib' ), dst="lib"):
             self.path( "libvlc*.so*" )
+
+        # watchdog
+        self.path2basename(Path(self.args['build']).parent/'watchdog', 'watchdog')
 
         # llcommon
         if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):

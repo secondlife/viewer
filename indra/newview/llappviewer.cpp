@@ -678,11 +678,6 @@ LLAppViewer::LLAppViewer()
         // the whole point.
         watchdog.autokill = false;
         watchdog.attached = false;
-#if LL_WINDOWS
-        watchdog.executable = "pythonw";
-#else
-        watchdog.executable = "python";
-#endif
         auto datadir = gDirUtilp->getAppRODataDir();
         if (gDirUtilp->getBaseFileName(datadir) == "newview")
         {
@@ -692,8 +687,13 @@ LLAppViewer::LLAppViewer()
             // viewer image.
             datadir = gDirUtilp->getExecutableDir();
         }
-        auto watchdog_script = gDirUtilp->add(datadir, "watchdog.py");
-        watchdog.args.add(watchdog_script);
+#if LL_WINDOWS
+        const char* watchdog_exe = "watchdog.exe";
+#else
+        const char* watchdog_exe = "watchdog";
+#endif
+        auto watchdog_path = gDirUtilp->add(datadir, watchdog_exe);
+        watchdog.executable = watchdog_path;
         watchdog.args.add(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ""));
         watchdog.files.add(LLProcess::FileParam("pipe")); // stdin
         watchdog.files.add(LLProcess::FileParam("pipe")); // stdout
@@ -718,7 +718,7 @@ LLAppViewer::LLAppViewer()
         mWatchdog = LLProcess::create(watchdog);
         // This is kind of moot, since we're so early the logging subsystem
         // hasn't yet been initialized.
-        //LL_WARNS_IF(! mWatchdog) << "Failed to run " << watchdog_script << LL_ENDL;
+        //LL_WARNS_IF(! mWatchdog) << "Failed to run " << watchdog_path << LL_ENDL;
     }
 
     processMarkerFiles();

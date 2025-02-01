@@ -1694,6 +1694,7 @@ add_executable(${VIEWER_BINARY_NAME}
     MACOSX_BUNDLE
     ${viewer_SOURCE_FILES}
     )
+add_dependencies(${VIEWER_BINARY_NAME} watchdog_exe)
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
