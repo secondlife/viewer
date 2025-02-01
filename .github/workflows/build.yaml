@@ -137,7 +137,8 @@ jobs:
             libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
-            llvm mold libpipewire-0.3-dev libosmesa6-dev libdbus-1-dev
+            llvm mold libpipewire-0.3-dev libosmesa6-dev libdbus-1-dev \
+            gcc-11 g++-11
           sudo locale-gen en_US.UTF-8
           sudo locale-gen en_GB.UTF-8
           sudo locale-gen fr_FR.UTF-8
@@ -266,6 +267,13 @@ jobs:
             export PYTHON_COMMAND="python3"
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
+
+          # This is necessary because the runner is now ubuntu24.04 and cannot be built.
+          # TODO: It needs to be removed once the runner is back to ubuntu 22.04 base.
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=gcc-11
+            export CXX=g++-11
+          fi
 
           ./build.sh
 
