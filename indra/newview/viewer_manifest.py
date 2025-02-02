@@ -859,13 +859,31 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
             # CEF framework goes inside Contents/Frameworks.
             # Remember where we parked this car.
-            with self.prefix(src="", dst="Frameworks"):
+            with self.prefix(src=relpkgdir, dst="Frameworks"):
+                self.path("libndofdev.dylib")
+
                 CEF_framework = "Chromium Embedded Framework.framework"
                 self.path2basename(relpkgdir, CEF_framework)
                 CEF_framework = self.dst_path_of(CEF_framework)
 
                 if self.args.get('bugsplat'):
                     self.path2basename(relpkgdir, "BugsplatMac.framework")
+
+                # OpenAL dylibs
+                if self.args['openal'] == 'ON':
+                    for libfile in (
+                                "libopenal.dylib",
+                                "libalut.dylib",
+                                ):
+                        self.path(libfile)
+
+                # WebRTC libraries
+                with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                          'sharedlibs', self.args['buildtype'], 'Resources')):
+                    for libfile in (
+                            'libllwebrtc.dylib',
+                    ):
+                        self.path(libfile)
 
             with self.prefix(dst="MacOS"):
                 executable = self.dst_path_of(self.channel())
@@ -926,9 +944,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                         self.path("*.png")
                         self.path("*.gif")
 
-                with self.prefix(src=relpkgdir, dst=""):
-                    self.path("libndofdev.dylib")
-
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
 
@@ -988,20 +1003,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                         print("Skipping %s" % dst)
                     return added
 
-                # WebRTC libraries
-                with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                          'sharedlibs', self.args['buildtype'], 'Resources')):
-                    for libfile in (
-                            'libllwebrtc.dylib',
-                    ):
-                        self.path(libfile)
-
-                        oldpath = os.path.join("@rpath", libfile)
-                        self.run_command(
-                            ['install_name_tool', '-change', oldpath,
-                             '@executable_path/../Resources/%s' % libfile,
-                             executable])
-
                 # dylibs is a list of all the .dylib files we expect to need
                 # in our bundled sub-apps. For each of these we'll create a
                 # symlink from sub-app/Contents/Resources to the real .dylib.
@@ -1018,14 +1019,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 'libvivoxsdk.dylib',
                                 ):
                     self.path2basename(relpkgdir, libfile)
-
-                # OpenAL dylibs
-                if self.args['openal'] == 'ON':
-                    for libfile in (
-                                "libopenal.dylib",
-                                "libalut.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
                 # our apps
                 executable_path = {}

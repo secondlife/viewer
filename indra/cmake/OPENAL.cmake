@@ -22,20 +22,17 @@ if (USE_OPENAL)
   target_compile_definitions( ll::openal INTERFACE LL_OPENAL=1)
   use_prebuilt_binary(openal)
 
-  if(WINDOWS)
-    target_link_libraries( ll::openal INTERFACE
-            OpenAL32
-            alut
-            )
-  elseif(LINUX)
-    target_link_libraries( ll::openal INTERFACE
-            openal
-            alut
-            )
-  else()
-    target_link_libraries( ll::openal INTERFACE
-            openal
-            alut
-            )
-  endif()
+  find_library(OPENAL_LIBRARY
+      NAMES
+      OpenAL32
+      openal
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+  find_library(ALUT_LIBRARY
+      NAMES
+      alut
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+  target_link_libraries(ll::openal INTERFACE ${OPENAL_LIBRARY} ${ALUT_LIBRARY})
+
 endif ()
