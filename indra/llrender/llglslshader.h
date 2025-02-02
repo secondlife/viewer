@@ -360,7 +360,7 @@ public:
     // hacky flag used for optimization in LLDrawPoolAlpha
     bool mCanBindFast = false;
 
-#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+#if LL_PROFILER_ENABLE_RENDER_DOC
     void setLabel(const char* label);
 #endif
 
@@ -380,7 +380,7 @@ extern LLGLSLShader         gSolidColorProgram;
 //Alpha mask shader (declared here so llappearance can access properly)
 extern LLGLSLShader         gAlphaMaskProgram;
 
-#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+#if LL_PROFILER_ENABLE_RENDER_DOC
 #define LL_SET_SHADER_LABEL(shader) shader.setLabel(#shader)
 #else
 #define LL_SET_SHADER_LABEL(shader, label)

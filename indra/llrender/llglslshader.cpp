@@ -543,7 +543,7 @@ bool LLGLSLShader::createShader()
         }
     }
 
-#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+#if LL_PROFILER_ENABLE_RENDER_DOC
     setLabel(mName.c_str());
 #endif
 
@@ -2061,7 +2061,7 @@ LLUUID LLGLSLShader::hash()
     return hash_obj.digest();
 }
 
-#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+#if LL_PROFILER_ENABLE_RENDER_DOC
 void LLGLSLShader::setLabel(const char* label) {
     LL_LABEL_OBJECT_GL(GL_PROGRAM, mProgramObject, strlen(label), label);
 }

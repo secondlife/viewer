@@ -7182,11 +7182,11 @@ extern LLPointer<LLImageGL> gEXRImage;
 
 void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
 {
+    LL_PROFILE_GPU_ZONE("tonemap");
+
     dst->bindTarget();
     // gamma correct lighting
     {
-        LL_PROFILE_GPU_ZONE("tonemap");
-
         static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
 
         LLGLDepthTest depth(GL_FALSE, GL_FALSE);
@@ -7235,11 +7235,11 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
 {
+    LL_PROFILE_GPU_ZONE("gamma correct");
+
     dst->bindTarget();
     // gamma correct lighting
     {
-        LL_PROFILE_GPU_ZONE("gamma correct");
-
         LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
         static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
@@ -7290,9 +7290,9 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
 
 void LLPipeline::generateGlow(LLRenderTarget* src)
 {
+    LL_PROFILE_GPU_ZONE("glow generate");
     if (sRenderGlow)
     {
-        LL_PROFILE_GPU_ZONE("glow");
         mGlow[2].bindTarget();
         mGlow[2].clear();
 
@@ -7401,6 +7401,7 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 {
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
+	LL_PROFILE_GPU_ZONE("cas");
     if (cas_sharpness == 0.0f || !gCASProgram.isComplete())
     {
         gPipeline.copyRenderTarget(src, dst);
@@ -7445,6 +7446,7 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
+	LL_PROFILE_GPU_ZONE("FXAA");
     {
         llassert(!gCubeSnapshot);
         bool multisample = RenderFSAAType == 1 && gFXAAProgram[0].isComplete() && mFXAAMap.isComplete();
@@ -7536,7 +7538,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
     // Present everything.
     if (multisample)
     {
-        LL_PROFILE_GPU_ZONE("aa");
+        LL_PROFILE_GPU_ZONE("SMAA Edge");
         static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
         U32 fsaa_quality = std::clamp(aa_quality(), 0U, 3U);
 
@@ -7648,13 +7650,13 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
 
 void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
+	LL_PROFILE_GPU_ZONE("SMAA");
     llassert(!gCubeSnapshot);
     bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
     // Present everything.
     if (multisample)
     {
-        LL_PROFILE_GPU_ZONE("aa");
         static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
         U32 fsaa_quality = std::clamp(aa_quality(), 0U, 3U);
 
@@ -7732,8 +7734,9 @@ void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 {
-    // Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
+    LL_PROFILE_GPU_ZONE("glow combine");
 
+    // Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
     dst->bindTarget();
 
     {
@@ -7752,6 +7755,7 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 {
+	LL_PROFILE_GPU_ZONE("dof");
     {
         bool dof_enabled =
             (RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
@@ -7762,7 +7766,6 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 
         if (dof_enabled)
         {
-            LL_PROFILE_GPU_ZONE("dof");
             LLGLDisable blend(GL_BLEND);
 
             // depth of field focal plane calculations
