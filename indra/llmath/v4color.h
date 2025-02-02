@@ -232,6 +232,9 @@ class LLColor4
         inline void clamp();
 };
 
+static_assert(std::is_trivially_copyable<LLColor4>::value, "LLColor4 must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLColor4>::value, "LLColor4 must be trivial move");
+static_assert(std::is_standard_layout<LLColor4>::value, "LLColor4 must be a standard layout type");
 
 // Non-member functions
 F32     distVec(const LLColor4 &a, const LLColor4 &b);          // Returns distance between a and b

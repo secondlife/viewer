@@ -130,6 +130,10 @@ class LLVector3d
 
 };
 
+static_assert(std::is_trivially_copyable<LLVector3d>::value, "LLVector3d must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLVector3d>::value, "LLVector3d must be trivial move");
+static_assert(std::is_standard_layout<LLVector3d>::value, "LLVector3d must be a standard layout type");
+
 typedef LLVector3d LLGlobalVec;
 
 inline const LLVector3d &LLVector3d::set(const LLVector3 &vec)
