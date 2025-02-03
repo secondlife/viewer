@@ -308,13 +308,18 @@ jobs:
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
-        uses: secondlife/viewer-build-util/sign-pkg-windows@v2
+        uses: secondlife/viewer-build-util/sign-pkg-windows@project/watchdog
         with:
           vault_uri: "${{ env.AZURE_KEY_VAULT_URI }}"
           cert_name: "${{ env.AZURE_CERT_NAME }}"
           client_id: "${{ env.AZURE_CLIENT_ID }}"
           client_secret: "${{ env.AZURE_CLIENT_SECRET }}"
           tenant_id: "${{ env.AZURE_TENANT_ID }}"
+          files: |
+            SecondLifeViewer.exe
+            SLVersionChecker.exe
+            watchdog.exe
+            llplugin/dullahan_host.exe
 
   sign-and-package-mac:
     env:
@@ -347,7 +352,7 @@ jobs:
 
       - name: Sign and package Mac viewer
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v2
+        uses: secondlife/viewer-build-util/sign-pkg-mac@project/watchdog
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -357,6 +362,15 @@ jobs:
           note_user: ${{ steps.note-creds.outputs.note_user }}
           note_pass: ${{ steps.note-creds.outputs.note_pass }}
           note_team: ${{ steps.note-creds.outputs.note_team }}
+          apps:
+            Contents/Resources/updater/SLVersionChecker
+            Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin
+            Contents/Resources/SLVoice
+          files:
+            Contents/Resources/watchdog
+            Contents/Resources/*.dylib
+            Contents/Resources/llplugin/*.dylib
+            "Contents/Frameworks/Chromium Embedded Framework.framework/Libraries"/*.dylib
 
   post-windows-symbols:
     env:
