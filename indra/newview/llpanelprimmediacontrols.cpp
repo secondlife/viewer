@@ -645,7 +645,7 @@ void LLPanelPrimMediaControls::updateShape()
         vert_it = vect_face.begin();
         vert_end = vect_face.end();
 
-        glm::mat4 mat;
+        glm::mat4 mat = glm::identity<glm::mat4>();
         if (!is_hud)
         {
             mat = get_current_projection() * get_current_modelview();

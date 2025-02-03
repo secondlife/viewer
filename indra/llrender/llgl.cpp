@@ -1123,17 +1123,6 @@ bool LLGLManager::initGL()
     if (mGLVersion >= 2.f)
     {
         parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
-
-#if 0 && LL_DARWIN
-        // TODO maybe switch to using a core profile for GL 3.2?
-        // https://stackoverflow.com/a/19868861
-        //never use GLSL greater than 1.20 on OSX
-        if (mGLSLVersionMajor > 1 || mGLSLVersionMinor > 30)
-        {
-            mGLSLVersionMajor = 1;
-            mGLSLVersionMinor = 30;
-        }
-#endif
     }
 
     if (mGLVersion >= 2.1f && LLImageGL::sCompressTextures)
@@ -2749,7 +2738,7 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
     if(cplane[2] < 0)
         cplane *= -1;
 
-    glm::mat4 suffix;
+    glm::mat4 suffix = glm::identity<glm::mat4>();
     suffix = glm::row(suffix, 2, cplane);
     glm::mat4 newP = suffix * P;
     gGL.matrixMode(LLRender::MM_PROJECTION);
