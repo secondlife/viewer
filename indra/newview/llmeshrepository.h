@@ -493,6 +493,8 @@ public:
 
     // workqueue for processing generic requests
     LL::WorkQueue mWorkQueue;
+    // lods have their own thread due to costly cacheOptimize() calls
+    std::unique_ptr<LL::ThreadPool> mLodThreadPool;
 
     // llcorehttp library interface objects.
     LLCore::HttpStatus                  mHttpStatus;
@@ -747,12 +749,12 @@ public:
     static U32 sLODPending;
     static U32 sLODProcessing;
     static U32 sCacheBytesRead;
-    static U32 sCacheBytesWritten;
+    static std::atomic<U32> sCacheBytesWritten;
     static U32 sCacheBytesHeaders;
     static U32 sCacheBytesSkins;
     static U32 sCacheBytesDecomps;
     static U32 sCacheReads;
-    static U32 sCacheWrites;
+    static std::atomic<U32> sCacheWrites;
     static U32 sMaxLockHoldoffs;                // Maximum sequential locking failures
 
     static LLDeadmanTimer sQuiescentTimer;      // Time-to-complete-mesh-downloads after significant events
