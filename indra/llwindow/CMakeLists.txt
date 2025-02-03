@@ -182,6 +182,5 @@ endif (SDL_FOUND)
   target_include_directories(llwindow INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (DARWIN)
-  find_library(CARBON_LIBRARY Carbon)
   target_link_libraries(llwindow ${CARBON_LIBRARY})
 endif (DARWIN)

@@ -27,6 +27,8 @@
 #ifndef LL_LLIMAGEJ2CKDU_H
 #define LL_LLIMAGEJ2CKDU_H
 
+#include "llpreprocessor.h"
+
 #include "llimagej2c.h"
 
 //

@@ -27,6 +27,8 @@
 #ifndef LL_LLKDUMEM_H
 #define LL_LLKDUMEM_H
 
+#include "llpreprocessor.h"
+
 // Support classes for reading and writing from memory buffers in KDU
 #define kdu_xxxx "kdu_image.h"
 #include "include_kdu_xxxx.h"

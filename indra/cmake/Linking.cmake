@@ -38,9 +38,10 @@ endif ()
 # windows) and CMAKE_BUILD_TYPE on Makefile based generators (like linux).  The reason for this is
 # that CMAKE_BUILD_TYPE is essentially meaningless at configuration time for IDE generators and
 # CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
-
-link_directories(${AUTOBUILD_INSTALL_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
-link_directories(${AUTOBUILD_INSTALL_DIR}/lib/release)
+if(NOT DARWIN)
+  link_directories(${AUTOBUILD_INSTALL_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
+  link_directories(${AUTOBUILD_INSTALL_DIR}/lib/release)
+endif(NOT DARWIN)
 
 add_library( ll::oslibraries INTERFACE IMPORTED )
 
@@ -75,6 +76,8 @@ else()
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COREAUDIO_LIBRARY CoreAudio)
+  find_library(COREGRAPHICS_LIBRARY CoreGraphics)
+  find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
 
   target_link_libraries( ll::oslibraries INTERFACE
           ${COCOA_LIBRARY}
@@ -84,6 +87,8 @@ else()
           ${AGL_LIBRARY}
           ${APPKIT_LIBRARY}
           ${COREAUDIO_LIBRARY}
+          ${AUDIOTOOLBOX_LIBRARY}
+          ${COREGRAPHICS_LIBRARY}
           )
 endif()
 
