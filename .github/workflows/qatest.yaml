@@ -1,4 +1,4 @@
-name: Run QA Test
+name: Run QA Test # Runs automated tests on a self-hosted QA machine
 
 on:
   workflow_run:
