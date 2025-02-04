@@ -859,6 +859,7 @@ LLMeshRepoThread::LLMeshRepoThread()
     mHeaderMutex = new LLMutex();
     mLoadedMutex = new LLMutex();
     mPendingMutex = new LLMutex();
+    mSkinMapMutex = new LLMutex();
     mSignal = new LLCondition();
     mHttpRequest = new LLCore::HttpRequest;
     mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
@@ -902,19 +903,21 @@ LLMeshRepoThread::~LLMeshRepoThread()
     }
 
     delete mHttpRequest;
-    mHttpRequest = NULL;
+    mHttpRequest = nullptr;
     delete mMutex;
-    mMutex = NULL;
+    mMutex = nullptr;
     delete mHeaderMutex;
-    mHeaderMutex = NULL;
+    mHeaderMutex = nullptr;
     delete mLoadedMutex;
-    mLoadedMutex = NULL;
+    mLoadedMutex = nullptr;
     delete mPendingMutex;
-    mPendingMutex = NULL;
+    mPendingMutex = nullptr;
+    delete mSkinMapMutex;
+    mSkinMapMutex = nullptr;
     delete mSignal;
-    mSignal = NULL;
+    mSignal = nullptr;
     delete[] mDiskCacheBuffer;
-    mDiskCacheBuffer = NULL;
+    mDiskCacheBuffer = nullptr;
 }
 
 void LLMeshRepoThread::run()
@@ -1949,7 +1952,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
                             S32 header_size = 0;
                             U32 header_flags = 0;
                             {
-                                LL_WARNS(LOG_MESH) << "Mesh header for ID " << mesh_id << " cache mismatch." << LL_ENDL;
+                                LL_DEBUGS(LOG_MESH) << "Mesh header for ID " << mesh_id << " cache mismatch." << LL_ENDL;
 
                                 LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
 
@@ -2240,8 +2243,12 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
         if (volume->getNumFaces() > 0)
         {
             // if we have a valid SkinInfo, cache per-joint bounding boxes for this LOD
-            LLMeshSkinInfo* skin_info = mSkinMap[mesh_params.getSculptID()];
-            if (skin_info && isAgentAvatarValid())
+            LLPointer<LLMeshSkinInfo> skin_info = nullptr;
+            {
+                LLMutexLock lock(mSkinMapMutex);
+                skin_info = mSkinMap[mesh_params.getSculptID()];
+            }
+            if (skin_info.notNull() && isAgentAvatarValid())
             {
                 for (S32 i = 0; i < volume->getNumFaces(); ++i)
                 {
@@ -2306,7 +2313,10 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 
         // copy the skin info for the background thread so we can use it
         // to calculate per-joint bounding boxes when volumes are loaded
-        mSkinMap[mesh_id] = new LLMeshSkinInfo(*info);
+        {
+            LLMutexLock lock(mSkinMapMutex);
+            mSkinMap[mesh_id] = new LLMeshSkinInfo(*info);
+        }
 
         {
             // Move the LLPointer in to the skin info queue to avoid reference
@@ -4349,6 +4359,7 @@ void LLMeshRepository::notifyLoadedMeshes()
             // erase from background thread
             mThread->mWorkQueue.post([=]()
                 {
+                    LLMutexLock(mThread->mSkinMapMutex);
                     mThread->mSkinMap.erase(id);
                 });
         }
