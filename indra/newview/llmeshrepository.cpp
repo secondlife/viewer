@@ -3809,7 +3809,7 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
             {
                 LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
 
-                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshParams.getSculptID());
+                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshID);
                 if (header_it != gMeshRepo.mThread->mMeshHeader.end())
                 {
                     LLMeshHeader& header = header_it->second;
@@ -3884,7 +3884,7 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
             {
                 LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
 
-                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshParams.getSculptID());
+                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshID);
                 if (header_it != gMeshRepo.mThread->mMeshHeader.end())
                 {
                     LLMeshHeader& header = header_it->second;
@@ -3957,7 +3957,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
             {
                 LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
 
-                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshParams.getSculptID());
+                LLMeshRepoThread::mesh_header_map::iterator header_it = gMeshRepo.mThread->mMeshHeader.find(mMeshID);
                 if (header_it != gMeshRepo.mThread->mMeshHeader.end())
                 {
                     LLMeshHeader& header = header_it->second;
