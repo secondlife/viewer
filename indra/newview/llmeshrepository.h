@@ -388,6 +388,7 @@ public:
     LLMutex*    mHeaderMutex;
     LLMutex*    mLoadedMutex;
     LLMutex*    mPendingMutex;
+    LLMutex*    mSkinMapMutex;
     LLCondition* mSignal;
 
     //map of known mesh headers
