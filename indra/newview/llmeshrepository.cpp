@@ -693,6 +693,8 @@ protected:
     LLMeshSkinInfoHandler(const LLMeshSkinInfoHandler &);       // Not defined
     void operator=(const LLMeshSkinInfoHandler &);              // Not defined
 
+    void processSkin(U8* data, S32 data_size);
+
 public:
     virtual void processData(LLCore::BufferArray * body, S32 body_offset, U8 * data, S32 data_size);
     virtual void processFailure(LLCore::HttpStatus status);
@@ -875,8 +877,8 @@ LLMeshRepoThread::LLMeshRepoThread()
 
     // Lod processing is expensive due to the number of requests
     // and a need to do expensive cacheOptimize().
-    mLodThreadPool.reset(new LL::ThreadPool("MeshLodProcessing", 2));
-    mLodThreadPool->start();
+    mMeshThreadPool.reset(new LL::ThreadPool("MeshLodProcessing", 2));
+    mMeshThreadPool->start();
 }
 
 
@@ -1319,7 +1321,7 @@ U8* LLMeshRepoThread::getDiskCacheBuffer(S32 size)
             mDiskCacheBuffer = NULL;
 
             // Not sure what size is reasonable
-            // but if 30MB allocation failed, we definetely have issues
+            // but if 30MB allocation failed, we definitely have issues
             const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
             if (size < MAX_SIZE)
             {
@@ -1473,9 +1475,18 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
             if (in_cache && file.getSize() >= disk_ofset + size)
             {
-                U8* buffer = getDiskCacheBuffer(size);
+                U8* buffer = new(std::nothrow) U8[size];
                 if (!buffer)
                 {
+                    LL_WARNS(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
+
+                    // Not sure what size is reasonable for skin info,
+                    // but if 30MB allocation failed, we definitely have issues
+                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
+                    if (size < MAX_SIZE)
+                    {
+                        LLAppViewer::instance()->outOfMemorySoftQuit();
+                    } // else ignore failures for anomalously large data
                     LLMutexLock locker(mLoadedMutex);
                     mSkinUnavailableQ.emplace_back(mesh_id);
                     return true;
@@ -1493,12 +1504,68 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
                 }
 
                 if (!zero)
-                { //attempt to parse
-                    if (skinInfoReceived(mesh_id, buffer, size))
+                {
+                    //attempt to parse
+                    bool posted = mMeshThreadPool->getQueue().post(
+                        [mesh_id, buffer, size]
+                        ()
                     {
+                        if (!gMeshRepo.mThread->skinInfoReceived(mesh_id, buffer, size))
+                        {
+                            // either header is faulty or something else overwrote the cache
+                            S32 header_size = 0;
+                            U32 header_flags = 0;
+                            {
+                                LL_DEBUGS(LOG_MESH) << "Mesh header for ID " << mesh_id << " cache mismatch." << LL_ENDL;
+
+                                LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
+
+                                auto header_it = gMeshRepo.mThread->mMeshHeader.find(mesh_id);
+                                if (header_it != gMeshRepo.mThread->mMeshHeader.end())
+                                {
+                                    LLMeshHeader& header = header_it->second;
+                                    // for safety just mark everything as missing
+                                    header.mSkinInCache = false;
+                                    header.mPhysicsConvexInCache = false;
+                                    header.mPhysicsMeshInCache = false;
+                                    for (S32 i = 0; i < LLModel::NUM_LODS; ++i)
+                                    {
+                                        header.mLodInCache[i] = false;
+                                    }
+                                    header_size = header.mHeaderSize;
+                                    header_flags = header.getFlags();
+                                }
+                            }
+
+                            if (header_size > 0)
+                            {
+                                LLFileSystem file(mesh_id, LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
+                                if (file.getMaxSize() >= CACHE_PREAMBLE_SIZE)
+                                {
+                                    write_preamble(file, header_size, header_flags);
+                                }
+                            }
+
+                            {
+                                LLMutexLock lock(gMeshRepo.mThread->mMutex);
+                                UUIDBasedRequest req(mesh_id);
+                                gMeshRepo.mThread->mSkinRequests.push_back(req);
+                            }
+                        }
+                        delete[] buffer;
+                    });
+                    if (posted)
+                    {
+                        // lambda owns buffer
+                        return true;
+                    }
+                    else if (skinInfoReceived(mesh_id, buffer, size))
+                    {
+                        delete[] buffer;
                         return true;
                     }
                 }
+                delete[] buffer;
             }
 
             //reading from cache failed for whatever reason, fetch from sim
@@ -1912,7 +1979,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
                     LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
 
                     // Not sure what size is reasonable for a mesh,
-                    // but if 20MB allocation failed, we definetely have issues
+                    // but if 30MB allocation failed, we definitely have issues
                     const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
                     if (size < MAX_SIZE)
                     {
@@ -1938,7 +2005,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
                 if (!zero)
                 {
                     //attempt to parse
-                    bool posted = mLodThreadPool->getQueue().post(
+                    bool posted = mMeshThreadPool->getQueue().post(
                         [mesh_params, mesh_id, lod, buffer, size]
                         ()
                     {
@@ -3733,7 +3800,7 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
         && ((data != NULL) == (data_size > 0))) // if we have data but no size or have size but no data, something is wrong
     {
         LLMeshHandlerBase::ptr_t shrd_handler = shared_from_this();
-        bool posted = gMeshRepo.mThread->mLodThreadPool->getQueue().post(
+        bool posted = gMeshRepo.mThread->mMeshThreadPool->getQueue().post(
             [shrd_handler, data, data_size]
             ()
         {
@@ -3750,7 +3817,7 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
         else
         {
             // mesh thread dies later than event queue, so this is normal
-            LL_INFOS_ONCE(LOG_MESH) << "Failed to post work into mLodThreadPool" << LL_ENDL;
+            LL_INFOS_ONCE(LOG_MESH) << "Failed to post work into mMeshThreadPool" << LL_ENDL;
             processLod(data, data_size);
         }
     }
@@ -3785,13 +3852,9 @@ void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
         gMeshRepo.mThread->mSkinUnavailableQ.emplace_back(mMeshID);
 }
 
-void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /* body_offset */,
-                                        U8 * data, S32 data_size)
+void LLMeshSkinInfoHandler::processSkin(U8* data, S32 data_size)
 {
-    LL_PROFILE_ZONE_SCOPED;
-    if ((!MESH_SKIN_INFO_PROCESS_FAILED)
-        && ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
-        && gMeshRepo.mThread->skinInfoReceived(mMeshID, data, data_size))
+    if (gMeshRepo.mThread->skinInfoReceived(mMeshID, data, data_size))
     {
         // good fetch from sim, write to cache
         LLFileSystem file(mMeshID, LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
@@ -3799,7 +3862,7 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
         S32 offset = mOffset + CACHE_PREAMBLE_SIZE;
         S32 size = mRequestedBytes;
 
-        if (file.getSize() >= offset+size)
+        if (file.getSize() >= offset + size)
         {
             LLMeshRepository::sCacheBytesWritten += size;
             ++LLMeshRepository::sCacheWrites;
@@ -3830,6 +3893,45 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
 
             file.seek(offset, 0);
             file.write(data, size);
+        }
+    }
+    else
+    {
+        LL_WARNS(LOG_MESH) << "Error during mesh skin info processing.  ID:  " << mMeshID
+            << ", Unknown reason.  Not retrying."
+            << LL_ENDL;
+        LLMutexLock lock(gMeshRepo.mThread->mLoadedMutex);
+        gMeshRepo.mThread->mSkinUnavailableQ.emplace_back(mMeshID);
+    }
+}
+
+void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /* body_offset */,
+                                        U8 * data, S32 data_size)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    if ((!MESH_SKIN_INFO_PROCESS_FAILED)
+        && ((data != NULL) == (data_size > 0))) // if we have data but no size or have size but no data, something is wrong
+    {
+        LLMeshHandlerBase::ptr_t shrd_handler = shared_from_this();
+        bool posted = gMeshRepo.mThread->mMeshThreadPool->getQueue().post(
+            [shrd_handler, data, data_size]
+            ()
+        {
+            LLMeshSkinInfoHandler* handler = (LLMeshSkinInfoHandler*)shrd_handler.get();
+            handler->processSkin(data, data_size);
+            delete[] data;
+        });
+
+        if (posted)
+        {
+            // ownership of data was passed to the lambda
+            mHasDataOwnership = false;
+        }
+        else
+        {
+            // mesh thread dies later than event queue, so this is normal
+            LL_INFOS_ONCE(LOG_MESH) << "Failed to post work into mMeshThreadPool" << LL_ENDL;
+            processSkin(data, data_size);
         }
     }
     else
@@ -4038,7 +4140,7 @@ void LLMeshRepository::shutdown()
     }
 
     mThread->mSignal->broadcast();
-    mThread->mLodThreadPool->close();
+    mThread->mMeshThreadPool->close();
 
     while (!mThread->isStopped())
     {
