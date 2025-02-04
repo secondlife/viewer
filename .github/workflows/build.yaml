@@ -396,7 +396,12 @@ jobs:
         shell: bash
         run: |
           ls -l _artifacts
-          tar -C _artifacts -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz"
+          # 2025-02-04: Bug in GitHub runner machinery? The viewer_channel
+          # written by the build job as 'Second Life Project Watchdog' is
+          # being read here as 'Second Life Project watchdog', and
+          # empirically, that's enough difference to make this tar command
+          # fail. Trust that there's only one *.sym.tar.xz in this directory.
+          tar -C _artifacts -xJf *.sym.tar.xz
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: secondlife-3p/symbol-upload@v10
