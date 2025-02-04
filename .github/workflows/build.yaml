@@ -390,6 +390,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Windows-symbols
+          path: _artifacts
       - name: Extract viewer pdb
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         shell: bash
