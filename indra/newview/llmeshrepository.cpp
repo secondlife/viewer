@@ -2313,7 +2313,11 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
             LLPointer<LLMeshSkinInfo> skin_info = nullptr;
             {
                 LLMutexLock lock(mSkinMapMutex);
-                skin_info = mSkinMap[mesh_params.getSculptID()];
+                skin_map::iterator iter = mSkinMap.find(mesh_params.getSculptID());
+                if (iter != mSkinMap.end())
+                {
+                    skin_info = iter->second;
+                }
             }
             if (skin_info.notNull() && isAgentAvatarValid())
             {
