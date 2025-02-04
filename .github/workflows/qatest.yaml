@@ -1,0 +1,116 @@
+name: Run QA Test # Runs automated tests on a self-hosted QA machine
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+
+concurrency:
+  group: qa-test-run
+  cancel-in-progress: true  # Cancels any queued job when a new one starts
+
+jobs:
+  install-and-run-sikuli:
+    runs-on: [self-hosted, qa-machine]
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      contains(github.event.workflow_run.head_commit.message, '[Channel: Release]')
+
+    steps:
+      - name: Verify viewer-sikulix Exists
+        run: |
+          if [ ! -d "C:\viewer-sikulix-main" ]; then
+            echo "❌ Error: viewer-sikulix not found on runner!"
+            exit 1
+          fi
+          echo "✅ viewer-sikulix is already available."
+
+      - name: Temporarily Allow PowerShell Scripts (Process Scope)
+        run: |
+          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
+            Set-ExecutionPolicy RemoteSigned -Scope Process -Force
+          }"
+
+      - name: Fetch & Download Windows Installer Artifact
+        run: |
+          BUILD_ID=${{ github.event.workflow_run.id }}
+          ARTIFACTS_URL="https://api.github.com/repos/secondlife/viewer/actions/runs/$BUILD_ID/artifacts"
+
+          # Fetch the correct artifact URL
+          ARTIFACT_NAME=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "$ARTIFACTS_URL" | jq -r '.artifacts[] | select(.name == "Windows-installer") | .archive_download_url')
+
+          if [[ -z "$ARTIFACT_NAME" ]]; then
+            echo "❌ Error: Windows-installer artifact not found!"
+            exit 1
+          fi
+
+          echo "✅ Artifact found: $ARTIFACT_NAME"
+
+          # Download the ZIP
+          mkdir -p ~/secondlife-build
+          curl -L -o ~/secondlife-build/installer.zip -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$ARTIFACT_NAME"
+
+          # Ensure download succeeded
+          if [[ ! -f ~/secondlife-build/installer.zip ]]; then
+            echo "❌ Error: Failed to download Windows-installer.zip"
+            exit 1
+          fi
+
+      - name: Extract Installer & Locate Executable
+        run: |
+          powershell -Command "Expand-Archive -Path '$env:USERPROFILE/secondlife-build/installer.zip' -DestinationPath '$env:USERPROFILE/secondlife-build'"
+          INSTALLER_PATH=$(powershell -Command "(Get-ChildItem -Path '$env:USERPROFILE/secondlife-build' -Filter '*.exe' -Recurse | Select-Object -First 1).FullName")
+
+          if [[ -z "$INSTALLER_PATH" ]]; then
+            echo "❌ Error: No installer executable found in the extracted files!"
+            exit 1
+          fi
+
+          echo "✅ Installer found: $INSTALLER_PATH"
+          echo "INSTALLER_PATH=$INSTALLER_PATH" >> $GITHUB_ENV  # Save for later use
+
+      - name: Install Second Life Using Task Scheduler (Bypass UAC)
+        run: |
+          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
+            $action = New-ScheduledTaskAction -Execute '${{ env.INSTALLER_PATH }}' -Argument '/S';
+            $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest;
+            $task = New-ScheduledTask -Action $action -Principal $principal;
+            Register-ScheduledTask -TaskName 'SilentSLInstaller' -InputObject $task -Force;
+            Start-ScheduledTask -TaskName 'SilentSLInstaller';
+          }"
+
+      - name: Wait for Installation to Complete
+        run: |
+          echo "Waiting for the Second Life installer to finish..."
+          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
+            do {
+              Start-Sleep -Seconds 5
+              $installerProcess = Get-Process | Where-Object { $_.Path -eq '${{ env.INSTALLER_PATH }}' }
+            } while ($installerProcess)
+          }"
+          echo "✅ Installation completed!"
+
+      - name: Cleanup Task Scheduler Entry
+        run: |
+          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
+            Unregister-ScheduledTask -TaskName 'SilentSLInstaller' -Confirm:$false
+          }"
+          echo "✅ Task Scheduler entry removed."
+
+      - name: Delete Installer ZIP
+        run: |
+          rm -rf ~/secondlife-build/installer.zip
+          echo "✅ Installer ZIP deleted."
+
+      - name: Run Python Script
+        run: |
+          echo "Running Python script..."
+          python C:\viewer-sikulix-main\runTests.py
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: C:\viewer-sikulix-main\regressionTest\test_results.html
