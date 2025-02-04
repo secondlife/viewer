@@ -394,8 +394,7 @@ jobs:
       - name: Extract viewer pdb
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         shell: bash
-        run: |
-          tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
+        run: tar -C _artifacts -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz"
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: secondlife-3p/symbol-upload@v10
