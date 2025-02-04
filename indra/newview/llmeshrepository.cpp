@@ -3706,7 +3706,7 @@ void LLMeshLODHandler::processLod(U8* data, S32 data_size)
                 write_preamble(file, header_bytes, flags);
             }
 
-            file.seek(offset);
+            file.seek(offset, 0);
             file.write(data, size);
             LLMeshRepository::sCacheBytesWritten += size;
             ++LLMeshRepository::sCacheWrites;
@@ -3828,7 +3828,7 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
                 write_preamble(file, header_bytes, flags);
             }
 
-            file.seek(offset);
+            file.seek(offset, 0);
             file.write(data, size);
         }
     }
@@ -3903,7 +3903,7 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
                 write_preamble(file, header_bytes, flags);
             }
 
-            file.seek(offset);
+            file.seek(offset, 0);
             file.write(data, size);
         }
     }
@@ -3976,7 +3976,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
                 write_preamble(file, header_bytes, flags);
             }
 
-            file.seek(offset);
+            file.seek(offset, 0);
             file.write(data, size);
         }
     }
