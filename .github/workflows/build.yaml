@@ -366,8 +366,8 @@ jobs:
             Contents/Resources/updater/SLVersionChecker
             Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin
             Contents/Resources/SLVoice
-          files:
             Contents/Resources/watchdog
+          files:
             Contents/Resources/*.dylib
             Contents/Resources/llplugin/*.dylib
             "Contents/Frameworks/Chromium Embedded Framework.framework/Libraries"/*.dylib
