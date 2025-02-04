@@ -495,7 +495,7 @@ public:
     // workqueue for processing generic requests
     LL::WorkQueue mWorkQueue;
     // lods have their own thread due to costly cacheOptimize() calls
-    std::unique_ptr<LL::ThreadPool> mLodThreadPool;
+    std::unique_ptr<LL::ThreadPool> mMeshThreadPool;
 
     // llcorehttp library interface objects.
     LLCore::HttpStatus                  mHttpStatus;
