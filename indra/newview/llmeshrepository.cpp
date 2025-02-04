@@ -1820,8 +1820,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
                 }
                 U32 flags = 0;
                 memcpy(&flags, buffer + 2 * sizeof(U32), sizeof(U32));
-                // Todo: parse and pass flags, they are the reason for the preamble
-                if (headerReceived(mesh_params, buffer + CACHE_PREAMBLE_SIZE, bytes, flags) == MESH_OK)
+                if (headerReceived(mesh_params, buffer + CACHE_PREAMBLE_SIZE, bytes - CACHE_PREAMBLE_SIZE, flags) == MESH_OK)
                 {
                     LL_DEBUGS(LOG_MESH) << "Mesh/Cache: Mesh header for ID " << mesh_params.getSculptID() << " - was retrieved from the cache." << LL_ENDL;
 
@@ -1902,9 +1901,9 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
             S32 disk_ofset = offset + CACHE_PREAMBLE_SIZE;
             //check cache for mesh asset
             LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
-            if (in_cache && file.getSize() >= disk_ofset + size)
+            if (in_cache && (file.getSize() >= disk_ofset + size))
             {
-                U8* buffer = new(std::nothrow) U8[size];
+                U8* buffer = new(std::nothrow) U8[size]; // todo, make buffer thread local and read in thread?
                 if (!buffer)
                 {
                     LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
@@ -1955,7 +1954,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
                                 LLMutexLock lock(gMeshRepo.mThread->mHeaderMutex);
 
                                 auto header_it = gMeshRepo.mThread->mMeshHeader.find(mesh_id);
-                                if (header_it == gMeshRepo.mThread->mMeshHeader.end())
+                                if (header_it != gMeshRepo.mThread->mMeshHeader.end())
                                 {
                                     LLMeshHeader& header = header_it->second;
                                     // for safety just mark everything as missing
@@ -1971,11 +1970,13 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
                                 }
                             }
 
-                            S32 bytes = header_size + CACHE_PREAMBLE_SIZE;
-                            LLFileSystem file(mesh_id, LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
-                            if (file.getMaxSize() >= bytes)
+                            if (header_size > 0)
                             {
-                                write_preamble(file, header_size, header_flags);
+                                LLFileSystem file(mesh_id, LLAssetType::AT_MESH, LLFileSystem::READ_WRITE);
+                                if (file.getMaxSize() >= CACHE_PREAMBLE_SIZE)
+                                {
+                                    write_preamble(file, header_size, header_flags);
+                                }
                             }
 
                             {
