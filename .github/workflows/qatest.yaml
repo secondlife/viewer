@@ -11,14 +11,14 @@ concurrency:
   cancel-in-progress: true  # Cancels any queued job when a new one starts
 
 jobs:
-  install-and-run-sikuli:
+  install-viewer-and-run-tests:
     runs-on: [self-hosted, qa-machine]
     if: >
       github.event.workflow_run.conclusion == 'success' &&
-      contains(github.event.workflow_run.head_commit.message, '[Channel: Release]')
+      startsWith(github.event.workflow_run.head_branch, 'Second_Life_Release')
 
     steps:
-      - name: Verify viewer-sikulix Exists
+      - name: Verify viewer-sikulix-main Exists
         run: |
           if [ ! -d "C:\viewer-sikulix-main" ]; then
             echo "❌ Error: viewer-sikulix not found on runner!"
