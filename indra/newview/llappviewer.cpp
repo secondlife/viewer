@@ -650,6 +650,7 @@ LLAppViewer::LLAppViewer()
     mSettingsLocationList(NULL),
     mIsFirstRun(false)
 {
+    mRunID.generate();
     if(NULL != sInstance)
     {
         LL_ERRS() << "Oh no! An instance of LLAppViewer already exists! LLAppViewer is sort of like a singleton." << LL_ENDL;
@@ -2334,10 +2335,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     if (mSecondInstance)
     {
         LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
-
-        LLUUID uid;
-        uid.generate();
-        LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+        LLError::logToFile(gDirUtilp->getDumpLogsDirPath(mRunID.asString() + ".log"));
     }
     else
     {
@@ -3628,12 +3626,16 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");  //LLError::logFileName();
 #endif
 
-    gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::instance().getChannel();
-    gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::instance().getMajor();
-    gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::instance().getMinor();
-    gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::instance().getPatch();
-    gDebugInfo["ClientInfo"]["BuildVersion"] = std::to_string(LLVersionInfo::instance().getBuild());
-    gDebugInfo["ClientInfo"]["AddressSize"] = LLVersionInfo::instance().getAddressSize();
+    auto& version_info = LLVersionInfo::instance();
+    auto& os_info = LLOSInfo::instance();
+    gDebugInfo["ClientInfo"]["Name"] = version_info.getChannel();
+    gDebugInfo["ClientInfo"]["Channel"] = version_info.getChannel();
+    gDebugInfo["ClientInfo"]["Version"] = version_info.getVersion();
+    gDebugInfo["ClientInfo"]["MajorVersion"] = version_info.getMajor();
+    gDebugInfo["ClientInfo"]["MinorVersion"] = version_info.getMinor();
+    gDebugInfo["ClientInfo"]["PatchVersion"] = version_info.getPatch();
+    gDebugInfo["ClientInfo"]["BuildVersion"] = std::to_string(version_info.getBuild());
+    gDebugInfo["ClientInfo"]["AddressSize"] = version_info.getAddressSize();
 
     gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 
@@ -3646,7 +3648,7 @@ void LLAppViewer::writeSystemInfo()
 
     gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
     gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
-    gDebugInfo["OSInfo"] = LLOSInfo::instance().getOSStringSimple();
+    gDebugInfo["OSInfo"] = os_info.getOSStringSimple();
 
     // The user is not logged on yet, but record the current grid choice login url
     // which may have been the intended grid.
@@ -3680,7 +3682,7 @@ void LLAppViewer::writeSystemInfo()
 
     // Dump some debugging info
     LL_INFOS("SystemInfo") << "Application: " << LLTrans::getString("APP_NAME") << LL_ENDL;
-    LL_INFOS("SystemInfo") << "Version: " << LLVersionInfo::instance().getChannelAndVersion() << LL_ENDL;
+    LL_INFOS("SystemInfo") << "Version: " << version_info.getChannelAndVersion() << LL_ENDL;
 
     // Dump the local time and time zone
     time_t now;
@@ -3692,8 +3694,8 @@ void LLAppViewer::writeSystemInfo()
     // query some system information
     LL_INFOS("SystemInfo") << "CPU info:\n" << gSysCPU << LL_ENDL;
     LL_INFOS("SystemInfo") << "Memory info:\n" << gSysMemory << LL_ENDL;
-    LL_INFOS("SystemInfo") << "OS: " << LLOSInfo::instance().getOSStringSimple() << LL_ENDL;
-    LL_INFOS("SystemInfo") << "OS info: " << LLOSInfo::instance() << LL_ENDL;
+    LL_INFOS("SystemInfo") << "OS: " << os_info.getOSStringSimple() << LL_ENDL;
+    LL_INFOS("SystemInfo") << "OS info: " << os_info << LL_ENDL;
 
     gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
     gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
@@ -3701,14 +3703,15 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["FirstLogin"] = LLSD::Boolean(gAgent.isFirstLogin());
     gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
+    gDebugInfo["RunID"] = mRunID;
 
     if (gViewerWindow)
     {
-    std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
-    for (auto res_iter : resolutions)
-    {
-        gDebugInfo["DisplayInfo"].append(res_iter);
-    }
+        std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
+        for (auto res_iter : resolutions)
+        {
+            gDebugInfo["DisplayInfo"].append(res_iter);
+        }
     }
 
     writeDebugInfo(); // Save out debug_info.log early, in case of crash.

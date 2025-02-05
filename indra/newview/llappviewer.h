@@ -50,6 +50,7 @@
 #include "llsys.h"          // for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
+#include "lluuid.h"
 #include "threadpool_fwd.h"
 
 #include <boost/signals2.hpp>
@@ -327,6 +328,7 @@ private:
 
     LLWatchdogTimeout* mMainloopTimeout;
     LLProcessPtr mWatchdog;
+    LLUUID mRunID;
 
     // For performance and metric gathering
     class LLThread* mFastTimerLogThread;
