@@ -200,18 +200,19 @@ def make_VVM_UUID_hash():
         logging.debug("result of subprocess call to get mac MUUID: %r" % muuid)
 
     elif (platform.system() == 'Windows'):
-        try:
-            # pshell csproduct get UUID | grep -v UUID
-            muuid = pshell('-Command', r'"CimCmdlets\Get-CimInstance -ClassName Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID"')
-        except PShellError as err:
-            logging.warning(err)
-            muuid = None
-        else:
-            #outputs row:
-            #XXXXXXX-XXXX...
-            # but splitlines() produces a whole lot of empty strings.
-            muuid = [line for line in muuid.splitlines() if line][-1].rstrip()
-            logging.debug("result of subprocess call to get win MUUID: %r" % muuid)
+        # powershell has a canonical pathname that might or might not be on the PATH.
+        pshell = Path("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe")
+        if not pshell.is_file():
+            # powershell not in usual place -- better hope it's on PATH!
+            pshell = "powershell"
+        # pshell csproduct get UUID | grep -v UUID
+        muuid = get_output(pshell, '-Command',
+                           r'"CimCmdlets\Get-CimInstance -ClassName Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID"')
+        #outputs row:
+        #XXXXXXX-XXXX...
+        # but splitlines() produces a whole lot of empty strings.
+        muuid = [line for line in muuid.splitlines() if line][-1].rstrip()
+        logging.debug("result of subprocess call to get win MUUID: %r" % muuid)
             
     else:
         #fake it
@@ -226,6 +227,8 @@ def get_output(*command):
         # For this use case we want bytes, not str.
         return subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                               check=True, text=False).stdout.rstrip()
+    except FileNotFoundError as err:
+        raise Error(str(err))
     except subprocess.CalledProcessError as err:
         raise Error(f'{err}:\n{err.stderr.decode("utf8")}')
 
