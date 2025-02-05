@@ -251,6 +251,11 @@ void main()
 
     float shadow = 1.0f;
 
+    float water_mask = texture(refTex, distort).r;
+
+    if (water_mask < 1)
+        discard;
+
 #ifdef HAS_SUN_SHADOW
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
@@ -264,7 +269,7 @@ void main()
 
     vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
 
-    fade = max(0,min(1, (pos.z - refPos.z) / 10));
+    fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
     distort2 = mix(distort, distort2, min(1, fade * 10));
     
     depth = texture(depthMap, distort2).r;

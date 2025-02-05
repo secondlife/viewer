@@ -236,6 +236,8 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
             gGL.getTexUnit(bumpTex2)->bind(tex_b);
         }
 
+        shader->bindTexture(LLShaderMgr::WATER_REFTEX, &gPipeline.mWaterExclusionMask);
+
         // bind reflection texture from RenderTarget
         S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
 
