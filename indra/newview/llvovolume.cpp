@@ -5750,7 +5750,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 if (is_pbr)
                 {
                     // tell texture streaming system to ignore blinn-phong textures
-                    facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
+                    // except the special case of the diffuse map containing a
+                    // media texture that will be reused for swapping on to the pbr face
+                    if (!facep->hasMedia())
+                    {
+                        facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
+                    }
                     facep->setTexture(LLRender::NORMAL_MAP, nullptr);
                     facep->setTexture(LLRender::SPECULAR_MAP, nullptr);
 
