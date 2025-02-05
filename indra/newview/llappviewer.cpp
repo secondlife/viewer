@@ -731,20 +731,21 @@ LLAppViewer::LLAppViewer()
 
     LLLoginInstance::instance().setPlatformInfo(gPlatform, LLOSInfo::instance().getOSVersionString(), LLOSInfo::instance().getOSStringSimple());
 
+    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+#   ifdef LL_BUGSPLAT
+    // MAINT-8917: don't create a dump directory just for the
+    // static_debug_info.log file
+    mDumpPath = logdir;
+#   else // ! LL_BUGSPLAT
+    // write Google Breakpad minidump files to a per-run dump directory to
+    // avoid multiple viewer issues.
+    mDumpPath = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
+#   endif // ! LL_BUGSPLAT
+
     // Under some circumstances we want to read the static_debug_info.log file
     // from the previous viewer run between this constructor call and the
     // init() call, which will overwrite the static_debug_info.log file for
     // THIS run. So setDebugFileNames() early.
-#   ifdef LL_BUGSPLAT
-    // MAINT-8917: don't create a dump directory just for the
-    // static_debug_info.log file
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-#   else // ! LL_BUGSPLAT
-    // write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-#   endif // ! LL_BUGSPLAT
-    mDumpPath = logdir;
-
     setDebugFileNames(logdir);
 }
 
