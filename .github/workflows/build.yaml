@@ -401,7 +401,7 @@ jobs:
           # being read here as 'Second Life Project watchdog', and
           # empirically, that's enough difference to make this tar command
           # fail. Trust that there's only one *.sym.tar.xz in this directory.
-          tar -C _artifacts -xJf *.sym.tar.xz
+          tar -C _artifacts -xJf "$(basename _artifacts/*.sym.tar.xz)"
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: secondlife-3p/symbol-upload@v10
