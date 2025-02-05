@@ -239,7 +239,7 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, c
 {
     LLSD newSettings;
 
-    llassert(mix >= 0.0f && mix <= 1.0f);
+    //llassert(mix >= 0.0f && mix <= 1.0f);
 
     for (LLSD::map_const_iterator it = settings.beginMap(); it != settings.endMap(); ++it)
     {

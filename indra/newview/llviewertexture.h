@@ -165,6 +165,10 @@ public:
 
     bool isLargeImage() ;
 
+    bool isWaterExclusionSurface();
+
+    static bool isWaterExclusionSurface(const LLUUID &id);
+
     void setParcelMedia(LLViewerMediaTexture* media) {mParcelMedia = media;}
     bool hasParcelMedia() const { return mParcelMedia != NULL;}
     LLViewerMediaTexture* getParcelMedia() const { return mParcelMedia;}
@@ -178,6 +182,9 @@ public:
     };
     typedef std::vector<MaterialEntry> material_list_t;
     material_list_t   mMaterialList;  // reverse pointer pointing to LL::GLTF::Materials using this image as texture
+
+    static LLUUID sWaterExclusionSurfaceTexture1;
+    static LLUUID sWaterExclusionSurfaceTexture2;
 
 protected:
     void cleanup() ;
