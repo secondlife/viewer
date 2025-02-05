@@ -2451,26 +2451,40 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
         msg->getBOOLFast(_PREHASH_Script, _PREHASH_Running, running);
         instance->mRunningCheckbox->set(running);
 
+        bool mono = false, luau = false, luau_language = false;
+        msg->getBOOLFast(_PREHASH_Script, _PREHASH_Mono, mono);
+        msg->getBOOLFast(_PREHASH_Script, _PREHASH_Luau, luau);
+        msg->getBOOLFast(_PREHASH_Script, _PREHASH_LuauLanguage, luau_language);
+
         std::string compile_target;
-        msg->getStringFast(_PREHASH_Script, _PREHASH_CompileTarget, compile_target);
-        if (compile_target.empty()) // Old sim not providing CompileTarget field
+        if (luau)
         {
-            bool mono;
-            msg->getBOOLFast(_PREHASH_Script, _PREHASH_Mono, mono); // Use Mono field
-            instance->mCompileTarget->setValue(mono ? "mono" : "lso2");
+            if (luau_language)
+            {
+                compile_target = "luau";
+            }
+            else
+            {
+                compile_target = "lsl_luau";
+            }
         }
-        else if (instance->mCompileTarget->valueExists(compile_target))
+        else if (mono)
         {
-            instance->mCompileTarget->setValue(compile_target); // Use CompileTarget field
+            compile_target = "mono";
         }
         else
         {
-            instance->mCompileTarget->setValue("mono"); // Use default value
+            compile_target = "lsl2";
         }
 
-        if (LLScrollListItem* item = instance->mCompileTarget->findItemByValue("luau"))
+        instance->mCompileTarget->setValue(compile_target);
+        if (LLScrollListItem* luau_item = instance->mCompileTarget->findItemByValue("luau"))
         {
-            item->setEnabled(!compile_target.empty());
+            luau_item->setEnabled(luau);
+        }
+        if (LLScrollListItem* lsl_luau_item = instance->mCompileTarget->findItemByValue("lsl_luau"))
+        {
+            lsl_luau_item->setEnabled(luau);
         }
 
         instance->mCompileTarget->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));

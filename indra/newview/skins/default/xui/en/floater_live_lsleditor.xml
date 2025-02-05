@@ -145,5 +145,9 @@
       label="Lua"
       name="compile_target_luau"
       value="luau" />
+    <combo_box.item
+      label="LSL/Luau"
+      name="compile_target_lsl_luau"
+      value="lsl_luau" />
   </combo_box>
 </floater>
