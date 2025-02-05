@@ -268,8 +268,8 @@ jobs:
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
-          # This is necessary because the runner is now ubuntu24.04 and cannot be built.
-          # TODO: It needs to be removed once the runner is back to ubuntu 22.04 base.
+          # Temporary workaround: explicitly set gcc-11 and g++-11 on Linux.
+          # TODO: This should be rolled back once gcc-13 issues are resolved.
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             export CC=gcc-11
             export CXX=g++-11
