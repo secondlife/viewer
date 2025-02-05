@@ -112,31 +112,32 @@ def main(logdir):
     crashes.append(crash)
 
     # Supplement by recording the timestamp and the duration of the crashed
-    # session. We use the timestamp of SecondLife.log to determine both.
-    SecondLife_log = logdir / 'SecondLife.log'
+    # session. We use the timestamp of SecondLife.start_marker to determine
+    # both.
+    startfile = logdir / 'SecondLife.start_marker'
     try:
-        stat = SecondLife_log.stat()
+        stat = startfile.stat()
     except FileNotFoundError:
-        # If the viewer didn't even get as far as writing SecondLife.log, we
-        # can't report its timestamp. We may be fooled if a prior viewer run
-        # does write SecondLife.log, then the one that just terminated neither
-        # renames SecondLife.log to SecondLife.old nor writes a new
-        # SecondLife.log. We'll pick up on the previous run's log file.
-        errors.append(f"Can't stat {SecondLife_log}")
+        # If the viewer didn't even write SecondLife.start_marker, we can't
+        # report its timestamp. We may be fooled if a prior viewer run did
+        # write SecondLife.start_marker, then the run that just terminated
+        # didn't. We'll pick up on the previous run's marker file.
+        errors.append(f"Can't stat {startfile}")
         logging.error(errors[-1])
     else:
-        # st_mtime gives us the most recent time the file was written. We
-        # expect that SecondLife.log is continually flushed, therefore
-        # continually written. What we want is the time this most recent
-        # SecondLife.log file was *created*, to get the start time of the
-        # session that just crashed.
-        try:
-            # "This attribute is not always available, and may raise AttributeError."
-            # https://docs.python.org/3/library/os.html#os.stat_result
-            creation = stat.st_birthtime
-        except AttributeError:
-            creation = stat.st_ctime
-        logstart = datetime.fromtimestamp(creation, timezone.utc)
+        # st_birthtime should be the creation timestamp of that file. But the
+        # viewer simply overwrites the SecondLife.start_marker file, so its
+        # st_birthtime goes back to the first viewer run on this filesystem.
+        # Same thing for st_ctime, the older "creation time" field. Have to
+        # rely on st_mtime, the most recent file modification time.
+        # Weirdly, at least on Windows, the st_birthtime and st_ctime of
+        # SecondLife.log *also* go back to that first viewer run, even though
+        # every viewer run renames SecondLife.log to SecondLife.old and
+        # creates a new SecondLife.log.
+        # We check SecondLife.start_marker instead of SecondLife.log because
+        # the st_mtime of SecondLife.log reflects the *end* of the crashed
+        # session, not the beginning.
+        logstart = datetime.fromtimestamp(stat.st_mtime, timezone.utc)
         duration = viewerdown - logstart
         minutes, seconds = divmod(int(duration.total_seconds()), 60)
         hours,   minutes = divmod(minutes, 60)
