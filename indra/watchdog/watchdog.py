@@ -207,7 +207,7 @@ def make_VVM_UUID_hash():
             pshell = "powershell"
         # pshell csproduct get UUID | grep -v UUID
         muuid = get_output(pshell, '-Command',
-                           r'"CimCmdlets\Get-CimInstance -ClassName Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID"')
+                           r'CimCmdlets\Get-CimInstance -ClassName Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID')
         #outputs row:
         #XXXXXXX-XXXX...
         # but splitlines() produces a whole lot of empty strings.
