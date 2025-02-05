@@ -25,6 +25,8 @@
 
 // class3/environment/waterF.glsl
 
+#define WATER_MINIMAL 1
+
 out vec4 frag_color;
 
 #ifdef HAS_SUN_SHADOW
@@ -122,6 +124,9 @@ vec3 BlendNormal(vec3 bump1, vec3 bump2)
 vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 
+vec3 atmosLighting(vec3 light);
+vec3 scaleSoftClip(vec3 light);
+
 vec3 vN, vT, vB;
 
 vec3 transform_normal(vec3 vNt)
@@ -202,6 +207,7 @@ void main()
 
     generateWaveNormals(wave1, wave2, wave3);
 
+    float dmod = sqrt(dist);
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
@@ -216,7 +222,7 @@ void main()
     vec3 up = transform_normal(vec3(0,0,1));
     float vdu = -dot(viewVec, up)*2;
 
-    vec3 wave_ibl = wavef;
+    vec3 wave_ibl = wavef * normScale;
     wave_ibl.z *= 2.0;
     wave_ibl = transform_normal(normalize(wave_ibl));
 
@@ -232,8 +238,6 @@ void main()
 
     float dist2 = dist;
     dist = max(dist, 5.0);
-
-    float dmod = sqrt(dist);
 
     //figure out distortion vector (ripply)
     vec2 distort2 = distort + waver.xy * refScale / max(dmod, 1.0) * 2;
@@ -254,20 +258,25 @@ void main()
     calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
 
     vec3 sunlit_linear = srgb_to_linear(sunlit);
-
+    float fade = 0;
 #ifdef TRANSPARENT_WATER
-    float depth = texture(depthMap, distort2).r;
-    vec4 fb = texture(screenTex, distort2);
-    vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
+    float depth = texture(depthMap, distort).r;
 
-    if (refPos.z > pos.z-0.05)
+    vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
+
+    fade = max(0,min(1, (pos.z - refPos.z) / 10));
+    distort2 = mix(distort, distort2, min(1, fade * 10));
+    
+    depth = texture(depthMap, distort2).r;
+
+    refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
+
+    if (pos.z < refPos.z - 0.05)
     {
-        //we sampled an above water sample, don't distort
         distort2 = distort;
-        fb = texture(screenTex, distort2);
-        depth = texture(depthMap, distort2).r;
-        refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
+
+    vec4 fb = texture(screenTex, distort2);
 
 #else
     vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
@@ -280,13 +289,16 @@ void main()
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
     vec3 legacyenv = vec3(0);
+#ifdef WATER_MINIMAL
     sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
-    //sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, 1, true, amblit);
-    //sampleReflectionProbesLegacy(irradiance, radiance, legacyenv, distort2, pos.xyz, wave_ibl.xyz, gloss, 1, false, amblit);
+#elif WATER_MINIMAL_PLUS
+    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, 1, false, amblit);
+#endif
 
     vec3 diffuseColor = vec3(0);
     vec3 specularColor = vec3(0);
-    calcDiffuseSpecular(vec3(1), metallic, diffuseColor, specularColor);
+    vec3 specular_linear = srgb_to_linear(specular);
+    calcDiffuseSpecular(specular_linear, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
 
@@ -302,14 +314,17 @@ void main()
 
     pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
-    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * 2.75 * shadow;
+    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
 
     vec3 color = vec3(0);
-
-    color = mix(fb.rgb, radiance * df2.x, df2.x * 0.99999) + punctual.rgb;
+    fade *= 60;
+    fade = min(1, fade);
+    color = mix(fb.rgb, radiance * df2.y, df2.x * 0.99999) + punctual.rgb;
+    color = mix(fb.rgb, color, fade);
+    color += color * (1 - atten) * 16;
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
 
-    frag_color = max(vec4(color.rgb, spec), vec4(0));
+    frag_color = min(vec4(1),max(vec4(color.rgb, spec), vec4(0)));
 }
 
