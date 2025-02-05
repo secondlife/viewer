@@ -213,7 +213,7 @@ def make_VVM_UUID_hash():
         # but splitlines() produces a whole lot of empty strings.
         muuid = [line for line in muuid.splitlines() if line][-1].rstrip()
         logging.debug("result of subprocess call to get win MUUID: %r" % muuid)
-            
+
     else:
         #fake it
         logging.info(f"Unable to get {platform.system()} system unique id; constructing a dummy")
