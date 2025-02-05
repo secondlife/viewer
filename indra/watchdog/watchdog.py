@@ -16,6 +16,7 @@ import hashlib
 import json
 import llsd
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 from pathlib import Path
 import platform
@@ -89,10 +90,17 @@ def main(logdir):
     viewerdown = datetime.now(timezone.utc)
 
     # Set up logging
-    logging.basicConfig(filename=logdir / (myname + '.log'),
-                        format='{asctime} {message}', style='{',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        level=logging.DEBUG)
+    log = logging.getLogger()
+    handler = RotatingFileHandler(
+        filename=logdir / (myname + '.log'),
+        maxBytes=1024*1024,
+        backupCount=1,
+        encoding='utf8')
+    handler.setFormatter(logging.Formatter(
+        fmt='{asctime} {message}', style='{',
+        datefmt='%Y-%m-%d %H:%M:%S'))
+    log.addHandler(handler)
+    log.setLevel(logging.DEBUG)
     logging.info(72*'=')
     logging.error('Viewer crashed!')
 
