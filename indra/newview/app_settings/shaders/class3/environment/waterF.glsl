@@ -266,7 +266,7 @@ void main()
 
     fade = max(0,min(1, (pos.z - refPos.z) / 10));
     distort2 = mix(distort, distort2, min(1, fade * 10));
-    
+
     depth = texture(depthMap, distort2).r;
 
     refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
