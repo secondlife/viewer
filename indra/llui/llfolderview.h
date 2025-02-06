@@ -266,6 +266,7 @@ public:
 private:
     void updateMenuOptions(LLMenuGL* menu);
     void updateRenamerPosition();
+    static void onIdleUpdateMenu(void* user_data);
 
 protected:
     LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
