@@ -188,6 +188,7 @@ void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave
 void main()
 {
     mirrorClip(vary_position);
+
     vN = vary_normal;
     vT = vary_tangent;
     vB = cross(vN, vT);
@@ -317,14 +318,15 @@ void main()
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
 
     vec3 color = vec3(0);
+    color = mix(fb.rgb, radiance * df2.y, df2.x * 0.99999) + punctual.rgb;
+
+    color += color * min(vec3(4),pow(1 - atten, vec3(1.35)) * 16 * fade);
+
     fade *= 60;
     fade = min(1, fade);
-    color = mix(fb.rgb, radiance * df2.y, df2.x * 0.99999) + punctual.rgb;
     color = mix(fb.rgb, color, fade);
-    color += color * (1 - atten) * 16;
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
-
     frag_color = min(vec4(1),max(vec4(color.rgb, spec), vec4(0)));
 }
 
