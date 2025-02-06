@@ -123,8 +123,8 @@ jobs:
           echo "Running Python script..."
           python C:\viewer-sikulix-main\runTests.py
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: C:\viewer-sikulix-main\regressionTest\test_results.html
+     # - name: Upload Test Results
+     #   uses: actions/upload-artifact@v3
+     #   with:
+     #     name: test-results
+     #     path: C:\viewer-sikulix-main\regressionTest\test_results.html
