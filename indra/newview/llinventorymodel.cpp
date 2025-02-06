@@ -1305,6 +1305,47 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
     }
 }
 
+bool LLInventoryModel::hasMatchingDescendents(const LLUUID& id,
+    bool include_trash,
+    LLInventoryCollectFunctor& matches)
+{
+    if (!include_trash)
+    {
+        const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+        if (trash_id.notNull() && (trash_id == id))
+            return false;
+    }
+    cat_array_t* cat_array = get_ptr_in_map(mParentChildCategoryTree, id);
+    if (cat_array)
+    {
+        for (auto& cat : *cat_array)
+        {
+            if (matches(cat, NULL))
+            {
+                return true;
+            }
+            if (hasMatchingDescendents(cat->getUUID(), include_trash, matches))
+            {
+                return true;
+            }
+        }
+    }
+
+    item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
+
+    if (item_array)
+    {
+        for (auto& item : *item_array)
+        {
+            if (matches(NULL, item))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
 {
     const LLInventoryObject *obj = getObject(object_id);
