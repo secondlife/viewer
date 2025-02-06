@@ -789,9 +789,6 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
     probeIndex[probeInfluences++] = 0;
 
     doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, false, amblit);
-
-    // fudge factor to get PBR water at a similar luminance ot legacy water
-    glossenv *= 0.4;
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
