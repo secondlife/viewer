@@ -2634,6 +2634,22 @@ bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
     return false;
 }
 
+bool LLIsOneOfTypes::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    for (LLAssetType::EType &type : mTypes)
+    {
+        if (type == LLAssetType::AT_CATEGORY)
+        {
+            if (cat) return true;
+        }
+        if (item)
+        {
+            if (item->getType() == type) return true;
+        }
+    }
+    return false;
+}
+
 bool LLIsNotType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
     if(mType == LLAssetType::AT_CATEGORY)
