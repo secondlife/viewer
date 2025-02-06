@@ -7408,13 +7408,6 @@ bool LLVOAvatar::setParent(LLViewerObject* parent)
 void LLVOAvatar::addChild(LLViewerObject *childp)
 {
     childp->extractAttachmentItemID(); // find the inventory item this object is associated with.
-    if (isSelf())
-    {
-        const LLUUID& item_id = childp->getAttachmentItemID();
-        LLViewerInventoryItem *item = gInventory.getItem(item_id);
-        LL_DEBUGS("Avatar") << "ATT attachment child added " << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
-
-    }
 
     LLViewerObject::addChild(childp);
     if (childp->mDrawable)
@@ -7428,10 +7421,26 @@ void LLVOAvatar::addChild(LLViewerObject *childp)
             // MAINT-3312 backout
             // mPendingAttachment.push_back(childp);
         }
+        else
+        {
+            LL_DEBUGS("Avatar") << "ATT " << avString() << " attachment child added ";
+            const LLUUID& item_id = childp->getAttachmentItemID();
+            LLViewerInventoryItem* item = isSelf() ? gInventory.getItem(item_id) : nullptr;
+            S32 attachment_count = getAttachmentCount();
+            LL_CONT << (item ? item->getName() : "UNKNOWN") << " id " << item_id <<
+                 "( " << attachment_count << " + " << (S32)mPendingAttachment.size() << " of " << (S32)mSimAttachments.size() << " )" << LL_ENDL;
+        }
     }
     else
     {
         mPendingAttachment.push_back(childp);
+
+        LL_DEBUGS("Avatar") << "ATT " << avString() << " attachment child pending drawable ";
+        const LLUUID& item_id = childp->getAttachmentItemID();
+        LLViewerInventoryItem* item = isSelf() ? gInventory.getItem(item_id) : nullptr;
+        S32 attachment_count = getAttachmentCount();
+        LL_CONT << (item ? item->getName() : "UNKNOWN") << " id " << item_id <<
+            "( " << attachment_count << " + " << (S32)mPendingAttachment.size() << " of " << (S32)mSimAttachments.size() << " )" << LL_ENDL;
     }
 }
 
@@ -7504,7 +7513,7 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
     {
         const LLUUID& item_id = viewer_object->getAttachmentItemID();
         LLViewerInventoryItem *item = gInventory.getItem(item_id);
-        LL_WARNS("Avatar") << "ATT attach failed "
+        LL_WARNS("Avatar") << "ATT " << avString() << " attach failed "
                            << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
         return 0;
     }
@@ -7623,13 +7632,6 @@ void LLVOAvatar::lazyAttach()
         {
             if (cur_attachment->mDrawable)
             {
-                if (isSelf())
-                {
-                    const LLUUID& item_id = cur_attachment->getAttachmentItemID();
-                    LLViewerInventoryItem *item = gInventory.getItem(item_id);
-                    LL_DEBUGS("Avatar") << "ATT attaching object "
-                        << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
-                }
                 if (!attachObject(cur_attachment))
                 {   // Drop it
                     LL_WARNS() << "attachObject() failed for "
@@ -7638,6 +7640,15 @@ void LLVOAvatar::lazyAttach()
                         << LL_ENDL;
                     // MAINT-3312 backout
                     //still_pending.push_back(cur_attachment);
+                }
+                else
+                {
+                    LL_DEBUGS("Avatar") << "ATT " << avString() << " attaching object ";
+                    const LLUUID& item_id = cur_attachment->getAttachmentItemID();
+                    LLViewerInventoryItem* item = isSelf() ? gInventory.getItem(item_id) : nullptr;
+                    S32 attachment_count = getAttachmentCount();
+                    LL_CONT << (item ? item->getName() : "UNKNOWN") << " id " << item_id <<
+                        "( " << attachment_count << " + " << (S32)((S32)mPendingAttachment.size() - i - 1) << " of " << (S32)mSimAttachments.size() << " )" << LL_ENDL;
                 }
             }
             else
