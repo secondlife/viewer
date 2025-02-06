@@ -4231,14 +4231,9 @@ void LLFolderBridge::staticFolderOptionsMenu()
 
 bool LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
 {
-    LLInventoryModel::cat_array_t cat_array;
-    LLInventoryModel::item_array_t item_array;
-    model->collectDescendentsIf(mUUID,
-                                cat_array,
-                                item_array,
+    return model->hasMatchingDescendents(mUUID,
                                 LLInventoryModel::EXCLUDE_TRASH,
                                 is_type);
-    return !item_array.empty();
 }
 
 void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items, menuentry_vec_t& disabled_items)
