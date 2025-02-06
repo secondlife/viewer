@@ -283,6 +283,9 @@ void main()
 
 #else
     vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
+
+    if (water_mask < 1)
+        discard;
 #endif
 
     float metallic = 1.0;
@@ -335,6 +338,6 @@ void main()
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
     
-    frag_color = min(vec4(1),max(vec4(color.rgb, spec), vec4(0)));
+    frag_color = min(vec4(1),max(vec4(color.rgb, spec * water_mask), vec4(0)));
 }
 
