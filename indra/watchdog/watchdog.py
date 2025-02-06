@@ -146,11 +146,9 @@ def main(logdir):
         # the st_mtime of SecondLife.log reflects the *end* of the crashed
         # session, not the beginning.
         logstart = datetime.fromtimestamp(stat.st_mtime, timezone.utc)
-        duration = viewerdown - logstart
-        minutes, seconds = divmod(int(duration.total_seconds()), 60)
-        hours,   minutes = divmod(minutes, 60)
+        duration = int((viewerdown - logstart).total_seconds())
         crash['Date'] = logstart.isoformat(timespec='seconds')
-        crash['Duration'] = f'{hours:02}:{minutes:02}:{seconds:02}'
+        crash['Duration'] = duration
 
     try:
         machine_id = make_VVM_UUID_hash()
