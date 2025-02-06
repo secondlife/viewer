@@ -153,7 +153,7 @@ void generateWaveNormals(out vec3 wave1, out vec3 wave2, out vec3 wave3)
 
     vec2 bigwave = vec2(refCoord.w, view.w);
 
-    vec3 wave1_a = texture(bumpMap, bigwave, -2).xyz * 2.0 - 1.0;
+    vec3 wave1_a = texture(bumpMap, bigwave).xyz * 2.0 - 1.0;
     vec3 wave2_a = texture(bumpMap, littleWave.xy).xyz * 2.0 - 1.0;
     vec3 wave3_a = texture(bumpMap, littleWave.zw).xyz * 2.0 - 1.0;
 
@@ -188,6 +188,7 @@ void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave
 void main()
 {
     mirrorClip(vary_position);
+
     vN = vary_normal;
     vT = vary_tangent;
     vB = cross(vN, vT);
@@ -269,9 +270,9 @@ void main()
 
     vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
 
+    // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
     fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
     distort2 = mix(distort, distort2, min(1, fade * 10));
-    
     depth = texture(depthMap, distort2).r;
 
     refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
@@ -294,6 +295,8 @@ void main()
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
     vec3 legacyenv = vec3(0);
+
+    // TODO: Make this an option.
 #ifdef WATER_MINIMAL
     sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
 #elif WATER_MINIMAL_PLUS
@@ -322,14 +325,19 @@ void main()
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
 
     vec3 color = vec3(0);
+    color = mix(fb.rgb, radiance * df2.y, df2.x * 0.99999) + punctual.rgb;
+
+    // This looks super janky, but we do this to restore water haze in the distance.
+    // These values were finagled in to try and bring back some of the distant brightening on legacy water.  Also works reasonably well on PBR skies such as PBR midday.
+    color += color * min(vec3(4),pow(1 - atten, vec3(1.35)) * 16 * fade);
+
+    // We shorten the fade here at the shoreline so it doesn't appear too soft from a distance.
     fade *= 60;
     fade = min(1, fade);
-    color = mix(fb.rgb, radiance * df2.y, df2.x * 0.99999) + punctual.rgb;
     color = mix(fb.rgb, color, fade);
-    color += color * (1 - atten) * 16;
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
-
+    
     frag_color = min(vec4(1),max(vec4(color.rgb, spec), vec4(0)));
 }
 
