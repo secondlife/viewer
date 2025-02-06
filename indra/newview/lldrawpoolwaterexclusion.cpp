@@ -32,6 +32,7 @@
 #include "pipeline.h"
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
+#include "lldrawpoolwater.h"
 
 LLDrawPoolWaterExclusion::LLDrawPoolWaterExclusion() : LLRenderPass(LLDrawPool::POOL_INVISIBLE)
 {
@@ -48,15 +49,28 @@ void LLDrawPoolWaterExclusion::render(S32 pass)
         gDrawColorProgram.bind();
     }
 
-    gDrawColorProgram.uniform4f(LLShaderMgr::DIFFUSE_COLOR, 0, 0, 0, 0);
-    gDrawColorProgram.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+    LLGLDepthTest depth(GL_TRUE);
+    gDrawColorProgram.uniform4f(LLShaderMgr::DIFFUSE_COLOR, 1, 1, 1, 1);
+
+    LLDrawPoolWater* pwaterpool = (LLDrawPoolWater*)gPipeline.getPool(LLDrawPool::POOL_WATER);
+    if (pwaterpool)
+    {
+        // Just treat our water planes as double sided for the purposes of generating the exclusion mask.
+        LLGLDisable cullface(GL_CULL_FACE);
+        pwaterpool->pushWaterPlanes(0);
+
+        // Take care of the edge water tiles.
+        pwaterpool->pushWaterPlanes(1);
+    }
+
+    gDrawColorProgram.uniform4f(LLShaderMgr::DIFFUSE_COLOR, 0, 0, 0, 1);
 
     static LLStaticHashedString waterSign("waterSign");
     gDrawColorProgram.uniform1f(waterSign, 1.f);
 
-    gGL.setColorMask(true, false);
     pushBatches(LLRenderPass::PASS_INVISIBLE, false, false);
-    gGL.setColorMask(true, false);
+
 
     if (gPipeline.shadersLoaded())
     {

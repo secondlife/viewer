@@ -909,7 +909,15 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         }
 
         mPostMap.allocate(resX, resY, screenFormat);
-        mWaterExclusionMask.allocate(resX, resY, GL_R8);
+
+        // The water exclusion mask needs its own depth buffer so we can take care of the problem of multiple water planes.
+        // Should we ever make water not just a plane, it also aids with that as well as the water planes will be rendered into the mask.
+        // Why do we do this? Because it saves us some janky logic in the exclusion shader when we generate the mask.
+        // Regardless, this should always only be an R8 texture unless we choose to start having multiple kinds of exclusion that 8 bits can't handle.
+        // - Geenz 2025-02-06
+        bool success = mWaterExclusionMask.allocate(resX, resY, GL_R8, true);
+
+        assert(success);
 
         // used to scale down textures
         // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
@@ -9001,7 +9009,7 @@ void LLPipeline::doWaterHaze()
         static LLStaticHashedString above_water_str("above_water");
         haze_shader.uniform1i(above_water_str, sUnderWaterRender ? -1 : 1);
 
-        haze_shader.bindTexture(LLShaderMgr::WATER_REFTEX, &mWaterExclusionMask);
+        haze_shader.bindTexture(LLShaderMgr::WATER_EXCLUSIONTEX, &mWaterExclusionMask);
 
         if (LLPipeline::sUnderWaterRender)
         {
@@ -9037,7 +9045,7 @@ void LLPipeline::doWaterExclusionMask()
 {
     mWaterExclusionMask.bindTarget();
     glClearColor(1, 1, 1, 1);
-    mWaterExclusionMask.clear(GL_COLOR_BUFFER_BIT);
+    mWaterExclusionMask.clear();
     mWaterExclusionPool->render();
 
     mWaterExclusionMask.flush();

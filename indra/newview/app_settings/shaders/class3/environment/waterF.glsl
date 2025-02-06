@@ -88,7 +88,7 @@ uniform sampler2D screenTex;
 uniform sampler2D depthMap;
 #endif
 
-uniform sampler2D refTex;
+uniform sampler2D exclusionTex;
 
 uniform float sunAngle;
 uniform float sunAngle2;
@@ -252,10 +252,7 @@ void main()
 
     float shadow = 1.0f;
 
-    float water_mask = texture(refTex, distort).r;
-
-    if (water_mask < 1)
-        discard;
+    float water_mask = texture(exclusionTex, distort).r;
 
 #ifdef HAS_SUN_SHADOW
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);

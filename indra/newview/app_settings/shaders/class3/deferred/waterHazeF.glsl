@@ -35,19 +35,25 @@ vec4 getWaterFogView(vec3 pos);
 
 uniform int above_water;
 
-uniform sampler2D refTex;
+uniform sampler2D exclusionTex;
 
 void main()
 {
     vec2  tc           = vary_fragcoord.xy/vary_fragcoord.w*0.5+0.5;
     float depth        = getDepth(tc.xy);
-    float mask = texture(refTex, tc.xy).r;
+    float mask = texture(exclusionTex, tc.xy).r;
 
     if (above_water > 0)
     {
+        // Just discard if we're in the exclusion mask.
+        // The previous invisiprim hack we're replacing would also crank up water fog desntiy.
+        // But doing that makes exclusion surfaces very slow as we'd need to render even more into the mask.
+        // - Geenz 2025-02-06
         if (mask < 1)
+        {
             discard;
-        
+        }
+
         // we want to depth test when the camera is above water, but some GPUs have a hard time
         // with depth testing against render targets that are bound for sampling in the same shader
         // so we do it manually here

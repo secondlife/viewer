@@ -52,7 +52,6 @@ void waterClip(vec3 pos)
 
 void main()
 {
-    waterClip(vertex_position.xyz);
 
     frag_color = vertex_color;
 }

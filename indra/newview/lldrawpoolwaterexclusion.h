@@ -40,8 +40,6 @@ class LLGLSLShader;
 
 class LLDrawPoolWaterExclusion : public LLRenderPass
 {
-    LLGLSLShader* mShader;
-
 public:
     LLDrawPoolWaterExclusion();
 
