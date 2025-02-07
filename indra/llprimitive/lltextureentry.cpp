@@ -600,7 +600,7 @@ LLGLTFMaterial* LLTextureEntry::getGLTFRenderMaterial() const
         return mGLTFRenderMaterial;
     }
 
-    //llassert(getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
+    llassert(getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
     return getGLTFMaterial();
 }
 
