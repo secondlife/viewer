@@ -1750,6 +1750,7 @@ bool LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32
     {
         LLViewerWindow::reshape(window_width, window_height);
         mResDirty = true;
+        LLFontGL::sResolutionGeneration++;
         return true;
     }
     else
