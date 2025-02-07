@@ -337,7 +337,7 @@ void main()
     color = mix(fb.rgb, color, fade);
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
-    
+
     frag_color = min(vec4(1),max(vec4(color.rgb, spec * water_mask), vec4(0)));
 }
 
