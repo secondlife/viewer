@@ -266,7 +266,7 @@ void LLViewerTextureList::doPrefetchImages()
         S32 pixel_area = imagesd["area"];
         S32 texture_type = imagesd["type"];
 
-        if((LLViewerTexture::FETCHED_TEXTURE == texture_type || LLViewerTexture::LOD_TEXTURE == texture_type) && !LLViewerTexture::isWaterExclusionSurface(uuid))
+        if((LLViewerTexture::FETCHED_TEXTURE == texture_type || LLViewerTexture::LOD_TEXTURE == texture_type))
         {
             LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(uuid, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, texture_type);
             if (image)

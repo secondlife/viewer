@@ -108,11 +108,6 @@ LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTextur
 
 const F64 log_2 = log(2.0);
 
-LLUUID LLViewerTexture::sWaterExclusionSurfaceTexture1 = LLUUID::null;
-LLUUID LLViewerTexture::sWaterExclusionSurfaceTexture2 = LLUUID::null;
-#define TEX_WATEREXCLUSIONSURF1 "e97cf410-8e61-7005-ec06-629eba4cd1fb"
-#define TEX_WATEREXCLUSIONSURF2 "38b86f85-2575-52a9-a531-23108d8da837"
-
 //----------------------------------------------------------------------------------------------
 //namespace: LLViewerTextureAccess
 //----------------------------------------------------------------------------------------------
@@ -479,15 +474,6 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
     LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture();
-
-    if (sWaterExclusionSurfaceTexture1.isNull())
-    {
-        sWaterExclusionSurfaceTexture1 = LLUUID(TEX_WATEREXCLUSIONSURF1);
-    }
-    if (sWaterExclusionSurfaceTexture2.isNull())
-    {
-        sWaterExclusionSurfaceTexture2 = LLUUID(TEX_WATEREXCLUSIONSURF2);
-    }
 }
 
 //static
@@ -1014,16 +1000,6 @@ void LLViewerTexture::reorganizeVolumeList()
 bool LLViewerTexture::isLargeImage()
 {
     return  (S32)mTexelsPerImage > LLViewerTexture::sMinLargeImageSize;
-}
-
-bool LLViewerTexture::isWaterExclusionSurface()
-{
-    return isWaterExclusionSurface(mID);
-}
-
-bool LLViewerTexture::isWaterExclusionSurface(const LLUUID& id)
-{
-    return sWaterExclusionSurfaceTexture1 == id || sWaterExclusionSurfaceTexture2 == id;
 }
 
 //virtual
