@@ -40,11 +40,13 @@ jobs:
 
       - name: Verify viewer-sikulix-main Exists
         run: |
-          if [ ! -d "C:\viewer-sikulix-main" ]; then
-            echo "❌ Error: viewer-sikulix not found on runner!"
-            exit 1
-          fi
-          echo "✅ viewer-sikulix is already available."
+          powershell -Command "& {
+            if (-Not (Test-Path -Path 'C:\viewer-sikulix-main')) {
+              Write-Host '❌ Error: viewer-sikulix not found on runner!'
+              exit 1
+            }
+            Write-Host '✅ viewer-sikulix is already available.'
+          }"
 
       - name: Fetch & Download Windows Installer Artifact
         run: |
