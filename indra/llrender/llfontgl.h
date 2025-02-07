@@ -224,6 +224,7 @@ public:
     static F32 sHorizDPI;
     static F32 sScaleX;
     static F32 sScaleY;
+    static S32 sResolutionGeneration;
     static bool sDisplayFont ;
     static std::string sAppDir;         // For loading fonts
 

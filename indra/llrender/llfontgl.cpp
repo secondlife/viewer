@@ -58,6 +58,7 @@ F32 LLFontGL::sVertDPI = 96.f;
 F32 LLFontGL::sHorizDPI = 96.f;
 F32 LLFontGL::sScaleX = 1.f;
 F32 LLFontGL::sScaleY = 1.f;
+S32 LLFontGL::sResolutionGeneration = 0;
 bool LLFontGL::sDisplayFont = true ;
 std::string LLFontGL::sAppDir;
 
