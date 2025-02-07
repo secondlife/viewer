@@ -32,6 +32,12 @@ jobs:
     # startsWith(github.event.workflow_run.head_branch, 'Second_Life_Release')
 
     steps:
+      - name: Temporarily Allow PowerShell Scripts (Process Scope)
+        run: |
+          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
+            Set-ExecutionPolicy RemoteSigned -Scope Process -Force
+          }"
+
       - name: Verify viewer-sikulix-main Exists
         run: |
           if [ ! -d "C:\viewer-sikulix-main" ]; then
@@ -39,12 +45,6 @@ jobs:
             exit 1
           fi
           echo "✅ viewer-sikulix is already available."
-
-      - name: Temporarily Allow PowerShell Scripts (Process Scope)
-        run: |
-          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
-            Set-ExecutionPolicy RemoteSigned -Scope Process -Force
-          }"
 
       - name: Fetch & Download Windows Installer Artifact
         run: |
