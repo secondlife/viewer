@@ -37,11 +37,37 @@
 
 // linden library includes
 #include "llerror.h"
-#include "lltimer.h"
+#include "llpacketbuffer.h"
 #include "llproxy.h"
 #include "llrand.h"
+#include "lltimer.h"
 #include "message.h"
 #include "u64.h"
+
+bool sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host)
+{
+    if (!LLProxy::isSOCKSProxyEnabled())
+    {
+        return send_packet(h_socket, send_buffer, buf_size, host.getAddress(), host.getPort());
+    }
+
+    char headered_send_buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
+
+    proxywrap_t *socks_header = static_cast<proxywrap_t*>(static_cast<void*>(&headered_send_buffer));
+    socks_header->rsv   = 0;
+    socks_header->addr  = host.getAddress();
+    socks_header->port  = htons(host.getPort());
+    socks_header->atype = ADDRESS_IPV4;
+    socks_header->frag  = 0;
+
+    memcpy(headered_send_buffer + SOCKS_HEADER_SIZE, send_buffer, buf_size);
+
+    return send_packet( h_socket,
+                        headered_send_buffer,
+                        buf_size + SOCKS_HEADER_SIZE,
+                        LLProxy::getInstance()->getUDPProxy().getAddress(),
+                        LLProxy::getInstance()->getUDPProxy().getPort());
+}
 
 ///////////////////////////////////////////////////////////
 LLPacketRing::LLPacketRing () :
@@ -342,30 +368,4 @@ bool LLPacketRing::sendPacket(int h_socket, char * send_buffer, S32 buf_size, LL
     }
 
     return status;
-}
-
-bool LLPacketRing::sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host)
-{
-
-    if (!LLProxy::isSOCKSProxyEnabled())
-    {
-        return send_packet(h_socket, send_buffer, buf_size, host.getAddress(), host.getPort());
-    }
-
-    char headered_send_buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
-
-    proxywrap_t *socks_header = static_cast<proxywrap_t*>(static_cast<void*>(&headered_send_buffer));
-    socks_header->rsv   = 0;
-    socks_header->addr  = host.getAddress();
-    socks_header->port  = htons(host.getPort());
-    socks_header->atype = ADDRESS_IPV4;
-    socks_header->frag  = 0;
-
-    memcpy(headered_send_buffer + SOCKS_HEADER_SIZE, send_buffer, buf_size);
-
-    return send_packet( h_socket,
-                        headered_send_buffer,
-                        buf_size + SOCKS_HEADER_SIZE,
-                        LLProxy::getInstance()->getUDPProxy().getAddress(),
-                        LLProxy::getInstance()->getUDPProxy().getPort());
 }

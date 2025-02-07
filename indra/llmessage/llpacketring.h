@@ -25,16 +25,15 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPACKETRING_H
-#define LL_LLPACKETRING_H
+#pragma once
 
 #include <queue>
 
 #include "llhost.h"
-#include "llpacketbuffer.h"
-#include "llproxy.h"
 #include "llthrottle.h"
 #include "net.h"
+
+class LLPacketBuffer;
 
 class LLPacketRing
 {
@@ -42,24 +41,27 @@ public:
     LLPacketRing();
     ~LLPacketRing();
 
-    void cleanup();
+    S32  receivePacket (S32 socket, char *datap);
+    bool sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
 
     void dropPackets(U32);
     void setDropPercentage (F32 percent_to_drop);
+
+    inline LLHost getLastSender() const;
+    inline LLHost getLastReceivingInterface() const;
+
+    S32 getAndResetActualInBits()   { S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
+    S32 getAndResetActualOutBits()  { S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
+
     void setUseInThrottle(const bool use_throttle);
     void setUseOutThrottle(const bool use_throttle);
     void setInBandwidth(const F32 bps);
     void setOutBandwidth(const F32 bps);
-    S32  receivePacket (S32 socket, char *datap);
+
+protected:
+    void cleanup();
     S32  receiveFromRing (S32 socket, char *datap);
 
-    bool sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
-
-    inline LLHost getLastSender();
-    inline LLHost getLastReceivingInterface();
-
-    S32 getAndResetActualInBits()               { S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
-    S32 getAndResetActualOutBits()              { S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
 protected:
     bool mUseInThrottle;
     bool mUseOutThrottle;
@@ -82,20 +84,15 @@ protected:
 
     LLHost mLastSender;
     LLHost mLastReceivingIF;
-
-private:
-    bool sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
 };
 
 
-inline LLHost LLPacketRing::getLastSender()
+inline LLHost LLPacketRing::getLastSender() const
 {
     return mLastSender;
 }
 
-inline LLHost LLPacketRing::getLastReceivingInterface()
+inline LLHost LLPacketRing::getLastReceivingInterface() const
 {
     return mLastReceivingIF;
 }
-
-#endif
