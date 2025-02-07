@@ -88,7 +88,7 @@ uniform sampler2D screenTex;
 uniform sampler2D depthMap;
 #endif
 
-uniform sampler2D refTex;
+uniform sampler2D exclusionTex;
 
 uniform float sunAngle;
 uniform float sunAngle2;
@@ -252,6 +252,8 @@ void main()
 
     float shadow = 1.0f;
 
+    float water_mask = texture(exclusionTex, distort).r;
+
 #ifdef HAS_SUN_SHADOW
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
@@ -266,9 +268,8 @@ void main()
     vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
 
     // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
-    fade = max(0,min(1, (pos.z - refPos.z) / 10));
+    fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
     distort2 = mix(distort, distort2, min(1, fade * 10));
-
     depth = texture(depthMap, distort2).r;
 
     refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
@@ -282,6 +283,9 @@ void main()
 
 #else
     vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
+
+    if (water_mask < 1)
+        discard;
 #endif
 
     float metallic = 1.0;
@@ -333,6 +337,7 @@ void main()
     color = mix(fb.rgb, color, fade);
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
-    frag_color = min(vec4(1),max(vec4(color.rgb, spec), vec4(0)));
+
+    frag_color = min(vec4(1),max(vec4(color.rgb, spec * water_mask), vec4(0)));
 }
 

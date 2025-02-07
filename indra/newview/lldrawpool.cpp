@@ -42,6 +42,7 @@
 #include "lldrawpooltree.h"
 #include "lldrawpoolterrain.h"
 #include "lldrawpoolwater.h"
+#include "lldrawpoolwaterexclusion.h"
 #include "llface.h"
 #include "llviewerobjectlist.h" // For debug listing.
 #include "pipeline.h"
@@ -118,6 +119,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
         break;
     case POOL_GLTF_PBR_ALPHA_MASK:
         poolp = new LLDrawPoolGLTFPBR(LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK);
+        break;
+    case POOL_WATEREXCLUSION:
+        poolp = new LLDrawPoolWaterExclusion();
         break;
     default:
         LL_ERRS() << "Unknown draw pool type!" << LL_ENDL;
