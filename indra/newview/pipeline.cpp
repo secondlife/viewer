@@ -9049,6 +9049,7 @@ void LLPipeline::doWaterExclusionMask()
     mWaterExclusionPool->render();
 
     mWaterExclusionMask.flush();
+    glClearColor(0, 0, 0, 0);
 }
 
 void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
