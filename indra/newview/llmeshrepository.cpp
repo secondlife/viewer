@@ -343,22 +343,22 @@ static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
 
 LLMeshRepository gMeshRepo;
 
-const U32 CACHE_PREAMBLE_VERSION = 1;
-const S32 CACHE_PREAMBLE_SIZE = sizeof(U32) * 3; //version, header_size, flags
-const S32 MESH_HEADER_SIZE = 4096;                      // Important:  assumption is that headers fit in this space
+constexpr U32 CACHE_PREAMBLE_VERSION = 1;
+constexpr S32 CACHE_PREAMBLE_SIZE = sizeof(U32) * 3; //version, header_size, flags
+constexpr S32 MESH_HEADER_SIZE = 4096;                      // Important:  assumption is that headers fit in this space
 
 
-const S32 REQUEST2_HIGH_WATER_MIN = 32;                 // Limits for GetMesh2 regions
-const S32 REQUEST2_HIGH_WATER_MAX = 100;
-const S32 REQUEST2_LOW_WATER_MIN = 16;
-const S32 REQUEST2_LOW_WATER_MAX = 50;
+constexpr S32 REQUEST2_HIGH_WATER_MIN = 32;                 // Limits for GetMesh2 regions
+constexpr S32 REQUEST2_HIGH_WATER_MAX = 100;
+constexpr S32 REQUEST2_LOW_WATER_MIN = 16;
+constexpr S32 REQUEST2_LOW_WATER_MAX = 50;
 
-const U32 LARGE_MESH_FETCH_THRESHOLD = 1U << 21;        // Size at which requests goes to narrow/slow queue
-const long SMALL_MESH_XFER_TIMEOUT = 120L;              // Seconds to complete xfer, small mesh downloads
-const long LARGE_MESH_XFER_TIMEOUT = 600L;              // Seconds to complete xfer, large downloads
+constexpr U32 LARGE_MESH_FETCH_THRESHOLD = 1U << 21;        // Size at which requests goes to narrow/slow queue
+constexpr long SMALL_MESH_XFER_TIMEOUT = 120L;              // Seconds to complete xfer, small mesh downloads
+constexpr long LARGE_MESH_XFER_TIMEOUT = 600L;              // Seconds to complete xfer, large downloads
 
-const U32 DOWNLOAD_RETRY_LIMIT = 8;
-const F32 DOWNLOAD_RETRY_DELAY = 0.5f; // seconds
+constexpr U32 DOWNLOAD_RETRY_LIMIT = 8;
+constexpr F32 DOWNLOAD_RETRY_DELAY = 0.5f; // seconds
 
 // Would normally like to retry on uploads as some
 // retryable failures would be recoverable.  Unfortunately,
@@ -368,7 +368,7 @@ const F32 DOWNLOAD_RETRY_DELAY = 0.5f; // seconds
 // cap which then produces a 404 on retry destroying some
 // (occasionally) useful error information.  We'll leave
 // upload retries to the user as in the past.  SH-4667.
-const long UPLOAD_RETRY_LIMIT = 0L;
+constexpr long UPLOAD_RETRY_LIMIT = 0L;
 
 // Maximum mesh version to support.  Three least significant digits are reserved for the minor version,
 // with major version changes indicating a format change that is not backwards compatible and should not
@@ -376,7 +376,7 @@ const long UPLOAD_RETRY_LIMIT = 0L;
 // present, the version is 0.001. A viewer that can parse version 0.001 can also parse versions up to 0.999,
 // but not 1.0 (integer 1000).
 // See wiki at https://wiki.secondlife.com/wiki/Mesh/Mesh_Asset_Format
-const S32 MAX_MESH_VERSION = 999;
+constexpr S32 MAX_MESH_VERSION = 999;
 
 U32 LLMeshRepository::sBytesReceived = 0;
 U32 LLMeshRepository::sMeshRequestCount = 0;
@@ -1869,8 +1869,8 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
         if (size > 0)
         {
             // *NOTE:  if the header size is ever more than 4KB, this will break
-            const S32 DISK_MINIMAL_READ = 4096;
-            static thread_local U8 buffer[DISK_MINIMAL_READ * 2];
+            constexpr S32 DISK_MINIMAL_READ = 4096;
+            U8 buffer[DISK_MINIMAL_READ * 2];
             S32 bytes = llmin(size, DISK_MINIMAL_READ);
             LLMeshRepository::sCacheBytesRead += bytes;
             ++LLMeshRepository::sCacheReads;
@@ -4337,6 +4337,12 @@ F32 calculate_score(LLVOVolume* object)
                 const LLVector3* box = avatar->getLastAnimExtents();
                 LLVector3 diag = box[1] - box[0];
                 radius = diag.magVec();
+
+                if (!avatar->isSelf() && !avatar->hasFirstFullAttachmentData())
+                {
+                    // slightly deprioritize avatars that are still receiving data
+                    radius *= 0.9f;
+                }
             }
             return radius / llmax(av_drawable->mDistanceWRTCamera, 1.f);
         }
@@ -5385,7 +5391,7 @@ F32 LLMeshCostData::getEstTrisForStreamingCost()
 
     F32 charged_tris = mEstTrisByLOD[3];
     F32 allowed_tris = mEstTrisByLOD[3];
-    const F32 ENFORCE_FLOOR = 64.0f;
+    constexpr F32 ENFORCE_FLOOR = 64.0f;
     for (S32 i=2; i>=0; i--)
     {
         // How many tris can we have in this LOD without affecting land impact?

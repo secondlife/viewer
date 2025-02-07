@@ -3333,7 +3333,7 @@ void send_agent_update(bool force_send, bool send_reliable)
         // we reduce the number of attachments sent to the viewer, thus prioritizing
         // closer ones.
         // Todo: revise and remove once server gets distance sorting.
-        last_draw_disatance_step = llmax((F32)(gAgentCamera.mDrawDistance / 2.f), 64.f);
+        last_draw_disatance_step = llmax((F32)(gAgentCamera.mDrawDistance / 2.f), 50.f);
         msg->addF32Fast(_PREHASH_Far, last_draw_disatance_step);
     }
     else if (last_draw_disatance_step < gAgentCamera.mDrawDistance)

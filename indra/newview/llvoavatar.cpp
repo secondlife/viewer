@@ -3226,6 +3226,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
             if (mFirstFullyVisible)
             {
                 mFirstFullyVisible = false;
+                mLastCloudAttachmentCount = (S32)mSimAttachments.size();
                 mFirstDecloudTime = mFirstAppearanceMessageTimer.getElapsedTimeF32();
                 if (isSelf())
                 {
@@ -8398,7 +8399,7 @@ bool LLVOAvatar::updateIsFullyLoaded()
                   );
 
         // compare amount of attachments to one reported by simulator
-        if (!loading && !isSelf() && rez_status < 4 && mLastCloudAttachmentCount < mSimAttachments.size())
+        if (!isSelf() && mLastCloudAttachmentCount < mSimAttachments.size() && mSimAttachments.size() > 0)
         {
             S32 attachment_count = getAttachmentCount();
             if (mLastCloudAttachmentCount != attachment_count)
@@ -8415,6 +8416,11 @@ bool LLVOAvatar::updateIsFullyLoaded()
             {
                 // waiting
                 loading = true;
+            }
+            else if (!loading)
+            {
+                // for hasFirstFullAttachmentData
+                mLastCloudAttachmentCount = (S32)mSimAttachments.size();
             }
         }
     }
@@ -8527,6 +8533,12 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 bool LLVOAvatar::isFullyLoaded() const
 {
     return (mRenderUnloadedAvatar || mFullyLoaded);
+}
+
+bool LLVOAvatar::hasFirstFullAttachmentData() const
+{
+    return !mFirstFullyVisible // Avatar is fully visible, have all data
+        || mLastCloudAttachmentCount >= (S32)mSimAttachments.size();
 }
 
 bool LLVOAvatar::isTooComplex() const
