@@ -11,13 +11,33 @@ concurrency:
   cancel-in-progress: true  # Cancels any queued job when a new one starts
 
 jobs:
+  debug-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Workflow Variables
+        run: |
+          echo "Workflow Conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Workflow Head Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
+          echo "Head Commit Message: ${{ github.event.workflow_run.head_commit.message }}"
+          echo "GitHub Ref: ${{ github.ref }}"
+          echo "GitHub Ref Name: ${{ github.ref_name }}"
+          echo "GitHub Event Name: ${{ github.event_name }}"
+          echo "GitHub Workflow Name: ${{ github.workflow }}"
+
   install-viewer-and-run-tests:
     runs-on: [self-hosted, qa-machine]
     if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'Second_Life_Release')
+      github.event.workflow_run.conclusion == 'success'
+    # startsWith(github.event.workflow_run.head_branch, 'Second_Life_Release')
 
     steps:
+      - name: Temporarily Allow PowerShell Scripts (Process Scope)
+        run: |
+          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
+            Set-ExecutionPolicy RemoteSigned -Scope Process -Force
+          }"
+
       - name: Verify viewer-sikulix-main Exists
         run: |
           if [ ! -d "C:\viewer-sikulix-main" ]; then
@@ -25,12 +45,6 @@ jobs:
             exit 1
           fi
           echo "✅ viewer-sikulix is already available."
-
-      - name: Temporarily Allow PowerShell Scripts (Process Scope)
-        run: |
-          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
-            Set-ExecutionPolicy RemoteSigned -Scope Process -Force
-          }"
 
       - name: Fetch & Download Windows Installer Artifact
         run: |
@@ -109,8 +123,8 @@ jobs:
           echo "Running Python script..."
           python C:\viewer-sikulix-main\runTests.py
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: C:\viewer-sikulix-main\regressionTest\test_results.html
+     # - name: Upload Test Results
+     #   uses: actions/upload-artifact@v3
+     #   with:
+     #     name: test-results
+     #     path: C:\viewer-sikulix-main\regressionTest\test_results.html
