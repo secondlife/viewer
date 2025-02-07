@@ -503,7 +503,7 @@ public:
         RENDER_TYPE_AVATAR                      = LLDrawPool::POOL_AVATAR,
         RENDER_TYPE_CONTROL_AV                  = LLDrawPool::POOL_CONTROL_AV, // Animesh
         RENDER_TYPE_TREE                        = LLDrawPool::POOL_TREE,
-        RENDER_TYPE_INVISIBLE                   = LLDrawPool::POOL_INVISIBLE,
+        RENDER_TYPE_WATEREXCLUSION              = LLDrawPool::POOL_WATEREXCLUSION,
         RENDER_TYPE_VOIDWATER                   = LLDrawPool::POOL_VOIDWATER,
         RENDER_TYPE_WATER                       = LLDrawPool::POOL_WATER,
         RENDER_TYPE_GLTF_PBR                    = LLDrawPool::POOL_GLTF_PBR,

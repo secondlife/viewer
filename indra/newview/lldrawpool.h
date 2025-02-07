@@ -55,7 +55,7 @@ public:
         // based on fill rate and likelihood to occlude future passes (faster, large occluders first).
         //
         POOL_SKY = 1,
-        POOL_INVISIBLE,
+        POOL_WATEREXCLUSION,
         POOL_WL_SKY,
         POOL_SIMPLE,
         POOL_FULLBRIGHT,

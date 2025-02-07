@@ -431,7 +431,7 @@ void LLPipeline::init()
     stop_glerror();
 
     //create render pass pools
-    getPool(LLDrawPool::POOL_INVISIBLE);
+    getPool(LLDrawPool::POOL_WATEREXCLUSION);
     getPool(LLDrawPool::POOL_ALPHA_PRE_WATER);
     getPool(LLDrawPool::POOL_ALPHA_POST_WATER);
     getPool(LLDrawPool::POOL_SIMPLE);
@@ -1690,7 +1690,7 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
         poolp = mPBRAlphaMaskPool;
         break;
 
-    case LLDrawPool::POOL_INVISIBLE:
+    case LLDrawPool::POOL_WATEREXCLUSION:
         poolp = mWaterExclusionPool;
         break;
 
@@ -4107,7 +4107,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
     bool done_water_exclusion = false;
 
     // do water exclusion just before water pass.
-    U32 water_exclusion_pass = LLDrawPool::POOL_INVISIBLE;
+    U32 water_exclusion_pass = LLDrawPool::POOL_WATEREXCLUSION;
 
     // do atmospheric haze just before post water alpha
     U32 atmospherics_pass = LLDrawPool::POOL_ALPHA_POST_WATER;
@@ -5231,7 +5231,7 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
         }
         break;
 
-    case LLDrawPool::POOL_INVISIBLE:
+    case LLDrawPool::POOL_WATEREXCLUSION:
         if (mWaterExclusionPool)
         {
             llassert(0);
@@ -5364,7 +5364,7 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
         mPBRAlphaMaskPool = NULL;
         break;
 
-    case LLDrawPool::POOL_INVISIBLE:
+    case LLDrawPool::POOL_WATEREXCLUSION:
         llassert(poolp == mWaterExclusionPool);
         mWaterExclusionPool = nullptr;
         break;
@@ -8870,7 +8870,7 @@ void LLPipeline::renderDeferredLighting()
                           LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
                           LLPipeline::RENDER_TYPE_TERRAIN,
                           LLPipeline::RENDER_TYPE_WATER,
-                          LLPipeline::RENDER_TYPE_INVISIBLE,
+                          LLPipeline::RENDER_TYPE_WATEREXCLUSION,
                           END_RENDER_TYPES);
 
         renderGeomPostDeferred(*LLViewerCamera::getInstance());

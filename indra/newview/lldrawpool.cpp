@@ -120,7 +120,7 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
     case POOL_GLTF_PBR_ALPHA_MASK:
         poolp = new LLDrawPoolGLTFPBR(LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK);
         break;
-    case POOL_INVISIBLE:
+    case POOL_WATEREXCLUSION:
         poolp = new LLDrawPoolWaterExclusion();
         break;
     default:

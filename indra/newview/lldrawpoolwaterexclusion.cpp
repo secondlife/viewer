@@ -34,7 +34,7 @@
 #include "llvoavatar.h"
 #include "lldrawpoolwater.h"
 
-LLDrawPoolWaterExclusion::LLDrawPoolWaterExclusion() : LLRenderPass(LLDrawPool::POOL_INVISIBLE)
+LLDrawPoolWaterExclusion::LLDrawPoolWaterExclusion() : LLRenderPass(LLDrawPool::POOL_WATEREXCLUSION)
 {
     LL_INFOS("DPInvisible") << "Creating water exclusion draw pool" << LL_ENDL;
 }
