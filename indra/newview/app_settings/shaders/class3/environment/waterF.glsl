@@ -171,18 +171,18 @@ void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave
     // We calculate the fresnel here.
     // We do this by getting the dot product for each sets of waves, and applying scale and offset.
 
-    df3 = vec3(
+    df3 = max(vec3(0), vec3(
         dot(viewVec, wave1),
         dot(viewVec, (wave2 + wave3) * 0.5),
         dot(viewVec, wave3)
-    ) * fresnelScale + fresnelOffset;
+    ) * fresnelScale + fresnelOffset);
 
     df3 *= df3;
 
-    df2 = vec2(
+    df2 = max(vec2(0), vec2(
         df3.x + df3.y + df3.z,
         dot(viewVec, wavef) * fresnelScale + fresnelOffset
-    );
+    ));
 }
 
 void main()
@@ -321,7 +321,7 @@ void main()
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
 
     vec3 color = vec3(0);
-    color = mix(fb.rgb, radiance * df2.y, df2.x * 0.99999) + punctual.rgb;
+    color = mix(fb.rgb, radiance * df2.y, min(1, (df2.x * 0.99999))) + punctual.rgb;
 
     // This looks super janky, but we do this to restore water haze in the distance.
     // These values were finagled in to try and bring back some of the distant brightening on legacy water.  Also works reasonably well on PBR skies such as PBR midday.
