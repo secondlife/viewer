@@ -101,6 +101,7 @@ LLGLSLShader    gReflectionProbeDisplayProgram;
 LLGLSLShader    gCopyProgram;
 LLGLSLShader    gCopyDepthProgram;
 LLGLSLShader    gPBRTerrainBakeProgram;
+LLGLSLShader    gDrawColorProgram;
 
 //object shaders
 LLGLSLShader        gObjectPreviewProgram;
@@ -3353,6 +3354,17 @@ bool LLViewerShaderMgr::loadShadersInterface()
         gCopyDepthProgram.addPermutation("COPY_DEPTH", "1");
         gCopyDepthProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         success = gCopyDepthProgram.createShader();
+    }
+
+    if (success)
+    {
+        gDrawColorProgram.mName = "Draw Color Shader";
+        gDrawColorProgram.mShaderFiles.clear();
+        gDrawColorProgram.mShaderFiles.push_back(make_pair("objects/simpleNoAtmosV.glsl", GL_VERTEX_SHADER));
+        gDrawColorProgram.mShaderFiles.push_back(make_pair("objects/simpleColorF.glsl", GL_FRAGMENT_SHADER));
+        gDrawColorProgram.clearPermutations();
+        gDrawColorProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+        success = gDrawColorProgram.createShader();
     }
 
     if (gSavedSettings.getBOOL("LocalTerrainPaintEnabled"))

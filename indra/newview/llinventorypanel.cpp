@@ -1334,6 +1334,8 @@ void LLInventoryPanel::openStartFolderOrMyInventory()
         LLFolderViewFolder *fchild = dynamic_cast<LLFolderViewFolder*>(child);
         if (fchild
             && fchild->getViewModelItem()
+            // Is this right? Name might be localized,
+            // use FT_ROOT_INVENTORY or gInventory.getRootFolderID()?
             && fchild->getViewModelItem()->getName() == "My Inventory")
         {
             fchild->setOpen(true);

@@ -117,6 +117,7 @@ private:
     F32 mLastScaleY = 1.f;
     F32 mLastVertDPI = 0.f;
     F32 mLastHorizDPI = 0.f;
+    S32 mLastResGeneration = 0;
     LLCoordGL mLastOrigin;
 
     static bool sEnableBufferCollection;

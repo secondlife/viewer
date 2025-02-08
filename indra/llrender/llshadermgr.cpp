@@ -1392,6 +1392,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("screenTex");
     mReservedUniforms.push_back("screenDepth");
     mReservedUniforms.push_back("refTex");
+    mReservedUniforms.push_back("exclusionTex");
     mReservedUniforms.push_back("eyeVec");
     mReservedUniforms.push_back("time");
     mReservedUniforms.push_back("waveDir1");

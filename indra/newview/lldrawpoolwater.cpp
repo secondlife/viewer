@@ -236,6 +236,8 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
             gGL.getTexUnit(bumpTex2)->bind(tex_b);
         }
 
+        shader->bindTexture(LLShaderMgr::WATER_EXCLUSIONTEX, &gPipeline.mWaterExclusionMask);
+
         // bind reflection texture from RenderTarget
         S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
 
@@ -307,30 +309,11 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
         LLGLDisable cullface(GL_CULL_FACE);
 
-        LLVOWater* water = nullptr;
-        for (LLFace* const& face : mDrawFace)
-        {
-            if (!face) continue;
-            water = static_cast<LLVOWater*>(face->getViewerObject());
-            if (!water) continue;
-
-            if ((bool)edge == (bool)water->getIsEdgePatch())
-            {
-                face->renderIndexed();
-
-                // Note non-void water being drawn, updates required
-                if (!edge)  // SL-16461 remove !LLPipeline::sUseOcclusion check
-                {
-                    sNeedsReflectionUpdate = true;
-                    sNeedsDistortionUpdate = true;
-                }
-            }
-        }
+        pushWaterPlanes(edge);
 
         shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
         shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);
         shader->disableTexture(LLShaderMgr::BUMP_MAP);
-        shader->disableTexture(LLShaderMgr::WATER_REFTEX);
 
         // clean up
         gPipeline.unbindDeferredShader(*shader);
@@ -343,6 +326,31 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
     gGL.setColorMask(true, false);
+}
+
+void LLDrawPoolWater::pushWaterPlanes(int pass)
+{
+    LLVOWater* water = nullptr;
+    for (LLFace* const& face : mDrawFace)
+    {
+        if (!face)
+            continue;
+        water = static_cast<LLVOWater*>(face->getViewerObject());
+        if (!water)
+            continue;
+
+        if ((bool)pass == (bool)water->getIsEdgePatch())
+        {
+            face->renderIndexed();
+
+            // Note non-void water being drawn, updates required
+            if (!pass) // SL-16461 remove !LLPipeline::sUseOcclusion check
+            {
+                sNeedsReflectionUpdate = true;
+                sNeedsDistortionUpdate = true;
+            }
+        }
+    }
 }
 
 LLViewerTexture *LLDrawPoolWater::getDebugTexture()

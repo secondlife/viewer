@@ -246,6 +246,24 @@ protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLIsOneOfTypes
+//
+// Implementation of a LLInventoryCollectFunctor which returns true if
+// the type is one of the types passed in during construction.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLIsOneOfTypes : public LLInventoryCollectFunctor
+{
+public:
+    LLIsOneOfTypes(const std::vector<LLAssetType::EType> &types) : mTypes(types) {}
+    virtual ~LLIsOneOfTypes() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+protected:
+    std::vector <LLAssetType::EType> mTypes;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIsNotType
 //
 // Implementation of a LLInventoryCollectFunctor which returns false if the

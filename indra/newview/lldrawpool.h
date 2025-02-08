@@ -55,6 +55,7 @@ public:
         // based on fill rate and likelihood to occlude future passes (faster, large occluders first).
         //
         POOL_SKY = 1,
+        POOL_WATEREXCLUSION,
         POOL_WL_SKY,
         POOL_SIMPLE,
         POOL_FULLBRIGHT,
@@ -140,7 +141,7 @@ public:
         PASS_GRASS,
         PASS_FULLBRIGHT,
         PASS_FULLBRIGHT_RIGGED,
-        PASS_INVISIBLE,
+        PASS_INVISIBLE,                         // Formerly, invisiprims.  Now, water exclusion surfaces.
         PASS_INVISIBLE_RIGGED,
         PASS_INVISI_SHINY,
         PASS_INVISI_SHINY_RIGGED,
