@@ -81,10 +81,6 @@ const S32   BITS_PER_PIXEL = 32;
 const S32   MAX_NUM_RESOLUTIONS = 32;
 const F32   ICON_FLASH_TIME = 0.5f;
 
-#ifndef WM_DPICHANGED
-#define WM_DPICHANGED 0x02E0
-#endif
-
 #ifndef USER_DEFAULT_SCREEN_DPI
 #define USER_DEFAULT_SCREEN_DPI 96 // Win7
 #endif
@@ -2967,6 +2963,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 SWP_NOZORDER | SWP_NOACTIVATE);
 
             return 0;
+        }
+
+        case WM_DISPLAYCHANGE:
+        {
+            WINDOW_IMP_POST(window_imp->mCallbacks->handleDisplayChanged());
         }
 
         case WM_SETFOCUS:
