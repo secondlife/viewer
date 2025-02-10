@@ -71,7 +71,11 @@ LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 #define ll_assert_aligned(ptr,alignment)
 #endif
 
+#if LL_ARM64
+#include "sse2neon.h"
+#else
 #include <xmmintrin.h>
+#endif
 
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address)
 {
@@ -339,6 +343,9 @@ LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __restrict src, size_t bytes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+#if defined(LL_ARM64)
+    memcpy(dst, src, bytes);
+#else
     assert(src != NULL);
     assert(dst != NULL);
     assert(bytes > 0);
@@ -404,6 +411,7 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
         dst += 16;
         src += 16;
     }
+#endif
 }
 
 #ifndef __DEBUG_PRIVATE_MEM__
