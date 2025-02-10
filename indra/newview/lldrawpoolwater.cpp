@@ -176,11 +176,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
         light_diffuse *= (1.5f + (6.f * ground_proj_sq));
     }
 
-    // set up normal maps filtering
-    for (auto norm_map : mWaterNormp)
-        {
-        if (norm_map) norm_map->setFilteringOption(has_normal_mips ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
-        }
+    LLTexUnit::eTextureFilterOptions filter_mode = has_normal_mips ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT;
 
     LLColor4      specular(sun_up ? psky->getSunlightColor() : psky->getMoonlightColor());
     F32           phase_time = (F32) LLFrameTimer::getElapsedSeconds() * 0.5f;
@@ -196,14 +192,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
         }
         else
         {
-            if (edge)
-            {
-                shader = &gWaterEdgeProgram;
-            }
-            else
-            {
-                shader = &gWaterProgram;
-            }
+            shader = &gWaterProgram;
         }
 
         gPipeline.bindDeferredShader(*shader, nullptr, &gPipeline.mWaterDis);
@@ -223,17 +212,21 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
         if (tex_a && (!tex_b || (tex_a == tex_b)))
         {
             gGL.getTexUnit(bumpTex)->bind(tex_a);
+            gGL.getTexUnit(bumpTex)->setTextureFilteringOption(filter_mode);
             blend_factor = 0; // only one tex provided, no blending
         }
         else if (tex_b && !tex_a)
         {
             gGL.getTexUnit(bumpTex)->bind(tex_b);
+            gGL.getTexUnit(bumpTex)->setTextureFilteringOption(filter_mode);
             blend_factor = 0; // only one tex provided, no blending
         }
         else if (tex_b != tex_a)
         {
             gGL.getTexUnit(bumpTex)->bind(tex_a);
+            gGL.getTexUnit(bumpTex)->setTextureFilteringOption(filter_mode);
             gGL.getTexUnit(bumpTex2)->bind(tex_b);
+            gGL.getTexUnit(bumpTex2)->setTextureFilteringOption(filter_mode);
         }
 
         shader->bindTexture(LLShaderMgr::WATER_EXCLUSIONTEX, &gPipeline.mWaterExclusionMask);

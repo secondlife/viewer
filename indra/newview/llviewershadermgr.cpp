@@ -114,7 +114,6 @@ LLGLSLShader        gObjectAlphaMaskNoColorProgram;
 
 //environment shaders
 LLGLSLShader        gWaterProgram;
-LLGLSLShader        gWaterEdgeProgram;
 LLGLSLShader        gUnderWaterProgram;
 
 //interface shaders
@@ -410,7 +409,6 @@ void LLViewerShaderMgr::finalizeShaderList()
     //ONLY shaders that need WL Param management should be added here
     mShaderList.push_back(&gAvatarProgram);
     mShaderList.push_back(&gWaterProgram);
-    mShaderList.push_back(&gWaterEdgeProgram);
     mShaderList.push_back(&gAvatarEyeballProgram);
     mShaderList.push_back(&gImpostorProgram);
     mShaderList.push_back(&gObjectBumpProgram);
@@ -909,7 +907,6 @@ bool LLViewerShaderMgr::loadShadersWater()
     if (mShaderLevel[SHADER_WATER] == 0)
     {
         gWaterProgram.unload();
-        gWaterEdgeProgram.unload();
         gUnderWaterProgram.unload();
         return true;
     }
@@ -941,36 +938,6 @@ bool LLViewerShaderMgr::loadShadersWater()
         gWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
         gWaterProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
         success = gWaterProgram.createShader();
-        llassert(success);
-    }
-
-    if (success)
-    {
-    // load water shader
-        gWaterEdgeProgram.mName = "Water Edge Shader";
-        gWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
-        gWaterEdgeProgram.mFeatures.hasAtmospherics = true;
-        gWaterEdgeProgram.mFeatures.hasGamma = true;
-        gWaterEdgeProgram.mFeatures.hasSrgb = true;
-        gWaterEdgeProgram.mFeatures.hasReflectionProbes = true;
-        gWaterEdgeProgram.mFeatures.hasShadows = use_sun_shadow;
-        gWaterEdgeProgram.mShaderFiles.clear();
-        gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
-        gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER));
-        gWaterEdgeProgram.clearPermutations();
-        gWaterEdgeProgram.addPermutation("WATER_EDGE", "1");
-        if (LLPipeline::sRenderTransparentWater)
-        {
-            gWaterEdgeProgram.addPermutation("TRANSPARENT_WATER", "1");
-        }
-
-        if (use_sun_shadow)
-        {
-            gWaterEdgeProgram.addPermutation("HAS_SUN_SHADOW", "1");
-        }
-        gWaterEdgeProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-        gWaterEdgeProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
-        success = gWaterEdgeProgram.createShader();
         llassert(success);
     }
 
