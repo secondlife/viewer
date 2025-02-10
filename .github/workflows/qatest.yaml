@@ -5,10 +5,6 @@ on:
     workflows: ["Build"]
     types:
       - completed
-  pull_request:
-    branches:
-      - "develop"
-      - "atlas-qaworkflow-patch3"
 
 concurrency:
   group: qa-test-run
