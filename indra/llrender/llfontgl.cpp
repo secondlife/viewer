@@ -272,9 +272,11 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     const LLFontGlyphInfo* next_glyph = NULL;
 
     static constexpr S32 GLYPH_BATCH_SIZE = 30;
-    static thread_local LLVector4a vertices[GLYPH_BATCH_SIZE * 6];
-    static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 6];
-    static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 6];
+    // string can have more than one glyph per char, make sure last one can fit
+    static constexpr S32 BUFFER_SIZE = GLYPH_BATCH_SIZE * 2;
+    static thread_local LLVector4a vertices[BUFFER_SIZE * 6];
+    static thread_local LLVector2 uvs[BUFFER_SIZE * 6];
+    static thread_local LLColor4U colors[BUFFER_SIZE * 6];
 
     LLColor4U text_color(color);
     // Preserve the transparency to render fading emojis in fading text (e.g.
@@ -283,6 +285,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
     S32 glyph_count = 0;
+    llwchar last_char = wstr[begin_offset];
     for (i = begin_offset; i < begin_offset + length; i++)
     {
         llwchar wch = wstr[i];
@@ -300,7 +303,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         }
         // Per-glyph bitmap texture.
         std::pair<EFontGlyphType, S32> next_bitmap_entry = fgi->mBitmapEntry;
-        if (next_bitmap_entry != bitmap_entry)
+        if (next_bitmap_entry != bitmap_entry || last_char != wch)
         {
             // Actually draw the queued glyphs before switching their texture;
             // otherwise the queued glyphs will be taken from wrong textures.
@@ -317,6 +320,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             bitmap_entry = next_bitmap_entry;
             LLImageGL* font_image = font_bitmap_cache->getImageGL(bitmap_entry.first, bitmap_entry.second);
             gGL.getTexUnit(0)->bind(font_image);
+
+            // For multi-byte characters just draw each time character changes
+            // Might be overkill and might be better to detect multybyte
+            last_char = wch;
         }
 
         if ((start_x + scaled_max_pixels) < (cur_x + fgi->mXBearing + fgi->mWidth))
