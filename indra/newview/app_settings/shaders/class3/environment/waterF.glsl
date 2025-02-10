@@ -90,6 +90,7 @@ uniform sampler2D depthMap;
 
 uniform sampler2D exclusionTex;
 
+uniform int classic_mode;
 uniform float sunAngle;
 uniform float sunAngle2;
 uniform vec3 lightDir;
@@ -216,6 +217,17 @@ void main()
     vec3 df3 = vec3(0);
     vec2 df2 = vec2(0);
 
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
+    calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
+
+    wavef = mix(vec3(0, 0, 1), wavef, atten);
+    wave1 = mix(vec3(0, 0, 1), wave1, atten);
+    wave2 = mix(vec3(0, 0, 1), wave2, atten);
+    wave3 = mix(vec3(0, 0, 1), wave3, atten);
+
     calculateFresnelFactors(df3, df2, normalize(view.xyz), wave1, wave2, wave3, wavef);
 
     vec3 waver = wavef*3;
@@ -245,11 +257,6 @@ void main()
 
     distort2 = clamp(distort2, vec2(0), vec2(0.999));
 
-    vec3 sunlit;
-    vec3 amblit;
-    vec3 additive;
-    vec3 atten;
-
     float shadow = 1.0f;
 
     float water_mask = texture(exclusionTex, distort).r;
@@ -257,8 +264,6 @@ void main()
 #ifdef HAS_SUN_SHADOW
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
-
-    calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
 
     vec3 sunlit_linear = srgb_to_linear(sunlit);
     float fade = 0;
@@ -300,7 +305,7 @@ void main()
 #ifdef WATER_MINIMAL
     sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
 #elif WATER_MINIMAL_PLUS
-    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, 1, false, amblit);
+    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, false, amblit);
 #endif
 
     vec3 diffuseColor = vec3(0);
@@ -323,20 +328,25 @@ void main()
     pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
-
+    radiance *= df2.y;
     vec3 color = vec3(0);
-    color = mix(fb.rgb, radiance * df2.y, min(1, (df2.x * 0.99999))) + punctual.rgb;
+    color = mix(fb.rgb, radiance, min(1, df2.x)) + punctual.rgb;
+
+    float water_haze_scale = 4;
+
+    if (classic_mode > 0)
+        water_haze_scale = 1;
 
     // This looks super janky, but we do this to restore water haze in the distance.
     // These values were finagled in to try and bring back some of the distant brightening on legacy water.  Also works reasonably well on PBR skies such as PBR midday.
-    color += color * min(vec3(4),pow(1 - atten, vec3(1.35)) * 16 * fade);
+    color = mix(color, additive * water_haze_scale, (1 - atten));
 
     // We shorten the fade here at the shoreline so it doesn't appear too soft from a distance.
     fade *= 60;
     fade = min(1, fade);
     color = mix(fb.rgb, color, fade);
 
-    float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
+    float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0);
 
     frag_color = min(vec4(1),max(vec4(color.rgb, spec * water_mask), vec4(0)));
 }
