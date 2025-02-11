@@ -1328,7 +1328,7 @@ bool gunzip_file(const std::string& srcfile, const std::string& dstfile)
     S32 bytes = 0;
     tmpfile = dstfile + ".t";
 #ifdef LL_WINDOWS
-    llutf16string utf16filename = utf8str_to_utf16str(srcfile);
+    std::wstring utf16filename = ll_convert<std::wstring>(srcfile);
     src = gzopen_w(utf16filename.c_str(), "rb");
 #else
     src = gzopen(srcfile.c_str(), "rb");
@@ -1372,7 +1372,7 @@ bool gzip_file(const std::string& srcfile, const std::string& dstfile)
     tmpfile = dstfile + ".t";
 
 #ifdef LL_WINDOWS
-    llutf16string utf16filename = utf8str_to_utf16str(tmpfile);
+    std::wstring utf16filename = ll_convert<std::wstring>(tmpfile);
     dst = gzopen_w(utf16filename.c_str(), "wb");
 #else
     dst = gzopen(tmpfile.c_str(), "wb");
