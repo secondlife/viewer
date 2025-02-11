@@ -91,20 +91,14 @@ uniform sampler2D depthMap;
 uniform sampler2D exclusionTex;
 
 uniform int classic_mode;
-uniform float sunAngle;
-uniform float sunAngle2;
 uniform vec3 lightDir;
 uniform vec3 specular;
-uniform float lightExp;
+uniform float blurMultiplier;
 uniform float refScale;
 uniform float kd;
 uniform vec3 normScale;
 uniform float fresnelScale;
 uniform float fresnelOffset;
-uniform float blurMultiplier;
-uniform vec4 waterFogColor;
-uniform vec3 waterFogColorLinear;
-uniform int water_edge;
 
 //bigWave is (refCoord.w, view.w);
 in vec4 refCoord;
@@ -208,9 +202,7 @@ void main()
     vec3 wave2 = vec3(0, 0, 1);
     vec3 wave3 = vec3(0, 0, 1);
 
-    // Probably move this into a variant for edge water.
-    if (water_edge < 1)
-        generateWaveNormals(wave1, wave2, wave3);
+    generateWaveNormals(wave1, wave2, wave3);
 
     float dmod = sqrt(dist);
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
@@ -292,8 +284,9 @@ void main()
 #endif
 
     float metallic = 1.0;
-    float perceptualRoughness = 0.1;
-    float gloss      = 0.95;
+    float perceptualRoughness = blurMultiplier;
+    perceptualRoughness *= perceptualRoughness;
+    float gloss      = 1 - perceptualRoughness;
 
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);

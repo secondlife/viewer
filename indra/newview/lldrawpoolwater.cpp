@@ -182,152 +182,127 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     F32           phase_time = (F32) LLFrameTimer::getElapsedSeconds() * 0.5f;
     LLGLSLShader *shader     = nullptr;
 
-    // two passes, first with standard water shader bound, second with edge water shader bound
-    for (int edge = 0; edge < 2; edge++)
+    // One pass, one of two shaders.  Void water and region water share state.
+    // There isn't a good reason anymore to really have void water run in a separate pass.
+    // It also just introduced a bunch of weird state consistency stuff that we really don't need.
+    // Not to mention, re-binding the the same shader and state for that shader is kind of wasteful.
+    // - Geenz 2025-02-11
+    // select shader
+    if (underwater)
     {
-        // select shader
-        if (underwater)
-        {
-            shader = &gUnderWaterProgram;
-        }
-        else
-        {
-            shader = &gWaterProgram;
-        }
-
-        gPipeline.bindDeferredShader(*shader, nullptr, &gPipeline.mWaterDis);
-
-        //bind normal map
-        S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
-        S32 bumpTex2 = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP2);
-
-        LLViewerTexture* tex_a = mWaterNormp[0];
-        LLViewerTexture* tex_b = mWaterNormp[1];
-
-        F32 blend_factor = (F32)pwater->getBlendFactor();
-
-        gGL.getTexUnit(bumpTex)->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
-
-        if (tex_a && (!tex_b || (tex_a == tex_b)))
-        {
-            gGL.getTexUnit(bumpTex)->bind(tex_a);
-            gGL.getTexUnit(bumpTex)->setTextureFilteringOption(filter_mode);
-            blend_factor = 0; // only one tex provided, no blending
-        }
-        else if (tex_b && !tex_a)
-        {
-            gGL.getTexUnit(bumpTex)->bind(tex_b);
-            gGL.getTexUnit(bumpTex)->setTextureFilteringOption(filter_mode);
-            blend_factor = 0; // only one tex provided, no blending
-        }
-        else if (tex_b != tex_a)
-        {
-            gGL.getTexUnit(bumpTex)->bind(tex_a);
-            gGL.getTexUnit(bumpTex)->setTextureFilteringOption(filter_mode);
-            gGL.getTexUnit(bumpTex2)->bind(tex_b);
-            gGL.getTexUnit(bumpTex2)->setTextureFilteringOption(filter_mode);
-        }
-
-        shader->bindTexture(LLShaderMgr::WATER_EXCLUSIONTEX, &gPipeline.mWaterExclusionMask);
-
-        // bind reflection texture from RenderTarget
-        S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
-        shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
-
-        F32      fog_density = pwater->getModifiedWaterFogDensity(underwater);
-
-        if (screentex > -1)
-        {
-            shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, fog_density);
-            gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);
-        }
-
-        if (mShaderLevel == 1)
-        {
-            fog_color.mV[VALPHA] = (F32)(log(fog_density) / log(2));
-        }
-
-        F32 water_height = environment.getWaterHeight();
-        F32 camera_height = LLViewerCamera::getInstance()->getOrigin().mV[2];
-        shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, camera_height - water_height);
-        shader->uniform1f(LLShaderMgr::WATER_TIME, phase_time);
-        shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-
-        shader->uniform4fv(LLShaderMgr::SPECULAR_COLOR, 1, specular.mV);
-        shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, fog_color.mV);
-        shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR_LINEAR, 1, fog_color_linear.mV);
-
-        shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
-        shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
-
-        shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, pwater->getWave1Dir().mV);
-        shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, pwater->getWave2Dir().mV);
-
-        shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
-
-        shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, pwater->getNormalScale().mV);
-        shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, pwater->getFresnelScale());
-        shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, pwater->getFresnelOffset());
-        shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, pwater->getBlurMultiplier());
-
-        static LLStaticHashedString s_exposure("exposure");
-        static LLStaticHashedString tonemap_mix("tonemap_mix");
-        static LLStaticHashedString tonemap_type("tonemap_type");
-
-        static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
-
-        F32 e = llclamp(exposure(), 0.5f, 4.f);
-
-        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
-
-        shader->uniform1f(s_exposure, e);
-        static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
-        shader->uniform1i(tonemap_type, tonemap_type_setting);
-        shader->uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
-
-        F32 sunAngle = llmax(0.f, light_dir.mV[1]);
-        F32 scaledAngle = 1.f - sunAngle;
-
-        shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up ? 1 : 0);
-        shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE, sunAngle);
-        shader->uniform1f(LLShaderMgr::WATER_SCALED_ANGLE, scaledAngle);
-        shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE2, 0.1f + 0.2f * sunAngle);
-        shader->uniform1i(LLShaderMgr::WATER_EDGE_FACTOR, edge ? 1 : 0);
-
-        // SL-15861 This was changed from getRotatedLightNorm() as it was causing
-        // lightnorm in shaders\class1\windlight\atmosphericsFuncs.glsl in have inconsistent additive lighting for 180 degrees of the FOV.
-        LLVector4 rotated_light_direction = LLEnvironment::instance().getClampedLightNorm();
-        shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
-
-        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-
-        if (LLViewerCamera::getInstance()->cameraUnderWater())
-        {
-            shader->uniform1f(LLShaderMgr::WATER_REFSCALE, pwater->getScaleBelow());
-        }
-        else
-        {
-            shader->uniform1f(LLShaderMgr::WATER_REFSCALE, pwater->getScaleAbove());
-        }
-
-        LLGLDisable cullface(GL_CULL_FACE);
-
-        pushWaterPlanes(edge);
-
-        shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
-        shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);
-        shader->disableTexture(LLShaderMgr::BUMP_MAP);
-
-        // clean up
-        gPipeline.unbindDeferredShader(*shader);
-
-        gGL.getTexUnit(bumpTex)->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
+        shader = &gUnderWaterProgram;
+    }
+    else
+    {
+        shader = &gWaterProgram;
     }
 
-    gGL.getTexUnit(0)->activate();
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gPipeline.bindDeferredShader(*shader, nullptr, &gPipeline.mWaterDis);
+
+    LLViewerTexture* tex_a = mWaterNormp[0];
+    LLViewerTexture* tex_b = mWaterNormp[1];
+
+    F32 blend_factor = (F32)pwater->getBlendFactor();
+
+    if (tex_a && (!tex_b || (tex_a == tex_b)))
+    {
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_a);
+        tex_a->setFilteringOption(filter_mode);
+        blend_factor = 0; // only one tex provided, no blending
+    }
+    else if (tex_b && !tex_a)
+    {
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_b);
+        tex_a->setFilteringOption(filter_mode);
+        blend_factor = 0; // only one tex provided, no blending
+    }
+    else if (tex_b != tex_a)
+    {
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_a);
+        tex_a->setFilteringOption(filter_mode);
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP2, tex_b);
+        tex_b->setFilteringOption(filter_mode);
+    }
+
+    shader->bindTexture(LLShaderMgr::WATER_EXCLUSIONTEX, &gPipeline.mWaterExclusionMask);
+
+    shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+
+    F32      fog_density = pwater->getModifiedWaterFogDensity(underwater);
+
+    shader->bindTexture(LLShaderMgr::WATER_SCREENTEX, &gPipeline.mWaterDis);
+
+    if (mShaderLevel == 1)
+    {
+        fog_color.mV[VALPHA] = (F32)(log(fog_density) / log(2));
+    }
+
+    F32 water_height = environment.getWaterHeight();
+    F32 camera_height = LLViewerCamera::getInstance()->getOrigin().mV[2];
+    shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, camera_height - water_height);
+    shader->uniform1f(LLShaderMgr::WATER_TIME, phase_time);
+    shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+
+    shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
+
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, pwater->getWave1Dir().mV);
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, pwater->getWave2Dir().mV);
+
+    shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
+
+    shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, pwater->getNormalScale().mV);
+    shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, pwater->getFresnelScale());
+    shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, pwater->getFresnelOffset());
+    shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, fmaxf(0, pwater->getBlurMultiplier()) * 2);
+
+    static LLStaticHashedString s_exposure("exposure");
+    static LLStaticHashedString tonemap_mix("tonemap_mix");
+    static LLStaticHashedString tonemap_type("tonemap_type");
+
+    static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
+
+    F32 e = llclamp(exposure(), 0.5f, 4.f);
+
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
+
+    shader->uniform1f(s_exposure, e);
+    static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
+    shader->uniform1i(tonemap_type, tonemap_type_setting);
+    shader->uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
+
+    F32 sunAngle = llmax(0.f, light_dir.mV[1]);
+    F32 scaledAngle = 1.f - sunAngle;
+
+    shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up ? 1 : 0);
+
+    // SL-15861 This was changed from getRotatedLightNorm() as it was causing
+    // lightnorm in shaders\class1\windlight\atmosphericsFuncs.glsl in have inconsistent additive lighting for 180 degrees of the FOV.
+    LLVector4 rotated_light_direction = LLEnvironment::instance().getClampedLightNorm();
+    shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
+
+    shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+
+    if (LLViewerCamera::getInstance()->cameraUnderWater())
+    {
+        shader->uniform1f(LLShaderMgr::WATER_REFSCALE, pwater->getScaleBelow());
+    }
+    else
+    {
+        shader->uniform1f(LLShaderMgr::WATER_REFSCALE, pwater->getScaleAbove());
+    }
+
+    LLGLDisable cullface(GL_CULL_FACE);
+
+    // Only push the water planes once.
+    // Previously we did this twice: once for void water and one for region water.
+    // However, the void water and region water shaders are the same exact shader.
+    // They also had the same exact state with the sole exception setting an edge water flag.
+    // That flag was not actually used anywhere in the shaders.
+    // - Geenz 2025-02-11
+    pushWaterPlanes(0);
+
+    // clean up
+    gPipeline.unbindDeferredShader(*shader);
 
     gGL.setColorMask(true, false);
 }
@@ -337,22 +312,18 @@ void LLDrawPoolWater::pushWaterPlanes(int pass)
     LLVOWater* water = nullptr;
     for (LLFace* const& face : mDrawFace)
     {
-        if (!face)
-            continue;
         water = static_cast<LLVOWater*>(face->getViewerObject());
-        if (!water)
-            continue;
 
-        if ((bool)pass == (bool)water->getIsEdgePatch())
+        face->renderIndexed();
+
+        // Note non-void water being drawn, updates required
+        // Previously we had some logic to determine if this pass was also our water edge pass.
+        // Now we only have one pass.  Check if we're doing a region water plane or void water plane.
+        // - Geenz 2025-02-11
+        if (!water->getIsEdgePatch())
         {
-            face->renderIndexed();
-
-            // Note non-void water being drawn, updates required
-            if (!pass) // SL-16461 remove !LLPipeline::sUseOcclusion check
-            {
-                sNeedsReflectionUpdate = true;
-                sNeedsDistortionUpdate = true;
-            }
+            sNeedsReflectionUpdate = true;
+            sNeedsDistortionUpdate = true;
         }
     }
 }
