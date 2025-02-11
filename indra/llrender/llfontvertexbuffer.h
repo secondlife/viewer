@@ -120,6 +120,10 @@ private:
     S32 mLastResGeneration = 0;
     LLCoordGL mLastOrigin;
 
+    // Adding new characters to bitmap cache can alter value from getBitmapWidth();
+    // which alters whole string. So rerender when new characters were added to cache.
+    S32 mLastFontGlyphCount = 0;
+
     static bool sEnableBufferCollection;
 };
 

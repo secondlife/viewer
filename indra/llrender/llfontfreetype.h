@@ -148,6 +148,7 @@ public:
 
     void setStyle(U8 style);
     U8 getStyle() const;
+    S32 getAddedGlyphs() const { return mAddGlyphCount; }
 
 private:
     void resetBitmapCache();
