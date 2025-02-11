@@ -57,35 +57,39 @@ jobs:
           ARTIFACT_NAME=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "$ARTIFACTS_URL" | jq -r '.artifacts[] | select(.name == "Windows-installer") | .archive_download_url')
 
-          if [[ -z "$ARTIFACT_NAME" ]]; then
-            echo "❌ Error: Windows-installer artifact not found!"
-            exit 1
-          fi
-
-          echo "✅ Artifact found: $ARTIFACT_NAME"
+          powershell -Command "& {
+            if (-Not $ARTIFACT_NAME) {
+              Write-Host '❌ Error: Windows-installer artifact not found!'
+              exit 1
+            }
+            Write-Host '✅ Artifact found: $ARTIFACT_NAME'
+          }"
 
           # Download the ZIP
           mkdir -p ~/secondlife-build
           curl -L -o ~/secondlife-build/installer.zip -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$ARTIFACT_NAME"
 
           # Ensure download succeeded
-          if [[ ! -f ~/secondlife-build/installer.zip ]]; then
-            echo "❌ Error: Failed to download Windows-installer.zip"
-            exit 1
-          fi
+          powershell -Command "& {
+            if (-Not (Test-Path -Path '~/secondlife-build/installer.zip')) {
+              Write-Host '❌ Error: Failed to download Windows-installer.zip'
+              exit 1
+            }
+          }"
 
       - name: Extract Installer & Locate Executable
         run: |
           powershell -Command "Expand-Archive -Path '$env:USERPROFILE/secondlife-build/installer.zip' -DestinationPath '$env:USERPROFILE/secondlife-build'"
           INSTALLER_PATH=$(powershell -Command "(Get-ChildItem -Path '$env:USERPROFILE/secondlife-build' -Filter '*.exe' -Recurse | Select-Object -First 1).FullName")
 
-          if [[ -z "$INSTALLER_PATH" ]]; then
-            echo "❌ Error: No installer executable found in the extracted files!"
-            exit 1
-          fi
-
-          echo "✅ Installer found: $INSTALLER_PATH"
-          echo "INSTALLER_PATH=$INSTALLER_PATH" >> $GITHUB_ENV  # Save for later use
+          powershell -Command "& {
+            if (-Not $INSTALLER_PATH) {
+              Write-Host '❌ Error: No installer executable found in the extracted files!'
+              exit 1
+            }
+            Write-Host '✅ Installer found: $INSTALLER_PATH'
+            echo 'INSTALLER_PATH=$INSTALLER_PATH' >> $GITHUB_ENV  # Save for later use
+          }"
 
       - name: Install Second Life Using Task Scheduler (Bypass UAC)
         run: |
