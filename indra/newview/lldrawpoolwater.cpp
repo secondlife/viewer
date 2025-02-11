@@ -233,10 +233,6 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
         // bind reflection texture from RenderTarget
         S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
-
-        F32 screenRes[] = { 1.f / gGLViewport[2], 1.f / gGLViewport[3] };
-
-        shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
         F32      fog_density = pwater->getModifiedWaterFogDensity(underwater);

@@ -98,7 +98,6 @@ uniform vec3 specular;
 uniform float lightExp;
 uniform float refScale;
 uniform float kd;
-uniform vec2 screenRes;
 uniform vec3 normScale;
 uniform float fresnelScale;
 uniform float fresnelOffset;
@@ -147,7 +146,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
 
 vec3 getPositionWithNDC(vec3 ndc);
 
-void generateWaveNormals(out vec3 wave1, out vec3 wave2, out vec3 wave3, float distfactor)
+void generateWaveNormals(out vec3 wave1, out vec3 wave2, out vec3 wave3)
 {
     // Generate all of our wave normals.
     // We layer these back and forth.
@@ -162,9 +161,9 @@ void generateWaveNormals(out vec3 wave1, out vec3 wave2, out vec3 wave3, float d
     vec3 wave2_b = texture(bumpMap2, littleWave.xy).xyz * 2.0 - 1.0;
     vec3 wave3_b = texture(bumpMap2, littleWave.zw).xyz * 2.0 - 1.0;
 
-    wave1 = mix(vec3(0, 0, 1), BlendNormal(wave1_a, wave1_b), distfactor);
-    wave2 = mix(vec3(0, 0, 1), BlendNormal(wave2_a, wave2_b), distfactor);
-    wave3 = mix(vec3(0, 0, 1), BlendNormal(wave3_a, wave3_b), distfactor);
+    wave1 = BlendNormal(wave1_a, wave1_b);
+    wave2 = BlendNormal(wave2_a, wave2_b);
+    wave3 = BlendNormal(wave3_a, wave3_b);
 }
 
 void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave1, vec3 wave2, vec3 wave3, vec3 wavef)
@@ -207,9 +206,8 @@ void main()
     vec3 wave1 = vec3(0, 0, 1);
     vec3 wave2 = vec3(0, 0, 1);
     vec3 wave3 = vec3(0, 0, 1);
-    float norm_dist_scale = 1;// min(1, linear_depth * 16); //min(1, max(0, dot(atten, vec3(0.2125, 0.7154, 0.0721)) * 2 - 1) * 3);
 
-    generateWaveNormals(wave1, wave2, wave3, norm_dist_scale);
+    generateWaveNormals(wave1, wave2, wave3);
 
     float dmod = sqrt(dist);
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
