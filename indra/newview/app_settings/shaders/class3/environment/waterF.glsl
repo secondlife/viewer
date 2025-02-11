@@ -285,7 +285,6 @@ void main()
 
     float metallic = 1.0;
     float perceptualRoughness = blurMultiplier;
-    perceptualRoughness *= perceptualRoughness;
     float gloss      = 1 - perceptualRoughness;
 
     vec3  irradiance = vec3(0);
