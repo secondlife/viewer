@@ -73,6 +73,8 @@ if (WINDOWS)
       NOMINMAX
 #     DOM_DYNAMIC                     # For shared library colladadom
       _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
+      _CRT_NONSTDC_NO_DEPRECATE       # Allow use of sprintf etc
+      _CRT_OBSOLETE_NO_WARNINGS
       _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
       )
   add_compile_options(

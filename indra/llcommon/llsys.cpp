@@ -192,6 +192,9 @@ LLOSInfo::LLOSInfo() :
         GetSystemInfo(&si); //if it fails get regular system info
     //(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
 
+#pragma warning(push)
+#pragma warning(disable : 4996) // ignore 'deprecated.' GetVersionEx is deprecated
+
     // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
     OSVERSIONINFOEX osvi;
     ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
@@ -209,6 +212,8 @@ LLOSInfo::LLOSInfo() :
             mBuild = osvi.dwBuildNumber & 0xffff;
         }
     }
+
+#pragma warning(pop)
 
     S32 ubr = 0; // Windows 10 Update Build Revision, can be retrieved from a registry
     if (mMajorVer == 10)
