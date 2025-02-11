@@ -875,6 +875,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/pbrterrainUtilF.glsl",                 1) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/tonemapUtilF.glsl",                    1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
@@ -920,6 +921,7 @@ bool LLViewerShaderMgr::loadShadersWater()
         gWaterProgram.mFeatures.hasGamma = true;
         gWaterProgram.mFeatures.hasSrgb = true;
         gWaterProgram.mFeatures.hasReflectionProbes = true;
+        gWaterProgram.mFeatures.hasTonemap = true;
         gWaterProgram.mFeatures.hasShadows = use_sun_shadow;
         gWaterProgram.mShaderFiles.clear();
         gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
@@ -2451,6 +2453,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPostTonemapProgram.mName = "Deferred Tonemap Post Process";
         gDeferredPostTonemapProgram.mFeatures.hasSrgb = true;
         gDeferredPostTonemapProgram.mFeatures.isDeferred = true;
+        gDeferredPostTonemapProgram.mFeatures.hasTonemap = true;
         gDeferredPostTonemapProgram.mShaderFiles.clear();
         gDeferredPostTonemapProgram.clearPermutations();
         gDeferredPostTonemapProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
@@ -2465,6 +2468,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gNoPostTonemapProgram.mName = "No Post Tonemap Post Process";
         gNoPostTonemapProgram.mFeatures.hasSrgb = true;
         gNoPostTonemapProgram.mFeatures.isDeferred = true;
+        gNoPostTonemapProgram.mFeatures.hasTonemap = true;
         gNoPostTonemapProgram.mShaderFiles.clear();
         gNoPostTonemapProgram.clearPermutations();
         gNoPostTonemapProgram.addPermutation("NO_POST", "1");

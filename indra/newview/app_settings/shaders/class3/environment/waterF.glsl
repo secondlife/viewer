@@ -104,7 +104,7 @@ uniform float fresnelOffset;
 uniform float blurMultiplier;
 uniform vec4 waterFogColor;
 uniform vec3 waterFogColorLinear;
-
+uniform int water_edge;
 
 //bigWave is (refCoord.w, view.w);
 in vec4 refCoord;
@@ -126,6 +126,7 @@ vec3 linear_to_srgb(vec3 col);
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
+vec3 toneMapNoExposure(vec3 color);
 
 vec3 vN, vT, vB;
 
@@ -206,8 +207,9 @@ void main()
     vec3 wave1 = vec3(0, 0, 1);
     vec3 wave2 = vec3(0, 0, 1);
     vec3 wave3 = vec3(0, 0, 1);
-
-    generateWaveNormals(wave1, wave2, wave3);
+    
+    if (water_edge < 1)
+        generateWaveNormals(wave1, wave2, wave3);
 
     float dmod = sqrt(dist);
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
@@ -324,6 +326,7 @@ void main()
 
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
     radiance *= df2.y;
+    radiance = toneMapNoExposure(radiance);
     vec3 color = vec3(0);
     color = mix(fb.rgb, radiance, min(1, df2.x)) + punctual.rgb;
 
