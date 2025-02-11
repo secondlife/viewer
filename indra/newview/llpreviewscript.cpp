@@ -2478,13 +2478,25 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
         }
 
         instance->mCompileTarget->setValue(compile_target);
+
+        bool lua_scripts_enabled = false;
+
+        // TODO: better handling of this
+        LLViewerRegion* region = gAgent.getRegion();
+        if (region && region->simulatorFeaturesReceived())
+        {
+            LLSD simulatorFeatures;
+            region->getSimulatorFeatures(simulatorFeatures);
+            lua_scripts_enabled = simulatorFeatures["LuaScriptsEnabled"].asBoolean();
+        }
+
         if (LLScrollListItem* luau_item = instance->mCompileTarget->findItemByValue("luau"))
         {
-            luau_item->setEnabled(luau);
+            luau_item->setEnabled(lua_scripts_enabled);
         }
         if (LLScrollListItem* lsl_luau_item = instance->mCompileTarget->findItemByValue("lsl_luau"))
         {
-            lsl_luau_item->setEnabled(luau);
+            lsl_luau_item->setEnabled(lua_scripts_enabled);
         }
 
         instance->mCompileTarget->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));
