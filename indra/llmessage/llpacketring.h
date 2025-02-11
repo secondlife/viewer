@@ -27,13 +27,12 @@
 
 #pragma once
 
-#include <queue>
+#include <vector>
 
 #include "llhost.h"
+#include "llpacketbuffer.h"
 #include "llthrottle.h"
-#include "net.h"
 
-class LLPacketBuffer;
 
 class LLPacketRing
 {
@@ -41,8 +40,14 @@ public:
     LLPacketRing();
     ~LLPacketRing();
 
+    // receive one packet: either buffered or from the socket
     S32  receivePacket (S32 socket, char *datap);
-    bool sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
+
+    // send one packet
+    bool sendPacket(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
+
+    // drains packets from socket and returns final mNumBufferedPackets
+    S32 drainSocket(S32 socket);
 
     void dropPackets(U32);
     void setDropPercentage (F32 percent_to_drop);
@@ -50,37 +55,31 @@ public:
     inline LLHost getLastSender() const;
     inline LLHost getLastReceivingInterface() const;
 
-    S32 getAndResetActualInBits()   { S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
-    S32 getAndResetActualOutBits()  { S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
+    S32 getAndResetActualInBits()   { S32 bits = mActualBytesIn * 8; mActualBytesIn = 0; return bits;}
+    S32 getAndResetActualOutBits()  { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits;}
+protected:
+    // returns 'true' if we should intentionally drop a packet
+    bool computeDrop();
 
-    void setUseInThrottle(const bool use_throttle);
-    void setUseOutThrottle(const bool use_throttle);
-    void setInBandwidth(const F32 bps);
-    void setOutBandwidth(const F32 bps);
+    // returns packet_size of received packet, zero or less if no packet found
+    S32 receiveOrDropPacket(S32 socket, char *datap, bool drop);
+    S32 receiveOrDropBufferedPacket(char *datap, bool drop);
+
+    // returns packet_size of packet buffered
+    S32 bufferInboundPacket(S32 socket);
+
+    // returns 'true' if ring was expanded
+    bool expandRing();
 
 protected:
-    void cleanup();
-    S32  receiveFromRing (S32 socket, char *datap);
+    std::vector<LLPacketBuffer*> mPacketRing;
+    S16 mHeadIndex { 0 };
+    S16 mNumBufferedPackets { 0 };
 
-protected:
-    bool mUseInThrottle;
-    bool mUseOutThrottle;
-
-    // For simulating a lower-bandwidth connection - BPS
-    LLThrottle mInThrottle;
-    LLThrottle mOutThrottle;
-
-    S32 mActualBitsIn;
-    S32 mActualBitsOut;
-    S32 mMaxBufferLength;           // How much data can we queue up before dropping data.
-    S32 mInBufferLength;            // Current incoming buffer length
-    S32 mOutBufferLength;           // Current outgoing buffer length
-
-    F32 mDropPercentage;            // % of packets to drop
-    U32 mPacketsToDrop;             // drop next n packets
-
-    std::queue<LLPacketBuffer *> mReceiveQueue;
-    std::queue<LLPacketBuffer *> mSendQueue;
+    S32 mActualBytesIn { 0 };
+    S32 mActualBytesOut { 0 };
+    F32 mDropPercentage { 0.0f };   // % of inbound packets to drop
+    U32 mPacketsToDrop { 0 };       // drop next inbound n packets
 
     LLHost mLastSender;
     LLHost mLastReceivingIF;

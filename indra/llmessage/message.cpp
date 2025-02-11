@@ -819,6 +819,22 @@ void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
     }
 }
 
+void LLMessageSystem::drainUdpSocket()
+{
+    static S32 prev_num_buffered_packets = 0;
+
+    S32 num_buffered_packets = mPacketRing.drainSocket(mSocket);
+
+    if (num_buffered_packets > prev_num_buffered_packets
+        || (num_buffered_packets != prev_num_buffered_packets
+            && num_buffered_packets == 0))
+    {
+        LL_INFOS("Messaging") << "num_buffered_packets: " << prev_num_buffered_packets
+            << " --> " << num_buffered_packets << LL_ENDL;
+        prev_num_buffered_packets = num_buffered_packets;
+    }
+}
+
 void LLMessageSystem::copyMessageReceivedToSend()
 {
     // NOTE: babbage: switch builder to match reader to avoid

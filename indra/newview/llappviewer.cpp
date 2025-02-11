@@ -5511,7 +5511,13 @@ void LLAppViewer::idleNetwork()
                 // a good limit anyway).
                 total_time = check_message_timer.getElapsedTimeF32();
                 if (total_time >= CheckMessagesMaxTime)
+                {
+                    // Rather than allow packets to backup on the socket we drain it
+                    // into our own buffer for later, up to some limit.
+                    // Beyond the limit they will be explicity dropped
+                    lmc.drainUdpSocket();
                     break;
+                }
 #endif
             }
 
@@ -5523,7 +5529,7 @@ void LLAppViewer::idleNetwork()
         if (total_time >= CheckMessagesMaxTime)
         {
             // Increase CheckMessagesMaxTime so that we will eventually catch up
-            CheckMessagesMaxTime *= 1.035f; // 3.5% ~= x2 in 20 frames, ~8x in 60 frames
+            CheckMessagesMaxTime *= 1.035f; // 3.5% ~= 2x in 20 frames, ~8x in 60 frames
         }
         else
         {

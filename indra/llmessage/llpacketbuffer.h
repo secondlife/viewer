@@ -31,6 +31,7 @@
 #include "net.h"        // for NET_BUFFER_SIZE
 #include "llhost.h"
 
+
 class LLPacketBuffer
 {
 public:
@@ -43,12 +44,13 @@ public:
     LLHost      getHost() const                 { return mHost; }
     LLHost      getReceivingInterface() const   { return mReceivingIF; }
     void init(S32 hSocket);
+    void init(char* buffer, S32 data_size, const LLHost& host);
 
 protected:
-    char    mData[NET_BUFFER_SIZE];        // packet data       /* Flawfinder : ignore */
-    S32     mSize;          // size of buffer in bytes
-    LLHost  mHost;         // source/dest IP and port
-    LLHost  mReceivingIF;         // source/dest IP and port
+    char    mData[NET_BUFFER_SIZE]; // packet data       /* Flawfinder : ignore */
+    S32     mSize;                  // size of buffer in bytes
+    LLHost  mHost;                  // source/dest IP and port
+    LLHost  mReceivingIF;           // source/dest IP and port
 };
 
 #endif
