@@ -207,7 +207,8 @@ void main()
     vec3 wave1 = vec3(0, 0, 1);
     vec3 wave2 = vec3(0, 0, 1);
     vec3 wave3 = vec3(0, 0, 1);
-    
+
+    // Probably move this into a variant for edge water.
     if (water_edge < 1)
         generateWaveNormals(wave1, wave2, wave3);
 
@@ -326,7 +327,7 @@ void main()
 
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
     radiance *= df2.y;
-    radiance = toneMapNoExposure(radiance);
+    //radiance = toneMapNoExposure(radiance);
     vec3 color = vec3(0);
     color = mix(fb.rgb, radiance, min(1, df2.x)) + punctual.rgb;
 
