@@ -627,7 +627,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
                         if( *cur )
                         {
-                            cur += cur_delimiter->getLengthHead();
+                            cur += cur_delimiter->getLengthTail();
                             seg_end = seg_start + between_delimiters + cur_delimiter->getLengthHead() + cur_delimiter->getLengthTail();
                         }
                         else
