@@ -3,6 +3,88 @@
    <map>
       <key>controls</key>
       <map>
+         <!-- Lua-only keywords -->
+         <key>and</key>
+         <map>
+            <key>tooltip</key>
+            <string>Logical AND operator. (Lua)</string>
+         </map>
+         <key>break</key>
+         <map>
+            <key>tooltip</key>
+            <string>Exits a loop immediately. (Lua)</string>
+         </map>
+         <key>elseif</key>
+         <map>
+            <key>tooltip</key>
+            <string>Provides an additional conditional branch in an if–else chain. (Lua)</string>
+         </map>
+         <key>end</key>
+         <map>
+            <key>tooltip</key>
+            <string>Terminates a block initiated by if, do, or function. (Lua)</string>
+         </map>
+         <key>false</key>
+         <map>
+            <key>tooltip</key>
+            <string>Boolean constant representing false. (Lua)</string>
+         </map>
+         <key>function</key>
+         <map>
+            <key>tooltip</key>
+            <string>Declares a function. (Lua)</string>
+         </map>
+         <key>goto</key>
+         <map>
+            <key>tooltip</key>
+            <string>Transfers control to a labeled statement. (Lua)</string>
+         </map>
+         <key>in</key>
+         <map>
+            <key>tooltip</key>
+            <string>Used in for loops to iterate over elements in a collection. (Lua)</string>
+         </map>
+         <key>local</key>
+         <map>
+            <key>tooltip</key>
+            <string>Declares a variable or function with local scope. (Lua)</string>
+         </map>
+         <key>nil</key>
+         <map>
+            <key>tooltip</key>
+            <string>Represents a non-existent or undefined value. (Lua)</string>
+         </map>
+         <key>not</key>
+         <map>
+            <key>tooltip</key>
+            <string>Logical NOT operator; inverts a boolean value. (Lua)</string>
+         </map>
+         <key>or</key>
+         <map>
+            <key>tooltip</key>
+            <string>Logical OR operator. (Lua)</string>
+         </map>
+         <key>repeat</key>
+         <map>
+            <key>tooltip</key>
+            <string>Begins a repeat-until loop. (Lua)</string>
+         </map>
+         <key>then</key>
+         <map>
+            <key>tooltip</key>
+            <string>Follows an if condition to indicate the start of the consequent block. (Lua)</string>
+         </map>
+         <key>true</key>
+         <map>
+            <key>tooltip</key>
+            <string>Boolean constant representing true. (Lua)</string>
+         </map>
+         <key>until</key>
+         <map>
+            <key>tooltip</key>
+            <string>Ends a repeat-until loop, specifying the condition to exit. (Lua)</string>
+         </map>
+         <!-- LSL keywords -->
          <key>do</key>
          <map>
             <key>tooltip</key>
