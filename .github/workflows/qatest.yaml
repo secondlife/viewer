@@ -34,103 +34,103 @@ jobs:
     steps:
       - name: Temporarily Allow PowerShell Scripts (Process Scope)
         run: |
-          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
-            Set-ExecutionPolicy RemoteSigned -Scope Process -Force
-          }"
+          Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 
       - name: Verify viewer-sikulix-main Exists
         run: |
-          powershell -Command "& {
-            if (-Not (Test-Path -Path 'C:\viewer-sikulix-main')) {
-              Write-Host '❌ Error: viewer-sikulix not found on runner!'
-              exit 1
-            }
-            Write-Host '✅ viewer-sikulix is already available.'
-          }"
+          if (-Not (Test-Path -Path 'C:\viewer-sikulix-main')) {
+            Write-Host '❌ Error: viewer-sikulix not found on runner!'
+            exit 1
+          }
+          Write-Host '✅ viewer-sikulix is already available.'
 
       - name: Fetch & Download Windows Installer Artifact
+        shell: pwsh
         run: |
-          BUILD_ID=${{ github.event.workflow_run.id }}
-          ARTIFACTS_URL="https://api.github.com/repos/secondlife/viewer/actions/runs/$BUILD_ID/artifacts"
+          $BUILD_ID = "${{ github.event.workflow_run.id }}"
+          $ARTIFACTS_URL = "https://api.github.com/repos/secondlife/viewer/actions/runs/$BUILD_ID/artifacts"
 
           # Fetch the correct artifact URL
-          ARTIFACT_NAME=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "$ARTIFACTS_URL" | jq -r '.artifacts[] | select(.name == "Windows-installer") | .archive_download_url')
+          $response = Invoke-RestMethod -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}" } -Uri $ARTIFACTS_URL
+          $ARTIFACT_NAME = ($response.artifacts | Where-Object { $_.name -eq "Windows-installer" }).archive_download_url
 
-          powershell -Command "& {
-            if (-Not $ARTIFACT_NAME) {
-              Write-Host '❌ Error: Windows-installer artifact not found!'
-              exit 1
-            }
-            Write-Host '✅ Artifact found: $ARTIFACT_NAME'
-          }"
+          if (-Not $ARTIFACT_NAME) {
+            Write-Host "❌ Error: Windows-installer artifact not found!"
+            exit 1
+          }
+
+          Write-Host "✅ Artifact found: $ARTIFACT_NAME"
+
+          # Secure download path
+          $DownloadPath = "$env:TEMP\secondlife-build-$BUILD_ID"
+          New-Item -ItemType Directory -Path $DownloadPath -Force | Out-Null
+          $InstallerPath = "$DownloadPath\installer.zip"
 
           # Download the ZIP
-          mkdir -p ~/secondlife-build
-          curl -L -o ~/secondlife-build/installer.zip -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$ARTIFACT_NAME"
+          Invoke-WebRequest -Uri $ARTIFACT_NAME -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}"} -OutFile $InstallerPath -NoProgress
 
           # Ensure download succeeded
-          powershell -Command "& {
-            if (-Not (Test-Path -Path '~/secondlife-build/installer.zip')) {
-              Write-Host '❌ Error: Failed to download Windows-installer.zip'
-              exit 1
-            }
-          }"
+          if (-Not (Test-Path $InstallerPath)) {
+            Write-Host "❌ Error: Failed to download Windows-installer.zip"
+            exit 1
+          }
 
       - name: Extract Installer & Locate Executable
+        shell: pwsh
         run: |
-          powershell -Command "Expand-Archive -Path '$env:USERPROFILE/secondlife-build/installer.zip' -DestinationPath '$env:USERPROFILE/secondlife-build'"
-          INSTALLER_PATH=$(powershell -Command "(Get-ChildItem -Path '$env:USERPROFILE/secondlife-build' -Filter '*.exe' -Recurse | Select-Object -First 1).FullName")
+          $ExtractPath = "$env:TEMP\secondlife-build-$BUILD_ID"
+          Expand-Archive -Path "$ExtractPath\installer.zip" -DestinationPath $ExtractPath -Force
 
-          powershell -Command "& {
-            if (-Not $INSTALLER_PATH) {
-              Write-Host '❌ Error: No installer executable found in the extracted files!'
-              exit 1
-            }
-            Write-Host '✅ Installer found: $INSTALLER_PATH'
-            echo 'INSTALLER_PATH=$INSTALLER_PATH' >> $GITHUB_ENV  # Save for later use
-          }"
+          # Find installer executable
+          $INSTALLER_PATH = (Get-ChildItem -Path $ExtractPath -Filter '*.exe' -Recurse | Select-Object -First 1).FullName
+
+          if (-Not $INSTALLER_PATH) {
+            Write-Host "❌ Error: No installer executable found in the extracted files!"
+            exit 1
+          }
+
+          Write-Host "✅ Installer found: $INSTALLER_PATH"
+          echo "INSTALLER_PATH=$INSTALLER_PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Install Second Life Using Task Scheduler (Bypass UAC)
+        shell: pwsh
         run: |
-          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
-            $action = New-ScheduledTaskAction -Execute '${{ env.INSTALLER_PATH }}' -Argument '/S';
-            $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest;
-            $task = New-ScheduledTask -Action $action -Principal $principal;
-            Register-ScheduledTask -TaskName 'SilentSLInstaller' -InputObject $task -Force;
-            Start-ScheduledTask -TaskName 'SilentSLInstaller';
-          }"
+          $action = New-ScheduledTaskAction -Execute "${{ env.INSTALLER_PATH }}" -Argument "/S"
+          $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+          $task = New-ScheduledTask -Action $action -Principal $principal
+          Register-ScheduledTask -TaskName "SilentSLInstaller" -InputObject $task -Force
+          Start-ScheduledTask -TaskName "SilentSLInstaller"
 
       - name: Wait for Installation to Complete
+        shell: pwsh
         run: |
-          echo "Waiting for the Second Life installer to finish..."
-          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
-            do {
-              Start-Sleep -Seconds 5
-              $installerProcess = Get-Process | Where-Object { $_.Path -eq '${{ env.INSTALLER_PATH }}' }
-            } while ($installerProcess)
-          }"
-          echo "✅ Installation completed!"
+          Write-Host "Waiting for the Second Life installer to finish..."
+          do {
+            Start-Sleep -Seconds 5
+            $installerProcess = Get-Process | Where-Object { $_.Path -eq "${{ env.INSTALLER_PATH }}" }
+          } while ($installerProcess)
+
+          Write-Host "✅ Installation completed!"
 
       - name: Cleanup Task Scheduler Entry
+        shell: pwsh
         run: |
-          powershell -ExecutionPolicy Bypass -NoProfile -Command "& {
-            Unregister-ScheduledTask -TaskName 'SilentSLInstaller' -Confirm:$false
-          }"
-          echo "✅ Task Scheduler entry removed."
+          Unregister-ScheduledTask -TaskName "SilentSLInstaller" -Confirm:$false
+          Write-Host "✅ Task Scheduler entry removed."
 
       - name: Delete Installer ZIP
+        shell: pwsh
         run: |
-          rm -rf ~/secondlife-build/installer.zip
-          echo "✅ Installer ZIP deleted."
+          Remove-Item -Path "$env:TEMP\secondlife-build-${{ github.event.workflow_run.id }}" -Recurse -Force
+          Write-Host "✅ Installer ZIP and extracted files deleted."
 
       - name: Run Python Script
         run: |
-          echo "Running Python script..."
+          Write-Host "Running Python script..."
           python C:\viewer-sikulix-main\runTests.py
 
-     # - name: Upload Test Results
-     #   uses: actions/upload-artifact@v3
-     #   with:
-     #     name: test-results
-     #     path: C:\viewer-sikulix-main\regressionTest\test_results.html
+      # - name: Upload Test Results
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: test-results
+      #     path: C:\viewer-sikulix-main\regressionTest\test_results.html
