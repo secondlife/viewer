@@ -78,14 +78,32 @@ jobs:
       - name: Extract Installer & Locate Executable
         shell: pwsh
         run: |
+          # Explicitly set BUILD_ID again (since it does not appear to persist across steps)
+          $BUILD_ID = "${{ github.event.workflow_run.id }}"
           $ExtractPath = "$env:TEMP\secondlife-build-$BUILD_ID"
-          Expand-Archive -Path "$ExtractPath\installer.zip" -DestinationPath $ExtractPath -Force
+          $InstallerZip = "$ExtractPath\installer.zip"
+
+          # Print paths for debugging
+          Write-Host "Extract Path: $ExtractPath"
+          Write-Host "Installer ZIP Path: $InstallerZip"
+
+          # Verify ZIP exists before extracting
+          if (-Not (Test-Path $InstallerZip)) {
+              Write-Host "❌ Error: ZIP file not found at $InstallerZip!"
+              exit 1
+          }
+
+          Write-Host "✅ ZIP file exists and is valid. Extracting..."
+
+          Expand-Archive -Path $InstallerZip -DestinationPath $ExtractPath -Force
 
           # Find installer executable
           $INSTALLER_PATH = (Get-ChildItem -Path $ExtractPath -Filter '*.exe' -Recurse | Select-Object -First 1).FullName
 
-          if (-Not $INSTALLER_PATH) {
+          if (-Not $INSTALLER_PATH -or $INSTALLER_PATH -eq "") {
             Write-Host "❌ Error: No installer executable found in the extracted files!"
+            Write-Host "📂 Extracted Files:"
+            Get-ChildItem -Path $ExtractPath -Recurse | Format-Table -AutoSize
             exit 1
           }
 
@@ -121,8 +139,19 @@ jobs:
       - name: Delete Installer ZIP
         shell: pwsh
         run: |
-          Remove-Item -Path "$env:TEMP\secondlife-build-${{ github.event.workflow_run.id }}" -Recurse -Force
-          Write-Host "✅ Installer ZIP and extracted files deleted."
+          # Explicitly set BUILD_ID again
+          $BUILD_ID = "${{ github.event.workflow_run.id }}"
+          $DeletePath = "$env:TEMP\secondlife-build-$BUILD_ID\installer.zip"
+
+          Write-Host "Checking if installer ZIP exists: $DeletePath"
+
+          # Ensure the ZIP file exists before trying to delete it
+          if (Test-Path $DeletePath) {
+              Remove-Item -Path $DeletePath -Force
+              Write-Host "✅ Successfully deleted: $DeletePath"
+          } else {
+              Write-Host "⚠️ Warning: ZIP file does not exist, skipping deletion."
+          }
 
       - name: Run Python Script
         run: |
