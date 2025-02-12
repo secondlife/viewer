@@ -7,7 +7,7 @@
   height="607"
   layout="topleft"
   min_height="271"
-  min_width="328"
+  min_width="600"
   name="script ed float"
   help_topic="script_ed_float"
   save_rect="true"
@@ -62,7 +62,6 @@
   </text>
   <panel
     bevel_style="none"
-     
     border_style="line"
     follows="left|top|right|bottom"
     height="499"
@@ -93,25 +92,15 @@
     name="running"
     width="205" />
   <check_box
-    left_delta="140"
-    enabled="true"
-    follows="left|bottom"
-    font="SansSerif"
-    height="18"
-    initial_value="true"
-    label="Mono"
+    width="130"
+    height="21"
+    enabled="false"
+    left="9"
+    top_pad="10"
     layout="topleft"
-    name="mono"
-    width="100" />
-  <check_box width="130"
-             height="21"
-             enabled="false"
-             left="9"
-             top_pad="10"
-             layout="topleft"
-             follows="bottom|left"
-             label="Use Experience:"
-             name="enable_xp"/>
+    follows="bottom|left"
+    label="Use Experience:"
+    name="enable_xp"/>
   <combo_box
     label=""
     top_pad="-21"
@@ -121,13 +110,44 @@
     follows="left|bottom|right"
     visible="false"
     name="Experiences..."/>
-  <button label="&gt;"
-          name="view_profile"
-          height="23"
-          width="23"
-          right="496"
-          layout="topleft"
-          top_pad="-23"
-          follows="right"
-          visible="false"/>
+  <button
+    label="&gt;"
+    name="view_profile"
+    height="23"
+    width="23"
+    right="496"
+    layout="topleft"
+    top_pad="-23"
+    follows="right"
+    visible="false"/>
+  <text
+    name="compile_target_label"
+    follows="right|bottom"
+    right="180"
+    top="-100"
+    width="100"
+  >Compiler:</text>
+  <combo_box
+    name="compile_target"
+    follows="right|bottom"
+    right="300"
+    top="-105"
+    width="140">
+    <combo_box.item
+      label="LSL: Legacy (LSO2)"
+      name="compile_target_lsl2"
+      value="lsl2" />
+    <combo_box.item
+      label="LSL: Mono"
+      name="compile_target_mono"
+      value="mono" />
+    <combo_box.item
+      label="Lua"
+      name="compile_target_luau"
+      value="luau" />
+    <combo_box.item
+      label="LSL/Luau"
+      name="compile_target_lsl_luau"
+      value="lsl_luau" />
+  </combo_box>
 </floater>

@@ -251,9 +251,24 @@ void    LLComboBox::resetDirty()
     }
 }
 
-bool LLComboBox::itemExists(const std::string& name)
+bool LLComboBox::itemExists(const std::string& name) const
 {
     return mList->getItemByLabel(name);
+}
+
+bool LLComboBox::valueExists(const std::string& value) const
+{
+    return mList->getItemByValue(value);
+}
+
+LLScrollListItem* LLComboBox::findItemByValue(const std::string& value) const
+{
+    return mList->getItemByValue(value);
+}
+
+std::vector<LLScrollListItem*> LLComboBox::getAllData() const
+{
+    return mList->getAllData();
 }
 
 // add item "name" to menu

@@ -804,16 +804,16 @@ bool LLBufferedAssetUploadInfo::failedUpload(LLSD &result, std::string &reason)
 LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed):
     LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish, failed),
     mExerienceId(),
-    mTargetType(MONO),
+    mCompileTarget("mono"),
     mIsRunning(false)
 {
 }
 
-LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType,
+LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, std::string compileTarget,
         bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed):
     LLBufferedAssetUploadInfo(taskId, itemId, LLAssetType::AT_LSL_TEXT, buffer, finish, failed),
     mExerienceId(exerienceId),
-    mTargetType(targetType),
+    mCompileTarget(compileTarget),
     mIsRunning(isRunning)
 {
 }
@@ -832,7 +832,7 @@ LLSD LLScriptAssetUpload::generatePostBody()
         body["task_id"] = getTaskId();
         body["item_id"] = getItemId();
         body["is_script_running"] = getIsRunning();
-        body["target"] = (getTargetType() == MONO) ? "mono" : "lsl2";
+        body["target"] = getCompileTarget();
         body["experience"] = getExerienceId();
     }
 

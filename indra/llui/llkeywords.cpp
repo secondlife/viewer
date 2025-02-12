@@ -239,6 +239,10 @@ void LLKeywords::processTokens()
     addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/" );
     addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", LLUIColorTable::instance().getColor("SyntaxLslStringLiteral"), "String literal", "\"" );
 
+    // Lua-style comments
+    addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "--", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style single-line)\nNon-functional commentary or disabled code", delimiter);
+    addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "--[[", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style multi-line)\nNon-functional commentary or disabled code", "]]");
+
     LLSD::map_iterator itr = mSyntax.beginMap();
     for ( ; itr != mSyntax.endMap(); ++itr)
     {
@@ -627,7 +631,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
                         if( *cur )
                         {
-                            cur += cur_delimiter->getLengthHead();
+                            cur += cur_delimiter->getLengthTail();
                             seg_end = seg_start + between_delimiters + cur_delimiter->getLengthHead() + cur_delimiter->getLengthTail();
                         }
                         else
