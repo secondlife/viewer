@@ -67,7 +67,7 @@ jobs:
           $InstallerPath = "$DownloadPath\installer.zip"
 
           # Download the ZIP
-          Invoke-WebRequest -Uri $ARTIFACT_NAME -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}"} -OutFile $InstallerPath -NoProgress
+          Invoke-WebRequest -Uri $ARTIFACT_NAME -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}"} -OutFile $InstallerPath
 
           # Ensure download succeeded
           if (-Not (Test-Path $InstallerPath)) {
