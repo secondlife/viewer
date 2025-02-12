@@ -1081,7 +1081,8 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         imagep->mCreatePending = false;
         mCreateTextureList.pop();
 
-        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel())
+        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel() &&
+           (imagep->getDesiredDiscardLevel() <= MAX_DISCARD_LEVEL))
         {
             // NOTE: this may happen if the desired discard reduces while a decode is in progress and does not
             // necessarily indicate a problem, but if log occurrences excede that of dsiplay_stats: FPS,
