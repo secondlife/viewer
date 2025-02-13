@@ -55,8 +55,13 @@ public:
     inline LLHost getLastSender() const;
     inline LLHost getLastReceivingInterface() const;
 
+    S32 getActualInBytes() const { return mActualBytesIn; }
+    S32 getActualOutBytes() const { return mActualBytesOut; }
     S32 getAndResetActualInBits()   { S32 bits = mActualBytesIn * 8; mActualBytesIn = 0; return bits;}
     S32 getAndResetActualOutBits()  { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits;}
+
+    S32 getNumBufferedPackets() const { return (S32)(mNumBufferedPackets); }
+    S32 getNumBufferedBytes() const { return mNumBufferedBytes; }
 protected:
     // returns 'true' if we should intentionally drop a packet
     bool computeDrop();
@@ -75,6 +80,7 @@ protected:
     std::vector<LLPacketBuffer*> mPacketRing;
     S16 mHeadIndex { 0 };
     S16 mNumBufferedPackets { 0 };
+    S32 mNumBufferedBytes { 0 };
 
     S32 mActualBytesIn { 0 };
     S32 mActualBytesOut { 0 };

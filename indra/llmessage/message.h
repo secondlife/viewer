@@ -416,7 +416,9 @@ public:
     bool    poll(F32 seconds); // Number of seconds that we want to block waiting for data, returns if data was received
     bool    checkMessages(LockMessageChecker&, S64 frame_count = 0 );
     void    processAcks(LockMessageChecker&, F32 collect_time = 0.f);
-    void    drainUdpSocket();
+
+    // returns total number of buffered packets
+    S32     drainUdpSocket();
 
     bool    isMessageFast(const char *msg);
     bool    isMessage(const char *msg)
@@ -948,11 +950,6 @@ public:
     void processAcks(ARGS&&... args)
     {
         return mMessageSystem->processAcks(*this, std::forward<ARGS>(args)...);
-    }
-
-    void drainUdpSocket()
-    {
-        mMessageSystem->drainUdpSocket();
     }
 
 private:

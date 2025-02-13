@@ -64,6 +64,7 @@ LLPacketRing::~LLPacketRing ()
     }
     mPacketRing.clear();
     mNumBufferedPackets = 0;
+    mNumBufferedBytes = 0;
     mHeadIndex = 0;
 }
 
@@ -140,7 +141,10 @@ S32 LLPacketRing::receiveOrDropPacket(S32 socket, char *datap, bool drop)
     {
         char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
         packet_size = receive_packet(socket, static_cast<char*>(static_cast<void*>(buffer)));
-        mActualBytesIn += packet_size;
+        if (packet_size > 0)
+        {
+            mActualBytesIn += packet_size;
+        }
 
         if (packet_size > SOCKS_HEADER_SIZE)
         {
@@ -167,9 +171,9 @@ S32 LLPacketRing::receiveOrDropPacket(S32 socket, char *datap, bool drop)
     else
     {
         packet_size = receive_packet(socket, datap);
-        mActualBytesIn += packet_size;
         if (packet_size > 0)
         {
+            mActualBytesIn += packet_size;
             if (drop)
             {
                 packet_size = 0;
@@ -188,19 +192,28 @@ S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
 {
     assert(mNumBufferedPackets > 0);
     S32 packet_size = 0;
-        S16 ring_size = (S16)(mPacketRing.size());
-        S16 packet_index = (mHeadIndex + ring_size - mNumBufferedPackets) % ring_size;
-        LLPacketBuffer* packet = mPacketRing[packet_index];
-        packet_size = packet->getSize();
+
+    S16 ring_size = (S16)(mPacketRing.size());
+    S16 packet_index = (mHeadIndex + ring_size - mNumBufferedPackets) % ring_size;
+    LLPacketBuffer* packet = mPacketRing[packet_index];
+    packet_size = packet->getSize();
+
+    --mNumBufferedPackets;
+    mNumBufferedBytes -= packet_size;
+    if (mNumBufferedPackets == 0)
+    {
+        assert(mNumBufferedBytes == 0);
+    }
+
     if (!drop)
     {
-        memcpy(datap, packet->getData(), packet->getSize());
+        assert(packet_size > 0);
+        memcpy(datap, packet->getData(), packet_size);
     }
     else
     {
         packet_size = 0;
     }
-    --mNumBufferedPackets;
     return packet_size;
 }
 
@@ -240,15 +253,12 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
 
                 mHeadIndex = (mHeadIndex + 1) % (S16)(mPacketRing.size());
                 ++mNumBufferedPackets;
+                mNumBufferedBytes += packet_size;
             }
             else
             {
                 packet_size = 0;
             }
-        }
-        else
-        {
-            packet_size = 0;
         }
     }
     else
@@ -263,6 +273,7 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
 
             mHeadIndex = (mHeadIndex + 1) % mPacketRing.size();
             ++mNumBufferedPackets;
+            mNumBufferedBytes += packet_size;
         }
     }
     return packet_size;
@@ -277,7 +288,6 @@ S32 LLPacketRing::drainSocket(S32 socket)
         packet_size = bufferInboundPacket(socket);
     }
 
-    // check for full buffer
     if (mNumBufferedPackets == mPacketRing.size())
     {
         // mPacketRing is full --> drain into the void
@@ -300,25 +310,26 @@ S32 LLPacketRing::drainSocket(S32 socket)
         if (num_dropped_packets > 0)
         {
             LL_WARNS("Messaging") << "dropped_packets=" << num_dropped_packets
-                << " dropped_bytes=" << num_dropped_bytes << LL_ENDL;
+                << " dropped_bytes=" << num_dropped_bytes
+                << " buffered_packets=" << mNumBufferedPackets << " buffered_bytes=" << mNumBufferedBytes
+                << LL_ENDL;
             mActualBytesIn += num_dropped_bytes;
         }
     }
-    return mNumBufferedPackets;
+    return (S32)(mNumBufferedPackets);
 }
 
 bool LLPacketRing::expandRing()
 {
     // compute larger size
-    constexpr S16 BUFFER_RING_INCREMENT_SIZE = 256;
+    constexpr S16 BUFFER_RING_EXPANSION = 256;
     S16 old_size = (S16)(mPacketRing.size());
-    S16 new_size = llmin(old_size + BUFFER_RING_INCREMENT_SIZE, MAX_BUFFER_RING_SIZE);
+    S16 new_size = llmin(old_size + BUFFER_RING_EXPANSION, MAX_BUFFER_RING_SIZE);
     if (new_size == old_size)
     {
         // mPacketRing is already maxed out
         return false;
     }
-    LL_INFOS("Messaging") << "expanded PacketRing size=" << new_size << LL_ENDL;
 
     // make a larger ring and copy packet pointers
     std::vector<LLPacketBuffer*> new_ring(new_size, nullptr);

@@ -67,14 +67,14 @@ LLPacketBuffer::~LLPacketBuffer ()
 
 ///////////////////////////////////////////////////////////
 
-void LLPacketBuffer::init (S32 hSocket)
+void LLPacketBuffer::init(S32 hSocket)
 {
     mSize = receive_packet(hSocket, mData);
     mHost = ::get_sender();
     mReceivingIF = ::get_receiving_interface();
 }
 
-void LLPacketBuffer::init (char* buffer, S32 data_size, const LLHost& host)
+void LLPacketBuffer::init(char* buffer, S32 data_size, const LLHost& host)
 {
     if (data_size > NET_BUFFER_SIZE)
     {
