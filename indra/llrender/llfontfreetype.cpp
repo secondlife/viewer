@@ -715,7 +715,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
         if (error == FT_Err_Out_Of_Memory)
         {
             LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS() << "Out of memory loading glyph for character " << static_cast<unsigned int>(wch) << LL_ENDL;
+            LL_ERRS() << "Out of memory loading glyph for character " << llformat("U+%xu", U32(wch)) << LL_ENDL;
         }
 
         std::string message = llformat(
