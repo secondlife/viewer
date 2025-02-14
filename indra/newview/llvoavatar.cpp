@@ -8539,7 +8539,7 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 bool LLVOAvatar::isFullyLoaded() const
 {
     static LLCachedControl<bool> render_unloaded_avatars(gSavedSettings, "RenderUnloadedAvatar", false);
-    return (render_unloaded_avatars || mFullyLoaded);
+    return (render_unloaded_avatars && !isSelf()) || mFullyLoaded;
 }
 
 bool LLVOAvatar::isTooComplex() const
