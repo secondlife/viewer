@@ -219,19 +219,14 @@ S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
 
 S32 LLPacketRing::bufferInboundPacket(S32 socket)
 {
-    S32 packet_size = 0;
-    if (mNumBufferedPackets == mPacketRing.size())
+    if (mNumBufferedPackets == mPacketRing.size() && mNumBufferedPackets < MAX_BUFFER_RING_SIZE)
     {
-        if (!expandRing())
-        {
-            // mPacketRing is maxed out
-            return packet_size;
-        }
+        expandRing();
     }
 
     LLPacketBuffer* packet = mPacketRing[mHeadIndex];
-    llassert(packet != nullptr);
-
+    S32 old_packet_size = packet->getSize();
+    S32 packet_size = 0;
     if (LLProxy::isSOCKSProxyEnabled())
     {
         char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
@@ -252,8 +247,16 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
                 packet->init(buffer + SOCKS_HEADER_SIZE, packet_size, mLastSender);
 
                 mHeadIndex = (mHeadIndex + 1) % (S16)(mPacketRing.size());
-                ++mNumBufferedPackets;
-                mNumBufferedBytes += packet_size;
+                if (mNumBufferedPackets < MAX_BUFFER_RING_SIZE)
+                {
+                    ++mNumBufferedPackets;
+                    mNumBufferedBytes += packet_size;
+                }
+                else
+                {
+                    // we overwrote an older packet
+                    mNumBufferedBytes += packet_size - old_packet_size;
+                }
             }
             else
             {
@@ -272,8 +275,16 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
             mActualBytesIn += packet_size;
 
             mHeadIndex = (mHeadIndex + 1) % mPacketRing.size();
-            ++mNumBufferedPackets;
-            mNumBufferedBytes += packet_size;
+            if (mNumBufferedPackets < MAX_BUFFER_RING_SIZE)
+            {
+                ++mNumBufferedPackets;
+                mNumBufferedBytes += packet_size;
+            }
+            else
+            {
+                // we overwrote an older packet
+                mNumBufferedBytes += packet_size - old_packet_size;
+            }
         }
     }
     return packet_size;
@@ -283,38 +294,17 @@ S32 LLPacketRing::drainSocket(S32 socket)
 {
     // drain into buffer
     S32 packet_size = 1;
+    S32 num_loops = 0;
+    S32 old_num_packets = mNumBufferedPackets;
     while (packet_size > 0)
     {
         packet_size = bufferInboundPacket(socket);
+        ++num_loops;
     }
-
-    if (mNumBufferedPackets == mPacketRing.size())
+    S32 num_dropped_packets = (num_loops - 1 + old_num_packets) - mNumBufferedPackets;
+    if (num_dropped_packets > 0)
     {
-        // mPacketRing is full --> drain into the void
-        S32 num_dropped_packets = 0;
-        S32 num_dropped_bytes = 0;
-        char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
-        while (true)
-        {
-            packet_size = receive_packet(socket, buffer);
-            if (packet_size > 0)
-            {
-                num_dropped_packets++;
-                num_dropped_bytes += packet_size;
-            }
-            else
-            {
-                break;
-            }
-        }
-        if (num_dropped_packets > 0)
-        {
-            LL_WARNS("Messaging") << "dropped_packets=" << num_dropped_packets
-                << " dropped_bytes=" << num_dropped_bytes
-                << " buffered_packets=" << mNumBufferedPackets << " buffered_bytes=" << mNumBufferedBytes
-                << LL_ENDL;
-            mActualBytesIn += num_dropped_bytes;
-        }
+        LL_WARNS("Messaging") << "dropped " << num_dropped_packets << " UDP packets" << LL_ENDL;
     }
     return (S32)(mNumBufferedPackets);
 }
