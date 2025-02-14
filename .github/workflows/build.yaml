@@ -42,7 +42,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: [windows-large, macos-12-large]
+        runner: [windows-large, macos-15-xlarge]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
     runs-on: ${{ matrix.runner }}
     outputs:
@@ -64,7 +64,7 @@ jobs:
       # autobuild-package.xml.
       AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
-      DEVELOPER_DIR: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+      DEVELOPER_DIR: "/Applications/Xcode_16.1.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
       build_coverity: false
