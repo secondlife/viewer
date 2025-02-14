@@ -623,21 +623,6 @@ bool idle_startup()
 
             F32 dropPercent = gSavedSettings.getF32("PacketDropPercentage");
             msg->mPacketRing.setDropPercentage(dropPercent);
-
-            F32 inBandwidth = gSavedSettings.getF32("InBandwidth");
-            F32 outBandwidth = gSavedSettings.getF32("OutBandwidth");
-            if (inBandwidth != 0.f)
-            {
-                LL_DEBUGS("AppInit") << "Setting packetring incoming bandwidth to " << inBandwidth << LL_ENDL;
-                msg->mPacketRing.setUseInThrottle(true);
-                msg->mPacketRing.setInBandwidth(inBandwidth);
-            }
-            if (outBandwidth != 0.f)
-            {
-                LL_DEBUGS("AppInit") << "Setting packetring outgoing bandwidth to " << outBandwidth << LL_ENDL;
-                msg->mPacketRing.setUseOutThrottle(true);
-                msg->mPacketRing.setOutBandwidth(outBandwidth);
-            }
         }
 
         LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
