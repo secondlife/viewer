@@ -140,7 +140,7 @@ S32 LLPacketRing::receiveOrDropPacket(S32 socket, char *datap, bool drop)
     if (LLProxy::isSOCKSProxyEnabled())
     {
         char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
-        packet_size = receive_packet(socket, static_cast<char*>(static_cast<void*>(buffer)));
+        packet_size = receive_packet(socket, buffer);
         if (packet_size > 0)
         {
             mActualBytesIn += packet_size;
@@ -230,7 +230,7 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
     if (LLProxy::isSOCKSProxyEnabled())
     {
         char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
-        packet_size = receive_packet(socket, static_cast<char*>(static_cast<void*>(buffer)));
+        packet_size = receive_packet(socket, buffer);
         if (packet_size > 0)
         {
             mActualBytesIn += packet_size;

@@ -32,8 +32,6 @@
 #include "lltimer.h"
 #include "llhost.h"
 
-///////////////////////////////////////////////////////////
-
 LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 size) : mHost(host)
 {
     mSize = 0;
@@ -51,7 +49,6 @@ LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 
             mSize = size;
         }
     }
-
 }
 
 LLPacketBuffer::LLPacketBuffer (S32 hSocket)
@@ -59,13 +56,9 @@ LLPacketBuffer::LLPacketBuffer (S32 hSocket)
     init(hSocket);
 }
 
-///////////////////////////////////////////////////////////
-
 LLPacketBuffer::~LLPacketBuffer ()
 {
 }
-
-///////////////////////////////////////////////////////////
 
 void LLPacketBuffer::init(S32 hSocket)
 {
@@ -74,7 +67,7 @@ void LLPacketBuffer::init(S32 hSocket)
     mReceivingIF = ::get_receiving_interface();
 }
 
-void LLPacketBuffer::init(char* buffer, S32 data_size, const LLHost& host)
+void LLPacketBuffer::init(const char* buffer, S32 data_size, const LLHost& host)
 {
     if (data_size > NET_BUFFER_SIZE)
     {
