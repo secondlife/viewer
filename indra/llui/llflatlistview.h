@@ -480,7 +480,11 @@ public:
 
     bool getForceShowingUnmatchedItems() const;
 
-    void setForceShowingUnmatchedItems(bool show);
+    /**
+     * Sets filtered out items to stay visible. Can result in rect changes,
+     * so can notify_parent if rect changes
+     */
+    void setForceShowingUnmatchedItems(bool show, bool notify_parent);
 
     /**
      * Sets up new filter string and filters the list.

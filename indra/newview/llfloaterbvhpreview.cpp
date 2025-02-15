@@ -118,8 +118,8 @@ std::string STATUS[] =
 //-----------------------------------------------------------------------------
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
-LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) :
-    LLFloaterNameDesc(filename)
+LLFloaterBvhPreview::LLFloaterBvhPreview(const LLSD& args) :
+    LLFloaterNameDesc(args)
 {
     mLastMouseX = 0;
     mLastMouseY = 0;
@@ -1028,7 +1028,8 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
                     LLFloaterPerms::getNextOwnerPerms("Uploads"),
                     LLFloaterPerms::getGroupPerms("Uploads"),
                     LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost));
+                    expected_upload_cost,
+                    floaterp->mDestinationFolderId));
 
                 upload_new_resource(assetUploadInfo);
             }

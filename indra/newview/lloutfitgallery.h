@@ -42,11 +42,13 @@ class LLOutfitGalleryItem;
 class LLOutfitListGearMenuBase;
 class LLOutfitGalleryGearMenu;
 class LLOutfitGalleryContextMenu;
+class LLOutfitGallerySortMenu;
 
 class LLOutfitGallery : public LLOutfitListBase
 {
 public:
     friend class LLOutfitGalleryGearMenu;
+    friend class LLOutfitGallerySortMenu;
     friend class LLOutfitGalleryContextMenu;
     friend class LLUpdateGalleryOnPhotoLinked;
 
@@ -102,10 +104,12 @@ public:
 
     /*virtual*/ bool getHasExpandableFolders() { return false; }
 
+    /*virtual*/ void onChangeSortOrder(const LLSD& userdata) {};
     void updateMessageVisibility();
     bool hasDefaultImage(const LLUUID& outfit_cat_id);
 
     void refreshOutfit(const LLUUID& category_id);
+    virtual LLToggleableMenu* getSortMenu();
 
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
@@ -133,8 +137,9 @@ private:
     void reArrangeRows(S32 row_diff = 0);
     void updateRowsIfNeeded();
     void updateGalleryWidth();
+    void handleInvFavColorChange();
 
-    LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id);
+    LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id, bool is_favorite);
     LLOutfitGalleryItem* getSelectedItem() const;
     LLOutfitGalleryItem* getItem(const LLUUID& id) const;
 
@@ -176,6 +181,7 @@ private:
     int mGalleryWidthFactor;
 
     LLListContextMenu* mOutfitGalleryMenu;
+    LLOutfitGallerySortMenu* mSortMenu;
 
     typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
     typedef outfit_map_t::value_type                    outfit_map_value_t;
@@ -187,6 +193,8 @@ private:
 
 
     LLInventoryCategoriesObserver*  mOutfitsObserver;
+
+    boost::signals2::connection mSavedSettingInvFavColor;
 };
 class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
 {
@@ -213,8 +221,6 @@ public:
 protected:
     /*virtual*/ void onUpdateItemsVisibility();
 private:
-    /*virtual*/ void onChangeSortOrder();
-
     bool hasDefaultImage();
 };
 
@@ -243,6 +249,7 @@ public:
     bool setImageAssetId(LLUUID asset_id);
     LLUUID getImageAssetId();
     void setOutfitName(std::string name);
+    void setOutfitFavorite(bool is_favorite);
     void setOutfitWorn(bool value);
     void setSelected(bool value);
     void setUUID(const LLUUID &outfit_id) {mUUID = outfit_id;}
@@ -250,6 +257,7 @@ public:
 
     std::string getItemName() {return mOutfitName;}
     bool isDefaultImage() {return mDefaultImage;}
+    bool isFavorite() { return mFavorite; }
 
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
@@ -267,7 +275,29 @@ private:
     bool     mWorn;
     bool     mDefaultImage;
     bool     mHidden;
+    bool     mFavorite;
     std::string mOutfitName;
+
+    static bool sColorSetInitialized;
+    static LLUIColor sDefaultTextColor;
+    static LLUIColor sDefaultFavoriteColor;
+};
+
+class LLOutfitGallerySortMenu
+{
+public:
+    LLOutfitGallerySortMenu(LLOutfitListBase* parent_panel);
+
+    LLToggleableMenu* getMenu();
+    void updateItemsVisibility();
+
+private:
+    void onUpdateItemsVisibility();
+    bool onEnable(LLSD::String param);
+    void onSort(LLSD::String param);
+
+    LLToggleableMenu* mMenu;
+    LLHandle<LLPanel> mPanelHandle;
 };
 
 #endif  // LL_LLOUTFITGALLERYCTRL_H

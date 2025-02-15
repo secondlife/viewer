@@ -33,6 +33,7 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lloutfitgallery.h"
 #include "lloutfitobserver.h"
@@ -53,12 +54,17 @@ static const std::string SAVE_BTN("save_btn");
 
 static LLPanelInjector<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
-LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
-    mMyOutfitsPanel(NULL),
-    mCurrentOutfitPanel(NULL),
-    mActivePanel(NULL),
-    mAppearanceTabs(NULL),
-    mInitialized(false)
+LLPanelOutfitsInventory::LLPanelOutfitsInventory()
+    : mMyOutfitsPanel(nullptr)
+    , mCurrentOutfitPanel(nullptr)
+    , mActivePanel(nullptr)
+    , mAppearanceTabs(nullptr)
+    , mInitialized(false)
+    , mGearMenu(nullptr)
+    , mSortMenu(nullptr)
+    , mTrashBtn(nullptr)
+    , mSortMenuPanel(nullptr)
+    , mTrashMenuPanel(nullptr)
 {
     gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
     gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoading, this));
@@ -75,6 +81,9 @@ LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
     {
         gSavedSettings.setS32("LastAppearanceTab", mAppearanceTabs->getCurrentPanelIndex());
     }
+    mGearMenuConnection.disconnect();
+    mSortMenuConnection.disconnect();
+    mTrashMenuConnection.disconnect();
 }
 
 // virtual
@@ -258,6 +267,22 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
     mOutfitGalleryPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 }
 
+void LLPanelOutfitsInventory::setMenuButtons(LLMenuButton* gear_menu, LLMenuButton* sort_menu, LLButton* trash_btn, LLPanel* sort_menu_panel, LLPanel* trash_menu_panel)
+{
+    mGearMenu = gear_menu;
+    mSortMenu = sort_menu;
+    mTrashBtn = trash_btn;
+    mSortMenuPanel = sort_menu_panel;
+    mTrashMenuPanel = trash_menu_panel;
+
+    mGearMenuConnection.disconnect();
+    mSortMenuConnection.disconnect();
+    mTrashMenuConnection.disconnect();
+    mGearMenuConnection = mGearMenu->setMouseDownCallback(boost::bind(&LLPanelOutfitsInventory::onGearMouseDown, this));
+    mSortMenuConnection = mSortMenu->setMouseDownCallback(boost::bind(&LLPanelOutfitsInventory::onGearMouseDown, this));
+    mTrashMenuConnection = mTrashBtn->setClickedCallback(boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+}
+
 void LLPanelOutfitsInventory::updateListCommands()
 {
     bool trash_enabled = isActionEnabled("delete");
@@ -281,6 +306,14 @@ void LLPanelOutfitsInventory::onTrashButtonClick()
     else if(isOutfitsGalleryPanelActive())
     {
         mOutfitGalleryPanel->removeSelected();
+    }
+}
+
+void LLPanelOutfitsInventory::onGearMouseDown()
+{
+    if (mActivePanel)
+    {
+        mActivePanel->updateMenuItemsVisibility();
     }
 }
 
@@ -319,6 +352,28 @@ void LLPanelOutfitsInventory::onTabChange()
 
     mActivePanel->checkFilterSubString();
     mActivePanel->onOpen(LLSD());
+
+    if (mGearMenu)
+    {
+        mGearMenu->setMenu(mActivePanel->getGearMenu(), LLMenuButton::MP_BOTTOM_LEFT);
+    }
+    if (mSortMenu && mSortMenuPanel)
+    {
+        LLToggleableMenu* menu = mActivePanel->getSortMenu();
+        if (menu)
+        {
+            mSortMenu->setMenu(menu, LLMenuButton::MP_BOTTOM_LEFT);
+            mSortMenuPanel->setVisible(true);
+        }
+        else
+        {
+            mSortMenuPanel->setVisible(false);
+        }
+    }
+    if (mTrashMenuPanel)
+    {
+        mTrashMenuPanel->setVisible(mActivePanel->getTrashMenuVisible());
+    }
 
     updateVerbs();
 }

@@ -243,6 +243,23 @@ LLSelectMgr::LLSelectMgr()
 
     mForceSelection = false;
     mShowSelection = false;
+
+    LLControlVariable* ctrl = gSavedSettings.getControl("DebugSelectionLODs").get();
+    if (ctrl)
+    {
+        mSlectionLodModChangedConnection = ctrl->getSignal()->connect([this](LLControlVariable*, const LLSD&, const LLSD&)
+        {
+            for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+                iter != mSelectedObjects->end(); ++iter)
+            {
+                LLViewerObject* object = (*iter)->getObject();
+                if (object)
+                {
+                    object->updateLOD();
+                }
+            }
+        });
+    }
 }
 
 
@@ -252,6 +269,7 @@ LLSelectMgr::LLSelectMgr()
 LLSelectMgr::~LLSelectMgr()
 {
     clearSelections();
+    mSlectionLodModChangedConnection.disconnect();
 }
 
 void LLSelectMgr::clearSelections()
