@@ -45,19 +45,19 @@ public:
 
     LLDrawPoolTree(LLViewerTexture *texturep);
 
-    /*virtual*/ S32 getNumDeferredPasses() { return 1; }
-    /*virtual*/ void beginDeferredPass(S32 pass);
-    /*virtual*/ void endDeferredPass(S32 pass);
-    /*virtual*/ void renderDeferred(S32 pass);
+    /*virtual*/ S32 getNumDeferredPasses() override { return 1; }
+    /*virtual*/ void beginDeferredPass(S32 pass) override;
+    /*virtual*/ void endDeferredPass(S32 pass) override;
+    /*virtual*/ void renderDeferred(S32 pass) override;
 
-    /*virtual*/ S32 getNumShadowPasses() { return 1; }
-    /*virtual*/ void beginShadowPass(S32 pass);
-    /*virtual*/ void endShadowPass(S32 pass);
-    /*virtual*/ void renderShadow(S32 pass);
+    /*virtual*/ S32 getNumShadowPasses() override { return 1; }
+    /*virtual*/ void beginShadowPass(S32 pass) override;
+    /*virtual*/ void endShadowPass(S32 pass) override;
+    /*virtual*/ void renderShadow(S32 pass) override;
 
-    /*virtual*/ bool verify() const;
-    /*virtual*/ LLViewerTexture *getTexture();
-    /*virtual*/ LLViewerTexture *getDebugTexture();
+    /*virtual*/ bool verify() const override;
+    /*virtual*/ LLViewerTexture *getTexture() override;
+    /*virtual*/ LLViewerTexture *getDebugTexture() override;
     /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
     static S32 sDiffTex;

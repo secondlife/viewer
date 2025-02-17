@@ -55,12 +55,12 @@ public:
     LLDrawPoolAlpha(U32 type);
     /*virtual*/ ~LLDrawPoolAlpha();
 
-    /*virtual*/ S32 getNumPostDeferredPasses();
-    /*virtual*/ void renderPostDeferred(S32 pass);
-    /*virtual*/ S32  getNumPasses() { return 1; }
+    /*virtual*/ S32 getNumPostDeferredPasses() override;
+    /*virtual*/ void renderPostDeferred(S32 pass) override;
+    /*virtual*/ S32  getNumPasses() override { return 1; }
 
     void forwardRender(bool write_depth = false);
-    /*virtual*/ void prerender();
+    /*virtual*/ void prerender() override;
 
     void renderDebugAlpha();
 
