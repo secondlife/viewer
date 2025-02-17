@@ -55,7 +55,7 @@ public:
         LLVertexBuffer::MAP_TANGENT
     };
 
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override;
 
     void render(S32 pass = 0) override { }
     S32  getNumPasses() override {return 0;}

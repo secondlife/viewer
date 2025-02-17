@@ -41,7 +41,7 @@ public:
                             LLVertexBuffer::MAP_TEXCOORD0
     };
 
-    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override;
 
     LLDrawPoolTree(LLViewerTexture *texturep);
 

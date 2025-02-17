@@ -87,6 +87,54 @@ LLDrawPoolFullbrightAlphaMask::LLDrawPoolFullbrightAlphaMask() :
 {
 }
 
+U32 LLDrawPoolSimple::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
+U32 LLDrawPoolGrass::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
+U32 LLDrawPoolAlphaMask::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
+U32 LLDrawPoolFullbrightAlphaMask::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
+U32 LLDrawPoolFullbright::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
+U32 LLDrawPoolGlow::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
 //===============================
 //DEFERRED IMPLEMENTATION
 //===============================

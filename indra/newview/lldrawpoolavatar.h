@@ -70,7 +70,7 @@ typedef enum
         NUM_SHADOW_PASSES
     } eShadowPass;
 
-    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override;
 
     virtual S32 getShaderLevel() const;
 

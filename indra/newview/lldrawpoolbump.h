@@ -48,7 +48,7 @@ public:
     static U32 sVertexMask;
     bool mShiny;
 
-    virtual U32 getVertexDataMask() override { return sVertexMask; }
+    U32 getVertexDataMask() override;
 
     LLDrawPoolBump();
 

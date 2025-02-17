@@ -50,6 +50,14 @@ LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
     mTexturep->setAddressMode(LLTexUnit::TAM_WRAP);
 }
 
+U32 LLDrawPoolTree::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
 //============================================
 // deferred implementation
 //============================================

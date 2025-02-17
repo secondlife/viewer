@@ -41,7 +41,8 @@ public:
                             LLVertexBuffer::MAP_TEXCOORD0 |
                             LLVertexBuffer::MAP_COLOR
     };
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+
+    U32 getVertexDataMask() override;
 
     LLDrawPoolSimple();
 
@@ -59,7 +60,8 @@ public:
                             LLVertexBuffer::MAP_TEXCOORD0 |
                             LLVertexBuffer::MAP_COLOR
     };
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+
+    U32 getVertexDataMask() override;
 
     LLDrawPoolGrass();
 
@@ -77,7 +79,8 @@ public:
                             LLVertexBuffer::MAP_TEXCOORD0 |
                             LLVertexBuffer::MAP_COLOR
     };
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+
+    U32 getVertexDataMask() override;
 
     LLDrawPoolAlphaMask();
 
@@ -94,7 +97,8 @@ public:
                             LLVertexBuffer::MAP_TEXCOORD0 |
                             LLVertexBuffer::MAP_COLOR
     };
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+
+    U32 getVertexDataMask() override;
 
     LLDrawPoolFullbrightAlphaMask();
 
@@ -112,7 +116,8 @@ public:
                             LLVertexBuffer::MAP_TEXCOORD0 |
                             LLVertexBuffer::MAP_COLOR
     };
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+
+    U32 getVertexDataMask() override;
 
     LLDrawPoolFullbright();
 
@@ -132,7 +137,7 @@ public:
                             LLVertexBuffer::MAP_EMISSIVE
     };
 
-    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override;
 
     S32 getNumPostDeferredPasses() override { return 1; }
     void renderPostDeferred(S32 pass) override;

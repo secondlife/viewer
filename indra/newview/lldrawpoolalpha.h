@@ -49,7 +49,8 @@ public:
                             LLVertexBuffer::MAP_COLOR |
                             LLVertexBuffer::MAP_TEXCOORD0
     };
-    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
+    U32 getVertexDataMask() override;
 
     LLDrawPoolAlpha(U32 type);
     /*virtual*/ ~LLDrawPoolAlpha();

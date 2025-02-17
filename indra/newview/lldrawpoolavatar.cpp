@@ -112,6 +112,14 @@ LLDrawPoolAvatar::~LLDrawPoolAvatar()
     }
 }
 
+U32 LLDrawPoolAvatar::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
 // virtual
 bool LLDrawPoolAvatar::isDead()
 {

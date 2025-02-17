@@ -78,6 +78,14 @@ LLDrawPoolAlpha::~LLDrawPoolAlpha()
 }
 
 
+U32 LLDrawPoolAlpha::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return VERTEX_DATA_MASK;
+    else
+        return LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0;
+}
+
 void LLDrawPoolAlpha::prerender()
 {
     mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);

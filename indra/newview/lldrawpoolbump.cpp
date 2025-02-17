@@ -196,6 +196,14 @@ LLDrawPoolBump::LLDrawPoolBump()
     shiny = false;
 }
 
+U32 LLDrawPoolBump::getVertexDataMask()
+{
+    if (!LLPipeline::sShadowRender)
+        return sVertexMask;
+    else
+        return LLVertexBuffer::MAP_VERTEX;
+}
+
 
 void LLDrawPoolBump::prerender()
 {
