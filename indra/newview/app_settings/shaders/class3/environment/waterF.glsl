@@ -256,7 +256,7 @@ void main()
 #endif
 
     vec3 sunlit_linear = srgb_to_linear(sunlit);
-    float fade = 0;
+    float fade = 1;
 #ifdef TRANSPARENT_WATER
     float depth = texture(depthMap, distort).r;
 
