@@ -103,6 +103,7 @@ public:
 
     static const LLUUID DEFAULT_ASSET_ID;
 
+    static const F32 DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
     static F32 sAutoAdjustProbeAmbiance;
 
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
