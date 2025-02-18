@@ -4464,11 +4464,32 @@ void LLAppViewer::saveFinalSnapshot()
     }
 }
 
+static const char PRODUCTION_CACHE_FORMAT_STRING[] = "%s.%s";
+static const char GRID_CACHE_FORMAT_STRING[] = "%s.%s.%s";
+std::string get_name_cache_filename(const std::string &base_file, const std::string& extention)
+{
+    std::string filename;
+    std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, base_file));
+    if (LLGridManager::getInstance()->isInProductionGrid())
+    {
+        filename = llformat(PRODUCTION_CACHE_FORMAT_STRING, path.c_str(), extention.c_str());
+    }
+    else
+    {
+        // NOTE: The inventory cache filenames now include the grid name.
+        // Add controls against directory traversal or problematic pathname lengths
+        // if your viewer uses grid names from an untrusted source.
+        const std::string& grid_id_str   = LLGridManager::getInstance()->getGridId();
+        const std::string& grid_id_lower = utf8str_tolower(grid_id_str);
+        filename                         = llformat(GRID_CACHE_FORMAT_STRING, path.c_str(), grid_id_lower.c_str(), extention.c_str());
+    }
+    return filename;
+}
+
 void LLAppViewer::loadNameCache()
 {
     // display names cache
-    std::string filename =
-        gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+    std::string filename = get_name_cache_filename("avatar_name_cache", "xml");
     LL_INFOS("AvNameCache") << filename << LL_ENDL;
     llifstream name_cache_stream(filename.c_str());
     if(name_cache_stream.is_open())
@@ -4483,8 +4504,8 @@ void LLAppViewer::loadNameCache()
 
     if (!gCacheName) return;
 
-    std::string name_cache;
-    name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
+    // is there a reason for the "cache" extention?
+    std::string name_cache = get_name_cache_filename("name", "cache");
     llifstream cache_file(name_cache.c_str());
     if(cache_file.is_open())
     {
@@ -4495,8 +4516,7 @@ void LLAppViewer::loadNameCache()
 void LLAppViewer::saveNameCache()
 {
     // display names cache
-    std::string filename =
-        gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+    std::string filename = get_name_cache_filename("avatar_name_cache", "xml");
     llofstream name_cache_stream(filename.c_str());
     if(name_cache_stream.is_open())
     {
@@ -4506,8 +4526,7 @@ void LLAppViewer::saveNameCache()
     // real names cache
     if (gCacheName)
     {
-        std::string name_cache;
-        name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
+        std::string name_cache = get_name_cache_filename("name", "cache");
         llofstream cache_file(name_cache.c_str());
         if(cache_file.is_open())
         {
