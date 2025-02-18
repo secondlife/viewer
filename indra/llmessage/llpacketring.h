@@ -87,6 +87,7 @@ protected:
     F32 mDropPercentage { 0.0f };   // % of inbound packets to drop
     U32 mPacketsToDrop { 0 };       // drop next inbound n packets
 
+    // These are the sender and receiving_interface for the last packet delivered by receivePacket()
     LLHost mLastSender;
     LLHost mLastReceivingIF;
 };

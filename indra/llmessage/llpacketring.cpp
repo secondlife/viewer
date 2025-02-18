@@ -197,6 +197,8 @@ S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
     S16 packet_index = (mHeadIndex + ring_size - mNumBufferedPackets) % ring_size;
     LLPacketBuffer* packet = mPacketRing[packet_index];
     packet_size = packet->getSize();
+    mLastSender = packet->getHost();
+    mLastReceivingIF = packet->getReceivingInterface();
 
     --mNumBufferedPackets;
     mNumBufferedBytes -= packet_size;
@@ -239,12 +241,12 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
                 // *FIX We are assuming ATYP is 0x01 (IPv4), not 0x03 (hostname) or 0x04 (IPv6)
 
                 proxywrap_t * header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
-                mLastSender.setAddress(header->addr);
-                mLastSender.setPort(ntohs(header->port));
-                mLastReceivingIF = ::get_receiving_interface();
+                LLHost sender;
+                sender.setAddress(header->addr);
+                sender.setPort(ntohs(header->port));
 
                 packet_size -= SOCKS_HEADER_SIZE; // The unwrapped packet size
-                packet->init(buffer + SOCKS_HEADER_SIZE, packet_size, mLastSender);
+                packet->init(buffer + SOCKS_HEADER_SIZE, packet_size, sender);
 
                 mHeadIndex = (mHeadIndex + 1) % (S16)(mPacketRing.size());
                 if (mNumBufferedPackets < MAX_BUFFER_RING_SIZE)
@@ -270,11 +272,9 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
         packet_size = packet->getSize();
         if (packet_size > 0)
         {
-            mLastSender = packet->getHost();
-            mLastReceivingIF = ::get_receiving_interface();
             mActualBytesIn += packet_size;
 
-            mHeadIndex = (mHeadIndex + 1) % mPacketRing.size();
+            mHeadIndex = (mHeadIndex + 1) % (S16)(mPacketRing.size());
             if (mNumBufferedPackets < MAX_BUFFER_RING_SIZE)
             {
                 ++mNumBufferedPackets;
