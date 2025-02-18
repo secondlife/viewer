@@ -832,6 +832,10 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
         {
             shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0f); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
+
+            // Low quality setting
+            if (!LLPipeline::sReflectionProbesEnabled)
+                probe_ambiance = DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
         }
         else if (psky->canAutoAdjust() && should_auto_adjust)
         { // auto-adjust legacy sky to take advantage of probe ambiance
