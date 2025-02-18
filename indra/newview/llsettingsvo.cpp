@@ -807,7 +807,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
 
     // sky is a "classic" sky following pre SL 7.0 shading
-    bool classic_mode = psky->canAutoAdjust();
+    bool classic_mode = psky->canAutoAdjust() && !should_auto_adjust();
 
     if (!classic_mode)
     {
@@ -832,6 +832,10 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
         {
             shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0f); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
+
+            // Low quality setting
+            if (!LLPipeline::sReflectionProbesEnabled)
+                probe_ambiance = DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
         }
         else if (psky->canAutoAdjust() && should_auto_adjust)
         { // auto-adjust legacy sky to take advantage of probe ambiance
@@ -1093,8 +1097,8 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLVector4 waterPlane(enorm.x, enorm.y, enorm.z, -glm::dot(ep, enorm));
 
-        norm = glm::make_vec3(gPipeline.mHeroProbeManager.mMirrorNormal.mV);
-        p    = glm::make_vec3(gPipeline.mHeroProbeManager.mMirrorPosition.mV);
+        norm = glm::vec3(gPipeline.mHeroProbeManager.mMirrorNormal);
+        p    = glm::vec3(gPipeline.mHeroProbeManager.mMirrorPosition);
         enorm = mul_mat4_vec3(invtrans, norm);
         enorm = glm::normalize(enorm);
         ep = mul_mat4_vec3(mat, p);

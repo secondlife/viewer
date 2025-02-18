@@ -2004,7 +2004,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 recordingAndPlaybackMode();
             }
-            else if (mProcessChannels && (mNextAudioSession == NULL) && checkParcelChanged())
+            else if (mProcessChannels && ((mNextAudioSession == NULL) || checkParcelChanged()))
             {
                 // the parcel is changed, or we have no pending audio sessions,
                 // so try to request the parcel voice info

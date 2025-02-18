@@ -58,6 +58,7 @@ F32 LLFontGL::sVertDPI = 96.f;
 F32 LLFontGL::sHorizDPI = 96.f;
 F32 LLFontGL::sScaleX = 1.f;
 F32 LLFontGL::sScaleY = 1.f;
+S32 LLFontGL::sResolutionGeneration = 0;
 bool LLFontGL::sDisplayFont = true ;
 std::string LLFontGL::sAppDir;
 
@@ -107,6 +108,11 @@ S32 LLFontGL::getNumFaces(const std::string& filename)
     }
 
     return mFontFreetype->getNumFaces(filename);
+}
+
+S32 LLFontGL::getKnownGlyphCount() const
+{
+    return mFontFreetype ? mFontFreetype->getAddedGlyphs() : 0;
 }
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
@@ -249,6 +255,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
 
+    // This looks wrong, value is dynamic.
+    // LLFontBitmapCache::nextOpenPos can alter these values when
+    // new characters get added to cache, which affects whole string.
+    // Todo: Perhaps value should update after symbols were added?
     F32 inv_width = 1.f / font_bitmap_cache->getBitmapWidth();
     F32 inv_height = 1.f / font_bitmap_cache->getBitmapHeight();
 
@@ -270,6 +280,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontGlyphInfo* next_glyph = NULL;
 
+    // string can have more than one glyph per char (ex: bold or shadow),
+    // make sure that GLYPH_BATCH_SIZE won't end up with half a symbol.
+    // See drawGlyph.
+    // Ex: with shadows it's 6 glyps per char. 30 fits exactly 5 chars.
     static constexpr S32 GLYPH_BATCH_SIZE = 30;
     static thread_local LLVector4a vertices[GLYPH_BATCH_SIZE * 6];
     static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 6];
@@ -282,6 +296,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
     S32 glyph_count = 0;
+    llwchar last_char = wstr[begin_offset];
     for (i = begin_offset; i < begin_offset + length; i++)
     {
         llwchar wch = wstr[i];
@@ -299,7 +314,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         }
         // Per-glyph bitmap texture.
         std::pair<EFontGlyphType, S32> next_bitmap_entry = fgi->mBitmapEntry;
-        if (next_bitmap_entry != bitmap_entry)
+        if (next_bitmap_entry != bitmap_entry || last_char != wch)
         {
             // Actually draw the queued glyphs before switching their texture;
             // otherwise the queued glyphs will be taken from wrong textures.
@@ -316,6 +331,11 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             bitmap_entry = next_bitmap_entry;
             LLImageGL* font_image = font_bitmap_cache->getImageGL(bitmap_entry.first, bitmap_entry.second);
             gGL.getTexUnit(0)->bind(font_image);
+
+            // For some reason it's not enough to compare by bitmap_entry.
+            // Issue hits emojis, japenese and chinese glyphs, only on first run.
+            // Todo: figure it out, there might be a bug with raw image data.
+            last_char = wch;
         }
 
         if ((start_x + scaled_max_pixels) < (cur_x + fgi->mXBearing + fgi->mWidth))

@@ -148,6 +148,7 @@ public:
 
     void setStyle(U8 style);
     U8 getStyle() const;
+    S32 getAddedGlyphs() const { return mAddGlyphCount; }
 
 private:
     void resetBitmapCache();
@@ -156,7 +157,7 @@ private:
     bool hasGlyph(llwchar wch) const;       // Has a glyph for this character
     LLFontGlyphInfo* addGlyph(llwchar wch, EFontGlyphType glyph_type) const;        // Add a new character to the font if necessary
     LLFontGlyphInfo* addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index, EFontGlyphType bitmap_type) const; // Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
-    void renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) const;
+    void renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, llwchar wch) const;
     void insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const;
 
     std::string mName;

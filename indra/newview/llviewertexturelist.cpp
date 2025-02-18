@@ -266,7 +266,7 @@ void LLViewerTextureList::doPrefetchImages()
         S32 pixel_area = imagesd["area"];
         S32 texture_type = imagesd["type"];
 
-        if(LLViewerTexture::FETCHED_TEXTURE == texture_type || LLViewerTexture::LOD_TEXTURE == texture_type)
+        if((LLViewerTexture::FETCHED_TEXTURE == texture_type || LLViewerTexture::LOD_TEXTURE == texture_type))
         {
             LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(uuid, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, texture_type);
             if (image)
@@ -1081,7 +1081,8 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         imagep->mCreatePending = false;
         mCreateTextureList.pop();
 
-        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel())
+        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel() &&
+           (imagep->getDesiredDiscardLevel() <= MAX_DISCARD_LEVEL))
         {
             // NOTE: this may happen if the desired discard reduces while a decode is in progress and does not
             // necessarily indicate a problem, but if log occurrences excede that of dsiplay_stats: FPS,
@@ -1198,10 +1199,17 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 
     //update MIN_UPDATE_COUNT or 5% of other textures, whichever is greater
     update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/20);
-    if (LLViewerTexture::sDesiredDiscardBias > 1.f)
+    if (LLViewerTexture::sDesiredDiscardBias > 1.f
+        && LLViewerTexture::sBiasTexturesUpdated < (U32)mUUIDMap.size())
     {
-        // we are over memory target, update more agresively
+        // We are over memory target. Bias affects discard rates, so update
+        // existing textures agresively to free memory faster.
         update_count = (S32)(update_count * LLViewerTexture::sDesiredDiscardBias);
+
+        // This isn't particularly precise and can overshoot, but it doesn't need
+        // to be, just making sure it did a full circle and doesn't get stuck updating
+        // at bias = 4 with 4 times the rate permanently.
+        LLViewerTexture::sBiasTexturesUpdated += update_count;
     }
     update_count = llmin(update_count, (U32) mUUIDMap.size());
 

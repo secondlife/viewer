@@ -194,6 +194,11 @@ bool LLWindowCallbacks::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, 
     return false;
 }
 
+bool LLWindowCallbacks::handleDisplayChanged()
+{
+    return false;
+}
+
 bool LLWindowCallbacks::handleWindowDidChangeScreen(LLWindow *window)
 {
     return false;

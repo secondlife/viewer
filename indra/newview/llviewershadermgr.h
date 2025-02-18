@@ -175,6 +175,7 @@ extern LLGLSLShader         gReflectionProbeDisplayProgram;
 extern LLGLSLShader         gCopyProgram;
 extern LLGLSLShader         gCopyDepthProgram;
 extern LLGLSLShader         gPBRTerrainBakeProgram;
+extern LLGLSLShader         gDrawColorProgram;
 
 //output tex0[tc0] - tex1[tc1]
 extern LLGLSLShader         gTwoTextureCompareProgram;
@@ -191,7 +192,6 @@ extern LLGLSLShader     gObjectAlphaMaskNoColorProgram;
 
 //environment shaders
 extern LLGLSLShader         gWaterProgram;
-extern LLGLSLShader         gWaterEdgeProgram;
 extern LLGLSLShader         gUnderWaterProgram;
 extern LLGLSLShader         gGlowProgram;
 extern LLGLSLShader         gGlowExtractProgram;

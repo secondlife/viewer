@@ -552,7 +552,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
         return NULL;
 
     llassert(!mIsFallback);
-    fontp->renderGlyph(requested_glyph_type, glyph_index);
+    fontp->renderGlyph(requested_glyph_type, glyph_index, wch);
 
     EFontGlyphType bitmap_glyph_type = EFontGlyphType::Unspecified;
     switch (fontp->mFTFace->glyph->bitmap.pixel_mode)
@@ -697,7 +697,7 @@ void LLFontFreetype::insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const
     }
 }
 
-void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) const
+void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, llwchar wch) const
 {
     if (mFTFace == NULL)
         return;
@@ -712,11 +712,28 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) co
     FT_Error error = FT_Load_Glyph(mFTFace, glyph_index, load_flags);
     if (FT_Err_Ok != error)
     {
+        if (error == FT_Err_Out_Of_Memory)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS() << "Out of memory loading glyph for character " << llformat("U+%xu", U32(wch)) << LL_ENDL;
+        }
+
         std::string message = llformat(
-            "Error %d (%s) loading glyph %u: bitmap_type=%u, load_flags=%d",
-            error, FT_Error_String(error), glyph_index, bitmap_type, load_flags);
+            "Error %d (%s) loading wchar %u glyph %u/%u: bitmap_type=%u, load_flags=%d",
+            error, FT_Error_String(error), wch, glyph_index, mFTFace->num_glyphs, bitmap_type, load_flags);
         LL_WARNS_ONCE() << message << LL_ENDL;
         error = FT_Load_Glyph(mFTFace, glyph_index, load_flags ^ FT_LOAD_COLOR);
+        if (FT_Err_Invalid_Outline == error
+            || FT_Err_Invalid_Composite == error
+            || (FT_Err_Ok != error && LLStringOps::isEmoji(wch)))
+        {
+            glyph_index = FT_Get_Char_Index(mFTFace, '?');
+            // if '?' is not present, potentially can use last index, that's supposed to be null glyph
+            if (glyph_index > 0)
+            {
+                error = FT_Load_Glyph(mFTFace, glyph_index, load_flags ^ FT_LOAD_COLOR);
+            }
+        }
         llassert_always_msg(FT_Err_Ok == error, message.c_str());
     }
 
