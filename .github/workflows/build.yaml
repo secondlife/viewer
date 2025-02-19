@@ -42,9 +42,15 @@ jobs:
       - name: Find Pull Request
         id: findpr
         if: ${{ github.reg_type == 'tag' }}
-        shell: bash
-        run: |
-          echo "release_pr=$RELEASE_PR" >> "$GITHUB_OUTPUT"
+        uses: actions/github-script@v7.0.1
+        with:
+          script:
+            let prs = github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: main,
+              head:
+            });
 
   build:
     needs: setup
@@ -478,5 +484,13 @@ jobs:
 
       - name: post release to PR
         if: steps.setup.outputs.release_pr
-        run: |
-          echo "would be posting comment to pr: ${{ steps.setup.outputs.release_pr }}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info("posting comment to pr: ${{ steps.setup.outputs.release_pr }}");
+            github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: ${{ steps.setup.outputs.release_pr }}
+                body: "build = ${{ steps.release.outputs.url }}"
+            });

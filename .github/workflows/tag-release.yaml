@@ -49,4 +49,4 @@ jobs:
               repo: context.repo.repo,
               ref: "refs/tags/${{ env.VIEWER_CHANNEL }}#${{ env.TAG_ID }}",
               sha: context.sha
-            })
+            });
