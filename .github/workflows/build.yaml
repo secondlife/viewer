@@ -487,10 +487,10 @@ jobs:
         uses: actions/github-script@v7.0.1
         with:
           script: |
-            core.info("posting comment to pr: ${{ steps.setup.outputs.release_pr }}");
-            github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: ${{ steps.setup.outputs.release_pr }}
-                body: "build = ${{ steps.release.outputs.url }}"
-            });
+            core.info("would be posting comment to pr: ${{ steps.setup.outputs.release_pr }}");
+            //github.rest.issues.createComment({
+            //    owner: context.repo.owner,
+            //    repo: context.repo.repo,
+            //    issue_number: ${{ steps.setup.outputs.release_pr }}
+            //    body: "build = ${{ steps.release.outputs.url }}"
+            //});
