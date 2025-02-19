@@ -298,6 +298,7 @@ bool gUseQuickTime = true;
 
 eLastExecEvent gLastExecEvent = LAST_EXEC_NORMAL;
 S32 gLastExecDuration = -1; // (<0 indicates unknown)
+LLUUID gLastAgentSessionId;
 
 #if LL_WINDOWS
 #   define LL_PLATFORM_KEY "win"
@@ -370,7 +371,6 @@ const int MAX_MARKER_LENGTH = 1024;
 const std::string MARKER_FILE_NAME("SecondLife.exec_marker");
 const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
 const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
-const std::string LLERROR_MARKER_FILE_NAME("SecondLife.llerror_marker");
 const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
 static bool gDoDisconnect = false;
 static std::string gLaunchFileOnQuit;
@@ -2217,6 +2217,7 @@ bool LLAppViewer::initThreads()
     return true;
 }
 
+// Callback for all LL_ERROR calls
 void errorCallback(LLError::ELevel level, const std::string &error_string)
 {
     if (level == LLError::LEVEL_ERROR)
@@ -2232,14 +2233,37 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         // haven't actually trashed anything yet, we can afford to write the whole
         // static info file.
         LLAppViewer::instance()->writeDebugInfo();
+
+        std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+        if (!LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
+        {
+            // If marker doesn't exist, create a marker with llerror code for next launch
+            // otherwise don't override existing file
+            LLAppViewer::instance()->createErrorMarker(LAST_EXEC_LLERROR_CRASH);
+        }
     }
 }
 
-void errorMSG(const std::string& title_string, const std::string& message_string)
+// Callback for LLError::LLUserWarningMsg
+void errorHandler(const std::string& title_string, const std::string& message_string, S32 code)
 {
     if (!message_string.empty())
     {
         OSMessageBox(message_string, title_string.empty() ? LLTrans::getString("MBFatalError") : title_string, OSMB_OK);
+    }
+    switch (code)
+    {
+    case LLError::LLUserWarningMsg::ERROR_OTHER:
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_OTHER_CRASH);
+        break;
+    case LLError::LLUserWarningMsg::ERROR_BAD_ALLOC:
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_BAD_ALLOC);
+        break;
+    case LLError::LLUserWarningMsg::ERROR_MISSING_FILES:
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_MISSING_FILES);
+        break;
+    default:
+        break;
     }
 }
 
@@ -2254,7 +2278,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     LLError::addGenericRecorder(&errorCallback);
     //LLError::setTimeFunction(getRuntime);
 
-    LLError::LLUserWarningMsg::setHandler(errorMSG);
+    LLError::LLUserWarningMsg::setHandler(errorHandler);
 
 
     if (mSecondInstance)
@@ -2538,6 +2562,7 @@ bool LLAppViewer::initConfiguration()
         OSMessageBox(
             "Unable to load default settings file. The installation may be corrupted.",
             LLStringUtil::null,OSMB_OK);
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_MISSING_FILES);
         return false;
     }
 
@@ -3700,16 +3725,21 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
     bool sameVersion = false;
 
     std::string my_version(LLVersionInfo::instance().getChannelAndVersion());
-    char marker_version[MAX_MARKER_LENGTH];
+    char marker_data[MAX_MARKER_LENGTH];
     S32  marker_version_length;
 
     LLAPRFile marker_file;
     marker_file.open(marker_name, LL_APR_RB);
     if (marker_file.getFileHandle())
     {
-        marker_version_length = marker_file.read(marker_version, sizeof(marker_version));
-        std::string marker_string(marker_version, marker_version_length);
-        if ( 0 == my_version.compare( 0, my_version.length(), marker_version, 0, marker_version_length ) )
+        marker_version_length = marker_file.read(marker_data, sizeof(marker_data));
+        std::string marker_string(marker_data, marker_version_length);
+        size_t pos = marker_string.find('\n');
+        if (pos != std::string::npos)
+        {
+            marker_string = marker_string.substr(0, pos);
+        }
+        if ( 0 == my_version.compare( 0, my_version.length(), marker_string, 0, marker_string.length()) )
         {
             sameVersion = true;
         }
@@ -3721,6 +3751,88 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
         marker_file.close();
     }
     return sameVersion;
+}
+
+void LLAppViewer::recordSessionToMarker()
+{
+    std::string marker_version(LLVersionInfo::instance().getChannelAndVersion());
+    std::string uuid_str = "\n" + gAgentSessionID.asString();
+    if (marker_version.length() + uuid_str.length() > MAX_MARKER_LENGTH)
+    {
+        LL_WARNS_ONCE("MarkerFile") << "Version length (" << marker_version.length() << ")"
+            << " greater than maximum (" << MAX_MARKER_LENGTH << ")"
+            << ": marker matching may be incorrect"
+            << LL_ENDL;
+    }
+
+    mMarkerFile.seek(APR_SET, (S32)marker_version.length());
+    mMarkerFile.write(uuid_str.data(), (S32)uuid_str.length());
+}
+
+LLUUID LLAppViewer::getMarkerSessionId(const std::string& marker_name) const
+{
+    std::string data;
+    if (getMarkerData(marker_name, data))
+    {
+        return LLUUID(data);
+    }
+    return LLUUID();
+}
+
+S32 LLAppViewer::getMarkerErrorCode(const std::string& marker_name) const
+{
+    std::string data;
+    if (getMarkerData(marker_name, data))
+    {
+        if (data.empty())
+        {
+            return 0;
+        }
+        else
+        {
+            return std::stoi(data);
+        }
+    }
+    return -1;
+}
+
+bool LLAppViewer::getMarkerData(const std::string& marker_name, std::string& data) const
+{
+    bool sameVersion = false;
+
+    std::string my_version(LLVersionInfo::instance().getChannelAndVersion());
+    char marker_data[MAX_MARKER_LENGTH];
+    S32  marker_version_length;
+
+    LLAPRFile marker_file;
+    marker_file.open(marker_name, LL_APR_RB);
+    if (marker_file.getFileHandle())
+    {
+        marker_version_length = marker_file.read(marker_data, sizeof(marker_data));
+        marker_file.close();
+        std::string marker_string(marker_data, marker_version_length);
+        size_t pos = marker_string.find('\n');
+        if (pos != std::string::npos)
+        {
+            data = marker_string.substr(pos + 1, marker_version_length - pos - 1);
+            marker_string = marker_string.substr(0, pos);
+        }
+        if (0 == my_version.compare(0, my_version.length(), marker_string, 0, marker_string.length()))
+        {
+            sameVersion = true;
+        }
+        else
+        {
+            return false;
+        }
+        LL_DEBUGS("MarkerFile") << "Compare markers for '" << marker_name << "': "
+            << "\n   mine '" << my_version << "'"
+            << "\n marker '" << marker_string << "'"
+            << "\n " << (sameVersion ? "same" : "different") << " version"
+            << LL_ENDL;
+        return true;
+    }
+    return false;
 }
 
 void LLAppViewer::processMarkerFiles()
@@ -3741,6 +3853,10 @@ void LLAppViewer::processMarkerFiles()
         // File exists...
         // first, read it to see if it was created by the same version (we need this later)
         marker_is_same_version = markerIsSameVersion(mMarkerFileName);
+        if (marker_is_same_version)
+        {
+            gLastAgentSessionId = getMarkerSessionId(mMarkerFileName);
+        }
 
         // now test to see if this file is locked by a running process (try to open for write)
         marker_log_stream << "Checking exec marker file for lock...";
@@ -3830,44 +3946,27 @@ void LLAppViewer::processMarkerFiles()
         }
         LLAPRFile::remove(logout_marker_file);
     }
-    // further refine based on whether or not a marker created during an llerr crash is found
-    std::string llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
-    if(LLAPRFile::isExist(llerror_marker_file, NULL, LL_APR_RB))
-    {
-        if (markerIsSameVersion(llerror_marker_file))
-        {
-            if ( gLastExecEvent == LAST_EXEC_LOGOUT_FROZE )
-            {
-                gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
-                LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' crashed, setting LastExecEvent to LOGOUT_CRASH" << LL_ENDL;
-            }
-            else
-            {
-                gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
-                LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' crashed, setting LastExecEvent to LLERROR_CRASH" << LL_ENDL;
-            }
-        }
-        else
-        {
-            LL_INFOS("MarkerFile") << "LLError marker '"<< llerror_marker_file << "' found, but versions did not match" << LL_ENDL;
-        }
-        LLAPRFile::remove(llerror_marker_file);
-    }
     // and last refine based on whether or not a marker created during a non-llerr crash is found
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
     if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
     {
-        if (markerIsSameVersion(error_marker_file))
+        S32 marker_code = getMarkerErrorCode(error_marker_file);
+        if (marker_code >= 0)
         {
             if (gLastExecEvent == LAST_EXEC_LOGOUT_FROZE)
             {
                 gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
                 LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to LOGOUT_CRASH" << LL_ENDL;
             }
+            else if (marker_code > 0 && marker_code < (S32)LAST_EXEC_COUNT)
+            {
+                gLastExecEvent = (eLastExecEvent)marker_code;
+                LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
+            }
             else
             {
                 gLastExecEvent = LAST_EXEC_OTHER_CRASH;
-                LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
+                LL_INFOS("MarkerFile") << "Error marker '" << error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
             }
         }
         else
@@ -4462,11 +4561,32 @@ void LLAppViewer::saveFinalSnapshot()
     }
 }
 
+static const char PRODUCTION_CACHE_FORMAT_STRING[] = "%s.%s";
+static const char GRID_CACHE_FORMAT_STRING[] = "%s.%s.%s";
+std::string get_name_cache_filename(const std::string &base_file, const std::string& extention)
+{
+    std::string filename;
+    std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, base_file));
+    if (LLGridManager::getInstance()->isInProductionGrid())
+    {
+        filename = llformat(PRODUCTION_CACHE_FORMAT_STRING, path.c_str(), extention.c_str());
+    }
+    else
+    {
+        // NOTE: The inventory cache filenames now include the grid name.
+        // Add controls against directory traversal or problematic pathname lengths
+        // if your viewer uses grid names from an untrusted source.
+        const std::string& grid_id_str   = LLGridManager::getInstance()->getGridId();
+        const std::string& grid_id_lower = utf8str_tolower(grid_id_str);
+        filename                         = llformat(GRID_CACHE_FORMAT_STRING, path.c_str(), grid_id_lower.c_str(), extention.c_str());
+    }
+    return filename;
+}
+
 void LLAppViewer::loadNameCache()
 {
     // display names cache
-    std::string filename =
-        gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+    std::string filename = get_name_cache_filename("avatar_name_cache", "xml");
     LL_INFOS("AvNameCache") << filename << LL_ENDL;
     llifstream name_cache_stream(filename.c_str());
     if(name_cache_stream.is_open())
@@ -4481,8 +4601,8 @@ void LLAppViewer::loadNameCache()
 
     if (!gCacheName) return;
 
-    std::string name_cache;
-    name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
+    // is there a reason for the "cache" extention?
+    std::string name_cache = get_name_cache_filename("name", "cache");
     llifstream cache_file(name_cache.c_str());
     if(cache_file.is_open())
     {
@@ -4493,8 +4613,7 @@ void LLAppViewer::loadNameCache()
 void LLAppViewer::saveNameCache()
 {
     // display names cache
-    std::string filename =
-        gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+    std::string filename = get_name_cache_filename("avatar_name_cache", "xml");
     llofstream name_cache_stream(filename.c_str());
     if(name_cache_stream.is_open())
     {
@@ -4504,8 +4623,7 @@ void LLAppViewer::saveNameCache()
     // real names cache
     if (gCacheName)
     {
-        std::string name_cache;
-        name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
+        std::string name_cache = get_name_cache_filename("name", "cache");
         llofstream cache_file(name_cache.c_str());
         if(cache_file.is_open())
         {
@@ -5169,6 +5287,24 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
     gMainloopWork.post(work);
+}
+
+void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
+{
+    if (!mSecondInstance)
+    {
+        std::string error_marker = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+
+        LLAPRFile file;
+        file.open(error_marker, LL_APR_WB);
+        if (file.getFileHandle())
+        {
+            recordMarkerVersion(file);
+            std::string data = "\n" + std::to_string((S32)error_code);
+            file.write(data.data(), static_cast<S32>(data.length()));
+            file.close();
+        }
+    }
 }
 
 void LLAppViewer::outOfMemorySoftQuit()

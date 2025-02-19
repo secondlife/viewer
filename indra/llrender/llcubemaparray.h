@@ -52,7 +52,7 @@ public:
     // components - number of components per pixel
     // count - number of cube maps in the array
     // use_mips - if true, mipmaps will be allocated for this cube map array and anisotropic filtering will be used
-    void allocate(U32 res, U32 components, U32 count, bool use_mips = true);
+    void allocate(U32 res, U32 components, U32 count, bool use_mips = true, bool hdr = true);
     void bind(S32 stage);
     void unbind();
 

@@ -30,7 +30,7 @@
 		<combo_box.item label="オプションのアップデートのインストール準備ができたら通知する" name="Install_ask"/>
 		<combo_box.item label="必須アップデートのみインストールする" name="Install_manual"/>
 	</combo_box>
-	<check_box label="release candidate にアップグレードします" name="update_willing_to_test"/>
+	<check_box label="Beta にアップグレードします" name="update_willing_to_test"/>
 	<check_box label="更新後にリリースノートを表示する" name="update_show_release_notes"/>
 	<text name="Proxy Settings:">
 		プロキシ設定：

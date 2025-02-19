@@ -146,7 +146,9 @@ S32 LLFontVertexBuffer::render(
              || mLastScaleY != LLFontGL::sScaleY
              || mLastVertDPI != LLFontGL::sVertDPI
              || mLastHorizDPI != LLFontGL::sHorizDPI
-             || mLastOrigin != LLFontGL::sCurOrigin)
+             || mLastOrigin != LLFontGL::sCurOrigin
+             || mLastResGeneration != LLFontGL::sResolutionGeneration
+             || mLastFontGlyphCount != fontp->getKnownGlyphCount())
     {
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
             style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
@@ -201,6 +203,8 @@ void LLFontVertexBuffer::genBuffers(
     mLastVertDPI = LLFontGL::sVertDPI;
     mLastHorizDPI = LLFontGL::sHorizDPI;
     mLastOrigin = LLFontGL::sCurOrigin;
+    mLastResGeneration = LLFontGL::sResolutionGeneration;
+    mLastFontGlyphCount = fontp->getKnownGlyphCount();
 
     if (right_x)
     {

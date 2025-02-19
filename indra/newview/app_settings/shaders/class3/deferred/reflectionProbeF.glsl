@@ -38,6 +38,8 @@ uniform float max_probe_lod;
 
 uniform bool transparent_surface;
 
+uniform int classic_mode;
+
 #define MAX_REFMAP_COUNT 256  // must match LL_MAX_REFLECTION_PROBE_COUNT
 
 layout (std140) uniform ReflectionProbes
@@ -739,7 +741,10 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    ambenv = sampleProbeAmbient(pos, norm, amblit);
+    ambenv = amblit;
+
+    if (classic_mode == 0)
+        ambenv = sampleProbeAmbient(pos, norm, amblit);
 
     float lod = (1.0-glossiness)*reflection_lods;
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
@@ -784,9 +789,6 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
     probeIndex[probeInfluences++] = 0;
 
     doProbeSample(ambenv, glossenv, tc, pos, norm, glossiness, false, amblit);
-
-    // fudge factor to get PBR water at a similar luminance ot legacy water
-    glossenv *= 0.4;
 }
 
 void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
@@ -845,7 +847,10 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    ambenv = sampleProbeAmbient(pos, norm, amblit);
+    ambenv = amblit;
+
+    if (classic_mode == 0)
+        ambenv = sampleProbeAmbient(pos, norm, amblit);
 
     if (glossiness > 0.0)
     {

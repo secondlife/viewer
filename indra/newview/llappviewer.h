@@ -66,6 +66,20 @@ class LLViewerRegion;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
+typedef enum
+{
+    LAST_EXEC_NORMAL = 0,
+    LAST_EXEC_FROZE,
+    LAST_EXEC_LLERROR_CRASH,
+    LAST_EXEC_OTHER_CRASH,
+    LAST_EXEC_LOGOUT_FROZE,
+    LAST_EXEC_LOGOUT_CRASH,
+    LAST_EXEC_BAD_ALLOC,
+    LAST_EXEC_MISSING_FILES,
+    LAST_EXEC_GRAPHICS_INIT,
+    LAST_EXEC_COUNT
+} eLastExecEvent;
+
 class LLAppViewer : public LLApp
 {
 public:
@@ -147,6 +161,7 @@ public:
     void saveExperienceCache();
 
     void removeMarkerFiles();
+    void recordSessionToMarker();
 
     void removeDumpDir();
     // LLAppViewer testing helpers.
@@ -227,6 +242,9 @@ public:
     // post given work to the "mainloop" work queue for handling on the main thread
     void postToMainCoro(const LL::WorkQueue::Work& work);
 
+    // Writes an error code into the error_marker file for use on next startup.
+    void createErrorMarker(eLastExecEvent error_code) const;
+
     // Attempt a 'soft' quit with disconnect and saving of settings/cache.
     // Intended to be thread safe.
     // Good chance of viewer crashing either way, but better than alternatives.
@@ -272,6 +290,9 @@ private:
     void processMarkerFiles();
     static void recordMarkerVersion(LLAPRFile& marker_file);
     bool markerIsSameVersion(const std::string& marker_name) const;
+    LLUUID getMarkerSessionId(const std::string& marker_name) const;
+    S32 getMarkerErrorCode(const std::string& marker_name) const;
+    bool getMarkerData(const std::string& marker_name, std::string &data) const;
 
     void idle();
     void idleShutdown();
@@ -347,18 +368,9 @@ private:
 extern LLSD gDebugInfo;
 extern bool gShowObjectUpdates;
 
-typedef enum
-{
-    LAST_EXEC_NORMAL = 0,
-    LAST_EXEC_FROZE,
-    LAST_EXEC_LLERROR_CRASH,
-    LAST_EXEC_OTHER_CRASH,
-    LAST_EXEC_LOGOUT_FROZE,
-    LAST_EXEC_LOGOUT_CRASH
-} eLastExecEvent;
-
 extern eLastExecEvent gLastExecEvent; // llstartup
 extern S32 gLastExecDuration; ///< the duration of the previous run in seconds (<0 indicates unknown)
+extern LLUUID gLastAgentSessionId; // will be set if agent logged in
 
 extern const char* gPlatform;
 

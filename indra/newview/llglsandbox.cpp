@@ -903,6 +903,39 @@ private:
 };
 
 
+F32 shader_timer_benchmark(std::vector<LLRenderTarget> & dest, TextureHolder & texHolder, U32 textures_count, LLVertexBuffer * buff, F32 &seconds)
+{
+    // run GPU timer benchmark
+
+    //number of samples to take
+    const S32 samples = 64;
+
+    {
+        ShaderProfileHelper initProfile;
+        dest[0].bindTarget();
+        gBenchmarkProgram.bind();
+        for (S32 c = 0; c < samples; ++c)
+        {
+            for (U32 i = 0; i < textures_count; ++i)
+            {
+                texHolder.bind(i);
+                buff->setBuffer();
+                buff->drawArrays(LLRender::TRIANGLES, 0, 3);
+            }
+        }
+        gBenchmarkProgram.unbind();
+        dest[0].flush();
+    }
+
+    F32 ms = gBenchmarkProgram.mTimeElapsed / 1000000.f;
+    seconds = ms / 1000.f;
+
+    F64 samples_drawn = (F64)gBenchmarkProgram.mSamplesDrawn;
+    F64 gpixels_drawn = samples_drawn / 1000000000.0;
+    F32 samples_sec = (F32)(gpixels_drawn / seconds);
+    return samples_sec * 4;  // 4 bytes per sample
+}
+
 //-----------------------------------------------------------------------------
 // gpu_benchmark()
 //  returns measured memory bandwidth of GPU in gigabytes per second
@@ -943,9 +976,6 @@ F32 gpu_benchmark()
 
     //number of textures
     const U32 count = 32;
-
-    //number of samples to take
-    const S32 samples = 64;
 
     //time limit, allocation operations shouldn't take longer then 30 seconds, same for actual benchmark.
     const F32 time_limit = 30;
@@ -1036,33 +1066,15 @@ F32 gpu_benchmark()
 
     LLGLSLShader::unbind();
 
-    // run GPU timer benchmark
-    {
-        ShaderProfileHelper initProfile;
-        dest[0].bindTarget();
-        gBenchmarkProgram.bind();
-        for (S32 c = 0; c < samples; ++c)
-        {
-            for (U32 i = 0; i < count; ++i)
-            {
-                texHolder.bind(i);
-                buff->setBuffer();
-                buff->drawArrays(LLRender::TRIANGLES, 0, 3);
-            }
-        }
-        gBenchmarkProgram.unbind();
-        dest[0].flush();
-    }
+    // run GPU timer benchmark twice
+    F32 seconds = 0;
+    F32 gbps = shader_timer_benchmark(dest, texHolder, count, buff.get(), seconds);
 
-    F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
-    F32 seconds = ms/1000.f;
+    LL_INFOS("Benchmark") << "Memory bandwidth, 1st run is " << llformat("%.3f", gbps) << " GB/sec according to ARB_timer_query, total time " << seconds << " seconds" << LL_ENDL;
 
-    F64 samples_drawn = (F64)gBenchmarkProgram.mSamplesDrawn;
-    F64 gpixels_drawn = samples_drawn / 1000000000.0;
-    F32 samples_sec = (F32)(gpixels_drawn/seconds);
-    F32 gbps = samples_sec*4;  // 4 bytes per sample
+    gbps = shader_timer_benchmark(dest, texHolder, count, buff.get(), seconds);
 
-    LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << " GB/sec according to ARB_timer_query, total time " << seconds << " seconds" << LL_ENDL;
+    LL_INFOS("Benchmark") << "Memory bandwidth, final run is " << llformat("%.3f", gbps) << " GB/sec according to ARB_timer_query, total time " << seconds << " seconds" << LL_ENDL;
 
     return gbps;
 }

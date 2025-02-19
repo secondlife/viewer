@@ -29,6 +29,7 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <atomic>
 
 #include "lltexturefetch.h"
 
@@ -2843,7 +2844,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S3
 bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 {
     LL_PROFILE_ZONE_SCOPED;
-    mRequestQueue.tryPost([=]()
+    mRequestQueue.tryPost([=, this]()
         {
             LLTextureFetchWorker* worker = getWorker(id);
             if (worker)
@@ -3571,29 +3572,30 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
     //if (! gViewerAssetStatsThread1)
     //  return true;
 
-    static volatile bool reporting_started(false);
-    static volatile S32 report_sequence(0);
+    static std::atomic<bool> reporting_started(false);
+    static std::atomic<S32> report_sequence(0);
 
     // In mStatsSD, we have a copy we own of the LLSD representation
     // of the asset stats. Add some additional fields and ship it off.
 
     static const S32 metrics_data_version = 2;
 
-    bool initial_report = !reporting_started;
+    bool initial_report = !reporting_started.load();
     mStatsSD["session_id"] = mSessionID;
     mStatsSD["agent_id"] = mAgentID;
     mStatsSD["message"] = "ViewerAssetMetrics";
-    mStatsSD["sequence"] = report_sequence;
+    mStatsSD["sequence"] = report_sequence.load();
     mStatsSD["initial"] = initial_report;
     mStatsSD["version"] = metrics_data_version;
     mStatsSD["break"] = static_cast<bool>(LLTextureFetch::svMetricsDataBreak);
 
     // Update sequence number
-    if (S32_MAX == ++report_sequence)
+    if (S32_MAX == report_sequence.fetch_add(1))
     {
-        report_sequence = 0;
+        report_sequence.store(0);
     }
-    reporting_started = true;
+
+    reporting_started.store(true);
 
     // Limit the size of the stats report if necessary.
 
