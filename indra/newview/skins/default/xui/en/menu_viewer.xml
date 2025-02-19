@@ -1773,18 +1773,11 @@ function="World.EnvPreset"
         </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
-             label="[SECOND_LIFE] News"
-             name="Second Life News">
-             <menu_item_call.on_click
-                 function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/Featured-News/bg-p/blog_feature_news"/>  
-        </menu_item_call>
-        <menu_item_call
              label="[SECOND_LIFE] Blogs"
              name="Second Life Blogs">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/Blogs/ct-p/Blogs"/>
+                 parameter="https://community.secondlife.com/news/"/>
         </menu_item_call>
         <menu_item_separator/>
 

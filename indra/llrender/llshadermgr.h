@@ -36,6 +36,8 @@ public:
     LLShaderMgr();
     virtual ~LLShaderMgr();
 
+    // Note: although you can use statically hashed strings to just bind a random uniform, it's generally preferably that you use this.
+    // Always document what the actual shader uniform is next to the shader uniform in this struct.
     // clang-format off
     typedef enum
     {                                       // Shader uniform name, set in LLShaderMgr::initAttribsAndUniforms()
@@ -234,6 +236,7 @@ public:
         WATER_SCREENTEX,                    //  "screenTex"
         WATER_SCREENDEPTH,                  //  "screenDepth"
         WATER_REFTEX,                       //  "refTex"
+        WATER_EXCLUSIONTEX,                 //  "exclusionTex"
         WATER_EYEVEC,                       //  "eyeVec"
         WATER_TIME,                         //  "time"
         WATER_WAVE_DIR1,                    //  "waveDir1"

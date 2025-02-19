@@ -90,6 +90,7 @@ public:
     bool loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool is_fallback, S32 face_n);
 
     S32 getNumFaces(const std::string& filename);
+    S32 getKnownGlyphCount() const;
 
     S32 render(const LLWString &text, S32 begin_offset,
                 const LLRect& rect,
@@ -224,6 +225,7 @@ public:
     static F32 sHorizDPI;
     static F32 sScaleX;
     static F32 sScaleY;
+    static S32 sResolutionGeneration;
     static bool sDisplayFont ;
     static std::string sAppDir;         // For loading fonts
 

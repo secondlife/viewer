@@ -291,6 +291,14 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         }
     }
 
+    if (features->hasTonemap)
+    {
+        if (!shader->attachFragmentObject("deferred/tonemapUtilF.glsl"))
+        {
+            return false;
+        }
+    }
+
     // NOTE order of shader object attaching is VERY IMPORTANT!!!
     if (features->hasAtmospherics)
     {
@@ -466,6 +474,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
     if (filename.empty())
     {
+        LL_WARNS("ShaderLoading") << "tried loading empty filename" << LL_ENDL;
         return 0;
     }
 
@@ -923,6 +932,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
         LL_WARNS("ShaderLoading") << "Failed to load " << filename << LL_ENDL;
     }
+
+    LL_DEBUGS("ShaderLoading") << "loadShaderFile() completed, ret: " << U32(ret) << LL_ENDL;
     return ret;
 }
 
@@ -1389,6 +1400,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("screenTex");
     mReservedUniforms.push_back("screenDepth");
     mReservedUniforms.push_back("refTex");
+    mReservedUniforms.push_back("exclusionTex");
     mReservedUniforms.push_back("eyeVec");
     mReservedUniforms.push_back("time");
     mReservedUniforms.push_back("waveDir1");

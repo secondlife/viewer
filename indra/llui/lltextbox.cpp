@@ -159,7 +159,8 @@ LLSD LLTextBox::getValue() const
 bool LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
     mText.setArg(key, text);
-    LLTextBase::setText(mText.getString());
+    static const LLStyle::Params input_params = LLStyle::Params();
+    LLTextBase::setText(mText.getString(), input_params);
 
     return true;
 }
