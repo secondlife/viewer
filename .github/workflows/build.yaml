@@ -15,6 +15,7 @@ jobs:
       release_run: ${{ steps.setvar.outputs.release_run }}
       configurations: ${{ steps.setvar.outputs.configurations }}
       bugsplat_db: ${{ steps.setvar.outputs.bugsplat_db }}
+      release_pr: ${{ steps.findpr.outputs.release_pr }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
@@ -38,6 +39,13 @@ jobs:
             echo 'configurations=["Release"]' >> $GITHUB_OUTPUT
             echo "bugsplat_db=SecondLife_Viewer_2018" >> $GITHUB_OUTPUT
           fi
+      - name: Find Pull Request
+        id: findpr
+        if: ${{ github.reg_type == 'tag' }}
+        shell: bash
+        run: |
+          echo "release_pr=$RELEASE_PR" >> "$GITHUB_OUTPUT"
+
   build:
     needs: setup
     strategy:
@@ -467,3 +475,8 @@ jobs:
       - name: post release URL
         run: |
           echo "::notice::Release ${{ steps.release.outputs.url }}"
+
+      - name: post release to PR
+        if: steps.setup.outputs.release_pr
+        run: |
+          echo "would be posting comment to pr: ${{ steps.setup.outputs.release_pr }}"
