@@ -56,6 +56,48 @@ public:
         REALTIME = 2
     };
 
+    
+    // structure for packing uniform buffer object
+    // see class3/deferred/reflectionProbeF.glsl
+    struct ReflectionProbeData
+    {
+        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of
+        // the box probe
+        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        LLMatrix4 heroBox;
+
+        // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
+        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        // extra parameters
+        //  x - irradiance scale
+        //  y - radiance scale
+        //  z - fade in
+        //  w - znear
+        LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        LLVector4 heroSphere;
+
+        // indices used by probe:
+        //  [i][0] - cubemap array index for this probe
+        //  [i][1] - index into "refNeighbor" for probes that intersect this probe
+        //  [i][2] - number of probes  that intersect this probe, or -1 for no neighbors
+        //  [i][3] - priority (probe type stored in sign bit - positive for spheres, negative for boxes)
+        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
+
+        // list of neighbor indices
+        GLint refNeighbor[4096];
+
+        GLint refBucket[256][4]; // lookup table for which index to start with for the given Z depth
+        // numbrer of active refmaps
+        GLint refmapCount;
+
+        GLint heroShape;
+        GLint heroMipCount;
+        GLint heroProbeCount;
+    };
+
     // allocate an environment map of the given resolution
     LLReflectionMapManager();
 
@@ -113,6 +155,8 @@ public:
     // this if you don't intend to call updateUniforms directly. Call again
     // with false when done.
     void forceDefaultProbeAndUpdateUniforms(bool force = true);
+
+    size_t probeDataSize() const;
 
 private:
     friend class LLPipeline;
@@ -210,5 +254,7 @@ private:
     // if true, only update the default probe
     bool mPaused = false;
     F32 mResumeTime = 0.f;
+
+    ReflectionProbeData mProbeData;
 };
 

@@ -1012,60 +1012,18 @@ void LLReflectionMapManager::updateUniforms()
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
-    // structure for packing uniform buffer object
-    // see class3/deferred/reflectionProbeF.glsl
-    struct ReflectionProbeData
-    {
-        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of
-        // the box probe
-        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
-
-        LLMatrix4 heroBox;
-
-        // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
-        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
-
-        // extra parameters
-        //  x - irradiance scale
-        //  y - radiance scale
-        //  z - fade in
-        //  w - znear
-        LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
-
-        LLVector4 heroSphere;
-
-        // indices used by probe:
-        //  [i][0] - cubemap array index for this probe
-        //  [i][1] - index into "refNeighbor" for probes that intersect this probe
-        //  [i][2] - number of probes  that intersect this probe, or -1 for no neighbors
-        //  [i][3] - priority (probe type stored in sign bit - positive for spheres, negative for boxes)
-        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
-
-        // list of neighbor indices
-        GLint refNeighbor[4096];
-
-        GLint refBucket[256][4]; //lookup table for which index to start with for the given Z depth
-        // numbrer of active refmaps
-        GLint refmapCount;
-
-        GLint     heroShape;
-        GLint     heroMipCount;
-        GLint     heroProbeCount;
-    };
 
     mReflectionMaps.resize(mReflectionProbeCount);
     getReflectionMaps(mReflectionMaps);
-
-    ReflectionProbeData rpd;
 
     F32 minDepth[256];
 
     for (int i = 0; i < 256; ++i)
     {
-        rpd.refBucket[i][0] = mReflectionProbeCount;
-        rpd.refBucket[i][1] = mReflectionProbeCount;
-        rpd.refBucket[i][2] = mReflectionProbeCount;
-        rpd.refBucket[i][3] = mReflectionProbeCount;
+        mProbeData.refBucket[i][0] = mReflectionProbeCount;
+        mProbeData.refBucket[i][1] = mReflectionProbeCount;
+        mProbeData.refBucket[i][2] = mReflectionProbeCount;
+        mProbeData.refBucket[i][3] = mReflectionProbeCount;
         minDepth[i] = FLT_MAX;
     }
 
@@ -1111,7 +1069,7 @@ void LLReflectionMapManager::updateUniforms()
                 if (refmap->mMinDepth < minDepth[i])
                 {
                     minDepth[i] = refmap->mMinDepth;
-                    rpd.refBucket[i][0] = refmap->mProbeIndex;
+                    mProbeData.refBucket[i][0] = refmap->mProbeIndex;
                 }
             }
         }
@@ -1139,23 +1097,23 @@ void LLReflectionMapManager::updateUniforms()
                 }
             }
             modelview.affineTransform(refmap->mOrigin, oa);
-            rpd.refSphere[count].set(oa.getF32ptr());
-            rpd.refSphere[count].mV[3] = refmap->mRadius;
+            mProbeData.refSphere[count].set(oa.getF32ptr());
+            mProbeData.refSphere[count].mV[3] = refmap->mRadius;
         }
 
-        rpd.refIndex[count][0] = refmap->mCubeIndex;
+        mProbeData.refIndex[count][0] = refmap->mCubeIndex;
         llassert(nc % 4 == 0);
-        rpd.refIndex[count][1] = nc / 4;
-        rpd.refIndex[count][3] = refmap->mPriority;
+        mProbeData.refIndex[count][1] = nc / 4;
+        mProbeData.refIndex[count][3] = refmap->mPriority;
 
         // for objects that are reflection probes, use the volume as the influence volume of the probe
         // only possibile influence volumes are boxes and spheres, so detect boxes and treat everything else as spheres
-        if (refmap->getBox(rpd.refBox[count]))
+        if (refmap->getBox(mProbeData.refBox[count]))
         { // negate priority to indicate this probe has a box influence volume
-            rpd.refIndex[count][3] = -rpd.refIndex[count][3];
+            mProbeData.refIndex[count][3] = -mProbeData.refIndex[count][3];
         }
 
-        rpd.refParams[count].set(
+        mProbeData.refParams[count].set(
             llmax(minimum_ambiance, refmap->getAmbiance())*ambscale, // ambiance scale
             radscale, // radiance scale
             refmap->mFadeIn, // fade in weight
@@ -1182,7 +1140,7 @@ void LLReflectionMapManager::updateUniforms()
                 }
 
                 // this neighbor may be sampled
-                rpd.refNeighbor[ni++] = idx;
+                mProbeData.refNeighbor[ni++] = idx;
 
                 neighbor_count++;
                 if (neighbor_count >= max_neighbors)
@@ -1195,11 +1153,11 @@ void LLReflectionMapManager::updateUniforms()
         if (nc == ni)
         {
             //no neighbors, tag as empty
-            rpd.refIndex[count][1] = -1;
+            mProbeData.refIndex[count][1] = -1;
         }
         else
         {
-            rpd.refIndex[count][2] = ni - nc;
+            mProbeData.refIndex[count][2] = ni - nc;
 
             // move the cursor forward
             nc = ni;
@@ -1237,19 +1195,19 @@ void LLReflectionMapManager::updateUniforms()
     }
 #endif
 
-    rpd.refmapCount = count;
+    mProbeData.refmapCount = count;
 
     gPipeline.mHeroProbeManager.updateUniforms();
 
     // Get the hero data.
 
-    rpd.heroBox = gPipeline.mHeroProbeManager.mHeroData.heroBox;
-    rpd.heroSphere = gPipeline.mHeroProbeManager.mHeroData.heroSphere;
-    rpd.heroShape  = gPipeline.mHeroProbeManager.mHeroData.heroShape;
-    rpd.heroMipCount = gPipeline.mHeroProbeManager.mHeroData.heroMipCount;
-    rpd.heroProbeCount = gPipeline.mHeroProbeManager.mHeroData.heroProbeCount;
+    mProbeData.heroBox = gPipeline.mHeroProbeManager.mHeroData.heroBox;
+    mProbeData.heroSphere = gPipeline.mHeroProbeManager.mHeroData.heroSphere;
+    mProbeData.heroShape  = gPipeline.mHeroProbeManager.mHeroData.heroShape;
+    mProbeData.heroMipCount   = gPipeline.mHeroProbeManager.mHeroData.heroMipCount;
+    mProbeData.heroProbeCount = gPipeline.mHeroProbeManager.mHeroData.heroProbeCount;
 
-    //copy rpd into uniform buffer object
+    //copy mProbeData into uniform buffer object
     if (mUBO == 0)
     {
         glGenBuffers(1, &mUBO);
@@ -1258,7 +1216,7 @@ void LLReflectionMapManager::updateUniforms()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmsu - update buffer");
         glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(ReflectionProbeData), &rpd, GL_STREAM_DRAW);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(ReflectionProbeData), &mProbeData, GL_STREAM_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -1392,7 +1350,8 @@ void LLReflectionMapManager::renderDebug()
 
 void LLReflectionMapManager::initReflectionMaps()
 {
-    U32 count = LL_MAX_REFLECTION_PROBE_COUNT;
+    static LLCachedControl<U32> probe_count(gSavedSettings, "RenderReflectionProbeCount", 256U);
+    U32 count = probe_count();
 
     static LLCachedControl<U32> ref_probe_res(gSavedSettings, "RenderReflectionProbeResolution", 128U);
     U32 probe_resolution = nhpo2(llclamp(ref_probe_res(), (U32)64, (U32)512));
