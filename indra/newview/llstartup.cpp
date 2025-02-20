@@ -299,6 +299,9 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 
 void do_startup_frame()
 {
+    // Until after STATE_AGENT_SEND we don't get very many UDP packets to poll the socket,
+    // and after STATE_PRECACHE the LLAppViewer::idleNetwork() will do UDP processing,
+    // so we only bother to process between those two states.
     EStartupState state = LLStartUp::getStartupState();
     if (state > STATE_AGENT_SEND && state < STATE_PRECACHE)
     {
