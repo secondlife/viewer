@@ -2481,13 +2481,16 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
 
         bool lua_scripts_enabled = false;
 
-        // TODO: better handling of this
-        LLViewerRegion* region = gAgent.getRegion();
-        if (region && region->simulatorFeaturesReceived())
+        LLViewerObject* object = gObjectList.findObject(object_id);
+        if (object)
         {
-            LLSD simulatorFeatures;
-            region->getSimulatorFeatures(simulatorFeatures);
-            lua_scripts_enabled = simulatorFeatures["LuaScriptsEnabled"].asBoolean();
+            LLViewerRegion* region = object->getRegion();
+            if (region && region->simulatorFeaturesReceived())
+            {
+                LLSD simulatorFeatures;
+                region->getSimulatorFeatures(simulatorFeatures);
+                lua_scripts_enabled = simulatorFeatures["LuaScriptsEnabled"].asBoolean();
+            }
         }
 
         if (LLScrollListItem* luau_item = instance->mCompileTarget->findItemByValue("luau"))
