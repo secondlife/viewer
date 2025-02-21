@@ -2465,7 +2465,7 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
             }
             else
             {
-                compile_target = "lsl_luau";
+                compile_target = "lsl-luau";
             }
         }
         else if (mono)
@@ -2497,7 +2497,7 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
         {
             luau_item->setEnabled(lua_scripts_enabled);
         }
-        if (LLScrollListItem* lsl_luau_item = instance->mCompileTarget->findItemByValue("lsl_luau"))
+        if (LLScrollListItem* lsl_luau_item = instance->mCompileTarget->findItemByValue("lsl-luau"))
         {
             lsl_luau_item->setEnabled(lua_scripts_enabled);
         }
