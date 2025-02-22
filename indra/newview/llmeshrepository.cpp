@@ -1244,25 +1244,57 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 }
 
 void LLMeshRepoThread::loadMeshLODs(const lod_list_t& list)
-{ //could be called from any thread
+{ // expectes mMutex to be locked
     for (auto lod_pair : list)
     {
         const LLVolumeParams& mesh_params = lod_pair.first;
         const LLUUID& mesh_id = mesh_params.getSculptID();
         S32 lod = lod_pair.second;
-        loadMeshLOD(mesh_id, mesh_params, lod);
+
+        if (hasHeader(mesh_id))
+        { //if we have the header, request LOD byte range
+
+            LODRequest req(mesh_params, lod);
+            {
+                mLODReqQ.push(req);
+                LLMeshRepository::sLODProcessing++;
+            }
+        }
+        else
+        {
+            LLMutexLock lock(mPendingMutex);
+            HeaderRequest req(mesh_params);
+            pending_lod_map::iterator pending = mPendingLOD.find(mesh_id);
+
+            if (pending != mPendingLOD.end())
+            {
+                //append this lod request to existing header request
+                if (lod < LLModel::NUM_LODS && lod >= 0)
+                {
+                    pending->second[lod]++;
+                }
+                else
+                {
+                    LL_WARNS(LOG_MESH) << "Invalid LOD request: " << lod << "for mesh" << mesh_id << LL_ENDL;
+                }
+                llassert_msg(lod < LLModel::NUM_LODS, "Requested lod is out of bounds");
+            }
+            else
+            {
+                //if no header request is pending, fetch header
+                auto& array = mPendingLOD[mesh_id];
+                std::fill(array.begin(), array.end(), 0);
+                array[lod]++;
+
+                mHeaderReqQ.push(req);
+            }
+        }
     }
 }
 
 void LLMeshRepoThread::loadMeshLOD(const LLUUID& mesh_id, const LLVolumeParams& mesh_params, S32 lod)
 {
-    bool has_header = false;
-    {
-        LLMutexLock header_lock(mHeaderMutex);
-        mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
-        has_header = iter != mMeshHeader.end();
-    }
-    if (has_header)
+    if (hasHeader(mesh_id))
     { //if we have the header, request LOD byte range
 
         LODRequest req(mesh_params, lod);

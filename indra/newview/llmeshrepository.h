@@ -520,6 +520,7 @@ public:
     void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 
     typedef std::vector<std::pair<const LLVolumeParams&, S32> > lod_list_t;
+    // Mutex:  must be holding mMutex when called
     void loadMeshLODs(const lod_list_t& mesh_vect);
 
     bool fetchMeshHeader(const LLVolumeParams& mesh_params);
