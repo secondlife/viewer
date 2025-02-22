@@ -171,7 +171,6 @@ elseif(DARWIN)
     set(release_files
         libndofdev.dylib
         libSDL2.dylib
-        libSDL2-2.0.dylib
        )
 
     if(LLCOMMON_LINK_SHARED)
