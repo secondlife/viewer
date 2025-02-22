@@ -4972,7 +4972,7 @@ bool LLMeshRepository::hasSkinInfo(const LLUUID& mesh_id)
     return false;
 }
 
-bool LLMeshRepository::hasHeader(const LLUUID& mesh_id)
+bool LLMeshRepository::hasHeader(const LLUUID& mesh_id) const
 {
     if (mesh_id.isNull())
     {
@@ -4982,13 +4982,13 @@ bool LLMeshRepository::hasHeader(const LLUUID& mesh_id)
     return mThread->hasHeader(mesh_id);
 }
 
-bool LLMeshRepoThread::hasPhysicsShapeInHeader(const LLUUID& mesh_id)
+bool LLMeshRepoThread::hasPhysicsShapeInHeader(const LLUUID& mesh_id) const
 {
     LLMutexLock lock(mHeaderMutex);
-    mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+    mesh_header_map::const_iterator iter = mMeshHeader.find(mesh_id);
     if (iter != mMeshHeader.end() && iter->second.mHeaderSize > 0)
     {
-        LLMeshHeader &mesh = iter->second;
+        const LLMeshHeader &mesh = iter->second;
         if (mesh.mPhysicsMeshSize > 0)
         {
             return true;
@@ -4998,13 +4998,13 @@ bool LLMeshRepoThread::hasPhysicsShapeInHeader(const LLUUID& mesh_id)
     return false;
 }
 
-bool LLMeshRepoThread::hasSkinInfoInHeader(const LLUUID& mesh_id)
+bool LLMeshRepoThread::hasSkinInfoInHeader(const LLUUID& mesh_id) const
 {
     LLMutexLock lock(mHeaderMutex);
-    mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+    mesh_header_map::const_iterator iter = mMeshHeader.find(mesh_id);
     if (iter != mMeshHeader.end() && iter->second.mHeaderSize > 0)
     {
-        LLMeshHeader& mesh = iter->second;
+        const LLMeshHeader& mesh = iter->second;
         if (mesh.mSkinOffset >= 0
             && mesh.mSkinSize > 0)
         {
@@ -5015,10 +5015,10 @@ bool LLMeshRepoThread::hasSkinInfoInHeader(const LLUUID& mesh_id)
     return false;
 }
 
-bool LLMeshRepoThread::hasHeader(const LLUUID& mesh_id)
+bool LLMeshRepoThread::hasHeader(const LLUUID& mesh_id) const
 {
     LLMutexLock lock(mHeaderMutex);
-    mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+    mesh_header_map::const_iterator iter = mMeshHeader.find(mesh_id);
     return iter != mMeshHeader.end();
 }
 
@@ -5033,13 +5033,13 @@ void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3
     mUploadWaitList.push_back(thread);
 }
 
-S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
+S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
     if (mThread && mesh_id.notNull() && LLPrimitive::NO_LOD != lod)
     {
         LLMutexLock lock(mThread->mHeaderMutex);
-        LLMeshRepoThread::mesh_header_map::iterator iter = mThread->mMeshHeader.find(mesh_id);
+        LLMeshRepoThread::mesh_header_map::const_iterator iter = mThread->mMeshHeader.find(mesh_id);
         if (iter != mThread->mMeshHeader.end() && iter->second.mHeaderSize > 0)
         {
             const LLMeshHeader& header = iter->second;
@@ -5340,7 +5340,7 @@ bool LLMeshCostData::init(const LLMeshHeader& header)
 }
 
 
-S32 LLMeshCostData::getSizeByLOD(S32 lod)
+S32 LLMeshCostData::getSizeByLOD(S32 lod) const
 {
     if (llclamp(lod,0,3) != lod)
     {
@@ -5349,12 +5349,12 @@ S32 LLMeshCostData::getSizeByLOD(S32 lod)
     return mSizeByLOD[lod];
 }
 
-S32 LLMeshCostData::getSizeTotal()
+S32 LLMeshCostData::getSizeTotal() const
 {
     return mSizeByLOD[0] + mSizeByLOD[1] + mSizeByLOD[2] + mSizeByLOD[3];
 }
 
-F32 LLMeshCostData::getEstTrisByLOD(S32 lod)
+F32 LLMeshCostData::getEstTrisByLOD(S32 lod) const
 {
     if (llclamp(lod,0,3) != lod)
     {
@@ -5363,12 +5363,12 @@ F32 LLMeshCostData::getEstTrisByLOD(S32 lod)
     return mEstTrisByLOD[lod];
 }
 
-F32 LLMeshCostData::getEstTrisMax()
+F32 LLMeshCostData::getEstTrisMax() const
 {
     return llmax(mEstTrisByLOD[0], mEstTrisByLOD[1], mEstTrisByLOD[2], mEstTrisByLOD[3]);
 }
 
-F32 LLMeshCostData::getRadiusWeightedTris(F32 radius)
+F32 LLMeshCostData::getRadiusWeightedTris(F32 radius) const
 {
     F32 max_distance = 512.f;
 
@@ -5412,7 +5412,7 @@ F32 LLMeshCostData::getRadiusWeightedTris(F32 radius)
     return weighted_avg;
 }
 
-F32 LLMeshCostData::getEstTrisForStreamingCost()
+F32 LLMeshCostData::getEstTrisForStreamingCost() const
 {
     LL_DEBUGS("StreamingCost") << "tris_by_lod: "
                                << mEstTrisByLOD[0] << ", "
@@ -5439,13 +5439,13 @@ F32 LLMeshCostData::getEstTrisForStreamingCost()
     return charged_tris;
 }
 
-F32 LLMeshCostData::getRadiusBasedStreamingCost(F32 radius)
+F32 LLMeshCostData::getRadiusBasedStreamingCost(F32 radius) const
 {
     static LLCachedControl<U32> mesh_triangle_budget(gSavedSettings, "MeshTriangleBudget");
     return getRadiusWeightedTris(radius)/mesh_triangle_budget*15000.f;
 }
 
-F32 LLMeshCostData::getTriangleBasedStreamingCost()
+F32 LLMeshCostData::getTriangleBasedStreamingCost() const
 {
     F32 result = ANIMATED_OBJECT_COST_PER_KTRI * 0.001f * getEstTrisForStreamingCost();
     return result;

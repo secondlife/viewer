@@ -530,9 +530,9 @@ public:
     bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
     bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
     EMeshProcessingResult physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
-    bool hasPhysicsShapeInHeader(const LLUUID& mesh_id);
-    bool hasSkinInfoInHeader(const LLUUID& mesh_id);
-    bool hasHeader(const LLUUID& mesh_id);
+    bool hasPhysicsShapeInHeader(const LLUUID& mesh_id) const;
+    bool hasSkinInfoInHeader(const LLUUID& mesh_id) const;
+    bool hasHeader(const LLUUID& mesh_id) const;
 
     void notifyLoadedMeshes();
     S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
@@ -699,35 +699,35 @@ public:
     bool init(const LLMeshHeader& header);
 
     // Size for given LOD
-    S32 getSizeByLOD(S32 lod);
+    S32 getSizeByLOD(S32 lod) const;
 
     // Sum of all LOD sizes.
-    S32 getSizeTotal();
+    S32 getSizeTotal() const;
 
     // Estimated triangle counts for the given LOD.
-    F32 getEstTrisByLOD(S32 lod);
+    F32 getEstTrisByLOD(S32 lod) const;
 
     // Estimated triangle counts for the largest LOD. Typically this
     // is also the "high" LOD, but not necessarily.
-    F32 getEstTrisMax();
+    F32 getEstTrisMax() const;
 
     // Triangle count as computed by original streaming cost
     // formula. Triangles in each LOD are weighted based on how
     // frequently they will be seen.
     // This was called "unscaled_value" in the original getStreamingCost() functions.
-    F32 getRadiusWeightedTris(F32 radius);
+    F32 getRadiusWeightedTris(F32 radius) const;
 
     // Triangle count used by triangle-based cost formula. Based on
     // triangles in highest LOD plus potentially partial charges for
     // lower LODs depending on complexity.
-    F32 getEstTrisForStreamingCost();
+    F32 getEstTrisForStreamingCost() const;
 
     // Streaming cost. This should match the server-side calculation
     // for the corresponding volume.
-    F32 getRadiusBasedStreamingCost(F32 radius);
+    F32 getRadiusBasedStreamingCost(F32 radius) const;
 
     // New streaming cost formula, currently only used for animated objects.
-    F32 getTriangleBasedStreamingCost();
+    F32 getTriangleBasedStreamingCost() const;
 
 private:
     // From the "size" field of the mesh header. LOD 0=lowest, 3=highest.
@@ -793,7 +793,7 @@ public:
     void fetchPhysicsShape(const LLUUID& mesh_id);
     bool hasPhysicsShape(const LLUUID& mesh_id);
     bool hasSkinInfo(const LLUUID& mesh_id);
-    bool hasHeader(const LLUUID& mesh_id);
+    bool hasHeader(const LLUUID& mesh_id) const;
 
     void buildHull(const LLVolumeParams& params, S32 detail);
     void buildPhysicsMesh(LLModel::Decomposition& decomp);
@@ -807,7 +807,7 @@ public:
                      LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()),
                      LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 
-    S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
+    S32 getMeshSize(const LLUUID& mesh_id, S32 lod) const;
 
     // Quiescent timer management, main thread only.
     static void metricsStart();
