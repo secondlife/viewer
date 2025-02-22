@@ -25,7 +25,7 @@
 
 // class3/environment/waterF.glsl
 
-#define WATER_MINIMAL 1
+#define WATER_MINIMAL_PLUS 1
 
 out vec4 frag_color;
 
@@ -255,7 +255,7 @@ void main()
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 sunlit_linear = (sunlit);
     float fade = 1;
 #ifdef TRANSPARENT_WATER
     float depth = texture(depthMap, distort).r;
@@ -315,7 +315,7 @@ void main()
     vec3 diffPunc = vec3(0);
     vec3 specPunc = vec3(0);
 
-    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
+    pbrPunctual(diffuseColor, specularColor, perceptualRoughness * perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
     radiance *= df2.y;
