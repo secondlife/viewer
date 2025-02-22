@@ -776,10 +776,10 @@ public:
 
     void unregisterMesh(LLVOVolume* volume);
     //mesh management functions
-    S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0, S32 last_lod = -1);
+    S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 new_lod = 0, S32 last_lod = -1);
 
     void notifyLoadedMeshes();
-    void notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume);
+    void notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume, S32 lod);
     void notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 lod);
     void notifySkinInfoReceived(LLMeshSkinInfo* info);
     void notifySkinInfoUnavailable(const LLUUID& info);
@@ -814,7 +814,7 @@ public:
     static void metricsProgress(unsigned int count);
     static void metricsUpdate();
 
-    typedef boost::unordered_map<LLUUID, std::vector<LLVOVolume*> > mesh_load_map;
+    typedef std::unordered_map<LLUUID, std::vector<LLVOVolume*> > mesh_load_map;
     mesh_load_map mLoadingMeshes[4];
 
     typedef std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>> skin_map;
@@ -829,7 +829,7 @@ public:
     pending_requests_vec mPendingRequests;
 
     //list of mesh ids awaiting skin info
-    typedef boost::unordered_map<LLUUID, std::vector<LLVOVolume*> > skin_load_map;
+    typedef std::unordered_map<LLUUID, std::vector<LLVOVolume*> > skin_load_map;
     skin_load_map mLoadingSkins;
 
     //list of mesh ids awaiting decompositions

@@ -3290,12 +3290,11 @@ void LLMeshRepoThread::notifyLoadedMeshes()
             {
                 if (mesh.mVolume->getNumVolumeFaces() > 0)
                 {
-                    gMeshRepo.notifyMeshLoaded(mesh.mMeshParams, mesh.mVolume);
+                    gMeshRepo.notifyMeshLoaded(mesh.mMeshParams, mesh.mVolume, mesh.mLOD);
                 }
                 else
                 {
-                    gMeshRepo.notifyMeshUnavailable(mesh.mMeshParams,
-                        LLVolumeLODGroup::getVolumeDetailFromScale(mesh.mVolume->getDetail()));
+                    gMeshRepo.notifyMeshUnavailable(mesh.mMeshParams, mesh.mLOD);
                 }
             }
         }
@@ -4219,24 +4218,24 @@ void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
     }
 }
 
-S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
+S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 new_lod, S32 last_lod)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
     // Manage time-to-load metrics for mesh download operations.
     metricsProgress(1);
 
-    if (detail < 0 || detail >= LLVolumeLODGroup::NUM_LODS)
+    if (new_lod < 0 || new_lod >= LLVolumeLODGroup::NUM_LODS)
     {
-        return detail;
+        return new_lod;
     }
 
     {
         LLMutexLock lock(mMeshMutex);
         //add volume to list of loading meshes
         const auto& mesh_id = mesh_params.getSculptID();
-        mesh_load_map::iterator iter = mLoadingMeshes[detail].find(mesh_id);
-        if (iter != mLoadingMeshes[detail].end())
+        mesh_load_map::iterator iter = mLoadingMeshes[new_lod].find(mesh_id);
+        if (iter != mLoadingMeshes[new_lod].end())
         { //request pending for this mesh, append volume id to list
             auto it = std::find(iter->second.begin(), iter->second.end(), vobj);
             if (it == iter->second.end()) {
@@ -4246,8 +4245,8 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
         else
         {
             //first request for this mesh
-            mLoadingMeshes[detail][mesh_id].push_back(vobj);
-            mPendingRequests.emplace_back(new PendingRequestLOD(mesh_params, detail));
+            mLoadingMeshes[new_lod][mesh_id].push_back(vobj);
+            mPendingRequests.emplace_back(new PendingRequestLOD(mesh_params, new_lod));
             LLMeshRepository::sLODPending++;
         }
     }
@@ -4276,7 +4275,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
             }
 
             //next, see what the next lowest LOD available might be
-            for (S32 i = detail-1; i >= 0; --i)
+            for (S32 i = new_lod -1; i >= 0; --i)
             {
                 LLVolume* lod = group->refLOD(i);
                 if (lod && lod->isMeshAssetLoaded() && lod->getNumVolumeFaces() > 0)
@@ -4289,7 +4288,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
             }
 
             //no lower LOD is a available, is a higher lod available?
-            for (S32 i = detail+1; i < LLVolumeLODGroup::NUM_LODS; ++i)
+            for (S32 i = new_lod+1; i < LLVolumeLODGroup::NUM_LODS; ++i)
             {
                 LLVolume* lod = group->refLOD(i);
                 if (lod && lod->isMeshAssetLoaded() && lod->getNumVolumeFaces() > 0)
@@ -4303,7 +4302,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
         }
     }
 
-    return detail;
+    return new_lod;
 }
 
 F32 calculate_score(LLVOVolume* object)
@@ -4699,15 +4698,14 @@ void LLMeshRepository::notifyDecompositionReceived(LLModel::Decomposition* decom
     }
 }
 
-void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume)
+void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume, S32 lod)
 { //called from main thread
-    S32 detail = LLVolumeLODGroup::getVolumeDetailFromScale(volume->getDetail());
 
     //get list of objects waiting to be notified this mesh is loaded
     const auto& mesh_id = mesh_params.getSculptID();
-    mesh_load_map::iterator obj_iter = mLoadingMeshes[detail].find(mesh_id);
+    mesh_load_map::iterator obj_iter = mLoadingMeshes[lod].find(mesh_id);
 
-    if (volume && obj_iter != mLoadingMeshes[detail].end())
+    if (volume && obj_iter != mLoadingMeshes[lod].end())
     {
         //make sure target volume is still valid
         if (volume->getNumVolumeFaces() <= 0)
@@ -4717,6 +4715,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
         }
 
         { //update system volume
+            S32 detail = LLVolumeLODGroup::getVolumeDetailFromScale(volume->getDetail());
             LLVolume* sys_volume = LLPrimitive::getVolumeManager()->refVolume(mesh_params, detail);
             if (sys_volume)
             {
@@ -4740,7 +4739,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
             }
         }
 
-        mLoadingMeshes[detail].erase(obj_iter);
+        mLoadingMeshes[lod].erase(obj_iter);
 
         LLViewerStatsRecorder::instance().meshLoaded();
     }
