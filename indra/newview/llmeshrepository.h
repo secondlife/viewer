@@ -519,10 +519,6 @@ public:
     void lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
     void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 
-    typedef std::vector<std::pair<const LLVolumeParams&, S32> > lod_list_t;
-    // Mutex:  must be holding mMutex when called
-    void loadMeshLODs(const lod_list_t& mesh_vect);
-
     bool fetchMeshHeader(const LLVolumeParams& mesh_params);
     bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
     EMeshProcessingResult headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size, U32 flags = 0);
@@ -781,7 +777,7 @@ public:
 
     void notifyLoadedMeshes();
     void notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVolume* volume, S32 lod);
-    void notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 lod);
+    void notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 request_lod, S32 volume_lod);
     void notifySkinInfoReceived(LLMeshSkinInfo* info);
     void notifySkinInfoUnavailable(const LLUUID& info);
     void notifyDecompositionReceived(LLModel::Decomposition* info);
