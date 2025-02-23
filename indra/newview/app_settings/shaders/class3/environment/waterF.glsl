@@ -255,7 +255,7 @@ void main()
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
 
-    vec3 sunlit_linear = (sunlit);
+    vec3 sunlit_linear = sunlit;
     float fade = 1;
 #ifdef TRANSPARENT_WATER
     float depth = texture(depthMap, distort).r;
