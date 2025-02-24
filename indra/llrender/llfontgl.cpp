@@ -110,9 +110,10 @@ S32 LLFontGL::getNumFaces(const std::string& filename)
     return mFontFreetype->getNumFaces(filename);
 }
 
-S32 LLFontGL::getKnownGlyphCount() const
+S32 LLFontGL::getCacheGeneration() const
 {
-    return mFontFreetype ? mFontFreetype->getAddedGlyphs() : 0;
+    const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
+    return font_bitmap_cache->getCacheGeneration();
 }
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,

@@ -122,7 +122,7 @@ private:
 
     // Adding new characters to bitmap cache can alter value from getBitmapWidth();
     // which alters whole string. So rerender when new characters were added to cache.
-    S32 mLastFontGlyphCount = 0;
+    S32 mLastFontCacheGen = 0;
 
     static bool sEnableBufferCollection;
 };
