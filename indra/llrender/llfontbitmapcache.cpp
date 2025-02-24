@@ -141,6 +141,7 @@ bool LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
     bitmap_num = getNumBitmaps(bitmap_type) - 1;
 
     mCurrentOffsetX[bitmap_idx] += width + 1;
+    mGeneration++;
 
     return true;
 }
@@ -168,6 +169,7 @@ void LLFontBitmapCache::reset()
 
     mBitmapWidth = 0;
     mBitmapHeight = 0;
+    mGeneration++;
 }
 
 //static
