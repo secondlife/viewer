@@ -213,7 +213,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     else if (tex_b && !tex_a)
     {
         shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_b);
-        tex_a->setFilteringOption(filter_mode);
+        tex_b->setFilteringOption(filter_mode);
         blend_factor = 0; // only one tex provided, no blending
     }
     else if (tex_b != tex_a)
