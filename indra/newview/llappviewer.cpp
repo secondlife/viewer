@@ -1406,8 +1406,6 @@ bool LLAppViewer::doFrame()
                 LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df suspend");
                 // give listeners a chance to run
                 llcoro::suspend();
-                // if one of our coroutines threw an uncaught exception, rethrow it now
-                LLCoros::instance().rethrow();
             }
         }
 
@@ -5609,6 +5607,16 @@ void LLAppViewer::forceErrorCoroutineCrash()
 {
     LL_WARNS() << "Forcing a crash in LLCoros" << LL_ENDL;
     LLCoros::instance().launch("LLAppViewer::crashyCoro", [] {throw LLException("A deliberate crash from LLCoros"); });
+}
+
+void LLAppViewer::forceErrorCoroprocedureCrash()
+{
+    LL_WARNS() << "Forcing a crash in LLCoprocedureManager" << LL_ENDL;
+    LLCoprocedureManager::instance().enqueueCoprocedure("Upload", "DeliberateCrash",
+        [](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t&, const LLUUID&)
+    {
+        throw LLException("This is a deliberate crash from LLCoprocedureManager");
+    });
 }
 
 void LLAppViewer::forceErrorThreadCrash()

@@ -466,7 +466,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
                                               << ") in pool '" << mPoolName << "'"));
             // must NOT omit this or we deplete the pool
             mActiveCoprocsCount--;
-            continue;
+            throw;
         }
 
         LL_DEBUGS("CoProcMgr") << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;

@@ -175,6 +175,7 @@ public:
     virtual void forceErrorOSSpecificException();
     virtual void forceErrorDriverCrash();
     virtual void forceErrorCoroutineCrash();
+    virtual void forceErrorCoroprocedureCrash();
     virtual void forceErrorThreadCrash();
 
     // The list is found in app_settings/settings_files.xml
