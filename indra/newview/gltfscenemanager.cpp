@@ -372,6 +372,7 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 //static
 void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
 {
+    const LLUUID asset_id(id); // make a copy, reference might not last
     LLAppViewer::instance()->postToMainCoro([=]()
         {
             LLViewerObject* obj = (LLViewerObject*)user_data;
@@ -399,7 +400,7 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
                             }
                             else
                             {
-                                LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << id << ". Marking as missing." << LL_ENDL;
+                                LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << asset_id << ". Marking as missing." << LL_ENDL;
                                 obj->mIsGLTFAssetMissing = true;
                                 obj->mGLTFAsset = nullptr;
                             }
@@ -410,7 +411,7 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
             }
             else
             {
-                LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << ". Marking as missing." << LL_ENDL;
+                LL_WARNS("GLTF") << "Failed to load GLTF asset: " << asset_id << ". Marking as missing." << LL_ENDL;
                 obj->mIsGLTFAssetMissing = true;
                 obj->unref();
             }
