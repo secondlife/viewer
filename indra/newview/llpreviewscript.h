@@ -99,6 +99,7 @@ public:
 
     void            initMenu();
     void            processKeywords();
+    void            processKeywords(bool luau_language);
 
     virtual void    draw();
     /*virtual*/ bool    postBuild();
