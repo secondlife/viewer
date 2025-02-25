@@ -118,7 +118,7 @@ public:
                              const LLWString& text,
                              class LLTextEditor& editor,
                              LLStyleConstSP style);
-    void        initialize(LLSD SyntaxXML);
+    void        initialize(LLSD SyntaxXML, bool luau_language = false);
     void        processTokens();
 
     // Add the token as described
@@ -189,6 +189,7 @@ protected:
 
     bool        mLoaded;
     LLSD        mSyntax;
+    bool        mLuauLanguage;
     word_token_map_t mWordTokenMap;
     typedef std::deque<LLKeywordToken*> token_list_t;
     token_list_t mLineTokenList;

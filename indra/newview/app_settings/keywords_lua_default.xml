@@ -6,46 +6,106 @@
          <key>do</key>
          <map>
             <key>tooltip</key>
-            <string>do / while loop\ndo {\n...\n} while (&lt;condition&gt;);</string>
-         </map>
-         <key>else</key>
-         <map>
-            <key>tooltip</key>
-            <string>if / else block\nif (&lt;condition&gt;) {\n...\n[} else [if (&lt;condition&gt;) {\n...]]\n}</string>
-         </map>
-         <key>for</key>
-         <map>
-            <key>tooltip</key>
-            <string>for loop\nfor (&lt;initializer&gt;; &lt;condition&gt;; &lt;post-iteration-statement&gt;)\n{ ...\n}</string>
+            <string>Lua do block: do ... end</string>
          </map>
          <key>if</key>
          <map>
             <key>tooltip</key>
-            <string>if / else block\nif (&lt;condition&gt;) {\n...\n[} else [if (&lt;condition&gt;) {\n...]]\n}</string>
+            <string>Lua if statement: if condition then ... end</string>
          </map>
-         <key>jump</key>
+         <key>then</key>
          <map>
             <key>tooltip</key>
-            <string>jump statement\njump &lt;label&gt;</string>
+            <string>Lua then keyword: introduces the block executed when an if condition is true.</string>
+         </map>
+         <key>else</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua else keyword: specifies the alternative block in an if/else statement.</string>
+         </map>
+         <key>elseif</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua elseif keyword: provides an additional conditional branch in an if statement.</string>
+         </map>
+         <key>end</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua end keyword: closes control structures like if, do, while, for, and function.</string>
+         </map>
+         <key>for</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua for loop: for var = start, end, step do ... end</string>
+         </map>
+         <key>goto</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua goto statement: jumps to a specified label.</string>
          </map>
          <key>return</key>
          <map>
             <key>tooltip</key>
-            <string>Leave current event or function.\nreturn [&lt;variable&gt;];\nOptionally pass back a variable's value, from a function.</string>
-         </map>
-         <key>state</key>
-         <map>
-            <key>tooltip</key>
-            <string>state &lt;target&gt;\nIf the target state is not the same as the current one, change to the target state.</string>
+            <string>Lua return statement: returns a value from a function.</string>
          </map>
          <key>while</key>
          <map>
             <key>tooltip</key>
-            <string>while loop\nwhile (&lt;condition&gt;) {\n,,,\n}</string>
+            <string>Lua while loop: while condition do ... end</string>
+         </map>
+         <key>repeat</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua repeat loop: repeat ... until condition</string>
+         </map>
+         <key>until</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua until keyword: ends a repeat loop by testing a condition.</string>
+         </map>
+         <key>function</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua function keyword: begins a function definition.</string>
+         </map>
+         <key>break</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua break statement: exits the nearest loop.</string>
+         </map>
+         <key>local</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua local keyword: declares a local variable or function.</string>
+         </map>
+         <key>in</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua in keyword: used in generic for loops to iterate over elements.</string>
+         </map>
+         <key>not</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua not operator: performs logical negation.</string>
+         </map>
+         <key>and</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua and operator: performs logical conjunction.</string>
+         </map>
+         <key>or</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua or operator: performs logical disjunction.</string>
          </map>
       </map>
       <key>types</key>
       <map>
+         <key>boolean</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua boolean: represents a true or false value.</string>
+         </map>
          <key>float</key>
          <map>
             <key>tooltip</key>
@@ -89,6 +149,23 @@
       </map>
       <key>constants</key>
       <map>
+         <!-- Lua inbuilt-->
+         <key>nil</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua nil: represents the absence of a useful value.</string>
+         </map>
+         <key>true</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua true: Boolean true value.</string>
+         </map>
+         <key>false</key>
+         <map>
+            <key>tooltip</key>
+            <string>Lua false: Boolean false value.</string>
+         </map>
+         <!-- Same as for LSL -->
          <key>ACTIVE</key>
          <map>
             <key>type</key>
@@ -7375,9 +7452,9 @@
             <string>Triggered by llTransferMoney() function.</string>
          </map>
       </map>
-      <key>functions</key>
+      <key>functions</key><!-- TODO: Adjust functions to match the new format -->
       <map>
-         <key>llAbs</key>
+         <key>ll.Abs</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7400,7 +7477,7 @@
             <key>tooltip</key>
             <string>Returns the absolute (positive) version of Value.</string>
          </map>
-         <key>llAcos</key>
+         <key>ll.Acos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7423,7 +7500,7 @@
             <key>tooltip</key>
             <string>Returns the arc-cosine of Value, in radians.</string>
          </map>
-         <key>llAddToLandBanList</key>
+         <key>ll.AddToLandBanList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7455,7 +7532,7 @@
             <key>tooltip</key>
             <string>Add avatar ID to the parcel ban list for the specified number of Hours.\nA value of 0 for Hours will add the agent indefinitely.\nThe smallest value that Hours will accept is 0.01; anything smaller will be seen as 0.\nWhen values that small are used, it seems the function bans in approximately 30 second increments (Probably 36 second increments, as 0.01 of an hour is 36 seconds).\nResidents teleporting to a parcel where they are banned will be redirected to a neighbouring parcel.</string>
          </map>
-         <key>llAddToLandPassList</key>
+         <key>ll.AddToLandPassList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7487,7 +7564,7 @@
             <key>tooltip</key>
             <string>Add avatar ID to the land pass list, for a duration of Hours.</string>
          </map>
-         <key>llAdjustSoundVolume</key>
+         <key>ll.AdjustSoundVolume</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7510,7 +7587,7 @@
             <key>tooltip</key>
             <string>Adjusts the volume (0.0 - 1.0) of the currently playing attached sound.\nThis function has no effect on sounds started with llTriggerSound.</string>
          </map>
-         <key>llAgentInExperience</key>
+         <key>ll.AgentInExperience</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7535,7 +7612,7 @@
                Returns TRUE if the agent is in the Experience and the Experience can run in the current location.
             </string>
          </map>
-         <key>llAllowInventoryDrop</key>
+         <key>ll.AllowInventoryDrop</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7558,7 +7635,7 @@
             <key>tooltip</key>
             <string>If Flag == TRUE, users without object modify permissions can still drop inventory items into the object.</string>
          </map>
-         <key>llAngleBetween</key>
+         <key>ll.AngleBetween</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7590,7 +7667,7 @@
             <key>tooltip</key>
             <string>Returns the angle, in radians, between rotations Rot1 and Rot2.</string>
          </map>
-         <key>llApplyImpulse</key>
+         <key>ll.ApplyImpulse</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7622,7 +7699,7 @@
             <key>tooltip</key>
             <string>Applies impulse to the object.\nIf Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.\nThis function only works on physical objects.</string>
          </map>
-         <key>llApplyRotationalImpulse</key>
+         <key>ll.ApplyRotationalImpulse</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7654,7 +7731,7 @@
             <key>tooltip</key>
             <string>Applies rotational impulse to the object.\nIf Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.\nThis function only works on physical objects.</string>
          </map>
-         <key>llAsin</key>
+         <key>ll.Asin</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7677,7 +7754,7 @@
             <key>tooltip</key>
             <string>Returns the arc-sine, in radians, of Value.</string>
          </map>
-         <key>llAtan2</key>
+         <key>ll.Atan2</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7709,7 +7786,7 @@
             <key>tooltip</key>
             <string>Returns the arc-tangent2 of y, x.</string>
          </map>
-         <key>llAttachToAvatar</key>
+         <key>ll.AttachToAvatar</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7732,7 +7809,7 @@
             <key>tooltip</key>
             <string>Attach to avatar at point AttachmentPoint.\nRequires the PERMISSION_ATTACH runtime permission.</string>
          </map>
-         <key>llAttachToAvatarTemp</key>
+         <key>ll.AttachToAvatarTemp</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -7755,7 +7832,7 @@
             <key>tooltip</key>
             <string>Follows the same convention as llAttachToAvatar, with the exception that the object will not create new inventory for the user, and will disappear on detach or disconnect.</string>
          </map>
-         <key>llAvatarOnLinkSitTarget</key>
+         <key>ll.AvatarOnLinkSitTarget</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7778,7 +7855,7 @@
             <key>tooltip</key>
             <string>If an avatar is sitting on the link's sit target, return the avatar's key, NULL_KEY otherwise.\nReturns a key that is the UUID of the user seated on the specified link's prim.</string>
          </map>
-         <key>llAvatarOnSitTarget</key>
+         <key>ll.AvatarOnSitTarget</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7791,7 +7868,7 @@
             <key>tooltip</key>
             <string>If an avatar is seated on the sit target, returns the avatar's key, otherwise NULL_KEY.\nThis only will detect avatars sitting on sit targets defined with llSitTarget.</string>
          </map>
-         <key>llAxes2Rot</key>
+         <key>ll.Axes2Rot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7832,7 +7909,7 @@
             <key>tooltip</key>
             <string>Returns the rotation represented by coordinate axes Forward, Left, and Up.</string>
          </map>
-         <key>llAxisAngle2Rot</key>
+         <key>ll.AxisAngle2Rot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7864,7 +7941,7 @@
             <key>tooltip</key>
             <string>Returns the rotation that is a generated Angle about Axis.</string>
          </map>
-         <key>llBase64ToInteger</key>
+         <key>ll.Base64ToInteger</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7887,7 +7964,7 @@
             <key>tooltip</key>
             <string>Returns an integer that is the Text, Base64 decoded as a big endian integer.\nReturns zero if Text is longer then 8 characters. If Text contains fewer then 6 characters, the return value is unpredictable.</string>
          </map>
-         <key>llBase64ToString</key>
+         <key>ll.Base64ToString</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7910,7 +7987,7 @@
             <key>tooltip</key>
             <string>Converts a Base64 string to a conventional string.\nIf the conversion creates any unprintable characters, they are converted to question marks.</string>
          </map>
-         <key>llBreakAllLinks</key>
+         <key>ll.BreakAllLinks</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7923,7 +8000,7 @@
             <key>tooltip</key>
             <string>De-links all prims in the link set (requires permission PERMISSION_CHANGE_LINKS be set).</string>
          </map>
-         <key>llBreakLink</key>
+         <key>ll.BreakLink</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -7946,7 +8023,7 @@
             <key>tooltip</key>
             <string>De-links the prim with the given link number (requires permission PERMISSION_CHANGE_LINKS be set).</string>
          </map>
-         <key>llCastRay</key>
+         <key>ll.CastRay</key>
          <map>
             <key>energy</key>
             <real/>
@@ -7987,7 +8064,7 @@
             <key>tooltip</key>
             <string>Casts a ray into the physics world from 'start' to 'end' and returns data according to details in Options.\nReports collision data for intersections with objects.\nReturn value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1}, UUID_2, {link_number_2}, hit_position_2, {hit_normal_2}, ... , status_code] where {} indicates optional data.</string>
          </map>
-         <key>llCeil</key>
+         <key>ll.Ceil</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8010,7 +8087,7 @@
             <key>tooltip</key>
             <string>Returns smallest integer value &gt;= Value.</string>
          </map>
-         <key>llClearCameraParams</key>
+         <key>ll.ClearCameraParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8023,7 +8100,7 @@
             <key>tooltip</key>
             <string>Resets all camera parameters to default values and turns off scripted camera control.</string>
          </map>
-         <key>llClearLinkMedia</key>
+         <key>ll.ClearLinkMedia</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -8055,7 +8132,7 @@
             <key>tooltip</key>
             <string>Clears (deletes) the media and all parameters from the given Face on the linked prim.\nReturns an integer that is a STATUS_* flag, which details the success/failure of the operation.</string>
          </map>
-         <key>llClearPrimMedia</key>
+         <key>ll.ClearPrimMedia</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8078,7 +8155,7 @@
             <key>tooltip</key>
             <string>Clears (deletes) the media and all parameters from the given Face.\nReturns an integer that is a STATUS_* flag which details the success/failure of the operation.</string>
          </map>
-         <key>llCloseRemoteDataChannel</key>
+         <key>ll.CloseRemoteDataChannel</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8101,7 +8178,7 @@
             <key>tooltip</key>
             <string>Closes the specified XML-RPC channel.</string>
          </map>
-         <key>llCloud</key>
+         <key>ll.Cloud</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8124,7 +8201,7 @@
             <key>tooltip</key>
             <string>Returns the cloud density at the object's position + Offset.</string>
          </map>
-         <key>llCollisionFilter</key>
+         <key>ll.CollisionFilter</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8165,7 +8242,7 @@
             <key>tooltip</key>
             <string>Specify an empty string or NULL_KEY for Accept, to not filter on the corresponding parameter.</string>
          </map>
-         <key>llCollisionSound</key>
+         <key>ll.CollisionSound</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8197,7 +8274,7 @@
             <key>tooltip</key>
             <string>Suppress default collision sounds, replace default impact sounds with ImpactSound.\nThe ImpactSound must be in the object inventory.\nSupply an empty string to suppress collision sounds.</string>
          </map>
-         <key>llCollisionSprite</key>
+         <key>ll.CollisionSprite</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8220,7 +8297,7 @@
             <key>tooltip</key>
             <string>Suppress default collision sprites, replace default impact sprite with ImpactSprite; found in the object inventory (empty string to just suppress).</string>
          </map>
-         <key>llCos</key>
+         <key>ll.Cos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8243,7 +8320,7 @@
             <key>tooltip</key>
             <string>Returns the cosine of Theta (Theta in radians).</string>
          </map>
-         <key>llCreateCharacter</key>
+         <key>ll.CreateCharacter</key>
          <map>
             <key>energy</key>
             <real/>
@@ -8266,7 +8343,7 @@
             <key>tooltip</key>
             <string>Convert link-set to AI/Physics character.\nCreates a path-finding entity, known as a "character", from the object containing the script. Required to activate use of path-finding functions.\nOptions is a list of key/value pairs.</string>
          </map>
-         <key>llCreateKeyValue</key>
+         <key>ll.CreateKeyValue</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8300,7 +8377,7 @@
                Starts an asychronous transaction to create a key-value pair. Will fail with XP_ERROR_STORAGE_EXCEPTION if the key already exists. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value passed to the function.
             </string>
          </map>
-         <key>llCreateLink</key>
+         <key>ll.CreateLink</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8332,7 +8409,7 @@
             <key>tooltip</key>
             <string>Attempt to link the object the script is in, to target (requires permission PERMISSION_CHANGE_LINKS be set).\nRequires permission PERMISSION_CHANGE_LINKS be set.</string>
          </map>
-         <key>llCSV2List</key>
+         <key>ll.CSV2List</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8355,7 +8432,7 @@
             <key>tooltip</key>
             <string>Create a list from a string of comma separated values specified in Text.</string>
          </map>
-         <key>llDataSizeKeyValue</key>
+         <key>ll.DataSizeKeyValue</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8370,7 +8447,7 @@
                Starts an asychronous transaction the request the used and total amount of data allocated for the Experience. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the the amount in use and the third item will be the total available.
             </string>
          </map>
-         <key>llDeleteCharacter</key>
+         <key>ll.DeleteCharacter</key>
          <map>
             <key>energy</key>
             <real/>
@@ -8383,7 +8460,7 @@
             <key>tooltip</key>
             <string>Convert link-set from AI/Physics character to Physics object.\nConvert the current link-set back to a standard object, removing all path-finding properties.</string>
          </map>
-         <key>llDeleteKeyValue</key>
+         <key>ll.DeleteKeyValue</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8408,7 +8485,7 @@
                Starts an asychronous transaction to delete a key-value pair. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key.
             </string>
          </map>
-         <key>llDeleteSubList</key>
+         <key>ll.DeleteSubList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8449,7 +8526,7 @@
             <key>tooltip</key>
             <string>Removes the slice from start to end and returns the remainder of the list.\nRemove a slice from the list and return the remainder, start and end are inclusive.\nUsing negative numbers for start and/or end causes the index to count backwards from the length of the list, so 0, -1 would delete the entire list.\nIf Start is larger than End the list deleted is the exclusion of the entries; so 6, 4 would delete the entire list except for the 5th. list entry.</string>
          </map>
-         <key>llDeleteSubString</key>
+         <key>ll.DeleteSubString</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8490,7 +8567,7 @@
             <key>tooltip</key>
             <string>Removes the indicated sub-string and returns the result.\nStart and End are inclusive.\nUsing negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would delete the entire string.\nIf Start is larger than End, the sub-string is the exclusion of the entries; so 6, 4 would delete the entire string except for the 5th. character.</string>
          </map>
-         <key>llDetachFromAvatar</key>
+         <key>ll.DetachFromAvatar</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8503,7 +8580,7 @@
             <key>tooltip</key>
             <string>Remove the object containing the script from the avatar.</string>
          </map>
-         <key>llDetectedGrab</key>
+         <key>ll.DetectedGrab</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8526,7 +8603,7 @@
             <key>tooltip</key>
             <string>Returns the grab offset of a user touching the object.\nReturns &lt;0.0, 0.0, 0.0&gt; if Number is not a valid object.</string>
          </map>
-         <key>llDetectedGroup</key>
+         <key>ll.DetectedGroup</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8549,7 +8626,7 @@
             <key>tooltip</key>
             <string>Returns TRUE if detected object or agent Number has the same user group active as this object.\nIt will return FALSE if the object or agent is in the group, but the group is not active.</string>
          </map>
-         <key>llDetectedKey</key>
+         <key>ll.DetectedKey</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8572,7 +8649,7 @@
             <key>tooltip</key>
             <string>Returns the key of detected object or avatar number.\nReturns NULL_KEY if Number is not a valid index.</string>
          </map>
-         <key>llDetectedLinkNumber</key>
+         <key>ll.DetectedLinkNumber</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8595,7 +8672,7 @@
             <key>tooltip</key>
             <string>Returns the link position of the triggered event for touches and collisions only.\n0 for a non-linked object, 1 for the root of a linked object, 2 for the first child, etc.</string>
          </map>
-         <key>llDetectedName</key>
+         <key>ll.DetectedName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8618,7 +8695,7 @@
             <key>tooltip</key>
             <string>Returns the name of detected object or avatar number.\nReturns the name of detected object number.\nReturns empty string if Number is not a valid index.</string>
          </map>
-         <key>llDetectedOwner</key>
+         <key>ll.DetectedOwner</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8641,7 +8718,7 @@
             <key>tooltip</key>
             <string>Returns the key of detected object's owner.\nReturns invalid key if Number is not a valid index.</string>
          </map>
-         <key>llDetectedPos</key>
+         <key>ll.DetectedPos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8664,7 +8741,7 @@
             <key>tooltip</key>
             <string>Returns the position of detected object or avatar number.\nReturns &lt;0.0, 0.0, 0.0&gt; if Number is not a valid index.</string>
          </map>
-         <key>llDetectedRot</key>
+         <key>ll.DetectedRot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8687,7 +8764,7 @@
             <key>tooltip</key>
             <string>Returns the rotation of detected object or avatar number.\nReturns &lt;0.0, 0.0, 0.0, 1.0&gt; if Number is not a valid offset.</string>
          </map>
-         <key>llDetectedTouchBinormal</key>
+         <key>ll.DetectedTouchBinormal</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8710,7 +8787,7 @@
             <key>tooltip</key>
             <string>Returns the surface bi-normal for a triggered touch event.\nReturns a vector that is the surface bi-normal (tangent to the surface) where the touch event was triggered.</string>
          </map>
-         <key>llDetectedTouchFace</key>
+         <key>ll.DetectedTouchFace</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8733,7 +8810,7 @@
             <key>tooltip</key>
             <string>Returns the index of the face where the avatar clicked in a triggered touch event.</string>
          </map>
-         <key>llDetectedTouchNormal</key>
+         <key>ll.DetectedTouchNormal</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8756,7 +8833,7 @@
             <key>tooltip</key>
             <string>Returns the surface normal for a triggered touch event.\nReturns a vector that is the surface normal (perpendicular to the surface) where the touch event was triggered.</string>
          </map>
-         <key>llDetectedTouchPos</key>
+         <key>ll.DetectedTouchPos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8779,7 +8856,7 @@
             <key>tooltip</key>
             <string>Returns the position, in region coordinates, where the object was touched in a triggered touch event.\nUnless it is a HUD, in which case it returns the position relative to the attach point.</string>
          </map>
-         <key>llDetectedTouchST</key>
+         <key>ll.DetectedTouchST</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8802,7 +8879,7 @@
             <key>tooltip</key>
             <string>Returns a vector that is the surface coordinates where the prim was touched.\nThe X and Y vector positions contain the horizontal (S) and vertical (T) face coordinates respectively.\nEach component is in the interval [0.0, 1.0].\nTOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).</string>
          </map>
-         <key>llDetectedTouchUV</key>
+         <key>ll.DetectedTouchUV</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8825,7 +8902,7 @@
             <key>tooltip</key>
             <string>Returns a vector that is the texture coordinates for where the prim was touched.\nThe X and Y vector positions contain the U and V face coordinates respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).</string>
          </map>
-         <key>llDetectedType</key>
+         <key>ll.DetectedType</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8848,7 +8925,7 @@
             <key>tooltip</key>
             <string>Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object.\nReturns 0 if number is not a valid index.\nNote that number is a bit-field, so comparisons need to be a bitwise checked. e.g.:\ninteger iType = llDetectedType(0);\n{\n	// ...do stuff with the agent\n}</string>
          </map>
-         <key>llDetectedVel</key>
+         <key>ll.DetectedVel</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8871,7 +8948,7 @@
             <key>tooltip</key>
             <string>Returns the velocity of the detected object Number.\nReturns&lt;0.0, 0.0, 0.0&gt; if Number is not a valid offset.</string>
          </map>
-         <key>llDialog</key>
+         <key>ll.Dialog</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8930,7 +9007,7 @@
 			llDialog(who, "This shows only an OK button.", [], -192);\n
 			llDialog(who, "This chats so you can 'hear' it.", ["Hooray"], 0);</string>
          </map>
-         <key>llDie</key>
+         <key>ll.Die</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -8943,7 +9020,7 @@
             <key>tooltip</key>
             <string>Delete the object which holds the script.</string>
          </map>
-         <key>llDumpList2String</key>
+         <key>ll.DumpList2String</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -8975,7 +9052,7 @@
             <key>tooltip</key>
             <string>Returns the list as a single string, using Separator between the entries.\nWrite the list out as a single string, using Separator between values.</string>
          </map>
-         <key>llEdgeOfWorld</key>
+         <key>ll.EdgeOfWorld</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9007,7 +9084,7 @@
             <key>tooltip</key>
             <string>Checks to see whether the border hit by Direction from Position is the edge of the world (has no neighboring region).\nReturns TRUE if the line along Direction from Position hits the edge of the world in the current simulator, returns FALSE if that edge crosses into another simulator.</string>
          </map>
-         <key>llEjectFromLand</key>
+         <key>ll.EjectFromLand</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9030,7 +9107,7 @@
             <key>tooltip</key>
             <string>Ejects AvatarID from land that you own.\nEjects AvatarID from land that the object owner (group or resident) owns.</string>
          </map>
-         <key>llEmail</key>
+         <key>ll.Email</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9071,7 +9148,7 @@
             <key>tooltip</key>
             <string>Sends email to Address with Subject and Message.\nSends an email to Address with Subject and Message.</string>
          </map>
-         <key>llEscapeURL</key>
+         <key>ll.EscapeURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9095,7 +9172,7 @@
             <string>Returns an escaped/encoded version of url, replacing spaces with %20 etc.\nReturns the string that is the URL-escaped version of URL (replacing spaces with %20, etc.).\n
 			This function returns the UTF-8 encoded escape codes for selected characters.</string>
          </map>
-         <key>llEuler2Rot</key>
+         <key>ll.Euler2Rot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9118,7 +9195,7 @@
             <key>tooltip</key>
             <string>Returns the rotation representation of the Euler angles.\nReturns the rotation represented by the Euler Angle.</string>
          </map>
-         <key>llEvade</key>
+         <key>ll.Evade</key>
          <map>
             <key>energy</key>
             <real/>
@@ -9150,7 +9227,7 @@
             <key>tooltip</key>
             <string>Evade a specified target.\nCharacters will (roughly) try to hide from their pursuers if there is a good hiding spot along their fleeing path. Hiding means no direct line of sight from the head of the character (centre of the top of its physics bounding box) to the head of its pursuer and no direct path between the two on the navigation-mesh.</string>
          </map>
-         <key>llExecCharacterCmd</key>
+         <key>ll.ExecCharacterCmd</key>
          <map>
             <key>energy</key>
             <real/>
@@ -9182,7 +9259,7 @@
             <key>tooltip</key>
             <string>Execute a character command.\nSend a command to the path system.\nCurrently only supports stopping the current path-finding operation or causing the character to jump.</string>
          </map>
-         <key>llFabs</key>
+         <key>ll.Fabs</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9205,7 +9282,7 @@
             <key>tooltip</key>
             <string>Returns the positive version of Value.\nReturns the absolute value of Value.</string>
          </map>
-         <key>llFleeFrom</key>
+         <key>ll.FleeFrom</key>
          <map>
             <key>energy</key>
             <real/>
@@ -9246,7 +9323,7 @@
             <key>tooltip</key>
             <string>Flee from a point.\nDirects a character (llCreateCharacter) to keep away from a defined position in the region or adjacent regions.</string>
          </map>
-         <key>llFloor</key>
+         <key>ll.Floor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9269,7 +9346,7 @@
             <key>tooltip</key>
             <string>Returns largest integer value &lt;= Value.</string>
          </map>
-         <key>llForceMouselook</key>
+         <key>ll.ForceMouselook</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9292,7 +9369,7 @@
             <key>tooltip</key>
             <string>If Enable is TRUE any avatar that sits on this object is forced into mouse-look mode.\nAfter calling this function with Enable set to TRUE, any agent sitting down on the prim will be forced into mouse-look.\nJust like llSitTarget, this changes a permanent property of the prim (not the object) and needs to be reset by calling this function with Enable set to FALSE in order to disable it.</string>
          </map>
-         <key>llFrand</key>
+         <key>ll.Frand</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9315,7 +9392,7 @@
             <key>tooltip</key>
             <string>Returns a pseudo random number in the range [0, Magnitude] or [Magnitude, 0].\nReturns a pseudo-random number between [0, Magnitude].</string>
          </map>
-         <key>llGenerateKey</key>
+         <key>ll.GenerateKey</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -9328,7 +9405,7 @@
             <key>tooltip</key>
             <string>Generates a key (SHA-1 hash) using UUID generation to create a unique key.\nAs the UUID produced is versioned, it should never return a value of NULL_KEY.\nThe specific UUID version is an implementation detail that has changed in the past and may change again in the future. Do not depend upon the UUID that is returned to be version 5 SHA-1 hash.</string>
          </map>
-         <key>llGetAccel</key>
+         <key>ll.GetAccel</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9341,7 +9418,7 @@
             <key>tooltip</key>
             <string>Returns the acceleration of the object relative to the region's axes.\nGets the acceleration of the object.</string>
          </map>
-         <key>llGetAgentInfo</key>
+         <key>ll.GetAgentInfo</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9365,7 +9442,7 @@
             <string>Returns an integer bit-field containing the agent information about id.\n
 				Returns AGENT_FLYING, AGENT_ATTACHMENTS, AGENT_SCRIPTED, AGENT_SITTING, AGENT_ON_OBJECT, AGENT_MOUSELOOK, AGENT_AWAY, AGENT_BUSY, AGENT_TYPING, AGENT_CROUCHING, AGENT_ALWAYS_RUN, AGENT_WALKING and/or AGENT_IN_AIR.\nReturns information about the given agent ID as a bit-field of agent info constants.</string>
          </map>
-         <key>llGetAgentLanguage</key>
+         <key>ll.GetAgentLanguage</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9388,7 +9465,7 @@
             <key>tooltip</key>
             <string>Returns the language code of the preferred interface language of the avatar.\nReturns a string that is the language code of the preferred interface language of the resident.</string>
          </map>
-         <key>llGetAgentList</key>
+         <key>ll.GetAgentList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9420,7 +9497,7 @@
             <key>tooltip</key>
             <string>Requests a list of agents currently in the region, limited by the scope parameter.\nReturns a list [key UUID-0, key UUID-1, ..., key UUID-n] or [string error_msg] - returns avatar keys for all agents in the region limited to the area(s) specified by scope</string>
          </map>
-         <key>llGetAgentSize</key>
+         <key>ll.GetAgentSize</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9443,7 +9520,7 @@
             <key>tooltip</key>
             <string>If the avatar is in the same region, returns the size of the bounding box of the requested avatar by id, otherwise returns ZERO_VECTOR.\nIf the agent is in the same region as the object, returns the size of the avatar.</string>
          </map>
-         <key>llGetAlpha</key>
+         <key>ll.GetAlpha</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9466,7 +9543,7 @@
             <key>tooltip</key>
             <string>Returns the alpha value of Face.\nReturns the 'alpha' of the given face. If face is ALL_SIDES the value returned is the mean average of all faces.</string>
          </map>
-         <key>llGetAndResetTime</key>
+         <key>ll.GetAndResetTime</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9479,7 +9556,7 @@
             <key>tooltip</key>
             <string>Returns the script time in seconds and then resets the script timer to zero.\nGets the time in seconds since starting and resets the time to zero.</string>
          </map>
-         <key>llGetAnimation</key>
+         <key>ll.GetAnimation</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9502,7 +9579,7 @@
             <key>tooltip</key>
             <string>Returns the name of the currently playing locomotion animation for the avatar id.\nReturns the currently playing animation for the specified avatar ID.</string>
          </map>
-         <key>llGetAnimationList</key>
+         <key>ll.GetAnimationList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9525,7 +9602,7 @@
             <key>tooltip</key>
             <string>Returns a list of keys of playing animations for an avatar.\nReturns a list of keys of all playing animations for the specified avatar ID.</string>
          </map>
-         <key>llGetAnimationOverride</key>
+         <key>ll.GetAnimationOverride</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -9548,7 +9625,7 @@
             <key>tooltip</key>
             <string>Returns a string that is the name of the animation that is used for the specified animation state\nTo use this function the script must obtain either the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION permission (automatically granted to attached objects).</string>
          </map>
-         <key>llGetAttached</key>
+         <key>ll.GetAttached</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9561,7 +9638,7 @@
             <key>tooltip</key>
             <string>Returns the object's attachment point, or 0 if not attached.</string>
          </map>
-         <key>llGetAttachedList</key>
+         <key>ll.GetAttachedList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9584,7 +9661,7 @@
             <key>tooltip</key>
             <string>Returns a list of keys of all visible (not HUD) attachments on the avatar identified by the ID argument</string>
          </map>
-         <key>llGetBoundingBox</key>
+         <key>ll.GetBoundingBox</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9607,7 +9684,7 @@
             <key>tooltip</key>
             <string>Returns the bounding box around the object (including any linked prims) relative to its root prim, as a list in the format [ (vector) min_corner, (vector) max_corner ].</string>
          </map>
-         <key>llGetCameraPos</key>
+         <key>ll.GetCameraPos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9620,7 +9697,7 @@
             <key>tooltip</key>
             <string>Returns the current camera position for the agent the task has permissions for.\nReturns the position of the camera, of the user that granted the script PERMISSION_TRACK_CAMERA. If no user has granted the permission, it returns ZERO_VECTOR.</string>
          </map>
-         <key>llGetCameraRot</key>
+         <key>ll.GetCameraRot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9633,7 +9710,7 @@
             <key>tooltip</key>
             <string>Returns the current camera orientation for the agent the task has permissions for. If no user has granted the PERMISSION_TRACK_CAMERA permission, returns ZERO_ROTATION.</string>
          </map>
-         <key>llGetCenterOfMass</key>
+         <key>ll.GetCenterOfMass</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9646,7 +9723,7 @@
             <key>tooltip</key>
             <string>Returns the prim's centre of mass (unless called from the root prim, where it returns the object's centre of mass).</string>
          </map>
-         <key>llGetClosestNavPoint</key>
+         <key>ll.GetClosestNavPoint</key>
          <map>
             <key>energy</key>
             <real/>
@@ -9678,7 +9755,7 @@
             <key>tooltip</key>
             <string>Get the closest navigable point to the point provided.\nThe function accepts a point in region-local space (like all the other path-finding methods) and returns either an empty list or a list containing a single vector which is the closest point on the navigation-mesh to the point provided.</string>
          </map>
-         <key>llGetColor</key>
+         <key>ll.GetColor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9701,7 +9778,7 @@
             <key>tooltip</key>
             <string>Returns the color on Face.\nReturns the color of Face as a vector of red, green, and blue values between 0 and 1. If face is ALL_SIDES the color returned is the mean average of each channel.</string>
          </map>
-         <key>llGetCreator</key>
+         <key>ll.GetCreator</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9714,7 +9791,7 @@
             <key>tooltip</key>
             <string>Returns a key for the creator of the prim.\nReturns the key of the object's original creator. Similar to llGetOwner.</string>
          </map>
-         <key>llGetDate</key>
+         <key>ll.GetDate</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9727,7 +9804,7 @@
             <key>tooltip</key>
             <string>Returns the current date in the UTC time zone in the format YYYY-MM-DD.\nReturns the current UTC date as YYYY-MM-DD.</string>
          </map>
-         <key>llGetDisplayName</key>
+         <key>ll.GetDisplayName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9750,7 +9827,7 @@
             <key>tooltip</key>
             <string>Returns the display name of an avatar, if the avatar is connected to the current region, or if the name has been cached.  Otherwise, returns an empty string. Use llRequestDisplayName if the avatar may be absent from the region.</string>
          </map>
-         <key>llGetEnergy</key>
+         <key>ll.GetEnergy</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9763,7 +9840,7 @@
             <key>tooltip</key>
             <string>Returns how much energy is in the object as a percentage of maximum.</string>
          </map>
-         <key>llGetEnv</key>
+         <key>ll.GetEnv</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9786,7 +9863,7 @@
             <key>tooltip</key>
             <string>Returns a string with the requested data about the region.</string>
          </map>
-         <key>llGetExperienceDetails</key>
+         <key>ll.GetExperienceDetails</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9811,7 +9888,7 @@
                Returns a list with the following Experience properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State Message]. State is an integer corresponding to one of the constants XP_ERROR_... and State Message is the string returned by llGetExperienceErrorMessage for that integer.
             </string>
          </map>
-         <key>llGetExperienceErrorMessage</key>
+         <key>ll.GetExperienceErrorMessage</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9836,7 +9913,7 @@
                Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code.
             </string>
          </map>
-         <key>llGetForce</key>
+         <key>ll.GetForce</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9849,7 +9926,7 @@
             <key>tooltip</key>
             <string>Returns the force (if the script is physical).\nReturns the current force if the script is physical.</string>
          </map>
-         <key>llGetFreeMemory</key>
+         <key>ll.GetFreeMemory</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9862,7 +9939,7 @@
             <key>tooltip</key>
             <string>Returns the number of free bytes of memory the script can use.\nReturns the available free space for the current script. This is inaccurate with LSO.</string>
          </map>
-         <key>llGetFreeURLs</key>
+         <key>ll.GetFreeURLs</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9875,7 +9952,7 @@
             <key>tooltip</key>
             <string>Returns the number of available URLs for the current script.\nReturns an integer that is the number of available URLs.</string>
          </map>
-         <key>llGetGeometricCenter</key>
+         <key>ll.GetGeometricCenter</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9888,7 +9965,7 @@
             <key>tooltip</key>
             <string>Returns the vector that is the geometric center of the object relative to the root prim.</string>
          </map>
-         <key>llGetGMTclock</key>
+         <key>ll.GetGMTclock</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9901,7 +9978,7 @@
             <key>tooltip</key>
             <string>Returns the time in seconds since midnight GMT.\nGets the time in seconds since midnight in GMT/UTC.</string>
          </map>
-         <key>llGetHTTPHeader</key>
+         <key>ll.GetHTTPHeader</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9933,7 +10010,7 @@
             <key>tooltip</key>
             <string>Returns the value for header for request_id.\nReturns a string that is the value of the Header for HTTPRequestID.</string>
          </map>
-         <key>llGetInventoryCreator</key>
+         <key>ll.GetInventoryCreator</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9956,7 +10033,7 @@
             <key>tooltip</key>
             <string>Returns a key for the creator of the inventory item.\nThis function returns the UUID of the creator of item. If item is not found in inventory, the object says "No item named 'name'".</string>
          </map>
-         <key>llGetInventoryKey</key>
+         <key>ll.GetInventoryKey</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -9979,7 +10056,7 @@
             <key>tooltip</key>
             <string>Returns the key that is the UUID of the inventory named.\nReturns the key of the inventory named.</string>
          </map>
-         <key>llGetInventoryName</key>
+         <key>ll.GetInventoryName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10011,7 +10088,7 @@
             <key>tooltip</key>
             <string>Returns the name of the inventory item of a given type, specified by index number.\nUse the inventory constants INVENTORY_* to specify the type.</string>
          </map>
-         <key>llGetInventoryNumber</key>
+         <key>ll.GetInventoryNumber</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10034,7 +10111,7 @@
             <key>tooltip</key>
             <string>Returns the quantity of items of a given type (INVENTORY_* flag) in the prim's inventory.\nUse the inventory constants INVENTORY_* to specify the type.</string>
          </map>
-         <key>llGetInventoryPermMask</key>
+         <key>ll.GetInventoryPermMask</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10066,7 +10143,7 @@
             <key>tooltip</key>
             <string>Returns the requested permission mask for the inventory item.\nReturns the requested permission mask for the inventory item defined by InventoryItem. If item is not in the object's inventory, llGetInventoryPermMask returns FALSE and causes the object to say "No item named '&lt;item&gt;'", where "&lt;item&gt;" is item.</string>
          </map>
-         <key>llGetInventoryType</key>
+         <key>ll.GetInventoryType</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10089,7 +10166,7 @@
             <key>tooltip</key>
             <string>Returns the type of the named inventory item.\nLike all inventory functions, llGetInventoryType is case-sensitive.</string>
          </map>
-         <key>llGetKey</key>
+         <key>ll.GetKey</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10102,7 +10179,7 @@
             <key>tooltip</key>
             <string>Returns the key of the prim the script is attached to.\nGet the key for the object which has this script.</string>
          </map>
-         <key>llGetLandOwnerAt</key>
+         <key>ll.GetLandOwnerAt</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10125,7 +10202,7 @@
             <key>tooltip</key>
             <string>Returns the key of the land owner, returns NULL_KEY if public.\nReturns the key of the land owner at Position, or NULL_KEY if public.</string>
          </map>
-         <key>llGetLinkKey</key>
+         <key>ll.GetLinkKey</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10148,7 +10225,7 @@
             <key>tooltip</key>
             <string>Returns the key of the linked prim LinkNumber.\nReturns the key of LinkNumber in the link set.</string>
          </map>
-         <key>llGetLinkMedia</key>
+         <key>ll.GetLinkMedia</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -10189,7 +10266,7 @@
             <key>tooltip</key>
             <string>Get the media parameters for a particular face on linked prim, given the desired list of parameter names. Returns a list of values in the order requested.	Returns an empty list if no media exists on the face.</string>
          </map>
-         <key>llGetLinkName</key>
+         <key>ll.GetLinkName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10212,7 +10289,7 @@
             <key>tooltip</key>
             <string>Returns the name of LinkNumber in a link set.\nReturns the name of LinkNumber the link set.</string>
          </map>
-         <key>llGetLinkNumber</key>
+         <key>ll.GetLinkNumber</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10225,7 +10302,7 @@
             <key>tooltip</key>
             <string>Returns the link number of the prim containing the script (0 means not linked, 1 the prim is the root, 2 the prim is the first child, etc.).\nReturns the link number of the prim containing the script. 0 means no link, 1 the root, 2 for first child, etc.</string>
          </map>
-         <key>llGetLinkNumberOfSides</key>
+         <key>ll.GetLinkNumberOfSides</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10248,7 +10325,7 @@
             <key>tooltip</key>
             <string>Returns the number of sides of the specified linked prim.\nReturns an integer that is the number of faces (or sides) of the prim link.</string>
          </map>
-         <key>llGetLinkPrimitiveParams</key>
+         <key>ll.GetLinkPrimitiveParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10280,7 +10357,7 @@
             <key>tooltip</key>
             <string>Returns the list of primitive attributes requested in the Parameters list for LinkNumber.\nPRIM_* flags can be broken into three categories, face flags, prim flags, and object flags.\n* Supplying a prim or object flag will return that flags attributes.\n* Face flags require the user to also supply a face index parameter.</string>
          </map>
-         <key>llGetListEntryType</key>
+         <key>ll.GetListEntryType</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10312,7 +10389,7 @@
             <key>tooltip</key>
             <string>Returns the type of the index entry in the list (TYPE_INTEGER, TYPE_FLOAT, TYPE_STRING, TYPE_KEY, TYPE_VECTOR, TYPE_ROTATION, or TYPE_INVALID if index is off list).\nReturns the type of the variable at Index in ListVariable.</string>
          </map>
-         <key>llGetListLength</key>
+         <key>ll.GetListLength</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10335,7 +10412,7 @@
             <key>tooltip</key>
             <string>Returns the number of elements in the list.\nReturns the number of elements in ListVariable.</string>
          </map>
-         <key>llGetLocalPos</key>
+         <key>ll.GetLocalPos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10348,7 +10425,7 @@
             <key>tooltip</key>
             <string>Returns the position relative to the root.\nReturns the local position of a child object relative to the root.</string>
          </map>
-         <key>llGetLocalRot</key>
+         <key>ll.GetLocalRot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10361,7 +10438,7 @@
             <key>tooltip</key>
             <string>Returns the rotation local to the root.\nReturns the local rotation of a child object relative to the root.</string>
          </map>
-         <key>llGetMass</key>
+         <key>ll.GetMass</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10374,7 +10451,7 @@
             <key>tooltip</key>
             <string>Returns the mass of object that the script is attached to.\nReturns the scripted object's mass. When called from a script in a link-set, the parent will return the sum of the link-set weights, while a child will return just its own mass. When called from a script inside an attachment, this function will return the mass of the avatar it's attached to, not its own.</string>
          </map>
-         <key>llGetMassMKS</key>
+         <key>ll.GetMassMKS</key>
          <map>
             <key>energy</key>
             <real/>
@@ -10387,7 +10464,7 @@
             <key>tooltip</key>
             <string>Acts as llGetMass(), except that the units of the value returned are Kg.</string>
          </map>
-         <key>llGetMaxScaleFactor</key>
+         <key>ll.GetMaxScaleFactor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10400,7 +10477,7 @@
             <key>tooltip</key>
             <string>Returns a float that is the largest scaling factor that can be used with llScaleByFactor to resize the object. This maximum is determined by the Linkability Rules and prim scale limits.</string>
          </map>
-         <key>llGetMemoryLimit</key>
+         <key>ll.GetMemoryLimit</key>
          <map>
             <key>energy</key>
             <real/>
@@ -10413,7 +10490,7 @@
             <key>tooltip</key>
             <string>Get the maximum memory a script can use, in bytes.</string>
          </map>
-         <key>llGetMinScaleFactor</key>
+         <key>ll.GetMinScaleFactor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10426,7 +10503,7 @@
             <key>tooltip</key>
             <string>Returns a float that is the smallest scaling factor that can be used with llScaleByFactor to resize the object. This minimum is determined by the prim scale limits.</string>
          </map>
-         <key>llGetNextEmail</key>
+         <key>ll.GetNextEmail</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10458,7 +10535,7 @@
             <key>tooltip</key>
             <string>Fetch the next queued email with that matches the given address and/or subject, via the email event.\nIf the parameters are blank, they are not used for filtering.</string>
          </map>
-         <key>llGetNotecardLine</key>
+         <key>ll.GetNotecardLine</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10490,7 +10567,7 @@
             <key>tooltip</key>
             <string>Returns LineNumber from NotecardName via the dataserver event. The line index starts at zero.\nIf the requested line is passed the end of the note-card the dataserver event will return the constant EOF string.\nThe key returned by this function is a unique identifier which will be supplied to the dataserver event in the requested parameter.</string>
          </map>
-         <key>llGetNumberOfNotecardLines</key>
+         <key>ll.GetNumberOfNotecardLines</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10513,7 +10590,7 @@
             <key>tooltip</key>
             <string>Returns the number of lines contained within a notecard via the dataserver event.\nThe key returned by this function is a query ID for identifying the dataserver reply.</string>
          </map>
-         <key>llGetNumberOfPrims</key>
+         <key>ll.GetNumberOfPrims</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10526,7 +10603,7 @@
             <key>tooltip</key>
             <string>Returns the number of prims in a link set the script is attached to.\nReturns the number of prims in (and avatars seated on) the object the script is in.</string>
          </map>
-         <key>llGetNumberOfSides</key>
+         <key>ll.GetNumberOfSides</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10539,7 +10616,7 @@
             <key>tooltip</key>
             <string>Returns the number of faces (or sides) of the prim.\nReturns the number of sides of the prim which has the script.</string>
          </map>
-         <key>llGetObjectDesc</key>
+         <key>ll.GetObjectDesc</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10552,7 +10629,7 @@
             <key>tooltip</key>
             <string>Returns the description of the prim the script is attached to.\nReturns the description of the scripted object/prim. You can set the description using llSetObjectDesc.</string>
          </map>
-         <key>llGetObjectDetails</key>
+         <key>ll.GetObjectDetails</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10584,7 +10661,7 @@
             <key>tooltip</key>
             <string>Returns a list of object details specified in the Parameters list for the object or avatar in the region with key ID.\nParameters are specified by the OBJECT_* constants.</string>
          </map>
-         <key>llGetObjectMass</key>
+         <key>ll.GetObjectMass</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10607,7 +10684,7 @@
             <key>tooltip</key>
             <string>Returns the mass of the avatar or object in the region.\nGets the mass of the object or avatar corresponding to ID.</string>
          </map>
-         <key>llGetObjectName</key>
+         <key>ll.GetObjectName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10620,7 +10697,7 @@
             <key>tooltip</key>
             <string>Returns the name of the prim which the script is attached to.\nReturns the name of the prim (not object) which contains the script.</string>
          </map>
-         <key>llGetObjectPermMask</key>
+         <key>ll.GetObjectPermMask</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10643,7 +10720,7 @@
             <key>tooltip</key>
             <string>Returns the permission mask of the requested category for the object.</string>
          </map>
-         <key>llGetObjectPrimCount</key>
+         <key>ll.GetObjectPrimCount</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10666,7 +10743,7 @@
             <key>tooltip</key>
             <string>Returns the total number of prims for an object in the region.\nReturns the prim count for any object id in the same region.</string>
          </map>
-         <key>llGetOmega</key>
+         <key>ll.GetOmega</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10679,7 +10756,7 @@
             <key>tooltip</key>
             <string>Returns the rotation velocity in radians per second.\nReturns a vector that is the rotation velocity of the object in radians per second.</string>
          </map>
-         <key>llGetOwner</key>
+         <key>ll.GetOwner</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10692,7 +10769,7 @@
             <key>tooltip</key>
             <string>Returns the object owner's UUID.\nReturns the key for the owner of the object.</string>
          </map>
-         <key>llGetOwnerKey</key>
+         <key>ll.GetOwnerKey</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10715,7 +10792,7 @@
             <key>tooltip</key>
             <string>Returns the owner of ObjectID.\nReturns the key for the owner of object ObjectID.</string>
          </map>
-         <key>llGetParcelDetails</key>
+         <key>ll.GetParcelDetails</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10747,7 +10824,7 @@
             <key>tooltip</key>
             <string>Returns a list of parcel details specified in the ParcelDetails list for the parcel at Position.\nParameters is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS.\nReturns a list that is the parcel details specified in ParcelDetails (in the same order) for the parcel at Position.</string>
          </map>
-         <key>llGetParcelFlags</key>
+         <key>ll.GetParcelFlags</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10770,7 +10847,7 @@
             <key>tooltip</key>
             <string>Returns a mask of the parcel flags (PARCEL_FLAG_*) for the parcel that includes the point Position.\nReturns a bit-field specifying the parcel flags (PARCEL_FLAG_*) for the parcel at Position.</string>
          </map>
-         <key>llGetParcelMaxPrims</key>
+         <key>ll.GetParcelMaxPrims</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10802,7 +10879,7 @@
             <key>tooltip</key>
             <string>Returns the maximum number of prims allowed on the parcel at Position for a given scope.\nThe scope may be set to an individual parcel or the combined resources of all parcels with the same ownership in the region.</string>
          </map>
-         <key>llGetParcelMusicURL</key>
+         <key>ll.GetParcelMusicURL</key>
          <map>
             <key>energy</key>
             <real/>
@@ -10815,7 +10892,7 @@
             <key>tooltip</key>
             <string>Gets the streaming audio URL for the parcel object is on.\nThe object owner, avatar or group, must also be the land owner.</string>
          </map>
-         <key>llGetParcelPrimCount</key>
+         <key>ll.GetParcelPrimCount</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10856,7 +10933,7 @@
             <key>tooltip</key>
             <string>Returns the number of prims on the parcel at Position of the given category.\nCategories: PARCEL_COUNT_TOTAL, _OWNER, _GROUP, _OTHER, _SELECTED, _TEMP.\nReturns the number of prims used on the parcel at Position which are in Category.\nIf SimWide is TRUE, it returns the total number of objects for all parcels with matching ownership in the category specified.\nIf SimWide is FALSE, it returns the number of objects on this specific parcel in the category specified</string>
          </map>
-         <key>llGetParcelPrimOwners</key>
+         <key>ll.GetParcelPrimOwners</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10879,7 +10956,7 @@
             <key>tooltip</key>
             <string>Returns a list of up to 100 residents who own objects on the parcel at Position, with per-owner land impact totals.\nRequires owner-like permissions for the parcel, and for the script owner to be present in the region.\nThe list is formatted as [ key agentKey1, integer agentLI1, key agentKey2, integer agentLI2, ... ], sorted by agent key.\nThe integers are the combined land impacts of the objects owned by the corresponding agents.</string>
          </map>
-         <key>llGetPermissions</key>
+         <key>ll.GetPermissions</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10892,7 +10969,7 @@
             <key>tooltip</key>
             <string>Returns an integer bitmask of the permissions that have been granted to the script.  Individual permissions can be determined using a bit-wise "and" operation against the PERMISSION_* constants</string>
          </map>
-         <key>llGetPermissionsKey</key>
+         <key>ll.GetPermissionsKey</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10905,7 +10982,7 @@
             <key>tooltip</key>
             <string>Returns the key of the avatar that last granted or declined permissions to the script.\nReturns NULL_KEY if permissions were never granted or declined.</string>
          </map>
-         <key>llGetPhysicsMaterial</key>
+         <key>ll.GetPhysicsMaterial</key>
          <map>
             <key>energy</key>
             <real/>
@@ -10918,7 +10995,7 @@
             <key>tooltip</key>
             <string>Returns a list of the form [float gravity_multiplier, float restitution, float friction, float density].</string>
          </map>
-         <key>llGetPos</key>
+         <key>ll.GetPos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10931,7 +11008,7 @@
             <key>tooltip</key>
             <string>Returns the position of the task in region coordinates.\nReturns the vector position of the task in region coordinates.</string>
          </map>
-         <key>llGetPrimitiveParams</key>
+         <key>ll.GetPrimitiveParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10954,7 +11031,7 @@
             <key>tooltip</key>
             <string>Returns the primitive parameters specified in the parameters list.\nReturns primitive parameters specified in the Parameters list.</string>
          </map>
-         <key>llGetPrimMediaParams</key>
+         <key>ll.GetPrimMediaParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10986,7 +11063,7 @@
             <key>tooltip</key>
             <string>Returns the media parameters for a particular face on an object, given the desired list of parameter names, in the order requested. Returns an empty list if no media exists on the face.</string>
          </map>
-         <key>llGetRegionAgentCount</key>
+         <key>ll.GetRegionAgentCount</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -10999,7 +11076,7 @@
             <key>tooltip</key>
             <string>Returns the number of avatars in the region.\nReturns an integer that is the number of avatars in the region.</string>
          </map>
-         <key>llGetRegionCorner</key>
+         <key>ll.GetRegionCorner</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11012,7 +11089,7 @@
             <key>tooltip</key>
             <string>Returns a vector, in meters, that is the global location of the south-west corner of the region which the object is in.\nReturns the Region-Corner of the simulator containing the task. The region-corner is a vector (values in meters) representing distance from the first region.</string>
          </map>
-         <key>llGetRegionFlags</key>
+         <key>ll.GetRegionFlags</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11025,7 +11102,7 @@
             <key>tooltip</key>
             <string>Returns the region flags (REGION_FLAG_*) for the region the object is in.\nReturns a bit-field specifying the region flags (REGION_FLAG_*) for the region the object is in.</string>
          </map>
-         <key>llGetRegionFPS</key>
+         <key>ll.GetRegionFPS</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11038,7 +11115,7 @@
             <key>tooltip</key>
             <string>Returns the mean region frames per second.</string>
          </map>
-         <key>llGetRegionName</key>
+         <key>ll.GetRegionName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11051,7 +11128,7 @@
             <key>tooltip</key>
             <string>Returns the current region name.</string>
          </map>
-         <key>llGetRegionTimeDilation</key>
+         <key>ll.GetRegionTimeDilation</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11064,7 +11141,7 @@
             <key>tooltip</key>
             <string>Returns the current time dilation as a float between 0.0 (full dilation) and 1.0 (no dilation).\nReturns the current time dilation as a float between 0.0 and 1.0.</string>
          </map>
-         <key>llGetRootPosition</key>
+         <key>ll.GetRootPosition</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11077,7 +11154,7 @@
             <key>tooltip</key>
             <string>Returns the position (in region coordinates) of the root prim of the object which the script is attached to.\nThis is used to allow a child prim to determine where the root is.</string>
          </map>
-         <key>llGetRootRotation</key>
+         <key>ll.GetRootRotation</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11090,7 +11167,7 @@
             <key>tooltip</key>
             <string>Returns the rotation (relative to the region) of the root prim of the object which the script is attached to.\nGets the global rotation of the root object of the object script is attached to.</string>
          </map>
-         <key>llGetRot</key>
+         <key>ll.GetRot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11103,7 +11180,7 @@
             <key>tooltip</key>
             <string>Returns the rotation relative to the region's axes.\nReturns the rotation.</string>
          </map>
-         <key>llGetScale</key>
+         <key>ll.GetScale</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11116,7 +11193,7 @@
             <key>tooltip</key>
             <string>Returns the scale of the prim.\nReturns a vector that is the scale (dimensions) of the prim.</string>
          </map>
-         <key>llGetScriptName</key>
+         <key>ll.GetScriptName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11129,7 +11206,7 @@
             <key>tooltip</key>
             <string>Returns the name of the script that this function is used in.\nReturns the name of this script.</string>
          </map>
-         <key>llGetScriptState</key>
+         <key>ll.GetScriptState</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11152,7 +11229,7 @@
             <key>tooltip</key>
             <string>Returns TRUE if the script named is running.\nReturns TRUE if ScriptName is running.</string>
          </map>
-         <key>llGetSimStats</key>
+         <key>ll.GetSimStats</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -11175,7 +11252,7 @@
             <key>tooltip</key>
             <string>Returns a float that is the requested statistic.</string>
          </map>
-         <key>llGetSimulatorHostname</key>
+         <key>ll.GetSimulatorHostname</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11188,7 +11265,7 @@
             <key>tooltip</key>
             <string>Returns the host-name of the machine which the script is running on.\nFor example, "sim225.agni.lindenlab.com".</string>
          </map>
-         <key>llGetSPMaxMemory</key>
+         <key>ll.GetSPMaxMemory</key>
          <map>
             <key>energy</key>
             <real/>
@@ -11201,7 +11278,7 @@
             <key>tooltip</key>
             <string>Returns the maximum used memory for the current script. Only valid after using PROFILE_SCRIPT_MEMORY. Non-mono scripts always use 16k.\nReturns the integer of the most bytes used while llScriptProfiler was last active.</string>
          </map>
-         <key>llGetStartParameter</key>
+         <key>ll.GetStartParameter</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11214,7 +11291,7 @@
             <key>tooltip</key>
             <string>Returns an integer that is the script rez parameter.\nIf the object was rezzed by an agent, this function returns 0.</string>
          </map>
-         <key>llGetStaticPath</key>
+         <key>ll.GetStaticPath</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11264,7 +11341,7 @@
             <key>tooltip</key>
             <string/>
          </map>
-         <key>llGetStatus</key>
+         <key>ll.GetStatus</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11287,7 +11364,7 @@
             <key>tooltip</key>
             <string>Returns boolean value of the specified status (e.g. STATUS_PHANTOM) of the object the script is attached to.</string>
          </map>
-         <key>llGetSubString</key>
+         <key>ll.GetSubString</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11328,7 +11405,7 @@
             <key>tooltip</key>
             <string>Returns a sub-string from String, in a range specified by the Start and End indicies (inclusive).\nUsing negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.\nIf Start is greater than End, the sub string is the exclusion of the entries.</string>
          </map>
-         <key>llGetSunDirection</key>
+         <key>ll.GetSunDirection</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11341,7 +11418,7 @@
             <key>tooltip</key>
             <string>Returns a normalized vector of the direction of the sun in the region.\nReturns the sun's direction on the simulator.</string>
          </map>
-         <key>llGetTexture</key>
+         <key>ll.GetTexture</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11364,7 +11441,7 @@
             <key>tooltip</key>
             <string>Returns a string that is the texture on face (the inventory name if it is a texture in the prim's inventory, otherwise the key).\nReturns the texture of a face, if it is found in object inventory, its key otherwise.</string>
          </map>
-         <key>llGetTextureOffset</key>
+         <key>ll.GetTextureOffset</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11387,7 +11464,7 @@
             <key>tooltip</key>
             <string>Returns the texture offset of face in the x and y components of a vector.</string>
          </map>
-         <key>llGetTextureRot</key>
+         <key>ll.GetTextureRot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11410,7 +11487,7 @@
             <key>tooltip</key>
             <string>Returns the texture rotation of side.</string>
          </map>
-         <key>llGetTextureScale</key>
+         <key>ll.GetTextureScale</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11433,7 +11510,7 @@
             <key>tooltip</key>
             <string>Returns the texture scale of side in the x and y components of a vector.\nReturns the texture scale of a side in the x and y components of a vector.</string>
          </map>
-         <key>llGetTime</key>
+         <key>ll.GetTime</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11446,7 +11523,7 @@
             <key>tooltip</key>
             <string>Returns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime.</string>
          </map>
-         <key>llGetTimeOfDay</key>
+         <key>ll.GetTimeOfDay</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11459,7 +11536,7 @@
             <key>tooltip</key>
             <string>Returns the time in seconds since Second Life midnight or since region up-time, whichever is smaller.\nThe Second Life day cycle is 4 hours.</string>
          </map>
-         <key>llGetTimestamp</key>
+         <key>ll.GetTimestamp</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11472,7 +11549,7 @@
             <key>tooltip</key>
             <string>Returns a time-stamp (UTC time zone) in the format: YYYY-MM-DDThh:mm:ss.ff..fZ.</string>
          </map>
-         <key>llGetTorque</key>
+         <key>ll.GetTorque</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11485,7 +11562,7 @@
             <key>tooltip</key>
             <string>Returns the torque (if the script is physical).\nReturns a vector that is the torque (if the script is physical).</string>
          </map>
-         <key>llGetUnixTime</key>
+         <key>ll.GetUnixTime</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11498,7 +11575,7 @@
             <key>tooltip</key>
             <string>Returns the number of seconds elapsed since 00:00 hours, Jan 1, 1970 UTC from the system clock.</string>
          </map>
-         <key>llGetUsedMemory</key>
+         <key>ll.GetUsedMemory</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11511,7 +11588,7 @@
             <key>tooltip</key>
             <string>Returns the current used memory for the current script. Non-mono scripts always use 16K.\nReturns the integer of the number of bytes of memory currently in use by the script. Non-mono scripts always use 16K.</string>
          </map>
-         <key>llGetUsername</key>
+         <key>ll.GetUsername</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11534,7 +11611,7 @@
             <key>tooltip</key>
             <string>Returns the username of an avatar, if the avatar is connected to the current region, or if the name has been cached.  Otherwise, returns an empty string. Use llRequestUsername if the avatar may be absent from the region.</string>
          </map>
-         <key>llGetVel</key>
+         <key>ll.GetVel</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11547,7 +11624,7 @@
             <key>tooltip</key>
             <string>Returns the velocity of the object.\nReturns a vector that is the velocity of the object.</string>
          </map>
-         <key>llGetWallclock</key>
+         <key>ll.GetWallclock</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11560,7 +11637,7 @@
             <key>tooltip</key>
             <string>Returns the time in seconds since midnight California Pacific time (PST/PDT).\nReturns the time in seconds since simulator's time-zone midnight (Pacific Time).</string>
          </map>
-         <key>llGiveInventory</key>
+         <key>ll.GiveInventory</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11592,7 +11669,7 @@
             <key>tooltip</key>
             <string>Give InventoryItem to destination represented by TargetID, as permitted by the permissions system.\nTargetID may be any agent or an object in the same region.</string>
          </map>
-         <key>llGiveInventoryList</key>
+         <key>ll.GiveInventoryList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11633,7 +11710,7 @@
             <key>tooltip</key>
             <string>Give InventoryItems to destination (represented by TargetID) as a new folder of items, as permitted by the permissions system.\nTargetID may be any agent or an object in the same region. If TargetID is an object, the items are passed directly to the object inventory (no folder is created).</string>
          </map>
-         <key>llGiveMoney</key>
+         <key>ll.GiveMoney</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11665,7 +11742,7 @@
             <key>tooltip</key>
             <string>Transfers Amount of L$ from script owner to AvatarID.\nThis call will silently fail if PERMISSION_DEBIT has not been granted.</string>
          </map>
-         <key>llGodLikeRezObject</key>
+         <key>ll.GodLikeRezObject</key>
          <map>
             <key>god-mode</key>
             <boolean>true</boolean>
@@ -11699,7 +11776,7 @@
             <key>tooltip</key>
             <string>Rez directly off of a UUID if owner has god-bit set.</string>
          </map>
-         <key>llGround</key>
+         <key>ll.Ground</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11722,7 +11799,7 @@
             <key>tooltip</key>
             <string>Returns the ground height at the object position + offset.\nReturns the ground height at the object's position + Offset.</string>
          </map>
-         <key>llGroundContour</key>
+         <key>ll.GroundContour</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11745,7 +11822,7 @@
             <key>tooltip</key>
             <string>Returns the ground contour direction below the object position + Offset.\nReturns the ground contour at the object's position + Offset.</string>
          </map>
-         <key>llGroundNormal</key>
+         <key>ll.GroundNormal</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11768,7 +11845,7 @@
             <key>tooltip</key>
             <string>Returns the ground normal below the object position + offset.\nReturns the ground contour at the object's position + Offset.</string>
          </map>
-         <key>llGroundRepel</key>
+         <key>ll.GroundRepel</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11811,7 +11888,7 @@
 				The height is above ground level if iWater is FALSE or above the higher of land and water if iWater is TRUE.\n
 				Do not use with vehicles. Only works in physics-enabled objects.</string>
          </map>
-         <key>llGroundSlope</key>
+         <key>ll.GroundSlope</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11834,7 +11911,7 @@
             <key>tooltip</key>
             <string>Returns the ground slope below the object position + Offset.\nReturns the ground slope at the object position + Offset.</string>
          </map>
-         <key>llHTTPRequest</key>
+         <key>ll.HTTPRequest</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11875,7 +11952,7 @@
             <key>tooltip</key>
             <string>Sends an HTTP request to the specified URL with the Body of the request and Parameters.\nReturns a key that is a handle identifying the HTTP request made.</string>
          </map>
-         <key>llHTTPResponse</key>
+         <key>ll.HTTPResponse</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11916,7 +11993,7 @@
             <key>tooltip</key>
             <string>Responds to an incoming HTTP request which was triggerd by an http_request event within the script. HTTPRequestID specifies the request to respond to (this ID is supplied in the http_request event handler).  Status and Body specify the status code and message to respond with.</string>
          </map>
-         <key>llInsertString</key>
+         <key>ll.InsertString</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11957,7 +12034,7 @@
             <key>tooltip</key>
             <string>Inserts SourceVariable into TargetVariable at Position, and returns the result.\nInserts SourceVariable into TargetVariable at Position and returns the result. Note this does not alter TargetVariable.</string>
          </map>
-         <key>llInstantMessage</key>
+         <key>ll.InstantMessage</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -11989,7 +12066,7 @@
             <key>tooltip</key>
             <string>IMs Text to the user identified.\nSend Text to the user as an instant message.</string>
          </map>
-         <key>llIntegerToBase64</key>
+         <key>ll.IntegerToBase64</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12012,7 +12089,7 @@
             <key>tooltip</key>
             <string>Returns a string that is a Base64 big endian encode of Value.\nEncodes the Value as an 8-character Base64 string.</string>
          </map>
-         <key>llJson2List</key>
+         <key>ll.Json2List</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -12035,7 +12112,7 @@
             <key>tooltip</key>
             <string>Converts the top level of the JSON string to a list.</string>
          </map>
-         <key>llJsonGetValue</key>
+         <key>ll.JsonGetValue</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -12067,7 +12144,7 @@
             <key>tooltip</key>
             <string>Gets the value indicated by Specifiers from the JSON string.</string>
          </map>
-         <key>llJsonSetValue</key>
+         <key>ll.JsonSetValue</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -12108,7 +12185,7 @@
             <key>tooltip</key>
             <string>Returns a new JSON string that is the JSON given with the Value indicated by Specifiers set to Value.</string>
          </map>
-         <key>llJsonValueType</key>
+         <key>ll.JsonValueType</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -12140,7 +12217,7 @@
             <key>tooltip</key>
             <string>Returns the type constant (JSON_*) for the value in JSON indicated by Specifiers.</string>
          </map>
-         <key>llKey2Name</key>
+         <key>ll.Key2Name</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12163,7 +12240,7 @@
             <key>tooltip</key>
             <string>Returns the name of the prim or avatar specified by ID. The ID must be a valid rezzed prim or avatar key in the current simulator, otherwise an empty string is returned.\nFor avatars, the returned name is the legacy name</string>
          </map>
-         <key>llKeyCountKeyValue</key>
+         <key>ll.KeyCountKeyValue</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12178,7 +12255,7 @@
                Starts an asychronous transaction the request the number of keys in the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will the the number of keys in the system.
             </string>
          </map>
-         <key>llKeysKeyValue</key>
+         <key>ll.KeysKeyValue</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12212,7 +12289,7 @@
                Starts an asychronous transaction the request a number of keys from the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. The error XP_ERROR_KEY_NOT_FOUND is returned if First is greater than or equal to the number of keys in the data store. In the success case the subsequent items will be the keys requested. The number of keys returned may be less than requested if the return value is too large or if there is not enough keys remaining. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed. Because the keys are returned in a comma-delimited list it is not recommended to use commas in key names if this function is used.
             </string>
          </map>
-         <key>llLinkParticleSystem</key>
+         <key>ll.LinkParticleSystem</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12244,7 +12321,7 @@
             <key>tooltip</key>
             <string>Creates a particle system in prim LinkNumber based on Rules. An empty list removes a particle system from object.\nList format is [ rule-1, data-1, rule-2, data-2 ... rule-n, data-n ].\nThis is identical to llParticleSystem except that it applies to a specified linked prim and not just the prim the script is in.</string>
          </map>
-         <key>llLinkSitTarget</key>
+         <key>ll.LinkSitTarget</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12285,7 +12362,7 @@
             <key>tooltip</key>
             <string>Set the sit location for the linked prim(s). If Offset == &lt;0,0,0&gt; clear it.\nSet the sit location for the linked prim(s). The sit location is relative to the prim's position and rotation.</string>
          </map>
-         <key>llList2CSV</key>
+         <key>ll.List2CSV</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12308,7 +12385,7 @@
             <key>tooltip</key>
             <string>Creates a string of comma separated values from the list.\nCreate a string of comma separated values from the specified list.</string>
          </map>
-         <key>llList2Float</key>
+         <key>ll.List2Float</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12340,7 +12417,7 @@
             <key>tooltip</key>
             <string>Copies the float at Index in the list.\nReturns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a float, then zero is returned.</string>
          </map>
-         <key>llList2Integer</key>
+         <key>ll.List2Integer</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12372,7 +12449,7 @@
             <key>tooltip</key>
             <string>Copies the integer at Index in the list.\nReturns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to an integer, then zero is returned.</string>
          </map>
-         <key>llList2Json</key>
+         <key>ll.List2Json</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -12404,7 +12481,7 @@
             <key>tooltip</key>
             <string>Converts either a strided list of key:value pairs to a JSON_OBJECT, or a list of values to a JSON_ARRAY.</string>
          </map>
-         <key>llList2Key</key>
+         <key>ll.List2Key</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12436,7 +12513,7 @@
             <key>tooltip</key>
             <string>Copies the key at Index in the list.\nReturns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a key, then null string is returned.</string>
          </map>
-         <key>llList2List</key>
+         <key>ll.List2List</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12477,7 +12554,7 @@
             <key>tooltip</key>
             <string>Returns a subset of entries from ListVariable, in a range specified by the Start and End indicies (inclusive).\nUsing negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.\nIf Start is greater than End, the sub string is the exclusion of the entries.</string>
          </map>
-         <key>llList2ListStrided</key>
+         <key>ll.List2ListStrided</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12527,7 +12604,7 @@
             <key>tooltip</key>
             <string>Copies the strided slice of the list from Start to End.\nReturns a copy of the strided slice of the specified list from Start to End.</string>
          </map>
-         <key>llList2Rot</key>
+         <key>ll.List2Rot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12559,7 +12636,7 @@
             <key>tooltip</key>
             <string>Copies the rotation at Index in the list.\nReturns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to rotation, thenZERO_ROTATION is returned.</string>
          </map>
-         <key>llList2String</key>
+         <key>ll.List2String</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12591,7 +12668,7 @@
             <key>tooltip</key>
             <string>Copies the string at Index in the list.\nReturns the value at Index in the specified list as a string. If Index describes a location not in the list then null string is returned.</string>
          </map>
-         <key>llList2Vector</key>
+         <key>ll.List2Vector</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12623,7 +12700,7 @@
             <key>tooltip</key>
             <string>Copies the vector at Index in the list.\nReturns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a vector, then ZERO_VECTOR is returned.</string>
          </map>
-         <key>llListen</key>
+         <key>ll.Listen</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12673,7 +12750,7 @@
             <key>tooltip</key>
             <string>Creates a listen callback for Text on Channel from SpeakersName and SpeakersID (SpeakersName, SpeakersID, and/or Text can be empty) and returns an identifier that can be used to deactivate or remove the listen.\nNon-empty values for SpeakersName, SpeakersID, and Text will filter the results accordingly, while empty strings and NULL_KEY will not filter the results, for string and key parameters respectively.\nPUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.</string>
          </map>
-         <key>llListenControl</key>
+         <key>ll.ListenControl</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12705,7 +12782,7 @@
             <key>tooltip</key>
             <string>Makes a listen event callback active or inactive. Pass in the value returned from llListen to the iChannelHandle parameter to specify which listener you are controlling.\nUse boolean values to specify Active</string>
          </map>
-         <key>llListenRemove</key>
+         <key>ll.ListenRemove</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12728,7 +12805,7 @@
             <key>tooltip</key>
             <string>Removes a listen event callback. Pass in the value returned from llListen to the iChannelHandle parameter to specify which listener to remove.</string>
          </map>
-         <key>llListFindList</key>
+         <key>ll.ListFindList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12760,7 +12837,7 @@
             <key>tooltip</key>
             <string>Returns the index of the first instance of Find in ListVariable. Returns -1 if not found.\nReturns the position of the first instance of the Find list in the ListVariable. Returns -1 if not found.</string>
          </map>
-         <key>llListInsertList</key>
+         <key>ll.ListInsertList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12801,7 +12878,7 @@
             <key>tooltip</key>
             <string>Returns a list that contains all the elements from Target but with the elements from ListVariable inserted at Position start.\nReturns a new list, created by inserting ListVariable into the Target list at Position. Note this does not alter the Target.</string>
          </map>
-         <key>llListRandomize</key>
+         <key>ll.ListRandomize</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12833,7 +12910,7 @@
             <key>tooltip</key>
             <string>Returns a version of the input ListVariable which has been randomized by blocks of size Stride.\nIf the remainder from the length of the list, divided by the stride is non-zero, this function does not randomize the list.</string>
          </map>
-         <key>llListReplaceList</key>
+         <key>ll.ListReplaceList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12883,7 +12960,7 @@
             <key>tooltip</key>
             <string>Returns a list that is Target with Start through End removed and ListVariable inserted at Start.\nReturns a list replacing the slice of the Target list from Start to End with the specified ListVariable. Start and End are inclusive, so 0, 1 would replace the first two entries and 0, 0 would replace only the first list entry.</string>
          </map>
-         <key>llListSort</key>
+         <key>ll.ListSort</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12924,7 +13001,7 @@
             <key>tooltip</key>
             <string>Returns the specified list, sorted into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype.</string>
          </map>
-         <key>llListStatistics</key>
+         <key>ll.ListStatistics</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12956,7 +13033,7 @@
             <key>tooltip</key>
             <string>Performs a statistical aggregate function, specified by a LIST_STAT_* constant, on ListVariables.\nThis function allows a script to perform a statistical operation as defined by operation on a list composed of integers and floats.</string>
          </map>
-         <key>llLoadURL</key>
+         <key>ll.LoadURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -12997,7 +13074,7 @@
             <key>tooltip</key>
             <string>Shows dialog to avatar AvatarID offering to load web page at URL.	If user clicks yes, launches their web browser.\nllLoadURL displays a dialogue box to the user, offering to load the specified web page using the default web browser.</string>
          </map>
-         <key>llLog</key>
+         <key>ll.Log</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13020,7 +13097,7 @@
             <key>tooltip</key>
             <string>Returns the natural logarithm of Value. Returns zero if Value &lt;= 0.\nReturns the base e (natural) logarithm of the specified Value.</string>
          </map>
-         <key>llLog10</key>
+         <key>ll.Log10</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13043,7 +13120,7 @@
             <key>tooltip</key>
             <string>Returns the base 10 logarithm of Value. Returns zero if Value &lt;= 0.\nReturns the base 10 (common) logarithm of the specified Value.</string>
          </map>
-         <key>llLookAt</key>
+         <key>ll.LookAt</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13084,7 +13161,7 @@
             <key>tooltip</key>
             <string>Cause object name to point its forward axis towards Target, at a force controlled by Strength and Damping.\nGood Strength values are around half the mass of the object and good Damping values are less than 1/10th of the Strength.\nAsymmetrical shapes require smaller Damping. A Strength of 0.0 cancels the look at.</string>
          </map>
-         <key>llLoopSound</key>
+         <key>ll.LoopSound</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13116,7 +13193,7 @@
             <key>tooltip</key>
             <string>Plays specified Sound, looping indefinitely, at Volume (0.0 - 1.0).\nOnly one sound may be attached to an object at a time.\nA second call to llLoopSound with the same key will not restart the sound, but the new volume will be used. This allows control over the volume of already playing sounds.\nSetting the volume to 0 is not the same as calling llStopSound; a sound with 0 volume will continue to loop.\nTo restart the sound from the beginning, call llStopSound before calling llLoopSound again.</string>
          </map>
-         <key>llLoopSoundMaster</key>
+         <key>ll.LoopSoundMaster</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13148,7 +13225,7 @@
             <key>tooltip</key>
             <string>Plays attached Sound, looping at volume (0.0 - 1.0), and declares it a sync master.\nBehaviour is identical to llLoopSound, with the addition of marking the source as a "Sync Master", causing "Slave" sounds to sync to it. If there are multiple masters within a viewers interest area, the most audible one (a function of both distance and volume) will win out as the master.\nThe use of multiple masters within a small area is unlikely to produce the desired effect.</string>
          </map>
-         <key>llLoopSoundSlave</key>
+         <key>ll.LoopSoundSlave</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13180,7 +13257,7 @@
             <key>tooltip</key>
             <string>Plays attached sound looping at volume (0.0 - 1.0), synced to most audible sync master.\nBehaviour is identical to llLoopSound, unless there is a "Sync Master" present.\nIf a Sync Master is already playing the Slave sound will begin playing from the same point the master is in its loop synchronizing the loop points of both sounds.\nIf a Sync Master is started when the Slave is already playing, the Slave will skip to the correct position to sync with the Master.</string>
          </map>
-         <key>llMakeExplosion</key>
+         <key>ll.MakeExplosion</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -13259,7 +13336,7 @@
             <key>tooltip</key>
             <string>Make a round explosion of particles. Deprecated: Use llParticleSystem instead.\nMake a round explosion of particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.</string>
          </map>
-         <key>llMakeFire</key>
+         <key>ll.MakeFire</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -13338,7 +13415,7 @@
             <key>tooltip</key>
             <string>Make fire like particles. Deprecated: Use llParticleSystem instead.\nMake fire particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.</string>
          </map>
-         <key>llMakeFountain</key>
+         <key>ll.MakeFountain</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -13435,7 +13512,7 @@
             <key>tooltip</key>
             <string>Make a fountain of particles. Deprecated: Use llParticleSystem instead.\nMake a fountain of particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.</string>
          </map>
-         <key>llMakeSmoke</key>
+         <key>ll.MakeSmoke</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -13514,7 +13591,7 @@
             <key>tooltip</key>
             <string>Make smoke like particles. Deprecated: Use llParticleSystem instead.\nMake smoky particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.</string>
          </map>
-         <key>llManageEstateAccess</key>
+         <key>ll.ManageEstateAccess</key>
          <map>
             <key>energy</key>
             <real/>
@@ -13546,7 +13623,7 @@
             <key>tooltip</key>
             <string>Adds or removes agents from the estate's agent access or ban lists, or groups to the estate's group access list. Action is one of the ESTATE_ACCESS_ALLOWED_* operations to perform.\nReturns an integer representing a boolean, TRUE if the call was successful; FALSE if throttled, invalid action, invalid or null id or object owner is not allowed to manage the estate.\nThe object owner is notified of any changes, unless PERMISSION_SILENT_ESTATE_MANAGEMENT has been granted to the script.</string>
          </map>
-         <key>llMapDestination</key>
+         <key>ll.MapDestination</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13587,7 +13664,7 @@
             <key>tooltip</key>
             <string>Opens world map for avatar who touched is is wearing the script, centred on RegionName with Position highlighted. Only works for scripts attached to avatar, or during touch events.\nDirection currently has no effect.</string>
          </map>
-         <key>llMD5String</key>
+         <key>ll.MD5String</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13619,7 +13696,7 @@
             <key>tooltip</key>
             <string>Returns a string of 32 hex characters that is an RSA Data Security Inc., MD5 Message-Digest Algorithm of Text with Nonce used as the salt.\nReturns a 32-character hex string. (128-bit in binary.)</string>
          </map>
-         <key>llMessageLinked</key>
+         <key>ll.MessageLinked</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13669,7 +13746,7 @@
             <key>tooltip</key>
             <string>Sends Number, Text, and ID to members of the link set identified by LinkNumber.\nLinkNumber is either a linked number (available through llGetLinkNumber) or a LINK_* constant.</string>
          </map>
-         <key>llMinEventDelay</key>
+         <key>ll.MinEventDelay</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13692,7 +13769,7 @@
             <key>tooltip</key>
             <string>Set the minimum time between events being handled.</string>
          </map>
-         <key>llModifyLand</key>
+         <key>ll.ModifyLand</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13724,7 +13801,7 @@
             <key>tooltip</key>
             <string>Modify land with action (LAND_LEVEL, LAND_RAISE, LAND_LOWER, LAND_SMOOTH, LAND_NOISE, LAND_REVERT) on size (0, 1, 2, corresponding to 2m x 2m, 4m x 4m, 8m x 8m).</string>
          </map>
-         <key>llModPow</key>
+         <key>ll.ModPow</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13765,7 +13842,7 @@
             <key>tooltip</key>
             <string>Returns a Value raised to the Power, mod Modulus. ((a**b)%c) b is capped at 0xFFFF (16 bits).\nReturns (Value ^ Power) % Modulus. (Value raised to the Power, Modulus). Value is capped at 0xFFFF (16 bits).</string>
          </map>
-         <key>llMoveToTarget</key>
+         <key>ll.MoveToTarget</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13797,7 +13874,7 @@
             <key>tooltip</key>
             <string>Critically damp to Target in Tau seconds (if the script is physical).\nCritically damp to position target in tau-seconds if the script is physical. Good tau-values are greater than 0.2. A tau of 0.0 stops the critical damping.</string>
          </map>
-         <key>llNavigateTo</key>
+         <key>ll.NavigateTo</key>
          <map>
             <key>energy</key>
             <real/>
@@ -13829,7 +13906,7 @@
             <key>tooltip</key>
             <string>Navigate to destination.\nDirects an object to travel to a defined position in the region or adjacent regions.</string>
          </map>
-         <key>llOffsetTexture</key>
+         <key>ll.OffsetTexture</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13870,7 +13947,7 @@
             <key>tooltip</key>
             <string>Sets the texture S and T offsets for the chosen Face.\nIf Face is ALL_SIDES this function sets the texture offsets for all faces.</string>
          </map>
-         <key>llOpenRemoteDataChannel</key>
+         <key>ll.OpenRemoteDataChannel</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -13885,7 +13962,7 @@
             <key>tooltip</key>
             <string>Requests a channel to listen for XML-RPC calls. (Deprecated: XML-RPC should not be used. Use http-in instead.)\nWill trigger a remote_data event with type = REMOTE_DATA_CHANNEL and a channel ID (key) once it is available.\nThis channel ID must be referenced in the XML-RPC call to the script (from the internet) -- so the key must somehow get to the external XML-RPC client.</string>
          </map>
-         <key>llOverMyLand</key>
+         <key>ll.OverMyLand</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13908,7 +13985,7 @@
             <key>tooltip</key>
             <string>Returns TRUE if id ID over land owned by the script owner, otherwise FALSE.\nReturns TRUE if key ID is over land owned by the object owner, FALSE otherwise.</string>
          </map>
-         <key>llOwnerSay</key>
+         <key>ll.OwnerSay</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13931,7 +14008,7 @@
             <key>tooltip</key>
             <string>says Text to owner only (if owner is in region).\nSays Text to the owner of the object running the script, if the owner has been within the object's simulator since logging into Second Life, regardless of where they may be in-world.</string>
          </map>
-         <key>llParcelMediaCommandList</key>
+         <key>ll.ParcelMediaCommandList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13954,7 +14031,7 @@
             <key>tooltip</key>
             <string>Controls the playback of multimedia resources on a parcel or for an agent, via one or more PARCEL_MEDIA_COMMAND_* arguments specified in CommandList.</string>
          </map>
-         <key>llParcelMediaQuery</key>
+         <key>ll.ParcelMediaQuery</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -13977,7 +14054,7 @@
             <key>tooltip</key>
             <string>Queries the media properties of the parcel containing the script, via one or more PARCEL_MEDIA_COMMAND_* arguments specified in CommandList.\nThis function will only work if the script is contained within an object owned by the land-owner (or if the land is owned by a group, only if the object has been deeded to the group).</string>
          </map>
-         <key>llParseString2List</key>
+         <key>ll.ParseString2List</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14018,7 +14095,7 @@
             <key>tooltip</key>
             <string>Converts Text into a list, discarding Separators, keeping Spacers (Separators and Spacers must be lists of strings, maximum of 8 each).\nSeparators and Spacers are lists of strings with a maximum of 8 entries each.</string>
          </map>
-         <key>llParseStringKeepNulls</key>
+         <key>ll.ParseStringKeepNulls</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14059,7 +14136,7 @@
             <key>tooltip</key>
             <string>Breaks Text into a list, discarding separators, keeping spacers, keeping any null values generated. (separators and spacers must be lists of strings, maximum of 8 each).\nllParseStringKeepNulls works almost exactly like llParseString2List, except that if a null is found it will add a null-string instead of discarding it like llParseString2List does.</string>
          </map>
-         <key>llParticleSystem</key>
+         <key>ll.ParticleSystem</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14082,7 +14159,7 @@
             <key>tooltip</key>
             <string>Creates a particle system in the prim the script is attached to, based on Parameters. An empty list removes a particle system from object.\nList format is [ rule-1, data-1, rule-2, data-2 ... rule-n, data-n ].</string>
          </map>
-         <key>llPassCollisions</key>
+         <key>ll.PassCollisions</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14105,7 +14182,7 @@
             <key>tooltip</key>
             <string>Configures how collision events are passed to scripts in the linkset.\nIf Pass == TRUE, collisions involving collision-handling scripted child prims are also passed on to the root prim. If Pass == FALSE (default behavior), such collisions will only trigger events in the affected child prim.</string>
          </map>
-         <key>llPassTouches</key>
+         <key>ll.PassTouches</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14128,7 +14205,7 @@
             <key>tooltip</key>
             <string>Configures how touch events are passed to scripts in the linkset.\nIf Pass == TRUE, touches involving touch-handling scripted child prims are also passed on to the root prim. If Pass == FALSE (default behavior), such touches will only trigger events in the affected child prim.</string>
          </map>
-         <key>llPatrolPoints</key>
+         <key>ll.PatrolPoints</key>
          <map>
             <key>energy</key>
             <real/>
@@ -14160,7 +14237,7 @@
             <key>tooltip</key>
             <string>Patrol a list of points.\nSets the points for a character (llCreateCharacter) to patrol along.</string>
          </map>
-         <key>llPlaySound</key>
+         <key>ll.PlaySound</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14192,7 +14269,7 @@
             <key>tooltip</key>
             <string>Plays Sound once, at Volume (0.0 - 1.0) and attached to the object.\nOnly one sound may be attached to an object at a time, and attaching a new sound or calling llStopSound will stop the previously attached sound.\nA second call to llPlaySound with the same sound will not restart the sound, but the new volume will be used, which allows control over the volume of already playing sounds.\nTo restart the sound from the beginning, call llStopSound before calling llPlaySound again.</string>
          </map>
-         <key>llPlaySoundSlave</key>
+         <key>ll.PlaySoundSlave</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14224,7 +14301,7 @@
             <key>tooltip</key>
             <string>Plays attached Sound once, at Volume (0.0 - 1.0), synced to next loop of most audible sync master.\nBehaviour is identical to llPlaySound, unless there is a "Sync Master" present. If a Sync Master is already playing, the Slave sound will not be played until the Master hits its loop point and returns to the beginning.\nllPlaySoundSlave will play the sound exactly once; if it is desired to have the sound play every time the Master loops, either use llLoopSoundSlave with extra silence padded on the end of the sound or ensure that llPlaySoundSlave is called at least once per loop of the Master.</string>
          </map>
-         <key>llPow</key>
+         <key>ll.Pow</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14256,7 +14333,7 @@
             <key>tooltip</key>
             <string>Returns the Value raised to the power Exponent, or returns 0 and triggers Math Error for imaginary results.\nReturns the Value raised to the Exponent.</string>
          </map>
-         <key>llPreloadSound</key>
+         <key>ll.PreloadSound</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14279,7 +14356,7 @@
             <key>tooltip</key>
             <string>Causes nearby viewers to preload the Sound from the object's inventory.\nThis is intended to prevent delays in starting new sounds when called upon.</string>
          </map>
-         <key>llPursue</key>
+         <key>ll.Pursue</key>
          <map>
             <key>energy</key>
             <real/>
@@ -14311,7 +14388,7 @@
             <key>tooltip</key>
             <string>Chase after a target.\nCauses the character (llCharacter) to pursue the target defined by TargetID.</string>
          </map>
-         <key>llPushObject</key>
+         <key>ll.PushObject</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14361,7 +14438,7 @@
             <key>tooltip</key>
             <string>Applies Impulse and AngularImpulse to ObjectID.\nApplies the supplied impulse and angular impulse to the object specified.</string>
          </map>
-         <key>llReadKeyValue</key>
+         <key>ll.ReadKeyValue</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14386,7 +14463,7 @@
                Starts an asychronous transaction to retrieve the value associated with the key given. Will fail with XP_ERROR_KEY_NOT_FOUND if the key does not exist. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key.
             </string>
          </map>
-         <key>llRefreshPrimURL</key>
+         <key>ll.RefreshPrimURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14399,7 +14476,7 @@
             <key>tooltip</key>
             <string>Reloads the web page shown on the sides of the object.</string>
          </map>
-         <key>llRegionSay</key>
+         <key>ll.RegionSay</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14431,7 +14508,7 @@
             <key>tooltip</key>
             <string>Broadcasts Text to entire region on Channel (except for channel 0).</string>
          </map>
-         <key>llRegionSayTo</key>
+         <key>ll.RegionSayTo</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14472,7 +14549,7 @@
             <key>tooltip</key>
             <string>Says Text, on Channel, to avatar or object indicated by TargetID (if within region).\nIf TargetID is an avatar and Channel is nonzero, Text can be heard by any attachment on the avatar.</string>
          </map>
-         <key>llReleaseCamera</key>
+         <key>ll.ReleaseCamera</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -14497,7 +14574,7 @@
             <key>tooltip</key>
             <string>Return camera to agent.\nDeprecated: Use llClearCameraParams instead.</string>
          </map>
-         <key>llReleaseControls</key>
+         <key>ll.ReleaseControls</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14510,7 +14587,7 @@
             <key>tooltip</key>
             <string>Stop taking inputs.\nStop taking inputs from the avatar.</string>
          </map>
-         <key>llReleaseURL</key>
+         <key>ll.ReleaseURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14533,7 +14610,7 @@
             <key>tooltip</key>
             <string>Releases the specified URL, which was previously obtained using llRequestURL.  Once released, the URL will no longer be usable.</string>
          </map>
-         <key>llRemoteDataReply</key>
+         <key>ll.RemoteDataReply</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -14585,7 +14662,7 @@
             <key>tooltip</key>
             <string>Send an XML-RPC reply to MessageID on ChannelID with payload of string sData and integer iData. Deprecated: Use HTTP functions/events instead.\nThe size of sData is limited to 254 characters.</string>
          </map>
-         <key>llRemoteDataSetRegion</key>
+         <key>ll.RemoteDataSetRegion</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -14600,7 +14677,7 @@
             <key>tooltip</key>
             <string>Deprecated: Use HTTP functions/events instead.\nIf an object using remote data channels changes regions, you must call this function to re-register the remote data channels.\nYou do not need to make this call if you don't change regions.</string>
          </map>
-         <key>llRemoteLoadScriptPin</key>
+         <key>ll.RemoteLoadScriptPin</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14659,7 +14736,7 @@
             <key>tooltip</key>
             <string>If the owner of the object containing this script can modify the object identified by the specified object key, and if the PIN matches the PIN previously set using llSetRemoteScriptAccessPin (on the target prim), then the script will be copied into target. Running is a boolean specifying whether the script should be enabled once copied into the target object.</string>
          </map>
-         <key>llRemoveFromLandBanList</key>
+         <key>ll.RemoveFromLandBanList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14682,7 +14759,7 @@
             <key>tooltip</key>
             <string>Remove avatar from the land ban list.\nRemove specified avatar from the land parcel ban list.</string>
          </map>
-         <key>llRemoveFromLandPassList</key>
+         <key>ll.RemoveFromLandPassList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14705,7 +14782,7 @@
             <key>tooltip</key>
             <string>Remove avatar from the land pass list.\nRemove specified avatar from the land parcel pass list.</string>
          </map>
-         <key>llRemoveInventory</key>
+         <key>ll.RemoveInventory</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14728,7 +14805,7 @@
             <key>tooltip</key>
             <string>Remove the named inventory item.\nRemove the named inventory item from the object inventory.</string>
          </map>
-         <key>llRemoveVehicleFlags</key>
+         <key>ll.RemoveVehicleFlags</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14751,7 +14828,7 @@
             <key>tooltip</key>
             <string>Removes the enabled bits in 'flags'.\nSets the vehicle flags to FALSE. Valid parameters can be found in the vehicle flags constants section.</string>
          </map>
-         <key>llRequestAgentData</key>
+         <key>ll.RequestAgentData</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14783,7 +14860,7 @@
             <key>tooltip</key>
             <string>Requests data about AvatarID. When data is available the dataserver event will be raised.\nThis function requests data about an avatar. If and when the information is collected, the dataserver event is triggered with the key returned from this function passed in the requested parameter. See the agent data constants (DATA_*) for details about valid values of data and what each will return in the dataserver event.</string>
          </map>
-         <key>llRequestDisplayName</key>
+         <key>ll.RequestDisplayName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14806,7 +14883,7 @@
             <key>tooltip</key>
             <string>Requests the display name of the agent. When the display name is available the dataserver event will be raised.\nThe avatar identified does not need to be in the same region or online at the time of the request.\nReturns a key that is used to identify the dataserver event when it is raised.</string>
          </map>
-         <key>llRequestExperiencePermissions</key>
+         <key>ll.RequestExperiencePermissions</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14840,7 +14917,7 @@
                Ask the agent for permission to participate in an experience. This request is similar to llRequestPermissions with the following permissions: PERMISSION_TAKE_CONTROLS, PERMISSION_TRIGGER_ANIMATION, PERMISSION_ATTACH, PERMISSION_TRACK_CAMERA, PERMISSION_CONTROL_CAMERA and PERMISSION_TELEPORT. However, unlike llRequestPermissions the decision to allow or block the request is persistent and applies to all scripts using the experience grid wide. Subsequent calls to llRequestExperiencePermissions from scripts in the experience will receive the same response automatically with no user interaction. One of experience_permissions or experience_permissions_denied will be generated in response to this call. Outstanding permission requests will be lost if the script is derezzed, moved to another region or reset.
             </string>
          </map>
-         <key>llRequestInventoryData</key>
+         <key>ll.RequestInventoryData</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14863,7 +14940,7 @@
             <key>tooltip</key>
             <string>Requests data for the named InventoryItem.\nWhen data is available, the dataserver event will be raised with the key returned from this function in the requested parameter.\nThe only request currently implemented is to request data from landmarks, where the data returned is in the form "&lt;float, float, float&gt;" which can be cast to a vector. This position is in region local coordinates.</string>
          </map>
-         <key>llRequestPermissions</key>
+         <key>ll.RequestPermissions</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14895,7 +14972,7 @@
             <key>tooltip</key>
             <string>Ask AvatarID to allow the script to perform certain actions, specified in the PermissionMask bitmask. PermissionMask should be one or more PERMISSION_* constants. Multiple permissions can be requested simultaneously by ORing the constants together. Many of the permissions requests can only go to object owner.\nThis call will not stop script execution. If the avatar grants the requested permissions, the run_time_permissions event will be called.</string>
          </map>
-         <key>llRequestSecureURL</key>
+         <key>ll.RequestSecureURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14908,7 +14985,7 @@
             <key>tooltip</key>
             <string>Requests one HTTPS:// (SSL) URL for use by this object. The http_request event is triggered with results.\nReturns a key that is the handle used for identifying the request in the http_request event.</string>
          </map>
-         <key>llRequestSimulatorData</key>
+         <key>ll.RequestSimulatorData</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14940,7 +15017,7 @@
             <key>tooltip</key>
             <string>Requests the specified Data about RegionName. When the specified data is available, the dataserver event is raised.\nData should use one of the DATA_SIM_* constants.\nReturns a dataserver query ID and triggers the dataserver event when data is found.</string>
          </map>
-         <key>llRequestURL</key>
+         <key>ll.RequestURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14953,7 +15030,7 @@
             <key>tooltip</key>
             <string>Requests one HTTP:// URL for use by this script. The http_request event is triggered with the result of the request.\nReturns a key that is the handle used for identifying the result in the http_request event.</string>
          </map>
-         <key>llRequestUsername</key>
+         <key>ll.RequestUsername</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -14976,7 +15053,7 @@
             <key>tooltip</key>
             <string>Requests single-word user-name of an avatar. When data is available the dataserver event will be raised.\nRequests the user-name of the identified agent. When the user-name is available the dataserver event is raised.\nThe agent identified does not need to be in the same region or online at the time of the request.\nReturns a key that is used to identify the dataserver event when it is raised.</string>
          </map>
-         <key>llResetAnimationOverride</key>
+         <key>ll.ResetAnimationOverride</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -14999,7 +15076,7 @@
             <key>tooltip</key>
             <string>Resets the animation of the specified animation state to the default value.\nIf animation state equals "ALL", then all animation states are reset.</string>
          </map>
-         <key>llResetLandBanList</key>
+         <key>ll.ResetLandBanList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15012,7 +15089,7 @@
             <key>tooltip</key>
             <string>Removes all residents from the land ban list.</string>
          </map>
-         <key>llResetLandPassList</key>
+         <key>ll.ResetLandPassList</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15025,7 +15102,7 @@
             <key>tooltip</key>
             <string>Removes all residents from the land access/pass list.</string>
          </map>
-         <key>llResetOtherScript</key>
+         <key>ll.ResetOtherScript</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15048,7 +15125,7 @@
             <key>tooltip</key>
             <string>Resets the named script.</string>
          </map>
-         <key>llResetScript</key>
+         <key>ll.ResetScript</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15061,7 +15138,7 @@
             <key>tooltip</key>
             <string>Resets the script.</string>
          </map>
-         <key>llResetTime</key>
+         <key>ll.ResetTime</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15074,7 +15151,7 @@
             <key>tooltip</key>
             <string>Sets the time to zero.\nSets the internal timer to zero.</string>
          </map>
-         <key>llReturnObjectsByID</key>
+         <key>ll.ReturnObjectsByID</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15097,7 +15174,7 @@
             <key>tooltip</key>
             <string>Return objects using their UUIDs.\nRequires the PERMISSION_RETURN_OBJECTS permission and that the script owner owns the parcel the returned objects are in, or is an estate manager or region owner.</string>
          </map>
-         <key>llReturnObjectsByOwner</key>
+         <key>ll.ReturnObjectsByOwner</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15129,7 +15206,7 @@
             <key>tooltip</key>
             <string>Return objects based upon their owner and a scope of parcel, parcel owner, or region.\nRequires the PERMISSION_RETURN_OBJECTS permission and that the script owner owns the parcel the returned objects are in, or is an estate manager or region owner.</string>
          </map>
-         <key>llRezAtRoot</key>
+         <key>ll.RezAtRoot</key>
          <map>
             <key>energy</key>
             <real>200.0</real>
@@ -15188,7 +15265,7 @@
             <key>tooltip</key>
             <string>Instantiate owner's InventoryItem at Position with Velocity, Rotation and with StartParameter. The last selected root object's location will be set to Position.\nCreates object's inventory item at the given Position, with Velocity, Rotation, and StartParameter.</string>
          </map>
-         <key>llRezObject</key>
+         <key>ll.RezObject</key>
          <map>
             <key>energy</key>
             <real>200</real>
@@ -15247,7 +15324,7 @@
             <key>tooltip</key>
             <string>Instantiate owners InventoryItem at Position with Velocity, Rotation and with start StartParameter.\nCreates object's inventory item at Position with Velocity and Rotation supplied. The StartParameter value will be available to the newly created object in the on_rez event or through the llGetStartParameter function.\nThe Velocity parameter is ignored if the rezzed object is not physical.</string>
          </map>
-         <key>llRot2Angle</key>
+         <key>ll.Rot2Angle</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15270,7 +15347,7 @@
             <key>tooltip</key>
             <string>Returns the rotation angle represented by Rotation.\nReturns the angle represented by the Rotation.</string>
          </map>
-         <key>llRot2Axis</key>
+         <key>ll.Rot2Axis</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15293,7 +15370,7 @@
             <key>tooltip</key>
             <string>Returns the rotation axis represented by Rotation.\nReturns the axis represented by the Rotation.</string>
          </map>
-         <key>llRot2Euler</key>
+         <key>ll.Rot2Euler</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15316,7 +15393,7 @@
             <key>tooltip</key>
             <string>Returns the Euler representation (roll, pitch, yaw) of Rotation.\nReturns the Euler Angle representation of the Rotation.</string>
          </map>
-         <key>llRot2Fwd</key>
+         <key>ll.Rot2Fwd</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15339,7 +15416,7 @@
             <key>tooltip</key>
             <string>Returns the forward vector defined by Rotation.\nReturns the forward axis represented by the Rotation.</string>
          </map>
-         <key>llRot2Left</key>
+         <key>ll.Rot2Left</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15362,7 +15439,7 @@
             <key>tooltip</key>
             <string>Returns the left vector defined by Rotation.\nReturns the left axis represented by the Rotation.</string>
          </map>
-         <key>llRot2Up</key>
+         <key>ll.Rot2Up</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15385,7 +15462,7 @@
             <key>tooltip</key>
             <string>Returns the up vector defined by Rotation.\nReturns the up axis represented by the Rotation.</string>
          </map>
-         <key>llRotateTexture</key>
+         <key>ll.RotateTexture</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15417,7 +15494,7 @@
             <key>tooltip</key>
             <string>Sets the texture rotation for the specified Face to angle Radians.\nIf Face is ALL_SIDES, rotates the texture of all sides.</string>
          </map>
-         <key>llRotBetween</key>
+         <key>ll.RotBetween</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15449,7 +15526,7 @@
             <key>tooltip</key>
             <string>Returns the rotation to rotate Vector1 to Vector2.\nReturns the rotation needed to rotate Vector1 to Vector2.</string>
          </map>
-         <key>llRotLookAt</key>
+         <key>ll.RotLookAt</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15490,7 +15567,7 @@
             <key>tooltip</key>
             <string>Cause object to rotate to Rotation, with a force function defined by Strength and Damping parameters. Good strength values are around half the mass of the object and good damping values are less than 1/10th of the strength.\nAsymmetrical shapes require smaller damping.\nA strength of 0.0 cancels the look at.</string>
          </map>
-         <key>llRotTarget</key>
+         <key>ll.RotTarget</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15522,7 +15599,7 @@
             <key>tooltip</key>
             <string>Set rotations with error of LeeWay radians as a rotational target, and return an ID for the rotational target.\nThe returned number is a handle that can be used in at_rot_target and llRotTargetRemove.</string>
          </map>
-         <key>llRotTargetRemove</key>
+         <key>ll.RotTargetRemove</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15545,7 +15622,7 @@
             <key>tooltip</key>
             <string>Removes rotational target number.\nRemove rotational target indicated by the handle.</string>
          </map>
-         <key>llRound</key>
+         <key>ll.Round</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15568,7 +15645,7 @@
             <key>tooltip</key>
             <string>Returns Value rounded to the nearest integer.\nReturns the Value rounded to the nearest integer.</string>
          </map>
-         <key>llSameGroup</key>
+         <key>ll.SameGroup</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15591,7 +15668,7 @@
             <key>tooltip</key>
             <string>Returns TRUE if avatar ID is in the same region and has the same active group, otherwise FALSE.\nReturns TRUE if the object or agent identified is in the same simulator and has the same active group as this object. Otherwise, returns FALSE.</string>
          </map>
-         <key>llSay</key>
+         <key>ll.Say</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15623,7 +15700,7 @@
             <key>tooltip</key>
             <string>Says Text on Channel.\nThis chat method has a range of 20m radius.\nPUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.</string>
          </map>
-         <key>llScaleByFactor</key>
+         <key>ll.ScaleByFactor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15646,7 +15723,7 @@
             <key>tooltip</key>
             <string>Attempts to resize the entire object by ScalingFactor, maintaining the size-position ratios of the prims.\n\nResizing is subject to prim scale limits and linkability limits. This function can not resize the object if the linkset is physical, a pathfinding character, in a keyframed motion, or if resizing would cause the parcel to overflow.\nReturns a boolean (an integer) TRUE if it succeeds, FALSE if it fails.</string>
          </map>
-         <key>llScaleTexture</key>
+         <key>ll.ScaleTexture</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15687,7 +15764,7 @@
             <key>tooltip</key>
             <string>Sets the diffuse texture Horizontal and Vertical repeats on Face of the prim the script is attached to.\nIf Face == ALL_SIDES, all sides are set in one call.\nNegative values for horizontal and vertical will flip the texture.</string>
          </map>
-         <key>llScriptDanger</key>
+         <key>ll.ScriptDanger</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15710,7 +15787,7 @@
             <key>tooltip</key>
             <string>Returns TRUE if Position is over public land, sandbox land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.\nReturns true if the position is over public land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.</string>
          </map>
-         <key>llScriptProfiler</key>
+         <key>ll.ScriptProfiler</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15733,7 +15810,7 @@
             <key>tooltip</key>
             <string>Enables or disables script profiling options. Currently only supports PROFILE_SCRIPT_MEMORY (Mono only) and PROFILE_NONE.\nMay significantly reduce script performance.</string>
          </map>
-         <key>llSendRemoteData</key>
+         <key>ll.SendRemoteData</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -15785,7 +15862,7 @@
             <key>tooltip</key>
             <string>Deprecated: use HTTP functions and events instead.\nSends an XML-RPC request to Destination through ChannelID with payload of ChannelID (in a string), integer Value and string Text.\nReturns a key that is the message_id for the resulting remote_data events.</string>
          </map>
-         <key>llSensor</key>
+         <key>ll.Sensor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15844,7 +15921,7 @@
             <key>tooltip</key>
             <string>Performs a single scan for Name and ID with Type (AGENT, ACTIVE, PASSIVE, and/or SCRIPTED) within Range meters and Arc radians of forward vector.\nSpecifying a blank Name, 0 Type, or NULL_KEY ID will prevent filtering results based on that parameter. A range of 0.0 does not perform a scan.\nResults are returned in the sensor and no_sensor events.</string>
          </map>
-         <key>llSensorRemove</key>
+         <key>ll.SensorRemove</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15857,7 +15934,7 @@
             <key>tooltip</key>
             <string>removes sensor.\nRemoves the sensor set by llSensorRepeat.</string>
          </map>
-         <key>llSensorRepeat</key>
+         <key>ll.SensorRepeat</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15925,7 +16002,7 @@
             <key>tooltip</key>
             <string>Initiates a periodic scan every Rate seconds, for Name and ID with Type (AGENT, ACTIVE, PASSIVE, and/or SCRIPTED) within Range meters and Arc radians of forward vector.\nSpecifying a blank Name, 0 Type, or NULL_KEY ID will prevent filtering results based on that parameter. A range of 0.0 does not perform a scan.\nResults are returned in the sensor and no_sensor events.</string>
          </map>
-         <key>llSetAlpha</key>
+         <key>ll.SetAlpha</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -15957,7 +16034,7 @@
             <key>tooltip</key>
             <string>Sets the alpha (opacity) of Face.\nSets the alpha (opacity) value for Face. If Face is ALL_SIDES, sets the alpha for all faces. The alpha value is interpreted as an opacity percentage (1.0 is fully opaque, and 0.2 is mostly transparent). This function will clamp alpha values less than 0.1 to 0.1 and greater than 1.0 to 1.</string>
          </map>
-         <key>llSetAngularVelocity</key>
+         <key>ll.SetAngularVelocity</key>
          <map>
             <key>energy</key>
             <real/>
@@ -15989,7 +16066,7 @@
             <key>tooltip</key>
             <string>Sets an object's angular velocity to AngVel, in local coordinates if Local == TRUE (if the script is physical).\nHas no effect on non-physical objects.</string>
          </map>
-         <key>llSetAnimationOverride</key>
+         <key>ll.SetAnimationOverride</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -16021,7 +16098,7 @@
             <key>tooltip</key>
             <string>Sets the animation (in object inventory) that will play for the given animation state.\nTo use this function the script must obtain the PERMISSION_OVERRIDE_ANIMATIONS permission.</string>
          </map>
-         <key>llSetBuoyancy</key>
+         <key>ll.SetBuoyancy</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16044,7 +16121,7 @@
             <key>tooltip</key>
             <string>Set the tasks buoyancy (0 is none, &lt; 1.0 sinks, 1.0 floats, &gt; 1.0 rises).\nSet the object buoyancy. A value of 0 is none, less than 1.0 sinks, 1.0 floats, and greater than 1.0 rises.</string>
          </map>
-         <key>llSetCameraAtOffset</key>
+         <key>ll.SetCameraAtOffset</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16067,7 +16144,7 @@
             <key>tooltip</key>
             <string>Sets the camera used in this object, at offset, if an avatar sits on it.\nSets the offset that an avatar's camera will be moved to if the avatar sits on the object.</string>
          </map>
-         <key>llSetCameraEyeOffset</key>
+         <key>ll.SetCameraEyeOffset</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16090,7 +16167,7 @@
             <key>tooltip</key>
             <string>Sets the camera eye offset used in this object if an avatar sits on it.</string>
          </map>
-         <key>llSetCameraParams</key>
+         <key>ll.SetCameraParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16113,7 +16190,7 @@
             <key>tooltip</key>
             <string>Sets multiple camera parameters at once. List format is [ rule-1, data-1, rule-2, data-2 . . . rule-n, data-n ].</string>
          </map>
-         <key>llSetClickAction</key>
+         <key>ll.SetClickAction</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16136,7 +16213,7 @@
             <key>tooltip</key>
             <string>Sets the action performed when a prim is clicked upon.</string>
          </map>
-         <key>llSetColor</key>
+         <key>ll.SetColor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16168,7 +16245,7 @@
             <key>tooltip</key>
             <string>Sets the color, for the face.\nSets the color of the side specified. If Face is ALL_SIDES, sets the color on all faces.</string>
          </map>
-         <key>llSetContentType</key>
+         <key>ll.SetContentType</key>
          <map>
             <key>energy</key>
             <real/>
@@ -16200,7 +16277,7 @@
             <key>tooltip</key>
             <string>Set the media type of an LSL HTTP server response to ContentType.\nHTTPRequestID must be a valid http_request ID. ContentType must be one of the CONTENT_TYPE_* constants.</string>
          </map>
-         <key>llSetDamage</key>
+         <key>ll.SetDamage</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16223,7 +16300,7 @@
             <key>tooltip</key>
             <string>Sets the amount of damage that will be done to an avatar that this task hits.	Task will be killed.\nSets the amount of damage that will be done to an avatar that this object hits. This object will be destroyed on damaging an avatar, and no collision event is triggered.</string>
          </map>
-         <key>llSetForce</key>
+         <key>ll.SetForce</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16255,7 +16332,7 @@
             <key>tooltip</key>
             <string>Sets Force on object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).\nOnly works on physical objects.</string>
          </map>
-         <key>llSetForceAndTorque</key>
+         <key>ll.SetForceAndTorque</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16296,7 +16373,7 @@
             <key>tooltip</key>
             <string>Sets the Force and Torque of object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).\nOnly works on physical objects.</string>
          </map>
-         <key>llSetHoverHeight</key>
+         <key>ll.SetHoverHeight</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16337,7 +16414,7 @@
             <key>tooltip</key>
             <string>Critically damps a physical object to a Height (either above ground level or above the higher of land and water if water == TRUE).\nDo not use with vehicles. Use llStopHover to stop hovering.</string>
          </map>
-         <key>llSetInventoryPermMask</key>
+         <key>ll.SetInventoryPermMask</key>
          <map>
             <key>god-mode</key>
             <boolean>true</boolean>
@@ -16380,7 +16457,7 @@
             <key>tooltip</key>
             <string>Sets the given permission mask to the new value on the inventory item.</string>
          </map>
-         <key>llSetKeyframedMotion</key>
+         <key>ll.SetKeyframedMotion</key>
          <map>
             <key>energy</key>
             <real/>
@@ -16412,7 +16489,7 @@
             <key>tooltip</key>
             <string>Requests that a non-physical object be key-framed according to key-frame list.\nSpecify a list of times, positions, and orientations to be followed by an object. The object will be smoothly moved between key-frames by the simulator. Collisions with other non-physical or key-framed objects will be ignored (no script events will fire and collision processing will not occur). Collisions with physical objects will be computed and reported, but the key-framed object will be unaffected by those collisions.\nKeyframes is a strided list containing positional, rotational, and time data for each step in the motion.  Options is a list containing optional arguments and parameters (specified by KFM_* constants).</string>
          </map>
-         <key>llSetLinkAlpha</key>
+         <key>ll.SetLinkAlpha</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16453,7 +16530,7 @@
             <key>tooltip</key>
             <string>If a prim exists in the link chain at LinkNumber, set Face to Opacity.\nSets the Face, on the linked prim specified, to the Opacity.</string>
          </map>
-         <key>llSetLinkCamera</key>
+         <key>ll.SetLinkCamera</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16494,7 +16571,7 @@
             <key>tooltip</key>
             <string>Sets the camera eye offset, and the offset that camera is looking at, for avatars that sit on the linked prim.</string>
          </map>
-         <key>llSetLinkColor</key>
+         <key>ll.SetLinkColor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16535,7 +16612,7 @@
             <key>tooltip</key>
             <string>If a task exists in the link chain at LinkNumber, set the Face to color.\nSets the color of the linked child's side, specified by LinkNumber.</string>
          </map>
-         <key>llSetLinkMedia</key>
+         <key>ll.SetLinkMedia</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -16576,7 +16653,7 @@
             <key>tooltip</key>
             <string>Set the media parameters for a particular face on linked prim, specified by Link. Returns an integer that is a STATUS_* flag which details the success/failure of the operation(s).\nMediaParameters is a set of name/value pairs in no particular order. Parameters not specified are unchanged, or if new media is added then set to the default specified.</string>
          </map>
-         <key>llSetLinkPrimitiveParams</key>
+         <key>ll.SetLinkPrimitiveParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16608,7 +16685,7 @@
             <key>tooltip</key>
             <string>Set primitive parameters for LinkNumber based on Parameters.\nSets the parameters (or properties) of any linked prim in one step.</string>
          </map>
-         <key>llSetLinkPrimitiveParamsFast</key>
+         <key>ll.SetLinkPrimitiveParamsFast</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16640,7 +16717,7 @@
             <key>tooltip</key>
             <string>Set primitive parameters for LinkNumber based on Parameters, without a delay.\nSet parameters for link number, from the list of Parameters, with no built-in script sleep. This function is identical to llSetLinkPrimitiveParams, except without the delay.</string>
          </map>
-         <key>llSetLinkTexture</key>
+         <key>ll.SetLinkTexture</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16681,7 +16758,7 @@
             <key>tooltip</key>
             <string>Sets the Texture of Face on a linked prim, specified by LinkNumber. Texture may be a UUID or name of a texture in prim inventory.</string>
          </map>
-         <key>llSetLinkTextureAnim</key>
+         <key>ll.SetLinkTextureAnim</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16767,7 +16844,7 @@
             <key>tooltip</key>
             <string>Animates a texture on the prim specified by LinkNumber, by setting the texture scale and offset.\nMode is a bitmask of animation options.\nFace specifies which object face to animate.\nSizeX and SizeY specify the number of horizontal and vertical frames.Start specifes the animation start point.\nLength specifies the animation duration.\nRate specifies the animation playback rate.</string>
          </map>
-         <key>llSetLocalRot</key>
+         <key>ll.SetLocalRot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16790,7 +16867,7 @@
             <key>tooltip</key>
             <string>Sets the rotation of a child prim relative to the root prim.</string>
          </map>
-         <key>llSetMemoryLimit</key>
+         <key>ll.SetMemoryLimit</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16813,7 +16890,7 @@
             <key>tooltip</key>
             <string>Requests Limit bytes to be reserved for this script.\nReturns TRUE or FALSE indicating whether the limit was set successfully.\nThis function has no effect if the script is running in the LSO VM.</string>
          </map>
-         <key>llSetObjectDesc</key>
+         <key>ll.SetObjectDesc</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16836,7 +16913,7 @@
             <key>tooltip</key>
             <string>Sets the description of the prim to Description.\nThe description field is limited to 127 characters.</string>
          </map>
-         <key>llSetObjectName</key>
+         <key>ll.SetObjectName</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16859,7 +16936,7 @@
             <key>tooltip</key>
             <string>Sets the prim's name to Name.</string>
          </map>
-         <key>llSetObjectPermMask</key>
+         <key>ll.SetObjectPermMask</key>
          <map>
             <key>god-mode</key>
             <boolean>true</boolean>
@@ -16893,7 +16970,7 @@
             <key>tooltip</key>
             <string>Sets the specified PermissionFlag permission to the value specified by PermissionMask on the object the script is attached to.</string>
          </map>
-         <key>llSetParcelMusicURL</key>
+         <key>ll.SetParcelMusicURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16916,7 +16993,7 @@
             <key>tooltip</key>
             <string>Sets the streaming audio URL for the parcel the object is on.\nThe object must be owned by the owner of the parcel; if the parcel is group owned the object must be owned by that group.</string>
          </map>
-         <key>llSetPayPrice</key>
+         <key>ll.SetPayPrice</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -16948,7 +17025,7 @@
             <key>tooltip</key>
             <string>Sets the default amount when someone chooses to pay this object.\nPrice is the default price shown in the textu input field.  QuickButtons specifies the 4 payment values shown in the payment dialog's buttons.\nInput field and buttons may be hidden with PAY_HIDE constant, and may be set to their default values using PAY_DEFAULT.</string>
          </map>
-         <key>llSetPhysicsMaterial</key>
+         <key>ll.SetPhysicsMaterial</key>
          <map>
             <key>energy</key>
             <real/>
@@ -17007,7 +17084,7 @@
             <key>tooltip</key>
             <string>Sets the selected parameters of the object's physics behavior.\nMaterialBits is a bitmask specifying which of the parameters in the other arguments should be applied to the object. GravityMultiplier, Restitution, Friction, and Density are the possible parameters to manipulate.</string>
          </map>
-         <key>llSetPos</key>
+         <key>ll.SetPos</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17030,7 +17107,7 @@
             <key>tooltip</key>
             <string>If the object is not physical, this function sets the position of the prim.\nIf the script is in a child prim, Position is treated as root relative and the link-set is adjusted.\nIf the prim is the root prim, the entire object is moved (up to 10m) to Position in region coordinates.</string>
          </map>
-         <key>llSetPrimitiveParams</key>
+         <key>ll.SetPrimitiveParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17053,7 +17130,7 @@
             <key>tooltip</key>
             <string>This function changes the many properties (or "parameters") of a prim in one operation. Parameters is a list of changes.</string>
          </map>
-         <key>llSetPrimMediaParams</key>
+         <key>ll.SetPrimMediaParams</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17085,7 +17162,7 @@
             <key>tooltip</key>
             <string>Sets the MediaParameters for a particular Face on the prim. Returns an integer that is a STATUS_* flag which details the success/failure of the operation(s).\nMediaParameters is a set of name/value pairs in no particular order. Parameters not specified are unchanged, or if new media is added then set to the default specified.</string>
          </map>
-         <key>llSetPrimURL</key>
+         <key>ll.SetPrimURL</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -17110,7 +17187,7 @@
             <key>tooltip</key>
             <string>Deprecated: Use llSetPrimMediaParams instead.</string>
          </map>
-         <key>llSetRegionPos</key>
+         <key>ll.SetRegionPos</key>
          <map>
             <key>energy</key>
             <real>0.0</real>
@@ -17133,7 +17210,7 @@
             <key>tooltip</key>
             <string>Attempts to move the object so that the root prim is within 0.1m of Position.\nReturns an integer boolean, TRUE if the object is successfully placed within 0.1 m of Position, FALSE otherwise.\nPosition may be any location within the region or up to 10m across a region border.\nIf the position is below ground, it will be set to the ground level at that x,y location.</string>
          </map>
-         <key>llSetRemoteScriptAccessPin</key>
+         <key>ll.SetRemoteScriptAccessPin</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17156,7 +17233,7 @@
             <key>tooltip</key>
             <string>If PIN is set to a non-zero number, the task will accept remote script loads via llRemoteLoadScriptPin() if it passes in the correct PIN. Othersise, llRemoteLoadScriptPin() is ignored.</string>
          </map>
-         <key>llSetRot</key>
+         <key>ll.SetRot</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17179,7 +17256,7 @@
             <key>tooltip</key>
             <string>If the object is not physical, this function sets the rotation of the prim.\nIf the script is in a child prim, Rotation is treated as root relative and the link-set is adjusted.\nIf the prim is the root prim, the entire object is rotated to Rotation in the global reference frame.</string>
          </map>
-         <key>llSetScale</key>
+         <key>ll.SetScale</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17202,7 +17279,7 @@
             <key>tooltip</key>
             <string>Sets the prim's scale (size) to Scale.</string>
          </map>
-         <key>llSetScriptState</key>
+         <key>ll.SetScriptState</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17234,7 +17311,7 @@
             <key>tooltip</key>
             <string>Enable or disable the script Running state of Script in the prim.</string>
          </map>
-         <key>llSetSitText</key>
+         <key>ll.SetSitText</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17257,7 +17334,7 @@
             <key>tooltip</key>
             <string>Displays Text rather than 'Sit' in the viewer's context menu.</string>
          </map>
-         <key>llSetSoundQueueing</key>
+         <key>ll.SetSoundQueueing</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17280,7 +17357,7 @@
             <key>tooltip</key>
             <string>Sets whether successive calls to llPlaySound, llLoopSound, etc., (attached sounds) interrupt the currently playing sound.\nThe default for objects is FALSE. Setting this value to TRUE will make the sound wait until the current playing sound reaches its end. The queue is one level deep.</string>
          </map>
-         <key>llSetSoundRadius</key>
+         <key>ll.SetSoundRadius</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17303,7 +17380,7 @@
             <key>tooltip</key>
             <string>Limits radius for audibility of scripted sounds (both attached and triggered) to distance Radius.</string>
          </map>
-         <key>llSetStatus</key>
+         <key>ll.SetStatus</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17335,7 +17412,7 @@
             <key>tooltip</key>
             <string>Sets object status specified in Status bitmask (e.g. STATUS_PHYSICS|STATUS_PHANTOM) to boolean Value.\nFor a full list of STATUS_* constants, see wiki documentation.</string>
          </map>
-         <key>llSetText</key>
+         <key>ll.SetText</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17376,7 +17453,7 @@
             <key>tooltip</key>
             <string>Causes Text to float above the prim, using the specified Color and Opacity.</string>
          </map>
-         <key>llSetTexture</key>
+         <key>ll.SetTexture</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17408,7 +17485,7 @@
             <key>tooltip</key>
             <string>Applies Texture to Face of prim.\nTexture may be a UUID or name of a texture in prim inventory.\nIf Face is ALL_SIDES, set the texture on all faces.</string>
          </map>
-         <key>llSetTextureAnim</key>
+         <key>ll.SetTextureAnim</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17485,7 +17562,7 @@
             <key>tooltip</key>
             <string>Animates a texture by setting the texture scale and offset.\nMode is a bitmask of animation options.\nFace specifies which object face to animate.\nSizeX and SizeY specify the number of horizontal and vertical frames.Start specifes the animation start point.\nLength specifies the animation duration.\nRate specifies the animation playback rate.</string>
          </map>
-         <key>llSetTimerEvent</key>
+         <key>ll.SetTimerEvent</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17508,7 +17585,7 @@
             <key>tooltip</key>
             <string>Causes the timer event to be triggered every Rate seconds.\n Passing in 0.0 stops further timer events.</string>
          </map>
-         <key>llSetTorque</key>
+         <key>ll.SetTorque</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17540,7 +17617,7 @@
             <key>tooltip</key>
             <string>Sets the Torque acting on the script's object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).\nOnly works on physical objects.</string>
          </map>
-         <key>llSetTouchText</key>
+         <key>ll.SetTouchText</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17563,7 +17640,7 @@
             <key>tooltip</key>
             <string>Displays Text in the viewer context menu that acts on a touch.</string>
          </map>
-         <key>llSetVehicleFlags</key>
+         <key>ll.SetVehicleFlags</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17586,7 +17663,7 @@
             <key>tooltip</key>
             <string>Enables the vehicle flags specified in the Flags bitmask.\nValid parameters can be found in the wiki documentation.</string>
          </map>
-         <key>llSetVehicleFloatParam</key>
+         <key>ll.SetVehicleFloatParam</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17618,7 +17695,7 @@
             <key>tooltip</key>
             <string>Sets a vehicle float parameter.\nValid parameters can be found in the wiki documentation.</string>
          </map>
-         <key>llSetVehicleRotationParam</key>
+         <key>ll.SetVehicleRotationParam</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17650,7 +17727,7 @@
             <key>tooltip</key>
             <string>Sets a vehicle rotation parameter.\nValid parameters can be found in the wiki documentation.</string>
          </map>
-         <key>llSetVehicleType</key>
+         <key>ll.SetVehicleType</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17673,7 +17750,7 @@
             <key>tooltip</key>
             <string>Activates the vehicle action on the object with vehicle preset Type.\nValid Types and an explanation of their characteristics can be found in wiki documentation.</string>
          </map>
-         <key>llSetVehicleVectorParam</key>
+         <key>ll.SetVehicleVectorParam</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17705,7 +17782,7 @@
             <key>tooltip</key>
             <string>Sets a vehicle vector parameter.\nValid parameters can be found in the wiki documentation.</string>
          </map>
-         <key>llSetVelocity</key>
+         <key>ll.SetVelocity</key>
          <map>
             <key>energy</key>
             <real/>
@@ -17737,7 +17814,7 @@
             <key>tooltip</key>
             <string>If the object is physics-enabled, sets the object's linear velocity to Velocity.\nIf Local==TRUE, Velocity is treated as a local directional vector; otherwise, Velocity is treated as a global directional vector.</string>
          </map>
-         <key>llSHA1String</key>
+         <key>ll.SHA1String</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17760,7 +17837,7 @@
             <key>tooltip</key>
             <string>Returns a string of 40 hex characters that is the SHA1 security Hash of Text.</string>
          </map>
-         <key>llShout</key>
+         <key>ll.Shout</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17792,7 +17869,7 @@
             <key>tooltip</key>
             <string>Shouts Text on Channel.\nThis chat method has a range of 100m radius.\nPUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.</string>
          </map>
-         <key>llSin</key>
+         <key>ll.Sin</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17815,7 +17892,7 @@
             <key>tooltip</key>
             <string>Returns the sine of Theta (Theta in radians).</string>
          </map>
-         <key>llSitTarget</key>
+         <key>ll.SitTarget</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17847,7 +17924,7 @@
             <key>tooltip</key>
             <string>Set the sit location for this object. If offset == ZERO_VECTOR, clears the sit target.</string>
          </map>
-         <key>llSleep</key>
+         <key>ll.Sleep</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -17870,7 +17947,7 @@
             <key>tooltip</key>
             <string>Put script to sleep for Time seconds.</string>
          </map>
-         <key>llSound</key>
+         <key>ll.Sound</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -17922,7 +17999,7 @@
             <key>tooltip</key>
             <string>Deprecated: Use llPlaySound instead.\nPlays Sound at Volume and specifies whether the sound should loop and/or be enqueued.</string>
          </map>
-         <key>llSoundPreload</key>
+         <key>ll.SoundPreload</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -17947,7 +18024,7 @@
             <key>tooltip</key>
             <string>Deprecated: Use llPreloadSound instead.\nPreloads a sound on viewers within range.</string>
          </map>
-         <key>llSqrt</key>
+         <key>ll.Sqrt</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17970,7 +18047,7 @@
             <key>tooltip</key>
             <string>Returns the square root of Value.\nTriggers a math runtime error for imaginary results (if Value &lt; 0.0).</string>
          </map>
-         <key>llStartAnimation</key>
+         <key>ll.StartAnimation</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -17993,7 +18070,7 @@
             <key>tooltip</key>
             <string>This function plays the specified animation from playing on the avatar who received the script's most recent permissions request.\nAnimation may be an animation in task inventory or a built-in animation.\nRequires PERMISSION_TRIGGER_ANIMATION.</string>
          </map>
-         <key>llStopAnimation</key>
+         <key>ll.StopAnimation</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18016,7 +18093,7 @@
             <key>tooltip</key>
             <string>This function stops the specified animation on the avatar who received the script's most recent permissions request.\nAnimation may be an animation in task inventory, a built-in animation, or the uuid of an animation.\nRequires PERMISSION_TRIGGER_ANIMATION.</string>
          </map>
-         <key>llStopHover</key>
+         <key>ll.StopHover</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18029,7 +18106,7 @@
             <key>tooltip</key>
             <string>Stop hovering to a height (due to llSetHoverHeight()).</string>
          </map>
-         <key>llStopLookAt</key>
+         <key>ll.StopLookAt</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18042,7 +18119,7 @@
             <key>tooltip</key>
             <string>Stop causing object to point at a target (due to llLookAt() or llRotLookAt()).</string>
          </map>
-         <key>llStopMoveToTarget</key>
+         <key>ll.StopMoveToTarget</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18055,7 +18132,7 @@
             <key>tooltip</key>
             <string>Stops critically damped motion (due to llMoveToTarget()).</string>
          </map>
-         <key>llStopSound</key>
+         <key>ll.StopSound</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18068,7 +18145,7 @@
             <key>tooltip</key>
             <string>Stops playback of the currently attached sound.</string>
          </map>
-         <key>llStringLength</key>
+         <key>ll.StringLength</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18091,7 +18168,7 @@
             <key>tooltip</key>
             <string>Returns an integer that is the number of characters in Text (not counting the null).</string>
          </map>
-         <key>llStringToBase64</key>
+         <key>ll.StringToBase64</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18114,7 +18191,7 @@
             <key>tooltip</key>
             <string>Returns the string Base64 representation of the input string.</string>
          </map>
-         <key>llStringTrim</key>
+         <key>ll.StringTrim</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18146,7 +18223,7 @@
             <key>tooltip</key>
             <string>Outputs a string, eliminating white-space from the start and/or end of the input string Text.\nValid options for TrimType:\nSTRING_TRIM_HEAD: trim all leading spaces in Text\nSTRING_TRIM_TAIL: trim all trailing spaces in Text\nSTRING_TRIM: trim all leading and trailing spaces in Text.</string>
          </map>
-         <key>llSubStringIndex</key>
+         <key>ll.SubStringIndex</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18178,7 +18255,7 @@
             <key>tooltip</key>
             <string>Returns an integer that is the index in Text where string pattern Sequence first appears. Returns -1 if not found.</string>
          </map>
-         <key>llTakeCamera</key>
+         <key>ll.TakeCamera</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -18203,7 +18280,7 @@
             <key>tooltip</key>
             <string>Deprecated: Use llSetCameraParams instead.</string>
          </map>
-         <key>llTakeControls</key>
+         <key>ll.TakeControls</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18244,7 +18321,7 @@
             <key>tooltip</key>
             <string>Take controls from the agent the script has permissions for.\nIf (Accept == (Controls &amp; input)), send input to the script.  PassOn determines whether Controls also perform their normal functions.\nRequires the PERMISSION_TAKE_CONTROLS permission to run.</string>
          </map>
-         <key>llTan</key>
+         <key>ll.Tan</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18267,7 +18344,7 @@
             <key>tooltip</key>
             <string>Returns the tangent of Theta (Theta in radians).</string>
          </map>
-         <key>llTarget</key>
+         <key>ll.Target</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18299,7 +18376,7 @@
             <key>tooltip</key>
             <string>This function is to have the script know when it has reached a position.\nIt registers a Position with a Range that triggers at_target and not_at_target events continuously until unregistered.</string>
          </map>
-         <key>llTargetOmega</key>
+         <key>ll.TargetOmega</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18340,7 +18417,7 @@
             <key>tooltip</key>
             <string>Attempt to spin at SpinRate with strength Gain on Axis.\nA spin rate of 0.0 cancels the spin. This function always works in object-local coordinates.</string>
          </map>
-         <key>llTargetRemove</key>
+         <key>ll.TargetRemove</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18363,7 +18440,7 @@
             <key>tooltip</key>
             <string>Removes positional target Handle registered with llTarget.</string>
          </map>
-         <key>llTeleportAgent</key>
+         <key>ll.TeleportAgent</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -18413,7 +18490,7 @@
             <key>tooltip</key>
             <string>Requests a teleport of avatar to a landmark stored in the object's inventory. If no landmark is provided (an empty string), the avatar is teleported to the location position in the current region. In either case, the avatar is turned to face the position given by look_at in local coordinates.\nRequires the PERMISSION_TELEPORT permission. This function can only teleport the owner of the object.</string>
          </map>
-         <key>llTeleportAgentGlobalCoords</key>
+         <key>ll.TeleportAgentGlobalCoords</key>
          <map>
             <key>energy</key>
             <real>0</real>
@@ -18463,7 +18540,7 @@
             <key>tooltip</key>
             <string>Teleports an agent to the RegionPosition local coordinates within a region which is specified by the GlobalPosition global coordinates. The agent lands facing the position defined by LookAtPoint local coordinates.\nRequires the PERMISSION_TELEPORT permission. This function can only teleport the owner of the object.</string>
          </map>
-         <key>llTeleportAgentHome</key>
+         <key>ll.TeleportAgentHome</key>
          <map>
             <key>energy</key>
             <real>100.0</real>
@@ -18486,7 +18563,7 @@
             <key>tooltip</key>
             <string>Teleport agent over the owner's land to agent's home location.</string>
          </map>
-         <key>llTextBox</key>
+         <key>ll.TextBox</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18527,7 +18604,7 @@
             <key>tooltip</key>
             <string>Opens a dialog for the specified avatar with message Text, which contains a text box for input. Any text that is entered is said on the specified Channel (as if by the avatar) when the "OK" button is clicked.</string>
          </map>
-         <key>llToLower</key>
+         <key>ll.ToLower</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18550,7 +18627,7 @@
             <key>tooltip</key>
             <string>Returns a string that is Text with all lower-case characters.</string>
          </map>
-         <key>llToUpper</key>
+         <key>ll.ToUpper</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18573,7 +18650,7 @@
             <key>tooltip</key>
             <string>Returns a string that is Text with all upper-case characters.</string>
          </map>
-         <key>llTransferLindenDollars</key>
+         <key>ll.TransferLindenDollars</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18605,7 +18682,7 @@
             <key>tooltip</key>
             <string>Transfer Amount of linden dollars (L$) from script owner to AvatarID. Returns a key to a corresponding transaction_result event for the success of the transfer.\nAttempts to send the amount of money to the specified avatar, and trigger a transaction_result event identified by the returned key.</string>
          </map>
-         <key>llTriggerSound</key>
+         <key>ll.TriggerSound</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18637,7 +18714,7 @@
             <key>tooltip</key>
             <string>Plays Sound at Volume (0.0 - 1.0), centered at but not attached to object.\nThere is no limit to the number of triggered sounds which can be generated by an object, and calling llTriggerSound does not affect the attached sounds created by llPlaySound and llLoopSound. This is very useful for things like collision noises, explosions, etc. There is no way to stop or alter the volume of a sound triggered by this function.</string>
          </map>
-         <key>llTriggerSoundLimited</key>
+         <key>ll.TriggerSoundLimited</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18687,7 +18764,7 @@
             <key>tooltip</key>
             <string>Plays Sound at Volume (0.0 - 1.0), centered at but not attached to object, limited to axis-aligned bounding box defined by vectors top-north-east (TNE) and bottom-south-west (BSW).\nThere is no limit to the number of triggered sounds which can be generated by an object, and calling llTriggerSound does not affect the attached sounds created by llPlaySound and llLoopSound. This is very useful for things like collision noises, explosions, etc. There is no way to stop or alter the volume of a sound triggered by this function.</string>
          </map>
-         <key>llUnescapeURL</key>
+         <key>ll.UnescapeURL</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18710,7 +18787,7 @@
             <key>tooltip</key>
             <string>Returns the string that is the URL unescaped, replacing "%20" with spaces, etc., version of URL.\nThis function can output raw UTF-8 strings.</string>
          </map>
-         <key>llUnSit</key>
+         <key>ll.UnSit</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18733,7 +18810,7 @@
             <key>tooltip</key>
             <string>If agent identified by AvatarID is sitting on the object the script is attached to or is over land owned by the objects owner, the agent is forced to stand up.</string>
          </map>
-         <key>llUpdateCharacter</key>
+         <key>ll.UpdateCharacter</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18756,7 +18833,7 @@
             <key>tooltip</key>
             <string>Updates settings for a pathfinding character.</string>
          </map>
-         <key>llUpdateKeyValue</key>
+         <key>ll.UpdateKeyValue</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18808,7 +18885,7 @@
                Starts an asychronous transaction to update the value associated with the key given. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. If Checked is 1 the existing value in the data store must match the OriginalValue passed or XP_ERROR_RETRY_UPDATE will be returned. If Checked is 0 the key will be created if necessary.
             </string>
          </map>
-         <key>llVecDist</key>
+         <key>ll.VecDist</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18840,7 +18917,7 @@
             <key>tooltip</key>
             <string>Returns the distance between Location1 and Location2.</string>
          </map>
-         <key>llVecMag</key>
+         <key>ll.VecMag</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18863,7 +18940,7 @@
             <key>tooltip</key>
             <string>Returns the magnitude of the vector.</string>
          </map>
-         <key>llVecNorm</key>
+         <key>ll.VecNorm</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18886,7 +18963,7 @@
             <key>tooltip</key>
             <string>Returns normalized vector.</string>
          </map>
-         <key>llVolumeDetect</key>
+         <key>ll.VolumeDetect</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18909,7 +18986,7 @@
             <key>tooltip</key>
             <string>If DetectEnabled = TRUE, object becomes phantom but triggers collision_start and collision_end events when other objects start and stop interpenetrating.\nIf another object (including avatars) interpenetrates it, it will get a collision_start event.\nWhen an object stops interpenetrating, a collision_end event is generated. While the other is inter-penetrating, collision events are NOT generated.</string>
          </map>
-         <key>llWanderWithin</key>
+         <key>ll.WanderWithin</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18950,7 +19027,7 @@
             <key>tooltip</key>
             <string>Wander within a specified volume.\nSets a character to wander about a central spot within a specified area.</string>
          </map>
-         <key>llWater</key>
+         <key>ll.Water</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -18973,7 +19050,7 @@
             <key>tooltip</key>
             <string>Returns the water height below the object position + Offset.</string>
          </map>
-         <key>llWhisper</key>
+         <key>ll.Whisper</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -19005,7 +19082,7 @@
             <key>tooltip</key>
             <string>Whispers Text on Channel.\nThis chat method has a range of 10m radius.\nPUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.</string>
          </map>
-         <key>llWind</key>
+         <key>ll.Wind</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -19028,7 +19105,7 @@
             <key>tooltip</key>
             <string>Returns the wind velocity at the object position + Offset.</string>
          </map>
-         <key>llXorBase64</key>
+         <key>ll.XorBase64</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -19060,7 +19137,7 @@
             <key>tooltip</key>
             <string>Performs an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats if it is shorter than Text1.</string>
          </map>
-         <key>llXorBase64Strings</key>
+         <key>ll.XorBase64Strings</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -19094,7 +19171,7 @@
             <key>tooltip</key>
             <string>Deprecated: Please use llXorBase64 instead.\nIncorrectly performs an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats if it is shorter than Text1.\nRetained for backwards compatibility.</string>
          </map>
-         <key>llXorBase64StringsCorrect</key>
+         <key>ll.XorBase64StringsCorrect</key>
          <map>
             <key>deprecated</key>
             <boolean>true</boolean>
@@ -19128,7 +19205,7 @@
             <key>tooltip</key>
             <string>Deprecated: Please use llXorBase64 instead.\nCorrectly (unless nulls are present) performs an exclusive OR on two Base64 strings and returns a Base64 string.\nText2 repeats if it is shorter than Text1.</string>
          </map>
-         <key>llGetMinScaleFactor</key>
+         <key>ll.GetMinScaleFactor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>
@@ -19141,7 +19218,7 @@
             <key>tooltip</key>
             <string>Returns the smallest multiplicative uniform scale factor that can be successfully applied (via llScaleByFactor()) to the object without violating prim size or linkability rules.</string>
          </map>
-         <key>llGetMaxScaleFactor</key>
+         <key>ll.GetMaxScaleFactor</key>
          <map>
             <key>energy</key>
             <real>10.0</real>

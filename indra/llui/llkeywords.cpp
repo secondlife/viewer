@@ -219,9 +219,10 @@ LLUIColor LLKeywords::getColorGroup(std::string_view key_in)
     return LLUIColorTable::instance().getColor(color_group);
 }
 
-void LLKeywords::initialize(LLSD SyntaxXML)
+void LLKeywords::initialize(LLSD SyntaxXML, bool luau_language)
 {
     mSyntax = SyntaxXML;
+    mLuauLanguage = luau_language;
     mLoaded = true;
 }
 
@@ -235,13 +236,21 @@ void LLKeywords::processTokens()
     // Add 'standard' stuff: Quotes, Comments, Strings, Labels, etc. before processing the LLSD
     std::string delimiter;
     addToken(LLKeywordToken::TT_LABEL, "@", getColorGroup("misc-flow-label"), "Label\nTarget for jump statement", delimiter );
-    addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (single-line)\nNon-functional commentary or disabled code", delimiter );
-    addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/" );
     addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\"", LLUIColorTable::instance().getColor("SyntaxLslStringLiteral"), "String literal", "\"" );
 
-    // Lua-style comments
-    addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "--", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style single-line)\nNon-functional commentary or disabled code", delimiter);
-    addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "--[[", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style multi-line)\nNon-functional commentary or disabled code", "]]");
+    if (mLuauLanguage)
+    {
+        // Add Lua-style comments
+        addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "--", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style single-line)\nNon-functional commentary or disabled code", delimiter);
+        addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "--[[", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style multi-line)\nNon-functional commentary or disabled code", "]]");
+    }
+    else
+    {
+        // Add LSL-style comments
+        addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "//", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (single-line)\nNon-functional commentary or disabled code", delimiter);
+        addToken(LLKeywordToken::TT_TWO_SIDED_DELIMITER, "/*", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (multi-line)\nNon-functional commentary or disabled code", "*/");
+    }
+
 
     LLSD::map_iterator itr = mSyntax.beginMap();
     for ( ; itr != mSyntax.endMap(); ++itr)
@@ -669,7 +678,8 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
             if( !iswalnum( prev ) && (prev != '_') )
             {
                 const llwchar* p = cur;
-                while( iswalnum( *p ) || (*p == '_') )
+                while( iswalnum( *p ) || (*p == '_')
+                       || (mLuauLanguage && *p == '.') ) // Allow dots in Lua to pass the functions. For example, "ll.Say()" instead of "llSay()" in LSL
                 {
                     p++;
                 }

@@ -496,7 +496,8 @@ bool LLScriptEdCore::postBuild()
 
     // Intialise keyword highlighting for the current simulator's version of LSL
     LLSyntaxIdLSL::getInstance()->initialize();
-    processKeywords();
+    LLSyntaxLua::getInstance()->initialize();
+    //processKeywords();
 
     mCommitCallbackRegistrar.add("FontSize.Set", boost::bind(&LLScriptEdCore::onChangeFontSize, this, _2));
     mEnableCallbackRegistrar.add("FontSize.Check", boost::bind(&LLScriptEdCore::isFontSizeChecked, this, _2));
@@ -510,9 +511,14 @@ bool LLScriptEdCore::postBuild()
 
 void LLScriptEdCore::processKeywords()
 {
+    processKeywords(mEditor->getIsLuauLanguage());
+}
+
+void LLScriptEdCore::processKeywords(bool luau_language)
+{
     LL_DEBUGS("SyntaxLSL") << "Processing keywords" << LL_ENDL;
     mEditor->clearSegments();
-    mEditor->initKeywords();
+    mEditor->initKeywords(luau_language);
     mEditor->loadKeywords();
 
     string_vec_t primary_keywords;
@@ -531,6 +537,8 @@ void LLScriptEdCore::processKeywords()
             secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
         }
     }
+
+    mFunctions->removeall();
     for (string_vec_t::const_iterator iter = primary_keywords.begin();
          iter!= primary_keywords.end(); ++iter)
     {
@@ -2453,7 +2461,7 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
 
         bool mono = false, luau = false, luau_language = false;
         msg->getBOOLFast(_PREHASH_Script, _PREHASH_Mono, mono);
-        msg->getBOOLFast(_PREHASH_Script, _PREHASH_Luau, luau);
+        msg->getBOOLFast(_PREHASH_Script, _PREHASH_Luau, luau); // Luau compiler is enabled
         msg->getBOOLFast(_PREHASH_Script, _PREHASH_LuauLanguage, luau_language);
 
         std::string compile_target;
@@ -2465,7 +2473,7 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
             }
             else
             {
-                compile_target = "lsl_luau";
+                compile_target = "lsl-luau"; // Luau compiler running in LSL compatibility mode
             }
         }
         else if (mono)
@@ -2478,23 +2486,27 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
         }
 
         instance->mCompileTarget->setValue(compile_target);
+        instance->mScriptEd->processKeywords(luau && luau_language); // Use Luau syntax highlighting for Luau scripts
 
         bool lua_scripts_enabled = false;
 
-        // TODO: better handling of this
-        LLViewerRegion* region = gAgent.getRegion();
-        if (region && region->simulatorFeaturesReceived())
+        LLViewerObject* object = gObjectList.findObject(object_id);
+        if (object)
         {
-            LLSD simulatorFeatures;
-            region->getSimulatorFeatures(simulatorFeatures);
-            lua_scripts_enabled = simulatorFeatures["LuaScriptsEnabled"].asBoolean();
+            LLViewerRegion* region = object->getRegion();
+            if (region && region->simulatorFeaturesReceived())
+            {
+                LLSD simulatorFeatures;
+                region->getSimulatorFeatures(simulatorFeatures);
+                lua_scripts_enabled = simulatorFeatures["LuaScriptsEnabled"].asBoolean();
+            }
         }
 
         if (LLScrollListItem* luau_item = instance->mCompileTarget->findItemByValue("luau"))
         {
             luau_item->setEnabled(lua_scripts_enabled);
         }
-        if (LLScrollListItem* lsl_luau_item = instance->mCompileTarget->findItemByValue("lsl_luau"))
+        if (LLScrollListItem* lsl_luau_item = instance->mCompileTarget->findItemByValue("lsl-luau"))
         {
             lsl_luau_item->setEnabled(lua_scripts_enabled);
         }
@@ -2507,6 +2519,8 @@ void LLLiveLSLEditor::onCompileTargetChanged()
 {
     mCompileTarget->setEnabled(have_script_upload_cap(mObjectUUID));
     mScriptEd->enableSave(getIsModifiable());
+
+    mScriptEd->processKeywords(mCompileTarget->getValue().asString() == "luau");
 }
 
 void LLLiveLSLEditor::setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience )
