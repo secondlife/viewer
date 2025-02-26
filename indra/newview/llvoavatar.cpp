@@ -2794,7 +2794,10 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
 
     // attach objects that were waiting for a drawable
-    lazyAttach();
+    if (!mPendingAttachment.empty())
+    {
+        lazyAttach();
+    }
 
     // animate the character
     // store off last frame's root position to be consistent with camera position
