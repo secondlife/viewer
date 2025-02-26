@@ -348,8 +348,6 @@ std::string gLastVersionChannel;
 LLVector3 gWindVec(3.0, 3.0, 0.0);
 LLVector3 gRelativeWindVec(0.0, 0.0, 0.0);
 
-U32 gPacketsIn = 0;
-
 bool gRandomizeFramerate = false;
 bool gPeriodicSlowFrame = false;
 
@@ -358,6 +356,7 @@ bool gLLErrorActivated = false;
 bool gLogoutInProgress = false;
 
 bool gSimulateMemLeak = false;
+bool gDoDisconnect = false;
 
 // We don't want anyone, especially threads working on the graphics pipeline,
 // to have to block due to this WorkQueue being full.
@@ -372,7 +371,6 @@ const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
 const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
 const std::string LLERROR_MARKER_FILE_NAME("SecondLife.llerror_marker");
 const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
-static bool gDoDisconnect = false;
 static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
@@ -5257,7 +5255,6 @@ void LLAppViewer::idleNetwork()
                 }
 
                 total_decoded++;
-                gPacketsIn++;
 
                 if (total_decoded > MESSAGE_MAX_PER_FRAME)
                 {
