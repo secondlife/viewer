@@ -42,7 +42,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: [windows-large, macos-12-large]
+        runner: [windows-large]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
     runs-on: ${{ matrix.runner }}
     outputs:
@@ -316,48 +316,6 @@ jobs:
           client_secret: "${{ env.AZURE_CLIENT_SECRET }}"
           tenant_id: "${{ env.AZURE_TENANT_ID }}"
 
-  sign-and-package-mac:
-    env:
-      NOTARIZE_CREDS_MACOS:        ${{ secrets.NOTARIZE_CREDS_MACOS }}
-      SIGNING_CERT_MACOS:          ${{ secrets.SIGNING_CERT_MACOS }}
-      SIGNING_CERT_MACOS_IDENTITY: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
-      SIGNING_CERT_MACOS_PASSWORD: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
-    needs: build
-    runs-on: macos-latest
-    steps:
-      - name: Unpack Mac notarization credentials
-        if: env.NOTARIZE_CREDS_MACOS
-        id: note-creds
-        shell: bash
-        run: |
-          # In NOTARIZE_CREDS_MACOS we expect to find:
-          # USERNAME="..."
-          # PASSWORD="..."
-          # TEAM_ID="..."
-          eval "${{ env.NOTARIZE_CREDS_MACOS }}"
-          echo "::add-mask::$USERNAME"
-          echo "::add-mask::$PASSWORD"
-          echo "::add-mask::$TEAM_ID"
-          echo "note_user=$USERNAME" >> "$GITHUB_OUTPUT"
-          echo "note_pass=$PASSWORD" >> "$GITHUB_OUTPUT"
-          echo "note_team=$TEAM_ID" >> "$GITHUB_OUTPUT"
-          # If we didn't manage to retrieve all of these credentials, better
-          # find out sooner than later.
-          [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
-
-      - name: Sign and package Mac viewer
-        if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v2
-        with:
-          channel: ${{ needs.build.outputs.viewer_channel }}
-          imagename: ${{ needs.build.outputs.imagename }}
-          cert_base64: ${{ env.SIGNING_CERT_MACOS }}
-          cert_name: ${{ env.SIGNING_CERT_MACOS_IDENTITY }}
-          cert_pass: ${{ env.SIGNING_CERT_MACOS_PASSWORD }}
-          note_user: ${{ steps.note-creds.outputs.note_user }}
-          note_pass: ${{ steps.note-creds.outputs.note_pass }}
-          note_team: ${{ steps.note-creds.outputs.note_team }}
-
   post-windows-symbols:
     env:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
@@ -393,33 +351,8 @@ jobs:
           directory: _artifacts
           files: "**/{SecondLifeViewer.exe,llwebrtc.dll,*.pdb}"
 
-  post-mac-symbols:
-    env:
-      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
-      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
-    needs: build
-    if: needs.build.outputs.configuration == 'Release'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Mac Symbols
-        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: actions/download-artifact@v4
-        with:
-          name: macOS-symbols
-      - name: Post Mac symbols
-        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife-3p/symbol-upload@v10
-        with:
-          username: ${{ env.BUGSPLAT_USER }}
-          password: ${{ env.BUGSPLAT_PASS }}
-          database: "SecondLife_Viewer_2018"
-          application: ${{ needs.build.outputs.viewer_channel }}
-          version: ${{ needs.build.outputs.viewer_version }} (${{ needs.build.outputs.viewer_version }})
-          directory: .
-          files: "**/*.xcarchive.zip"
-
   release:
-    needs: [setup, build, sign-and-package-windows, sign-and-package-mac]
+    needs: [setup, build, sign-and-package-windows]
     runs-on: ubuntu-latest
     if: needs.setup.outputs.release_run
     steps:
@@ -435,8 +368,6 @@ jobs:
         run: |
           cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
           cp Windows-metadata/newview/viewer_version.txt Windows-viewer_version.txt
-          cp macOS-metadata/autobuild-package.xml macOS-autobuild-package.xml
-          cp macOS-metadata/newview/viewer_version.txt macOS-viewer_version.txt
 
       # forked from softprops/action-gh-release
       - name: Create GitHub release
@@ -459,7 +390,6 @@ jobs:
           append_body: true
           fail_on_unmatched_files: true
           files: |
-            macOS-installer/*.dmg
             Windows-installer/*.exe
             *-autobuild-package.xml
             *-viewer_version.txt
