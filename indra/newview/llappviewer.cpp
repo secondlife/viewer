@@ -1406,8 +1406,6 @@ bool LLAppViewer::doFrame()
                 LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df suspend");
                 // give listeners a chance to run
                 llcoro::suspend();
-                // if one of our coroutines threw an uncaught exception, rethrow it now
-                LLCoros::instance().rethrow();
             }
         }
 

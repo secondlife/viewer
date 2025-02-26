@@ -228,22 +228,6 @@ std::string LLCoros::logname()
     return data.mName.empty()? data.getKey() : data.mName;
 }
 
-void LLCoros::saveException(const std::string& name, std::exception_ptr exc)
-{
-    mExceptionQueue.emplace(name, exc);
-}
-
-void LLCoros::rethrow()
-{
-    if (! mExceptionQueue.empty())
-    {
-        ExceptionData front = mExceptionQueue.front();
-        mExceptionQueue.pop();
-        LL_WARNS("LLCoros") << "Rethrowing exception from coroutine " << front.name << LL_ENDL;
-        std::rethrow_exception(front.exception);
-    }
-}
-
 void LLCoros::setStackSize(S32 stacksize)
 {
     LL_DEBUGS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
@@ -312,14 +296,19 @@ static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
 U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
 {
-    if (code == STATUS_MSC_EXCEPTION)
+    if (LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
+    {
+        // Handled
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else if (code == STATUS_MSC_EXCEPTION)
     {
         // C++ exception, go on
         return EXCEPTION_CONTINUE_SEARCH;
     }
-    else if (!LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
+    else
     {
-        // handle it
+        // handle it, convert to std::exception
         return EXCEPTION_EXECUTE_HANDLER;
     }
 
@@ -381,14 +370,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         // viewer will carry on.
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
-    catch (...)
-    {
-        // Stash any OTHER kind of uncaught exception in the rethrow() queue
-        // to be rethrown by the main fiber.
-        LL_WARNS("LLCoros") << "Capturing uncaught exception in coroutine "
-                            << name << LL_ENDL;
-        LLCoros::instance().saveException(name, std::current_exception());
-    }
+    // uncaught exception by default will cause std::terminate()
 }
 
 //static
