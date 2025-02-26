@@ -310,18 +310,20 @@ namespace
 
 static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
-U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
 {
     if (code == STATUS_MSC_EXCEPTION)
     {
         // C++ exception, go on
         return EXCEPTION_CONTINUE_SEARCH;
     }
-    else
+    else if (!LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
     {
         // handle it
         return EXCEPTION_EXECUTE_HANDLER;
     }
+
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
 void sehandle(const LLCoros::callable_t& callable)
