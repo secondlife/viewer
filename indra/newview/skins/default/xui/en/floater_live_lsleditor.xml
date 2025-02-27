@@ -7,7 +7,7 @@
   height="607"
   layout="topleft"
   min_height="271"
-  min_width="600"
+  min_width="500"
   name="script ed float"
   help_topic="script_ed_float"
   save_rect="true"
@@ -120,34 +120,4 @@
     top_pad="-23"
     follows="right"
     visible="false"/>
-  <text
-    name="compile_target_label"
-    follows="right|bottom"
-    right="180"
-    top="-100"
-    width="100"
-  >Compiler:</text>
-  <combo_box
-    name="compile_target"
-    follows="right|bottom"
-    right="300"
-    top="-105"
-    width="140">
-    <combo_box.item
-      label="LSL: Legacy (LSO2)"
-      name="compile_target_lsl2"
-      value="lsl2" />
-    <combo_box.item
-      label="LSL: Mono"
-      name="compile_target_mono"
-      value="mono" />
-    <combo_box.item
-      label="Lua"
-      name="compile_target_luau"
-      value="luau" />
-    <combo_box.item
-      label="LSL/Luau"
-      name="compile_target_lsl_luau"
-      value="lsl-luau" />
-  </combo_box>
 </floater>
