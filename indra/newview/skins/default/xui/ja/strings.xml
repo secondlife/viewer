@@ -6150,6 +6150,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="inventory_folder_offered-im">
 		フォルダ「[ITEM_NAME]」がインベントリに送られてきました。
 	</string>
+	<string name="bot_warning">
+[NAME]とチャットしています。個人情報を共有しないでください。
+詳細は https://second.life/scripted-agents をご覧ください。
+	</string>
 	<string name="share_alert">
 		インベントリからここにアイテムをドラッグします。
 	</string>

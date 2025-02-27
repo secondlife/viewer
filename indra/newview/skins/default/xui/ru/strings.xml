@@ -4577,6 +4577,10 @@ support@secondlife.com.
 	<string name="inventory_folder_offered-im">
 		Предложена папка инвентаря «[ITEM_NAME]»
 	</string>
+	<string name="bot_warning">
+Вы общаетесь с ботом [NAME]. Не передавайте личные данные.
+Подробнее на https://second.life/scripted-agents.
+	</string>
 	<string name="share_alert">
 		Перетаскивайте вещи из инвентаря сюда
 	</string>

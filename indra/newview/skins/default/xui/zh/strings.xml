@@ -4573,6 +4573,10 @@ http://secondlife.com/support 求助解決問題。
 	<string name="inventory_folder_offered-im">
 		收納區資料夾&apos;[ITEM_NAME]&apos;已向人提供
 	</string>
+	<string name="bot_warning">
+您正在与人工智能机器人 [NAME] 聊天。请勿分享任何个人信息。
+了解更多：https://second.life/scripted-agents。
+	</string>
 	<string name="share_alert">
 		將收納區物品拖曳到這裡
 	</string>
