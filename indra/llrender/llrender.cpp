@@ -207,6 +207,12 @@ void LLTexUnit::bindFast(LLTexture* texture)
     }
     glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
     mHasMipMaps = gl_tex->mHasMipMaps;
+    if (gl_tex->mTexOptionsDirty)
+    {
+        gl_tex->mTexOptionsDirty = false;
+        setTextureAddressModeFast(gl_tex->mAddressMode);
+        setTextureFilteringOptionFast(gl_tex->mFilterOption);
+    }
 }
 
 bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
@@ -461,11 +467,16 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
     activate();
 
-    glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
-    glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
+    setTextureAddressModeFast(mode);
+}
+
+void LLTexUnit::setTextureAddressModeFast(eTextureAddressMode mode)
+{
+    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
+    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
     if (mCurrTexType == TT_CUBE_MAP)
     {
-        glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
     }
 }
 
@@ -475,6 +486,11 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 
     gGL.flush();
 
+    setTextureFilteringOptionFast(option);
+}
+
+void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option)
+{
     if (option == TFO_POINT)
     {
         glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
