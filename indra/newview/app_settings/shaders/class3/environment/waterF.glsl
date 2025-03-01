@@ -25,6 +25,8 @@
 
 // class3/environment/waterF.glsl
 
+#define WATER_MINIMAL 1
+
 out vec4 frag_color;
 
 #ifdef HAS_SUN_SHADOW
@@ -86,23 +88,17 @@ uniform sampler2D screenTex;
 uniform sampler2D depthMap;
 #endif
 
-uniform sampler2D refTex;
+uniform sampler2D exclusionTex;
 
-uniform float sunAngle;
-uniform float sunAngle2;
+uniform int classic_mode;
 uniform vec3 lightDir;
 uniform vec3 specular;
-uniform float lightExp;
+uniform float blurMultiplier;
 uniform float refScale;
 uniform float kd;
-uniform vec2 screenRes;
 uniform vec3 normScale;
 uniform float fresnelScale;
 uniform float fresnelOffset;
-uniform float blurMultiplier;
-uniform vec4 waterFogColor;
-uniform vec3 waterFogColorLinear;
-
 
 //bigWave is (refCoord.w, view.w);
 in vec4 refCoord;
@@ -122,6 +118,10 @@ vec3 BlendNormal(vec3 bump1, vec3 bump2)
 vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 
+vec3 atmosLighting(vec3 light);
+vec3 scaleSoftClip(vec3 light);
+vec3 toneMapNoExposure(vec3 color);
+
 vec3 vN, vT, vB;
 
 vec3 transform_normal(vec3 vNt)
@@ -132,59 +132,107 @@ vec3 transform_normal(vec3 vNt)
 void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, vec3 amblit_linear);
 
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
+
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit);
+
+
 vec3 getPositionWithNDC(vec3 ndc);
+
+void generateWaveNormals(out vec3 wave1, out vec3 wave2, out vec3 wave3)
+{
+    // Generate all of our wave normals.
+    // We layer these back and forth.
+
+    vec2 bigwave = vec2(refCoord.w, view.w);
+
+    vec3 wave1_a = texture(bumpMap, bigwave).xyz * 2.0 - 1.0;
+    vec3 wave2_a = texture(bumpMap, littleWave.xy).xyz * 2.0 - 1.0;
+    vec3 wave3_a = texture(bumpMap, littleWave.zw).xyz * 2.0 - 1.0;
+
+    vec3 wave1_b = texture(bumpMap2, bigwave).xyz * 2.0 - 1.0;
+    vec3 wave2_b = texture(bumpMap2, littleWave.xy).xyz * 2.0 - 1.0;
+    vec3 wave3_b = texture(bumpMap2, littleWave.zw).xyz * 2.0 - 1.0;
+
+    wave1 = BlendNormal(wave1_a, wave1_b);
+    wave2 = BlendNormal(wave2_a, wave2_b);
+    wave3 = BlendNormal(wave3_a, wave3_b);
+}
+
+void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave1, vec3 wave2, vec3 wave3, vec3 wavef)
+{
+    // We calculate the fresnel here.
+    // We do this by getting the dot product for each sets of waves, and applying scale and offset.
+
+    df3 = max(vec3(0), vec3(
+        dot(viewVec, wave1),
+        dot(viewVec, (wave2 + wave3) * 0.5),
+        dot(viewVec, wave3)
+    ) * fresnelScale + fresnelOffset);
+
+    df3 *= df3;
+
+    df2 = max(vec2(0), vec2(
+        df3.x + df3.y + df3.z,
+        dot(viewVec, wavef) * fresnelScale + fresnelOffset
+    ));
+}
 
 void main()
 {
     mirrorClip(vary_position);
+
     vN = vary_normal;
     vT = vary_tangent;
     vB = cross(vN, vT);
 
     vec3 pos = vary_position.xyz;
+    float linear_depth = 1 / -pos.z;
 
     float dist = length(pos.xyz);
 
     //normalize view vector
     vec3 viewVec = normalize(pos.xyz);
 
-    //get wave normals
-    vec2 bigwave = vec2(refCoord.w, view.w);
-    vec3 wave1_a = texture(bumpMap, bigwave, -2      ).xyz*2.0-1.0;
-    vec3 wave2_a = texture(bumpMap, littleWave.xy).xyz*2.0-1.0;
-    vec3 wave3_a = texture(bumpMap, littleWave.zw).xyz*2.0-1.0;
+    // Setup our waves.
 
-    vec3 wave1_b = texture(bumpMap2, bigwave      ).xyz*2.0-1.0;
-    vec3 wave2_b = texture(bumpMap2, littleWave.xy).xyz*2.0-1.0;
-    vec3 wave3_b = texture(bumpMap2, littleWave.zw).xyz*2.0-1.0;
+    vec3 wave1 = vec3(0, 0, 1);
+    vec3 wave2 = vec3(0, 0, 1);
+    vec3 wave3 = vec3(0, 0, 1);
 
-    //wave1_a = wave2_a = wave3_a = wave1_b = wave2_b = wave3_b = vec3(0,0,1);
+    generateWaveNormals(wave1, wave2, wave3);
 
-    vec3 wave1 = BlendNormal(wave1_a, wave1_b);
-    vec3 wave2 = BlendNormal(wave2_a, wave2_b);
-    vec3 wave3 = BlendNormal(wave3_a, wave3_b);
-
+    float dmod = sqrt(dist);
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 
-    //wave1 = transform_normal(wave1);
-    //wave2 = transform_normal(wave2);
-    //wave3 = transform_normal(wave3);
-
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
+
+    vec3 df3 = vec3(0);
+    vec2 df2 = vec2(0);
+
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
+    calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
+
+    calculateFresnelFactors(df3, df2, normalize(view.xyz), wave1, wave2, wave3, wavef);
 
     vec3 waver = wavef*3;
 
     vec3 up = transform_normal(vec3(0,0,1));
     float vdu = -dot(viewVec, up)*2;
 
-    vec3 wave_ibl = wavef;
+    vec3 wave_ibl = wavef * normScale;
     wave_ibl.z *= 2.0;
     wave_ibl = transform_normal(normalize(wave_ibl));
 
     vec3 norm = transform_normal(normalize(wavef));
 
     vdu = clamp(vdu, 0, 1);
-    wavef.z *= max(vdu*vdu*vdu, 0.1);
+    //wavef.z *= max(vdu*vdu*vdu, 0.1);
 
     wavef = normalize(wavef);
 
@@ -194,62 +242,66 @@ void main()
     float dist2 = dist;
     dist = max(dist, 5.0);
 
-    float dmod = sqrt(dist);
-
     //figure out distortion vector (ripply)
-    vec2 distort2 = distort + waver.xy * refScale / max(dmod, 1.0);
+    vec2 distort2 = distort + waver.xy * refScale / max(dmod, 1.0) * 2;
 
     distort2 = clamp(distort2, vec2(0), vec2(0.999));
 
-    vec3 sunlit;
-    vec3 amblit;
-    vec3 additive;
-    vec3 atten;
-
     float shadow = 1.0f;
+
+    float water_mask = texture(exclusionTex, distort).r;
 
 #ifdef HAS_SUN_SHADOW
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
 
-    calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
-
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
-
+    vec3 sunlit_linear = sunlit;
+    float fade = 1;
 #ifdef TRANSPARENT_WATER
-    vec4 fb = texture(screenTex, distort2);
-    float depth = texture(depthMap, distort2).r;
-    vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
+    float depth = texture(depthMap, distort).r;
 
-    if (refPos.z > pos.z-0.05)
+    vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
+
+    // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
+    fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
+    distort2 = mix(distort, distort2, min(1, fade * 10));
+    depth = texture(depthMap, distort2).r;
+
+    refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
+
+    if (pos.z < refPos.z - 0.05)
     {
-        //we sampled an above water sample, don't distort
         distort2 = distort;
-        fb = texture(screenTex, distort2);
-        depth = texture(depthMap, distort2).r;
-        refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
+
+    vec4 fb = texture(screenTex, distort2);
 
 #else
     vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));
+
+    if (water_mask < 1)
+        discard;
 #endif
 
-    // fudge sample on other side of water to be a tad darker
-    fb.rgb *= 0.75;
-
-    float metallic = 0.0;
-    float perceptualRoughness = 0.05;
-    float gloss      = 1.0 - perceptualRoughness;
+    float metallic = 1.0;
+    float perceptualRoughness = blurMultiplier;
+    float gloss      = 1 - perceptualRoughness;
 
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
-    sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
+    vec3 legacyenv = vec3(0);
 
-    irradiance       = vec3(0);
+    // TODO: Make this an option.
+#ifdef WATER_MINIMAL
+    sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
+#elif WATER_MINIMAL_PLUS
+    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, false, amblit);
+#endif
 
     vec3 diffuseColor = vec3(0);
     vec3 specularColor = vec3(0);
-    calcDiffuseSpecular(vec3(1), metallic, diffuseColor, specularColor);
+    vec3 specular_linear = srgb_to_linear(specular);
+    calcDiffuseSpecular(specular_linear, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
 
@@ -257,46 +309,36 @@ void main()
     float ao = 1.0;
     vec3 light_dir = transform_normal(lightDir);
 
-    perceptualRoughness = 0.0;
-    metallic = 1.0;
-
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
 
     float nl = 0;
     vec3 diffPunc = vec3(0);
     vec3 specPunc = vec3(0);
 
-    pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
+    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
-    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
+    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow * atten;
+    radiance *= df2.y;
+    //radiance = toneMapNoExposure(radiance);
+    vec3 color = vec3(0);
+    color = mix(fb.rgb, radiance, min(1, df2.x)) + punctual.rgb;
 
-    vec3 color = punctual * sunlit_linear * 2.75 * shadow;
-    vec3 iblDiff;
-    vec3 iblSpec;
-    pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0, iblDiff, iblSpec);
+    float water_haze_scale = 4;
 
-    color += iblDiff + iblSpec;
+    if (classic_mode > 0)
+        water_haze_scale = 1;
 
-    float nv = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
-    vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0);
-    float f = 1.0-brdf.y; //1.0 - (brdf.x+brdf.y);
-    f *= 0.9;
-    f *= f;
+    // This looks super janky, but we do this to restore water haze in the distance.
+    // These values were finagled in to try and bring back some of the distant brightening on legacy water.  Also works reasonably well on PBR skies such as PBR midday.
+    // color = mix(color, additive * water_haze_scale, (1 - atten));
 
-    // incoming scale is [0, 1] with 0.5 being default
-    // shift to 0.5 to 1.5
-    f *= (fresnelScale - 0.5)+1.0;
+    // We shorten the fade here at the shoreline so it doesn't appear too soft from a distance.
+    fade *= 60;
+    fade = min(1, fade);
+    color = mix(fb.rgb, color, fade);
 
-    // incoming offset is [0, 1] with 0.5 being default
-    // shift from -1 to 1
-    f += (fresnelOffset - 0.5) * 2.0;
+    float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0);
 
-    f = clamp(f, 0, 1);
-
-    color = ((1.0 - f) * color) + fb.rgb;
-
-    float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
-
-    frag_color = max(vec4(color, spec), vec4(0));
+    frag_color = min(vec4(1),max(vec4(color.rgb, spec * water_mask), vec4(0)));
 }
 

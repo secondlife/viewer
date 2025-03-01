@@ -330,6 +330,7 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_RGB:                                    return 24;
     case GL_SRGB:                                   return 24;
     case GL_RGB8:                                   return 24;
+    case GL_R11F_G11F_B10F:                         return 32;
     case GL_RGBA:                                   return 32;
     case GL_RGBA8:                                  return 32;
     case GL_RGB10_A2:                               return 32;
@@ -1773,7 +1774,7 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
     ref();
     LL::WorkQueue::postMaybe(
         mMainQueue,
-        [=]()
+        [=, this]()
         {
             LL_PROFILE_ZONE_NAMED("cglt - delete callback");
             syncTexName(new_tex_name);

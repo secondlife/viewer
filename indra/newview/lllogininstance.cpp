@@ -212,6 +212,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
     request_params["read_critical"] = false; // handleTOSResponse
     request_params["last_exec_event"] = mLastExecEvent;
     request_params["last_exec_duration"] = mLastExecDuration;
+    request_params["last_exec_session_id"] = mLastAgentSessionId.asString();
     request_params["mac"] = (char*)hashed_unique_id_string;
     request_params["version"] = LLVersionInfo::instance().getVersion();
     request_params["channel"] = LLVersionInfo::instance().getChannel();

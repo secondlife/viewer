@@ -56,6 +56,7 @@
 #include "llgroupmgr.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
+#include "lllandmarkactions.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
@@ -4317,8 +4318,17 @@ void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 {
-    LLViewerRegion *regionp = getRegion();
-    if(regionp && teleportCore())
+    bool is_local(false);
+    LLViewerRegion* regionp  = getRegion();
+
+    if (LLLandmark* landmark = gLandmarkList.getAsset(landmark_asset_id, NULL))
+    {
+        LLVector3d pos_global;
+        landmark->getGlobalPos(pos_global);
+        is_local = (regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY]));
+    }
+
+    if(regionp && teleportCore(is_local))
     {
         LL_INFOS("Teleport") << "Sending TeleportLandmarkRequest. Current region handle " << regionp->getHandle()
                              << " region id " << regionp->getRegionID()
@@ -4879,10 +4889,19 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
     LLXMLNodePtr root;
     bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 
-    if (!success || !root || !root->hasName( "teleport_messages" ))
+    if (!success)
     {
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Problem reading teleport string XML file: "
-               << xml_filename << LL_ENDL;
+            << xml_filename << LL_ENDL;
+        return;
+    }
+
+    if (!root || !root->hasName("teleport_messages"))
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Invalid teleport string XML file: "
+            << xml_filename << LL_ENDL;
         return;
     }
 

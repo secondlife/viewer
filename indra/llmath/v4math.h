@@ -32,6 +32,10 @@
 #include "v3math.h"
 #include "v2math.h"
 
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 class LLMatrix3;
 class LLMatrix4;
 class LLQuaternion;
@@ -73,6 +77,11 @@ class LLVector4
             mV[3] = (F32)sd[3].asReal();
         }
 
+        // GLM interop
+        explicit LLVector4(const glm::vec3& vec); // Initializes LLVector4 to (vec, 1)
+        explicit LLVector4(const glm::vec4& vec); // Initializes LLVector4 to vec
+        explicit operator glm::vec3() const;      // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
+        explicit operator glm::vec4() const;      // Initializes glm::vec4 to (vec[0]. vec[1], vec[2], vec[3])
 
         inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
 
@@ -85,6 +94,8 @@ class LLVector4
         inline void set(const LLVector4 &vec);          // Sets LLVector4 to vec
         inline void set(const LLVector3 &vec, F32 w = 1.f); // Sets LLVector4 to LLVector3 vec
         inline void set(const F32 *vec);                // Sets LLVector4 to vec
+        inline void set(const glm::vec4& vec); // Sets LLVector4 to vec
+        inline void set(const glm::vec3& vec, F32 w = 1.f); // Sets LLVector4 to LLVector3 vec with w defaulted to 1
 
         inline void setVec(F32 x, F32 y, F32 z);        // deprecated
         inline void setVec(F32 x, F32 y, F32 z, F32 w); // deprecated
@@ -223,6 +234,21 @@ inline LLVector4::LLVector4(const LLSD &sd)
     setValue(sd);
 }
 
+inline LLVector4::LLVector4(const glm::vec3& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
+    mV[VW] = 1.f;
+}
+
+inline LLVector4::LLVector4(const glm::vec4& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
+    mV[VW] = vec.w;
+}
 
 inline bool LLVector4::isFinite() const
 {
@@ -297,6 +323,21 @@ inline void LLVector4::set(const F32 *vec)
     mV[VW] = vec[VW];
 }
 
+inline void LLVector4::set(const glm::vec4& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
+    mV[VW] = vec.w;
+}
+
+inline void LLVector4::set(const glm::vec3& vec, F32 w)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = vec.z;
+    mV[VW] = w;
+}
 
 // deprecated
 inline void LLVector4::setVec(F32 x, F32 y, F32 z)
@@ -464,6 +505,16 @@ inline const LLVector4& operator/=(LLVector4 &a, F32 k)
 inline LLVector4 operator-(const LLVector4 &a)
 {
     return LLVector4( -a.mV[VX], -a.mV[VY], -a.mV[VZ] );
+}
+
+inline LLVector4::operator glm::vec3() const
+{
+    return glm::vec3(mV[VX], mV[VY], mV[VZ]);
+}
+
+inline LLVector4::operator glm::vec4() const
+{
+    return glm::make_vec4(mV);
 }
 
 inline F32  dist_vec(const LLVector4 &a, const LLVector4 &b)
