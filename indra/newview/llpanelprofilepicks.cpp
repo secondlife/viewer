@@ -55,8 +55,8 @@
 static LLPanelInjector<LLPanelProfilePicks> t_panel_profile_picks("panel_profile_picks");
 static LLPanelInjector<LLPanelProfilePick> t_panel_profile_pick("panel_profile_pick");
 
-static const F32 REQUEST_TIMOUT = 60;
-static const F32 LOCATION_CACHE_TIMOUT = 900;
+constexpr F32 REQUEST_TIMOUT = 60;
+constexpr F32 LOCATION_CACHE_TIMOUT = 900;
 
 class LLPickHandler : public LLCommandHandler
 {
