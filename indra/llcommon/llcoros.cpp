@@ -228,6 +228,22 @@ std::string LLCoros::logname()
     return data.mName.empty()? data.getKey() : data.mName;
 }
 
+void LLCoros::saveException(const std::string& name, std::exception_ptr exc)
+{
+    mExceptionQueue.emplace(name, exc);
+}
+
+void LLCoros::rethrow()
+{
+    if (! mExceptionQueue.empty())
+    {
+        ExceptionData front = mExceptionQueue.front();
+        mExceptionQueue.pop();
+        LL_WARNS("LLCoros") << "Rethrowing exception from coroutine " << front.name << LL_ENDL;
+        std::rethrow_exception(front.exception);
+    }
+}
+
 void LLCoros::setStackSize(S32 stacksize)
 {
     LL_DEBUGS("LLCoros") << "Setting coroutine stack size to " << stacksize << LL_ENDL;
@@ -370,7 +386,16 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         // viewer will carry on.
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
-    // uncaught exception by default will cause std::terminate()
+#ifndef LL_WINDOWS
+    catch (...)
+    {
+        // Stash any OTHER kind of uncaught exception in the rethrow() queue
+        // to be rethrown by the main fiber.
+        LL_WARNS("LLCoros") << "Capturing uncaught exception in coroutine "
+                            << name << LL_ENDL;
+        LLCoros::instance().saveException(name, std::current_exception());
+    }
+#endif // ! LL_WINDOWS
 }
 
 //static
