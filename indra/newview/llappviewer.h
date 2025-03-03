@@ -157,9 +157,6 @@ public:
     void loadNameCache();
     void saveNameCache();
 
-    void loadExperienceCache();
-    void saveExperienceCache();
-
     void removeMarkerFiles();
     void recordSessionToMarker();
 
