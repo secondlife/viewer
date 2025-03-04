@@ -6178,7 +6178,7 @@ void LLPickInfo::fetchResults()
             mObjectOffset = gAgentCamera.calcFocusOffset(objectp, v_intersection, mPickPt.mX, mPickPt.mY);
             mObjectID = objectp->mID;
             mObjectFace = (te_offset == NO_FACE) ? -1 : (S32)te_offset;
-
+            mPickHUD = objectp->isHUDAttachment();
 
 
             mPosGlobal = gAgent.getPosGlobalFromAgent(v_intersection);
