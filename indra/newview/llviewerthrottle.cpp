@@ -304,6 +304,7 @@ void LLViewerThrottle::updateDynamicThrottle()
     }
     mUpdateTimer.reset();
 
+    // Todo: account for dropped packets from LLPacketRing (or make the thing threaded)
     LLUnit<F32, LLUnits::Percent> mean_packets_lost = LLViewerStats::instance().getRecording().getMean(LLStatViewer::PACKETS_LOST_PERCENT);
     if (mean_packets_lost > TIGHTEN_THROTTLE_THRESHOLD)
     {

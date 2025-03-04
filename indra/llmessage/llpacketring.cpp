@@ -304,7 +304,7 @@ S32 LLPacketRing::drainSocket(S32 socket)
     S32 num_dropped_packets = (num_loops - 1 + old_num_packets) - mNumBufferedPackets;
     if (num_dropped_packets > 0)
     {
-        LL_WARNS("Messaging") << "dropped " << num_dropped_packets << " UDP packets" << LL_ENDL;
+        mNumDroppedPackets += num_dropped_packets;
     }
     return (S32)(mNumBufferedPackets);
 }
@@ -340,4 +340,18 @@ bool LLPacketRing::expandRing()
     mPacketRing.swap(new_ring);
     mHeadIndex = mNumBufferedPackets;
     return true;
+}
+
+void LLPacketRing::dumpPacketRingStats()
+{
+    mNumDroppedPacketsTotal += mNumDroppedPackets;
+    LL_INFOS("Messaging") << "Packet ring stats: " << std::endl
+                          << "Buffered packets: " << mNumBufferedPackets << std::endl
+                          << "Buffered bytes: " << mNumBufferedBytes << std::endl
+                          << "Dropped packets current: " << mNumDroppedPackets << std::endl
+                          << "Dropped packets total: " << mNumDroppedPacketsTotal << std::endl
+                          << "Dropped packets percentage: " << mDropPercentage << "%" << std::endl
+                          << "Actual in bytes: " << mActualBytesIn << std::endl
+                          << "Actual out bytes: " << mActualBytesOut << LL_ENDL;
+    mNumDroppedPackets = 0;
 }
