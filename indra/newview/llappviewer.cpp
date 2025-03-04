@@ -3413,6 +3413,7 @@ LLSD LLAppViewer::getViewerInfo() const
         info["PACKETS_LOST"] = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
         info["PACKETS_IN"] = packets_in;
         info["PACKETS_PCT"] = 100.f*info["PACKETS_LOST"].asReal() / info["PACKETS_IN"].asReal();
+        info["PACKETS_DROPPED"] = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_DROPPED);
     }
 
     if (mServerReleaseNotesURL.empty())

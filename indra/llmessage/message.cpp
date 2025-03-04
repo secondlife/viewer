@@ -724,6 +724,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
     // Check to see if we need to print debug info
     if ((mt_sec - mCircuitPrintTime) > mCircuitPrintFreq)
     {
+        mPacketRing.dumpPacketRingStats();
         dumpCircuitInfo();
         mCircuitPrintTime = mt_sec;
     }

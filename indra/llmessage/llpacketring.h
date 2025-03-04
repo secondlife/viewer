@@ -62,6 +62,9 @@ public:
 
     S32 getNumBufferedPackets() const { return (S32)(mNumBufferedPackets); }
     S32 getNumBufferedBytes() const { return mNumBufferedBytes; }
+    S32 getNumDroppedPackets() const { return mNumDroppedPacketsTotal + mNumDroppedPackets; }
+
+    void dumpPacketRingStats();
 protected:
     // returns 'true' if we should intentionally drop a packet
     bool computeDrop();
@@ -80,6 +83,8 @@ protected:
     std::vector<LLPacketBuffer*> mPacketRing;
     S16 mHeadIndex { 0 };
     S16 mNumBufferedPackets { 0 };
+    S32 mNumDroppedPackets { 0 };
+    S32 mNumDroppedPacketsTotal { 0 };
     S32 mNumBufferedBytes { 0 };
 
     S32 mActualBytesIn { 0 };
