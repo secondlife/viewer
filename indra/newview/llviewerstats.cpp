@@ -121,7 +121,6 @@ LLTrace::CountStatHandle<>  FPS("FPS", "Frames rendered"),
                             PACKETS_IN("Packets In", "Packets received"),
                             PACKETS_LOST("packetsloststat", "Packets lost"),
                             PACKETS_OUT("packetsoutstat", "Packets sent"),
-                            PACKETS_DROPPED("packetsdropped", "Packets dropped"),
                             TEXTURE_PACKETS("texturepacketsstat", "Texture data packets received"),
                             CHAT_COUNT("chatcount", "Chat messages sent"),
                             IM_COUNT("imcount", "IMs sent"),
@@ -648,7 +647,6 @@ void send_viewer_stats(bool include_preferences)
 
     fail["send_packet"] = (S32) gMessageSystem->mSendPacketFailureCount;
     fail["dropped"] = (S32) gMessageSystem->mDroppedPackets;
-    fail["ring_dropped"] = (S32)gMessageSystem->mPacketRing.getNumDroppedPackets();
     fail["resent"] = (S32) gMessageSystem->mResentPackets;
     fail["failed_resends"] = (S32) gMessageSystem->mFailedResendPackets;
     fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
