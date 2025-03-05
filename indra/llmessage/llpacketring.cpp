@@ -304,6 +304,8 @@ S32 LLPacketRing::drainSocket(S32 socket)
     S32 num_dropped_packets = (num_loops - 1 + old_num_packets) - mNumBufferedPackets;
     if (num_dropped_packets > 0)
     {
+        // It will eventually be accounted by mDroppedPackets
+        // and mPacketsLost, but track it here for logging purposes.
         mNumDroppedPackets += num_dropped_packets;
     }
     return (S32)(mNumBufferedPackets);
