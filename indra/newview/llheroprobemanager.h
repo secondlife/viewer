@@ -144,6 +144,7 @@ private:
     std::vector<LLPointer<LLVOVolume>>                       mHeroVOList;
     LLPointer<LLVOVolume>                                 mNearestHero;
 
-
+    // Part of a hacky workaround to fix #3331.
+    bool mInitialized = false;
 };
 

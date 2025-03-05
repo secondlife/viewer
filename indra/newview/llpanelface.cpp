@@ -420,6 +420,7 @@ bool LLPanelFace::postBuild()
     mCtrlColorTransp->setFollowsLeft();
 
     getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
+    getChildSetCommitCallback(mCheckHideWater, "checkbox_hide_water", [&](LLUICtrl*, const LLSD&) { onCommitHideWater(); });
 
     mLabelTexGen = getChild<LLTextBox>("tex gen");
     getChildSetCommitCallback(mComboTexGen, "combobox texgen", [&](LLUICtrl*, const LLSD&) { onCommitTexGen(); });
@@ -1024,6 +1025,13 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
         LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
 
+        LLColor4 color = LLColor4::white;
+        bool identical_color = false;
+
+        LLSelectedTE::getColor(color, identical_color);
+        F32 transparency  = (1.f - color.mV[VALPHA]) * 100.f;
+        mExcludeWater = (id == IMG_ALPHA_GRAD) && normmap_id.isNull() && specmap_id.isNull() && (transparency == 0);
+
         static S32 selected_te = -1;
         static LLUUID prev_obj_id;
         if ((LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()) &&
@@ -1098,12 +1106,26 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         updateVisibility(objectp);
 
+        // Water exclusion
+        {
+            mCheckHideWater->setEnabled(editable && !has_pbr_material && !isMediaTexSelected());
+            mCheckHideWater->set(mExcludeWater);
+            if (mExcludeWater && !has_pbr_material)
+            {
+                mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+            }
+            editable &= !mExcludeWater;
+
+            // disable controls for water exclusion face after updateVisibility, so the whole panel is not hidden
+            mComboMatMedia->setEnabled(editable);
+            mRadioMaterialType->setEnabled(editable);
+            mRadioPbrType->setEnabled(editable);
+            mCheckSyncSettings->setEnabled(editable);
+        }
+
         // Color swatch
         mLabelColor->setEnabled(editable);
-        LLColor4 color = LLColor4::white;
-        bool identical_color = false;
 
-        LLSelectedTE::getColor(color, identical_color);
         LLColor4 prev_color = mColorSwatch->get();
         mColorSwatch->setOriginal(color);
         mColorSwatch->set(color, force_set_values || (prev_color != color) || !editable);
@@ -1114,7 +1136,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         // Color transparency
         mLabelColorTransp->setEnabled(editable);
 
-        F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
         mCtrlColorTransp->setValue(editable ? transparency : 0);
         mCtrlColorTransp->setEnabled(editable && has_material);
 
@@ -1986,7 +2007,8 @@ void LLPanelFace::updateCopyTexButton()
     mMenuClipboardTexture->setEnabled(objectp && objectp->getPCode() == LL_PCODE_VOLUME && objectp->permModify()
                                                     && !objectp->isPermanentEnforced() && !objectp->isInventoryPending()
                                                     && (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
-                                                    && LLMaterialEditor::canClipboardObjectsMaterial());
+                                                    && LLMaterialEditor::canClipboardObjectsMaterial()
+                                                    && !mExcludeWater);
     std::string tooltip = (objectp && objectp->isInventoryPending()) ? LLTrans::getString("LoadingContents") : getString("paste_options");
     mMenuClipboardTexture->setToolTip(tooltip);
 }
@@ -3025,6 +3047,37 @@ void LLPanelFace::onCommitAlphaMode()
 void LLPanelFace::onCommitFullbright()
 {
     sendFullbright();
+}
+
+void LLPanelFace::onCommitHideWater()
+{
+    if (mCheckHideWater->get())
+    {
+        LLHandle<LLPanel> handle = getHandle();
+        LLNotificationsUtil::add("WaterExclusionSurfacesWarning", LLSD(), LLSD(),
+            [handle](const LLSD& notification, const LLSD& response)
+        {
+            if(LLPanelFace* panel = (LLPanelFace*)handle.get())
+            {
+                if (LLNotificationsUtil::getSelectedOption(notification, response) == 1)
+                {
+                    panel->mCheckHideWater->setValue(false);
+                    return;
+                }
+                // apply invisiprim texture and reset related params to set water exclusion surface
+                panel->sendBump(0);
+                panel->sendShiny(0);
+                LLSelectMgr::getInstance()->selectionSetAlphaOnly(1.f);
+                LLSelectMgr::getInstance()->selectionSetImage(IMG_ALPHA_GRAD);
+                LLSelectedTEMaterial::setDiffuseAlphaMode(panel, LLMaterial::DIFFUSE_ALPHA_MODE_BLEND);
+            }
+        });
+    }
+    else
+    {
+        // reset texture to default plywood
+        LLSelectMgr::getInstance()->selectionSetImage(DEFAULT_OBJECT_TEXTURE);
+    }
 }
 
 void LLPanelFace::onCommitGlow()
@@ -4889,6 +4942,26 @@ bool LLPanelFace::isIdenticalPlanarTexgen()
     bool identical_texgen = false;
     LLSelectedTE::getTexGen(selected_texgen, identical_texgen);
     return (identical_texgen && (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR));
+}
+
+bool LLPanelFace::isMediaTexSelected()
+{
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    if (LLViewerObject* objectp = node->getObject())
+    {
+        S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+        for (S32 te = 0; te < num_tes; ++te)
+        {
+            if (node->isTESelected(te))
+            {
+                if (objectp->getTE(te) && objectp->getTE(te)->hasMedia())
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical_face)

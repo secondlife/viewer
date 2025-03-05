@@ -2011,7 +2011,7 @@ void LLFolderView::onIdleUpdateMenu(void* user_data)
         self->updateMenuOptions(menu);
         menu->needsArrange(); // update menu height if needed
     }
-    gIdleCallbacks.deleteFunction(onIdleUpdateMenu, NULL);
+    gIdleCallbacks.deleteFunction(onIdleUpdateMenu, self);
 }
 
 bool LLFolderView::isFolderSelected()

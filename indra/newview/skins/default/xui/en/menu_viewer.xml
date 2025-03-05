@@ -2788,12 +2788,24 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorOSException" />
                 <menu_item_call.on_visible
                  function="Advanced.EnableErrorOSException" />
-            </menu_item_call>            
+            </menu_item_call>
             <menu_item_call
              label="Force a Crash in a Coroutine"
              name="Force a Crash in a Coroutine">
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorCoroutineCrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force a Crash in a Coroprocedure"
+             name="Force a Crash in a Coroprocedure">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorCoroprocedureCrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force a Crash in a Work Queue"
+             name="Force a Crash in a Work Queue">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorWorkQueueCrash" />
             </menu_item_call>
             <menu_item_call
              label="Force a Crash in a Thread"

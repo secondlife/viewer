@@ -255,8 +255,8 @@ void main()
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
-    float fade = 0;
+    vec3 sunlit_linear = sunlit;
+    float fade = 1;
 #ifdef TRANSPARENT_WATER
     float depth = texture(depthMap, distort).r;
 
@@ -317,7 +317,7 @@ void main()
 
     pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
-    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
+    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow * atten;
     radiance *= df2.y;
     //radiance = toneMapNoExposure(radiance);
     vec3 color = vec3(0);
