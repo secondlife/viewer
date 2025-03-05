@@ -11618,7 +11618,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>0.04</real>
+        <real>0.0095</real>
     </map>
     <key>TextureScaleMaxAreaFactor</key>
     <map>
