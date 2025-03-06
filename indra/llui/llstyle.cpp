@@ -39,7 +39,7 @@ LLStyle::Params::Params()
     readonly_color("readonly_color", LLColor4::black),
     selected_color("selected_color", LLColor4::black),
     alpha("alpha", 1.f),
-    font("font", LLFontGL::getFontMonospace()),
+    font("font", LLStyle::getDefaultFont()),
     image("image"),
     link_href("href"),
     is_link("is_link")
@@ -68,6 +68,11 @@ void LLStyle::setFont(const LLFontGL* font)
 const LLFontGL* LLStyle::getFont() const
 {
     return mFont;
+}
+
+const LLFontGL* LLStyle::getDefaultFont()
+{
+    return LLFontGL::getFontMonospace();
 }
 
 void LLStyle::setLinkHREF(const std::string& href)

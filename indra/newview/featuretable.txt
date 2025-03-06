@@ -85,6 +85,7 @@ RenderExposure				1   4
 RenderTonemapType			1   1
 RenderTonemapMix			1   1
 RenderDisableVintageMode           1   1
+RenderMaxTextureResolution         1   2048
 
 //
 // Low Graphics Settings
@@ -126,6 +127,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderDisableVintageMode           1   0
+RenderMaxTextureResolution         1   512
 
 //
 // Medium Low Graphics Settings
@@ -167,6 +169,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderDisableVintageMode           1   0
+RenderMaxTextureResolution         1   1024
 
 //
 // Medium Graphics Settings (standard)
@@ -207,6 +210,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderMaxTextureResolution  1   2048
 
 //
 // Medium High Graphics Settings
@@ -247,6 +251,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderMaxTextureResolution  1   2048
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -287,6 +292,7 @@ RenderCASSharpness          1   0.4
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderMaxTextureResolution  1   2048
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + all shadows)
@@ -327,6 +333,7 @@ RenderCASSharpness          1   0.4
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderMaxTextureResolution  1   2048
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -367,6 +374,7 @@ RenderCASSharpness          1   0.4
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderMaxTextureResolution  1   2048
 
 //
 // Class Unknown Hardware (unknown)
@@ -399,6 +407,7 @@ RenderShadowDetail			0	0
 RenderReflectionProbeDetail	0	-1
 RenderMirrors				0	0
 RenderDisableVintageMode           1   0
+RenderMaxTextureResolution         1   2048
 
 list Intel
 RenderAnisotropic			1	0

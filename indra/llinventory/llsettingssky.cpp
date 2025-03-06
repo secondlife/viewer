@@ -137,7 +137,8 @@ const std::string LLSettingsSky::SETTING_REFLECTION_PROBE_AMBIANCE("reflection_p
 
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("651510b8-5f4d-8991-1592-e7eeab2a5a06");
 
-F32 LLSettingsSky::sAutoAdjustProbeAmbiance = 1.f;
+const F32 LLSettingsSky::DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE = 1.f;
+F32 LLSettingsSky::sAutoAdjustProbeAmbiance = DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
 
 static const LLUUID DEFAULT_SUN_ID("32bfbcea-24b1-fb9d-1ef9-48a28a63730f"); // dataserver
 static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
@@ -2032,43 +2033,43 @@ F32 LLSettingsSky::getGamma() const
     return mGamma;
 }
 
-F32 LLSettingsSky::getHDRMin() const
+F32 LLSettingsSky::getHDRMin(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
         return 0.f;
 
     return mHDRMin;
 }
 
-F32 LLSettingsSky::getHDRMax() const
+F32 LLSettingsSky::getHDRMax(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
         return 0.f;
 
     return mHDRMax;
 }
 
-F32 LLSettingsSky::getHDROffset() const
+F32 LLSettingsSky::getHDROffset(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
         return 1.0f;
 
     return mHDROffset;
 }
 
-F32 LLSettingsSky::getTonemapMix() const
+F32 LLSettingsSky::getTonemapMix(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
+    {
+        // legacy settings do not support tonemaping
         return 0.0f;
+    }
 
     return mTonemapMix;
 }
 
 void LLSettingsSky::setTonemapMix(F32 mix)
 {
-    if (mCanAutoAdjust)
-        return;
-
     mTonemapMix = mix;
 }
 
