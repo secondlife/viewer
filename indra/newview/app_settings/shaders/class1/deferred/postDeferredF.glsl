@@ -121,7 +121,7 @@ void main()
 
         diff /= w;
     }
-    
+
     diff.rgb = clampHDRRange(diff.rgb);
     frag_color = diff;
 }
