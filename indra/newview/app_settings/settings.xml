@@ -7794,6 +7794,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderTextureVRAMDivisor</key>
+  <map>
+      <key>Comment</key>
+      <string>Divisor for maximum amount of VRAM the viewer will use for textures. 1 = all the VRAM.  Used in conjunction with RenderMaxVRAMBudget.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
+  </map>
   <key>RenderMinFreeMainMemoryThreshold</key>
   <map>
     <key>Comment</key>
