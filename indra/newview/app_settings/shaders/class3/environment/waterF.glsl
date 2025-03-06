@@ -264,8 +264,11 @@ void main()
 
     // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
 #ifdef SHORELINE_FADE
-    fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
+    fade = max(0,min(1, (pos.z - refPos.z) / 10))
+#else
+    fade = 1 * water_mask;
 #endif
+
     distort2 = mix(distort, distort2, min(1, fade * 10));
     depth = texture(depthMap, distort2).r;
 
