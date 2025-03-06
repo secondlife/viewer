@@ -910,7 +910,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         U32 face_count = 0;
 
         // get adjusted bias based on image resolution
-        F32 max_discard = F32(imagep->getMaxDiscardLevel());
+        LLImageGL* img = imagep->getGLTexture();
+        F32 max_discard = F32(img ? img->getMaxDiscardLevel() : MAX_DISCARD_LEVEL);
         F32 bias = llclamp(max_discard - 2.f, 1.f, LLViewerTexture::sDesiredDiscardBias);
 
         // convert bias into a vsize scaler
