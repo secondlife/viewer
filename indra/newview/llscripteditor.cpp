@@ -141,20 +141,24 @@ void LLScriptEditor::drawLineNumbers()
     }
 }
 
-void LLScriptEditor::initKeywords()
+void LLScriptEditor::initKeywords(bool luau_language)
 {
-    mKeywords.initialize(LLSyntaxIdLSL::getInstance()->getKeywordsXML());
+    mKeywordsLua.initialize(LLSyntaxLua::getInstance()->getKeywordsXML(), true);
+    mKeywordsLSL.initialize(LLSyntaxIdLSL::getInstance()->getKeywordsXML(), false);
+
+    mLuauLanguage = luau_language;
+
 }
 
 void LLScriptEditor::loadKeywords()
 {
     LL_PROFILE_ZONE_SCOPED;
-    mKeywords.processTokens();
+    getKeywords().processTokens();
 
     LLStyleConstSP style = new LLStyle(LLStyle::Params().font(getScriptFont()).color(mDefaultColor.get()));
 
     segment_vec_t segment_list;
-    mKeywords.findSegments(&segment_list, getWText(), *this, style);
+    getKeywords().findSegments(&segment_list, getWText(), *this, style);
 
     mSegments.clear();
     segment_set_t::iterator insert_it = mSegments.begin();
@@ -166,7 +170,7 @@ void LLScriptEditor::loadKeywords()
 
 void LLScriptEditor::updateSegments()
 {
-    if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
+    if (mReflowIndex < S32_MAX && getKeywords().isLoaded() && mParseOnTheFly)
     {
         LL_PROFILE_ZONE_SCOPED;
 
@@ -174,7 +178,7 @@ void LLScriptEditor::updateSegments()
 
         // HACK:  No non-ascii keywords for now
         segment_vec_t segment_list;
-        mKeywords.findSegments(&segment_list, getWText(), *this, style);
+        getKeywords().findSegments(&segment_list, getWText(), *this, style);
 
         clearSegments();
         for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
@@ -192,6 +196,21 @@ void LLScriptEditor::clearSegments()
     {
         mSegments.clear();
     }
+}
+
+LLKeywords::keyword_iterator_t LLScriptEditor::keywordsBegin()
+{
+    return mLuauLanguage ? mKeywordsLua.begin() : mKeywordsLSL.begin();
+}
+
+LLKeywords::keyword_iterator_t LLScriptEditor::keywordsEnd()
+{
+    return mLuauLanguage ? mKeywordsLua.end() : mKeywordsLSL.end();
+}
+
+LLKeywords& LLScriptEditor::getKeywords()
+{
+    return mLuauLanguage ? mKeywordsLua : mKeywordsLSL;
 }
 
 // Most of this is shamelessly copied from LLTextBase

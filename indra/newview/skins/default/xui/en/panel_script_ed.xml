@@ -219,7 +219,7 @@
     label="Save"
     label_selected="Save"
     layout="topleft"
-    top_pad="-35"
+    top_pad="-23"
      right="487"
     name="Save_btn"
     width="81" />
@@ -233,4 +233,37 @@
      right="400"
     name="Edit_btn"
     width="81" />
+  <combo_box
+    name="compile_target"
+    follows="right|bottom"
+    height="23"
+    layout="topleft"
+    top_pad="-23"
+     right="300"
+    width="140">
+    <combo_box.item
+      label="LSL: Legacy (LSO2)"
+      name="compile_target_lsl2"
+      value="lsl2" />
+    <combo_box.item
+      label="LSL: Mono"
+      name="compile_target_mono"
+      value="mono" />
+    <combo_box.item
+      label="Lua"
+      name="compile_target_luau"
+      value="luau" />
+    <combo_box.item
+      label="LSL/Luau"
+      name="compile_target_lsl_luau"
+      value="lsl-luau" />
+  </combo_box>
+  <text
+    name="compile_target_label"
+    follows="right|bottom"
+    layout="topleft"
+    top_pad="-39"
+    width="90">
+      Compiler:
+  </text>
 </panel>

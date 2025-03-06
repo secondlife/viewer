@@ -47,11 +47,13 @@ public:
     virtual void    draw();
     bool postBuild();
 
-    void    initKeywords();
+    void    initKeywords(bool luau_language = false);
     void    loadKeywords();
     /* virtual */ void  clearSegments();
-    LLKeywords::keyword_iterator_t keywordsBegin()  { return mKeywords.begin(); }
-    LLKeywords::keyword_iterator_t keywordsEnd()    { return mKeywords.end(); }
+    LLKeywords::keyword_iterator_t keywordsBegin();
+    LLKeywords::keyword_iterator_t keywordsEnd();
+    LLKeywords& getKeywords();
+    bool    getIsLuauLanguage() { return mLuauLanguage; }
 
     static std::string getScriptFontSize();
     LLFontGL* getScriptFont();
@@ -68,7 +70,10 @@ private:
     void    loadKeywords(const std::string& filename_keywords,
                          const std::string& filename_colors);
 
-    LLKeywords  mKeywords;
+    LLKeywords  mKeywordsLua;
+    LLKeywords  mKeywordsLSL;
+    bool        mLuauLanguage;
+
     bool        mShowLineNumbers;
     bool mUseDefaultFontSize;
 };

@@ -99,6 +99,7 @@ public:
 
     void            initMenu();
     void            processKeywords();
+    void            processKeywords(bool luau_language);
 
     virtual void    draw();
     /*virtual*/ bool    postBuild();
@@ -197,6 +198,7 @@ private:
     LLUUID          mAssetID;
     LLTextBox*      mLineCol = nullptr;
     LLButton*       mSaveBtn = nullptr;
+    LLComboBox*     mCompileTarget = nullptr;
 
     LLScriptEdContainer* mContainer; // parent view
 
@@ -246,6 +248,7 @@ protected:
 
     virtual void loadAsset();
     /*virtual*/ void saveIfNeeded(bool sync = true);
+    void onCompileTargetChanged();
 
     static void onSearchReplace(void* userdata);
     static void onLoad(void* userdata);
@@ -290,8 +293,8 @@ public:
     void setIsNew() { mIsNew = true; }
 
     static void setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience );
-    static void onToggleExperience(LLUICtrl *ui, void* userdata);
-    static void onViewProfile(LLUICtrl *ui, void* userdata);
+    void onToggleExperience();
+    void onViewProfile();
 
     void setExperienceIds(const LLSD& experience_ids);
     void buildExperienceList();
@@ -301,6 +304,8 @@ public:
 
     void setObjectName(std::string name) { mObjectName = name; }
 
+    bool getIsModifiable() const { return mIsModifiable; } // Evaluated on load assert
+
 private:
     virtual bool canClose();
     void closeIfNeeded();
@@ -308,8 +313,6 @@ private:
 
     virtual void loadAsset();
     /*virtual*/ void saveIfNeeded(bool sync = true);
-    bool monoChecked() const;
-
 
     static void onSearchReplace(void* userdata);
     static void onLoad(void* userdata);
@@ -318,14 +321,14 @@ private:
     static void onLoadComplete(const LLUUID& asset_uuid,
                                LLAssetType::EType type,
                                void* user_data, S32 status, LLExtStat ext_status);
-    static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
-    static void onReset(void* userdata);
+    void onRunningCheckboxClicked();
+    void onReset();
 
     void loadScriptText(const LLUUID &uuid, LLAssetType::EType type);
 
     static void* createScriptEdPanel(void* userdata);
 
-    static void onMonoCheckboxClicked(LLUICtrl*, void* userdata);
+    void onCompileTargetChanged();
 
     static void finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, bool isRunning);
     static void receiveExperienceIds(LLSD result, LLHandle<LLLiveLSLEditor> parent);
@@ -343,19 +346,17 @@ private:
     S32                 mPendingUploads;
 
     bool                mIsSaving;
+    bool                mIsModifiable;
 
-    bool getIsModifiable() const { return mIsModifiable; } // Evaluated on load assert
+    LLButton*           mResetButton       { nullptr };
+    LLCheckBoxCtrl*     mRunningCheckbox   { nullptr };
+    LLComboBox*         mExperiences       { nullptr };
+    LLCheckBoxCtrl*     mExperienceEnabled { nullptr };
+    LLButton*           mViewProfileButton { nullptr };
 
-    LLCheckBoxCtrl* mMonoCheckbox;
-    bool mIsModifiable;
-
-
-    LLComboBox*     mExperiences;
-    LLCheckBoxCtrl* mExperienceEnabled;
-    LLSD            mExperienceIds;
-
+    LLSD                mExperienceIds;
     LLHandle<LLFloater> mExperienceProfile;
-    std::string mObjectName;
+    std::string         mObjectName;
 };
 
 #endif  // LL_LLPREVIEWSCRIPT_H
