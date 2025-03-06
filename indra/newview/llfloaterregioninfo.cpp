@@ -851,6 +851,13 @@ void LLPanelRegionInfo::initCtrl(const std::string& name)
     getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionInfo::onChangeAnything, this));
 }
 
+void LLPanelRegionInfo::initAndSetTexCtrl(LLTextureCtrl*& ctrl, const std::string& name)
+{
+    ctrl = findChild<LLTextureCtrl>(name);
+    if (ctrl)
+        ctrl->setOnSelectCallback([this](LLUICtrl* ctrl, const LLSD& param){ onChangeAnything(); });
+}
+
 template<typename CTRL>
 void LLPanelRegionInfo::initAndSetCtrl(CTRL*& ctrl, const std::string& name)
 {
@@ -1580,7 +1587,7 @@ bool LLPanelRegionTerrainInfo::postBuild()
 
     for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
-        initAndSetCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
+        initAndSetTexCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
         if (mTextureDetailCtrl[i])
         {
             mTextureDetailCtrl[i]->setBakeTextureEnabled(false);
