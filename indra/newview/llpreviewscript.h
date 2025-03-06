@@ -198,6 +198,7 @@ private:
     LLUUID          mAssetID;
     LLTextBox*      mLineCol = nullptr;
     LLButton*       mSaveBtn = nullptr;
+    LLComboBox*     mCompileTarget = nullptr;
 
     LLScriptEdContainer* mContainer; // parent view
 
@@ -247,6 +248,7 @@ protected:
 
     virtual void loadAsset();
     /*virtual*/ void saveIfNeeded(bool sync = true);
+    void onCompileTargetChanged();
 
     static void onSearchReplace(void* userdata);
     static void onLoad(void* userdata);
@@ -348,7 +350,6 @@ private:
 
     LLButton*           mResetButton       { nullptr };
     LLCheckBoxCtrl*     mRunningCheckbox   { nullptr };
-    LLComboBox*         mCompileTarget     { nullptr };
     LLComboBox*         mExperiences       { nullptr };
     LLCheckBoxCtrl*     mExperienceEnabled { nullptr };
     LLButton*           mViewProfileButton { nullptr };

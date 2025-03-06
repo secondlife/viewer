@@ -119,6 +119,29 @@ static bool have_script_upload_cap(LLUUID& object_id)
     return object && (! object->getRegion()->getCapability("UpdateScriptTask").empty());
 }
 
+static bool have_lua_enabled(const LLUUID& object_id)
+{
+    LLViewerRegion* region = nullptr;
+    LLViewerObject* object = gObjectList.findObject(object_id);
+    if (object)
+    {
+        region = object->getRegion();
+    }
+    else
+    {
+        region = gAgent.getRegion();
+    }
+
+    if (region && region->simulatorFeaturesReceived())
+    {
+        LLSD simulatorFeatures;
+        region->getSimulatorFeatures(simulatorFeatures);
+        return simulatorFeatures["LuaScriptsEnabled"].asBoolean();
+    }
+
+    return false;
+}
+
 /// ---------------------------------------------------------------------------
 /// LLLiveLSLFile
 /// ---------------------------------------------------------------------------
@@ -497,7 +520,7 @@ bool LLScriptEdCore::postBuild()
     // Intialise keyword highlighting for the current simulator's version of LSL
     LLSyntaxIdLSL::getInstance()->initialize();
     LLSyntaxLua::getInstance()->initialize();
-    //processKeywords();
+    processKeywords();
 
     mCommitCallbackRegistrar.add("FontSize.Set", boost::bind(&LLScriptEdCore::onChangeFontSize, this, _2));
     mEnableCallbackRegistrar.add("FontSize.Check", boost::bind(&LLScriptEdCore::isFontSizeChecked, this, _2));
@@ -505,6 +528,18 @@ bool LLScriptEdCore::postBuild()
     LLToggleableMenu *context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_lsl_font_size.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     getChild<LLMenuButton>("font_btn")->setMenu(context_menu, LLMenuButton::MP_BOTTOM_LEFT, true);
+
+
+    bool lua_scripts_enabled = have_lua_enabled(LLUUID::null);
+    mCompileTarget = getChild<LLComboBox>("compile_target");
+    if (LLScrollListItem* luau_item = mCompileTarget->findItemByValue("luau"))
+    {
+        luau_item->setEnabled(lua_scripts_enabled);
+    }
+    if (LLScrollListItem* lsl_luau_item = mCompileTarget->findItemByValue("lsl-luau"))
+    {
+        lsl_luau_item->setEnabled(lua_scripts_enabled);
+    }
 
     return true;
 }
@@ -1626,6 +1661,9 @@ bool LLPreviewLSL::postBuild()
     childSetCommitCallback("desc", LLPreview::onText, this);
     getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 
+    mScriptEd->mCompileTarget = getChild<LLComboBox>("compile_target");
+    mScriptEd->mCompileTarget->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCompileTargetChanged(); });
+
     return LLPreview::postBuild();
 }
 
@@ -1841,11 +1879,12 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
         mPendingUploads++;
         if (!url.empty())
         {
+            std::string compile_target(mScriptEd->mCompileTarget->getValue());
             std::string buffer(mScriptEd->mEditor->getText());
 
             LLUUID old_asset_id = inv_item->getAssetUUID().isNull() ? mScriptEd->getAssetID() : inv_item->getAssetUUID();
 
-            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(mItemUUID, buffer,
+            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(mItemUUID, compile_target, buffer,
                 [old_asset_id](LLUUID itemId, LLUUID, LLUUID, LLSD response) {
                     LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
                     LLPreviewLSL::finishedLSLUpload(itemId, response);
@@ -1855,6 +1894,11 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
         }
     }
+}
+
+void LLPreviewLSL::onCompileTargetChanged()
+{
+    mScriptEd->processKeywords(mScriptEd->mCompileTarget->getValue().asString() == "luau");
 }
 
 // static
@@ -1969,9 +2013,6 @@ bool LLLiveLSLEditor::postBuild()
     mRunningCheckbox = getChild<LLCheckBoxCtrl>("running");
     mRunningCheckbox->setCommitCallback([&](LLUICtrl*, const LLSD&) { onRunningCheckboxClicked(); });
 
-    mCompileTarget = getChild<LLComboBox>("compile_target");
-    mCompileTarget->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCompileTargetChanged(); });
-
     mExperiences = getChild<LLComboBox>("Experiences...");
     mExperiences->setCommitCallback([&](LLUICtrl*, const LLSD&) { experienceChanged(); });
 
@@ -1983,6 +2024,9 @@ bool LLLiveLSLEditor::postBuild()
 
     mScriptEd->mEditor->makePristine();
     mScriptEd->mEditor->setFocus(true);
+
+    mScriptEd->mCompileTarget = getChild<LLComboBox>("compile_target");
+    mScriptEd->mCompileTarget->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCompileTargetChanged(); });
 
     return LLPreview::postBuild();
 }
@@ -2266,7 +2310,7 @@ void LLLiveLSLEditor::draw()
             // incorrect after a release/claim cycle, but will be
             // correct after clicking on it.
             mRunningCheckbox->set(false);
-            mCompileTarget->clear();
+            mScriptEd->mCompileTarget->clear();
         }
     }
     else if (!object)
@@ -2275,7 +2319,7 @@ void LLLiveLSLEditor::draw()
         // Really ought to put in main window.
         setTitle(LLTrans::getString("ObjectOutOfRange"));
         mRunningCheckbox->setEnabled(false);
-        mCompileTarget->setEnabled(false);
+        mScriptEd->mCompileTarget->setEnabled(false);
         // object may have fallen out of range.
         mHaveRunningInfo = false;
     }
@@ -2390,7 +2434,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 
     if (!url.empty())
     {
-        std::string compile_target(mCompileTarget->getValue());
+        std::string compile_target(mScriptEd->mCompileTarget->getValue());
         std::string buffer(mScriptEd->mEditor->getText());
         LLUUID old_asset_id = mScriptEd->getAssetID();
 
@@ -2485,42 +2529,29 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
             compile_target = "lsl2";
         }
 
-        instance->mCompileTarget->setValue(compile_target);
+        instance->mScriptEd->mCompileTarget->setValue(compile_target);
         instance->mScriptEd->processKeywords(luau && luau_language); // Use Luau syntax highlighting for Luau scripts
 
-        bool lua_scripts_enabled = false;
-
-        LLViewerObject* object = gObjectList.findObject(object_id);
-        if (object)
-        {
-            LLViewerRegion* region = object->getRegion();
-            if (region && region->simulatorFeaturesReceived())
-            {
-                LLSD simulatorFeatures;
-                region->getSimulatorFeatures(simulatorFeatures);
-                lua_scripts_enabled = simulatorFeatures["LuaScriptsEnabled"].asBoolean();
-            }
-        }
-
-        if (LLScrollListItem* luau_item = instance->mCompileTarget->findItemByValue("luau"))
+        bool lua_scripts_enabled = have_lua_enabled(object_id);
+        if (LLScrollListItem* luau_item = instance->mScriptEd->mCompileTarget->findItemByValue("luau"))
         {
             luau_item->setEnabled(lua_scripts_enabled);
         }
-        if (LLScrollListItem* lsl_luau_item = instance->mCompileTarget->findItemByValue("lsl-luau"))
+        if (LLScrollListItem* lsl_luau_item = instance->mScriptEd->mCompileTarget->findItemByValue("lsl-luau"))
         {
             lsl_luau_item->setEnabled(lua_scripts_enabled);
         }
 
-        instance->mCompileTarget->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));
+        instance->mScriptEd->mCompileTarget->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));
     }
 }
 
 void LLLiveLSLEditor::onCompileTargetChanged()
 {
-    mCompileTarget->setEnabled(have_script_upload_cap(mObjectUUID));
+    mScriptEd->mCompileTarget->setEnabled(have_script_upload_cap(mObjectUUID));
     mScriptEd->enableSave(getIsModifiable());
 
-    mScriptEd->processKeywords(mCompileTarget->getValue().asString() == "luau");
+    mScriptEd->processKeywords(mScriptEd->mCompileTarget->getValue().asString() == "luau");
 }
 
 void LLLiveLSLEditor::setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience )
