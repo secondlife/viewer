@@ -725,11 +725,11 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
             || FT_Err_Invalid_Composite == error
             || (FT_Err_Ok != error && LLStringOps::isEmoji(wch)))
         {
-            glyph_index = FT_Get_Char_Index(mFTFace, '?');
-            // if '?' is not present, potentially can use last index, that's supposed to be null glyph
-            if (glyph_index > 0)
+            // value~0 always corresponds to the 'missing glyph'
+            error = FT_Load_Glyph(mFTFace, 0, FT_LOAD_FORCE_AUTOHINT);
+            if (FT_Err_Ok != error)
             {
-                error = FT_Load_Glyph(mFTFace, glyph_index, load_flags ^ FT_LOAD_COLOR);
+                LL_ERRS() << "Loading fallback for char '" << (U32)wch << "', glyph " << glyph_index << " failed with error : " << (S32)error << LL_ENDL;
             }
         }
         llassert_always_msg(FT_Err_Ok == error, message.c_str());
