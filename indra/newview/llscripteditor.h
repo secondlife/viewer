@@ -67,8 +67,6 @@ private:
     void    drawLineNumbers();
     /* virtual */ void  updateSegments();
     /* virtual */ void  drawSelectionBackground();
-    void    loadKeywords(const std::string& filename_keywords,
-                         const std::string& filename_colors);
 
     LLKeywords  mKeywordsLua;
     LLKeywords  mKeywordsLSL;

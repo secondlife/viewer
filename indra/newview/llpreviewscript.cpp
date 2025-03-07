@@ -396,9 +396,9 @@ LLScriptEdCore::LLScriptEdCore(
     LLScriptEdContainer* container,
     const std::string& sample,
     const LLHandle<LLFloater>& floater_handle,
-    void (*load_callback)(void*),
-    void (*save_callback)(void*, bool),
-    void (*search_replace_callback) (void* userdata),
+    script_ed_callback_t load_callback,
+    save_callback_t save_callback,
+    script_ed_callback_t search_replace_callback,
     void* userdata,
     bool live,
     S32 bottom_pad)
