@@ -542,6 +542,10 @@ void LLFloaterPreference::onDoNotDisturbResponseChanged()
 LLFloaterPreference::~LLFloaterPreference()
 {
     LLConversationLog::instance().removeObserver(this);
+    if (LLAvatarPropertiesProcessor::instanceExists())
+    {
+        LLAvatarPropertiesProcessor::getInstance()->removeObserver(gAgent.getID(), this);
+    }
     mComplexityChangedSignal.disconnect();
 }
 
