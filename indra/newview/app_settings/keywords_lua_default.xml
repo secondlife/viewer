@@ -7454,6 +7454,13 @@
       </map>
       <key>functions</key><!-- TODO: Adjust functions to match the new format -->
       <map>
+         <key>ll</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>ll namespace.</string>
+         </map>
          <key>ll.Abs</key>
          <map>
             <key>energy</key>
