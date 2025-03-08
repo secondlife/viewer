@@ -2007,7 +2007,7 @@ LLLiveLSLEditor::LLLiveLSLEditor(const LLSD& key) :
 
 bool LLLiveLSLEditor::postBuild()
 {
-    mResetButton = getChild<LLButton>("reset");
+    mResetButton = getChild<LLButton>("Reset");
     mResetButton->setClickedCallback([&](LLUICtrl*, const LLSD&) { onReset(); });
 
     mRunningCheckbox = getChild<LLCheckBoxCtrl>("running");
