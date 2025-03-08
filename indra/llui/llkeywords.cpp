@@ -359,8 +359,11 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
                         break;
                     case LLKeywordToken::TT_FUNCTION:
                         tooltip = getAttribute("return") + " " + outer_itr->first + "(" + getArguments(arguments) + ");";
-                        tooltip.append("\nEnergy: ");
-                        tooltip.append(getAttribute("energy").empty() ? "0.0" : getAttribute("energy"));
+                        if (std::stod(getAttribute("energy")) >= 0)
+                        {
+                            tooltip.append("\nEnergy: ");
+                            tooltip.append(getAttribute("energy").empty() ? "0.0" : getAttribute("energy"));
+                        }
                         if (!getAttribute("sleep").empty())
                         {
                             tooltip += ", Sleep: " + getAttribute("sleep");
@@ -675,35 +678,86 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
             // check against words
             llwchar prev = cur > base ? *(cur-1) : 0;
-            if( !iswalnum( prev ) && (prev != '_') )
+            if (!iswalnum(prev) && prev != '_' && prev != '.')
             {
-                const llwchar* p = cur;
-                while( iswalnum( *p ) || (*p == '_')
-                       || (mLuauLanguage && *p == '.') ) // Allow dots in Lua to pass the functions. For example, "ll.Say()" instead of "llSay()" in LSL
+                const llwchar* word_start = cur;
+                S32 namespace_dots = 0;
+                const llwchar* last_dot = nullptr;
+
+                // Find the full extent of the word, potentially including namespace dots
+                while (iswalnum(*cur) || *cur == '_' || (mLuauLanguage && *cur == '.' && iswalnum(*(cur+1))))
                 {
-                    p++;
-                }
-                S32 seg_len = (S32)(p - cur);
-                if( seg_len > 0 )
-                {
-                    WStringMapIndex word( cur, seg_len );
-                    word_token_map_t::iterator map_iter = mWordTokenMap.find(word);
-                    if( map_iter != mWordTokenMap.end() )
+                    if (mLuauLanguage && *cur == '.')
                     {
-                        LLKeywordToken* cur_token = map_iter->second;
-                        S32 seg_start = (S32)(cur - base);
-                        S32 seg_end = seg_start + seg_len;
-
-                        // LL_INFOS("SyntaxLSL") << "Seg: [" << word.c_str() << "]" << LL_ENDL;
-
-                        insertSegments(wtext, *seg_list,cur_token, text_len, seg_start, seg_end, style, editor);
+                        namespace_dots++;
+                        last_dot = cur;
                     }
-                    cur += seg_len;
-                    continue;
+                    cur++;
+                }
+
+                S32 seg_len = (S32)(cur - word_start);
+                if (seg_len > 0)
+                {
+                    S32 seg_start = (S32)(word_start - base);
+                    S32 seg_end = seg_start + seg_len;
+
+                    // First try to match the whole token (including dots for Lua namespaces)
+                    WStringMapIndex whole_token(word_start, seg_len);
+                    word_token_map_t::iterator map_iter = mWordTokenMap.find(whole_token);
+
+                    if (map_iter != mWordTokenMap.end())
+                    {
+                        // Found a match for the complete token (including any namespace)
+                        LLKeywordToken* cur_token = map_iter->second;
+                        insertSegments(wtext, *seg_list, cur_token, text_len, seg_start, seg_end, style, editor);
+                    }
+                    else if (namespace_dots > 0 && mLuauLanguage)
+                    {
+                        // If using Lua and we have namespace dots but didn't match the whole token,
+                        // check if we have a match for just the namespace prefix (e.g., "ll")
+                        if (last_dot > word_start)
+                        {
+                            // Get the namespace prefix (part before the first dot)
+                            S32 prefix_len = (S32)(last_dot - word_start);
+                            WStringMapIndex prefix_token(word_start, prefix_len);
+                            map_iter = mWordTokenMap.find(prefix_token);
+
+                            if (map_iter != mWordTokenMap.end())
+                            {
+                                // Found a match for the namespace prefix, highlight just that part
+                                LLKeywordToken* cur_token = map_iter->second;
+                                insertSegments(wtext, *seg_list, cur_token, text_len, seg_start, seg_start + prefix_len, style, editor);
+
+                                // Now try to match the function part (after the dot)
+                                const llwchar* func_part = last_dot + 1;
+                                S32 func_len = (S32)(cur - func_part);
+
+                                if (func_len > 0)
+                                {
+                                    // Look for complete function matches
+                                    WStringMapIndex func_token(func_part, func_len);
+                                    map_iter = mWordTokenMap.find(func_token);
+
+                                    if (map_iter != mWordTokenMap.end())
+                                    {
+                                        // Found a match for the function part
+                                        LLKeywordToken* cur_token = map_iter->second;
+                                        insertSegments(wtext, *seg_list, cur_token, text_len, seg_start, seg_end, style, editor);
+                                    }
+                                    else
+                                    {
+                                        // No token found, continue without incrementing cur
+                                        // since we already advanced it while collecting the word
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    continue; // Continue to next token regardless of match
                 }
             }
 
-            if( *cur && *cur != '\n' )
+            if (*cur && *cur != '\n')
             {
                 cur++;
             }
