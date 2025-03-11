@@ -75,7 +75,7 @@
         step_size="16"
         doc_pos="0"
         doc_size="3000"
-        page_size="0"
+        page_size="50"
           />
     </layout_panel>
     <layout_panel name="timers_panel"
