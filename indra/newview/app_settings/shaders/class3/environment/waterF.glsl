@@ -255,7 +255,7 @@ void main()
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 sunlit_linear = sunlit;
     float fade = 1;
 #ifdef TRANSPARENT_WATER
     float depth = texture(depthMap, distort).r;
@@ -263,7 +263,12 @@ void main()
     vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
 
     // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
-    fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
+#ifdef SHORELINE_FADE
+    fade = max(0,min(1, (pos.z - refPos.z) / 10))
+#else
+    fade = 1 * water_mask;
+#endif
+
     distort2 = mix(distort, distort2, min(1, fade * 10));
     depth = texture(depthMap, distort2).r;
 
@@ -317,7 +322,7 @@ void main()
 
     pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
-    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
+    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow * atten;
     radiance *= df2.y;
     //radiance = toneMapNoExposure(radiance);
     vec3 color = vec3(0);

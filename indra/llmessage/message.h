@@ -417,6 +417,9 @@ public:
     bool    checkMessages(LockMessageChecker&, S64 frame_count = 0 );
     void    processAcks(LockMessageChecker&, F32 collect_time = 0.f);
 
+    // returns total number of buffered packets after the drain
+    S32     drainUdpSocket();
+
     bool    isMessageFast(const char *msg);
     bool    isMessage(const char *msg)
     {

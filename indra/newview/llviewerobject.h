@@ -758,6 +758,7 @@ public:
 
     // Associated GLTF Asset
     std::shared_ptr<LL::GLTF::Asset> mGLTFAsset;
+    bool mIsGLTFAssetMissing = false;
 
     // Pipeline classes
     LLPointer<LLDrawable> mDrawable;

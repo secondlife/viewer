@@ -642,7 +642,7 @@ void LLGLTexMemBar::draw()
     text = llformat("Mesh: Reqs(Tot/Htp/Big): %u/%u/%u Rtr/Err: %u/%u Cread/Cwrite: %u/%u Low/At/High: %d/%d/%d",
                     LLMeshRepository::sMeshRequestCount, LLMeshRepository::sHTTPRequestCount, LLMeshRepository::sHTTPLargeRequestCount,
                     LLMeshRepository::sHTTPRetryCount, LLMeshRepository::sHTTPErrorCount,
-                    LLMeshRepository::sCacheReads, LLMeshRepository::sCacheWrites,
+                    (U32)LLMeshRepository::sCacheReads, (U32)LLMeshRepository::sCacheWrites,
                     LLMeshRepoThread::sRequestLowWater, LLMeshRepoThread::sRequestWaterLevel, LLMeshRepoThread::sRequestHighWater);
     LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*2,
                                              text_color, LLFontGL::LEFT, LLFontGL::TOP);
