@@ -221,6 +221,14 @@ void LLReflectionMapManager::update()
         resume();
     }
 
+    static LLCachedControl<U32> probe_count(gSavedSettings, "RenderReflectionProbeCount", 256U);
+    bool countReset = mReflectionProbeCount != probe_count;
+
+    if (countReset)
+    {
+        mResetFade = -0.5f;
+    }
+
     initReflectionMaps();
 
     static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
@@ -335,6 +343,13 @@ void LLReflectionMapManager::update()
         }
     }
 
+    if (countReset)
+    {
+        mResetFade = -0.5f;
+    }
+
+    mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds), 1.f);
+    
     for (unsigned int i = 0; i < mProbes.size(); ++i)
     {
         LLReflectionMap* probe = mProbes[i];
@@ -1114,8 +1129,8 @@ void LLReflectionMapManager::updateUniforms()
         }
 
         mProbeData.refParams[count].set(
-            llmax(minimum_ambiance, refmap->getAmbiance())*ambscale, // ambiance scale
-            radscale, // radiance scale
+            llmax(minimum_ambiance, refmap->getAmbiance())*ambscale * llmax(mResetFade, 0.f), // ambiance scale
+            radscale * llmax(mResetFade, 0.f), // radiance scale
             refmap->mFadeIn, // fade in weight
             oa.getF32ptr()[2] - refmap->mRadius); // z near
 

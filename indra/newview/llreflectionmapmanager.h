@@ -159,8 +159,6 @@ public:
     // with false when done.
     void forceDefaultProbeAndUpdateUniforms(bool force = true);
 
-    size_t probeDataSize() const;
-
 private:
     friend class LLPipeline;
     friend class LLHeroProbeManager;
@@ -253,6 +251,8 @@ private:
 
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
+
+    float mResetFade = 1.f;
 
     // if true, only update the default probe
     bool mPaused = false;
