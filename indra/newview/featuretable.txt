@@ -86,6 +86,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   1
 RenderDisableVintageMode           1   1
 RenderMaxTextureResolution         1   2048
+RenderReflectionProbeCount  1   256
 
 //
 // Low Graphics Settings
@@ -128,6 +129,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderDisableVintageMode           1   0
 RenderMaxTextureResolution         1   512
+RenderReflectionProbeCount  1   1
 
 //
 // Medium Low Graphics Settings
@@ -170,6 +172,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderDisableVintageMode           1   0
 RenderMaxTextureResolution         1   1024
+RenderReflectionProbeCount  1   16
 
 //
 // Medium Graphics Settings (standard)
@@ -211,6 +214,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
+RenderReflectionProbeCount  1   32
 
 //
 // Medium High Graphics Settings
@@ -252,6 +256,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
+RenderReflectionProbeCount  1   64
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -293,6 +298,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
+RenderReflectionProbeCount  1   128
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + all shadows)
@@ -334,6 +340,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
+RenderReflectionProbeCount  1   256
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -375,6 +382,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
+RenderReflectionProbeCount  1   256
 
 //
 // Class Unknown Hardware (unknown)
@@ -408,6 +416,7 @@ RenderReflectionProbeDetail	0	-1
 RenderMirrors				0	0
 RenderDisableVintageMode           1   0
 RenderMaxTextureResolution         1   2048
+RenderReflectionProbeCount  0   0
 
 list Intel
 RenderAnisotropic			1	0
@@ -429,6 +438,7 @@ RenderMirrors				0	0
 RenderGLMultiThreadedTextures 0 0
 RenderGLMultiThreadedMedia 0 0
 RenderDisableVintageMode           1   0
+RenderReflectionProbeCount  0   0
 
 list TexUnit16orLess
 RenderTerrainPBRDetail      1   -1
