@@ -56,9 +56,12 @@ public:
         REALTIME = 2
     };
 
-    
-    // structure for packing uniform buffer object
-    // see class3/deferred/reflectionProbeF.glsl
+    // General guidance for UBOs is to statically allocate all of these fields to make your life ever so slightly easier.
+    // Then set a "max" value for the number of probes you'll ever have, and use that to index into the arrays.
+    // We do this with refmapCount.  The shaders will just pick up on it there.
+    // This data structure should _always_ match what's in class3/deferred/reflectionProbeF.glsl.
+    // The shader can and will break otherwise.
+    // -Geenz 2025-03-10
     struct ReflectionProbeData
     {
         // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of
