@@ -297,7 +297,7 @@ void LLFloaterCreateLandmark::onCreateFolderClicked()
 
 void LLFloaterCreateLandmark::folderCreatedCallback(LLUUID folder_id)
 {
-	populateFoldersList(folder_id);
+    populateFoldersList(folder_id);
 }
 
 void LLFloaterCreateLandmark::onSaveClicked()
