@@ -859,6 +859,23 @@
   </combo_box>
 
   <slider
+    control_name="RenderReflectionProbeCount"
+    decimal_digits="0"
+    follows="left|top"
+    height="16"
+    increment="1"
+    initial_value="256"
+    label="Max. Reflection Probes:"
+    label_width="145"
+    layout="topleft"
+    left="420"
+    min_val="1"
+    max_val="256"
+    name="MaxProbes"
+    top_delta="24"
+    width="260" />
+
+  <slider
     control_name="RenderExposure"
     decimal_digits="1"
     follows="left|top"

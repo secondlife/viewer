@@ -87,6 +87,7 @@ vec3 clampHDRRange(vec3 color)
     // This is a safety measure to prevent that.
     // As to the specific number there - allegedly some HDR displays expect values to be in the 0-11.2 range. Citation needed.
     // -Geenz 2025-03-05
+    color = mix(color, vec3(1), isinf(color));
     color = mix(color, vec3(0.0), isnan(color));
     return clamp(color, vec3(0.0), vec3(11.2));
 }
