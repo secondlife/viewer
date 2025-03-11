@@ -349,7 +349,7 @@ void LLReflectionMapManager::update()
     }
 
     mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds), 1.f);
-    
+
     for (unsigned int i = 0; i < mProbes.size(); ++i)
     {
         LLReflectionMap* probe = mProbes[i];
