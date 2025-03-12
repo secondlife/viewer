@@ -59,6 +59,7 @@ public:
     bool attachNothing = false;
     bool hasHeroProbes = false;
     bool isPBRTerrain = false;
+    bool hasTonemap = false;
 };
 
 // ============= Structure for caching shader uniforms ===============

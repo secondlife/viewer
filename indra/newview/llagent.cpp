@@ -56,6 +56,7 @@
 #include "llgroupmgr.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
+#include "lllandmarkactions.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
@@ -2501,7 +2502,10 @@ void LLAgent::endAnimationUpdateUI()
         gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
     }
 
-    gFloaterTools->dirty();
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 
     // Don't let this be called more than once if the camera
     // mode hasn't changed.  --JC
@@ -4317,8 +4321,22 @@ void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 {
-    LLViewerRegion *regionp = getRegion();
-    if(regionp && teleportCore())
+    LLViewerRegion* regionp = getRegion();
+    if (!regionp)
+    {
+        LL_WARNS("Teleport") << "called when agent region is null" << LL_ENDL;
+        return;
+    }
+
+    bool is_local(false);
+    if (LLLandmark* landmark = gLandmarkList.getAsset(landmark_asset_id, NULL))
+    {
+        LLVector3d pos_global;
+        landmark->getGlobalPos(pos_global);
+        is_local = (regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY]));
+    }
+
+    if(regionp && teleportCore(is_local))
     {
         LL_INFOS("Teleport") << "Sending TeleportLandmarkRequest. Current region handle " << regionp->getHandle()
                              << " region id " << regionp->getRegionID()

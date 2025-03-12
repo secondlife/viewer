@@ -90,21 +90,15 @@ uniform sampler2D depthMap;
 
 uniform sampler2D exclusionTex;
 
-uniform float sunAngle;
-uniform float sunAngle2;
+uniform int classic_mode;
 uniform vec3 lightDir;
 uniform vec3 specular;
-uniform float lightExp;
+uniform float blurMultiplier;
 uniform float refScale;
 uniform float kd;
-uniform vec2 screenRes;
 uniform vec3 normScale;
 uniform float fresnelScale;
 uniform float fresnelOffset;
-uniform float blurMultiplier;
-uniform vec4 waterFogColor;
-uniform vec3 waterFogColorLinear;
-
 
 //bigWave is (refCoord.w, view.w);
 in vec4 refCoord;
@@ -126,6 +120,7 @@ vec3 linear_to_srgb(vec3 col);
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
+vec3 toneMapNoExposure(vec3 color);
 
 vec3 vN, vT, vB;
 
@@ -171,18 +166,18 @@ void calculateFresnelFactors(out vec3 df3, out vec2 df2, vec3 viewVec, vec3 wave
     // We calculate the fresnel here.
     // We do this by getting the dot product for each sets of waves, and applying scale and offset.
 
-    df3 = vec3(
+    df3 = max(vec3(0), vec3(
         dot(viewVec, wave1),
         dot(viewVec, (wave2 + wave3) * 0.5),
         dot(viewVec, wave3)
-    ) * fresnelScale + fresnelOffset;
+    ) * fresnelScale + fresnelOffset);
 
     df3 *= df3;
 
-    df2 = vec2(
+    df2 = max(vec2(0), vec2(
         df3.x + df3.y + df3.z,
         dot(viewVec, wavef) * fresnelScale + fresnelOffset
-    );
+    ));
 }
 
 void main()
@@ -194,6 +189,7 @@ void main()
     vB = cross(vN, vT);
 
     vec3 pos = vary_position.xyz;
+    float linear_depth = 1 / -pos.z;
 
     float dist = length(pos.xyz);
 
@@ -216,6 +212,12 @@ void main()
     vec3 df3 = vec3(0);
     vec2 df2 = vec2(0);
 
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
+    calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
+
     calculateFresnelFactors(df3, df2, normalize(view.xyz), wave1, wave2, wave3, wavef);
 
     vec3 waver = wavef*3;
@@ -230,7 +232,7 @@ void main()
     vec3 norm = transform_normal(normalize(wavef));
 
     vdu = clamp(vdu, 0, 1);
-    wavef.z *= max(vdu*vdu*vdu, 0.1);
+    //wavef.z *= max(vdu*vdu*vdu, 0.1);
 
     wavef = normalize(wavef);
 
@@ -245,11 +247,6 @@ void main()
 
     distort2 = clamp(distort2, vec2(0), vec2(0.999));
 
-    vec3 sunlit;
-    vec3 amblit;
-    vec3 additive;
-    vec3 atten;
-
     float shadow = 1.0f;
 
     float water_mask = texture(exclusionTex, distort).r;
@@ -258,17 +255,20 @@ void main()
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, distort);
 #endif
 
-    calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
-
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
-    float fade = 0;
+    vec3 sunlit_linear = sunlit;
+    float fade = 1;
 #ifdef TRANSPARENT_WATER
     float depth = texture(depthMap, distort).r;
 
     vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
 
     // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
-    fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
+#ifdef SHORELINE_FADE
+    fade = max(0,min(1, (pos.z - refPos.z) / 10))
+#else
+    fade = 1 * water_mask;
+#endif
+
     distort2 = mix(distort, distort2, min(1, fade * 10));
     depth = texture(depthMap, distort2).r;
 
@@ -289,8 +289,8 @@ void main()
 #endif
 
     float metallic = 1.0;
-    float perceptualRoughness = 0.1;
-    float gloss      = 0.95;
+    float perceptualRoughness = blurMultiplier;
+    float gloss      = 1 - perceptualRoughness;
 
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
@@ -300,7 +300,7 @@ void main()
 #ifdef WATER_MINIMAL
     sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
 #elif WATER_MINIMAL_PLUS
-    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, 1, false, amblit);
+    sampleReflectionProbes(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, false, amblit);
 #endif
 
     vec3 diffuseColor = vec3(0);
@@ -322,21 +322,27 @@ void main()
 
     pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
-    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow;
-
+    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow * atten;
+    radiance *= df2.y;
+    //radiance = toneMapNoExposure(radiance);
     vec3 color = vec3(0);
-    color = mix(fb.rgb, radiance * df2.y, df2.x * 0.99999) + punctual.rgb;
+    color = mix(fb.rgb, radiance, min(1, df2.x)) + punctual.rgb;
+
+    float water_haze_scale = 4;
+
+    if (classic_mode > 0)
+        water_haze_scale = 1;
 
     // This looks super janky, but we do this to restore water haze in the distance.
     // These values were finagled in to try and bring back some of the distant brightening on legacy water.  Also works reasonably well on PBR skies such as PBR midday.
-    color += color * min(vec3(4),pow(1 - atten, vec3(1.35)) * 16 * fade);
+    // color = mix(color, additive * water_haze_scale, (1 - atten));
 
     // We shorten the fade here at the shoreline so it doesn't appear too soft from a distance.
     fade *= 60;
     fade = min(1, fade);
     color = mix(fb.rgb, color, fade);
 
-    float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
+    float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0);
 
     frag_color = min(vec4(1),max(vec4(color.rgb, spec * water_mask), vec4(0)));
 }

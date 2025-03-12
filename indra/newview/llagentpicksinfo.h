@@ -52,17 +52,17 @@ public:
     /**
      * Returns number of Picks.
      */
-    S32 getNumberOfPicks() { return mNumberOfPicks; }
+    S32 getNumberOfPicks() const { return mNumberOfPicks; }
 
     /**
      * Returns maximum number of Picks.
      */
-    S32 getMaxNumberOfPicks() { return mMaxNumberOfPicks; }
+    static S32 getMaxNumberOfPicks();
 
     /**
      * Returns true if Agent has maximum allowed number of Picks.
      */
-    bool isPickLimitReached();
+    bool isPickLimitReached() const;
 
     /**
      * After creating or deleting a Pick we can assume operation on server will be
@@ -83,15 +83,9 @@ private:
     */
     void setNumberOfPicks(S32 number) { mNumberOfPicks = number; }
 
-    /**
-    * Sets maximum number of Picks.
-    */
-    void setMaxNumberOfPicks(S32 max_picks) { mMaxNumberOfPicks = max_picks; }
-
 private:
 
     LLAgentPicksObserver* mAgentPicksObserver;
-    S32 mMaxNumberOfPicks;
     S32 mNumberOfPicks;
 };
 

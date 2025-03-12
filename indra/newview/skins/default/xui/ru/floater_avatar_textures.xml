@@ -14,7 +14,7 @@
 Текстуры
 			</text>
 			<button label="Вывод ID на консоль" label_selected="Вывод" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Волосы" name="hair-baked"/>
 				<texture_picker label="Волосы" name="hair_grain"/>
 				<texture_picker label="Альфа волос" name="hair_alpha"/>

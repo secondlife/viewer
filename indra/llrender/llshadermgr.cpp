@@ -291,6 +291,14 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         }
     }
 
+    if (features->hasTonemap)
+    {
+        if (!shader->attachFragmentObject("deferred/tonemapUtilF.glsl"))
+        {
+            return false;
+        }
+    }
+
     // NOTE order of shader object attaching is VERY IMPORTANT!!!
     if (features->hasAtmospherics)
     {

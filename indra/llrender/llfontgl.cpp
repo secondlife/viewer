@@ -110,6 +110,12 @@ S32 LLFontGL::getNumFaces(const std::string& filename)
     return mFontFreetype->getNumFaces(filename);
 }
 
+S32 LLFontGL::getCacheGeneration() const
+{
+    const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
+    return font_bitmap_cache->getCacheGeneration();
+}
+
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
     ShadowType shadow, S32 max_chars, F32* right_x, bool use_ellipses, bool use_color) const
 {
@@ -250,6 +256,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
 
+    // This looks wrong, value is dynamic.
+    // LLFontBitmapCache::nextOpenPos can alter these values when
+    // new characters get added to cache, which affects whole string.
+    // Todo: Perhaps value should update after symbols were added?
     F32 inv_width = 1.f / font_bitmap_cache->getBitmapWidth();
     F32 inv_height = 1.f / font_bitmap_cache->getBitmapHeight();
 
@@ -271,12 +281,14 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontGlyphInfo* next_glyph = NULL;
 
+    // string can have more than one glyph per char (ex: bold or shadow),
+    // make sure that GLYPH_BATCH_SIZE won't end up with half a symbol.
+    // See drawGlyph.
+    // Ex: with shadows it's 6 glyps per char. 30 fits exactly 5 chars.
     static constexpr S32 GLYPH_BATCH_SIZE = 30;
-    // string can have more than one glyph per char, make sure last one can fit
-    static constexpr S32 BUFFER_SIZE = GLYPH_BATCH_SIZE * 2;
-    static thread_local LLVector4a vertices[BUFFER_SIZE * 6];
-    static thread_local LLVector2 uvs[BUFFER_SIZE * 6];
-    static thread_local LLColor4U colors[BUFFER_SIZE * 6];
+    static thread_local LLVector4a vertices[GLYPH_BATCH_SIZE * 6];
+    static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 6];
+    static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 6];
 
     LLColor4U text_color(color);
     // Preserve the transparency to render fading emojis in fading text (e.g.
@@ -321,8 +333,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             LLImageGL* font_image = font_bitmap_cache->getImageGL(bitmap_entry.first, bitmap_entry.second);
             gGL.getTexUnit(0)->bind(font_image);
 
-            // For multi-byte characters just draw each time character changes
-            // Might be overkill and might be better to detect multybyte
+            // For some reason it's not enough to compare by bitmap_entry.
+            // Issue hits emojis, japenese and chinese glyphs, only on first run.
+            // Todo: figure it out, there might be a bug with raw image data.
             last_char = wch;
         }
 

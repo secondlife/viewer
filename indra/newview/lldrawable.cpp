@@ -33,6 +33,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llcriticaldamp.h"
 #include "llface.h"
 #include "lllightconstants.h"
@@ -777,6 +778,14 @@ bool LLDrawable::updateMove()
     }
 
     makeActive();
+
+    // #3256 force undampened movement for attached objects in mouselook
+    // to prevent animation bork for linkset with animated parts
+    if (!isRoot() && gAgentCamera.cameraMouselook() &&
+        !mVObjp->isRiggedMesh() && mVObjp->getAvatar() && mVObjp->getAvatar()->isSelf())
+    {
+        return updateMoveUndamped();
+    }
 
     return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }

@@ -79,11 +79,8 @@ public:
     // shadow base-class string() method with UTF-8 aware method
     std::string string() const
     {
-        // Short of forbidden type punning, I see no way to avoid copying this
-        // std::u8string to a std::string.
-        auto u8str{ super::u8string() };
-        // from https://github.com/tahonermann/char8_t-remediation/blob/master/char8_t-remediation.h#L180-L182
-        return { u8str.begin(), u8str.end() };
+        auto u8 = super::u8string();
+        return std::string(u8.begin(), u8.end());
     }
     // On Posix systems, where value_type is already char, this operator
     // std::string() method shadows the base class operator string_type()

@@ -80,6 +80,17 @@ void LLHeroProbeManager::update()
         return;
     }
 
+    // Part of a hacky workaround to fix #3331.
+    // For some reason clearing shaders will cause mirrors to actually work.
+    // There's likely some deeper state issue that needs to be resolved.
+    // - Geenz 2025-02-25
+    if (!mInitialized && LLStartUp::getStartupState() > STATE_PRECACHE)
+    {
+        LLViewerShaderMgr::instance()->clearShaderCache();
+        LLViewerShaderMgr::instance()->setShaders();
+        mInitialized = true;
+    }
+
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     LL_PROFILE_GPU_ZONE("hero manager update");
     llassert(!gCubeSnapshot); // assert a snapshot is not in progress

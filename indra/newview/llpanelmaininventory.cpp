@@ -2030,7 +2030,11 @@ void LLPanelMainInventory::onVisibilityChange( bool new_visibility )
         {
             menu->setVisible(false);
         }
-        getActivePanel()->getRootFolder()->finishRenamingItem();
+        LLFolderView* root_folder = mActivePanel ? mActivePanel->getRootFolder() : nullptr;
+        if (root_folder)
+        {
+            root_folder->finishRenamingItem();
+        }
     }
 }
 

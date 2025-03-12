@@ -190,7 +190,6 @@ private:
     mutable LLFontBitmapCache* mFontBitmapCachep;
 
     mutable S32 mRenderGlyphCount;
-    mutable S32 mAddGlyphCount;
 };
 
 #endif // LL_FONTFREETYPE_H

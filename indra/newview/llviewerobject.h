@@ -688,6 +688,7 @@ private:
     // forms task inventory request after some time passed, marks request as pending
     void fetchInventoryDelayed(const F64 &time_seconds);
     static void fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds);
+    static void fetchInventoryFromCapCoro(const LLUUID task_inv);
 
 public:
     //
@@ -758,6 +759,7 @@ public:
 
     // Associated GLTF Asset
     std::shared_ptr<LL::GLTF::Asset> mGLTFAsset;
+    bool mIsGLTFAssetMissing = false;
 
     // Pipeline classes
     LLPointer<LLDrawable> mDrawable;
@@ -825,6 +827,7 @@ protected:
 
     static void processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status);
     bool loadTaskInvFile(const std::string& filename);
+    void loadTaskInvLLSD(const LLSD &inv_result);
     void doInventoryCallback();
 
     bool isOnMap();

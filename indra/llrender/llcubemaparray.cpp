@@ -127,7 +127,7 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
     bind(0);
     free_cur_tex_image();
 
-    U32 format = components == 4 ? GL_RGBA16F : GL_RGB16F;
+    U32 format = components == 4 ? GL_RGBA16F : GL_R11F_G11F_B10F;
     if (!hdr)
     {
         format = components == 4 ? GL_RGBA8 : GL_RGB8;

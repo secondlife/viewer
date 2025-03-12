@@ -310,18 +310,25 @@ namespace
 
 static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
-U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
 {
-    if (code == STATUS_MSC_EXCEPTION)
+    if (LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
+    {
+        // Handled
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else if (code == STATUS_MSC_EXCEPTION)
     {
         // C++ exception, go on
         return EXCEPTION_CONTINUE_SEARCH;
     }
     else
     {
-        // handle it
+        // handle it, convert to std::exception
         return EXCEPTION_EXECUTE_HANDLER;
     }
+
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
 void sehandle(const LLCoros::callable_t& callable)
@@ -379,6 +386,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         // viewer will carry on.
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
+#ifndef LL_WINDOWS
     catch (...)
     {
         // Stash any OTHER kind of uncaught exception in the rethrow() queue
@@ -387,6 +395,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
                             << name << LL_ENDL;
         LLCoros::instance().saveException(name, std::current_exception());
     }
+#endif // ! LL_WINDOWS
 }
 
 //static

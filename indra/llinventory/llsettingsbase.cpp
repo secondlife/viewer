@@ -130,17 +130,6 @@ void LLSettingsBase::saveValuesIfNeeded()
 }
 
 //=========================================================================
-void LLSettingsBase::lerpSettings(LLSettingsBase &other, F64 mix)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
-    saveValuesIfNeeded();
-    stringset_t skip = getSkipInterpolateKeys();
-    stringset_t slerps = getSlerpKeys();
-    mSettings = interpolateSDMap(mSettings, other.getSettings(), other.getParameterMap(), mix, skip, slerps);
-    setDirtyFlag(true);
-    loadValuesFromLLSD();
-}
-
 void LLSettingsBase::lerpVector2(LLVector2& a, const LLVector2& b, F32 mix)
 {
     a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
