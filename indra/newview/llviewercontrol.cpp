@@ -809,9 +809,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularResY", handleLUTBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularExponent", handleLUTBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderAnisotropic", handleAnisotropicChanged);
-	// Ensure shader update on shadow resolution scale change for correct shadow rendering.
-	// setting_setup_signal_listener(gSavedSettings, "RenderShadowResolutionScale", handleShadowsResized); // Original line commented out
-	setting_setup_signal_listener(gSavedSettings, "RenderShadowResolutionScale", handleSetShaderChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderShadowResolutionScale", handleShadowsResized);
     setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowResolutionPow", handleReleaseGLBufferChanged);
