@@ -519,7 +519,6 @@ void LLViewerTexture::updateClass()
 
     bool is_sys_low = isSystemMemoryLow();
     bool is_low = is_sys_low || over_pct > 0.f;
-    F32 discard_bias = sDesiredDiscardBias;
 
     static bool was_low = false;
     static bool was_sys_low = false;
@@ -571,6 +570,7 @@ void LLViewerTexture::updateClass()
 
     // set to max discard bias if the window has been backgrounded for a while
     static F32 last_desired_discard_bias = 1.f;
+    static F32 last_texture_update_count_bias = 1.f;
     static bool was_backgrounded = false;
     static LLFrameTimer backgrounded_timer;
     static LLCachedControl<F32> minimized_discard_time(gSavedSettings, "TextureDiscardMinimizedTime", 1.f);
@@ -606,11 +606,20 @@ void LLViewerTexture::updateClass()
     }
 
     sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 4.f);
-    if (discard_bias != sDesiredDiscardBias)
+    if (last_texture_update_count_bias < sDesiredDiscardBias)
     {
-        // bias changed, reset texture update counter to
+        // bias increased, reset texture update counter to
         // let updates happen at an increased rate.
+        last_texture_update_count_bias = sDesiredDiscardBias;
         sBiasTexturesUpdated = 0;
+    }
+    else if (last_texture_update_count_bias > sDesiredDiscardBias + 0.1f)
+    {
+        // bias decreased, 0.1f is there to filter out small fluctuations
+        // and not reset sBiasTexturesUpdated too often.
+        // Bias jumps to 1.5 at low memory, so getting stuck at 1.1 is not
+        // a problem.
+        last_texture_update_count_bias = sDesiredDiscardBias;
     }
 
     LLViewerTexture::sFreezeImageUpdates = false;
