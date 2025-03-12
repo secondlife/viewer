@@ -4464,21 +4464,14 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 tep->setGLTFRenderMaterial(nullptr);
                 tep->setGLTFMaterialOverride(nullptr);
 
-                LLSD override_data;
-                override_data["object_id"] = objectp->getID();
-                override_data["side"] = te;
                 if (te_data["te"].has("pbr_override"))
                 {
-                    override_data["gltf_json"] = te_data["te"]["pbr_override"];
+                    LLGLTFMaterialList::queueApply(objectp, te, te_data["te"]["pbr"].asUUID(), te_data["te"]["pbr_override"]);
                 }
                 else
                 {
-                    override_data["gltf_json"] = "";
+                    LLGLTFMaterialList::queueApply(objectp, te, te_data["te"]["pbr"].asUUID());
                 }
-
-                override_data["asset_id"] = te_data["te"]["pbr"].asUUID();
-
-                LLGLTFMaterialList::queueUpdate(override_data);
             }
             else
             {
