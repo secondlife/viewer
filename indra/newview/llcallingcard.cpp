@@ -271,6 +271,22 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
                     << "]" << LL_ENDL;
         }
     }
+
+    // It's possible that the buddy list getting propagated from the inventory may have happened after we actually got the buddy list.
+    // Any buddies that we got prior will reside in a special queue that we must process and update statuses accordingly with.
+    // Do that here.
+    // -Geenz 2025-03-12
+    while (!mBuddyStatusQueue.empty())
+    {
+        auto buddyStatus = mBuddyStatusQueue.front();
+        mBuddyStatusQueue.pop();
+
+        if (mBuddyInfo.find(buddyStatus.first) != mBuddyInfo.end())
+        {
+            setBuddyOnline(buddyStatus.first, buddyStatus.second);
+        }
+    }
+
     // do not notify observers here - list can be large so let it be done on idle.
 
     return new_buddy_count;
@@ -335,6 +351,8 @@ void LLAvatarTracker::setBuddyOnline(const LLUUID& id, bool is_online)
     {
         LL_WARNS() << "!! No buddy info found for " << id
                 << ", setting to " << (is_online ? "Online" : "Offline") << LL_ENDL;
+        LL_WARNS() << "Did we receive a buddy status update before the buddy info?" << LL_ENDL;
+        mBuddyStatusQueue.push(std::make_pair(id, is_online));
     }
 }
 
@@ -706,6 +724,8 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
             {
                 LL_WARNS() << "Received online notification for unknown buddy: "
                     << agent_id << " is " << (online ? "ONLINE" : "OFFLINE") << LL_ENDL;
+                LL_WARNS() << "Adding buddy to buddy queue." << LL_ENDL;
+                mBuddyStatusQueue.push(std::make_pair(agent_id, true));
             }
 
             if(tracking_id == agent_id)
