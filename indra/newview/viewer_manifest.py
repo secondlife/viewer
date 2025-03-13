@@ -1019,6 +1019,20 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 ):
                     self.path2basename(relpkgdir, libfile)
 
+                # OpenAL dylibs
+                if self.args['openal'] == 'ON':
+                    for libfile in (
+                                "libopenal.dylib",
+                                "libalut.dylib",
+                                ):
+                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+
+                        oldpath = os.path.join("@rpath", libfile)
+                        self.run_command(
+                            ['install_name_tool', '-change', oldpath,
+                             '@executable_path/../Resources/%s' % libfile,
+                             executable])
+
                 # our apps
                 executable_path = {}
                 embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]

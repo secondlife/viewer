@@ -3036,14 +3036,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>RelWithDebInfo</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>default</key>
@@ -3064,14 +3065,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>RelWithDebInfo</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>
@@ -3094,14 +3096,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>Release</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>
@@ -3120,14 +3123,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>Release</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>
