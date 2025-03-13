@@ -1306,15 +1306,6 @@ bool idle_startup()
         do_startup_frame();
         do_startup_frame();
 
-
-        // It is entirely possible that we may get the friends list _before_ we have the callbacks registered to process that.
-        // This will lead to the friends list not being processed properly and online statuses not being updated appropriately at login.
-        // So, we need to make sure that we have the callbacks registered before we get the friends list.
-        // -Geenz 2025-03-12
-        LL_INFOS() << " AvatarTracker" << LL_ENDL;
-        LLAvatarTracker::instance().registerCallbacks(gMessageSystem);
-        do_startup_frame();
-
         // Since we connected, save off the settings so the user doesn't have to
         // type the name/password again if we crash.
         gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), true);
@@ -1723,6 +1714,15 @@ bool idle_startup()
             gAssetStorage->setUpstream(regionp->getHost());
             gCacheName->setUpstream(regionp->getHost());
         }
+
+        // It is entirely possible that we may get the friends list _before_ we have the callbacks registered to process that.
+        // This will lead to the friends list not being processed properly and online statuses not being updated appropriately at login.
+        // So, we need to make sure that we have the callbacks registered before we get the friends list.
+        // This appears to crop up on some systems somewhere between STATE_AGENT_SEND and STATE_INVENTORY_SEND.  It's happened to me a few times now.
+        // -Geenz 2025-03-12
+        LL_INFOS() << " AvatarTracker" << LL_ENDL;
+        LLAvatarTracker::instance().registerCallbacks(gMessageSystem);
+
         do_startup_frame();
 
         // Create login effect
