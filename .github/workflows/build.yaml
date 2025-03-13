@@ -43,10 +43,10 @@ jobs:
     strategy:
       matrix:
         runner: >-
-          ${{ 
+          ${{
             fromJson(
-              github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life') 
-              ? '["windows-large","macos-15-xlarge"]' 
+              github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')
+              ? '["windows-large","macos-15-xlarge"]'
               : '["windows-latest","macos-15"]'
             )
           }}
