@@ -4722,9 +4722,7 @@ void wear_multiple(const uuid_vec_t& ids, bool replace)
     LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, replace, cb);
 }
 
-// SLapp for easy-wearing of a stock (library) avatar
-//
-bool wear_library_category(const LLSD& query_map, bool append)
+bool wear_category(const LLSD& query_map, bool append)
 {
     LLUUID folder_uuid;
 
@@ -4775,7 +4773,7 @@ public:
                 const std::string& grid,
                 LLMediaCtrl* web)
     {
-        if (wear_library_category(query_map, false))
+        if (wear_category(query_map, false))
         {
             // Assume this is coming from the predefined avatars web floater
             LLUIUsage::instance().logCommand("Avatar.WearPredefinedAppearance");
@@ -4799,7 +4797,7 @@ public:
 
     bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
     {
-        wear_library_category(query_map, true);
+        wear_category(query_map, true);
 
         return true;
     }
