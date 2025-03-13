@@ -78,13 +78,6 @@ class LLClassifiedHandler : public LLCommandHandler, public LLAvatarPropertiesOb
 public:
     // throttle calls from untrusted browsers
     LLClassifiedHandler() : LLCommandHandler("classified", UNTRUSTED_THROTTLE) {}
-    virtual ~LLClassifiedHandler()
-    {
-        if (LLAvatarPropertiesProcessor::instanceExists())
-        {
-            LLAvatarPropertiesProcessor::getInstance()->removeObserver(LLUUID(), this);
-        }
-    }
 
     std::set<LLUUID> mClassifiedIds;
     std::string mRequestVerb;
