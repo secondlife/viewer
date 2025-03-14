@@ -42,6 +42,7 @@
 #include "llinventorymodel.h"
 #include "llnotifications.h"
 #include "llslurl.h"
+#include "llstartup.h"
 #include "llimview.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -743,7 +744,11 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 
         mModifyMask |= LLFriendObserver::ONLINE;
         instance().notifyObservers();
-        gInventory.notifyObservers();
+        // Skip if we had received the friends list before the inventory callbacks were properly initialized
+        if (LLStartUp::getStartupState() > STATE_INVENTORY_CALLBACKS)
+        {
+            gInventory.notifyObservers();
+        }
     }
 }
 
