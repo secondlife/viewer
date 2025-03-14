@@ -90,6 +90,7 @@
 #include "lltoggleablemenu.h"
 #include "llmenubutton.h"
 #include "llinventoryfunctions.h"
+#include <regex>
 
 const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
 
@@ -127,6 +128,19 @@ static bool have_lua_enabled(const LLUUID& object_id)
     }
 
     return false;
+}
+
+// TEMPORARY: Quick check to see if the code is Lua
+// since we don't have another way to determine the language yet
+static bool is_lua_script(const std::string& code)
+{
+    // Check for LSL's signature "default" state pattern
+    std::regex lsl_pattern("\\s*default\\s*\\{");
+    if (std::regex_search(code, lsl_pattern))
+        return false;
+
+    // "default" state not found, assuming it's Lua
+    return true;
 }
 
 /// ---------------------------------------------------------------------------
@@ -1923,6 +1937,12 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
             preview->mScriptEd->setEnableEditing(is_modifiable);
             preview->mScriptEd->setAssetID(asset_uuid);
             preview->mAssetStatus = PREVIEW_ASSET_LOADED;
+
+            // Temporary hack to determine if the script is LSL or SLua when loaded from the inventory.
+            bool is_lua = is_lua_script(std::string(buffer.begin(), buffer.end()));
+            preview->mScriptEd->mEditor->setLuauLanguage(is_lua);
+            preview->mScriptEd->mCompileTarget->setValue(is_lua ? "luau" : "lsl-luau");
+            preview->mScriptEd->processKeywords(is_lua);
         }
         else
         {
