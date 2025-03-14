@@ -250,13 +250,13 @@
       name="compile_target_mono"
       value="mono" />
     <combo_box.item
-      label="Lua"
-      name="compile_target_luau"
-      value="luau" />
-    <combo_box.item
-      label="LSL/Luau"
+      label="LSL: 2025 VM"
       name="compile_target_lsl_luau"
       value="lsl-luau" />
+    <combo_box.item
+      label="SLua"
+      name="compile_target_luau"
+      value="luau" />
   </combo_box>
   <text
     name="compile_target_label"

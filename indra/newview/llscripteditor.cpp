@@ -45,7 +45,8 @@ LLScriptEditor::Params::Params()
 LLScriptEditor::LLScriptEditor(const Params& p)
 :   LLTextEditor(p)
 ,   mShowLineNumbers(p.show_line_numbers),
-    mUseDefaultFontSize(p.default_font_size)
+    mUseDefaultFontSize(p.default_font_size),
+    mLuauLanguage(false)
 {
     if (mShowLineNumbers)
     {
@@ -200,12 +201,12 @@ void LLScriptEditor::clearSegments()
 
 LLKeywords::keyword_iterator_t LLScriptEditor::keywordsBegin()
 {
-    return mLuauLanguage ? mKeywordsLua.begin() : mKeywordsLSL.begin();
+    return getKeywords().begin();
 }
 
 LLKeywords::keyword_iterator_t LLScriptEditor::keywordsEnd()
 {
-    return mLuauLanguage ? mKeywordsLua.end() : mKeywordsLSL.end();
+    return getKeywords().end();
 }
 
 LLKeywords& LLScriptEditor::getKeywords()
@@ -237,7 +238,6 @@ void LLScriptEditor::drawSelectionBackground()
              ++rect_it)
         {
             LLRect selection_rect = *rect_it;
-            selection_rect = *rect_it;
             selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
             gl_rect_2d(selection_rect, selection_color);
         }

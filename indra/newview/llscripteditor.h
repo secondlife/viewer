@@ -54,6 +54,7 @@ public:
     LLKeywords::keyword_iterator_t keywordsEnd();
     LLKeywords& getKeywords();
     bool    getIsLuauLanguage() { return mLuauLanguage; }
+    void    setLuauLanguage(bool luau_language) { mLuauLanguage = luau_language; }
 
     static std::string getScriptFontSize();
     LLFontGL* getScriptFont();
@@ -67,8 +68,6 @@ private:
     void    drawLineNumbers();
     /* virtual */ void  updateSegments();
     /* virtual */ void  drawSelectionBackground();
-    void    loadKeywords(const std::string& filename_keywords,
-                         const std::string& filename_colors);
 
     LLKeywords  mKeywordsLua;
     LLKeywords  mKeywordsLSL;

@@ -82,15 +82,19 @@ class LLScriptEdCore : public LLPanel
     friend class LLScriptEdContainer;
     friend class LLFloaterGotoLine;
 
+public:
+    typedef boost::function<void(void*)> script_ed_callback_t;
+    typedef boost::function<void(void*, bool)> save_callback_t;
+
 protected:
     // Supposed to be invoked only by the container.
     LLScriptEdCore(
         LLScriptEdContainer* container,
         const std::string& sample,
         const LLHandle<LLFloater>& floater_handle,
-        void (*load_callback)(void* userdata),
-        void (*save_callback)(void* userdata, bool close_after_save),
-        void (*search_replace_callback)(void* userdata),
+        script_ed_callback_t load_callback,
+        save_callback_t save_callback,
+        script_ed_callback_t search_replace_callback,
         void* userdata,
         bool live,
         S32 bottom_pad = 0);    // pad below bottom row of buttons
@@ -139,11 +143,11 @@ public:
     LLUUID          getAssociatedExperience()const;
     void            setAssociatedExperience( const LLUUID& experience_id );
 
-    void            setScriptName(const std::string& name){mScriptName = name;};
+    void            setScriptName(const std::string& name) { mScriptName = name; }
 
-    void            setItemRemoved(bool script_removed){mScriptRemoved = script_removed;};
+    void            setItemRemoved(bool script_removed) { mScriptRemoved = script_removed; }
 
-    void            setAssetID( const LLUUID& asset_id){ mAssetID = asset_id; };
+    void            setAssetID(const LLUUID& asset_id) { mAssetID = asset_id; }
     LLUUID          getAssetID() { return mAssetID; }
 
     bool isFontSizeChecked(const LLSD &userdata);
@@ -152,15 +156,14 @@ public:
     virtual bool handleKeyHere(KEY key, MASK mask);
     void selectAll() { mEditor->selectAll(); }
 
+    void            enableSave(bool b) { mEnableSave = b; }
+    bool            hasChanged();
+
   private:
     void        onBtnDynamicHelp();
     void        onBtnUndoChanges();
 
-    bool        hasChanged();
-
     void selectFirstError();
-
-    void enableSave(bool b) {mEnableSave = b;}
 
 protected:
     void deleteBridges();
@@ -176,9 +179,9 @@ private:
     std::string     mSampleText;
     std::string     mScriptName;
     LLScriptEditor* mEditor;
-    void            (*mLoadCallback)(void* userdata);
-    void            (*mSaveCallback)(void* userdata, bool close_after_save);
-    void            (*mSearchReplaceCallback) (void* userdata);
+    script_ed_callback_t mLoadCallback;
+    save_callback_t      mSaveCallback;
+    script_ed_callback_t mSearchReplaceCallback;
     void*           mUserdata;
     LLComboBox      *mFunctions;
     bool            mForceClose;
@@ -204,7 +207,6 @@ private:
 
 public:
     boost::signals2::connection mSyntaxIDConnection;
-
 };
 
 class LLScriptEdContainer : public LLPreview
@@ -269,9 +271,7 @@ protected:
     S32 mPendingUploads;
 
     LLScriptMovedObserver* mItemObserver;
-
 };
-
 
 // Used to view and edit an LSL script that is attached to an object.
 class LLLiveLSLEditor : public LLScriptEdContainer
@@ -279,7 +279,6 @@ class LLLiveLSLEditor : public LLScriptEdContainer
     friend class LLLiveLSLFile;
 public:
     LLLiveLSLEditor(const LLSD& key);
-
 
     static void processScriptRunningReply(LLMessageSystem* msg, void**);
 
