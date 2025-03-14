@@ -1582,7 +1582,7 @@ void LLPanelMainInventory::initInventoryViews()
 
 void LLPanelMainInventory::toggleViewMode()
 {
-    if(mSingleFolderMode && isCombinationViewMode())
+    if(mSingleFolderMode && isCombinationViewMode() && mCombinationGalleryPanel->getRootFolder().notNull())
     {
         mCombinationInventoryPanel->getRootFolder()->setForceArrange(false);
     }
@@ -2047,7 +2047,8 @@ bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
     }
     else
     {
-        LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+        LLFolderView* root_folder = getActivePanel() ? getActivePanel()->getRootFolder() : nullptr;
+        LLFolderViewItem* current_item = root_folder ? root_folder->getCurSelectedItem() : nullptr;
         if (current_item)
         {
             inv_item = dynamic_cast<LLViewerInventoryItem*>(static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getInventoryObject());
@@ -2443,8 +2444,6 @@ void LLPanelMainInventory::updateCombinationVisibility()
             mCombinationGalleryPanel->handleModifiedFilter();
         }
 
-        getActivePanel()->getRootFolder();
-
         if (mReshapeInvLayout
             && show_inv_pane
             && (mCombinationGalleryPanel->hasVisibleItems() || mCombinationGalleryPanel->areViewsInitialized())
@@ -2501,8 +2500,12 @@ void LLPanelMainInventory::updateCombinationVisibility()
         && mCombinationInventoryPanel->areViewsInitialized())
     {
         mCombinationInventoryPanel->setSelectionByID(mCombInvUUIDNeedsRename, true);
-        mCombinationInventoryPanel->getRootFolder()->scrollToShowSelection();
-        mCombinationInventoryPanel->getRootFolder()->setNeedsAutoRename(true);
+        LLFolderView* root = mCombinationInventoryPanel->getRootFolder();
+        if (root)
+        {
+            root->scrollToShowSelection();
+            root->setNeedsAutoRename(true);
+        }
         mCombInvUUIDNeedsRename.setNull();
     }
 }
