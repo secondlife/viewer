@@ -91,19 +91,6 @@
 #include "llmenubutton.h"
 #include "llinventoryfunctions.h"
 
-const std::string HELLO_LSL =
-    "default\n"
-    "{\n"
-    "   state_entry()\n"
-    "   {\n"
-    "       llSay(0, \"Hello, Avatar!\");\n"
-    "   }\n"
-    "\n"
-    "   touch_start(integer total_number)\n"
-    "   {\n"
-    "       llSay(0, \"Touched.\");\n"
-    "   }\n"
-    "}\n";
 const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
 
 const std::string DEFAULT_SCRIPT_NAME = "New Script"; // *TODO:Translate?
@@ -1617,7 +1604,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 
     self->mScriptEd =  new LLScriptEdCore(
                                    self,
-                                   HELLO_LSL,
+                                   std::string(),
                                    self->getHandle(),
                                    LLPreviewLSL::onLoad,
                                    LLPreviewLSL::onSave,
@@ -1757,12 +1744,6 @@ void LLPreviewLSL::loadAsset()
         }
         getChildView("lock")->setVisible( !is_modifiable);
         mScriptEd->getChildView("Insert...")->setEnabled(is_modifiable);
-    }
-    else
-    {
-        mScriptEd->setScriptText(std::string(HELLO_LSL), true);
-        mScriptEd->setEnableEditing(true);
-        mAssetStatus = PREVIEW_ASSET_LOADED;
     }
 }
 
@@ -1979,7 +1960,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 
     self->mScriptEd =  new LLScriptEdCore(
                                    self,
-                                   HELLO_LSL,
+                                   std::string(),
                                    self->getHandle(),
                                    &LLLiveLSLEditor::onLoad,
                                    &LLLiveLSLEditor::onSave,
@@ -2152,26 +2133,6 @@ void LLLiveLSLEditor::loadAsset()
             gMessageSystem->sendReliable(host);
             */
         }
-    }
-    else
-    {
-        mScriptEd->setScriptText(std::string(HELLO_LSL), true);
-        mScriptEd->enableSave(false);
-        LLPermissions perm;
-        perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, gAgent.getGroupID());
-        perm.initMasks(PERM_ALL, PERM_ALL, PERM_NONE, PERM_NONE, PERM_MOVE | PERM_TRANSFER);
-        mItem = new LLViewerInventoryItem(mItemUUID,
-                                          mObjectUUID,
-                                          perm,
-                                          LLUUID::null,
-                                          LLAssetType::AT_LSL_TEXT,
-                                          LLInventoryType::IT_LSL,
-                                          DEFAULT_SCRIPT_NAME,
-                                          DEFAULT_SCRIPT_DESC,
-                                          LLSaleInfo::DEFAULT,
-                                          LLInventoryItemFlags::II_FLAGS_NONE,
-                                          time_corrected());
-        mAssetStatus = PREVIEW_ASSET_LOADED;
     }
 
     requestExperiences();

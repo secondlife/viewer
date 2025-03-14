@@ -54,6 +54,7 @@ public:
     LLKeywords::keyword_iterator_t keywordsEnd();
     LLKeywords& getKeywords();
     bool    getIsLuauLanguage() { return mLuauLanguage; }
+    void    setLuauLanguage(bool luau_language) { mLuauLanguage = luau_language; }
 
     static std::string getScriptFontSize();
     LLFontGL* getScriptFont();
