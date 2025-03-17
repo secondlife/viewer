@@ -264,6 +264,16 @@ void LLPanelContents::onClickNewScript(void *userdata)
                                         object->saveScript(new_script, true, true);
 
                                         // Delete the temporary item from the user's inventory after rezzing it in the object's inventory
+                                        ms_sleep(50);
+                                        LLMessageSystem* msg = gMessageSystem;
+                                        msg->newMessageFast(_PREHASH_RemoveInventoryItem);
+                                        msg->nextBlockFast(_PREHASH_AgentData);
+                                        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+                                        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+                                        msg->nextBlockFast(_PREHASH_InventoryData);
+                                        msg->addUUIDFast(_PREHASH_ItemID, item->getUUID());
+                                        gAgent.sendReliableMessage();
+
                                         gInventory.deleteObject(item->getUUID());
                                         gInventory.notifyObservers();
                                     };
@@ -280,9 +290,6 @@ void LLPanelContents::onClickNewScript(void *userdata)
 
                                     LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
                                 }
-
-                                gInventory.updateItem(item);
-                                gInventory.notifyObservers();
                             }
                         }
                     };
