@@ -71,6 +71,7 @@
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
 #include "llsettingsvo.h"
+#include "llviewerassetupload.h"
 
 // do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {}
@@ -1014,6 +1015,43 @@ void create_script_cb(const LLUUID& inv_item)
         LLViewerInventoryItem* item = gInventory.getItem(inv_item);
         if (item)
         {
+            // ------------------------------------------------------------------------------------
+            // Begin hack
+            //
+            // The current state of the server doesn't allow specifying a default script template,
+            // so we have to update its code immediately after creation instead.
+            //
+            // This temporary workaround should be removed after a server-side fix.
+            // See https://github.com/secondlife/viewer/issues/3731 for more information.
+            //
+            const std::string hello_lua_script =
+                "function state_entry()\n"
+                "   ll.Say(0, \"Hello, Avatar!\")\n"
+                "end\n"
+                "\n"
+                "function touch_start(total_number)\n"
+                "   ll.Say(0, \"Touched.\")\n"
+                "end\n"
+                "\n"
+                "-- Simulate the state_entry event\n"
+                "state_entry()\n";
+
+            std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
+            if (!url.empty())
+            {
+                LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
+                    item->getUUID(),
+                    "luau",
+                    hello_lua_script,
+                    nullptr,
+                    nullptr));
+
+                LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+            }
+            //
+            // End hack
+            // ------------------------------------------------------------------------------------
+
             set_default_permissions(item, "Scripts");
 
             // item was just created, update even if permissions did not changed
