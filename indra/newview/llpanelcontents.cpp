@@ -198,7 +198,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 {
     const bool children_ok = true;
     LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
-    if(object)
+    if (object)
     {
         LLPermissions perm;
         perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
@@ -227,78 +227,87 @@ void LLPanelContents::onClickNewScript(void *userdata)
         // This temporary workaround should be removed after a server-side fix.
         // See https://github.com/secondlife/viewer/issues/3731 for more information.
         //
-        if (std::string::size_type pos = desc.find("lsl2"); pos != std::string::npos)
+        LLViewerRegion* region = object->getRegion();
+        if (region && region->simulatorFeaturesReceived())
         {
-            desc.replace(pos, 4, "SLua");
-        }
-
-        auto scriptCreationCallback = [object](const LLUUID& inv_item)
+            LLSD simulatorFeatures;
+            region->getSimulatorFeatures(simulatorFeatures);
+            if (simulatorFeatures["LuaScriptsEnabled"].asBoolean())
             {
-                if (!inv_item.isNull())
+                if (std::string::size_type pos = desc.find("lsl2"); pos != std::string::npos)
                 {
-                    LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-                    if (item)
-                    {
-                        const std::string hello_lua_script =
-                            "function state_entry()\n"
-                            "   ll.Say(0, \"Hello, Avatar!\")\n"
-                            "end\n"
-                            "\n"
-                            "function touch_start(total_number)\n"
-                            "   ll.Say(0, \"Touched.\")\n"
-                            "end\n"
-                            "\n"
-                            "-- Simulate the state_entry event\n"
-                            "state_entry()\n";
-
-                        auto scriptUploadFinished = [object, item](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)
-                            {
-                                LLPointer<LLViewerInventoryItem> new_script = new LLViewerInventoryItem(item);
-                                object->saveScript(new_script, true, true);
-
-                                // Delete the temporary item from the user's inventory after rezzing it in the object's inventory
-                                gInventory.deleteObject(item->getUUID());
-                                gInventory.notifyObservers();
-                            };
-
-                        std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
-                        if (!url.empty())
-                        {
-                            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
-                                item->getUUID(),
-                                "luau",
-                                hello_lua_script,
-                                scriptUploadFinished,
-                                nullptr));
-
-                            LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
-                        }
-
-                        gInventory.updateItem(item);
-                        gInventory.notifyObservers();
-                    }
+                    desc.replace(pos, 4, "SLua");
                 }
-            };
-        LLPointer<LLBoostFuncInventoryCallback> cb = new LLBoostFuncInventoryCallback(scriptCreationCallback);
 
-        LLMessageSystem* msg = gMessageSystem;
-        msg->newMessageFast(_PREHASH_CreateInventoryItem);
-        msg->nextBlock(_PREHASH_AgentData);
-        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-        msg->nextBlock(_PREHASH_InventoryBlock);
-        msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
-        msg->addUUIDFast(_PREHASH_FolderID, gInventory.getRootFolderID());
-        msg->addUUIDFast(_PREHASH_TransactionID, LLTransactionID::tnull);
-        msg->addU32Fast(_PREHASH_NextOwnerMask, PERM_MOVE | PERM_TRANSFER);
-        msg->addS8Fast(_PREHASH_Type, LLAssetType::AT_LSL_TEXT);
-        msg->addS8Fast(_PREHASH_InvType, LLInventoryType::IT_LSL);
-        msg->addU8Fast(_PREHASH_WearableType, NO_INV_SUBTYPE);
-        msg->addStringFast(_PREHASH_Name, "New Script");
-        msg->addStringFast(_PREHASH_Description, desc);
+                auto scriptCreationCallback = [object](const LLUUID& inv_item)
+                    {
+                        if (!inv_item.isNull())
+                        {
+                            LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+                            if (item)
+                            {
+                                const std::string hello_lua_script =
+                                    "function state_entry()\n"
+                                    "   ll.Say(0, \"Hello, Avatar!\")\n"
+                                    "end\n"
+                                    "\n"
+                                    "function touch_start(total_number)\n"
+                                    "   ll.Say(0, \"Touched.\")\n"
+                                    "end\n"
+                                    "\n"
+                                    "-- Simulate the state_entry event\n"
+                                    "state_entry()\n";
 
-        gAgent.sendReliableMessage();
-        return;
+                                auto scriptUploadFinished = [object, item](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)
+                                    {
+                                        LLPointer<LLViewerInventoryItem> new_script = new LLViewerInventoryItem(item);
+                                        object->saveScript(new_script, true, true);
+
+                                        // Delete the temporary item from the user's inventory after rezzing it in the object's inventory
+                                        gInventory.deleteObject(item->getUUID());
+                                        gInventory.notifyObservers();
+                                    };
+
+                                std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
+                                if (!url.empty())
+                                {
+                                    LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
+                                        item->getUUID(),
+                                        "luau",
+                                        hello_lua_script,
+                                        scriptUploadFinished,
+                                        nullptr));
+
+                                    LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+                                }
+
+                                gInventory.updateItem(item);
+                                gInventory.notifyObservers();
+                            }
+                        }
+                    };
+                LLPointer<LLBoostFuncInventoryCallback> cb = new LLBoostFuncInventoryCallback(scriptCreationCallback);
+
+                LLMessageSystem* msg = gMessageSystem;
+                msg->newMessageFast(_PREHASH_CreateInventoryItem);
+                msg->nextBlock(_PREHASH_AgentData);
+                msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+                msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+                msg->nextBlock(_PREHASH_InventoryBlock);
+                msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
+                msg->addUUIDFast(_PREHASH_FolderID, gInventory.getRootFolderID());
+                msg->addUUIDFast(_PREHASH_TransactionID, LLTransactionID::tnull);
+                msg->addU32Fast(_PREHASH_NextOwnerMask, PERM_MOVE | PERM_TRANSFER);
+                msg->addS8Fast(_PREHASH_Type, LLAssetType::AT_LSL_TEXT);
+                msg->addS8Fast(_PREHASH_InvType, LLInventoryType::IT_LSL);
+                msg->addU8Fast(_PREHASH_WearableType, NO_INV_SUBTYPE);
+                msg->addStringFast(_PREHASH_Name, "New Script");
+                msg->addStringFast(_PREHASH_Description, desc);
+
+                gAgent.sendReliableMessage();
+                return;
+            }
+        }
         //
         // End hack
         // --------------------------------------------------------------------------------------------------
