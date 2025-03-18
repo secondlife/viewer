@@ -206,6 +206,9 @@ private:
     void onDeleteTranscripts();
     void onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response);
     void updateDeleteTranscriptsButton();
+    void updateMaxNonImpostors();
+    void updateIndirectMaxNonImpostors(const LLSD& newvalue);
+    void setMaxNonImpostorsText(U32 value, LLTextBox* text_box);
     void updateMaxComplexity();
     void updateComplexityText();
     static bool loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map);
@@ -234,6 +237,7 @@ private:
     std::unique_ptr< ll::prefs::SearchData > mSearchData;
     bool mSearchDataDirty;
 
+    boost::signals2::connection	mImpostorsChangedSignal;
     boost::signals2::connection mComplexityChangedSignal;
 
     void onUpdateFilterTerm( bool force = false );

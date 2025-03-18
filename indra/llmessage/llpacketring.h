@@ -25,16 +25,14 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPACKETRING_H
-#define LL_LLPACKETRING_H
+#pragma once
 
-#include <queue>
+#include <vector>
 
 #include "llhost.h"
 #include "llpacketbuffer.h"
-#include "llproxy.h"
 #include "llthrottle.h"
-#include "net.h"
+
 
 class LLPacketRing
 {
@@ -42,60 +40,71 @@ public:
     LLPacketRing();
     ~LLPacketRing();
 
-    void cleanup();
+    // receive one packet: either buffered or from the socket
+    S32  receivePacket (S32 socket, char *datap);
+
+    // send one packet
+    bool sendPacket(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
+
+    // drains packets from socket and returns final mNumBufferedPackets
+    S32 drainSocket(S32 socket);
 
     void dropPackets(U32);
     void setDropPercentage (F32 percent_to_drop);
-    void setUseInThrottle(const bool use_throttle);
-    void setUseOutThrottle(const bool use_throttle);
-    void setInBandwidth(const F32 bps);
-    void setOutBandwidth(const F32 bps);
-    S32  receivePacket (S32 socket, char *datap);
-    S32  receiveFromRing (S32 socket, char *datap);
 
-    bool sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
+    inline LLHost getLastSender() const;
+    inline LLHost getLastReceivingInterface() const;
 
-    inline LLHost getLastSender();
-    inline LLHost getLastReceivingInterface();
+    S32 getActualInBytes() const { return mActualBytesIn; }
+    S32 getActualOutBytes() const { return mActualBytesOut; }
+    S32 getAndResetActualInBits()   { S32 bits = mActualBytesIn * 8; mActualBytesIn = 0; return bits;}
+    S32 getAndResetActualOutBits()  { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits;}
 
-    S32 getAndResetActualInBits()               { S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
-    S32 getAndResetActualOutBits()              { S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
+    S32 getNumBufferedPackets() const { return (S32)(mNumBufferedPackets); }
+    S32 getNumBufferedBytes() const { return mNumBufferedBytes; }
+    S32 getNumDroppedPackets() const { return mNumDroppedPacketsTotal + mNumDroppedPackets; }
+
+    F32 getBufferLoadRate() const; // from 0 to 4 (0 - empty, 1 - default size is full)
+    void dumpPacketRingStats();
 protected:
-    bool mUseInThrottle;
-    bool mUseOutThrottle;
+    // returns 'true' if we should intentionally drop a packet
+    bool computeDrop();
 
-    // For simulating a lower-bandwidth connection - BPS
-    LLThrottle mInThrottle;
-    LLThrottle mOutThrottle;
+    // returns packet_size of received packet, zero or less if no packet found
+    S32 receiveOrDropPacket(S32 socket, char *datap, bool drop);
+    S32 receiveOrDropBufferedPacket(char *datap, bool drop);
 
-    S32 mActualBitsIn;
-    S32 mActualBitsOut;
-    S32 mMaxBufferLength;           // How much data can we queue up before dropping data.
-    S32 mInBufferLength;            // Current incoming buffer length
-    S32 mOutBufferLength;           // Current outgoing buffer length
+    // returns packet_size of packet buffered
+    S32 bufferInboundPacket(S32 socket);
 
-    F32 mDropPercentage;            // % of packets to drop
-    U32 mPacketsToDrop;             // drop next n packets
+    // returns 'true' if ring was expanded
+    bool expandRing();
 
-    std::queue<LLPacketBuffer *> mReceiveQueue;
-    std::queue<LLPacketBuffer *> mSendQueue;
+protected:
+    std::vector<LLPacketBuffer*> mPacketRing;
+    S16 mHeadIndex { 0 };
+    S16 mNumBufferedPackets { 0 };
+    S32 mNumDroppedPackets { 0 };
+    S32 mNumDroppedPacketsTotal { 0 };
+    S32 mNumBufferedBytes { 0 };
 
+    S32 mActualBytesIn { 0 };
+    S32 mActualBytesOut { 0 };
+    F32 mDropPercentage { 0.0f };   // % of inbound packets to drop
+    U32 mPacketsToDrop { 0 };       // drop next inbound n packets
+
+    // These are the sender and receiving_interface for the last packet delivered by receivePacket()
     LLHost mLastSender;
     LLHost mLastReceivingIF;
-
-private:
-    bool sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
 };
 
 
-inline LLHost LLPacketRing::getLastSender()
+inline LLHost LLPacketRing::getLastSender() const
 {
     return mLastSender;
 }
 
-inline LLHost LLPacketRing::getLastReceivingInterface()
+inline LLHost LLPacketRing::getLastReceivingInterface() const
 {
     return mLastReceivingIF;
 }
-
-#endif

@@ -172,6 +172,8 @@ CrashMetadataSingleton::CrashMetadataSingleton()
     // Note: we depend on being able to read the static_debug_info.log file
     // from the *previous* run before we overwrite it with the new one for
     // *this* run. LLAppViewer initialization must happen in the Right Order.
+
+    // Todo: consider converting static file into bugspalt attributes file
     staticDebugPathname = *gViewerAppPtr->getStaticDebugFile();
     std::ifstream static_file(staticDebugPathname);
     LLSD info;
@@ -215,7 +217,32 @@ CrashMetadataSingleton::CrashMetadataSingleton()
                 }
             }
         }
+
+        // Populate bugsplat attributes
+        LLXMLNodePtr out_node = new LLXMLNode("XmlCrashContext", false);
+
+        out_node->createChild("OS", false)->setValue(OSInfo);
+        out_node->createChild("AppState", false)->setValue(info["StartupState"].asString());
+        out_node->createChild("GraphicsCard", false)->setValue(info["GraphicsCard"].asString());
+        out_node->createChild("GLVersion", false)->setValue(info["GLInfo"]["GLVersion"].asString());
+        out_node->createChild("GLRenderer", false)->setValue(info["GLInfo"]["GLRenderer"].asString());
+        out_node->createChild("RAM", false)->setValue(info["RAMInfo"]["Physical"].asString());
+
+        if (!out_node->isNull())
+        {
+            attributesPathname = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "CrashContext.xml");
+            LLFILE* fp = LLFile::fopen(attributesPathname, "w");
+
+            if (fp != NULL)
+            {
+                LLXMLNode::writeHeaderToFile(fp);
+                out_node->writeToFile(fp);
+
+                fclose(fp);
+            }
+        }
     }
+    // else Todo: consider fillig at least some values, like OS
 }
 
 // Avoid having to compile all of our LLSingleton machinery in Objective-C++.

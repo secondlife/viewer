@@ -12588,4 +12588,16 @@ are wearing now.
        name="okbutton"
        yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="WaterExclusionSurfacesWarning"
+   type="alertmodal">
+    Checking the hide water box will overwrite the texture, bumpiness, and shininess choices.
+    <tag>confirm</tag>
+    <usetemplate
+      name="okcancelbuttons"
+      notext="Cancel"
+      yestext="Continue"/>
+  </notification>
 </notifications>

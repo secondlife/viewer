@@ -799,7 +799,6 @@ void LLAvatarAppearance::buildCharacter()
     bool status = loadAvatar();
     stop_glerror();
 
-//  gPrintMessagesThisFrame = true;
     LL_DEBUGS() << "Avatar load took " << timer.getElapsedTimeF32() << " seconds." << LL_ENDL;
 
     if (!status)

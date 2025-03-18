@@ -804,14 +804,16 @@ bool LLAppViewerWin32::cleanup()
     return result;
 }
 
-void LLAppViewerWin32::reportCrashToBugsplat(void* pExcepInfo)
+bool LLAppViewerWin32::reportCrashToBugsplat(void* pExcepInfo)
 {
 #if defined(LL_BUGSPLAT)
     if (sBugSplatSender)
     {
         sBugSplatSender->createReport((EXCEPTION_POINTERS*)pExcepInfo);
+        return true;
     }
 #endif // LL_BUGSPLAT
+    return false;
 }
 
 void LLAppViewerWin32::initLoggingAndGetLastDuration()
