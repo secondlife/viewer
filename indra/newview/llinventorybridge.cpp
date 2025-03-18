@@ -3599,6 +3599,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
         move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("move_to_marketplace_listings" != action), (("copy_or_move_to_marketplace_listings" == action)));
     }
+    else if ("copy_folder_uuid" == action)
+    {
+        LLInventoryCategory* cat = gInventory.getCategory(mUUID);
+        if (!cat) return;
+        gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(mUUID.asString()));
+        return;
+    }
 }
 
 void LLFolderBridge::gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level)
@@ -4465,6 +4472,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if ((flags & FIRST_SELECTED_ITEM) == 0)
     {
         disabled_items.push_back(std::string("Delete System Folder"));
+    }
+    else
+    {
+        static LLCachedControl<bool> show_copy_id(gSavedSettings, "InventoryExposeFolderID", false);
+        if (show_copy_id())
+        {
+            items.push_back(std::string("Copy UUID"));
+        }
     }
 
     if (isAgentInventory() && !isMarketplaceListingsFolder())
