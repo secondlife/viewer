@@ -39,7 +39,7 @@
 	</string>
 	<string name="AboutPosition">
 		あなたは、現在[REGION]の[POSITION_LOCAL_0,number,1]，[POSITION_LOCAL_1,number,1]，[POSITION_LOCAL_2,number,1]にいます。
-位置は、&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;です。（[HOSTIP]）
+位置は、&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;です。
 SLURL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 （グローバル座標は、[POSITION_0,number,1]，[POSITION_1,number,1]，[POSITION_2,number,1]です。）
 [SERVER_VERSION]
