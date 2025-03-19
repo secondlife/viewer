@@ -12,7 +12,7 @@
 	<string name="StartupRequireDriverUpdate">Grafikinitialisierung fehlgeschlagen. Bitte aktualisieren Sie Ihren Grafiktreiber.</string>
 	<string name="AboutHeader">[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]Bit) [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]</string>
 	<string name="BuildConfig">Build-Konfiguration [BUILD_CONFIG]</string>
-	<string name="AboutPosition">Sie befinden sich an [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+	<string name="AboutPosition">Sie befinden sich an [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 (globale Koordinaten [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
