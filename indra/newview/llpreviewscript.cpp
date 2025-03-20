@@ -1557,13 +1557,15 @@ std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name)
     LLMD5 script_id_hash((const U8 *)script_id.c_str());
     script_id_hash.hex_digest(script_id_hash_str);
 
+    std::string script_extension = mScriptEd->mEditor->getIsLuauLanguage() ? ".luau" : ".lsl";
+
     if (script_name.empty())
     {
-        return std::string(LLFile::tmpdir()) + "sl_script_" + script_id_hash_str + ".lsl";
+        return std::string(LLFile::tmpdir()) + "sl_script_" + script_id_hash_str + script_extension;
     }
     else
     {
-        return std::string(LLFile::tmpdir()) + "sl_script_" + script_name + "_" + script_id_hash_str + ".lsl";
+        return std::string(LLFile::tmpdir()) + "sl_script_" + script_name + "_" + script_id_hash_str + script_extension;
     }
 }
 
