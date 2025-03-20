@@ -10124,7 +10124,4825 @@
       </map>
       <key>functions</key>
       <map>
+         <!-- Global Lua functions -->
+         <key>assert</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The value to check for truthiness.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+               <map>
+                  <key>message</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional error message to display if the value is not truthy.</string>
+                     <key>type</key>
+                     <string>string?</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>any</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Checks if the value is truthy; if not, raises an error with the optional message.</string>
+         </map>
+         <key>error</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>obj</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The error object to raise.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+               <map>
+                  <key>level</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional level to attribute the error to in the call stack.</string>
+                     <key>type</key>
+                     <string>number?</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Raises an error with the specified object and optional call stack level.</string>
+         </map>
+         <key>gcinfo</key>
+         <map>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the total heap size in kilobytes.</string>
+         </map>
+         <key>getfenv</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>target</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional function or stack index to get the environment table for.</string>
+                     <key>type</key>
+                     <string>(function | number)?</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the environment table for the specified function or stack index.</string>
+         </map>
+         <key>getmetatable</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>obj</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The object to get the metatable for.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table?</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the metatable for the specified object.</string>
+         </map>
+         <key>next</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The table to traverse.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional key to start traversal after.</string>
+                     <key>type</key>
+                     <string>any?</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>(any, any)?</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the next key-value pair in the table traversal order.</string>
+         </map>
+         <key>newproxy</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>mt</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional boolean to create a modifiable metatable.</string>
+                     <key>type</key>
+                     <string>boolean?</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>userdata</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a new untyped userdata object with an optional metatable.</string>
+         </map>
+         <key>print</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Arguments to print to standard output.</string>
+                     <key>type</key>
+                     <string>...any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Prints all arguments to standard output using Tab as a separator.</string>
+         </map>
+         <key>rawequal</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>First object to compare.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Second object to compare.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>boolean</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns true if a and b have the same type and value.</string>
+         </map>
+         <key>rawget</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The table to perform the lookup on.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>k</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The key to look up in the table.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>any?</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Performs a table lookup bypassing metatables.</string>
+         </map>
+         <key>rawset</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The table to assign the value to.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>k</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The key to assign the value to.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+               <map>
+                  <key>v</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The value to assign.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Assigns a value to a table field bypassing metatables.</string>
+         </map>
+         <key>select</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The index or '#' to count arguments.</string>
+                     <key>type</key>
+                     <string>string | number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The arguments to select from.</string>
+                     <key>type</key>
+                     <string>...any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>any</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a subset of arguments or the number of arguments.</string>
+         </map>
+         <key>setfenv</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>target</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The function or stack index to set the environment for.</string>
+                     <key>type</key>
+                     <string>function | number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>env</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The environment table to set.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Changes the environment table for the specified function or stack index.</string>
+         </map>
+         <key>setmetatable</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The table to set the metatable for.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>mt</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The metatable to set.</string>
+                     <key>type</key>
+                     <string>table?</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Changes the metatable for the given table.</string>
+         </map>
+         <key>tonumber</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The string to convert to a number.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>base</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional base for the conversion.</string>
+                     <key>type</key>
+                     <string>number?</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number?</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Converts the input string to a number in the specified base.</string>
+         </map>
+         <key>tostring</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>obj</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The object to convert to a string.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Converts the input object to a string.</string>
+         </map>
+         <key>type</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>obj</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The object to get the type of.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the type of the object as a string.</string>
+         </map>
+         <key>typeof</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>obj</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The object to get the type of.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the type of the object, including custom userdata types.</string>
+         </map>
+         <key>ipairs</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The table to iterate over.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>iterator</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns an iterator for numeric key-value pairs in the table.</string>
+         </map>
+         <key>pairs</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The table to iterate over.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>iterator</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns an iterator for all key-value pairs in the table.</string>
+         </map>
+         <key>pcall</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A function to be called.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Arguments to pass to the function.</string>
+                     <key>type</key>
+                     <string>variadic</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>boolean, variadic</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Calls function f with parameters args, returning success and function results or an error.</string>
+         </map>
+         <key>xpcall</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A function to be called.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+               <map>
+                  <key>e</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Error handler function.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Arguments to pass to the function.</string>
+                     <key>type</key>
+                     <string>variadic</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>boolean, variadic</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Calls function f with parameters args, handling errors with e if they occur.</string>
+         </map>
+         <key>unpack</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Array from which to extract values.</string>
+                     <key>type</key>
+                     <string>array</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting index (optional, defaults to 1).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Ending index (optional, defaults to #a).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>variadic</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns values from an array in the specified index range.</string>
+         </map>
+         <!-- math library-->
+         <key>math</key>         
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>math namespace.</string>
+         </map>
+         <key>math.abs</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the absolute value of n.</string>
+         </map>
+         <key>math.acos</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number in the range [-1, 1].</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the arc cosine of n in radians.</string>
+         </map>
+         <key>math.asin</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number in the range [-1, 1].</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the arc sine of n in radians.</string>
+         </map>
+         <key>math.atan2</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>y</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The y-coordinate.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>x</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The x-coordinate.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the arc tangent of y/x in radians.</string>
+         </map>
+         <key>math.atan</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the arc tangent of n in radians.</string>
+         </map>
+         <key>math.ceil</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Rounds n upwards to the next integer boundary.</string>
+         </map>
+         <key>math.cosh</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to compute the hyperbolic cosine of.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the hyperbolic cosine of n.</string>
+         </map>
+         <key>math.cos</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>An angle in radians.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the cosine of n.</string>
+         </map>
+         <key>math.deg</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A value in radians.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Converts n from radians to degrees.</string>
+         </map>
+         <key>math.exp</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to compute e^n.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the base-e exponent of n.</string>
+         </map>
+         <key>math.floor</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to round down.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Rounds n down to the previous integer.</string>
+         </map>
+         <key>math.fmod</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>x</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The dividend.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>y</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The divisor.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the remainder of x modulo y, rounded towards zero.</string>
+         </map>
+         <key>math.frexp</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to split into significand and exponent.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>array</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Splits n into a significand and exponent.</string>
+         </map>
+         <key>math.ldexp</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The significand.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>e</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The exponent.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns s * 2^e.</string>
+         </map>
+         <key>math.lerp</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Start value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>End value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Interpolation factor.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Linearly interpolates between a and b using factor t.</string>
+         </map>
+         <key>math.log10</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to compute base-10 logarithm.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns base-10 logarithm of n.</string>
+         </map>
+         <key>math.log</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to compute logarithm.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>base</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Base of the logarithm (default is e).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns logarithm of n in the given base.</string>
+         </map>
+         <key>math.max</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>list</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A list of numbers to find the maximum from.</string>
+                     <key>type</key>
+                     <string>array</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the maximum value in the given list.</string>
+         </map>
+         <key>math.min</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>list</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A list of numbers to find the minimum from.</string>
+                     <key>type</key>
+                     <string>array</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the minimum value in the given list.</string>
+         </map>
+         <key>math.modf</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to split into integer and fractional parts.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>array</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the integer and fractional parts of n.</string>
+         </map>
+         <key>math.pow</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>x</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Base value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>y</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Exponent value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns x raised to the power of y.</string>
+         </map>
+         <key>math.rad</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A value in degrees.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Converts n from degrees to radians.</string>
+         </map>
+         <key>math.random</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>min</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Minimum value of the range (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>max</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Maximum value of the range (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a random number within the given range.</string>
+         </map>
+         <key>math.randomseed</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>seed</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Seed for the random number generator.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Sets the seed for the random number generator.</string>
+         </map>
+         <key>math.sinh</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to compute the hyperbolic sine of.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the hyperbolic sine of n.</string>
+         </map>
+         <key>math.sin</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>An angle in radians.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the sine of n.</string>
+         </map>
+         <key>math.sqrt</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to compute the square root of.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the square root of n.</string>
+         </map>
+         <key>math.tanh</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to compute the hyperbolic tangent of.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the hyperbolic tangent of n.</string>
+         </map>
+         <key>math.tan</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>An angle in radians.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the tangent of n.</string>
+         </map>
+         <key>math.noise</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>x</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>X coordinate for the noise function.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>y</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Y coordinate for the noise function (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>z</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Z coordinate for the noise function (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns Perlin noise value for the point (x, y, z).</string>
+         </map>
+         <key>math.clamp</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The value to be clamped.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>min</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Minimum allowable value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>max</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Maximum allowable value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns n clamped between min and max.</string>
+         </map>
+         <key>math.sign</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to get the sign of.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns -1 if n is negative, 1 if positive, and 0 if zero.</string>
+         </map>
+         <key>math.round</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A number to round to the nearest integer.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Rounds n to the nearest integer.</string>
+         </map>
+         <!-- table library-->
+         <key>table</key>         
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>table namespace.</string>
+         </map>
+         <key>table.concat</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Array of strings.</string>
+                     <key>type</key>
+                     <string>array</string>
+                  </map>
+               </map>
+               <map>
+                  <key>sep</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Separator string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting index.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Ending index.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Concatenates elements of an array with an optional separator.</string>
+         </map>
+         <key>table.foreach</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to iterate over.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Function applied to each key-value pair.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>various</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Iterates over all key-value pairs in a table.</string>
+         </map>
+         <key>table.getn</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table whose length is determined.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>integer</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the number of elements in a table.</string>
+         </map>
+         <key>table.maxn</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to search for the maximum numeric key.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>integer</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the highest numeric key in a table.</string>
+         </map>
+         <key>table.insert</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to insert into.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Position to insert at.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>v</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to insert.</string>
+                     <key>type</key>
+                     <string>various</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Inserts a value at a specific index in a table.</string>
+         </map>
+         <key>table.remove</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to remove from.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Position to remove.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>various</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Removes an element from a table at a given index.</string>
+         </map>
+         <key>table.sort</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to be sorted.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Comparison function.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Sorts a table in ascending order.</string>
+         </map>
+         <key>table.pack</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Variable arguments.</string>
+                     <key>type</key>
+                     <string>varargs</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Packs multiple arguments into a table.</string>
+         </map>
+         <key>table.unpack</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to unpack.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting index.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Ending index.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>varargs</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns unpacked values from a table within a specified range.</string>
+         </map>
+         <key>table.move</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Source table.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting index.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Ending index.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>d</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Destination index.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>tt</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional target table.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Moves elements from one table to another or within the same table.</string>
+         </map>
+         <key>table.create</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of elements.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>v</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to prefill elements with.</string>
+                     <key>type</key>
+                     <string>various</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a table with preallocated elements.</string>
+         </map>
+         <key>table.find</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to search in.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+               <map>
+                  <key>v</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to find.</string>
+                     <key>type</key>
+                     <string>various</string>
+                  </map>
+               </map>
+               <map>
+                  <key>init</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting index for search.</string>
+                     <key>type</key>
+                     <string>integer</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>integer</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Finds the first occurrence of a value in a table and returns its index.</string>
+         </map>
+         <key>table.clear</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to clear.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Clears all elements from a table while keeping its capacity.</string>
+         </map>
+         <key>table.freeze</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to freeze.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Freezes a table, preventing modifications.</string>
+         </map>
+         <key>table.isfrozen</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to check.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>boolean</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns true if a table is frozen.</string>
+         </map>
+         <key>table.clone</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to clone.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a shallow copy of a table.</string>
+         </map>
+         <!-- string library-->
+         <key>string</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>string namespace.</string>
+         </map>
+         <key>string.byte</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting index (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Ending index (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number...</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the numeric code of every byte in the input string within the given range.</string>
+         </map>
+         <key>string.char</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte values to convert to string.</string>
+                     <key>type</key>
+                     <string>number...</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a string containing characters for the given byte values.</string>
+         </map>
+         <key>string.find</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>p</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Pattern to search for.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>init</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting position (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>plain</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Perform raw search (optional).</string>
+                     <key>type</key>
+                     <string>boolean</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number?, number?, string...</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Finds an instance of the pattern in the string.</string>
+         </map>
+         <key>string.format</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Format string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Values to format.</string>
+                     <key>type</key>
+                     <string>any...</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Formats input values into a string using printf-style format specifiers.</string>
+         </map>
+         <key>string.len</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the number of bytes in the string.</string>
+         </map>
+         <key>string.lower</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a lowercase version of the input string.</string>
+         </map>
+         <key>string.upper</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns an uppercase version of the input string.</string>
+         </map>
+         <key>string.match</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>p</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Pattern to match.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>init</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting position (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string...</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Finds and returns matches for a pattern in the input string.</string>
+         </map>
+         <key>string.rep</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of times to repeat the string.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the input string repeated a given number of times.</string>
+         </map>
+         <key>string.reverse</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the input string with bytes in reverse order.</string>
+         </map>
+         <key>string.sub</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Start index.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>End index (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a substring from the given range.</string>
+         </map>
+         <key>string.gsub</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>p</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Pattern to replace.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Replacement string, function, or table.</string>
+                     <key>type</key>
+                     <string>function | table | string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>maxs</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Maximum replacements (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string, number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Performs pattern-based substitution in a string.</string>
+         </map>
+         <key>string.pack</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Pack format string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Values to encode.</string>
+                     <key>type</key>
+                     <string>any...</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Packs values into a binary string.</string>
+         </map>
+         <key>string.unpack</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Pack format string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Encoded string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>any...</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Decodes a binary string using a pack format.</string>
+         </map>
+         <!-- coroutine library-->
+         <key>coroutine</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>coroutine namespace.</string>
+         </map>
+         <key>coroutine.create</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A function to be executed by the new coroutine.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>thread</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a new coroutine that, when resumed, will run function f.</string>
+         </map>
+         <key>coroutine.running</key>
+         <map>
+            <key>arguments</key>
+            <array/>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>thread?</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the currently running coroutine, or nil if running in the main coroutine.</string>
+         </map>
+         <key>coroutine.status</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>co</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The coroutine to check status of.</string>
+                     <key>type</key>
+                     <string>thread</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the status of the coroutine: "running", "suspended", "normal", or "dead".</string>
+         </map>
+         <key>coroutine.wrap</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>f</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>A function to execute in a coroutine.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>function</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a coroutine and returns a function that resumes it.</string>
+         </map>
+         <key>coroutine.yield</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Values to pass to the resuming code.</string>
+                     <key>type</key>
+                     <string>variadic</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>variadic</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Yields the current coroutine, passing arguments to the resuming code.</string>
+         </map>
+         <key>coroutine.isyieldable</key>
+         <map>
+            <key>arguments</key>
+            <array/>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>boolean</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns true if the coroutine can yield.</string>
+         </map>
+         <key>coroutine.resume</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>co</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The coroutine to resume.</string>
+                     <key>type</key>
+                     <string>thread</string>
+                  </map>
+               </map>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Arguments to pass to the coroutine.</string>
+                     <key>type</key>
+                     <string>variadic</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>(boolean, variadic)</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Resumes a coroutine, returning true and results if successful, or false and an error.</string>
+         </map>
+         <key>coroutine.close</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>co</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>The coroutine to close.</string>
+                     <key>type</key>
+                     <string>thread</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>(boolean, any?)</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Closes a coroutine, returning true if successful or false and an error.</string>
+         </map>
+
+         <key>bit32</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>bit32 library functions.</string>
+         </map>
+         <key>bit32.arshift</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number to shift.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of bits to shift.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Shifts n by i bits to the right. If i is negative, a left shift is performed.</string>
+         </map>
+         <key>bit32.band</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Numbers to perform bitwise AND on.</string>
+                     <key>type</key>
+                     <string>array</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Performs a bitwise AND operation on input numbers.</string>
+         </map>
+         <key>bit32.bnot</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number to negate.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the bitwise negation of the input number.</string>
+         </map>
+         <key>utf8</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>UTF-8 library functions.</string>
+         </map>
+         <key>utf8.offset</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Character position.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting position (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the byte offset of the nth Unicode codepoint in string s.</string>
+         </map>
+         <key>utf8.char</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>args</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Unicode codepoints.</string>
+                     <key>type</key>
+                     <string>array</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a string from Unicode codepoints.</string>
+         </map>
+         <key>utf8.codepoint</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting position (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>j</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Ending position (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>array</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the Unicode codepoints in the specified range of string s.</string>
+         </map>
+         <key>utf8.len</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>i</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Starting position (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>j</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Ending position (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the number of Unicode codepoints in the specified range of string s.</string>
+         </map>
+         <key>utf8.codes</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input string.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>iterator</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns an iterator that produces the byte offset and Unicode codepoint for each character in string s.</string>
+         </map>
+         <!-- os library-->
+         <key>os</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>os namespace.</string>
+         </map>
+         <key>os.clock</key>
+         <map>
+            <key>arguments</key>
+            <array/>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a high-precision timestamp in seconds for measuring durations.</string>
+         </map>
+         <key>os.date</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional format string for the date representation.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional timestamp to format; defaults to the current time.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table|string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a table or string representation of the time based on the provided format.</string>
+         </map>
+         <key>os.difftime</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>First timestamp value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Second timestamp value.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the difference in seconds between two timestamps.</string>
+         </map>
+         <key>os.time</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>t</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional table with date/time fields; returns the corresponding Unix timestamp.</string>
+                     <key>type</key>
+                     <string>table</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the current Unix timestamp or the timestamp of the given date.</string>
+         </map>
+         <!-- debug library-->
+         <key>debug</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>debug namespace.</string>
+         </map>
+         <key>debug.info</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>co</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional thread or function reference.</string>
+                     <key>type</key>
+                     <string>thread|function|number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>level</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Stack level or function reference for inspection.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>s</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>String specifying requested information.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>any</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns information about a stack frame or function based on specified format.</string>
+         </map>
+         <key>debug.traceback</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>co</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional thread reference for traceback.</string>
+                     <key>type</key>
+                     <string>thread</string>
+                  </map>
+               </map>
+               <map>
+                  <key>msg</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional message prepended to the traceback.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>level</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional stack level to start traceback.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a human-readable call stack starting from the specified level.</string>
+         </map>
+         <key>debug.getinfo</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>thread</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Optional thread whose stack frame is being inspected.</string>
+                     <key>type</key>
+                     <string>thread</string>
+                  </map>
+               </map>
+               <map>
+                  <key>function</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Function reference or stack level number.</string>
+                     <key>type</key>
+                     <string>function|number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>what</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>String specifying which fields to retrieve.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns a table containing debug information about a function or stack frame.</string>
+         </map>
+         <key>debug.getlocal</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>level</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Stack level number.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>index</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Index of the local variable.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string|any</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the name and value of a local variable at the specified stack level.</string>
+         </map>
+         <key>debug.setlocal</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>level</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Stack level number.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>index</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Index of the local variable.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>New value for the local variable.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>boolean</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Sets the value of a local variable at the specified stack level.</string>
+         </map>
+         <key>debug.getupvalue</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>function</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Function whose upvalues are being retrieved.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+               <map>
+                  <key>index</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Index of the upvalue.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string|any</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the name and value of an upvalue for a given function.</string>
+         </map>
+         <key>debug.setupvalue</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>function</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Function whose upvalues are being modified.</string>
+                     <key>type</key>
+                     <string>function</string>
+                  </map>
+               </map>
+               <map>
+                  <key>index</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Index of the upvalue.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>New value for the upvalue.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Sets the value of an upvalue for a given function.</string>
+         </map>
+         <key>debug.getmetatable</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value whose metatable is retrieved.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>table|nil</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the metatable of the given value, if any.</string>
+         </map>
+         <key>debug.setmetatable</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value whose metatable is to be set.</string>
+                     <key>type</key>
+                     <string>any</string>
+                  </map>
+               </map>
+               <map>
+                  <key>metatable</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Table to be set as the new metatable.</string>
+                     <key>type</key>
+                     <string>table|nil</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>any</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Sets the metatable for a given value.</string>
+         </map>
+         <!-- buffer library-->
+         <key>buffer</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>buffer namespace.</string>
+         </map>
+         <key>buffer.create</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>size</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Size of the buffer to create.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>buffer</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a buffer of the requested size with all bytes initialized to 0.</string>
+         </map>
+         <key>buffer.fromstring</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>str</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>String to initialize the buffer with.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>buffer</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a buffer initialized to the contents of the string.</string>
+         </map>
+         <key>buffer.tostring</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to convert to a string.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the buffer data as a string.</string>
+         </map>
+         <key>buffer.len</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to get the size of.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Returns the size of the buffer in bytes.</string>
+         </map>
+         <key>buffer.readi8</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads a signed 8-bit integer from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writei8</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes a signed 8-bit integer to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readstring</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to start reading.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>count</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of bytes to read.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads a string of the given length from the buffer at the specified offset.</string>
+         </map>
+         <key>buffer.copy</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>target</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Target buffer to copy into.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>targetOffset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Offset in target buffer.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>source</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Source buffer to copy from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>sourceOffset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Offset in source buffer (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>count</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of bytes to copy (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Copies bytes from the source buffer into the target buffer.</string>
+         </map>
+         <key>buffer.fill</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to fill.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to start filling.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to fill with.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>count</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of bytes to fill (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Fills the buffer with the specified value starting at the given offset.</string>
+         </map>
+         <key>buffer.readu8</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads an unsigned 8-bit integer from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writeu8</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes an unsigned 8-bit integer to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readi16</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads a signed 16-bit integer from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writei16</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes a signed 16-bit integer to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readf32</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads a 32-bit floating-point number from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writef32</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes a 32-bit floating-point number to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readf64</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads a 64-bit floating-point number from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writef64</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes a 64-bit floating-point number to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readu16</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads an unsigned 16-bit integer from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writeu16</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes an unsigned 16-bit integer to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readi32</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads a signed 32-bit integer from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writei32</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes a signed 32-bit integer to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readu32</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to read from.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads an unsigned 32-bit integer from the buffer at the given offset.</string>
+         </map>
+         <key>buffer.writeu32</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Value to write.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes an unsigned 32-bit integer to the buffer at the given offset.</string>
+         </map>
+         <key>buffer.readstring</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to read from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to start reading.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>count</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of bytes to read.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>string</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Reads a string of the given length from the buffer at the specified offset.</string>
+         </map>
+         <key>buffer.writestring</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Buffer to write to.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>offset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Byte offset to write at.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>value</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>String to write.</string>
+                     <key>type</key>
+                     <string>string</string>
+                  </map>
+               </map>
+               <map>
+                  <key>count</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of bytes to write (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Writes data from a string into the buffer at the specified offset.</string>
+         </map>
+         <key>buffer.copy</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>target</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Target buffer to copy into.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>targetOffset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Offset in target buffer.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>source</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Source buffer to copy from.</string>
+                     <key>type</key>
+                     <string>buffer</string>
+                  </map>
+               </map>
+               <map>
+                  <key>sourceOffset</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Offset in source buffer (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>count</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number of bytes to copy (optional).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>void</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Copies bytes from the source buffer into the target buffer.</string>
+         </map>
+         <!-- vector library-->
+         <key>vector</key>
+         <map>
+            <key>energy</key>
+            <real>-1.0</real>
+            <key>tooltip</key>
+            <string>vector namespace.</string>
+         </map>
+         <key>vector.zero</key>
+         <map>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Constant vector with all components set to 0.</string>
+         </map>
+         <key>vector.one</key>
+         <map>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Constant vector with all components set to 1.</string>
+         </map>
+         <key>vector.create</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>x</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>X component of the vector.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>y</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Y component of the vector.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>z</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Z component of the vector.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>w</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>W component of the vector (optional, defaults to 0 in 4-wide mode).</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Creates a new vector with the given component values.</string>
+         </map>
+         <key>vector.magnitude</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Calculates the magnitude of a given vector.</string>
+         </map>
+         <key>vector.normalize</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Computes the unit vector of a given vector.</string>
+         </map>
+         <key>vector.cross</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec1</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>First input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+               <map>
+                  <key>vec2</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Second input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Computes the cross product of two vectors.</string>
+         </map>
+         <key>vector.dot</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec1</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>First input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+               <map>
+                  <key>vec2</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Second input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Computes the dot product of two vectors.</string>
+         </map>
+         <key>vector.angle</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec1</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>First input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+               <map>
+                  <key>vec2</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Second input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+               <map>
+                  <key>axis</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Axis to determine the sign of the angle (optional).</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Computes the angle between two vectors in radians.</string>
+         </map>
+         <key>vector.floor</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Applies math.floor to each component of the vector.</string>
+         </map>
+         <key>vector.ceil</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Applies math.ceil to each component of the vector.</string>
+         </map>
+         <key>vector.abs</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Applies math.abs to each component of the vector.</string>
+         </map>
+         <key>vector.sign</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input vector.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Applies math.sign to each component of the vector.</string>
+         </map>
+         <key>vector.clamp</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vec</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Input vector to be clamped.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+               <map>
+                  <key>min</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Minimum vector value.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+               <map>
+                  <key>max</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Maximum vector value.</string>
+                     <key>type</key>
+                     <string>vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Clamps each component of the vector between min and max values.</string>
+         </map>
+         <key>vector.max</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vectors</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Multiple input vectors.</string>
+                     <key>type</key>
+                     <string>array of vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Computes the component-wise maximum of multiple vectors.</string>
+         </map>
+         <key>vector.min</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>vectors</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Multiple input vectors.</string>
+                     <key>type</key>
+                     <string>array of vector</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10</real>
+            <key>return</key>
+            <string>vector</string>
+            <key>sleep</key>
+            <real>0</real>
+            <key>tooltip</key>
+            <string>Computes the component-wise minimum of multiple vectors.</string>
+         </map>
          <key>ll</key>
+         <!-- LL Namespace-->
          <map>
             <key>energy</key>
             <real>-1.0</real>
