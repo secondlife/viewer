@@ -3394,7 +3394,7 @@ bool LLScrollListCtrl::highlightMatchingItems(const std::string& filter_str)
 
     bool res = false;
 
-    setHighlightedColor(LLUIColorTable::instance().getColor("SearchableControlHighlightColor", LLColor4::red4));
+    setHighlightedColor(LLUIColorTable::instance().getColor("SearchableControlHighlightBgColor", LLColor4::red4));
 
     std::string filter_str_lc(filter_str);
     LLStringUtil::toLower(filter_str_lc);
