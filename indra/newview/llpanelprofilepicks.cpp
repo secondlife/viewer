@@ -55,7 +55,7 @@
 static LLPanelInjector<LLPanelProfilePicks> t_panel_profile_picks("panel_profile_picks");
 static LLPanelInjector<LLPanelProfilePick> t_panel_profile_pick("panel_profile_pick");
 
-constexpr F32 REQUEST_TIMOUT = 60;
+constexpr F32 REQUEST_TIMEOUT = 60;
 constexpr F32 LOCATION_CACHE_TIMOUT = 900;
 
 class LLPickHandler : public LLCommandHandler
@@ -842,7 +842,7 @@ std::string LLPanelProfilePick::getLocationNotice()
 
 void LLPanelProfilePick::sendParcelInfoRequest()
 {
-    if (mParcelId != mRequestedId || mLastRequestTimer.getElapsedTimeF32() > REQUEST_TIMOUT)
+    if (mParcelId != mRequestedId || mLastRequestTimer.getElapsedTimeF32() > REQUEST_TIMEOUT)
     {
         if (mRequestedId.notNull())
         {
