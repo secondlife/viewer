@@ -225,9 +225,8 @@ void LLReflectionMapManager::update()
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
 
-    // Once every 10 frames, check if we need to reallocate probes.
-
-    if (sUpdateCount % 20)
+    // Once every 20 frames, update the dynamic probe count.
+    if (gFrameCount % 20)
     {
         if (sLevel == 0)
         {
