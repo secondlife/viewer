@@ -4573,6 +4573,8 @@ void LLMeshRepository::notifyLoadedMeshes()
                 std::partial_sort(mPendingRequests.begin(), mPendingRequests.begin() + push_count,
                                   mPendingRequests.end(), PendingRequestBase::CompareScoreGreater());
             }
+            LLMutexTrylock lock3(mThread->mHeaderMutex);
+            LLMutexTrylock lock4(mThread->mPendingMutex);
             while (!mPendingRequests.empty() && push_count > 0)
             {
                 std::unique_ptr<PendingRequestBase>& req_p = mPendingRequests.front();

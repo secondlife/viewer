@@ -257,7 +257,7 @@
     height="16"
     increment="1"
     initial_value="12"
-    label="Max. # of non-impostors:"
+    label="Max. # animated avatars:"
     label_width="185"
     layout="topleft"
     left="30"

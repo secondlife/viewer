@@ -179,7 +179,6 @@
             control_name="RememberPassword"
             follows="left|top"
             font="SansSerifLarge"
-            text_color="EmphasisColor"
             height="24"
             left="262"
             bottom_delta="0"

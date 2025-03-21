@@ -344,6 +344,12 @@ bool LLPacketRing::expandRing()
     return true;
 }
 
+F32 LLPacketRing::getBufferLoadRate() const
+{
+    // goes up to MAX_BUFFER_RING_SIZE
+    return (F32)mNumBufferedPackets / (F32)DEFAULT_BUFFER_RING_SIZE;
+}
+
 void LLPacketRing::dumpPacketRingStats()
 {
     mNumDroppedPacketsTotal += mNumDroppedPackets;
