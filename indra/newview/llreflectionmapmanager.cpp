@@ -144,14 +144,14 @@ static void touch_default_probe(LLReflectionMap* probe)
 
 LLReflectionMapManager::LLReflectionMapManager()
 {
-    mDynamicProbeCount = 256;
+    mDynamicProbeCount = LL_MAX_REFLECTION_PROBE_COUNT;
     initCubeFree();
 }
 
 void LLReflectionMapManager::initCubeFree()
 {
     // start at 1 because index 0 is reserved for mDefaultProbe
-    for (int i = 1; i < LL_MAX_REFLECTION_PROBE_COUNT; ++i)
+    for (U32 i = 1; i < mDynamicProbeCount; ++i)
     {
         mCubeFree.push_back(i);
     }
@@ -228,6 +228,7 @@ void LLReflectionMapManager::update()
     // Once every 20 frames, update the dynamic probe count.
     if (gFrameCount % 20)
     {
+        U32 probe_count_temp = mDynamicProbeCount;
         if (sLevel == 0)
         {
             mDynamicProbeCount = 1;
@@ -249,9 +250,22 @@ void LLReflectionMapManager::update()
         // Round mDynamicProbeCount to the nearest increment of 32
         mDynamicProbeCount = ((mDynamicProbeCount + 16) / 32) * 32;
         mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, LL_MAX_REFLECTION_PROBE_COUNT);
+
+        if (mDynamicProbeCount < probe_count_temp * 1.1 && mDynamicProbeCount > probe_count_temp * 0.9)
+            mDynamicProbeCount = probe_count_temp;
+        else
+            mGlobalFadeTarget = 0.f;
     }
 
-    initReflectionMaps();
+    if (mGlobalFadeTarget < mResetFade)
+        mResetFade = llmax(mGlobalFadeTarget, mResetFade - (F32)gFrameIntervalSeconds * 2);
+    else
+        mResetFade = llmin(mGlobalFadeTarget, mResetFade + (F32)gFrameIntervalSeconds * 2);
+
+    if (mResetFade == mGlobalFadeTarget)
+    {
+        initReflectionMaps();
+    }
 
     static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
 
@@ -1404,6 +1418,7 @@ void LLReflectionMapManager::initReflectionMaps()
         }
 
         gEXRImage = nullptr;
+        mGlobalFadeTarget = 1.f;
         mResetFade = -0.125f;
         mReset = false;
         mReflectionProbeCount = mDynamicProbeCount;

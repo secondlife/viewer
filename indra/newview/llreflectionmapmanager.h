@@ -261,6 +261,7 @@ private:
     bool mReset = false;
 
     float mResetFade = 1.f;
+    float mGlobalFadeTarget = 1.f;
 
     // if true, only update the default probe
     bool mPaused = false;
