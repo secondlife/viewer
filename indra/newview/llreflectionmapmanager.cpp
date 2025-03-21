@@ -144,6 +144,7 @@ static void touch_default_probe(LLReflectionMap* probe)
 
 LLReflectionMapManager::LLReflectionMapManager()
 {
+    mDynamicProbeCount = 256;
     initCubeFree();
 }
 
@@ -221,12 +222,34 @@ void LLReflectionMapManager::update()
         resume();
     }
 
-    static LLCachedControl<U32> probe_count(gSavedSettings, "RenderReflectionProbeCount", 256U);
-    bool countReset = mReflectionProbeCount != probe_count;
+    static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
+    static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
 
-    if (countReset)
+    // Once every 10 frames, check if we need to reallocate probes.
+
+    if (sUpdateCount % 20)
     {
-        mResetFade = -0.5f;
+        if (sLevel == 0)
+        {
+            mDynamicProbeCount = 1;
+        }
+        else if (sLevel == 1)
+        {
+            mDynamicProbeCount = (U32)mProbes.size();
+
+        }
+        else if (sLevel == 2)
+        {
+            mDynamicProbeCount = llmax((U32)mProbes.size(), 128);
+        }
+        else
+        {
+            mDynamicProbeCount = 256;
+        }
+
+        // Round mDynamicProbeCount to the nearest increment of 32
+        mDynamicProbeCount = ((mDynamicProbeCount + 16) / 32) * 32;
+        mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, LL_MAX_REFLECTION_PROBE_COUNT);
     }
 
     initReflectionMaps();
@@ -286,9 +309,6 @@ void LLReflectionMapManager::update()
 
     bool did_update = false;
 
-    static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
-    static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
-
     bool realtime = sDetail >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
 
     LLReflectionMap* closestDynamic = nullptr;
@@ -343,12 +363,7 @@ void LLReflectionMapManager::update()
         }
     }
 
-    if (countReset)
-    {
-        mResetFade = -0.5f;
-    }
-
-    mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds), 1.f);
+    mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
 
     for (unsigned int i = 0; i < mProbes.size(); ++i)
     {
@@ -518,6 +533,16 @@ LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
     }
 
     return probe;
+}
+
+U32 LLReflectionMapManager::probeCount()
+{
+    return mDynamicProbeCount;
+}
+
+U32 LLReflectionMapManager::probeMemory()
+{
+    return (mDynamicProbeCount * 6 * (mProbeResolution * mProbeResolution) * 4) / 1024 / 1024 + (mDynamicProbeCount * 6 * (LL_IRRADIANCE_MAP_RESOLUTION * LL_IRRADIANCE_MAP_RESOLUTION) * 4) / 1024 / 1024;
 }
 
 struct CompareProbeDepth
@@ -1058,7 +1083,11 @@ void LLReflectionMapManager::updateUniforms()
 
     bool is_ambiance_pass = gCubeSnapshot && !isRadiancePass();
     F32 ambscale = is_ambiance_pass ? 0.f : 1.f;
+    ambscale *= mResetFade;
+    ambscale = llmax(0, ambscale);
     F32 radscale = is_ambiance_pass ? 0.5f : 1.f;
+    radscale *= mResetFade;
+    radscale = llmax(0, radscale);
 
     for (auto* refmap : mReflectionMaps)
     {
@@ -1129,8 +1158,8 @@ void LLReflectionMapManager::updateUniforms()
         }
 
         mProbeData.refParams[count].set(
-            llmax(minimum_ambiance, refmap->getAmbiance())*ambscale * llmax(mResetFade, 0.f), // ambiance scale
-            radscale * llmax(mResetFade, 0.f), // radiance scale
+            llmax(minimum_ambiance, refmap->getAmbiance())*ambscale, // ambiance scale
+            radscale, // radiance scale
             refmap->mFadeIn, // fade in weight
             oa.getF32ptr()[2] - refmap->mRadius); // z near
 
@@ -1365,12 +1394,9 @@ void LLReflectionMapManager::renderDebug()
 
 void LLReflectionMapManager::initReflectionMaps()
 {
-    static LLCachedControl<U32> probe_count(gSavedSettings, "RenderReflectionProbeCount", 256U);
-    U32 count = probe_count();
-
     static LLCachedControl<U32> ref_probe_res(gSavedSettings, "RenderReflectionProbeResolution", 128U);
     U32 probe_resolution = nhpo2(llclamp(ref_probe_res(), (U32)64, (U32)512));
-    if (mTexture.isNull() || mReflectionProbeCount != count || mProbeResolution != probe_resolution || mReset)
+    if (mTexture.isNull() || mReflectionProbeCount != mDynamicProbeCount || mProbeResolution != probe_resolution || mReset)
     {
         if(mProbeResolution != probe_resolution)
         {
@@ -1379,9 +1405,9 @@ void LLReflectionMapManager::initReflectionMaps()
         }
 
         gEXRImage = nullptr;
-
+        mResetFade = -0.125f;
         mReset = false;
-        mReflectionProbeCount = count;
+        mReflectionProbeCount = mDynamicProbeCount;
         mProbeResolution = probe_resolution;
         mMaxProbeLOD = log2f((F32)mProbeResolution) - 1.f; // number of mips - 1
 
