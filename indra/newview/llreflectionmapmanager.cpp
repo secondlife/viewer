@@ -224,48 +224,54 @@ void LLReflectionMapManager::update()
 
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
+    static LLCachedControl<U32> sReflectionProbeCount(gSavedSettings, "RenderReflectionProbeCount", 256U);
+    static LLCachedControl<S32> sProbeDynamicAllocation(gSavedSettings, "RenderReflectionProbeDynamicAllocation", -1);
+    mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
 
-    // Once every 20 frames, update the dynamic probe count.
-    if (gFrameCount % 20)
     {
         U32 probe_count_temp = mDynamicProbeCount;
-        if (sLevel == 0)
+        if (sProbeDynamicAllocation > -1)
         {
-            mDynamicProbeCount = 1;
-        }
-        else if (sLevel == 1)
-        {
-            mDynamicProbeCount = (U32)mProbes.size();
+            if (sLevel == 0)
+            {
+                mDynamicProbeCount = 1;
+            }
+            else if (sLevel == 1)
+            {
+                mDynamicProbeCount = (U32)mProbes.size();
+            }
+            else if (sLevel == 2)
+            {
+                mDynamicProbeCount = llmax((U32)mProbes.size(), 128);
+            }
+            else
+            {
+                mDynamicProbeCount = 256;
+            }
 
-        }
-        else if (sLevel == 2)
-        {
-            mDynamicProbeCount = llmax((U32)mProbes.size(), 128);
+            if (sProbeDynamicAllocation > 1)
+            {
+                // Round mDynamicProbeCount to the nearest increment of 16
+                mDynamicProbeCount = ((mDynamicProbeCount + sProbeDynamicAllocation / 2) / sProbeDynamicAllocation) * 16;
+                mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, sReflectionProbeCount);
+            }
+            else
+            {
+                mDynamicProbeCount = llclamp(mDynamicProbeCount + sProbeDynamicAllocation, 1, sReflectionProbeCount);
+            }
         }
         else
         {
-            mDynamicProbeCount = 256;
+            mDynamicProbeCount = sReflectionProbeCount;
         }
 
-        // Round mDynamicProbeCount to the nearest increment of 32
-        mDynamicProbeCount = ((mDynamicProbeCount + 16) / 32) * 32;
-        mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, LL_MAX_REFLECTION_PROBE_COUNT);
+        mDynamicProbeCount = llmin(mDynamicProbeCount, LL_MAX_REFLECTION_PROBE_COUNT);
 
-        if (mDynamicProbeCount < probe_count_temp * 1.1 && mDynamicProbeCount > probe_count_temp * 0.9)
-            mDynamicProbeCount = probe_count_temp;
-        else
-            mGlobalFadeTarget = 0.f;
+        if (mDynamicProbeCount != probe_count_temp)
+            mResetFade = 1.f;
     }
 
-    if (mGlobalFadeTarget < mResetFade)
-        mResetFade = llmax(mGlobalFadeTarget, mResetFade - (F32)gFrameIntervalSeconds * 2);
-    else
-        mResetFade = llmin(mGlobalFadeTarget, mResetFade + (F32)gFrameIntervalSeconds * 2);
-
-    if (mResetFade == mGlobalFadeTarget)
-    {
-        initReflectionMaps();
-    }
+    initReflectionMaps();
 
     static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
 
@@ -356,6 +362,7 @@ void LLReflectionMapManager::update()
             probe->mCubeArray = nullptr;
             probe->mCubeIndex = -1;
             probe->mComplete = false;
+            probe->mFadeIn = 0;
         }
     }
 
@@ -1418,8 +1425,6 @@ void LLReflectionMapManager::initReflectionMaps()
         }
 
         gEXRImage = nullptr;
-        mGlobalFadeTarget = 1.f;
-        mResetFade = -0.125f;
         mReset = false;
         mReflectionProbeCount = mDynamicProbeCount;
         mProbeResolution = probe_resolution;
@@ -1429,15 +1434,25 @@ void LLReflectionMapManager::initReflectionMaps()
             mTexture->getWidth() != mProbeResolution ||
             mReflectionProbeCount + 2 != mTexture->getCount())
         {
-            mTexture = new LLCubeMapArray();
+            if (mTexture)
+            {
+                mTexture = new LLCubeMapArray(*mTexture, mProbeResolution, mReflectionProbeCount + 2);
 
-            static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+                mIrradianceMaps = new LLCubeMapArray(*mIrradianceMaps, LL_IRRADIANCE_MAP_RESOLUTION, mReflectionProbeCount);
+            }
+            else
+            {
+                mTexture = new LLCubeMapArray();
 
-            // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-            mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2, true, render_hdr);
+                static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
 
-            mIrradianceMaps = new LLCubeMapArray();
-            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, false, render_hdr);
+                // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation
+                // source)
+                mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2, true, render_hdr);
+
+                mIrradianceMaps = new LLCubeMapArray();
+                mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, false, render_hdr);
+            }
         }
 
         // reset probe state
@@ -1457,6 +1472,7 @@ void LLReflectionMapManager::initReflectionMaps()
             probe->mCubeArray = nullptr;
             probe->mCubeIndex = -1;
             probe->mNeighbors.clear();
+            probe->mFadeIn = 0;
         }
 
         mCubeFree.clear();

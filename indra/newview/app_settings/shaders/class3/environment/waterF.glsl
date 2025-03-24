@@ -26,6 +26,7 @@
 // class3/environment/waterF.glsl
 
 #define WATER_MINIMAL 1
+#define SHORELINE_FADE 1
 
 out vec4 frag_color;
 
@@ -264,7 +265,7 @@ void main()
 
     // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
 #ifdef SHORELINE_FADE
-    fade = max(0,min(1, (pos.z - refPos.z) / 10))
+    fade = max(0,min(1, (pos.z - refPos.z) / 10));
 #else
     fade = 1 * water_mask;
 #endif
