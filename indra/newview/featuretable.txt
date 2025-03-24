@@ -172,7 +172,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderDisableVintageMode           1   0
 RenderMaxTextureResolution         1   1024
-RenderReflectionProbeCount  1   16
+RenderReflectionProbeCount  1   32
 
 //
 // Medium Graphics Settings (standard)
@@ -214,7 +214,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
-RenderReflectionProbeCount  1   32
+RenderReflectionProbeCount  1   64
 
 //
 // Medium High Graphics Settings
@@ -256,7 +256,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
-RenderReflectionProbeCount  1   32
+RenderReflectionProbeCount  1   64
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -298,7 +298,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
-RenderReflectionProbeCount  1   64
+RenderReflectionProbeCount  1   128
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + all shadows)

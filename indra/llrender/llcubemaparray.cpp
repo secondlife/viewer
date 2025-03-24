@@ -119,19 +119,18 @@ LLCubeMapArray::LLCubeMapArray(LLCubeMapArray& lhs, U32 width, U32 count) : mTex
     {
         U32 src_resolution = lhs.mWidth;
         U32 dst_resolution = mWidth;
-        if (src_resolution == dst_resolution)
         {
-            glCopyImageSubData(lhs.getGLName(), GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, i, getGLName(), GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, i,
-                               lhs.mWidth, lhs.mWidth, 1);
-        }
-        else
-        {
+            GLint components = GL_RGB;
+            if (mImage->getComponents() == 4)
+                components = GL_RGBA;
+            GLint format = GL_RGB;
+
             // Handle different resolutions by scaling the image
             LLPointer<LLImageRaw> src_image = new LLImageRaw(lhs.mWidth, lhs.mWidth, lhs.mImage->getComponents());
-            glGetTexImage(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, src_image->getData());
+            glGetTexImage(GL_TEXTURE_CUBE_MAP_ARRAY, 0, components, GL_UNSIGNED_BYTE, src_image->getData());
 
             LLPointer<LLImageRaw> scaled_image = src_image->scaled(mWidth, mWidth);
-            glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, i, mWidth, mWidth, 1, GL_RGBA, GL_UNSIGNED_BYTE, scaled_image->getData());
+            glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, i, mWidth, mWidth, 1, components, GL_UNSIGNED_BYTE, scaled_image->getData());
         }
     }
 }

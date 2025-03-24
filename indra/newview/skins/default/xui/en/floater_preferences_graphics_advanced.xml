@@ -887,16 +887,16 @@
           value="1"/>
         <combo_box.item
           label="Low"
-          name="16"
-          value="16"/>
-        <combo_box.item
-          label="Medium"
           name="32"
           value="32"/>
         <combo_box.item
-          label="High"
+          label="Medium"
           name="64"
           value="64"/>
+        <combo_box.item
+          label="High"
+          name="128"
+          value="128"/>
         <combo_box.item
           label="Ultra"
           name="256"

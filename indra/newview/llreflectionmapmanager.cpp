@@ -225,32 +225,47 @@ void LLReflectionMapManager::update()
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
     static LLCachedControl<U32> sReflectionProbeCount(gSavedSettings, "RenderReflectionProbeCount", 256U);
-
+    static LLCachedControl<S32> sProbeDynamicAllocation(gSavedSettings, "RenderReflectionProbeDynamicAllocation", -1);
     mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
 
     {
         U32 probe_count_temp = mDynamicProbeCount;
-        if (sLevel == 0)
+        if (sProbeDynamicAllocation > -1)
         {
-            mDynamicProbeCount = 1;
-        }
-        else if (sLevel == 1)
-        {
-            mDynamicProbeCount = (U32)mProbes.size();
+            if (sLevel == 0)
+            {
+                mDynamicProbeCount = 1;
+            }
+            else if (sLevel == 1)
+            {
+                mDynamicProbeCount = (U32)mProbes.size();
+            }
+            else if (sLevel == 2)
+            {
+                mDynamicProbeCount = llmax((U32)mProbes.size(), 128);
+            }
+            else
+            {
+                mDynamicProbeCount = 256;
+            }
 
-        }
-        else if (sLevel == 2)
-        {
-            mDynamicProbeCount = llmax((U32)mProbes.size(), 128);
+            if (sProbeDynamicAllocation > 1)
+            {
+                // Round mDynamicProbeCount to the nearest increment of 16
+                mDynamicProbeCount = ((mDynamicProbeCount + sProbeDynamicAllocation / 2) / sProbeDynamicAllocation) * 16;
+                mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, sReflectionProbeCount);
+            }
+            else
+            {
+                mDynamicProbeCount = llclamp(mDynamicProbeCount + sProbeDynamicAllocation, 1, sReflectionProbeCount);
+            }
         }
         else
         {
-            mDynamicProbeCount = 256;
+            mDynamicProbeCount = sReflectionProbeCount;
         }
 
-        // Round mDynamicProbeCount to the nearest increment of 16
-        mDynamicProbeCount = ((mDynamicProbeCount + 8) / 16) * 16;
-        mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, sReflectionProbeCount);
+        mDynamicProbeCount = llmin(mDynamicProbeCount, LL_MAX_REFLECTION_PROBE_COUNT);
 
         if (mDynamicProbeCount != probe_count_temp)
             mResetFade = 1.f;
