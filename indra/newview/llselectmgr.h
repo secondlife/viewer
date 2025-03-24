@@ -836,6 +836,7 @@ public:
     void getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const;
 
     void updatePointAt();
+    void clearWaterExclusion();
 
     // Internal list maintenance functions. TODO: Make these private!
     void remove(std::vector<LLViewerObject*>& objects);
