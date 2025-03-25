@@ -898,6 +898,10 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
         if (facep->calcAlignedPlanarTE(mCenterFace, &aligned_st_offset, &aligned_st_scale, &aligned_st_rot))
         {
             const LLTextureEntry* tep = facep->getTextureEntry();
+            if (!tep)
+            {
+                return false;
+            }
             LLVector2 st_offset, st_scale;
             tep->getOffset(&st_offset.mV[VX], &st_offset.mV[VY]);
             tep->getScale(&st_scale.mV[VX], &st_scale.mV[VY]);

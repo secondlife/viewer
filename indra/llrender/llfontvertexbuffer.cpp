@@ -146,7 +146,9 @@ S32 LLFontVertexBuffer::render(
              || mLastScaleY != LLFontGL::sScaleY
              || mLastVertDPI != LLFontGL::sVertDPI
              || mLastHorizDPI != LLFontGL::sHorizDPI
-             || mLastOrigin != LLFontGL::sCurOrigin)
+             || mLastOrigin != LLFontGL::sCurOrigin
+             || mLastResGeneration != LLFontGL::sResolutionGeneration
+             || mLastFontCacheGen != fontp->getCacheGeneration())
     {
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
             style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
@@ -178,6 +180,9 @@ void LLFontVertexBuffer::genBuffers(
 {
     // todo: add a debug build assert if this triggers too often for to long?
     mBufferList.clear();
+    // Save before rendreing, it can change mid-render,
+    // so will need to rerender previous characters
+    mLastFontCacheGen = fontp->getCacheGeneration();
 
     gGL.beginList(&mBufferList);
     mChars = fontp->render(text, begin_offset, x, y, color, halign, valign,
@@ -201,6 +206,7 @@ void LLFontVertexBuffer::genBuffers(
     mLastVertDPI = LLFontGL::sVertDPI;
     mLastHorizDPI = LLFontGL::sHorizDPI;
     mLastOrigin = LLFontGL::sCurOrigin;
+    mLastResGeneration = LLFontGL::sResolutionGeneration;
 
     if (right_x)
     {

@@ -4231,14 +4231,9 @@ void LLFolderBridge::staticFolderOptionsMenu()
 
 bool LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
 {
-    LLInventoryModel::cat_array_t cat_array;
-    LLInventoryModel::item_array_t item_array;
-    model->collectDescendentsIf(mUUID,
-                                cat_array,
-                                item_array,
+    return model->hasMatchingDescendents(mUUID,
                                 LLInventoryModel::EXCLUDE_TRASH,
                                 is_type);
-    return !item_array.empty();
 }
 
 void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items, menuentry_vec_t& disabled_items)
@@ -4415,21 +4410,26 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         //Added by aura to force inventory pull on right-click to display folder options correctly. 07-17-06
         mCallingCards = mWearables = false;
 
-        LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
-        if (checkFolderForContentsOfType(model, is_callingcard))
+        if (gInventory.getRootFolderID() != mUUID)
         {
-            mCallingCards=true;
+            LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
+            if (checkFolderForContentsOfType(model, is_callingcard))
+            {
+                mCallingCards = true;
+            }
+
+            const std::vector<LLAssetType::EType> types = { LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART, LLAssetType::AT_OBJECT, LLAssetType::AT_GESTURE };
+            LLIsOneOfTypes is_wearable(types);
+
+            if (checkFolderForContentsOfType(model, is_wearable))
+            {
+                mWearables = true;
+            }
         }
-
-        LLFindWearables is_wearable;
-        LLIsType is_object( LLAssetType::AT_OBJECT );
-        LLIsType is_gesture( LLAssetType::AT_GESTURE );
-
-        if (checkFolderForContentsOfType(model, is_wearable) ||
-            checkFolderForContentsOfType(model, is_object)   ||
-            checkFolderForContentsOfType(model, is_gesture)    )
+        else
         {
-            mWearables=true;
+            // Assume that there are wearables in the root folder
+            mWearables = true;
         }
     }
     else
@@ -4442,13 +4442,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         LLFolderType::EType type = category->getPreferredType();
         const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
 
-        LLFindWearables is_wearable;
-        LLIsType is_object(LLAssetType::AT_OBJECT);
-        LLIsType is_gesture(LLAssetType::AT_GESTURE);
+        const std::vector<LLAssetType::EType> types = { LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART, LLAssetType::AT_OBJECT, LLAssetType::AT_GESTURE };
+        LLIsOneOfTypes is_wearable(types);
 
-        if (checkFolderForContentsOfType(model, is_wearable) ||
-            checkFolderForContentsOfType(model, is_object) ||
-            checkFolderForContentsOfType(model, is_gesture))
+        if (checkFolderForContentsOfType(model, is_wearable))
         {
             mWearables = true;
         }
@@ -4571,14 +4568,11 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 
     // wearables related functionality for folders.
     //is_wearable
-    LLFindWearables is_wearable;
-    LLIsType is_object( LLAssetType::AT_OBJECT );
-    LLIsType is_gesture( LLAssetType::AT_GESTURE );
+    const std::vector<LLAssetType::EType> types = { LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART, LLAssetType::AT_OBJECT, LLAssetType::AT_GESTURE };
+    LLIsOneOfTypes is_wearable(types);
 
     if (mWearables ||
-        checkFolderForContentsOfType(model, is_wearable)  ||
-        checkFolderForContentsOfType(model, is_object) ||
-        checkFolderForContentsOfType(model, is_gesture) )
+        checkFolderForContentsOfType(model, is_wearable))
     {
         // Only enable add/replace outfit for non-system folders.
         if (!is_system_folder)

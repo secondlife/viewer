@@ -266,6 +266,7 @@ public:
 private:
     void updateMenuOptions(LLMenuGL* menu);
     void updateRenamerPosition();
+    static void onIdleUpdateMenu(void* user_data);
 
 protected:
     LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
@@ -414,6 +415,7 @@ public:
     virtual void doItem(LLFolderViewItem* item) {}
     void setApply(bool apply);
     void clearOpenFolders() { mOpenFolders.clear(); }
+    bool hasOpenFolders() { return !mOpenFolders.empty(); }
 protected:
     std::set<LLUUID> mOpenFolders;
     bool mApply;

@@ -28,6 +28,7 @@
 
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
+#include "llcallbacklist.h"
 #include "llclipboard.h" // *TODO: remove this once hack below gone.
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -274,7 +275,11 @@ LLFolderView::~LLFolderView( void )
     mRenamer = NULL;
     mStatusTextBox = NULL;
 
-    if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
+    if (mPopupMenuHandle.get())
+    {
+        mPopupMenuHandle.get()->die();
+        gIdleCallbacks.deleteFunction(onIdleUpdateMenu, this);
+    }
     mPopupMenuHandle.markDead();
 
     mAutoOpenItems.removeAllNodes();
@@ -1095,7 +1100,10 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
     LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
     if (menu && menu->isOpen())
     {
-        LLMenuGL::sMenuContainer->hideMenus();
+        if (LLMenuGL::sMenuContainer->hideMenus())
+        {
+            gIdleCallbacks.deleteFunction(onIdleUpdateMenu, this);
+        }
     }
 
     switch( key )
@@ -1340,7 +1348,10 @@ bool LLFolderView::handleUnicodeCharHere(llwchar uni_char)
         LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
         if (menu && menu->isOpen())
         {
-            LLMenuGL::sMenuContainer->hideMenus();
+            if (LLMenuGL::sMenuContainer->hideMenus())
+            {
+                gIdleCallbacks.deleteFunction(onIdleUpdateMenu, this);
+            }
         }
 
         //do text search
@@ -1612,7 +1623,11 @@ void LLFolderView::deleteAllChildren()
     {
         LLUI::getInstance()->removePopup(mRenamer);
     }
-    if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
+    if (mPopupMenuHandle.get())
+    {
+        mPopupMenuHandle.get()->die();
+        gIdleCallbacks.deleteFunction(onIdleUpdateMenu, this);
+    }
     mPopupMenuHandle.markDead();
     mScrollContainer = NULL;
     mRenameItem = NULL;
@@ -1979,9 +1994,24 @@ void LLFolderView::updateMenu()
     LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
     if (menu && menu->getVisible())
     {
-        updateMenuOptions(menu);
+        // When fetching folders in bulk or in parts, each callback
+        // cause updateMenu individually, so make sure it gets called
+        // only once per frame, after callbacks are done.
+        // gIdleCallbacks has built in dupplicate protection.
+        gIdleCallbacks.addFunction(onIdleUpdateMenu, this);
+    }
+}
+
+void LLFolderView::onIdleUpdateMenu(void* user_data)
+{
+    LLFolderView* self = (LLFolderView*)user_data;
+    LLMenuGL* menu = (LLMenuGL*)self->mPopupMenuHandle.get();
+    if (menu)
+    {
+        self->updateMenuOptions(menu);
         menu->needsArrange(); // update menu height if needed
     }
+    gIdleCallbacks.deleteFunction(onIdleUpdateMenu, self);
 }
 
 bool LLFolderView::isFolderSelected()

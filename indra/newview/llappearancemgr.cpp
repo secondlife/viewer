@@ -537,9 +537,14 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 
         selfStopPhase("update_appearance_on_destroy");
 
-        LLAppearanceMgr::instance().updateAppearanceFromCOF(mEnforceItemRestrictions,
-                                                            mEnforceOrdering,
-                                                            mPostUpdateFunc);
+        //avoid calling an update inside coroutine
+        bool force_restrictions(mEnforceItemRestrictions);
+        bool enforce_ordering(mEnforceOrdering);
+        nullary_func_t post_update_func(mPostUpdateFunc);
+        doOnIdleOneTime([force_restrictions,enforce_ordering,post_update_func]()
+        {
+            LLAppearanceMgr::instance().updateAppearanceFromCOF(force_restrictions, enforce_ordering, post_update_func);
+        });
     }
 }
 

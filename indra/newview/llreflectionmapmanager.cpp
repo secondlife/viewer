@@ -223,9 +223,11 @@ void LLReflectionMapManager::update()
 
     initReflectionMaps();
 
+    static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+
     if (!mRenderTarget.isComplete())
     {
-        U32 color_fmt = GL_RGB16F;
+        U32 color_fmt = render_hdr ? GL_R11F_G11F_B10F : GL_RGB8;
         U32 targetRes = mProbeResolution * 4; // super sample
         mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
     }
@@ -238,7 +240,7 @@ void LLReflectionMapManager::update()
         mMipChain.resize(count);
         for (U32 i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, GL_RGB16F);
+            mMipChain[i].allocate(res, res, render_hdr ? GL_R11F_G11F_B10F : GL_RGB8);
             res /= 2;
         }
     }
@@ -306,7 +308,7 @@ void LLReflectionMapManager::update()
         LLReflectionMap* probe = mProbes[i];
         llassert(probe != nullptr);
 
-        if (probe->mCubeIndex != -1 && mUpdatingProbe != probe)
+        if (probe && probe->mCubeIndex != -1 && mUpdatingProbe != probe)
         { // free this index
             mCubeFree.push_back(probe->mCubeIndex);
 
@@ -1415,11 +1417,13 @@ void LLReflectionMapManager::initReflectionMaps()
         {
             mTexture = new LLCubeMapArray();
 
+            static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+
             // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-            mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
+            mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2, true, render_hdr);
 
             mIrradianceMaps = new LLCubeMapArray();
-            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, false);
+            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, false, render_hdr);
         }
 
         // reset probe state

@@ -1,9 +1,9 @@
 /**
- * @file postDeferredTonemap.glsl
+ * @file simpleColorF.glsl
  *
- * $LicenseInfo:firstyear=2024&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2025&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2024, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,29 +23,35 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
-
 out vec4 frag_color;
 
-uniform sampler2D diffuseRect;
+in vec4 vertex_color;
+in vec4 vertex_position;
 
-in vec2 vary_fragcoord;
+uniform vec4 waterPlane;
+uniform float waterSign;
 
-vec3 linear_to_srgb(vec3 cl);
-vec3 toneMap(vec3 color);
+void waterClip(vec3 pos)
+{
+    // TODO: make this less branchy
+    if (waterSign > 0)
+    {
+        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) < 0.0)
+        {
+            discard;
+        }
+    }
+    else
+    {
+        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) > 0.0)
+        {
+            discard;
+        }
+    }
+}
 
 void main()
 {
-    //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture(diffuseRect, vary_fragcoord);
 
-#ifndef NO_POST
-    diff.rgb = toneMap(diff.rgb);
-#else
-    diff.rgb = clamp(diff.rgb, vec3(0.0), vec3(1.0));
-#endif
-
-    //debugExposure(diff.rgb);
-    frag_color = max(diff, vec4(0));
+    frag_color = vertex_color;
 }
-

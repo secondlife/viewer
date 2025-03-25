@@ -1327,12 +1327,12 @@ const S32 LLViewerParcelMgr::getAgentParcelId() const
     return INVALID_PARCEL_ID;
 }
 
-void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region)
+void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel)
 {
     if(!parcel)
         return;
 
-    LLViewerRegion *region = use_agent_region ? gAgent.getRegion() : LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
+    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromID(parcel->getRegionID());
     if (!region)
         return;
 
@@ -1676,10 +1676,16 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     // Actually extract the data.
     if (parcel)
     {
+        // store region_id in the parcel so we can find it again later
+        LLViewerRegion* parcel_region = LLWorld::getInstance()->getRegion(msg->getSender());
+        if (parcel_region)
+        {
+            parcel->setRegionID(parcel_region->getRegionID());
+        }
+
         if (local_id == parcel_mgr.mAgentParcel->getLocalID())
         {
             // Parcels in different regions can have same ids.
-            LLViewerRegion* parcel_region = LLWorld::getInstance()->getRegion(msg->getSender());
             LLViewerRegion* agent_region = gAgent.getRegion();
             if (parcel_region && agent_region && parcel_region->getRegionID() == agent_region->getRegionID())
             {
@@ -1824,6 +1830,16 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 S32 bitmap_size =   parcel_mgr.mParcelsPerEdge
                                     * parcel_mgr.mParcelsPerEdge
                                     / 8;
+                S32 size = msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_Bitmap);
+                if (size != bitmap_size)
+                {
+                    // Might be better to ignore bitmap and drop highlights
+                    LL_WARNS("ParcelMgr") << "Parcel Bitmap size expected: " << bitmap_size
+                        << " actual " << size
+                        << ". Bitmap might be corrupted!" << LL_ENDL;
+                    bitmap_size = size;
+                }
+
                 U8* bitmap = new U8[ bitmap_size ];
                 msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
 
