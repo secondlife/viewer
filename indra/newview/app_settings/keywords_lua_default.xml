@@ -104,47 +104,42 @@
          <key>boolean</key>
          <map>
             <key>tooltip</key>
-            <string>Lua boolean: represents a true or false value.</string>
+            <string>Boolean: represents a true or false value.</string>
          </map>
-         <key>float</key>
+         <key>number</key>
          <map>
             <key>tooltip</key>
-            <string>32 bit floating point value.\nThe range is 1.175494351E-38 to 3.402823466E+38.</string>
-         </map>
-         <key>integer</key>
-         <map>
-            <key>tooltip</key>
-            <string>32 bit integer value.\n−2,147,483,648 and +2,147,483,647 (that is 0x80000000 to 0x7FFFFFFF in hex).</string>
-         </map>
-         <key>key</key>
-         <map>
-            <key>tooltip</key>
-            <string>A 128 bit unique identifier (UUID).\nThe key is represented as hexidecimal characters (A-F and 0-9), grouped into sections (8,4,4,4,12 characters) and separated by hyphens (for a total of 36 characters). e.g. "A822FF2B-FF02-461D-B45D-DCD10A2DE0C2".</string>
-         </map>
-         <key>list</key>
-         <map>
-            <key>tooltip</key>
-            <string>A collection of other data types.\nLists are signified by square brackets surrounding their elements; the elements inside are separated by commas. e.g. [0, 1, 2, 3, 4] or ["Yes", "No", "Perhaps"].</string>
-         </map>
-         <key>quaternion</key>
-         <map>
-            <key>tooltip</key>
-            <string>The quaternion type is a left over from way back when LSL was created. It was later renamed to &lt;rotation&gt; to make it more user friendly, but it appears someone forgot to remove it ;-)</string>
-         </map>
-         <key>rotation</key>
-         <map>
-            <key>tooltip</key>
-            <string>The rotation type is one of several ways to represent an orientation in 3D.\nIt is a mathematical object called a quaternion. You can think of a quaternion as four numbers (x, y, z, w), three of which represent the direction an object is facing and a fourth that represents the object's banking left or right around that direction.</string>
+            <string>Double‑precision floating point number.</string>
          </map>
          <key>string</key>
          <map>
             <key>tooltip</key>
-            <string>Text data.\nThe editor accepts UTF-8 encoded text.</string>
+            <string>Text data (UTF‑8).</string>
+         </map>
+         <key>table</key>
+         <map>
+            <key>tooltip</key>
+            <string>Collection of key‑value pairs.</string>
+         </map>
+         <key>thread</key>
+         <map>
+            <key>tooltip</key>
+            <string>Represents a coroutine.</string>
+         </map>
+         <key>userdata</key>
+         <map>
+            <key>tooltip</key>
+            <string>Opaque external data.</string>
          </map>
          <key>vector</key>
          <map>
             <key>tooltip</key>
             <string>A vector is a data type that contains a set of three float values.\nVectors are used to represent colors (RGB), positions, and directions/velocities.</string>
+         </map>
+         <key>uuid</key>
+         <map>
+            <key>tooltip</key>
+            <string>A 128‑bit unique identifier formatted as 36 hexadecimal characters (8‑4‑4‑4‑12), e.g. "A822FF2B-FF02-461D-B45D-DCD10A2DE0C2".</string>
          </map>
       </map>
       <key>constants</key>
