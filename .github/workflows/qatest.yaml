@@ -27,15 +27,11 @@ jobs:
 
   install-viewer-and-run-tests:
     runs-on: [self-hosted, qa-machine]
-    # Run test only on successful builds of develop or Second_Life_X branches
+    # Run test only on successful builds of Second_Life_X branches
     if: >
       github.event.workflow_run.conclusion == 'success' &&
       (
         startsWith(github.ref, 'refs/tags/Second_Life')
-
-        # For now this will only run on Second_Life_X tagged builds
-        # || startsWith(github.event.workflow_run.head_branch, 'release')
-        # || github.event.workflow_run.head_branch == 'develop'
       )
 
     steps:
