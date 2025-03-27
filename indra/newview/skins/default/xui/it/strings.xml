@@ -1587,6 +1587,10 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].</string>
 	<string name="conference-title-incoming">Chiamata in conferenza con [AGENT_NAME]</string>
 	<string name="inventory_item_offered-im">Offerto oggetto di inventario &quot;[ITEM_NAME]&quot;</string>
 	<string name="inventory_folder_offered-im">Offerta cartella di inventario &quot;[ITEM_NAME]&quot;</string>
+	<string name="bot_warning">
+Stai parlando con un bot, [NAME]. Non condividere informazioni personali.
+Scopri di più su https://second.life/scripted-agents.
+	</string>
 	<string name="facebook_post_success">Hai pubblicato su Facebook.</string>
 	<string name="flickr_post_success">Hai pubblicato su Flickr.</string>
 	<string name="twitter_post_success">Hai pubblicato su Twitter.</string>
