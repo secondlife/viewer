@@ -1251,7 +1251,8 @@ LLNotifications::LLNotifications()
 
 void LLNotifications::clear()
 {
-   mDefaultChannels.clear();
+    mDefaultChannels.clear();
+    mTemplates.clear();
 }
 
 // The expiration channel gets all notifications that are cancelled
