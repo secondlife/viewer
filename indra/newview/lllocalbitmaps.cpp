@@ -38,6 +38,7 @@
 /* image compression headers. */
 #include "llimagebmp.h"
 #include "llimagetga.h"
+#include "llimagej2c.h"
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 
@@ -105,6 +106,10 @@ LLLocalBitmap::LLLocalBitmap(std::string filename)
     else if (temp_exten == "jpg" || temp_exten == "jpeg")
     {
         mExtension = ET_IMG_JPG;
+    }
+    else if (temp_exten == "j2c" || temp_exten == "jp2")
+    {
+        mExtension = ET_IMG_J2C;
     }
     else if (temp_exten == "png")
     {
@@ -352,6 +357,21 @@ bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
             {
                 rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
                 decode_successful = true;
+            }
+            break;
+        }
+
+        case ET_IMG_J2C:
+        {
+            LLPointer<LLImageJ2C> jpeg_image = new LLImageJ2C;
+            if (jpeg_image->load(mFilename))
+            {
+                jpeg_image->setDiscardLevel(0);
+                if (jpeg_image->decode(rawimg, 0.0f))
+                {
+                    rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    decode_successful = true;
+                }
             }
             break;
         }

@@ -27,6 +27,7 @@
 #include "stdtypes.h"
 
 #include "llimagejpeg.h"
+#include "llimagej2c.h"
 
 #include "llimagedimensionsinfo.h"
 
@@ -63,6 +64,8 @@ bool LLImageDimensionsInfo::load(const std::string& src_filename,U32 codec)
         return getImageDimensionsTga();
     case IMG_CODEC_JPEG:
         return getImageDimensionsJpeg();
+    case IMG_CODEC_J2C:
+        return getImageDimensionsJ2c();
     case IMG_CODEC_PNG:
         return getImageDimensionsPng();
     default:
@@ -212,6 +215,23 @@ bool LLImageDimensionsInfo::getImageDimensionsJpeg()
     fclose(fp);
 
     return !sJpegErrorEncountered;
+}
+
+bool LLImageDimensionsInfo::getImageDimensionsJ2c()
+{
+    clean();
+
+    LLPointer<LLImageJ2C> jpeg_image = new LLImageJ2C;
+    if (jpeg_image->load(mSrcFilename))
+    {
+        mWidth = jpeg_image->getWidth();
+        mHeight = jpeg_image->getHeight();
+        return true;
+    }
+    mWarning = "texture_load_format_error";
+    LL_WARNS() << "J2C load error: " << LLImage::getLastThreadError() << LL_ENDL;
+
+    return false;
 }
 
 bool LLImageDimensionsInfo::checkFileLength(S32 min_len)

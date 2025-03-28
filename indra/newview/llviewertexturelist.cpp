@@ -1419,6 +1419,15 @@ bool LLViewerTextureList::createUploadFile(const std::string& filename,
         image->setLastError("Couldn't load the image to be uploaded.");
         return false;
     }
+
+    // calcDataSizeJ2C assumes maximum size is 2048 and for bigger images can
+    // assign discard to bring imige to needed size, but upload does the scaling
+    // as needed, so just reset discard.
+    // Assume file is full and has 'discard' 0 data.
+    // Todo: probably a better idea to have some setMaxDimentions in J2C
+    // called when loading from a local file
+    image->setDiscardLevel(0);
+
     // Decompress or expand it in a raw image structure
     LLPointer<LLImageRaw> raw_image = new LLImageRaw;
     if (!image->decode(raw_image, 0.0f))
