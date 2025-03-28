@@ -727,29 +727,6 @@ void LLPipeline::requestResizeShadowTexture()
 
 void LLPipeline::resizeShadowTexture()
 {
-    // A static counter to keep track of skipped frames
-    static int sSkippedFrameCount = 0;
-
-    if (!mRT || mRT->width == 0 || mRT->height == 0)
-    {
-        sSkippedFrameCount++;
-        LL_WARNS("Render") << "Shadow texture resizing aborted: render target dimensions invalid. Skipped "
-                           << sSkippedFrameCount << " frame(s) so far." << LL_ENDL;
-        return;
-    }
-
-    // If there were skipped frames before mRT became valid, log that information.
-    if (sSkippedFrameCount > 0)
-    {
-        LL_INFOS("Render") << "Render target now valid after "
-                           << sSkippedFrameCount << " skipped frame(s)." << LL_ENDL;
-        sSkippedFrameCount = 0;
-    }
-
-    LL_WARNS() << "LLPipeline::resizeShadowTexture() called." << LL_ENDL;
-    LL_INFOS() << "Resizing shadow texture. mRT->width = "
-               << mRT->width << " mRT->height = " << mRT->height << LL_ENDL;
-
     releaseSunShadowTargets();
     releaseSpotShadowTargets();
     allocateShadowBuffer(mRT->width, mRT->height);
@@ -1309,8 +1286,11 @@ void LLPipeline::createGLBuffers()
     }
 
     allocateScreenBuffer(resX, resY);
-    mRT->width = 0;
-    mRT->height = 0;
+    // Do not zero out mRT dimensions here. allocateScreenBuffer() above
+    // already sets the correct dimensions. Zeroing them caused resizeShadowTexture()
+    // to fail if called immediately after createGLBuffers (e.g., post graphics change).
+    // mRT->width = 0;
+    // mRT->height = 0;
 
 
     if (!mNoiseMap)
