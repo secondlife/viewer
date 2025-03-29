@@ -1249,10 +1249,26 @@ LLNotifications::LLNotifications()
     LLInstanceTracker<LLNotificationChannel, std::string>::instanceCount();
 }
 
+
+LLNotifications::~LLNotifications()
+{
+    // Clear explicitly, something in ~LLNotifications() crashes so narrowing down suspects
+    pHistoryChannel = nullptr;
+    pExpirationChannel = nullptr;
+    mGlobalStrings.clear();
+    mTemplates.clear();
+    mVisibilityRules.clear();
+    mUniqueNotifications.clear();
+    mListener = nullptr;
+}
+
 void LLNotifications::clear()
 {
     mDefaultChannels.clear();
-    mTemplates.clear();
+    // At this point mTemplates still gets used by lingering notifications
+    // to do responses (ex: group notice will call forceResponse()), but
+    // since network should be down and everything save, it's questionable
+    // whether it should stay that way
 }
 
 // The expiration channel gets all notifications that are cancelled

@@ -5216,15 +5216,28 @@ void LLAppViewer::sendLogoutRequest()
         gLogoutInProgress = true;
         if (!mSecondInstance)
         {
-            mLogoutMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LOGOUT_MARKER_FILE_NAME);
-
-            mLogoutMarkerFile.open(mLogoutMarkerFileName, LL_APR_WB);
-            if (mLogoutMarkerFile.getFileHandle())
+            mLogoutMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
+            try
             {
-                LL_INFOS("MarkerFile") << "Created logout marker file '"<< mLogoutMarkerFileName << "' " << LL_ENDL;
-                recordMarkerVersion(mLogoutMarkerFile);
+                if (!mLogoutMarkerFile.getFileHandle())
+                {
+                    mLogoutMarkerFile.open(mLogoutMarkerFileName, LL_APR_WB);
+                    if (mLogoutMarkerFile.getFileHandle())
+                    {
+                        LL_INFOS("MarkerFile") << "Created logout marker file '" << mLogoutMarkerFileName << "' " << LL_ENDL;
+                        recordMarkerVersion(mLogoutMarkerFile);
+                    }
+                    else
+                    {
+                        LL_WARNS("MarkerFile") << "Cannot create logout marker file " << mLogoutMarkerFileName << LL_ENDL;
+                    }
+                }
+                else
+                {
+                    LL_WARNS("MarkerFile") << "Atempted to reopen file '" << mLogoutMarkerFileName << "' " << LL_ENDL;
+                }
             }
-            else
+            catch (...)
             {
                 LL_WARNS("MarkerFile") << "Cannot create logout marker file " << mLogoutMarkerFileName << LL_ENDL;
             }
