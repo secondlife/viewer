@@ -183,12 +183,12 @@ void LL::WorkQueueBase::callWork(const Work& work)
     catch (...)
     {
         // Stash any other kind of uncaught exception to be rethrown by main thread.
-        LL_WARNS("LLCoros") << "Capturing uncaught exception in WorkQueueBase "
+        LL_WARNS("LLCoros") << "Capturing and rethrowing uncaught exception in WorkQueueBase "
             << getKey() << LL_ENDL;
 
         LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
         main_queue->post(
-            // Bind the current exception rethrow it in main loop.
+            // Bind the current exception, rethrow it in main loop.
             [exc = std::current_exception()]() { std::rethrow_exception(exc); });
     }
 #endif // else LL_WINDOWS

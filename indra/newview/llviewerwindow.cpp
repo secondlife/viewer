@@ -1457,7 +1457,7 @@ void LLViewerWindow::handleMouseLeave(LLWindow *window)
 
 bool LLViewerWindow::handleCloseRequest(LLWindow *window)
 {
-    if (!LLApp::isExiting())
+    if (!LLApp::isExiting() && !LLApp::isStopped())
     {
         // User has indicated they want to close, but we may need to ask
         // about modified documents.
