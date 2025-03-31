@@ -52,7 +52,7 @@ LLFilePicker LLFilePicker::sInstance;
 
 #if LL_WINDOWS
 #define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
-#define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.j2c; *.jp2; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.j2c;*.jp2;*.png\0"
+#define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #define GLTF_FILTER L"glTF (*.gltf; *.glb)\0*.gltf;*.glb\0"
@@ -559,7 +559,7 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         }
         mOFN.lpstrDefExt = L"j2c";
         mOFN.lpstrFilter =
-            L"Compressed Images (*.j2c *.jp2)\0*.j2c;*.jp2\0" \
+            L"Compressed Images (*.j2c)\0*.j2c\0" \
             L"\0";
         break;
     case FFSAVE_SCRIPT:
@@ -649,8 +649,6 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
         case FFLOAD_IMAGE:
             allowedv->push_back("jpg");
             allowedv->push_back("jpeg");
-            allowedv->push_back("j2c");
-            allowedv->push_back("jp2");
             allowedv->push_back("bmp");
             allowedv->push_back("tga");
             allowedv->push_back("bmpf");

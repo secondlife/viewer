@@ -91,7 +91,6 @@ protected:
     bool getImageDimensionsTga();
     bool getImageDimensionsPng();
     bool getImageDimensionsJpeg();
-    bool getImageDimensionsJ2c();
 
     S32 read_s32()
     {
