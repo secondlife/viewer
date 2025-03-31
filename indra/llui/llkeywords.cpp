@@ -246,6 +246,7 @@ void LLKeywords::processTokens()
 
     if (mLuauLanguage)
     {
+        addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\'", LLUIColorTable::instance().getColor("SyntaxLslStringLiteral"), "String literal", "\'");
         // Add Lua-style comments
         addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "--", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style single-line)\nNon-functional commentary or disabled code", delimiter);
         // Add Lua multi-line comments
