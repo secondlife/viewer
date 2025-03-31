@@ -595,10 +595,8 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
                 std::string text_to_search(wtext.begin() + seg_start, wtext.end());
 
-                for (token_list_t::iterator iter = mRegexTokenList.begin();
-                    iter != mRegexTokenList.end(); ++iter)
+                for (LLKeywordToken* regex_token : mRegexTokenList)
                 {
-                    LLKeywordToken* regex_token = *iter;
                     std::string start_pattern(regex_token->getToken().begin(), regex_token->getToken().end());
                     std::string end_pattern(regex_token->getDelimiter().begin(), regex_token->getDelimiter().end());
 
