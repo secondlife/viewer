@@ -5586,14 +5586,22 @@ struct MikktData
     {
         U32 count = face->mNumIndices;
 
-        p.resize(count);
-        n.resize(count);
-        tc.resize(count);
-        t.resize(count);
-
-        if (face->mWeights)
+        try
         {
-            w.resize(count);
+            p.resize(count);
+            n.resize(count);
+            tc.resize(count);
+            t.resize(count);
+
+            if (face->mWeights)
+            {
+                w.resize(count);
+            }
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("LLCoros") << "Bad memory allocation in MikktData, elements count: " << count << LL_ENDL;
         }
 
 
@@ -5665,7 +5673,16 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         // and is executed on a background thread
         MikktData data(this);
         mikk::Mikktspace ctx(data);
-        ctx.genTangSpace();
+        try
+        {
+            ctx.genTangSpace();
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("LLCoros") << "Bad memory allocation in MikktData::genTangSpace" << LL_ENDL;
+        }
+
 
         //re-weld
         meshopt_Stream mos[] =
@@ -5678,7 +5695,15 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         };
 
         std::vector<U32> remap;
-        remap.resize(data.p.size());
+        try
+        {
+            remap.resize(data.p.size());
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("LLCoros") << "Failed to allocate memory for remap: " << (S32)data.p.size() << LL_ENDL;
+        }
 
         U32 stream_count = data.w.empty() ? 4 : 5;
 
