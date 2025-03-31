@@ -53,6 +53,11 @@ public:
      * - TT_ONE_SIDED_DELIMITER are for open-ended delimiters which are terminated by EOL.
      * - TT_TWO_SIDED_DELIMITER are for delimiters that end with a different delimiter than they open with.
      * - TT_DOUBLE_QUOTATION_MARKS are for delimiting areas using the same delimiter to open and close.
+     * - TT_REGEX_MATCH are for pattern-based matching using regular expressions.
+     *      For TT_REGEX_MATCH: mToken contains the start pattern, mDelimiter contains the end pattern (if any).
+     *      If mDelimiter is empty, the entire match is considered one segment.
+     *      If mDelimiter contains capture group references (e.g. \1, \2), these will be replaced with
+     *      the corresponding capture groups from the start pattern match.
      */
     typedef enum e_token_type
     {
@@ -62,6 +67,7 @@ public:
         TT_TWO_SIDED_DELIMITER,
         TT_ONE_SIDED_DELIMITER,
         TT_DOUBLE_QUOTATION_MARKS,
+        TT_REGEX_MATCH,
         // Following constants are more specific versions of the preceding ones
         TT_CONSTANT,                        // WORD
         TT_CONTROL,                         // WORD
@@ -194,6 +200,7 @@ protected:
     typedef std::deque<LLKeywordToken*> token_list_t;
     token_list_t mLineTokenList;
     token_list_t mDelimiterTokenList;
+    token_list_t mRegexTokenList;
 
     typedef  std::map<std::string, std::string, std::less<>> element_attributes_t;
     typedef element_attributes_t::const_iterator attribute_iterator_t;
