@@ -7486,7 +7486,7 @@ void LLSelectMgr::updatePointAt()
             LLVector3 select_offset;
             const LLPickInfo& pick = gViewerWindow->getLastPick();
             LLViewerObject *click_object = pick.getObject();
-            bool was_hud = pick.mPickHUD && !click_object->isHUDAttachment();
+            bool was_hud = pick.mPickHUD && click_object && !click_object->isHUDAttachment();
             if (click_object && click_object->isSelected() && !was_hud)
             {
                 // clicked on another object in our selection group, use that as target
