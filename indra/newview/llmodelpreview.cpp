@@ -132,16 +132,16 @@ std::string getLodSuffix(S32 lod)
     return suffix;
 }
 
-static bool FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LLModel*& baseModelOut, LLMatrix4& matOut)
+static bool FindModel(const LLModelLoader::scene& scene, const std::string& name_to_match, LLModel*& baseModelOut, LLMatrix4& matOut)
 {
-    for (auto scene_iter = scene.begin(); scene_iter != scene.end(); scene_iter++)
+    for (const auto& scene_pair : scene)
     {
-        for (auto model_iter = scene_iter->second.begin(); model_iter != scene_iter->second.end(); model_iter++)
+        for (const auto& model_iter : scene_pair.second)
         {
-            if (model_iter->mModel && (model_iter->mModel->mLabel == name_to_match))
+            if (model_iter.mModel && (model_iter.mModel->mLabel == name_to_match))
             {
-                baseModelOut = model_iter->mModel;
-                matOut = scene_iter->first;
+                baseModelOut = model_iter.mModel;
+                matOut = scene_pair.first;
                 return true;
             }
         }
