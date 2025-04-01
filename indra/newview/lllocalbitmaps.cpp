@@ -700,10 +700,14 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
             // do not create a new material, reuse existing pointer
             // so that mTextureEntires remains untouched
             LLGLTFMaterial* render_mat = entry->getGLTFRenderMaterial();
-            if (render_mat)
+            if (render_mat && render_mat != mat)
             {
                 *render_mat = *mat;
                 render_mat->applyOverride(*override_mat); // can update mGLTFMaterialWithLocalTextures
+            }
+            else
+            {
+                LL_WARNS() << "A TE had an override, but no render material" << LL_ENDL;
             }
         }
     }
