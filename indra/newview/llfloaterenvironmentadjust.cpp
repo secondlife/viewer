@@ -456,8 +456,26 @@ void LLFloaterEnvironmentAdjust::onCloudMapChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setCloudNoiseTextureId(getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->getValue().asUUID());
+
+    // Get the texture picker control
+    LLTextureCtrl* picker_ctrl = getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP);
+    if (!picker_ctrl)
+    {
+         // Optional: Log an error if the control isn't found, though unlikely
+         return;
+    }
+
+    // Get the new texture ID selected by the user
+    LLUUID new_texture_id = picker_ctrl->getValue().asUUID();
+
+    // Update the internal sky settings object
+    mLiveSky->setCloudNoiseTextureId(new_texture_id);
+
+    // Trigger the update for the sky rendering
     mLiveSky->update();
+
+    // Explicitly refresh the UI picker control to match the applied change
+    picker_ctrl->setValue(new_texture_id);
 }
 
 void LLFloaterEnvironmentAdjust::onWaterMapChanged()
