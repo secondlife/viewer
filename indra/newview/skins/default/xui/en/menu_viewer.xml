@@ -3889,6 +3889,13 @@ function="World.EnvPreset"
                  function="Floater.Show"
                  parameter="font_test" />
             </menu_item_call>
+            <menu_item_call
+             label="Show SLapps Test"
+             name="Show SLapps Test">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="slapp_test" />
+            </menu_item_call>
             <menu_item_check
              label="Show XUI Names"
              name="Show XUI Names">

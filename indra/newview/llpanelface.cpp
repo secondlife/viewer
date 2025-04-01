@@ -3075,8 +3075,7 @@ void LLPanelFace::onCommitHideWater()
     }
     else
     {
-        // reset texture to default plywood
-        LLSelectMgr::getInstance()->selectionSetImage(DEFAULT_OBJECT_TEXTURE);
+        LLSelectMgr::getInstance()->clearWaterExclusion();
     }
 }
 

@@ -4826,6 +4826,18 @@ void LLViewerObject::setPositionParent(const LLVector3 &pos_parent, bool damped)
     else
     {
         setPositionRegion(pos_parent, damped);
+
+        // #1964 mark reflection probe in the linkset to update position after moving via script
+        for (LLViewerObject* child : mChildList)
+        {
+            if (child && child->isReflectionProbe())
+            {
+                if (LLDrawable* drawablep = child->mDrawable)
+                {
+                    gPipeline.markMoved(drawablep);
+                }
+            }
+        }
     }
 }
 
@@ -7676,6 +7688,31 @@ void LLViewerObject::setGLTFAsset(const LLUUID& id)
     updateVolume(volume_params);
 }
 
+void LLViewerObject::clearTEWaterExclusion(const U8 te)
+{
+    if (permModify())
+    {
+        LLViewerTexture* image = getTEImage(te);
+        if (image && (IMG_ALPHA_GRAD == image->getID()))
+        {
+            // reset texture to default plywood
+            setTEImage(te, LLViewerTextureManager::getFetchedTexture(DEFAULT_OBJECT_TEXTURE, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+
+            // reset texture repeats, that might be altered by invisiprim script from wiki
+            U32 s_axis, t_axis;
+            if (!LLPrimitive::getTESTAxes(te, &s_axis, &t_axis))
+            {
+                return;
+            }
+            F32 DEFAULT_REPEATS = 2.f;
+            F32 new_s = getScale().mV[s_axis] * DEFAULT_REPEATS;
+            F32 new_t = getScale().mV[t_axis] * DEFAULT_REPEATS;
+
+            setTEScale(te, new_s, new_t);
+            sendTEUpdate();
+        }
+    }
+}
 
 class ObjectPhysicsProperties : public LLHTTPNode
 {

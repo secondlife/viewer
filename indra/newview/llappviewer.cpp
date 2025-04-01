@@ -445,8 +445,8 @@ void idle_afk_check()
 {
     // check idle timers
     F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
-    F32 afk_timeout  = (F32)gSavedSettings.getS32("AFKTimeout");
-    if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
+    static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout", 300);
+    if (afk_timeout() && (current_idle > (F32)afk_timeout()) && !gAgent.getAFK())
     {
         LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
         gAgent.setAFK();
@@ -5217,15 +5217,28 @@ void LLAppViewer::sendLogoutRequest()
         gLogoutInProgress = true;
         if (!mSecondInstance)
         {
-            mLogoutMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LOGOUT_MARKER_FILE_NAME);
-
-            mLogoutMarkerFile.open(mLogoutMarkerFileName, LL_APR_WB);
-            if (mLogoutMarkerFile.getFileHandle())
+            mLogoutMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
+            try
             {
-                LL_INFOS("MarkerFile") << "Created logout marker file '"<< mLogoutMarkerFileName << "' " << LL_ENDL;
-                recordMarkerVersion(mLogoutMarkerFile);
+                if (!mLogoutMarkerFile.getFileHandle())
+                {
+                    mLogoutMarkerFile.open(mLogoutMarkerFileName, LL_APR_WB);
+                    if (mLogoutMarkerFile.getFileHandle())
+                    {
+                        LL_INFOS("MarkerFile") << "Created logout marker file '" << mLogoutMarkerFileName << "' " << LL_ENDL;
+                        recordMarkerVersion(mLogoutMarkerFile);
+                    }
+                    else
+                    {
+                        LL_WARNS("MarkerFile") << "Cannot create logout marker file " << mLogoutMarkerFileName << LL_ENDL;
+                    }
+                }
+                else
+                {
+                    LL_WARNS("MarkerFile") << "Atempted to reopen file '" << mLogoutMarkerFileName << "' " << LL_ENDL;
+                }
             }
-            else
+            catch (...)
             {
                 LL_WARNS("MarkerFile") << "Cannot create logout marker file " << mLogoutMarkerFileName << LL_ENDL;
             }
@@ -5377,7 +5390,8 @@ void LLAppViewer::idleNetwork()
     gObjectList.mNumNewObjects = 0;
     S32 total_decoded = 0;
 
-    if (!gSavedSettings.getBOOL("SpeedTest"))
+    static LLCachedControl<bool> speed_test(gSavedSettings, "SpeedTest", false);
+    if (!speed_test())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("idle network"); //LL_RECORD_BLOCK_TIME(FTM_IDLE_NETWORK); // decode
 
@@ -5436,7 +5450,9 @@ void LLAppViewer::idleNetwork()
             }
 
             // Handle per-frame message system processing.
-            lmc.processAcks(gSavedSettings.getF32("AckCollectTime"));
+
+            static LLCachedControl<F32> ack_collection_time(gSavedSettings, "AckCollectTime", 0.1f);
+            lmc.processAcks(ack_collection_time());
         }
     }
     add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);

@@ -3676,6 +3676,17 @@
         <key>Value</key>
         <integer>5000</integer>
     </map>
+    <key>InventoryExposeFolderID</key>
+    <map>
+        <key>Comment</key>
+        <string>Allows copying folder id from context menu</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>MarketplaceListingsSortOrder</key>
     <map>
       <key>Comment</key>
@@ -7803,7 +7814,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>1</integer>
   </map>
   <key>RenderMinFreeMainMemoryThreshold</key>
   <map>
@@ -9076,6 +9087,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>RenderReflectionProbeDynamicAllocation</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable dynamic allocation of reflection probes. -1 means no dynamic allocation. Sets a buffer to allocate when a dynamic allocation occurs otherwise.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>-1</integer>
+    </map>
     <key>RenderReflectionProbeCount</key>
     <map>
         <key>Comment</key>

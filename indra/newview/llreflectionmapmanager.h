@@ -38,7 +38,7 @@ class LLViewerObject;
 #define LL_MAX_REFLECTION_PROBE_COUNT 256
 
 // reflection probe resolution
-#define LL_IRRADIANCE_MAP_RESOLUTION 64
+#define LL_IRRADIANCE_MAP_RESOLUTION 16
 
 // reflection probe mininum scale
 #define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
@@ -159,12 +159,18 @@ public:
     // with false when done.
     void forceDefaultProbeAndUpdateUniforms(bool force = true);
 
+    U32 probeCount();
+    U32 probeMemory();
+
 private:
     friend class LLPipeline;
     friend class LLHeroProbeManager;
 
     // initialize mCubeFree array to default values
     void initCubeFree();
+
+    // Just does a bulk clear of all of the cubemaps.
+    void clearCubeMaps();
 
     // delete the probe with the given index in mProbes
     void deleteProbe(U32 i);
@@ -240,6 +246,8 @@ private:
     // number of reflection probes to use for rendering
     U32 mReflectionProbeCount;
 
+    U32 mDynamicProbeCount;
+
     // resolution of reflection probes
     U32 mProbeResolution = 128;
 
@@ -253,6 +261,7 @@ private:
     bool mReset = false;
 
     float mResetFade = 1.f;
+    float mGlobalFadeTarget = 1.f;
 
     // if true, only update the default probe
     bool mPaused = false;
