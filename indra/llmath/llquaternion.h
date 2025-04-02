@@ -174,6 +174,10 @@ public:
     //static U32 mMultCount;
 };
 
+static_assert(std::is_trivially_copyable<LLQuaternion>::value, "LLQuaternion must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLQuaternion>::value, "LLQuaternion must be trivial move");
+static_assert(std::is_standard_layout<LLQuaternion>::value, "LLQuaternion must be a standard layout type");
+
 inline LLSD LLQuaternion::getValue() const
 {
     LLSD ret;

@@ -29,8 +29,6 @@
 
 // this is defined so that we get static linking.
 #include "openjpeg.h"
-#include "event.h"
-#include "cio.h"
 
 #define MAX_ENCODED_DISCARD_LEVELS 5
 
@@ -50,6 +48,7 @@ std::string LLImageJ2COJ::getEngineInfo() const
 #endif
 }
 
+#if WANT_VERBOSE_OPJ_SPAM
 // Return string from message, eliminating final \n if present
 static std::string chomp(const char* msg)
 {
@@ -65,27 +64,34 @@ static std::string chomp(const char* msg)
 }
     return message;
 }
+#endif
 
 /**
 sample error callback expecting a LLFILE* client object
 */
 void error_callback(const char* msg, void*)
 {
-    LL_DEBUGS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
+#if WANT_VERBOSE_OPJ_SPAM
+    LL_WARNS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
+#endif
 }
 /**
 sample warning callback expecting a LLFILE* client object
 */
 void warning_callback(const char* msg, void*)
 {
-    LL_DEBUGS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
+#if WANT_VERBOSE_OPJ_SPAM
+    LL_WARNS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
+#endif
 }
 /**
 sample debug callback expecting no client object
 */
 void info_callback(const char* msg, void*)
 {
-    LL_DEBUGS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
+#if WANT_VERBOSE_OPJ_SPAM
+    LL_INFOS() << "LLImageJ2COJ: " << chomp(msg) << LL_ENDL;
+#endif
 }
 
 // Divide a by 2 to the power of b and round upwards
@@ -97,38 +103,12 @@ int ceildivpow2(int a, int b)
 class JPEG2KBase
 {
 public:
-    JPEG2KBase() {}
+    JPEG2KBase() = default;
 
     U8*        buffer = nullptr;
     OPJ_SIZE_T size = 0;
     OPJ_OFF_T  offset = 0;
 };
-
-#define WANT_VERBOSE_OPJ_SPAM LL_DEBUG
-
-static void opj_info(const char* msg, void* user_data)
-{
-    llassert(user_data);
-#if WANT_VERBOSE_OPJ_SPAM
-    LL_INFOS("OpenJPEG") << msg << LL_ENDL;
-#endif
-}
-
-static void opj_warn(const char* msg, void* user_data)
-{
-    llassert(user_data);
-#if WANT_VERBOSE_OPJ_SPAM
-    LL_WARNS("OpenJPEG") << msg << LL_ENDL;
-#endif
-}
-
-static void opj_error(const char* msg, void* user_data)
-{
-    llassert(user_data);
-#if WANT_VERBOSE_OPJ_SPAM
-    LL_WARNS("OpenJPEG") << msg << LL_ENDL;
-#endif
-}
 
 static OPJ_SIZE_T opj_read(void * buffer, OPJ_SIZE_T bytes, void* user_data)
 {
@@ -222,11 +202,7 @@ public:
 
     JPEG2KDecode(S8 discardLevel)
     {
-        memset(&event_mgr, 0, sizeof(opj_event_mgr_t));
         memset(&parameters, 0, sizeof(opj_dparameters_t));
-        event_mgr.error_handler = error_callback;
-        event_mgr.warning_handler = warning_callback;
-        event_mgr.info_handler = info_callback;
         opj_set_default_decoder_parameters(&parameters);
         parameters.cp_reduce = discardLevel;
     }
@@ -269,6 +245,11 @@ public:
         parameters.flags |= OPJ_DPARAMETERS_DUMP_FLAG;
 
         decoder = opj_create_decompress(OPJ_CODEC_J2K);
+
+        /* catch events using our callbacks and give a local context */
+        opj_set_error_handler(decoder, error_callback, nullptr);
+        opj_set_warning_handler(decoder, warning_callback, nullptr);
+        opj_set_info_handler(decoder, info_callback, nullptr);
 
         if (!opj_setup_decoder(decoder, &parameters))
         {
@@ -340,9 +321,9 @@ public:
         decoder = opj_create_decompress(OPJ_CODEC_J2K);
         opj_setup_decoder(decoder, &parameters);
 
-        opj_set_info_handler(decoder, opj_info, this);
-        opj_set_warning_handler(decoder, opj_warn, this);
-        opj_set_error_handler(decoder, opj_error, this);
+        opj_set_info_handler(decoder, info_callback, this);
+        opj_set_warning_handler(decoder, warning_callback, this);
+        opj_set_error_handler(decoder, error_callback, this);
 
         if (stream)
         {
@@ -408,7 +389,6 @@ public:
 
 private:
     opj_dparameters_t         parameters;
-    opj_event_mgr_t           event_mgr;
     opj_image_t*              image = nullptr;
     opj_codec_t*              decoder = nullptr;
     opj_stream_t*             stream = nullptr;
@@ -423,10 +403,6 @@ public:
     JPEG2KEncode(const char* comment_text_in, bool reversible)
     {
         memset(&parameters, 0, sizeof(opj_cparameters_t));
-        memset(&event_mgr, 0, sizeof(opj_event_mgr_t));
-        event_mgr.error_handler = error_callback;
-        event_mgr.warning_handler = warning_callback;
-        event_mgr.info_handler = info_callback;
 
         opj_set_default_encoder_parameters(&parameters);
         parameters.cod_format = OPJ_CODEC_J2K;
@@ -493,6 +469,11 @@ public:
 
         encoder = opj_create_compress(OPJ_CODEC_J2K);
 
+        /* catch events using our callbacks and give a local context */
+        opj_set_error_handler(encoder, error_callback, nullptr);
+        opj_set_warning_handler(encoder, warning_callback, nullptr);
+        opj_set_info_handler(encoder, info_callback, nullptr);
+
         parameters.tcp_mct = (image->numcomps >= 3) ? 1 : 0;
         parameters.cod_format = OPJ_CODEC_J2K;
         parameters.prog_order = OPJ_RLCP;
@@ -546,10 +527,6 @@ public:
         {
             return false;
         }
-
-        opj_set_info_handler(encoder, opj_info, this);
-        opj_set_warning_handler(encoder, opj_warn, this);
-        opj_set_error_handler(encoder, opj_error, this);
 
         U32 tile_count = (rawImageIn.getWidth() >> 6) * (rawImageIn.getHeight() >> 6);
         U32 data_size_guess = tile_count * TILE_SIZE;
@@ -744,7 +721,6 @@ public:
 
 private:
     opj_cparameters_t   parameters;
-    opj_event_mgr_t     event_mgr;
     opj_image_t*        image = nullptr;
     opj_codec_t*        encoder = nullptr;
     opj_stream_t*       stream = nullptr;

@@ -134,6 +134,9 @@ public:
     static LLColor4U blue;
 };
 
+static_assert(std::is_trivially_copyable<LLColor4U>::value, "LLColor4U must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLColor4U>::value, "LLColor4U must be trivial move");
+static_assert(std::is_standard_layout<LLColor4U>::value, "LLColor4U must be a standard layout type");
 
 // Non-member functions
 F32     distVec(const LLColor4U &a, const LLColor4U &b);            // Returns distance between a and b

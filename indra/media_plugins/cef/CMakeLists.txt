@@ -14,14 +14,6 @@ include(CEFPlugin)
 
 ### media_plugin_cef
 
-if(NOT ADDRESS_SIZE EQUAL 32)
-  if(WINDOWS)
-    ##add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(WINDOWS)
-endif(NOT ADDRESS_SIZE EQUAL 32)
-
 set(media_plugin_cef_SOURCE_FILES
     media_plugin_cef.cpp
     )
