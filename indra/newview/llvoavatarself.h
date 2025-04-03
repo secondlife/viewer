@@ -92,6 +92,8 @@ public:
     /*virtual*/ void        requestStopMotion(LLMotion* motion);
     /*virtual*/ LLJoint*    getJoint(const std::string &name);
 
+    /*virtual*/ void renderJoints();
+
     /*virtual*/ bool setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
     /*virtual*/ bool setVisualParamWeight(const char* param_name, F32 weight);
     /*virtual*/ bool setVisualParamWeight(S32 index, F32 weight);
@@ -102,6 +104,8 @@ public:
 private:
     // helper function. Passed in param is assumed to be in avatar's parameter list.
     bool setParamWeight(const LLViewerVisualParam *param, F32 weight);
+
+    std::mutex          mJointMapMutex; // getJoint gets used from mesh thread
 
 /********************************************************************************
  **                                                                            **
