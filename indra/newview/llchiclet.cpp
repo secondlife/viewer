@@ -240,10 +240,11 @@ void LLNotificationChiclet::setCounter(S32 counter)
 bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNotificationPtr notification )
 {
     bool displayNotification;
+    LLFloaterNotificationsTabbed* floater = LLFloaterNotificationsTabbed::getInstance();
     if (   (notification->getName() == "ScriptDialog") // special case for scripts
         // if there is no toast window for the notification, filter it
         //|| (!LLNotificationWellWindow::getInstance()->findItemByID(notification->getID()))
-        || (!LLFloaterNotificationsTabbed::getInstance()->findItemByID(notification->getID(), notification->getName()))
+        || (floater && !floater->findItemByID(notification->getID(), notification->getName()))
         )
     {
         displayNotification = false;

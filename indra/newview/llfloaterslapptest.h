@@ -1,9 +1,9 @@
 /**
- * @file postDeferredTonemap.glsl
+ * @file llfloaterslapptest.h
  *
- * $LicenseInfo:firstyear=2024&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2025&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2024, Linden Research, Inc.
+ * Copyright (C) 2025, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,32 +23,20 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+#ifndef LL_LLFLOATERSLAPPTEST_H
+#define LL_LLFLOATERSLAPPTEST_H
 
-out vec4 frag_color;
+#include "llfloater.h"
 
-uniform sampler2D diffuseRect;
-
-in vec2 vary_fragcoord;
-
-vec3 linear_to_srgb(vec3 cl);
-vec3 toneMap(vec3 color);
-
-vec3 clampHDRRange(vec3 color);
-
-void main()
+class LLFloaterSLappTest:
+    public LLFloater
 {
-    //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture(diffuseRect, vary_fragcoord);
+    friend class LLFloaterReg;
+    virtual bool postBuild() override;
 
-#ifndef NO_POST
-    diff.rgb = toneMap(diff.rgb);
-#else
-    diff.rgb = clamp(diff.rgb, vec3(0.0), vec3(1.0));
+private:
+    LLFloaterSLappTest(const LLSD& key);
+    ~LLFloaterSLappTest();
+};
+
 #endif
-
-    diff.rgb = clampHDRRange(diff.rgb);
-    //debugExposure(diff.rgb);
-    frag_color = max(diff, vec4(0));
-}
-

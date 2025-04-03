@@ -385,6 +385,7 @@ public:
     //--------------------------------------------------------------------
 public:
     bool            isFullyLoaded() const;
+    bool            hasFirstFullAttachmentData() const;
     F32             getFirstDecloudTime() const {return mFirstDecloudTime;}
 
     // check and return current state relative to limits

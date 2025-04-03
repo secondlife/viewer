@@ -8,7 +8,7 @@ texture</text>
 			<text name="composite_label">Composito
 Texture</text>
 			<button label="Memorizza gli ID sulla console" label_selected="Dump" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Capigliature" name="hair-baked"/>
 				<texture_picker label="Capigliature" name="hair_grain"/>
 				<texture_picker label="Alpha dei capelli" name="hair_alpha"/>

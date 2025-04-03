@@ -135,7 +135,7 @@ namespace tut
 
     inline void ensure_memory_matches(const void* actual, U32 actual_len, const void* expected,U32 expected_len)
     {
-        ensure_memory_matches(NULL, actual, actual_len, expected, expected_len);
+        ensure_memory_matches("", actual, actual_len, expected, expected_len);
     }
 
     template <class T,class Q>

@@ -14,7 +14,7 @@
 材質
 			</text>
 			<button label="傾印 ID 到控制臺" label_selected="傾印" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="頭髮" name="hair-baked"/>
 				<texture_picker label="頭髮" name="hair_grain"/>
 				<texture_picker label="頭髮半透明" name="hair_alpha"/>

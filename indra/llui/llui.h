@@ -31,8 +31,6 @@
 #include "llrect.h"
 #include "llcoord.h"
 #include "llcontrol.h"
-#include "llcoord.h"
-#include "llcontrol.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llrender2dutils.h"

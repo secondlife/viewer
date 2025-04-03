@@ -82,8 +82,7 @@ protected:
 
     void capsRecvForRegion(const LLUUID& region_id, std::string pumpname);
 
-    void assetRequestCoro(LLViewerAssetRequest *req,
-                          const LLUUID uuid,
+    void assetRequestCoro(const LLUUID uuid,
                           LLAssetType::EType atype,
                           LLGetAssetCallback callback,
                           void *user_data);

@@ -2218,7 +2218,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("calcPixelArea - rigged");
         //override with joint volume face joint bounding boxes
-        LLVOAvatar* avatar = mVObjp->getAvatar();
+        LLVOAvatar* avatar = mVObjp.notNull() ? mVObjp->getAvatar() : nullptr;
         bool hasRiggedExtents = false;
 
         if (avatar && avatar->mDrawable)

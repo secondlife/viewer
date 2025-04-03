@@ -838,6 +838,7 @@ void LLWorld::printPacketsLost()
                     << " packets lost: " << cdp->getPacketsLost() << LL_ENDL;
         }
     }
+    LL_INFOS() << "Packets dropped by Packet Ring: " << gMessageSystem->mPacketRing.getNumDroppedPackets() << LL_ENDL;
 }
 
 void LLWorld::processCoarseUpdate(LLMessageSystem* msg, void** user_data)

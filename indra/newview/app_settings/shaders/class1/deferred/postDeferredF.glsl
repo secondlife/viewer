@@ -69,6 +69,8 @@ void dofSampleNear(inout vec4 diff, inout float w, float min_sc, vec2 tc)
     w += wg;
 }
 
+vec3 clampHDRRange(vec3 color);
+
 void main()
 {
     vec2 tc = vary_fragcoord.xy;
@@ -120,5 +122,6 @@ void main()
         diff /= w;
     }
 
+    diff.rgb = clampHDRRange(diff.rgb);
     frag_color = diff;
 }

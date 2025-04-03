@@ -200,6 +200,7 @@ void LLFloaterLagMeter::determineNetwork()
     // the network handlers are de-synched from the rendering.
     F32Milliseconds client_frame_time = frame_recording.getPeriodMean(LLStatViewer::FRAME_STACKTIME);
 
+    // Todo: account for LLPacketRing dropped packets? viewer drops those when it can't keep up
     if(packet_loss >= mNetworkPacketLossCritical)
     {
         mNetworkButton->setImageUnselected(LLUI::getUIImage(LAG_CRITICAL_IMAGE_NAME));

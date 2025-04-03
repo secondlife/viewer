@@ -614,6 +614,13 @@ void LLNotification::cancel()
 LLSD LLNotification::getResponseTemplate(EResponseTemplateType type)
 {
     LLSD response = LLSD::emptyMap();
+
+    if (!mForm)
+    {
+        LL_WARNS("Notifications") << "Null form when getting response template for notification " << getName() << LL_ENDL;
+        return response;
+    }
+
     for (S32 element_idx = 0;
         element_idx < mForm->getNumElements();
         ++element_idx)
@@ -1249,9 +1256,26 @@ LLNotifications::LLNotifications()
     LLInstanceTracker<LLNotificationChannel, std::string>::instanceCount();
 }
 
+
+LLNotifications::~LLNotifications()
+{
+    // Clear explicitly, something in ~LLNotifications() crashes so narrowing down suspects
+    pHistoryChannel = nullptr;
+    pExpirationChannel = nullptr;
+    mGlobalStrings.clear();
+    mTemplates.clear();
+    mVisibilityRules.clear();
+    mUniqueNotifications.clear();
+    mListener = nullptr;
+}
+
 void LLNotifications::clear()
 {
-   mDefaultChannels.clear();
+    mDefaultChannels.clear();
+    // At this point mTemplates still gets used by lingering notifications
+    // to do responses (ex: group notice will call forceResponse()), but
+    // since network should be down and everything save, it's questionable
+    // whether it should stay that way
 }
 
 // The expiration channel gets all notifications that are cancelled
@@ -1464,6 +1488,13 @@ bool LLNotifications::templateExists(std::string_view name)
 void LLNotifications::forceResponse(const LLNotification::Params& params, S32 option)
 {
     LLNotificationPtr temp_notify(new LLNotification(params));
+
+    if (!temp_notify->getForm())
+    {
+        LL_WARNS("Notifications") << "Cannot force response for notification with null form: " << (std::string)params.name << LL_ENDL;
+        return;
+    }
+
     LLSD response = temp_notify->getResponseTemplate();
     LLSD selected_item = temp_notify->getForm()->getElement(option);
 

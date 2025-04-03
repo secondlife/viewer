@@ -257,7 +257,7 @@
     height="16"
     increment="1"
     initial_value="12"
-    label="Max. # of non-impostors:"
+    label="Max. # animated avatars:"
     label_width="185"
     layout="topleft"
     left="30"
@@ -857,6 +857,51 @@
       name="3"
       value="3"/>
   </combo_box>
+
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="16"
+      layout="topleft"
+      left="420"
+      name="ReflectionProbeCount"
+      text_readonly_color="LabelDisabledColor"
+      top_delta="22"
+      width="128">
+        Max Reflection Probes:
+    </text>
+
+    <combo_box
+     control_name="RenderReflectionProbeCount"
+     height="18"
+     layout="topleft"
+     label="Max. Reflection Probes:"
+     left_delta="130"
+     top_delta="0"
+     name="ProbeCount"
+     width="150">
+        <combo_box.item
+          label="None"
+          name="1"
+          value="1"/>
+        <combo_box.item
+          label="Low"
+          name="32"
+          value="32"/>
+        <combo_box.item
+          label="Medium"
+          name="64"
+          value="64"/>
+        <combo_box.item
+          label="High"
+          name="128"
+          value="128"/>
+        <combo_box.item
+          label="Ultra"
+          name="256"
+          value="256"/>
+    </combo_box>
 
   <slider
     control_name="RenderExposure"

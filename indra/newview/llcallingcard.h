@@ -109,6 +109,7 @@ public:
     // add or remove agents from buddy list. Each method takes a set
     // of buddies and returns how many were actually added or removed.
     typedef std::map<LLUUID, LLRelationship*> buddy_map_t;
+    typedef std::queue<std::pair<LLUUID, bool>> buddy_status_queue_t;
 
     S32 addBuddyList(const buddy_map_t& buddies);
     //S32 removeBuddyList(const buddy_list_t& exes);
@@ -194,6 +195,7 @@ protected:
     //LLInventoryObserver* mInventoryObserver;
 
     buddy_map_t mBuddyInfo;
+    buddy_status_queue_t mBuddyStatusQueue;
 
     typedef std::set<LLUUID> changed_buddy_t;
     changed_buddy_t mChangedBuddyIDs;

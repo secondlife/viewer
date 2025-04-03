@@ -282,7 +282,7 @@ public:
     LLRunner& getRunner() { return mRunner; }
 
 #ifdef LL_WINDOWS
-    virtual void reportCrashToBugsplat(void* pExcepInfo /*EXCEPTION_POINTERS*/) { }
+    virtual bool reportCrashToBugsplat(void* pExcepInfo /*EXCEPTION_POINTERS*/) { return false; }
 #endif
 
 public:

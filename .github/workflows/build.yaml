@@ -42,8 +42,8 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: [windows-large, macos-15-xlarge]
-        configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
+        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge"]' || '["windows-latest","macos-15"]') }}
+        configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}

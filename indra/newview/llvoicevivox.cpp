@@ -1014,6 +1014,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             std::string old_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SLVoice.old");
             if (gDirUtilp->fileExists(new_log))
             {
+                LLFile::remove(old_log, ENOENT);
                 LLFile::rename(new_log, old_log);
             }
 

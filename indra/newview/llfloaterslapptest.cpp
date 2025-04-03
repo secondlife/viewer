@@ -1,9 +1,9 @@
 /**
- * @file postDeferredTonemap.glsl
+ * @file llfloaterslapptest.cpp
  *
- * $LicenseInfo:firstyear=2024&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2025&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2024, Linden Research, Inc.
+ * Copyright (C) 2025, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,32 +23,29 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+#include "llviewerprecompiledheaders.h"
 
-out vec4 frag_color;
+#include "llfloaterslapptest.h"
+#include "lluictrlfactory.h"
 
-uniform sampler2D diffuseRect;
+#include "lllineeditor.h"
+#include "lltextbox.h"
 
-in vec2 vary_fragcoord;
-
-vec3 linear_to_srgb(vec3 cl);
-vec3 toneMap(vec3 color);
-
-vec3 clampHDRRange(vec3 color);
-
-void main()
+LLFloaterSLappTest::LLFloaterSLappTest(const LLSD& key)
+    :   LLFloater("floater_test_slapp")
 {
-    //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture(diffuseRect, vary_fragcoord);
-
-#ifndef NO_POST
-    diff.rgb = toneMap(diff.rgb);
-#else
-    diff.rgb = clamp(diff.rgb, vec3(0.0), vec3(1.0));
-#endif
-
-    diff.rgb = clampHDRRange(diff.rgb);
-    //debugExposure(diff.rgb);
-    frag_color = max(diff, vec4(0));
 }
 
+LLFloaterSLappTest::~LLFloaterSLappTest()
+{}
+
+bool LLFloaterSLappTest::postBuild()
+{
+    getChild<LLLineEditor>("remove_folder_id")->setKeystrokeCallback([this](LLLineEditor* editor, void*)
+        {
+            std::string slapp(getString("remove_folder_slapp"));
+            getChild<LLTextBox>("remove_folder_txt")->setValue(slapp + editor->getValue().asString());
+        }, NULL);
+
+    return true;
+}

@@ -581,7 +581,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
     outside_y += dy * (dy - LINE_WIDTH);
 
     // Middle part, full width
-    const S32 GRID_STEP = S32( PARCEL_GRID_STEP_METERS );
+    const S32 GRID_STEP = (S32)PARCEL_GRID_STEP_METERS;
     for (S32 i = 1; i < GRID_STEP; i++)
     {
         inside_z = land.resolveHeightRegion( inside_x, inside_y );
@@ -666,7 +666,9 @@ void LLViewerParcelOverlay::renderPropertyLines()
         return;
 
     LLSurface& land = mRegion->getLand();
-    F32 water_z = land.getWaterHeight() + 0.01f;
+
+    bool render_water = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER);
+    F32 water_z = render_water ? land.getWaterHeight() + 0.01f : 0;
 
     LLGLSUIDefault gls_ui; // called from pipeline
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

@@ -53,7 +53,7 @@ public:
 
     /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
-    void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
+    void setAvatarId(const LLUUID& avatar_id);
 
     LLUUID& getAvatarId() { return mAvatarId; }
 

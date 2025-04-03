@@ -427,6 +427,16 @@
    layout="topleft"
    top="80"
    left="213"
+   name="0_lbl"
+   width="7">
+    0
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="31"
    name="1_lbl"
    width="7">
     1
@@ -436,7 +446,7 @@
    font="SansSerifSmall"
    height="18"
    layout="topleft"
-   left_pad="31"
+   left_pad="30"
    name="2_lbl"
    width="7">
     2
@@ -479,16 +489,6 @@
    left_pad="30"
    name="6_lbl"
    width="7">
-      6
-  </text>
-  <text
-   follows="left|top"
-   font="SansSerifSmall"
-   height="18"
-   layout="topleft"
-   left_pad="30"
-   name="7_lbl"
-   width="7">
-    7
+    6
   </text>
 </panel>

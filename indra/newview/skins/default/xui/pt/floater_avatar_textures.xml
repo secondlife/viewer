@@ -8,7 +8,7 @@ Texturas</text>
 			<text name="composite_label">Compósito:
 Texturas</text>
 			<button label="Enviar IDs para painel" label_selected="Dump" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Cabelo" name="hair-baked"/>
 				<texture_picker label="Cabelo" name="hair_grain"/>
 				<texture_picker label="Cabelo alpha" name="hair_alpha"/>

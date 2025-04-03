@@ -123,6 +123,14 @@
              name="checkbox fullbright"
              top_pad="4"
              width="81" />
+            <check_box
+             height="19"
+             label="Hide water"
+             layout="topleft"
+             left="172"
+             top_delta="0"
+             name="checkbox_hide_water"
+             width="81" />
             <view_border
              bevel_style="none"
              follows="top|left"

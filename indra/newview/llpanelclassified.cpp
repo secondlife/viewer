@@ -266,6 +266,15 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
     }
 }
 
+void LLPanelClassifiedInfo::setAvatarId(const LLUUID& avatar_id)
+{
+    if (mAvatarId.notNull())
+    {
+        LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarId, this);
+    }
+    mAvatarId = avatar_id;
+}
+
 void LLPanelClassifiedInfo::resetData()
 {
     setClassifiedName(LLStringUtil::null);

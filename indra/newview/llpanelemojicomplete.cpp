@@ -68,6 +68,9 @@ LLPanelEmojiComplete::LLPanelEmojiComplete(const LLPanelEmojiComplete::Params& p
     {
         LLScrollbar::Params sbparams;
         sbparams.orientation(LLScrollbar::VERTICAL);
+        sbparams.doc_size(static_cast<S32>(mTotalEmojis));
+        sbparams.doc_pos(0);
+        sbparams.page_size(static_cast<S32>(mVisibleEmojis));
         sbparams.change_callback([this](S32 index, LLScrollbar*) { onScrollbarChange(index); });
         mScrollbar = LLUICtrlFactory::create<LLScrollbar>(sbparams);
         addChild(mScrollbar);

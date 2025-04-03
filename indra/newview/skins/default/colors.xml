@@ -759,6 +759,12 @@
      name="SelectedOutfitTextColor"
      reference="EmphasisColor" />
     <color
+     name="SearchableControlHighlightFontColor"
+     value="1 0 0 1" />
+    <color
+     name="SearchableControlHighlightBgColor"
+     value="0.5 0.1 0.1 1" />
+    <color
      name="SilhouetteChildColor"
      value="0.13 0.42 0.77 1" />
     <color

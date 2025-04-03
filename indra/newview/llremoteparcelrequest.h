@@ -91,6 +91,8 @@ public:
 private:
     typedef std::multimap<LLUUID, LLHandle<LLRemoteParcelInfoObserver> > observer_multimap_t;
     observer_multimap_t mObservers;
+    typedef std::map<LLUUID, LLTimer> requests_map_t;
+    requests_map_t mPendingParcelRequests; // Dupplicate request avoidance
 
     void regionParcelInfoCoro(std::string url, LLUUID regionId, LLVector3 posRegion, LLVector3d posGlobal, LLHandle<LLRemoteParcelInfoObserver> observerHandle);
 };

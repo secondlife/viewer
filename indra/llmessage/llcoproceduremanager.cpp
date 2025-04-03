@@ -301,12 +301,12 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPoolSize(size),
     mActiveCoprocsCount(0),
     mPending(0),
-    mPendingCoprocs(std::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE)),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
 {
     try
     {
+        mPendingCoprocs = std::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE);
         // store in our LLTempBoundListener so that when the LLCoprocedurePool is
         // destroyed, we implicitly disconnect from this LLEventPump
         // Monitores application status
@@ -338,6 +338,11 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
                               << "_pool. Failed to start listener." << LL_ENDL;
 
         llassert(0); // Fix Me! Ignoring missing listener!
+    }
+    catch (std::bad_alloc&)
+    {
+        LLError::LLUserWarningMsg::showOutOfMemory();
+        LL_ERRS("CoProcMgr") << "Bad memory allocation in LLCoprocedurePool::LLCoprocedurePool!" << LL_ENDL;
     }
 
     for (size_t count = 0; count < mPoolSize; ++count)

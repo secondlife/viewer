@@ -371,6 +371,14 @@
          parameter="copy_uuid" />
     </menu_item_call>
     <menu_item_call
+     label="Copy UUID"
+     layout="topleft"
+     name="Copy UUID">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="copy_folder_uuid" />
+    </menu_item_call>
+    <menu_item_call
      label="Show in Main Panel"
      layout="topleft"
      name="Show in Main Panel">
