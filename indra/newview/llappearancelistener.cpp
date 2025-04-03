@@ -137,7 +137,7 @@ void LLAppearanceListener::getOutfitItems(LLSD const &data)
     LLViewerInventoryCategory *cat = gInventory.getCategory(outfit_id);
     if (!cat || cat->getPreferredType() != LLFolderType::FT_OUTFIT)
     {
-        return response.error(stringize(LLTrans::getString("OutfitNotFound"), outfit_id.asString()));
+        return response.error(stringize("Couldn't find outfit ", outfit_id.asString()));
     }
     LLInventoryModel::cat_array_t  cat_array;
     LLInventoryModel::item_array_t item_array;
