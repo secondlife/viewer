@@ -32,7 +32,8 @@ developer-to-developer or support.
 - [Official forums][] exist for many topics including content creation,
    scripting, social topics and more. 
 - The [opensource-dev mailing list][] is useful for announcements and
-  discussion between viewer maintainers. 
+  discussion between viewer maintainers.
+- Our [discord channel](https://discord.com/channels/677442248157167619/1357059883400167585) is available for real-time discussion.
 
 
 ## Reporting bugs and requesting features
