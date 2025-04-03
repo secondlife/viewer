@@ -122,9 +122,9 @@ namespace
 class LLQueuedScriptAssetUpload : public LLScriptAssetUpload
 {
 public:
-    LLQueuedScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLUUID assetId, TargetType_t targetType,
+    LLQueuedScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLUUID assetId, std::string compileTarget,
             bool isRunning, std::string scriptName, LLUUID queueId, LLUUID exerienceId, taskUploadFinish_f finish) :
-        LLScriptAssetUpload(taskId, itemId, targetType, isRunning,
+        LLScriptAssetUpload(taskId, itemId, compileTarget, isRunning,
             exerienceId, std::string(), finish, nullptr),
         mScriptName(scriptName),
         mQueueId(queueId)
@@ -183,9 +183,7 @@ struct LLScriptQueueData
 
 // Default constructor
 LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
-    LLFloater(key),
-    mDone(false),
-    mMono(false)
+    LLFloater(key)
 {
 
 }
@@ -197,7 +195,7 @@ LLFloaterScriptQueue::~LLFloaterScriptQueue()
 
 bool LLFloaterScriptQueue::postBuild()
 {
-    childSetAction("close",onCloseBtn,this);
+    childSetAction("close", onCloseBtn, this);
     getChildView("close")->setEnabled(false);
     setVisible(true);
     return true;
@@ -222,8 +220,8 @@ bool LLFloaterScriptQueue::start()
 
     LLStringUtil::format_map_t args;
     args["[START]"] = mStartString;
-    args["[COUNT]"] = llformat ("%d", mObjectList.size());
-    buffer = getString ("Starting", args);
+    args["[COUNT]"] = llformat("%d", mObjectList.size());
+    buffer = getString("Starting", args);
 
     getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 
@@ -276,8 +274,8 @@ bool LLFloaterCompileQueue::hasExperience( const LLUUID& id ) const
     return mExperienceIds.find(id) != mExperienceIds.end();
 }
 
-// //Attempt to record this asset ID.  If it can not be inserted into the set
-// //then it has already been processed so return false.
+// Attempt to record this asset ID.  If it can not be inserted into the set
+// then it has already been processed so return false.
 
 void LLFloaterCompileQueue::handleHTTPResponse(std::string pumpName, const LLSD &expresult)
 {
@@ -359,7 +357,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     LLCheckedHandle<LLFloaterCompileQueue> floater(hfloater);
     // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
     // which is caught in objectScriptProcessingQueueCoro
-    bool monocompile = floater->mMono;
+    std::string compile_target = floater->mCompileTarget;
 
     // Initial test to see if we can (or should) attempt to compile the script.
     LLInventoryItem *item = dynamic_cast<LLInventoryItem *>(inventory);
@@ -470,7 +468,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         LLResourceUploadInfo::ptr_t uploadInfo(new LLQueuedScriptAssetUpload(object->getID(),
             inventory->getUUID(),
             assetId,
-            monocompile ? LLScriptAssetUpload::MONO : LLScriptAssetUpload::LSL2,
+            compile_target,
             true,
             inventory->getName(),
             LLUUID(),

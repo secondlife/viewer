@@ -55,7 +55,7 @@ public:
 
     /*virtual*/ bool postBuild();
 
-    void setMono(bool mono) { mMono = mono; }
+    void setCompileTarget(std::string target) { mCompileTarget = target; }
 
     // addObject() accepts an object id.
     void addObject(const LLUUID& id, std::string name);
@@ -80,8 +80,8 @@ protected:
 
 protected:
     // UI
-    LLScrollListCtrl* mMessages;
-    LLButton* mCloseBtn;
+    LLScrollListCtrl* mMessages { nullptr };
+    LLButton* mCloseBtn { nullptr };
 
     // Object Queue
     struct ObjectData
@@ -93,14 +93,13 @@ protected:
 
     object_data_list_t mObjectList;
     LLUUID mCurrentObjectID;
-    bool mDone;
+    bool mDone { false };
 
     std::string mStartString;
-    bool mMono;
+    std::string mCompileTarget { "lsl2" };
 
     typedef boost::function<bool(const LLPointer<LLViewerObject> &, LLInventoryObject*, LLEventPump &)>   fnQueueAction_t;
     static void objectScriptProcessingQueueCoro(std::string action, LLHandle<LLFloaterScriptQueue> hfloater, object_data_list_t objectList, fnQueueAction_t func);
-
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
