@@ -194,7 +194,6 @@ private:
     S32             mLiveHelpHistorySize;
     bool            mEnableSave;
     bool            mHasScriptData;
-    LLLiveLSLFile*  mLiveFile;
     LLUUID          mAssociatedExperience;
     bool            mScriptRemoved;
     bool            mSaveDialogShown;
@@ -215,16 +214,21 @@ class LLScriptEdContainer : public LLPreview
 
 public:
     LLScriptEdContainer(const LLSD& key);
-    LLScriptEdContainer(const LLSD& key, const bool live);
+    virtual ~LLScriptEdContainer();
 
     bool handleKeyHere(KEY key, MASK mask);
 
 protected:
     std::string     getTmpFileName(const std::string& script_name);
+    std::string     getErrorLogFileName(const std::string& script_path);
     bool            onExternalChange(const std::string& filename);
     virtual void    saveIfNeeded(bool sync = true) = 0;
+    bool            logErrorsToFile(const LLSD& compile_errors);
+    bool            isOpenInExternalEditor() const { return mLiveFile != nullptr; }
 
     LLScriptEdCore*     mScriptEd;
+    LLLiveLSLFile*      mLiveFile = nullptr;
+    LLLiveLSLFile*      mLiveLogFile = nullptr;
 };
 
 // Used to view and edit an LSL script from your inventory.

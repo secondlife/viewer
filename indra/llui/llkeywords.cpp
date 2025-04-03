@@ -246,6 +246,8 @@ void LLKeywords::processTokens()
 
     if (mLuauLanguage)
     {
+        addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "\'", LLUIColorTable::instance().getColor("SyntaxLslStringLiteral"), "String literal", "\'");
+        addToken(LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS, "`", LLUIColorTable::instance().getColor("SyntaxLslStringLiteral"), "String literal", "`");
         // Add Lua-style comments
         addToken(LLKeywordToken::TT_ONE_SIDED_DELIMITER, "--", LLUIColorTable::instance().getColor("SyntaxLslComment"), "Comment (Lua-style single-line)\nNon-functional commentary or disabled code", delimiter);
         // Add Lua multi-line comments
@@ -595,10 +597,8 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
                 std::string text_to_search(wtext.begin() + seg_start, wtext.end());
 
-                for (token_list_t::iterator iter = mRegexTokenList.begin();
-                    iter != mRegexTokenList.end(); ++iter)
+                for (LLKeywordToken* regex_token : mRegexTokenList)
                 {
-                    LLKeywordToken* regex_token = *iter;
                     std::string start_pattern(regex_token->getToken().begin(), regex_token->getToken().end());
                     std::string end_pattern(regex_token->getDelimiter().begin(), regex_token->getDelimiter().end());
 
