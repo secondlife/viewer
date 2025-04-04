@@ -455,26 +455,28 @@ void LLFloaterEnvironmentAdjust::onMoonAzimElevChanged()
 void LLFloaterEnvironmentAdjust::onCloudMapChanged()
 {
     if (!mLiveSky)
-        return;
-
-    // Get the texture picker control
-    LLTextureCtrl* picker_ctrl = getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP);
-    if (!picker_ctrl)
     {
-         // Optional: Log an error if the control isn't found, though unlikely
-         return;
+        return;
     }
 
-    // Get the new texture ID selected by the user
+    LLTextureCtrl* picker_ctrl = getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP);
+
     LLUUID new_texture_id = picker_ctrl->getValue().asUUID();
 
-    // Update the internal sky settings object
-    mLiveSky->setCloudNoiseTextureId(new_texture_id);
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
 
-    // Trigger the update for the sky rendering
-    mLiveSky->update();
+    LLSettingsSky::ptr_t sky_to_set = mLiveSky->buildClone();
+    if (!sky_to_set)
+    {
+        return;
+    }
 
-    // Explicitly refresh the UI picker control to match the applied change
+    sky_to_set->setCloudNoiseTextureId(new_texture_id);
+
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, sky_to_set);
+
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT, true);
+
     picker_ctrl->setValue(new_texture_id);
 }
 
