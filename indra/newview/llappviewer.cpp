@@ -5255,6 +5255,8 @@ void LLAppViewer::sendLogoutRequest()
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         gAgent.sendReliableMessage();
 
+        LL_INFOS("Agent") << "Logging out as agent: " << gAgent.getID() << " Session: " << gAgent.getSessionID() << LL_ENDL;
+
         gLogoutTimer.reset();
         gLogoutMaxTime = LOGOUT_REQUEST_TIME;
         mLogoutRequestSent = true;
