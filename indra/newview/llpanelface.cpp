@@ -3592,7 +3592,7 @@ void LLPanelFace::onCommitRepeatsPerMeter()
     bool identical_scale_t = false;
 
     LLSelectedTE::getObjectScaleS(obj_scale_s, identical_scale_s);
-    LLSelectedTE::getObjectScaleS(obj_scale_t, identical_scale_t);
+    LLSelectedTE::getObjectScaleT(obj_scale_t, identical_scale_t);
 
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
@@ -5086,6 +5086,7 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxSpecularRepeats(F32& repeats, bool
             LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
             U32 s_axis = VX;
             U32 t_axis = VY;
+            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
             F32 repeats_s = 1.0f;
             F32 repeats_t = 1.0f;
             if (mat)
@@ -5110,6 +5111,7 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxNormalRepeats(F32& repeats, bool& 
             LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
             U32 s_axis = VX;
             U32 t_axis = VY;
+            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
             F32 repeats_s = 1.0f;
             F32 repeats_t = 1.0f;
             if (mat)
