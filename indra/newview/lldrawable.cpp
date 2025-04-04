@@ -253,7 +253,15 @@ void LLDrawable::cleanupReferences()
     std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
     mFaces.clear();
 
-    gPipeline.unlinkDrawable(this);
+    if (gPipeline.mInitialized)
+    {
+        gPipeline.unlinkDrawable(this);
+    }
+    else if (getSpatialGroup())
+    {
+        // Not supposed to happen?
+        getSpatialGroup()->getSpatialPartition()->remove(this, getSpatialGroup());
+    }
 
     removeFromOctree();
 
