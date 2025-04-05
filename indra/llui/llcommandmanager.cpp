@@ -170,12 +170,14 @@ bool LLCommandManager::load()
 
     if (!parser.readXUI(commands_file, commandsParams))
     {
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Unable to load xml file: " << commands_file << LL_ENDL;
         return false;
     }
 
     if (!commandsParams.validateBlock())
     {
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Invalid commands file: " << commands_file << LL_ENDL;
         return false;
     }

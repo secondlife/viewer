@@ -79,7 +79,7 @@ bool LLAudioEngine_OpenAL::init(void* userdata, const std::string &app_title)
     ALCdevice *device = alcGetContextsDevice(alcGetCurrentContext());
 
     alcGetIntegerv(device, ALC_MAJOR_VERSION, 1, &major);
-    alcGetIntegerv(device, ALC_MAJOR_VERSION, 1, &minor);
+    alcGetIntegerv(device, ALC_MINOR_VERSION, 1, &minor);
     LL_INFOS() << "ALC version: " << major << "." << minor << LL_ENDL;
 
     LL_INFOS() << "ALC default device: "
@@ -190,6 +190,8 @@ LLAudioChannelOpenAL::~LLAudioChannelOpenAL()
 void LLAudioChannelOpenAL::cleanup()
 {
     alSourceStop(mALSource);
+    alSourcei(mALSource, AL_BUFFER, AL_NONE);
+
     mCurrentBufferp = NULL;
 }
 

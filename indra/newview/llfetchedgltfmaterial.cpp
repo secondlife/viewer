@@ -199,6 +199,7 @@ bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const
     {
         mTrackingIdToLocalTexture.erase(tracking_id);
     }
+    updateLocalTexDataDigest();
 
     return res;
 }

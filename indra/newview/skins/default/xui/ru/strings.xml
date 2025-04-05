@@ -42,7 +42,7 @@
 		Конфигурация построения [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-		Вы в точке [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		Вы в точке [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 (глобальные координаты [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
@@ -69,7 +69,6 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 Ширина канала: [NET_BANDWITH] кбит/с
 Коэффициент детализации: [LOD_FACTOR]
 Качество визуализации: [RENDER_QUALITY]
-Расширенная модель освещения: [GPU_SHADERS]
 Память текстур: [TEXTURE_MEMORY] МБ
 	</string>
 	<string name="AboutOSXHiDPI">

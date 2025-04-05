@@ -43,7 +43,7 @@ public:
     bool init() override; // Override to do application initialization
     bool cleanup() override;
 
-    void reportCrashToBugsplat(void* pExcepInfo) override;
+    bool reportCrashToBugsplat(void* pExcepInfo) override;
 
 protected:
     void initLoggingAndGetLastDuration() override; // Override to clean stack_trace info.

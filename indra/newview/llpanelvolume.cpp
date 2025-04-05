@@ -576,32 +576,48 @@ void LLPanelVolume::getState( )
             return object->getMaterial();
         }
     } func;
-    bool material_same = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, material_code );
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    bool material_same = selection->getSelectedTEValue( &func, material_code );
     std::string LEGACY_FULLBRIGHT_DESC = LLTrans::getString("Fullbright");
-    if (editable && single_volume && material_same)
-    {
-        mComboMaterial->setEnabled( true );
-        if (material_code == LL_MCODE_LIGHT)
-        {
-            if (mComboMaterial->getItemCount() == mComboMaterialItemCount)
-            {
-                mComboMaterial->add(LEGACY_FULLBRIGHT_DESC);
-            }
-            mComboMaterial->setSimple(LEGACY_FULLBRIGHT_DESC);
-        }
-        else
-        {
-            if (mComboMaterial->getItemCount() != mComboMaterialItemCount)
-            {
-                mComboMaterial->remove(LEGACY_FULLBRIGHT_DESC);
-            }
 
-            mComboMaterial->setSimple(std::string(LLMaterialTable::basic.getName(material_code)));
+    bool enable_material = editable && single_volume && material_same;
+    LLCachedControl<bool> edit_linked(gSavedSettings, "EditLinkedParts", false);
+    if (!enable_material && !edit_linked())
+    {
+        LLViewerObject* root = selection->getPrimaryObject();
+        while (root && !root->isAvatar() && root->getParent())
+        {
+            LLViewerObject* parent = (LLViewerObject*)root->getParent();
+            if (parent->isAvatar())
+            {
+                break;
+            }
+            root = parent;
         }
+        if (root)
+        {
+            material_code = root->getMaterial();
+        }
+    }
+
+    mComboMaterial->setEnabled(enable_material);
+
+    if (material_code == LL_MCODE_LIGHT)
+    {
+        if (mComboMaterial->getItemCount() == mComboMaterialItemCount)
+        {
+            mComboMaterial->add(LEGACY_FULLBRIGHT_DESC);
+        }
+        mComboMaterial->setSimple(LEGACY_FULLBRIGHT_DESC);
     }
     else
     {
-        mComboMaterial->setEnabled( false );
+        if (mComboMaterial->getItemCount() != mComboMaterialItemCount)
+        {
+            mComboMaterial->remove(LEGACY_FULLBRIGHT_DESC);
+        }
+
+        mComboMaterial->setSimple(std::string(LLMaterialTable::basic.getName(material_code)));
     }
 
     // Physics properties

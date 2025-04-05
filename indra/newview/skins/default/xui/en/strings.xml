@@ -13,7 +13,6 @@
 	<string name="SUPPORT_SITE">Second Life Support Portal</string>
 
 	<!-- starting up -->
-	<string name="StartupDetectingHardware">Detecting hardware...</string>
 	<string name="StartupLoading">Loading [APP_NAME]...</string>
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>

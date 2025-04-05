@@ -89,6 +89,7 @@ class LLLocalBitmap
             ET_IMG_BMP,
             ET_IMG_TGA,
             ET_IMG_JPG,
+            ET_IMG_J2C,
             ET_IMG_PNG
         };
 
@@ -106,7 +107,7 @@ class LLLocalBitmap
 
         // Store a list of accosiated materials
         // Might be a better idea to hold this in LLGLTFMaterialList
-        typedef std::vector<LLPointer<LLGLTFMaterial> > mat_list_t;
+        typedef std::list<LLPointer<LLGLTFMaterial> > mat_list_t;
         mat_list_t mGLTFMaterialWithLocalTextures;
 
 };

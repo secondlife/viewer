@@ -96,25 +96,4 @@
 	<text name="photo_desc">
 		（0.0～4.0の値を入れてください）
 	</text>
-	<text name="1_lbl">
-		1
-	</text>
-	<text name="2_lbl">
-		2
-	</text>
-	<text name="3_lbl">
-		3
-	</text>
-	<text name="4_lbl">
-		4
-	</text>
-	<text name="5_lbl">
-		5
-	</text>
-	<text name="6_lbl">
-		6
-	</text>
-	<text name="7_lbl">
-		7
-	</text>
 </panel>

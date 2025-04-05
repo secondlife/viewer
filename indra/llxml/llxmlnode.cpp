@@ -306,6 +306,7 @@ void LLXMLNode::addChild(LLXMLNodePtr& new_child)
 // virtual
 LLXMLNodePtr LLXMLNode::createChild(const char* name, bool is_attribute)
 {
+    // Todo: validate to make sure node name is valid? (no spaces, etc)
     return createChild(gStringTable.addStringEntry(name), is_attribute);
 }
 

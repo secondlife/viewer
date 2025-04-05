@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "llappearancelistener.h"
 #include "llappearancemgr.h"
 #include "llattachmentsmgr.h"
 #include "llcommandhandler.h"
@@ -65,6 +66,8 @@
 #include "lluiusage.h"
 
 #include "llavatarpropertiesprocessor.h"
+
+LLAppearanceListener sAppearanceListener;
 
 namespace
 {
@@ -4722,48 +4725,69 @@ void wear_multiple(const uuid_vec_t& ids, bool replace)
     LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, replace, cb);
 }
 
-// SLapp for easy-wearing of a stock (library) avatar
-//
+bool wear_category(const LLSD& query_map, bool append)
+{
+    LLUUID folder_uuid;
+
+    if (query_map.has("folder_name"))
+    {
+        std::string outfit_folder_name = query_map["folder_name"];
+        folder_uuid = findDescendentCategoryIDByName(gInventory.getLibraryRootFolderID(), outfit_folder_name);
+        if (folder_uuid.isNull())
+            LL_WARNS() << "Couldn't find " << std::quoted(outfit_folder_name) << " in the Library" << LL_ENDL;
+    }
+    if (folder_uuid.isNull() && query_map.has("folder_id"))
+    {
+        folder_uuid = query_map["folder_id"].asUUID();
+    }
+
+    if (folder_uuid.notNull())
+    {
+        if (LLViewerInventoryCategory* cat = gInventory.getCategory(folder_uuid))
+        {
+            if (bool is_library = gInventory.isObjectDescendentOf(folder_uuid, gInventory.getRootFolderID()))
+            {
+                LLPointer<LLInventoryCategory> new_category = new LLInventoryCategory(folder_uuid, LLUUID::null, LLFolderType::FT_CLOTHING, "Quick Appearance");
+                LLAppearanceMgr::getInstance()->wearInventoryCategory(new_category, true, append);
+            }
+            else
+            {
+                LLAppearanceMgr::getInstance()->wearInventoryCategory(cat, true, append);
+            }
+            return true;
+        }
+        else
+        {
+            LL_WARNS() << "Couldn't find folder id" << folder_uuid << " in Inventory" << LL_ENDL;
+        }
+    }
+
+    return false;
+}
+
+bool LLAppearanceMgr::wearOutfit(const LLSD& query_map, bool append)
+{
+    return wear_category(query_map, append);
+}
+
 class LLWearFolderHandler : public LLCommandHandler
 {
 public:
     // not allowed from outside the app
-    LLWearFolderHandler() : LLCommandHandler("wear_folder", UNTRUSTED_BLOCK) { }
+    LLWearFolderHandler() : LLCommandHandler("wear_folder", UNTRUSTED_BLOCK) {}
 
     bool handle(const LLSD& tokens,
                 const LLSD& query_map,
                 const std::string& grid,
                 LLMediaCtrl* web)
     {
-        LLSD::UUID folder_uuid;
-
-        if (folder_uuid.isNull() && query_map.has("folder_name"))
+        if (wear_category(query_map, false))
         {
-            std::string outfit_folder_name = query_map["folder_name"];
-            folder_uuid = findDescendentCategoryIDByName(
-                gInventory.getLibraryRootFolderID(),
-                outfit_folder_name);
-        }
-        if (folder_uuid.isNull() && query_map.has("folder_id"))
-        {
-            folder_uuid = query_map["folder_id"].asUUID();
-        }
+            // Assume this is coming from the predefined avatars web floater
+            LLUIUsage::instance().logCommand("Avatar.WearPredefinedAppearance");
 
-        if (folder_uuid.notNull())
-        {
-            LLPointer<LLInventoryCategory> category = new LLInventoryCategory(folder_uuid,
-                                                                              LLUUID::null,
-                                                                              LLFolderType::FT_CLOTHING,
-                                                                              "Quick Appearance");
-            if ( gInventory.getCategory( folder_uuid ) != NULL )
-            {
-                // Assume this is coming from the predefined avatars web floater
-                LLUIUsage::instance().logCommand("Avatar.WearPredefinedAppearance");
-                LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
-
-                // *TODOw: This may not be necessary if initial outfit is chosen already -- josh
-                gAgent.setOutfitChosen(true);
-            }
+            // *TODOw: This may not be necessary if initial outfit is chosen already -- josh
+            gAgent.setOutfitChosen(true);
         }
 
         // release avatar picker keyboard focus
@@ -4773,4 +4797,46 @@ public:
     }
 };
 
+class LLAddFolderHandler : public LLCommandHandler
+{
+public:
+    // not allowed from outside the app
+    LLAddFolderHandler() : LLCommandHandler("add_folder", UNTRUSTED_BLOCK) {}
+
+    bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
+    {
+        wear_category(query_map, true);
+
+        return true;
+    }
+};
+
+class LLRemoveFolderHandler : public LLCommandHandler
+{
+public:
+    LLRemoveFolderHandler() : LLCommandHandler("remove_folder", UNTRUSTED_BLOCK) {}
+
+    bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
+    {
+        if (query_map.has("folder_id"))
+        {
+            LLUUID folder_id = query_map["folder_id"].asUUID();
+            if (folder_id.notNull())
+            {
+                if (LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id))
+                {
+                    LLAppearanceMgr::instance().takeOffOutfit(cat->getLinkedUUID());
+                }
+                else
+                {
+                    LL_WARNS() << "Couldn't find folder id" << folder_id << " in Inventory" << LL_ENDL;
+                }
+            }
+        }
+        return true;
+    }
+};
+
 LLWearFolderHandler gWearFolderHandler;
+LLAddFolderHandler gAddFolderHandler;
+LLRemoveFolderHandler gRemoveFolderHandler;

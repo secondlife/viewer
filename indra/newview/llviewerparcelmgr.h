@@ -295,6 +295,8 @@ public:
     void onTeleportFailed();
     bool getTeleportInProgress();
 
+    void postTeleportFinished(bool local);
+
     static bool isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
     static bool isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 
@@ -344,7 +346,9 @@ private:
 
     std::vector<LLParcelObserver*> mObservers;
 
+    // Used to communicate between onTeleportFinished() and processParcelProperties()
     bool                        mTeleportInProgress;
+    bool                        mTeleportWithinRegion{ false };
     LLVector3d                  mTeleportInProgressPosition;
     teleport_finished_signal_t  mTeleportFinishedSignal;
     teleport_failed_signal_t    mTeleportFailedSignal;

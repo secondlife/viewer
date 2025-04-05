@@ -585,7 +585,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
 // static
 void LLAssetStorage::removeAndCallbackPendingDownloads(const LLUUID& file_id, LLAssetType::EType file_type,
                                                        const LLUUID& callback_id, LLAssetType::EType callback_type,
-                                                       S32 result_code, LLExtStat ext_status)
+                                                       S32 result_code, LLExtStat ext_status,
+                                                       S32 bytes_fetched)
 {
     // find and callback ALL pending requests for this UUID
     // SJB: We process the callbacks in reverse order, I do not know if this is important,
@@ -598,6 +599,10 @@ void LLAssetStorage::removeAndCallbackPendingDownloads(const LLUUID& file_id, LL
         LLAssetRequest* tmp = *curiter;
         if ((tmp->getUUID() == file_id) && (tmp->getType()== file_type))
         {
+            if (bytes_fetched > 0)
+            {
+                tmp->mBytesFetched = bytes_fetched;
+            }
             requests.push_front(tmp);
             iter = gAssetStorage->mPendingDownloads.erase(curiter);
         }
@@ -664,6 +669,7 @@ void LLAssetStorage::downloadCompleteCallback(
         callback_type = req->getType();
     }
 
+    S32 bytes_fetched = 0;
     if (LL_ERR_NOERR == result)
     {
         // we might have gotten a zero-size file
@@ -677,21 +683,11 @@ void LLAssetStorage::downloadCompleteCallback(
         }
         else
         {
-#if 1
-            for (request_list_t::iterator iter = gAssetStorage->mPendingDownloads.begin();
-                 iter != gAssetStorage->mPendingDownloads.end(); ++iter  )
-            {
-                LLAssetRequest* dlreq = *iter;
-                if ((dlreq->getUUID() == file_id) && (dlreq->getType()== file_type))
-                {
-                    dlreq->mBytesFetched = vfile.getSize();
-                }
-            }
-#endif
+            bytes_fetched = vfile.getSize();
         }
     }
 
-    removeAndCallbackPendingDownloads(file_id, file_type, callback_id, callback_type, result, ext_status);
+    removeAndCallbackPendingDownloads(file_id, file_type, callback_id, callback_type, result, ext_status, bytes_fetched);
 }
 
 void LLAssetStorage::getEstateAsset(

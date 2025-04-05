@@ -650,14 +650,6 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     asset_type = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
                     iter++; // wearable type if applicable, otherwise asset type
                     item_name = std::string((*(iter++)).c_str());
-                    // Note There is more elements in 'tokens' ...
-
-
-                    for (int i = 0; i < 6; i++)
-                    {
-                        LL_WARNS() << *(iter++) << LL_ENDL;
-                        iter++;
-                    }
                 }
             }
             else

@@ -61,6 +61,7 @@ protected:
     void        onBtnOK(const LLSD& userdata);
     void        onBtnCancel(const LLSD& userdata);
 
+    boost::signals2::connection	mImpostorsChangedSignal;
     boost::signals2::connection mComplexityChangedSignal;
     boost::signals2::connection mComplexityModeChangedSignal;
     boost::signals2::connection mLODFactorChangedSignal;

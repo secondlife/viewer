@@ -70,13 +70,13 @@ Textures
      width="150" />
 
     <panel
-     name="scroll_content_panel"
+     name="scroll_content_panel2"
      follows="left|top"
      min_height="300"
      layout="topleft"
-     top="43"
+     top="60"
      background_visible="false"
-     height="930"
+     height="1113"
      left="0"
      width="1230">
 
@@ -86,7 +86,7 @@ Textures
      layout="topleft"
      left="10"
      name="hair-baked"
-     top="17"
+     top="3"
      width="92" />
     <texture_picker
      height="103"

@@ -32,8 +32,6 @@
 #include "lltimer.h"
 #include "llhost.h"
 
-///////////////////////////////////////////////////////////
-
 LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 size) : mHost(host)
 {
     mSize = 0;
@@ -41,7 +39,7 @@ LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 
 
     if (size > NET_BUFFER_SIZE)
     {
-        LL_ERRS() << "Sending packet > " << NET_BUFFER_SIZE << " of size " << size << LL_ENDL;
+        LL_ERRS() << "Constructing packet with size=" << size << " > " << NET_BUFFER_SIZE << LL_ENDL;
     }
     else
     {
@@ -51,7 +49,6 @@ LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 
             mSize = size;
         }
     }
-
 }
 
 LLPacketBuffer::LLPacketBuffer (S32 hSocket)
@@ -59,18 +56,29 @@ LLPacketBuffer::LLPacketBuffer (S32 hSocket)
     init(hSocket);
 }
 
-///////////////////////////////////////////////////////////
-
 LLPacketBuffer::~LLPacketBuffer ()
 {
 }
 
-///////////////////////////////////////////////////////////
-
-void LLPacketBuffer::init (S32 hSocket)
+void LLPacketBuffer::init(S32 hSocket)
 {
     mSize = receive_packet(hSocket, mData);
     mHost = ::get_sender();
     mReceivingIF = ::get_receiving_interface();
+}
+
+void LLPacketBuffer::init(const char* buffer, S32 data_size, const LLHost& host)
+{
+    if (data_size > NET_BUFFER_SIZE)
+    {
+        LL_ERRS() << "Initializing packet with size=" << data_size << " > " << NET_BUFFER_SIZE << LL_ENDL;
+    }
+    else
+    {
+        memcpy(mData, buffer, data_size);
+        mSize = data_size;
+        mHost = host;
+        mReceivingIF = ::get_receiving_interface();
+    }
 }
 

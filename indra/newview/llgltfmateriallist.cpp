@@ -353,6 +353,18 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
     }
 }
 
+void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id, const std::string &override_json)
+{
+    if (asset_id.isNull() || override_json.empty())
+    {
+        queueApply(obj, side, asset_id);
+    }
+    else
+    {
+        sApplyQueue.push_back({ obj->getID(), side, asset_id, nullptr, override_json });
+    }
+}
+
 void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id, const LLGLTFMaterial* material_override)
 {
     if (asset_id.isNull() || material_override == nullptr)
@@ -455,6 +467,10 @@ void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callba
         if (e.override_data)
         {
             data[i]["gltf_json"] = e.override_data->asJSON();
+        }
+        if (!e.override_json.empty())
+        {
+            data[i]["gltf_json"] = e.override_json;
         }
         else
         {

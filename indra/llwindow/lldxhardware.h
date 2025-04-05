@@ -30,50 +30,7 @@
 #include <map>
 
 #include "stdtypes.h"
-#include "llstring.h"
 #include "llsd.h"
-
-class LLVersion
-{
-public:
-    LLVersion();
-    bool set(const std::string &version_string);
-    S32 getField(const S32 field_num);
-protected:
-    std::string mVersionString;
-    S32 mFields[4];
-    bool mValid;
-};
-
-class LLDXDriverFile
-{
-public:
-    std::string dump();
-
-public:
-    std::string mFilepath;
-    std::string mName;
-    std::string mVersionString;
-    LLVersion mVersion;
-    std::string mDateString;
-};
-
-class LLDXDevice
-{
-public:
-    ~LLDXDevice();
-    std::string dump();
-
-    LLDXDriverFile *findDriver(const std::string &driver);
-public:
-    std::string mName;
-    std::string mPCIString;
-    std::string mVendorID;
-    std::string mDeviceID;
-
-    typedef std::map<std::string, LLDXDriverFile *> driver_file_map_t;
-    driver_file_map_t mDriverFiles;
-};
 
 
 class LLDXHardware
@@ -81,12 +38,7 @@ class LLDXHardware
 public:
     LLDXHardware();
 
-    void setWriteDebugFunc(void (*func)(const char*));
     void cleanup();
-
-    // Returns true on success.
-    // vram_only true does a "light" probe.
-    bool getInfo(bool vram_only);
 
     // WMI can return multiple GPU drivers
     // specify which one to output
@@ -98,29 +50,9 @@ public:
     } EGPUVendor;
     std::string getDriverVersionWMI(EGPUVendor vendor);
 
-    S32 getVRAM() const { return mVRAM; }
-
     LLSD getDisplayInfo();
-
-    // Will get memory of best GPU in MB, return memory on sucsess, 0 on failure
-    // Note: WMI is not accurate in some cases
-    static U32 getMBVideoMemoryViaWMI();
-
-    // Find a particular device that matches the following specs.
-    // Empty strings indicate that you don't care.
-    // You can separate multiple devices with '|' chars to indicate you want
-    // ANY of them to match and return.
-    // LLDXDevice *findDevice(const std::string &vendor, const std::string &devices);
-
-    // std::string dumpDevices();
-public:
-    typedef std::map<std::string, LLDXDevice *> device_map_t;
-    // device_map_t mDevices;
-protected:
-    S32 mVRAM;
 };
 
-extern void (*gWriteDebug)(const char* msg);
 extern LLDXHardware gDXHardware;
 
 #endif // LL_LLDXHARDWARE_H

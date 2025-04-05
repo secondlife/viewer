@@ -10326,6 +10326,14 @@ You are now the owner of object [OBJECT_NAME]
 
   <notification
    icon="alertmodal.tga"
+   name="NowOwnObjectInv"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME] and it has been placed in your inventory.
+  </notification>
+
+    <notification
+   icon="alertmodal.tga"
    name="CantRezOnLand"
    type="notify">
    <tag>fail</tag>
@@ -12579,5 +12587,17 @@ are wearing now.
      <usetemplate
        name="okbutton"
        yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="WaterExclusionSurfacesWarning"
+   type="alertmodal">
+    Checking the hide water box will overwrite the texture, bumpiness, and shininess choices.
+    <tag>confirm</tag>
+    <usetemplate
+      name="okcancelbuttons"
+      notext="Cancel"
+      yestext="Continue"/>
   </notification>
 </notifications>

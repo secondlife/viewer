@@ -669,6 +669,7 @@ void LLAvatarPropertiesProcessor::sendClassifiedInfoUpdate(const LLAvatarClassif
 
 void LLAvatarPropertiesProcessor::sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id)
 {
+    LL_DEBUGS("PickInfo") << " Requiesting pick info for " << pick_id << LL_ENDL;
     // Must ask for a pick based on the creator id because
     // the pick database is distributed to the inventory cluster. JC
     std::vector<std::string> request_params{ creator_id.asString(), pick_id.asString() };

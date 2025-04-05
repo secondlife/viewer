@@ -34,6 +34,8 @@ in vec2 vary_fragcoord;
 vec3 linear_to_srgb(vec3 cl);
 vec3 toneMap(vec3 color);
 
+vec3 clampHDRRange(vec3 color);
+
 void main()
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
@@ -45,6 +47,7 @@ void main()
     diff.rgb = clamp(diff.rgb, vec3(0.0), vec3(1.0));
 #endif
 
+    diff.rgb = clampHDRRange(diff.rgb);
     //debugExposure(diff.rgb);
     frag_color = max(diff, vec4(0));
 }

@@ -1939,7 +1939,7 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
     mConversationEventQueue.erase(uuid);
 
     // Don't let the focus fall IW, select and refocus on the first conversation in the list
-    if (change_focus)
+    if (change_focus && isInVisibleChain())
     {
         setFocus(true);
         if (new_selection)
@@ -1958,6 +1958,10 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
                 }
             }
         }
+    }
+    else
+    {
+        LL_INFOS() << "Conversation widgets: " << (S32)mConversationsWidgets.size() << LL_ENDL;
     }
     return is_widget_selected;
 }

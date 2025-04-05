@@ -70,12 +70,15 @@ public:
     void updateDynamicThrottle();
     void resetDynamicThrottle();
 
+    void setBufferLoadRate(F32 rate) { mBufferLoadRate = llmax(mBufferLoadRate, rate); }
+
     LLViewerThrottleGroup getThrottleGroup(const F32 bandwidth_kbps);
 
     static const std::string sNames[TC_EOF];
 protected:
     F32 mMaxBandwidth;
     F32 mCurrentBandwidth;
+    F32 mBufferLoadRate = 0;
 
     LLViewerThrottleGroup mCurrent;
 

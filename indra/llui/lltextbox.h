@@ -76,6 +76,12 @@ protected:
     LLUIString          mText;
     callback_t          mClickedCallback;
     bool                mShowCursorHand;
+
+protected:
+    virtual std::string _getSearchText() const
+    {
+        return LLTextBase::_getSearchText() + mText.getString();
+    }
 };
 
 // Build time optimization, generate once in .cpp file

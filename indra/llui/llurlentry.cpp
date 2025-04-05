@@ -221,6 +221,16 @@ bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
     },
         L'\u002F'); // Solidus
 
+    std::replace_if(wlabel.begin(),
+        wlabel.end(),
+        [](const llwchar& chr)
+    {
+        return // Not a decomposition, but suficiently similar
+            (chr == L'\u04BA') // "Cyrillic Capital Letter Shha"
+            || (chr == L'\u04BB'); // "Cyrillic Small Letter Shha"
+    },
+        L'\u0068'); // "Latin Small Letter H"
+
     std::string label = wstring_to_utf8str(wlabel);
     if ((label.find(".com") != std::string::npos
          || label.find("www.") != std::string::npos)

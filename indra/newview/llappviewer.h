@@ -157,9 +157,6 @@ public:
     void loadNameCache();
     void saveNameCache();
 
-    void loadExperienceCache();
-    void saveExperienceCache();
-
     void removeMarkerFiles();
     void recordSessionToMarker();
 
@@ -175,6 +172,8 @@ public:
     virtual void forceErrorOSSpecificException();
     virtual void forceErrorDriverCrash();
     virtual void forceErrorCoroutineCrash();
+    virtual void forceErrorCoroprocedureCrash();
+    virtual void forceErrorWorkQueueCrash();
     virtual void forceErrorThreadCrash();
 
     // The list is found in app_settings/settings_files.xml
@@ -411,11 +410,10 @@ extern std::string gLastVersionChannel;
 
 extern LLVector3 gWindVec;
 extern LLVector3 gRelativeWindVec;
-extern U32  gPacketsIn;
-extern bool gPrintMessagesThisFrame;
 
 extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;
+extern bool gDoDisconnect;
 
 extern bool gSimulateMemLeak;
 

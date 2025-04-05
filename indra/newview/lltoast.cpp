@@ -436,6 +436,14 @@ void LLToast::setVisible(bool show)
 
 void LLToast::updateHoveredState()
 {
+    if (!mWrapperPanel)
+    {
+        // Shouldn't be happening.
+        // mWrapperPanel should have been inited in the constructor
+        // This needs to be figured out and fixed
+        llassert(false);
+        return;
+    }
     S32 x, y;
     LLUI::getInstance()->getMousePositionScreen(&x, &y);
 

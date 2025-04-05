@@ -377,6 +377,10 @@ public:
     void            enableResizeCtrls(bool enable, bool width = true, bool height = true);
 
     bool            isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mPositioning); }
+
+    void            setAutoFocus(bool focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
+    bool            getAutoFocus() const { return mAutoFocus; }
+
 protected:
     void            applyControlsAndPosition(LLFloater* other);
 
@@ -401,8 +405,6 @@ protected:
     void            setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
     const LLRect&   getExpandedRect() const { return mExpandedRect; }
 
-    void            setAutoFocus(bool focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
-    bool            getAutoFocus() const { return mAutoFocus; }
     LLDragHandle*   getDragHandle() const { return mDragHandle; }
 
     void            destroy(); // Don't call this directly.  You probably want to call closeFloater()

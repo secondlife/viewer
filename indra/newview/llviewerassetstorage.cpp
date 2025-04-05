@@ -402,10 +402,10 @@ void LLViewerAssetStorage::queueRequestHttp(
         manager->enqueueCoprocedure(
             VIEWER_ASSET_STORAGE_CORO_POOL,
             "LLViewerAssetStorage::assetRequestCoro",
-            [this, req, uuid, atype, callback, user_data]
+            [this, uuid, atype, callback, user_data]
             (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t&, const LLUUID&)
             {
-                assetRequestCoro(req, uuid, atype, callback, user_data);
+                assetRequestCoro(uuid, atype, callback, user_data);
             });
     }
 }
@@ -440,7 +440,6 @@ struct LLScopedIncrement
 };
 
 void LLViewerAssetStorage::assetRequestCoro(
-    LLViewerAssetRequest *req,
     const LLUUID uuid,
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
@@ -464,7 +463,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: no region set" << LL_ENDL;
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LLExtStat::NONE;
-        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
+        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
         return;
     }
     else if (!gAgent.getRegion()->capabilitiesReceived())
@@ -495,7 +494,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         LL_WARNS_ONCE("ViewerAsset") << "asset request fails: caps received but no viewer asset cap found" << LL_ENDL;
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LLExtStat::NONE;
-        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
+        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
         return;
     }
     std::string url = getAssetURL(mViewerAssetUrl, uuid,atype);
@@ -517,6 +516,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
     mCountCompleted++;
 
+    S32 bytes_fetched = 0;
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
@@ -554,7 +554,7 @@ void LLViewerAssetStorage::assetRequestCoro(
             LLUUID temp_id;
             temp_id.generate();
             LLFileSystem vf(temp_id, atype, LLFileSystem::WRITE);
-            req->mBytesFetched = size;
+            bytes_fetched = size;
             if (!vf.write(raw.data(),size))
             {
                 // TODO asset-http: handle error
@@ -583,7 +583,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     }
 
     // Clean up pending downloads and trigger callbacks
-    removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
+    removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, bytes_fetched);
 }
 
 std::string LLViewerAssetStorage::getAssetURL(const std::string& cap_url, const LLUUID& uuid, LLAssetType::EType atype)

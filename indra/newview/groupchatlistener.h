@@ -26,15 +26,20 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_GROUPCHATLISTENER_H)
-#define LL_GROUPCHATLISTENER_H
+#if ! defined(LL_LLGROUPCHATLISTENER_H)
+#define LL_LLGROUPCHATLISTENER_H
 
 #include "lleventapi.h"
 
-class GroupChatListener: public LLEventAPI
+class LLGroupChatListener: public LLEventAPI
 {
 public:
-    GroupChatListener();
+    LLGroupChatListener();
+
+private:
+    void startGroupChat(LLSD const &data);
+    void leaveGroupChat(LLSD const &data);
+    void sendGroupIM(LLSD const &data);
 };
 
-#endif /* ! defined(LL_GROUPCHATLISTENER_H) */
+#endif /* ! defined(LL_LLGROUPCHATLISTENER_H) */

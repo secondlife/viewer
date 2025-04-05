@@ -67,6 +67,7 @@ public:
     //
     // NOTE: Implicitly clears most override data if present
     static void queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id);
+    static void queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id, const std::string& override_json);
 
     // Queue an application of a material asset we want to send to the simulator.
     //  Call "flushUpdates" to flush pending updates immediately.
@@ -160,6 +161,7 @@ protected:
         S32 side = -1;
         LLUUID asset_id;
         LLPointer<LLGLTFMaterial> override_data;
+        std::string override_json;
     };
 
     typedef std::list<ApplyMaterialAssetData> apply_queue_t;

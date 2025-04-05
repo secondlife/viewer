@@ -30,6 +30,7 @@
 #include "llaisapi.h"
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llappearancemgr.h"
 #include "llcallbacklist.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
@@ -470,6 +471,22 @@ void LLInventoryModelBackgroundFetch::fetchCOF(nullary_func_t callback)
                          callback();
                          LLUUID cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
                          LLInventoryModelBackgroundFetch::getInstance()->onAISFolderCalback(cat_id, id, FT_DEFAULT);
+
+                         if (id.notNull())
+                         {
+                             // COF might have fetched base outfit folder through a link, but it hasn't
+                             // fetched base outfit's content, which doesn't nessesary match COF,
+                             // so make sure it's up to date
+                             LLUUID baseoutfit_id = LLAppearanceMgr::getInstance()->getBaseOutfitUUID();
+                             if (baseoutfit_id.notNull())
+                             {
+                                 LLViewerInventoryCategory* cat = gInventory.getCategory(baseoutfit_id);
+                                 if (!cat || cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+                                 {
+                                     LLInventoryModelBackgroundFetch::getInstance()->fetchFolderAndLinks(baseoutfit_id, no_op);
+                                 }
+                             }
+                         }
                      });
 
     // start idle loop to track completion

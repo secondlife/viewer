@@ -697,6 +697,7 @@ void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 // virtual
 LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 {
+    std::lock_guard lock(mJointMapMutex);
     LLJoint *jointp = NULL;
     jointp = LLVOAvatar::getJoint(name);
     if (!jointp && mScreenp)
@@ -712,6 +713,14 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
         llassert(LLVOAvatar::getJoint((S32)jointp->getJointNum())==jointp);
     }
     return jointp;
+}
+
+
+//virtual
+void LLVOAvatarSelf::renderJoints()
+{
+    std::lock_guard lock(mJointMapMutex);
+    LLVOAvatar::renderJoints();
 }
 
 // virtual

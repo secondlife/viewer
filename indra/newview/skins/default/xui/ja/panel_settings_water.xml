@@ -63,7 +63,7 @@
 					<text follows="left|top|right" font="SansSerif" height="16" layout="topleft" left_delta="-5" top_pad="5" width="215">
 						ブラー乗数
 					</text>
-					<slider control_name="water_blur_multip" follows="left|top" height="16" increment="0.001" initial_value="0" layout="topleft" left_delta="5" min_val="-0.5" max_val="0.5" name="water_blur_multip" top_pad="5" width="200" can_edit_text="true"/>
+					<slider control_name="water_blur_multip" follows="left|top" height="16" increment="0.001" initial_value="0" layout="topleft" left_delta="5" min_val="0" max_val="0.5" name="water_blur_multip" top_pad="5" width="200" can_edit_text="true"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
