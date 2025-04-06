@@ -2857,9 +2857,16 @@ void LLMaterialEditor::importMaterial()
                 {
                     return;
                 }
-                if (filenames.size() > 0)
+                try
                 {
-                    LLMaterialEditor::loadMaterialFromFile(filenames[0], -1);
+                    if (filenames.size() > 0)
+                    {
+                        LLMaterialEditor::loadMaterialFromFile(filenames[0], -1);
+                    }
+                }
+                catch (std::bad_alloc&)
+                {
+                    LLNotificationsUtil::add("CannotOpenFileTooBig");
                 }
             },
         LLFilePicker::FFLOAD_MATERIAL,
