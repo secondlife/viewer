@@ -1007,7 +1007,8 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
         return;
     }
 
-    if (preferred_type != LLFolderType::FT_NONE)
+    if (preferred_type != LLFolderType::FT_NONE
+        && preferred_type != LLFolderType::FT_OUTFIT)
     {
         // Ultimately this should only be done for non-singleton
         // types. Requires back-end changes to guarantee that others

@@ -586,7 +586,9 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     bool is_trash = (selected_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH));
     bool is_in_trash = gInventory.isObjectDescendentOf(selected_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH));
     bool is_lost_and_found = (selected_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
-    bool is_outfits= (selected_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS));
+    const LLUUID my_outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+    bool is_outfits= (selected_id == my_outfits);
+    bool is_in_outfits = is_outfits || gInventory.isObjectDescendentOf(selected_id, my_outfits);
     bool is_in_favorites = gInventory.isObjectDescendentOf(selected_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE));
     //bool is_favorites= (selected_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE));
 
@@ -725,7 +727,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     }
     else
     {
-        if (is_agent_inventory && !is_inbox && !is_cof && !is_in_favorites && !is_outfits)
+        if (is_agent_inventory && !is_inbox && !is_cof && !is_in_favorites && !is_outfits && !is_in_outfits)
         {
             LLViewerInventoryCategory* category = gInventory.getCategory(selected_id);
             if (!category || !LLFriendCardsManager::instance().isCategoryInFriendFolder(category))
@@ -778,7 +780,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             items.push_back(std::string("Subfolder Separator"));
             if (!is_system_folder && !isRootFolder())
             {
-                if(has_children && (folder_type != LLFolderType::FT_OUTFIT))
+                if(has_children && (folder_type != LLFolderType::FT_OUTFIT) && !is_in_outfits)
                 {
                     items.push_back(std::string("Ungroup folder items"));
                 }

@@ -845,7 +845,8 @@ public:
                     LLInventoryModel::cat_array_t* cats;
                     LLInventoryModel::item_array_t* items;
                     gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
-                    if (items->size() > 3) // eyes, skin, hair and shape are required
+                    if (cats->empty() // protection against outfits inside
+                        && items->size() > 3) // eyes, skin, hair and shape are required
                     {
                         // For now assume this to be an old style outfit, not a subfolder
                         // but ideally no such 'outfits' should be left in My Outfits

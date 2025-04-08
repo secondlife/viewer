@@ -60,11 +60,49 @@ static LLPanelInjector<LLInventoryGallery> t_inventory_gallery("inventory_galler
 const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
 const S32 FAST_LOAD_THUMBNAIL_TRSHOLD = 50; // load folders below this value immediately
 
+
+namespace {
+    enum EMyOutfitsSubfolderType
+    {
+        MY_OUTFITS_NO,
+        MY_OUTFITS_SUBFOLDER,
+        MY_OUTFITS_OUTFIT,
+    };
+
+    EMyOutfitsSubfolderType myoutfit_object_subfolder_type(LLInventoryModel* model, const LLUUID& obj_id,
+        const LLUUID& cat_id)
+    {
+        if (obj_id == cat_id) return MY_OUTFITS_NO;
+
+        const LLViewerInventoryCategory* test_cat = model->getCategory(obj_id);
+        while (test_cat)
+        {
+            if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+            {
+                return MY_OUTFITS_OUTFIT;
+            }
+
+            const LLUUID& parent_id = test_cat->getParentUUID();
+            if (parent_id.isNull())
+            {
+                return MY_OUTFITS_NO;
+            }
+            if (parent_id == cat_id)
+            {
+                return MY_OUTFITS_SUBFOLDER;
+            }
+            test_cat = model->getCategory(parent_id);
+        }
+
+        return MY_OUTFITS_NO;
+    }
+}
+
 // Helper dnd functions
 bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, bool drop, std::string& tooltip_msg, bool is_link);
 bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm);
 void dropToMyOutfits(LLInventoryCategory* inv_cat);
-void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id);
+void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLFolderType::EType preferred_type);
 
 class LLGalleryPanel: public LLPanel
 {
@@ -3899,9 +3937,18 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                 // create a new folder and populate it with links to original objects
                 dropToMyOutfits(inv_cat);
             }
-            else if (dest_cat && dest_cat->getParentUUID() == my_outifts_id)
+            else if (move_is_into_my_outfits)
             {
-                dropToMyOutfitsSubfolder(inv_cat, dest_id);
+                EMyOutfitsSubfolderType res = myoutfit_object_subfolder_type(model, dest_id, my_outifts_id);
+                if (res == MY_OUTFITS_SUBFOLDER)
+                {
+                    // turn it into outfit
+                    dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_OUTFIT);
+                }
+                else
+                {
+                    dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_NONE);
+                }
             }
             // if target is current outfit folder we use link
             else if (move_is_into_current_outfit &&
@@ -4047,10 +4094,10 @@ void dropToMyOutfits(LLInventoryCategory* inv_cat)
     gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
 }
 
-void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID &dest_id)
+void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID &dest_id, LLFolderType::EType preferred_type)
 {
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
     inventory_func_type func = boost::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
-    gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
+    gInventory.createNewCategory(dest_id, preferred_type, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
 }
