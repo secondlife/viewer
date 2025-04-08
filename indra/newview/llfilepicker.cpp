@@ -59,7 +59,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define XML_FILTER L"XML files (*.xml)\0*.xml\0"
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
-#define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
+#define MODEL_FILTER L"Model files (*.dae, *.gltf, *.glb)\0*.dae;*.gltf;*.glb\0"
 #define MATERIAL_FILTER L"GLTF Files (*.gltf; *.glb)\0*.gltf;*.glb\0"
 #define HDRI_FILTER L"HDRI Files (*.exr)\0*.exr\0"
 #define MATERIAL_TEXTURES_FILTER L"GLTF Import (*.gltf; *.glb; *.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.gltf;*.glb;*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"

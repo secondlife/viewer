@@ -472,11 +472,14 @@ void Asset::update()
 
             for (auto& image : mImages)
             {
-                if (image.mTexture.notNull())
-                { // HACK - force texture to be loaded full rez
-                    // TODO: calculate actual vsize
-                    image.mTexture->addTextureStats(2048.f * 2048.f);
-                    image.mTexture->setBoostLevel(LLViewerTexture::BOOST_HIGH);
+                if (image.mLoadIntoTexturePipe)
+                {
+                    if (image.mTexture.notNull())
+                    { // HACK - force texture to be loaded full rez
+                        // TODO: calculate actual vsize
+                        image.mTexture->addTextureStats(2048.f * 2048.f);
+                        image.mTexture->setBoostLevel(LLViewerTexture::BOOST_HIGH);
+                    }
                 }
             }
         }
@@ -603,6 +606,7 @@ bool Asset::prep()
                 if (vertex_count[variant] > 0)
                 {
                     U32 mat_idx = mat_id + 1;
+                    #if 0
                     LLVertexBuffer* vb = new LLVertexBuffer(attribute_mask);
 
                     rd.mBatches[variant][mat_idx].mVertexBuffer = vb;
@@ -624,6 +628,7 @@ bool Asset::prep()
                     vb->unmapBuffer();
 
                     vb->unbind();
+                    #endif
                 }
             }
         }
@@ -634,10 +639,10 @@ bool Asset::prep()
     {
         for (auto& primitive : mesh.mPrimitives)
         {
-            llassert(primitive.mVertexBuffer.notNull());
+            //llassert(primitive.mVertexBuffer.notNull());
         }
     }
-
+    #if 0
     // build render batches
     for (S32 node_id = 0; node_id < mNodes.size(); ++node_id)
     {
@@ -664,6 +669,7 @@ bool Asset::prep()
             }
         }
     }
+    #endif
     return true;
 }
 

@@ -106,16 +106,7 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     std::string filename_lc(filename);
     LLStringUtil::toLower(filename_lc);
 
-    // Load a tinygltf model fom a file. Assumes that the input filename has already been
-    // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
-    if (std::string::npos == filename_lc.rfind(".gltf"))
-    {  // file is binary
-        mGltfLoaded = loader.LoadBinaryFromFile(&mGltfModel, &error_msg, &warn_msg, filename);
-    }
-    else
-    {  // file is ascii
-        mGltfLoaded = loader.LoadASCIIFromFile(&mGltfModel, &error_msg, &warn_msg, filename);
-    }
+    mGltfLoaded = mGLTFAsset.load(filename);
 
     if (!mGltfLoaded)
     {
@@ -129,10 +120,14 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     mMeshesLoaded = parseMeshes();
     if (mMeshesLoaded) uploadMeshes();
 
+    /*
     mMaterialsLoaded = parseMaterials();
     if (mMaterialsLoaded) uploadMaterials();
+    */
 
-    return (mMeshesLoaded || mMaterialsLoaded);
+    setLoadState(DONE);
+
+    return (mMeshesLoaded);
 }
 
 bool LLGLTFLoader::parseMeshes()
@@ -143,71 +138,102 @@ bool LLGLTFLoader::parseMeshes()
     LLVolumeParams volume_params;
     volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
 
-    for (tinygltf::Mesh mesh : mGltfModel.meshes)
+    for (auto node : mGLTFAsset.mNodes)
     {
-        LLModel *pModel = new LLModel(volume_params, 0.f);
+        LLMatrix4    transform;
+        material_map mats;
+        auto meshidx = node.mMesh;
 
-        if (populateModelFromMesh(pModel, mesh)         &&
-            (LLModel::NO_ERRORS == pModel->getStatus()) &&
-            validate_model(pModel))
+        if (meshidx >= 0)
         {
-            mModelList.push_back(pModel);
-        }
-        else
-        {
-            setLoadState(ERROR_MODEL + pModel->getStatus());
-            delete(pModel);
-            return false;
+            LLModel* pModel = new LLModel(volume_params, 0.f);
+            auto mesh = mGLTFAsset.mMeshes[meshidx];
+
+            if (populateModelFromMesh(pModel, mesh, mats) && (LLModel::NO_ERRORS == pModel->getStatus()) && validate_model(pModel))
+            {
+                mModelList.push_back(pModel);
+                LLVector3 mesh_scale_vector;
+                LLVector3 mesh_translation_vector;
+                pModel->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
+
+                LLMatrix4 mesh_translation;
+                mesh_translation.setTranslation(mesh_translation_vector);
+                mesh_translation *= transform;
+                transform = mesh_translation;
+
+                LLMatrix4 mesh_scale;
+                mesh_scale.initScale(mesh_scale_vector);
+                mesh_scale *= transform;
+                transform = mesh_scale;
+
+
+                mScene[transform].push_back(LLModelInstance(pModel, node.mName, transform, mats));
+            }
+            else
+            {
+                setLoadState(ERROR_MODEL + pModel->getStatus());
+                delete (pModel);
+                return false;
+            }
         }
     }
+
     return true;
 }
-
-bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &mesh)
+ 
+bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, material_map &mats)
 {
-    pModel->mLabel = mesh.name;
-    int pos_idx;
-    tinygltf::Accessor indices_a, positions_a, normals_a, uv0_a, color0_a;
+    pModel->mLabel = mesh.mName;
+    pModel->ClearFacesAndMaterials();
 
-    auto prims = mesh.primitives;
+    auto prims = mesh.mPrimitives;
     for (auto prim : prims)
     {
-        if (prim.indices >= 0) indices_a = mGltfModel.accessors[prim.indices];
+        // So primitives already have all of the data we need for a given face in SL land.
+        // Primitives may only ever have a single material assigned to them - as the relation is 1:1 in terms of intended draw call count.
+        // Just go ahead and populate faces direct from the GLTF primitives here.
+        // -Geenz 2025-04-07
+        LLVolumeFace                          face;
+        LLVolumeFace::VertexMapData::PointMap point_map;
 
-        pos_idx = (prim.attributes.count("POSITION") > 0) ? prim.attributes.at("POSITION") : -1;
-        if (pos_idx >= 0)
+        std::vector<LLVolumeFace::VertexData> vertices;
+        std::vector<U16>                      indices;
+
+        LLImportMaterial impMat;
+
+        auto material = mGLTFAsset.mMaterials[prim.mMaterial];
+
+        impMat.mDiffuseColor = LLColor4::white;
+
+
+        for (U32 i = 0; i < prim.getVertexCount(); i++)
         {
-            positions_a = mGltfModel.accessors[pos_idx];
-            if (TINYGLTF_COMPONENT_TYPE_FLOAT != positions_a.componentType)
-                continue;
-            auto positions_bv = mGltfModel.bufferViews[positions_a.bufferView];
-            auto positions_buf = mGltfModel.buffers[positions_bv.buffer];
-            //auto type = positions_vb.
-            //if (positions_buf.name
+            LLVolumeFace::VertexData vert;
+            vert.setPosition(prim.mPositions[i]);
+            vert.setNormal(prim.mNormals[i]);
+            vert.mTexCoord = prim.mTexCoords0[i];
+            vertices.push_back(vert);
         }
 
-#if 0
-        int norm_idx, tan_idx, uv0_idx, uv1_idx, color0_idx, color1_idx;
-        norm_idx = (prim.attributes.count("NORMAL") > 0) ? prim.attributes.at("NORMAL") : -1;
-        tan_idx = (prim.attributes.count("TANGENT") > 0) ? prim.attributes.at("TANGENT") : -1;
-        uv0_idx = (prim.attributes.count("TEXCOORDS_0") > 0) ? prim.attributes.at("TEXCOORDS_0") : -1;
-        uv1_idx = (prim.attributes.count("TEXCOORDS_1") > 0) ? prim.attributes.at("TEXCOORDS_1") : -1;
-        color0_idx = (prim.attributes.count("COLOR_0") > 0) ? prim.attributes.at("COLOR_0") : -1;
-        color1_idx = (prim.attributes.count("COLOR_1") > 0) ? prim.attributes.at("COLOR_1") : -1;
-#endif
-
-        if (prim.mode == TINYGLTF_MODE_TRIANGLES)
+        for (S32 i = 0; i < prim.mIndexArray.size(); i++)
         {
-            //auto pos = mesh.    TODO resume here DJH 2022-04
+            indices.push_back(prim.mIndexArray[i]);
         }
+
+        face.fillFromLegacyData(vertices, indices);
+
+        pModel->getVolumeFaces().push_back(face);
+        pModel->getMaterialList().push_back("mat" + std::to_string(prim.mMaterial));
+        mats["mat" + std::to_string(prim.mMaterial)] = impMat;
     }
 
-    //pModel->addFace()
-    return false;
+    return true;
 }
 
 bool LLGLTFLoader::parseMaterials()
 {
+    return true;
+    /*
     if (!mGltfLoaded) return false;
 
     // fill local texture data structures
@@ -329,12 +355,13 @@ bool LLGLTFLoader::parseMaterials()
     }
 
     return true;
+    */
 }
 
 // TODO: convert raw vertex buffers to UUIDs
 void LLGLTFLoader::uploadMeshes()
 {
-    llassert(0);
+    //llassert(0);
 }
 
 // convert raw image buffers to texture UUIDs & assemble into a render material

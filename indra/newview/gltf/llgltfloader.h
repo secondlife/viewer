@@ -29,6 +29,8 @@
 
 #include "tinygltf/tiny_gltf.h"
 
+#include "asset.h"
+
 #include "llglheaders.h"
 #include "llmodelloader.h"
 
@@ -138,6 +140,7 @@ class LLGLTFLoader : public LLModelLoader
     virtual bool OpenFile(const std::string &filename);
 
 protected:
+    LL::GLTF::Asset mGLTFAsset;
     tinygltf::Model mGltfModel;
     bool            mGltfLoaded;
     bool            mMeshesLoaded;
@@ -155,7 +158,7 @@ private:
     void uploadMeshes();
     bool parseMaterials();
     void uploadMaterials();
-    bool populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &mesh);
+    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, material_map& mats);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
     //    bool mPreprocessGLTF;

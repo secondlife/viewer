@@ -286,6 +286,7 @@ namespace LL
             void serialize(boost::json::object& dst) const;
         };
 
+        // Image is for images that we want to load for the given asset.  This acts as an interface into the viewer's texture pipe.
         class Image
         {
         public:
@@ -300,6 +301,8 @@ namespace LL
             S32 mComponent = -1;
             S32 mBits = -1;
             S32 mPixelType = -1;
+
+            bool mLoadIntoTexturePipe = false;
 
             LLPointer<LLViewerFetchedTexture> mTexture;
 
