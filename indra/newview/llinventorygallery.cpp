@@ -64,6 +64,7 @@ const S32 FAST_LOAD_THUMBNAIL_TRSHOLD = 50; // load folders below this value imm
 bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, bool drop, std::string& tooltip_msg, bool is_link);
 bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm);
 void dropToMyOutfits(LLInventoryCategory* inv_cat);
+void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id);
 
 class LLGalleryPanel: public LLPanel
 {
@@ -3898,6 +3899,10 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                 // create a new folder and populate it with links to original objects
                 dropToMyOutfits(inv_cat);
             }
+            else if (dest_cat && dest_cat->getParentUUID() == my_outifts_id)
+            {
+                dropToMyOutfitsSubfolder(inv_cat, dest_id);
+            }
             // if target is current outfit folder we use link
             else if (move_is_into_current_outfit &&
                 (inv_cat->getPreferredType() == LLFolderType::FT_NONE ||
@@ -4036,6 +4041,14 @@ void dropToMyOutfits(LLInventoryCategory* inv_cat)
     // make a folder in the My Outfits directory.
     const LLUUID dest_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
+    // Note: creation will take time, so passing folder id to callback is slightly unreliable,
+    // but so is collecting and passing descendants' ids
+    inventory_func_type func = boost::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
+    gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
+}
+
+void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID &dest_id)
+{
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
     inventory_func_type func = boost::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
