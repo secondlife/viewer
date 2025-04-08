@@ -2621,6 +2621,11 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryIte
     return false;
 }
 
+bool LLIsFolderType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    return cat && cat->getPreferredType() == mType;
+}
+
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
     if(mType == LLAssetType::AT_CATEGORY)

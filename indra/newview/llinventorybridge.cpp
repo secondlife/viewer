@@ -2916,6 +2916,10 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                 // create a new folder and populate it with links to original objects
                 dropToMyOutfits(inv_cat, cb);
             }
+            else if (getCategory() && getCategory()->getParentUUID() == my_outifts_id)
+            {
+                dropToMyOutfitsSubfolder(inv_cat, mUUID, cb);
+            }
             // if target is current outfit folder we use link
             else if (move_is_into_current_outfit &&
                 (inv_cat->getPreferredType() == LLFolderType::FT_NONE ||
@@ -4016,7 +4020,14 @@ void LLFolderBridge::perform_pasteFromClipboard()
                         U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
                         if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
                         {
-                            dropToMyOutfits(cat, cb);
+                            if (mUUID == my_outifts_id)
+                            {
+                                dropToMyOutfits(cat, cb);
+                            }
+                            else if (getCategory() && getCategory()->getParentUUID() == mUUID)
+                            {
+                                dropToMyOutfitsSubfolder(cat, mUUID, cb);
+                            }
                         }
                         else
                         {
@@ -4256,6 +4267,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 
     if (outfits_id == mUUID)
     {
+        items.push_back(std::string("New Outfit Folder"));
         items.push_back(std::string("New Outfit"));
     }
 
@@ -5331,11 +5343,34 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
     inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
-    gInventory.createNewCategory(dest_id,
+    getInventoryModel()->createNewCategory(dest_id,
                                  LLFolderType::FT_OUTFIT,
                                  inv_cat->getName(),
                                  func,
                                  inv_cat->getThumbnailUUID());
+}
+
+void LLFolderBridge::dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLPointer<LLInventoryCallback> cb)
+{
+    LLViewerInventoryCategory* cat = getInventoryModel()->getCategory(dest_id);
+    const LLUUID outfits_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+    inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
+    if (cat && cat->getParentUUID() == outfits_id)
+    {
+        getInventoryModel()->createNewCategory(dest_id,
+            LLFolderType::FT_OUTFIT,
+            inv_cat->getName(),
+            func,
+            inv_cat->getThumbnailUUID());
+    }
+    else
+    {
+        getInventoryModel()->createNewCategory(outfits_id,
+            LLFolderType::FT_OUTFIT,
+            inv_cat->getName(),
+            func,
+            inv_cat->getThumbnailUUID());
+    }
 }
 
 void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id,
@@ -5441,6 +5476,10 @@ bool LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
     const bool move_is_into_favorites = (mUUID == favorites_id);
     const bool move_is_into_my_outfits = (mUUID == my_outifts_id) || model->isObjectDescendentOf(mUUID, my_outifts_id);
     const bool move_is_into_outfit = move_is_into_my_outfits || (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+    const bool move_is_into_my_outfits_subfolder = move_is_into_my_outfits
+                                                   && getCategory()
+                                                   && getCategory()->getParentUUID() == my_outifts_id
+                                                   && getCategory()->getPreferredType() != LLFolderType::FT_OUTFIT;
     const bool move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
     const bool move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
     const bool move_is_from_marketplacelistings = model->isObjectDescendentOf(inv_item->getUUID(), marketplacelistings_id);
@@ -5511,7 +5550,7 @@ bool LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
         }
         else if (user_confirm && (move_is_into_current_outfit || move_is_into_outfit))
         {
-            accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
+            accept = !move_is_into_my_outfits_subfolder && can_move_to_outfit(inv_item, move_is_into_current_outfit);
         }
         else if (user_confirm && (move_is_into_favorites || move_is_into_landmarks))
         {

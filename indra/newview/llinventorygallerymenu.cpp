@@ -771,6 +771,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
 
             if(is_outfits && !isRootFolder())
             {
+                items.push_back(std::string("New Outfit Folder"));
                 items.push_back(std::string("New Outfit"));
             }
 

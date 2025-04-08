@@ -122,7 +122,7 @@ void LLAppearanceListener::getOutfitsList(LLSD const &data)
     LLInventoryModel::cat_array_t cat_array;
     LLInventoryModel::item_array_t item_array;
 
-    LLIsType is_category(LLAssetType::AT_CATEGORY);
+    LLIsFolderType is_category(LLFolderType::FT_OUTFIT);
     gInventory.collectDescendentsIf(outfits_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, is_category);
 
     response["outfits"] = llsd::toMap(cat_array,
