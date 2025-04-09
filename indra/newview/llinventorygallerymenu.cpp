@@ -771,14 +771,24 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 items.push_back(std::string("upload_def"));
             }
 
-            if(is_outfits && !isRootFolder())
+            if(is_outfits)
             {
+                EMyOutfitsSubfolderType res = myoutfit_object_subfolder_type(&gInventory, selected_id, my_outfits);
+                if (res == MY_OUTFITS_OUTFIT)
+                {
+                    items.push_back(std::string("New Outfit"));
+                }
                 items.push_back(std::string("New Outfit Folder"));
-                items.push_back(std::string("New Outfit"));
+                items.push_back(std::string("Delete"));
+                items.push_back(std::string("Rename"));
+                if (!get_is_category_and_children_removable(&gInventory, selected_id, false))
+                {
+                    disabled_items.push_back(std::string("Delete"));
+                }
             }
 
             items.push_back(std::string("Subfolder Separator"));
-            if (!is_system_folder && !isRootFolder())
+            if (!is_system_folder && !isRootFolder() && !is_outfits)
             {
                 if(has_children && (folder_type != LLFolderType::FT_OUTFIT) && !is_in_outfits)
                 {

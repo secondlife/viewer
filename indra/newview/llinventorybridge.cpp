@@ -104,45 +104,6 @@ static bool check_item(const LLUUID& item_id,
                        LLInventoryFilter* filter);
 
 // Helper functions
-
-
-namespace {
-    enum EMyOutfitsSubfolderType
-    {
-        MY_OUTFITS_NO,
-        MY_OUTFITS_SUBFOLDER,
-        MY_OUTFITS_OUTFIT,
-    };
-
-    EMyOutfitsSubfolderType myoutfit_object_subfolder_type(LLInventoryModel* model, const LLUUID& obj_id,
-        const LLUUID& cat_id)
-    {
-        if (obj_id == cat_id) return MY_OUTFITS_NO;
-
-        const LLViewerInventoryCategory* test_cat = model->getCategory(obj_id);
-        while (test_cat)
-        {
-            if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
-            {
-                return MY_OUTFITS_OUTFIT;
-            }
-
-            const LLUUID& parent_id = test_cat->getParentUUID();
-            if (parent_id.isNull())
-            {
-                return MY_OUTFITS_NO;
-            }
-            if (parent_id == cat_id)
-            {
-                return MY_OUTFITS_SUBFOLDER;
-            }
-            test_cat = model->getCategory(parent_id);
-        }
-
-        return MY_OUTFITS_NO;
-    }
-}
-
 bool isAddAction(const std::string& action)
 {
     return ("wear" == action || "attach" == action || "activate" == action);
@@ -2735,7 +2696,12 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
         U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
         if (is_movable && move_is_into_outfit)
         {
-            if (mUUID == my_outifts_id)
+            if ((inv_cat->getPreferredType() != LLFolderType::FT_NONE) && (inv_cat->getPreferredType() != LLFolderType::FT_OUTFIT))
+            {
+                tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                is_movable = false;
+            }
+            else if (mUUID == my_outifts_id)
             {
                 if (source != LLToolDragAndDrop::SOURCE_AGENT || move_is_from_marketplacelistings)
                 {
@@ -2752,13 +2718,28 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                     is_movable = false;
                 }
             }
-            else if(getCategory() && getCategory()->getPreferredType() == LLFolderType::FT_NONE)
+            else if (!getCategory())
             {
-                is_movable = ((inv_cat->getPreferredType() == LLFolderType::FT_NONE) || (inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT));
+                is_movable = false;
+                tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
             }
             else
             {
-                is_movable = false;
+                LLFolderType::EType type = getCategory()->getPreferredType();
+                if (type == LLFolderType::FT_OUTFIT && inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantMoveOutfitIntoOutfit");
+                }
+                else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
+                {
+                    is_movable = true;
+                }
+                else
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                }
             }
         }
         if (is_movable && move_is_into_current_outfit && is_link)
@@ -2964,6 +2945,7 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                 }
                 else
                 {
+                    // or link it?
                     dropToMyOutfitsSubfolder(inv_cat, mUUID, LLFolderType::FT_NONE, cb);
                 }
             }
@@ -5435,25 +5417,13 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
 
 void LLFolderBridge::dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLFolderType::EType preferred_type, LLPointer<LLInventoryCallback> cb)
 {
-    LLViewerInventoryCategory* cat = getInventoryModel()->getCategory(dest_id);
     const LLUUID outfits_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
     inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
-    if (cat && cat->getParentUUID() == outfits_id)
-    {
-        getInventoryModel()->createNewCategory(dest_id,
-            preferred_type,
-            inv_cat->getName(),
-            func,
-            inv_cat->getThumbnailUUID());
-    }
-    else
-    {
-        getInventoryModel()->createNewCategory(outfits_id,
-            preferred_type,
-            inv_cat->getName(),
-            func,
-            inv_cat->getThumbnailUUID());
-    }
+    getInventoryModel()->createNewCategory(dest_id,
+        preferred_type,
+        inv_cat->getName(),
+        func,
+        inv_cat->getThumbnailUUID());
 }
 
 void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id,
