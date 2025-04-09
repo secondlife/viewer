@@ -121,6 +121,17 @@ std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& i
 std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id);
 bool can_share_item(const LLUUID& item_id);
 
+enum EMyOutfitsSubfolderType
+{
+    MY_OUTFITS_NO,
+    MY_OUTFITS_SUBFOLDER,
+    MY_OUTFITS_OUTFIT,
+};
+EMyOutfitsSubfolderType myoutfit_object_subfolder_type(
+    LLInventoryModel* model,
+    const LLUUID& obj_id,
+    const LLUUID& my_outfits_id);
+
 /**                    Miscellaneous global functions
  **                                                                            **
  *******************************************************************************/
