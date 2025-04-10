@@ -38,11 +38,13 @@ LLStyle::Params::Params()
     color("color", LLColor4::black),
     readonly_color("readonly_color", LLColor4::black),
     selected_color("selected_color", LLColor4::black),
+    highlight_bg_color("highlight_bg_color", LLColor4::green),
     alpha("alpha", 1.f),
     font("font", LLStyle::getDefaultFont()),
     image("image"),
     link_href("href"),
-    is_link("is_link")
+    is_link("is_link"),
+    draw_highlight_bg("draw_highlight_bg", false)
 {}
 
 
@@ -51,12 +53,14 @@ LLStyle::LLStyle(const LLStyle::Params& p)
     mColor(p.color),
     mReadOnlyColor(p.readonly_color),
     mSelectedColor(p.selected_color),
+    mHighlightBgColor(p.highlight_bg_color),
     mFont(p.font()),
     mLink(p.link_href),
     mIsLink(p.is_link.isProvided() ? p.is_link : !p.link_href().empty()),
     mDropShadow(p.drop_shadow),
     mImagep(p.image()),
-    mAlpha(p.alpha)
+    mAlpha(p.alpha),
+    mDrawHighlightBg(p.draw_highlight_bg)
 {}
 
 void LLStyle::setFont(const LLFontGL* font)

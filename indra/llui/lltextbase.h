@@ -35,6 +35,7 @@
 #include "llstyle.h"
 #include "llkeywords.h"
 #include "llpanel.h"
+#include "llurlmatch.h"
 
 #include <string>
 #include <vector>
@@ -607,6 +608,7 @@ protected:
         bool operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const;
     };
     typedef std::multiset<LLTextSegmentPtr, compare_segment_end> segment_set_t;
+    typedef LLUrlMatch::EUnderlineLink e_underline;
 
     // member functions
     LLTextBase(const Params &p);
@@ -620,12 +622,13 @@ protected:
     virtual void                    drawSelectionBackground(); // draws the black box behind the selected text
     void                            drawCursor();
     void                            drawText();
+    void                            drawHighlightedBackground();
 
     // modify contents
     S32                             insertStringNoUndo(S32 pos, const LLWString &wstr, segment_vec_t* segments = NULL); // returns num of chars actually inserted
     S32                             removeStringNoUndo(S32 pos, S32 length);
     S32                             overwriteCharNoUndo(S32 pos, llwchar wc);
-    void                            appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, bool underline_on_hover_only = false);
+    void                            appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, e_underline underline_link = e_underline::UNDERLINE_ALWAYS);
 
 
     // manage segments
@@ -674,7 +677,7 @@ protected:
     void replaceUrl(const std::string &url, const std::string &label, const std::string& icon);
 
     void                            appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
-    void                            appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);
+    void                            appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, e_underline underline_link = e_underline::UNDERLINE_ALWAYS);
     S32 normalizeUri(std::string& uri);
 
 protected:
@@ -685,6 +688,7 @@ protected:
     }
 
     std::vector<LLRect> getSelectionRects();
+    std::vector<std::pair<LLRect, LLUIColor>> getHighlightedBgRects();
 
 protected:
     // text segmentation and flow

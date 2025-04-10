@@ -233,12 +233,13 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
                         match_entry->getQuery(url),
                         match_entry->getTooltip(url),
                         match_entry->getIcon(url),
-                        match_entry->getStyle(),
+                        match_entry->getStyle(url),
                         match_entry->getMenuName(),
                         match_entry->getLocation(url),
                         match_entry->getID(url),
-                        match_entry->underlineOnHoverOnly(url),
-                        match_entry->isTrusted());
+                        match_entry->getUnderline(url),
+                        match_entry->isTrusted(),
+                        match_entry->getSkipProfileIcon(url));
         return true;
     }
 
@@ -274,7 +275,9 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
                         match.getMenuName(),
                         match.getLocation(),
                         match.getID(),
-                        match.underlineOnHoverOnly());
+                        match.getUnderline(),
+                        false,
+                        match.getSkipProfileIcon());
         return true;
     }
     return false;
