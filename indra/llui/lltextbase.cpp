@@ -460,6 +460,62 @@ std::vector<LLRect> LLTextBase::getSelectionRects()
     return selection_rects;
 }
 
+std::vector<std::pair<LLRect, LLUIColor>> LLTextBase::getHighlightedBgRects()
+{
+    std::vector<std::pair<LLRect, LLUIColor>> highlight_rects;
+
+    LLRect content_display_rect = getVisibleDocumentRect();
+
+    // binary search for line that starts before top of visible buffer
+    line_list_t::const_iterator line_iter =
+        std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mTop, compare_bottom());
+    line_list_t::const_iterator end_iter =
+        std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mBottom, compare_top());
+
+    for (; line_iter != end_iter; ++line_iter)
+    {
+            segment_set_t::iterator segment_iter;
+            S32 segment_offset;
+            getSegmentAndOffset(line_iter->mDocIndexStart, &segment_iter, &segment_offset);
+
+            // Use F32 otherwise a string of multiple segments
+            // will accumulate a large error
+            F32 left_precise  = (F32)line_iter->mRect.mLeft;
+            F32 right_precise = (F32)line_iter->mRect.mLeft;
+
+            for (; segment_iter != mSegments.end(); ++segment_iter)
+            {
+                LLTextSegmentPtr segmentp = *segment_iter;
+
+                S32 segment_line_start = segmentp->getStart() + segment_offset;
+                S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
+
+                if (segment_line_start > segment_line_end)
+                    break;
+
+                F32 segment_width  = 0;
+                S32 segment_height = 0;
+
+                S32 num_chars = segment_line_end - segment_line_start;
+                segmentp->getDimensionsF32(segment_offset, num_chars, segment_width, segment_height);
+                right_precise += segment_width;
+
+                if (segmentp->getStyle()->getDrawHighlightBg())
+                {
+                    LLRect selection_rect;
+                    selection_rect.mLeft = (S32)left_precise;
+                    selection_rect.mRight = (S32)right_precise;
+                    selection_rect.mBottom = line_iter->mRect.mBottom;
+                    selection_rect.mTop = line_iter->mRect.mTop;
+
+                    highlight_rects.push_back(std::pair(selection_rect, segmentp->getStyle()->getHighlightBgColor()));
+                }
+                left_precise += segment_width;
+            }
+    }
+    return highlight_rects;
+}
+
 // Draws the black box behind the selected text
 void LLTextBase::drawSelectionBackground()
 {
@@ -525,6 +581,71 @@ void LLTextBase::drawSelectionBackground()
                 selection_rect.translate(h_delta, v_delta);
             }
             gl_rect_2d(selection_rect, selection_color);
+        }
+    }
+}
+
+void LLTextBase::drawHighlightedBackground()
+{
+    if (!mLineInfoList.empty())
+    {
+        std::vector<std::pair<LLRect, LLUIColor>> highlight_rects = getHighlightedBgRects();
+
+        if (highlight_rects.empty())
+            return;
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+        LLRect content_display_rect = getVisibleDocumentRect();
+
+        for (std::vector<std::pair<LLRect, LLUIColor>>::iterator rect_it = highlight_rects.begin();
+             rect_it != highlight_rects.end(); ++rect_it)
+        {
+            LLRect selection_rect = rect_it->first;
+            const LLColor4& color = rect_it->second;
+            if (mScroller)
+            {
+                // If scroller is On content_display_rect has correct rect and safe to use as is
+                // Note: we might need to account for border
+                selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
+            }
+            else
+            {
+                // If scroller is Off content_display_rect will have rect from document, adjusted to text width, heigh and position
+                // and we have to acount for offset depending on position
+                S32 v_delta = 0;
+                S32 h_delta = 0;
+                switch (mVAlign)
+                {
+                case LLFontGL::TOP:
+                    v_delta = mVisibleTextRect.mTop - content_display_rect.mTop - mVPad;
+                    break;
+                case LLFontGL::VCENTER:
+                    v_delta = (llmax(mVisibleTextRect.getHeight() - content_display_rect.mTop, -content_display_rect.mBottom) + (mVisibleTextRect.mBottom - content_display_rect.mBottom)) / 2;
+                    break;
+                case LLFontGL::BOTTOM:
+                    v_delta = mVisibleTextRect.mBottom - content_display_rect.mBottom;
+                    break;
+                default:
+                    break;
+                }
+                switch (mHAlign)
+                {
+                case LLFontGL::LEFT:
+                    h_delta = mVisibleTextRect.mLeft - content_display_rect.mLeft + mHPad;
+                    break;
+                case LLFontGL::HCENTER:
+                    h_delta = (llmax(mVisibleTextRect.getWidth() - content_display_rect.mLeft, -content_display_rect.mRight) + (mVisibleTextRect.mRight - content_display_rect.mRight)) / 2;
+                    break;
+                case LLFontGL::RIGHT:
+                    h_delta = mVisibleTextRect.mRight - content_display_rect.mRight;
+                    break;
+                default:
+                    break;
+                }
+                selection_rect.translate(h_delta, v_delta);
+            }
+            gl_rect_2d(selection_rect, color);
         }
     }
 }
@@ -1399,6 +1520,7 @@ void LLTextBase::draw()
             drawChild(mDocumentView);
         }
 
+        drawHighlightedBackground();
         drawSelectionBackground();
         drawText();
         drawCursor();
@@ -2245,7 +2367,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
             }
 
             // output the styled Url
-            appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
+            appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.getUnderline());
             bool tooltip_required =  !match.getTooltip().empty();
 
             // set the tooltip for the Url label
@@ -2260,7 +2382,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
             {
                 link_params.color = LLColor4::grey;
                 link_params.readonly_color = LLColor4::grey;
-                appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
+                appendAndHighlightTextImpl(label, part, link_params, match.getUnderline());
 
                 // set the tooltip for the query part of url
                 if (tooltip_required)
@@ -2428,7 +2550,7 @@ void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const s
     insertStringNoUndo(getLength(), widget_wide_text, &segments);
 }
 
-void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
+void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, e_underline underline_link)
 {
     // Save old state
     S32 selection_start = mSelectionStart;
@@ -2458,7 +2580,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
             S32 cur_length = getLength();
             LLStyleConstSP sp(new LLStyle(highlight_params));
             LLTextSegmentPtr segmentp;
-            if (underline_on_hover_only || mSkipLinkUnderline)
+            if ((underline_link == e_underline::UNDERLINE_ON_HOVER) || mSkipLinkUnderline)
             {
                 highlight_params.font.style("NORMAL");
                 LLStyleConstSP normal_sp(new LLStyle(highlight_params));
@@ -2482,7 +2604,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
         S32 segment_start = old_length;
         S32 segment_end = old_length + static_cast<S32>(wide_text.size());
         LLStyleConstSP sp(new LLStyle(style_params));
-        if (underline_on_hover_only || mSkipLinkUnderline)
+        if ((underline_link == e_underline::UNDERLINE_ON_HOVER) || mSkipLinkUnderline)
         {
             LLStyle::Params normal_style_params(style_params);
             normal_style_params.font.style("NORMAL");
@@ -2516,7 +2638,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
     }
 }
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
+void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, e_underline underline_link)
 {
     if (new_text.empty())
     {
@@ -2531,7 +2653,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlig
         if (pos != start)
         {
             std::string str = std::string(new_text,start,pos-start);
-            appendAndHighlightTextImpl(str, highlight_part, style_params, underline_on_hover_only);
+            appendAndHighlightTextImpl(str, highlight_part, style_params, underline_link);
         }
         appendLineBreakSegment(style_params);
         start = pos+1;
@@ -2539,7 +2661,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlig
     }
 
     std::string str = std::string(new_text, start, new_text.length() - start);
-    appendAndHighlightTextImpl(str, highlight_part, style_params, underline_on_hover_only);
+    appendAndHighlightTextImpl(str, highlight_part, style_params, underline_link);
 }
 
 

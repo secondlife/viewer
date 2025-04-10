@@ -34,6 +34,7 @@
 
 #include "llavatarname.h"
 #include "llhost.h" // for resolving parcel name by parcel id
+#include "llurlmatch.h"
 
 #include <boost/signals2.hpp>
 #include <boost/regex.hpp>
@@ -85,7 +86,7 @@ public:
     virtual std::string getIcon(const std::string &url);
 
     /// Return the style to render the displayed text
-    virtual LLStyle::Params getStyle() const;
+    virtual LLStyle::Params getStyle(const std::string &url) const;
 
     /// Given a matched Url, return a tooltip string for the hyperlink
     virtual std::string getTooltip(const std::string &string) const { return mTooltip; }
@@ -96,10 +97,11 @@ public:
     /// Return the name of a SL location described by this Url, if any
     virtual std::string getLocation(const std::string &url) const { return ""; }
 
-    /// Should this link text be underlined only when mouse is hovered over it?
-    virtual bool underlineOnHoverOnly(const std::string &string) const { return false; }
+    virtual LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const { return LLUrlMatch::EUnderlineLink::UNDERLINE_ALWAYS; }
 
     virtual bool isTrusted() const { return false; }
+
+    virtual bool getSkipProfileIcon(const std::string& string) const { return false; }
 
     virtual LLUUID  getID(const std::string &string) const { return LLUUID::null; }
 
@@ -108,6 +110,8 @@ public:
     bool isWikiLinkCorrect(const std::string &url) const;
 
     virtual bool isSLURLvalid(const std::string &url) const { return true; };
+
+    static void setAgentID(const LLUUID& id) { sAgentID = id; }
 
 protected:
     std::string getIDStringFromUrl(const std::string &url) const;
@@ -130,6 +134,8 @@ protected:
     std::string                                     mMenuName;
     std::string                                     mTooltip;
     std::multimap<std::string, LLUrlEntryObserver>  mObservers;
+
+    static LLUUID sAgentID;
 };
 
 ///
@@ -224,9 +230,12 @@ public:
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
     /*virtual*/ std::string getIcon(const std::string &url);
     /*virtual*/ std::string getTooltip(const std::string &string) const;
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
     /*virtual*/ LLUUID  getID(const std::string &string) const;
-    /*virtual*/ bool underlineOnHoverOnly(const std::string &string) const;
+
+    LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const;
+    bool getSkipProfileIcon(const std::string& string) const;
+
 protected:
     /*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 private:
@@ -257,7 +266,7 @@ public:
         mAvatarNameCacheConnections.clear();
     }
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
 protected:
     // override this to pull out relevant name fields
     virtual std::string getName(const LLAvatarName& avatar_name) = 0;
@@ -339,7 +348,7 @@ class LLUrlEntryGroup : public LLUrlEntryBase
 public:
     LLUrlEntryGroup();
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
     /*virtual*/ LLUUID  getID(const std::string &string) const;
 private:
     void onGroupNameReceived(const LLUUID& id, const std::string& name, bool is_group);
@@ -411,17 +420,15 @@ public:
     // Processes parcel label and triggers notifying observers.
     static void processParcelInfo(const LLParcelData& parcel_data);
 
-    // Next 4 setters are used to update agent and viewer connection information
+    // Next setters are used to update agent and viewer connection information
     // upon events like user login, viewer disconnect and user changing region host.
     // These setters are made public to be accessible from newview and should not be
     // used in other cases.
-    static void setAgentID(const LLUUID& id) { sAgentID = id; }
     static void setSessionID(const LLUUID& id) { sSessionID = id; }
     static void setRegionHost(const LLHost& host) { sRegionHost = host; }
     static void setDisconnected(bool disconnected) { sDisconnected = disconnected; }
 
 private:
-    static LLUUID                       sAgentID;
     static LLUUID                       sSessionID;
     static LLHost                       sRegionHost;
     static bool                         sDisconnected;
@@ -486,7 +493,7 @@ public:
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
     /*virtual*/ std::string getUrl(const std::string &string) const;
     /*virtual*/ std::string getTooltip(const std::string &string) const;
-    /*virtual*/ bool underlineOnHoverOnly(const std::string &string) const;
+    LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const;
 };
 
 ///
@@ -510,7 +517,7 @@ public:
     LLUrlEntryNoLink();
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
     /*virtual*/ std::string getUrl(const std::string &string) const;
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
 };
 
 ///

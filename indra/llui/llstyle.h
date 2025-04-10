@@ -43,12 +43,14 @@ public:
         Optional<LLFontGL::ShadowType>  drop_shadow;
         Optional<LLUIColor>             color,
                                         readonly_color,
-                                        selected_color;
+                                        selected_color,
+                                        highlight_bg_color;
         Optional<F32>                   alpha;
         Optional<const LLFontGL*>       font;
         Optional<LLUIImage*>            image;
         Optional<std::string>           link_href;
         Optional<bool>                  is_link;
+        Optional<bool>                  draw_highlight_bg;
         Params();
     };
     LLStyle(const Params& p = Params());
@@ -84,6 +86,9 @@ public:
 
     bool isImage() const { return mImagep.notNull(); }
 
+    bool getDrawHighlightBg() const { return mDrawHighlightBg; }
+    const LLUIColor& getHighlightBgColor() const { return mHighlightBgColor; }
+
     bool operator==(const LLStyle &rhs) const
     {
         return
@@ -91,11 +96,13 @@ public:
             && mColor == rhs.mColor
             && mReadOnlyColor == rhs.mReadOnlyColor
             && mSelectedColor == rhs.mSelectedColor
+            && mHighlightBgColor == rhs.mHighlightBgColor
             && mFont == rhs.mFont
             && mLink == rhs.mLink
             && mImagep == rhs.mImagep
             && mDropShadow == rhs.mDropShadow
-            && mAlpha == rhs.mAlpha;
+            && mAlpha == rhs.mAlpha
+            && mDrawHighlightBg == rhs.mDrawHighlightBg;
     }
 
     bool operator!=(const LLStyle& rhs) const { return !(*this == rhs); }
@@ -112,11 +119,13 @@ private:
     LLUIColor           mColor;
     LLUIColor           mReadOnlyColor;
     LLUIColor           mSelectedColor;
+    LLUIColor           mHighlightBgColor;
     const LLFontGL*     mFont;
     LLPointer<LLUIImage> mImagep;
     F32                 mAlpha;
     bool                mVisible;
     bool                mIsLink;
+    bool                mDrawHighlightBg;
 };
 
 typedef LLPointer<LLStyle> LLStyleSP;
