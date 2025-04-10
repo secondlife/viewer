@@ -774,7 +774,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             if(is_outfits)
             {
                 EMyOutfitsSubfolderType res = myoutfit_object_subfolder_type(&gInventory, selected_id, my_outfits);
-                if (res == MY_OUTFITS_OUTFIT)
+                if (res != MY_OUTFITS_OUTFIT && res != MY_OUTFITS_SUBOUTFIT)
                 {
                     items.push_back(std::string("New Outfit"));
                 }

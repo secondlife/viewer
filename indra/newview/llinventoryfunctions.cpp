@@ -2502,11 +2502,15 @@ EMyOutfitsSubfolderType myoutfit_object_subfolder_type(
     if (obj_id == my_outfits_id) return MY_OUTFITS_NO;
 
     const LLViewerInventoryCategory* test_cat = model->getCategory(obj_id);
+    if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+    {
+        return MY_OUTFITS_OUTFIT;
+    }
     while (test_cat)
     {
         if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
         {
-            return MY_OUTFITS_OUTFIT;
+            return MY_OUTFITS_SUBOUTFIT;
         }
 
         const LLUUID& parent_id = test_cat->getParentUUID();

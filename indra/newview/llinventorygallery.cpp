@@ -3776,11 +3776,22 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
             }
             else
             {
-                LLFolderType::EType type = dest_cat->getPreferredType();
-                if (type == LLFolderType::FT_OUTFIT && inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+                EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, dest_id, my_outifts_id);
+                EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
+                if ((dest_res == MY_OUTFITS_OUTFIT || dest_res == MY_OUTFITS_SUBOUTFIT) && inv_res == MY_OUTFITS_OUTFIT)
                 {
                     is_movable = false;
                     tooltip_msg = LLTrans::getString("TooltipCantMoveOutfitIntoOutfit");
+                }
+                else if ((dest_res == MY_OUTFITS_OUTFIT || dest_res == MY_OUTFITS_SUBOUTFIT) && inv_res == MY_OUTFITS_SUBFOLDER)
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                }
+                else if (dest_res == MY_OUTFITS_SUBFOLDER && inv_res == MY_OUTFITS_SUBOUTFIT)
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
                 }
                 else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
                 {
@@ -3916,21 +3927,69 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
 
             if (dest_id == my_outifts_id)
             {
-                // Category can contains objects,
-                // create a new folder and populate it with links to original objects
-                dropToMyOutfits(inv_cat);
-            }
-            else if (move_is_into_my_outfits)
-            {
-                EMyOutfitsSubfolderType res = myoutfit_object_subfolder_type(model, dest_id, my_outifts_id);
-                if (res == MY_OUTFITS_SUBFOLDER)
+                EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
+                if (inv_res == MY_OUTFITS_SUBFOLDER || inv_res == MY_OUTFITS_OUTFIT)
                 {
-                    // turn it into outfit
-                    dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_OUTFIT);
+                    gInventory.changeCategoryParent(
+                        (LLViewerInventoryCategory*)inv_cat,
+                        dest_id,
+                        move_is_into_trash);
                 }
                 else
                 {
-                    dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_NONE);
+                    // Category can contains objects,
+                    // create a new folder and populate it with links to original objects
+                    dropToMyOutfits(inv_cat);
+                }
+            }
+            else if (move_is_into_my_outfits)
+            {
+                EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, dest_id, my_outifts_id);
+                EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
+                switch (inv_res)
+                {
+                case MY_OUTFITS_NO:
+                    // Moning from outside outfits into outfits
+                    if (dest_res == MY_OUTFITS_SUBFOLDER)
+                    {
+                        // turn it into outfit
+                        dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_OUTFIT);
+                    }
+                    else
+                    {
+                        dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_NONE);
+                    }
+                    break;
+                case MY_OUTFITS_SUBFOLDER:
+                case MY_OUTFITS_OUTFIT:
+                    // only permit moving subfodlers and outfits into other subfolders
+                    if (dest_res == MY_OUTFITS_SUBFOLDER)
+                    {
+                        gInventory.changeCategoryParent(
+                            (LLViewerInventoryCategory*)inv_cat,
+                            dest_id,
+                            move_is_into_trash);
+                    }
+                    else
+                    {
+                        assert(false); // mot permitted, shouldn't have accepted
+                    }
+                    break;
+                case MY_OUTFITS_SUBOUTFIT:
+                    if (dest_res == MY_OUTFITS_SUBOUTFIT || dest_res == MY_OUTFITS_OUTFIT)
+                    {
+                        gInventory.changeCategoryParent(
+                            (LLViewerInventoryCategory*)inv_cat,
+                            dest_id,
+                            move_is_into_trash);
+                    }
+                    else
+                    {
+                        assert(false); // mot permitted, shouldn't have accepted
+                    }
+                    break;
+                default:
+                    break;
                 }
             }
             // if target is current outfit folder we use link
