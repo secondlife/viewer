@@ -51,6 +51,7 @@
 #include "lldirpicker.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloatermodelpreview.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
@@ -62,6 +63,7 @@
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
+#include "llmaterialeditor.h"
 #include "llmarketplacenotifications.h"
 #include "llmarketplacefunctions.h"
 #include "llmenugl.h"
@@ -86,6 +88,7 @@
 #include "llviewermessage.h"
 #include "llviewerfoldertype.h"
 #include "llviewerobjectlist.h"
+#include "llviewermenufile.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -2418,6 +2421,143 @@ void ungroup_folder_items(const LLUUID& folder_id)
     gInventory.notifyObservers();
 }
 
+class LLUpdateFavorite : public LLInventoryCallback
+{
+public:
+    LLUpdateFavorite(const LLUUID& inv_item_id)
+        : mInvItemID(inv_item_id)
+    {}
+    /* virtual */ void fire(const LLUUID& inv_item_id) override
+    {
+        gInventory.addChangedMask(LLInventoryObserver::UPDATE_FAVORITE, mInvItemID);
+
+        LLInventoryModel::item_array_t items;
+        LLInventoryModel::cat_array_t cat_array;
+        LLLinkedItemIDMatches matches(mInvItemID);
+        gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+            cat_array,
+            items,
+            LLInventoryModel::INCLUDE_TRASH,
+            matches);
+
+        std::set<LLUUID> link_ids;
+        for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); ++it)
+        {
+            LLPointer<LLViewerInventoryItem> item = *it;
+
+            gInventory.addChangedMask(LLInventoryObserver::UPDATE_FAVORITE, item->getUUID());
+        }
+
+        gInventory.notifyObservers();
+    }
+private:
+    LLUUID mInvItemID;
+};
+
+void favorite_send(LLInventoryObject* obj, const LLUUID& obj_id, bool favorite)
+{
+    LLSD updates;
+    if (favorite)
+    {
+        updates["favorite"] = LLSD().with("toggled", true);
+    }
+    else
+    {
+        updates["favorite"] = LLSD();
+    }
+
+    LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
+
+    LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
+    if (view_folder)
+    {
+        update_inventory_category(obj_id, updates, cb);
+    }
+    LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
+    if (view_item)
+    {
+        update_inventory_item(obj_id, updates, cb);
+    }
+}
+
+bool get_is_favorite(const LLInventoryObject* object)
+{
+    if (object->getIsLinkType())
+    {
+        LLInventoryObject* obj = gInventory.getObject(object->getLinkedUUID());
+        return obj && obj->getIsFavorite();
+    }
+
+    return object->getIsFavorite();
+}
+
+bool get_is_favorite(const LLUUID& obj_id)
+{
+    LLInventoryObject* object = gInventory.getObject(obj_id);
+    if (object && object->getIsLinkType())
+    {
+        LLInventoryObject* obj = gInventory.getObject(object->getLinkedUUID());
+        return obj && obj->getIsFavorite();
+    }
+
+    return object->getIsFavorite();
+}
+
+void set_favorite(const LLUUID& obj_id, bool favorite)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+
+    if (obj && obj->getIsLinkType())
+    {
+        if (!favorite && obj->getIsFavorite())
+        {
+            // Links currently aren't supposed to be favorites,
+            // instead should show state of the original
+            LL_INFOS("Inventory") << "Recovering proper 'favorites' state of a link " << obj_id << LL_ENDL;
+            favorite_send(obj, obj_id, false);
+        }
+        obj = gInventory.getObject(obj->getLinkedUUID());
+    }
+
+    if (obj && obj->getIsFavorite() != favorite)
+    {
+        favorite_send(obj, obj->getUUID(), favorite);
+    }
+}
+
+void toggle_favorite(const LLUUID& obj_id)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+    if (obj && obj->getIsLinkType())
+    {
+        obj = gInventory.getObject(obj->getLinkedUUID());
+    }
+
+    if (obj)
+    {
+        favorite_send(obj, obj->getUUID(), !obj->getIsFavorite());
+    }
+}
+
+void toggle_favorites(const uuid_vec_t& ids)
+{
+    if (ids.size() == 0)
+    {
+        return;
+    }
+    if (ids.size() == 1)
+    {
+        toggle_favorite(ids[0]);
+        return;
+    }
+
+    bool new_val = !get_is_favorite(ids.front());
+    for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+    {
+        set_favorite(*it, new_val);
+    }
+}
+
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id)
 {
     if (model)
@@ -2709,6 +2849,20 @@ bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryIt
                 return true;
             }
         }
+    }
+    return false;
+}
+
+bool LLFavoritesCollector::operator()(LLInventoryCategory* cat,
+    LLInventoryItem* item)
+{
+    if (item && item->getIsFavorite())
+    {
+        return true;
+    }
+    if (cat && cat->getIsFavorite())
+    {
+        return true;
     }
     return false;
 }
@@ -3197,7 +3351,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
                 for (LLInventoryModel::item_array_t::value_type& item : items)
                 {
-                    if (get_is_item_worn(item))
+                    if (!item->getIsLinkType() && get_is_item_worn(item))
                     {
                         has_worn = true;
                         LLWearableType::EType type = item->getWearableType();
@@ -3217,7 +3371,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
                 }
             }
             LLViewerInventoryItem* item = gInventory.getItem(obj_id);
-            if (item && get_is_item_worn(item))
+            if (item && !item->getIsLinkType() && get_is_item_worn(item))
             {
                 has_worn = true;
                 LLWearableType::EType type = item->getWearableType();
@@ -3467,6 +3621,20 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
             ungroup_folder_items(*ids.begin());
         }
     }
+    else if ("add_to_favorites" == action)
+    {
+        for (const LLUUID& id : ids)
+        {
+            set_favorite(id, true);
+        }
+    }
+    else if ("remove_from_favorites" == action)
+    {
+        for (const LLUUID& id : ids)
+        {
+            set_favorite(id, false);
+        }
+    }
     else if ("thumbnail" == action)
     {
         if (selected_items.size() > 0)
@@ -3574,6 +3742,54 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
                 LLDoNotDisturbNotificationStorage::instance().removeNotification(LLDoNotDisturbNotificationStorage::offerName, viewModel->getUUID());
             }
         }
+    }
+}
+
+void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::string& action)
+{
+    if (action == "def_model")
+    {
+        gSavedPerAccountSettings.setString("ModelUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_texture")
+    {
+        gSavedPerAccountSettings.setString("TextureUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_sound")
+    {
+        gSavedPerAccountSettings.setString("SoundUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_animation")
+    {
+        gSavedPerAccountSettings.setString("AnimationUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_pbr_material")
+    {
+        gSavedPerAccountSettings.setString("PBRUploadFolder", dest_id.asString());
+    }
+    else if (action == "upload_texture")
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_IMAGE, false);
+    }
+    else if (action == "upload_sound")
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_WAV, false);
+    }
+    else if (action == "upload_animation")
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_ANIM, false);
+    }
+    else if (action == "upload_model")
+    {
+        LLFloaterModelPreview::showModelPreview(dest_id);
+    }
+    else if (action == "upload_pbr_material")
+    {
+        LLMaterialEditor::importMaterial(dest_id);
+    }
+    else if (action == "upload_bulk")
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, dest_id), LLFilePicker::FFLOAD_ALL, true);
     }
 }
 

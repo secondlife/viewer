@@ -2350,7 +2350,7 @@ void LLModelPreview::updateStatusMessages()
 
         if (lod != lod_high)
         {
-            if (total_submeshes[lod] && total_submeshes[lod] != total_submeshes[lod_high])
+            if (total_submeshes[lod] && total_submeshes[lod] > total_submeshes[lod_high])
             { //number of submeshes is different
                 message = "mesh_status_submesh_mismatch";
                 upload_status[lod] = 2;

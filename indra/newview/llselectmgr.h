@@ -940,6 +940,7 @@ private:
     bool                    mForceSelection;
 
     std::vector<LLAnimPauseRequest> mPauseRequests;
+    boost::signals2::connection mSlectionLodModChangedConnection;
 };
 
 // *DEPRECATED: For callbacks or observers, use

@@ -69,7 +69,6 @@ UI Ölçeklendirme: [UI_SCALE]
 Bant genişliği: [NET_BANDWITH]kbit/s
 LOD faktörü: [LOD_FACTOR]
 İşleme kalitesi: [RENDER_QUALITY]
-Gelişmiş Aydınlatma Modeli: [GPU_SHADERS]
 Doku belleği: [TEXTURE_MEMORY]MB
 	</string>
 	<string name="AboutOSXHiDPI">

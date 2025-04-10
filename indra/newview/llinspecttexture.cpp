@@ -115,7 +115,6 @@ public:
 
 protected:
     LLPointer<LLViewerFetchedTexture> m_Image;
-    S32         mImageBoostLevel = LLGLTexture::BOOST_NONE;
     std::string mLoadingText;
 };
 
@@ -128,12 +127,8 @@ LLTexturePreviewView::LLTexturePreviewView(const LLView::Params& p)
 
 LLTexturePreviewView::~LLTexturePreviewView()
 {
-    if (m_Image)
-    {
-        m_Image->setBoostLevel(mImageBoostLevel);
         m_Image = nullptr;
     }
-}
 
 void LLTexturePreviewView::draw()
 {
@@ -159,12 +154,11 @@ void LLTexturePreviewView::draw()
 
 void LLTexturePreviewView::setImageFromAssetId(const LLUUID& idAsset)
 {
-    m_Image = LLViewerTextureManager::getFetchedTexture(idAsset, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+    m_Image = LLViewerTextureManager::getFetchedTexture(idAsset, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_THUMBNAIL);
     if (m_Image)
     {
-        mImageBoostLevel = m_Image->getBoostLevel();
-        m_Image->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
         m_Image->forceToSaveRawImage(0);
+        m_Image->setKnownDrawSize(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
         if ( (!m_Image->isFullyLoaded()) && (!m_Image->hasFetcher()) )
         {
             if (m_Image->isInFastCacheList())

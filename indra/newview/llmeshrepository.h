@@ -510,10 +510,13 @@ public:
     LLHost          mHost;
     std::string     mWholeModelFeeCapability;
     std::string     mWholeModelUploadURL;
+    LLUUID          mDestinationFolderId;
 
     LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
                        bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                       const std::string & upload_url, bool do_upload = true,
+                       const std::string & upload_url,
+                       const LLUUID destination_folder_id = LLUUID::null,
+                       bool do_upload = true,
                        LLHandle<LLWholeModelFeeObserver> fee_observer = (LLHandle<LLWholeModelFeeObserver>()),
                        LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
     ~LLMeshUploadThread();
@@ -529,7 +532,7 @@ public:
     void doWholeModelUpload();
     void requestWholeModelFee();
 
-    void wholeModelToLLSD(LLSD& dest, bool include_textures);
+    void wholeModelToLLSD(LLSD& dest, std::vector<std::string>& texture_list_dest, bool include_textures);
 
     void decomposeMeshMatrix(LLMatrix4& transformation,
                              LLVector3& result_pos,
@@ -550,6 +553,7 @@ private:
 
     bool mDoUpload; // if false only model data will be requested, otherwise the model will be uploaded
     LLSD mModelData;
+    std::vector<std::string> mTextureFiles;
 
     // llcorehttp library interface objects.
     LLCore::HttpStatus                  mHttpStatus;
@@ -672,7 +676,9 @@ public:
 
     void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
                      bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                     std::string upload_url, bool do_upload = true,
+                     std::string upload_url,
+                     const LLUUID& destination_folder_id = LLUUID::null,
+                     bool do_upload = true,
                      LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()),
                      LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 

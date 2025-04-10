@@ -114,6 +114,11 @@ public:
     EType getType() const { return mItemType; }
     S32 getItemId() const { return mItemId; }
 
+    bool isFavorite() const override { return false; }
+    bool isItemInTrash() const override { return false; }
+    bool isAgentInventory() const override { return false; }
+    bool isAgentInventoryRoot() const override { return false; }
+
 private:
     LLUIImagePtr pIcon;
     std::string mName;

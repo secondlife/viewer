@@ -1089,6 +1089,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
     mOrigHeight = 0;
     mHasAux = false;
     mNeedsAux = false;
+    mLastWorkerDiscardLevel = -1;
     mRequestedDiscardLevel = -1;
     mRequestedDownloadPriority = 0.f;
     mFullyLoaded = false;
@@ -1241,12 +1242,11 @@ void LLViewerFetchedTexture::loadFromFastCache()
 
             if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
             {
-                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                if (mRawImage && (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS))
                 {
-                    // scale oversized icon, no need to give more work to gl
-                    mRawImage->scale(expected_width, expected_height);
+                    // Scale oversized thumbnail
+                    // thumbnails aren't supposed to go over DEFAULT_THUMBNAIL_DIMENSIONS
+                    mRawImage->scale(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS);
                 }
             }
 
@@ -1939,9 +1939,9 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
 bool LLViewerFetchedTexture::updateFetch()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled", false);
+    static LLCachedControl<bool> textures_decode_disabled(gSavedSettings, "TextureDecodeDisabled", false);
 
-    if(textures_decode_disabled) // don't fetch the surface textures in wireframe mode
+    if (textures_decode_disabled) // don't fetch the surface textures in wireframe mode
     {
         return false;
     }
@@ -1976,7 +1976,7 @@ bool LLViewerFetchedTexture::updateFetch()
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - callback pending");
         return false; // process any raw image data in callbacks before replacing
     }
-    if(mInFastCacheList)
+    if (mInFastCacheList)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - in fast cache");
         return false;
@@ -2001,7 +2001,7 @@ bool LLViewerFetchedTexture::updateFetch()
         if (mAuxRawImage.notNull()) sAuxCount--;
         // keep in mind that fetcher still might need raw image, don't modify original
         bool finished = LLAppViewer::getTextureFetch()->getRequestFinished(getID(), fetch_discard, mFetchState, mRawImage, mAuxRawImage,
-                                                                           mLastHttpGetStatus);
+            mLastHttpGetStatus);
         if (mRawImage.notNull()) sRawCount++;
         if (mAuxRawImage.notNull())
         {
@@ -2017,7 +2017,7 @@ bool LLViewerFetchedTexture::updateFetch()
         else
         {
             mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
-                                                                        mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
+                mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
         }
 
         if (!processFetchResults(desired_discard, current_discard, fetch_discard, decode_priority))
@@ -2028,7 +2028,7 @@ bool LLViewerFetchedTexture::updateFetch()
         if (mIsFetching)
         {
             static const F32 MAX_HOLD_TIME = 5.0f; //seconds to wait before canceling fecthing if decode_priority is 0.f.
-            if(decode_priority > 0.0f || mStopFetchingTimer.getElapsedTimeF32() > MAX_HOLD_TIME)
+            if (decode_priority > 0.0f || mStopFetchingTimer.getElapsedTimeF32() > MAX_HOLD_TIME)
             {
                 mStopFetchingTimer.reset();
                 LLAppViewer::getTextureFetch()->updateRequestPriority(mID, decode_priority);
@@ -2044,7 +2044,7 @@ bool LLViewerFetchedTexture::updateFetch()
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - priority <= 0");
         make_request = false;
     }
-    else if(mDesiredDiscardLevel > getMaxDiscardLevel())
+    else if (mDesiredDiscardLevel > getMaxDiscardLevel())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - desired > max");
         make_request = false;
@@ -2085,7 +2085,7 @@ bool LLViewerFetchedTexture::updateFetch()
     if (make_request)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - make request");
-        S32 w=0, h=0, c=0;
+        S32 w = 0, h = 0, c = 0;
         if (getDiscardLevel() >= 0)
         {
             w = mGLTexturep->getWidth(0);
@@ -2103,7 +2103,7 @@ bool LLViewerFetchedTexture::updateFetch()
         S32 fetch_request_response = -1;
         S32 worker_discard = -1;
         fetch_request_response = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
-                                                                              w, h, c, desired_discard, needsAux(), mCanUseHTTP);
+            w, h, c, desired_discard, needsAux(), mCanUseHTTP);
 
         if (fetch_request_response >= 0) // positive values and 0 are discard values
         {
@@ -2114,7 +2114,7 @@ bool LLViewerFetchedTexture::updateFetch()
             // bake textures are always at discard 0
             mRequestedDiscardLevel = llmin(desired_discard, fetch_request_response);
             mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
-                                                       mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
+                mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
         }
         else if (fetch_request_response == LLTextureFetch::CREATE_REQUEST_ERROR_TRANSITION)
         {
@@ -2128,7 +2128,7 @@ bool LLViewerFetchedTexture::updateFetch()
             S32 decoded_discard;
             bool decoded;
             S32 fetch_state = LLAppViewer::getTextureFetch()->getLastFetchState(mID, desired_discard, decoded_discard, decoded);
-            if (fetch_state > 1 && decoded && decoded_discard >=0 && decoded_discard <= desired_discard)
+            if (fetch_state > 1 && decoded && decoded_discard >= 0 && decoded_discard <= desired_discard)
             {
                 // worker actually has the image
                 if (mRawImage.notNull()) sRawCount--;
@@ -2733,27 +2733,11 @@ void LLViewerFetchedTexture::saveRawImage()
         return;
     }
 
-    LLImageDataSharedLock lock(mRawImage);
-
     mSavedRawDiscardLevel = mRawDiscardLevel;
     if (mBoostLevel == LLGLTexture::BOOST_ICON)
     {
         S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENSIONS;
         S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENSIONS;
-        if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
-        {
-            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
-            mSavedRawImage->copyScaled(mRawImage);
-        }
-        else
-        {
-            mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
-        }
-    }
-    else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
-    {
-        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
         if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
         {
             mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
@@ -2770,7 +2754,7 @@ void LLViewerFetchedTexture::saveRawImage()
         S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : sMaxSculptRez;
         if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
         {
-            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
+            mSavedRawImage = new LLImageRaw(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS, mRawImage->getComponents());
             mSavedRawImage->copyScaled(mRawImage);
         }
         else

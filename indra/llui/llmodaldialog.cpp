@@ -28,6 +28,7 @@
 
 #include "llmodaldialog.h"
 
+#include "llemojihelper.h"
 #include "llfocusmgr.h"
 #include "v4color.h"
 #include "v2math.h"
@@ -35,6 +36,7 @@
 #include "llwindow.h"
 #include "llkeyboard.h"
 #include "llmenugl.h"
+
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
@@ -98,7 +100,7 @@ void LLModalDialog::onOpen(const LLSD& key)
 {
     if (mModal)
     {
-        // If Modal, Hide the active modal dialog
+        // If Modal, hide the active modal dialog
         if (!sModalStack.empty())
         {
             LLModalDialog* front = sModalStack.front();
@@ -155,6 +157,12 @@ void LLModalDialog::setVisible( bool visible )
     {
         if( visible )
         {
+            // Hide all menus currently shown
+            LLMenuGL::sMenuContainer->hideMenus();
+
+            // Hide EmojiPicker if it is shown
+            LLEmojiHelper::instance().hideHelper(nullptr, true);
+
             // This is a modal dialog.  It sucks up all mouse and keyboard operations.
             gFocusMgr.setMouseCapture( this );
 
@@ -301,7 +309,6 @@ void LLModalDialog::centerOnScreen()
     centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
 }
 
-
 // static
 void LLModalDialog::onAppFocusLost()
 {
@@ -333,6 +340,7 @@ void LLModalDialog::onAppFocusGained()
     }
 }
 
+// static
 void LLModalDialog::shutdownModals()
 {
     // This method is only for use during app shutdown. ~LLModalDialog()

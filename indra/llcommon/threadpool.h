@@ -4,7 +4,7 @@
  * @date   2021-10-21
  * @brief  ThreadPool configures a WorkQueue along with a pool of threads to
  *         service it.
- *
+ * 
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$
@@ -55,7 +55,7 @@ namespace LL
          * ThreadPool listens for application shutdown messages on the "LLApp"
          * LLEventPump. Call close() to shut down this ThreadPool early.
          */
-        virtual void close();
+        void close();
 
         std::string getName() const { return mName; }
         size_t getWidth() const { return mThreads.size(); }

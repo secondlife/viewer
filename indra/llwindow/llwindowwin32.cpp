@@ -350,10 +350,10 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     LLWindowWin32Thread();
 
     void run() override;
-    void close() override;
 
-    // closes queue, wakes thread, waits until thread closes
-    void wakeAndDestroy();
+    // Closes queue, wakes thread, waits until thread closes.
+    // Call from main thread
+    bool wakeAndDestroy();
 
     void glReady()
     {
@@ -410,6 +410,15 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
+    LLAtomicBool mDeleteOnExit = false;
+    // best guess at available video memory in MB
+    std::atomic<U32> mAvailableVRAM;
+
+    U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
+
+    IDXGIAdapter3* mDXGIAdapter = nullptr;
+    LPDIRECT3D9 mD3D = nullptr;
+    LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
 
 
@@ -853,6 +862,7 @@ LLWindowWin32::~LLWindowWin32()
     }
 
     delete mDragDrop;
+    mDragDrop = NULL;
 
     delete [] mWindowTitle;
     mWindowTitle = NULL;
@@ -864,6 +874,7 @@ LLWindowWin32::~LLWindowWin32()
     mWindowClassName = NULL;
 
     delete mWindowThread;
+    mWindowThread = NULL;
 }
 
 void LLWindowWin32::show()
@@ -982,7 +993,11 @@ void LLWindowWin32::close()
     mhDC = NULL;
     mWindowHandle = NULL;
 
-    mWindowThread->wakeAndDestroy();
+    if (mWindowThread->wakeAndDestroy())
+    {
+        // thread will delete itselfs once done
+        mWindowThread = NULL;
+    }
 }
 
 bool LLWindowWin32::isValid()
@@ -3104,10 +3119,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         break;
         }
     }
-    else
+    else // (NULL == window_imp)
     {
-        // (NULL == window_imp)
         LL_DEBUGS("Window") << "No window implementation to handle message with, message code: " << U32(u_msg) << LL_ENDL;
+        if (u_msg == WM_DESTROY)
+        {
+            PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
+            return 0;
+        }
     }
 
     // pass unhandled messages down to Windows
@@ -4571,24 +4590,10 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, true /*should be false, temporary workaround for SL-18721*/)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
 {
     LL::ThreadPool::start();
 }
-
-void LLWindowWin32::LLWindowWin32Thread::close()
-{
-    if (!mQueue->isClosed())
-    {
-        LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
-        LL::ThreadPool::close();
-
-        // Workaround for SL-18721 in case window closes too early and abruptly
-        LLSplashScreen::show();
-        LLSplashScreen::update("..."); // will be updated later
-    }
-}
-
 
 /**
  * LogChange is to log changes in status while trying to avoid spamming the
@@ -4804,14 +4809,19 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 #endif
     }
+
+    if (mDeleteOnExit)
+    {
+        delete this;
+    }
 }
 
-void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
+bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 {
     if (mQueue->isClosed())
     {
         LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
-        return;
+        return false;
     }
 
     // Make sure we don't leave a blank toolbar button.
@@ -4822,33 +4832,33 @@ void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
     // Schedule destruction
     HWND old_handle = mWindowHandleThrd;
     post([this]()
-         {
-             if (IsWindow(mWindowHandleThrd))
-             {
-                 if (mhDCThrd)
-                 {
-                     if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
-                     {
-                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
-                     }
-                     mhDCThrd = NULL;
-                 }
+        {
+            if (IsWindow(mWindowHandleThrd))
+            {
+                if (mhDCThrd)
+                {
+                    if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
+                    {
+                        LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
+                    }
+                    mhDCThrd = NULL;
+                }
 
-                 // This causes WM_DESTROY to be sent *immediately*
-                 if (!destroy_window_handler(mWindowHandleThrd))
-                 {
-                     LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
-                 }
-             }
-             else
-             {
-                 // Something killed the window while we were busy destroying gl or handle somehow got broken
-                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
-             }
-             mWindowHandleThrd = NULL;
-             mhDCThrd = NULL;
-             mGLReady = false;
-         });
+                // This causes WM_DESTROY to be sent *immediately*
+                if (!destroy_window_handler(mWindowHandleThrd))
+                {
+                    LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
+                }
+            }
+            else
+            {
+                // Something killed the window while we were busy destroying gl or handle somehow got broken
+                LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+            }
+            mWindowHandleThrd = NULL;
+            mhDCThrd = NULL;
+            mGLReady = false;
+        });
 
     LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
     mQueue->close();
@@ -4906,6 +4916,7 @@ void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
         }
     }
     LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
+    return true;
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)
