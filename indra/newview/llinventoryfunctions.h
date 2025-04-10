@@ -126,6 +126,7 @@ enum EMyOutfitsSubfolderType
     MY_OUTFITS_NO,
     MY_OUTFITS_SUBFOLDER,
     MY_OUTFITS_OUTFIT,
+    MY_OUTFITS_SUBOUTFIT,
 };
 EMyOutfitsSubfolderType myoutfit_object_subfolder_type(
     LLInventoryModel* model,
