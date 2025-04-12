@@ -4846,39 +4846,60 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 {
     if (mQueue->isClosed())
     {
-        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." <<LL_ENDL;
+        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
         return false;
     }
 
-    // Make sure we don't leave a blank toolbar button.
-    // Also hiding window now prevents user from suspending it
-    // via some action (like dragging it around)
-    ShowWindow(mWindowHandleThrd, SW_HIDE);
-            mGLReady = false;
-
-    // Schedule destruction
-    HWND old_handle = mWindowHandleThrd;
-    mDeleteOnExit = true;
-    SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
-
-    // Let thread finish on its own and don't block main thread.
-    for (auto& pair : mThreads)
+    // Hide the window immediately to prevent user interaction during shutdown
+    if (mWindowHandleThrd)
     {
-        pair.second.detach();
+        ShowWindow(mWindowHandleThrd, SW_HIDE);
     }
 
+    mGLReady = false;
+
+    // Capture current handle before we lose it
+    HWND old_handle = mWindowHandleThrd;
+
+    // Clear the user data to prevent callbacks from finding us
+    if (old_handle)
+    {
+        SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
+    }
+
+    // Signal thread to clean up when done
+    mDeleteOnExit = true;
+
+    // Close the queue first
     LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
     mQueue->close();
 
-    // Post a nonsense user message to wake up the thread in
-    // case it is waiting for a getMessage()
+    // Wake up the thread if it's stuck in GetMessage()
     if (old_handle)
     {
         WPARAM wparam{ 0xB0B0 };
         LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
             << ", " << WM_DUMMY_
             << ", " << wparam << ")" << std::dec << LL_ENDL;
+
+        // Use PostMessage to signal thread to wake up
         PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
+    }
+
+    // Cleanly detach threads instead of joining them to avoid blocking the main thread
+    // This is acceptable since the thread will self-delete with mDeleteOnExit
+    for (auto& pair : mThreads)
+    {
+        try {
+            // Only detach if the thread is joinable
+            if (pair.second.joinable())
+            {
+                pair.second.detach();
+            }
+        }
+        catch (const std::system_error& e) {
+            LL_WARNS("Window") << "Exception detaching thread: " << e.what() << LL_ENDL;
+        }
     }
 
     LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
