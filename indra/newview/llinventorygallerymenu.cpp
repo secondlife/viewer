@@ -777,8 +777,8 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 if (res != MY_OUTFITS_OUTFIT && res != MY_OUTFITS_SUBOUTFIT)
                 {
                     items.push_back(std::string("New Outfit"));
+                    items.push_back(std::string("New Outfit Folder"));
                 }
-                items.push_back(std::string("New Outfit Folder"));
                 items.push_back(std::string("Delete"));
                 items.push_back(std::string("Rename"));
                 if (!get_is_category_and_children_removable(&gInventory, selected_id, false))
