@@ -828,8 +828,14 @@ void LLFolderViewItem::drawFavoriteIcon()
         constexpr S32 PAD = 3;
         constexpr S32 image_size = 14;
 
+        S32 width = mRoot->getVisibleContentWidth(); // star should stick to scroller's right side
+        if (width <= 0)
+        {
+            width = getRect().getWidth();
+        }
+
         gl_draw_scaled_image(
-            getRect().getWidth() - image_size - PAD, getRect().getHeight() - mItemHeight + PAD,
+            width - image_size - PAD, getRect().getHeight() - mItemHeight + PAD,
             image_size, image_size, favorite_image->getImage(), sFgColor);
     }
 }
