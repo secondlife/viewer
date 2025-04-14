@@ -3783,7 +3783,7 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                     is_movable = false;
                     tooltip_msg = LLTrans::getString("TooltipCantMoveOutfitIntoOutfit");
                 }
-                else if ((dest_res == MY_OUTFITS_OUTFIT || dest_res == MY_OUTFITS_SUBOUTFIT) && inv_res == MY_OUTFITS_SUBFOLDER)
+                else if (dest_res == MY_OUTFITS_OUTFIT || dest_res == MY_OUTFITS_SUBOUTFIT)
                 {
                     is_movable = false;
                     tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
