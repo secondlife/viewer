@@ -115,12 +115,12 @@ bool LLFloaterPerformance::postBuild()
     mHUDList = mHUDsPanel->getChild<LLNameListCtrl>("hud_list");
     mHUDList->setNameListType(LLNameListCtrl::SPECIAL);
     mHUDList->setHoverIconName("StopReload_Off");
-    mHUDList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
+    mHUDList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachObject, this, _1));
 
     mObjectList = mComplexityPanel->getChild<LLNameListCtrl>("obj_list");
     mObjectList->setNameListType(LLNameListCtrl::SPECIAL);
     mObjectList->setHoverIconName("StopReload_Off");
-    mObjectList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
+    mObjectList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachObject, this, _1));
 
     mSettingsPanel->getChild<LLButton>("advanced_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickAdvanced, this));
     mSettingsPanel->getChild<LLButton>("defaults_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickDefaults, this));
@@ -527,9 +527,13 @@ void LLFloaterPerformance::setFPSText()
     mTextFPSLabel->setValue(fps_text);
 }
 
-void LLFloaterPerformance::detachItem(const LLUUID& item_id)
+void LLFloaterPerformance::detachObject(const LLUUID& obj_id)
 {
-    LLAppearanceMgr::instance().removeItemFromAvatar(item_id);
+    LLViewerObject* obj = gObjectList.findObject(obj_id);
+    if (obj)
+    {
+        LLAppearanceMgr::instance().removeItemFromAvatar(obj->getAttachmentItemID());
+    }
 }
 
 void LLFloaterPerformance::onClickAdvanced()

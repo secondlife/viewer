@@ -417,6 +417,9 @@ public:
     bool    checkMessages(LockMessageChecker&, S64 frame_count = 0 );
     void    processAcks(LockMessageChecker&, F32 collect_time = 0.f);
 
+    // returns total number of buffered packets after the drain
+    S32     drainUdpSocket();
+
     bool    isMessageFast(const char *msg);
     bool    isMessage(const char *msg)
     {
@@ -535,7 +538,6 @@ public:
 
     //void  buildMessage();
 
-    S32     zeroCode(U8 **data, S32 *data_size);
     S32     zeroCodeExpand(U8 **data, S32 *data_size);
     S32     zeroCodeAdjustCurrentSendTotal();
 
@@ -752,6 +754,7 @@ public:
     S32     getReceiveBytes() const;
 
     S32     getUnackedListSize() const          { return mUnackedListSize; }
+    F32     getBufferLoadRate() const           { return mPacketRing.getBufferLoadRate(); }
 
     //const char* getCurrentSMessageName() const { return mCurrentSMessageName; }
     //const char* getCurrentSBlockName() const { return mCurrentSBlockName; }
@@ -839,12 +842,10 @@ private:
     LLUUID mSessionID;
 
     void    addTemplate(LLMessageTemplate *templatep);
-    bool        decodeTemplate( const U8* buffer, S32 buffer_size, LLMessageTemplate** msg_template );
 
     void        logMsgFromInvalidCircuit( const LLHost& sender, bool recv_reliable );
     void        logTrustedMsgFromUntrustedCircuit( const LLHost& sender );
     void        logValidMsg(LLCircuitData *cdp, const LLHost& sender, bool recv_reliable, bool recv_resent, bool recv_acks );
-    void        logRanOffEndOfPacket( const LLHost& sender );
 
     class LLMessageCountInfo
     {

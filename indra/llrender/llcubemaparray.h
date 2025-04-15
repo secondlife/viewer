@@ -36,6 +36,7 @@ class LLCubeMapArray : public LLRefCount
 {
 public:
     LLCubeMapArray();
+    LLCubeMapArray(LLCubeMapArray& lhs, U32 width, U32 count);
 
     static GLenum sTargets[6];
 
@@ -73,4 +74,5 @@ protected:
     U32 mWidth = 0;
     U32 mCount = 0;
     S32 mTextureStage;
+    bool mHDR;
 };

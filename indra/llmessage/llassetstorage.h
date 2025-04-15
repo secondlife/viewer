@@ -324,7 +324,8 @@ public:
 
     static void removeAndCallbackPendingDownloads(const LLUUID& file_id, LLAssetType::EType file_type,
                                                   const LLUUID& callback_id, LLAssetType::EType callback_type,
-                                                  S32 result_code, LLExtStat ext_status);
+                                                  S32 result_code, LLExtStat ext_status,
+                                                  S32 bytes_fetched);
 
     // download process callbacks
     static void downloadCompleteCallback(
