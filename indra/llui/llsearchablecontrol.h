@@ -43,9 +43,15 @@ namespace ll
             virtual ~SearchableControl()
             { }
 
-            const LLColor4& getHighlightColor( ) const
+            const LLColor4& getHighlightBgColor( ) const
             {
-                static LLUIColor highlight_color = LLUIColorTable::instance().getColor("SearchableControlHighlightColor", LLColor4::red);
+                static LLUIColor highlight_color = LLUIColorTable::instance().getColor("SearchableControlHighlightBgColor", LLColor4::red4);
+                return highlight_color.get();
+            }
+
+            const LLColor4& getHighlightFontColor() const
+            {
+                static LLUIColor highlight_color = LLUIColorTable::instance().getColor("SearchableControlHighlightFontColor", LLColor4::red4);
                 return highlight_color.get();
             }
 

@@ -3239,6 +3239,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("FetchInventory2");
     capabilityNames.append("FetchInventoryDescendents2");
     capabilityNames.append("IncrementCOFVersion");
+    capabilityNames.append("RequestTaskInventory");
     AISAPI::getCapNames(capabilityNames);
 
     capabilityNames.append("InterestList");

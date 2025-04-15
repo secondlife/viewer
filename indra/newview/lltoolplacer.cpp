@@ -527,7 +527,10 @@ bool LLToolPlacer::handleHover(S32 x, S32 y, MASK mask)
 
 void LLToolPlacer::handleSelect()
 {
-    gFloaterTools->setStatusText("place");
+    if (gFloaterTools)
+    {
+        gFloaterTools->setStatusText("place");
+    }
 }
 
 void LLToolPlacer::handleDeselect()

@@ -30,6 +30,7 @@
 
 #include "llviewertexturelist.h"
 
+#include "llagent.h"
 #include "llgl.h" // fot gathering stats from GL
 #include "llimagegl.h"
 #include "llimagebmp.h"
@@ -815,10 +816,19 @@ void LLViewerTextureList::updateImages(F32 max_time)
             clearFetchingRequests();
             gPipeline.clearRebuildGroups();
             cleared = true;
+            return;
         }
-        return;
+        // ARRIVING is a delay to let things decode, cache and process,
+        // so process textures like normal despite gTeleportDisplay
+        if (gAgent.getTeleportState() != LLAgent::TELEPORT_ARRIVING)
+        {
+            return;
+        }
     }
-    cleared = false;
+    else
+    {
+        cleared = false;
+    }
 
     LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
 
@@ -889,9 +899,12 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 {
     llassert(!gCubeSnapshot);
 
+    constexpr F32 BIAS_TRS_OUT_OF_SCREEN = 1.5f;
+    constexpr F32 BIAS_TRS_ON_SCREEN = 1.f;
+
     if (imagep->getBoostLevel() < LLViewerFetchedTexture::BOOST_HIGH)  // don't bother checking face list for boosted textures
     {
-        static LLCachedControl<F32> texture_scale_min(gSavedSettings, "TextureScaleMinAreaFactor", 0.04f);
+        static LLCachedControl<F32> texture_scale_min(gSavedSettings, "TextureScaleMinAreaFactor", 0.0095f);
         static LLCachedControl<F32> texture_scale_max(gSavedSettings, "TextureScaleMaxAreaFactor", 25.f);
 
         F32 max_vsize = 0.f;
@@ -900,7 +913,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         U32 face_count = 0;
 
         // get adjusted bias based on image resolution
-        F32 max_discard = F32(imagep->getMaxDiscardLevel());
+        LLImageGL* img = imagep->getGLTexture();
+        F32 max_discard = F32(img ? img->getMaxDiscardLevel() : MAX_DISCARD_LEVEL);
         F32 bias = llclamp(max_discard - 2.f, 1.f, LLViewerTexture::sDesiredDiscardBias);
 
         // convert bias into a vsize scaler
@@ -929,12 +943,13 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
                     F32 vsize = face->getPixelArea();
 
-                    on_screen = face->mInFrustum;
+                    on_screen |= face->mInFrustum;
 
                     // Scale desired texture resolution higher or lower depending on texture scale
                     //
-                    // Minimum usage examples: a 1024x1024 texture with aplhabet, runing string
-                    // shows one letter at a time
+                    // Minimum usage examples: a 1024x1024 texture with aplhabet (texture atlas),
+                    // runing string shows one letter at a time. If texture has ten 100px symbols
+                    // per side, minimal scale is (100/1024)^2 = 0.0095
                     //
                     // Maximum usage examples: huge chunk of terrain repeats texture
                     // TODO: make this work with the GLTF texture transforms
@@ -946,7 +961,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     vsize /= min_scale;
 
                     // apply bias to offscreen faces all the time, but only to onscreen faces when bias is large
-                    if (!face->mInFrustum || LLViewerTexture::sDesiredDiscardBias > 2.f)
+                    // use mImportanceToCamera to make bias switch a bit more gradual
+                    if (!face->mInFrustum || LLViewerTexture::sDesiredDiscardBias > 1.9f + face->mImportanceToCamera / 2.f)
                     {
                         vsize /= bias;
                     }
@@ -959,7 +975,20 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     }
 
                     max_vsize = llmax(max_vsize, vsize);
+
+                    // addTextureStats limits size to sMaxVirtualSize
+                    if (max_vsize >= LLViewerFetchedTexture::sMaxVirtualSize
+                        && (on_screen || LLViewerTexture::sDesiredDiscardBias <= BIAS_TRS_ON_SCREEN))
+                    {
+                        break;
+                    }
                 }
+            }
+
+            if (max_vsize >= LLViewerFetchedTexture::sMaxVirtualSize
+                && (on_screen || LLViewerTexture::sDesiredDiscardBias <= BIAS_TRS_ON_SCREEN))
+            {
+                break;
             }
         }
 
@@ -967,6 +996,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         { // this texture is used in so many places we should just boost it and not bother checking its vsize
             // this is especially important because the above is not time sliced and can hit multiple ms for a single texture
             imagep->setBoostLevel(LLViewerFetchedTexture::BOOST_HIGH);
+            // Do we ever remove it? This also sets texture nodelete!
         }
 
         if (imagep->getType() == LLViewerTexture::LOD_TEXTURE && imagep->getBoostLevel() == LLViewerTexture::BOOST_NONE)
@@ -974,8 +1004,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
           // this is an alternative to decaying mMaxVirtualSize over time
           // that keeps textures from continously downrezzing and uprezzing in the background
 
-        if (LLViewerTexture::sDesiredDiscardBias > 1.5f ||
-                (!on_screen && LLViewerTexture::sDesiredDiscardBias > 1.f))
+            if (LLViewerTexture::sDesiredDiscardBias > BIAS_TRS_OUT_OF_SCREEN ||
+                (!on_screen && LLViewerTexture::sDesiredDiscardBias > BIAS_TRS_ON_SCREEN))
             {
                 imagep->mMaxVirtualSize = 0.f;
             }
