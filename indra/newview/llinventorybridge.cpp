@@ -3648,6 +3648,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
         move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("move_to_marketplace_listings" != action), (("copy_or_move_to_marketplace_listings" == action)));
     }
+    else if ("copy_folder_uuid" == action)
+    {
+        LLInventoryCategory* cat = gInventory.getCategory(mUUID);
+        if (!cat) return;
+        gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(mUUID.asString()));
+        return;
+    }
 }
 
 void LLFolderBridge::gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level)
@@ -4527,6 +4534,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     {
         disabled_items.push_back(std::string("Delete System Folder"));
     }
+    else
+    {
+        static LLCachedControl<bool> show_copy_id(gSavedSettings, "InventoryExposeFolderID", false);
+        if (show_copy_id())
+        {
+            items.push_back(std::string("Copy UUID"));
+        }
+    }
 
     if (isAgentInventory() && !isMarketplaceListingsFolder())
     {
@@ -5376,7 +5391,7 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
 
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
-    inventory_func_type func = boost::bind(&LLFolderBridge::outfitFolderCreatedCallback, this, inv_cat->getUUID(), _1, cb);
+    inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
     gInventory.createNewCategory(dest_id,
                                  LLFolderType::FT_OUTFIT,
                                  inv_cat->getName(),
@@ -5384,11 +5399,25 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
                                  inv_cat->getThumbnailUUID());
 }
 
-void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, LLPointer<LLInventoryCallback> cb)
+void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id,
+                                                 LLUUID cat_dest_id,
+                                                 LLPointer<LLInventoryCallback> cb,
+                                                 LLHandle<LLInventoryPanel> inventory_panel)
 {
     LLInventoryModel::cat_array_t* categories;
     LLInventoryModel::item_array_t* items;
-    getInventoryModel()->getDirectDescendentsOf(cat_source_id, categories, items);
+
+    LLInventoryPanel* panel = inventory_panel.get();
+    if (!panel)
+    {
+        return;
+    }
+    LLInventoryModel*  model = panel->getModel();
+    if (!model)
+    {
+        return;
+    }
+    model->getDirectDescendentsOf(cat_source_id, categories, items);
 
     LLInventoryObject::const_object_list_t link_array;
 

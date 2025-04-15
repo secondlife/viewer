@@ -887,7 +887,7 @@ class LLNotifications :
 {
     LLSINGLETON(LLNotifications);
     LOG_CLASS(LLNotifications);
-    virtual ~LLNotifications() {}
+    virtual ~LLNotifications();
 
 public:
 

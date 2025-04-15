@@ -263,7 +263,12 @@ void main()
     vec3 refPos = getPositionWithNDC(vec3(distort*2.0-vec2(1.0), depth*2.0-1.0));
 
     // Calculate some distance fade in the water to better assist with refraction blending and reducing the refraction texture's "disconnect".
-    fade = max(0,min(1, (pos.z - refPos.z) / 10)) * water_mask;
+#ifdef SHORELINE_FADE
+    fade = max(0,min(1, (pos.z - refPos.z) / 10));
+#else
+    fade = 1;
+#endif
+    fade *= water_mask;
     distort2 = mix(distort, distort2, min(1, fade * 10));
     depth = texture(depthMap, distort2).r;
 

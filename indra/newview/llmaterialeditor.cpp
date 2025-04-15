@@ -2862,9 +2862,16 @@ void LLMaterialEditor::importMaterial(const LLUUID dest_folder)
                 {
                     return;
                 }
-                if (filenames.size() > 0)
+                try
                 {
-                    LLMaterialEditor::loadMaterialFromFile(filenames[0], -1, dest_folder);
+                    if (filenames.size() > 0)
+                    {
+                        LLMaterialEditor::loadMaterialFromFile(filenames[0], -1, dest_folder);
+                    }
+                }
+                catch (std::bad_alloc&)
+                {
+                    LLNotificationsUtil::add("CannotOpenFileTooBig");
                 }
             },
         LLFilePicker::FFLOAD_MATERIAL,

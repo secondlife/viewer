@@ -295,7 +295,15 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
     }
     else
     {
-        result = this->handleSuccess(response, status);
+        try
+        {
+            result = this->handleSuccess(response, status);
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("CoreHTTP") << "Failed to allocate memory for response handling." << LL_ENDL;
+        }
     }
 
     buildStatusEntry(response, status, result);

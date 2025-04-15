@@ -2466,7 +2466,10 @@ void LLAgent::endAnimationUpdateUI()
         gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
     }
 
-    gFloaterTools->dirty();
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 
     // Don't let this be called more than once if the camera
     // mode hasn't changed.  --JC
@@ -4278,9 +4281,14 @@ void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 {
-    bool is_local(false);
-    LLViewerRegion* regionp  = getRegion();
+    LLViewerRegion* regionp = getRegion();
+    if (!regionp)
+    {
+        LL_WARNS("Teleport") << "called when agent region is null" << LL_ENDL;
+        return;
+    }
 
+    bool is_local(false);
     if (LLLandmark* landmark = gLandmarkList.getAsset(landmark_asset_id, NULL))
     {
         LLVector3d pos_global;

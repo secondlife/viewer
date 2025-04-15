@@ -102,7 +102,15 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
     msg->getS32     ("Data", "SalePrice", parcel_data.sale_price);
     msg->getS32     ("Data", "AuctionID", parcel_data.auction_id);
 
-    LLRemoteParcelInfoProcessor::observer_multimap_t & observers = LLRemoteParcelInfoProcessor::getInstance()->mObservers;
+    LLRemoteParcelInfoProcessor* inst = LLRemoteParcelInfoProcessor::getInstance();
+
+    requests_map_t::const_iterator found = inst->mPendingParcelRequests.find(parcel_data.parcel_id);
+    if (found != inst->mPendingParcelRequests.end())
+    {
+        inst->mPendingParcelRequests.erase(found);
+    }
+
+    LLRemoteParcelInfoProcessor::observer_multimap_t & observers = inst->mObservers;
 
     typedef std::vector<observer_multimap_t::iterator> deadlist_t;
     deadlist_t dead_iters;
@@ -151,6 +159,15 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 
 void LLRemoteParcelInfoProcessor::sendParcelInfoRequest(const LLUUID& parcel_id)
 {
+    constexpr F32 DUPPLICATE_TIMEOUT = 0.5f;
+    requests_map_t::const_iterator found = mPendingParcelRequests.find(parcel_id);
+    if (found != mPendingParcelRequests.end() && found->second.getElapsedTimeF32() < DUPPLICATE_TIMEOUT)
+    {
+        // recently requested
+        return;
+    }
+    mPendingParcelRequests[parcel_id].reset();
+
     LLMessageSystem *msg = gMessageSystem;
 
     msg->newMessage("ParcelInfoRequest");

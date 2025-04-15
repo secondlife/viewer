@@ -14,7 +14,7 @@ teksturer
 teksturer
 			</text>
 			<button label="Vis IDs på skærm" label_selected="Dump" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Hår" name="hair-baked"/>
 				<texture_picker label="Hår" name="hair_grain"/>
 				<texture_picker label="Alpha - hår" name="hair_alpha"/>

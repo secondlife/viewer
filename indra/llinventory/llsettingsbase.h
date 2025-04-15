@@ -348,12 +348,7 @@ protected:
     LLSettingsBase();
     LLSettingsBase(const LLSD setting);
 
-    static LLSD settingValidation(LLSD settings);
-
     typedef std::set<std::string>   stringset_t;
-
-    // combining settings objects. Customize for specific setting types
-    virtual void lerpSettings(LLSettingsBase &other, BlendFactor mix);
 
     // combining settings maps where it can based on mix rate
     // @settings initial value (mix==0)

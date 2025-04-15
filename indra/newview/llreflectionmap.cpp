@@ -52,6 +52,9 @@ LLReflectionMap::~LLReflectionMap()
 void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 near_clip, bool useClipPlane, LLPlane clipPlane)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    if (!mCubeArray.notNull())
+        return;
+
     mLastUpdateTime = gFrameTimeSeconds;
     llassert(mCubeArray.notNull());
     llassert(mCubeIndex != -1);

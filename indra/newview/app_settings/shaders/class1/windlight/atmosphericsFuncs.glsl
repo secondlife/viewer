@@ -154,6 +154,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
     if (classic_mode < 1)
     {
         amblit = srgb_to_linear(amblit);
+        amblit = vec3(dot(amblit, vec3(0.2126, 0.7152, 0.0722)));
         sunlit = srgb_to_linear(sunlit);
     }
 

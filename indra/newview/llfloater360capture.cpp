@@ -693,7 +693,15 @@ void LLFloater360Capture::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
                                         );
 
                 // execute the command on the page
-                mWebBrowser->getMediaPlugin()->executeJavaScript(cmd);
+                LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
+                if (plugin)
+                {
+                    plugin->executeJavaScript(cmd);
+                }
+                else
+                {
+                    LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
+                }
             }
         }
         break;
@@ -774,7 +782,15 @@ void LLFloater360Capture::onSaveLocalBtn()
 
     // send it to the browser instance, triggering the equirectangular capture
     // process and complimentary offer to save the image
-    mWebBrowser->getMediaPlugin()->executeJavaScript(cmd);
+    LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
+    if (plugin)
+    {
+        plugin->executeJavaScript(cmd);
+    }
+    else
+    {
+        LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
+    }
 }
 
 // We capture all 6 images sequentially and if parts of the world are moving

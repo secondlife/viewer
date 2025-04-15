@@ -310,25 +310,54 @@ namespace
 
 static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
-U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
 {
-    if (code == STATUS_MSC_EXCEPTION)
+    if (LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
+    {
+        // Handled
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else if (code == STATUS_MSC_EXCEPTION)
     {
         // C++ exception, go on
         return EXCEPTION_CONTINUE_SEARCH;
     }
     else
     {
-        // handle it
+        // handle it, convert to std::exception
         return EXCEPTION_EXECUTE_HANDLER;
+    }
+
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+void cpphandle(const LLCoros::callable_t& callable, const std::string& name)
+{
+    // SE and C++ can not coexists, thus two handlers
+    try
+    {
+        callable();
+    }
+    catch (const LLCoros::Stop& exc)
+    {
+        LL_INFOS("LLCoros") << "coroutine " << name << " terminating because "
+            << exc.what() << LL_ENDL;
+    }
+    catch (const LLContinueError&)
+    {
+        // Any uncaught exception derived from LLContinueError will be caught
+        // here and logged. This coroutine will terminate but the rest of the
+        // viewer will carry on.
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
 }
 
-void sehandle(const LLCoros::callable_t& callable)
+void sehandle(const LLCoros::callable_t& callable, const std::string& name)
 {
     __try
     {
-        callable();
+        // handle stop and continue exceptions first
+        cpphandle(callable, name);
     }
     __except (exception_filter(GetExceptionCode(), GetExceptionInformation()))
     {
@@ -340,16 +369,7 @@ void sehandle(const LLCoros::callable_t& callable)
         throw std::exception(integer_string);
     }
 }
-
-#else  // ! LL_WINDOWS
-
-inline void sehandle(const LLCoros::callable_t& callable)
-{
-    callable();
-}
-
-#endif // ! LL_WINDOWS
-
+#endif // LL_WINDOWS
 } // anonymous namespace
 
 // Top-level wrapper around caller's coroutine callable.
@@ -362,10 +382,14 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // set it as current
     mCurrent.reset(&corodata);
 
+#ifdef LL_WINDOWS
+    // can not use __try directly, toplevel requires unwinding, thus use of a wrapper
+    sehandle(callable, name);
+#else // LL_WINDOWS
     // run the code the caller actually wants in the coroutine
     try
     {
-        sehandle(callable);
+        callable();
     }
     catch (const Stop& exc)
     {
@@ -387,6 +411,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
                             << name << LL_ENDL;
         LLCoros::instance().saveException(name, std::current_exception());
     }
+#endif // else LL_WINDOWS
 }
 
 //static

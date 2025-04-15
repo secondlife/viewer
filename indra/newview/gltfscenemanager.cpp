@@ -69,9 +69,16 @@ void GLTFSceneManager::load()
                 {
                     return;
                 }
-                if (filenames.size() > 0)
+                try
                 {
-                    GLTFSceneManager::instance().load(filenames[0]);
+                    if (filenames.size() > 0)
+                    {
+                        GLTFSceneManager::instance().load(filenames[0]);
+                    }
+                }
+                catch (std::bad_alloc&)
+                {
+                    LLNotificationsUtil::add("CannotOpenFileTooBig");
                 }
             },
             LLFilePicker::FFLOAD_GLTF,

@@ -35,20 +35,22 @@ class LLPacketBuffer
 {
 public:
     LLPacketBuffer(const LLHost &host, const char *datap, const S32 size);
-    LLPacketBuffer(S32 hSocket);           // receive a packet
+    LLPacketBuffer(S32 hSocket);    // receive a packet
     ~LLPacketBuffer();
 
     S32         getSize() const                 { return mSize; }
     const char  *getData() const                { return mData; }
     LLHost      getHost() const                 { return mHost; }
     LLHost      getReceivingInterface() const   { return mReceivingIF; }
+
     void init(S32 hSocket);
+    void init(const char* buffer, S32 data_size, const LLHost& host);
 
 protected:
-    char    mData[NET_BUFFER_SIZE];        // packet data       /* Flawfinder : ignore */
-    S32     mSize;          // size of buffer in bytes
-    LLHost  mHost;         // source/dest IP and port
-    LLHost  mReceivingIF;         // source/dest IP and port
+    char    mData[NET_BUFFER_SIZE]; // packet data       /* Flawfinder : ignore */
+    S32     mSize;                  // size of buffer in bytes
+    LLHost  mHost;                  // source/dest IP and port
+    LLHost  mReceivingIF;           // source/dest IP and port
 };
 
 #endif
