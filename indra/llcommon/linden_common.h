@@ -28,12 +28,6 @@
 #define LL_LINDEN_COMMON_H
 
 #include "llprofiler.h"
-#if TRACY_ENABLE && !defined(LL_PROFILER_ENABLE_TRACY_OPENGL)  // hooks for memory profiling
-void *tracy_aligned_malloc(size_t size, size_t alignment);
-void  tracy_aligned_free(void *memblock);
-#define _aligned_malloc(X, Y) tracy_aligned_malloc((X), (Y))
-#define _aligned_free(X)      tracy_aligned_free((X))
-#endif
 
 // *NOTE:  Please keep includes here to a minimum!
 //

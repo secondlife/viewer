@@ -63,8 +63,9 @@
 
 #include "tinygltf/tiny_gltf.h"
 #include "lltinygltfhelper.h"
-#include <strstream>
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 const std::string MATERIAL_BASE_COLOR_DEFAULT_NAME = "Base Color";
 const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
@@ -1245,7 +1246,7 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
 {
     LLSD asset;
 
-    std::istrstream str(&buffer[0], buffer.size());
+    boost::iostreams::stream<boost::iostreams::array_source> str(buffer.data(), buffer.size());
     if (LLSDSerialize::deserialize(asset, str, buffer.size()))
     {
         if (asset.has("version") && LLGLTFMaterial::isAcceptedVersion(asset["version"].asString()))

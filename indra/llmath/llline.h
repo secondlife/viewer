@@ -40,7 +40,7 @@ class LLLine
 public:
     LLLine();
     LLLine( const LLVector3& first_point, const LLVector3& second_point );
-    virtual ~LLLine() {};
+    ~LLLine() = default;
 
     void setPointDirection( const LLVector3& first_point, const LLVector3& second_point );
     void setPoints( const LLVector3& first_point, const LLVector3& second_point );
@@ -76,5 +76,8 @@ protected:
     LLVector3 mDirection;
 };
 
+static_assert(std::is_trivially_copyable<LLLine>::value, "LLLine must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLLine>::value, "LLLine must be trivial move");
+static_assert(std::is_standard_layout<LLLine>::value, "LLLine must be a standard layout type");
 
 #endif

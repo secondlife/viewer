@@ -1409,7 +1409,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
            "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
 
 set_source_files_properties(
-   llversioninfo.cpp tests/llversioninfo_test.cpp 
+   llversioninfo.cpp tests/llversioninfo_test.cpp
    PROPERTIES
    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
    )
@@ -1453,7 +1453,7 @@ if (DARWIN)
   set(viewer_RESOURCE_FILES
     secondlife.icns
     Info-SecondLife.plist
-    SecondLife.xib/
+    SecondLife.xib
     # CMake doesn't seem to support Xcode language variants well just yet
     English.lproj/InfoPlist.strings
     English.lproj/language.txt
@@ -1623,7 +1623,7 @@ endif (WINDOWS)
 file(GLOB_RECURSE viewer_XUI_FILES LIST_DIRECTORIES FALSE
     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*.xml)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/skins PREFIX "XUI Files" FILES ${viewer_XUI_FILES})
-set_source_files_properties(${viewer_XUI_FILES} 
+set_source_files_properties(${viewer_XUI_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 
@@ -1631,7 +1631,7 @@ list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES FALSE
     ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders/*.glsl)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders PREFIX "Shaders" FILES ${viewer_SHADER_FILES})
-set_source_files_properties(${viewer_SHADER_FILES} 
+set_source_files_properties(${viewer_SHADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
@@ -1749,7 +1749,7 @@ if (WINDOWS)
     # And of course it's straightforward to read a text file in Python.
 
     set(COPY_INPUT_DEPENDENCIES
-      # The following commented dependencies are determined at variably at build time. Can't do this here.
+      # The following commented dependencies are determined variably at build time. Can't do this here.
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
@@ -1926,6 +1926,7 @@ if (WINDOWS)
 elseif (DARWIN)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
+        RESOURCE SecondLife.xib
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
         )
 else (WINDOWS)
@@ -1949,7 +1950,7 @@ endif (WINDOWS)
 # one of these being libz where you can find four or more versions in play
 # at once.  On Linux, libz can be found at link and run time via a number
 # of paths:
-#     
+#
 #      => -lfreetype
 #        => libz.so.1 (on install machine, not build)
 #      => -lSDL
@@ -1982,12 +1983,12 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcommon
         llmeshoptimizer
         llwebrtc
-        ll::ndof
         lllogin
         llprimitive
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
+        ll::ndof
         ll::tracy
         ll::openxr
         )
@@ -2021,7 +2022,7 @@ foreach(elem ${country_codes})
    set(emoji_mapping_src_file
       "${emoji_mapping_src_folder}/${elem}/emoji_characters.xml")
    set(emoji_mapping_dst_file
-      "${emoji_mapping_dst_folder}/${elem}/emoji_characters.xml")      
+      "${emoji_mapping_dst_folder}/${elem}/emoji_characters.xml")
    configure_file(${emoji_mapping_src_file} ${emoji_mapping_dst_file} COPYONLY)
 endforeach()
 
@@ -2121,16 +2122,14 @@ if (DARWIN)
 
   # https://blog.kitware.com/upcoming-in-cmake-2-8-12-osx-rpath-support/
   set(CMAKE_MACOSX_RPATH 1)
-  
+
   set_target_properties(
     ${VIEWER_BINARY_NAME}
     PROPERTIES
     OUTPUT_NAME "${product}"
     # From Contents/MacOS/SecondLife, look in Contents/Frameworks
-    INSTALL_RPATH "@loader_path/../Frameworks"
-    # SIGH, as of 2018-05-24 (cmake 3.11.1) the INSTALL_RPATH property simply
-    # does not work. Try this:
-    LINK_FLAGS "-rpath @loader_path/../Frameworks"
+    BUILD_WITH_INSTALL_RPATH 1
+    INSTALL_RPATH "@executable_path/../Frameworks"
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${MACOSX_BUNDLE_GUI_IDENTIFIER}"
     )
@@ -2163,9 +2162,6 @@ if (DARWIN)
       --grid=${GRID}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-    DEPENDS
-      ${VIEWER_BINARY_NAME}
-      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
@@ -2199,8 +2195,6 @@ if (DARWIN)
               --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/.${product}.bat
               --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
               ${SIGNING_SETTING}
-        DEPENDS
-          ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
   endif (PACKAGE)
 endif (DARWIN)
@@ -2240,7 +2234,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
             PROPERTIES
             XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
             XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/dSYMs")
-    
+
       add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
         COMMAND "zip"
         ARGS
@@ -2275,7 +2269,7 @@ if (LL_TESTS)
 #    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
-#    llvocache.cpp  
+#    llvocache.cpp
     llworldmap.cpp
     llworldmipmap.cpp
   )
@@ -2284,7 +2278,7 @@ if (LL_TESTS)
     llworldmap.cpp
     llworldmipmap.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    LL_TEST_ADDITIONAL_SOURCE_FILES
     tests/llviewertexture_stub.cpp
     #llviewertexturelist.cpp
   )
@@ -2318,7 +2312,7 @@ if (LL_TESTS)
     llworldmap.cpp
     llworldmipmap.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    LL_TEST_ADDITIONAL_SOURCE_FILES
     tests/llviewertexture_stub.cpp
   )
 

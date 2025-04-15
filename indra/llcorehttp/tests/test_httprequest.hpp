@@ -454,6 +454,10 @@ void HttpRequestTestObjectType::test<4>()
 template <> template <>
 void HttpRequestTestObjectType::test<5>()
 {
+#ifndef LL_WINDOWS
+    skip("Skip due to issues with testing pthread cancellation");
+#endif
+
     ScopedCurlInit ready;
 
     set_test_name("HttpRequest Spin (soft) + NoOp + hard termination");
@@ -517,6 +521,9 @@ void HttpRequestTestObjectType::test<5>()
 template <> template <>
 void HttpRequestTestObjectType::test<6>()
 {
+#ifndef LL_WINDOWS
+    skip("Skip due to issues with testing pthread cancellation");
+#endif
     ScopedCurlInit ready;
 
     set_test_name("HttpRequest Spin + NoOp + hard termination");

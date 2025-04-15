@@ -43,6 +43,7 @@
 #include "llglheaders.h"
 #include "llmatrix4a.h"
 #include "glm/mat4x4.hpp"
+#include <boost/align/aligned_allocator.hpp>
 
 #include <array>
 #include <list>
@@ -227,13 +228,9 @@ protected:
     S32                 mIndex;
     U32                 mCurrTexture;
     eTextureType        mCurrTexType;
-    S32                 mCurrColorScale;
-    S32                 mCurrAlphaScale;
     bool                mHasMipMaps;
 
     void debugTextureUnit(void);
-    void setColorScale(S32 scale);
-    void setAlphaScale(S32 scale);
     GLint getTextureSource(eTextureBlendSrc src);
     GLint getTextureSourceType(eTextureBlendSrc src, bool isAlpha = false);
 };
@@ -526,8 +523,8 @@ private:
     eBlendFactor mCurrBlendAlphaSFactor;
     eBlendFactor mCurrBlendAlphaDFactor;
 
-    std::vector<LLVector3> mUIOffset;
-    std::vector<LLVector3> mUIScale;
+    std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 16> > mUIOffset;
+    std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 16> > mUIScale;
 };
 
 extern F32 gGLModelView[16];
