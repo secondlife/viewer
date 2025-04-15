@@ -64,6 +64,7 @@ public:
     S32 getNumBufferedBytes() const { return mNumBufferedBytes; }
     S32 getNumDroppedPackets() const { return mNumDroppedPacketsTotal + mNumDroppedPackets; }
 
+    F32 getBufferLoadRate() const; // from 0 to 4 (0 - empty, 1 - default size is full)
     void dumpPacketRingStats();
 protected:
     // returns 'true' if we should intentionally drop a packet

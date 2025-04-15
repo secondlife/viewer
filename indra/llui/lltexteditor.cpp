@@ -209,8 +209,15 @@ public:
     }
     virtual bool execute( LLTextBase* editor, S32* delta )
     {
-        mWString = editor->getWText().substr(getPosition(), mLen);
-        *delta = remove(editor, getPosition(), mLen );
+        try
+        {
+            mWString = editor->getWText().substr(getPosition(), mLen);
+            *delta = remove(editor, getPosition(), mLen);
+        }
+        catch (std::out_of_range&)
+        {
+            return false;
+        }
         return (*delta != 0);
     }
     virtual S32 undo( LLTextBase* editor )
@@ -1209,6 +1216,14 @@ void LLTextEditor::showEmojiHelper()
     const LLRect cursorRect(getLocalRectFromDocIndex(mCursorPos));
     auto cb = [this](llwchar emoji) { insertEmoji(emoji); };
     LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, LLStringUtil::null, cb);
+}
+
+void LLTextEditor::hideEmojiHelper()
+{
+    if (mShowEmojiHelper)
+    {
+        LLEmojiHelper::instance().hideHelper(this);
+    }
 }
 
 void LLTextEditor::tryToShowEmojiHelper()

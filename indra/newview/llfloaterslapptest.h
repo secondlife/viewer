@@ -1,12 +1,9 @@
 /**
- * @file   groupchatlistener.h
- * @author Nat Goodspeed
- * @date   2011-04-11
- * @brief
+ * @file llfloaterslapptest.h
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2025&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2025, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,20 +23,20 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLGROUPCHATLISTENER_H)
-#define LL_LLGROUPCHATLISTENER_H
+#ifndef LL_LLFLOATERSLAPPTEST_H
+#define LL_LLFLOATERSLAPPTEST_H
 
-#include "lleventapi.h"
+#include "llfloater.h"
 
-class LLGroupChatListener: public LLEventAPI
+class LLFloaterSLappTest:
+    public LLFloater
 {
-public:
-    LLGroupChatListener();
+    friend class LLFloaterReg;
+    virtual bool postBuild() override;
 
 private:
-    void startGroupChat(LLSD const &data);
-    void leaveGroupChat(LLSD const &data);
-    void sendGroupIM(LLSD const &data);
+    LLFloaterSLappTest(const LLSD& key);
+    ~LLFloaterSLappTest();
 };
 
-#endif /* ! defined(LL_LLGROUPCHATLISTENER_H) */
+#endif

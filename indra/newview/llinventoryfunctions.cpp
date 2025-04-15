@@ -2493,6 +2493,40 @@ bool can_share_item(const LLUUID& item_id)
 
     return can_share;
 }
+
+EMyOutfitsSubfolderType myoutfit_object_subfolder_type(
+    LLInventoryModel* model,
+    const LLUUID& obj_id,
+    const LLUUID& my_outfits_id)
+{
+    if (obj_id == my_outfits_id) return MY_OUTFITS_NO;
+
+    const LLViewerInventoryCategory* test_cat = model->getCategory(obj_id);
+    if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+    {
+        return MY_OUTFITS_OUTFIT;
+    }
+    while (test_cat)
+    {
+        if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+        {
+            return MY_OUTFITS_SUBOUTFIT;
+        }
+
+        const LLUUID& parent_id = test_cat->getParentUUID();
+        if (parent_id.isNull())
+        {
+            return MY_OUTFITS_NO;
+        }
+        if (parent_id == my_outfits_id)
+        {
+            return MY_OUTFITS_SUBFOLDER;
+        }
+        test_cat = model->getCategory(parent_id);
+    }
+
+    return MY_OUTFITS_NO;
+}
 ///----------------------------------------------------------------------------
 /// LLMarketplaceValidator implementations
 ///----------------------------------------------------------------------------
@@ -2619,6 +2653,11 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryIte
             break;
     }
     return false;
+}
+
+bool LLIsFolderType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    return cat && cat->getPreferredType() == mType;
 }
 
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

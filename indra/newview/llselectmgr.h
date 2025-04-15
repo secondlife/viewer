@@ -242,6 +242,8 @@ public:
     gltf_materials_vec_t mSavedGLTFOverrideMaterials;
     std::vector<LLVector3>  mTextureScaleRatios;
     std::vector< std::vector<LLVector3> >  mGLTFScaleRatios;
+    std::vector< std::vector<LLVector2> >  mGLTFScales;
+    std::vector< std::vector<LLVector2> >  mGLTFOffsets;
     std::vector<LLVector3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
     std::vector<LLVector3>  mSilhouetteNormals; // array of normals to render silhouette of object
     bool                    mSilhouetteExists;  // need to generate silhouette?
@@ -836,6 +838,7 @@ public:
     void getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const;
 
     void updatePointAt();
+    void clearWaterExclusion();
 
     // Internal list maintenance functions. TODO: Make these private!
     void remove(std::vector<LLViewerObject*>& objects);

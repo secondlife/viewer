@@ -1,12 +1,9 @@
 /**
- * @file   groupchatlistener.h
- * @author Nat Goodspeed
- * @date   2011-04-11
- * @brief
+ * @file llfloaterslapptest.cpp
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2025&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2025, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,20 +23,29 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLGROUPCHATLISTENER_H)
-#define LL_LLGROUPCHATLISTENER_H
+#include "llviewerprecompiledheaders.h"
 
-#include "lleventapi.h"
+#include "llfloaterslapptest.h"
+#include "lluictrlfactory.h"
 
-class LLGroupChatListener: public LLEventAPI
+#include "lllineeditor.h"
+#include "lltextbox.h"
+
+LLFloaterSLappTest::LLFloaterSLappTest(const LLSD& key)
+    :   LLFloater("floater_test_slapp")
 {
-public:
-    LLGroupChatListener();
+}
 
-private:
-    void startGroupChat(LLSD const &data);
-    void leaveGroupChat(LLSD const &data);
-    void sendGroupIM(LLSD const &data);
-};
+LLFloaterSLappTest::~LLFloaterSLappTest()
+{}
 
-#endif /* ! defined(LL_LLGROUPCHATLISTENER_H) */
+bool LLFloaterSLappTest::postBuild()
+{
+    getChild<LLLineEditor>("remove_folder_id")->setKeystrokeCallback([this](LLLineEditor* editor, void*)
+        {
+            std::string slapp(getString("remove_folder_slapp"));
+            getChild<LLTextBox>("remove_folder_txt")->setValue(slapp + editor->getValue().asString());
+        }, NULL);
+
+    return true;
+}

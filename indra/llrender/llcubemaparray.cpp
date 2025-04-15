@@ -105,6 +105,36 @@ LLCubeMapArray::LLCubeMapArray()
 
 }
 
+LLCubeMapArray::LLCubeMapArray(LLCubeMapArray& lhs, U32 width, U32 count) : mTextureStage(0)
+{
+    mWidth = width;
+    mCount = count;
+
+    // Allocate a new cubemap array with the same criteria as the incoming cubemap array
+    allocate(mWidth, lhs.mImage->getComponents(), count, lhs.mImage->getUseMipMaps(), lhs.mHDR);
+
+    // Copy each cubemap from the incoming array to the new array
+    U32 min_count = std::min(count, lhs.mCount);
+    for (U32 i = 0; i < min_count * 6; ++i)
+    {
+        U32 src_resolution = lhs.mWidth;
+        U32 dst_resolution = mWidth;
+        {
+            GLint components = GL_RGB;
+            if (mImage->getComponents() == 4)
+                components = GL_RGBA;
+            GLint format = GL_RGB;
+
+            // Handle different resolutions by scaling the image
+            LLPointer<LLImageRaw> src_image = new LLImageRaw(lhs.mWidth, lhs.mWidth, lhs.mImage->getComponents());
+            glGetTexImage(GL_TEXTURE_CUBE_MAP_ARRAY, 0, components, GL_UNSIGNED_BYTE, src_image->getData());
+
+            LLPointer<LLImageRaw> scaled_image = src_image->scaled(mWidth, mWidth);
+            glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, i, mWidth, mWidth, 1, components, GL_UNSIGNED_BYTE, scaled_image->getData());
+        }
+    }
+}
+
 LLCubeMapArray::~LLCubeMapArray()
 {
 }
@@ -114,6 +144,8 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
     U32 texname = 0;
     mWidth = resolution;
     mCount = count;
+
+    mHDR = hdr;
 
     LLImageGL::generateTextures(1, &texname);
 

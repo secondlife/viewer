@@ -42,7 +42,7 @@
 		建製設置 [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 第二人生URL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 （全域坐標：[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]）
 [SERVER_VERSION]
@@ -69,7 +69,6 @@
 頻寬：[NET_BANDWITH]千位元/秒
 細節層次率：[LOD_FACTOR]
 呈像品質：[RENDER_QUALITY]
-進階照明模型：[GPU_SHADERS]
 材質記憶體：[TEXTURE_MEMORY]MB
 	</string>
 	<string name="AboutOSXHiDPI">

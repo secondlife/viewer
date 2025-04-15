@@ -1210,6 +1210,12 @@ void LLMeshRepoThread::run()
         LL_WARNS(LOG_MESH) << "Convex decomposition unable to be quit." << LL_ENDL;
     }
 }
+void LLMeshRepoThread::cleanup()
+{
+    mShuttingDown = true;
+    mSignal->broadcast();
+    mMeshThreadPool->close();
+}
 
 // Mutex:  LLMeshRepoThread::mMutex must be held on entry
 void LLMeshRepoThread::loadMeshSkinInfo(const LLUUID& mesh_id)
@@ -1493,6 +1499,11 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
                         [mesh_id, buffer, size]
                         ()
                     {
+                        if (gMeshRepo.mThread->isShuttingDown())
+                        {
+                            delete[] buffer;
+                            return;
+                        }
                         if (!gMeshRepo.mThread->skinInfoReceived(mesh_id, buffer, size))
                         {
                             // either header is faulty or something else overwrote the cache
@@ -1993,6 +2004,11 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
                         [params, mesh_id, lod, buffer, size]
                         ()
                     {
+                        if (gMeshRepo.mThread->isShuttingDown())
+                        {
+                            delete[] buffer;
+                            return;
+                        }
                         if (gMeshRepo.mThread->lodReceived(params, lod, buffer, size) == MESH_OK)
                         {
                             LL_DEBUGS(LOG_MESH) << "Mesh/Cache: Mesh body for ID " << mesh_id << " - was retrieved from the cache." << LL_ENDL;
@@ -3792,6 +3808,11 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
             [shrd_handler, data, data_size]
             ()
         {
+            if (gMeshRepo.mThread->isShuttingDown())
+            {
+                delete[] data;
+                return;
+            }
             LLMeshLODHandler* handler = (LLMeshLODHandler * )shrd_handler.get();
             handler->processLod(data, data_size);
             delete[] data;
@@ -3905,6 +3926,11 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
             [shrd_handler, data, data_size]
             ()
         {
+            if (gMeshRepo.mThread->isShuttingDown())
+            {
+                delete[] data;
+                return;
+            }
             LLMeshSkinInfoHandler* handler = (LLMeshSkinInfoHandler*)shrd_handler.get();
             handler->processSkin(data, data_size);
             delete[] data;
@@ -4127,8 +4153,7 @@ void LLMeshRepository::shutdown()
         mUploads[i]->discard() ; //discard the uploading requests.
     }
 
-    mThread->mSignal->broadcast();
-    mThread->mMeshThreadPool->close();
+    mThread->cleanup();
 
     while (!mThread->isStopped())
     {
@@ -4573,6 +4598,8 @@ void LLMeshRepository::notifyLoadedMeshes()
                 std::partial_sort(mPendingRequests.begin(), mPendingRequests.begin() + push_count,
                                   mPendingRequests.end(), PendingRequestBase::CompareScoreGreater());
             }
+            LLMutexTrylock lock3(mThread->mHeaderMutex);
+            LLMutexTrylock lock4(mThread->mPendingMutex);
             while (!mPendingRequests.empty() && push_count > 0)
             {
                 std::unique_ptr<PendingRequestBase>& req_p = mPendingRequests.front();
