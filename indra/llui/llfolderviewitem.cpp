@@ -1908,7 +1908,7 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
         }
         else
         {
-            LL_WARNS() << "FAVORITE_ADDED for a folder without favorites" << LL_ENDL;
+            // already up to date
             self->mFavoritesDirtyFlags = 0;
             gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
         }
