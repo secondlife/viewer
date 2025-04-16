@@ -432,24 +432,28 @@ bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
     switch (sort_by_name())
     {
     case 2:
+        // Sort by favorites - favorite items first, then alphabetically
         if (item1->isFavorite() != item2->isFavorite())
         {
             return item1->isFavorite();
+        }
         break;
     case 1:
+        // Sort by images - items with non-default images first, then alphabetically
         if (item1->isDefaultImage() != item2->isDefaultImage())
+        {
+            return item2->isDefaultImage();
+        }
         break;
     default:
+        // Sort alphabetically only
         break;
     }
 
+    // Final comparison is always alphabetical by name
     std::string name1 = item1->getItemName();
     std::string name2 = item2->getItemName();
     return (LLStringUtil::compareDict(name1, name2) < 0);
-    }
-    {
-        return item2->isDefaultImage();
-    }
 }
 
 void LLOutfitGallery::reArrangeRows(S32 row_diff)
