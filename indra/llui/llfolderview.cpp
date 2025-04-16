@@ -1693,11 +1693,6 @@ LLRect LLFolderView::getVisibleRect()
     return visible_rect;
 }
 
-S32 LLFolderView::getVisibleContentWidth()
-{
-    return (mScrollContainer ? mScrollContainer->getVisibleContentRect().getWidth() : 0);
-}
-
 bool LLFolderView::getShowSelectionContext()
 {
     if (mShowSelectionContext)
