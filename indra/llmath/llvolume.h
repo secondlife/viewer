@@ -45,7 +45,6 @@ class LLVolumeOctree;
 
 #include "lluuid.h"
 #include "v4color.h"
-//#include "vmath.h"
 #include "v2math.h"
 #include "v3math.h"
 #include "v3dmath.h"
