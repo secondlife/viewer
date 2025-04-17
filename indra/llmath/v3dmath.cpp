@@ -30,7 +30,6 @@
 
 #include "v3dmath.h"
 
-//#include "vmath.h"
 #include "v4math.h"
 #include "m4math.h"
 #include "m3math.h"
@@ -57,13 +56,13 @@ bool LLVector3d::clamp(F64 min, F64 max)
 {
     bool ret{ false };
 
-    if (mdV[0] < min) { mdV[0] = min; ret = true; }
-    if (mdV[1] < min) { mdV[1] = min; ret = true; }
-    if (mdV[2] < min) { mdV[2] = min; ret = true; }
+    if (mdV[VX] < min) { mdV[VX] = min; ret = true; }
+    if (mdV[VY] < min) { mdV[VY] = min; ret = true; }
+    if (mdV[VZ] < min) { mdV[VZ] = min; ret = true; }
 
-    if (mdV[0] > max) { mdV[0] = max; ret = true; }
-    if (mdV[1] > max) { mdV[1] = max; ret = true; }
-    if (mdV[2] > max) { mdV[2] = max; ret = true; }
+    if (mdV[VX] > max) { mdV[VX] = max; ret = true; }
+    if (mdV[VY] > max) { mdV[VY] = max; ret = true; }
+    if (mdV[VZ] > max) { mdV[VZ] = max; ret = true; }
 
     return ret;
 }
@@ -74,9 +73,9 @@ bool LLVector3d::abs()
 {
     bool ret{ false };
 
-    if (mdV[0] < 0.0) { mdV[0] = -mdV[0]; ret = true; }
-    if (mdV[1] < 0.0) { mdV[1] = -mdV[1]; ret = true; }
-    if (mdV[2] < 0.0) { mdV[2] = -mdV[2]; ret = true; }
+    if (mdV[VX] < 0.0) { mdV[VX] = -mdV[VX]; ret = true; }
+    if (mdV[VY] < 0.0) { mdV[VY] = -mdV[VY]; ret = true; }
+    if (mdV[VZ] < 0.0) { mdV[VZ] = -mdV[VZ]; ret = true; }
 
     return ret;
 }
@@ -89,37 +88,37 @@ std::ostream& operator<<(std::ostream& s, const LLVector3d &a)
 
 const LLVector3d& LLVector3d::operator=(const LLVector4 &a)
 {
-    mdV[0] = a.mV[0];
-    mdV[1] = a.mV[1];
-    mdV[2] = a.mV[2];
+    mdV[VX] = a.mV[VX];
+    mdV[VY] = a.mV[VY];
+    mdV[VZ] = a.mV[VZ];
     return *this;
 }
 
-const LLVector3d&   LLVector3d::rotVec(const LLMatrix3 &mat)
+const LLVector3d& LLVector3d::rotVec(const LLMatrix3& mat)
 {
     *this = *this * mat;
     return *this;
 }
 
-const LLVector3d&   LLVector3d::rotVec(const LLQuaternion &q)
+const LLVector3d& LLVector3d::rotVec(const LLQuaternion& q)
 {
     *this = *this * q;
     return *this;
 }
 
-const LLVector3d&   LLVector3d::rotVec(F64 angle, const LLVector3d &vec)
+const LLVector3d& LLVector3d::rotVec(F64 angle, const LLVector3d& vec)
 {
-    if ( !vec.isExactlyZero() && angle )
+    if (!vec.isExactlyZero() && angle)
     {
         *this = *this * LLMatrix3((F32)angle, vec);
     }
     return *this;
 }
 
-const LLVector3d&   LLVector3d::rotVec(F64 angle, F64 x, F64 y, F64 z)
+const LLVector3d& LLVector3d::rotVec(F64 angle, F64 x, F64 y, F64 z)
 {
     LLVector3d vec(x, y, z);
-    if ( !vec.isExactlyZero() && angle )
+    if (!vec.isExactlyZero() && angle)
     {
         *this = *this * LLMatrix3((F32)angle, vec);
     }
@@ -129,16 +128,16 @@ const LLVector3d&   LLVector3d::rotVec(F64 angle, F64 x, F64 y, F64 z)
 
 bool LLVector3d::parseVector3d(const std::string& buf, LLVector3d* value)
 {
-    if( buf.empty() || value == nullptr)
+    if (buf.empty() || value == nullptr)
     {
         return false;
     }
 
     LLVector3d v;
-    S32 count = sscanf( buf.c_str(), "%lf %lf %lf", v.mdV + 0, v.mdV + 1, v.mdV + 2 );
-    if( 3 == count )
+    S32 count = sscanf(buf.c_str(), "%lf %lf %lf", v.mdV + VX, v.mdV + VY, v.mdV + VZ);
+    if (3 == count)
     {
-        value->setVec( v );
+        value->setVec(v);
         return true;
     }
 
