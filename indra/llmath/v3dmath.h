@@ -278,21 +278,22 @@ inline const LLVector3d&    LLVector3d::setVec(const F64* vec)
 
 inline F64 LLVector3d::normVec()
 {
-    F64 mag = sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]);
+    F64 mag = (F32)sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]); // This explicit cast to F32 limits the precision for numerical stability.
+                                                                              // Without it, Unit test "v3dmath_h" fails at "1:angle_between" on macos.
     F64 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
     {
-        oomag = 1.f/mag;
+        oomag = 1.0/mag;
         mdV[VX] *= oomag;
         mdV[VY] *= oomag;
         mdV[VZ] *= oomag;
     }
     else
     {
-        mdV[VX] = 0.f;
-        mdV[VY] = 0.f;
-        mdV[VZ] = 0.f;
+        mdV[VX] = 0.0;
+        mdV[VY] = 0.0;
+        mdV[VZ] = 0.0;
         mag = 0;
     }
     return (mag);
@@ -300,21 +301,21 @@ inline F64 LLVector3d::normVec()
 
 inline F64 LLVector3d::normalize()
 {
-    F64 mag = sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]);
+    F64 mag = (F32)sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]); // Same as in normVec() above.
     F64 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
     {
-        oomag = 1.f/mag;
+        oomag = 1.0/mag;
         mdV[VX] *= oomag;
         mdV[VY] *= oomag;
         mdV[VZ] *= oomag;
     }
     else
     {
-        mdV[VX] = 0.f;
-        mdV[VY] = 0.f;
-        mdV[VZ] = 0.f;
+        mdV[VX] = 0.0;
+        mdV[VY] = 0.0;
+        mdV[VZ] = 0.0;
         mag = 0;
     }
     return (mag);
