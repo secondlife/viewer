@@ -39,18 +39,8 @@
 // llcommon depend on llmath.
 #include "is_approx_equal_fraction.h"
 
-// work around for Windows & older gcc non-standard function names.
-#if LL_WINDOWS
-#include <float.h>
-#define llisnan(val)    _isnan(val)
-#define llfinite(val)   _finite(val)
-#elif (LL_LINUX && __GNUC__ <= 2)
-#define llisnan(val)    isnan(val)
-#define llfinite(val)   isfinite(val)
-#else
-#define llisnan(val)    std::isnan(val)
-#define llfinite(val)   std::isfinite(val)
-#endif
+#define llisnan(val)  std::isnan(val)
+#define llfinite(val) std::isfinite(val)
 
 // Single Precision Floating Point Routines
 // (There used to be more defined here, but they appeared to be redundant and
