@@ -68,6 +68,8 @@ public:
     void enableSingleLineMode(bool single_line_mode);
     boost::signals2::connection setTextExpandedCallback(const commit_signal_t::slot_type& cb);
 
+    LLWString getConvertedText() const;
+
 private:
 
     /**
