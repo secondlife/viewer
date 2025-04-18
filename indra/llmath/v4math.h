@@ -118,8 +118,6 @@ public:
     bool isExactlyClear() const     { return (mV[VW] == 1.0f) && !mV[VX] && !mV[VY] && !mV[VZ]; }
     bool isExactlyZero() const      { return !mV[VW] && !mV[VX] && !mV[VY] && !mV[VZ]; }
 
-    const LLVector4& rotVec(F32 angle, const LLVector4 &vec);    // Rotates about vec by angle radians
-    const LLVector4& rotVec(F32 angle, F32 x, F32 y, F32 z);     // Rotates about x,y,z by angle radians
     const LLVector4& rotVec(const LLMatrix4 &mat);               // Rotates by MAT4 mat
     const LLVector4& rotVec(const LLQuaternion &q);              // Rotates by QUAT q
 

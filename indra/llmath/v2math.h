@@ -243,19 +243,19 @@ inline bool LLVector2::isFinite() const
 }
 
 // deprecated
-inline F32 LLVector2::magVec(void) const
+inline F32 LLVector2::magVec() const
 {
     return length();
 }
 
 // deprecated
-inline F32 LLVector2::magVecSquared(void) const
+inline F32 LLVector2::magVecSquared() const
 {
     return lengthSquared();
 }
 
 // deprecated
-inline F32 LLVector2::normVec(void)
+inline F32 LLVector2::normVec()
 {
     return normalize();
 }
