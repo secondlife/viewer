@@ -676,7 +676,7 @@ protected:
     // avatar names are looked up.
     void replaceUrl(const std::string &url, const std::string &label, const std::string& icon);
 
-    void                            appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
+    void                            appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params(), bool force_slurl = false);
     void                            appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, e_underline underline_link = e_underline::UNDERLINE_ALWAYS);
     S32 normalizeUri(std::string& uri);
 

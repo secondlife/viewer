@@ -299,6 +299,8 @@ public:
 
     virtual S32 notify(const LLSD& info) ;
 
+    void setFocusOnItemClicked(bool b) { mFocusOnItemClicked = b; }
+
     virtual ~LLFlatListView();
 
 protected:
@@ -422,6 +424,8 @@ private:
     bool mIsConsecutiveSelection;
 
     bool mKeepSelectionVisibleOnReshape;
+
+    bool mFocusOnItemClicked;
 
     /** All pairs of the list */
     pairs_list_t mItemPairs;

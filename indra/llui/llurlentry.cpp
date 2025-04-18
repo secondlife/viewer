@@ -580,7 +580,7 @@ LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
 //
 LLUrlEntryAgent::LLUrlEntryAgent()
 {
-    mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/\\w+",
+    mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/(mention|(?!mention)\\w+)",
                             boost::regex::perl|boost::regex::icase);
     mMenuName = "menu_url_agent.xml";
     mIcon = "Generic_Person";
@@ -784,7 +784,7 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 {
     // *NOTE: Could look up a badge here by calling getIDStringFromUrl()
     // and looking up the badge for the agent.
-    return mIcon;
+    return LLStringUtil::endsWith(url, "/mention") ? std::string() : mIcon;
 }
 
 //
