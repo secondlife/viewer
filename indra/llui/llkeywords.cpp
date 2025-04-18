@@ -37,35 +37,14 @@
 
 inline bool LLKeywordToken::isHead(const llwchar* s) const
 {
-    // strncmp is much faster than string compare
-    bool res = true;
-    const llwchar* t = mToken.c_str();
-    auto len = mToken.size();
-    for (S32 i=0; i<len; i++)
-    {
-        if (s[i] != t[i])
-        {
-            res = false;
-            break;
-        }
-    }
-    return res;
+    size_t bytes = mToken.size() * sizeof(llwchar);
+    return std::memcmp(s, mToken.c_str(), bytes) == 0;
 }
 
 inline bool LLKeywordToken::isTail(const llwchar* s) const
 {
-    bool res = true;
-    const llwchar* t = mDelimiter.c_str();
-    auto len = mDelimiter.size();
-    for (S32 i=0; i<len; i++)
-    {
-        if (s[i] != t[i])
-        {
-            res = false;
-            break;
-        }
-    }
-    return res;
+    size_t len_bytes = mDelimiter.size() * sizeof(llwchar);
+    return std::memcmp(s, mDelimiter.c_str(), len_bytes) == 0;
 }
 
 LLKeywords::LLKeywords()
@@ -531,9 +510,19 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
         return;
     }
 
+    // Reserve capacity for segments based on an estimated average of 8 characters per segment.
+    constexpr size_t AVERAGE_SEGMENT_LENGTH = 8;
+    seg_list->reserve(wtext.size() / AVERAGE_SEGMENT_LENGTH);
+
     S32 text_len = static_cast<S32>(wtext.size()) + 1;
 
     seg_list->push_back( new LLNormalTextSegment( style, 0, text_len, editor ) );
+
+    std::string text_to_search;
+    text_to_search.reserve(wtext.size());
+
+    bool  has_regex = !mRegexTokenList.empty();
+    auto& delimiters = mDelimiterTokenList;
 
     const llwchar* base = wtext.c_str();
     const llwchar* cur = base;
@@ -606,11 +595,11 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
         {
             // Check for regex matches first
             bool regex_matched = false;
-            if (!mRegexTokenList.empty())
+            if (has_regex)
             {
                 S32 seg_start = (S32)(cur - base);
 
-                std::string text_to_search(wtext.begin() + seg_start, wtext.end());
+                text_to_search.assign(wtext.begin() + seg_start, wtext.end());
 
                 for (LLKeywordToken* regex_token : mRegexTokenList)
                 {
@@ -731,10 +720,8 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
             {
                 S32 seg_start = 0;
                 LLKeywordToken* cur_delimiter = NULL;
-                for (token_list_t::iterator iter = mDelimiterTokenList.begin();
-                     iter != mDelimiterTokenList.end(); ++iter)
+                for (auto* delimiter : delimiters)
                 {
-                    LLKeywordToken* delimiter = *iter;
                     if( delimiter->isHead( cur ) )
                     {
                         cur_delimiter = delimiter;
@@ -846,8 +833,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
                     S32 seg_end = seg_start + seg_len;
 
                     // First try to match the whole token (including dots for Lua namespaces)
-                    WStringMapIndex whole_token(word_start, seg_len);
-                    word_token_map_t::iterator map_iter = mWordTokenMap.find(whole_token);
+                    word_token_map_t::iterator map_iter = mWordTokenMap.find(WStringMapIndex(word_start, seg_len));
 
                     if (map_iter != mWordTokenMap.end())
                     {
@@ -863,8 +849,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
                         {
                             // Get the namespace prefix (part before the first dot)
                             S32 prefix_len = (S32)(last_dot - word_start);
-                            WStringMapIndex prefix_token(word_start, prefix_len);
-                            map_iter = mWordTokenMap.find(prefix_token);
+                            map_iter = mWordTokenMap.find(WStringMapIndex(word_start, prefix_len));
 
                             if (map_iter != mWordTokenMap.end())
                             {
@@ -879,8 +864,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
                                 if (func_len > 0)
                                 {
                                     // Look for complete function matches
-                                    WStringMapIndex func_token(func_part, func_len);
-                                    map_iter = mWordTokenMap.find(func_token);
+                                    map_iter = mWordTokenMap.find(WStringMapIndex(func_part, func_len));
 
                                     if (map_iter != mWordTokenMap.end())
                                     {
