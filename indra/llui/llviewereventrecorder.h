@@ -61,7 +61,7 @@ public:
   std::string get_xui();
   void update_xui(std::string xui);
 
-  bool getLoggingStatus(){return logEvents;};
+  bool getLoggingStatus() const { return logEvents; }
   void setEventLoggingOn();
   void setEventLoggingOff();
 

@@ -45,8 +45,6 @@
 class LLUrlAction
 {
 public:
-    LLUrlAction();
-
     /// load a Url in the user's preferred web browser
     static void openURL(std::string url);
 
