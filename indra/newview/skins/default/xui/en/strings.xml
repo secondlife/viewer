@@ -3718,6 +3718,10 @@ Please reinstall viewer from  https://secondlife.com/support/downloads/ and cont
   <string name="inventory_folder_offered-im">
     Inventory folder '[ITEM_NAME]' offered
   </string>
+  <string name="bot_warning">
+  You are chatting with a bot, [NAME]. Do not share any personal information.
+Learn more at https://second.life/scripted-agents.
+  </string>
   <string name="share_alert">
     Drag items from inventory here
   </string>

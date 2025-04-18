@@ -1337,7 +1337,7 @@ void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
     }
 }
 
-bool LLFlatListViewEx::getForceShowingUnmatchedItems()
+bool LLFlatListViewEx::getForceShowingUnmatchedItems() const
 {
     return mForceShowingUnmatchedItems;
 }

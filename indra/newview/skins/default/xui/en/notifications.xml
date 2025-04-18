@@ -10362,6 +10362,14 @@ You are now the owner of object [OBJECT_NAME]
 
   <notification
    icon="alertmodal.tga"
+   name="NowOwnObjectInv"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME] and it has been placed in your inventory.
+  </notification>
+
+    <notification
+   icon="alertmodal.tga"
    name="CantRezOnLand"
    type="notify">
    <tag>fail</tag>
