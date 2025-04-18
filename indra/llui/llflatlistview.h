@@ -113,7 +113,7 @@ public:
     };
 
     // disable traversal when finding widget to hand focus off to
-    /*virtual*/ bool canFocusChildren() const { return false; }
+    /*virtual*/ bool canFocusChildren() const override { return false; }
 
     /**
      * Connects callback to signal called when Return key is pressed.
@@ -121,12 +121,12 @@ public:
     boost::signals2::connection setReturnCallback( const commit_signal_t::slot_type& cb ) { return mOnReturnSignal.connect(cb); }
 
     /** Overridden LLPanel's reshape, height is ignored, the list sets its height to accommodate all items */
-    virtual void reshape(S32 width, S32 height, bool called_from_parent  = true);
+    virtual void reshape(S32 width, S32 height, bool called_from_parent  = true) override;
 
     /** Returns full rect of child panel */
     const LLRect& getItemsRect() const;
 
-    LLRect getRequiredRect() const { return getItemsRect(); }
+    LLRect getRequiredRect() override { return getItemsRect(); }
 
     /** Returns distance between items */
     const S32 getItemsPad() const { return mItemPad; }
@@ -270,7 +270,7 @@ public:
     U32 size(const bool only_visible_items = true) const;
 
     /** Removes all items from the list */
-    virtual void clear();
+    virtual void clear() override;
 
     /**
      * Removes all items that can be detached from the list but doesn't destroy
@@ -297,7 +297,7 @@ public:
     void selectFirstItem();
     void selectLastItem();
 
-    virtual S32 notify(const LLSD& info) ;
+    virtual S32 notify(const LLSD& info) override;
 
     virtual ~LLFlatListView();
 
@@ -346,8 +346,8 @@ protected:
 
     virtual bool selectNextItemPair(bool is_up_direction, bool reset_selection);
 
-    virtual bool canSelectAll() const;
-    virtual void selectAll();
+    virtual bool canSelectAll() const override;
+    virtual void selectAll() override;
 
     virtual bool isSelected(item_pair_t* item_pair) const;
 
@@ -364,15 +364,15 @@ protected:
      */
     void notifyParentItemsRectChanged();
 
-    virtual bool handleKeyHere(KEY key, MASK mask);
+    virtual bool handleKeyHere(KEY key, MASK mask) override;
 
-    virtual bool postBuild();
+    virtual bool postBuild() override;
 
-    virtual void onFocusReceived();
+    virtual void onFocusReceived() override;
 
-    virtual void onFocusLost();
+    virtual void onFocusLost() override;
 
-    virtual void draw();
+    virtual void draw() override;
 
     LLRect getLastSelectedItemRect();
 
