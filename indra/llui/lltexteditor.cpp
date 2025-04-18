@@ -60,6 +60,7 @@
 #include "llurlregistry.h"
 #include "lltooltip.h"
 #include "llmenugl.h"
+#include "llchatmentionhelper.h"
 
 #include <queue>
 #include "llcombobox.h"
@@ -270,6 +271,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
     mPrevalidator(p.prevalidator()),
     mShowContextMenu(p.show_context_menu),
     mShowEmojiHelper(p.show_emoji_helper),
+    mShowChatMentionPicker(false),
     mEnableTooltipPaste(p.enable_tooltip_paste),
     mPassDelete(false),
     mKeepSelectionOnReturn(false)
@@ -714,6 +716,18 @@ void LLTextEditor::handleEmojiCommit(llwchar emoji)
     }
 }
 
+void LLTextEditor::handleMentionCommit(std::string name_url)
+{
+    S32 mention_start_pos;
+    if (LLChatMentionHelper::instance().isCursorInNameMention(getWText(), mCursorPos, &mention_start_pos))
+    {
+        remove(mention_start_pos, mCursorPos - mention_start_pos, true);
+        setCursorPos(mention_start_pos);
+
+        appendTextImpl(name_url, LLStyle::Params(), true);
+    }
+}
+
 bool LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     bool    handled = false;
@@ -1103,6 +1117,7 @@ void LLTextEditor::removeCharOrTab()
         }
 
         tryToShowEmojiHelper();
+        tryToShowMentionHelper();
     }
     else
     {
@@ -1128,6 +1143,7 @@ void LLTextEditor::removeChar()
         setCursorPos(mCursorPos - 1);
         removeChar(mCursorPos);
         tryToShowEmojiHelper();
+        tryToShowMentionHelper();
     }
     else
     {
@@ -1189,6 +1205,7 @@ void LLTextEditor::addChar(llwchar wc)
 
     setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
     tryToShowEmojiHelper();
+    tryToShowMentionHelper();
 
     if (!mReadOnly && mAutoreplaceCallback != NULL)
     {
@@ -1246,6 +1263,31 @@ void LLTextEditor::tryToShowEmojiHelper()
         LLEmojiHelper::instance().hideHelper();
     }
 }
+
+void LLTextEditor::tryToShowMentionHelper()
+{
+    if (mReadOnly || !mShowChatMentionPicker)
+        return;
+
+    S32 mention_start_pos;
+    LLWString text(getWText());
+    if (LLChatMentionHelper::instance().isCursorInNameMention(text, mCursorPos, &mention_start_pos))
+    {
+        const LLRect cursor_rect(getLocalRectFromDocIndex(mention_start_pos));
+        std::string name_part(wstring_to_utf8str(text.substr(mention_start_pos, mCursorPos - mention_start_pos)));
+        name_part.erase(0, 1);
+        auto cb = [this](std::string name_url)
+        {
+            handleMentionCommit(name_url);
+        };
+        LLChatMentionHelper::instance().showHelper(this, cursor_rect.mLeft, cursor_rect.mTop, name_part, cb);
+    }
+    else
+    {
+        LLChatMentionHelper::instance().hideHelper();
+    }
+}
+
 
 void LLTextEditor::addLineBreakChar(bool group_together)
 {
@@ -1884,9 +1926,13 @@ bool LLTextEditor::handleKeyHere(KEY key, MASK mask )
     }
     else
     {
-        if (!mReadOnly && mShowEmojiHelper && LLEmojiHelper::instance().handleKey(this, key, mask))
+        if (!mReadOnly)
         {
-            return true;
+            if ((mShowEmojiHelper && LLEmojiHelper::instance().handleKey(this, key, mask)) ||
+                (mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask)))
+            {
+                return true;
+            }
         }
 
         if (mEnableTooltipPaste &&

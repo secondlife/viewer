@@ -51,6 +51,7 @@ LLChatEntry::LLChatEntry(const Params& p)
     mCurrentHistoryLine = mLineHistory.begin();
 
     mAutoIndent = false;
+    mShowChatMentionPicker = true;
     keepSelectionOnReturn(true);
 }
 
@@ -248,4 +249,22 @@ void LLChatEntry::enableSingleLineMode(bool single_line_mode)
     mSingleLineMode = single_line_mode;
     mPrevLinesCount = -1;
     setWordWrap(!single_line_mode);
+}
+
+LLWString LLChatEntry::getConvertedText() const
+{
+    LLWString text = getWText();
+    S32 diff = 0;
+    for (auto segment : mSegments)
+    {
+        if (segment && segment->getStyle() && segment->getStyle()->getDrawHighlightBg())
+        {
+            S32 seg_length = segment->getEnd() - segment->getStart();
+            std::string slurl = segment->getStyle()->getLinkHREF();
+
+            text.replace(segment->getStart() + diff, seg_length, utf8str_to_wstring(slurl));
+            diff += (S32)slurl.size() - seg_length;
+        }
+    }
+    return text;
 }

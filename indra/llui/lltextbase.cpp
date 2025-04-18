@@ -2322,14 +2322,14 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 }
 
 
-void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
+void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Params& input_params, bool force_slurl)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLStyle::Params style_params(getStyleParams());
     style_params.overwriteFrom(input_params);
 
     S32 part = (S32)LLTextParser::WHOLE;
-    if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
+    if ((mParseHTML || force_slurl) && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
     {
         S32 start=0,end=0;
         LLUrlMatch match;
