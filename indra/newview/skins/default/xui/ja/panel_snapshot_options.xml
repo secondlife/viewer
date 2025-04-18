@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
 	<button label="ディスクに保存" name="save_to_computer_btn"/>
-	<button label="インベントリに保存（L$ [AMOUNT]）" name="save_to_inventory_btn"/>
+	<button label="インベントリに保存" name="save_to_inventory_btn"/>
 	<button label="プロフィールフィードで共有する" name="save_to_profile_btn"/>
 	<button label="メールで送信" name="save_to_email_btn"/>
 	<text name="fee_hint_lbl">

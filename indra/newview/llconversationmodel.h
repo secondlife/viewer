@@ -79,6 +79,9 @@ public:
     virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
     virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
     virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
+    virtual bool isFavorite() const { return false; }
+    virtual bool isAgentInventory() const { return false; }
+    virtual bool isAgentInventoryRoot() const { return false; }
     virtual bool isItemRenameable() const { return true; }
     virtual bool renameItem(const std::string& new_name) { mName = new_name; mNeedsRefresh = true; return true; }
     virtual bool isItemMovable( void ) const { return false; }

@@ -62,11 +62,20 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 //-----------------------------------------------------------------------------
 // LLFloaterNameDesc()
 //-----------------------------------------------------------------------------
-LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& filename )
-    : LLFloater(filename),
-      mIsAudio(false)
+LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& args)
+    : LLFloater(args)
+    , mIsAudio(false)
+    , mIsText(false)
 {
-    mFilenameAndPath = filename.asString();
+    if (args.isString())
+    {
+        mFilenameAndPath = args.asString();
+    }
+    else
+    {
+        mFilenameAndPath = args["filename"].asString();
+        mDestinationFolderId = args["dest"].asUUID();
+    }
     mFilename = gDirUtilp->getBaseFileName(mFilenameAndPath, false);
 }
 
@@ -203,7 +212,8 @@ void LLFloaterNameDesc::onBtnOK( )
             LLFloaterPerms::getNextOwnerPerms("Uploads"),
             LLFloaterPerms::getGroupPerms("Uploads"),
             LLFloaterPerms::getEveryonePerms("Uploads"),
-            expected_upload_cost));
+            expected_upload_cost,
+            mDestinationFolderId));
 
         upload_new_resource(uploadInfo, callback, nruserdata);
     }
@@ -230,8 +240,8 @@ void LLFloaterNameDesc::onBtnCancel()
 // LLFloaterSoundPreview()
 //-----------------------------------------------------------------------------
 
-LLFloaterSoundPreview::LLFloaterSoundPreview(const LLSD& filename )
-    : LLFloaterNameDesc(filename)
+LLFloaterSoundPreview::LLFloaterSoundPreview(const LLSD& args )
+    : LLFloaterNameDesc(args)
 {
     mIsAudio = true;
 }
@@ -251,8 +261,8 @@ bool LLFloaterSoundPreview::postBuild()
 // LLFloaterAnimPreview()
 //-----------------------------------------------------------------------------
 
-LLFloaterAnimPreview::LLFloaterAnimPreview(const LLSD& filename )
-    : LLFloaterNameDesc(filename)
+LLFloaterAnimPreview::LLFloaterAnimPreview(const LLSD& args )
+    : LLFloaterNameDesc(args)
 {
 }
 
@@ -270,8 +280,8 @@ bool LLFloaterAnimPreview::postBuild()
 // LLFloaterScriptPreview()
 //-----------------------------------------------------------------------------
 
-LLFloaterScriptPreview::LLFloaterScriptPreview(const LLSD& filename )
-    : LLFloaterNameDesc(filename)
+LLFloaterScriptPreview::LLFloaterScriptPreview(const LLSD& args )
+    : LLFloaterNameDesc(args)
 {
     mIsText = true;
 }

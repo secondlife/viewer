@@ -55,7 +55,7 @@ namespace LL
          * ThreadPool listens for application shutdown messages on the "LLApp"
          * LLEventPump. Call close() to shut down this ThreadPool early.
          */
-        virtual void close();
+        void close();
 
         std::string getName() const { return mName; }
         size_t getWidth() const { return mThreads.size(); }
@@ -122,7 +122,7 @@ namespace LL
                         size_t threads=1,
                         size_t capacity=1024*1024,
                         bool auto_shutdown = true):
-            ThreadPoolBase(name, threads, new queue_t(name, capacity), auto_shutdown)
+            ThreadPoolBase(name, threads, new queue_t(name, capacity, false), auto_shutdown)
         {}
         ~ThreadPoolUsing() override {}
 

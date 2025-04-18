@@ -3139,9 +3139,13 @@ Would you be my friend?
       <input name="listname" type="text"/>
       <button
        default="true"
-       index="0"
+       index="1"
        name="SetName"
        text="OK"/>
+      <button
+       index="0"
+       name="Cancel"
+       text="Cancel"/>
     </form>
   </notification>
 
@@ -3169,6 +3173,29 @@ Would you be my friend?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   label="Rename Auto-Replace List"
+   name="RemoveAutoReplaceList"
+   type="alertmodal">
+'[LIST_NAME]' contains [MAP_SIZE] entries.
+    
+Are you sure you want to delete this list?
+      <tag>confirm</tag>
+    <form name="form">
+      <button
+       default="true"
+       index="1"
+       name="DeleteList"
+       text="Delete"/>
+      <button
+       default="false"
+       index="0"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="InvalidAutoReplaceEntry"
    type="alertmodal">
@@ -4628,13 +4655,12 @@ You already have blocked this name.
 
   <notification
    icon="alert.tga"
-   name="RemoveItemWarn"
+   name="CantModifyContentInNoModTask"
    type="alert">
-Though permitted, deleting contents may damage the object. Do you want to delete that item?
+You don't have permission to modify content of this object
     <tag>confirm</tag>
     <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
+     name="okbutton"
      yestext="OK"/>
   </notification>
 
@@ -10335,6 +10361,14 @@ You are now the owner of object [OBJECT_NAME]
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="NowOwnObjectInv"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME] and it has been placed in your inventory.
+  </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CantRezOnLand"
    type="notify">

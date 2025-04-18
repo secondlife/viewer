@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
 	<button label="Сохранить на диске" name="save_to_computer_btn"/>
-	<button label="Сохранить в инвентаре (L$[AMOUNT])" name="save_to_inventory_btn"/>
+	<button label="Сохранить в инвентаре" name="save_to_inventory_btn"/>
 	<button label="Поделиться в профиле" name="save_to_profile_btn"/>
 	<button label="Поделиться в Facebook" name="send_to_facebook_btn"/>
 	<button label="Поделиться в Twitter" name="send_to_twitter_btn"/>

@@ -65,18 +65,18 @@ public:
     };
 
 
-    virtual ~LLXYVector();
-    /*virtual*/ bool postBuild();
+    ~LLXYVector() override;
+    bool postBuild() override;
 
-    virtual bool    handleHover(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    bool handleHover(S32 x, S32 y, MASK mask) override;
+    bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
 
-    virtual void    draw();
+    void draw() override;
 
-    virtual void    setValue(const LLSD& value);
-    void            setValue(F32 x, F32 y);
-    virtual LLSD    getValue() const;
+    void setValue(const LLSD& value) override;
+    void setValue(F32 x, F32 y);
+    LLSD getValue() const override;
 
 protected:
     friend class LLUICtrlFactory;

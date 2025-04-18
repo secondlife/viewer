@@ -262,6 +262,8 @@ public:
 
     void setMediaURLResetTimer(F32 time);
     virtual void    setLocalID(S32 local_id);
+    void setRegionID(const LLUUID& id) { mRegionID = id; }
+    const LLUUID& getRegionID() const { return mRegionID; }
 
     // blow away all the extra stuff lurking in parcels, including urls, access lists, etc
     void clearParcel();
@@ -651,6 +653,7 @@ public:
     S32                 mLocalID;
     LLUUID              mBanListTransactionID;
     LLUUID              mAccessListTransactionID;
+    LLUUID              mRegionID;
     std::map<LLUUID,LLAccessEntry>  mAccessList;
     std::map<LLUUID,LLAccessEntry>  mBanList;
     std::map<LLUUID,LLAccessEntry>  mTempBanList;

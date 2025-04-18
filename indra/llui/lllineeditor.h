@@ -306,8 +306,6 @@ public:
     S32             calcCursorPos(S32 mouse_x);
     bool            handleSpecialKey(KEY key, MASK mask);
     bool            handleSelectionKey(KEY key, MASK mask);
-    bool            handleControlKey(KEY key, MASK mask);
-    S32             handleCommitKey(KEY key, MASK mask);
     void            updateTextPadding();
 
     // Draw the background image depending on enabled/focused state.
@@ -444,7 +442,7 @@ private:
             mText = ed->getText();
         }
 
-        void doRollback( LLLineEditor* ed )
+        void doRollback(LLLineEditor* ed) const
         {
             ed->mCursorPos = mCursorPos;
             ed->mScrollHPos = mScrollHPos;
@@ -455,7 +453,7 @@ private:
             ed->mPrevText = mText;
         }
 
-        std::string getText()   { return mText; }
+        std::string getText() const { return mText; }
 
     private:
         std::string mText;
