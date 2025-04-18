@@ -78,20 +78,20 @@ public:
     };
 
 
-    virtual ~LLVirtualTrackball();
-    /*virtual*/ bool postBuild();
+    ~LLVirtualTrackball() override;
+    bool postBuild() override;
 
-    virtual bool    handleHover(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleKeyHere(KEY key, MASK mask);
+    bool    handleHover(S32 x, S32 y, MASK mask) override;
+    bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool    handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    bool    handleKeyHere(KEY key, MASK mask) override;
 
-    virtual void    draw();
+    void    draw() override;
 
-    virtual void    setValue(const LLSD& value);
-    void            setValue(F32 x, F32 y, F32 z, F32 w);
-    virtual LLSD    getValue() const;
+    void    setValue(const LLSD& value) override;
+    void    setValue(F32 x, F32 y, F32 z, F32 w);
+    LLSD    getValue() const override;
 
     void            setRotation(const LLQuaternion &value);
     LLQuaternion    getRotation() const;
@@ -102,7 +102,6 @@ public:
 protected:
     friend class LLUICtrlFactory;
     LLVirtualTrackball(const Params&);
-    void onEditChange();
 
 protected:
     LLTextBox*          mNLabel;
