@@ -78,7 +78,7 @@ protected:
     bool                mShowCursorHand;
 
 protected:
-    virtual std::string _getSearchText() const
+    std::string _getSearchText() const override
     {
         return LLTextBase::_getSearchText() + mText.getString();
     }
