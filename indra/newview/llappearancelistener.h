@@ -1,12 +1,9 @@
 /**
- * @file   groupchatlistener.h
- * @author Nat Goodspeed
- * @date   2011-04-11
- * @brief
+ * @file llappearancelistener.h
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,20 +23,24 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLGROUPCHATLISTENER_H)
-#define LL_LLGROUPCHATLISTENER_H
+
+#ifndef LL_LLAPPEARANCELISTENER_H
+#define LL_LLAPPEARANCELISTENER_H
 
 #include "lleventapi.h"
 
-class LLGroupChatListener: public LLEventAPI
+class LLAppearanceListener : public LLEventAPI
 {
 public:
-    LLGroupChatListener();
+    LLAppearanceListener();
 
 private:
-    void startGroupChat(LLSD const &data);
-    void leaveGroupChat(LLSD const &data);
-    void sendGroupIM(LLSD const &data);
+    void wearOutfit(LLSD const &data);
+    void wearItems(LLSD const &data);
+    void detachItems(LLSD const &data);
+    void getOutfitsList(LLSD const &data);
+    void getOutfitItems(LLSD const &data);
 };
 
-#endif /* ! defined(LL_LLGROUPCHATLISTENER_H) */
+#endif // LL_LLAPPEARANCELISTENER_H
+

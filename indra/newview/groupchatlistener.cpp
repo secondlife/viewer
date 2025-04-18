@@ -2,11 +2,11 @@
  * @file   groupchatlistener.cpp
  * @author Nat Goodspeed
  * @date   2011-04-11
- * @brief  Implementation for groupchatlistener.
+ * @brief  Implementation for LLGroupChatListener.
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,43 +34,69 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llchat.h"
 #include "llgroupactions.h"
 #include "llimview.h"
 
-
-namespace {
-    void startIm_wrapper(LLSD const & event)
-    {
-        LLUUID session_id = LLGroupActions::startIM(event["id"].asUUID());
-        sendReply(LLSDMap("session_id", LLSD(session_id)), event);
-    }
-
-    void send_message_wrapper(const std::string& text, const LLUUID& session_id, const LLUUID& group_id)
-    {
-        LLIMModel::sendMessage(text, session_id, group_id, IM_SESSION_GROUP_START);
-    }
-}
-
-
-GroupChatListener::GroupChatListener():
+LLGroupChatListener::LLGroupChatListener():
     LLEventAPI("GroupChat",
                "API to enter, leave, send and intercept group chat messages")
 {
-    add("startIM",
-        "Enter a group chat in group with UUID [\"id\"]\n"
+    add("startGroupChat",
+        "Enter a group chat in group with UUID [\"group_id\"]\n"
         "Assumes the logged-in agent is already a member of this group.",
-        &startIm_wrapper);
-    add("endIM",
-        "Leave a group chat in group with UUID [\"id\"]\n"
+        &LLGroupChatListener::startGroupChat,
+        llsd::map("group_id", LLSD()));
+    add("leaveGroupChat",
+        "Leave a group chat in group with UUID [\"group_id\"]\n"
         "Assumes a prior successful startIM request.",
-        &LLGroupActions::endIM,
-        llsd::array("id"));
-    add("sendIM",
-        "send a groupchat IM",
-        &send_message_wrapper,
-        llsd::array("text", "session_id", "group_id"));
+        &LLGroupChatListener::leaveGroupChat,
+        llsd::map("group_id", LLSD()));
+    add("sendGroupIM",
+        "send a [\"message\"] to group with UUID [\"group_id\"]",
+        &LLGroupChatListener::sendGroupIM,
+        llsd::map("message", LLSD(), "group_id", LLSD()));
 }
-/*
-    static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
-                                const LLUUID& other_participant_id, EInstantMessage dialog);
-*/
+
+bool is_in_group(LLEventAPI::Response &response, const LLSD &data)
+{
+    if (!LLGroupActions::isInGroup(data["group_id"]))
+    {
+        response.error(stringize("You are not the member of the group:", std::quoted(data["group_id"].asString())));
+        return false;
+    }
+    return true;
+}
+
+void LLGroupChatListener::startGroupChat(LLSD const &data)
+{
+    Response response(LLSD(), data);
+    if (!is_in_group(response, data))
+    {
+        return;
+    }
+    if (LLGroupActions::startIM(data["group_id"]).isNull())
+    {
+        return response.error(stringize("Failed to start group chat session ", std::quoted(data["group_id"].asString())));
+    }
+}
+
+void LLGroupChatListener::leaveGroupChat(LLSD const &data)
+{
+    Response response(LLSD(), data);
+    if (is_in_group(response, data))
+    {
+        LLGroupActions::endIM(data["group_id"].asUUID());
+    }
+}
+
+void LLGroupChatListener::sendGroupIM(LLSD const &data)
+{
+    Response response(LLSD(), data);
+    if (!is_in_group(response, data))
+    {
+        return;
+    }
+    LLUUID group_id(data["group_id"]);
+    LLIMModel::sendMessage(data["message"], gIMMgr->computeSessionID(IM_SESSION_GROUP_START, group_id), group_id, IM_SESSION_SEND);
+}

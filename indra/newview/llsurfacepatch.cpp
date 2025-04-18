@@ -201,7 +201,7 @@ LLVector2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
 
 
 void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 *vertex, LLVector3 *normal,
-                          LLVector2 *tex1) const
+                          LLVector2* tex0, LLVector2 *tex1) const
 {
     if (!mSurfacep || !mSurfacep->getRegion() || !mSurfacep->getGridsPerEdge() || !mVObjp)
     {
@@ -210,6 +210,7 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     llassert_always(vertex && normal && tex1);
 
     U32 surface_stride = mSurfacep->getGridsPerEdge();
+    U32 texture_stride = mSurfacep->getGridsPerEdge() - 1;
     U32 point_offset = x + y*surface_stride;
 
     *normal = getNormal(x, y);
@@ -219,6 +220,12 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     pos_agent.mV[VY] += y * mSurfacep->getMetersPerGrid();
     pos_agent.mV[VZ]  = *(mDataZ + point_offset);
     *vertex     = pos_agent-mVObjp->getRegion()->getOriginAgent();
+
+    // tex0 is used for ownership overlay
+    LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
+    LLVector3 tex_pos = rel_pos * (1.f / (texture_stride * mSurfacep->getMetersPerGrid()));
+    tex0->mV[0] = tex_pos.mV[0];
+    tex0->mV[1] = tex_pos.mV[1];
 
     tex1->mV[0] = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
 

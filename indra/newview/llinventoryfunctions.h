@@ -121,6 +121,18 @@ std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& i
 std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id);
 bool can_share_item(const LLUUID& item_id);
 
+enum EMyOutfitsSubfolderType
+{
+    MY_OUTFITS_NO,
+    MY_OUTFITS_SUBFOLDER,
+    MY_OUTFITS_OUTFIT,
+    MY_OUTFITS_SUBOUTFIT,
+};
+EMyOutfitsSubfolderType myoutfit_object_subfolder_type(
+    LLInventoryModel* model,
+    const LLUUID& obj_id,
+    const LLUUID& my_outfits_id);
+
 /**                    Miscellaneous global functions
  **                                                                            **
  *******************************************************************************/
@@ -225,6 +237,24 @@ public:
 
 protected:
     LLUUID mBaseItemID;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLIsType
+//
+// Implementation of a LLInventoryCollectFunctor which returns true if
+// the type is the type passed in during construction.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLIsFolderType : public LLInventoryCollectFunctor
+{
+public:
+    LLIsFolderType(LLFolderType::EType type) : mType(type) {}
+    virtual ~LLIsFolderType() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+protected:
+    LLFolderType::EType mType;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

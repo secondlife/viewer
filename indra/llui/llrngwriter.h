@@ -37,7 +37,7 @@ public:
     void writeRNG(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
     void addDefinition(const std::string& type_name, const LLInitParam::BaseBlock& block);
 
-    /*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
+    std::string getCurrentElementName() override { return LLStringUtil::null; }
 
     LLRNGWriter();
 

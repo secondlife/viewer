@@ -398,7 +398,7 @@ protected:
 
 private:
     bool        mLLSDDirty;
-    bool        mDirty;
+    bool        mDirty; // gates updateSettings
     bool        mReplaced; // super dirty!
 
     static LLSD combineSDMaps(const LLSD &first, const LLSD &other);

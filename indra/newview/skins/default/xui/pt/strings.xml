@@ -10,7 +10,7 @@
 	<string name="AboutHeader">[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]</string>
 	<string name="BuildConfig">Configuração do corpo [BUILD_CONFIG]</string>
-	<string name="AboutPosition">Você está em [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] em [REGION] localizado em &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+	<string name="AboutPosition">Você está em [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] em [REGION] localizado em &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 (coordenadas globais [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
@@ -1549,6 +1549,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].</string>
 	<string name="conference-title-incoming">Conversa com [AGENT_NAME]</string>
 	<string name="inventory_item_offered-im">Item do inventário '[ITEM_NAME]' oferecido</string>
 	<string name="inventory_folder_offered-im">Pasta do inventário '[ITEM_NAME]' oferecida</string>
+	<string name="bot_warning">
+Você está conversando com um bot, [NAME]. Não compartilhe informações pessoais.
+Saiba mais em https://second.life/scripted-agents.
+	</string>
 	<string name="facebook_post_success">Você publicou no Facebook.</string>
 	<string name="flickr_post_success">Você publicou no Flickr.</string>
 	<string name="twitter_post_success">Você publicou no Twitter.</string>

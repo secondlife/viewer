@@ -12,7 +12,7 @@
 	<string name="StartupRequireDriverUpdate">Grafikinitialisierung fehlgeschlagen. Bitte aktualisieren Sie Ihren Grafiktreiber.</string>
 	<string name="AboutHeader">[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]Bit) [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]</string>
 	<string name="BuildConfig">Build-Konfiguration [BUILD_CONFIG]</string>
-	<string name="AboutPosition">Sie befinden sich an [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+	<string name="AboutPosition">Sie befinden sich an [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 (globale Koordinaten [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
@@ -1613,6 +1613,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="conference-title-incoming">Konferenz mit [AGENT_NAME]</string>
 	<string name="inventory_item_offered-im">Inventarobjekt „[ITEM_NAME]“ angeboten</string>
 	<string name="inventory_folder_offered-im">Inventarordner „[ITEM_NAME]“ angeboten</string>
+	<string name="bot_warning">
+	Sie chatten mit einem Bot, [NAME]. Geben Sie keine persönlichen Informationen weiter.
+Erfahren Sie mehr unter https://second.life/scripted-agents.
+	</string>
 	<string name="share_alert">Objekte aus dem Inventar hier her ziehen</string>
 	<string name="facebook_post_success">Sie haben auf Facebook gepostet.</string>
 	<string name="flickr_post_success">Sie haben auf Flickr gepostet.</string>

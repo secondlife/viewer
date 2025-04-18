@@ -729,8 +729,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="TexScaleU"
              top_pad="5"
              width="265" />
@@ -742,8 +742,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="TexScaleV"
              width="265" />
             <spinner
@@ -805,8 +805,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="bumpyScaleU"
              top_delta="-115"
              width="265" />
@@ -818,8 +818,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="bumpyScaleV"
              width="265" />
            <spinner
@@ -869,8 +869,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="shinyScaleU"
              top_delta="-115"
              width="265" />
@@ -882,8 +882,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="shinyScaleV"
              width="265" />
            <spinner
