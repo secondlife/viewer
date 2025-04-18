@@ -112,13 +112,8 @@ namespace tut
     void httpdate_object::test<4>()
     {
         // test localization of http dates
-#if LL_WINDOWS
-        const char *en_locale = "english";
-        const char *fr_locale = "french";
-#else
-        const char *en_locale = "en_GB.UTF-8";
+        const char *en_locale = "en_US.UTF-8";
         const char *fr_locale = "fr_FR.UTF-8";
-#endif
 
         std::string prev_locale = LLStringUtil::getLocale();
         std::string prev_clocale = std::string(setlocale(LC_TIME, NULL));
