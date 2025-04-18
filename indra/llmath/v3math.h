@@ -264,7 +264,7 @@ inline void LLVector3::set(const LLVector3& vec)
 
 inline void LLVector3::set(const F32* vec)
 {
-    set(vec[0], vec[1], vec[2]);
+    set(vec[VX], vec[VY], vec[VZ]);
 }
 
 inline void LLVector3::set(const glm::vec4& vec)
@@ -343,7 +343,7 @@ inline F32 LLVector3::magVecSquared() const
     return lengthSquared();
 }
 
-inline bool LLVector3::inRange( F32 min, F32 max ) const
+inline bool LLVector3::inRange(F32 min, F32 max) const
 {
     return mV[VX] >= min && mV[VX] <= max &&
            mV[VY] >= min && mV[VY] <= max &&
@@ -369,7 +369,7 @@ inline F32  operator*(const LLVector3& a, const LLVector3& b)
 
 inline LLVector3 operator%(const LLVector3& a, const LLVector3& b)
 {
-    return LLVector3( a.mV[VY]*b.mV[VZ] - b.mV[VY]*a.mV[VZ], a.mV[VZ]*b.mV[VX] - b.mV[VZ]*a.mV[VX], a.mV[VX]*b.mV[VY] - b.mV[VX]*a.mV[VY] );
+    return LLVector3(a.mV[VY]*b.mV[VZ] - b.mV[VY]*a.mV[VZ], a.mV[VZ]*b.mV[VX] - b.mV[VZ]*a.mV[VX], a.mV[VX]*b.mV[VY] - b.mV[VX]*a.mV[VY]);
 }
 
 inline LLVector3 operator/(const LLVector3& a, F32 k)
@@ -429,7 +429,7 @@ inline const LLVector3& operator-=(LLVector3& a, const LLVector3& b)
 
 inline const LLVector3& operator%=(LLVector3& a, const LLVector3& b)
 {
-    LLVector3 ret( a.mV[VY]*b.mV[VZ] - b.mV[VY]*a.mV[VZ], a.mV[VZ]*b.mV[VX] - b.mV[VZ]*a.mV[VX], a.mV[VX]*b.mV[VY] - b.mV[VX]*a.mV[VY]);
+    LLVector3 ret(a.mV[VY]*b.mV[VZ] - b.mV[VY]*a.mV[VZ], a.mV[VZ]*b.mV[VX] - b.mV[VZ]*a.mV[VX], a.mV[VX]*b.mV[VY] - b.mV[VX]*a.mV[VY]);
     a = ret;
     return a;
 }
@@ -477,7 +477,7 @@ inline F32 dist_vec(const LLVector3& a, const LLVector3& b)
     F32 x = a.mV[VX] - b.mV[VX];
     F32 y = a.mV[VY] - b.mV[VY];
     F32 z = a.mV[VZ] - b.mV[VZ];
-    return sqrt( x*x + y*y + z*z );
+    return sqrt(x*x + y*y + z*z);
 }
 
 inline F32 dist_vec_squared(const LLVector3& a, const LLVector3& b)
