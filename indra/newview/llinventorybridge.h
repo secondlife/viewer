@@ -777,6 +777,7 @@ public:
         mInvType = type;
     }
     /*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
+    /*virtual*/ bool canSortContent() const { return true; }
 };
 
 // Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
