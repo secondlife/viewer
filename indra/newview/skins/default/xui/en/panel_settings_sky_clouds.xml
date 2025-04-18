@@ -139,7 +139,7 @@
                     max_val_x="30"
                     min_val_y="-30"
                     max_val_y="30" 
-                    logarithmic="1"/>
+                    logarithmic="true"/>
 
             <text
                     name="cloud_image_label"
