@@ -195,6 +195,7 @@ LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item
 
 // virtual
 void LLPanelWearableOutfitItem::updateItem(const std::string& name,
+                                           bool favorite,
                                            EItemState item_state)
 {
     std::string search_label = name;
@@ -225,7 +226,7 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
         }
     }
 
-    LLPanelInventoryListItemBase::updateItem(search_label, item_state);
+    LLPanelInventoryListItemBase::updateItem(search_label, favorite, item_state);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -452,6 +453,7 @@ LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryIt
 }
 
 void LLPanelAttachmentListItem::updateItem(const std::string& name,
+                                           bool favorite,
                                            EItemState item_state)
 {
     std::string title_joint = name;
@@ -469,7 +471,7 @@ void LLPanelAttachmentListItem::updateItem(const std::string& name,
         title_joint =  title_joint + " (" + trans_name + ")";
     }
 
-    LLPanelInventoryListItemBase::updateItem(title_joint, item_state);
+    LLPanelInventoryListItemBase::updateItem(title_joint, favorite, item_state);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -497,7 +499,7 @@ bool LLPanelDummyClothingListItem::postBuild()
     addWidgetToRightSide("btn_add_panel");
 
     setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, false));
-    updateItem(wearableTypeToString(mWearableType));
+    updateItem(wearableTypeToString(mWearableType), false);
 
     // Make it look loke clothing item - reserve space for 'delete' button
     setLeftWidgetsWidth(getChildView("item_icon")->getRect().mLeft);

@@ -73,6 +73,9 @@ const F32 LLFolderViewItem::FOLDER_OPEN_TIME_CONSTANT = 0.03f;
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
+constexpr S32 FAVORITE_IMAGE_SIZE = 14;
+constexpr S32 FAVORITE_IMAGE_PAD = 3;
+
 
 //static
 LLFontGL* LLFolderViewItem::getLabelFontForStyle(U8 style)
@@ -460,6 +463,10 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
         }
         mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel.c_str()) + getLabelFontForStyle(LLFontGL::NORMAL)->getWidth(mLabelSuffix.c_str()) + mLabelPaddingRight;
         mLabelWidthDirty = false;
+        if (mIsFavorite)
+        {
+            mLabelWidth += FAVORITE_IMAGE_SIZE + FAVORITE_IMAGE_PAD;
+        }
     }
 
     *width = llmax(*width, mLabelWidth);
@@ -825,18 +832,25 @@ void LLFolderViewItem::drawFavoriteIcon()
 
     if (favorite_image)
     {
-        constexpr S32 PAD = 3;
-        constexpr S32 image_size = 14;
-
-        S32 width = mRoot->getVisibleContentWidth(); // star should stick to scroller's right side
-        if (width <= 0)
+        S32 x_offset = 0;
+        LLScrollContainer* scroll = mRoot->getScrollContainer();
+        if (scroll)
         {
-            width = getRect().getWidth();
+            S32 width = scroll->getVisibleContentRect().getWidth();
+            S32 offset = scroll->getDocPosHorizontal();
+            x_offset = width + offset;
         }
-
+        else
+        {
+            x_offset = getRect().getWidth();
+        }
         gl_draw_scaled_image(
-            width - image_size - PAD, getRect().getHeight() - mItemHeight + PAD,
-            image_size, image_size, favorite_image->getImage(), sFgColor);
+            x_offset - FAVORITE_IMAGE_SIZE - FAVORITE_IMAGE_PAD,
+            getRect().getHeight() - mItemHeight + FAVORITE_IMAGE_PAD,
+            FAVORITE_IMAGE_SIZE,
+            FAVORITE_IMAGE_SIZE,
+            favorite_image->getImage(),
+            sFgColor);
     }
 }
 
@@ -1908,7 +1922,7 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
         }
         else
         {
-            LL_WARNS() << "FAVORITE_ADDED for a folder without favorites" << LL_ENDL;
+            // already up to date
             self->mFavoritesDirtyFlags = 0;
             gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
         }

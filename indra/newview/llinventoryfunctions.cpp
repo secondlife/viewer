@@ -2150,21 +2150,10 @@ void validate_marketplacelistings(
 
 void change_item_parent(const LLUUID& item_id, const LLUUID& new_parent_id)
 {
-    LLInventoryItem* inv_item = gInventory.getItem(item_id);
+    LLViewerInventoryItem* inv_item = gInventory.getItem(item_id);
     if (inv_item)
     {
-        LLInventoryModel::update_list_t update;
-        LLInventoryModel::LLCategoryUpdate old_folder(inv_item->getParentUUID(), -1);
-        update.push_back(old_folder);
-        LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-        update.push_back(new_folder);
-        gInventory.accountForUpdate(update);
-
-        LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
-        new_item->setParent(new_parent_id);
-        new_item->updateParentOnServer(false);
-        gInventory.updateItem(new_item);
-        gInventory.notifyObservers();
+        gInventory.changeItemParent(inv_item, new_parent_id, false);
     }
 }
 
@@ -2172,17 +2161,17 @@ void move_items_to_folder(const LLUUID& new_cat_uuid, const uuid_vec_t& selected
 {
     for (uuid_vec_t::const_iterator it = selected_uuids.begin(); it != selected_uuids.end(); ++it)
     {
-        LLInventoryItem* inv_item = gInventory.getItem(*it);
+        LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
         if (inv_item)
         {
-            change_item_parent(*it, new_cat_uuid);
+            gInventory.changeItemParent(inv_item, new_cat_uuid, false);
         }
         else
         {
-            LLInventoryCategory* inv_cat = gInventory.getCategory(*it);
+            LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
             if (inv_cat && !LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
             {
-                gInventory.changeCategoryParent((LLViewerInventoryCategory*)inv_cat, new_cat_uuid, false);
+                gInventory.changeCategoryParent(inv_cat, new_cat_uuid, false);
             }
         }
     }
@@ -3577,7 +3566,6 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else if ("new_folder_from_selected" == action)
     {
-
         LLInventoryObject* first_item = gInventory.getObject(*ids.begin());
         if (!first_item)
         {
