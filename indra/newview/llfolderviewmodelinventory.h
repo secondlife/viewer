@@ -59,6 +59,7 @@ public:
     virtual EInventorySortGroup getSortGroup() const = 0;
     virtual LLInventoryObject* getInventoryObject() const = 0;
     virtual void requestSort();
+    virtual bool canSortContent() const { return getUUID().notNull(); }
     virtual void setPassedFilter(bool filtered, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
     virtual bool filter( LLFolderViewFilter& filter);
     virtual bool filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);

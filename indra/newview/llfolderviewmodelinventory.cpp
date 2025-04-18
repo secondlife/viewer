@@ -69,7 +69,7 @@ void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
     if (!folder->areChildrenInited() || !needsSort(folder->getViewModelItem())) return;
 
     LLFolderViewModelItemInventory* sort_modelp =   static_cast<LLFolderViewModelItemInventory*>(folder->getViewModelItem());
-    if (sort_modelp->getUUID().isNull()) return;
+    if (!sort_modelp->canSortContent()) return;
 
     bool has_favorites = false;
     for (std::list<LLFolderViewFolder*>::iterator it =   folder->getFoldersBegin(), end_it = folder->getFoldersEnd();
