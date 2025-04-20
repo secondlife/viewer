@@ -551,7 +551,20 @@ public:
         opj_set_warning_handler(encoder, opj_warn, this);
         opj_set_error_handler(encoder, opj_error, this);
 
-        U32 tile_count = (rawImageIn.getWidth() >> 6) * (rawImageIn.getHeight() >> 6);
+        U32 width_tiles = (rawImageIn.getWidth() >> 6);
+        U32 height_tiles = (rawImageIn.getHeight() >> 6);
+
+        // Allow images with a width or height that are MIN_IMAGE_SIZE <= x < 64
+        if (width_tiles == 0 && (rawImageIn.getWidth() >= MIN_IMAGE_SIZE))
+        {
+            width_tiles = 1;
+        }
+        if (height_tiles == 0 && (rawImageIn.getHeight() >= MIN_IMAGE_SIZE))
+        {
+            height_tiles = 1;
+        }
+
+        U32 tile_count = width_tiles * height_tiles;
         U32 data_size_guess = tile_count * TILE_SIZE;
 
         // will be freed in opj_free_user_data_write
@@ -857,12 +870,11 @@ bool LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, con
 {
     JPEG2KEncode encode(comment_text, reversible);
     bool encoded = encode.encode(raw_image, base);
-    if (encoded)
+    if (!encoded)
     {
-        LL_WARNS() << "Openjpeg encoding implementation isn't complete, returning false" << LL_ENDL;
+        LL_WARNS() << "Openjpeg encoding was unsuccessful, returning false" << LL_ENDL;
     }
     return encoded;
-    //return false;
 }
 
 bool LLImageJ2COJ::getMetadata(LLImageJ2C &base)
