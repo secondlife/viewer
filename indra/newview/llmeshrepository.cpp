@@ -4549,6 +4549,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 
             if (mPendingRequests.size() > push_count)
             {
+                LL_PROFILE_ZONE_NAMED("Mesh score_map");
                 // More requests than the high-water limit allows so
                 // sort and forward the most important.
 
