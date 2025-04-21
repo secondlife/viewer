@@ -1809,42 +1809,36 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 //static
 void LLMeshRepoThread::incActiveLODRequests()
 {
-    LLMutexLock lock(gMeshRepo.mThread->mMutex);
     ++LLMeshRepoThread::sActiveLODRequests;
 }
 
 //static
 void LLMeshRepoThread::decActiveLODRequests()
 {
-    LLMutexLock lock(gMeshRepo.mThread->mMutex);
     --LLMeshRepoThread::sActiveLODRequests;
 }
 
 //static
 void LLMeshRepoThread::incActiveHeaderRequests()
 {
-    LLMutexLock lock(gMeshRepo.mThread->mMutex);
     ++LLMeshRepoThread::sActiveHeaderRequests;
 }
 
 //static
 void LLMeshRepoThread::decActiveHeaderRequests()
 {
-    LLMutexLock lock(gMeshRepo.mThread->mMutex);
     --LLMeshRepoThread::sActiveHeaderRequests;
 }
 
 //static
 void LLMeshRepoThread::incActiveSkinRequests()
 {
-    LLMutexLock lock(gMeshRepo.mThread->mMutex);
     ++LLMeshRepoThread::sActiveSkinRequests;
 }
 
 //static
 void LLMeshRepoThread::decActiveSkinRequests()
 {
-    LLMutexLock lock(gMeshRepo.mThread->mMutex);
     --LLMeshRepoThread::sActiveSkinRequests;
 }
 
@@ -4495,13 +4489,20 @@ void LLMeshRepository::notifyLoadedMeshes()
     {
         LLMutexTrylock lock1(mMeshMutex);
         LLMutexTrylock lock2(mThread->mMutex);
+        LLMutexTrylock lock3(mThread->mHeaderMutex);
+        LLMutexTrylock lock4(mThread->mPendingMutex);
 
         static U32 hold_offs(0);
-        if (! lock1.isLocked() || ! lock2.isLocked())
+        if (! lock1.isLocked() || ! lock2.isLocked() || ! lock3.isLocked() || ! lock4.isLocked())
         {
             // If we can't get the locks, skip and pick this up later.
+            // Eventually thread queue will be free enough
             ++hold_offs;
             sMaxLockHoldoffs = llmax(sMaxLockHoldoffs, hold_offs);
+            if (hold_offs > 4)
+            {
+                LL_WARNS_ONCE() << "High mesh thread holdoff" << LL_ENDL;
+            }
             return;
         }
         hold_offs = 0;
@@ -4598,8 +4599,6 @@ void LLMeshRepository::notifyLoadedMeshes()
                 std::partial_sort(mPendingRequests.begin(), mPendingRequests.begin() + push_count,
                                   mPendingRequests.end(), PendingRequestBase::CompareScoreGreater());
             }
-            LLMutexTrylock lock3(mThread->mHeaderMutex);
-            LLMutexTrylock lock4(mThread->mPendingMutex);
             while (!mPendingRequests.empty() && push_count > 0)
             {
                 std::unique_ptr<PendingRequestBase>& req_p = mPendingRequests.front();
