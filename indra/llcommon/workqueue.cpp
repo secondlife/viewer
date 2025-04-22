@@ -21,6 +21,7 @@
 #include "llcoros.h"
 #include LLCOROS_MUTEX_HEADER
 #include "llerror.h"
+#include "llevents.h"
 #include "llexception.h"
 #include "stringize.h"
 
@@ -34,10 +35,34 @@ LL::WorkQueueBase::WorkQueueBase(const std::string& name, bool auto_shutdown)
   : super(makeName(name))
 {
     if (auto_shutdown)
-{
-    // TODO: register for "LLApp" events so we can implicitly close() on
-    // viewer shutdown.
+    {
+        // Register for "LLApp" events so we can implicitly close() on viewer shutdown
+        std::string listener_name = "WorkQueue:" + getKey();
+        LLEventPumps::instance().obtain("LLApp").listen(
+            listener_name,
+            [this](const LLSD& stat)
+            {
+                std::string status(stat["status"]);
+                if (status != "running")
+                {
+                    // Viewer is shutting down, close this queue
+                    LL_DEBUGS("WorkQueue") << getKey() << " closing on app shutdown" << LL_ENDL;
+                    close();
+                }
+                return false;
+            });
+
+        // Store the listener name so we can unregister in the destructor
+        mListenerName = listener_name;
+    }
 }
+
+LL::WorkQueueBase::~WorkQueueBase()
+{
+    if (!mListenerName.empty() && !LLEventPumps::wasDeleted())
+    {
+        LLEventPumps::instance().obtain("LLApp").stopListening(mListenerName);
+    }
 }
 
 void LL::WorkQueueBase::runUntilClose()
