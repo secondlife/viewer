@@ -53,6 +53,8 @@ namespace LL
          */
         WorkQueueBase(const std::string& name, bool auto_shutdown);
 
+        virtual ~WorkQueueBase();
+
         /**
          * Since the point of WorkQueue is to pass work to some other worker
          * thread(s) asynchronously, it's important that it continue to exist
@@ -197,6 +199,9 @@ namespace LL
     private:
         virtual Work pop_() = 0;
         virtual bool tryPop_(Work&) = 0;
+
+        // Name used for the LLApp event listener (empty if not registered)
+        std::string mListenerName;
     };
 
 /*****************************************************************************
