@@ -279,7 +279,7 @@
    font="SansSerifMedium"
    text_color="White"
    width="300">
-   Pressing return on an avatar attachment
+   Pressing enter on an avatar attachment
   </text>
   <combo_box
    control_name="InventoryAddAttachmentBehavior"
