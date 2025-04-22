@@ -134,6 +134,7 @@ bool LLFloaterChatMentionPicker::handleKey(KEY key, MASK mask, bool called_from_
             case KEY_DOWN:
                 return mAvatarList->handleKey(key, mask, called_from_parent);
             case KEY_RETURN:
+            case KEY_TAB:
                 selectResident(mAvatarList->getSelectedUUID());
                 return true;
             case KEY_ESCAPE:

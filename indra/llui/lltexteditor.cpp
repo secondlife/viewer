@@ -1915,7 +1915,7 @@ bool LLTextEditor::handleKeyHere(KEY key, MASK mask )
     // not handled and let the parent take care of field movement.
     if (KEY_TAB == key && mTabsToNextField)
     {
-        return false;
+        return mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask);
     }
 
     if (mReadOnly && mScroller)
