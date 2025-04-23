@@ -580,7 +580,7 @@ LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
 //
 LLUrlEntryAgent::LLUrlEntryAgent()
 {
-    mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/(mention|(?!mention)\\w+)",
+    mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/\\w+",
                             boost::regex::perl|boost::regex::icase);
     mMenuName = "menu_url_agent.xml";
     mIcon = "Generic_Person";
@@ -673,17 +673,7 @@ LLUrlMatch::EUnderlineLink LLUrlEntryAgent::getUnderline(const std::string& stri
     {
         return LLUrlMatch::EUnderlineLink::UNDERLINE_ON_HOVER;
     }
-    else if (LLStringUtil::endsWith(url, "/mention"))
-    {
-        return LLUrlMatch::EUnderlineLink::UNDERLINE_NEVER;
-    }
     return LLUrlMatch::EUnderlineLink::UNDERLINE_ALWAYS;
-}
-
-bool LLUrlEntryAgent::getSkipProfileIcon(const std::string& string) const
-{
-    std::string url = getUrl(string);
-    return (LLStringUtil::endsWith(url, "/mention")) ? true : false;
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -730,14 +720,7 @@ LLStyle::Params LLUrlEntryAgent::getStyle(const std::string &url) const
     LLStyle::Params style_params = LLUrlEntryBase::getStyle(url);
     style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
     style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-    if (LLStringUtil::endsWith(url, "/mention"))
-    {
-        style_params.font.style = "NORMAL";
-        style_params.draw_highlight_bg = true;
 
-        LLUUID agent_id(getIDStringFromUrl(url));
-        style_params.highlight_bg_color = LLUIColorTable::instance().getColor((agent_id == sAgentID) ? "ChatSelfMentionHighlight" : "ChatMentionHighlight");
-    }
     return style_params;
 }
 
@@ -784,7 +767,35 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 {
     // *NOTE: Could look up a badge here by calling getIDStringFromUrl()
     // and looking up the badge for the agent.
-    return LLStringUtil::endsWith(url, "/mention") ? std::string() : mIcon;
+    return mIcon;
+}
+
+///
+/// LLUrlEntryAgentMention Describes a chat mention Url, e.g.,
+/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/mention
+///
+LLUrlEntryAgentMention::LLUrlEntryAgentMention()
+{
+    mPattern  = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/mention", boost::regex::perl | boost::regex::icase);
+    mMenuName = "menu_url_agent.xml";
+    mIcon = std::string();
+}
+
+LLUrlMatch::EUnderlineLink LLUrlEntryAgentMention::getUnderline(const std::string& string) const
+{
+    return LLUrlMatch::EUnderlineLink::UNDERLINE_NEVER;
+}
+
+LLStyle::Params LLUrlEntryAgentMention::getStyle(const std::string& url) const
+{
+    LLStyle::Params style_params = LLUrlEntryAgent::getStyle(url);
+    style_params.font.style = "NORMAL";
+    style_params.draw_highlight_bg = true;
+
+    LLUUID agent_id(getIDStringFromUrl(url));
+    style_params.highlight_bg_color = LLUIColorTable::instance().getColor((agent_id == sAgentID) ? "ChatSelfMentionHighlight" : "ChatMentionHighlight");
+
+    return style_params;
 }
 
 //

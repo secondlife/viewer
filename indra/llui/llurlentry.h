@@ -234,7 +234,6 @@ public:
     /*virtual*/ LLUUID  getID(const std::string &string) const;
 
     LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const;
-    bool getSkipProfileIcon(const std::string& string) const;
 
 protected:
     /*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
@@ -243,6 +242,19 @@ private:
 
     typedef std::multimap<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
+};
+
+///
+/// LLUrlEntryAgentMention Describes a chat mention Url, e.g.,
+/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/mention
+class LLUrlEntryAgentMention : public LLUrlEntryAgent
+{
+public:
+    LLUrlEntryAgentMention();
+
+    LLStyle::Params getStyle(const std::string& url) const;
+    LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const;
+    bool getSkipProfileIcon(const std::string& string) const { return true; };
 };
 
 ///

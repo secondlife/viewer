@@ -62,6 +62,8 @@ LLUrlRegistry::LLUrlRegistry()
     registerUrl(new LLUrlEntryAgentUserName());
     // LLUrlEntryAgent*Name must appear before LLUrlEntryAgent since
     // LLUrlEntryAgent is a less specific (catchall for agent urls)
+    mUrlEntryAgentMention = new LLUrlEntryAgentMention();
+    registerUrl(mUrlEntryAgentMention);
     registerUrl(new LLUrlEntryAgent());
     registerUrl(new LLUrlEntryChat());
     registerUrl(new LLUrlEntryGroup());
@@ -155,7 +157,7 @@ static bool stringHasUrl(const std::string &text)
             text.find("@") != std::string::npos);
 }
 
-bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted)
+bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted, bool skip_non_mentions)
 {
     // avoid costly regexes if there is clearly no URL in the text
     if (! stringHasUrl(text))
@@ -172,6 +174,11 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
     {
         //Skip for url entry icon if content is not trusted
         if((mUrlEntryIcon == *it) && ((text.find("Hand") != std::string::npos) || !is_content_trusted))
+        {
+            continue;
+        }
+
+        if (skip_non_mentions && (mUrlEntryAgentMention != *it))
         {
             continue;
         }
