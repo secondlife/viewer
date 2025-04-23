@@ -215,6 +215,8 @@ public:
 
     void            setPassDelete(bool b) { mPassDelete = b; }
 
+    LLWString       getConvertedText() const;
+
 protected:
     void            showContextMenu(S32 x, S32 y);
     void            drawPreeditMarker();

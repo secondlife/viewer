@@ -722,9 +722,21 @@ void LLTextEditor::handleMentionCommit(std::string name_url)
     if (LLChatMentionHelper::instance().isCursorInNameMention(getWText(), mCursorPos, &mention_start_pos))
     {
         remove(mention_start_pos, mCursorPos - mention_start_pos, true);
-        setCursorPos(mention_start_pos);
+        insert(mention_start_pos, utf8str_to_wstring(name_url), false, LLTextSegmentPtr());
 
-        appendTextImpl(name_url, LLStyle::Params(), true);
+        std::string new_text(wstring_to_utf8str(getConvertedText()));
+        clear();
+        appendTextImpl(new_text, LLStyle::Params(), true);
+
+        segment_set_t::const_iterator it = getSegIterContaining(mention_start_pos);
+        if (it != mSegments.end())
+        {
+            setCursorPos((*it)->getEnd() + 1);
+        }
+        else
+        {
+            setCursorPos(mention_start_pos);
+        }
     }
 }
 
@@ -3128,4 +3140,22 @@ bool LLTextEditor::canLoadOrSaveToFile()
 S32 LLTextEditor::spacesPerTab()
 {
     return SPACES_PER_TAB;
+}
+
+LLWString LLTextEditor::getConvertedText() const
+{
+    LLWString text = getWText();
+    S32 diff = 0;
+    for (auto segment : mSegments)
+    {
+        if (segment && segment->getStyle() && segment->getStyle()->getDrawHighlightBg())
+        {
+            S32 seg_length = segment->getEnd() - segment->getStart();
+            std::string slurl = segment->getStyle()->getLinkHREF();
+
+            text.replace(segment->getStart() + diff, seg_length, utf8str_to_wstring(slurl));
+            diff += (S32)slurl.size() - seg_length;
+        }
+    }
+    return text;
 }
