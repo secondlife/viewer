@@ -250,6 +250,7 @@ protected:
     void onCommitGLTFRotation();
     void onCommitGLTFTextureOffsetU();
     void onCommitGLTFTextureOffsetV();
+    void onCommitGLTFRepeatsPerMeter();
 
     void onClickAutoFix();
     void onAlignTexture();
@@ -358,6 +359,7 @@ private:
     LLButton* mDelMedia { nullptr };
     LLSpinCtrl* mPBRScaleU { nullptr };
     LLSpinCtrl* mPBRScaleV { nullptr };
+    LLSpinCtrl* mPBRRepeat { nullptr };
     LLSpinCtrl* mPBRRotate { nullptr };
     LLSpinCtrl* mPBROffsetU { nullptr };
     LLSpinCtrl* mPBROffsetV { nullptr };
@@ -551,7 +553,9 @@ private:
     void updateVisibilityGLTF(LLViewerObject* objectp = nullptr);
 
     void updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func);
+    void updateSelectedGLTFMaterialsWithScale(std::function<void(LLGLTFMaterial*, const F32, const F32)> func);
     void updateGLTFTextureTransform(std::function<void(LLGLTFMaterial::TextureTransform*)> edit);
+    void updateGLTFTextureTransformWithScale(const LLGLTFMaterial::TextureInfo texture_info, std::function<void(LLGLTFMaterial::TextureTransform*, const F32, const F32)> edit);
 
     void setMaterialOverridesFromSelection();
 
