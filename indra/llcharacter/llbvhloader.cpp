@@ -131,7 +131,7 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 // LLBVHLoader()
 //-----------------------------------------------------------------------------
 
-LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string>& joint_alias_map )
+LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string, std::less<>>& joint_alias_map )
 {
     reset();
     errorLine = 0;

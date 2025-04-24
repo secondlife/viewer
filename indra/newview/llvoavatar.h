@@ -202,7 +202,7 @@ public:
     void                    startDefaultMotions();
     void                    dumpAnimationState();
 
-    virtual LLJoint*        getJoint(const std::string &name);
+    virtual LLJoint*        getJoint(std::string_view name);
     LLJoint*                getJoint(S32 num);
 
     //if you KNOW joint_num is a valid animated joint index, use getSkeletonJoint for efficiency
