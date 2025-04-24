@@ -1456,9 +1456,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             spec_scale_s = editable ? spec_scale_s : 1.0f;
             spec_scale_s *= identical_planar_texgen ? 2.0f : 1.0f;
 
-            mTexScaleU->setValue(diff_scale_s);
-            mShinyScaleU->setValue(spec_scale_s);
-            mBumpyScaleU->setValue(norm_scale_s);
+            if (force_set_values)
+            {
+                mTexScaleU->forceSetValue(diff_scale_s);
+                mShinyScaleU->forceSetValue(spec_scale_s);
+                mBumpyScaleU->forceSetValue(norm_scale_s);
+            }
+            else
+            {
+                mTexScaleU->setValue(diff_scale_s);
+                mShinyScaleU->setValue(spec_scale_s);
+                mBumpyScaleU->setValue(norm_scale_s);
+            }
 
             mTexScaleU->setEnabled(editable && has_material);
             mShinyScaleU->setEnabled(editable && has_material && specmap_id.notNull());
@@ -1506,13 +1515,16 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             if (force_set_values)
             {
                 mTexScaleV->forceSetValue(diff_scale_t);
+                mShinyScaleV->forceSetValue(spec_scale_t);
+                mBumpyScaleV->forceSetValue(norm_scale_t);
             }
             else
             {
                 mTexScaleV->setValue(diff_scale_t);
+                mShinyScaleV->setValue(spec_scale_t);
+                mBumpyScaleV->setValue(norm_scale_t);
             }
-            mShinyScaleV->setValue(spec_scale_t);
-            mBumpyScaleV->setValue(norm_scale_t);
+
 
             mTexScaleV->setTentative(LLSD(diff_scale_tentative));
             mShinyScaleV->setTentative(LLSD(spec_scale_tentative));
@@ -4838,8 +4850,9 @@ void LLPanelFace::setMaterialOverridesFromSelection()
         }
     }
 
-    mPBRScaleU->setValue(transform.mScale[VX]);
-    mPBRScaleV->setValue(transform.mScale[VY]);
+    // Force set scales just in case they were set by repeats per meter and their spinner is focused
+    mPBRScaleU->forceSetValue(transform.mScale[VX]);
+    mPBRScaleV->forceSetValue(transform.mScale[VY]);
     mPBRRotate->setValue(transform.mRotation * RAD_TO_DEG);
     mPBROffsetU->setValue(transform.mOffset[VX]);
     mPBROffsetV->setValue(transform.mOffset[VY]);
