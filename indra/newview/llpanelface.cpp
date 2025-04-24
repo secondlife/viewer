@@ -3750,18 +3750,8 @@ void LLPanelFace::onCommitRepeatsPerMeter()
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
         LLSelectMgr::getInstance()->selectionTexScaleAutofit(repeats_per_meter);
-
-        mBumpyScaleU->setValue(obj_scale_s * repeats_per_meter);
-        mBumpyScaleV->setValue(obj_scale_t * repeats_per_meter);
-
-        LLSelectedTEMaterial::setNormalRepeatX(this, obj_scale_s * repeats_per_meter);
-        LLSelectedTEMaterial::setNormalRepeatY(this, obj_scale_t * repeats_per_meter);
-
-        mShinyScaleU->setValue(obj_scale_s * repeats_per_meter);
-        mShinyScaleV->setValue(obj_scale_t * repeats_per_meter);
-
-        LLSelectedTEMaterial::setSpecularRepeatX(this, obj_scale_s * repeats_per_meter);
-        LLSelectedTEMaterial::setSpecularRepeatY(this, obj_scale_t * repeats_per_meter);
+        LLSelectedTEMaterial::selectionNormalScaleAutofit(this, repeats_per_meter);
+        LLSelectedTEMaterial::selectionSpecularScaleAutofit(this, repeats_per_meter);
     }
     else
     {
@@ -3772,18 +3762,10 @@ void LLPanelFace::onCommitRepeatsPerMeter()
             LLSelectMgr::getInstance()->selectionTexScaleAutofit(repeats_per_meter);
             break;
         case MATTYPE_NORMAL:
-            mBumpyScaleU->setValue(obj_scale_s * repeats_per_meter);
-            mBumpyScaleV->setValue(obj_scale_t * repeats_per_meter);
-
-            LLSelectedTEMaterial::setNormalRepeatX(this, obj_scale_s * repeats_per_meter);
-            LLSelectedTEMaterial::setNormalRepeatY(this, obj_scale_t * repeats_per_meter);
+            LLSelectedTEMaterial::selectionNormalScaleAutofit(this, repeats_per_meter);
             break;
         case MATTYPE_SPECULAR:
-            mBumpyScaleU->setValue(obj_scale_s * repeats_per_meter);
-            mBumpyScaleV->setValue(obj_scale_t * repeats_per_meter);
-
-            LLSelectedTEMaterial::setSpecularRepeatX(this, obj_scale_s * repeats_per_meter);
-            LLSelectedTEMaterial::setSpecularRepeatY(this, obj_scale_t * repeats_per_meter);
+            LLSelectedTEMaterial::selectionSpecularScaleAutofit(this, repeats_per_meter);
             break;
         default:
             llassert(false);
@@ -5364,6 +5346,62 @@ void LLPanelFace::LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(U8& diffuse_a
         bool _isAlpha; // whether or not the diffuse texture selected contains alpha information
     } get_diff_mode(diffuse_texture_has_alpha);
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &get_diff_mode, diffuse_alpha_mode);
+}
+
+void LLPanelFace::LLSelectedTEMaterial::selectionNormalScaleAutofit(LLPanelFace* panel_face, F32 repeats_per_meter)
+{
+    struct f : public LLSelectedTEFunctor
+    {
+        LLPanelFace* mFacePanel;
+        F32 mRepeatsPerMeter;
+        f(LLPanelFace* face_panel, const F32& repeats_per_meter) : mFacePanel(face_panel), mRepeatsPerMeter(repeats_per_meter) {}
+        bool apply(LLViewerObject* object, S32 te)
+        {
+            if (object->permModify())
+            {
+                // Compute S,T to axis mapping
+                U32 s_axis, t_axis;
+                if (!LLPrimitive::getTESTAxes(te, &s_axis, &t_axis))
+                    return true;
+
+                F32 new_s = object->getScale().mV[s_axis] * mRepeatsPerMeter;
+                F32 new_t = object->getScale().mV[t_axis] * mRepeatsPerMeter;
+
+                setNormalRepeatX(mFacePanel, new_s, te);
+                setNormalRepeatY(mFacePanel, new_t, te);
+            }
+            return true;
+        }
+    } setfunc(panel_face, repeats_per_meter);
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+}
+
+void LLPanelFace::LLSelectedTEMaterial::selectionSpecularScaleAutofit(LLPanelFace* panel_face, F32 repeats_per_meter)
+{
+    struct f : public LLSelectedTEFunctor
+    {
+        LLPanelFace* mFacePanel;
+        F32 mRepeatsPerMeter;
+        f(LLPanelFace* face_panel, const F32& repeats_per_meter) : mFacePanel(face_panel), mRepeatsPerMeter(repeats_per_meter) {}
+        bool apply(LLViewerObject* object, S32 te)
+        {
+            if (object->permModify())
+            {
+                // Compute S,T to axis mapping
+                U32 s_axis, t_axis;
+                if (!LLPrimitive::getTESTAxes(te, &s_axis, &t_axis))
+                    return true;
+
+                F32 new_s = object->getScale().mV[s_axis] * mRepeatsPerMeter;
+                F32 new_t = object->getScale().mV[t_axis] * mRepeatsPerMeter;
+
+                setSpecularRepeatX(mFacePanel, new_s, te);
+                setSpecularRepeatY(mFacePanel, new_t, te);
+            }
+            return true;
+        }
+    } setfunc(panel_face, repeats_per_meter);
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
 }
 
 void LLPanelFace::LLSelectedTE::getObjectScaleS(F32& scale_s, bool& identical)
