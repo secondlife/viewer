@@ -140,7 +140,7 @@ public:
     /*virtual*/ S32                 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
     /*virtual*/ void                updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
-    /*virtual*/ bool                canEdit() const { return true; }
+    /*virtual*/ bool                canEdit() const { return mCanEdit; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
     /*virtual*/ LLStyleConstSP      getStyle() const                    { return mStyle; }
     /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
@@ -163,6 +163,8 @@ protected:
     virtual     const LLWString&    getWText()  const;
     virtual     const S32           getLength() const;
 
+    void setAllowEdit(bool can_edit) { mCanEdit = can_edit; }
+
 protected:
     class LLTextBase&   mEditor;
     LLStyleConstSP      mStyle;
@@ -170,6 +172,8 @@ protected:
     LLKeywordToken*     mToken;
     std::string         mTooltip;
     boost::signals2::connection mImageLoadedConnection;
+
+    bool mCanEdit { true };
 
     // font rendering
     LLFontVertexBuffer  mFontBufferPreSelection;

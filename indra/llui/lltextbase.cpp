@@ -3458,6 +3458,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
     mLastGeneration(-1)
 {
     mFontHeight = mStyle->getFont()->getLineHeight();
+    mCanEdit = !mStyle->getDrawHighlightBg();
 
     LLUIImagePtr image = mStyle->getImage();
     if (image.notNull())
