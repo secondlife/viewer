@@ -37,7 +37,7 @@ bool LLChatMentionHelper::isActive(const LLUICtrl* ctrl) const
     return mHostHandle.get() == ctrl;
 }
 
-bool LLChatMentionHelper::isCursorInNameMention(const LLWString& wtext, S32 cursor_pos, S32* mention_start_pos)
+bool LLChatMentionHelper::isCursorInNameMention(const LLWString& wtext, S32 cursor_pos, S32* mention_start_pos) const
 {
     if (cursor_pos <= 0 || cursor_pos > static_cast<S32>(wtext.size()))
         return false;

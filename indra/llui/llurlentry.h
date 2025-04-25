@@ -34,7 +34,6 @@
 
 #include "llavatarname.h"
 #include "llhost.h" // for resolving parcel name by parcel id
-#include "llurlmatch.h"
 
 #include <boost/signals2.hpp>
 #include <boost/regex.hpp>
@@ -97,7 +96,7 @@ public:
     /// Return the name of a SL location described by this Url, if any
     virtual std::string getLocation(const std::string &url) const { return ""; }
 
-    virtual LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const { return LLUrlMatch::EUnderlineLink::UNDERLINE_ALWAYS; }
+    virtual LLStyle::EUnderlineLink getUnderline(const std::string& string) const { return LLStyle::EUnderlineLink::UNDERLINE_ALWAYS; }
 
     virtual bool isTrusted() const { return false; }
 
@@ -233,7 +232,7 @@ public:
     /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
     /*virtual*/ LLUUID  getID(const std::string &string) const;
 
-    LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const;
+    LLStyle::EUnderlineLink getUnderline(const std::string& string) const;
 
 protected:
     /*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
@@ -253,7 +252,7 @@ public:
     LLUrlEntryAgentMention();
 
     LLStyle::Params getStyle(const std::string& url) const;
-    LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const;
+    LLStyle::EUnderlineLink getUnderline(const std::string& string) const;
     bool getSkipProfileIcon(const std::string& string) const { return true; };
 };
 
@@ -505,7 +504,7 @@ public:
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
     /*virtual*/ std::string getUrl(const std::string &string) const;
     /*virtual*/ std::string getTooltip(const std::string &string) const;
-    LLUrlMatch::EUnderlineLink getUnderline(const std::string& string) const;
+    LLStyle::EUnderlineLink getUnderline(const std::string& string) const;
 };
 
 ///

@@ -54,6 +54,14 @@ public:
         Params();
     };
     LLStyle(const Params& p = Params());
+
+    enum EUnderlineLink
+    {
+        UNDERLINE_ALWAYS = 0,
+        UNDERLINE_ON_HOVER,
+        UNDERLINE_NEVER
+    };
+
 public:
     const LLUIColor& getColor() const { return mColor; }
     void setColor(const LLUIColor &color) { mColor = color; }

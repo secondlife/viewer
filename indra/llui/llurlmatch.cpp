@@ -37,7 +37,7 @@ LLUrlMatch::LLUrlMatch() :
     mIcon(""),
     mMenuName(""),
     mLocation(""),
-    mUnderline(UNDERLINE_ALWAYS),
+    mUnderline(e_underline::UNDERLINE_ALWAYS),
     mTrusted(false),
     mSkipProfileIcon(false)
 {
@@ -47,7 +47,7 @@ void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url, const std
                            const std::string& query, const std::string &tooltip,
                            const std::string &icon, const LLStyle::Params& style,
                            const std::string &menu, const std::string &location,
-                           const LLUUID& id, EUnderlineLink underline, bool trusted, bool skip_icon)
+                           const LLUUID& id, e_underline underline, bool trusted, bool skip_icon)
 {
     mStart = start;
     mEnd = end;

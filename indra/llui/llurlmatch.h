@@ -46,13 +46,6 @@ class LLUrlMatch
 public:
     LLUrlMatch();
 
-    enum EUnderlineLink
-    {
-        UNDERLINE_ALWAYS = 0,
-        UNDERLINE_ON_HOVER,
-        UNDERLINE_NEVER
-    };
-
     /// return true if this object does not contain a valid Url match yet
     bool empty() const { return mUrl.empty(); }
 
@@ -86,7 +79,8 @@ public:
     /// return the SL location that this Url describes, or "" if none.
     std::string getLocation() const { return mLocation; }
 
-    EUnderlineLink getUnderline() const { return mUnderline; }
+    typedef LLStyle::EUnderlineLink e_underline;
+    e_underline getUnderline() const { return mUnderline; }
 
     /// Return true if Url is trusted.
     bool isTrusted() const { return mTrusted; }
@@ -98,7 +92,7 @@ public:
                    const std::string& query, const std::string &tooltip, const std::string &icon,
                    const LLStyle::Params& style, const std::string &menu,
                    const std::string &location, const LLUUID& id,
-                   EUnderlineLink underline = UNDERLINE_ALWAYS, bool trusted = false, bool skip_icon = false);
+                   e_underline underline = e_underline::UNDERLINE_ALWAYS, bool trusted = false, bool skip_icon = false);
 
     const LLUUID& getID() const { return mID; }
 private:
@@ -113,7 +107,7 @@ private:
     std::string mLocation;
     LLUUID      mID;
     LLStyle::Params mStyle;
-    EUnderlineLink  mUnderline;
+    e_underline mUnderline;
     bool        mTrusted;
     bool mSkipProfileIcon;
 };

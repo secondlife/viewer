@@ -611,7 +611,7 @@ protected:
         bool operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const;
     };
     typedef std::multiset<LLTextSegmentPtr, compare_segment_end> segment_set_t;
-    typedef LLUrlMatch::EUnderlineLink e_underline;
+    typedef LLStyle::EUnderlineLink e_underline;
 
     // member functions
     LLTextBase(const Params &p);

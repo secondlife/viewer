@@ -666,14 +666,14 @@ std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
     return LLTrans::getString("TooltipAgentUrl");
 }
 
-LLUrlMatch::EUnderlineLink LLUrlEntryAgent::getUnderline(const std::string& string) const
+LLStyle::EUnderlineLink LLUrlEntryAgent::getUnderline(const std::string& string) const
 {
     std::string url = getUrl(string);
     if (LLStringUtil::endsWith(url, "/about") || LLStringUtil::endsWith(url, "/inspect"))
     {
-        return LLUrlMatch::EUnderlineLink::UNDERLINE_ON_HOVER;
+        return LLStyle::EUnderlineLink::UNDERLINE_ON_HOVER;
     }
-    return LLUrlMatch::EUnderlineLink::UNDERLINE_ALWAYS;
+    return LLStyle::EUnderlineLink::UNDERLINE_ALWAYS;
 }
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -781,9 +781,9 @@ LLUrlEntryAgentMention::LLUrlEntryAgentMention()
     mIcon = std::string();
 }
 
-LLUrlMatch::EUnderlineLink LLUrlEntryAgentMention::getUnderline(const std::string& string) const
+LLStyle::EUnderlineLink LLUrlEntryAgentMention::getUnderline(const std::string& string) const
 {
-    return LLUrlMatch::EUnderlineLink::UNDERLINE_NEVER;
+    return LLStyle::EUnderlineLink::UNDERLINE_NEVER;
 }
 
 LLStyle::Params LLUrlEntryAgentMention::getStyle(const std::string& url) const
@@ -1406,7 +1406,7 @@ std::string LLUrlEntrySLLabel::getTooltip(const std::string &string) const
     return LLUrlEntryBase::getTooltip(string);
 }
 
-LLUrlMatch::EUnderlineLink LLUrlEntrySLLabel::getUnderline(const std::string& string) const
+LLStyle::EUnderlineLink LLUrlEntrySLLabel::getUnderline(const std::string& string) const
 {
     std::string url = getUrl(string);
     LLUrlMatch  match;
