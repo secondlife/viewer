@@ -1501,6 +1501,33 @@ static void handle_click_action_play()
     }
 }
 
+bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick)
+{
+    if(!pick.getObject())
+    {
+        return false;
+    }
+
+    static LLCachedControl<S32> FirstClickPref(gSavedSettings, "MediaFirstClickInteract", 1);
+
+    // HUD attachments only
+    if(FirstClickPref == 1 && pick.getObject()->isHUDAttachment())
+    {
+        return true;
+    }
+    // Only own objects
+    if(FirstClickPref == 2 && pick.getObject()->permYouOwner())
+    {
+        return true;
+    }
+    // Any object
+    if(FirstClickPref == 99)
+    {
+        return true;
+    }
+    return false;
+}
+
 bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 {
     //FIXME: how do we handle object in different parcel than us?

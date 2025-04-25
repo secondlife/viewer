@@ -89,6 +89,7 @@ private:
     void showVisualContextMenuEffect();
     ECursorType cursorFromObject(LLViewerObject* object);
 
+    bool shouldAllowFirstMediaInteraction(const LLPickInfo& info);
     bool handleMediaClick(const LLPickInfo& info);
     bool handleMediaDblClick(const LLPickInfo& info);
     bool handleMediaHover(const LLPickInfo& info);
