@@ -279,103 +279,118 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 {
     LLImageDataLock lock(&base);
 
-    S32 data_size = base.getDataSize();
-    S32 max_bytes = (base.getMaxBytes() ? base.getMaxBytes() : data_size);
-
-    //
-    //  Initialization
-    //
-    mCodeStreamp.reset();
-
-    // It's not clear to nat under what circumstances we would reuse a
-    // pre-existing LLKDUMemSource instance. As of 2016-08-05, it consists of
-    // two U32s and a pointer, so it's not as if it would be a huge overhead
-    // to allocate a new one every time.
-    // Also -- why is base.getData() tested specifically here? If that returns
-    // NULL, shouldn't we bail out of the whole method?
-    if (!mInputp && base.getData())
+    try
     {
-        // The compressed data has been loaded
-        // Setup the source for the codestream
-        mInputp.reset(new LLKDUMemSource(base.getData(), data_size));
-    }
 
-    if (mInputp)
-    {
-        // This is LLKDUMemSource::reset(), not boost::scoped_ptr::reset().
-        mInputp->reset();
-    }
+        S32 data_size = base.getDataSize();
+        S32 max_bytes = (base.getMaxBytes() ? base.getMaxBytes() : data_size);
 
-    mCodeStreamp->create(mInputp.get());
+        //
+        //  Initialization
+        //
+        mCodeStreamp.reset();
 
-    // Set the maximum number of bytes to use from the codestream
-    // *TODO: This seems to be wrong. The base class should have no idea of
-    // how j2c compression works so no good way of computing what's the byte
-    // range to be used.
-    mCodeStreamp->set_max_bytes(max_bytes,true);
-
-    //  If you want to flip or rotate the image for some reason, change
-    // the resolution, or identify a restricted region of interest, this is
-    // the place to do it.  You may use "kdu_codestream::change_appearance"
-    // and "kdu_codestream::apply_input_restrictions" for this purpose.
-    //  If you wish to truncate the code-stream prior to decompression, you
-    // may use "kdu_codestream::set_max_bytes".
-    //  If you wish to retain all compressed data so that the material
-    // can be decompressed multiple times, possibly with different appearance
-    // parameters, you should call "kdu_codestream::set_persistent" here.
-    //  There are a variety of other features which must be enabled at
-    // this point if you want to take advantage of them.  See the
-    // descriptions appearing with the "kdu_codestream" interface functions
-    // in "kdu_compressed.h" for an itemized account of these capabilities.
-
-    switch (mode)
-    {
-    case MODE_FAST:
-        mCodeStreamp->set_fast();
-        break;
-    case MODE_RESILIENT:
-        mCodeStreamp->set_resilient();
-        break;
-    case MODE_FUSSY:
-        mCodeStreamp->set_fussy();
-        break;
-    default:
-        llassert(0);
-        mCodeStreamp->set_fast();
-    }
-
-    kdu_dims dims;
-    mCodeStreamp->get_dims(0,dims);
-
-    S32 components = mCodeStreamp->get_num_components();
-
-    // Check that components have consistent dimensions (for PPM file)
-    for (int idx = 1; idx < components; ++idx)
-    {
-        kdu_dims other_dims;
-        mCodeStreamp->get_dims(idx, other_dims);
-        if (other_dims != dims)
+        // It's not clear to nat under what circumstances we would reuse a
+        // pre-existing LLKDUMemSource instance. As of 2016-08-05, it consists of
+        // two U32s and a pointer, so it's not as if it would be a huge overhead
+        // to allocate a new one every time.
+        // Also -- why is base.getData() tested specifically here? If that returns
+        // NULL, shouldn't we bail out of the whole method?
+        if (!mInputp && base.getData())
         {
-            // This method is only called from methods that catch KDUError.
-            // We want to fail the image load, not crash the viewer.
-            LLTHROW(KDUError(STRINGIZE("Component " << idx << " dimensions "
-                                       << stringize(other_dims)
-                                       << " do not match component 0 dimensions "
-                                       << stringize(dims) << "!")));
+            // The compressed data has been loaded
+            // Setup the source for the codestream
+            mInputp.reset(new LLKDUMemSource(base.getData(), data_size));
+        }
+
+        if (mInputp)
+        {
+            // This is LLKDUMemSource::reset(), not boost::scoped_ptr::reset().
+            mInputp->reset();
+        }
+
+        mCodeStreamp->create(mInputp.get());
+
+        // Set the maximum number of bytes to use from the codestream
+        // *TODO: This seems to be wrong. The base class should have no idea of
+        // how j2c compression works so no good way of computing what's the byte
+        // range to be used.
+        mCodeStreamp->set_max_bytes(max_bytes, true);
+
+        //  If you want to flip or rotate the image for some reason, change
+        // the resolution, or identify a restricted region of interest, this is
+        // the place to do it.  You may use "kdu_codestream::change_appearance"
+        // and "kdu_codestream::apply_input_restrictions" for this purpose.
+        //  If you wish to truncate the code-stream prior to decompression, you
+        // may use "kdu_codestream::set_max_bytes".
+        //  If you wish to retain all compressed data so that the material
+        // can be decompressed multiple times, possibly with different appearance
+        // parameters, you should call "kdu_codestream::set_persistent" here.
+        //  There are a variety of other features which must be enabled at
+        // this point if you want to take advantage of them.  See the
+        // descriptions appearing with the "kdu_codestream" interface functions
+        // in "kdu_compressed.h" for an itemized account of these capabilities.
+
+        switch (mode)
+        {
+        case MODE_FAST:
+            mCodeStreamp->set_fast();
+            break;
+        case MODE_RESILIENT:
+            mCodeStreamp->set_resilient();
+            break;
+        case MODE_FUSSY:
+            mCodeStreamp->set_fussy();
+            break;
+        default:
+            llassert(0);
+            mCodeStreamp->set_fast();
+        }
+
+        kdu_dims dims;
+        mCodeStreamp->get_dims(0, dims);
+
+        S32 components = mCodeStreamp->get_num_components();
+
+        // Check that components have consistent dimensions (for PPM file)
+        for (int idx = 1; idx < components; ++idx)
+        {
+            kdu_dims other_dims;
+            mCodeStreamp->get_dims(idx, other_dims);
+            if (other_dims != dims)
+            {
+                // This method is only called from methods that catch KDUError.
+                // We want to fail the image load, not crash the viewer.
+                LLTHROW(KDUError(STRINGIZE("Component " << idx << " dimensions "
+                    << stringize(other_dims)
+                    << " do not match component 0 dimensions "
+                    << stringize(dims) << "!")));
+            }
+        }
+
+        // Get the number of resolution levels in that image
+        mLevels = mCodeStreamp->get_min_dwt_levels();
+
+        // Set the base dimensions
+        base.setSize(dims.size.x, dims.size.y, components);
+        base.setLevels(mLevels);
+
+        if (!keep_codestream)
+        {
+            mCodeStreamp.reset();
+            mInputp.reset();
         }
     }
-
-    // Get the number of resolution levels in that image
-    mLevels = mCodeStreamp->get_min_dwt_levels();
-
-    // Set the base dimensions
-    base.setSize(dims.size.x, dims.size.y, components);
-    base.setLevels(mLevels);
-
-    if (!keep_codestream)
+    catch (std::bad_alloc&)
     {
-        mCodeStreamp.reset();
-        mInputp.reset();
+        // we are in a thread, can't show an 'out of memory' here,
+        // main thread will keep going
+        throw;
+    }
+    catch (...)
+    {
+        LLTHROW(KDUError(STRINGIZE("Unknown J2C error : " +
+            boost::current_exception_diagnostic_information() << "!")));
     }
 }
 

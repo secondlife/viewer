@@ -168,7 +168,6 @@ public:
 
     void submitRequest(Request* request);
     static S32 llcdCallback(const char*, S32, S32);
-    void cancel();
 
     void setMeshData(LLCDMeshData& mesh, bool vertex_based);
     void doDecomposition();
@@ -206,19 +205,19 @@ private:
     LLFrameTimer mTimer;
 };
 
-
+class MeshLoadData;
 class PendingRequestBase
 {
 public:
     struct CompareScoreGreater
     {
-        bool operator()(const std::unique_ptr<PendingRequestBase>& lhs, const std::unique_ptr<PendingRequestBase>& rhs)
+        bool operator()(const std::shared_ptr<PendingRequestBase>& lhs, const std::shared_ptr<PendingRequestBase>& rhs)
         {
             return lhs->mScore > rhs->mScore; // greatest = first
         }
     };
 
-    PendingRequestBase() : mScore(0.f) {};
+    PendingRequestBase() : mScore(0.f), mTrackedData(nullptr), mScoreDirty(true) {};
     virtual ~PendingRequestBase() {}
 
     bool operator<(const PendingRequestBase& rhs) const
@@ -226,14 +225,34 @@ public:
         return mId < rhs.mId;
     }
 
-    void setScore(F32 score) { mScore = score; }
     F32 getScore() const { return mScore; }
+    void checkScore()
+    {
+        constexpr F32 EXPIRE_TIME_SECS = 8.f;
+        if (mScoreTimer.getElapsedTimeF32() > EXPIRE_TIME_SECS || mScoreDirty)
+        {
+            updateScore();
+            mScoreDirty = false;
+            mScoreTimer.reset();
+        }
+    };
+
     LLUUID getId() const { return mId; }
     virtual EMeshRequestType getRequestType() const = 0;
 
+    void trackData(MeshLoadData* data) { mTrackedData = data; mScoreDirty = true; }
+    void untrackData() { mTrackedData = nullptr; }
+    bool hasTrackedData() { return mTrackedData != nullptr; }
+    void setScoreDirty() { mScoreDirty = true; }
+
 protected:
-    F32 mScore;
+    void updateScore();
+
     LLUUID mId;
+    F32 mScore;
+    bool mScoreDirty;
+    LLTimer mScoreTimer;
+    MeshLoadData* mTrackedData;
 };
 
 class PendingRequestLOD : public PendingRequestBase
@@ -265,6 +284,37 @@ public:
 
 private:
     EMeshRequestType mRequestType;
+};
+
+
+class MeshLoadData
+{
+public:
+    MeshLoadData() {}
+    ~MeshLoadData()
+    {
+        if (std::shared_ptr<PendingRequestBase> request = mRequest.lock())
+        {
+            request->untrackData();
+        }
+    }
+    void initData(LLVOVolume* vol, std::shared_ptr<PendingRequestBase>& request)
+    {
+        mVolumes.push_back(vol);
+        request->trackData(this);
+        mRequest = request;
+    }
+    void addVolume(LLVOVolume* vol)
+    {
+        mVolumes.push_back(vol);
+        if (std::shared_ptr<PendingRequestBase> request = mRequest.lock())
+        {
+            request->setScoreDirty();
+        }
+    }
+    std::vector<LLVOVolume*> mVolumes;
+private:
+    std::weak_ptr<PendingRequestBase> mRequest;
 };
 
 class LLMeshHeader
@@ -814,7 +864,7 @@ public:
     static void metricsProgress(unsigned int count);
     static void metricsUpdate();
 
-    typedef std::unordered_map<LLUUID, std::vector<LLVOVolume*> > mesh_load_map;
+    typedef std::unordered_map<LLUUID, MeshLoadData> mesh_load_map;
     mesh_load_map mLoadingMeshes[4];
 
     typedef std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>> skin_map;
@@ -825,11 +875,11 @@ public:
 
     LLMutex*                    mMeshMutex;
 
-    typedef std::vector <std::unique_ptr<PendingRequestBase> > pending_requests_vec;
+    typedef std::vector <std::shared_ptr<PendingRequestBase> > pending_requests_vec;
     pending_requests_vec mPendingRequests;
 
     //list of mesh ids awaiting skin info
-    typedef std::unordered_map<LLUUID, std::vector<LLVOVolume*> > skin_load_map;
+    typedef std::unordered_map<LLUUID, MeshLoadData > skin_load_map;
     skin_load_map mLoadingSkins;
 
     //list of mesh ids awaiting decompositions

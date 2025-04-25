@@ -37,6 +37,7 @@
 
 // newview
 #include "llsidetraypanelcontainer.h"
+#include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 
 #include "llagentbenefits.h"
@@ -98,6 +99,17 @@ void LLPanelSnapshot::onOpen(const LLSD& key)
     if (old_format != new_format)
     {
         getParentByType<LLFloater>()->notify(LLSD().with("image-format-change", true));
+    }
+
+    // If resolution is set to "Current Window", force a snapshot update
+    // each time a snapshot panel is opened to determine the correct
+    // image size (and upload fee) depending on the snapshot type.
+    if (mSnapshotFloater && getChild<LLUICtrl>(getImageSizeComboName())->getValue().asString() == "[i0,i0]")
+    {
+        if (LLSnapshotLivePreview* preview = mSnapshotFloater->getPreviewView())
+        {
+            preview->mForceUpdateSnapshot = true;
+        }
     }
 }
 

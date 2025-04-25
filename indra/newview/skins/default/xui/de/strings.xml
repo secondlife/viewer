@@ -1613,6 +1613,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="conference-title-incoming">Konferenz mit [AGENT_NAME]</string>
 	<string name="inventory_item_offered-im">Inventarobjekt „[ITEM_NAME]“ angeboten</string>
 	<string name="inventory_folder_offered-im">Inventarordner „[ITEM_NAME]“ angeboten</string>
+	<string name="bot_warning">
+	Sie chatten mit einem Bot, [NAME]. Geben Sie keine persönlichen Informationen weiter.
+Erfahren Sie mehr unter https://second.life/scripted-agents.
+	</string>
 	<string name="share_alert">Objekte aus dem Inventar hier her ziehen</string>
 	<string name="facebook_post_success">Sie haben auf Facebook gepostet.</string>
 	<string name="flickr_post_success">Sie haben auf Flickr gepostet.</string>
