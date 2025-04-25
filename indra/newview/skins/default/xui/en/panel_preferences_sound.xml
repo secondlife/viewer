@@ -426,7 +426,7 @@
         <item
             label="All MOAP"
             name="media_first_click_all"
-            value="65535"/>
+            value="1073741824"/>
     </combo_box>
    <check_box
     name="media_show_on_others_btn"

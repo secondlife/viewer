@@ -1520,6 +1520,12 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
         LL_DEBUGS_ONCE() << "FirstClickPref == MEDIA_FIRST_CLICK_NONE" << LL_ENDL;
         return false;
     }
+    // All objects (overriding PRIM_MEDIA_FIRST_CLICK_INTERACT)
+    if(FirstClickPref == MEDIA_FIRST_CLICK_ALL)
+    {
+        LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_ALL" << LL_ENDL;
+        return true;
+    }
     // Every check beyond this point requires PRIM_MEDIA_FIRST_CLICK_INTERACT to be TRUE
     if(!moap_flag && !(FirstClickPref & MEDIA_FIRST_CLICK_BYPASS_MOAP_FLAG))
     {
@@ -1541,6 +1547,12 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
         return false;
     }
 
+    // Own objects
+    if((FirstClickPref & MEDIA_FIRST_CLICK_OWN) && object->permYouOwner())
+    {
+        LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_OWN" << LL_ENDL;
+        return true;
+    }
     // HUD attachments
     if((FirstClickPref & MEDIA_FIRST_CLICK_HUD) && object->isHUDAttachment())
     {
@@ -1583,9 +1595,11 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     // Check for objects set to or owned by the active group
     if(FirstClickPref & MEDIA_FIRST_CLICK_GROUP)
     {
-        if(gAgent.isInGroup(group_id) || gAgent.isInGroup(owner_id))
+        // Get our active group
+        LLUUID active_group = gAgent.getGroupID();
+        if(active_group.notNull() && (active_group == group_id || active_group == owner_id))
         {
-            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_GROUP. group_id:" << group_id << ", owner_id: " << owner_id << LL_ENDL;
+            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_GROUP.Active group: " << active_group << ", group_id:" << group_id << ", owner_id: " << owner_id << LL_ENDL;
             return true;
         }
     }
