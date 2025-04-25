@@ -35,6 +35,7 @@
 #include "llstyle.h"
 #include "llkeywords.h"
 #include "llpanel.h"
+#include "llurlmatch.h"
 
 #include <string>
 #include <vector>
@@ -139,7 +140,7 @@ public:
     /*virtual*/ S32                 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
     /*virtual*/ void                updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
-    /*virtual*/ bool                canEdit() const { return true; }
+    /*virtual*/ bool                canEdit() const { return mCanEdit; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
     /*virtual*/ LLStyleConstSP      getStyle() const                    { return mStyle; }
     /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
@@ -161,6 +162,8 @@ protected:
     virtual     const LLWString&    getWText()  const;
     virtual     const S32           getLength() const;
 
+    void setAllowEdit(bool can_edit) { mCanEdit = can_edit; }
+
 protected:
     class LLTextBase&   mEditor;
     LLStyleConstSP      mStyle;
@@ -168,6 +171,8 @@ protected:
     LLKeywordToken*     mToken;
     std::string         mTooltip;
     boost::signals2::connection mImageLoadedConnection;
+
+    bool mCanEdit { true };
 
     // font rendering
     LLFontVertexBuffer  mFontBufferPreSelection;
@@ -606,6 +611,7 @@ protected:
         bool operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const;
     };
     typedef std::multiset<LLTextSegmentPtr, compare_segment_end> segment_set_t;
+    typedef LLStyle::EUnderlineLink e_underline;
 
     // member functions
     LLTextBase(const Params &p);
@@ -619,12 +625,13 @@ protected:
     virtual void                    drawSelectionBackground(); // draws the black box behind the selected text
     void                            drawCursor();
     void                            drawText();
+    void                            drawHighlightedBackground();
 
     // modify contents
     S32                             insertStringNoUndo(S32 pos, const LLWString &wstr, segment_vec_t* segments = NULL); // returns num of chars actually inserted
     S32                             removeStringNoUndo(S32 pos, S32 length);
     S32                             overwriteCharNoUndo(S32 pos, llwchar wc);
-    void                            appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, bool underline_on_hover_only = false);
+    void                            appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, e_underline underline_link = e_underline::UNDERLINE_ALWAYS);
 
 
     // manage segments
@@ -672,8 +679,9 @@ protected:
     // avatar names are looked up.
     void replaceUrl(const std::string &url, const std::string &label, const std::string& icon);
 
-    void                            appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
-    void                            appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);
+    void                            appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params(), bool force_slurl = false);
+    void                            appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, e_underline underline_link = e_underline::UNDERLINE_ALWAYS);
+    S32 normalizeUri(std::string& uri);
 
 protected:
     // virtual
@@ -683,6 +691,7 @@ protected:
     }
 
     std::vector<LLRect> getSelectionRects();
+    std::vector<std::pair<LLRect, LLUIColor>> getHighlightedBgRects();
 
 protected:
     // text segmentation and flow

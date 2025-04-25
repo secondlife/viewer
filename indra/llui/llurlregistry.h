@@ -75,7 +75,7 @@ public:
     /// your callback is invoked if the matched Url's label changes in the future
     bool findUrl(const std::string &text, LLUrlMatch &match,
                  const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback,
-                 bool is_content_trusted = false);
+                 bool is_content_trusted = false, bool skip_non_mentions = false);
 
     /// a slightly less efficient version of findUrl for wide strings
     bool findUrl(const LLWString &text, LLUrlMatch &match,
@@ -101,6 +101,7 @@ private:
     LLUrlEntryBase* mUrlEntrySLLabel;
     LLUrlEntryBase* mUrlEntryNoLink;
     LLUrlEntryBase* mUrlEntryKeybinding;
+    LLUrlEntryBase* mUrlEntryAgentMention;
 };
 
 #endif

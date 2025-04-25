@@ -18,6 +18,7 @@ set(llui_SOURCE_FILES
     llbadgeowner.cpp
     llbutton.cpp
     llchatentry.cpp
+    llchatmentionhelper.cpp
     llcheckboxctrl.cpp
     llclipboard.cpp
     llcombobox.cpp
@@ -130,6 +131,7 @@ set(llui_HEADER_FILES
     llcallbackmap.h
     llchatentry.h
     llchat.h
+    llchatmentionhelper.h
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
