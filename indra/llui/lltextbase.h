@@ -146,7 +146,6 @@ public:
     /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
     /*virtual*/ void                setToken( LLKeywordToken* token )   { mToken = token; }
     /*virtual*/ LLKeywordToken*     getToken() const                    { return mToken; }
-    /*virtual*/ bool                getToolTip( std::string& msg ) const;
     /*virtual*/ void                setToolTip(const std::string& tooltip);
     /*virtual*/ void                dump() const;
 
