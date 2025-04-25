@@ -2768,6 +2768,7 @@ bool LLInventoryModel::loadSkeleton(
         bool is_cache_obsolete = false;
         if (loadFromFile(inventory_filename, categories, items, categories_to_update, is_cache_obsolete))
         {
+            LL_PROFILE_ZONE_NAMED("loadFromFile");
             // We were able to find a cache of files. So, use what we
             // found to generate a set of categories we should add. We
             // will go through each category loaded and if the version
