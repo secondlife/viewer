@@ -64,7 +64,7 @@
      left_pad="5"
      width="20"
      label="Mute when minimized"
-     word_wrap="down"/>
+     word_wrap="true"/>
 	<slider
 		control_name="AudioLevelUI"
 		disabled_control="MuteAudio"
