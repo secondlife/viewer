@@ -1511,17 +1511,17 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick)
     static LLCachedControl<S32> FirstClickPref(gSavedSettings, "MediaFirstClickInteract", 1);
 
     // HUD attachments only
-    if(FirstClickPref == 1 && pick.getObject()->isHUDAttachment())
+    if(FirstClickPref >= 1 && pick.getObject()->isHUDAttachment())
     {
         return true;
     }
     // Only own objects
-    if(FirstClickPref == 2 && pick.getObject()->permYouOwner())
+    if(FirstClickPref >= 2 && pick.getObject()->permYouOwner())
     {
         return true;
     }
     // Any object
-    if(FirstClickPref == 99)
+    if(FirstClickPref >= 99)
     {
         return true;
     }
@@ -1562,6 +1562,16 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
         {
             // It's okay to give this a null impl
             LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, pick.mNormal);
+            if (shouldAllowFirstMediaInteraction(pick) && mep->getFirstClickInteract())
+            {
+                if (media_impl.notNull())
+                {
+                    media_impl->mouseDown(pick.mUVCoords, gKeyboard->currentMask(true));
+                    mMediaMouseCaptureID = mep->getMediaID();
+                    setMouseCapture(true);
+                    return true;
+                }
+            }
         }
         else
         {
@@ -1674,7 +1684,7 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
             }
 
             // If this is the focused media face, send mouse move events.
-            if (LLViewerMediaFocus::getInstance()->isFocusedOnFace(objectp, pick.mObjectFace))
+            if (LLViewerMediaFocus::getInstance()->isFocusedOnFace(objectp, pick.mObjectFace) || (shouldAllowFirstMediaInteraction(pick) && mep->getFirstClickInteract()))
             {
                 media_impl->mouseMove(pick.mUVCoords, gKeyboard->currentMask(true));
                 gViewerWindow->setCursor(media_impl->getLastSetCursor());
