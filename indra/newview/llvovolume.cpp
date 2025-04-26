@@ -2645,7 +2645,7 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 
         static LLCachedControl<bool> media_autoplay_huds(gSavedSettings, "MediaAutoPlayHuds", true);
         bool was_loaded = media_impl->hasMedia();
-        if (media_autoplay_huds && !was_loaded)
+        if (isHUDAttachment() && media_autoplay_huds && !was_loaded)
         {
             std::string url = mep->getCurrentURL();
             if (media_impl->getCurrentMediaURL() != url)
