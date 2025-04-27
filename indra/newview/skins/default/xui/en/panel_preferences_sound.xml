@@ -328,7 +328,7 @@
    follows="left|top"
    layout="topleft"
    left_pad="5"
-   width="120"
+   width="130"
    height="23"
    top_delta="-4"
    name="media_ear_location_combo">
@@ -360,7 +360,7 @@
         left_delta="170"
         top_delta="-4"
         name="media_auto_play_combo"
-        width="120">
+        width="130">
     <item
         label="Never"
         name="autoplay_disabled"
@@ -392,25 +392,42 @@
     height="23"
     left_delta="170"
     top_delta="-4"
-    width="120"
+    width="130"
     name="media_first_interact_combo"
-    tool_tip="This setting controls which media (once loaded) does not require a first click to focus before interaction can begin. This allows clicks to be passed directly to media bypassing the focus click requirement.">
+    tool_tip="This setting controls which media (once loaded) does not require a first click to focus before interaction can begin. This allows clicks to be passed directly to media bypassing the focus click requirement. Each option also inherits the previous ones.">
         <item
             label="Disabled"
-            name="media_first_interact_disabled"
-            value="0"/>
+            name="media_first_click_none"
+            value="-1"/>
         <item
             label="Worn HUDs only"
-            name="media_first_interact_huds"
+            name="media_first_click_hud"
             value="1"/>
         <item
             label="Owned objects"
-            name="media_first_interact_owned"
-            value="2"/>
+            name="media_first_click_own"
+            value="3"/>
+        <item
+            label="Friend objects"
+            name="media_first_click_group"
+            value="7"/>
+        <item
+            label="Group objects"
+            name="media_first_click_friend"
+            value="15"/>
+        <item
+            label="Landowner objects"
+            name="media_first_click_land"
+            value="31"/>
         <item
             label="Any object"
             name="media_first_interact_any"
-            value="99"/>
+            value="31"/>
+        <item
+            label="All MOAP"
+            name="media_first_click_all"
+            value="1073741824"
+            enabled="false"/>
     </combo_box>
    <check_box
     name="media_show_on_others_btn"
@@ -455,7 +472,7 @@
    layout="topleft"
    left_delta="170"
    top_delta="-6"
-   width="120"
+   width="130"
    height="23"
    name="noise_suppression_combo">
     <item
@@ -499,7 +516,7 @@
    layout="topleft"
    left_delta="170"
    top_delta="-6"
-   width="120"
+   width="130"
    height="23"
    name="ear_location_combo">
    <item

@@ -16171,7 +16171,7 @@
     <key>MediaFirstClickInteract</key>
     <map>
       <key>Comment</key>
-      <string>Controls media first click/hover interaction, works with PRIM_MEDIA_FIRST_CLICK_INTERACT : 0 - No interaction | 1 - HUDS only | 2 - Only own objects | 99 - Any object</string>
+      <string>Controls media first click/hover interaction, works with PRIM_MEDIA_FIRST_CLICK_INTERACT : Bitfield, see lltoolpie.h MediaFirstClickTypes</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
