@@ -778,7 +778,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    if (mViewsInitialized != VIEWS_INITIALIZED) return;
+    if (mViewsInitialized != VIEWS_INITIALIZED) return; // todo: Store changes if building?
 
     const LLInventoryModel* model = getModel();
     if (!model) return;
@@ -940,6 +940,11 @@ void LLInventoryPanel::idle(void* user_data)
         {
             panel->mViewsInitialized = VIEWS_INITIALIZED;
         }
+    }
+    // in case panel is empty or only has 'roots'
+    else if (panel->mViewsInitialized == VIEWS_BUILDING)
+    {
+        panel->mViewsInitialized = VIEWS_INITIALIZED;
     }
 
     // Take into account the fact that the root folder might be invalidated
