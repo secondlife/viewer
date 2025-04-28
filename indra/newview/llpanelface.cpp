@@ -1106,6 +1106,63 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         updateVisibility(objectp);
 
+        bool missing_asset = false;
+        {
+            LLGLenum image_format = GL_RGB;
+            bool identical_image_format = false;
+            LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
+
+            if (!missing_asset)
+            {
+                mIsAlpha = false;
+                switch (image_format)
+                {
+                    case GL_RGBA:
+                    case GL_ALPHA:
+                    {
+                        mIsAlpha = true;
+                    }
+                    break;
+
+                    case GL_RGB:
+                        break;
+                    default:
+                    {
+                        LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                // Don't know image's properties, use material's mode value
+                mIsAlpha = true;
+            }
+
+            // Diffuse Alpha Mode
+            // Init to the default that is appropriate for the alpha content of the asset
+            //
+            U8 alpha_mode = mIsAlpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+
+            bool identical_alpha_mode = false;
+
+            // See if that's been overridden by a material setting for same...
+            //
+            LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(alpha_mode, identical_alpha_mode, mIsAlpha);
+
+            // it is invalid to have any alpha mode other than blend if transparency is greater than zero ...
+            // Want masking? Want emissive? Tough! You get BLEND!
+            alpha_mode = (transparency > 0.f) ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : alpha_mode;
+
+            // ... unless there is no alpha channel in the texture, in which case alpha mode MUST be none
+            alpha_mode = mIsAlpha ? alpha_mode : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+
+            mComboAlphaMode->getSelectionInterface()->selectNthItem(alpha_mode);
+            updateAlphaControls();
+
+            mExcludeWater &= (LLMaterial::DIFFUSE_ALPHA_MODE_BLEND == alpha_mode);
+        }
+
         // Water exclusion
         {
             mCheckHideWater->setEnabled(editable && !has_pbr_material && !isMediaTexSelected());
@@ -1188,64 +1245,10 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         // Texture
         {
-            LLGLenum image_format = GL_RGB;
-            bool identical_image_format = false;
-            bool missing_asset = false;
-            LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
-
-            if (!missing_asset)
-            {
-                mIsAlpha = false;
-                switch (image_format)
-                {
-                case GL_RGBA:
-                case GL_ALPHA:
-                    {
-                        mIsAlpha = true;
-                    }
-                    break;
-
-                case GL_RGB: break;
-                default:
-                    {
-                        LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
-                    }
-                    break;
-                }
-            }
-            else
-            {
-                // Don't know image's properties, use material's mode value
-                mIsAlpha = true;
-            }
-
             if (LLViewerMedia::getInstance()->textureHasMedia(id))
             {
                 mBtnAlign->setEnabled(editable);
             }
-
-            // Diffuse Alpha Mode
-
-            // Init to the default that is appropriate for the alpha content of the asset
-            //
-            U8 alpha_mode = mIsAlpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-
-            bool identical_alpha_mode = false;
-
-            // See if that's been overridden by a material setting for same...
-            //
-            LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(alpha_mode, identical_alpha_mode, mIsAlpha);
-
-            // it is invalid to have any alpha mode other than blend if transparency is greater than zero ...
-            // Want masking? Want emissive? Tough! You get BLEND!
-            alpha_mode = (transparency > 0.f) ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : alpha_mode;
-
-            // ... unless there is no alpha channel in the texture, in which case alpha mode MUST be none
-            alpha_mode = mIsAlpha ? alpha_mode : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-
-            mComboAlphaMode->getSelectionInterface()->selectNthItem(alpha_mode);
-
-            updateAlphaControls();
 
             if (mTextureCtrl)
             {
