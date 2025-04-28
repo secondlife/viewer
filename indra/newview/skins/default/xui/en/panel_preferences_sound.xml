@@ -398,7 +398,7 @@
         <item
             label="Disabled"
             name="media_first_click_none"
-            value="-1"/>
+            value="0"/>
         <item
             label="Worn HUDs only"
             name="media_first_click_hud"

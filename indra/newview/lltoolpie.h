@@ -91,7 +91,7 @@ private:
 
     enum MediaFirstClickTypes
     {
-        MEDIA_FIRST_CLICK_NONE       = -1,        // Special case: Feature is disabled
+        MEDIA_FIRST_CLICK_NONE       = 0,         // Special case: Feature is disabled
         MEDIA_FIRST_CLICK_HUD        = 1 << 0,    // 0b00000001 (1)
         MEDIA_FIRST_CLICK_OWN        = 1 << 1,    // 0b00000010 (2)
         MEDIA_FIRST_CLICK_GROUP      = 1 << 2,    // 0b00000100 (4)
