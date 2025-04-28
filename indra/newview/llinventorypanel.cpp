@@ -2430,7 +2430,8 @@ bool LLInventoryFavoritesItemsPanel::removeFavorite(const LLUUID& id, const LLIn
 
 void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, const LLInventoryObject* model_item)
 {
-    if (!model_item && !getItemByID(id))
+    LLFolderViewItem* view_item = getItemByID(id);
+    if (!model_item && !view_item)
     {
         // remove operation, but item is not in panel already
         return;
@@ -2446,7 +2447,6 @@ void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, con
         // specifically exlude links and not get_is_favorite(model_item)
         if (model_item && model_item->getIsFavorite())
         {
-            LLFolderViewItem* view_item = getItemByID(id);
             if (!view_item)
             {
                 const LLViewerInventoryCategory* cat = dynamic_cast<const LLViewerInventoryCategory*>(model_item);
@@ -2510,7 +2510,8 @@ void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, con
         }
     }
 
-    if (!handled)
+    if (!handled
+        && (!model_item || model_item->getParentUUID().notNull())) // filter out 'My inventory'
     {
         LLInventoryPanel::itemChanged(id, mask, model_item);
     }
