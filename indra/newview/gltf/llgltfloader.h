@@ -139,6 +139,13 @@ class LLGLTFLoader : public LLModelLoader
 
     virtual bool OpenFile(const std::string &filename);
 
+    struct GLTFVertex
+    {
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec2 uv0;
+    };
+
 protected:
     LL::GLTF::Asset mGLTFAsset;
     tinygltf::Model mGltfModel;
