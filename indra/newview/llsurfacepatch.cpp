@@ -210,7 +210,6 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     llassert_always(vertex && normal && tex1);
 
     U32 surface_stride = mSurfacep->getGridsPerEdge();
-    U32 texture_stride = mSurfacep->getGridsPerEdge() - 1;
     U32 point_offset = x + y*surface_stride;
 
     *normal = getNormal(x, y);
@@ -223,7 +222,7 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 
     // tex0 is used for ownership overlay
     LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
-    LLVector3 tex_pos = rel_pos * (1.f / (texture_stride * mSurfacep->getMetersPerGrid()));
+    LLVector3 tex_pos = rel_pos * (1.f / (surface_stride * mSurfacep->getMetersPerGrid()));
     tex0->mV[0] = tex_pos.mV[0];
     tex0->mV[1] = tex_pos.mV[1];
 
