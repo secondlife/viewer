@@ -4472,6 +4472,15 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         if (model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT) == mUUID)
         {
             items.push_back(std::string("Copy outfit list to clipboard"));
+            if (isFavorite())
+            {
+                items.push_back(std::string("Remove from Favorites"));
+            }
+            else
+            {
+                items.push_back(std::string("Add to Favorites"));
+            }
+
             addOpenFolderMenuOptions(flags, items);
         }
 
