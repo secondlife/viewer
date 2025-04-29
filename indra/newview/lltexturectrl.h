@@ -167,6 +167,8 @@ public:
     // LLUICtrl interface
     void clear() override;
 
+    void setTentative(bool b) override;
+
     // Takes a UUID, wraps get/setImageAssetID
     void setValue(const LLSD& value) override;
     LLSD getValue() const override;
@@ -405,7 +407,6 @@ protected:
     LLUIImagePtr        mFallbackImage; // What to show if currently selected texture is null.
     LLUUID              mDefaultImageAssetID;
     LLUUID              mBlankImageAssetID;
-    bool                mTentative;
     bool                mAllowNoTexture;
     LLUUID              mSpecialCurrentImageAssetID;  // Used when the asset id has no corresponding texture in the user's inventory.
     LLUUID              mOriginalImageAssetID;
