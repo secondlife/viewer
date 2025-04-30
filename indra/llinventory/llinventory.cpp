@@ -928,7 +928,7 @@ bool LLInventoryItem::exportLegacyStream(std::ostream& output_stream, bool inclu
 
 LLSD LLInventoryItem::asLLSD() const
 {
-    LLSD sd = LLSD();
+    LLSD sd;
     asLLSD(sd);
     return sd;
 }
@@ -937,7 +937,7 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 {
     sd[INV_ITEM_ID_LABEL] = mUUID;
     sd[INV_PARENT_ID_LABEL] = mParentUUID;
-    sd[INV_PERMISSIONS_LABEL] = ll_create_sd_from_permissions(mPermissions);
+    ll_fill_sd_from_permissions(sd[INV_PERMISSIONS_LABEL], mPermissions);
 
     if (mThumbnailUUID.notNull())
     {
@@ -963,19 +963,22 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
         cipher.encrypt(shadow_id.mData, UUID_BYTES);
         sd[INV_SHADOW_ID_LABEL] = shadow_id;
     }
-    sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
-    sd[INV_INVENTORY_TYPE_LABEL] = mInventoryType;
+    sd[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
     const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
     if(!inv_type_str.empty())
     {
         sd[INV_INVENTORY_TYPE_LABEL] = inv_type_str;
     }
+    else
+    {
+        sd[INV_INVENTORY_TYPE_LABEL] = (LLSD::Integer)mInventoryType;
+    }
     //sd[INV_FLAGS_LABEL] = (S32)mFlags;
     sd[INV_FLAGS_LABEL] = ll_sd_from_U32(mFlags);
-    sd[INV_SALE_INFO_LABEL] = mSaleInfo.asLLSD();
+    mSaleInfo.asLLSD(sd[INV_SALE_INFO_LABEL]);
     sd[INV_NAME_LABEL] = mName;
     sd[INV_DESC_LABEL] = mDescription;
-    sd[INV_CREATION_DATE_LABEL] = (S32) mCreationDate;
+    sd[INV_CREATION_DATE_LABEL] = (LLSD::Integer)mCreationDate;
 }
 
 bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
@@ -1501,12 +1504,11 @@ bool LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, bool) 
     return true;
 }
 
-LLSD LLInventoryCategory::exportLLSD() const
+void LLInventoryCategory::exportLLSD(LLSD& cat_data) const
 {
-    LLSD cat_data;
     cat_data[INV_FOLDER_ID_LABEL] = mUUID;
     cat_data[INV_PARENT_ID_LABEL] = mParentUUID;
-    cat_data[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
+    cat_data[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
     cat_data[INV_PREFERRED_TYPE_LABEL] = LLFolderType::lookup(mPreferredType);
     cat_data[INV_NAME_LABEL] = mName;
 
@@ -1518,8 +1520,6 @@ LLSD LLInventoryCategory::exportLLSD() const
     {
         cat_data[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
     }
-
-    return cat_data;
 }
 
 bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
@@ -1570,7 +1570,7 @@ bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
     return true;
 }
 ///----------------------------------------------------------------------------
-/// Local function definitions
+/// Local function definitions for testing purposes
 ///----------------------------------------------------------------------------
 
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item)

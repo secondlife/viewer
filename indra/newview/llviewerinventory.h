@@ -232,8 +232,8 @@ public:
     // How many descendents do we currently have information for in the InventoryModel?
     S32 getViewerDescendentCount() const;
 
-    LLSD exportLLSD() const;
-    bool importLLSD(const LLSD& cat_data);
+    virtual void exportLLSD(LLSD &sd) const;
+    virtual bool importLLSD(const LLSD& cat_data);
 
     void determineFolderType();
     void changeType(LLFolderType::EType new_folder_type);

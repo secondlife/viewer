@@ -751,13 +751,11 @@ S32 LLViewerInventoryCategory::getViewerDescendentCount() const
     return descendents_actual;
 }
 
-LLSD LLViewerInventoryCategory::exportLLSD() const
+void LLViewerInventoryCategory::exportLLSD(LLSD & cat_data) const
 {
-    LLSD cat_data = LLInventoryCategory::exportLLSD();
+    LLInventoryCategory::exportLLSD(cat_data);
     cat_data[INV_OWNER_ID] = mOwnerID;
     cat_data[INV_VERSION] = mVersion;
-
-    return cat_data;
 }
 
 bool LLViewerInventoryCategory::importLLSD(const LLSD& cat_data)

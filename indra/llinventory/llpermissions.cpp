@@ -1012,17 +1012,21 @@ static const std::string PERM_NEXT_OWNER_MASK_LABEL("next_owner_mask");
 LLSD ll_create_sd_from_permissions(const LLPermissions& perm)
 {
     LLSD rv;
+    ll_fill_sd_from_permissions(rv, perm);
+    return rv;
+}
+void ll_fill_sd_from_permissions(LLSD& rv, const LLPermissions& perm)
+{
     rv[PERM_CREATOR_ID_LABEL] = perm.getCreator();
     rv[PERM_OWNER_ID_LABEL] = perm.getOwner();
     rv[PERM_LAST_OWNER_ID_LABEL] = perm.getLastOwner();
     rv[PERM_GROUP_ID_LABEL] = perm.getGroup();
     rv[PERM_IS_OWNER_GROUP_LABEL] = perm.isGroupOwned();
-    rv[PERM_BASE_MASK_LABEL] = (S32)perm.getMaskBase();
-    rv[PERM_OWNER_MASK_LABEL] = (S32)perm.getMaskOwner();
-    rv[PERM_GROUP_MASK_LABEL] = (S32)perm.getMaskGroup();
-    rv[PERM_EVERYONE_MASK_LABEL] = (S32)perm.getMaskEveryone();
-    rv[PERM_NEXT_OWNER_MASK_LABEL] = (S32)perm.getMaskNextOwner();
-    return rv;
+    rv[PERM_BASE_MASK_LABEL] = (LLSD::Integer)perm.getMaskBase();
+    rv[PERM_OWNER_MASK_LABEL] = (LLSD::Integer)perm.getMaskOwner();
+    rv[PERM_GROUP_MASK_LABEL] = (LLSD::Integer)perm.getMaskGroup();
+    rv[PERM_EVERYONE_MASK_LABEL] = (LLSD::Integer)perm.getMaskEveryone();
+    rv[PERM_NEXT_OWNER_MASK_LABEL] = (LLSD::Integer)perm.getMaskNextOwner();
 }
 
 LLPermissions ll_permissions_from_sd(const LLSD& sd_perm)
