@@ -352,8 +352,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
     if (isSculpted())
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        sculpt_id = sculpt_params->getSculptTexture();
-        sculpt_type = sculpt_params->getSculptType();
+        if (sculpt_params)
+        {
+            sculpt_id = sculpt_params->getSculptTexture();
+            sculpt_type = sculpt_params->getSculptType();
+        }
 
         LL_DEBUGS("ObjectUpdate") << "uuid " << mID << " set sculpt_id " << sculpt_id << LL_ENDL;
     }
@@ -1188,12 +1191,15 @@ void LLVOVolume::updateSculptTexture()
     if (isSculpted() && !isMesh())
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        LLUUID id =  sculpt_params->getSculptTexture();
-        if (id.notNull())
+        if (sculpt_params)
         {
-            mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_SCULPTED, LLViewerTexture::LOD_TEXTURE);
-            mSculptTexture->forceToSaveRawImage(0, F32_MAX);
-            mSculptTexture->setKnownDrawSize(256, 256);
+            LLUUID id = sculpt_params->getSculptTexture();
+            if (id.notNull())
+            {
+                mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_SCULPTED, LLViewerTexture::LOD_TEXTURE);
+                mSculptTexture->forceToSaveRawImage(0, F32_MAX);
+                mSculptTexture->setKnownDrawSize(256, 256);
+            }
         }
 
         mSkinInfoUnavaliable = false;
@@ -3580,12 +3586,15 @@ bool LLVOVolume::isMesh() const
     if (isSculpted())
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        U8 sculpt_type = sculpt_params->getSculptType();
-
-        if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
-            // mesh is a mesh
+        if (sculpt_params)
         {
-            return true;
+            U8 sculpt_type = sculpt_params->getSculptType();
+
+            if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+                // mesh is a mesh
+            {
+                return true;
+            }
         }
     }
 
