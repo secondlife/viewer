@@ -329,7 +329,9 @@ namespace tut
         }
 
         LLPointer<LLInventoryItem> src1 = create_random_inventory_item();
-        fileXML << LLSDOStreamer<LLSDNotationFormatter>(src1->asLLSD()) << std::endl;
+        LLSD sd;
+        src1->asLLSD(sd);
+        fileXML << LLSDOStreamer<LLSDNotationFormatter>(sd) << std::endl;
         fileXML.close();
 
 
@@ -458,7 +460,9 @@ namespace tut
         }
 
         LLPointer<LLInventoryCategory> src1 = create_random_inventory_cat();
-        fileXML << LLSDOStreamer<LLSDNotationFormatter>(src1->exportLLSD()) << std::endl;
+        LLSD sd;
+        src1->exportLLSD(sd);
+        fileXML << LLSDOStreamer<LLSDNotationFormatter>(sd) << std::endl;
         fileXML.close();
 
         llifstream file(filename.c_str());

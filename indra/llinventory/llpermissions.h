@@ -435,6 +435,7 @@ protected:
 // like 'creator_id', 'owner_id', etc, with the value copied from the
 // permission object.
 LLSD ll_create_sd_from_permissions(const LLPermissions& perm);
+void ll_fill_sd_from_permissions(LLSD& rv, const LLPermissions& perm);
 LLPermissions ll_permissions_from_sd(const LLSD& sd_perm);
 
 #endif

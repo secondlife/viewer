@@ -273,7 +273,7 @@ public:
     virtual bool importLegacyStream(std::istream& input_stream);
     virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = true) const;
 
-    LLSD exportLLSD() const;
+    virtual void exportLLSD(LLSD& sd) const;
     bool importLLSD(const LLSD& cat_data);
     //--------------------------------------------------------------------
     // Member Variables
@@ -288,6 +288,7 @@ protected:
 //
 //   These functions convert between structured data and an inventory
 //   item, appropriate for serialization.
+//   Not up to date (no favorites, nor thumbnails), for testing purposes
 //-----------------------------------------------------------------------------
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item);
 LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat);
