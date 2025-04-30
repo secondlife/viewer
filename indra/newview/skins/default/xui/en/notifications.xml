@@ -12610,4 +12610,13 @@ are wearing now.
       notext="Cancel"
       yestext="Continue"/>
   </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WaterExclusionNoMaterial"
+   persist="true"
+   type="notify">
+    Unable to apply material to the water exclusion surface.
+    <tag>fail</tag>
+  </notification>
 </notifications>
