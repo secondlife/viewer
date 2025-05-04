@@ -227,7 +227,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &
             {
                 GLTFVertex vert;
                 vert.position = glm::vec3(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2]);
-                vert.normal   = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[2][i]);
+                vert.normal   = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
                 vert.uv0      = glm::vec2(prim.mTexCoords0[i][0], prim.mTexCoords0[i][1]);
                 vertices.push_back(vert);
             }
