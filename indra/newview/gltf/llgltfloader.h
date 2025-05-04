@@ -168,6 +168,8 @@ private:
     bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, material_map& mats);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
+    void processPrimitive(const LL::GLTF::Primitive& primitive, const LL::GLTF::Node& node);
+
     //    bool mPreprocessGLTF;
 
     /*  Below inherited from dae loader - unknown if/how useful here

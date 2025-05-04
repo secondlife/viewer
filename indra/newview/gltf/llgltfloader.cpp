@@ -118,6 +118,8 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
         return false;
     }
 
+    mTransform.setIdentity();
+
     mMeshesLoaded = parseMeshes();
     if (mMeshesLoaded) uploadMeshes();
 
@@ -147,33 +149,44 @@ bool LLGLTFLoader::parseMeshes()
 
         if (meshidx >= 0)
         {
-            LLModel* pModel = new LLModel(volume_params, 0.f);
-            auto mesh = mGLTFAsset.mMeshes[meshidx];
-
-            if (populateModelFromMesh(pModel, mesh, mats) && (LLModel::NO_ERRORS == pModel->getStatus()) && validate_model(pModel))
+            if (mGLTFAsset.mMeshes.size() > meshidx)
             {
-                mModelList.push_back(pModel);
-                LLVector3 mesh_scale_vector = LLVector3(node.mScale);
-                LLVector3 mesh_translation_vector = LLVector3(node.mTranslation);
+                LLModel* pModel = new LLModel(volume_params, 0.f);
+                auto mesh = mGLTFAsset.mMeshes[meshidx];
+                if (populateModelFromMesh(pModel, mesh, mats) && (LLModel::NO_ERRORS == pModel->getStatus()) && validate_model(pModel))
+                {
+                    mModelList.push_back(pModel);
+                    LLMatrix4 mesh_translation;
+                    mesh_translation.setTranslation(LLVector3(node.mTranslation));
+                    mesh_translation *= mTransform;
+                    mTransform = mesh_translation;
+                    mTransform.condition();
 
-                LLMatrix4 mesh_translation;
-                mesh_translation.setTranslation(mesh_translation_vector);
-                mesh_translation *= transform;
-                transform = LLMatrix4((float*)&node.mAssetMatrix[0][0]);
-                /*
-                LLMatrix4 mesh_scale;
-                mesh_scale.initScale(mesh_scale_vector);
-                mesh_scale *= transform;
-                transform = mesh_scale;
-                */
+                    LLMatrix4 mesh_rotation;
+                    mesh_rotation.initRotation(LLQuaternion(node.mRotation[0], node.mRotation[1], node.mRotation[2], node.mRotation[3]));
+                    mesh_rotation *= mTransform;
+                    mTransform = mesh_rotation;
+                    mTransform.condition();
 
-                mScene[transform].push_back(LLModelInstance(pModel, node.mName, transform, mats));
-            }
-            else
-            {
-                setLoadState(ERROR_MODEL + pModel->getStatus());
-                delete (pModel);
-                return false;
+                    LLMatrix4 mesh_scale;
+                    mesh_scale.initScale(LLVector3(glm::abs(node.mScale)));
+                    mesh_scale *= mTransform;
+                    mTransform = mesh_scale;
+                    mTransform.condition();
+
+                    LLVector3 mesh_scale_vector       = LLVector3(node.mScale);
+                    LLVector3 mesh_translation_vector = LLVector3(node.mTranslation);
+
+                    transform = mTransform;
+
+                    mScene[transform].push_back(LLModelInstance(pModel, pModel->mLabel, transform, mats));
+                }
+                else
+                {
+                    setLoadState(ERROR_MODEL + pModel->getStatus());
+                    delete (pModel);
+                    return false;
+                }
             }
         }
     }
@@ -243,11 +256,42 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &
             pModel->getMaterialList().push_back("mat" + std::to_string(prim.mMaterial));
             mats["mat" + std::to_string(prim.mMaterial)] = impMat;
         }
+        else {
+            LL_INFOS() << "Unable to process mesh due to 16-bit index limits" << LL_ENDL;
+            LLSD args;
+            args["Message"] = "ParsingErrorBadElement";
+            mWarningsArray.append(args);
+            return false;
+        }
     }
 
     return true;
 }
-/*
+
+void LLGLTFLoader::processPrimitive(const LL::GLTF::Primitive& primitive, const LL::GLTF::Node& node)
+{
+    LLMatrix4 translation;
+    translation.setTranslation(LLVector3(node.mTranslation));
+    translation *= mTransform;
+    mTransform = translation;
+    mTransform.condition();
+
+    LLMatrix4 rotation;
+    rotation = LLMatrix4(LLQuaternion(node.mRotation[0], node.mRotation[1], node.mRotation[2], node.mRotation[3]));
+    rotation *= mTransform;
+    mTransform = rotation;
+    mTransform.condition();
+
+    LLMatrix4 scale;
+    scale.initScale(LLVector3(glm::abs(node.mScale)));
+    scale *= mTransform;
+    mTransform = scale;
+    mTransform.condition();
+
+    if (primitive.mPositions.size()) {
+    }
+}
+    /*
 LLModel::EModelStatus loadFaceFromGLTFModel(LLModel* pModel, const LL::GLTF::Mesh& mesh, material_map& mats, LLSD& log_msg)
 {
     LLVolumeFace                          face;
