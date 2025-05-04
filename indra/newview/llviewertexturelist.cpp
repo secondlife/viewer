@@ -927,9 +927,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
             face_count += imagep->getNumFaces(i);
             S32 faces_to_check = (face_count > max_faces_to_check) ? 0 : imagep->getNumFaces(i);
             
-            for (S32 fi = 0; fi < faces_to_check; )
+            for (S32 fi = 0; fi < faces_to_check; ++fi)
             {
-                LLFace* face = (*(imagep->getFaceList(i)))[fi++];
+                LLFace* face = (*(imagep->getFaceList(i)))[fi];
 
                 if (face && face->getViewerObject())
                 {
