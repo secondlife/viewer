@@ -230,6 +230,7 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
         jointNode.makeMatrixValid();
 
         mJointList[jointNode.mName] = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
+        mJointsFromNode.push_front(jointNode.mName);
     }
 }
  

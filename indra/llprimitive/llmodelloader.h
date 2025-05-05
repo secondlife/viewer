@@ -120,9 +120,14 @@ public:
     model_queue mPhysicsQ;
 
     //map of avatar joints as named in COLLADA assets to internal joint names
+    // Do not use this for anything other than looking up the name of a joint.  This is populated elsewhere.
     JointMap            mJointMap;
+
+    // The joint list is what you want to use to actually setup the specific joint transformations.
     JointTransformMap&  mJointList;
     JointNameSet&       mJointsFromNode;
+
+
     U32                 mMaxJointsPerMesh;
 
     LLModelLoader(
