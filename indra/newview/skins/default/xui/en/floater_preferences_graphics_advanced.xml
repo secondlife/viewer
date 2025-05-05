@@ -931,7 +931,7 @@
     layout="topleft"
     left="420"
     name="Mirrors"
-    top_delta="24"
+    top_delta="22"
     width="240">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -1033,7 +1033,7 @@
     max_val="1.0"
     name="RenderSharpness"
     show_text="true"
-    top_delta="24"
+    top_delta="20"
     width="260">
   </slider>
   <!-- End of Sharpening Settings-->
@@ -1084,7 +1084,7 @@
    max_val="1.0"
    name="TonemapMix"
    show_text="true"
-   top_delta="22"
+   top_delta="20"
    width="260">
   </slider>
   <!-- End of Tone Mapping Settings-->

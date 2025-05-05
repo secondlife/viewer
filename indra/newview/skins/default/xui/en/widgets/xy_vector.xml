@@ -3,11 +3,9 @@
     name="xyvector"
     width="120"
     height="140"
-    decimal_digits="1"
     label_width="16"
     padding="4"
-    edit_bar_height="18"
-    user_resize="false">
+    edit_bar_height="18">
     
     <xy_vector.border
         visible="true"/>

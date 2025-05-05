@@ -4579,6 +4579,10 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="inventory_folder_offered-im">
 		&quot;[ITEM_NAME]&quot; envanter klasörü sunuldu
 	</string>
+	<string name="bot_warning">
+Bir bot ile sohbet ediyorsunuz, [NAME]. Kişisel bilgilerinizi paylaşmayın.
+Daha fazla bilgi için: https://second.life/scripted-agents.
+	</string>
 	<string name="share_alert">
 		Envanterinizden buraya öğeler sürükleyin
 	</string>

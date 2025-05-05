@@ -2325,6 +2325,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
         // Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
         setRotation(new_rot * mAngularVelocityRot);
+        if ((mFlags & FLAGS_SERVER_AUTOPILOT) && asAvatar() && asAvatar()->isSelf())
+        {
+            gAgent.resetAxes();
+            gAgent.rotate(new_rot);
+            gAgentCamera.resetView();
+        }
         setChanged(ROTATED | SILHOUETTE);
     }
 
@@ -4178,8 +4184,11 @@ void LLViewerObject::boostTexturePriority(bool boost_children /* = true */)
     if (isSculpted() && !isMesh())
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        LLUUID sculpt_id = sculpt_params->getSculptTexture();
-        LLViewerTextureManager::getFetchedTexture(sculpt_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE)->setBoostLevel(LLGLTexture::BOOST_SELECTED);
+        if (sculpt_params)
+        {
+            LLUUID sculpt_id = sculpt_params->getSculptTexture();
+            LLViewerTextureManager::getFetchedTexture(sculpt_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE)->setBoostLevel(LLGLTexture::BOOST_SELECTED);
+        }
     }
 
     if (boost_children)

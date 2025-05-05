@@ -66,7 +66,12 @@ LLModel::~LLModel()
 {
     if (mDecompID >= 0)
     {
-        LLConvexDecomposition::getInstance()->deleteDecomposition(mDecompID);
+        // can be null on shutdown
+        LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
+        if (decomp)
+        {
+            decomp->deleteDecomposition(mDecompID);
+        }
     }
     mPhysics.mMesh.clear();
 }

@@ -219,7 +219,7 @@ public:
     // containing the southwest corner of the selection.
     // If want_reply_to_update, simulator will send back a ParcelProperties
     // message.
-    void    sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region = false);
+    void    sendParcelPropertiesUpdate(LLParcel* parcel);
 
     // Takes an Access List flag, like AL_ACCESS or AL_BAN
     void    sendParcelAccessListUpdate(U32 which);
