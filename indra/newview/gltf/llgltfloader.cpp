@@ -26,6 +26,7 @@
 
 #include "llgltfloader.h"
 #include "meshoptimizer.h"
+#include <glm/gtc/packing.hpp>
 
 // Import & define single-header gltf import/export lib
 #define TINYGLTF_IMPLEMENTATION
@@ -118,7 +119,6 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
         return false;
     }
 
-
     mMeshesLoaded = parseMeshes();
     if (mMeshesLoaded) uploadMeshes();
 
@@ -141,6 +141,14 @@ bool LLGLTFLoader::parseMeshes()
     volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
 
     mTransform.setIdentity();
+
+    // Populate the joints from skins first.
+    // There's not many skins - and you can pretty easily iterate through the nodes from that.
+    for (auto skin : mGLTFAsset.mSkins)
+    {
+        populateJointFromSkin(skin);
+    }
+
     for (auto node : mGLTFAsset.mNodes)
     {
         LLMatrix4    transformation;
@@ -157,10 +165,12 @@ bool LLGLTFLoader::parseMeshes()
                 {
                     mModelList.push_back(pModel);
                     LLMatrix4 saved_transform = mTransform;
-                    LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(node.mMatrix));
 
-                    mTransform *= gltf_transform;
-                    mTransform.condition();
+                    // This will make sure the matrix is always valid from the node.
+                    node.makeMatrixValid();
+
+                    LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(node.mMatrix));
+                    mTransform = gltf_transform;
 
                     // GLTF is +Y up, SL is +Z up
                     LLMatrix4 rotation;
@@ -168,6 +178,7 @@ bool LLGLTFLoader::parseMeshes()
                     mTransform *= rotation;
 
                     transformation = mTransform;
+                    
                     // adjust the transformation to compensate for mesh normalization
                     LLVector3 mesh_scale_vector;
                     LLVector3 mesh_translation_vector;
@@ -182,7 +193,7 @@ bool LLGLTFLoader::parseMeshes()
                     mesh_scale.initScale(mesh_scale_vector);
                     mesh_scale *= transformation;
                     transformation = mesh_scale;
-
+                    
                     if (transformation.determinant() < 0)
                     { // negative scales are not supported
                         LL_INFOS() << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
@@ -210,11 +221,24 @@ bool LLGLTFLoader::parseMeshes()
 
     return true;
 }
+
+void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
+{
+    for (auto joint : skin.mJoints)
+    {
+        auto jointNode = mGLTFAsset.mNodes[joint];
+        jointNode.makeMatrixValid();
+
+        mJointList[jointNode.mName] = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
+    }
+}
  
-bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& node, material_map& mats)
+bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats)
 {
     pModel->mLabel = mesh.mName;
     pModel->ClearFacesAndMaterials();
+
+    auto skinIdx = nodeno.mSkin;
 
     auto prims = mesh.mPrimitives;
     for (auto prim : prims)
@@ -282,6 +306,45 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 vert.setNormal(normal);
                 vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
                 faceVertices.push_back(vert);
+            }
+
+            if (skinIdx >= 0)
+            {
+                auto skin = mGLTFAsset.mSkins[skinIdx];
+
+                for (int i = 0; i < prim.mJoints.size(); i++)
+                {
+                    auto accessorIdx = prim.mAttributes["JOINTS_0"];
+                    LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
+                    if (accessorIdx >= 0)
+                    {
+                        auto accessor   = mGLTFAsset.mAccessors[accessorIdx];
+                        componentType = accessor.mComponentType;
+                    }
+                    glm::u16vec4 joint;
+                    if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE)
+                    {
+                        auto ujoint = glm::unpackUint4x8((U32)(prim.mJoints[i] & 0xFFFFFFFF));
+                        joint = glm::u16vec4(ujoint.x, ujoint.y, ujoint.z, ujoint.w);
+                    }
+                    else if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_SHORT)
+                    {
+                        joint = glm::unpackUint4x16(prim.mJoints[i]);
+                    }
+
+                    // Look up the joint index in the skin
+                    auto jointIndex0 = skin.mJoints[joint.x];
+                    auto jointIndex1 = skin.mJoints[joint.y];
+                    auto jointIndex2 = skin.mJoints[joint.z];
+                    auto jointIndex3 = skin.mJoints[joint.w];
+
+                    // Get the nodes for these joints.
+                    auto node0 = mGLTFAsset.mNodes[jointIndex0];
+                    auto node1 = mGLTFAsset.mNodes[jointIndex1];
+                    auto node2 = mGLTFAsset.mNodes[jointIndex2];
+                    auto node3 = mGLTFAsset.mNodes[jointIndex3];
+
+                }
             }
 
             face.fillFromLegacyData(faceVertices, indices);
