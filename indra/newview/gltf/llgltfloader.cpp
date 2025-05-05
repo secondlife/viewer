@@ -118,7 +118,6 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
         return false;
     }
 
-    mTransform.setIdentity();
 
     mMeshesLoaded = parseMeshes();
     if (mMeshesLoaded) uploadMeshes();
@@ -141,9 +140,10 @@ bool LLGLTFLoader::parseMeshes()
     LLVolumeParams volume_params;
     volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
 
+    mTransform.setIdentity();
     for (auto node : mGLTFAsset.mNodes)
     {
-        LLMatrix4    transform;
+        LLMatrix4    transformation;
         material_map mats;
         auto meshidx = node.mMesh;
 
@@ -156,30 +156,42 @@ bool LLGLTFLoader::parseMeshes()
                 if (populateModelFromMesh(pModel, mesh, mats) && (LLModel::NO_ERRORS == pModel->getStatus()) && validate_model(pModel))
                 {
                     mModelList.push_back(pModel);
-                    LLMatrix4 mesh_translation;
-                    mesh_translation.setTranslation(LLVector3(node.mTranslation));
-                    mesh_translation *= mTransform;
-                    mTransform = mesh_translation;
+                    LLMatrix4 saved_transform = mTransform;
+
+                    LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(node.mMatrix));
+                    mTransform *= gltf_transform;
                     mTransform.condition();
 
-                    LLMatrix4 mesh_rotation;
-                    mesh_rotation.initRotation(LLQuaternion(node.mRotation[0], node.mRotation[1], node.mRotation[2], node.mRotation[3]));
-                    mesh_rotation *= mTransform;
-                    mTransform = mesh_rotation;
-                    mTransform.condition();
+                    transformation = mTransform;
+                    // adjust the transformation to compensate for mesh normalization
+                    LLVector3 mesh_scale_vector;
+                    LLVector3 mesh_translation_vector;
+                    pModel->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
+
+                    LLMatrix4 mesh_translation;
+                    mesh_translation.setTranslation(mesh_translation_vector);
+                    mesh_translation *= transformation;
+                    transformation = mesh_translation;
 
                     LLMatrix4 mesh_scale;
-                    mesh_scale.initScale(LLVector3(glm::abs(node.mScale)));
-                    mesh_scale *= mTransform;
-                    mTransform = mesh_scale;
-                    mTransform.condition();
+                    mesh_scale.initScale(mesh_scale_vector);
+                    mesh_scale *= transformation;
+                    transformation = mesh_scale;
 
-                    LLVector3 mesh_scale_vector       = LLVector3(node.mScale);
-                    LLVector3 mesh_translation_vector = LLVector3(node.mTranslation);
+                    if (transformation.determinant() < 0)
+                    { // negative scales are not supported
+                        LL_INFOS() << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
+                                   << pModel->mLabel << LL_ENDL;
+                        LLSD args;
+                        args["Message"] = "NegativeScaleNormTrans";
+                        args["LABEL"]   = pModel->mLabel;
+                        mWarningsArray.append(args);
 
-                    transform = mTransform;
+                    }
 
-                    mScene[transform].push_back(LLModelInstance(pModel, pModel->mLabel, transform, mats));
+                    mScene[transformation].push_back(LLModelInstance(pModel, pModel->mLabel, transformation, mats));
+                    stretch_extents(pModel, transformation);
+                    mTransform = saved_transform;
                 }
                 else
                 {
@@ -268,29 +280,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &
     return true;
 }
 
-void LLGLTFLoader::processPrimitive(const LL::GLTF::Primitive& primitive, const LL::GLTF::Node& node)
-{
-    LLMatrix4 translation;
-    translation.setTranslation(LLVector3(node.mTranslation));
-    translation *= mTransform;
-    mTransform = translation;
-    mTransform.condition();
-
-    LLMatrix4 rotation;
-    rotation = LLMatrix4(LLQuaternion(node.mRotation[0], node.mRotation[1], node.mRotation[2], node.mRotation[3]));
-    rotation *= mTransform;
-    mTransform = rotation;
-    mTransform.condition();
-
-    LLMatrix4 scale;
-    scale.initScale(LLVector3(glm::abs(node.mScale)));
-    scale *= mTransform;
-    mTransform = scale;
-    mTransform.condition();
-
-    if (primitive.mPositions.size()) {
-    }
-}
     /*
 LLModel::EModelStatus loadFaceFromGLTFModel(LLModel* pModel, const LL::GLTF::Mesh& mesh, material_map& mats, LLSD& log_msg)
 {
