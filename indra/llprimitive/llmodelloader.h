@@ -111,6 +111,7 @@ public:
     bool mCacheOnlyHitIfRigged; // ignore cached SLM if it does not contain rig info (and we want rig info)
 
     model_list      mModelList;
+    // The scene is pretty much what ends up getting loaded for upload.  Basically assign things to this guy if you want something uploaded.
     scene               mScene;
 
     typedef std::queue<LLPointer<LLModel> > model_queue;

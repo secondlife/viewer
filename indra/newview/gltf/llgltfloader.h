@@ -165,7 +165,7 @@ private:
     void uploadMeshes();
     bool parseMaterials();
     void uploadMaterials();
-    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, material_map& mats);
+    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
     //    bool mPreprocessGLTF;
