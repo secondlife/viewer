@@ -789,6 +789,8 @@ LLStyle::EUnderlineLink LLUrlEntryAgentMention::getUnderline(const std::string& 
 LLStyle::Params LLUrlEntryAgentMention::getStyle(const std::string& url) const
 {
     LLStyle::Params style_params = LLUrlEntryAgent::getStyle(url);
+    style_params.color = LLUIColorTable::instance().getColor("ChatMentionFont");
+    style_params.readonly_color = LLUIColorTable::instance().getColor("ChatMentionFont");
     style_params.font.style = "NORMAL";
     style_params.draw_highlight_bg = true;
 
