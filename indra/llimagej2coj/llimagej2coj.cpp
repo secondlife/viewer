@@ -556,7 +556,7 @@ public:
         encoder = opj_create_compress(OPJ_CODEC_J2K);
 
         parameters.tcp_mct = (image->numcomps >= 3) ? 1 : 0; // no color transform for RGBA images
-        
+
 
         // if not lossless compression, computes tcp_numlayers and max_cs_size depending on the image dimensions
         if( parameters.irreversible )
