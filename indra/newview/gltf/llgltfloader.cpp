@@ -338,8 +338,16 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
             for (U32 i = 0; i < prim.getVertexCount(); i++)
             {
+                // Apply scaling directly to the vertex positions as they're read from the file
+                const float DIRECT_SCALE = 0.01f; // 1/100th scale
+
                 GLTFVertex vert;
-                vert.position = glm::vec3(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2]);
+                vert.position = glm::vec3(
+                    prim.mPositions[i][0] * DIRECT_SCALE,
+                    prim.mPositions[i][1] * DIRECT_SCALE,
+                    prim.mPositions[i][2] * DIRECT_SCALE
+                );
+
                 vert.normal = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
                 vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
                 vertices.push_back(vert);
