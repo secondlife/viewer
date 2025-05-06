@@ -62,9 +62,10 @@ jobs:
       github.event_name == 'workflow_dispatch'
 
     steps:
-      # Common steps for both OSes
+      # Windows-specific steps
       - name: Set Build ID
-        shell: bash
+        if: matrix.os == 'windows'
+        shell: pwsh
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "BUILD_ID=${{ github.event.inputs.build_id }}" >> $GITHUB_ENV
@@ -74,7 +75,6 @@ jobs:
             echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" >> $GITHUB_ENV
           fi
 
-      # Windows-specific steps
       - name: Temporarily Allow PowerShell Scripts (Windows)
         if: matrix.os == 'windows'
         shell: pwsh
@@ -213,6 +213,18 @@ jobs:
           python "${{ matrix.install-path }}\runTests.py"
 
       # Mac-specific steps
+      - name: Set Build ID (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "BUILD_ID=${{ github.event.inputs.build_id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" >> $GITHUB_ENV
+          else
+            echo "BUILD_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" >> $GITHUB_ENV
+          fi
+
       - name: Verify viewer-sikulix-main Exists (Mac)
         if: matrix.os == 'mac'
         shell: bash
