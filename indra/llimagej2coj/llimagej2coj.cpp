@@ -270,7 +270,7 @@ static U32 estimate_num_layers(U32 surface)
 static void set_tcp_rates(opj_cparameters_t* parameters, U32 num_layers = 1, F32 last_tcp_rate = LAST_TCP_RATE)
 {
     parameters->tcp_numlayers = num_layers;
-    
+
     for (int i = num_layers - 1; i >= 0; i--)
     {
         parameters->tcp_rates[num_layers - 1 - i] = last_tcp_rate * static_cast<F32>(1 << (i << 1));
