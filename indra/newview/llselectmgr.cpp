@@ -3142,36 +3142,43 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
                     F32 offset_x = 0;
                     F32 offset_y = 0;
 
-                    for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                    if (te_num < selectNode->mGLTFScaleRatios.size())
                     {
-                        LLVector3 scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
+                        for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                        {
+                            LLVector3 scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
 
-                        if (planar)
-                        {
-                            scale_x = scale_ratio.mV[s_axis] / object_scale.mV[s_axis];
-                            scale_y = scale_ratio.mV[t_axis] / object_scale.mV[t_axis];
-                        }
-                        else
-                        {
-                            scale_x = scale_ratio.mV[s_axis] * object_scale.mV[s_axis];
-                            scale_y = scale_ratio.mV[t_axis] * object_scale.mV[t_axis];
-                        }
-                        material->mTextureTransform[i].mScale.set(scale_x, scale_y);
+                            if (planar)
+                            {
+                                scale_x = scale_ratio.mV[s_axis] / object_scale.mV[s_axis];
+                                scale_y = scale_ratio.mV[t_axis] / object_scale.mV[t_axis];
+                            }
+                            else
+                            {
+                                scale_x = scale_ratio.mV[s_axis] * object_scale.mV[s_axis];
+                                scale_y = scale_ratio.mV[t_axis] * object_scale.mV[t_axis];
+                            }
+                            material->mTextureTransform[i].mScale.set(scale_x, scale_y);
 
-                        LLVector2 scales = selectNode->mGLTFScales[te_num][i];
-                        LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
-                        F64 int_part = 0;
-                        offset_x = (F32)modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part);
-                        if (offset_x < 0)
-                        {
-                            offset_x++;
+                            LLVector2 scales = selectNode->mGLTFScales[te_num][i];
+                            LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
+                            F64 int_part = 0;
+                            offset_x = (F32)modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part);
+                            if (offset_x < 0)
+                            {
+                                offset_x++;
+                            }
+                            offset_y = (F32)modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part);
+                            if (offset_y < 0)
+                            {
+                                offset_y++;
+                            }
+                            material->mTextureTransform[i].mOffset.set(offset_x, offset_y);
                         }
-                        offset_y = (F32)modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part);
-                        if (offset_y < 0)
-                        {
-                            offset_y++;
-                        }
-                        material->mTextureTransform[i].mOffset.set(offset_x, offset_y);
+                    }
+                    else
+                    {
+                        llassert(false); // make sure mGLTFScaleRatios is filled
                     }
 
                     const LLGLTFMaterial* base_material = tep->getGLTFMaterial();
@@ -6927,7 +6934,6 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 
     if (mObject.notNull())
     {
-
         LLVector3 scale = mObject->getScale();
 
         for (U8 i = 0; i < mObject->getNumTEs(); i++)
@@ -7513,7 +7519,7 @@ void LLSelectMgr::updatePointAt()
             LLVector3 select_offset;
             const LLPickInfo& pick = gViewerWindow->getLastPick();
             LLViewerObject *click_object = pick.getObject();
-            bool was_hud = pick.mPickHUD && !click_object->isHUDAttachment();
+            bool was_hud = pick.mPickHUD && click_object && !click_object->isHUDAttachment();
             if (click_object && click_object->isSelected() && !was_hud)
             {
                 // clicked on another object in our selection group, use that as target

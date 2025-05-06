@@ -35,6 +35,7 @@
 #include "llavatariconctrl.h"
 #include "llchatentry.h"
 #include "llchathistory.h"
+#include "llfloaterchatmentionpicker.h"
 #include "llchiclet.h"
 #include "llchicletbar.h"
 #include "lldraghandle.h"
@@ -105,6 +106,7 @@ LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
     delete mRefreshTimer;
     LLIMMgr::instance().removeSessionObserver(this);
+    mEmojiCloseConn.disconnect();
 
     LLFloaterIMContainer* im_container = LLFloaterIMContainer::findInstance();
     if (im_container)
@@ -485,6 +487,7 @@ void LLFloaterIMSessionTab::onFocusReceived()
         LLIMModel::instance().sendNoUnreadMessages(mSessionID);
     }
 
+    LLFloaterChatMentionPicker::updateSessionID(mSessionID);
     super::onFocusReceived();
 }
 

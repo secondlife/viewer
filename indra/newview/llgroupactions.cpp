@@ -46,7 +46,7 @@
 //
 // Globals
 //
-static GroupChatListener sGroupChatListener;
+static LLGroupChatListener sGroupChatListener;
 
 class LLGroupHandler : public LLCommandHandler
 {

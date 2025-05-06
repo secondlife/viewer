@@ -42,6 +42,7 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentaccess.h"
+#include "llcallbacklist.h"
 #include "llviewerparcelaskplay.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
@@ -1327,12 +1328,12 @@ const S32 LLViewerParcelMgr::getAgentParcelId() const
     return INVALID_PARCEL_ID;
 }
 
-void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region)
+void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel)
 {
     if(!parcel)
         return;
 
-    LLViewerRegion *region = use_agent_region ? gAgent.getRegion() : LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
+    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromID(parcel->getRegionID());
     if (!region)
         return;
 
@@ -1676,10 +1677,16 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     // Actually extract the data.
     if (parcel)
     {
+        // store region_id in the parcel so we can find it again later
+        LLViewerRegion* parcel_region = LLWorld::getInstance()->getRegion(msg->getSender());
+        if (parcel_region)
+        {
+            parcel->setRegionID(parcel_region->getRegionID());
+        }
+
         if (local_id == parcel_mgr.mAgentParcel->getLocalID())
         {
             // Parcels in different regions can have same ids.
-            LLViewerRegion* parcel_region = LLWorld::getInstance()->getRegion(msg->getSender());
             LLViewerRegion* agent_region = gAgent.getRegion();
             if (parcel_region && agent_region && parcel_region->getRegionID() == agent_region->getRegionID())
             {
@@ -1750,6 +1757,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 {
                     instance->mTeleportFinishedSignal(instance->mTeleportInProgressPosition, false);
                 }
+                instance->postTeleportFinished(instance->mTeleportWithinRegion);
+                instance->mTeleportWithinRegion = false;
             }
             parcel->setParcelEnvironmentVersion(parcel_environment_version);
             LL_DEBUGS("ENVIRONMENT") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
@@ -2719,6 +2728,8 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
         // Local teleport. We already have the agent parcel data.
         // Emit the signal immediately.
         getInstance()->mTeleportFinishedSignal(new_pos, local);
+
+        postTeleportFinished(true);
     }
     else
     {
@@ -2727,16 +2738,35 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
         // Let's wait for the update and then emit the signal.
         mTeleportInProgressPosition = new_pos;
         mTeleportInProgress = true;
+        mTeleportWithinRegion = local;
     }
 }
 
 void LLViewerParcelMgr::onTeleportFailed()
 {
     mTeleportFailedSignal();
+    LLEventPumps::instance().obtain("LLTeleport").post(llsd::map("success", false));
 }
 
 bool  LLViewerParcelMgr::getTeleportInProgress()
 {
     return mTeleportInProgress // case where parcel data arrives after teleport
         || gAgent.getTeleportState() > LLAgent::TELEPORT_NONE; // For LOCAL, no mTeleportInProgress
+}
+
+void LLViewerParcelMgr::postTeleportFinished(bool local)
+{
+    auto post = []()
+    {
+        LLEventPumps::instance().obtain("LLTeleport").post(llsd::map("success", true));
+    };
+    if (local)
+    {
+        static LLCachedControl<F32> teleport_local_delay(gSavedSettings, "TeleportLocalDelay");
+        doAfterInterval(post, teleport_local_delay + 0.5f);
+    }
+    else
+    {
+        post();
+    }
 }

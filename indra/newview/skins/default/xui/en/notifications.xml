@@ -2408,6 +2408,16 @@ Unable to upload snapshot.
 File might be too big, try reducing resolution or try again later.
   <tag>fail</tag>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotOpenFileTooBig"
+   type="alertmodal">
+Unable to open file.
+
+Viewer run out of memory while opening file. File might be too big.
+  <tag>fail</tag>
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -12599,5 +12609,14 @@ are wearing now.
       name="okcancelbuttons"
       notext="Cancel"
       yestext="Continue"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WaterExclusionNoMaterial"
+   persist="true"
+   type="notify">
+    Unable to apply material to the water exclusion surface.
+    <tag>fail</tag>
   </notification>
 </notifications>

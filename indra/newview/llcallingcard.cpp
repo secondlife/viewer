@@ -504,7 +504,7 @@ void LLAvatarTracker::idleNotifyObservers()
 
 void LLAvatarTracker::notifyObservers()
 {
-    if (mIsNotifyObservers)
+    if (mIsNotifyObservers || (LLStartUp::getStartupState() <= STATE_INVENTORY_CALLBACKS))
     {
         // Don't allow multiple calls.
         // new masks and ids will be processed later from idle.
