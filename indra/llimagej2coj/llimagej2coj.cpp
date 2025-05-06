@@ -230,7 +230,7 @@ static void opj_free_user_data(void * user_data)
 static void opj_free_user_data_write(void * user_data)
 {
     llassert(user_data);
-    
+
     JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
     // Free, data was allocated here
     if (jpeg_codec->buffer)
