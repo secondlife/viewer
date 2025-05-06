@@ -1,4 +1,4 @@
-name: Run QA Test # Runs automated tests on a self-hosted QA machine
+name: Run QA Test # Runs automated tests on self-hosted QA machines
 
 permissions:
   contents: read
@@ -10,17 +10,13 @@ on:
       - completed
   workflow_dispatch:
     inputs:
-      branch_name:
-        description: 'Branch name to simulate workflow (e.g. develop)'
-        required: true
-        default: 'develop'
       build_id:
         description: 'Build workflow run ID (e.g. For github.com/secondlife/viewer/actions/runs/1234567890 the ID is 1234567890)'
         required: true
         default: '14806728332'
 
 concurrency:
-  group: qa-test-run-${{ matrix.runner }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false # Prevents cancellation of in-progress jobs
 
 jobs:
