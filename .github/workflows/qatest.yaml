@@ -1,14 +1,27 @@
 name: Run QA Test # Runs automated tests on a self-hosted QA machine
 
+permissions:
+  contents: read
+
 on:
   workflow_run:
     workflows: ["Build"]
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch name to simulate workflow (e.g. develop)'
+        required: true
+        default: 'develop'
+      build_id:
+        description: 'Build workflow run ID (e.g. For github.com/secondlife/viewer/actions/runs/1234567890 the ID is 1234567890)'
+        required: true
+        default: '14806728332'
 
 concurrency:
-  group: qa-test-run
-  cancel-in-progress: true  # Cancels any queued job when a new one starts
+  group: qa-test-run-${{ matrix.runner }}
+  cancel-in-progress: false # Prevents cancellation of in-progress jobs
 
 jobs:
   debug-workflow:
@@ -26,39 +39,75 @@ jobs:
           echo "GitHub Workflow Name: ${{ github.workflow }}"
 
   install-viewer-and-run-tests:
-    runs-on: [self-hosted, qa-machine]
-    # Run test only on successful builds of Second_Life_X branches
+    strategy:
+      matrix:
+        include:
+          - os: windows
+            runner: qa-windows-atlas
+            artifact: Windows-installer
+            install-path: 'C:\viewer-sikulix-main'
+          - os: windows
+            runner: qa-dan-asus
+            artifact: Windows-installer
+            install-path: 'C:\viewer-sikulix-main'
+          # Commented out until mac runner is available
+          # - os: mac
+          #   runner: qa-mac
+          #   artifact: Mac-installer
+          #   install-path: 'HOME/Documents/viewer-sikulix-main'
+      fail-fast: false
+
+    runs-on: [self-hosted, "${{ matrix.runner }}"]
+    # Run test only on successful builds of Second_Life_X branches or on manual dispatch
     if: >
+      (github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
-      (
-        startsWith(github.event.workflow_run.head_branch, 'Second_Life')
-      )
+      startsWith(github.event.workflow_run.head_branch, 'Second_Life')) ||
+      github.event_name == 'workflow_dispatch'
 
     steps:
-      - name: Temporarily Allow PowerShell Scripts (Process Scope)
+      # Common steps for both OSes
+      - name: Set Build ID
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "BUILD_ID=${{ github.event.inputs.build_id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" >> $GITHUB_ENV
+          else
+            echo "BUILD_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" >> $GITHUB_ENV
+          fi
+
+      # Windows-specific steps
+      - name: Temporarily Allow PowerShell Scripts (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 
-      - name: Verify viewer-sikulix-main Exists
+      - name: Verify viewer-sikulix-main Exists (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
         run: |
-          if (-Not (Test-Path -Path 'C:\viewer-sikulix-main')) {
+          if (-Not (Test-Path -Path '${{ matrix.install-path }}')) {
             Write-Host '❌ Error: viewer-sikulix not found on runner!'
             exit 1
           }
           Write-Host '✅ viewer-sikulix is already available.'
 
-      - name: Fetch & Download Windows Installer Artifact
+      - name: Fetch & Download Installer Artifact (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
-          $BUILD_ID = "${{ github.event.workflow_run.id }}"
-          $ARTIFACTS_URL = "https://api.github.com/repos/secondlife/viewer/actions/runs/$BUILD_ID/artifacts"
+          $BUILD_ID = "${{ env.BUILD_ID }}"
+          $ARTIFACTS_URL = "${{ env.ARTIFACTS_URL }}"
 
           # Fetch the correct artifact URL
           $response = Invoke-RestMethod -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}" } -Uri $ARTIFACTS_URL
-          $ARTIFACT_NAME = ($response.artifacts | Where-Object { $_.name -eq "Windows-installer" }).archive_download_url
+          $ARTIFACT_NAME = ($response.artifacts | Where-Object { $_.name -eq "${{ matrix.artifact }}" }).archive_download_url
 
           if (-Not $ARTIFACT_NAME) {
-            Write-Host "❌ Error: Windows-installer artifact not found!"
+            Write-Host "❌ Error: ${{ matrix.artifact }} artifact not found!"
             exit 1
           }
 
@@ -74,16 +123,19 @@ jobs:
 
           # Ensure download succeeded
           if (-Not (Test-Path $InstallerPath)) {
-            Write-Host "❌ Error: Failed to download Windows-installer.zip"
+            Write-Host "❌ Error: Failed to download ${{ matrix.artifact }}.zip"
             exit 1
           }
 
-      - name: Extract Installer & Locate Executable
+          # Set the path for other steps
+          echo "DOWNLOAD_PATH=$DownloadPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Extract Installer & Locate Executable (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
-          # Explicitly set BUILD_ID again (since it does not appear to persist across steps)
-          $BUILD_ID = "${{ github.event.workflow_run.id }}"
-          $ExtractPath = "$env:TEMP\secondlife-build-$BUILD_ID"
+          $BUILD_ID = "${{ env.BUILD_ID }}"
+          $ExtractPath = "${{ env.DOWNLOAD_PATH }}"
           $InstallerZip = "$ExtractPath\installer.zip"
 
           # Print paths for debugging
@@ -113,16 +165,19 @@ jobs:
           Write-Host "✅ Installer found: $INSTALLER_PATH"
           echo "INSTALLER_PATH=$INSTALLER_PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Install Second Life Using Task Scheduler (Bypass UAC)
+      - name: Install Second Life (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
+          # Windows - Use Task Scheduler to bypass UAC
           $action = New-ScheduledTaskAction -Execute "${{ env.INSTALLER_PATH }}" -Argument "/S"
           $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
           $task = New-ScheduledTask -Action $action -Principal $principal
           Register-ScheduledTask -TaskName "SilentSLInstaller" -InputObject $task -Force
           Start-ScheduledTask -TaskName "SilentSLInstaller"
 
-      - name: Wait for Installation to Complete
+      - name: Wait for Installation to Complete (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
           Write-Host "Waiting for the Second Life installer to finish..."
@@ -133,18 +188,16 @@ jobs:
 
           Write-Host "✅ Installation completed!"
 
-      - name: Cleanup Task Scheduler Entry
+      - name: Cleanup After Installation (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
+          # Cleanup Task Scheduler Entry
           Unregister-ScheduledTask -TaskName "SilentSLInstaller" -Confirm:$false
           Write-Host "✅ Task Scheduler entry removed."
 
-      - name: Delete Installer ZIP
-        shell: pwsh
-        run: |
-          # Explicitly set BUILD_ID again
-          $BUILD_ID = "${{ github.event.workflow_run.id }}"
-          $DeletePath = "$env:TEMP\secondlife-build-$BUILD_ID\installer.zip"
+          # Delete Installer ZIP
+          $DeletePath = "${{ env.DOWNLOAD_PATH }}\installer.zip"
 
           Write-Host "Checking if installer ZIP exists: $DeletePath"
 
@@ -156,13 +209,164 @@ jobs:
               Write-Host "⚠️ Warning: ZIP file does not exist, skipping deletion."
           }
 
-      - name: Run QA Test Script
+      - name: Run QA Test Script (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
         run: |
-          Write-Host "Running QA Test script..."
-          python C:\viewer-sikulix-main\runTests.py
+          Write-Host "Running QA Test script on Windows runner: ${{ matrix.runner }}..."
+          python "${{ matrix.install-path }}\runTests.py"
+
+      # Mac-specific steps
+      - name: Verify viewer-sikulix-main Exists (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if [ ! -d "${{ matrix.install-path }}" ]; then
+            echo "❌ Error: viewer-sikulix not found on runner!"
+            exit 1
+          fi
+          echo "✅ viewer-sikulix is already available."
+
+      - name: Fetch & Download Installer Artifact (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          # Mac-specific Bash commands
+          response=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -s ${{ env.ARTIFACTS_URL }})
+          ARTIFACT_NAME=$(echo $response | jq -r '.artifacts[] | select(.name=="${{ matrix.artifact }}") | .archive_download_url')
+
+          if [ -z "$ARTIFACT_NAME" ]; then
+            echo "❌ Error: ${{ matrix.artifact }} artifact not found!"
+            exit 1
+          fi
+
+          echo "✅ Artifact found: $ARTIFACT_NAME"
+
+          # Secure download path
+          DOWNLOAD_PATH="/tmp/secondlife-build-${{ env.BUILD_ID }}"
+          mkdir -p $DOWNLOAD_PATH
+          INSTALLER_PATH="$DOWNLOAD_PATH/installer.zip"
+
+          # Download the ZIP
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L $ARTIFACT_NAME -o $INSTALLER_PATH
+
+          # Ensure download succeeded
+          if [ ! -f "$INSTALLER_PATH" ]; then
+            echo "❌ Error: Failed to download ${{ matrix.artifact }}.zip"
+            exit 1
+          fi
+
+          # Set the path for other steps
+          echo "DOWNLOAD_PATH=$DOWNLOAD_PATH" >> $GITHUB_ENV
+
+      - name: Extract Installer & Locate Executable (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          EXTRACT_PATH="${{ env.DOWNLOAD_PATH }}"
+          INSTALLER_ZIP="$EXTRACT_PATH/installer.zip"
+
+          # Debug output
+          echo "Extract Path: $EXTRACT_PATH"
+          echo "Installer ZIP Path: $INSTALLER_ZIP"
+
+          # Verify ZIP exists
+          if [ ! -f "$INSTALLER_ZIP" ]; then
+            echo "❌ Error: ZIP file not found at $INSTALLER_ZIP!"
+            exit 1
+          fi
+
+          echo "✅ ZIP file exists and is valid. Extracting..."
+
+          # Extract the ZIP
+          unzip -o "$INSTALLER_ZIP" -d "$EXTRACT_PATH"
+
+          # Find DMG file
+          INSTALLER_PATH=$(find "$EXTRACT_PATH" -name "*.dmg" -type f | head -1)
+
+          if [ -z "$INSTALLER_PATH" ]; then
+            echo "❌ Error: No installer DMG found in the extracted files!"
+            echo "📂 Extracted Files:"
+            ls -la "$EXTRACT_PATH"
+            exit 1
+          fi
+
+          echo "✅ Installer found: $INSTALLER_PATH"
+          echo "INSTALLER_PATH=$INSTALLER_PATH" >> $GITHUB_ENV
+
+      - name: Install Second Life (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          # Mac installation
+          echo "Mounting DMG installer..."
+          MOUNT_POINT="/tmp/secondlife-dmg"
+          mkdir -p "$MOUNT_POINT"
+
+          # Mount the DMG
+          hdiutil attach "${{ env.INSTALLER_PATH }}" -mountpoint "$MOUNT_POINT" -nobrowse
+
+          echo "✅ DMG mounted at $MOUNT_POINT"
+
+          # Find the app in the mounted DMG
+          APP_PATH=$(find "$MOUNT_POINT" -name "*.app" -type d | head -1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ Error: No .app bundle found in the mounted DMG!"
+            exit 1
+          fi
+
+          echo "Installing application to Applications folder..."
+
+          # Copy the app to the Applications folder (or specified install path)
+          cp -R "$APP_PATH" "${{ matrix.install-path }}"
+
+          # Verify the app was copied successfully
+          if [ ! -d "${{ matrix.install-path }}/$(basename "$APP_PATH")" ]; then
+            echo "❌ Error: Failed to install application to ${{ matrix.install-path }}!"
+            exit 1
+          fi
+
+          echo "✅ Application installed successfully to ${{ matrix.install-path }}"
+
+          # Save mount point for cleanup
+          echo "MOUNT_POINT=$MOUNT_POINT" >> $GITHUB_ENV
+
+      - name: Wait for Installation to Complete (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          echo "Waiting for installation to complete..."
+          # Sleep to allow installation to finish (adjust as needed)
+          sleep 30
+          echo "✅ Installation completed"
+
+      - name: Cleanup After Installation (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          # Mac cleanup
+          # Unmount the DMG
+          echo "Unmounting DMG..."
+          hdiutil detach "${{ env.MOUNT_POINT }}" -force
+
+          # Clean up temporary files
+          echo "Cleaning up temporary files..."
+          rm -rf "${{ env.DOWNLOAD_PATH }}"
+          rm -rf "${{ env.MOUNT_POINT }}"
+
+          echo "✅ Cleanup completed"
+
+      - name: Run QA Test Script (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          echo "Running QA Test script on Mac runner: ${{ matrix.runner }}..."
+          python "${{ matrix.install-path }}/runTests.py"
 
       # - name: Upload Test Results
-      #   uses: actions/upload-artifact@v3
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
       #   with:
-      #     name: test-results
-      #     path: C:\viewer-sikulix-main\regressionTest\test_results.html
+      #     name: test-results-${{ matrix.runner }}
+      #     path: ${{ matrix.install-path }}/regressionTest/test_results.html
