@@ -67,13 +67,13 @@ jobs:
         if: matrix.os == 'windows'
         shell: pwsh
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "BUILD_ID=${{ github.event.inputs.build_id }}" >> $GITHUB_ENV
-            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" >> $GITHUB_ENV
-          else
-            echo "BUILD_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_ENV
-            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" >> $GITHUB_ENV
-          fi
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            echo "BUILD_ID=${{ github.event.inputs.build_id }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            echo "BUILD_ID=${{ github.event.workflow_run.id }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
 
       - name: Temporarily Allow PowerShell Scripts (Windows)
         if: matrix.os == 'windows'
