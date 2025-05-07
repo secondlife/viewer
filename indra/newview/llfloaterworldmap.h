@@ -226,6 +226,7 @@ private:
     LLButton*               mShowDestinationButton = nullptr;
     LLButton*               mCopySlurlButton = nullptr;
     LLButton*               mGoHomeButton = nullptr;
+    LLButton*               mSearchButton = nullptr;
 
     LLCheckBoxCtrl*         mPeopleCheck = nullptr;
     LLCheckBoxCtrl*         mInfohubCheck = nullptr;
@@ -244,6 +245,8 @@ private:
     LLUICtrl*               mTeleportCoordSpinZ = nullptr;
 
     LLSliderCtrl*           mZoomSlider = nullptr;
+
+    LLPanel*                mTrackCtrlsPanel = nullptr;
 
     boost::signals2::connection mTeleportFinishConnection;
 };

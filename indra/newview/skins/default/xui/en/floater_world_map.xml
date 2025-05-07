@@ -532,9 +532,9 @@
      width="16" />
     <search_editor
      follows="top|right"
-  search_button_visible="false"
+     search_button_visible="false"
      height="22"
-  text_readonly_color="DkGray"
+     text_readonly_color="DkGray"
      label="Regions by Name"
      layout="topleft"
      top_delta="-2"
@@ -542,10 +542,7 @@
      name="location"
      select_on_focus="true"
      tool_tip="Type the name of a region"
-     width="152">
-               <search_editor.commit_callback
-                function="WMap.Location" />
-  </search_editor>
+     width="152"/>
    <button
      follows="top|right"
      height="23"
@@ -556,7 +553,7 @@
      name="DoSearch"
      tool_tip="Search for region"
      width="62">
-		<button.mouse_down_callback
+		<button.commit_callback
 		function="WMap.Location" />
     </button>
    <button
