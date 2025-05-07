@@ -34,6 +34,9 @@
 #include "llsdserialize.h"
 #include "lltexteditor.h"
 #include "llstl.h"
+#include "llcontrol.h"
+
+extern LLControlGroup gSavedSettings;
 
 inline bool LLKeywordToken::isHead(const llwchar* s) const
 {
@@ -503,13 +506,14 @@ LLTrace::BlockTimerStatHandle FTM_SYNTAX_COLORING("Syntax Coloring");
 void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLWString& wtext, LLTextEditor& editor, LLStyleConstSP style)
 {
     LL_RECORD_BLOCK_TIME(FTM_SYNTAX_COLORING);
-    seg_list->clear();
 
     if( wtext.empty() )
     {
         return;
     }
 
+    // Clear the segment list
+    seg_list->clear();
     // Reserve capacity for segments based on an estimated average of 8 characters per segment.
     constexpr size_t AVERAGE_SEGMENT_LENGTH = 8;
     seg_list->reserve(wtext.size() / AVERAGE_SEGMENT_LENGTH);
@@ -589,6 +593,17 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
         while( *cur && iswspace(*cur) && (*cur != '\n')  )
         {
             cur++;
+        }
+
+        // Check if syntax highlighting is disabled
+        static LLCachedControl<bool> sDisableSyntaxHighlighting(gSavedSettings, "ScriptEditorDisableSyntaxHighlight", false);
+        if (sDisableSyntaxHighlighting)
+        {
+            if (*cur && *cur != '\n')
+            {
+                cur++;
+            }
+            continue; // skip processing any further syntax highlighting
         }
 
         while( *cur && *cur != '\n' )
