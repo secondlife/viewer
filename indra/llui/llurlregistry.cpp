@@ -327,3 +327,30 @@ void LLUrlRegistry::setKeybindingHandler(LLKeyBindingToStringHandler* handler)
     LLUrlEntryKeybinding *entry = (LLUrlEntryKeybinding*)mUrlEntryKeybinding;
     entry->setHandler(handler);
 }
+
+bool LLUrlRegistry::containsAgentMention(const std::string& text)
+{
+    // avoid costly regexes if there is clearly no URL in the text
+    if (!stringHasUrl(text))
+    {
+        return false;
+    }
+
+    try
+    {
+        boost::sregex_iterator it(text.begin(), text.end(), mUrlEntryAgentMention->getPattern());
+        boost::sregex_iterator end;
+        for (; it != end; ++it)
+        {
+            if (mUrlEntryAgentMention->isAgentID(it->str()))
+            {
+               return true;
+            }
+        }
+    }
+    catch (boost::regex_error&)
+    {
+        LL_INFOS() << "Regex error for: " << text << LL_ENDL;
+    }
+    return false;
+}
