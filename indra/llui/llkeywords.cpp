@@ -34,38 +34,20 @@
 #include "llsdserialize.h"
 #include "lltexteditor.h"
 #include "llstl.h"
+#include "llcontrol.h"
+
+extern LLControlGroup gSavedSettings;
 
 inline bool LLKeywordToken::isHead(const llwchar* s) const
 {
-    // strncmp is much faster than string compare
-    bool res = true;
-    const llwchar* t = mToken.c_str();
-    auto len = mToken.size();
-    for (S32 i=0; i<len; i++)
-    {
-        if (s[i] != t[i])
-        {
-            res = false;
-            break;
-        }
-    }
-    return res;
+    size_t bytes = mToken.size() * sizeof(llwchar);
+    return std::memcmp(s, mToken.c_str(), bytes) == 0;
 }
 
 inline bool LLKeywordToken::isTail(const llwchar* s) const
 {
-    bool res = true;
-    const llwchar* t = mDelimiter.c_str();
-    auto len = mDelimiter.size();
-    for (S32 i=0; i<len; i++)
-    {
-        if (s[i] != t[i])
-        {
-            res = false;
-            break;
-        }
-    }
-    return res;
+    size_t len_bytes = mDelimiter.size() * sizeof(llwchar);
+    return std::memcmp(s, mDelimiter.c_str(), len_bytes) == 0;
 }
 
 LLKeywords::LLKeywords()
@@ -282,6 +264,21 @@ void LLKeywords::processTokens()
             }
         }
     }
+
+    // Pre-compile all regex patterns for tokens in mRegexTokenList
+    for (LLKeywordToken* regex_token : mRegexTokenList)
+    {
+        std::string start_pattern(regex_token->getToken().begin(), regex_token->getToken().end());
+        try
+        {
+            regex_token->setCompiledRegex(new std::regex(start_pattern));
+        }
+        catch (const std::regex_error& e)
+        {
+            LL_WARNS() << "Regex error in start pattern: " << e.what() << " in pattern: " << start_pattern << LL_ENDL;
+        }
+    }
+
     LL_INFOS("SyntaxLSL") << "Finished processing tokens." << LL_ENDL;
 }
 
@@ -509,16 +506,27 @@ LLTrace::BlockTimerStatHandle FTM_SYNTAX_COLORING("Syntax Coloring");
 void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLWString& wtext, LLTextEditor& editor, LLStyleConstSP style)
 {
     LL_RECORD_BLOCK_TIME(FTM_SYNTAX_COLORING);
-    seg_list->clear();
 
     if( wtext.empty() )
     {
         return;
     }
 
+    // Clear the segment list
+    seg_list->clear();
+    // Reserve capacity for segments based on an estimated average of 8 characters per segment.
+    constexpr size_t AVERAGE_SEGMENT_LENGTH = 8;
+    seg_list->reserve(wtext.size() / AVERAGE_SEGMENT_LENGTH);
+
     S32 text_len = static_cast<S32>(wtext.size()) + 1;
 
     seg_list->push_back( new LLNormalTextSegment( style, 0, text_len, editor ) );
+
+    std::string text_to_search;
+    text_to_search.reserve(wtext.size());
+
+    bool  has_regex = !mRegexTokenList.empty();
+    auto& delimiters = mDelimiterTokenList;
 
     const llwchar* base = wtext.c_str();
     const llwchar* cur = base;
@@ -587,111 +595,133 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
             cur++;
         }
 
+        // Check if syntax highlighting is disabled
+        static LLCachedControl<bool> sDisableSyntaxHighlighting(gSavedSettings, "ScriptEditorDisableSyntaxHighlight", false);
+        if (sDisableSyntaxHighlighting)
+        {
+            if (*cur && *cur != '\n')
+            {
+                cur++;
+            }
+            continue; // skip processing any further syntax highlighting
+        }
+
         while( *cur && *cur != '\n' )
         {
             // Check for regex matches first
             bool regex_matched = false;
-            if (!mRegexTokenList.empty())
+            if (has_regex)
             {
                 S32 seg_start = (S32)(cur - base);
 
-                std::string text_to_search(wtext.begin() + seg_start, wtext.end());
+                text_to_search.assign(wtext.begin() + seg_start, wtext.end());
 
                 for (LLKeywordToken* regex_token : mRegexTokenList)
                 {
-                    std::string start_pattern(regex_token->getToken().begin(), regex_token->getToken().end());
-                    std::string end_pattern(regex_token->getDelimiter().begin(), regex_token->getDelimiter().end());
+                    std::regex* compiled_regex = regex_token->getCompiledRegex();
 
-                    try
+                    // If we have a pre-compiled regex, use it
+                    if (compiled_regex)
                     {
-                        std::regex start_regex_pattern(start_pattern);
-                        std::smatch start_match;
+                        std::string end_pattern(regex_token->getDelimiter().begin(), regex_token->getDelimiter().end());
 
-                        if (std::regex_search(text_to_search, start_match, start_regex_pattern) && !start_match.empty())
+                        try
                         {
-                            if (start_match.position() == 0) // Match starts at current position
+                            std::smatch start_match;
+
+                            if (std::regex_search(text_to_search, start_match, *compiled_regex) && !start_match.empty())
                             {
-                                // Calculate segment boundaries for start pattern
-                                S32 start_match_length = static_cast<S32>(start_match.str().length());
-                                S32 start_seg_end = seg_start + start_match_length;
-
-                                if (end_pattern.empty())
+                                if (start_match.position() == 0) // Match starts at current position
                                 {
-                                    // If no end pattern is provided, treat the entire regex match as a single segment
-                                    // Move cursor past the matched segment
-                                    cur = base + start_seg_end;
+                                    // Calculate segment boundaries for start pattern
+                                    S32 start_match_length = static_cast<S32>(start_match.str().length());
+                                    S32 start_seg_end = seg_start + start_match_length;
 
-                                    // Insert the matched segment
-                                    insertSegments(wtext, *seg_list, regex_token, text_len, seg_start, start_seg_end, style, editor);
-                                }
-                                else
-                                {
-                                    // Look for the end pattern after the start pattern
-                                    std::string remaining_text = text_to_search.substr(start_match_length);
-
-                                    // Process end pattern - replace any capture group references
-                                    std::string actual_end_pattern = end_pattern;
-
-                                    // Handle capture groups in the end pattern (replace \1, \2, etc. with their matched content)
-                                    for (size_t i = 1; i < start_match.size(); ++i)
+                                    if (end_pattern.empty())
                                     {
-                                        std::string capture = start_match[i].str();
-                                        std::string placeholder = "\\" + std::to_string(i);
-
-                                        // Replace all occurrences of the placeholder with the captured content
-                                        size_t pos = 0;
-                                        while ((pos = actual_end_pattern.find(placeholder, pos)) != std::string::npos)
-                                        {
-                                            actual_end_pattern.replace(pos, placeholder.length(), capture);
-                                            pos += capture.length();
-                                        }
-                                    }
-
-                                    try
-                                    {
-                                        std::regex end_regex_pattern(actual_end_pattern);
-                                        std::smatch end_match;
-
-                                        S32 seg_end = start_seg_end;
-
-                                        if (std::regex_search(remaining_text, end_match, end_regex_pattern) && !end_match.empty())
-                                        {
-                                            // Calculate position of end match relative to the original text
-                                            S32 end_match_position = static_cast<S32>(end_match.position());
-                                            S32 end_match_length = static_cast<S32>(end_match.str().length());
-
-                                            // Calculate the total length including both patterns and text between
-                                            seg_end += end_match_position + end_match_length;
-                                        }
-                                        else
-                                        {
-                                            // End pattern not found, treat everything up to EOF as the segment
-                                            seg_end += static_cast<S32>(remaining_text.length());
-                                        }
-
-                                        // Move cursor past the entire matched segment (start + content + end)
-                                        cur = base + seg_end;
+                                        // If no end pattern is provided, treat the entire regex match as a single segment
+                                        // Move cursor past the matched segment
+                                        cur = base + start_seg_end;
 
                                         // Insert the matched segment
-                                        insertSegments(wtext, *seg_list, regex_token, text_len, seg_start, seg_end, style, editor);
-                                    }
-                                    catch (const std::regex_error& e)
-                                    {
-                                        LL_WARNS() << "Regex error in end pattern: " << e.what() << " in pattern: " << actual_end_pattern << LL_ENDL;
-                                        // Fall back to treating the start match as the entire segment
-                                        cur = base + start_seg_end;
                                         insertSegments(wtext, *seg_list, regex_token, text_len, seg_start, start_seg_end, style, editor);
                                     }
-                                }
+                                    else
+                                    {   // TODO: better optimization for this part
 
-                                regex_matched = true;
-                                break;
+                                        // Look for the end pattern after the start pattern
+                                        std::string remaining_text = text_to_search.substr(start_match_length);
+
+                                        // Process end pattern - replace any capture group references
+                                        std::string actual_end_pattern = end_pattern;
+
+                                        // Handle capture groups in the end pattern (replace \1, \2, etc. with their matched content)
+                                        for (size_t i = 1; i < start_match.size(); ++i)
+                                        {
+                                            std::string capture = start_match[i].str();
+                                            std::string placeholder = "\\" + std::to_string(i);
+
+                                            // Replace all occurrences of the placeholder with the captured content
+                                            size_t pos = 0;
+                                            while ((pos = actual_end_pattern.find(placeholder, pos)) != std::string::npos)
+                                            {
+                                                actual_end_pattern.replace(pos, placeholder.length(), capture);
+                                                pos += capture.length();
+                                            }
+                                        }
+
+                                        try
+                                        {
+                                            std::regex end_regex_pattern(actual_end_pattern);
+                                            std::smatch end_match;
+
+                                            S32 seg_end = start_seg_end;
+
+                                            if (std::regex_search(remaining_text, end_match, end_regex_pattern) && !end_match.empty())
+                                            {
+                                                // Calculate position of end match relative to the original text
+                                                S32 end_match_position = static_cast<S32>(end_match.position());
+                                                S32 end_match_length = static_cast<S32>(end_match.str().length());
+
+                                                // Calculate the total length including both patterns and text between
+                                                seg_end += end_match_position + end_match_length;
+                                            }
+                                            else
+                                            {
+                                                // End pattern not found, treat everything up to EOF as the segment
+                                                seg_end += static_cast<S32>(remaining_text.length());
+                                            }
+
+                                            // Move cursor past the entire matched segment (start + content + end)
+                                            cur = base + seg_end;
+
+                                            // Insert the matched segment
+                                            insertSegments(wtext, *seg_list, regex_token, text_len, seg_start, seg_end, style, editor);
+                                        }
+                                        catch (const std::regex_error& e)
+                                        {
+                                            LL_WARNS() << "Regex error in end pattern: " << e.what() << " in pattern: " << actual_end_pattern << LL_ENDL;
+                                            // Fall back to treating the start match as the entire segment
+                                            cur = base + start_seg_end;
+                                            insertSegments(wtext, *seg_list, regex_token, text_len, seg_start, start_seg_end, style, editor);
+                                        }
+                                    }
+
+                                    regex_matched = true;
+                                    break;
+                                }
                             }
                         }
+                        catch (const std::regex_error& e)
+                        {
+                            LL_WARNS() << "Error using compiled regex: " << e.what() << LL_ENDL;
+                        }
                     }
-                    catch (const std::regex_error& e)
+                    else
                     {
-                        LL_WARNS() << "Regex error in start pattern: " << e.what() << " in pattern: " << start_pattern << LL_ENDL;
+                        // Skip tokens that aren't pre-compiled
+                        LL_WARNS() << "Skipping regex token due to missing pre-compiled pattern: "
+                                   << wstring_to_utf8str(regex_token->getToken()) << LL_ENDL;
                     }
                 }
 
@@ -701,14 +731,12 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
                 }
             }
 
-            // If no regex match, check against delimiters
+            // Check against delimiters
             {
                 S32 seg_start = 0;
                 LLKeywordToken* cur_delimiter = NULL;
-                for (token_list_t::iterator iter = mDelimiterTokenList.begin();
-                     iter != mDelimiterTokenList.end(); ++iter)
+                for (auto* delimiter : delimiters)
                 {
-                    LLKeywordToken* delimiter = *iter;
                     if( delimiter->isHead( cur ) )
                     {
                         cur_delimiter = delimiter;
@@ -820,8 +848,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
                     S32 seg_end = seg_start + seg_len;
 
                     // First try to match the whole token (including dots for Lua namespaces)
-                    WStringMapIndex whole_token(word_start, seg_len);
-                    word_token_map_t::iterator map_iter = mWordTokenMap.find(whole_token);
+                    word_token_map_t::iterator map_iter = mWordTokenMap.find(WStringMapIndex(word_start, seg_len));
 
                     if (map_iter != mWordTokenMap.end())
                     {
@@ -837,8 +864,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
                         {
                             // Get the namespace prefix (part before the first dot)
                             S32 prefix_len = (S32)(last_dot - word_start);
-                            WStringMapIndex prefix_token(word_start, prefix_len);
-                            map_iter = mWordTokenMap.find(prefix_token);
+                            map_iter = mWordTokenMap.find(WStringMapIndex(word_start, prefix_len));
 
                             if (map_iter != mWordTokenMap.end())
                             {
@@ -853,8 +879,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
                                 if (func_len > 0)
                                 {
                                     // Look for complete function matches
-                                    WStringMapIndex func_token(func_part, func_len);
-                                    map_iter = mWordTokenMap.find(func_token);
+                                    map_iter = mWordTokenMap.find(WStringMapIndex(func_part, func_len));
 
                                     if (map_iter != mWordTokenMap.end())
                                     {
