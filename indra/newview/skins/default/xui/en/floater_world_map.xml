@@ -556,7 +556,7 @@
      name="DoSearch"
      tool_tip="Search for region"
      width="62">
-		<button.commit_callback
+		<button.mouse_down_callback
 		function="WMap.Location" />
     </button>
    <button
