@@ -1009,4 +1009,7 @@
   <color
     name="ChatSelfMentionHighlight"
     value="1 1 0 1" />
+  <color
+    name="MentionFlashBgColor"
+    value="1 1 0 0.5" />
 </colors>

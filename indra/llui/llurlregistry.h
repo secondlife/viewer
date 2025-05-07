@@ -92,6 +92,8 @@ public:
     // Set handler for url registry to be capable of parsing and populating keybindings
     void setKeybindingHandler(LLKeyBindingToStringHandler* handler);
 
+    bool containsAgentMention(const std::string& text);
+
 private:
     std::vector<LLUrlEntryBase *> mUrlEntry;
     LLUrlEntryBase* mUrlEntryTrusted;

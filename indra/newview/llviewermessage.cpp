@@ -2583,6 +2583,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["session_id"] = LLUUID();
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
+            // used to check if there is agent mention in the message
+            msg_notify["message"] = mesg;
             on_new_message(msg_notify);
         }
 
