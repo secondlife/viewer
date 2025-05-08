@@ -1,4 +1,4 @@
-name: Run QA Test # Runs automated tests on a self-hosted QA machine
+name: Run QA Test # Runs automated tests on self-hosted QA machines
 
 permissions:
   contents: read
@@ -10,17 +10,13 @@ on:
       - completed
   workflow_dispatch:
     inputs:
-      branch_name:
-        description: 'Branch name to simulate workflow (e.g. develop)'
-        required: true
-        default: 'develop'
       build_id:
         description: 'Build workflow run ID (e.g. For github.com/secondlife/viewer/actions/runs/1234567890 the ID is 1234567890)'
         required: true
         default: '14806728332'
 
 concurrency:
-  group: qa-test-run-${{ matrix.runner }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false # Prevents cancellation of in-progress jobs
 
 jobs:
@@ -45,16 +41,16 @@ jobs:
           - os: windows
             runner: qa-windows-atlas
             artifact: Windows-installer
-            install-path: 'C:\viewer-sikulix-main'
+            install-path: 'C:\viewer-automation-main'
           - os: windows
             runner: qa-dan-asus
             artifact: Windows-installer
-            install-path: 'C:\viewer-sikulix-main'
+            install-path: 'C:\viewer-automation-main'
           # Commented out until mac runner is available
           # - os: mac
           #   runner: qa-mac
           #   artifact: Mac-installer
-          #   install-path: 'HOME/Documents/viewer-sikulix-main'
+          #   install-path: 'HOME/Documents/viewer-automation-main'
       fail-fast: false
 
     runs-on: [self-hosted, "${{ matrix.runner }}"]
@@ -66,34 +62,34 @@ jobs:
       github.event_name == 'workflow_dispatch'
 
     steps:
-      # Common steps for both OSes
-      - name: Set Build ID
-        shell: bash
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "BUILD_ID=${{ github.event.inputs.build_id }}" >> $GITHUB_ENV
-            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" >> $GITHUB_ENV
-          else
-            echo "BUILD_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_ENV
-            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" >> $GITHUB_ENV
-          fi
-
       # Windows-specific steps
+      - name: Set Build ID
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            echo "BUILD_ID=${{ github.event.inputs.build_id }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            echo "BUILD_ID=${{ github.event.workflow_run.id }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
+
       - name: Temporarily Allow PowerShell Scripts (Windows)
         if: matrix.os == 'windows'
         shell: pwsh
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 
-      - name: Verify viewer-sikulix-main Exists (Windows)
+      - name: Verify viewer-automation-main Exists (Windows)
         if: matrix.os == 'windows'
         shell: pwsh
         run: |
           if (-Not (Test-Path -Path '${{ matrix.install-path }}')) {
-            Write-Host '❌ Error: viewer-sikulix not found on runner!'
+            Write-Host '❌ Error: viewer-automation folder not found on runner!'
             exit 1
           }
-          Write-Host '✅ viewer-sikulix is already available.'
+          Write-Host '✅ viewer-automation folder is provided.'
 
       - name: Fetch & Download Installer Artifact (Windows)
         if: matrix.os == 'windows'
@@ -217,15 +213,27 @@ jobs:
           python "${{ matrix.install-path }}\runTests.py"
 
       # Mac-specific steps
-      - name: Verify viewer-sikulix-main Exists (Mac)
+      - name: Set Build ID (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "BUILD_ID=${{ github.event.inputs.build_id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" >> $GITHUB_ENV
+          else
+            echo "BUILD_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" >> $GITHUB_ENV
+          fi
+
+      - name: Verify viewer-automation-main Exists (Mac)
         if: matrix.os == 'mac'
         shell: bash
         run: |
           if [ ! -d "${{ matrix.install-path }}" ]; then
-            echo "❌ Error: viewer-sikulix not found on runner!"
+            echo "❌ Error: viewer-automation folder not found on runner!"
             exit 1
           fi
-          echo "✅ viewer-sikulix is already available."
+          echo "✅ viewer-automation is provided."
 
       - name: Fetch & Download Installer Artifact (Mac)
         if: matrix.os == 'mac'
