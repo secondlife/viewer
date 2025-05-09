@@ -985,7 +985,10 @@ void LLWebRTCVoiceClient::updatePosition(void)
         LLWebRTCVoiceClient::participantStatePtr_t participant = findParticipantByID("Estate", gAgentID);
         if(participant)
         {
-            participant->mRegion = gAgent.getRegion()->getRegionID();
+            if (participant->mRegion != gAgent.getRegion()->getRegionID()) {
+                participant->mRegion = gAgent.getRegion()->getRegionID();
+                setMuteMic(mMuteMic);
+            }
         }
     }
 }
@@ -3104,23 +3107,20 @@ LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection()
 
 void LLVoiceWebRTCSpatialConnection::setMuteMic(bool muted)
 {
-    if (mMuted != muted)
+    mMuted = muted;
+    if (mWebRTCAudioInterface)
     {
-        mMuted = muted;
-        if (mWebRTCAudioInterface)
+        LLViewerRegion *regionp = gAgent.getRegion();
+        if (regionp && mRegionID == regionp->getRegionID())
         {
-            LLViewerRegion *regionp = gAgent.getRegion();
-            if (regionp && mRegionID == regionp->getRegionID())
-            {
-                mWebRTCAudioInterface->setMute(muted);
-            }
-            else
-            {
-                // Always mute this agent with respect to neighboring regions.
-                // Peers don't want to hear this agent from multiple regions
-                // as that'll echo.
-                mWebRTCAudioInterface->setMute(true);
-            }
+            mWebRTCAudioInterface->setMute(muted);
+        }
+        else
+        {
+            // Always mute this agent with respect to neighboring regions.
+            // Peers don't want to hear this agent from multiple regions
+            // as that'll echo.
+            mWebRTCAudioInterface->setMute(true);
         }
     }
 }
