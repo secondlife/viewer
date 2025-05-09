@@ -98,7 +98,14 @@ void LLChatMentionHelper::showHelper(LLUICtrl* host_ctrl, S32 local_x, S32 local
     LLRect rect = av_picker_floater->getRect();
     rect.setLeftTopAndSize(floater_x, floater_y + rect.getHeight(), rect.getWidth(), rect.getHeight());
     av_picker_floater->setRect(rect);
-    av_picker_floater->openFloater(LLSD().with("av_name", av_name));
+    if (av_picker_floater->isShown())
+    {
+        av_picker_floater->onOpen(LLSD().with("av_name", av_name));
+    }
+    else
+    {
+        av_picker_floater->openFloater(LLSD().with("av_name", av_name));
+    }
 }
 
 void LLChatMentionHelper::hideHelper(const LLUICtrl* ctrl)
