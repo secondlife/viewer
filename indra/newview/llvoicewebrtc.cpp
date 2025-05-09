@@ -985,8 +985,8 @@ void LLWebRTCVoiceClient::updatePosition(void)
         LLWebRTCVoiceClient::participantStatePtr_t participant = findParticipantByID("Estate", gAgentID);
         if(participant)
         {
-            if (participant->mRegion != gAgent.getRegion()->getRegionID()) {
-                participant->mRegion = gAgent.getRegion()->getRegionID();
+            if (participant->mRegion != region->getRegionID()) {
+                participant->mRegion = region->getRegionID();
                 setMuteMic(mMuteMic);
             }
         }
