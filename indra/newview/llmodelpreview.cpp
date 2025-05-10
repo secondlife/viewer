@@ -2498,6 +2498,8 @@ void LLModelPreview::updateStatusMessages()
     S32 phys_tris = 0;
     S32 phys_hulls = 0;
     S32 phys_points = 0;
+    S32 which_mode = 0;
+    S32 file_mode = 1;
 
     //get the triangle count for the whole scene
     for (LLModelLoader::scene::iterator iter = mScene[LLModel::LOD_PHYSICS].begin(), endIter = mScene[LLModel::LOD_PHYSICS].end(); iter != endIter; ++iter)
@@ -2619,17 +2621,15 @@ void LLModelPreview::updateStatusMessages()
             fmp->childEnable("simplify_cancel");
             fmp->childEnable("decompose_cancel");
         }
+
+        LLCtrlSelectionInterface* iface = fmp->childGetSelectionInterface("physics_lod_combo");
+        if (iface)
+        {
+            which_mode = iface->getFirstSelectedIndex();
+            file_mode = iface->getItemCount() - 1;
+        }
     }
 
-
-    LLCtrlSelectionInterface* iface = fmp->childGetSelectionInterface("physics_lod_combo");
-    S32 which_mode = 0;
-    S32 file_mode = 1;
-    if (iface)
-    {
-        which_mode = iface->getFirstSelectedIndex();
-        file_mode = iface->getItemCount() - 1;
-    }
 
     if (which_mode == file_mode)
     {
