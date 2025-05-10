@@ -93,6 +93,8 @@ public:
     S32 getSquareMetersCommitted() const;
     S32 getSquareMetersLeft() const;
 
+    void setBalanceVisible(bool visible);
+
     LLPanelNearByMedia* getNearbyMediaPanel() { return mPanelNearByMedia; }
 
 private:

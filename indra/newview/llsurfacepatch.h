@@ -116,7 +116,7 @@ public:
     void calcNormalFlat(LLVector3& normal_out, const U32 x, const U32 y, const U32 index /* 0 or 1 */);
 
     void eval(const U32 x, const U32 y, const U32 stride,
-                LLVector3 *vertex, LLVector3 *normal, LLVector2 *tex1) const;
+                LLVector3 *vertex, LLVector3 *normal, LLVector2* tex0, LLVector2 *tex1) const;
 
 
 

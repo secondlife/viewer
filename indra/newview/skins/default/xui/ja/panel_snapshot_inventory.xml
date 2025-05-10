@@ -6,7 +6,7 @@
 	</text>
 	<view_border name="hr"/>
 	<combo_box label="解像度" name="texture_size_combo">
-		<combo_box.item label="現在のウィンドウ (512✕512)" name="CurrentWindow"/>
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
 		<combo_box.item label="小（128✕128）" name="Small(128x128)"/>
 		<combo_box.item label="中（256✕256）" name="Medium(256x256)"/>
 		<combo_box.item label="大（512✕512）" name="Large(512x512)"/>
@@ -16,7 +16,7 @@
 	<spinner label="" name="inventory_snapshot_height"/>
 	<check_box label="縦横比の固定" name="inventory_keep_aspect_check"/>
 	<text name="hint_lbl">
-		画像をテクスチャとして保存する場合は、いずれかの正方形を選択してください。
+		画像をインベントリに保存するには L$[UPLOAD_COST] の費用がかかります。画像をテクスチャとして保存するには平方形式の 1 つを選択してください。
 	</text>
 	<button label="キャンセル" name="cancel_btn"/>
 	<button label="保存" name="save_btn"/>

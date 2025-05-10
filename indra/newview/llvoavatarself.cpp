@@ -225,6 +225,8 @@ void LLVOAvatarSelf::initInstance()
     doPeriodically(update_avatar_rez_metrics, 5.0);
     doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
 
+    initAllJoints(); // mesh thread uses LLVOAvatarSelf as a joint source
+
     mInitFlags |= 1<<2;
 }
 

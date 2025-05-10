@@ -113,7 +113,7 @@ public:
     };
 
     // disable traversal when finding widget to hand focus off to
-    /*virtual*/ bool canFocusChildren() const { return false; }
+    /*virtual*/ bool canFocusChildren() const override { return false; }
 
     /**
      * Connects callback to signal called when Return key is pressed.
@@ -121,15 +121,15 @@ public:
     boost::signals2::connection setReturnCallback( const commit_signal_t::slot_type& cb ) { return mOnReturnSignal.connect(cb); }
 
     /** Overridden LLPanel's reshape, height is ignored, the list sets its height to accommodate all items */
-    virtual void reshape(S32 width, S32 height, bool called_from_parent  = true);
+    virtual void reshape(S32 width, S32 height, bool called_from_parent  = true) override;
 
     /** Returns full rect of child panel */
     const LLRect& getItemsRect() const;
 
-    LLRect getRequiredRect() { return getItemsRect(); }
+    LLRect getRequiredRect() override { return getItemsRect(); }
 
     /** Returns distance between items */
-    const S32 getItemsPad() { return mItemPad; }
+    const S32 getItemsPad() const { return mItemPad; }
 
     /**
      * Adds and item and LLSD value associated with it to the list at specified position
@@ -264,13 +264,13 @@ public:
     void setCommitOnSelectionChange(bool b)     { mCommitOnSelectionChange = b; }
 
     /** Get number of selected items in the list */
-    U32 numSelected() const {return static_cast<U32>(mSelectedItemPairs.size()); }
+    U32 numSelected() const { return static_cast<U32>(mSelectedItemPairs.size()); }
 
     /** Get number of (visible) items in the list */
     U32 size(const bool only_visible_items = true) const;
 
     /** Removes all items from the list */
-    virtual void clear();
+    virtual void clear() override;
 
     /**
      * Removes all items that can be detached from the list but doesn't destroy
@@ -294,10 +294,12 @@ public:
 
     void scrollToShowFirstSelectedItem();
 
-    void selectFirstItem    ();
-    void selectLastItem     ();
+    void selectFirstItem();
+    void selectLastItem();
 
-    virtual S32 notify(const LLSD& info) ;
+    virtual S32 notify(const LLSD& info) override;
+
+    void setFocusOnItemClicked(bool b) { mFocusOnItemClicked = b; }
 
     virtual ~LLFlatListView();
 
@@ -346,8 +348,8 @@ protected:
 
     virtual bool selectNextItemPair(bool is_up_direction, bool reset_selection);
 
-    virtual bool canSelectAll() const;
-    virtual void selectAll();
+    virtual bool canSelectAll() const override;
+    virtual void selectAll() override;
 
     virtual bool isSelected(item_pair_t* item_pair) const;
 
@@ -364,15 +366,15 @@ protected:
      */
     void notifyParentItemsRectChanged();
 
-    virtual bool handleKeyHere(KEY key, MASK mask);
+    virtual bool handleKeyHere(KEY key, MASK mask) override;
 
-    virtual bool postBuild();
+    virtual bool postBuild() override;
 
-    virtual void onFocusReceived();
+    virtual void onFocusReceived() override;
 
-    virtual void onFocusLost();
+    virtual void onFocusLost() override;
 
-    virtual void draw();
+    virtual void draw() override;
 
     LLRect getLastSelectedItemRect();
 
@@ -422,6 +424,8 @@ private:
     bool mIsConsecutiveSelection;
 
     bool mKeepSelectionVisibleOnReshape;
+
+    bool mFocusOnItemClicked;
 
     /** All pairs of the list */
     pairs_list_t mItemPairs;
@@ -478,7 +482,7 @@ public:
     void setNoItemsMsg(const std::string& msg) { mNoItemsMsg = msg; }
     void setNoFilteredItemsMsg(const std::string& msg) { mNoFilteredItemsMsg = msg; }
 
-    bool getForceShowingUnmatchedItems();
+    bool getForceShowingUnmatchedItems() const;
 
     void setForceShowingUnmatchedItems(bool show);
 
@@ -486,7 +490,7 @@ public:
      * Sets up new filter string and filters the list.
      */
     void setFilterSubString(const std::string& filter_str, bool notify_parent);
-    std::string getFilterSubString() { return mFilterSubString; }
+    std::string getFilterSubString() const { return mFilterSubString; }
 
     /**
      * Filters the list, rearranges and notifies parent about shape changes.

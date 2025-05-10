@@ -68,7 +68,7 @@ public:
     void reshape(S32 width, S32 height, bool called_from_parent = true);
     void setEnabled(bool enabled);
     void setCommandId(const LLCommandId& id) { mId = id; }
-    LLCommandId getCommandId() { return mId; }
+    LLCommandId getCommandId() const { return mId; }
 
     void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
     void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
@@ -256,7 +256,7 @@ public:
 
     // Methods used in loading and saving toolbar settings
     void setButtonType(LLToolBarEnums::ButtonType button_type);
-    LLToolBarEnums::ButtonType getButtonType() { return mButtonType; }
+    LLToolBarEnums::ButtonType getButtonType() const { return mButtonType; }
     command_id_list_t& getCommandsList() { return mButtonCommands; }
     void clearCommandsList();
 

@@ -60,12 +60,13 @@ LLPanelSnapshot* LLFloaterSnapshot::Impl::getActivePanel(LLFloaterSnapshotBase* 
 {
     LLSideTrayPanelContainer* panel_container = floater->getChild<LLSideTrayPanelContainer>("panel_container");
     LLPanelSnapshot* active_panel = dynamic_cast<LLPanelSnapshot*>(panel_container->getCurrentPanel());
-    if (!active_panel)
-    {
-        LL_WARNS() << "No snapshot active panel, current panel index: " << panel_container->getCurrentPanelIndex() << LL_ENDL;
-    }
+
     if (!ok_if_not_found)
     {
+        if (!active_panel)
+        {
+            LL_WARNS() << "No snapshot active panel, current panel index: " << panel_container->getCurrentPanelIndex() << LL_ENDL;
+        }
         llassert_always(active_panel != NULL);
     }
     return active_panel;
@@ -516,34 +517,13 @@ void LLFloaterSnapshotBase::ImplBase::onClickFilter(LLUICtrl *ctrl, void* data)
 }
 
 // static
-void LLFloaterSnapshotBase::ImplBase::onClickUICheck(LLUICtrl *ctrl, void* data)
+void LLFloaterSnapshotBase::ImplBase::onClickDisplaySetting(LLUICtrl* ctrl, void* data)
 {
-    LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
-    gSavedSettings.setBOOL( "RenderUIInSnapshot", check->get() );
-
-    LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+    LLFloaterSnapshot* view = (LLFloaterSnapshot*)data;
     if (view)
     {
         LLSnapshotLivePreview* previewp = view->getPreviewView();
-        if(previewp)
-        {
-            previewp->updateSnapshot(true, true);
-        }
-        view->impl->updateControls(view);
-    }
-}
-
-// static
-void LLFloaterSnapshotBase::ImplBase::onClickHUDCheck(LLUICtrl *ctrl, void* data)
-{
-    LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
-    gSavedSettings.setBOOL( "RenderHUDInSnapshot", check->get() );
-
-    LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
-    if (view)
-    {
-        LLSnapshotLivePreview* previewp = view->getPreviewView();
-        if(previewp)
+        if (previewp)
         {
             previewp->updateSnapshot(true, true);
         }
@@ -1002,11 +982,9 @@ bool LLFloaterSnapshot::postBuild()
     mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
     mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
 
-    childSetCommitCallback("ui_check", ImplBase::onClickUICheck, this);
-    getChild<LLUICtrl>("ui_check")->setValue(gSavedSettings.getBOOL("RenderUIInSnapshot"));
-
-    childSetCommitCallback("hud_check", ImplBase::onClickHUDCheck, this);
-    getChild<LLUICtrl>("hud_check")->setValue(gSavedSettings.getBOOL("RenderHUDInSnapshot"));
+    childSetCommitCallback("ui_check", ImplBase::onClickDisplaySetting, this);
+    childSetCommitCallback("balance_check", ImplBase::onClickDisplaySetting, this);
+    childSetCommitCallback("hud_check", ImplBase::onClickDisplaySetting, this);
 
     ((Impl*)impl)->setAspectRatioCheckboxValue(this, gSavedSettings.getBOOL("KeepAspectForSnapshot"));
 

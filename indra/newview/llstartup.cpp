@@ -3566,7 +3566,7 @@ bool process_login_success_response()
 
     // Agent id needed for parcel info request in LLUrlEntryParcel
     // to resolve parcel name.
-    LLUrlEntryParcel::setAgentID(gAgentID);
+    LLUrlEntryBase::setAgentID(gAgentID);
 
     text = response["session_id"].asString();
     if(!text.empty()) gAgentSessionID.set(text);

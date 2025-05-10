@@ -2314,7 +2314,7 @@ bool can_move_to_landmarks(LLInventoryItem* inv_item)
 }
 
 // Returns true if folder's content can be moved to Current Outfit or any outfit folder.
-bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit)
+bool can_move_to_my_outfits_as_outfit(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit)
 {
     LLInventoryModel::cat_array_t *cats;
     LLInventoryModel::item_array_t *items;
@@ -2348,6 +2348,45 @@ bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_ca
             return false;
         }
         iter++;
+    }
+
+    return true;
+}
+
+bool can_move_to_my_outfits_as_subfolder(LLInventoryModel* model, LLInventoryCategory* inv_cat, S32 depth)
+{
+    LLInventoryModel::cat_array_t* cats;
+    LLInventoryModel::item_array_t* items;
+    model->getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
+
+    if (items->size() > 0)
+    {
+        // subfolders don't allow items
+        return false;
+    }
+
+    constexpr size_t MAX_CONTENT = 255;
+    if (cats->size() > MAX_CONTENT)
+    {
+        // don't allow massive folders
+        return false;
+    }
+
+    for (LLPointer<LLViewerInventoryCategory>& cat : *cats)
+    {
+        // outfits are valid to move, check non-outfit folders
+        if (cat->getPreferredType() != LLFolderType::FT_OUTFIT)
+        {
+            if (depth == 3)
+            {
+                // don't allow massive folders
+                return false;
+            }
+            if (!can_move_to_my_outfits_as_subfolder(model, cat, depth + 1))
+            {
+                return false;
+            }
+        }
     }
 
     return true;
@@ -2493,6 +2532,40 @@ bool can_share_item(const LLUUID& item_id)
 
     return can_share;
 }
+
+EMyOutfitsSubfolderType myoutfit_object_subfolder_type(
+    LLInventoryModel* model,
+    const LLUUID& obj_id,
+    const LLUUID& my_outfits_id)
+{
+    if (obj_id == my_outfits_id) return MY_OUTFITS_NO;
+
+    const LLViewerInventoryCategory* test_cat = model->getCategory(obj_id);
+    if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+    {
+        return MY_OUTFITS_OUTFIT;
+    }
+    while (test_cat)
+    {
+        if (test_cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+        {
+            return MY_OUTFITS_SUBOUTFIT;
+        }
+
+        const LLUUID& parent_id = test_cat->getParentUUID();
+        if (parent_id.isNull())
+        {
+            return MY_OUTFITS_NO;
+        }
+        if (parent_id == my_outfits_id)
+        {
+            return MY_OUTFITS_SUBFOLDER;
+        }
+        test_cat = model->getCategory(parent_id);
+    }
+
+    return MY_OUTFITS_NO;
+}
 ///----------------------------------------------------------------------------
 /// LLMarketplaceValidator implementations
 ///----------------------------------------------------------------------------
@@ -2619,6 +2692,11 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryIte
             break;
     }
     return false;
+}
+
+bool LLIsFolderType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    return cat && cat->getPreferredType() == mType;
 }
 
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

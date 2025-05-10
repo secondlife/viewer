@@ -86,21 +86,37 @@ def save_xml(tree, file_path, xml_decl, indent_text=False, indent_tab=False, rm_
         except IOError as e:
             print(f"Error saving file {file_path}: {e}")
 
-def process_directory(directory_path, indent_text=False, indent_tab=False, rm_space=False, rewrite_decl=False):
+def process_xml_files(file_paths, indent_text=False, indent_tab=False, rm_space=False, rewrite_decl=False):
+    found_files = False
+    if file_paths:
+        found_files = True
+        for file_path in file_paths:
+            xml_decl = get_xml_declaration(file_path)
+            tree = parse_xml_file(file_path)
+            if tree is not None:
+                save_xml(tree, file_path, xml_decl, indent_text, indent_tab, rm_space, rewrite_decl)
+    return found_files
+
+def process_directory(directory_path, indent_text=False, indent_tab=False, rm_space=False, rewrite_decl=False, file_pattern=None, recursive=False):
     if not os.path.isdir(directory_path):
         print(f"Directory not found: {directory_path}")
         return
 
-    xml_files = glob.glob(os.path.join(directory_path, "*.xml"))
-    if not xml_files:
-        print(f"No XML files found in directory: {directory_path}")
-        return
+    pattern = file_pattern if file_pattern else "*.xml"
+    found_files = False
 
-    for file_path in xml_files:
-        xml_decl = get_xml_declaration(file_path)
-        tree = parse_xml_file(file_path)
-        if tree is not None:
-            save_xml(tree, file_path, xml_decl, indent_text, indent_tab, rm_space, rewrite_decl)
+    if not recursive:
+        # Non-recursive mode
+        xml_files = glob.glob(os.path.join(directory_path, pattern))
+        found_files = process_xml_files(xml_files, indent_text, indent_tab, rm_space, rewrite_decl)
+    else:
+        # Recursive mode
+        for root, dirs, files in os.walk(directory_path):
+            xml_files = glob.glob(os.path.join(root, pattern))
+            found_files = process_xml_files(xml_files, indent_text, indent_tab, rm_space, rewrite_decl)
+
+    if not found_files:
+        print(f"No XML files found in {'directory tree' if recursive else 'directory'}: {directory_path}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or '--help' in sys.argv:
@@ -112,9 +128,13 @@ if __name__ == "__main__":
         print("  --indent-tab     Uses tabs instead of spaces for indentation.")
         print("  --rm-space       Removes spaces in self-closing tags.")
         print("  --rewrite_decl   Replaces the XML declaration line.")
+        print("  --file <pattern> Only process files matching the pattern")
+        print("  --recursive      Process files in all subdirectories")
         print("\nCommon Usage:")
         print("  To format XML files with text indentation, tab indentation, and removal of spaces in self-closing tags:")
         print("  python fix_xml_indentations.py /path/to/xmls --indent-text --indent-tab --rm-space")
+        print("\n  To format specific XML files recursively through all subdirectories:")
+        print("  python fix_xml_indentations.py /path/to/xmls --file floater_*.xml --recursive")
         sys.exit(1)
 
     directory_path = sys.argv[1]
@@ -122,4 +142,16 @@ if __name__ == "__main__":
     indent_tab = '--indent-tab' in sys.argv
     rm_space = '--rm-space' in sys.argv
     rewrite_decl = '--rewrite_decl' in sys.argv
-    process_directory(directory_path, indent_text, indent_tab, rm_space, rewrite_decl)
+    recursive = '--recursive' in sys.argv
+
+    # Get file pattern if specified
+    file_pattern = None
+    if '--file' in sys.argv:
+        try:
+            file_index = sys.argv.index('--file') + 1
+            if file_index < len(sys.argv):
+                file_pattern = sys.argv[file_index]
+        except ValueError:
+            pass
+
+    process_directory(directory_path, indent_text, indent_tab, rm_space, rewrite_decl, file_pattern, recursive)

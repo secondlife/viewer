@@ -57,6 +57,7 @@ public:
     /*virtual*/ void        updateFaceSize(S32 idx);
     void getTerrainGeometry(LLStrider<LLVector3> &verticesp,
                                 LLStrider<LLVector3> &normalsp,
+                                LLStrider<LLVector2> &texCoords0p,
                                 LLStrider<LLVector2> &texCoords1p,
                                 LLStrider<U16> &indicesp);
 
@@ -109,18 +110,21 @@ protected:
     void updateMainGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
+                       LLStrider<LLVector2> &texCoords0p,
                        LLStrider<LLVector2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);
     void updateNorthGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
+                       LLStrider<LLVector2> &texCoords0p,
                        LLStrider<LLVector2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);
     void updateEastGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
+                       LLStrider<LLVector2> &texCoords0p,
                        LLStrider<LLVector2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);

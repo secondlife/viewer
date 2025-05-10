@@ -459,6 +459,7 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mNoItemsCommentTextbox(NULL)
   , mIsConsecutiveSelection(false)
   , mKeepSelectionVisibleOnReshape(p.keep_selection_visible_on_reshape)
+  , mFocusOnItemClicked(true)
 {
     mBorderThickness = getBorderWidth();
 
@@ -610,7 +611,10 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
         return;
     }
 
-    setFocus(true);
+    if (mFocusOnItemClicked)
+    {
+        setFocus(true);
+    }
 
     bool select_item = !isSelected(item_pair);
 
@@ -1337,7 +1341,7 @@ void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
     }
 }
 
-bool LLFlatListViewEx::getForceShowingUnmatchedItems()
+bool LLFlatListViewEx::getForceShowingUnmatchedItems() const
 {
     return mForceShowingUnmatchedItems;
 }

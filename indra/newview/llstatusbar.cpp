@@ -738,6 +738,10 @@ void LLStatusBar::updateBalancePanelPosition()
     balance_bg_view->setShape(balance_bg_rect);
 }
 
+void LLStatusBar::setBalanceVisible(bool visible)
+{
+    mBoxBalance->setVisible(visible);
+}
 
 // Implements secondlife:///app/balance/request to request a L$ balance
 // update via UDP message system. JC
