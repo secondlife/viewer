@@ -460,6 +460,25 @@ void copy_inventory_category(LLInventoryModel* model,
     gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
 }
 
+void copy_inventory_category(LLInventoryModel* model,
+    LLViewerInventoryCategory* cat,
+    const LLUUID& parent_id,
+    const LLUUID& root_copy_id,
+    bool move_no_copy_items,
+    LLPointer<LLInventoryCallback> callback)
+{
+    // Create the initial folder
+    inventory_func_type func = [model, cat, root_copy_id, move_no_copy_items, callback](const LLUUID& new_id)
+    {
+        copy_inventory_category_content(new_id, model, cat, root_copy_id, move_no_copy_items);
+        if (callback)
+        {
+            callback.get()->fire(new_id);
+        }
+    };
+    gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
+}
+
 void copy_cb(const LLUUID& dest_folder, const LLUUID& root_id)
 {
     // Decrement the count in root_id since that one item won't be copied over
@@ -2362,6 +2381,12 @@ bool can_move_to_my_outfits_as_subfolder(LLInventoryModel* model, LLInventoryCat
     if (items->size() > 0)
     {
         // subfolders don't allow items
+        return false;
+    }
+
+    if (inv_cat->getPreferredType() != LLFolderType::FT_NONE)
+    {
+        // only normal folders can become subfodlers
         return false;
     }
 
