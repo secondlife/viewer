@@ -3260,7 +3260,11 @@ void LLIMMgr::addMessage(
             //Play sound for new conversations
             if (!skip_message && !gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation")))
             {
-                make_ui_sound("UISndNewIncomingIMSession");
+                static LLCachedControl<bool> play_snd_mention_pref(gSavedSettings, "PlaySoundChatMention", false);
+                if (!play_snd_mention_pref || !LLUrlRegistry::getInstance()->containsAgentMention(msg))
+                {
+                    make_ui_sound("UISndNewIncomingIMSession");
+                }
             }
         }
         else

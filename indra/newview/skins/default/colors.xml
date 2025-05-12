@@ -1008,7 +1008,7 @@
     value="0.82 0.91 0.98 0.15" />
   <color
     name="ChatSelfMentionHighlight"
-    value="1 1 0 1" />
+    value="1 1 0 0.35" />
   <color
     name="MentionFlashBgColor"
     value="1 1 0 0.5" />
