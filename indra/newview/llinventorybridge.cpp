@@ -4119,9 +4119,11 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 if (move_is_into_outfit)
                 {
                     bool handled = false;
-                    if (!move_is_into_my_outfits && item && can_move_to_outfit(item, move_is_into_current_outfit))
+                    if (mUUID != my_outifts_id
+                        && dest_folder->getPreferredType() == LLFolderType::FT_OUTFIT
+                        && item
+                        && can_move_to_outfit(item, move_is_into_current_outfit))
                     {
-                        // todo: this is going to create dupplicate folders?
                         dropToOutfit(item, move_is_into_current_outfit, cb);
                         handled = true;
                     }
