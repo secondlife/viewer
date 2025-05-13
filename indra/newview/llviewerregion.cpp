@@ -3721,6 +3721,10 @@ bool LLViewerRegion::bakesOnMeshEnabled() const
 
 bool LLViewerRegion::meshRezEnabled() const
 {
+    if(!mSimulatorFeaturesReceived)
+    {
+        return true;
+    }
     return (mSimulatorFeatures.has("MeshRezEnabled") &&
                 mSimulatorFeatures["MeshRezEnabled"].asBoolean());
 }
