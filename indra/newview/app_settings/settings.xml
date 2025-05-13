@@ -7841,7 +7841,7 @@
   <key>RenderMinFreeMainMemoryThreshold</key>
   <map>
     <key>Comment</key>
-    <string>Minimum of available physical memory in MB before textures get scaled down</string>
+    <string>If available free physical memory is below this value textures get agresively scaled down</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>

@@ -142,6 +142,17 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
     if (!cat) return;
 
+    if (!isOutfitFolder(cat))
+    {
+        // Assume a subfolder that contains or will contain outfits, track it
+        const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+        mCategoriesObserver->addCategory(cat_id, [this, outfits]()
+        {
+            observerCallback(outfits);
+        });
+        return;
+    }
+
     std::string name = cat->getName();
 
     outfit_accordion_tab_params tab_params(get_accordion_tab_params());
@@ -819,49 +830,38 @@ void LLOutfitListBase::observerCallback(const LLUUID& category_id)
     refreshList(category_id);
 }
 
-class LLIsOutfitListFolder : public LLInventoryCollectFunctor
+bool LLOutfitListBase::isOutfitFolder(LLViewerInventoryCategory* cat) const
 {
-public:
-    LLIsOutfitListFolder()
+    if (!cat)
     {
-        mOutfitsId = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-    }
-    virtual ~LLIsOutfitListFolder() {}
-
-    bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) override
-    {
-        if (cat)
-        {
-            if (cat->getPreferredType() == LLFolderType::FT_OUTFIT)
-            {
-                return true;
-            }
-            if (cat->getPreferredType() == LLFolderType::FT_NONE
-                && cat->getParentUUID() == mOutfitsId)
-            {
-                LLViewerInventoryCategory* inv_cat = dynamic_cast<LLViewerInventoryCategory*>(cat);
-                if (inv_cat && inv_cat->getDescendentCount() > 3)
-                {
-                    LLInventoryModel::cat_array_t* cats;
-                    LLInventoryModel::item_array_t* items;
-                    gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
-                    if (cats->empty() // protection against outfits inside
-                        && items->size() > 3) // eyes, skin, hair and shape are required
-                    {
-                        // For now assume this to be an old style outfit, not a subfolder
-                        // but ideally no such 'outfits' should be left in My Outfits
-                        // Todo: stop counting FT_NONE as outfits,
-                        // convert obvious outfits into FT_OUTFIT
-                        return true;
-                    }
-                }
-            }
-        }
         return false;
     }
-protected:
-    LLUUID mOutfitsId;
-};
+    if (cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+    {
+        return true;
+    }
+    // assumes that folder is somewhere inside MyOutfits
+    if (cat->getPreferredType() == LLFolderType::FT_NONE)
+    {
+        LLViewerInventoryCategory* inv_cat = dynamic_cast<LLViewerInventoryCategory*>(cat);
+        if (inv_cat && inv_cat->getDescendentCount() > 3)
+        {
+            LLInventoryModel::cat_array_t* cats;
+            LLInventoryModel::item_array_t* items;
+            gInventory.getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
+            if (cats->empty() // protection against outfits inside
+                && items->size() > 3) // arbitrary, if doesn't have at least base parts, not an outfit
+            {
+                // For now assume this to be an old style outfit, not a subfolder
+                // but ideally no such 'outfits' should be left in My Outfits
+                // Todo: stop counting FT_NONE as outfits,
+                // convert obvious outfits into FT_OUTFIT
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 void LLOutfitListBase::refreshList(const LLUUID& category_id)
 {
@@ -872,13 +872,13 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
     LLInventoryModel::item_array_t item_array;
 
     // Collect all sub-categories of a given category.
-    LLIsOutfitListFolder is_outfit;
+    LLIsType is_category(LLAssetType::AT_CATEGORY);
     gInventory.collectDescendentsIf(
         category_id,
         cat_array,
         item_array,
         LLInventoryModel::EXCLUDE_TRASH,
-        is_outfit);
+        is_category);
 
     // Memorize item names for each UUID
     std::map<LLUUID, std::string> names;
