@@ -1396,7 +1396,12 @@ bool LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
     {
         LLSD params;
         params["inv_type"] = LLInventoryType::IT_CATEGORY;
-        params["thumbnail_id"] = gInventory.getCategory(mFolderID)->getThumbnailUUID();
+        LLViewerInventoryCategory* cat = gInventory.getCategory(mFolderID);
+        if (cat)
+        {
+            params["thumbnail_id"] = cat->getThumbnailUUID();
+        }
+        // else consider returning
         params["item_id"] = mFolderID;
 
         LLToolTipMgr::instance().show(LLToolTip::Params()
