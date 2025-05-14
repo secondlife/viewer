@@ -50,7 +50,7 @@ jobs:
           # - os: mac
           #   runner: qa-mac
           #   artifact: Mac-installer
-          #   install-path: 'HOME/Documents/viewer-automation-main'
+          #   install-path: '$HOME/Documents/viewer-automation'
       fail-fast: false
 
     runs-on: [self-hosted, "${{ matrix.runner }}"]
@@ -90,6 +90,43 @@ jobs:
             exit 1
           }
           Write-Host '✅ viewer-automation folder is provided.'
+
+      - name: Verify Python Installation (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          try {
+            $pythonVersion = (python --version)
+            Write-Host "✅ Python found: $pythonVersion"
+          } catch {
+            Write-Host "❌ Error: Python not found in PATH. Please install Python on this runner."
+            exit 1
+          }
+
+      - name: Setup Python Virtual Environment (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+          cd ${{ matrix.install-path }}
+
+          if (-Not (Test-Path -Path ".venv")) {
+            Write-Host "Creating virtual environment..."
+            python -m venv .venv
+          } else {
+            Write-Host "Using existing virtual environment"
+          }
+
+          # Direct environment activation to avoid script execution issues
+          $env:VIRTUAL_ENV = "$PWD\.venv"
+          $env:PATH = "$env:VIRTUAL_ENV\Scripts;$env:PATH"
+
+          # Install dependencies
+          if (Test-Path -Path "requirements.txt") {
+            pip install -r requirements.txt
+          } else {
+            pip install outleap requests behave
+          }
 
       - name: Fetch & Download Installer Artifact (Windows)
         if: matrix.os == 'windows'
@@ -210,7 +247,12 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Running QA Test script on Windows runner: ${{ matrix.runner }}..."
-          python "${{ matrix.install-path }}\runTests.py"
+          cd ${{ matrix.install-path }}
+          # Activate virtual environment
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+          $env:VIRTUAL_ENV = "$PWD\.venv"
+          $env:PATH = "$env:VIRTUAL_ENV\Scripts;$env:PATH"
+          python runTests.py
 
       # Mac-specific steps
       - name: Set Build ID (Mac)
@@ -234,6 +276,44 @@ jobs:
             exit 1
           fi
           echo "✅ viewer-automation is provided."
+
+      - name: Verify Python Installation (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if command -v python3 &> /dev/null; then
+            PYTHON_VERSION=$(python3 --version)
+            echo "✅ Python found: $PYTHON_VERSION"
+          else
+            echo "❌ Error: Python3 not found in PATH. Please install Python on this runner."
+            exit 1
+          fi
+
+      - name: Setup Python Virtual Environment (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          cd ${{ matrix.install-path }}
+
+          # Create virtual environment if it doesn't exist
+          if [ ! -d ".venv" ]; then
+            echo "Creating virtual environment..."
+            python3 -m venv .venv
+          else
+            echo "Using existing virtual environment"
+          fi
+
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Install dependencies
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+            echo "✅ Installed dependencies from requirements.txt"
+          else
+            pip install outleap requests behave
+            echo "⚠️ requirements.txt not found, installed basic dependencies"
+          fi
 
       - name: Fetch & Download Installer Artifact (Mac)
         if: matrix.os == 'mac'
@@ -370,7 +450,9 @@ jobs:
         shell: bash
         run: |
           echo "Running QA Test script on Mac runner: ${{ matrix.runner }}..."
-          python "${{ matrix.install-path }}/runTests.py"
+          cd ${{ matrix.install-path }}
+          source .venv/bin/activate
+          python runTests.py
 
       # - name: Upload Test Results
       #   if: always()
