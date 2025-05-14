@@ -347,9 +347,34 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     prim.mPositions[i][1] * DIRECT_SCALE,
                     prim.mPositions[i][2] * DIRECT_SCALE
                 );
+                vert.position = glm::vec3(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2]);
+                vert.normal   = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                vert.uv0      = glm::vec2(prim.mTexCoords0[i][0],-prim.mTexCoords0[i][1]);
 
-                vert.normal = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
-                vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
+                if (skinIdx >= 0)
+                {
+                    auto accessorIdx = prim.mAttributes["JOINTS_0"];
+                    LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
+                    if (accessorIdx >= 0)
+                    {
+                        auto accessor   = mGLTFAsset.mAccessors[accessorIdx];
+                        componentType = accessor.mComponentType;
+                    }
+
+                    // The GLTF spec allows for either an unsigned byte for joint indices, or an unsigned short.
+                    // Detect and unpack accordingly.
+                    if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE)
+                    {
+                        auto ujoint = glm::unpackUint4x8((U32)(prim.mJoints[i] & 0xFFFFFFFF));
+                        vert.joints = glm::u16vec4(ujoint.x, ujoint.y, ujoint.z, ujoint.w);
+                    }
+                    else if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_SHORT)
+                    {
+                        vert.joints = glm::unpackUint4x16(prim.mJoints[i]);
+                    }
+
+                    vert.weights = glm::vec4(prim.mWeights[i]);
+                }
                 vertices.push_back(vert);
             }
 
@@ -361,6 +386,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             std::vector<LLVolumeFace::VertexData> faceVertices;
             glm::vec3 min = glm::vec3(0);
             glm::vec3 max = glm::vec3(0);
+
             for (U32 i = 0; i < vertices.size(); i++)
             {
                 LLVolumeFace::VertexData vert;
@@ -385,45 +411,42 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 vert.setNormal(normal);
                 vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
                 faceVertices.push_back(vert);
-            }
 
-            if (skinIdx >= 0)
-            {
-                auto skin = mGLTFAsset.mSkins[skinIdx];
+                
+                // create list of weights that influence this vertex
+                LLModel::weight_list weight_list;
 
-                for (int i = 0; i < prim.mJoints.size(); i++)
-                {
-                    auto accessorIdx = prim.mAttributes["JOINTS_0"];
-                    LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
-                    if (accessorIdx >= 0)
+                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.x, vertices[i].weights.x));
+                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.y, vertices[i].weights.y));
+                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.z, vertices[i].weights.z));
+                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
+
+                std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
+
+                
+                std::vector<LLModel::JointWeight> wght;
+                F32                               total = 0.f;
+
+                for (U32 i = 0; i < llmin((U32)4, (U32)weight_list.size()); ++i)
+                { // take up to 4 most significant weights
+                    // Ported from the DAE loader - however, GLTF right now only supports up to four weights per vertex.
+                    if (weight_list[i].mWeight > 0.f)
                     {
-                        auto accessor   = mGLTFAsset.mAccessors[accessorIdx];
-                        componentType = accessor.mComponentType;
+                        wght.push_back(weight_list[i]);
+                        total += weight_list[i].mWeight;
                     }
-                    glm::u16vec4 joint;
-                    if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE)
-                    {
-                        auto ujoint = glm::unpackUint4x8((U32)(prim.mJoints[i] & 0xFFFFFFFF));
-                        joint = glm::u16vec4(ujoint.x, ujoint.y, ujoint.z, ujoint.w);
-                    }
-                    else if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_SHORT)
-                    {
-                        joint = glm::unpackUint4x16(prim.mJoints[i]);
-                    }
-
-                    // Look up the joint index in the skin
-                    auto jointIndex0 = skin.mJoints[joint.x];
-                    auto jointIndex1 = skin.mJoints[joint.y];
-                    auto jointIndex2 = skin.mJoints[joint.z];
-                    auto jointIndex3 = skin.mJoints[joint.w];
-
-                    // Get the nodes for these joints.
-                    auto node0 = mGLTFAsset.mNodes[jointIndex0];
-                    auto node1 = mGLTFAsset.mNodes[jointIndex1];
-                    auto node2 = mGLTFAsset.mNodes[jointIndex2];
-                    auto node3 = mGLTFAsset.mNodes[jointIndex3];
-
                 }
+
+                F32 scale = 1.f / total;
+                if (scale != 1.f)
+                { // normalize weights
+                    for (U32 i = 0; i < wght.size(); ++i)
+                    {
+                        wght[i].mWeight *= scale;
+                    }
+                }
+
+                pModel->mSkinWeights[LLVector3(vertices[i].position)] = wght;
             }
 
             face.fillFromLegacyData(faceVertices, indices);
