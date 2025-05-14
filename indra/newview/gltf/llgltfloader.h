@@ -167,7 +167,8 @@ private:
     void uploadMeshes();
     bool parseMaterials();
     void uploadMaterials();
-    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
+    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats,
+                                                const F32 scale_factor = 1.0f, const LLVector3& center_offset = LLVector3());
     void populateJointFromSkin(const LL::GLTF::Skin& skin);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 

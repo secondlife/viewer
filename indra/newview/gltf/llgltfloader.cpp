@@ -147,6 +147,96 @@ bool LLGLTFLoader::parseMeshes()
         populateJointFromSkin(skin);
     }
 
+    /* Two-pass mesh processing approach:
+     * 1. First pass: Calculate global bounds across all meshes to determine proper scaling
+     *    and centering for the entire model. This ensures consistent normalization.
+     * 2. Second pass: Process each mesh node with the calculated global scale factor and
+     *    center offset, ensuring the entire model is properly proportioned and centered.
+     */
+
+    // First pass: Calculate global bounds across all meshes in the model
+    LLVector3 global_min_bounds(FLT_MAX, FLT_MAX, FLT_MAX);
+    LLVector3 global_max_bounds(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+    bool has_geometry = false;
+
+    // Create coordinate system rotation matrix - GLTF is Y-up, SL is Z-up
+    LLMatrix4 coord_system_rotation;
+    coord_system_rotation.initRotation(90.0f * DEG_TO_RAD, 0.0f, 0.0f);
+
+    // Gather bounds from all meshes
+    for (auto node : mGLTFAsset.mNodes)
+    {
+        auto meshidx = node.mMesh;
+        if (meshidx >= 0 && meshidx < mGLTFAsset.mMeshes.size())
+        {
+            auto mesh = mGLTFAsset.mMeshes[meshidx];
+
+            // Make node matrix valid for correct transformation
+            node.makeMatrixValid();
+
+            // Apply coordinate system rotation to node transform
+            LLMatrix4 node_matrix(glm::value_ptr(node.mMatrix));
+            LLMatrix4 node_transform = coord_system_rotation;
+            node_transform *= node_matrix;
+
+            // Examine all primitives in this mesh
+            for (auto prim : mesh.mPrimitives)
+            {
+                if (prim.getVertexCount() >= USHRT_MAX)
+                    continue;
+
+                for (U32 i = 0; i < prim.getVertexCount(); i++)
+                {
+                    // Transform vertex position by node transform with coordinate system rotation
+                    LLVector4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
+                    LLVector4 transformed_pos = pos * node_transform;
+
+                    global_min_bounds.mV[VX] = llmin(global_min_bounds.mV[VX], transformed_pos.mV[VX]);
+                    global_min_bounds.mV[VY] = llmin(global_min_bounds.mV[VY], transformed_pos.mV[VY]);
+                    global_min_bounds.mV[VZ] = llmin(global_min_bounds.mV[VZ], transformed_pos.mV[VZ]);
+
+                    global_max_bounds.mV[VX] = llmax(global_max_bounds.mV[VX], transformed_pos.mV[VX]);
+                    global_max_bounds.mV[VY] = llmax(global_max_bounds.mV[VY], transformed_pos.mV[VY]);
+                    global_max_bounds.mV[VZ] = llmax(global_max_bounds.mV[VZ], transformed_pos.mV[VZ]);
+
+                    has_geometry = true;
+                }
+            }
+        }
+    }
+
+    // Calculate model dimensions and center point for the entire model
+    F32 global_scale_factor = 1.0f;
+    LLVector3 global_center_offset(0.0f, 0.0f, 0.0f);
+
+    if (has_geometry)
+    {
+        // Calculate bounding box center - this will be our new origin
+        LLVector3 center = (global_min_bounds + global_max_bounds) * 0.5f;
+        global_center_offset = -center; // Offset to move center to origin
+
+        // Calculate diagonal length of the bounding box
+        LLVector3 dimensions = global_max_bounds - global_min_bounds;
+        F32 diagonal = dimensions.length();
+
+        // Always scale to the target size to ensure consistent bounding box
+        const F32 TARGET_SIZE = 1.0f; // Target diagonal size for models in meters
+
+        if (diagonal > 0.0f)
+        {
+            // Calculate scale factor to normalize model size to TARGET_SIZE
+            global_scale_factor = TARGET_SIZE / diagonal;
+
+            LL_INFOS("GLTF_IMPORT") << "Model dimensions: " << dimensions.mV[VX] << "x"
+                                   << dimensions.mV[VY] << "x" << dimensions.mV[VZ]
+                                   << ", diagonal: " << diagonal
+                                   << ", applying global scale factor: " << global_scale_factor
+                                   << ", global centering offset: (" << global_center_offset.mV[VX] << ", "
+                                   << global_center_offset.mV[VY] << ", " << global_center_offset.mV[VZ] << ")" << LL_ENDL;
+        }
+    }
+
+    // Second pass: Process each node with the global scale and offset
     for (auto node : mGLTFAsset.mNodes)
     {
         LLMatrix4    transformation;
@@ -159,7 +249,9 @@ bool LLGLTFLoader::parseMeshes()
             {
                 LLModel* pModel = new LLModel(volume_params, 0.f);
                 auto mesh = mGLTFAsset.mMeshes[meshidx];
-                if (populateModelFromMesh(pModel, mesh, node, mats) && (LLModel::NO_ERRORS == pModel->getStatus()) && validate_model(pModel))
+                if (populateModelFromMesh(pModel, mesh, node, mats, global_scale_factor, global_center_offset) &&
+                    (LLModel::NO_ERRORS == pModel->getStatus()) &&
+                    validate_model(pModel))
                 {
                     mModelList.push_back(pModel);
                     LLMatrix4 saved_transform = mTransform;
@@ -171,9 +263,7 @@ bool LLGLTFLoader::parseMeshes()
                     mTransform = gltf_transform;
 
                     // GLTF is +Y up, SL is +Z up
-                    LLMatrix4 rotation;
-                    rotation.initRotation(90.0f * DEG_TO_RAD, 0.0f, 0.0f);
-                    mTransform *= rotation;
+                    mTransform *= coord_system_rotation;
 
                     transformation = mTransform;
 
@@ -200,7 +290,6 @@ bool LLGLTFLoader::parseMeshes()
                         args["Message"] = "NegativeScaleNormTrans";
                         args["LABEL"]   = pModel->mLabel;
                         mWarningsArray.append(args);
-
                     }
 
                     mScene[transformation].push_back(LLModelInstance(pModel, pModel->mLabel, transformation, mats));
@@ -220,19 +309,8 @@ bool LLGLTFLoader::parseMeshes()
     return true;
 }
 
-void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
-{
-    for (auto joint : skin.mJoints)
-    {
-        auto jointNode = mGLTFAsset.mNodes[joint];
-        jointNode.makeMatrixValid();
-
-        mJointList[jointNode.mName] = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
-        mJointsFromNode.push_front(jointNode.mName);
-    }
-}
-
-bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats)
+bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats,
+                                                          const F32 scale_factor, const LLVector3& center_offset)
 {
     pModel->mLabel = mesh.mName;
     pModel->ClearFacesAndMaterials();
@@ -336,20 +414,18 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 }
             }
 
+            // Apply the global scale and center offset to all vertices
             for (U32 i = 0; i < prim.getVertexCount(); i++)
             {
-                // Apply scaling directly to the vertex positions as they're read from the file
-                const float DIRECT_SCALE = 0.01f; // 1/100th scale
-
                 GLTFVertex vert;
                 vert.position = glm::vec3(
-                    prim.mPositions[i][0] * DIRECT_SCALE,
-                    prim.mPositions[i][1] * DIRECT_SCALE,
-                    prim.mPositions[i][2] * DIRECT_SCALE
+                    (prim.mPositions[i][0] + center_offset.mV[VX]) * scale_factor,
+                    (prim.mPositions[i][1] + center_offset.mV[VY]) * scale_factor,
+                    (prim.mPositions[i][2] + center_offset.mV[VZ]) * scale_factor
                 );
-                vert.position = glm::vec3(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2]);
-                vert.normal   = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
-                vert.uv0      = glm::vec2(prim.mTexCoords0[i][0],-prim.mTexCoords0[i][1]);
+
+                vert.normal = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
 
                 if (skinIdx >= 0)
                 {
@@ -357,7 +433,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
                     if (accessorIdx >= 0)
                     {
-                        auto accessor   = mGLTFAsset.mAccessors[accessorIdx];
+                        auto accessor = mGLTFAsset.mAccessors[accessorIdx];
                         componentType = accessor.mComponentType;
                     }
 
@@ -412,7 +488,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
                 faceVertices.push_back(vert);
 
-                
+
                 // create list of weights that influence this vertex
                 LLModel::weight_list weight_list;
 
@@ -423,7 +499,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
                 std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
 
-                
+
                 std::vector<LLModel::JointWeight> wght;
                 F32                               total = 0.f;
 
@@ -485,6 +561,18 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     }
 
     return true;
+}
+
+void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
+{
+    for (auto joint : skin.mJoints)
+    {
+        auto jointNode = mGLTFAsset.mNodes[joint];
+        jointNode.makeMatrixValid();
+
+        mJointList[jointNode.mName] = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
+        mJointsFromNode.push_front(jointNode.mName);
+    }
 }
 
 bool LLGLTFLoader::parseMaterials()
