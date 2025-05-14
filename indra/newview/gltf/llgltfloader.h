@@ -144,6 +144,8 @@ class LLGLTFLoader : public LLModelLoader
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec2 uv0;
+        glm::u16vec4 joints;
+        glm::vec4 weights;
     };
 
 protected:
