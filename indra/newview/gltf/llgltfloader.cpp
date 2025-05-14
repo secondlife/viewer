@@ -174,9 +174,8 @@ bool LLGLTFLoader::parseMeshes()
             // Make node matrix valid for correct transformation
             node.makeMatrixValid();
 
-            // Apply coordinate system rotation to node transform
             LLMatrix4 node_matrix(glm::value_ptr(node.mMatrix));
-            LLMatrix4 node_transform = coord_system_rotation;
+            LLMatrix4 node_transform;
             node_transform *= node_matrix;
 
             // Examine all primitives in this mesh
@@ -187,7 +186,7 @@ bool LLGLTFLoader::parseMeshes()
 
                 for (U32 i = 0; i < prim.getVertexCount(); i++)
                 {
-                    // Transform vertex position by node transform with coordinate system rotation
+                    // Transform vertex position by node transform
                     LLVector4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
                     LLVector4 transformed_pos = pos * node_transform;
 
@@ -215,21 +214,23 @@ bool LLGLTFLoader::parseMeshes()
         LLVector3 center = (global_min_bounds + global_max_bounds) * 0.5f;
         global_center_offset = -center; // Offset to move center to origin
 
-        // Calculate diagonal length of the bounding box
+        // Calculate dimensions of the bounding box
         LLVector3 dimensions = global_max_bounds - global_min_bounds;
-        F32 diagonal = dimensions.length();
+
+        // Find the maximum dimension rather than the diagonal
+        F32 max_dimension = llmax(dimensions.mV[VX], llmax(dimensions.mV[VY], dimensions.mV[VZ]));
 
         // Always scale to the target size to ensure consistent bounding box
-        const F32 TARGET_SIZE = 1.0f; // Target diagonal size for models in meters
+        const F32 TARGET_SIZE = 1.0f; // Target size for maximum dimension in meters
 
-        if (diagonal > 0.0f)
+        if (max_dimension > 0.0f)
         {
-            // Calculate scale factor to normalize model size to TARGET_SIZE
-            global_scale_factor = TARGET_SIZE / diagonal;
+            // Calculate scale factor to normalize model's maximum dimension to TARGET_SIZE
+            global_scale_factor = TARGET_SIZE / max_dimension;
 
             LL_INFOS("GLTF_IMPORT") << "Model dimensions: " << dimensions.mV[VX] << "x"
                                    << dimensions.mV[VY] << "x" << dimensions.mV[VZ]
-                                   << ", diagonal: " << diagonal
+                                   << ", max dimension: " << max_dimension
                                    << ", applying global scale factor: " << global_scale_factor
                                    << ", global centering offset: (" << global_center_offset.mV[VX] << ", "
                                    << global_center_offset.mV[VY] << ", " << global_center_offset.mV[VZ] << ")" << LL_ENDL;
