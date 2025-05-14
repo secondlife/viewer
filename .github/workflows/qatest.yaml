@@ -168,9 +168,17 @@ jobs:
 
           # Install dependencies
           if (Test-Path -Path "requirements.txt") {
+            Write-Host "Installing dependencies from requirements.txt..."
             pip install -r requirements.txt
+
+            # Install Playwright browsers - add this line
+            Write-Host "Installing Playwright browsers..."
+            python -m playwright install
           } else {
-            pip install outleap requests behave
+            pip install outleap requests behave playwright
+            # Install Playwright browsers - add this line
+            Write-Host "Installing Playwright browsers..."
+            python -m playwright install
           }
 
       - name: Fetch & Download Installer Artifact (Windows)
@@ -400,9 +408,17 @@ jobs:
           if [ -f "requirements.txt" ]; then
             pip install -r requirements.txt
             echo "✅ Installed dependencies from requirements.txt"
+
+            # Install Playwright browsers - add this line
+            echo "Installing Playwright browsers..."
+            python -m playwright install
           else
-            pip install outleap requests behave
+            pip install outleap requests behave playwright
             echo "⚠️ requirements.txt not found, installed basic dependencies"
+
+            # Install Playwright browsers - add this line
+            echo "Installing Playwright browsers..."
+            python -m playwright install
           fi
 
       - name: Fetch & Download Installer Artifact (Mac)
