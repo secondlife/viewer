@@ -91,6 +91,51 @@ jobs:
           }
           Write-Host '✅ viewer-automation folder is provided.'
 
+      - name: Verify viewer-automation-main is Up-To-Date (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          cd ${{ matrix.install-path }}
+          Write-Host "Checking for repository updates..."
+
+          # Check if .git directory exists
+          if (Test-Path -Path ".git") {
+            try {
+              # Save local changes instead of discarding them
+              git stash push -m "Automated stash before update $(Get-Date)"
+              Write-Host "Local changes saved (if any)"
+
+              # Update the repository
+              git pull
+              Write-Host "✅ Repository updated successfully"
+
+              # Try to restore local changes if any were stashed
+              $stashList = git stash list
+              if ($stashList -match "Automated stash before update") {
+                try {
+                  git stash pop
+                  Write-Host "✅ Local changes restored successfully"
+                } catch {
+                  Write-Host "⚠️ Conflict when restoring local changes"
+                  # Save the conflicted state in a new branch for later review
+                  $branchName = "conflict-recovery-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                  git checkout -b $branchName
+                  Write-Host "✅ Created branch '$branchName' with conflicted state"
+
+                  # For test execution, revert to a clean state
+                  git reset --hard HEAD
+                  Write-Host "✅ Reset to clean state for test execution"
+                }
+              }
+            } catch {
+              Write-Host "⚠️ Could not update repository: $_"
+              Write-Host "Continuing with existing files..."
+            }
+          } else {
+            Write-Host "⚠️ Not a Git repository, using existing files"
+          }
+
       - name: Verify Python Installation (Windows)
         if: matrix.os == 'windows'
         shell: pwsh
@@ -248,10 +293,16 @@ jobs:
         run: |
           Write-Host "Running QA Test script on Windows runner: ${{ matrix.runner }}..."
           cd ${{ matrix.install-path }}
+
           # Activate virtual environment
           Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
           $env:VIRTUAL_ENV = "$PWD\.venv"
           $env:PATH = "$env:VIRTUAL_ENV\Scripts;$env:PATH"
+
+          # Set runner name as environment variable
+          $env:RUNNER_NAME = "${{ matrix.runner }}"
+
+          # Run the test script
           python runTests.py
 
       # Mac-specific steps
@@ -276,6 +327,45 @@ jobs:
             exit 1
           fi
           echo "✅ viewer-automation is provided."
+
+      - name: Verify viewer-automation-main is Up-To-Date (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        continue-on-error: true
+        run: |
+          cd ${{ matrix.install-path }}
+          echo "Checking for repository updates..."
+
+          # Check if .git directory exists
+          if [ -d ".git" ]; then
+            # Save local changes instead of discarding them
+            git stash push -m "Automated stash before update $(date)"
+            echo "Local changes saved (if any)"
+
+            # Update the repository
+            git pull || echo "⚠️ Could not update repository"
+            echo "✅ Repository updated (or attempted update)"
+
+            # Try to restore local changes if any were stashed
+            if git stash list | grep -q "Automated stash before update"; then
+              # Try to pop the stash, but be prepared for conflicts
+              if ! git stash pop; then
+                echo "⚠️ Conflict when restoring local changes"
+                # Save the conflicted state in a new branch for later review
+                branch_name="conflict-recovery-$(date +%Y%m%d-%H%M%S)"
+                git checkout -b "$branch_name"
+                echo "✅ Created branch '$branch_name' with conflicted state"
+
+                # For test execution, revert to a clean state
+                git reset --hard HEAD
+                echo "✅ Reset to clean state for test execution"
+              else
+                echo "✅ Local changes restored successfully"
+              fi
+            fi
+          else
+            echo "⚠️ Not a Git repository, using existing files"
+          fi
 
       - name: Verify Python Installation (Mac)
         if: matrix.os == 'mac'
@@ -451,7 +541,14 @@ jobs:
         run: |
           echo "Running QA Test script on Mac runner: ${{ matrix.runner }}..."
           cd ${{ matrix.install-path }}
+
+          # Activate virtual environment
           source .venv/bin/activate
+
+          # Set runner name as environment variable
+          export RUNNER_NAME="${{ matrix.runner }}"
+
+          # Run the test script
           python runTests.py
 
       # - name: Upload Test Results
