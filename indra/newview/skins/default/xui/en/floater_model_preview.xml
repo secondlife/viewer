@@ -45,6 +45,7 @@
   <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
   <string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
   <string name="ModelLoaded">Model [MODEL_NAME] loaded</string>
+  <string name="InvBindCountMismatch">Bind matrices count mismatch joints count</string>
 
   <string name="IncompleteTC">Texture coordinates data is not complete.</string>
   <string name="PositionNaN">Found NaN while loading position data from DAE-Model, invalid model.</string>

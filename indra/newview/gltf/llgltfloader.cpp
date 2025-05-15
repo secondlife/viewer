@@ -142,7 +142,7 @@ bool LLGLTFLoader::parseMeshes()
 
     // Populate the joints from skins first.
     // There's not many skins - and you can pretty easily iterate through the nodes from that.
-    for (auto skin : mGLTFAsset.mSkins)
+    for (auto& skin : mGLTFAsset.mSkins)
     {
         populateJointFromSkin(skin);
     }
@@ -164,7 +164,7 @@ bool LLGLTFLoader::parseMeshes()
     coord_system_rotation.initRotation(90.0f * DEG_TO_RAD, 0.0f, 0.0f);
 
     // Gather bounds from all meshes
-    for (auto node : mGLTFAsset.mNodes)
+    for (auto &node : mGLTFAsset.mNodes)
     {
         auto meshidx = node.mMesh;
         if (meshidx >= 0 && meshidx < mGLTFAsset.mMeshes.size())
@@ -238,7 +238,7 @@ bool LLGLTFLoader::parseMeshes()
     }
 
     // Second pass: Process each node with the global scale and offset
-    for (auto node : mGLTFAsset.mNodes)
+    for (auto &node : mGLTFAsset.mNodes)
     {
         LLMatrix4    transformation;
         material_map mats;
@@ -281,7 +281,7 @@ bool LLGLTFLoader::parseMeshes()
                     transformation = mesh_scale;
                     if (transformation.determinant() < 0)
                     { // negative scales are not supported
-                        LL_INFOS() << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
+                        LL_INFOS("GLTF") << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
                                    << pModel->mLabel << LL_ENDL;
                         LLSD args;
                         args["Message"] = "NegativeScaleNormTrans";
@@ -292,6 +292,60 @@ bool LLGLTFLoader::parseMeshes()
                     mScene[transformation].push_back(LLModelInstance(pModel, pModel->mLabel, transformation, mats));
                     stretch_extents(pModel, transformation);
                     mTransform = saved_transform;
+
+                    S32 skin_index = node.mSkin;
+                    if (skin_index >= 0 && mGLTFAsset.mSkins.size() > skin_index)
+                    {
+                        LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skin_index];
+                        LLMeshSkinInfo& skin_info = pModel->mSkinInfo;
+
+                        size_t jointCnt = gltf_skin.mJoints.size();
+                        if (gltf_skin.mInverseBindMatrices >= 0 && jointCnt != gltf_skin.mInverseBindMatricesData.size())
+                        {
+                            LL_INFOS("GLTF") << "Bind matrices count mismatch joints count" << LL_ENDL;
+                            LLSD args;
+                            args["Message"] = "InvBindCountMismatch";
+                            mWarningsArray.append(args);
+                        }
+
+                        for (size_t i = 0; i < jointCnt; ++i)
+                        {
+                            // Process joint name and idnex
+                            S32 joint = gltf_skin.mJoints[i];
+                            LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
+                            jointNode.makeMatrixValid();
+
+                            std::string legal_name(jointNode.mName);
+                            if (mJointMap.find(legal_name) != mJointMap.end())
+                            {
+                                legal_name = mJointMap[legal_name];
+                            }
+                            skin_info.mJointNames.push_back(legal_name);
+                            skin_info.mJointNums.push_back(-1);
+
+                            if (i < gltf_skin.mInverseBindMatricesData.size())
+                            {
+                                // Process bind matrix
+                                LL::GLTF::mat4 gltf_mat = gltf_skin.mInverseBindMatricesData[i];
+                                LLMatrix4 gltf_transform(glm::value_ptr(gltf_mat));
+                                skin_info.mInvBindMatrix.push_back(LLMatrix4a(gltf_transform));
+
+                                LL_DEBUGS("GLTF") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
+
+                                // Translate based of mJointList
+                                gltf_transform.setTranslation(mJointList[legal_name].getTranslation());
+                                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(gltf_transform));
+                            }
+                        }
+
+                        // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
+                        // into the coordinate space of the joints.
+                        // In GLTF, this matrix is omitted, and it is assumed that this transform is either
+                        // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
+                        LLMatrix4 bind_shape;
+                        bind_shape.setIdentity();
+                        skin_info.mBindShapeMatrix.loadu(bind_shape);
+                    }
                 }
                 else
                 {
@@ -560,10 +614,29 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
     for (auto joint : skin.mJoints)
     {
         auto jointNode = mGLTFAsset.mNodes[joint];
+
+        std::string legal_name(jointNode.mName);
+        if (mJointMap.find(legal_name) != mJointMap.end())
+        {
+            legal_name = mJointMap[legal_name];
+        }
+        else
+        {
+            LL_INFOS("GLTF") << "Rigged to unrecognized joint name : "
+                << legal_name << LL_ENDL;
+            LLSD args;
+            args["Message"] = "UnrecognizedJoint";
+            args["[NAME]"] = legal_name;
+            mWarningsArray.append(args);
+        }
+
         jointNode.makeMatrixValid();
 
-        mJointList[jointNode.mName] = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
-        mJointsFromNode.push_front(jointNode.mName);
+        LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
+        mJointList[legal_name] = gltf_transform;
+        mJointsFromNode.push_front(legal_name);
+
+        LL_DEBUGS("GLTF") << "mJointList name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
     }
 }
 

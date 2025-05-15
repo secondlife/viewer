@@ -150,6 +150,8 @@ void LLModelLoader::run()
 {
     mWarningsArray.clear();
     doLoadModel();
+    // todo: we are inside of a thread, push this into main thread worker,
+    // not into doOnIdleOneTime that laks tread safety
     doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
 }
 
