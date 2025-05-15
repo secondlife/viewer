@@ -438,7 +438,13 @@ void copy_inventory_category(LLInventoryModel* model,
     {
         copy_inventory_category_content(new_id, model, cat, root_copy_id, move_no_copy_items);
     };
-    gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
+    LLFolderType::EType type = LLFolderType::FT_NONE;
+    if (cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+    {
+        // at the moment only permitting copy of outfits and normal folders
+        type = LLFolderType::FT_OUTFIT;
+    }
+    gInventory.createNewCategory(parent_id, type, cat->getName(), func, cat->getThumbnailUUID());
 }
 
 void copy_inventory_category(LLInventoryModel* model,
