@@ -208,6 +208,64 @@ bool LLGLTFLoader::parseMeshes()
                     mScene[transformation].push_back(LLModelInstance(pModel, pModel->mLabel, transformation, mats));
                     stretch_extents(pModel, transformation);
                     mTransform = saved_transform;
+
+                    S32 skin_index = node.mSkin;
+                    if (skin_index >= 0 && mGLTFAsset.mSkins.size() > skin_index)
+                    {
+                        LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skin_index];
+                        LLMeshSkinInfo& skin_info = pModel->mSkinInfo;
+                        gltf_skin.prep(mGLTFAsset);
+                        size_t jointCnt = gltf_skin.mJoints.size();
+                        if (jointCnt != gltf_skin.mInverseBindMatricesData.size())
+                        {
+                            // Todo: log this issue
+                            jointCnt = llmin(jointCnt, gltf_skin.mInverseBindMatricesData.size());
+                        }
+                        for (size_t i = 0; i < jointCnt; ++i)
+                        {
+                            // Process joint name and idnex
+                            S32 joint = gltf_skin.mJoints[i];
+                            LL::GLTF::Node jointNode = mGLTFAsset.mNodes[joint];
+                            jointNode.makeMatrixValid();
+
+                            std::string legal_name(jointNode.mName);
+                            if (mJointMap.find(legal_name) != mJointMap.end())
+                            {
+                                legal_name = mJointMap[legal_name];
+                            }
+                            skin_info.mJointNames.push_back(legal_name);
+                            skin_info.mJointNums.push_back(-1);
+
+                            // Process bind matrix
+                            LL::GLTF::mat4 transform = gltf_skin.mInverseBindMatricesData[i];
+                            LLMatrix4 mat(glm::value_ptr(transform)); // is this a correct way to convert?
+                            skin_info.mInvBindMatrix.push_back(LLMatrix4a(mat));
+
+                            // fill mJointList
+                            LLMatrix4 alt_mat(glm::value_ptr(jointNode.mMatrix));
+                            /*if (mJointList.find(legal_name) == mJointList.end())
+                            {
+                                // Todo: should be in order of nodes?
+                                mJointList[legal_name] = alt_mat;
+                                mJointsFromNode.push_front(legal_name);
+                            }
+                            else
+                            {
+                                //todo: get alt_mat from mJointList?
+                            }*/
+
+                            // Translate based of mJointList
+                            //mat.setTranslation(mJointList[legal_name].getTranslation());
+                            //skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(mat));
+
+                            // for now avoid using mJointList
+                            mat.setTranslation(alt_mat.getTranslation());
+                            skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(mat));
+                        }
+
+                        LLMatrix4 bind_shape = LLMatrix4(glm::value_ptr(node.mAssetMatrix));
+                        skin_info.mBindShapeMatrix.loadu(bind_shape);
+                    }
                 }
                 else
                 {
@@ -227,6 +285,17 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
     for (auto joint : skin.mJoints)
     {
         auto jointNode = mGLTFAsset.mNodes[joint];
+
+        std::string legal_name(jointNode.mName);
+        if (mJointMap.find(legal_name) != mJointMap.end())
+        {
+            legal_name = mJointMap[legal_name];
+        }
+        else
+        {
+            // todo: properly log unidentified joint
+        }
+
         jointNode.makeMatrixValid();
 
         mJointList[jointNode.mName] = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
