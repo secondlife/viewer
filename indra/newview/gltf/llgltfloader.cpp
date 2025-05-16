@@ -403,8 +403,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 vert.setNormal(normal);
                 vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
                 faceVertices.push_back(vert);
-
-                
                 // create list of weights that influence this vertex
                 LLModel::weight_list weight_list;
 
