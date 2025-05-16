@@ -36,7 +36,6 @@
 #include "llglheaders.h"
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
-//#include "llviewercontrol.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 

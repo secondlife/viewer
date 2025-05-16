@@ -793,6 +793,17 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
     if (!cat) return;
 
+    if (!isOutfitFolder(cat))
+    {
+        // Assume a subfolder that contains or will contain outfits, track it
+        const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+        mOutfitsObserver->addCategory(cat_id, [this, outfits]()
+        {
+            observerCallback(outfits);
+        });
+        return;
+    }
+
     std::string name = cat->getName();
     LLOutfitGalleryItem* item = buildGalleryItem(name, cat_id);
     mOutfitMap.insert(LLOutfitGallery::outfit_map_value_t(cat_id, item));

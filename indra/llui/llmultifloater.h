@@ -66,7 +66,7 @@ public:
 
     virtual LLFloater*  getActiveFloater();
     virtual bool        isFloaterFlashing(LLFloater* floaterp);
-    virtual S32         getFloaterCount();
+    virtual S32         getFloaterCount() const;
 
     virtual void setFloaterFlashing(LLFloater* floaterp, bool flashing);
     virtual bool closeAllFloaters();    //Returns false if the floater could not be closed due to pending confirmation dialogs

@@ -152,6 +152,14 @@
          parameter="category" />
     </menu_item_call>
     <menu_item_call
+     label="New Folder"
+     layout="topleft"
+     name="New Outfit Folder">
+        <menu_item_call.on_click
+         function="Inventory.DoCreate"
+         parameter="category" />
+    </menu_item_call>
+    <menu_item_call
      label="New Outfit"
      layout="topleft"
      name="New Outfit">

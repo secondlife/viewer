@@ -550,12 +550,12 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 
     mLastSex = avatar_sex;
 
-    // Check for NaN condition (NaN is detected if a variable doesn't equal itself.
-    if (mCurWeight != mCurWeight)
+    // Check for NaN condition
+    if (llisnan(mCurWeight))
     {
-        mCurWeight = 0.0;
+        mCurWeight = 0.f;
     }
-    if (mLastWeight != mLastWeight)
+    if (llisnan(mLastWeight))
     {
         mLastWeight = mCurWeight+.001f;
     }

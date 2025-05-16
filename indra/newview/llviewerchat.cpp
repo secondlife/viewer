@@ -36,6 +36,7 @@
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "llinstantmessage.h" //SYSTEM_FROM
+#include "llurlregistry.h"
 
 // LLViewerChat
 LLViewerChat::font_change_signal_t LLViewerChat::sChatFontChangedSignal;
@@ -221,6 +222,13 @@ S32 LLViewerChat::getChatFontSize()
 void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
 {
     std::string tmpmsg = chat.mText;
+
+    // show @name instead of slurl for chat mentions
+    LLUrlMatch match;
+    while (LLUrlRegistry::instance().findUrl(tmpmsg, match, LLUrlRegistryNullCallback, false, true))
+    {
+        tmpmsg.replace(match.getStart(), match.getEnd() - match.getStart() + 1, match.getLabel());
+    }
 
     if(chat.mChatStyle == CHAT_STYLE_IRC)
     {

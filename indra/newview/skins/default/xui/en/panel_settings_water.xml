@@ -378,7 +378,7 @@
                             initial_value="0"
                             layout="topleft"
                             left_delta="5"
-                            min_val="-0.5"
+                            min_val="0"
                             max_val="0.5"
                             name="water_blur_multip"
                             top_pad="5"

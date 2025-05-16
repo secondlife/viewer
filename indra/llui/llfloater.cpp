@@ -2165,7 +2165,7 @@ void LLFloater::setCanDrag(bool can_drag)
     }
 }
 
-bool LLFloater::getCanDrag()
+bool LLFloater::getCanDrag() const
 {
     return mDragHandle->getEnabled();
 }

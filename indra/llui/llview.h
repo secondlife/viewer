@@ -54,17 +54,17 @@
 
 class LLSD;
 
-const U32   FOLLOWS_NONE    = 0x00;
-const U32   FOLLOWS_LEFT    = 0x01;
-const U32   FOLLOWS_RIGHT   = 0x02;
-const U32   FOLLOWS_TOP     = 0x10;
-const U32   FOLLOWS_BOTTOM  = 0x20;
-const U32   FOLLOWS_ALL     = 0x33;
+constexpr U32   FOLLOWS_NONE    = 0x00;
+constexpr U32   FOLLOWS_LEFT    = 0x01;
+constexpr U32   FOLLOWS_RIGHT   = 0x02;
+constexpr U32   FOLLOWS_TOP     = 0x10;
+constexpr U32   FOLLOWS_BOTTOM  = 0x20;
+constexpr U32   FOLLOWS_ALL     = 0x33;
 
-const bool  MOUSE_OPAQUE = true;
-const bool  NOT_MOUSE_OPAQUE = false;
+constexpr bool  MOUSE_OPAQUE = true;
+constexpr bool  NOT_MOUSE_OPAQUE = false;
 
-const U32 GL_NAME_UI_RESERVED = 2;
+constexpr U32 GL_NAME_UI_RESERVED = 2;
 
 
 // maintains render state during traversal of UI tree
@@ -241,7 +241,7 @@ public:
     void        setUseBoundingRect( bool use_bounding_rect );
     bool        getUseBoundingRect() const;
 
-    ECursorType getHoverCursor() { return mHoverCursor; }
+    ECursorType getHoverCursor() const { return mHoverCursor; }
 
     static F32 getTooltipTimeout();
     virtual const std::string getToolTip() const;
@@ -265,7 +265,7 @@ public:
 
     void setDefaultTabGroup(S32 d)              { mDefaultTabGroup = d; }
     S32 getDefaultTabGroup() const              { return mDefaultTabGroup; }
-    S32 getLastTabGroup()                       { return mLastTabGroup; }
+    S32 getLastTabGroup() const                 { return mLastTabGroup; }
 
     bool        isInVisibleChain() const;
     bool        isInEnabledChain() const;

@@ -78,6 +78,7 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 
 void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id = LLUUID::null, bool move_no_copy_items = false);
 void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id, bool move_no_copy_items, inventory_func_type callback);
+void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id, bool move_no_copy_items, LLPointer<LLInventoryCallback> callback);
 
 void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& root_copy_id, bool move_no_copy_items);
 
@@ -112,7 +113,8 @@ std::string get_category_path(LLUUID cat_id);
 
 bool can_move_to_outfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit);
 bool can_move_to_landmarks(LLInventoryItem* inv_item);
-bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit);
+bool can_move_to_my_outfits_as_outfit(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit);
+bool can_move_to_my_outfits_as_subfolder(LLInventoryModel* model, LLInventoryCategory* inv_cat, S32 depth = 0);
 std::string get_localized_folder_name(LLUUID cat_uuid);
 void new_folder_window(const LLUUID& folder_id);
 void ungroup_folder_items(const LLUUID& folder_id);
@@ -120,6 +122,18 @@ std::string get_searchable_description(LLInventoryModel* model, const LLUUID& it
 std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& item_id);
 std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id);
 bool can_share_item(const LLUUID& item_id);
+
+enum EMyOutfitsSubfolderType
+{
+    MY_OUTFITS_NO,
+    MY_OUTFITS_SUBFOLDER,
+    MY_OUTFITS_OUTFIT,
+    MY_OUTFITS_SUBOUTFIT,
+};
+EMyOutfitsSubfolderType myoutfit_object_subfolder_type(
+    LLInventoryModel* model,
+    const LLUUID& obj_id,
+    const LLUUID& my_outfits_id);
 
 /**                    Miscellaneous global functions
  **                                                                            **
@@ -225,6 +239,24 @@ public:
 
 protected:
     LLUUID mBaseItemID;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLIsType
+//
+// Implementation of a LLInventoryCollectFunctor which returns true if
+// the type is the type passed in during construction.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLIsFolderType : public LLInventoryCollectFunctor
+{
+public:
+    LLIsFolderType(LLFolderType::EType type) : mType(type) {}
+    virtual ~LLIsFolderType() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+        LLInventoryItem* item);
+protected:
+    LLFolderType::EType mType;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
