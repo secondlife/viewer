@@ -30,7 +30,7 @@
 
 #include "llmodelloader.h"
 #include "lldaeloader.h"
-#include "llgltfloader.h"
+#include "gltf/llgltfloader.h"
 #include "llfloatermodelpreview.h"
 
 #include "llagent.h"

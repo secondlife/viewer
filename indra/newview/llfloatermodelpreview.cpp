@@ -64,6 +64,7 @@
 #include "llcallbacklist.h"
 #include "llviewertexteditor.h"
 #include "llviewernetwork.h"
+#include "llmaterialeditor.h"
 
 
 //static
@@ -113,6 +114,11 @@ void LLMeshFilePicker::notify(const std::vector<std::string>& filenames)
     if (filenames.size() > 0)
     {
         mMP->loadModel(filenames[0], mLOD);
+
+        if (filenames[0].substr(filenames[0].length() - 4) == ".glb" || filenames[0].substr(filenames[0].length() - 5) == ".gltf")
+        {
+            LLMaterialEditor::loadMaterialFromFile(filenames[0], -1);
+        }
     }
     else
     {
