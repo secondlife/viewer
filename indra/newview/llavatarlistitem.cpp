@@ -325,7 +325,8 @@ void LLAvatarListItem::setShowProfileBtn(bool show)
 
 void LLAvatarListItem::showSpeakingIndicator(bool visible)
 {
-    if (mSpeakingIndicator)
+    // used only to hide indicator to not contradict with SpeakingIndicatorManager functionality
+    if (mSpeakingIndicator && !visible)
     {
         mSpeakingIndicator->setIsActiveChannel(visible);
         mSpeakingIndicator->setShowParticipantsSpeaking(visible);
