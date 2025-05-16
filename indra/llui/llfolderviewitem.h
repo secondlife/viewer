@@ -154,7 +154,7 @@ protected:
     virtual bool isHighlightActive();
     virtual bool isFadeItem();
     virtual bool isFlashing() { return false; }
-    virtual void setFlashState(bool) { }
+    virtual void setFlashState(bool, bool) { }
 
     static LLFontGL* getLabelFontForStyle(U8 style);
     const LLFontGL* getLabelFont();

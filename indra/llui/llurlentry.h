@@ -103,6 +103,7 @@ public:
     virtual bool getSkipProfileIcon(const std::string& string) const { return false; }
 
     virtual LLUUID  getID(const std::string &string) const { return LLUUID::null; }
+    virtual bool isAgentID(const std::string& url) const { return false; }
 
     bool isLinkDisabled() const;
 
@@ -231,6 +232,8 @@ public:
     /*virtual*/ std::string getTooltip(const std::string &string) const;
     /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
     /*virtual*/ LLUUID  getID(const std::string &string) const;
+
+    bool isAgentID(const std::string& url) const;
 
     LLStyle::EUnderlineLink getUnderline(const std::string& string) const;
 
