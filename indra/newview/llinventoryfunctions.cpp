@@ -438,7 +438,13 @@ void copy_inventory_category(LLInventoryModel* model,
     {
         copy_inventory_category_content(new_id, model, cat, root_copy_id, move_no_copy_items);
     };
-    gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
+    LLFolderType::EType type = LLFolderType::FT_NONE;
+    if (cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+    {
+        // at the moment only permitting copy of outfits and normal folders
+        type = LLFolderType::FT_OUTFIT;
+    }
+    gInventory.createNewCategory(parent_id, type, cat->getName(), func, cat->getThumbnailUUID());
 }
 
 void copy_inventory_category(LLInventoryModel* model,
@@ -455,6 +461,25 @@ void copy_inventory_category(LLInventoryModel* model,
         if (callback)
         {
             callback(new_id);
+        }
+    };
+    gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
+}
+
+void copy_inventory_category(LLInventoryModel* model,
+    LLViewerInventoryCategory* cat,
+    const LLUUID& parent_id,
+    const LLUUID& root_copy_id,
+    bool move_no_copy_items,
+    LLPointer<LLInventoryCallback> callback)
+{
+    // Create the initial folder
+    inventory_func_type func = [model, cat, root_copy_id, move_no_copy_items, callback](const LLUUID& new_id)
+    {
+        copy_inventory_category_content(new_id, model, cat, root_copy_id, move_no_copy_items);
+        if (callback)
+        {
+            callback.get()->fire(new_id);
         }
     };
     gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName(), func, cat->getThumbnailUUID());
@@ -2314,7 +2339,7 @@ bool can_move_to_landmarks(LLInventoryItem* inv_item)
 }
 
 // Returns true if folder's content can be moved to Current Outfit or any outfit folder.
-bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit)
+bool can_move_to_my_outfits_as_outfit(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit)
 {
     LLInventoryModel::cat_array_t *cats;
     LLInventoryModel::item_array_t *items;
@@ -2348,6 +2373,51 @@ bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_ca
             return false;
         }
         iter++;
+    }
+
+    return true;
+}
+
+bool can_move_to_my_outfits_as_subfolder(LLInventoryModel* model, LLInventoryCategory* inv_cat, S32 depth)
+{
+    LLInventoryModel::cat_array_t* cats;
+    LLInventoryModel::item_array_t* items;
+    model->getDirectDescendentsOf(inv_cat->getUUID(), cats, items);
+
+    if (items->size() > 0)
+    {
+        // subfolders don't allow items
+        return false;
+    }
+
+    if (inv_cat->getPreferredType() != LLFolderType::FT_NONE)
+    {
+        // only normal folders can become subfodlers
+        return false;
+    }
+
+    constexpr size_t MAX_CONTENT = 255;
+    if (cats->size() > MAX_CONTENT)
+    {
+        // don't allow massive folders
+        return false;
+    }
+
+    for (LLPointer<LLViewerInventoryCategory>& cat : *cats)
+    {
+        // outfits are valid to move, check non-outfit folders
+        if (cat->getPreferredType() != LLFolderType::FT_OUTFIT)
+        {
+            if (depth == 3)
+            {
+                // don't allow massive folders
+                return false;
+            }
+            if (!can_move_to_my_outfits_as_subfolder(model, cat, depth + 1))
+            {
+                return false;
+            }
+        }
     }
 
     return true;

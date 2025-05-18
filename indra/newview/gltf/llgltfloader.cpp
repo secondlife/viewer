@@ -267,22 +267,18 @@ bool LLGLTFLoader::parseMeshes()
                     mTransform *= coord_system_rotation;
 
                     transformation = mTransform;
-
                     // adjust the transformation to compensate for mesh normalization
                     LLVector3 mesh_scale_vector;
                     LLVector3 mesh_translation_vector;
                     pModel->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
-
                     LLMatrix4 mesh_translation;
                     mesh_translation.setTranslation(mesh_translation_vector);
                     mesh_translation *= transformation;
                     transformation = mesh_translation;
-
                     LLMatrix4 mesh_scale;
                     mesh_scale.initScale(mesh_scale_vector);
                     mesh_scale *= transformation;
                     transformation = mesh_scale;
-
                     if (transformation.determinant() < 0)
                     { // negative scales are not supported
                         LL_INFOS() << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
@@ -467,28 +463,24 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             for (U32 i = 0; i < vertices.size(); i++)
             {
                 LLVolumeFace::VertexData vert;
-
                 if (i == 0 || vertices[i].position.x > max.x)
                     max.x = vertices[i].position.x;
                 if (i == 0 || vertices[i].position.y > max.y)
                     max.y = vertices[i].position.y;
                 if (i == 0 || vertices[i].position.z > max.z)
                     max.z = vertices[i].position.z;
-
                 if (i == 0 || vertices[i].position.x < min.x)
                     min.x = vertices[i].position.x;
                 if (i == 0 || vertices[i].position.y < min.y)
                     min.y = vertices[i].position.y;
                 if (i == 0 || vertices[i].position.z < min.z)
                     min.z = vertices[i].position.z;
-
                 LLVector4a position = LLVector4a(vertices[i].position.x, vertices[i].position.y, vertices[i].position.z);
                 LLVector4a normal = LLVector4a(vertices[i].normal.x, vertices[i].normal.y, vertices[i].normal.z);
                 vert.setPosition(position);
                 vert.setNormal(normal);
                 vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
                 faceVertices.push_back(vert);
-
 
                 // create list of weights that influence this vertex
                 LLModel::weight_list weight_list;
@@ -499,7 +491,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
 
                 std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
-
 
                 std::vector<LLModel::JointWeight> wght;
                 F32                               total = 0.f;

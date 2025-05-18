@@ -2664,6 +2664,7 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
         //
 
         bool is_movable = true;
+        bool create_outfit = false;
 
         if (is_movable && (marketplacelistings_id == cat_id))
         {
@@ -2708,7 +2709,12 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                     tooltip_msg = LLTrans::getString("TooltipOutfitNotInInventory");
                     is_movable = false;
                 }
-                else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
+                else if (can_move_to_my_outfits_as_outfit(model, inv_cat, max_items_to_wear))
+                {
+                    is_movable = true;
+                    create_outfit = true;
+                }
+                else if (can_move_to_my_outfits_as_subfolder(model, inv_cat))
                 {
                     is_movable = true;
                 }
@@ -2742,7 +2748,12 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                     is_movable = false;
                     tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
                 }
-                else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
+                else if (can_move_to_my_outfits_as_outfit(model, inv_cat, max_items_to_wear))
+                {
+                    is_movable = true;
+                    create_outfit = true;
+                }
+                else if (can_move_to_my_outfits_as_subfolder(model, inv_cat))
                 {
                     is_movable = true;
                 }
@@ -2943,7 +2954,7 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             if (mUUID == my_outifts_id)
             {
                 EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
-                if (inv_res == MY_OUTFITS_SUBFOLDER || inv_res == MY_OUTFITS_OUTFIT)
+                if (inv_res == MY_OUTFITS_SUBFOLDER || inv_res == MY_OUTFITS_OUTFIT || !create_outfit)
                 {
                     LLInvFVBridge::changeCategoryParent(
                         model,
@@ -2967,15 +2978,19 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                 {
                 case MY_OUTFITS_NO:
                     // Moning from outside outfits into outfits
-                    if (dest_res == MY_OUTFITS_SUBFOLDER)
+                    if (dest_res == MY_OUTFITS_SUBFOLDER && create_outfit)
                     {
                         // turn it into outfit
-                        dropToMyOutfitsSubfolder(inv_cat, mUUID, LLFolderType::FT_OUTFIT, cb);
+                        dropToMyOutfitsSubfolder(inv_cat, mUUID, cb);
                     }
                     else
                     {
-                        // or link it?
-                        dropToMyOutfitsSubfolder(inv_cat, mUUID, LLFolderType::FT_NONE, cb);
+                        LLInvFVBridge::changeCategoryParent(
+                            model,
+                            (LLViewerInventoryCategory*)inv_cat,
+                            mUUID,
+                            move_is_into_trash);
+                        if (cb) cb->fire(inv_cat->getUUID());
                     }
                     break;
                 case MY_OUTFITS_SUBFOLDER:
@@ -4094,7 +4109,6 @@ void LLFolderBridge::perform_pasteFromClipboard()
             LLInventoryObject *obj = model->getObject(item_id);
             if (obj)
             {
-
                 if (move_is_into_lost_and_found)
                 {
                     if (LLAssetType::AT_CATEGORY == obj->getType())
@@ -4104,41 +4118,57 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 }
                 if (move_is_into_outfit)
                 {
-                    if (!move_is_into_my_outfits && item && can_move_to_outfit(item, move_is_into_current_outfit))
+                    bool handled = false;
+                    if (mUUID != my_outifts_id
+                        && dest_folder->getPreferredType() == LLFolderType::FT_OUTFIT
+                        && item
+                        && can_move_to_outfit(item, move_is_into_current_outfit))
                     {
-                        // todo: this is going to create dupplicate folders?
                         dropToOutfit(item, move_is_into_current_outfit, cb);
+                        handled = true;
                     }
                     else if (move_is_into_my_outfits && LLAssetType::AT_CATEGORY == obj->getType())
                     {
-                        LLInventoryCategory* cat = model->getCategory(item_id);
+                        LLViewerInventoryCategory* cat = model->getCategory(item_id);
                         U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
-                        if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
+                        if (cat && can_move_to_my_outfits_as_outfit(model, cat, max_items_to_wear))
                         {
                             if (mUUID == my_outifts_id)
                             {
                                 dropToMyOutfits(cat, cb);
+                                handled = true;
                             }
-                            else if (move_is_into_my_outfits)
+                            else
                             {
-                                EMyOutfitsSubfolderType res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
-                                if (res == MY_OUTFITS_SUBFOLDER)
+                                EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
+                                if (dest_res == MY_OUTFITS_SUBFOLDER)
                                 {
                                     // turn it into outfit
-                                    dropToMyOutfitsSubfolder(cat, mUUID, LLFolderType::FT_OUTFIT, cb);
+                                    dropToMyOutfitsSubfolder(cat, mUUID, cb);
+                                    handled = true;
+                                }
+                            }
+                        }
+                        if (!handled && cat && can_move_to_my_outfits_as_subfolder(model, cat))
+                        {
+                            EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
+                            if (dest_res == MY_OUTFITS_SUBFOLDER || mUUID == my_outifts_id)
+                            {
+                                if (LLClipboard::instance().isCutMode())
+                                {
+                                    changeCategoryParent(model, cat, parent_id, false);
                                 }
                                 else
                                 {
-                                    dropToMyOutfitsSubfolder(cat, mUUID, LLFolderType::FT_NONE, cb);
+                                    copy_inventory_category(model, cat, parent_id);
                                 }
+                                if (cb) cb->fire(item_id);
+                                handled = true;
                             }
                         }
-                        else
-                        {
-                            LLNotificationsUtil::add("MyOutfitsPasteFailed");
-                        }
                     }
-                    else
+
+                    if (!handled)
                     {
                         LLNotificationsUtil::add("MyOutfitsPasteFailed");
                     }
@@ -4181,7 +4211,7 @@ void LLFolderBridge::perform_pasteFromClipboard()
                     // move_inventory_item() is not enough, as we have to update inventory locally too
                     if (LLAssetType::AT_CATEGORY == obj->getType())
                     {
-                        LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
+                        LLViewerInventoryCategory* vicat = model->getCategory(item_id);
                         llassert(vicat);
                         if (vicat)
                         {
@@ -5478,12 +5508,11 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
                                  inv_cat->getThumbnailUUID());
 }
 
-void LLFolderBridge::dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLFolderType::EType preferred_type, LLPointer<LLInventoryCallback> cb)
+void LLFolderBridge::dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLPointer<LLInventoryCallback> cb)
 {
-    const LLUUID outfits_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
     inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
     getInventoryModel()->createNewCategory(dest_id,
-        preferred_type,
+        LLFolderType::FT_OUTFIT,
         inv_cat->getName(),
         func,
         inv_cat->getThumbnailUUID());

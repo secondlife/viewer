@@ -65,7 +65,7 @@ const S32 FAST_LOAD_THUMBNAIL_TRSHOLD = 50; // load folders below this value imm
 bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, bool drop, std::string& tooltip_msg, bool is_link);
 bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm);
 void dropToMyOutfits(LLInventoryCategory* inv_cat);
-void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLFolderType::EType preferred_type);
+void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id);
 
 class LLGalleryPanel: public LLPanel
 {
@@ -3714,6 +3714,7 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
         //
 
         bool is_movable = true;
+        bool create_outfit = false;
 
         if (is_movable && (marketplacelistings_id == cat_id))
         {
@@ -3759,7 +3760,12 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                     tooltip_msg = LLTrans::getString("TooltipOutfitNotInInventory");
                     is_movable = false;
                 }
-                else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
+                else if (can_move_to_my_outfits_as_outfit(model, inv_cat, max_items_to_wear))
+                {
+                    is_movable = true;
+                    create_outfit = true;
+                }
+                else if (can_move_to_my_outfits_as_subfolder(model, inv_cat))
                 {
                     is_movable = true;
                 }
@@ -3793,7 +3799,12 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                     is_movable = false;
                     tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
                 }
-                else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
+                else if (can_move_to_my_outfits_as_outfit(model, inv_cat, max_items_to_wear))
+                {
+                    is_movable = true;
+                    create_outfit = true;
+                }
+                else if (can_move_to_my_outfits_as_subfolder(model, inv_cat))
                 {
                     is_movable = true;
                 }
@@ -3928,7 +3939,7 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
             if (dest_id == my_outifts_id)
             {
                 EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
-                if (inv_res == MY_OUTFITS_SUBFOLDER || inv_res == MY_OUTFITS_OUTFIT)
+                if (inv_res == MY_OUTFITS_SUBFOLDER || inv_res == MY_OUTFITS_OUTFIT || !create_outfit)
                 {
                     gInventory.changeCategoryParent(
                         (LLViewerInventoryCategory*)inv_cat,
@@ -3950,14 +3961,17 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                 {
                 case MY_OUTFITS_NO:
                     // Moning from outside outfits into outfits
-                    if (dest_res == MY_OUTFITS_SUBFOLDER)
+                    if (dest_res == MY_OUTFITS_SUBFOLDER && create_outfit)
                     {
                         // turn it into outfit
-                        dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_OUTFIT);
+                        dropToMyOutfitsSubfolder(inv_cat, dest_id);
                     }
                     else
                     {
-                        dropToMyOutfitsSubfolder(inv_cat, dest_id, LLFolderType::FT_NONE);
+                        gInventory.changeCategoryParent(
+                            (LLViewerInventoryCategory*)inv_cat,
+                            dest_id,
+                            move_is_into_trash);
                     }
                     break;
                 case MY_OUTFITS_SUBFOLDER:
@@ -4136,10 +4150,10 @@ void dropToMyOutfits(LLInventoryCategory* inv_cat)
     gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
 }
 
-void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID &dest_id, LLFolderType::EType preferred_type)
+void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID &dest_id)
 {
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
     inventory_func_type func = boost::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
-    gInventory.createNewCategory(dest_id, preferred_type, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
+    gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
 }
