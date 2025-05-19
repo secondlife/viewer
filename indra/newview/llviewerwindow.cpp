@@ -4780,7 +4780,8 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
 #else
     boost::filesystem::path b_path(lastSnapshotDir);
 #endif
-    if (!boost::filesystem::is_directory(b_path))
+    boost::system::error_code ec;
+    if (!boost::filesystem::is_directory(b_path, ec) || ec.failed())
     {
         LLSD args;
         args["PATH"] = lastSnapshotDir;
@@ -4789,7 +4790,16 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
         failure_cb();
         return;
     }
-    boost::filesystem::space_info b_space = boost::filesystem::space(b_path);
+    boost::filesystem::space_info b_space = boost::filesystem::space(b_path, ec);
+    if (ec.failed())
+    {
+        LLSD args;
+        args["PATH"] = lastSnapshotDir;
+        LLNotificationsUtil::add("SnapshotToLocalDirNotExist", args);
+        resetSnapshotLoc();
+        failure_cb();
+        return;
+    }
     if (b_space.free < image->getDataSize())
     {
         LLSD args;
@@ -4806,6 +4816,8 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
         LLNotificationsUtil::add("SnapshotToComputerFailed", args);
 
         failure_cb();
+
+        // Shouldn't there be a return here?
     }
 
     // Look for an unused file name
