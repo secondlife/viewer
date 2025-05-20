@@ -1282,6 +1282,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
     {
         for (auto& cat : *cat_array)
         {
+            if (add.exceedsLimit())
+            {
+                break;
+            }
             if(add(cat,NULL))
             {
                 cats.push_back(cat);
@@ -1297,6 +1301,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
     {
         for (auto& item : *item_array)
         {
+            if (add.exceedsLimit())
+            {
+                break;
+            }
             if(add(NULL, item))
             {
                 items.push_back(item);

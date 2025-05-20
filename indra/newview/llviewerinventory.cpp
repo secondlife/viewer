@@ -71,6 +71,9 @@
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
 #include "llsettingsvo.h"
+#include "llinventorylistener.h"
+
+LLInventoryListener sInventoryListener;
 
 // do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {}

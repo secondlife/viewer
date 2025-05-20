@@ -362,6 +362,7 @@ set(viewer_SOURCE_FILES
     llinventorygallerymenu.cpp
     llinventoryicon.cpp
     llinventoryitemslist.cpp
+    llinventorylistener.cpp
     llinventorylistitem.cpp
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
@@ -1033,6 +1034,7 @@ set(viewer_HEADER_FILES
     llinventorygallerymenu.h
     llinventoryicon.h
     llinventoryitemslist.h
+    llinventorylistener.h
     llinventorylistitem.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
