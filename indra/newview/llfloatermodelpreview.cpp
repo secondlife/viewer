@@ -757,7 +757,7 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
         mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
         break;
     default:
-        LL_ERRS() << "Only supposed to be called to generate models" << LL_ENDL;
+        LL_ERRS() << "Only supposed to be called to generate models, val: " << mode << LL_ENDL;
         break;
     }
 
