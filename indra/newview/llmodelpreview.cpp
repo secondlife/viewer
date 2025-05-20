@@ -3090,25 +3090,48 @@ void LLModelPreview::lookupLODModelFiles(S32 lod)
     S32 next_lod = (lod - 1 >= LLModel::LOD_IMPOSTOR) ? lod - 1 : LLModel::LOD_PHYSICS;
 
     std::string lod_filename = mLODFile[LLModel::LOD_HIGH];
-    std::string ext = ".dae";
     std::string lod_filename_lower(lod_filename);
     LLStringUtil::toLower(lod_filename_lower);
-    std::string::size_type i = lod_filename_lower.rfind(ext);
-    if (i != std::string::npos)
+
+    // Check for each supported file extension
+    std::vector<std::string> supported_exts = { ".dae", ".gltf", ".glb" };
+    std::string found_ext;
+    std::string::size_type ext_pos = std::string::npos;
+
+    for (const auto& ext : supported_exts)
     {
-        lod_filename.replace(i, lod_filename.size() - ext.size(), getLodSuffix(next_lod) + ext);
-    }
-    if (gDirUtilp->fileExists(lod_filename))
-    {
-        LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-        if (fmp)
+        std::string::size_type i = lod_filename_lower.rfind(ext);
+        if (i != std::string::npos)
         {
-            fmp->setCtrlLoadFromFile(next_lod);
+            ext_pos = i;
+            found_ext = ext;
+            break;
         }
-        loadModel(lod_filename, next_lod);
+    }
+
+    if (ext_pos != std::string::npos)
+    {
+        // Replace extension with LOD suffix + original extension
+        std::string lod_file_to_check = lod_filename;
+        lod_file_to_check.replace(ext_pos, found_ext.size(), getLodSuffix(next_lod) + found_ext);
+
+        if (gDirUtilp->fileExists(lod_file_to_check))
+        {
+            LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+            if (fmp)
+            {
+                fmp->setCtrlLoadFromFile(next_lod);
+            }
+            loadModel(lod_file_to_check, next_lod);
+        }
+        else
+        {
+            lookupLODModelFiles(next_lod);
+        }
     }
     else
     {
+        // No recognized extension found, continue with next LOD
         lookupLODModelFiles(next_lod);
     }
 }
