@@ -208,7 +208,8 @@ bool LLGLTFLoader::parseMeshes()
     F32 global_scale_factor = 1.0f;
     LLVector3 global_center_offset(0.0f, 0.0f, 0.0f);
 
-    if (has_geometry)
+    if (has_geometry
+        && mJointList.empty()) // temporary disable offset and scaling for rigged meshes
     {
         // Calculate bounding box center - this will be our new origin
         LLVector3 center = (global_min_bounds + global_max_bounds) * 0.5f;
@@ -292,60 +293,6 @@ bool LLGLTFLoader::parseMeshes()
                     mScene[transformation].push_back(LLModelInstance(pModel, pModel->mLabel, transformation, mats));
                     stretch_extents(pModel, transformation);
                     mTransform = saved_transform;
-
-                    S32 skin_index = node.mSkin;
-                    if (skin_index >= 0 && mGLTFAsset.mSkins.size() > skin_index)
-                    {
-                        LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skin_index];
-                        LLMeshSkinInfo& skin_info = pModel->mSkinInfo;
-
-                        size_t jointCnt = gltf_skin.mJoints.size();
-                        if (gltf_skin.mInverseBindMatrices >= 0 && jointCnt != gltf_skin.mInverseBindMatricesData.size())
-                        {
-                            LL_INFOS("GLTF") << "Bind matrices count mismatch joints count" << LL_ENDL;
-                            LLSD args;
-                            args["Message"] = "InvBindCountMismatch";
-                            mWarningsArray.append(args);
-                        }
-
-                        for (size_t i = 0; i < jointCnt; ++i)
-                        {
-                            // Process joint name and idnex
-                            S32 joint = gltf_skin.mJoints[i];
-                            LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-                            jointNode.makeMatrixValid();
-
-                            std::string legal_name(jointNode.mName);
-                            if (mJointMap.find(legal_name) != mJointMap.end())
-                            {
-                                legal_name = mJointMap[legal_name];
-                            }
-                            skin_info.mJointNames.push_back(legal_name);
-                            skin_info.mJointNums.push_back(-1);
-
-                            if (i < gltf_skin.mInverseBindMatricesData.size())
-                            {
-                                // Process bind matrix
-                                LL::GLTF::mat4 gltf_mat = gltf_skin.mInverseBindMatricesData[i];
-                                LLMatrix4 gltf_transform(glm::value_ptr(gltf_mat));
-                                skin_info.mInvBindMatrix.push_back(LLMatrix4a(gltf_transform));
-
-                                LL_DEBUGS("GLTF") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
-
-                                // Translate based of mJointList
-                                gltf_transform.setTranslation(mJointList[legal_name].getTranslation());
-                                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(gltf_transform));
-                            }
-                        }
-
-                        // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
-                        // into the coordinate space of the joints.
-                        // In GLTF, this matrix is omitted, and it is assumed that this transform is either
-                        // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
-                        LLMatrix4 bind_shape;
-                        bind_shape.setIdentity();
-                        skin_info.mBindShapeMatrix.loadu(bind_shape);
-                    }
                 }
                 else
                 {
@@ -366,7 +313,33 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     pModel->mLabel = mesh.mName;
     pModel->ClearFacesAndMaterials();
 
-    auto skinIdx = nodeno.mSkin;
+    S32 skinIdx = nodeno.mSkin;
+
+    // Mark unsuported joints with '-1' so that they won't get added into weights
+    // GLTF maps all joints onto all meshes. Gather use count per mesh to cut unused ones.
+    std::vector<S32> gltf_joint_index_use_count;
+    if (skinIdx >= 0 && mGLTFAsset.mSkins.size() > skinIdx)
+    {
+        LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
+
+        size_t jointCnt = gltf_skin.mJoints.size();
+        gltf_joint_index_use_count.resize(jointCnt);
+
+        S32 replacement_index = 0;
+        for (size_t i = 0; i < jointCnt; ++i)
+        {
+            // Process joint name and idnex
+            S32 joint = gltf_skin.mJoints[i];
+            LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
+            jointNode.makeMatrixValid();
+
+            std::string legal_name(jointNode.mName);
+            if (mJointMap.find(legal_name) == mJointMap.end())
+            {
+                gltf_joint_index_use_count[i] = -1; // mark as unsupported
+            }
+        }
+    }
 
     auto prims = mesh.mPrimitives;
     for (auto prim : prims)
@@ -536,39 +509,70 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
                 faceVertices.push_back(vert);
 
-                // create list of weights that influence this vertex
-                LLModel::weight_list weight_list;
+                if (skinIdx >= 0)
+                {
+                    // create list of weights that influence this vertex
+                    LLModel::weight_list weight_list;
 
-                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.x, vertices[i].weights.x));
-                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.y, vertices[i].weights.y));
-                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.z, vertices[i].weights.z));
-                weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
-
-                std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
-
-                std::vector<LLModel::JointWeight> wght;
-                F32                               total = 0.f;
-
-                for (U32 i = 0; i < llmin((U32)4, (U32)weight_list.size()); ++i)
-                { // take up to 4 most significant weights
-                    // Ported from the DAE loader - however, GLTF right now only supports up to four weights per vertex.
-                    if (weight_list[i].mWeight > 0.f)
+                    // Drop joints that viewer doesn't support (negative in gltf_joint_index_use_count)
+                    // don't reindex them yet, more indexes will be removed
+                    // Also drop joints that have no weight. GLTF stores 4 per vertex, so there might be
+                    // 'empty' ones
+                    if (gltf_joint_index_use_count[vertices[i].joints.x] >= 0
+                        && vertices[i].weights.x > 0.f)
                     {
+                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.x, vertices[i].weights.x));
+                        gltf_joint_index_use_count[vertices[i].joints.x]++;
+                    }
+                    if (gltf_joint_index_use_count[vertices[i].joints.y] >= 0
+                        && vertices[i].weights.y > 0.f)
+                    {
+                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.y, vertices[i].weights.y));
+                        gltf_joint_index_use_count[vertices[i].joints.y]++;
+                    }
+                    if (gltf_joint_index_use_count[vertices[i].joints.z] >= 0
+                        && vertices[i].weights.z > 0.f)
+                    {
+                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.z, vertices[i].weights.z));
+                        gltf_joint_index_use_count[vertices[i].joints.z]++;
+                    }
+                    if (gltf_joint_index_use_count[vertices[i].joints.w] >= 0
+                        && vertices[i].weights.w > 0.f)
+                    {
+                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
+                        gltf_joint_index_use_count[vertices[i].joints.w]++;
+                    }
+
+                    std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
+
+                    std::vector<LLModel::JointWeight> wght;
+                    F32                               total = 0.f;
+
+                    for (U32 i = 0; i < llmin((U32)4, (U32)weight_list.size()); ++i)
+                    {
+                        // take up to 4 most significant weights
+                        // Ported from the DAE loader - however, GLTF right now only supports up to four weights per vertex.
                         wght.push_back(weight_list[i]);
                         total += weight_list[i].mWeight;
                     }
-                }
 
-                F32 scale = 1.f / total;
-                if (scale != 1.f)
-                { // normalize weights
-                    for (U32 i = 0; i < wght.size(); ++i)
+                    if (total != 0.f)
                     {
-                        wght[i].mWeight *= scale;
+                        F32 scale = 1.f / total;
+                        if (scale != 1.f)
+                        { // normalize weights
+                            for (U32 i = 0; i < wght.size(); ++i)
+                            {
+                                wght[i].mWeight *= scale;
+                            }
+                        }
+                    }
+
+                    if (wght.size() > 0)
+                    {
+                        pModel->mSkinWeights[LLVector3(vertices[i].position)] = wght;
                     }
                 }
-
-                pModel->mSkinWeights[LLVector3(vertices[i].position)] = wght;
             }
 
             face.fillFromLegacyData(faceVertices, indices);
@@ -606,6 +610,85 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         }
     }
 
+    // Fill joint names, bind matrices and prepare to remap weight indices
+    if (skinIdx >= 0)
+    {
+        LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
+        LLMeshSkinInfo& skin_info = pModel->mSkinInfo;
+
+        size_t jointCnt = gltf_skin.mJoints.size();
+        if (gltf_skin.mInverseBindMatrices >= 0 && jointCnt != gltf_skin.mInverseBindMatricesData.size())
+        {
+            LL_INFOS("GLTF") << "Bind matrices count mismatch joints count" << LL_ENDL;
+            LLSD args;
+            args["Message"] = "InvBindCountMismatch";
+            mWarningsArray.append(args);
+        }
+
+        std::vector<S32> gltfindex_to_joitindex_map;
+        gltfindex_to_joitindex_map.resize(jointCnt);
+
+        S32 replacement_index = 0;
+        for (size_t i = 0; i < jointCnt; ++i)
+        {
+            // Process joint name and idnex
+            S32 joint = gltf_skin.mJoints[i];
+            if (gltf_joint_index_use_count[i] <= 0)
+            {
+                // Unused (0) or unsupported (-1) joint, drop it
+                continue;
+            }
+            LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
+            jointNode.makeMatrixValid();
+
+            std::string legal_name(jointNode.mName);
+            if (mJointMap.find(legal_name) != mJointMap.end())
+            {
+                legal_name = mJointMap[legal_name];
+            }
+            else
+            {
+                llassert(false); // should have been stopped by gltf_joint_index_use_count[i] == -1
+                continue;
+            }
+            gltfindex_to_joitindex_map[i] = replacement_index++;
+
+            skin_info.mJointNames.push_back(legal_name);
+            skin_info.mJointNums.push_back(-1);
+
+            if (i < gltf_skin.mInverseBindMatricesData.size())
+            {
+                // Process bind matrix
+                LL::GLTF::mat4 gltf_mat = gltf_skin.mInverseBindMatricesData[i];
+                LLMatrix4 gltf_transform(glm::value_ptr(gltf_mat));
+                skin_info.mInvBindMatrix.push_back(LLMatrix4a(gltf_transform));
+
+                LL_INFOS("GLTF") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
+
+                // Translate based of mJointList
+                gltf_transform.setTranslation(mJointList[legal_name].getTranslation()); // name is supposed to be in mJointList
+                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(gltf_transform));
+            }
+        }
+
+        // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
+        // into the coordinate space of the joints.
+        // In GLTF, this matrix is omitted, and it is assumed that this transform is either
+        // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
+        LLMatrix4 bind_shape;
+        bind_shape.setIdentity();
+        skin_info.mBindShapeMatrix.loadu(bind_shape);
+
+        // Remap indices for pModel->mSkinWeights
+        for (auto& weights : pModel->mSkinWeights)
+        {
+            for (auto& weight : weights.second)
+            {
+                weight.mJointIdx = gltfindex_to_joitindex_map[weight.mJointIdx];
+            }
+        }
+    }
+
     return true;
 }
 
@@ -622,12 +705,9 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
         }
         else
         {
-            LL_INFOS("GLTF") << "Rigged to unrecognized joint name : "
-                << legal_name << LL_ENDL;
-            LLSD args;
-            args["Message"] = "UnrecognizedJoint";
-            args["[NAME]"] = legal_name;
-            mWarningsArray.append(args);
+            // ignore unrecognized joint
+            LL_DEBUGS("GLTF") << "Ignoring joing: " << legal_name << LL_ENDL;
+            continue;
         }
 
         jointNode.makeMatrixValid();
