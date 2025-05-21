@@ -170,7 +170,7 @@ std::string LLKeywords::getAttribute(std::string_view key)
     return (it != mAttributes.end()) ? it->second : "";
 }
 
-LLUIColor LLKeywords::getColorGroup(std::string_view key_in)
+LLUIColor LLKeywords::getColorGroup(std::string_view key_in) const
 {
     std::string color_group = "ScriptText";
     if (key_in == "functions")

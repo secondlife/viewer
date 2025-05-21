@@ -36,6 +36,14 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 
+static const std::string lod_strings[4] =
+{
+    "lowest_lod",
+    "low_lod",
+    "medium_lod",
+    "high_lod",
+};
+
 // virtual
 bool LLCrossParcelFunctor::apply(LLViewerObject* obj)
 {
@@ -75,7 +83,10 @@ LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
     mSelectedOnLand(NULL),
     mRezzedOnLand(NULL),
     mRemainingCapacity(NULL),
-    mTotalCapacity(NULL)
+    mTotalCapacity(NULL),
+    mLodLevel(nullptr),
+    mTrianglesShown(nullptr),
+    mPixelArea(nullptr)
 {
 }
 
@@ -98,6 +109,10 @@ bool LLFloaterObjectWeights::postBuild()
     mRezzedOnLand = getChild<LLTextBox>("rezzed_on_land");
     mRemainingCapacity = getChild<LLTextBox>("remaining_capacity");
     mTotalCapacity = getChild<LLTextBox>("total_capacity");
+
+    mLodLevel = getChild<LLTextBox>("lod_level");
+    mTrianglesShown = getChild<LLTextBox>("triangles_shown");
+    mPixelArea = getChild<LLTextBox>("pixel_area");
 
     return true;
 }
@@ -133,6 +148,69 @@ void LLFloaterObjectWeights::setErrorStatus(S32 status, const std::string& reaso
     mSelectedDisplayWeight->setText(text);
 
     toggleWeightsLoadingIndicators(false);
+}
+
+void LLFloaterObjectWeights::draw()
+{
+    // Normally it's a bad idea to set text and visibility inside draw
+    // since it can cause rect updates go to different, already drawn elements,
+    // but floater is very simple and these elements are supposed to be isolated
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    if (selection->isEmpty())
+    {
+        const std::string text = getString("nothing_selected");
+        mLodLevel->setText(text);
+        mTrianglesShown->setText(text);
+        mPixelArea->setText(text);
+
+        toggleRenderLoadingIndicators(false);
+    }
+    else
+    {
+        S32 object_lod = -1;
+        bool multiple_lods = false;
+        S32 total_tris = 0;
+        F32 pixel_area = 0;
+        for (LLObjectSelection::valid_root_iterator iter = selection->valid_root_begin();
+            iter != selection->valid_root_end(); ++iter)
+        {
+            LLViewerObject* object = (*iter)->getObject();
+            S32 lod = object->getLOD();
+            if (object_lod < 0)
+            {
+                object_lod = lod;
+            }
+            else if (object_lod != lod)
+            {
+                multiple_lods = true;
+            }
+
+            if (object->isRootEdit())
+            {
+                total_tris += object->recursiveGetTriangleCount();
+                pixel_area += object->getPixelArea();
+            }
+        }
+
+        if (multiple_lods)
+        {
+            mLodLevel->setText(getString("multiple_lods"));
+            toggleRenderLoadingIndicators(false);
+        }
+        else if (object_lod < 0)
+        {
+            // nodes are waiting for data
+            toggleRenderLoadingIndicators(true);
+        }
+        else
+        {
+            mLodLevel->setText(getString(lod_strings[object_lod]));
+            toggleRenderLoadingIndicators(false);
+        }
+        mTrianglesShown->setText(llformat("%d", total_tris));
+        mPixelArea->setText(llformat("%d", pixel_area));
+    }
+    LLFloater::draw();
 }
 
 void LLFloaterObjectWeights::updateLandImpacts(const LLParcel* parcel)
@@ -252,6 +330,17 @@ void LLFloaterObjectWeights::toggleLandImpactsLoadingIndicators(bool visible)
     mTotalCapacity->setVisible(!visible);
 }
 
+void LLFloaterObjectWeights::toggleRenderLoadingIndicators(bool visible)
+{
+    childSetVisible("lod_level_loading_indicator", visible);
+    childSetVisible("triangles_shown_loading_indicator", visible);
+    childSetVisible("pixel_area_loading_indicator", visible);
+
+    mLodLevel->setVisible(!visible);
+    mTrianglesShown->setVisible(!visible);
+    mPixelArea->setVisible(!visible);
+}
+
 void LLFloaterObjectWeights::updateIfNothingSelected()
 {
     const std::string text = getString("nothing_selected");
@@ -269,6 +358,11 @@ void LLFloaterObjectWeights::updateIfNothingSelected()
     mRemainingCapacity->setText(text);
     mTotalCapacity->setText(text);
 
+    mLodLevel->setText(text);
+    mTrianglesShown->setText(text);
+    mPixelArea->setText(text);
+
     toggleWeightsLoadingIndicators(false);
     toggleLandImpactsLoadingIndicators(false);
+    toggleRenderLoadingIndicators(false);
 }

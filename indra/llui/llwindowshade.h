@@ -49,7 +49,7 @@ public:
     };
 
     void show(LLNotificationPtr);
-    /*virtual*/ void draw();
+    void draw() override;
     void hide();
 
     bool isShown() const;

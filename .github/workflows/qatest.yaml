@@ -1,0 +1,174 @@
+name: Run QA Test # Runs automated tests on a self-hosted QA machine
+permissions:
+  contents: read
+  #pull-requests: write # maybe need to re-add this later
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+
+concurrency:
+  group: qa-test-run
+  cancel-in-progress: true  # Cancels any queued job when a new one starts
+
+jobs:
+  debug-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Workflow Variables
+        env:
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_COMMIT_MSG: ${{ github.event.workflow_run.head_commit.message }}
+        run: |
+          echo "Workflow Conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Workflow Head Branch: $HEAD_BRANCH"
+          echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
+          echo "Head Commit Message: $HEAD_COMMIT_MSG"
+          echo "GitHub Ref: ${{ github.ref }}"
+          echo "GitHub Ref Name: ${{ github.ref_name }}"
+          echo "GitHub Event Name: ${{ github.event_name }}"
+          echo "GitHub Workflow Name: ${{ github.workflow }}"
+
+  install-viewer-and-run-tests:
+    runs-on: [self-hosted, qa-machine]
+    # Run test only on successful builds of Second_Life_X branches
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      (
+        startsWith(github.event.workflow_run.head_branch, 'Second_Life')
+      )
+
+    steps:
+      - name: Temporarily Allow PowerShell Scripts (Process Scope)
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope Process -Force
+
+      - name: Verify viewer-sikulix-main Exists
+        run: |
+          if (-Not (Test-Path -Path 'C:\viewer-sikulix-main')) {
+            Write-Host '❌ Error: viewer-sikulix not found on runner!'
+            exit 1
+          }
+          Write-Host '✅ viewer-sikulix is already available.'
+
+      - name: Fetch & Download Windows Installer Artifact
+        shell: pwsh
+        run: |
+          $BUILD_ID = "${{ github.event.workflow_run.id }}"
+          $ARTIFACTS_URL = "https://api.github.com/repos/secondlife/viewer/actions/runs/$BUILD_ID/artifacts"
+
+          # Fetch the correct artifact URL
+          $response = Invoke-RestMethod -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}" } -Uri $ARTIFACTS_URL
+          $ARTIFACT_NAME = ($response.artifacts | Where-Object { $_.name -eq "Windows-installer" }).archive_download_url
+
+          if (-Not $ARTIFACT_NAME) {
+            Write-Host "❌ Error: Windows-installer artifact not found!"
+            exit 1
+          }
+
+          Write-Host "✅ Artifact found: $ARTIFACT_NAME"
+
+          # Secure download path
+          $DownloadPath = "$env:TEMP\secondlife-build-$BUILD_ID"
+          New-Item -ItemType Directory -Path $DownloadPath -Force | Out-Null
+          $InstallerPath = "$DownloadPath\installer.zip"
+
+          # Download the ZIP
+          Invoke-WebRequest -Uri $ARTIFACT_NAME -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}"} -OutFile $InstallerPath
+
+          # Ensure download succeeded
+          if (-Not (Test-Path $InstallerPath)) {
+            Write-Host "❌ Error: Failed to download Windows-installer.zip"
+            exit 1
+          }
+
+      - name: Extract Installer & Locate Executable
+        shell: pwsh
+        run: |
+          # Explicitly set BUILD_ID again (since it does not appear to persist across steps)
+          $BUILD_ID = "${{ github.event.workflow_run.id }}"
+          $ExtractPath = "$env:TEMP\secondlife-build-$BUILD_ID"
+          $InstallerZip = "$ExtractPath\installer.zip"
+
+          # Print paths for debugging
+          Write-Host "Extract Path: $ExtractPath"
+          Write-Host "Installer ZIP Path: $InstallerZip"
+
+          # Verify ZIP exists before extracting
+          if (-Not (Test-Path $InstallerZip)) {
+              Write-Host "❌ Error: ZIP file not found at $InstallerZip!"
+              exit 1
+          }
+
+          Write-Host "✅ ZIP file exists and is valid. Extracting..."
+
+          Expand-Archive -Path $InstallerZip -DestinationPath $ExtractPath -Force
+
+          # Find installer executable
+          $INSTALLER_PATH = (Get-ChildItem -Path $ExtractPath -Filter '*.exe' -Recurse | Select-Object -First 1).FullName
+
+          if (-Not $INSTALLER_PATH -or $INSTALLER_PATH -eq "") {
+            Write-Host "❌ Error: No installer executable found in the extracted files!"
+            Write-Host "📂 Extracted Files:"
+            Get-ChildItem -Path $ExtractPath -Recurse | Format-Table -AutoSize
+            exit 1
+          }
+
+          Write-Host "✅ Installer found: $INSTALLER_PATH"
+          echo "INSTALLER_PATH=$INSTALLER_PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Install Second Life Using Task Scheduler (Bypass UAC)
+        shell: pwsh
+        run: |
+          $action = New-ScheduledTaskAction -Execute "${{ env.INSTALLER_PATH }}" -Argument "/S"
+          $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+          $task = New-ScheduledTask -Action $action -Principal $principal
+          Register-ScheduledTask -TaskName "SilentSLInstaller" -InputObject $task -Force
+          Start-ScheduledTask -TaskName "SilentSLInstaller"
+
+      - name: Wait for Installation to Complete
+        shell: pwsh
+        run: |
+          Write-Host "Waiting for the Second Life installer to finish..."
+          do {
+            Start-Sleep -Seconds 5
+            $installerProcess = Get-Process | Where-Object { $_.Path -eq "${{ env.INSTALLER_PATH }}" }
+          } while ($installerProcess)
+
+          Write-Host "✅ Installation completed!"
+
+      - name: Cleanup Task Scheduler Entry
+        shell: pwsh
+        run: |
+          Unregister-ScheduledTask -TaskName "SilentSLInstaller" -Confirm:$false
+          Write-Host "✅ Task Scheduler entry removed."
+
+      - name: Delete Installer ZIP
+        shell: pwsh
+        run: |
+          # Explicitly set BUILD_ID again
+          $BUILD_ID = "${{ github.event.workflow_run.id }}"
+          $DeletePath = "$env:TEMP\secondlife-build-$BUILD_ID\installer.zip"
+
+          Write-Host "Checking if installer ZIP exists: $DeletePath"
+
+          # Ensure the ZIP file exists before trying to delete it
+          if (Test-Path $DeletePath) {
+              Remove-Item -Path $DeletePath -Force
+              Write-Host "✅ Successfully deleted: $DeletePath"
+          } else {
+              Write-Host "⚠️ Warning: ZIP file does not exist, skipping deletion."
+          }
+
+      - name: Run QA Test Script
+        run: |
+          Write-Host "Running QA Test script..."
+          python C:\viewer-sikulix-main\runTests.py
+
+      # - name: Upload Test Results
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: test-results
+      #     path: C:\viewer-sikulix-main\regressionTest\test_results.html

@@ -74,6 +74,17 @@ bool get_bulk_upload_expected_cost(
 
 void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k);
 
+void upload_single_file(
+    const std::vector<std::string>& filenames,
+    LLFilePicker::ELoadFilter type,
+    const LLUUID& dest);
+
+void upload_bulk(
+    const std::vector<std::string>& filenames,
+    LLFilePicker::ELoadFilter type,
+    bool allow_2k,
+    const LLUUID& dest);
+
 //consider moving all file pickers below to more suitable place
 class LLFilePickerThread : public LLThread
 { //multi-threaded file picker (runs system specific file picker in background and calls "notify" from main thread)

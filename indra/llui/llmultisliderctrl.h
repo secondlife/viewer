@@ -124,10 +124,10 @@ public:
     F32             getMinValue() const { return mMultiSlider->getMinValue(); }
     F32             getMaxValue() const { return mMultiSlider->getMaxValue(); }
 
-    S32             getMaxNumSliders() { return mMultiSlider->getMaxNumSliders(); }
-    S32             getCurNumSliders() { return mMultiSlider->getCurNumSliders(); }
-    F32             getOverlapThreshold() { return mMultiSlider->getOverlapThreshold(); }
-    bool            canAddSliders() { return mMultiSlider->canAddSliders(); }
+    S32             getMaxNumSliders() const { return mMultiSlider->getMaxNumSliders(); }
+    S32             getCurNumSliders() const { return mMultiSlider->getCurNumSliders(); }
+    F32             getOverlapThreshold() const { return mMultiSlider->getOverlapThreshold(); }
+    bool            canAddSliders() const { return mMultiSlider->canAddSliders(); }
 
     void            setLabel(const std::string& label)              { if (mLabelBox) mLabelBox->setText(label); }
     void            setLabelColor(const LLUIColor& c)            { mTextEnabledColor = c; }
@@ -147,7 +147,6 @@ public:
 
     static void     onEditorCommit(LLUICtrl* ctrl, const LLSD& userdata);
     static void     onEditorGainFocus(LLFocusableElement* caller, void *userdata);
-    static void     onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
 private:
     void            updateText();

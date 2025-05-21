@@ -39,18 +39,8 @@
 // llcommon depend on llmath.
 #include "is_approx_equal_fraction.h"
 
-// work around for Windows & older gcc non-standard function names.
-#if LL_WINDOWS
-#include <float.h>
-#define llisnan(val)    _isnan(val)
-#define llfinite(val)   _finite(val)
-#elif (LL_LINUX && __GNUC__ <= 2)
-#define llisnan(val)    isnan(val)
-#define llfinite(val)   isfinite(val)
-#else
-#define llisnan(val)    std::isnan(val)
-#define llfinite(val)   std::isfinite(val)
-#endif
+#define llisnan(val)  std::isnan(val)
+#define llfinite(val) std::isfinite(val)
 
 // Single Precision Floating Point Routines
 // (There used to be more defined here, but they appeared to be redundant and
@@ -75,7 +65,7 @@ constexpr F32   DEG_TO_RAD  = 0.017453292519943295769236907684886f;
 constexpr F32   RAD_TO_DEG  = 57.295779513082320876798154814105f;
 constexpr F32   F_APPROXIMATELY_ZERO = 0.00001f;
 constexpr F32   F_LN10      = 2.3025850929940456840179914546844f;
-constexpr F32   OO_LN10     = 0.43429448190325182765112891891661;
+constexpr F32   OO_LN10     = 0.43429448190325182765112891891661f;
 constexpr F32   F_LN2       = 0.69314718056f;
 constexpr F32   OO_LN2      = 1.4426950408889634073599246810019f;
 
@@ -89,7 +79,7 @@ constexpr F32   GIMBAL_THRESHOLD = 0.000436f; // sets the gimballock threshold 0
 constexpr F32 FP_MAG_THRESHOLD = 0.0000001f;
 
 // TODO: Replace with logic like is_approx_equal
-inline bool is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f < F_APPROXIMATELY_ZERO); }
+constexpr bool is_approx_zero(F32 f) { return (-F_APPROXIMATELY_ZERO < f) && (f < F_APPROXIMATELY_ZERO); }
 
 // These functions work by interpreting sign+exp+mantissa as an unsigned
 // integer.
@@ -148,33 +138,17 @@ inline F64 llabs(const F64 a)
     return F64(std::fabs(a));
 }
 
-inline S32 lltrunc( F32 f )
+constexpr S32 lltrunc(F32 f)
 {
-#if LL_WINDOWS && !defined( __INTEL_COMPILER ) && (ADDRESS_SIZE == 32)
-        // Avoids changing the floating point control word.
-        // Add or subtract 0.5 - epsilon and then round
-        const static U32 zpfp[] = { 0xBEFFFFFF, 0x3EFFFFFF };
-        S32 result;
-        __asm {
-            fld     f
-            mov     eax,    f
-            shr     eax,    29
-            and     eax,    4
-            fadd    dword ptr [zpfp + eax]
-            fistp   result
-        }
-        return result;
-#else
-        return (S32)f;
-#endif
+    return narrow(f);
 }
 
-inline S32 lltrunc( F64 f )
+constexpr S32 lltrunc(F64 f)
 {
-    return (S32)f;
+    return narrow(f);
 }
 
-inline S32 llfloor( F32 f )
+inline S32 llfloor(F32 f)
 {
 #if LL_WINDOWS && !defined( __INTEL_COMPILER ) && (ADDRESS_SIZE == 32)
         // Avoids changing the floating point control word.
@@ -284,7 +258,7 @@ constexpr F32 FAST_MAG_BETA = 0.397824734759f;
 //constexpr F32 FAST_MAG_ALPHA = 0.948059448969f;
 //constexpr F32 FAST_MAG_BETA = 0.392699081699f;
 
-inline F32 fastMagnitude(F32 a, F32 b)
+constexpr F32 fastMagnitude(F32 a, F32 b)
 {
     a = (a > 0) ? a : -a;
     b = (b > 0) ? b : -b;
@@ -342,7 +316,7 @@ inline F32 llfastpow(const F32 x, const F32 y)
 }
 
 
-inline F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
+constexpr F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
 {
     // compute the power of ten
     F32 bar = 1.f;
@@ -358,12 +332,9 @@ inline F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
     return new_foo;
 }
 
-inline F32 lerp(F32 a, F32 b, F32 u)
-{
-    return a + ((b - a) * u);
-}
+using std::lerp;
 
-inline F32 lerp2d(F32 x00, F32 x01, F32 x10, F32 x11, F32 u, F32 v)
+constexpr F32 lerp2d(F32 x00, F32 x01, F32 x10, F32 x11, F32 u, F32 v)
 {
     F32 a = x00 + (x01-x00)*u;
     F32 b = x10 + (x11-x10)*u;
@@ -371,17 +342,17 @@ inline F32 lerp2d(F32 x00, F32 x01, F32 x10, F32 x11, F32 u, F32 v)
     return r;
 }
 
-inline F32 ramp(F32 x, F32 a, F32 b)
+constexpr F32 ramp(F32 x, F32 a, F32 b)
 {
     return (a == b) ? 0.0f : ((a - x) / (a - b));
 }
 
-inline F32 rescale(F32 x, F32 x1, F32 x2, F32 y1, F32 y2)
+constexpr F32 rescale(F32 x, F32 x1, F32 x2, F32 y1, F32 y2)
 {
     return lerp(y1, y2, ramp(x, x1, x2));
 }
 
-inline F32 clamp_rescale(F32 x, F32 x1, F32 x2, F32 y1, F32 y2)
+constexpr F32 clamp_rescale(F32 x, F32 x1, F32 x2, F32 y1, F32 y2)
 {
     if (y1 < y2)
     {
@@ -394,7 +365,7 @@ inline F32 clamp_rescale(F32 x, F32 x1, F32 x2, F32 y1, F32 y2)
 }
 
 
-inline F32 cubic_step( F32 x, F32 x0, F32 x1, F32 s0, F32 s1 )
+constexpr F32 cubic_step( F32 x, F32 x0, F32 x1, F32 s0, F32 s1 )
 {
     if (x <= x0)
         return s0;
@@ -407,14 +378,14 @@ inline F32 cubic_step( F32 x, F32 x0, F32 x1, F32 s0, F32 s1 )
     return  s0 + (s1 - s0) * (f * f) * (3.0f - 2.0f * f);
 }
 
-inline F32 cubic_step( F32 x )
+constexpr F32 cubic_step( F32 x )
 {
     x = llclampf(x);
 
     return  (x * x) * (3.0f - 2.0f * x);
 }
 
-inline F32 quadratic_step( F32 x, F32 x0, F32 x1, F32 s0, F32 s1 )
+constexpr F32 quadratic_step( F32 x, F32 x0, F32 x1, F32 s0, F32 s1 )
 {
     if (x <= x0)
         return s0;
@@ -428,7 +399,7 @@ inline F32 quadratic_step( F32 x, F32 x0, F32 x1, F32 s0, F32 s1 )
     return  (s0 * (1.f - f_squared)) + ((s1 - s0) * f_squared);
 }
 
-inline F32 llsimple_angle(F32 angle)
+constexpr F32 llsimple_angle(F32 angle)
 {
     while(angle <= -F_PI)
         angle += F_TWO_PI;
@@ -438,7 +409,7 @@ inline F32 llsimple_angle(F32 angle)
 }
 
 //SDK - Renamed this to get_lower_power_two, since this is what this actually does.
-inline U32 get_lower_power_two(U32 val, U32 max_power_two)
+constexpr U32 get_lower_power_two(U32 val, U32 max_power_two)
 {
     if(!max_power_two)
     {
@@ -460,7 +431,7 @@ inline U32 get_lower_power_two(U32 val, U32 max_power_two)
 // number of digits, then add one.  We subtract 1 initially to handle
 // the case where the number passed in is actually a power of two.
 // WARNING: this only works with 32 bit ints.
-inline U32 get_next_power_two(U32 val, U32 max_power_two)
+constexpr U32 get_next_power_two(U32 val, U32 max_power_two)
 {
     if(!max_power_two)
     {
@@ -486,7 +457,7 @@ inline U32 get_next_power_two(U32 val, U32 max_power_two)
 //get the gaussian value given the linear distance from axis x and guassian value o
 inline F32 llgaussian(F32 x, F32 o)
 {
-    return 1.f/(F_SQRT_TWO_PI*o)*powf(F_E, -(x*x)/(2*o*o));
+    return 1.f/(F_SQRT_TWO_PI*o)*powf(F_E, -(x*x)/(2.f*o*o));
 }
 
 //helper function for removing outliers
@@ -539,7 +510,8 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
 // Note: in our code, values labeled as sRGB are ALWAYS gamma corrected linear values, NOT linear values with monitor gamma applied
 // Note: stored color values should always be gamma corrected linear (i.e. the values returned from an on-screen color swatch)
 // Note: DO NOT cache the conversion.  This leads to error prone synchronization and is actually slower in the typical case due to cache misses
-inline float linearTosRGB(const float val) {
+inline float linearTosRGB(const float val)
+{
     if (val < 0.0031308f) {
         return val * 12.92f;
     }
@@ -554,7 +526,8 @@ inline float linearTosRGB(const float val) {
 // Note: Stored color values should generally be gamma corrected sRGB.
 //       If you're serializing the return value of this function, you're probably doing it wrong.
 // Note: DO NOT cache the conversion.  This leads to error prone synchronization and is actually slower in the typical case due to cache misses.
-inline float sRGBtoLinear(const float val) {
+inline float sRGBtoLinear(const float val)
+{
     if (val < 0.04045f) {
         return val / 12.92f;
     }
