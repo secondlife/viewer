@@ -135,6 +135,12 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 
     initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
 
+    if (skin->mInvBindMatrix.size() < count )
+    {
+        // faulty model? mInvBindMatrix.size() should have matched mJointNames.size()
+        return;
+    }
+
     LLMatrix4a world[LL_CHARACTER_MAX_ANIMATED_JOINTS];
 
     for (S32 j = 0; j < count; ++j)
