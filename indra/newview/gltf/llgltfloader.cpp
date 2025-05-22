@@ -257,10 +257,6 @@ bool LLGLTFLoader::parseMeshes()
                     validate_model(pModel))
                 {
                     mModelList.push_back(pModel);
-                    LLMatrix4 saved_transform = mTransform;
-
-                    // This will make sure the matrix is always valid from the node.
-                    node.makeMatrixValid();
 
                     mTransform.setIdentity();
                     transformation = mTransform;
@@ -292,7 +288,6 @@ bool LLGLTFLoader::parseMeshes()
 
                     mScene[transformation].push_back(LLModelInstance(pModel, pModel->mLabel, transformation, mats));
                     stretch_extents(pModel, transformation);
-                    mTransform = saved_transform;
                 }
                 else
                 {
@@ -708,7 +703,17 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             {
                 // Process bind matrix
                 LL::GLTF::mat4 gltf_mat = gltf_skin.mInverseBindMatricesData[i];
-                LLMatrix4 gltf_transform(glm::value_ptr(gltf_mat));
+
+                // For inverse bind matrices, we need to:
+                // 1. Get the original bind matrix by inverting
+                // 2. Apply coordinate rotation to the original
+                // 3. Invert again to get the rotated inverse bind matrix
+                glm::mat4 original_bind_matrix = glm::inverse(gltf_mat);
+                glm::mat4 coord_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                glm::mat4 rotated_original = coord_rotation * original_bind_matrix;
+                glm::mat4 rotated_inverse_bind_matrix = glm::inverse(rotated_original);
+
+                LLMatrix4 gltf_transform(glm::value_ptr(rotated_inverse_bind_matrix));
                 skin_info.mInvBindMatrix.push_back(LLMatrix4a(gltf_transform));
 
                 LL_INFOS("GLTF") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
@@ -742,6 +747,9 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
 void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
 {
+    // Create coordinate system rotation matrix - GLTF is Y-up, SL is Z-up
+    glm::mat4 coord_system_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
     for (auto joint : skin.mJoints)
     {
         auto jointNode = mGLTFAsset.mNodes[joint];
@@ -754,13 +762,17 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
         else
         {
             // ignore unrecognized joint
-            LL_DEBUGS("GLTF") << "Ignoring joing: " << legal_name << LL_ENDL;
+            LL_DEBUGS("GLTF") << "Ignoring joint: " << legal_name << LL_ENDL;
             continue;
         }
 
         jointNode.makeMatrixValid();
 
-        LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(jointNode.mMatrix));
+        // Apply coordinate system rotation to joint transform
+        glm::mat4 gltf_joint_matrix = jointNode.mMatrix;
+        glm::mat4 rotated_joint_matrix = coord_system_rotation * gltf_joint_matrix;
+
+        LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(rotated_joint_matrix));
         mJointList[legal_name] = gltf_transform;
         mJointsFromNode.push_front(legal_name);
 
