@@ -716,11 +716,17 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 LLMatrix4 gltf_transform(glm::value_ptr(rotated_inverse_bind_matrix));
                 skin_info.mInvBindMatrix.push_back(LLMatrix4a(gltf_transform));
 
-                LL_INFOS("GLTF") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
+                LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
 
-                // Translate based of mJointList
-                gltf_transform.setTranslation(mJointList[legal_name].getTranslation()); // name is supposed to be in mJointList
-                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(gltf_transform));
+                // For alternate bind matrix, use the ORIGINAL joint transform (before rotation)
+                // Get the original joint node and use its matrix directly
+                S32 joint = gltf_skin.mJoints[i];
+                LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
+                jointNode.makeMatrixValid();
+                LLMatrix4 original_joint_transform(glm::value_ptr(jointNode.mMatrix));
+
+                LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
+                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(original_joint_transform));
             }
         }
 
@@ -750,6 +756,8 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
     // Create coordinate system rotation matrix - GLTF is Y-up, SL is Z-up
     glm::mat4 coord_system_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
+    LL_INFOS("GLTF_DEBUG") << "populateJointFromSkin: Processing " << skin.mJoints.size() << " joints" << LL_ENDL;
+
     for (auto joint : skin.mJoints)
     {
         auto jointNode = mGLTFAsset.mNodes[joint];
@@ -768,15 +776,31 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
 
         jointNode.makeMatrixValid();
 
-        // Apply coordinate system rotation to joint transform
+        // Debug: Log original joint matrix
         glm::mat4 gltf_joint_matrix = jointNode.mMatrix;
+        LL_INFOS("GLTF_DEBUG") << "Joint '" << legal_name << "' original matrix:" << LL_ENDL;
+        for(int i = 0; i < 4; i++)
+        {
+            LL_INFOS("GLTF_DEBUG") << "  [" << gltf_joint_matrix[i][0] << ", " << gltf_joint_matrix[i][1]
+                                   << ", " << gltf_joint_matrix[i][2] << ", " << gltf_joint_matrix[i][3] << "]" << LL_ENDL;
+        }
+
+        // Apply coordinate system rotation to joint transform
         glm::mat4 rotated_joint_matrix = coord_system_rotation * gltf_joint_matrix;
+
+        // Debug: Log rotated joint matrix
+        LL_INFOS("GLTF_DEBUG") << "Joint '" << legal_name << "' rotated matrix:" << LL_ENDL;
+        for(int i = 0; i < 4; i++)
+        {
+            LL_INFOS("GLTF_DEBUG") << "  [" << rotated_joint_matrix[i][0] << ", " << rotated_joint_matrix[i][1]
+                                   << ", " << rotated_joint_matrix[i][2] << ", " << rotated_joint_matrix[i][3] << "]" << LL_ENDL;
+        }
 
         LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(rotated_joint_matrix));
         mJointList[legal_name] = gltf_transform;
         mJointsFromNode.push_front(legal_name);
 
-        LL_DEBUGS("GLTF") << "mJointList name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
+        LL_INFOS("GLTF_DEBUG") << "mJointList name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
     }
 }
 
