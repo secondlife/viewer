@@ -307,6 +307,34 @@ bool LLGLTFLoader::parseMeshes()
     return true;
 }
 
+void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform)
+{
+    auto& node = asset.mNodes[node_index];
+
+    // Start with this node's transform
+    glm::mat4 node_transform = node.mMatrix;
+
+    // Find parent node and apply its transform if it exists
+    for (auto& other_node : asset.mNodes)
+    {
+        for (auto& child_index : other_node.mChildren)
+        {
+            if (child_index == node_index)
+            {
+                // Found a parent, recursively get its combined transform
+                glm::mat4 parent_transform;
+                computeCombinedNodeTransform(asset, static_cast<S32>(&other_node - &asset.mNodes[0]), parent_transform);
+
+                // Apply parent transform to current node transform
+                node_transform = parent_transform * node_transform;
+                break;
+            }
+        }
+    }
+
+    combined_transform = node_transform;
+}
+
 bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats,
                                                           const F32 scale_factor, const LLVector3& center_offset)
 {
@@ -438,14 +466,24 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 }
             }
 
+            // Compute combined transform for this node considering parent hierarchy
+            S32 node_index = static_cast<S32>(&nodeno - &mGLTFAsset.mNodes[0]);
+            glm::mat4 combined_transform;
+            computeCombinedNodeTransform(mGLTFAsset, node_index, combined_transform);
+
             // Apply the global scale and center offset to all vertices
             for (U32 i = 0; i < prim.getVertexCount(); i++)
             {
+                // Transform vertex position with combined hierarchy transform
+                glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
+                glm::vec4 transformed_pos = combined_transform * pos;
+
+                // Apply scaling and centering after hierarchy transform
                 GLTFVertex vert;
                 vert.position = glm::vec3(
-                    (prim.mPositions[i][0] + center_offset.mV[VX]) * scale_factor,
-                    (prim.mPositions[i][1] + center_offset.mV[VY]) * scale_factor,
-                    (prim.mPositions[i][2] + center_offset.mV[VZ]) * scale_factor
+                    (transformed_pos.x + center_offset.mV[VX]) * scale_factor,
+                    (transformed_pos.y + center_offset.mV[VY]) * scale_factor,
+                    (transformed_pos.z + center_offset.mV[VZ]) * scale_factor
                 );
 
                 vert.normal = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
