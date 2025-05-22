@@ -16,7 +16,7 @@ on:
         default: '14806728332'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ matrix.runner }}
   cancel-in-progress: false # Prevents cancellation of in-progress jobs
 
 jobs:
