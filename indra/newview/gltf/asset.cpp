@@ -957,12 +957,13 @@ bool Image::prep(Asset& asset)
     { // embedded in a buffer, load the texture from the buffer
         BufferView& bufferView = asset.mBufferViews[mBufferView];
         Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
-
-        U8* data = buffer.mData.data() + bufferView.mByteOffset;
-
-        mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
-
-        if (mTexture.isNull())
+        if (mLoadIntoTexturePipe)
+        {
+            U8* data = buffer.mData.data() + bufferView.mByteOffset;
+            
+            mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
+        }
+        else if (mTexture.isNull())
         {
             LL_WARNS("GLTF") << "Failed to load image from buffer:" << LL_ENDL;
             LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
@@ -977,7 +978,7 @@ bool Image::prep(Asset& asset)
         std::string img_file = dir + gDirUtilp->getDirDelimiter() + mUri;
 
         LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(img_file);
-        if (tracking_id.notNull())
+        if (tracking_id.notNull() && mLoadIntoTexturePipe)
         {
             LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
             mTexture = LLViewerTextureManager::getFetchedTexture(world_id);
