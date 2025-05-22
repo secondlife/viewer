@@ -793,6 +793,12 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
     if (!cat) return;
 
+    if (mOutfitsObserver == NULL)
+    {
+        mOutfitsObserver = new LLInventoryCategoriesObserver();
+        gInventory.addObserver(mOutfitsObserver);
+    }
+
     if (!isOutfitFolder(cat))
     {
         // Assume a subfolder that contains or will contain outfits, track it
@@ -819,12 +825,6 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     LLViewerInventoryCategory* outfit_category = gInventory.getCategory(cat_id);
     if (!outfit_category)
         return;
-
-    if (mOutfitsObserver == NULL)
-    {
-        mOutfitsObserver = new LLInventoryCategoriesObserver();
-        gInventory.addObserver(mOutfitsObserver);
-    }
 
     // Start observing changes in "My Outfits" category.
     mOutfitsObserver->addCategory(cat_id,
