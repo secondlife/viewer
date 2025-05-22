@@ -141,6 +141,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowSpeakingIndicator(p.show_speaking_indicator)
 , mShowPermissions(p.show_permissions_granted)
 , mShowCompleteName(false)
+, mForceCompleteName(false)
 {
     setCommitOnSelectionChange(true);
 
@@ -177,7 +178,7 @@ void LLAvatarList::setShowIcons(std::string param_name)
 
 std::string LLAvatarList::getAvatarName(LLAvatarName av_name)
 {
-    return mShowCompleteName? av_name.getCompleteName(false) : av_name.getDisplayName();
+    return mShowCompleteName? av_name.getCompleteName(false, mForceCompleteName) : av_name.getDisplayName();
 }
 
 // virtual
@@ -364,7 +365,7 @@ void LLAvatarList::updateAvatarNames()
     for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
     {
         LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
-        item->setShowCompleteName(mShowCompleteName);
+        item->setShowCompleteName(mShowCompleteName, mForceCompleteName);
         item->updateAvatarName();
     }
     mNeedUpdateNames = false;
@@ -404,6 +405,11 @@ boost::signals2::connection LLAvatarList::setItemDoubleClickCallback(const mouse
     return mItemDoubleClickSignal.connect(cb);
 }
 
+boost::signals2::connection LLAvatarList::setItemClickedCallback(const mouse_signal_t::slot_type& cb)
+{
+    return mItemClickedSignal.connect(cb);
+}
+
 //virtual
 S32 LLAvatarList::notifyParent(const LLSD& info)
 {
@@ -418,7 +424,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, bool is_online, EAddPosition pos)
 {
     LLAvatarListItem* item = new LLAvatarListItem();
-    item->setShowCompleteName(mShowCompleteName);
+    item->setShowCompleteName(mShowCompleteName, mForceCompleteName);
     // This sets the name as a side effect
     item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
     item->setOnline(mIgnoreOnlineStatus ? true : is_online);
@@ -432,6 +438,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, bool is
 
 
     item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
+    item->setMouseDownCallback(boost::bind(&LLAvatarList::onItemClicked, this, _1, _2, _3, _4));
 
     addItem(item, id, pos);
 }
@@ -548,6 +555,11 @@ void LLAvatarList::updateLastInteractionTimes()
 void LLAvatarList::onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
     mItemDoubleClickSignal(ctrl, x, y, mask);
+}
+
+void LLAvatarList::onItemClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+{
+    mItemClickedSignal(ctrl, x, y, mask);
 }
 
 bool LLAvatarItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const

@@ -88,7 +88,8 @@ bool get_is_predefined_texture(LLUUID asset_id)
         || asset_id == DEFAULT_OBJECT_NORMAL
         || asset_id == BLANK_OBJECT_NORMAL
         || asset_id == IMG_WHITE
-        || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
+        || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE)
+        || asset_id == BLANK_MATERIAL_ASSET_ID)
     {
         return true;
     }

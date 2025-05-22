@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
 	<button label="Auf Datenträger speichern" name="save_to_computer_btn"/>
-	<button label="In Inventar speichern ([AMOUNT] L$)" name="save_to_inventory_btn"/>
+	<button label="In Inventar speichern" name="save_to_inventory_btn"/>
 	<button label="Im Profil-Feed teilen" name="save_to_profile_btn"/>
 	<button label="Auf Facebook teilen" name="send_to_facebook_btn"/>
 	<button label="Auf Twitter teilen" name="send_to_twitter_btn"/>

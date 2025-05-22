@@ -78,6 +78,7 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
     mShowProfileBtn(true),
     mShowPermissions(false),
     mShowCompleteName(false),
+    mForceCompleteName(false),
     mHovered(false),
     mAvatarNameCacheConnection(),
     mGreyOutUsername("")
@@ -324,13 +325,12 @@ void LLAvatarListItem::setShowProfileBtn(bool show)
 
 void LLAvatarListItem::showSpeakingIndicator(bool visible)
 {
-    // Already done? Then do nothing.
-    if (mSpeakingIndicator->getVisible() == (bool)visible)
-        return;
-// Disabled to not contradict with SpeakingIndicatorManager functionality. EXT-3976
-// probably this method should be totally removed.
-//  mSpeakingIndicator->setVisible(visible);
-//  updateChildren();
+    // used only to hide indicator to not contradict with SpeakingIndicatorManager functionality
+    if (mSpeakingIndicator && !visible)
+    {
+        mSpeakingIndicator->setIsActiveChannel(visible);
+        mSpeakingIndicator->setShowParticipantsSpeaking(visible);
+    }
 }
 
 void LLAvatarListItem::setAvatarIconVisible(bool visible)
@@ -417,8 +417,8 @@ void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
     mAvatarNameCacheConnection.disconnect();
 
     mGreyOutUsername = "";
-    std::string name_string = mShowCompleteName? av_name.getCompleteName(false) : av_name.getDisplayName();
-    if(av_name.getCompleteName() != av_name.getUserName())
+    std::string name_string = mShowCompleteName? av_name.getCompleteName(false, mForceCompleteName) : av_name.getDisplayName();
+    if(av_name.getCompleteName(false, mForceCompleteName) != av_name.getUserName())
     {
         mGreyOutUsername = "[ " + av_name.getUserName(true) + " ]";
         LLStringUtil::toLower(mGreyOutUsername);

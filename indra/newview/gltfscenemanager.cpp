@@ -643,6 +643,12 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
         return;
     }
 
+    if (gGLTFPBRMetallicRoughnessProgram.mGLTFVariants.size() <= variant)
+    {
+        llassert(false); // mGLTFVariants should have been initialized
+        return;
+    }
+
     for (U32 ds = 0; ds < 2; ++ds)
     {
         RenderData& rd = asset.mRenderData[ds];

@@ -156,7 +156,7 @@ void LLDockControl::repositionDockable()
     }
 }
 
-bool LLDockControl::isDockVisible()
+bool LLDockControl::isDockVisible() const
 {
     bool res = true;
 

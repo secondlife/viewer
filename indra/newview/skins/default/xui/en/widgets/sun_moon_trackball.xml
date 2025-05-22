@@ -3,7 +3,6 @@
     name="virtualtrackball"
     width="150"
     height="150"
-    user_resize="false"     
     increment_angle_mouse="1.5f"
     increment_angle_btn="1.0f"    
     image_sphere="VirtualTrackball_Sphere"

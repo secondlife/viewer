@@ -174,27 +174,12 @@ void LLUUID::toString(std::string& out) const
         (U8)(mData[15]));
 }
 
-// *TODO: deprecate
-void LLUUID::toString(char* out) const
-{
-    std::string buffer;
-    toString(buffer);
-    strcpy(out, buffer.c_str()); /* Flawfinder: ignore */
-}
-
 void LLUUID::toCompressedString(std::string& out) const
 {
     char bytes[UUID_BYTES + 1];
     memcpy(bytes, mData, UUID_BYTES);       /* Flawfinder: ignore */
     bytes[UUID_BYTES] = '\0';
     out.assign(bytes, UUID_BYTES);
-}
-
-// *TODO: deprecate
-void LLUUID::toCompressedString(char* out) const
-{
-    memcpy(out, mData, UUID_BYTES);     /* Flawfinder: ignore */
-    out[UUID_BYTES] = '\0';
 }
 
 std::string LLUUID::getString() const

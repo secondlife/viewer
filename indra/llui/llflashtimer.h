@@ -51,8 +51,8 @@ public:
     void startFlashing();
     void stopFlashing();
 
-    bool isFlashingInProgress();
-    bool isCurrentlyHighlighted();
+    bool isFlashingInProgress() const;
+    bool isCurrentlyHighlighted() const;
     /*
      * Use this instead of deleting this object.
      * The next call to tick() will return true and that will destroy this object.

@@ -164,14 +164,14 @@ private:
     FROM mValue;
 
 public:
-    narrow(FROM value): mValue(value) {}
+    constexpr narrow(FROM value): mValue(value) {}
 
     /*---------------------- Narrowing unsigned to signed ----------------------*/
     template <typename TO,
               typename std::enable_if<std::is_unsigned<FROM>::value &&
                                       std::is_signed<TO>::value,
                                       bool>::type = true>
-    inline
+    constexpr
     operator TO() const
     {
         // The reason we skip the
@@ -189,7 +189,7 @@ public:
               typename std::enable_if<! (std::is_unsigned<FROM>::value &&
                                          std::is_signed<TO>::value),
                                       bool>::type = true>
-    inline
+    constexpr
     operator TO() const
     {
         // two different assert()s so we can tell which condition failed

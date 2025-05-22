@@ -495,7 +495,6 @@ void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
 
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
     synchronizeTabs();
     updateTabs();
     refresh();
@@ -824,7 +823,6 @@ void LLFloaterEditExtDayCycle::onClearTrack()
 
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
     synchronizeTabs();
     updateTabs();
     refresh();

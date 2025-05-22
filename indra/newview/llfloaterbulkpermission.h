@@ -41,7 +41,8 @@ class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener
     friend class LLFloaterReg;
 public:
 
-    bool postBuild();
+    bool postBuild() override;
+    void onClose(bool app_quitting) override;
 
 private:
 
@@ -57,7 +58,7 @@ private:
     /*virtual*/ void inventoryChanged(LLViewerObject* obj,
                                  LLInventoryObject::object_list_t* inv,
                                  S32 serial_num,
-                                 void* queue);
+                                 void* queue) override;
 
     // This is called by inventoryChanged
     void handleInventory(LLViewerObject* viewer_obj,
@@ -85,7 +86,7 @@ private:
 
 private:
     // UI
-    LLScrollListCtrl* mMessages;
+    LLScrollListCtrl* mQueueOutputList = nullptr;
     LLButton* mCloseBtn;
 
     // Object Queue

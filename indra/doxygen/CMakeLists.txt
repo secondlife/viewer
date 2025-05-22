@@ -1,11 +1,5 @@
 # -*- cmake -*-
 
-# cmake_minimum_required should appear before any
-# other commands to guarantee full compatibility
-# with the version specified
-## prior to 2.8, the add_custom_target commands used in setting the version did not work correctly
-cmake_minimum_required(VERSION 3.8.0 FATAL_ERROR)
-
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
 project(${ROOT_PROJECT_NAME})

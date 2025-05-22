@@ -61,7 +61,7 @@ public:
     //LLCoordFrame(const F32 *origin, const F32 *rotation); // Assumes "origin" is 1x3 and "rotation" is 1x9 array
     //LLCoordFrame(const F32 *origin_and_rotation);         // Assumes "origin_and_rotation" is 1x12 array
 
-    bool isFinite() { return mOrigin.isFinite() && mXAxis.isFinite() && mYAxis.isFinite() && mZAxis.isFinite(); }
+    bool isFinite() const { return mOrigin.isFinite() && mXAxis.isFinite() && mYAxis.isFinite() && mZAxis.isFinite(); }
 
     void reset();
     void resetAxes();

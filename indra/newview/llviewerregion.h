@@ -333,7 +333,6 @@ public:
 
     void getInfo(LLSD& info);
 
-    bool meshRezEnabled() const;
     bool meshUploadEnabled() const;
 
     bool bakesOnMeshEnabled() const;

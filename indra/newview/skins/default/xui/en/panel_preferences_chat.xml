@@ -409,7 +409,7 @@
         layout="topleft"
         left="0"
         name="play_sound"
-        width="100"
+        width="90"
         top_pad="8"
         visible="true">
       Play sound:
@@ -419,10 +419,10 @@
         height="16"
         label="New conversation"
         layout="topleft"
-        left_pad="15"
+        left_pad="5"
         top_pad="-10"
         name="new_conversation"
-        width="150" />
+        width="130" />
     <check_box
         control_name="PlaySoundIncomingVoiceCall"
         height="16"
@@ -430,16 +430,16 @@
         layout="topleft"
         top_pad="6"
         name="incoming_voice_call"
-        width="150" />
+        width="130" />
     <check_box
         control_name="PlaySoundTeleportOffer"
         height="16"
         label="Teleport offer"
         layout="topleft"
-        left_pad="35"
+        left_pad="18"
         top_pad="-38"
         name="teleport_offer"
-        width="150" />
+        width="130" />
     <check_box
         control_name="PlaySoundInventoryOffer"
         height="16"
@@ -447,14 +447,23 @@
         layout="topleft"
         top_pad="6"
         name="inventory_offer"
-        width="150" />
+        width="130" />
+    <check_box
+        control_name="PlaySoundChatMention"
+        height="16"
+        label="Chat mention"
+        layout="topleft"
+        left_pad="7"
+        top_pad="-38"
+        name="chat_mention"
+        width="130" />
     <view_border
         bevel_style="none"
         height="0"
         layout="topleft"
         left="0"
         name="cost_text_border"
-        top_pad="7"
+        top_pad="29"
         width="492"/>
   </panel>
 

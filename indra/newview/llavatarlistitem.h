@@ -106,7 +106,7 @@ public:
     void setShowPermissions(bool show) { mShowPermissions = show; };
     void showLastInteractionTime(bool show);
     void setAvatarIconVisible(bool visible);
-    void setShowCompleteName(bool show) { mShowCompleteName = show;};
+    void setShowCompleteName(bool show, bool force = false) { mShowCompleteName = show; mForceCompleteName = force;};
 
     const LLUUID& getAvatarId() const;
     std::string getAvatarName() const;
@@ -220,6 +220,7 @@ private:
     bool mHovered;
 
     bool mShowCompleteName;
+    bool mForceCompleteName;
     std::string mGreyOutUsername;
 
     void fetchAvatarName();

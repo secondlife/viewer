@@ -1,39 +1,95 @@
 <?xml version="1.0" ?>
 <teleport_messages>
 	<message_set name="errors">
-		<message name="invalid_tport">Ha habido un problema al procesar tu petición de teleporte. Debes volver a iniciar sesión antes de poder teleportarte de nuevo.
-Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].</message>
-		<message name="invalid_region_handoff">Ha habido un problema al procesar tu paso a otra región. Debes volver a iniciar sesión para poder pasar de región a región.
-Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].</message>
-		<message name="blocked_tport">Lo sentimos, en estos momentos los teleportes están bloqueados. Vuelve a intentarlo en un momento. Si sigues sin poder teleportarte, desconéctate y vuelve a iniciar sesión para solucionar el problema.</message>
-		<message name="nolandmark_tport">Lo sentimos, pero el sistema no ha podido localizar el destino de este hito.</message>
-		<message name="timeout_tport">Lo sentimos, pero el sistema no ha podido completar el teleporte.
-Vuelva a intentarlo en un momento.</message>
-		<message name="NoHelpIslandTP">No te puedes volver a teleportar a la isla de bienvenida.
-Para repetir el tutorial, visita la isla de bienvenida pública.</message>
-		<message name="noaccess_tport">Lo sentimos, pero no tienes acceso al destino de este teleporte.</message>
-		<message name="missing_attach_tport">Aún no han llegado tus objetos anexados. Espera unos segundos más o desconéctate y vuelve a iniciar sesión antes de teleportarte.</message>
-		<message name="too_many_uploads_tport">La cola de espera en esta región está actualmente obstruida, por lo que tu petición de teleporte no se atenderá en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos o ve a una zona menos ocupada.</message>
-		<message name="expired_tport">Lo sentimos, pero el sistema no ha podido atender a tu petición de teleporte en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos.</message>
-		<message name="expired_region_handoff">Lo sentimos, pero el sistema no ha podido completar tu paso a otra región en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos.</message>
-		<message name="no_host">Ha sido imposible encontrar el destino del teleporte: o está desactivado temporalmente o ya no existe. Por favor, vuelve a intentarlo en unos minutos.</message>
-		<message name="no_inventory_host">En estos momentos no está disponible el sistema del inventario.</message>
-		<message name="MustGetAgeRegion">Solo pueden acceder a esta región los mayores de 18 años.</message>
-		<message name="RegionTPSpecialUsageBlocked">No puedes entrar en la región. '[REGION_NAME]' es una región de juegos de habilidad, y debes cumplir determinados criterios para poder entrar en ella. Consulta los detalles en las [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life P+F de juegos de habilidad].</message>
-		<message name="preexisting_tport">Lo sentimos, pero el sistema no pudo comenzar tu teleportacion. Por favor inténtalo de nuevo en unos minutos</message>
+		<message name="invalid_tport">
+			Ha habido un problema al procesar tu petición de teleporte. Debes volver a iniciar sesión antes de poder teleportarte de nuevo.
+Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
+		</message>
+		<message name="invalid_region_handoff">
+			Ha habido un problema al procesar tu paso a otra región. Debes volver a iniciar sesión para poder pasar de región a región.
+Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
+		</message>
+		<message name="blocked_tport">
+			Lo sentimos, en estos momentos los teleportes están bloqueados. Vuelve a intentarlo en un momento. Si sigues sin poder teleportarte, desconéctate y vuelve a iniciar sesión para solucionar el problema.
+		</message>
+		<message name="nolandmark_tport">
+			Lo sentimos, pero el sistema no ha podido localizar el destino de este hito.
+		</message>
+		<message name="timeout_tport">
+			Lo sentimos, pero el sistema no ha podido completar el teleporte.
+Vuelva a intentarlo en un momento.
+		</message>
+		<message name="NoHelpIslandTP">
+			No te puedes volver a teleportar a la isla de bienvenida.
+Para repetir el tutorial, visita la isla de bienvenida pública.
+		</message>
+		<message name="noaccess_tport">
+			Lo sentimos, pero no tienes acceso al destino de este teleporte.
+		</message>
+		<message name="missing_attach_tport">
+			Aún no han llegado tus objetos anexados. Espera unos segundos más o desconéctate y vuelve a iniciar sesión antes de teleportarte.
+		</message>
+		<message name="too_many_uploads_tport">
+			La cola de espera en esta región está actualmente obstruida, por lo que tu petición de teleporte no se atenderá en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos o ve a una zona menos ocupada.
+		</message>
+		<message name="expired_tport">
+			Lo sentimos, pero el sistema no ha podido atender a tu petición de teleporte en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos.
+		</message>
+		<message name="expired_region_handoff">
+			Lo sentimos, pero el sistema no ha podido completar tu paso a otra región en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos.
+		</message>
+		<message name="no_host">
+			Ha sido imposible encontrar el destino del teleporte: o está desactivado temporalmente o ya no existe. Por favor, vuelve a intentarlo en unos minutos.
+		</message>
+		<message name="no_inventory_host">
+			En estos momentos no está disponible el sistema del inventario.
+		</message>
+		<message name="MustGetAgeRegion">
+			Solo pueden acceder a esta región los mayores de 18 años.
+		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			No puedes entrar en la región. '[REGION_NAME]' es una región de juegos de habilidad, y debes cumplir determinados criterios para poder entrar en ella. Consulta los detalles en las [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life P+F de juegos de habilidad].
+		</message>
+		<message name="preexisting_tport">
+			Lo sentimos, pero el sistema no pudo comenzar tu teleportacion. Por favor inténtalo de nuevo en unos minutos
+		</message>
 	</message_set>
 	<message_set name="progress">
-		<message name="sending_dest">Llevando al destino.</message>
-		<message name="redirecting">Redireccionando a una posición diferente.</message>
-		<message name="relaying">Reorientando el destino.</message>
-		<message name="sending_home">Enviando la petición de posición de la Base.</message>
-		<message name="sending_landmark">Enviando la petición de posición del hito.</message>
-		<message name="completing">Completando el teleporte.</message>
-		<message name="completed_from">Teleporte realizado desde [T_SLURL]</message>
-		<message name="resolving">Especificando el destino.</message>
-		<message name="contacting">Contactando con la nueva región.</message>
-		<message name="arriving">Llegando...</message>
-		<message name="requesting">Solicitando teleporte...</message>
-		<message name="pending">Teleporte pendiente...</message>
+		<message name="sending_dest">
+			Llevando al destino.
+		</message>
+		<message name="redirecting">
+			Redireccionando a una posición diferente.
+		</message>
+		<message name="relaying">
+			Reorientando el destino.
+		</message>
+		<message name="sending_home">
+			Enviando la petición de posición de la Base.
+		</message>
+		<message name="sending_landmark">
+			Enviando la petición de posición del hito.
+		</message>
+		<message name="completing">
+			Completando el teleporte.
+		</message>
+		<message name="completed_from">
+			Teleporte realizado desde [T_SLURL]
+		</message>
+		<message name="resolving">
+			Especificando el destino.
+		</message>
+		<message name="contacting">
+			Contactando con la nueva región.
+		</message>
+		<message name="arriving">
+			Llegando...
+		</message>
+		<message name="requesting">
+			Solicitando teleporte...
+		</message>
+		<message name="pending">
+			Teleporte pendiente...
+		</message>
 	</message_set>
 </teleport_messages>

@@ -364,9 +364,11 @@ public:
     // snapshot functionality.
     // perhaps some of this should move to llfloatershapshot?  -MG
 
-    bool            saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, bool show_ui = true, bool show_hud = true, bool do_rebuild = false, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::ESnapshotFormat format = LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
-    bool            rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, bool keep_window_aspect = true, bool is_texture = false,
-        bool show_ui = true, bool show_hud = true, bool do_rebuild = false, bool no_post = false, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
+    bool saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, bool show_ui = true, bool show_hud = true, bool do_rebuild = false, bool show_balance = true,
+                     LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::ESnapshotFormat format = LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
+    bool rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, bool keep_window_aspect = true, bool is_texture = false,
+                     bool show_ui = true, bool show_hud = true, bool do_rebuild = false, bool no_post = false, bool show_balance = true,
+                     LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
 
     bool            simpleSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, const int num_render_passes);
 
@@ -461,6 +463,8 @@ public:
     const LLVector2& getDisplayScale() const { return mDisplayScale; }
     void            calcDisplayScale();
     static LLRect   calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
+
+    void setBalanceVisible(bool visible);
 
     static std::string getLastSnapshotDir();
 
