@@ -965,7 +965,6 @@ bool Image::prep(Asset& asset, bool loadIntoVRAM)
         if (mLoadIntoTexturePipe)
         {
             U8* data = buffer.mData.data() + bufferView.mByteOffset;
-            
             mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
         }
         else if (mTexture.isNull() && mLoadIntoTexturePipe)
