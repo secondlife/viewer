@@ -963,7 +963,7 @@ bool Image::prep(Asset& asset)
             
             mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
         }
-        else if (mTexture.isNull())
+        else if (mTexture.isNull() && mLoadIntoTexturePipe)
         {
             LL_WARNS("GLTF") << "Failed to load image from buffer:" << LL_ENDL;
             LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
@@ -983,7 +983,7 @@ bool Image::prep(Asset& asset)
             LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
             mTexture = LLViewerTextureManager::getFetchedTexture(world_id);
         }
-        else
+        else if (mLoadIntoTexturePipe)
         {
             LL_WARNS("GLTF") << "Failed to load image from file:" << LL_ENDL;
             LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
@@ -998,7 +998,7 @@ bool Image::prep(Asset& asset)
         return false;
     }
 
-    if (!asset.mFilename.empty())
+    if (!asset.mFilename.empty() && mLoadIntoTexturePipe)
     { // local preview, boost image so it doesn't discard and force to save raw image in case we save out or upload
         mTexture->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
         mTexture->forceToSaveRawImage(0, F32_MAX);
