@@ -108,7 +108,7 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     std::string filename_lc(filename);
     LLStringUtil::toLower(filename_lc);
 
-    mGltfLoaded = mGLTFAsset.load(filename);
+    mGltfLoaded = mGLTFAsset.load(filename, false);
 
     if (!mGltfLoaded)
     {

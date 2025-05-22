@@ -319,7 +319,7 @@ namespace LL
             // preserve only uri and name
             void clearData(Asset& asset);
 
-            bool prep(Asset& asset);
+            bool prep(Asset& asset, bool loadIntoVRAM);
         };
 
         // Render Batch -- vertex buffer and list of primitives to render using
@@ -394,6 +394,7 @@ namespace LL
 
             // UBO for storing material data
             U32 mMaterialsUBO = 0;
+            bool mLoadIntoVRAM = false;
 
             // prepare for first time use
             bool prep();
@@ -431,12 +432,12 @@ namespace LL
             // accepts .gltf and .glb files
             // Any existing data will be lost
             // returns result of prep() on success
-            bool load(std::string_view filename);
+            bool load(std::string_view filename, bool loadIntoVRAM);
 
             // load .glb contents from memory
             // data - binary contents of .glb file
             // returns result of prep() on success
-            bool loadBinary(const std::string& data);
+            bool loadBinary(const std::string& data, bool loadIntoVRAM);
 
             const Asset& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
