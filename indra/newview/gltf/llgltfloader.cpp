@@ -176,6 +176,7 @@ bool LLGLTFLoader::parseMeshes()
 
             LLMatrix4 node_matrix(glm::value_ptr(node.mMatrix));
             LLMatrix4 node_transform;
+            node_transform *= coord_system_rotation;  // Apply coordinate rotation first
             node_transform *= node_matrix;
 
             // Examine all primitives in this mesh
@@ -261,25 +262,24 @@ bool LLGLTFLoader::parseMeshes()
                     // This will make sure the matrix is always valid from the node.
                     node.makeMatrixValid();
 
-                    LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(node.mMatrix));
-                    mTransform = gltf_transform;
-
-                    // GLTF is +Y up, SL is +Z up
-                    mTransform *= coord_system_rotation;
-
+                    mTransform.setIdentity();
                     transformation = mTransform;
+
                     // adjust the transformation to compensate for mesh normalization
                     LLVector3 mesh_scale_vector;
                     LLVector3 mesh_translation_vector;
                     pModel->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
+
                     LLMatrix4 mesh_translation;
                     mesh_translation.setTranslation(mesh_translation_vector);
                     mesh_translation *= transformation;
                     transformation = mesh_translation;
+
                     LLMatrix4 mesh_scale;
                     mesh_scale.initScale(mesh_scale_vector);
                     mesh_scale *= transformation;
                     transformation = mesh_scale;
+
                     if (transformation.determinant() < 0)
                     { // negative scales are not supported
                         LL_INFOS("GLTF") << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
@@ -471,10 +471,16 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             glm::mat4 combined_transform;
             computeCombinedNodeTransform(mGLTFAsset, node_index, combined_transform);
 
+            // Create coordinate system rotation matrix - GLTF is Y-up, SL is Z-up
+            glm::mat4 coord_system_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+            // Apply coordinate system rotation to the combined transform
+            combined_transform = coord_system_rotation * combined_transform;
+
             // Apply the global scale and center offset to all vertices
             for (U32 i = 0; i < prim.getVertexCount(); i++)
             {
-                // Transform vertex position with combined hierarchy transform
+                // Transform vertex position with combined hierarchy transform (including coord rotation)
                 glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
                 glm::vec4 transformed_pos = combined_transform * pos;
 
@@ -486,7 +492,11 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     (transformed_pos.z + center_offset.mV[VZ]) * scale_factor
                 );
 
-                vert.normal = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                // Also rotate the normal vector
+                glm::vec4 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2], 0.0f);
+                glm::vec4 transformed_normal = coord_system_rotation * normal_vec;
+                vert.normal = glm::normalize(glm::vec3(transformed_normal));
+
                 vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
 
                 if (skinIdx >= 0)
