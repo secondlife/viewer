@@ -251,6 +251,20 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
     S32 skinIdx = nodeno.mSkin;
 
+    // Pre-compute coordinate system rotation matrix (GLTF Y-up to SL Z-up)
+    static const glm::mat4 coord_system_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    // Compute final combined transform matrix (hierarchy + coordinate rotation)
+    S32 node_index = static_cast<S32>(&nodeno - &mGLTFAsset.mNodes[0]);
+    glm::mat4 hierarchy_transform;
+    computeCombinedNodeTransform(mGLTFAsset, node_index, hierarchy_transform);
+
+    // Combine transforms: coordinate rotation applied to hierarchy transform
+    const glm::mat4 final_transform = coord_system_rotation * hierarchy_transform;
+
+    // Pre-compute normal transform matrix (transpose of inverse of upper-left 3x3)
+    const glm::mat3 normal_transform = glm::transpose(glm::inverse(glm::mat3(final_transform)));
+
     // Mark unsuported joints with '-1' so that they won't get added into weights
     // GLTF maps all joints onto all meshes. Gather use count per mesh to cut unused ones.
     std::vector<S32> gltf_joint_index_use_count;
@@ -286,11 +300,9 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             // So primitives already have all of the data we need for a given face in SL land.
             // Primitives may only ever have a single material assigned to them - as the relation is 1:1 in terms of intended draw call
             // count. Just go ahead and populate faces direct from the GLTF primitives here. -Geenz 2025-04-07
-            LLVolumeFace                          face;
-            LLVolumeFace::VertexMapData::PointMap point_map;
-
+            LLVolumeFace face;
             std::vector<GLTFVertex> vertices;
-            std::vector<U16>        indices;
+            std::vector<U16> indices;
 
             LLImportMaterial impMat;
             impMat.mDiffuseColor = LLColor4::white; // Default color
@@ -374,32 +386,19 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 }
             }
 
-            // Compute combined transform for this node considering parent hierarchy
-            S32 node_index = static_cast<S32>(&nodeno - &mGLTFAsset.mNodes[0]);
-            glm::mat4 combined_transform;
-            computeCombinedNodeTransform(mGLTFAsset, node_index, combined_transform);
-
-            // Create coordinate system rotation matrix - GLTF is Y-up, SL is Z-up
-            glm::mat4 coord_system_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-            // Apply coordinate system rotation to the combined transform
-            combined_transform = coord_system_rotation * combined_transform;
-
             // Apply the global scale and center offset to all vertices
             for (U32 i = 0; i < prim.getVertexCount(); i++)
             {
-                // Transform vertex position with combined hierarchy transform (including coord rotation)
+                // Use pre-computed final_transform
                 glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
-                glm::vec4 transformed_pos = combined_transform * pos;
+                glm::vec4 transformed_pos = final_transform * pos;
 
-                // Apply scaling and centering after hierarchy transform
                 GLTFVertex vert;
-                vert.position = glm::vec3(transformed_pos.x, transformed_pos.y, transformed_pos.z);
+                vert.position = glm::vec3(transformed_pos);
 
-                // Also rotate the normal vector
-                glm::vec4 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2], 0.0f);
-                glm::vec4 transformed_normal = coord_system_rotation * normal_vec;
-                vert.normal = glm::normalize(glm::vec3(transformed_normal));
+                // Use pre-computed normal_transform
+                glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                vert.normal = glm::normalize(normal_transform * normal_vec);
 
                 vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
 
@@ -610,19 +609,14 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
             if (i < gltf_skin.mInverseBindMatricesData.size())
             {
-                // Process bind matrix
+                // Use pre-computed coord_system_rotation instead of recreating it
                 LL::GLTF::mat4 gltf_mat = gltf_skin.mInverseBindMatricesData[i];
 
-                // For inverse bind matrices, we need to:
-                // 1. Get the original bind matrix by inverting
-                // 2. Apply coordinate rotation to the original
-                // 3. Invert again to get the rotated inverse bind matrix
                 glm::mat4 original_bind_matrix = glm::inverse(gltf_mat);
-                glm::mat4 coord_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-                glm::mat4 rotated_original = coord_rotation * original_bind_matrix;
+                glm::mat4 rotated_original = coord_system_rotation * original_bind_matrix;
                 glm::mat4 rotated_inverse_bind_matrix = glm::inverse(rotated_original);
 
-                LLMatrix4 gltf_transform(glm::value_ptr(rotated_inverse_bind_matrix));
+                LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(rotated_inverse_bind_matrix));
                 skin_info.mInvBindMatrix.push_back(LLMatrix4a(gltf_transform));
 
                 LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
