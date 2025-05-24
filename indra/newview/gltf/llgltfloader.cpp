@@ -262,6 +262,9 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     // Combine transforms: coordinate rotation applied to hierarchy transform
     const glm::mat4 final_transform = coord_system_rotation * hierarchy_transform;
 
+    // Check if we have a negative scale (flipped coordinate system)
+    bool hasNegativeScale = glm::determinant(final_transform) < 0.0f;
+
     // Pre-compute normal transform matrix (transpose of inverse of upper-left 3x3)
     const glm::mat3 normal_transform = glm::transpose(glm::inverse(glm::mat3(final_transform)));
 
@@ -429,9 +432,22 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 vertices.push_back(vert);
             }
 
-            for (U32 i = 0; i < prim.getIndexCount(); i++)
+            // When processing indices, flip winding order if needed
+            for (U32 i = 0; i < prim.getIndexCount(); i += 3)
             {
-                indices.push_back(prim.mIndexArray[i]);
+                if (hasNegativeScale)
+                {
+                    // Flip winding order for negative scale
+                    indices.push_back(prim.mIndexArray[i]);
+                    indices.push_back(prim.mIndexArray[i + 2]); // Swap these two
+                    indices.push_back(prim.mIndexArray[i + 1]);
+                }
+                else
+                {
+                    indices.push_back(prim.mIndexArray[i]);
+                    indices.push_back(prim.mIndexArray[i + 1]);
+                    indices.push_back(prim.mIndexArray[i + 2]);
+                }
             }
 
             // Check for empty vertex array before processing
