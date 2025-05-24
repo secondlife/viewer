@@ -168,8 +168,7 @@ private:
     bool parseMaterials();
     void uploadMaterials();
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform);
-    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats,
-                                                const F32 scale_factor = 1.0f, const LLVector3& center_offset = LLVector3());
+    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
     void populateJointFromSkin(const LL::GLTF::Skin& skin);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
