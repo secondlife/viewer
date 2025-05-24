@@ -588,6 +588,9 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         }
     }
 
+    // Call normalizeVolumeFaces to compute proper extents
+    pModel->normalizeVolumeFaces();
+
     // Fill joint names, bind matrices and prepare to remap weight indices
     if (skinIdx >= 0)
     {
