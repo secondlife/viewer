@@ -434,25 +434,36 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 indices.push_back(prim.mIndexArray[i]);
             }
 
+            // Check for empty vertex array before processing
+            if (vertices.empty())
+            {
+                LL_WARNS("GLTF_IMPORT") << "Empty vertex array for primitive" << LL_ENDL;
+                continue; // Skip this primitive
+            }
+
             std::vector<LLVolumeFace::VertexData> faceVertices;
-            glm::vec3 min = glm::vec3(0);
-            glm::vec3 max = glm::vec3(0);
+            glm::vec3 min = glm::vec3(FLT_MAX);
+            glm::vec3 max = glm::vec3(-FLT_MAX);
 
             for (U32 i = 0; i < vertices.size(); i++)
             {
                 LLVolumeFace::VertexData vert;
-                if (i == 0 || vertices[i].position.x > max.x)
-                    max.x = vertices[i].position.x;
-                if (i == 0 || vertices[i].position.y > max.y)
-                    max.y = vertices[i].position.y;
-                if (i == 0 || vertices[i].position.z > max.z)
-                    max.z = vertices[i].position.z;
-                if (i == 0 || vertices[i].position.x < min.x)
-                    min.x = vertices[i].position.x;
-                if (i == 0 || vertices[i].position.y < min.y)
-                    min.y = vertices[i].position.y;
-                if (i == 0 || vertices[i].position.z < min.z)
-                    min.z = vertices[i].position.z;
+
+                // Update min/max bounds
+                if (i == 0)
+                {
+                    min = max = vertices[i].position;
+                }
+                else
+                {
+                    min.x = std::min(min.x, vertices[i].position.x);
+                    min.y = std::min(min.y, vertices[i].position.y);
+                    min.z = std::min(min.z, vertices[i].position.z);
+                    max.x = std::max(max.x, vertices[i].position.x);
+                    max.y = std::max(max.y, vertices[i].position.y);
+                    max.z = std::max(max.z, vertices[i].position.z);
+                }
+
                 LLVector4a position = LLVector4a(vertices[i].position.x, vertices[i].position.y, vertices[i].position.z);
                 LLVector4a normal = LLVector4a(vertices[i].normal.x, vertices[i].normal.y, vertices[i].normal.z);
                 vert.setPosition(position);
@@ -499,12 +510,12 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     std::vector<LLModel::JointWeight> wght;
                     F32                               total = 0.f;
 
-                    for (U32 i = 0; i < llmin((U32)4, (U32)weight_list.size()); ++i)
+                    for (U32 j = 0; j < llmin((U32)4, (U32)weight_list.size()); ++j)
                     {
                         // take up to 4 most significant weights
                         // Ported from the DAE loader - however, GLTF right now only supports up to four weights per vertex.
-                        wght.push_back(weight_list[i]);
-                        total += weight_list[i].mWeight;
+                        wght.push_back(weight_list[j]);
+                        total += weight_list[j].mWeight;
                     }
 
                     if (total != 0.f)
@@ -512,9 +523,9 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                         F32 scale = 1.f / total;
                         if (scale != 1.f)
                         { // normalize weights
-                            for (U32 i = 0; i < wght.size(); ++i)
+                            for (U32 j = 0; j < wght.size(); ++j)
                             {
-                                wght[i].mWeight *= scale;
+                                wght[j].mWeight *= scale;
                             }
                         }
                     }
