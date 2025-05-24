@@ -147,100 +147,14 @@ bool LLGLTFLoader::parseMeshes()
         populateJointFromSkin(skin);
     }
 
-    /* Two-pass mesh processing approach:
-     * 1. First pass: Calculate global bounds across all meshes to determine proper scaling
-     *    and centering for the entire model. This ensures consistent normalization.
-     * 2. Second pass: Process each mesh node with the calculated global scale factor and
-     *    center offset, ensuring the entire model is properly proportioned and centered.
-     */
-
-    // First pass: Calculate global bounds across all meshes in the model
-    LLVector3 global_min_bounds(FLT_MAX, FLT_MAX, FLT_MAX);
-    LLVector3 global_max_bounds(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-    bool has_geometry = false;
-
-    // Create coordinate system rotation matrix - GLTF is Y-up, SL is Z-up
-    LLMatrix4 coord_system_rotation;
-    coord_system_rotation.initRotation(90.0f * DEG_TO_RAD, 0.0f, 0.0f);
-
-    // Gather bounds from all meshes
-    for (auto &node : mGLTFAsset.mNodes)
+    for (auto& node : mGLTFAsset.mNodes)
     {
-        auto meshidx = node.mMesh;
-        if (meshidx >= 0 && meshidx < mGLTFAsset.mMeshes.size())
-        {
-            auto mesh = mGLTFAsset.mMeshes[meshidx];
-
-            // Make node matrix valid for correct transformation
-            node.makeMatrixValid();
-
-            LLMatrix4 node_matrix(glm::value_ptr(node.mMatrix));
-            LLMatrix4 node_transform;
-            node_transform *= coord_system_rotation;  // Apply coordinate rotation first
-            node_transform *= node_matrix;
-
-            // Examine all primitives in this mesh
-            for (auto prim : mesh.mPrimitives)
-            {
-                if (prim.getVertexCount() >= USHRT_MAX)
-                    continue;
-
-                for (U32 i = 0; i < prim.getVertexCount(); i++)
-                {
-                    // Transform vertex position by node transform
-                    LLVector4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
-                    LLVector4 transformed_pos = pos * node_transform;
-
-                    global_min_bounds.mV[VX] = llmin(global_min_bounds.mV[VX], transformed_pos.mV[VX]);
-                    global_min_bounds.mV[VY] = llmin(global_min_bounds.mV[VY], transformed_pos.mV[VY]);
-                    global_min_bounds.mV[VZ] = llmin(global_min_bounds.mV[VZ], transformed_pos.mV[VZ]);
-
-                    global_max_bounds.mV[VX] = llmax(global_max_bounds.mV[VX], transformed_pos.mV[VX]);
-                    global_max_bounds.mV[VY] = llmax(global_max_bounds.mV[VY], transformed_pos.mV[VY]);
-                    global_max_bounds.mV[VZ] = llmax(global_max_bounds.mV[VZ], transformed_pos.mV[VZ]);
-
-                    has_geometry = true;
-                }
-            }
-        }
+        // Make node matrix valid for correct transformation
+        node.makeMatrixValid();
     }
 
-    // Calculate model dimensions and center point for the entire model
-    F32 global_scale_factor = 1.0f;
-    LLVector3 global_center_offset(0.0f, 0.0f, 0.0f);
-
-    if (has_geometry
-        && mJointList.empty()) // temporary disable offset and scaling for rigged meshes
-    {
-        // Calculate bounding box center - this will be our new origin
-        LLVector3 center = (global_min_bounds + global_max_bounds) * 0.5f;
-        global_center_offset = -center; // Offset to move center to origin
-
-        // Calculate dimensions of the bounding box
-        LLVector3 dimensions = global_max_bounds - global_min_bounds;
-
-        // Find the maximum dimension rather than the diagonal
-        F32 max_dimension = llmax(dimensions.mV[VX], llmax(dimensions.mV[VY], dimensions.mV[VZ]));
-
-        // Always scale to the target size to ensure consistent bounding box
-        const F32 TARGET_SIZE = 1.0f; // Target size for maximum dimension in meters
-
-        if (max_dimension > 0.0f)
-        {
-            // Calculate scale factor to normalize model's maximum dimension to TARGET_SIZE
-            global_scale_factor = TARGET_SIZE / max_dimension;
-
-            LL_INFOS("GLTF_IMPORT") << "Model dimensions: " << dimensions.mV[VX] << "x"
-                                   << dimensions.mV[VY] << "x" << dimensions.mV[VZ]
-                                   << ", max dimension: " << max_dimension
-                                   << ", applying global scale factor: " << global_scale_factor
-                                   << ", global centering offset: (" << global_center_offset.mV[VX] << ", "
-                                   << global_center_offset.mV[VY] << ", " << global_center_offset.mV[VZ] << ")" << LL_ENDL;
-        }
-    }
-
-    // Second pass: Process each node with the global scale and offset
-    for (auto &node : mGLTFAsset.mNodes)
+    // Process each node
+    for (auto& node : mGLTFAsset.mNodes)
     {
         LLMatrix4    transformation;
         material_map mats;
@@ -252,7 +166,7 @@ bool LLGLTFLoader::parseMeshes()
             {
                 LLModel* pModel = new LLModel(volume_params, 0.f);
                 auto mesh = mGLTFAsset.mMeshes[meshidx];
-                if (populateModelFromMesh(pModel, mesh, node, mats, global_scale_factor, global_center_offset) &&
+                if (populateModelFromMesh(pModel, mesh, node, mats) &&
                     (LLModel::NO_ERRORS == pModel->getStatus()) &&
                     validate_model(pModel))
                 {
@@ -292,7 +206,7 @@ bool LLGLTFLoader::parseMeshes()
                 else
                 {
                     setLoadState(ERROR_MODEL + pModel->getStatus());
-                    delete (pModel);
+                    delete pModel;
                     return false;
                 }
             }
@@ -330,8 +244,7 @@ void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S3
     combined_transform = node_transform;
 }
 
-bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats,
-                                                          const F32 scale_factor, const LLVector3& center_offset)
+bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats)
 {
     pModel->mLabel = mesh.mName;
     pModel->ClearFacesAndMaterials();
@@ -481,11 +394,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
                 // Apply scaling and centering after hierarchy transform
                 GLTFVertex vert;
-                vert.position = glm::vec3(
-                    (transformed_pos.x + center_offset.mV[VX]) * scale_factor,
-                    (transformed_pos.y + center_offset.mV[VY]) * scale_factor,
-                    (transformed_pos.z + center_offset.mV[VZ]) * scale_factor
-                );
+                vert.position = glm::vec3(transformed_pos.x, transformed_pos.y, transformed_pos.z);
 
                 // Also rotate the normal vector
                 glm::vec4 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2], 0.0f);
