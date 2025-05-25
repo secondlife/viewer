@@ -153,6 +153,9 @@ bool LLGLTFLoader::parseMeshes()
         node.makeMatrixValid();
     }
 
+    // Track how many times each mesh name has been used
+    std::map<std::string, S32> mesh_name_counts;
+
     // Process each node
     for (auto& node : mGLTFAsset.mNodes)
     {
@@ -166,7 +169,17 @@ bool LLGLTFLoader::parseMeshes()
             {
                 LLModel* pModel = new LLModel(volume_params, 0.f);
                 auto mesh = mGLTFAsset.mMeshes[meshidx];
-                if (populateModelFromMesh(pModel, mesh, node, mats) &&
+
+                // Get base mesh name and track usage
+                std::string base_name = mesh.mName;
+                if (base_name.empty())
+                {
+                    base_name = "mesh_" + std::to_string(meshidx);
+                }
+
+                S32 instance_count = mesh_name_counts[base_name]++;
+
+                if (populateModelFromMesh(pModel, mesh, node, mats, instance_count) &&
                     (LLModel::NO_ERRORS == pModel->getStatus()) &&
                     validate_model(pModel))
                 {
@@ -244,9 +257,25 @@ void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S3
     combined_transform = node_transform;
 }
 
-bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats)
+bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats, S32 instance_count)
 {
-    pModel->mLabel = mesh.mName;
+    // Create unique model name
+    std::string base_name = mesh.mName;
+    if (base_name.empty())
+    {
+        S32 mesh_index = static_cast<S32>(&mesh - &mGLTFAsset.mMeshes[0]);
+        base_name = "mesh_" + std::to_string(mesh_index);
+    }
+
+    if (instance_count > 0)
+    {
+        pModel->mLabel = base_name + "_copy_" + std::to_string(instance_count);
+    }
+    else
+    {
+        pModel->mLabel = base_name;
+    }
+
     pModel->ClearFacesAndMaterials();
 
     S32 skinIdx = nodeno.mSkin;
