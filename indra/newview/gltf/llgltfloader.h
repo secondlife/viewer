@@ -168,7 +168,7 @@ private:
     bool parseMaterials();
     void uploadMaterials();
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform);
-    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
+    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats, S32 instance_count);
     void populateJointFromSkin(const LL::GLTF::Skin& skin);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
