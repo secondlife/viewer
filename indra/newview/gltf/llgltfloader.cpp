@@ -231,30 +231,35 @@ bool LLGLTFLoader::parseMeshes()
 
 void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform)
 {
-    auto& node = asset.mNodes[node_index];
-
-    // Start with this node's transform
-    glm::mat4 node_transform = node.mMatrix;
-
-    // Find parent node and apply its transform if it exists
-    for (auto& other_node : asset.mNodes)
+    if (node_index < 0 || node_index >= static_cast<S32>(asset.mNodes.size()))
     {
-        for (auto& child_index : other_node.mChildren)
-        {
-            if (child_index == node_index)
-            {
-                // Found a parent, recursively get its combined transform
-                glm::mat4 parent_transform;
-                computeCombinedNodeTransform(asset, static_cast<S32>(&other_node - &asset.mNodes[0]), parent_transform);
-
-                // Apply parent transform to current node transform
-                node_transform = parent_transform * node_transform;
-                break;
-            }
-        }
+        combined_transform = glm::mat4(1.0f);
+        return;
     }
 
-    combined_transform = node_transform;
+    const auto& node = asset.mNodes[node_index];
+
+    // Ensure the node's matrix is valid
+    const_cast<LL::GLTF::Node&>(node).makeMatrixValid();
+
+    // Start with this node's transform
+    combined_transform = node.mMatrix;
+
+    // Find and apply parent transform if it exists
+    for (size_t i = 0; i < asset.mNodes.size(); ++i)
+    {
+        const auto& potential_parent = asset.mNodes[i];
+        auto it = std::find(potential_parent.mChildren.begin(), potential_parent.mChildren.end(), node_index);
+
+        if (it != potential_parent.mChildren.end())
+        {
+            // Found parent - recursively get its combined transform and apply it
+            glm::mat4 parent_transform;
+            computeCombinedNodeTransform(asset, static_cast<S32>(i), parent_transform);
+            combined_transform = parent_transform * combined_transform;
+            return; // Early exit - a node can only have one parent
+        }
+    }
 }
 
 bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats, S32 instance_count)
