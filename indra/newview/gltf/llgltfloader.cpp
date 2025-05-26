@@ -67,6 +67,14 @@ static const std::string lod_suffix[LLModel::NUM_LODS] =
     "_PHYS",
 };
 
+// Premade rotation matrix, GLTF is Y-up while SL is Z-up
+static const glm::mat4 coord_system_rotation(
+    1.f, 0.f, 0.f, 0.f,
+    0.f, 0.f, 1.f, 0.f,
+    0.f, -1.f, 0.f, 0.f,
+    0.f, 0.f, 0.f, 1.f
+);
+
 
 LLGLTFLoader::LLGLTFLoader(std::string filename,
     S32                                 lod,
@@ -203,9 +211,21 @@ bool LLGLTFLoader::parseMeshes()
                     mesh_scale *= transformation;
                     transformation = mesh_scale;
 
+                    // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
+                    // into the coordinate space of the joints.
+                    // In GLTF, this matrix is omitted, and it is assumed that this transform is either
+                    // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
+                    //
+                    // TODO: This appers to be missing rotation when joints rotate the model
+                    // or inverted bind matrices are missing inherited rotation
+                    // (based of values the 'bento shoes' mesh might be missing 90 degrees horizontaly
+                    // prior to skinning)
+                    pModel->mSkinInfo.mBindShapeMatrix.loadu(mesh_scale);
+                    LL_INFOS("GLTF_DEBUG") << "Model: " << pModel->mLabel << " mBindShapeMatrix: " << pModel->mSkinInfo.mBindShapeMatrix << LL_ENDL;
+
                     if (transformation.determinant() < 0)
                     { // negative scales are not supported
-                        LL_INFOS("GLTF") << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
+                        LL_INFOS("GLTF_IMPORT") << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
                                    << pModel->mLabel << LL_ENDL;
                         LLSD args;
                         args["Message"] = "NegativeScaleNormTrans";
@@ -279,9 +299,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     pModel->ClearFacesAndMaterials();
 
     S32 skinIdx = nodeno.mSkin;
-
-    // Pre-compute coordinate system rotation matrix (GLTF Y-up to SL Z-up)
-    static const glm::mat4 coord_system_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     // Compute final combined transform matrix (hierarchy + coordinate rotation)
     S32 node_index = static_cast<S32>(&nodeno - &mGLTFAsset.mNodes[0]);
@@ -619,7 +636,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             mats[materialName] = impMat;
         }
         else {
-            LL_INFOS() << "Unable to process mesh due to 16-bit index limits" << LL_ENDL;
+            LL_INFOS("GLTF_IMPORT") << "Unable to process mesh due to 16-bit index limits" << LL_ENDL;
             LLSD args;
             args["Message"] = "ParsingErrorBadElement";
             mWarningsArray.append(args);
@@ -639,7 +656,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         size_t jointCnt = gltf_skin.mJoints.size();
         if (gltf_skin.mInverseBindMatrices >= 0 && jointCnt != gltf_skin.mInverseBindMatricesData.size())
         {
-            LL_INFOS("GLTF") << "Bind matrices count mismatch joints count" << LL_ENDL;
+            LL_INFOS("GLTF_IMPORT") << "Bind matrices count mismatch joints count" << LL_ENDL;
             LLSD args;
             args["Message"] = "InvBindCountMismatch";
             mWarningsArray.append(args);
@@ -709,14 +726,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             }
         }
 
-        // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
-        // into the coordinate space of the joints.
-        // In GLTF, this matrix is omitted, and it is assumed that this transform is either
-        // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
-        LLMatrix4 bind_shape;
-        bind_shape.setIdentity();
-        skin_info.mBindShapeMatrix.loadu(bind_shape);
-
         // Remap indices for pModel->mSkinWeights
         for (auto& weights : pModel->mSkinWeights)
         {
@@ -732,9 +741,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
 void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
 {
-    // Create coordinate system rotation matrix - GLTF is Y-up, SL is Z-up
-    glm::mat4 coord_system_rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
     LL_INFOS("GLTF_DEBUG") << "populateJointFromSkin: Processing " << skin.mJoints.size() << " joints" << LL_ENDL;
 
     for (auto joint : skin.mJoints)
