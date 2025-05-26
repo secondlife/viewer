@@ -155,17 +155,17 @@ bool LLGLTFLoader::parseMeshes()
 
     mTransform.setIdentity();
 
+    for (auto& node : mGLTFAsset.mNodes)
+    {
+        // Make node matrix valid for correct transformation
+        node.makeMatrixValid();
+    }
+
     // Populate the joints from skins first.
     // There's not many skins - and you can pretty easily iterate through the nodes from that.
     for (auto& skin : mGLTFAsset.mSkins)
     {
         populateJointFromSkin(skin);
-    }
-
-    for (auto& node : mGLTFAsset.mNodes)
-    {
-        // Make node matrix valid for correct transformation
-        node.makeMatrixValid();
     }
 
     // Track how many times each mesh name has been used
@@ -218,17 +218,21 @@ bool LLGLTFLoader::parseMeshes()
                     mesh_scale *= transformation;
                     transformation = mesh_scale;
 
-                    // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
-                    // into the coordinate space of the joints.
-                    // In GLTF, this matrix is omitted, and it is assumed that this transform is either
-                    // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
-                    //
-                    // TODO: This appers to be missing rotation when joints rotate the model
-                    // or inverted bind matrices are missing inherited rotation
-                    // (based of values the 'bento shoes' mesh might be missing 90 degrees horizontaly
-                    // prior to skinning)
-                    pModel->mSkinInfo.mBindShapeMatrix.loadu(mesh_scale);
-                    LL_INFOS("GLTF_DEBUG") << "Model: " << pModel->mLabel << " mBindShapeMatrix: " << pModel->mSkinInfo.mBindShapeMatrix << LL_ENDL;
+                    if (node.mSkin >= 0)
+                    {
+                        // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
+                        // into the coordinate space of the joints.
+                        // In GLTF, this matrix is omitted, and it is assumed that this transform is either
+                        // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
+                        //
+                        // TODO: There appears to be missing rotation when joints rotate the model
+                        // or inverted bind matrices are missing inherited rotation
+                        // (based of values the 'bento shoes' mesh might be missing 90 degrees horizontaly
+                        // prior to skinning)
+
+                        pModel->mSkinInfo.mBindShapeMatrix.loadu(mesh_scale);
+                        LL_INFOS("GLTF_DEBUG") << "Model: " << pModel->mLabel << " mBindShapeMatrix: " << pModel->mSkinInfo.mBindShapeMatrix << LL_ENDL;
+                    }
 
                     if (transformation.determinant() < 0)
                     { // negative scales are not supported
@@ -256,7 +260,7 @@ bool LLGLTFLoader::parseMeshes()
     return true;
 }
 
-void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform)
+void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const
 {
     if (node_index < 0 || node_index >= static_cast<S32>(asset.mNodes.size()))
     {
@@ -342,7 +346,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             // Process joint name and idnex
             S32 joint = gltf_skin.mJoints[i];
             LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-            jointNode.makeMatrixValid();
 
             std::string legal_name(jointNode.mName);
             if (mJointMap.find(legal_name) == mJointMap.end())
@@ -688,7 +691,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 continue;
             }
             LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-            jointNode.makeMatrixValid();
 
             std::string legal_name(jointNode.mName);
             if (mJointMap.find(legal_name) != mJointMap.end())
@@ -723,8 +725,15 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 // Get the original joint node and use its matrix directly
                 S32 joint = gltf_skin.mJoints[i];
                 LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-                jointNode.makeMatrixValid();
-                LLMatrix4 original_joint_transform(glm::value_ptr(jointNode.mMatrix));
+                glm::mat4 joint_mat = jointNode.mMatrix;
+                S32 root_joint = findValidRootJoint(joint, gltf_skin); // skeleton can have multiple real roots
+                if (root_joint == joint)
+                {
+                    // This is very likely incomplete in some way.
+                    // Root shouldn't be the only one to need full coordinate fix
+                    joint_mat = coord_system_rotation * joint_mat;
+                }
+                LLMatrix4 original_joint_transform(glm::value_ptr(joint_mat));
 
                 LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
                 skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(original_joint_transform));
@@ -771,8 +780,6 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
             continue;
         }
 
-        jointNode.makeMatrixValid();
-
         // Debug: Log original joint matrix
         glm::mat4 gltf_joint_matrix = jointNode.mMatrix;
         LL_INFOS("GLTF_DEBUG") << "Joint '" << legal_name << "' original matrix:" << LL_ENDL;
@@ -799,6 +806,61 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
 
         LL_INFOS("GLTF_DEBUG") << "mJointList name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
     }
+}
+
+S32 LLGLTFLoader::findValidRootJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const
+{
+    S32 root_joint = 0;
+    S32 found_joint = source_joint;
+    S32 size = (S32)gltf_skin.mJoints.size();
+    do
+    {
+        root_joint = found_joint;
+        for (S32 i = 0; i < size; i++)
+        {
+            S32 joint = gltf_skin.mJoints[i];
+            const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
+
+            if (mJointMap.find(jointNode.mName) != mJointMap.end())
+            {
+                std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_joint);
+                if (it != jointNode.mChildren.end())
+                {
+                    found_joint = joint;
+                    break;
+                }
+            }
+        }
+    } while (root_joint != found_joint);
+
+    return root_joint;
+}
+
+S32 LLGLTFLoader::findGLTFRootJoint(const LL::GLTF::Skin& gltf_skin) const
+{
+    S32 root_joint = 0;
+    S32 found_joint = 0;
+    S32 size = (S32)gltf_skin.mJoints.size();
+    do
+    {
+        root_joint = found_joint;
+        for (S32 i = 0; i < size; i++)
+        {
+            S32 joint = gltf_skin.mJoints[i];
+            const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
+            std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_joint);
+            if (it != jointNode.mChildren.end())
+            {
+                found_joint = joint;
+                break;
+            }
+        }
+    } while (root_joint != found_joint);
+
+    LL_INFOS("GLTF_DEBUG") << "mJointList name: ";
+    const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[root_joint];
+    LL_CONT << jointNode.mName << " index: " << root_joint << LL_ENDL;
+    return root_joint;
 }
 
 bool LLGLTFLoader::parseMaterials()

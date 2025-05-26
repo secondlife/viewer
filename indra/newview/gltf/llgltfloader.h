@@ -167,9 +167,11 @@ private:
     void uploadMeshes();
     bool parseMaterials();
     void uploadMaterials();
-    void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform);
+    void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
     bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats, S32 instance_count);
     void populateJointFromSkin(const LL::GLTF::Skin& skin);
+    S32 findValidRootJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const;
+    S32 findGLTFRootJoint(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
     //    bool mPreprocessGLTF;
