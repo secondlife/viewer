@@ -690,6 +690,13 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
                 skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(original_joint_transform));
             }
+            else
+            {
+                // For gltf mInverseBindMatrices are optional, but not for viewer
+                // todo: get a model that triggers this
+                skin_info.mInvBindMatrix.push_back(LLMatrix4a(mJointList[legal_name])); // might need to be an 'identity'
+                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(mJointList[legal_name]));
+            }
         }
 
         // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
