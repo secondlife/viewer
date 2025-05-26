@@ -461,6 +461,16 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 vertices.push_back(vert);
             }
 
+            if (prim.getIndexCount() % 3 != 0)
+            {
+                LL_WARNS("GLTF_IMPORT") << "Invalid primitive: index count " << prim.getIndexCount()
+                                       << " is not divisible by 3. GLTF files must contain triangulated geometry." << LL_ENDL;
+                LLSD args;
+                args["Message"] = "InvalidGeometryNonTriangulated";
+                mWarningsArray.append(args);
+                continue; // Skip this primitive
+            }
+
             // When processing indices, flip winding order if needed
             for (U32 i = 0; i < prim.getIndexCount(); i += 3)
             {

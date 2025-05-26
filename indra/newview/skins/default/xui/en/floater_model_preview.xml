@@ -61,6 +61,7 @@
   <string name="ParsingErrorNoRoot">Document has no root</string>
   <string name="ParsingErrorNoScene">Document has no visual_scene</string>
   <string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
+  <string name="InvalidGeometryNonTriangulated">Invalid geometry: GLTF files must contain triangulated meshes only.</string>
 
   <panel
     follows="top|left"
