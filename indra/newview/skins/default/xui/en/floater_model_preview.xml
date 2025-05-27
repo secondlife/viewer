@@ -62,6 +62,7 @@
   <string name="ParsingErrorNoScene">Document has no visual_scene</string>
   <string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
   <string name="InvalidGeometryNonTriangulated">Invalid geometry: GLTF files must contain triangulated meshes only.</string>
+  <string name="UnsupportedExtension">Model uses unsupported extension, related material properties are ignored.</string>
 
   <panel
     follows="top|left"

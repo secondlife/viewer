@@ -489,20 +489,14 @@ void Asset::update()
 bool Asset::prep()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
-    // check required extensions and fail if not supported
-    bool unsupported = false;
+    // check required extensions
     for (auto& extension : mExtensionsRequired)
     {
         if (ExtensionsSupported.find(extension) == ExtensionsSupported.end())
         {
             LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
-            unsupported = true;
+            mUnsupportedExtension = true;
         }
-    }
-
-    if (unsupported)
-    {
-        return false;
     }
 
     // do buffers first as other resources depend on them

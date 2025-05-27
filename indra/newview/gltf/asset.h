@@ -396,6 +396,8 @@ namespace LL
             U32 mMaterialsUBO = 0;
             bool mLoadIntoVRAM = false;
 
+            bool mUnsupportedExtension = false;
+
             // prepare for first time use
             bool prep();
 
