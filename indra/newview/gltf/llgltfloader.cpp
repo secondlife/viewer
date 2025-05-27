@@ -127,6 +127,13 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
         return false;
     }
 
+    if (mGLTFAsset.mUnsupportedExtension)
+    {
+        LLSD args;
+        args["Message"] = "UnsupportedExtension";
+        mWarningsArray.append(args);
+    }
+
     mMeshesLoaded = parseMeshes();
     if (mMeshesLoaded) uploadMeshes();
 
