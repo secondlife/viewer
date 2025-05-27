@@ -2230,6 +2230,9 @@ void LLLineEditor::clear()
 {
     mText.clear();
     setCursor(0);
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
 }
 
 //virtual
