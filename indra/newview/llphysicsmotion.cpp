@@ -646,18 +646,17 @@ bool LLPhysicsMotion::onUpdate(F32 time)
             velocity_new_local = 0;
         }
 
-        // Check for NaN values.  A NaN value is detected if the variables doesn't equal itself.
-        // If NaN, then reset everything.
-        if ((mPosition_local != mPosition_local) ||
-            (mVelocity_local != mVelocity_local) ||
-            (position_new_local != position_new_local))
+        // Check for NaN values. If NaN, then reset everything.
+        if (llisnan(mPosition_local) ||
+            llisnan(mVelocity_local) ||
+            llisnan(position_new_local))
         {
-            position_new_local = 0;
-            mVelocity_local = 0;
-            mVelocityJoint_local = 0;
-            mAccelerationJoint_local = 0;
-            mPosition_local = 0;
-            mPosition_world = LLVector3(0,0,0);
+            position_new_local = 0.f;
+            mVelocity_local = 0.f;
+            mVelocityJoint_local = 0.f;
+            mAccelerationJoint_local = 0.f;
+            mPosition_local = 0.f;
+            mPosition_world = LLVector3(0.f,0.f,0.f);
         }
 
         const F32 position_new_local_clamped = llclamp(position_new_local,

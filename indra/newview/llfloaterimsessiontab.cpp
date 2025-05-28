@@ -35,10 +35,12 @@
 #include "llavatariconctrl.h"
 #include "llchatentry.h"
 #include "llchathistory.h"
+#include "llfloaterchatmentionpicker.h"
 #include "llchiclet.h"
 #include "llchicletbar.h"
 #include "lldraghandle.h"
 #include "llemojidictionary.h"
+#include "llemojihelper.h"
 #include "llfloaterreg.h"
 #include "llfloateremojipicker.h"
 #include "llfloaterimsession.h"
@@ -104,6 +106,7 @@ LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
     delete mRefreshTimer;
     LLIMMgr::instance().removeSessionObserver(this);
+    mEmojiCloseConn.disconnect();
 
     LLFloaterIMContainer* im_container = LLFloaterIMContainer::findInstance();
     if (im_container)
@@ -300,6 +303,8 @@ bool LLFloaterIMSessionTab::postBuild()
 
     mEmojiPickerShowBtn = getChild<LLButton>("emoji_picker_show_btn");
     mEmojiPickerShowBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerShowBtnClicked(); });
+    mEmojiPickerShowBtn->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerShowBtnDown(); });
+    mEmojiCloseConn = LLEmojiHelper::instance().setCloseCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerClosed(); });
 
     mGearBtn = getChild<LLButton>("gear_btn");
     mAddBtn = getChild<LLButton>("add_btn");
@@ -482,6 +487,7 @@ void LLFloaterIMSessionTab::onFocusReceived()
         LLIMModel::instance().sendNoUnreadMessages(mSessionID);
     }
 
+    LLFloaterChatMentionPicker::updateSessionID(mSessionID);
     super::onFocusReceived();
 }
 
@@ -532,8 +538,43 @@ void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked()
 
 void LLFloaterIMSessionTab::onEmojiPickerShowBtnClicked()
 {
-    mInputEditor->setFocus(true);
-    mInputEditor->showEmojiHelper();
+    if (!mEmojiPickerShowBtn->getToggleState())
+    {
+        mInputEditor->hideEmojiHelper();
+        mInputEditor->setFocus(true);
+        mInputEditor->showEmojiHelper();
+        mEmojiPickerShowBtn->setToggleState(true); // in case hideEmojiHelper closed a visible instance
+    }
+    else
+    {
+        mInputEditor->hideEmojiHelper();
+        mEmojiPickerShowBtn->setToggleState(false);
+    }
+}
+
+void LLFloaterIMSessionTab::onEmojiPickerShowBtnDown()
+{
+    if (mEmojiHelperLastCallbackFrame == LLFrameTimer::getFrameCount())
+    {
+        // Helper gets closed by focus lost event on Down before before onEmojiPickerShowBtnDown
+        // triggers.
+        // If this condition is true, user pressed button and it was 'toggled' during press,
+        // restore 'toggled' state so that button will not reopen helper.
+        mEmojiPickerShowBtn->setToggleState(true);
+    }
+}
+
+void LLFloaterIMSessionTab::onEmojiPickerClosed()
+{
+    if (mEmojiPickerShowBtn->getToggleState())
+    {
+        mEmojiPickerShowBtn->setToggleState(false);
+        // Helper gets closed by focus lost event on Down before onEmojiPickerShowBtnDown
+        // triggers. If mEmojiHelperLastCallbackFrame is set and matches Down, means close
+        // was triggered by user's press.
+        // A bit hacky, but I can't think of a better way to handle this without rewriting helper.
+        mEmojiHelperLastCallbackFrame = LLFrameTimer::getFrameCount();
+    }
 }
 
 void LLFloaterIMSessionTab::initEmojiRecentPanel()
@@ -633,7 +674,8 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD& args)
     chat_args["show_names_for_p2p_conv"] = !mIsP2PChat ||
             gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
-    mChatHistory->appendMessage(chat, chat_args);
+    static const LLStyle::Params input_append_params = LLStyle::Params();
+    mChatHistory->appendMessage(chat, chat_args, input_append_params);
 }
 
 void LLFloaterIMSessionTab::updateUsedEmojis(LLWStringView text)

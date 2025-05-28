@@ -131,8 +131,8 @@ public:
     ~LLKeywords();
 
     void        clearLoaded() { mLoaded = false; }
-    LLUIColor    getColorGroup(std::string_view key_in);
-    bool        isLoaded() const    { return mLoaded; }
+    LLUIColor    getColorGroup(std::string_view key_in) const;
+    bool        isLoaded() const { return mLoaded; }
 
     void        findSegments(std::vector<LLTextSegmentPtr> *seg_list,
                              const LLWString& text,

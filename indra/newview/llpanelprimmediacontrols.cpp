@@ -294,7 +294,7 @@ void LLPanelPrimMediaControls::updateShape()
     LLViewerMediaImpl* media_impl = getTargetMediaImpl();
     LLViewerObject* objectp = getTargetObject();
 
-    if(!media_impl || gFloaterTools->getVisible())
+    if(!media_impl || (gFloaterTools && gFloaterTools->getVisible()))
     {
         setVisible(false);
         return;
@@ -660,11 +660,11 @@ void LLPanelPrimMediaControls::updateShape()
         for(; vert_it != vert_end; ++vert_it)
         {
             // project silhouette vertices into screen space
-            glm::vec3 screen_vert(glm::make_vec3(vert_it->mV));
+            glm::vec3 screen_vert(*vert_it);
             screen_vert = mul_mat4_vec3(mat, screen_vert);
 
             // add to screenspace bounding box
-            update_min_max(min, max, LLVector3(glm::value_ptr(screen_vert)));
+            update_min_max(min, max, LLVector3(screen_vert));
         }
 
         // convert screenspace bbox to pixels (in screen coords)
@@ -777,7 +777,7 @@ void LLPanelPrimMediaControls::draw()
     else if(mFadeTimer.getStarted())
     {
         F32 time = mFadeTimer.getElapsedTimeF32();
-        alpha *= llmax(lerp(1.0, 0.0, time / mControlFadeTime), 0.0f);
+        alpha *= llmax(lerp(1.f, 0.f, time / mControlFadeTime), 0.0f);
 
         if(time >= mControlFadeTime)
         {

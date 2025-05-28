@@ -645,8 +645,12 @@ void LLVOVolume::animateTextures()
                         // LLVOVolume::updateTextureVirtualSize when the
                         // mTextureMatrix is not yet present
                         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
-                        mDrawable->getSpatialGroup()->dirtyGeom();
-                        gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                        LLSpatialGroup* group = mDrawable->getSpatialGroup();
+                        if (group)
+                        {
+                            group->dirtyGeom();
+                            gPipeline.markRebuild(group);
+                        }
                     }
                 }
 
@@ -856,8 +860,11 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
                 // animated faces get moved to a smaller partition to reduce
                 // side-effects of their updates (see shrinkWrap in
                 // LLVOVolume::animateTextures).
-                mDrawable->getSpatialGroup()->dirtyGeom();
-                gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                if (mDrawable->getSpatialGroup())
+                {
+                    mDrawable->getSpatialGroup()->dirtyGeom();
+                    gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                }
             }
         }
 
@@ -5735,13 +5742,23 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     continue;
                 }
 
-                LLFetchedGLTFMaterial *gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
+                LLFetchedGLTFMaterial* gltf_mat = nullptr;
+                const LLTextureEntry* te = facep->getTextureEntry();
+                if (te)
+                {
+                    gltf_mat = (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial();
+                } // if not te, continue?
                 bool is_pbr = gltf_mat != nullptr;
 
                 if (is_pbr)
                 {
                     // tell texture streaming system to ignore blinn-phong textures
-                    facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
+                    // except the special case of the diffuse map containing a
+                    // media texture that will be reused for swapping on to the pbr face
+                    if (!facep->hasMedia())
+                    {
+                        facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
+                    }
                     facep->setTexture(LLRender::NORMAL_MAP, nullptr);
                     facep->setTexture(LLRender::SPECULAR_MAP, nullptr);
 
@@ -5797,10 +5814,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 {
                     cur_total += facep->getGeomCount();
 
-                    const LLTextureEntry* te = facep->getTextureEntry();
                     LLViewerTexture* tex = facep->getTexture();
 
-                    if (te->getGlow() > 0.f)
+                    if (te && te->getGlow() > 0.f)
                     {
                         emissive = true;
                     }
@@ -5895,6 +5911,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                             facep->mLastUpdateTime = gFrameTimeSeconds;
                         }
 
+                        if (te)
                         {
                             LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial();
 
@@ -5958,6 +5975,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                 facep->setState(LLFace::FULLBRIGHT);
                                 add_face(sFullbrightFaces, fullbright_count, facep);
                             }
+                        }
+                        else // no texture entry
+                        {
+                            facep->setState(LLFace::FULLBRIGHT);
+                            add_face(sFullbrightFaces, fullbright_count, facep);
                         }
                     }
                 }
@@ -6713,8 +6735,11 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
             { //shiny
                 if (tex->getPrimaryFormat() == GL_ALPHA)
                 { //invisiprim+shiny
-                    registerFace(group, facep, LLRenderPass::PASS_INVISI_SHINY);
-                    registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
+                    if (!facep->getViewerObject()->isAttachment() && !facep->getViewerObject()->isRiggedMesh())
+                    {
+                        registerFace(group, facep, LLRenderPass::PASS_INVISI_SHINY);
+                        registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
+                    }
                 }
                 else if (!hud_group)
                 { //deferred rendering
@@ -6750,7 +6775,10 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
             { //not alpha and not shiny
                 if (!is_alpha && tex->getPrimaryFormat() == GL_ALPHA)
                 { //invisiprim
-                    registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
+                    if (!facep->getViewerObject()->isAttachment() && !facep->getViewerObject()->isRiggedMesh())
+                    {
+                        registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
+                    }
                 }
                 else if (fullbright || bake_sunlight)
                 { //fullbright

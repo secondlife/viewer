@@ -64,10 +64,13 @@ public:
     void setSerialNumber(const std::string& sn) { mSerialNumber = sn; }
     void setLastExecEvent(int lee) { mLastExecEvent = lee; }
     void setLastExecDuration(S32 duration) { mLastExecDuration = duration; }
+    void setLastAgentSessionId(const LLUUID& id) { mLastAgentSessionId = id; }
     void setPlatformInfo(const std::string platform, const std::string platform_version, const std::string platform_name);
 
     void setNotificationsInterface(LLNotificationsInterface* ni) { mNotifications = ni; }
     LLNotificationsInterface& getNotificationsInterface() const { return *mNotifications; }
+
+    void saveMFAHash(LLSD const& response);
 
 private:
     typedef std::shared_ptr<LLEventAPI::Response> ResponsePtr;
@@ -101,6 +104,7 @@ private:
     std::string mSerialNumber;
     int mLastExecEvent;
     S32 mLastExecDuration;
+    LLUUID mLastAgentSessionId;
     std::string mPlatform;
     std::string mPlatformVersion;
     std::string mPlatformVersionName;

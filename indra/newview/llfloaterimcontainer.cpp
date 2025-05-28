@@ -1939,7 +1939,7 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
     mConversationEventQueue.erase(uuid);
 
     // Don't let the focus fall IW, select and refocus on the first conversation in the list
-    if (change_focus)
+    if (change_focus && isInVisibleChain())
     {
         setFocus(true);
         if (new_selection)
@@ -1958,6 +1958,10 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
                 }
             }
         }
+    }
+    else
+    {
+        LL_INFOS() << "Conversation widgets: " << (S32)mConversationsWidgets.size() << LL_ENDL;
     }
     return is_widget_selected;
 }
@@ -2298,14 +2302,14 @@ bool LLFloaterIMContainer::isConversationLoggingAllowed()
     return gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
 }
 
-void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
+void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes, bool alternate_color)
 {
     //Finds the conversation line item to flash using the session_id
     LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
 
     if (widget)
     {
-        widget->setFlashState(is_flashes);
+        widget->setFlashState(is_flashes, alternate_color);
     }
 }
 

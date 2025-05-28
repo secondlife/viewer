@@ -741,9 +741,10 @@ void LLScriptEdCore::sync()
     }
 }
 
-bool LLScriptEdCore::hasChanged()
+bool LLScriptEdCore::hasChanged() const
 {
-    if (!mEditor) return false;
+    if (!mEditor)
+        return false;
 
     return ((!mEditor->isPristine() || mEnableSave) && mHasScriptData);
 }

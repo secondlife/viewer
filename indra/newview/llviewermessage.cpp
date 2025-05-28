@@ -2137,6 +2137,21 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
     EInstantMessage dialog = (EInstantMessage)d;
     LLHost sender = msg->getSender();
 
+    LLSD metadata;
+    if (msg->getNumberOfBlocksFast(_PREHASH_MetaData) > 0)
+    {
+        S32 metadata_size = msg->getSizeFast(_PREHASH_MetaData, 0, _PREHASH_Data);
+        std::string metadata_buffer;
+        metadata_buffer.resize(metadata_size, 0);
+
+        msg->getBinaryDataFast(_PREHASH_MetaData, _PREHASH_Data, &metadata_buffer[0], metadata_size, 0, metadata_size );
+        std::stringstream metadata_stream(metadata_buffer);
+        if (LLSDSerialize::fromBinary(metadata, metadata_stream, metadata_size) == LLSDParser::PARSE_FAILURE)
+        {
+            metadata.clear();
+        }
+    }
+
     LLIMProcessing::processNewMessage(from_id,
         from_group,
         to_id,
@@ -2151,7 +2166,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
         position,
         binary_bucket,
         binary_bucket_size,
-        sender);
+        sender,
+        metadata);
 }
 
 void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id)
@@ -2567,6 +2583,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["session_id"] = LLUUID();
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
+            // used to check if there is agent mention in the message
+            msg_notify["message"] = mesg;
             on_new_message(msg_notify);
         }
 
@@ -3147,7 +3165,9 @@ void send_agent_update(bool force_send, bool send_reliable)
     LL_PROFILE_ZONE_SCOPED;
     llassert(!gCubeSnapshot);
 
-    if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+    LLAgent::ETeleportState tp_state = gAgent.getTeleportState();
+    if (tp_state != LLAgent::TELEPORT_NONE
+        && tp_state != LLAgent::TELEPORT_ARRIVING)
     {
         // We don't care if they want to send an agent update, they're not allowed
         // until the target simulator is ready to receive them
@@ -3322,7 +3342,36 @@ void send_agent_update(bool force_send, bool send_reliable)
     msg->addVector3Fast(_PREHASH_CameraAtAxis, camera_at);
     msg->addVector3Fast(_PREHASH_CameraLeftAxis, LLViewerCamera::getInstance()->getLeftAxis());
     msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
-    msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
+
+    static F32 last_draw_disatance_step = 1024;
+    if (tp_state == LLAgent::TELEPORT_ARRIVING || LLStartUp::getStartupState() < STATE_MISC)
+    {
+        // Inform interest list, prioritize closer area.
+        // Reason: currently server doesn't distance sort attachments, by restricting range
+        // we reduce the number of attachments sent to the viewer, thus prioritizing
+        // closer ones.
+        // Todo: revise and remove once server gets distance sorting.
+        last_draw_disatance_step = llmax((F32)(gAgentCamera.mDrawDistance / 2.f), 50.f);
+        msg->addF32Fast(_PREHASH_Far, last_draw_disatance_step);
+    }
+    else if (last_draw_disatance_step < gAgentCamera.mDrawDistance)
+    {
+        static LLFrameTimer last_step_time;
+        if (last_step_time.getElapsedTimeF32() > 1.f)
+        {
+            // gradually increase draw distance
+            // Idealy this should be not per second, but based on how loaded
+            // mesh thread is, but hopefully this is temporary.
+            last_step_time.reset();
+            F32 step = gAgentCamera.mDrawDistance * 0.1f;
+            last_draw_disatance_step = llmin(last_draw_disatance_step + step, gAgentCamera.mDrawDistance);
+        }
+        msg->addF32Fast(_PREHASH_Far, last_draw_disatance_step);
+    }
+    else
+    {
+        msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
+    }
 
     msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
 
@@ -5008,6 +5057,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
                                         false, //UI
                                         gSavedSettings.getBOOL("RenderHUDInSnapshot"),
                                         false,
+                                        false,
                                         LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                         LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
         }
@@ -5112,6 +5162,7 @@ static void process_special_alert_messages(const std::string & message)
                                     gViewerWindow->getWindowHeightRaw(),
                                     false,
                                     gSavedSettings.getBOOL("RenderHUDInSnapshot"),
+                                    false,
                                     false,
                                     LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                     LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
@@ -6610,7 +6661,6 @@ void process_initiate_download(LLMessageSystem* msg, void**)
         (void**)new std::string(viewer_filename));
 }
 
-
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
     if (!gSavedSettings.getBOOL("ScriptsCanShowUI")) return;
@@ -6624,6 +6674,11 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
     msg->getString("Data", "SimName", sim_name);
     msg->getVector3("Data", "SimPosition", pos);
     msg->getVector3("Data", "LookAt", look_at);
+    U32 flags = (BEACON_SHOW_MAP | BEACON_FOCUS_MAP);
+    if (msg->has("Options"))
+    {
+        msg->getU32("Options", "Flags", flags);
+    }
 
     LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
     if(instance)
@@ -6634,7 +6689,13 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
             << LL_ENDL;
 
         instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
-        LLFloaterReg::showInstance("world_map", "center");
+        if (flags & BEACON_SHOW_MAP)
+        {
+            bool old_auto_focus = instance->getAutoFocus();
+            instance->setAutoFocus(flags & BEACON_FOCUS_MAP);
+            instance->openFloater("center");
+            instance->setAutoFocus(old_auto_focus);
+        }
     }
 
     // remove above two lines and replace with below line

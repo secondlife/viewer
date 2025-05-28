@@ -1228,28 +1228,9 @@ bool LLGLManager::initGL()
     }
 #endif
 
-#if LL_WINDOWS
-    if (mVRAM < 256)
-    {
-        // Something likely went wrong using the above extensions
-        // try WMI first and fall back to old method (from dxdiag) if all else fails
-        // Function will check all GPUs WMI knows of and will pick up the one with most
-        // memory. We need to check all GPUs because system can switch active GPU to
-        // weaker one, to preserve power when not under load.
-        U32 mem = LLDXHardware::getMBVideoMemoryViaWMI();
-        if (mem != 0)
-        {
-            mVRAM = mem;
-            LL_WARNS("RenderInit") << "VRAM Detected (WMI):" << mVRAM<< LL_ENDL;
-        }
-    }
-#endif
-
     if (mVRAM < 256 && old_vram > 0)
     {
         // fall back to old method
-        // Note: on Windows value will be from LLDXHardware.
-        // Either received via dxdiag or via WMI by id from dxdiag.
         mVRAM = old_vram;
     }
 
@@ -2458,12 +2439,15 @@ void LLGLState::checkStates(GLboolean writeAlpha)
         return;
     }
 
-    GLint src;
-    GLint dst;
-    glGetIntegerv(GL_BLEND_SRC, &src);
-    glGetIntegerv(GL_BLEND_DST, &dst);
-    llassert_always(src == GL_SRC_ALPHA);
-    llassert_always(dst == GL_ONE_MINUS_SRC_ALPHA);
+    GLint srcRGB, dstRGB, srcAlpha, dstAlpha;
+    glGetIntegerv(GL_BLEND_SRC_RGB, &srcRGB);
+    glGetIntegerv(GL_BLEND_DST_RGB, &dstRGB);
+    glGetIntegerv(GL_BLEND_SRC_ALPHA, &srcAlpha);
+    glGetIntegerv(GL_BLEND_DST_ALPHA, &dstAlpha);
+    llassert_always(srcRGB == GL_SRC_ALPHA);
+    llassert_always(srcAlpha == GL_SRC_ALPHA);
+    llassert_always(dstRGB == GL_ONE_MINUS_SRC_ALPHA);
+    llassert_always(dstAlpha == GL_ONE_MINUS_SRC_ALPHA);
 
     // disable for now until usage is consistent
     //GLboolean colorMask[4];

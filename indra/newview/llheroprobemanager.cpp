@@ -80,6 +80,17 @@ void LLHeroProbeManager::update()
         return;
     }
 
+    // Part of a hacky workaround to fix #3331.
+    // For some reason clearing shaders will cause mirrors to actually work.
+    // There's likely some deeper state issue that needs to be resolved.
+    // - Geenz 2025-02-25
+    if (!mInitialized && LLStartUp::getStartupState() > STATE_PRECACHE)
+    {
+        LLViewerShaderMgr::instance()->clearShaderCache();
+        LLViewerShaderMgr::instance()->setShaders();
+        mInitialized = true;
+    }
+
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(!gCubeSnapshot); // assert a snapshot is not in progress
     if (LLAppViewer::instance()->logoutRequestSent())
@@ -89,9 +100,11 @@ void LLHeroProbeManager::update()
 
     initReflectionMaps();
 
+    static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+
     if (!mRenderTarget.isComplete())
     {
-        U32 color_fmt = GL_RGBA16F;
+        U32 color_fmt = render_hdr ? GL_RGBA16F : GL_RGBA8;
         mRenderTarget.allocate(mProbeResolution, mProbeResolution, color_fmt, true);
     }
 
@@ -103,7 +116,7 @@ void LLHeroProbeManager::update()
         mMipChain.resize(count);
         for (U32 i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, GL_RGBA16F);
+            mMipChain[i].allocate(res, res, render_hdr ? GL_RGBA16F : GL_RGBA8);
             res /= 2;
         }
     }
@@ -220,7 +233,7 @@ void LLHeroProbeManager::renderProbes()
     static LLCachedControl<S32> sUpdateRate(gSavedSettings, "RenderHeroProbeUpdateRate", 0);
 
     F32 near_clip = 0.01f;
-    if (mNearestHero != nullptr &&
+    if (mNearestHero != nullptr && !mNearestHero->isDead() &&
         !gTeleportDisplay && !gDisconnected && !LLAppViewer::instance()->logoutRequestSent())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
@@ -249,12 +262,13 @@ void LLHeroProbeManager::renderProbes()
             LL_PROFILE_ZONE_NUM(gFrameCount % rate);
             LL_PROFILE_ZONE_NUM(rate);
 
+            bool dynamic = mNearestHero->getReflectionProbeIsDynamic() && sDetail() > 0;
             for (U32 i = 0; i < 6; ++i)
             {
                 if ((gFrameCount % rate) == (i % rate))
                 { // update 6/rate faces per frame
                     LL_PROFILE_ZONE_NUM(i);
-                    updateProbeFace(mProbes[0], i, mNearestHero->getReflectionProbeIsDynamic() && sDetail > 0, near_clip);
+                    updateProbeFace(mProbes[0], i, dynamic, near_clip);
                 }
             }
             generateRadiance(mProbes[0]);
@@ -537,8 +551,10 @@ void LLHeroProbeManager::initReflectionMaps()
 
         mTexture = new LLCubeMapArray();
 
+        static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+
         // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-        mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
+        mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2, true, render_hdr);
 
         if (mDefaultProbe.isNull())
         {

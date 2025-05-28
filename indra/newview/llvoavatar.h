@@ -204,6 +204,7 @@ public:
 
     virtual LLJoint*        getJoint(const std::string &name);
     LLJoint*                getJoint(S32 num);
+    void                    initAllJoints();
 
     //if you KNOW joint_num is a valid animated joint index, use getSkeletonJoint for efficiency
     inline LLJoint* getSkeletonJoint(S32 joint_num) { return mSkeleton[joint_num]; }
@@ -385,6 +386,7 @@ public:
     //--------------------------------------------------------------------
 public:
     bool            isFullyLoaded() const;
+    bool            hasFirstFullAttachmentData() const;
     F32             getFirstDecloudTime() const {return mFirstDecloudTime;}
 
     // check and return current state relative to limits
@@ -546,7 +548,7 @@ public:
     U32         renderTransparent(bool first_pass);
     void        renderCollisionVolumes();
     void        renderBones(const std::string &selected_joint = std::string());
-    void        renderJoints();
+    virtual void renderJoints();
     static void deleteCachedImages(bool clearAll=true);
     static void destroyGL();
     static void restoreGL();

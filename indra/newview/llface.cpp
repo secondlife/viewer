@@ -893,7 +893,7 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
 
     //VECTORIZE THIS
     // see if we have a non-default mapping
-    U8 texgen = getTextureEntry()->getTexGen();
+    U8 texgen = tep->getTexGen();
     if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
     {
         LLVector4a& center = *(mDrawablep->getVOVolume()->getVolume()->getVolumeFace(mTEOffset).mCenter);
@@ -983,8 +983,17 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
         return false;
     }
     const LLTextureEntry *orig_tep = align_to->getTextureEntry();
+    if (!orig_tep)
+    {
+        return false;
+    }
+    const LLTextureEntry* tep = getTextureEntry();
+    if (!tep)
+    {
+        return false;
+    }
     if ((orig_tep->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR) ||
-        (getTextureEntry()->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR))
+        (tep->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR))
     {
         return false;
     }
@@ -1563,7 +1572,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                 bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
             }
 
-            U8 texgen = getTextureEntry()->getTexGen();
+            const LLTextureEntry* tep = getTextureEntry();
+            U8 texgen = tep ? tep->getTexGen() : LLTextureEntry::TEX_GEN_DEFAULT;
             if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
             { //planar texgen needs binormals
                 mVObjp->getVolume()->genTangents(face_index);
@@ -2051,7 +2061,12 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             LLStrider<LLColor4U> emissive;
             mVertexBuffer->getEmissiveStrider(emissive, mGeomIndex, mGeomCount);
 
-            U8 glow = (U8) llclamp((S32) (getTextureEntry()->getGlow()*255), 0, 255);
+            const LLTextureEntry* tep = getTextureEntry();
+            U8 glow = 0;
+            if (tep)
+            {
+                glow = (U8)llclamp((S32)(tep->getGlow() * 255), 0, 255);
+            }
 
             LLVector4a src;
 
@@ -2203,7 +2218,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("calcPixelArea - rigged");
         //override with joint volume face joint bounding boxes
-        LLVOAvatar* avatar = mVObjp->getAvatar();
+        LLVOAvatar* avatar = mVObjp.notNull() ? mVObjp->getAvatar() : nullptr;
         bool hasRiggedExtents = false;
 
         if (avatar && avatar->mDrawable)

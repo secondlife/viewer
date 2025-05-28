@@ -103,6 +103,7 @@ public:
 
     static const LLUUID DEFAULT_ASSET_ID;
 
+    static const F32 DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
     static F32 sAutoAdjustProbeAmbiance;
 
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
@@ -209,10 +210,10 @@ public:
 
     F32 getGamma() const;
 
-    F32 getHDRMin() const;
-    F32 getHDRMax() const;
-    F32 getHDROffset() const;
-    F32 getTonemapMix() const;
+    F32 getHDRMin(bool auto_adjust = false) const;
+    F32 getHDRMax(bool auto_adjust = false) const;
+    F32 getHDROffset(bool auto_adjust = false) const;
+    F32 getTonemapMix(bool auto_adjust = false) const;
     void setTonemapMix(F32 mix);
 
     void setGamma(F32 val);

@@ -50,10 +50,10 @@ protected:
     LLResizeHandle(const LLResizeHandle::Params&);
     friend class LLUICtrlFactory;
 public:
-    virtual void    draw();
-    virtual bool    handleHover(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    void    draw() override;
+    bool    handleHover(S32 x, S32 y, MASK mask) override;
+    bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
 
     void            setResizeLimits( S32 min_width, S32 min_height ) { mMinWidth = min_width; mMinHeight = min_height; }
 
@@ -71,8 +71,8 @@ private:
     const ECorner   mCorner;
 };
 
-const S32 RESIZE_HANDLE_HEIGHT = 11;
-const S32 RESIZE_HANDLE_WIDTH = 11;
+constexpr S32 RESIZE_HANDLE_HEIGHT = 11;
+constexpr S32 RESIZE_HANDLE_WIDTH = 11;
 
 #endif  // LL_RESIZEHANDLE_H
 

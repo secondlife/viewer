@@ -838,6 +838,7 @@ void LLWorld::printPacketsLost()
                     << " packets lost: " << cdp->getPacketsLost() << LL_ENDL;
         }
     }
+    LL_INFOS() << "Packets dropped by Packet Ring: " << gMessageSystem->mPacketRing.getNumDroppedPackets() << LL_ENDL;
 }
 
 void LLWorld::processCoarseUpdate(LLMessageSystem* msg, void** user_data)
@@ -1371,10 +1372,8 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 
 F32 LLWorld::getNearbyAvatarsAndMaxGPUTime(std::vector<LLVOAvatar*> &valid_nearby_avs)
 {
-    static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
-
     F32 nearby_max_complexity = 0;
-    F32 radius = render_far_clip * render_far_clip;
+    F32 radius = LLVOAvatar::sRenderDistance * LLVOAvatar::sRenderDistance;
 
     for (LLCharacter* character : LLCharacter::sInstances)
     {

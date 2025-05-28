@@ -101,6 +101,7 @@ LLGLSLShader    gReflectionProbeDisplayProgram;
 LLGLSLShader    gCopyProgram;
 LLGLSLShader    gCopyDepthProgram;
 LLGLSLShader    gPBRTerrainBakeProgram;
+LLGLSLShader    gDrawColorProgram;
 
 //object shaders
 LLGLSLShader        gObjectPreviewProgram;
@@ -113,7 +114,6 @@ LLGLSLShader        gObjectAlphaMaskNoColorProgram;
 
 //environment shaders
 LLGLSLShader        gWaterProgram;
-LLGLSLShader        gWaterEdgeProgram;
 LLGLSLShader        gUnderWaterProgram;
 
 //interface shaders
@@ -409,7 +409,6 @@ void LLViewerShaderMgr::finalizeShaderList()
     //ONLY shaders that need WL Param management should be added here
     mShaderList.push_back(&gAvatarProgram);
     mShaderList.push_back(&gWaterProgram);
-    mShaderList.push_back(&gWaterEdgeProgram);
     mShaderList.push_back(&gAvatarEyeballProgram);
     mShaderList.push_back(&gImpostorProgram);
     mShaderList.push_back(&gObjectBumpProgram);
@@ -623,6 +622,8 @@ void LLViewerShaderMgr::setShaders()
     else
     {
         // "ShaderLoading" and "Shader" need to be logged
+        LL_WARNS("Shader") << "Failed loading basic shaders.  Retrying with increased log level..." << LL_ENDL;
+
         LLError::ELevel lvl = LLError::getDefaultLevel();
         LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
         loadBasicShaders();
@@ -843,7 +844,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
         // Note usage of GL_VERTEX_SHADER
         if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER, &attribs) == 0)
         {
-            LL_WARNS("Shader") << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
+            LL_WARNS("Shader") << "Failed to load basic vertex shader " << i << ": " << shaders[i].first << LL_ENDL;
             return shaders[i].first;
         }
     }
@@ -874,6 +875,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/pbrterrainUtilF.glsl",                 1) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/tonemapUtilF.glsl",                    1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/screenSpaceReflUtil.glsl",             ssr ? 3 : 1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
@@ -906,7 +908,6 @@ bool LLViewerShaderMgr::loadShadersWater()
     if (mShaderLevel[SHADER_WATER] == 0)
     {
         gWaterProgram.unload();
-        gWaterEdgeProgram.unload();
         gUnderWaterProgram.unload();
         return true;
     }
@@ -920,6 +921,7 @@ bool LLViewerShaderMgr::loadShadersWater()
         gWaterProgram.mFeatures.hasGamma = true;
         gWaterProgram.mFeatures.hasSrgb = true;
         gWaterProgram.mFeatures.hasReflectionProbes = true;
+        gWaterProgram.mFeatures.hasTonemap = true;
         gWaterProgram.mFeatures.hasShadows = use_sun_shadow;
         gWaterProgram.mShaderFiles.clear();
         gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
@@ -938,36 +940,6 @@ bool LLViewerShaderMgr::loadShadersWater()
         gWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
         gWaterProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
         success = gWaterProgram.createShader();
-        llassert(success);
-    }
-
-    if (success)
-    {
-    // load water shader
-        gWaterEdgeProgram.mName = "Water Edge Shader";
-        gWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
-        gWaterEdgeProgram.mFeatures.hasAtmospherics = true;
-        gWaterEdgeProgram.mFeatures.hasGamma = true;
-        gWaterEdgeProgram.mFeatures.hasSrgb = true;
-        gWaterEdgeProgram.mFeatures.hasReflectionProbes = true;
-        gWaterEdgeProgram.mFeatures.hasShadows = use_sun_shadow;
-        gWaterEdgeProgram.mShaderFiles.clear();
-        gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
-        gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER));
-        gWaterEdgeProgram.clearPermutations();
-        gWaterEdgeProgram.addPermutation("WATER_EDGE", "1");
-        if (LLPipeline::sRenderTransparentWater)
-        {
-            gWaterEdgeProgram.addPermutation("TRANSPARENT_WATER", "1");
-        }
-
-        if (use_sun_shadow)
-        {
-            gWaterEdgeProgram.addPermutation("HAS_SUN_SHADOW", "1");
-        }
-        gWaterEdgeProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-        gWaterEdgeProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
-        success = gWaterEdgeProgram.createShader();
         llassert(success);
     }
 
@@ -2481,6 +2453,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPostTonemapProgram.mName = "Deferred Tonemap Post Process";
         gDeferredPostTonemapProgram.mFeatures.hasSrgb = true;
         gDeferredPostTonemapProgram.mFeatures.isDeferred = true;
+        gDeferredPostTonemapProgram.mFeatures.hasTonemap = true;
         gDeferredPostTonemapProgram.mShaderFiles.clear();
         gDeferredPostTonemapProgram.clearPermutations();
         gDeferredPostTonemapProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
@@ -2495,6 +2468,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gNoPostTonemapProgram.mName = "No Post Tonemap Post Process";
         gNoPostTonemapProgram.mFeatures.hasSrgb = true;
         gNoPostTonemapProgram.mFeatures.isDeferred = true;
+        gNoPostTonemapProgram.mFeatures.hasTonemap = true;
         gNoPostTonemapProgram.mShaderFiles.clear();
         gNoPostTonemapProgram.clearPermutations();
         gNoPostTonemapProgram.addPermutation("NO_POST", "1");
@@ -3351,6 +3325,17 @@ bool LLViewerShaderMgr::loadShadersInterface()
         gCopyDepthProgram.addPermutation("COPY_DEPTH", "1");
         gCopyDepthProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         success = gCopyDepthProgram.createShader();
+    }
+
+    if (success)
+    {
+        gDrawColorProgram.mName = "Draw Color Shader";
+        gDrawColorProgram.mShaderFiles.clear();
+        gDrawColorProgram.mShaderFiles.push_back(make_pair("objects/simpleNoAtmosV.glsl", GL_VERTEX_SHADER));
+        gDrawColorProgram.mShaderFiles.push_back(make_pair("objects/simpleColorF.glsl", GL_FRAGMENT_SHADER));
+        gDrawColorProgram.clearPermutations();
+        gDrawColorProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+        success = gDrawColorProgram.createShader();
     }
 
     if (gSavedSettings.getBOOL("LocalTerrainPaintEnabled"))

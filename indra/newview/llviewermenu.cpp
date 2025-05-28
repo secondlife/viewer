@@ -286,6 +286,8 @@ void force_error_software_exception();
 void force_error_os_exception();
 void force_error_driver_crash();
 void force_error_coroutine_crash();
+void force_error_coroprocedure_crash();
+void force_error_work_queue_crash();
 void force_error_thread_crash();
 
 void handle_force_delete();
@@ -2634,6 +2636,24 @@ class LLAdvancedForceErrorCoroutineCrash : public view_listener_t
     }
 };
 
+class LLAdvancedForceErrorCoroprocedureCrash : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_coroprocedure_crash();
+        return true;
+    }
+};
+
+class LLAdvancedForceErrorWorkQueueCrash : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_work_queue_crash();
+        return true;
+    }
+};
+
 class LLAdvancedForceErrorThreadCrash : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -3157,7 +3177,11 @@ void handle_object_edit()
     LLFloaterReg::showInstance("build");
 
     LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
-    gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+
+    if (gFloaterTools)
+    {
+        gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+    }
 
     LLViewerJoystick::getInstance()->moveObjects(true);
     LLViewerJoystick::getInstance()->setNeedsReset(true);
@@ -5199,15 +5223,16 @@ void handle_take(bool take_separate)
     // MAINT-290
     // Reason: Showing the confirmation dialog resets object selection, thus there is nothing to derez.
     // Fix: pass selection to the confirm_take, so that selection doesn't "die" after confirmation dialog is opened
-    params.functor.function([take_separate](const LLSD &notification, const LLSD &response)
+    LLObjectSelectionHandle obj_selection = LLSelectMgr::instance().getSelection();
+    params.functor.function([take_separate, obj_selection](const LLSD &notification, const LLSD &response)
     {
         if (take_separate)
         {
-            confirm_take_separate(notification, response, LLSelectMgr::instance().getSelection());
+            confirm_take_separate(notification, response, obj_selection);
         }
         else
         {
-            confirm_take(notification, response, LLSelectMgr::instance().getSelection());
+            confirm_take(notification, response, obj_selection);
         }
     });
 
@@ -8656,6 +8681,16 @@ void force_error_coroutine_crash()
     LLAppViewer::instance()->forceErrorCoroutineCrash();
 }
 
+void force_error_coroprocedure_crash()
+{
+    LLAppViewer::instance()->forceErrorCoroprocedureCrash();
+}
+
+void force_error_work_queue_crash()
+{
+    LLAppViewer::instance()->forceErrorWorkQueueCrash();
+}
+
 void force_error_thread_crash()
 {
     LLAppViewer::instance()->forceErrorThreadCrash();
@@ -9860,6 +9895,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro");
     view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
+    view_listener_t::addMenu(new LLAdvancedForceErrorCoroprocedureCrash(), "Advanced.ForceErrorCoroprocedureCrash");
+    view_listener_t::addMenu(new LLAdvancedForceErrorWorkQueueCrash(), "Advanced.ForceErrorWorkQueueCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer");
 

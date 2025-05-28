@@ -837,7 +837,7 @@ void LLButton::draw()
 
     // Highlight if needed
     if( ll::ui::SearchableControl::getHighlighted() )
-        label_color = ll::ui::SearchableControl::getHighlightColor();
+        label_color = ll::ui::SearchableControl::getHighlightFontColor();
 
     // overlay with keyboard focus border
     if (hasFocus())

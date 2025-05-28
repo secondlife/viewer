@@ -17,6 +17,7 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llapp.h"
 #include "llcoros.h"
 #include LLCOROS_MUTEX_HEADER
 #include "llerror.h"
@@ -102,19 +103,95 @@ std::string LL::WorkQueueBase::makeName(const std::string& name)
     return STRINGIZE("WorkQueue" << num);
 }
 
+namespace
+{
+#if LL_WINDOWS
+
+    static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+
+    U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
+    {
+        if (LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
+        {
+            // Handled
+            return EXCEPTION_CONTINUE_SEARCH;
+        }
+        else if (code == STATUS_MSC_EXCEPTION)
+        {
+            // C++ exception, go on
+            return EXCEPTION_CONTINUE_SEARCH;
+        }
+        else
+        {
+            // handle it, convert to std::exception
+            return EXCEPTION_EXECUTE_HANDLER;
+        }
+
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+
+    void cpphandle(const LL::WorkQueueBase::Work& work)
+    {
+        // SE and C++ can not coexists, thus two handlers
+        try
+        {
+            work();
+        }
+        catch (const LLContinueError&)
+        {
+            // Any uncaught exception derived from LLContinueError will be caught
+            // here and logged. This coroutine will terminate but the rest of the
+            // viewer will carry on.
+            LOG_UNHANDLED_EXCEPTION(STRINGIZE("LLContinue in work queue"));
+        }
+    }
+
+    void sehandle(const LL::WorkQueueBase::Work& work)
+    {
+        __try
+        {
+            // handle stop and continue exceptions first
+            cpphandle(work);
+        }
+        __except (exception_filter(GetExceptionCode(), GetExceptionInformation()))
+        {
+            // convert to C++ styled exception
+            char integer_string[512];
+            sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
+            throw std::exception(integer_string);
+        }
+    }
+#endif // LL_WINDOWS
+} // anonymous namespace
+
 void LL::WorkQueueBase::callWork(const Work& work)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+
+#ifdef LL_WINDOWS
+    // can not use __try directly, toplevel requires unwinding, thus use of a wrapper
+    sehandle(work);
+#else // LL_WINDOWS
     try
     {
         work();
     }
-    catch (...)
+    catch (LLContinueError&)
     {
-        // No matter what goes wrong with any individual work item, the worker
-        // thread must go on! Log our own instance name with the exception.
         LOG_UNHANDLED_EXCEPTION(getKey());
     }
+    catch (...)
+    {
+        // Stash any other kind of uncaught exception to be rethrown by main thread.
+        LL_WARNS("LLCoros") << "Capturing and rethrowing uncaught exception in WorkQueueBase "
+            << getKey() << LL_ENDL;
+
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        main_queue->post(
+            // Bind the current exception, rethrow it in main loop.
+            [exc = std::current_exception()]() { std::rethrow_exception(exc); });
+    }
+#endif // else LL_WINDOWS
 }
 
 void LL::WorkQueueBase::error(const std::string& msg)
