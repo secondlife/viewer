@@ -100,7 +100,7 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
         }
         type = found->second;
     }
-    bool ok = mViewerWindow->saveSnapshot(event["filename"], width, height, showui, showhud, rebuild, type);
+    bool ok = mViewerWindow->saveSnapshot(event["filename"], width, height, showui, showhud, rebuild, true /*L$ Balance*/, type);
     sendReply(LLSDMap("ok", ok), event);
 }
 

@@ -390,6 +390,7 @@ void init_audio()
         gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndWindowClose")));
         gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndWindowOpen")));
         gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndRestart")));
+        gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndChatMention")));
     }
 
     audio_update_volume(true);
@@ -541,8 +542,8 @@ void audio_update_wind(bool force_update)
         // whereas steady-state avatar walk velocity is only 3.2 m/s.
         // Without this the world feels desolate on first login when you are
         // standing still.
-        const F32 WIND_LEVEL = 0.5f;
-        LLVector3 scaled_wind_vec = gWindVec * WIND_LEVEL;
+        static LLUICachedControl<F32> wind_level("AudioLevelWind", 0.5f);
+        LLVector3 scaled_wind_vec = gWindVec * wind_level;
 
         // Mix in the avatar's motion, subtract because when you walk north,
         // the apparent wind moves south.

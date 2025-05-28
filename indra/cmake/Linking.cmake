@@ -67,7 +67,6 @@ elseif (WINDOWS)
           legacy_stdio_definitions
           )
 else()
-  include(CMakeFindFrameworks)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
   find_library(CARBON_LIBRARY Carbon)
   find_library(COCOA_LIBRARY Cocoa)

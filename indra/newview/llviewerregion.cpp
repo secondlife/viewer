@@ -3719,12 +3719,6 @@ bool LLViewerRegion::bakesOnMeshEnabled() const
         mSimulatorFeatures["BakesOnMeshEnabled"].asBoolean());
 }
 
-bool LLViewerRegion::meshRezEnabled() const
-{
-    return (mSimulatorFeatures.has("MeshRezEnabled") &&
-                mSimulatorFeatures["MeshRezEnabled"].asBoolean());
-}
-
 bool LLViewerRegion::dynamicPathfindingEnabled() const
 {
     return ( mSimulatorFeatures.has("DynamicPathfindingEnabled") &&

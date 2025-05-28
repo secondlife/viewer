@@ -86,7 +86,8 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
     mHasArrow(true),
     mIsInActiveVoiceChannel(false),
     mFlashStateOn(false),
-    mFlashStarted(false)
+    mFlashStarted(false),
+    mIsAltFlashColor(false)
 {
     mFlashTimer = new LLFlashTimer();
     mAreChildrenInited = true; // inventory only
@@ -157,7 +158,7 @@ void LLConversationViewSession::destroyView()
     LLFolderViewFolder::destroyView();
 }
 
-void LLConversationViewSession::setFlashState(bool flash_state)
+void LLConversationViewSession::setFlashState(bool flash_state, bool alternate_color)
 {
     if (flash_state && !mFlashStateOn)
     {
@@ -170,6 +171,7 @@ void LLConversationViewSession::setFlashState(bool flash_state)
 
     mFlashStateOn = flash_state;
     mFlashStarted = false;
+    mIsAltFlashColor = mFlashStateOn && (alternate_color || mIsAltFlashColor);
     mFlashTimer->stopFlashing();
 }
 
@@ -288,7 +290,8 @@ void LLConversationViewSession::draw()
     startFlashing();
 
     // draw highlight for selected items
-    drawHighlight(show_context, true, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
+    static LLUIColor alt_color = LLUIColorTable::instance().getColor("MentionFlashBgColor", DEFAULT_WHITE);
+    drawHighlight(show_context, true, sHighlightBgColor, mIsAltFlashColor ? alt_color : sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 
     // Draw children if root folder, or any other folder that is open. Do not draw children when animating to closed state or you get rendering overlap.
     bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this) || isOpen();

@@ -265,6 +265,9 @@ public: // needs to be accessible to selection manager
     void onCopyTexture();
     void onPasteTexture();
     void onPasteTexture(LLViewerObject* objectp, S32 te);
+private:
+    // for copy/paste operations
+    bool validateInventoryItem(const LLSD& te, const std::string& prefix);
 
 protected:
     void menuDoToSelected(const LLSD& userdata);

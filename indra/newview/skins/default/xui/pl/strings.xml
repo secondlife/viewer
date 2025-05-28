@@ -22,14 +22,14 @@
 		Konfiguracja budowania: [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-Położenie [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] w [REGION] zlokalizowanym w &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
+		Położenie [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] w [REGION] zlokalizowanym w &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 (koordynaty globalne [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</string>
 	<string name="AboutSystem">
-Procesor (CPU): [CPU]
+		Procesor (CPU): [CPU]
 Pamięć (Memory): [MEMORY_MB] MB
 System operacyjny (OS Version): [OS_VERSION]
 Dostawca karty graficznej (Graphics Card Vendor): [GRAPHICS_CARD_VENDOR]
@@ -42,7 +42,7 @@ Karta graficzna (Graphics Card): [GRAPHICS_CARD]
 		Wersja OpenGL: [OPENGL_VERSION]
 	</string>
 	<string name="AboutSettings">
-Rozmiar okna (Window size): [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+		Rozmiar okna (Window size): [WINDOW_WIDTH]x[WINDOW_HEIGHT]
 Dostrojenie rozmiaru czcionki: [FONT_SIZE_ADJUSTMENT]pt
 Skalowanie interfejsu (UI Scaling): [UI_SCALE]
 Pole widzenia (Draw Distance): [DRAW_DISTANCE]m
@@ -56,7 +56,7 @@ Pamięć podręczna dysku (Disk cache): [DISK_CACHE_INFO]
 		Tryb obrazu HiDPI: [HIDPI]
 	</string>
 	<string name="AboutLibs">
-Wersja dekodera J2C: [J2C_VERSION]
+		Wersja dekodera J2C: [J2C_VERSION]
 Wersja sterownika dźwięku (Audio Driver): [AUDIO_DRIVER_VERSION]
 [LIBCEF_VERSION]
 Wersja LibVLC: [LIBVLC_VERSION]
@@ -572,7 +572,7 @@ Jeśli myślisz, że to błąd skontaktuj się z support@secondlife.com
 		Usunięcie znajomego
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Zamknij (&#8984;W)
+		Zamknij (⌘W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		Zamknij (Ctrl+W)
@@ -596,11 +596,11 @@ Jeśli myślisz, że to błąd skontaktuj się z support@secondlife.com
 		Pokaż Pomoc
 	</string>
 	<string name="TooltipNotecardNotAllowedTypeDrop">
-Przedmioty tego typu nie mogą być dołączane
+		Przedmioty tego typu nie mogą być dołączane
 do notek z tego regionu.
 	</string>
 	<string name="TooltipNotecardOwnerRestrictedDrop">
-Tylko przedmioty z nieograniczonymi
+		Tylko przedmioty z nieograniczonymi
 uprawnieniami 'następnego właściciela'
 mogą być dołączane do notek.
 	</string>
@@ -1622,7 +1622,7 @@ Jeśli ciągle otrzymujesz tą wiadomość, to skontaktuj się z pomocą technic
 	<string name="Scripts" value=" Skrypty,"/>
 	<string name="Sounds" value=" Dźwięki,"/>
 	<string name="Textures" value=" Tekstury,"/>
-	<string name="Settings" value=" Otoczenia," />
+	<string name="Settings" value=" Otoczenia,"/>
 	<string name="Snapshots" value=" Zdjęcia,"/>
 	<string name="No Filters" value="Nie "/>
 	<string name="Since Logoff" value=" - od wylogowania"/>
@@ -4359,7 +4359,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		(Zapisano [LONG_TIMESTAMP])
 	</string>
 	<string name="IM_unblock_only_groups_friends">
-		Aby zobaczyć tą wiadomość musisz odznaczyć &apos;Tylko znajomi i grupy mogą wysyłać mi wiad. prywatne (IM) oraz rozmowy głosowe&apos; w Ustawieniach/Prywatności.
+		Aby zobaczyć tą wiadomość musisz odznaczyć 'Tylko znajomi i grupy mogą wysyłać mi wiad. prywatne (IM) oraz rozmowy głosowe' w Ustawieniach/Prywatności.
 	</string>
 	<string name="OnlineStatus">
 		dostępny/a
@@ -4413,7 +4413,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Zaoferowano folder: '[ITEM_NAME]'
 	</string>
 	<string name="bot_warning">
-Rozmawiasz z botem [NAME]. Nie udostępniaj żadnych danych osobowych.
+		Rozmawiasz z botem [NAME]. Nie udostępniaj żadnych danych osobowych.
 Dowiedz się więcej na https://second.life/scripted-agents.
 	</string>
 	<string name="share_alert">
@@ -5290,10 +5290,10 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 		Otoczenie
 	</string>
 	<string name="logging_calls_disabled_log_empty">
-		Rozmowy nie są zapisywane do dziennika. Jeśli chcesz zacząć je logować wybierz "Zapisywanie: tylko dziennik" lub "Zapisywanie: dziennik i logi rozmów" w Preferencje > Czat.
+		Rozmowy nie są zapisywane do dziennika. Jeśli chcesz zacząć je logować wybierz "Zapisywanie: tylko dziennik" lub "Zapisywanie: dziennik i logi rozmów" w Preferencje &gt; Czat.
 	</string>
 	<string name="logging_calls_disabled_log_not_empty">
-		Rozmowy nie będą więcej zapisywane. Jeśli chcesz kontynuować ich logowanie wybierz "Zapisywanie: tylko dziennik" lub "Zapisywanie: dziennik i logi rozmów" w Preferencje > Czat.
+		Rozmowy nie będą więcej zapisywane. Jeśli chcesz kontynuować ich logowanie wybierz "Zapisywanie: tylko dziennik" lub "Zapisywanie: dziennik i logi rozmów" w Preferencje &gt; Czat.
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Nie ma zapisanych rozmów. Jeśli skontaktujesz się z kimś, lub ktoś z Tobą, to wpis dziennika pojawi się tutaj.
