@@ -103,8 +103,7 @@ public:
     static void onClickAutoSnap(LLUICtrl *ctrl, void* data);
     static void onClickNoPost(LLUICtrl *ctrl, void* data);
     static void onClickFilter(LLUICtrl *ctrl, void* data);
-    static void onClickUICheck(LLUICtrl *ctrl, void* data);
-    static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
+    static void onClickDisplaySetting(LLUICtrl *ctrl, void* data);
     static void onCommitFreezeFrame(LLUICtrl* ctrl, void* data);
 
     virtual LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true) = 0;

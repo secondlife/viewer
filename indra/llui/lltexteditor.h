@@ -95,6 +95,8 @@ public:
     void    insertEmoji(llwchar emoji);
     void    handleEmojiCommit(llwchar emoji);
 
+    void handleMentionCommit(std::string name_url);
+
     // mousehandler overrides
     virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
     virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
@@ -208,10 +210,13 @@ public:
     bool            getShowContextMenu() const { return mShowContextMenu; }
 
     void            showEmojiHelper();
+    void            hideEmojiHelper();
     void            setShowEmojiHelper(bool show);
     bool            getShowEmojiHelper() const { return mShowEmojiHelper; }
 
     void            setPassDelete(bool b) { mPassDelete = b; }
+
+    LLWString       getConvertedText() const;
 
 protected:
     void            showContextMenu(S32 x, S32 y);
@@ -255,6 +260,7 @@ protected:
     S32             remove(S32 pos, S32 length, bool group_with_next_op);
 
     void            tryToShowEmojiHelper();
+    void            tryToShowMentionHelper();
     void            focusLostHelper();
     void            updateAllowingLanguageInput();
     bool            hasPreeditString() const;
@@ -292,6 +298,7 @@ protected:
 
     bool                mAutoIndent;
     bool                mParseOnTheFly;
+    bool                mShowChatMentionPicker;
 
     void                updateLinkSegments();
     void                keepSelectionOnReturn(bool keep) { mKeepSelectionOnReturn = keep; }

@@ -42,6 +42,7 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentaccess.h"
+#include "llcallbacklist.h"
 #include "llviewerparcelaskplay.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
@@ -1756,6 +1757,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 {
                     instance->mTeleportFinishedSignal(instance->mTeleportInProgressPosition, false);
                 }
+                instance->postTeleportFinished(instance->mTeleportWithinRegion);
+                instance->mTeleportWithinRegion = false;
             }
             parcel->setParcelEnvironmentVersion(parcel_environment_version);
             LL_DEBUGS("ENVIRONMENT") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
@@ -2725,6 +2728,8 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
         // Local teleport. We already have the agent parcel data.
         // Emit the signal immediately.
         getInstance()->mTeleportFinishedSignal(new_pos, local);
+
+        postTeleportFinished(true);
     }
     else
     {
@@ -2733,16 +2738,35 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
         // Let's wait for the update and then emit the signal.
         mTeleportInProgressPosition = new_pos;
         mTeleportInProgress = true;
+        mTeleportWithinRegion = local;
     }
 }
 
 void LLViewerParcelMgr::onTeleportFailed()
 {
     mTeleportFailedSignal();
+    LLEventPumps::instance().obtain("LLTeleport").post(llsd::map("success", false));
 }
 
 bool  LLViewerParcelMgr::getTeleportInProgress()
 {
     return mTeleportInProgress // case where parcel data arrives after teleport
         || gAgent.getTeleportState() > LLAgent::TELEPORT_NONE; // For LOCAL, no mTeleportInProgress
+}
+
+void LLViewerParcelMgr::postTeleportFinished(bool local)
+{
+    auto post = []()
+    {
+        LLEventPumps::instance().obtain("LLTeleport").post(llsd::map("success", true));
+    };
+    if (local)
+    {
+        static LLCachedControl<F32> teleport_local_delay(gSavedSettings, "TeleportLocalDelay");
+        doAfterInterval(post, teleport_local_delay + 0.5f);
+    }
+    else
+    {
+        post();
+    }
 }

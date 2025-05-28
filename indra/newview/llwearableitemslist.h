@@ -32,6 +32,7 @@
 #include "llsingleton.h"
 
 // newview
+#include "llinventoryfunctions.h"
 #include "llinventoryitemslist.h"
 #include "llinventorylistitem.h"
 #include "lllistcontextmenu.h"
@@ -507,6 +508,14 @@ protected:
     ESortOrder      mSortOrder;
 
     LLWearableType::EType mMenuWearableType;
+};
+
+class LLFindOutfitItems : public LLInventoryCollectFunctor
+{
+public:
+    LLFindOutfitItems() {}
+    virtual ~LLFindOutfitItems() {}
+    virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

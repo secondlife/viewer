@@ -328,7 +328,7 @@ public:
         }
 
         const std::string verb = params[1].asString();
-        if (verb == "about")
+        if (verb == "about" || verb == "mention")
         {
             LLAvatarActions::showProfile(avatar_id);
             return true;
