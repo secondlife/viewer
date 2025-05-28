@@ -1504,10 +1504,10 @@ static void handle_click_action_play()
 
 bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool moap_flag)
 {
-    // Early failure case
+    // Early failure cases
     if(!pick.getObject())
     {
-        LL_WARNS_ONCE() << "pick.getObject() is NULL" << LL_ENDL;
+        LL_WARNS() << "pick.getObject() is NULL" << LL_ENDL;
         return false;
     }
 
@@ -1521,7 +1521,7 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
         return false;
     }
     // All objects (overriding PRIM_MEDIA_FIRST_CLICK_INTERACT)
-    if(FirstClickPref & MEDIA_FIRST_CLICK_ALL)
+    if(FirstClickPref == MEDIA_FIRST_CLICK_ALL)
     {
         LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_ALL" << LL_ENDL;
         return true;
@@ -1533,7 +1533,7 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
         return false;
     }
     // Any object with PRIM_MEDIA_FIRST_CLICK_INTERACT set to TRUE
-    if(FirstClickPref == MEDIA_FIRST_CLICK_ANY)
+    if(FirstClickPref & MEDIA_FIRST_CLICK_ANY)
     {
         LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_ANY" << LL_ENDL;
         return true;
@@ -1548,13 +1548,13 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     }
 
     // Own objects
-    if(FirstClickPref & MEDIA_FIRST_CLICK_OWN && object->permYouOwner())
+    if((FirstClickPref & MEDIA_FIRST_CLICK_OWN) && object->permYouOwner())
     {
         LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_OWN" << LL_ENDL;
         return true;
     }
     // HUD attachments
-    if(FirstClickPref & MEDIA_FIRST_CLICK_HUD && object->isHUDAttachment())
+    if((FirstClickPref & MEDIA_FIRST_CLICK_HUD) && object->isHUDAttachment())
     {
         LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_HUD" << LL_ENDL;
         return true;
@@ -1564,14 +1564,14 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     LLPermissions* perms = LLSelectMgr::getInstance()->getHoverNode()->mPermissions;
     if(perms == nullptr)
     {
-        LL_WARNS_ONCE() << "LLSelectMgr::getInstance()->getHoverNode()->mPermissions is NULL" << LL_ENDL;
+        LL_WARNS() << "LLSelectMgr::getInstance()->getHoverNode()->mPermissions is NULL" << LL_ENDL;
         return false;
     }
     LLUUID owner_id = perms->getOwner();
     LLUUID group_id = perms->getGroup();
-    if(owner_id.notNull() && group_id.isNull())
+    if(owner_id.isNull() && group_id.isNull())
     {
-        LL_WARNS_ONCE() << "Owner information was not reliably obtained" << LL_ENDL;
+        LL_WARNS() << "Owner information was not reliably obtained" << LL_ENDL;
         return false;
     }
 
@@ -1587,7 +1587,7 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     {
         // Get our active group
         LLUUID active_group = gAgent.getGroupID();
-        if(!active_group.isNull() && (active_group == group_id || active_group == owner_id))
+        if(active_group.notNull() && (active_group == group_id || active_group == owner_id))
         {
             LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_GROUP.Active group: " << active_group << ", group_id:" << group_id << ", owner_id: " << owner_id << LL_ENDL;
             return true;
@@ -1604,9 +1604,9 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     if(FirstClickPref & MEDIA_FIRST_CLICK_LAND)
     {
         LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-        if (parcel == nullptr)
+        if(parcel == nullptr)
         {
-            LL_WARNS_ONCE() << "LLViewerParcelMgr::getInstance()->getAgentParcel() is NULL" << LL_ENDL;
+            LL_WARNS() << "LLViewerParcelMgr::getInstance()->getAgentParcel() is NULL" << LL_ENDL;
             return false;
         }
 
@@ -1623,7 +1623,7 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
         // The parcel owner and group can't both be null
         if(parcel_owner.isNull() && parcel_group.isNull())
         {
-            LL_WARNS_ONCE() << "Parcel owner and group are both null" << LL_ENDL;
+            LL_WARNS() << "Parcel owner and group are both null" << LL_ENDL;
             return false;
         }
 

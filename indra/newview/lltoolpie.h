@@ -99,10 +99,10 @@ private:
         MEDIA_FIRST_CLICK_LAND       = 1 << 4,    // 0b00010000 (16)
 
         // Covers any object with PRIM_MEDIA_FIRST_CLICK_INTERACT (combines all other flags)
-        MEDIA_FIRST_CLICK_ANY        = MEDIA_FIRST_CLICK_HUD |
-                                       MEDIA_FIRST_CLICK_OWN |
-                                       MEDIA_FIRST_CLICK_GROUP |
-                                       MEDIA_FIRST_CLICK_FRIEND |
+        MEDIA_FIRST_CLICK_ANY        = MEDIA_FIRST_CLICK_HUD &
+                                       MEDIA_FIRST_CLICK_OWN &
+                                       MEDIA_FIRST_CLICK_GROUP &
+                                       MEDIA_FIRST_CLICK_FRIEND &
                                        MEDIA_FIRST_CLICK_LAND,
 
         // Covers all media regardless of other rules or PRIM_MEDIA_FIRST_CLICK_INTERACT
