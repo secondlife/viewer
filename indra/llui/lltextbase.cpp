@@ -483,7 +483,7 @@ std::vector<std::pair<LLRect, LLUIColor>> LLTextBase::getHighlightedBgRects()
             F32 left_precise  = (F32)line_iter->mRect.mLeft;
             F32 right_precise = (F32)line_iter->mRect.mLeft;
 
-            for (; segment_iter != mSegments.end(); ++segment_iter)
+            for (; segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
             {
                 LLTextSegmentPtr segmentp = *segment_iter;
 
