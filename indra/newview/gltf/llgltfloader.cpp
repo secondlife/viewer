@@ -468,6 +468,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
                 if (skinIdx >= 0)
                 {
+                    vert.weights = glm::vec4(prim.mWeights[i]);
+
                     auto accessorIdx = prim.mAttributes["JOINTS_0"];
                     LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
                     if (accessorIdx >= 0)
@@ -487,8 +489,11 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     {
                         vert.joints = glm::unpackUint4x16(prim.mJoints[i]);
                     }
-
-                    vert.weights = glm::vec4(prim.mWeights[i]);
+                    else
+                    {
+                        vert.joints = glm::zero<glm::u16vec4>();
+                        vert.weights = glm::zero<glm::vec4>();
+                    }
                 }
                 vertices.push_back(vert);
             }
@@ -659,8 +664,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         }
     }
 
-    // Call normalizeVolumeFaces to compute proper extents
-    pModel->normalizeVolumeFaces();
+    // Call normalizeVolumeFacesAndWeights to compute proper extents
+    pModel->normalizeVolumeFacesAndWeights();
 
     // Fill joint names, bind matrices and prepare to remap weight indices
     if (skinIdx >= 0)
