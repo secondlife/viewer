@@ -159,6 +159,12 @@ namespace LL
         }
 
         template<>
+        inline void copyVec3<F32, LLColor4U>(F32* src, LLColor4U& dst)
+        {
+            dst.set((U8)(src[0] * 255.f), (U8)(src[1] * 255.f), (U8)(src[2] * 255.f), 255);
+        }
+
+        template<>
         inline void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), 255);
