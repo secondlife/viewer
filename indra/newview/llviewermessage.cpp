@@ -2137,6 +2137,21 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
     EInstantMessage dialog = (EInstantMessage)d;
     LLHost sender = msg->getSender();
 
+    LLSD metadata;
+    if (msg->getNumberOfBlocksFast(_PREHASH_MetaData) > 0)
+    {
+        S32 metadata_size = msg->getSizeFast(_PREHASH_MetaData, 0, _PREHASH_Data);
+        std::string metadata_buffer;
+        metadata_buffer.resize(metadata_size, 0);
+
+        msg->getBinaryDataFast(_PREHASH_MetaData, _PREHASH_Data, &metadata_buffer[0], metadata_size, 0, metadata_size );
+        std::stringstream metadata_stream(metadata_buffer);
+        if (LLSDSerialize::fromBinary(metadata, metadata_stream, metadata_size) == LLSDParser::PARSE_FAILURE)
+        {
+            metadata.clear();
+        }
+    }
+
     LLIMProcessing::processNewMessage(from_id,
         from_group,
         to_id,
@@ -2151,7 +2166,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
         position,
         binary_bucket,
         binary_bucket_size,
-        sender);
+        sender,
+        metadata);
 }
 
 void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id)
@@ -2567,6 +2583,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["session_id"] = LLUUID();
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
+            // used to check if there is agent mention in the message
+            msg_notify["message"] = mesg;
             on_new_message(msg_notify);
         }
 
@@ -5039,6 +5057,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
                                         false, //UI
                                         gSavedSettings.getBOOL("RenderHUDInSnapshot"),
                                         false,
+                                        false,
                                         LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                         LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
         }
@@ -5143,6 +5162,7 @@ static void process_special_alert_messages(const std::string & message)
                                     gViewerWindow->getWindowHeightRaw(),
                                     false,
                                     gSavedSettings.getBOOL("RenderHUDInSnapshot"),
+                                    false,
                                     false,
                                     LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                     LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
@@ -6641,7 +6661,6 @@ void process_initiate_download(LLMessageSystem* msg, void**)
         (void**)new std::string(viewer_filename));
 }
 
-
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
     if (!gSavedSettings.getBOOL("ScriptsCanShowUI")) return;
@@ -6655,6 +6674,11 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
     msg->getString("Data", "SimName", sim_name);
     msg->getVector3("Data", "SimPosition", pos);
     msg->getVector3("Data", "LookAt", look_at);
+    U32 flags = (BEACON_SHOW_MAP | BEACON_FOCUS_MAP);
+    if (msg->has("Options"))
+    {
+        msg->getU32("Options", "Flags", flags);
+    }
 
     LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
     if(instance)
@@ -6665,7 +6689,13 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
             << LL_ENDL;
 
         instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
-        LLFloaterReg::showInstance("world_map", "center");
+        if (flags & BEACON_SHOW_MAP)
+        {
+            bool old_auto_focus = instance->getAutoFocus();
+            instance->setAutoFocus(flags & BEACON_FOCUS_MAP);
+            instance->openFloater("center");
+            instance->setAutoFocus(old_auto_focus);
+        }
     }
 
     // remove above two lines and replace with below line

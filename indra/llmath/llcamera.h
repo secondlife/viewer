@@ -33,23 +33,23 @@
 #include "llplane.h"
 #include "llvector4a.h"
 
-const F32 DEFAULT_FIELD_OF_VIEW     = 60.f * DEG_TO_RAD;
-const F32 DEFAULT_ASPECT_RATIO      = 640.f / 480.f;
-const F32 DEFAULT_NEAR_PLANE        = 0.25f;
-const F32 DEFAULT_FAR_PLANE         = 64.f; // far reaches across two horizontal, not diagonal, regions
+constexpr F32 DEFAULT_FIELD_OF_VIEW = 60.f * DEG_TO_RAD;
+constexpr F32 DEFAULT_ASPECT_RATIO  = 640.f / 480.f;
+constexpr F32 DEFAULT_NEAR_PLANE    = 0.25f;
+constexpr F32 DEFAULT_FAR_PLANE     = 64.f; // far reaches across two horizontal, not diagonal, regions
 
-const F32 MAX_ASPECT_RATIO  = 50.0f;
-const F32 MAX_NEAR_PLANE    = 1023.9f; // Clamp the near plane just before the skybox ends
-const F32 MAX_FAR_PLANE     = 100000.0f; //1000000.0f; // Max allowed. Not good Z precision though.
-const F32 MAX_FAR_CLIP      = 512.0f;
+constexpr F32 MAX_ASPECT_RATIO  = 50.0f;
+constexpr F32 MAX_NEAR_PLANE    = 1023.9f;   // Clamp the near plane just before the skybox ends
+constexpr F32 MAX_FAR_PLANE     = 100000.0f; //1000000.0f; // Max allowed. Not good Z precision though.
+constexpr F32 MAX_FAR_CLIP      = 512.0f;
 
-const F32 MIN_ASPECT_RATIO  = 0.02f;
-const F32 MIN_NEAR_PLANE    = 0.1f;
-const F32 MIN_FAR_PLANE     = 0.2f;
+constexpr F32 MIN_ASPECT_RATIO  = 0.02f;
+constexpr F32 MIN_NEAR_PLANE    = 0.1f;
+constexpr F32 MIN_FAR_PLANE     = 0.2f;
 
 // Min/Max FOV values for square views. Call getMin/MaxView to get extremes based on current aspect ratio.
-static const F32 MIN_FIELD_OF_VIEW = 5.0f * DEG_TO_RAD;
-static const F32 MAX_FIELD_OF_VIEW = 175.f * DEG_TO_RAD;
+constexpr F32 MIN_FIELD_OF_VIEW = 5.0f * DEG_TO_RAD;
+constexpr F32 MAX_FIELD_OF_VIEW = 175.f * DEG_TO_RAD;
 
 // An LLCamera is an LLCoorFrame with a view frustum.
 // This means that it has several methods for moving it around

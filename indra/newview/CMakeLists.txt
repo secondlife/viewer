@@ -92,6 +92,7 @@ set(viewer_SOURCE_FILES
     llagentwearables.cpp
     llanimstatelabels.cpp
     llappcorehttp.cpp
+    llappearancelistener.cpp
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
@@ -200,6 +201,7 @@ set(viewer_SOURCE_FILES
     llfloatercamera.cpp
     llfloatercamerapresets.cpp
     llfloaterchangeitemthumbnail.cpp
+    llfloaterchatmentionpicker.cpp
     llfloaterchatvoicevolume.cpp
     llfloaterclassified.cpp
     llfloatercolorpicker.cpp
@@ -761,6 +763,7 @@ set(viewer_HEADER_FILES
     llanimstatelabels.h
     llappcorehttp.h
     llappearance.h
+    llappearancelistener.h
     llappearancemgr.h
     llappviewer.h
     llappviewerlistener.h
@@ -868,6 +871,7 @@ set(viewer_HEADER_FILES
     llfloaterbuyland.h
     llfloatercamerapresets.h
     llfloaterchangeitemthumbnail.h
+    llfloaterchatmentionpicker.h
     llfloatercamera.h
     llfloaterchatvoicevolume.h
     llfloaterclassified.h

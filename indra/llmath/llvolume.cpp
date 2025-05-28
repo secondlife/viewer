@@ -1294,10 +1294,11 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     c       = cos(ang)*lerp(radius_start, radius_end, t);
 
 
-    pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
+    pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
                       + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0,params.getShear().mV[1],s),
+                    c + lerp(0.f, params.getShear().mV[VY], s),
                     s);
+
     pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
         hole_y * lerp(taper_y_begin, taper_y_end, t),
         0,1);
@@ -1327,9 +1328,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
         c   = cos(ang)*lerp(radius_start, radius_end, t);
         s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-        pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
+        pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
                           + lerp(-skew ,skew, t) * 0.5f,
-                        c + lerp(0,params.getShear().mV[1],s),
+                        c + lerp(0.f, params.getShear().mV[VY], s),
                         s);
 
         pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
@@ -1354,9 +1355,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     c   = cos(ang)*lerp(radius_start, radius_end, t);
     s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-    pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
+    pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
                       + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0,params.getShear().mV[1],s),
+                    c + lerp(0.f, params.getShear().mV[VY], s),
                     s);
     pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
                    hole_y * lerp(taper_y_begin, taper_y_end, t),
@@ -1494,8 +1495,8 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
             for (S32 i=0;i<np;i++)
             {
                 F32 t = lerp(params.getBegin(),params.getEnd(),(F32)i * mStep);
-                mPath[i].mPos.set(lerp(0,params.getShear().mV[0],t),
-                                     lerp(0,params.getShear().mV[1],t),
+                mPath[i].mPos.set(lerp(0.f, params.getShear().mV[VX], t),
+                                     lerp(0.f ,params.getShear().mV[VY], t),
                                      t - 0.5f);
                 LLQuaternion quat;
                 quat.setQuat(lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
@@ -1559,10 +1560,10 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
         {
             F32 t = (F32)i * mStep;
             mPath[i].mPos.set(0,
-                                lerp(0,   -sin(F_PI*params.getTwist()*t)*0.5f,t),
-                                lerp(-0.5f, cos(F_PI*params.getTwist()*t)*0.5f,t));
-            mPath[i].mScale.set(lerp(1,params.getScale().mV[0],t),
-                                lerp(1,params.getScale().mV[1],t), 0,1);
+                                lerp(0.f,  -sin(F_PI*params.getTwist() * t) * 0.5f, t),
+                                lerp(-0.5f, cos(F_PI*params.getTwist() * t) * 0.5f, t));
+            mPath[i].mScale.set(lerp(1.f, params.getScale().mV[VX], t),
+                                lerp(1.f, params.getScale().mV[VY], t), 0.f, 1.f);
             mPath[i].mTexT  = t;
             LLQuaternion quat;
             quat.setQuat(F_PI * params.getTwist() * t,1,0,0);

@@ -204,6 +204,7 @@ public:
 
     virtual LLJoint*        getJoint(const std::string &name);
     LLJoint*                getJoint(S32 num);
+    void                    initAllJoints();
 
     //if you KNOW joint_num is a valid animated joint index, use getSkeletonJoint for efficiency
     inline LLJoint* getSkeletonJoint(S32 joint_num) { return mSkeleton[joint_num]; }

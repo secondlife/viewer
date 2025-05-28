@@ -242,9 +242,7 @@ void LLFloaterEnvironmentAdjust::captureCurrentEnvironment()
         environment.setEnvironment(LLEnvironment::ENV_LOCAL, mLiveSky, FLOATER_ENVIRONMENT_UPDATE);
         environment.setEnvironment(LLEnvironment::ENV_LOCAL, mLiveWater, FLOATER_ENVIRONMENT_UPDATE);
     }
-    environment.setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
-    environment.updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
-
+    environment.setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEnvironmentAdjust::onButtonReset()
@@ -258,7 +256,6 @@ void LLFloaterEnvironmentAdjust::onButtonReset()
             this->closeFloater();
             LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
-            LLEnvironment::instance().updateEnvironment();
         }
     });
 
@@ -455,9 +452,29 @@ void LLFloaterEnvironmentAdjust::onMoonAzimElevChanged()
 void LLFloaterEnvironmentAdjust::onCloudMapChanged()
 {
     if (!mLiveSky)
+    {
         return;
-    mLiveSky->setCloudNoiseTextureId(getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->getValue().asUUID());
-    mLiveSky->update();
+    }
+
+    LLTextureCtrl* picker_ctrl = getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP);
+
+    LLUUID new_texture_id = picker_ctrl->getValue().asUUID();
+
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+
+    LLSettingsSky::ptr_t sky_to_set = mLiveSky->buildClone();
+    if (!sky_to_set)
+    {
+        return;
+    }
+
+    sky_to_set->setCloudNoiseTextureId(new_texture_id);
+
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, sky_to_set);
+
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT, true);
+
+    picker_ctrl->setValue(new_texture_id);
 }
 
 void LLFloaterEnvironmentAdjust::onWaterMapChanged()

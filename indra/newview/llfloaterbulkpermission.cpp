@@ -89,7 +89,15 @@ bool LLFloaterBulkPermission::postBuild()
     {
         mBulkChangeNextOwnerTransfer = true;
     }
+
+    mQueueOutputList = getChild<LLScrollListCtrl>("queue output");
     return true;
+}
+
+void LLFloaterBulkPermission::onClose(bool app_quitting)
+{
+    removeVOInventoryListener();
+    LLFloater::onClose(app_quitting);
 }
 
 void LLFloaterBulkPermission::doApply()
@@ -216,7 +224,7 @@ void LLFloaterBulkPermission::onCommitCopy()
 bool LLFloaterBulkPermission::start()
 {
     // note: number of top-level objects to modify is mObjectIDs.size().
-    getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("start_text"));
+    mQueueOutputList->setCommentText(getString("start_text"));
     return nextObject();
 }
 
@@ -239,7 +247,7 @@ bool LLFloaterBulkPermission::nextObject()
 
     if(isDone() && !mDone)
     {
-        getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("done_text"));
+        mQueueOutputList->setCommentText(getString("done_text"));
         mDone = true;
     }
     return successful_start;
@@ -294,8 +302,6 @@ void LLFloaterBulkPermission::doCheckUncheckAll(bool check)
 
 void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInventoryObject::object_list_t* inv)
 {
-    LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
-
     LLInventoryObject::object_list_t::const_iterator it = inv->begin();
     LLInventoryObject::object_list_t::const_iterator end = inv->end();
     for ( ; it != end; ++it)
@@ -362,7 +368,7 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInve
                     status_text.setArg("[STATUS]", "");
                 }
 
-                list->setCommentText(status_text.getString());
+                mQueueOutputList->setCommentText(status_text.getString());
 
                 //TODO if we are an object inside an object we should check a recuse flag and if set
                 //open the inventory of the object and recurse - Michelle2 Zenovka

@@ -121,7 +121,7 @@
 
 #include "SMAAAreaTex.h"
 #include "SMAASearchTex.h"
-
+#include "llerror.h"
 #ifndef LL_WINDOWS
 #define A_GCC 1
 #pragma GCC diagnostic ignored "-Wunused-function"
@@ -599,7 +599,6 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderMirrors");
     connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
     connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
-    connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
 
     LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl("CollectFontVertexBuffers");
     if (cntrl_ptr.notNull())
@@ -1286,8 +1285,11 @@ void LLPipeline::createGLBuffers()
     }
 
     allocateScreenBuffer(resX, resY);
-    mRT->width = 0;
-    mRT->height = 0;
+    // Do not zero out mRT dimensions here. allocateScreenBuffer() above
+    // already sets the correct dimensions. Zeroing them caused resizeShadowTexture()
+    // to fail if called immediately after createGLBuffers (e.g., post graphics change).
+    // mRT->width = 0;
+    // mRT->height = 0;
 
 
     if (!mNoiseMap)

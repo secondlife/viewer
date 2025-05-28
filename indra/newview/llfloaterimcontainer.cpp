@@ -2302,14 +2302,14 @@ bool LLFloaterIMContainer::isConversationLoggingAllowed()
     return gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
 }
 
-void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes)
+void LLFloaterIMContainer::flashConversationItemWidget(const LLUUID& session_id, bool is_flashes, bool alternate_color)
 {
     //Finds the conversation line item to flash using the session_id
     LLConversationViewSession * widget = dynamic_cast<LLConversationViewSession *>(get_ptr_in_map(mConversationsWidgets,session_id));
 
     if (widget)
     {
-        widget->setFlashState(is_flashes);
+        widget->setFlashState(is_flashes, alternate_color);
     }
 }
 
