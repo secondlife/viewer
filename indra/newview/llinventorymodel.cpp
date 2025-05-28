@@ -1007,7 +1007,8 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
         return;
     }
 
-    if (preferred_type != LLFolderType::FT_NONE)
+    if (preferred_type != LLFolderType::FT_NONE
+        && preferred_type != LLFolderType::FT_OUTFIT)
     {
         // Ultimately this should only be done for non-singleton
         // types. Requires back-end changes to guarantee that others
@@ -2775,6 +2776,7 @@ bool LLInventoryModel::loadSkeleton(
         bool is_cache_obsolete = false;
         if (loadFromFile(inventory_filename, categories, items, categories_to_update, is_cache_obsolete))
         {
+            LL_PROFILE_ZONE_NAMED("loadFromFile");
             // We were able to find a cache of files. So, use what we
             // found to generate a set of categories we should add. We
             // will go through each category loaded and if the version
@@ -3538,7 +3540,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 
         fileXML.close();
 
-        LL_INFOS(LOG_INV) << "Inventory saved: " << cat_count << " categories, " << it_count << " items." << LL_ENDL;
+        LL_INFOS(LOG_INV) << "Inventory saved: " << (S32)cat_count << " categories, " << (S32)it_count << " items." << LL_ENDL;
     }
     catch (...)
     {

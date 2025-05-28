@@ -490,7 +490,7 @@ static void deferred_ui_audio_callback(const LLUUID& uuid)
 
 bool    create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 {
-    if(!match || !base || base->getPlainText())
+    if (!match || match->getSkipProfileIcon() || !base || base->getPlainText())
         return false;
 
     LLUUID match_id = match->getID();
@@ -4263,7 +4263,7 @@ U32 LLAppViewer::getTextureCacheVersion()
 U32 LLAppViewer::getDiskCacheVersion()
 {
     // Viewer disk cache version intorduced in Simple Cache Viewer, change if the cache format changes.
-    const U32 DISK_CACHE_VERSION = 2;
+    const U32 DISK_CACHE_VERSION = 3;
 
     return DISK_CACHE_VERSION ;
 }
@@ -4555,6 +4555,7 @@ void LLAppViewer::saveFinalSnapshot()
                                     false,
                                     gSavedSettings.getBOOL("RenderHUDInSnapshot"),
                                     true,
+                                    false,
                                     LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                     LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
         mSavedFinalSnapshot = true;
@@ -5268,6 +5269,8 @@ void LLAppViewer::sendLogoutRequest()
         msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         gAgent.sendReliableMessage();
+
+        LL_INFOS("Agent") << "Logging out as agent: " << gAgent.getID() << " Session: " << gAgent.getSessionID() << LL_ENDL;
 
         gLogoutTimer.reset();
         gLogoutMaxTime = LOGOUT_REQUEST_TIME;

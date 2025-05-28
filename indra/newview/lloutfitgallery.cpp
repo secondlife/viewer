@@ -69,7 +69,6 @@ const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
 
 LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     : LLOutfitListBase(),
-      mOutfitsObserver(NULL),
       mScrollPanel(NULL),
       mGalleryPanel(NULL),
       mLastRowPanel(NULL),
@@ -765,12 +764,6 @@ LLOutfitGallery::~LLOutfitGallery()
 {
     delete mOutfitGalleryMenu;
 
-    if (gInventory.containsObserver(mOutfitsObserver))
-    {
-        gInventory.removeObserver(mOutfitsObserver);
-    }
-    delete mOutfitsObserver;
-
     while (!mUnusedRowPanels.empty())
     {
         LLPanel* panelp = mUnusedRowPanels.back();
@@ -828,6 +821,28 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
     if (!cat) return;
 
+    if (!isOutfitFolder(cat))
+    {
+        // Assume a subfolder that contains or will contain outfits, track it
+        const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+        mCategoriesObserver->addCategory(cat_id, [this, outfits]()
+        {
+            observerCallback(outfits);
+        });
+        return;
+    }
+
+    if (!isOutfitFolder(cat))
+    {
+        // Assume a subfolder that contains or will contain outfits, track it
+        const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+        mCategoriesObserver->addCategory(cat_id, [this, outfits]()
+        {
+            observerCallback(outfits);
+        });
+        return;
+    }
+
     LLOutfitGalleryItem* item = buildGalleryItem(cat->getName(), cat_id, cat->getIsFavorite());
     mOutfitMap.insert(LLOutfitGallery::outfit_map_value_t(cat_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
@@ -843,14 +858,8 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     if (!outfit_category)
         return;
 
-    if (mOutfitsObserver == NULL)
-    {
-        mOutfitsObserver = new LLInventoryCategoriesObserver();
-        gInventory.addObserver(mOutfitsObserver);
-    }
-
     // Start observing changes in "My Outfits" category.
-    mOutfitsObserver->addCategory(cat_id,
+    mCategoriesObserver->addCategory(cat_id,
         boost::bind(&LLOutfitGallery::refreshOutfit, this, cat_id), true);
 
     outfit_category->fetch();
@@ -863,7 +872,7 @@ void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
     if (outfits_iter != mOutfitMap.end())
     {
         // 0. Remove category from observer.
-        mOutfitsObserver->removeCategory(cat_id);
+        mCategoriesObserver->removeCategory(cat_id);
 
         //const LLUUID& outfit_id = outfits_iter->first;
         LLOutfitGalleryItem* item = outfits_iter->second;

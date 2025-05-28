@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    name="chat_mention_picker"
+    title="CHOOSE RESIDENT"
+    single_instance="true"
+    can_minimize="false"
+    can_tear_off="false"
+    can_resize="true"
+    auto_close="true"
+    layout="topleft"
+    min_width="250"
+    chrome="true"
+    height="125"
+    width="310">
+   <avatar_list
+    allow_select="true"
+    follows="all"
+    height="120"
+    width="306"
+    ignore_online_status="true"
+    layout="topleft"
+    left="3"
+    keep_one_selected="true"
+    multi_select="false"
+    show_info_btn="false"
+    show_profile_btn="false"
+    show_speaking_indicator="false"
+    name="avatar_list"
+    right="-1"
+    top="2" />
+</floater>

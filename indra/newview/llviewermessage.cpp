@@ -2583,6 +2583,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["session_id"] = LLUUID();
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
+            // used to check if there is agent mention in the message
+            msg_notify["message"] = mesg;
             on_new_message(msg_notify);
         }
 
@@ -5055,6 +5057,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
                                         false, //UI
                                         gSavedSettings.getBOOL("RenderHUDInSnapshot"),
                                         false,
+                                        false,
                                         LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                         LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
         }
@@ -5159,6 +5162,7 @@ static void process_special_alert_messages(const std::string & message)
                                     gViewerWindow->getWindowHeightRaw(),
                                     false,
                                     gSavedSettings.getBOOL("RenderHUDInSnapshot"),
+                                    false,
                                     false,
                                     LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                     LLSnapshotModel::SNAPSHOT_FORMAT_PNG);

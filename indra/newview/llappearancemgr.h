@@ -60,6 +60,7 @@ public:
     void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
     void wearCategoryFinal(const LLUUID& cat_id, bool copy_items, bool append);
     void wearOutfitByName(const std::string& name);
+    bool wearOutfit(const LLSD& query_map, bool append = false);
     void changeOutfit(bool proceed, const LLUUID& category, bool append);
     void replaceCurrentOutfit(const LLUUID& new_outfit);
     void renameOutfit(const LLUUID& outfit_id);
