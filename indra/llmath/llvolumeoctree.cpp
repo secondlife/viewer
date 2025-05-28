@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llvolumeoctree.h"
 #include "llvector4a.h"
 

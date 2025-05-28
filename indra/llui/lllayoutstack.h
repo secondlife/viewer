@@ -75,9 +75,6 @@ public:
     /*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
     /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
-
-    static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
-
     typedef enum e_animate
     {
         NO_ANIMATE,
@@ -86,7 +83,7 @@ public:
 
     void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
     void collapsePanel(LLPanel* panel, bool collapsed = true);
-    S32 getNumPanels() { return static_cast<S32>(mPanels.size()); }
+    S32 getNumPanels() const { return static_cast<S32>(mPanels.size()); }
 
     void updateLayout();
 
@@ -190,7 +187,6 @@ public:
     bool isCollapsed() const { return mCollapsed;}
 
     void setOrientation(LLView::EOrientation orientation);
-    void storeOriginalDim();
 
     void setIgnoreReshape(bool ignore) { mIgnoreReshape = ignore; }
 

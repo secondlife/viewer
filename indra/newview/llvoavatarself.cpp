@@ -225,6 +225,8 @@ void LLVOAvatarSelf::initInstance()
     doPeriodically(update_avatar_rez_metrics, 5.0);
     doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
 
+    initAllJoints(); // mesh thread uses LLVOAvatarSelf as a joint source
+
     mInitFlags |= 1<<2;
 }
 
@@ -697,6 +699,7 @@ void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 // virtual
 LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 {
+    std::lock_guard lock(mJointMapMutex);
     LLJoint *jointp = NULL;
     jointp = LLVOAvatar::getJoint(name);
     if (!jointp && mScreenp)
@@ -712,6 +715,14 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
         llassert(LLVOAvatar::getJoint((S32)jointp->getJointNum())==jointp);
     }
     return jointp;
+}
+
+
+//virtual
+void LLVOAvatarSelf::renderJoints()
+{
+    std::lock_guard lock(mJointMapMutex);
+    LLVOAvatar::renderJoints();
 }
 
 // virtual

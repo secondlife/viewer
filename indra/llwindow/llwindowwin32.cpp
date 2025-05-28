@@ -44,6 +44,7 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llsdutil.h"
+#include "llsys.h"
 #include "llglslshader.h"
 #include "llthreadsafequeue.h"
 #include "stringize.h"
@@ -79,10 +80,6 @@ const S32   MAX_MESSAGE_PER_UPDATE = 20;
 const S32   BITS_PER_PIXEL = 32;
 const S32   MAX_NUM_RESOLUTIONS = 32;
 const F32   ICON_FLASH_TIME = 0.5f;
-
-#ifndef WM_DPICHANGED
-#define WM_DPICHANGED 0x02E0
-#endif
 
 #ifndef USER_DEFAULT_SCREEN_DPI
 #define USER_DEFAULT_SCREEN_DPI 96 // Win7
@@ -1317,8 +1314,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     catch (...)
     {
         LOG_UNHANDLED_EXCEPTION("ChoosePixelFormat");
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1329,8 +1325,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
         &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtDescErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1368,8 +1363,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     if (!SetPixelFormat(mhDC, pixel_format, &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtSetErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1377,16 +1371,14 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     if (!(mhRC = SafeCreateContext(mhDC)))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
 
     if (!wglMakeCurrent(mhDC, mhRC))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextActErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextActErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1592,15 +1584,14 @@ const   S32   max_format  = (S32)num_formats - 1;
 
         if (!mhDC)
         {
-            OSMessageBox(mCallbacks->translateString("MBDevContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+            LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBDevContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
             close();
             return false;
         }
 
         if (!SetPixelFormat(mhDC, pixel_format, &pfd))
         {
-            OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
-                mCallbacks->translateString("MBError"), OSMB_OK);
+            LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtSetErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
             close();
             return false;
         }
@@ -1632,7 +1623,7 @@ const   S32   max_format  = (S32)num_formats - 1;
     {
         LL_WARNS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
         // cannot proceed without wgl_ARB_pixel_format extension, shutdown same as any other gGLManager.initGL() failure
-        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1641,7 +1632,7 @@ const   S32   max_format  = (S32)num_formats - 1;
     if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
         &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtDescErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1663,14 +1654,14 @@ const   S32   max_format  = (S32)num_formats - 1;
 
     if (!wglMakeCurrent(mhDC, mhRC))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextActErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextActErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
 
     if (!gGLManager.initGL())
     {
-        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1875,7 +1866,7 @@ void* LLWindowWin32::createSharedContext()
     if (!rc && !(rc = wglCreateContext(mhDC)))
     {
         close();
-        OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
     }
 
     return rc;
@@ -2974,6 +2965,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             return 0;
         }
 
+        case WM_DISPLAYCHANGE:
+        {
+            WINDOW_IMP_POST(window_imp->mCallbacks->handleDisplayChanged());
+        }
+
         case WM_SETFOCUS:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETFOCUS");
@@ -4044,7 +4040,15 @@ void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont)
         break;
     }
 
-    logfont->lfHeight = mPreeditor->getPreeditFontSize();
+    if (mPreeditor)
+    {
+        logfont->lfHeight = mPreeditor->getPreeditFontSize();
+    }
+    else
+    {
+        // todo: extract from some font * LLUI::getScaleFactor() intead
+        logfont->lfHeight = 10;
+    }
     logfont->lfWeight = FW_NORMAL;
 }
 
@@ -4681,6 +4685,32 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
 
                     // Alternatively use GetDesc from below to get adapter's memory
                     UINT64 budget_mb = info.Budget / (1024 * 1024);
+                    if (gGLManager.mIsIntel)
+                    {
+                        U32Megabytes phys_mb = gSysMemory.getPhysicalMemoryKB();
+                        LL_WARNS() << "Physical memory: " << phys_mb << " MB" << LL_ENDL;
+
+                        if (phys_mb > 0)
+                        {
+                            if (gGLManager.mIsIntel)
+                            {
+                                // Intel uses 'shared' vram, cap it to 25% of total memory
+                                // Todo: consider a way of detecting integrated Intel and AMD
+                                budget_mb = llmin(budget_mb, (UINT64)(phys_mb * 0.25));
+                            }
+                            else
+                            {
+                                // More budget is generally better, but the way viewer
+                                // utilizes even dedicated VRAM leaves a footprint in RAM
+                                budget_mb = llmin(budget_mb, (UINT64)(phys_mb * 0.75));
+                            }
+                        }
+                        else
+                        {
+                            // if no data available, cap to 2Gb
+                            budget_mb = llmin(budget_mb, (UINT64)2048);
+                        }
+                    }
                     if (gGLManager.mVRAM < (S32)budget_mb)
                     {
                         gGLManager.mVRAM = (S32)budget_mb;

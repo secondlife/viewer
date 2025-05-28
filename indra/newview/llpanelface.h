@@ -139,6 +139,8 @@ protected:
     void updateMediaSettings();
     void updateMediaTitle();
 
+    bool isMediaTexSelected();
+
     void getState();
 
     void sendTexture();            // applies and sends texture
@@ -238,6 +240,7 @@ protected:
     void onCommitShiny();
     void onCommitAlphaMode();
     void onCommitFullbright();
+    void onCommitHideWater();
     void onCommitGlow();
     void onCommitPlanarAlign();
     void onCommitRepeatsPerMeter();
@@ -261,6 +264,9 @@ public: // needs to be accessible to selection manager
     void onCopyTexture();
     void onPasteTexture();
     void onPasteTexture(LLViewerObject* objectp, S32 te);
+private:
+    // for copy/paste operations
+    bool validateInventoryItem(const LLSD& te, const std::string& prefix);
 
 protected:
     void menuDoToSelected(const LLSD& userdata);
@@ -308,6 +314,7 @@ private:
     LLRadioGroup* mRadioPbrType { nullptr };
 
     LLCheckBoxCtrl* mCheckFullbright { nullptr };
+    LLCheckBoxCtrl* mCheckHideWater{ nullptr };
 
     LLTextBox* mLabelColorTransp { nullptr };
     LLSpinCtrl* mCtrlColorTransp { nullptr }; // transparency = 1 - alpha
@@ -555,6 +562,7 @@ private:
     LLMenuButton*   mMenuClipboardTexture;
 
     bool mIsAlpha;
+    bool mExcludeWater { false };
 
     LLSD            mClipboardParams;
 

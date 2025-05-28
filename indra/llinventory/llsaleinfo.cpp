@@ -89,8 +89,14 @@ bool LLSaleInfo::exportLegacyStream(std::ostream& output_stream) const
 
 LLSD LLSaleInfo::asLLSD() const
 {
-    LLSD sd = LLSD();
-    sd["sale_type"] = lookup(mSaleType);
+    LLSD sd;
+    const char* type = lookup(mSaleType);
+    if (!type)
+    {
+        LL_WARNS_ONCE() << "Unknown sale type: " << mSaleType << LL_ENDL;
+        type = lookup(LLSaleInfo::FS_NOT);
+    }
+    sd["sale_type"] = type;
     sd["sale_price"] = mSalePrice;
     return sd;
 }

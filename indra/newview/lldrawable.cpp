@@ -33,6 +33,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llcriticaldamp.h"
 #include "llface.h"
 #include "lllightconstants.h"
@@ -252,7 +253,15 @@ void LLDrawable::cleanupReferences()
     std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
     mFaces.clear();
 
-    gPipeline.unlinkDrawable(this);
+    if (gPipeline.mInitialized)
+    {
+        gPipeline.unlinkDrawable(this);
+    }
+    else if (getSpatialGroup())
+    {
+        // Not supposed to happen?
+        getSpatialGroup()->getSpatialPartition()->remove(this, getSpatialGroup());
+    }
 
     removeFromOctree();
 
@@ -777,6 +786,14 @@ bool LLDrawable::updateMove()
     }
 
     makeActive();
+
+    // #3256 force undampened movement for attached objects in mouselook
+    // to prevent animation bork for linkset with animated parts
+    if (!isRoot() && gAgentCamera.cameraMouselook() &&
+        !mVObjp->isRiggedMesh() && mVObjp->getAvatar() && mVObjp->getAvatar()->isSelf())
+    {
+        return updateMoveUndamped();
+    }
 
     return isState(MOVE_UNDAMPED) ? updateMoveUndamped() : updateMoveDamped();
 }

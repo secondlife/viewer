@@ -202,7 +202,7 @@
     follows="left|top"
     height="14"
     control_name="UpdaterWillingToTest"
-    label="Willing to update to release candidates"
+    label="Willing to update to Beta"
     left_delta="0"
     mouse_opaque="true"
     name="update_willing_to_test"

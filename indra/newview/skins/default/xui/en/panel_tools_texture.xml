@@ -123,6 +123,14 @@
              name="checkbox fullbright"
              top_pad="4"
              width="81" />
+            <check_box
+             height="19"
+             label="Hide water"
+             layout="topleft"
+             left="172"
+             top_delta="0"
+             name="checkbox_hide_water"
+             width="81" />
             <view_border
              bevel_style="none"
              follows="top|left"
@@ -721,8 +729,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="TexScaleU"
              top_pad="5"
              width="265" />
@@ -734,8 +742,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="TexScaleV"
              width="265" />
             <spinner
@@ -797,8 +805,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="bumpyScaleU"
              top_delta="-115"
              width="265" />
@@ -810,8 +818,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="bumpyScaleV"
              width="265" />
            <spinner
@@ -861,8 +869,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="shinyScaleU"
              top_delta="-115"
              width="265" />
@@ -874,8 +882,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="shinyScaleV"
              width="265" />
            <spinner
@@ -960,8 +968,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="gltfTextureScaleU"
              top_delta="34"
              width="265" />
@@ -973,8 +981,8 @@
              label_width="205"
              layout="topleft"
              left="10"
-             min_val="-100"
-             max_val="100"
+             min_val="-10000"
+             max_val="10000"
              name="gltfTextureScaleV"
              width="265" />
             <spinner

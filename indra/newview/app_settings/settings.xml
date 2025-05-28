@@ -346,6 +346,17 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
+    <key>AudioLevelWind</key>
+    <map>
+      <key>Comment</key>
+      <string>Audio level of wind noise when standing still</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
 	<key>AudioStreamingMedia</key>
     <map>
       <key>Comment</key>
@@ -3676,6 +3687,17 @@
         <key>Value</key>
         <integer>5000</integer>
     </map>
+    <key>InventoryExposeFolderID</key>
+    <map>
+        <key>Comment</key>
+        <string>Allows copying folder id from context menu</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>MarketplaceListingsSortOrder</key>
     <map>
       <key>Comment</key>
@@ -6339,6 +6361,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PlaySoundChatMention</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when got mentioned in a chat</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PluginAttachDebuggerToPlugins</key>
     <map>
       <key>Comment</key>
@@ -7794,10 +7827,21 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderTextureVRAMDivisor</key>
+  <map>
+      <key>Comment</key>
+      <string>Divisor for maximum amount of VRAM the viewer will use for textures. 1 = all the VRAM.  Used in conjunction with RenderMaxVRAMBudget.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
+  </map>
   <key>RenderMinFreeMainMemoryThreshold</key>
   <map>
     <key>Comment</key>
-    <string>Minimum of available physical memory in MB before textures get scaled down</string>
+    <string>If available free physical memory is below this value textures get agresively scaled down</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
@@ -9065,6 +9109,28 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>RenderReflectionProbeDynamicAllocation</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable dynamic allocation of reflection probes. -1 means no dynamic allocation. Sets a buffer to allocate when a dynamic allocation occurs otherwise.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>-1</integer>
+    </map>
+    <key>RenderReflectionProbeCount</key>
+    <map>
+        <key>Comment</key>
+        <string>Number of probes to render.  Maximum of 256.  Clamps to the nearest power of 2.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>256</integer>
+    </map>
   <key>RenderReflectionProbeResolution</key>
   <map>
     <key>Comment</key>
@@ -9517,6 +9583,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderBalanceInSnapshot</key>
+    <map>
+      <key>Comment</key>
+      <string>Display L$ balance in snapshot</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>RenderUIBuffer</key>
     <map>
@@ -11618,7 +11695,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>0.04</real>
+        <real>0.0095</real>
     </map>
     <key>TextureScaleMaxAreaFactor</key>
     <map>
@@ -12329,6 +12406,28 @@
       <key>Value</key>
       <string>2ca849ba-2885-4bc3-90ef-d4987a5b983a</string>
     </map>
+    <key>UISndChatMention</key>
+    <map>
+      <key>Comment</key>
+      <string>Sound file for chat mention(uuid for sound asset)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>03e77cb5-592c-5b33-d271-2e46497c3fb3</string>
+    </map>
+    <key>UISndChatPing</key>
+    <map>
+      <key>Comment</key>
+      <string>Sound file for chat ping(uuid for sound asset)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>7dd36df6-2624-5438-f988-fdf8588a0ad9</string>
+    </map>
     <key>UISndClick</key>
     <map>
       <key>Comment</key>
@@ -12717,7 +12816,7 @@
     <key>UpdaterWillingToTest</key>
     <map>
       <key>Comment</key>
-      <string>Whether or not the updater should offer test candidate upgrades.</string>
+      <string>Whether or not the updater should offer Beta upgrades.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

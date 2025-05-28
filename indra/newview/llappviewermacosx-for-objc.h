@@ -41,6 +41,7 @@ void clearDumpLogsDir();
 struct CrashMetadata
 {
     std::string logFilePathname;
+    std::string attributesPathname;
     std::string userSettingsPathname;
     std::string accountSettingsPathname;
     std::string staticDebugPathname;

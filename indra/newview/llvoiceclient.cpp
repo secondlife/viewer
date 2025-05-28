@@ -285,6 +285,7 @@ void LLVoiceClient::setNonSpatialVoiceModule(const std::string &voice_server_typ
 
 void LLVoiceClient::setHidden(bool hidden)
 {
+    LL_INFOS("Voice") << "( " << (hidden ? "true" : "false") << " )" << LL_ENDL;
     LLWebRTCVoiceClient::getInstance()->setHidden(hidden);
     LLVivoxVoiceClient::getInstance()->setHidden(hidden);
 }

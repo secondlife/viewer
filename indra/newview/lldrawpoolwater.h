@@ -74,6 +74,8 @@ public:
     void setOpaqueTexture(const LLUUID& opaqueTextureId);
     void setNormalMaps(const LLUUID& normalMapId, const LLUUID& nextNormalMapId);
 
+    void pushWaterPlanes(int pass);
+
 protected:
     void renderOpaqueLegacyWater();
 };

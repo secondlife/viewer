@@ -1405,3 +1405,4 @@ char const* const _PREHASH_HoverHeight = LLMessageStringTable::getInstance()->ge
 char const* const _PREHASH_Experience = LLMessageStringTable::getInstance()->getString("Experience");
 char const* const _PREHASH_ExperienceID = LLMessageStringTable::getInstance()->getString("ExperienceID");
 char const* const _PREHASH_LargeGenericMessage = LLMessageStringTable::getInstance()->getString("LargeGenericMessage");
+char const* const _PREHASH_MetaData = LLMessageStringTable::getInstance()->getString("MetaData");

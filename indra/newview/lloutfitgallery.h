@@ -184,9 +184,6 @@ private:
     typedef item_num_map_t::value_type                  item_numb_map_value_t;
     item_num_map_t                                      mItemIndexMap;
     std::map<S32, LLOutfitGalleryItem*>                 mIndexToItemMap;
-
-
-    LLInventoryCategoriesObserver*  mOutfitsObserver;
 };
 class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
 {

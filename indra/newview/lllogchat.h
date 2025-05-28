@@ -127,6 +127,8 @@ public:
     static bool isAdHocTranscriptExist(std::string file_name);
     static bool isTranscriptFileFound(std::string fullname);
 
+    static std::string getGroupChatSuffix();
+
     bool historyThreadsFinished(LLUUID session_id);
     LLLoadHistoryThread* getLoadHistoryThread(LLUUID session_id);
     LLDeleteHistoryThread* getDeleteHistoryThread(LLUUID session_id);

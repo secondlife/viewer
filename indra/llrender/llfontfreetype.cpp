@@ -146,7 +146,6 @@ LLFontFreetype::LLFontFreetype()
     mIsFallback(false),
     mFTFace(NULL),
     mRenderGlyphCount(0),
-    mAddGlyphCount(0),
     mStyle(0),
     mPointSize(0)
 {
@@ -552,7 +551,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
         return NULL;
 
     llassert(!mIsFallback);
-    fontp->renderGlyph(requested_glyph_type, glyph_index);
+    fontp->renderGlyph(requested_glyph_type, glyph_index, wch);
 
     EFontGlyphType bitmap_glyph_type = EFontGlyphType::Unspecified;
     switch (fontp->mFTFace->glyph->bitmap.pixel_mode)
@@ -574,7 +573,6 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     S32 pos_x, pos_y;
     U32 bitmap_num;
     mFontBitmapCachep->nextOpenPos(width, pos_x, pos_y, bitmap_glyph_type, bitmap_num);
-    mAddGlyphCount++;
 
     LLFontGlyphInfo* gi = new LLFontGlyphInfo(glyph_index, requested_glyph_type);
     gi->mXBitmapOffset = pos_x;
@@ -656,7 +654,14 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 
     LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_glyph_type, bitmap_num);
     LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_glyph_type, bitmap_num);
-    image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+    if (image_gl && image_raw)
+    {
+        image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+    }
+    else
+    {
+        llassert(false); //images were just inserted by nextOpenPos, they shouldn't be missing
+    }
 
     return gi;
 }
@@ -697,7 +702,7 @@ void LLFontFreetype::insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const
     }
 }
 
-void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) const
+void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, llwchar wch) const
 {
     if (mFTFace == NULL)
         return;
@@ -712,11 +717,28 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) co
     FT_Error error = FT_Load_Glyph(mFTFace, glyph_index, load_flags);
     if (FT_Err_Ok != error)
     {
+        if (error == FT_Err_Out_Of_Memory)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS() << "Out of memory loading glyph for character " << llformat("U+%xu", U32(wch)) << LL_ENDL;
+        }
+
         std::string message = llformat(
-            "Error %d (%s) loading glyph %u: bitmap_type=%u, load_flags=%d",
-            error, FT_Error_String(error), glyph_index, bitmap_type, load_flags);
+            "Error %d (%s) loading wchar %u glyph %u/%u: bitmap_type=%u, load_flags=%d",
+            error, FT_Error_String(error), wch, glyph_index, mFTFace->num_glyphs, bitmap_type, load_flags);
         LL_WARNS_ONCE() << message << LL_ENDL;
         error = FT_Load_Glyph(mFTFace, glyph_index, load_flags ^ FT_LOAD_COLOR);
+        if (FT_Err_Invalid_Outline == error
+            || FT_Err_Invalid_Composite == error
+            || (FT_Err_Ok != error && LLStringOps::isEmoji(wch)))
+        {
+            // value~0 always corresponds to the 'missing glyph'
+            error = FT_Load_Glyph(mFTFace, 0, FT_LOAD_FORCE_AUTOHINT);
+            if (FT_Err_Ok != error)
+            {
+                LL_ERRS() << "Loading fallback for char '" << (U32)wch << "', glyph " << glyph_index << " failed with error : " << (S32)error << LL_ENDL;
+            }
+        }
         llassert_always_msg(FT_Err_Ok == error, message.c_str());
     }
 
@@ -823,7 +845,12 @@ bool LLFontFreetype::setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U1
 {
     LLImageRaw* image_raw = mFontBitmapCachep->getImageRaw(EFontGlyphType::Color, bitmap_num);
     llassert(!mIsFallback);
-    llassert(image_raw && (image_raw->getComponents() == 4));
+    if (!image_raw)
+    {
+        llassert(false);
+        return false;
+    }
+    llassert(image_raw->getComponents() == 4);
 
     // NOTE: inspired by LLImageRaw::setSubImage()
     U32* image_data = (U32*)image_raw->getData();
@@ -851,10 +878,17 @@ bool LLFontFreetype::setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U1
 void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride) const
 {
     LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(EFontGlyphType::Grayscale, bitmap_num);
-    LLImageDataLock lock(image_raw);
 
     llassert(!mIsFallback);
-    llassert(image_raw && (image_raw->getComponents() == 2));
+    if (!image_raw)
+    {
+        llassert(false);
+        return;
+    }
+
+    LLImageDataLock lock(image_raw);
+
+    llassert(image_raw->getComponents() == 2);
 
     U8 *target = image_raw->getData();
     llassert(target);

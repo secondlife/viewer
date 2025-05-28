@@ -420,6 +420,7 @@ bool LLPanelFace::postBuild()
     mCtrlColorTransp->setFollowsLeft();
 
     getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
+    getChildSetCommitCallback(mCheckHideWater, "checkbox_hide_water", [&](LLUICtrl*, const LLSD&) { onCommitHideWater(); });
 
     mLabelTexGen = getChild<LLTextBox>("tex gen");
     getChildSetCommitCallback(mComboTexGen, "combobox texgen", [&](LLUICtrl*, const LLSD&) { onCommitTexGen(); });
@@ -898,6 +899,10 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
         if (facep->calcAlignedPlanarTE(mCenterFace, &aligned_st_offset, &aligned_st_scale, &aligned_st_rot))
         {
             const LLTextureEntry* tep = facep->getTextureEntry();
+            if (!tep)
+            {
+                return false;
+            }
             LLVector2 st_offset, st_scale;
             tep->getOffset(&st_offset.mV[VX], &st_offset.mV[VY]);
             tep->getScale(&st_scale.mV[VX], &st_scale.mV[VY]);
@@ -1020,6 +1025,13 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         LLSelectedTEMaterial::getNormalID(normmap_id, identical_norm);
         LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
 
+        LLColor4 color = LLColor4::white;
+        bool identical_color = false;
+
+        LLSelectedTE::getColor(color, identical_color);
+        F32 transparency  = (1.f - color.mV[VALPHA]) * 100.f;
+        mExcludeWater = (id == IMG_ALPHA_GRAD) && normmap_id.isNull() && specmap_id.isNull() && (transparency == 0);
+
         static S32 selected_te = -1;
         static LLUUID prev_obj_id;
         if ((LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()) &&
@@ -1094,12 +1106,83 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         updateVisibility(objectp);
 
+        bool missing_asset = false;
+        {
+            LLGLenum image_format = GL_RGB;
+            bool identical_image_format = false;
+            LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
+
+            if (!missing_asset)
+            {
+                mIsAlpha = false;
+                switch (image_format)
+                {
+                    case GL_RGBA:
+                    case GL_ALPHA:
+                    {
+                        mIsAlpha = true;
+                    }
+                    break;
+
+                    case GL_RGB:
+                        break;
+                    default:
+                    {
+                        LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                // Don't know image's properties, use material's mode value
+                mIsAlpha = true;
+            }
+
+            // Diffuse Alpha Mode
+            // Init to the default that is appropriate for the alpha content of the asset
+            //
+            U8 alpha_mode = mIsAlpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+
+            bool identical_alpha_mode = false;
+
+            // See if that's been overridden by a material setting for same...
+            //
+            LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(alpha_mode, identical_alpha_mode, mIsAlpha);
+
+            // it is invalid to have any alpha mode other than blend if transparency is greater than zero ...
+            // Want masking? Want emissive? Tough! You get BLEND!
+            alpha_mode = (transparency > 0.f) ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : alpha_mode;
+
+            // ... unless there is no alpha channel in the texture, in which case alpha mode MUST be none
+            alpha_mode = mIsAlpha ? alpha_mode : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
+
+            mComboAlphaMode->getSelectionInterface()->selectNthItem(alpha_mode);
+            updateAlphaControls();
+
+            mExcludeWater &= (LLMaterial::DIFFUSE_ALPHA_MODE_BLEND == alpha_mode);
+        }
+
+        // Water exclusion
+        {
+            mCheckHideWater->setEnabled(editable && !has_pbr_material && !isMediaTexSelected());
+            mCheckHideWater->set(mExcludeWater);
+            if (mExcludeWater && !has_pbr_material)
+            {
+                mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
+            }
+            editable &= !mExcludeWater;
+
+            // disable controls for water exclusion face after updateVisibility, so the whole panel is not hidden
+            mComboMatMedia->setEnabled(editable);
+            mRadioMaterialType->setEnabled(editable);
+            mRadioPbrType->setEnabled(editable);
+            mCheckSyncSettings->setEnabled(editable);
+        }
+
         // Color swatch
         mLabelColor->setEnabled(editable);
-        LLColor4 color = LLColor4::white;
-        bool identical_color = false;
 
-        LLSelectedTE::getColor(color, identical_color);
         LLColor4 prev_color = mColorSwatch->get();
         mColorSwatch->setOriginal(color);
         mColorSwatch->set(color, force_set_values || (prev_color != color) || !editable);
@@ -1110,7 +1193,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         // Color transparency
         mLabelColorTransp->setEnabled(editable);
 
-        F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
         mCtrlColorTransp->setValue(editable ? transparency : 0);
         mCtrlColorTransp->setEnabled(editable && has_material);
 
@@ -1163,64 +1245,10 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         // Texture
         {
-            LLGLenum image_format = GL_RGB;
-            bool identical_image_format = false;
-            bool missing_asset = false;
-            LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
-
-            if (!missing_asset)
-            {
-                mIsAlpha = false;
-                switch (image_format)
-                {
-                case GL_RGBA:
-                case GL_ALPHA:
-                    {
-                        mIsAlpha = true;
-                    }
-                    break;
-
-                case GL_RGB: break;
-                default:
-                    {
-                        LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
-                    }
-                    break;
-                }
-            }
-            else
-            {
-                // Don't know image's properties, use material's mode value
-                mIsAlpha = true;
-            }
-
             if (LLViewerMedia::getInstance()->textureHasMedia(id))
             {
                 mBtnAlign->setEnabled(editable);
             }
-
-            // Diffuse Alpha Mode
-
-            // Init to the default that is appropriate for the alpha content of the asset
-            //
-            U8 alpha_mode = mIsAlpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-
-            bool identical_alpha_mode = false;
-
-            // See if that's been overridden by a material setting for same...
-            //
-            LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(alpha_mode, identical_alpha_mode, mIsAlpha);
-
-            // it is invalid to have any alpha mode other than blend if transparency is greater than zero ...
-            // Want masking? Want emissive? Tough! You get BLEND!
-            alpha_mode = (transparency > 0.f) ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : alpha_mode;
-
-            // ... unless there is no alpha channel in the texture, in which case alpha mode MUST be none
-            alpha_mode = mIsAlpha ? alpha_mode : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-
-            mComboAlphaMode->getSelectionInterface()->selectNthItem(alpha_mode);
-
-            updateAlphaControls();
 
             if (mTextureCtrl)
             {
@@ -1982,7 +2010,8 @@ void LLPanelFace::updateCopyTexButton()
     mMenuClipboardTexture->setEnabled(objectp && objectp->getPCode() == LL_PCODE_VOLUME && objectp->permModify()
                                                     && !objectp->isPermanentEnforced() && !objectp->isInventoryPending()
                                                     && (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)
-                                                    && LLMaterialEditor::canClipboardObjectsMaterial());
+                                                    && LLMaterialEditor::canClipboardObjectsMaterial()
+                                                    && !mExcludeWater);
     std::string tooltip = (objectp && objectp->isInventoryPending()) ? LLTrans::getString("LoadingContents") : getString("paste_options");
     mMenuClipboardTexture->setToolTip(tooltip);
 }
@@ -3023,6 +3052,36 @@ void LLPanelFace::onCommitFullbright()
     sendFullbright();
 }
 
+void LLPanelFace::onCommitHideWater()
+{
+    if (mCheckHideWater->get())
+    {
+        LLHandle<LLPanel> handle = getHandle();
+        LLNotificationsUtil::add("WaterExclusionSurfacesWarning", LLSD(), LLSD(),
+            [handle](const LLSD& notification, const LLSD& response)
+        {
+            if(LLPanelFace* panel = (LLPanelFace*)handle.get())
+            {
+                if (LLNotificationsUtil::getSelectedOption(notification, response) == 1)
+                {
+                    panel->mCheckHideWater->setValue(false);
+                    return;
+                }
+                // apply invisiprim texture and reset related params to set water exclusion surface
+                panel->sendBump(0);
+                panel->sendShiny(0);
+                LLSelectMgr::getInstance()->selectionSetAlphaOnly(1.f);
+                LLSelectMgr::getInstance()->selectionSetImage(IMG_ALPHA_GRAD);
+                LLSelectedTEMaterial::setDiffuseAlphaMode(panel, LLMaterial::DIFFUSE_ALPHA_MODE_BLEND);
+            }
+        });
+    }
+    else
+    {
+        LLSelectMgr::getInstance()->clearWaterExclusion();
+    }
+}
+
 void LLPanelFace::onCommitGlow()
 {
     sendGlow();
@@ -3588,7 +3647,7 @@ void LLPanelFace::onCommitRepeatsPerMeter()
     bool identical_scale_t = false;
 
     LLSelectedTE::getObjectScaleS(obj_scale_s, identical_scale_s);
-    LLSelectedTE::getObjectScaleS(obj_scale_t, identical_scale_t);
+    LLSelectedTE::getObjectScaleT(obj_scale_t, identical_scale_t);
 
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
@@ -3953,6 +4012,85 @@ void LLPanelFace::onPasteColor(LLViewerObject* objectp, S32 te)
     }
 }
 
+void set_item_availability(
+    const LLUUID& id,
+    LLSD& dest,
+    const std::string& modifier,
+    bool is_creator,
+    std::map<LLUUID, LLUUID> &asset_item_map,
+    LLViewerObject* objectp)
+{
+    if (id.isNull())
+    {
+        return;
+    }
+
+    LLUUID item_id;
+    bool from_library = get_is_predefined_texture(id);
+    bool full_perm = from_library;
+    full_perm |= is_creator;
+
+    if (!full_perm)
+    {
+        std::map<LLUUID, LLUUID>::iterator iter = asset_item_map.find(id);
+        if (iter != asset_item_map.end())
+        {
+            item_id = iter->second;
+        }
+        else
+        {
+            // What this does is simply searches inventory for item with same asset id,
+            // as result it is Hightly unreliable, leaves little control to user, borderline hack
+            // but there are little options to preserve permissions - multiple inventory
+            // items might reference same asset and inventory search is expensive.
+            bool no_transfer = false;
+            if (objectp->getInventoryItemByAsset(id))
+            {
+                no_transfer = !objectp->getInventoryItemByAsset(id)->getIsFullPerm();
+            }
+            item_id = get_copy_free_item_by_asset_id(id, no_transfer);
+            // record value to avoid repeating inventory search when possible
+            asset_item_map[id] = item_id;
+        }
+    }
+
+    if (item_id.notNull() && gInventory.isObjectDescendentOf(item_id, gInventory.getLibraryRootFolderID()))
+    {
+        full_perm = true;
+        from_library = true;
+    }
+
+    dest[modifier + "itemfullperm"] = full_perm;
+    dest[modifier + "fromlibrary"] = from_library;
+
+    // If full permission object, texture is free to copy,
+    // but otherwise we need to check inventory and extract permissions
+    //
+    // Normally we care only about restrictions for current user and objects
+    // don't inherit any 'next owner' permissions from texture, so there is
+    // no need to record item id if full_perm==true
+    if (!full_perm && item_id.notNull())
+    {
+        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+        if (itemp)
+        {
+            LLPermissions item_permissions = itemp->getPermissions();
+            if (item_permissions.allowOperationBy(PERM_COPY,
+                gAgent.getID(),
+                gAgent.getGroupID()))
+            {
+                dest[modifier + "itemid"] = item_id;
+                dest[modifier + "itemfullperm"] = itemp->getIsFullPerm();
+                if (!itemp->isFinished())
+                {
+                    // needed for dropTextureAllFaces
+                    LLInventoryModelBackgroundFetch::instance().start(item_id, false);
+                }
+            }
+        }
+    }
+}
+
 void LLPanelFace::onCopyTexture()
 {
     LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
@@ -3990,6 +4128,7 @@ void LLPanelFace::onCopyTexture()
             if (tep)
             {
                 LLSD te_data;
+                LLUUID pbr_id = objectp->getRenderMaterialID(te);
 
                 // asLLSD() includes media
                 te_data["te"] = tep->asLLSD();
@@ -3998,21 +4137,20 @@ void LLPanelFace::onCopyTexture()
                 te_data["te"]["bumpshiny"] = tep->getBumpShiny();
                 te_data["te"]["bumpfullbright"] = tep->getBumpShinyFullbright();
                 te_data["te"]["texgen"] = tep->getTexGen();
-                te_data["te"]["pbr"] = objectp->getRenderMaterialID(te);
+                te_data["te"]["pbr"] = pbr_id;
                 if (tep->getGLTFMaterialOverride() != nullptr)
                 {
                     te_data["te"]["pbr_override"] = tep->getGLTFMaterialOverride()->asJSON();
                 }
 
-                if (te_data["te"].has("imageid"))
+                if (te_data["te"].has("imageid") || pbr_id.notNull())
                 {
-                    LLUUID item_id;
-                    LLUUID id = te_data["te"]["imageid"].asUUID();
-                    bool from_library = get_is_predefined_texture(id);
-                    bool full_perm = from_library;
+                    LLUUID img_id = te_data["te"]["imageid"].asUUID();
+                    bool pbr_from_library = false;
+                    bool pbr_full_perm = false;
+                    bool is_creator = false;
 
-                    if (!full_perm
-                        && objectp->permCopy()
+                    if (objectp->permCopy()
                         && objectp->permTransfer()
                         && objectp->permModify())
                     {
@@ -4022,66 +4160,31 @@ void LLPanelFace::onCopyTexture()
                         std::string creator_app_link;
                         LLUUID creator_id;
                         LLSelectMgr::getInstance()->selectGetCreator(creator_id, creator_app_link);
-                        full_perm = objectp->mOwnerID == creator_id;
+                        is_creator = objectp->mOwnerID == creator_id;
                     }
 
-                    if (id.notNull() && !full_perm)
+                    // check permissions for blin-phong/diffuse image and for pbr asset
+                    if (img_id.notNull())
                     {
-                        std::map<LLUUID, LLUUID>::iterator iter = asset_item_map.find(id);
-                        if (iter != asset_item_map.end())
+                        set_item_availability(img_id, te_data["te"], "img", is_creator, asset_item_map, objectp);
+                    }
+                    if (pbr_id.notNull())
+                    {
+                        set_item_availability(pbr_id, te_data["te"], "pbr", is_creator, asset_item_map, objectp);
+
+                        // permissions for overrides
+                        // Overrides do not permit no-copy textures
+                        LLGLTFMaterial* override = tep->getGLTFMaterialOverride();
+                        if (override != nullptr)
                         {
-                            item_id = iter->second;
-                        }
-                        else
-                        {
-                            // What this does is simply searches inventory for item with same asset id,
-                            // as result it is Hightly unreliable, leaves little control to user, borderline hack
-                            // but there are little options to preserve permissions - multiple inventory
-                            // items might reference same asset and inventory search is expensive.
-                            bool no_transfer = false;
-                            if (objectp->getInventoryItemByAsset(id))
+                            for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                             {
-                                no_transfer = !objectp->getInventoryItemByAsset(id)->getIsFullPerm();
-                            }
-                            item_id = get_copy_free_item_by_asset_id(id, no_transfer);
-                            // record value to avoid repeating inventory search when possible
-                            asset_item_map[id] = item_id;
-                        }
-                    }
-
-                    if (item_id.notNull() && gInventory.isObjectDescendentOf(item_id, gInventory.getLibraryRootFolderID()))
-                    {
-                        full_perm = true;
-                        from_library = true;
-                    }
-
-                    {
-                        te_data["te"]["itemfullperm"] = full_perm;
-                        te_data["te"]["fromlibrary"] = from_library;
-
-                        // If full permission object, texture is free to copy,
-                        // but otherwise we need to check inventory and extract permissions
-                        //
-                        // Normally we care only about restrictions for current user and objects
-                        // don't inherit any 'next owner' permissions from texture, so there is
-                        // no need to record item id if full_perm==true
-                        if (!full_perm && !from_library && item_id.notNull())
-                        {
-                            LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
-                            if (itemp)
-                            {
-                                LLPermissions item_permissions = itemp->getPermissions();
-                                if (item_permissions.allowOperationBy(PERM_COPY,
-                                    gAgent.getID(),
-                                    gAgent.getGroupID()))
+                                LLUUID& texture_id = override->mTextureId[i];
+                                if (texture_id.notNull())
                                 {
-                                    te_data["te"]["imageitemid"] = item_id;
-                                    te_data["te"]["itemfullperm"] = itemp->getIsFullPerm();
-                                    if (!itemp->isFinished())
-                                    {
-                                        // needed for dropTextureAllFaces
-                                        LLInventoryModelBackgroundFetch::instance().start(item_id, false);
-                                    }
+                                    const std::string prefix = "pbr" + std::to_string(i);
+                                    te_data["te"][prefix + "imageid"] = texture_id;
+                                    set_item_availability(texture_id, te_data["te"], prefix, is_creator, asset_item_map, objectp);
                                 }
                             }
                         }
@@ -4143,6 +4246,44 @@ void LLPanelFace::onCopyTexture()
             }
         }
     }
+}
+
+bool get_full_permission(const LLSD& te, const std::string &prefix)
+{
+    return te.has(prefix + "itemfullperm") && te[prefix+"itemfullperm"].asBoolean();
+}
+
+bool LLPanelFace::validateInventoryItem(const LLSD& te, const std::string& prefix)
+{
+    if (te.has(prefix + "itemid"))
+    {
+        LLUUID item_id = te[prefix + "itemid"].asUUID();
+        if (item_id.notNull())
+        {
+            LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+            if (!itemp)
+            {
+                // image might be in object's inventory, but it can be not up to date
+                LLSD notif_args;
+                static std::string reason = getString("paste_error_inventory_not_found");
+                notif_args["REASON"] = reason;
+                LLNotificationsUtil::add("FacePasteFailed", notif_args);
+                return false;
+            }
+        }
+    }
+    else
+    {
+        // Item was not found on 'copy' stage
+        // Since this happened at copy, might be better to either show this
+        // at copy stage or to drop clipboard here
+        LLSD notif_args;
+        static std::string reason = getString("paste_error_inventory_not_found");
+        notif_args["REASON"] = reason;
+        LLNotificationsUtil::add("FacePasteFailed", notif_args);
+        return false;
+    }
+    return true;
 }
 
 void LLPanelFace::onPasteTexture()
@@ -4209,39 +4350,49 @@ void LLPanelFace::onPasteTexture()
     for (; iter != end; ++iter)
     {
         const LLSD& te_data = *iter;
-        if (te_data.has("te") && te_data["te"].has("imageid"))
+        if (te_data.has("te"))
         {
-            bool full_perm = te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
-            full_perm_object &= full_perm;
-            if (!full_perm)
+            if (te_data["te"].has("imageid"))
             {
-                if (te_data["te"].has("imageitemid"))
+                bool full_perm = get_full_permission(te_data["te"], "img");
+                full_perm_object &= full_perm;
+                if (!full_perm)
                 {
-                    LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
-                    if (item_id.notNull())
+                    if (!validateInventoryItem(te_data["te"], "img"))
                     {
-                        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
-                        if (!itemp)
-                        {
-                            // image might be in object's inventory, but it can be not up to date
-                            LLSD notif_args;
-                            static std::string reason = getString("paste_error_inventory_not_found");
-                            notif_args["REASON"] = reason;
-                            LLNotificationsUtil::add("FacePasteFailed", notif_args);
-                            return;
-                        }
+                        return;
                     }
                 }
-                else
+            }
+            if (te_data["te"].has("pbr"))
+            {
+                bool full_perm = get_full_permission(te_data["te"], "pbr");
+                full_perm_object &= full_perm;
+                if (!full_perm)
                 {
-                    // Item was not found on 'copy' stage
-                    // Since this happened at copy, might be better to either show this
-                    // at copy stage or to drop clipboard here
-                    LLSD notif_args;
-                    static std::string reason = getString("paste_error_inventory_not_found");
-                    notif_args["REASON"] = reason;
-                    LLNotificationsUtil::add("FacePasteFailed", notif_args);
-                    return;
+                    if (!validateInventoryItem(te_data["te"], "pbr"))
+                    {
+                        return;
+                    }
+                }
+                if (te_data["te"].has("pbr_override"))
+                {
+                    for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                    {
+                        const std::string prefix = "pbr" + std::to_string(i);
+                        if (te_data["te"].has(prefix + "imageid"))
+                        {
+                            bool full_perm = get_full_permission(te_data["te"], prefix);
+                            full_perm_object &= full_perm;
+                            if (!full_perm)
+                            {
+                                if (!validateInventoryItem(te_data["te"], prefix))
+                                {
+                                    return;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -4264,6 +4415,71 @@ void LLPanelFace::onPasteTexture()
 
     LLPanelFaceNavigateHomeFunctor navigate_home_func;
     selected_objects->applyToTEs(&navigate_home_func);
+}
+
+void get_item_and_permissions(const LLUUID &id, LLViewerInventoryItem*& itemp, bool& full_perm, bool& from_library, const LLSD &data, const std::string &prefix)
+{
+    full_perm = get_full_permission(data, prefix);
+    from_library = data.has(prefix + "fromlibrary") && data.get(prefix + "fromlibrary").asBoolean();
+    LLViewerInventoryItem* itemp_res = NULL;
+
+    if (data.has(prefix + "itemid"))
+    {
+        LLUUID item_id = data.get(prefix + "itemid").asUUID();
+        if (item_id.notNull())
+        {
+            LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+            if (itemp && itemp->isFinished())
+            {
+                // dropTextureAllFaces will fail if incomplete
+                itemp_res = itemp;
+            }
+            else
+            {
+                // Theoretically shouldn't happend, but if it does happen, we
+                // might need to add a notification to user that paste will fail
+                // since inventory isn't fully loaded
+                LL_WARNS() << "Item " << item_id << " is incomplete, paste might fail silently." << LL_ENDL;
+            }
+        }
+    }
+
+    // for case when item got removed from inventory after we pressed 'copy'
+    // or texture got pasted into previous object
+    if (!itemp_res && !full_perm)
+    {
+        // Due to checks for imageitemid in LLPanelFace::onPasteTexture() this should no longer be reachable.
+        LL_INFOS() << "Item " << data.get(prefix + "itemid").asUUID() << " no longer in inventory." << LL_ENDL;
+        // Todo: fix this, we are often searching same texture multiple times (equal to number of faces)
+        // Perhaps just mPanelFace->onPasteTexture(objectp, te, &asset_to_item_id_map); ? Not pretty, but will work
+        LLViewerInventoryCategory::cat_array_t cats;
+        LLViewerInventoryItem::item_array_t items;
+        LLAssetIDMatches asset_id_matches(id);
+        gInventory.collectDescendentsIf(LLUUID::null,
+            cats,
+            items,
+            LLInventoryModel::INCLUDE_TRASH,
+            asset_id_matches);
+
+        // Extremely unreliable and perfomance unfriendly.
+        // But we need this to check permissions and it is how texture control finds items
+        for (S32 i = 0; i < items.size(); i++)
+        {
+            LLViewerInventoryItem* itemp = items[i];
+            if (itemp && itemp->isFinished())
+            {
+                // dropTextureAllFaces will fail if incomplete
+                LLPermissions item_permissions = itemp->getPermissions();
+                if (item_permissions.allowOperationBy(PERM_COPY,
+                    gAgent.getID(),
+                    gAgent.getGroupID()))
+                {
+                    itemp_res = itemp;
+                    break; // first match
+                }
+            }
+        }
+    }
 }
 
 void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
@@ -4289,77 +4505,22 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
         if (te_data.has("te"))
         {
             // Texture
-            bool full_perm = te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
-            bool from_library = te_data["te"].has("fromlibrary") && te_data["te"]["fromlibrary"].asBoolean();
             if (te_data["te"].has("imageid"))
             {
+                bool img_full_perm = false;
+                bool img_from_library = false;
                 const LLUUID& imageid = te_data["te"]["imageid"].asUUID(); //texture or asset id
-                LLViewerInventoryItem* itemp_res = NULL;
+                LLViewerInventoryItem* img_itemp_res = NULL;
 
-                if (te_data["te"].has("imageitemid"))
-                {
-                    LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
-                    if (item_id.notNull())
-                    {
-                        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
-                        if (itemp && itemp->isFinished())
-                        {
-                            // dropTextureAllFaces will fail if incomplete
-                            itemp_res = itemp;
-                        }
-                        else
-                        {
-                            // Theoretically shouldn't happend, but if it does happen, we
-                            // might need to add a notification to user that paste will fail
-                            // since inventory isn't fully loaded
-                            LL_WARNS() << "Item " << item_id << " is incomplete, paste might fail silently." << LL_ENDL;
-                        }
-                    }
-                }
-                // for case when item got removed from inventory after we pressed 'copy'
-                // or texture got pasted into previous object
-                if (!itemp_res && !full_perm)
-                {
-                    // Due to checks for imageitemid in LLPanelFace::onPasteTexture() this should no longer be reachable.
-                    LL_INFOS() << "Item " << te_data["te"]["imageitemid"].asUUID() << " no longer in inventory." << LL_ENDL;
-                    // Todo: fix this, we are often searching same texture multiple times (equal to number of faces)
-                    // Perhaps just mPanelFace->onPasteTexture(objectp, te, &asset_to_item_id_map); ? Not pretty, but will work
-                    LLViewerInventoryCategory::cat_array_t cats;
-                    LLViewerInventoryItem::item_array_t items;
-                    LLAssetIDMatches asset_id_matches(imageid);
-                    gInventory.collectDescendentsIf(LLUUID::null,
-                        cats,
-                        items,
-                        LLInventoryModel::INCLUDE_TRASH,
-                        asset_id_matches);
+                get_item_and_permissions(imageid, img_itemp_res, img_full_perm, img_from_library, te_data["te"], "img");
 
-                    // Extremely unreliable and perfomance unfriendly.
-                    // But we need this to check permissions and it is how texture control finds items
-                    for (S32 i = 0; i < items.size(); i++)
-                    {
-                        LLViewerInventoryItem* itemp = items[i];
-                        if (itemp && itemp->isFinished())
-                        {
-                            // dropTextureAllFaces will fail if incomplete
-                            LLPermissions item_permissions = itemp->getPermissions();
-                            if (item_permissions.allowOperationBy(PERM_COPY,
-                                gAgent.getID(),
-                                gAgent.getGroupID()))
-                            {
-                                itemp_res = itemp;
-                                break; // first match
-                            }
-                        }
-                    }
-                }
-
-                if (itemp_res)
+                if (img_itemp_res)
                 {
                     if (te == -1) // all faces
                     {
                         LLToolDragAndDrop::dropTextureAllFaces(objectp,
-                            itemp_res,
-                            from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
+                            img_itemp_res,
+                            img_from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
                             LLUUID::null,
                             false);
                     }
@@ -4367,15 +4528,15 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                     {
                         LLToolDragAndDrop::dropTextureOneFace(objectp,
                             te,
-                            itemp_res,
-                            from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
+                            img_itemp_res,
+                            img_from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
                             LLUUID::null,
                             false,
                             0);
                     }
                 }
                 // not an inventory item or no complete items
-                else if (full_perm)
+                else if (img_full_perm)
                 {
                     // Either library, local or existed as fullperm when user made a copy
                     LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(imageid, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
@@ -4403,25 +4564,66 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             // PBR/GLTF
             if (te_data["te"].has("pbr"))
             {
-                objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false /*managing our own update*/);
-                tep->setGLTFRenderMaterial(nullptr);
-                tep->setGLTFMaterialOverride(nullptr);
+                const LLUUID pbr_id = te_data["te"]["pbr"].asUUID();
+                bool pbr_full_perm = false;
+                bool pbr_from_library = false;
+                LLViewerInventoryItem* pbr_itemp_res = NULL;
 
-                LLSD override_data;
-                override_data["object_id"] = objectp->getID();
-                override_data["side"] = te;
+                get_item_and_permissions(pbr_id, pbr_itemp_res, pbr_full_perm, pbr_from_library, te_data["te"], "pbr");
+
+                bool allow = true;
+
+                // check overrides first since they don't need t be moved to inventory
                 if (te_data["te"].has("pbr_override"))
                 {
-                    override_data["gltf_json"] = te_data["te"]["pbr_override"];
+                    for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                    {
+                        const std::string prefix = "pbr" + std::to_string(i);
+                        if (te_data["te"].has(prefix + "imageid"))
+                        {
+                            LLUUID tex_id = te_data["te"][prefix + "imageid"];
+
+                            bool full_perm = false;
+                            bool from_library = false;
+                            LLViewerInventoryItem* itemp_res = NULL;
+                            get_item_and_permissions(tex_id, itemp_res, full_perm, from_library, te_data["te"], prefix);
+                            allow = full_perm;
+                            if (!allow) break;
+                        }
+                    }
                 }
-                else
+
+                if (allow && pbr_itemp_res)
                 {
-                    override_data["gltf_json"] = "";
+                    if (pbr_itemp_res)
+                    {
+                        allow = LLToolDragAndDrop::handleDropMaterialProtections(
+                            objectp,
+                            pbr_itemp_res,
+                            pbr_from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
+                            pbr_id);
+                    }
+                    else
+                    {
+                        allow = pbr_full_perm;
+                    }
                 }
 
-                override_data["asset_id"] = te_data["te"]["pbr"].asUUID();
+                if (allow)
+                {
+                    objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false /*managing our own update*/);
+                    tep->setGLTFRenderMaterial(nullptr);
+                    tep->setGLTFMaterialOverride(nullptr);
 
-                LLGLTFMaterialList::queueUpdate(override_data);
+                    if (te_data["te"].has("pbr_override"))
+                    {
+                        LLGLTFMaterialList::queueApply(objectp, te, te_data["te"]["pbr"].asUUID(), te_data["te"]["pbr_override"]);
+                    }
+                    else
+                    {
+                        LLGLTFMaterialList::queueApply(objectp, te, te_data["te"]["pbr"].asUUID());
+                    }
+                }
             }
             else
             {
@@ -4887,6 +5089,26 @@ bool LLPanelFace::isIdenticalPlanarTexgen()
     return (identical_texgen && (selected_texgen == LLTextureEntry::TEX_GEN_PLANAR));
 }
 
+bool LLPanelFace::isMediaTexSelected()
+{
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    if (LLViewerObject* objectp = node->getObject())
+    {
+        S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+        for (S32 te = 0; te < num_tes; ++te)
+        {
+            if (node->isTESelected(te))
+            {
+                if (objectp->getTE(te) && objectp->getTE(te)->hasMedia())
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical_face)
 {
     struct LLSelectedTEGetFace : public LLSelectedTEGetFunctor<LLFace *>
@@ -5082,6 +5304,7 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxSpecularRepeats(F32& repeats, bool
             LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
             U32 s_axis = VX;
             U32 t_axis = VY;
+            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
             F32 repeats_s = 1.0f;
             F32 repeats_t = 1.0f;
             if (mat)
@@ -5106,6 +5329,7 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxNormalRepeats(F32& repeats, bool& 
             LLMaterial* mat = object->getTE(face)->getMaterialParams().get();
             U32 s_axis = VX;
             U32 t_axis = VY;
+            LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
             F32 repeats_s = 1.0f;
             F32 repeats_t = 1.0f;
             if (mat)

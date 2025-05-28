@@ -69,9 +69,16 @@ void GLTFSceneManager::load()
                 {
                     return;
                 }
-                if (filenames.size() > 0)
+                try
                 {
-                    GLTFSceneManager::instance().load(filenames[0]);
+                    if (filenames.size() > 0)
+                    {
+                        GLTFSceneManager::instance().load(filenames[0]);
+                    }
+                }
+                catch (std::bad_alloc&)
+                {
+                    LLNotificationsUtil::add("CannotOpenFileTooBig");
                 }
             },
             LLFilePicker::FFLOAD_GLTF,
@@ -356,8 +363,9 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
     llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
     llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
 
-    if (obj->mGLTFAsset)
-    { // object already has a GLTF asset, don't reload it
+    if (obj->mGLTFAsset || obj->mIsGLTFAssetMissing )
+    {
+        // object already has a GLTF asset or load failed, don't reload it
 
         // TODO: below assertion fails on dupliate requests for assets -- possibly need to touch up asset loading state machine
         // llassert(std::find(mObjects.begin(), mObjects.end(), obj) != mObjects.end());
@@ -398,16 +406,19 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
                             }
                             else
                             {
-                                LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << id << LL_ENDL;
+                                LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << id << ". Marking as missing." << LL_ENDL;
+                                obj->mIsGLTFAssetMissing = true;
                                 obj->mGLTFAsset = nullptr;
                             }
                         }
                     }
+                    obj->unref(); // todo: use LLPointer
                 }
             }
             else
             {
-                LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << LL_ENDL;
+                LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << ". Marking as missing." << LL_ENDL;
+                obj->mIsGLTFAssetMissing = true;
                 obj->unref();
             }
         });
@@ -446,7 +457,8 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
                 }
                 else
                 {
-                    LL_WARNS("GLTF") << "Buffer URI is not a valid UUID: " << buffer.mUri << LL_ENDL;
+                    LL_WARNS("GLTF") << "Buffer URI is not a valid UUID: " << buffer.mUri << " for asset id: " << id << ". Marking as missing." << LL_ENDL;
+                    obj->mIsGLTFAssetMissing = true;
                     obj->unref();
                     return;
                 }
@@ -455,7 +467,8 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
     }
     else
     {
-        LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << LL_ENDL;
+        LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << ". Marking as missing." << LL_ENDL;
+        obj->mIsGLTFAssetMissing = true;
         obj->unref();
     }
 }
@@ -517,6 +530,7 @@ void GLTFSceneManager::update()
                         if (mUploadingObject)
                         {
                             mUploadingObject->mGLTFAsset = nullptr;
+                            mUploadingObject->mIsGLTFAssetMissing = false;
                             mUploadingObject->setGLTFAsset(assetId);
                             mUploadingObject->markForUpdate();
                             mUploadingObject = nullptr;
@@ -626,6 +640,12 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
     if (!can_use_shaders)
     {
         // user should already have been notified of unsupported hardware
+        return;
+    }
+
+    if (gGLTFPBRMetallicRoughnessProgram.mGLTFVariants.size() <= variant)
+    {
+        llassert(false); // mGLTFVariants should have been initialized
         return;
     }
 
@@ -975,9 +995,9 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
 
     LLVector4a t;
     agent_to_asset.affineTransform(gDebugRaycastStart, t);
-    start = glm::make_vec4(t.getF32ptr());
+    start = vec4(t);
     agent_to_asset.affineTransform(gDebugRaycastEnd, t);
-    end = glm::make_vec4(t.getF32ptr());
+    end = vec4(t);
 
     start.w = end.w = 1.0;
 

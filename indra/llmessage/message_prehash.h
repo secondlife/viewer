@@ -1406,5 +1406,6 @@ extern char const* const _PREHASH_HoverHeight;
 extern char const* const _PREHASH_Experience;
 extern char const* const _PREHASH_ExperienceID;
 extern char const* const _PREHASH_LargeGenericMessage;
+extern char const* const _PREHASH_MetaData;
 
 #endif

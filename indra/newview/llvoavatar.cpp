@@ -122,8 +122,8 @@ extern F32 ANIM_SPEED_MAX;
 extern F32 ANIM_SPEED_MIN;
 extern U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 
-const F32 MAX_HOVER_Z = 2.0;
-const F32 MIN_HOVER_Z = -2.0;
+const F32 MAX_HOVER_Z = 3.0;
+const F32 MIN_HOVER_Z = -3.0;
 
 const F32 MIN_ATTACHMENT_COMPLEXITY = 0.f;
 const F32 DEFAULT_MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
@@ -682,7 +682,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mFullyLoaded(false),
     mPreviousFullyLoaded(false),
     mFullyLoadedInitialized(false),
-    mLastCloudAttachmentCount(0),
+    mLastCloudAttachmentCount(-1),
     mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
     mLoadedCallbacksPaused(false),
     mLoadedCallbackTextures(0),
@@ -1928,8 +1928,8 @@ bool LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
             glm::mat4 inverse = glm::inverse(mat);
             glm::mat4 norm_mat = glm::transpose(inverse);
 
-            glm::vec3 p1(glm::make_vec3(start.getF32ptr()));
-            glm::vec3 p2(glm::make_vec3(end.getF32ptr()));
+            glm::vec3 p1(start);
+            glm::vec3 p2(end);
 
             p1 = mul_mat4_vec3(inverse, p1);
             p2 = mul_mat4_vec3(inverse, p2);
@@ -1937,12 +1937,12 @@ bool LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
             LLVector3 position;
             LLVector3 norm;
 
-            if (linesegment_sphere(LLVector3(glm::value_ptr(p1)), LLVector3(glm::value_ptr(p2)), LLVector3(0,0,0), 1.f, position, norm))
+            if (linesegment_sphere(LLVector3(p1), LLVector3(p2), LLVector3(0,0,0), 1.f, position, norm))
             {
-                glm::vec3 res_pos(glm::make_vec3(position.mV));
+                glm::vec3 res_pos(position);
                 res_pos = mul_mat4_vec3(mat, res_pos);
 
-                 glm::vec3 res_norm(glm::make_vec3(norm.mV));
+                 glm::vec3 res_norm(norm);
                 res_norm = glm::normalize(res_norm);
                 res_norm = glm::mat3(norm_mat) * res_norm;
 
@@ -2794,7 +2794,10 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
 
     // attach objects that were waiting for a drawable
-    lazyAttach();
+    if (!mPendingAttachment.empty())
+    {
+        lazyAttach();
+    }
 
     // animate the character
     // store off last frame's root position to be consistent with camera position
@@ -3226,6 +3229,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
             if (mFirstFullyVisible)
             {
                 mFirstFullyVisible = false;
+                mLastCloudAttachmentCount = (S32)mSimAttachments.size();
                 mFirstDecloudTime = mFirstAppearanceMessageTimer.getElapsedTimeF32();
                 if (isSelf())
                 {
@@ -6371,6 +6375,16 @@ LLJoint *LLVOAvatar::getJoint( S32 joint_num )
     return pJoint;
 }
 
+void LLVOAvatar::initAllJoints()
+{
+    getJointAliases();
+    for (auto& alias : mJointAliasMap)
+    {
+        mJointMap[alias.first] = mRoot->findJoint(alias.second);
+    }
+    // ignore mScreen and mRoot
+}
+
 //-----------------------------------------------------------------------------
 // getRiggedMeshID
 //
@@ -7710,6 +7724,64 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
     }
 }
 
+bool check_object_for_mesh_loading(LLViewerObject* objectp)
+{
+    if (!objectp || !objectp->getVolume())
+    {
+        return false;
+    }
+    LLVolume* volp = objectp->getVolume();
+    const LLUUID& mesh_id = volp->getParams().getSculptID();
+    if (mesh_id.isNull())
+    {
+        // No mesh nor skin info needed
+        return false;
+    }
+
+    if (volp->isMeshAssetUnavaliable())
+    {
+        // Mesh failed to load, do not expect it
+        return false;
+    }
+
+    if (!objectp->mDrawable)
+    {
+        return false;
+    }
+
+    LLVOVolume* pvobj = objectp->mDrawable->getVOVolume();
+    if (pvobj)
+    {
+        if (!pvobj->isMesh())
+        {
+            // Not a mesh
+            return false;
+        }
+
+        if (!volp->isMeshAssetLoaded())
+        {
+            // Waiting for mesh
+            return true;
+        }
+
+        const LLMeshSkinInfo* skin_data = pvobj->getSkinInfo();
+        if (skin_data)
+        {
+            // Skin info present, done
+            return false;
+        }
+
+        if (pvobj->isSkinInfoUnavaliable())
+        {
+            // Load failed or info not present, don't expect it
+            return false;
+        }
+    }
+
+    // object is not ready
+    return true;
+}
+
 bool LLVOAvatar::hasPendingAttachedMeshes()
 {
     for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
@@ -7724,62 +7796,20 @@ bool LLVOAvatar::hasPendingAttachedMeshes()
                  ++attachment_iter)
             {
                 LLViewerObject* objectp = attachment_iter->get();
-                if (objectp)
+                if (objectp && !objectp->isDead())
                 {
+                    if (check_object_for_mesh_loading(objectp))
+                    {
+                        return true;
+                    }
                     LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
                     for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
                          iter1 != child_list.end(); ++iter1)
                     {
                         LLViewerObject* objectchild = *iter1;
-                        if (objectchild && objectchild->getVolume())
+                        if (check_object_for_mesh_loading(objectchild))
                         {
-                            const LLUUID& mesh_id = objectchild->getVolume()->getParams().getSculptID();
-                            if (mesh_id.isNull())
-                            {
-                                // No mesh nor skin info needed
-                                continue;
-                            }
-
-                            if (objectchild->getVolume()->isMeshAssetUnavaliable())
-                            {
-                                // Mesh failed to load, do not expect it
-                                continue;
-                            }
-
-                            if (objectchild->mDrawable)
-                            {
-                                LLVOVolume* pvobj = objectchild->mDrawable->getVOVolume();
-                                if (pvobj)
-                                {
-                                    if (!pvobj->isMesh())
-                                    {
-                                        // Not a mesh
-                                        continue;
-                                    }
-
-                                    if (!objectchild->getVolume()->isMeshAssetLoaded())
-                                    {
-                                        // Waiting for mesh
-                                        return true;
-                                    }
-
-                                    const LLMeshSkinInfo* skin_data = pvobj->getSkinInfo();
-                                    if (skin_data)
-                                    {
-                                        // Skin info present, done
-                                        continue;
-                                    }
-
-                                    if (pvobj->isSkinInfoUnavaliable())
-                                    {
-                                        // Load failed or info not present, don't expect it
-                                        continue;
-                                    }
-                                }
-
-                                // objectchild is not ready
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
@@ -8382,7 +8412,7 @@ bool LLVOAvatar::updateIsFullyLoaded()
                   );
 
         // compare amount of attachments to one reported by simulator
-        if (!loading && !isSelf() && rez_status < 4 && mLastCloudAttachmentCount < mSimAttachments.size())
+        if (!isSelf() && mLastCloudAttachmentCount < mSimAttachments.size() && mSimAttachments.size() > 0)
         {
             S32 attachment_count = getAttachmentCount();
             if (mLastCloudAttachmentCount != attachment_count)
@@ -8399,6 +8429,11 @@ bool LLVOAvatar::updateIsFullyLoaded()
             {
                 // waiting
                 loading = true;
+            }
+            else if (!loading)
+            {
+                // for hasFirstFullAttachmentData
+                mLastCloudAttachmentCount = (S32)mSimAttachments.size();
             }
         }
     }
@@ -8511,6 +8546,12 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 bool LLVOAvatar::isFullyLoaded() const
 {
     return (mRenderUnloadedAvatar || mFullyLoaded);
+}
+
+bool LLVOAvatar::hasFirstFullAttachmentData() const
+{
+    return !mFirstFullyVisible // Avatar is fully visible, have all data
+        || mLastCloudAttachmentCount >= (S32)mSimAttachments.size();
 }
 
 bool LLVOAvatar::isTooComplex() const
@@ -10932,8 +10973,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
     bool autotune = LLPerfStats::tunables.userAutoTuneEnabled && !mIsControlAvatar && !isSelf();
     if (autotune && !isDead())
     {
-        static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
-        F32 radius = render_far_clip * render_far_clip;
+        F32 radius = sRenderDistance * sRenderDistance;
 
         bool is_nearby = true;
         if ((dist_vec_squared(getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
@@ -10965,8 +11005,7 @@ void LLVOAvatar::updateNearbyAvatarCount()
     if (agent_update_timer.getElapsedTimeF32() > 1.0f)
     {
         S32 avs_nearby = 0;
-        static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
-        F32 radius = render_far_clip * render_far_clip;
+        F32 radius = sRenderDistance * sRenderDistance;
         for (LLCharacter* character : LLCharacter::sInstances)
         {
             LLVOAvatar* avatar = (LLVOAvatar*)character;

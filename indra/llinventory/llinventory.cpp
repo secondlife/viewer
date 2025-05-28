@@ -918,7 +918,7 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
     }
     //sd[INV_FLAGS_LABEL] = (S32)mFlags;
     sd[INV_FLAGS_LABEL] = ll_sd_from_U32(mFlags);
-    sd[INV_SALE_INFO_LABEL] = mSaleInfo;
+    sd[INV_SALE_INFO_LABEL] = mSaleInfo.asLLSD();
     sd[INV_NAME_LABEL] = mName;
     sd[INV_DESC_LABEL] = mDescription;
     sd[INV_CREATION_DATE_LABEL] = (S32) mCreationDate;
