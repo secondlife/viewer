@@ -495,7 +495,7 @@ bool Asset::prep()
         if (ExtensionsSupported.find(extension) == ExtensionsSupported.end())
         {
             LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
-            mUnsupportedExtension = true;
+            mUnsupportedExtensions.push_back(extension);
         }
     }
 

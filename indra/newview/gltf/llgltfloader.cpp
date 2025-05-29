@@ -127,10 +127,19 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
         return false;
     }
 
-    if (mGLTFAsset.mUnsupportedExtension)
+    if (mGLTFAsset.mUnsupportedExtensions.size() > 0)
     {
         LLSD args;
         args["Message"] = "UnsupportedExtension";
+        std::string del;
+        std::string ext;
+        for (auto& extension : mGLTFAsset.mUnsupportedExtensions)
+        {
+            ext += del;
+            ext += extension;
+            del = ",";
+        }
+        args["EXT"] = ext;
         mWarningsArray.append(args);
     }
 
