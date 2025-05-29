@@ -832,17 +832,6 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
         return;
     }
 
-    if (!isOutfitFolder(cat))
-    {
-        // Assume a subfolder that contains or will contain outfits, track it
-        const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-        mCategoriesObserver->addCategory(cat_id, [this, outfits]()
-        {
-            observerCallback(outfits);
-        });
-        return;
-    }
-
     LLOutfitGalleryItem* item = buildGalleryItem(cat->getName(), cat_id, cat->getIsFavorite());
     mOutfitMap.insert(LLOutfitGallery::outfit_map_value_t(cat_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
