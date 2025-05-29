@@ -396,7 +396,7 @@ namespace LL
             U32 mMaterialsUBO = 0;
             bool mLoadIntoVRAM = false;
 
-            bool mUnsupportedExtension = false;
+            std::vector<std::string> mUnsupportedExtensions;
 
             // prepare for first time use
             bool prep();
