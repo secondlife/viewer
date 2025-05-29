@@ -111,8 +111,6 @@ LLGLTFLoader::~LLGLTFLoader() {}
 bool LLGLTFLoader::OpenFile(const std::string &filename)
 {
     tinygltf::TinyGLTF loader;
-    std::string        error_msg;
-    std::string        warn_msg;
     std::string filename_lc(filename);
     LLStringUtil::toLower(filename_lc);
 
@@ -120,28 +118,11 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
 
     if (!mGltfLoaded)
     {
-        if (!warn_msg.empty())
-            LL_WARNS("GLTF_IMPORT") << "gltf load warning: " << warn_msg.c_str() << LL_ENDL;
-        if (!error_msg.empty())
-            LL_WARNS("GLTF_IMPORT") << "gltf load error: " << error_msg.c_str() << LL_ENDL;
+        notifyUnsupportedExtension(true);
         return false;
     }
 
-    if (mGLTFAsset.mUnsupportedExtensions.size() > 0)
-    {
-        LLSD args;
-        args["Message"] = "UnsupportedExtension";
-        std::string del;
-        std::string ext;
-        for (auto& extension : mGLTFAsset.mUnsupportedExtensions)
-        {
-            ext += del;
-            ext += extension;
-            del = ",";
-        }
-        args["EXT"] = ext;
-        mWarningsArray.append(args);
-    }
+    notifyUnsupportedExtension(false);
 
     mMeshesLoaded = parseMeshes();
     if (mMeshesLoaded) uploadMeshes();
@@ -1345,5 +1326,25 @@ LLUUID LLGLTFLoader::imageBufferToTextureUUID(const gltf_texture& tex)
     }
 
     return LLUUID::null;
+}
+
+void LLGLTFLoader::notifyUnsupportedExtension(bool unsupported)
+{
+    std::vector<std::string> extensions = unsupported ? mGLTFAsset.mUnsupportedExtensions : mGLTFAsset.mIgnoredExtensions;
+    if (extensions.size() > 0)
+    {
+        LLSD args;
+        args["Message"] = unsupported ? "UnsupportedExtension" : "IgnoredExtension";
+        std::string del;
+        std::string ext;
+        for (auto& extension : extensions)
+        {
+            ext += del;
+            ext += extension;
+            del = ",";
+        }
+        args["EXT"] = ext;
+        mWarningsArray.append(args);
+    }
 }
 

@@ -174,6 +174,8 @@ private:
     S32 findGLTFRootJoint(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
+    void notifyUnsupportedExtension(bool unsupported);
+
     //    bool mPreprocessGLTF;
 
     /*  Below inherited from dae loader - unknown if/how useful here
