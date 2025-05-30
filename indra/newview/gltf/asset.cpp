@@ -50,6 +50,10 @@ namespace LL
             "KHR_texture_transform"
         };
 
+        static std::unordered_set<std::string> ExtensionsIgnored = {
+            "KHR_materials_pbrSpecularGlossiness"
+        };
+
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
         {
             if (alpha_mode == "OPAQUE")
@@ -494,9 +498,20 @@ bool Asset::prep()
     {
         if (ExtensionsSupported.find(extension) == ExtensionsSupported.end())
         {
-            LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
-            mUnsupportedExtensions.push_back(extension);
+            if (ExtensionsIgnored.find(extension) == ExtensionsIgnored.end())
+            {
+                LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
+                mUnsupportedExtensions.push_back(extension);
+            }
+            else
+            {
+                mIgnoredExtensions.push_back(extension);
+            }
         }
+    }
+    if (mUnsupportedExtensions.size() > 0)
+    {
+        return false;
     }
 
     // do buffers first as other resources depend on them

@@ -397,6 +397,7 @@ namespace LL
             bool mLoadIntoVRAM = false;
 
             std::vector<std::string> mUnsupportedExtensions;
+            std::vector<std::string> mIgnoredExtensions;
 
             // prepare for first time use
             bool prep();
