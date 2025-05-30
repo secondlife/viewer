@@ -217,6 +217,8 @@ bool LLFilePicker::setupFilter(ELoadFilter filter)
         break;
     case FFLOAD_MODEL:
         mOFN.lpstrFilter = MODEL_FILTER \
+            COLLADA_FILTER \
+            MATERIAL_FILTER \
             L"\0";
         break;
     case FFLOAD_MATERIAL:

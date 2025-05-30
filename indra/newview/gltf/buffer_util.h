@@ -375,6 +375,11 @@ namespace LL
         template<class T>
         inline void copy(Asset& asset, Accessor& accessor, LLStrider<T>& dst)
         {
+            if (accessor.mBufferView == INVALID_INDEX)
+            {
+                LL_WARNS("GLTF") << "Invalid buffer" << LL_ENDL;
+                return;
+            }
             const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
             const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
             const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
