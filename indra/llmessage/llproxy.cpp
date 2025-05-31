@@ -506,6 +506,7 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
         rv = apr_socket_recv(apr_socket, datain, &maxinlen);
         if (rv != APR_SUCCESS)
         {
+            // if rv == 70060 it's WSAETIMEDOUT
             char buf[MAX_STRING];
             LL_WARNS("Proxy") << "Error receiving data from proxy control channel, status: " << rv << " " << apr_strerror(rv, buf, MAX_STRING) << LL_ENDL;
             ll_apr_warn_status(rv);

@@ -43,12 +43,28 @@ bool LLFloaterNewFeatureNotification::postBuild()
     setCanDrag(false);
     getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
 
-    const std::string title_txt = "title_txt";
-    const std::string dsc_txt = "description_txt";
-    std::string feature = "_" + getKey().asString();
+    if (getKey().isString())
+    {
+        const std::string title_txt = "title_txt";
+        const std::string dsc_txt = "description_txt";
 
-    getChild<LLUICtrl>(title_txt)->setValue(getString(title_txt + feature));
-    getChild<LLUICtrl>(dsc_txt)->setValue(getString(dsc_txt + feature));
+        std::string feature = "_" + getKey().asString();
+        if (hasString(title_txt + feature))
+        {
+            getChild<LLUICtrl>(title_txt)->setValue(getString(title_txt + feature));
+            getChild<LLUICtrl>(dsc_txt)->setValue(getString(dsc_txt + feature));
+        }
+        else
+        {
+            // Show blank
+            LL_WARNS() << "Feature \"" << getKey().asString() <<  "\" not found for feature notification" << LL_ENDL;
+        }
+    }
+    else
+    {
+        // Show blank
+        LL_WARNS() << "Feature notification without a feature" << LL_ENDL;
+    }
 
     if (getKey().asString() == "gltf")
     {

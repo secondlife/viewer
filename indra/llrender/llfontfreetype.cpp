@@ -654,7 +654,14 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 
     LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_glyph_type, bitmap_num);
     LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_glyph_type, bitmap_num);
-    image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+    if (image_gl && image_raw)
+    {
+        image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+    }
+    else
+    {
+        llassert(false); //images were just inserted by nextOpenPos, they shouldn't be missing
+    }
 
     return gi;
 }
@@ -838,7 +845,12 @@ bool LLFontFreetype::setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U1
 {
     LLImageRaw* image_raw = mFontBitmapCachep->getImageRaw(EFontGlyphType::Color, bitmap_num);
     llassert(!mIsFallback);
-    llassert(image_raw && (image_raw->getComponents() == 4));
+    if (!image_raw)
+    {
+        llassert(false);
+        return false;
+    }
+    llassert(image_raw->getComponents() == 4);
 
     // NOTE: inspired by LLImageRaw::setSubImage()
     U32* image_data = (U32*)image_raw->getData();
@@ -866,10 +878,17 @@ bool LLFontFreetype::setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U1
 void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride) const
 {
     LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(EFontGlyphType::Grayscale, bitmap_num);
-    LLImageDataLock lock(image_raw);
 
     llassert(!mIsFallback);
-    llassert(image_raw && (image_raw->getComponents() == 2));
+    if (!image_raw)
+    {
+        llassert(false);
+        return;
+    }
+
+    LLImageDataLock lock(image_raw);
+
+    llassert(image_raw->getComponents() == 2);
 
     U8 *target = image_raw->getData();
     llassert(target);

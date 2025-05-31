@@ -242,9 +242,7 @@ void LLFloaterEnvironmentAdjust::captureCurrentEnvironment()
         environment.setEnvironment(LLEnvironment::ENV_LOCAL, mLiveSky, FLOATER_ENVIRONMENT_UPDATE);
         environment.setEnvironment(LLEnvironment::ENV_LOCAL, mLiveWater, FLOATER_ENVIRONMENT_UPDATE);
     }
-    environment.setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
-    environment.updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
-
+    environment.setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterEnvironmentAdjust::onButtonReset()
@@ -258,7 +256,6 @@ void LLFloaterEnvironmentAdjust::onButtonReset()
             this->closeFloater();
             LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
-            LLEnvironment::instance().updateEnvironment();
         }
     });
 

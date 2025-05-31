@@ -118,6 +118,8 @@ protected:
     void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
     virtual void onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id) = 0;
 
+    bool isOutfitFolder(LLViewerInventoryCategory* cat) const;
+
     static void onIdle(void* userdata);
     void onIdleRefreshList();
 

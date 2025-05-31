@@ -553,6 +553,61 @@ LLSD shallow(LLSD value, LLSD filter=LLSD()) { return llsd_shallow(value, filter
 
 } // namespace llsd
 
+/*****************************************************************************
+ *   toArray(), toMap()
+ *****************************************************************************/
+namespace llsd
+{
+
+// For some T convertible to LLSD, given std::vector<T> myVec,
+// toArray(myVec) returns an LLSD array whose entries correspond to the
+// items in myVec.
+// For some U convertible to LLSD, given function U xform(const T&),
+// toArray(myVec, xform) returns an LLSD array whose every entry is
+// xform(item) of the corresponding item in myVec.
+// toArray() actually works with any container<C> usable with range
+// 'for', not just std::vector.
+// (Once we get C++20 we can use std::identity instead of this default lambda.)
+template<typename C, typename FUNC>
+LLSD toArray(const C& container, FUNC&& func = [](const auto& arg) { return arg; })
+{
+    LLSD array;
+    for (const auto& item : container)
+    {
+        array.append(std::forward<FUNC>(func)(item));
+    }
+    return array;
+}
+
+// For some T convertible to LLSD, given std::map<std::string, T> myMap,
+// toMap(myMap) returns an LLSD map whose entries correspond to the
+// (key, value) pairs in myMap.
+// For some U convertible to LLSD, given function
+// std::pair<std::string, U> xform(const std::pair<std::string, T>&),
+// toMap(myMap, xform) returns an LLSD map whose every entry is
+// xform(pair) of the corresponding (key, value) pair in myMap.
+// toMap() actually works with any container usable with range 'for', not
+// just std::map. It need not even be an associative container, as long as
+// you pass an xform function that returns std::pair<std::string, U>.
+// (Once we get C++20 we can use std::identity instead of this default lambda.)
+template<typename C, typename FUNC>
+LLSD toMap(const C& container, FUNC&& func = [](const auto& arg) { return arg; })
+{
+    LLSD map;
+    for (const auto& pair : container)
+    {
+        const auto& [key, value] = std::forward<FUNC>(func)(pair);
+        map[key] = value;
+    }
+    return map;
+}
+
+} // namespace llsd
+
+/*****************************************************************************
+ *   boost::hash<LLSD>
+ *****************************************************************************/
+
 // Specialization for generating a hash value from an LLSD block.
 namespace boost
 {
