@@ -457,7 +457,6 @@ jobs:
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
-          previous_tag: release
           append_body: true
           fail_on_unmatched_files: true
           files: |
