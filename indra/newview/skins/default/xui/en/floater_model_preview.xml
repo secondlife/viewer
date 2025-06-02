@@ -64,6 +64,7 @@
   <string name="InvalidGeometryNonTriangulated">Invalid geometry: GLTF files must contain triangulated meshes only.</string>
   <string name="IgnoredExtension">Model uses unsupported extension: [EXT], related material properties are ignored.</string>
   <string name="UnsupportedExtension">Unable to load a model, unsupported extension: [EXT]</string>
+  <string name="ErrorIndexLimit">Unable to process mesh due to 16-bit index limits</string>
 
   <panel
     follows="top|left"

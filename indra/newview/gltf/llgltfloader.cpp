@@ -648,7 +648,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         else {
             LL_INFOS("GLTF_IMPORT") << "Unable to process mesh due to 16-bit index limits" << LL_ENDL;
             LLSD args;
-            args["Message"] = "ParsingErrorBadElement";
+            args["Message"] = "ErrorIndexLimit";
             mWarningsArray.append(args);
             return false;
         }
