@@ -450,9 +450,18 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 GLTFVertex vert;
                 vert.position = glm::vec3(transformed_pos);
 
-                // Use pre-computed normal_transform
-                glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
-                vert.normal = glm::normalize(normal_transform * normal_vec);
+                if (!prim.mNormals.empty())
+                {
+                    // Use pre-computed normal_transform
+                    glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                    vert.normal = glm::normalize(normal_transform * normal_vec);
+                }
+                else
+                {
+                    // Use default normal (pointing up in model space)
+                    vert.normal = glm::normalize(normal_transform * glm::vec3(0.0f, 0.0f, 1.0f));
+                    LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
+                }
 
                 vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
 
