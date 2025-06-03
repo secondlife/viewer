@@ -121,6 +121,7 @@ class LLGLTFLoader : public LLModelLoader
 {
   public:
     typedef std::map<std::string, LLImportMaterial> material_map;
+    typedef std::map<std::string, LLVector3> joint_pos_map_t;
 
     LLGLTFLoader(std::string filename,
                     S32                                 lod,
@@ -162,6 +163,11 @@ protected:
     std::vector<gltf_image>             mImages;
     std::vector<gltf_sampler>           mSamplers;
 
+
+    // vector of vectors because of a posibility of having more than one skin
+    typedef std::vector<LLMeshSkinInfo::matrix_list_t> bind_matrices_t;
+    bind_matrices_t                     mInverseBindMatrices;
+
 private:
     bool parseMeshes();
     void uploadMeshes();
@@ -169,9 +175,11 @@ private:
     void uploadMaterials();
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
     bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats, S32 instance_count);
-    void populateJointFromSkin(const LL::GLTF::Skin& skin);
-    S32 findValidRootJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const;
-    S32 findGLTFRootJoint(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
+    void populateJointFromSkin(S32 skin_idx);
+    S32 findClosestValidJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const;
+    S32 findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const;
+    S32 findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
+    S32 findParentNode(S32 node) const;
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
     void notifyUnsupportedExtension(bool unsupported);

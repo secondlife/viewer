@@ -153,9 +153,9 @@ bool LLGLTFLoader::parseMeshes()
 
     // Populate the joints from skins first.
     // There's not many skins - and you can pretty easily iterate through the nodes from that.
-    for (auto& skin : mGLTFAsset.mSkins)
+    for (S32 i = 0; i < mGLTFAsset.mSkins.size(); i++)
     {
-        populateJointFromSkin(skin);
+        populateJointFromSkin(i);
     }
 
     // Track how many times each mesh name has been used
@@ -292,6 +292,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         S32 mesh_index = static_cast<S32>(&mesh - &mGLTFAsset.mMeshes[0]);
         base_name = "mesh_" + std::to_string(mesh_index);
     }
+
+    LL_INFOS("GLTF_DEBUG") << "Processing model " << base_name << LL_ENDL;
 
     if (instance_count > 0)
     {
@@ -672,16 +674,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
         LLMeshSkinInfo& skin_info = pModel->mSkinInfo;
 
-        size_t jointCnt = gltf_skin.mJoints.size();
-        if (gltf_skin.mInverseBindMatrices >= 0 && jointCnt != gltf_skin.mInverseBindMatricesData.size())
-        {
-            LL_INFOS("GLTF_IMPORT") << "Bind matrices count mismatch joints count" << LL_ENDL;
-            LLSD args;
-            args["Message"] = "InvBindCountMismatch";
-            mWarningsArray.append(args);
-        }
-
         std::vector<S32> gltfindex_to_joitindex_map;
+        size_t jointCnt = gltf_skin.mJoints.size();
         gltfindex_to_joitindex_map.resize(jointCnt);
 
         S32 replacement_index = 0;
@@ -711,44 +705,24 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             skin_info.mJointNames.push_back(legal_name);
             skin_info.mJointNums.push_back(-1);
 
-            if (i < gltf_skin.mInverseBindMatricesData.size())
+            // In scope of same skin multiple meshes reuse same bind matrices
+            skin_info.mInvBindMatrix.push_back(mInverseBindMatrices[skinIdx][i]);
+
+            // For alternate bind matrix, use the ORIGINAL joint transform (before rotation)
+            // Get the original joint node and use its matrix directly
+            // Todo: this seems blatantly wrong, it should have been rotated
+            glm::mat4 joint_mat = jointNode.mMatrix;
+            S32 root_joint = findValidRootJointNode(joint, gltf_skin); // skeleton can have multiple real roots
+            if (root_joint == joint)
             {
-                // Use pre-computed coord_system_rotation instead of recreating it
-                LL::GLTF::mat4 gltf_mat = gltf_skin.mInverseBindMatricesData[i];
-
-                glm::mat4 original_bind_matrix = glm::inverse(gltf_mat);
-                glm::mat4 rotated_original = coord_system_rotation * original_bind_matrix;
-                glm::mat4 rotated_inverse_bind_matrix = glm::inverse(rotated_original);
-
-                LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(rotated_inverse_bind_matrix));
-                skin_info.mInvBindMatrix.push_back(LLMatrix4a(gltf_transform));
-
-                LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
-
-                // For alternate bind matrix, use the ORIGINAL joint transform (before rotation)
-                // Get the original joint node and use its matrix directly
-                S32 joint = gltf_skin.mJoints[i];
-                LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-                glm::mat4 joint_mat = jointNode.mMatrix;
-                S32 root_joint = findValidRootJoint(joint, gltf_skin); // skeleton can have multiple real roots
-                if (root_joint == joint)
-                {
-                    // This is very likely incomplete in some way.
-                    // Root shouldn't be the only one to need full coordinate fix
-                    joint_mat = coord_system_rotation * joint_mat;
-                }
-                LLMatrix4 original_joint_transform(glm::value_ptr(joint_mat));
-
-                LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
-                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(original_joint_transform));
+                // This is very likely incomplete in some way.
+                // Root shouldn't be the only one to need full coordinate fix
+                joint_mat = coord_system_rotation * joint_mat;
             }
-            else
-            {
-                // For gltf mInverseBindMatrices are optional, but not for viewer
-                // todo: get a model that triggers this
-                skin_info.mInvBindMatrix.push_back(LLMatrix4a(mJointList[legal_name])); // might need to be an 'identity'
-                skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(mJointList[legal_name]));
-            }
+            LLMatrix4 original_joint_transform(glm::value_ptr(joint_mat));
+
+            LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
+            skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(original_joint_transform));
         }
 
         // Remap indices for pModel->mSkinWeights
@@ -764,23 +738,71 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     return true;
 }
 
-void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
+void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
 {
-    LL_INFOS("GLTF_DEBUG") << "populateJointFromSkin: Processing " << skin.mJoints.size() << " joints" << LL_ENDL;
+    const LL::GLTF::Skin& skin = mGLTFAsset.mSkins[skin_idx];
 
-    for (auto joint : skin.mJoints)
+    LL_INFOS("GLTF_DEBUG") << "populateJointFromSkin: Processing skin " << skin_idx << " with " << skin.mJoints.size() << " joints" << LL_ENDL;
+
+    if (skin.mInverseBindMatrices > 0 && skin.mJoints.size() != skin.mInverseBindMatricesData.size())
     {
-        auto jointNode = mGLTFAsset.mNodes[joint];
+        LL_INFOS("GLTF_IMPORT") << "Bind matrices count mismatch joints count" << LL_ENDL;
+        LLSD args;
+        args["Message"] = "InvBindCountMismatch";
+        mWarningsArray.append(args);
+    }
 
+    S32 joint_count = (S32)skin.mJoints.size();
+    S32 inverse_count = (S32)skin.mInverseBindMatricesData.size();
+    if (mInverseBindMatrices.size() <= skin_idx)
+    {
+        mInverseBindMatrices.resize(skin_idx + 1);
+    }
+
+    for (S32 i = 0; i < joint_count; i++)
+    {
+        S32 joint = skin.mJoints[i];
+        LL::GLTF::Node jointNode = mGLTFAsset.mNodes[joint];
         std::string legal_name(jointNode.mName);
+        bool legal_joint = false;
         if (mJointMap.find(legal_name) != mJointMap.end())
         {
             legal_name = mJointMap[legal_name];
+            legal_joint = true;
+        }
+
+        if (!legal_joint)
+        {
+            // add placeholder to not break index
+            LLMatrix4 gltf_transform;
+            gltf_transform.setIdentity();
+            mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
+        }
+        else if (inverse_count > i)
+        {
+            LL::GLTF::mat4 gltf_mat = skin.mInverseBindMatricesData[i];
+
+            // Todo: there should be a simpler way
+            glm::mat4 original_bind_matrix = glm::inverse(gltf_mat);
+            glm::mat4 rotated_original = coord_system_rotation * original_bind_matrix;
+            glm::mat4 rotated_inverse_bind_matrix = glm::inverse(rotated_original);
+            LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(rotated_inverse_bind_matrix));
+
+            LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
+            mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
         }
         else
         {
-            // ignore unrecognized joint
-            LL_DEBUGS("GLTF") << "Ignoring joint: " << legal_name << LL_ENDL;
+            LLMatrix4 gltf_transform;
+            gltf_transform.setIdentity();
+            LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
+            mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
+        }
+        // todo: prepare mAlternateBindMatrix here
+
+        if (!legal_joint)
+        {
+            LL_DEBUGS("GLTF") << "Ignoring unrecognized joint: " << legal_name << LL_ENDL;
             continue;
         }
 
@@ -812,14 +834,45 @@ void LLGLTFLoader::populateJointFromSkin(const LL::GLTF::Skin& skin)
     }
 }
 
-S32 LLGLTFLoader::findValidRootJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const
+
+S32 LLGLTFLoader::findClosestValidJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const
 {
-    S32 root_joint = 0;
-    S32 found_joint = source_joint;
+    S32 source_joint_node = gltf_skin.mJoints[source_joint];
+    S32 root_node = source_joint_node;
+    S32 found_node = source_joint_node;
     S32 size = (S32)gltf_skin.mJoints.size();
     do
     {
-        root_joint = found_joint;
+        root_node = found_node;
+        for (S32 i = 0; i < size; i++)
+        {
+            S32 joint = gltf_skin.mJoints[i];
+            const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
+            std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_node);
+            if (it != jointNode.mChildren.end())
+            {
+                // Found node's parent
+                found_node = joint;
+                if (mJointMap.find(jointNode.mName) != mJointMap.end())
+                {
+                    return i;
+                }
+                break;
+            }
+        }
+    } while (root_node != found_node);
+
+    return -1;
+}
+
+S32 LLGLTFLoader::findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const
+{
+    S32 root_node = 0;
+    S32 found_node = source_joint_node;
+    S32 size = (S32)gltf_skin.mJoints.size();
+    do
+    {
+        root_node = found_node;
         for (S32 i = 0; i < size; i++)
         {
             S32 joint = gltf_skin.mJoints[i];
@@ -827,44 +880,61 @@ S32 LLGLTFLoader::findValidRootJoint(S32 source_joint, const LL::GLTF::Skin& glt
 
             if (mJointMap.find(jointNode.mName) != mJointMap.end())
             {
-                std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_joint);
+                std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_node);
                 if (it != jointNode.mChildren.end())
                 {
-                    found_joint = joint;
+                    // Found node's parent
+                    found_node = joint;
                     break;
                 }
             }
         }
-    } while (root_joint != found_joint);
+    } while (root_node != found_node);
 
-    return root_joint;
+    return root_node;
 }
 
-S32 LLGLTFLoader::findGLTFRootJoint(const LL::GLTF::Skin& gltf_skin) const
+S32 LLGLTFLoader::findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const
 {
-    S32 root_joint = 0;
-    S32 found_joint = 0;
+    S32 root_node = 0;
+    S32 found_node = 0;
     S32 size = (S32)gltf_skin.mJoints.size();
     do
     {
-        root_joint = found_joint;
+        root_node = found_node;
         for (S32 i = 0; i < size; i++)
         {
             S32 joint = gltf_skin.mJoints[i];
             const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-            std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_joint);
+            std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_node);
             if (it != jointNode.mChildren.end())
             {
-                found_joint = joint;
+                // Found node's parent
+                found_node = joint;
                 break;
             }
         }
-    } while (root_joint != found_joint);
+    } while (root_node != found_node);
 
     LL_INFOS("GLTF_DEBUG") << "mJointList name: ";
-    const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[root_joint];
-    LL_CONT << jointNode.mName << " index: " << root_joint << LL_ENDL;
-    return root_joint;
+    const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[root_node];
+    LL_CONT << jointNode.mName << " index: " << root_node << LL_ENDL;
+    return root_node;
+}
+
+S32 LLGLTFLoader::findParentNode(S32 node) const
+{
+    S32 size = (S32)mGLTFAsset.mNodes.size();
+    for (S32 i = 0; i < size; i++)
+    {
+        const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[i];
+        std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), node);
+        if (it != jointNode.mChildren.end())
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 bool LLGLTFLoader::parseMaterials()
