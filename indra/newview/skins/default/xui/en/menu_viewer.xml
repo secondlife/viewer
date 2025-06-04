@@ -411,11 +411,11 @@
       </menu_item_call>
       <menu_item_separator/>
       <menu_item_call
-        label="Complete avatars..."
-        name="Avatar Picker">
+        label="Avatar Welcome Pack..."
+        name="Avatar Welcome Pack">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
-         parameter="avatar" />
+         parameter="avatar_welcome_pack" />
       </menu_item_call>
       <menu_item_separator/>
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+ positioning="cascading"
+ legacy_header_height="225"
+ can_minimize="true"
+ can_close="true"
+ can_resize="false"
+ min_height="600"
+ min_width="800"
+ height="600"
+ layout="topleft"
+ name="Avatar Welcome Pack"
+ single_instance="true"
+ save_rect="true"
+ save_visibility="true"
+ title="AVATAR WELCOME PACK"
+ width="800">
+    <web_browser
+      top="25"
+      height="600"
+      width="800"
+      follows="all"
+      name="avatar_picker_contents"
+      trusted_content="true"/>
+</floater>

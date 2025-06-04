@@ -632,6 +632,17 @@
       <key>Value</key>
       <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/avatars.html</string>
     </map>
+    <key>AvatarWelcomePack</key>
+    <map>
+        <key>Comment</key>
+        <string>Avatar Welcome Pack contents</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>https://sl-viewer-media-system.s3.amazonaws.com/vawp/index.html</string>
+    </map>
     <!--AvatarBakedTextureUploadTimeout is in use by QA-->
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
