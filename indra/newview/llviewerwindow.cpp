@@ -2291,14 +2291,6 @@ void LLViewerWindow::initWorldUI()
             url = LLWeb::expandURLSubstitutions(url, LLSD());
             destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
         }
-        LLMediaCtrl* avatar_picker = LLFloaterReg::getInstance("avatar")->findChild<LLMediaCtrl>("avatar_picker_contents");
-        if (avatar_picker)
-        {
-            avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-            std::string url = gSavedSettings.getString("AvatarPickerURL");
-            url = LLWeb::expandURLSubstitutions(url, LLSD());
-            avatar_picker->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
-        }
         LLMediaCtrl* avatar_welcome_pack = LLFloaterReg::getInstance("avatar_welcome_pack")->findChild<LLMediaCtrl>("avatar_picker_contents");
         if (avatar_welcome_pack)
         {

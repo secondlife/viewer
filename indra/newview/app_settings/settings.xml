@@ -621,17 +621,6 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
-    <key>AvatarPickerURL</key>
-    <map>
-      <key>Comment</key>
-      <string>Avatar picker contents</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/avatars.html</string>
-    </map>
     <key>AvatarWelcomePack</key>
     <map>
         <key>Comment</key>
