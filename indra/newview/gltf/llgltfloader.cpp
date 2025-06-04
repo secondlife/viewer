@@ -87,7 +87,8 @@ LLGLTFLoader::LLGLTFLoader(std::string filename,
     JointNameSet &                      jointsFromNodes,
     std::map<std::string, std::string> &jointAliasMap,
     U32                                 maxJointsPerMesh,
-    U32                                 modelLimit) //,
+    U32                                 modelLimit,
+    joint_rest_map_t                    jointRestMatrices) //,
     //bool                                preprocess)
     : LLModelLoader( filename,
                      lod,
@@ -103,7 +104,8 @@ LLGLTFLoader::LLGLTFLoader(std::string filename,
     //mPreprocessGLTF(preprocess),
     mMeshesLoaded(false),
     mMaterialsLoaded(false),
-    mGeneratedModelLimit(modelLimit)
+    mGeneratedModelLimit(modelLimit),
+    mJointRestMatrices(jointRestMatrices)
 {
 }
 
@@ -933,20 +935,24 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
         }
         else if (inverse_count > i)
         {
-            LL::GLTF::mat4 gltf_mat = skin.mInverseBindMatricesData[i];
-
-            // Todo: there should be a simpler way
-            glm::mat4 original_bind_matrix = glm::inverse(gltf_mat);
+            glm::mat4 original_bind_matrix = glm::inverse(skin.mInverseBindMatricesData[i]);
             glm::mat4 rotated_original = coord_system_rotation * original_bind_matrix;
-            glm::mat4 rotated_inverse_bind_matrix = glm::inverse(rotated_original);
-            LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(rotated_inverse_bind_matrix));
+            glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(skin, i, legal_name);
+            glm::mat4 tranlated_original = skeleton_transform * rotated_original;
+            glm::mat4 final_inverse_bind_matrix = glm::inverse(tranlated_original);
+
+            LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(final_inverse_bind_matrix));
 
             LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
             mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
         }
         else
         {
-            LLMatrix4 gltf_transform;
+            glm::mat4 inv_bind(1.0f);
+            glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(skin, i, legal_name);
+            inv_bind = glm::inverse(skeleton_transform * inv_bind);
+
+            LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(inv_bind));
             gltf_transform.setIdentity();
             LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
             mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
@@ -1088,6 +1094,69 @@ S32 LLGLTFLoader::findParentNode(S32 node) const
         }
     }
     return -1;
+}
+
+glm::mat4 LLGLTFLoader::buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const
+{
+    // This is inefficient since we are recalculating some joints multiple times over
+    // Todo: cache it?
+
+    if (joint_node_index < 0 || joint_node_index >= static_cast<S32>(mGLTFAsset.mNodes.size()))
+    {
+        return glm::mat4(1.0f);
+    }
+
+    const auto& node = mGLTFAsset.mNodes[joint_node_index];
+
+    // Find and apply parent transform if it exists
+    for (size_t i = 0; i < mGLTFAsset.mNodes.size(); ++i)
+    {
+        const auto& potential_parent = mGLTFAsset.mNodes[i];
+        auto it = std::find(potential_parent.mChildren.begin(), potential_parent.mChildren.end(), joint_node_index);
+
+        if (it != potential_parent.mChildren.end())
+        {
+            // Found parent
+            if (std::find(gltf_skin.mJoints.begin(), gltf_skin.mJoints.end(), joint_node_index) != gltf_skin.mJoints.end())
+            {
+                // parent is a joint - recursively combine transform
+                // assumes that matrix is already valid
+                return buildGltfRestMatrix(static_cast<S32>(i), gltf_skin) * node.mMatrix;
+            }
+        }
+    }
+    // Should we return armature or stop earlier?
+    return node.mMatrix;
+}
+
+// This function computes the transformation matrix needed to convert from GLTF skeleton space
+// to viewer skeleton space for a specific joint
+glm::mat4 LLGLTFLoader::computeGltfToViewerSkeletonTransform(const LL::GLTF::Skin& gltf_skin, S32 gltf_joint_index, const std::string& joint_name) const
+{
+    joint_rest_map_t::const_iterator found = mJointRestMatrices.find(joint_name);
+    if (found == mJointRestMatrices.end())
+    {
+        // For now assume they are identical and return an identity (for ease of debuging)
+        // But there should be no joints viewer isn't aware about
+        // Warn or assert about missing joints
+        return glm::mat4(1.0f);
+    }
+    glm::mat4 viewer_joint_rest_pose = found->second;
+
+    // Get the GLTF joint's rest pose (in GLTF coordinate system)
+    S32 joint_node_index = gltf_skin.mJoints[gltf_joint_index];
+    glm::mat4 gltf_joint_rest_pose = buildGltfRestMatrix(joint_node_index, gltf_skin);
+    gltf_joint_rest_pose = coord_system_rotation * gltf_joint_rest_pose;
+
+    LL_INFOS("GLTF_DEBUG") << "rest matrix for joint " << joint_name << ": ";
+
+    LLMatrix4 transform(glm::value_ptr(gltf_joint_rest_pose));
+
+    LL_CONT << transform << LL_ENDL;
+
+    // Compute transformation from GLTF space to viewer space
+    // This assumes both skeletons are in rest pose initially
+    return viewer_joint_rest_pose * glm::inverse(gltf_joint_rest_pose);
 }
 
 bool LLGLTFLoader::parseMaterials()

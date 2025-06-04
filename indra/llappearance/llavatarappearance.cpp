@@ -34,11 +34,11 @@
 #include "llpolymorph.h"
 #include "llpolymesh.h"
 #include "llpolyskeletaldistortion.h"
-#include "llstl.h"
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
 #include "boost/bind.hpp"
 #include "boost/tokenizer.hpp"
+#include "v4math.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -71,6 +71,7 @@ public:
         mChildren.clear();
     }
     bool parseXml(LLXmlTreeNode* node);
+    glm::mat4 getJointMatrix();
 
 private:
     std::string mName;
@@ -106,10 +107,13 @@ public:
     S32 getNumCollisionVolumes() const { return mNumCollisionVolumes; }
 
 private:
+    typedef std::vector<LLAvatarBoneInfo*> bone_info_list_t;
+    static void getJointRestMatrices(const bone_info_list_t& bone_list, LLAvatarAppearance::joint_rest_map_t& result, const glm::mat4 &parent_mat);
+
+private:
     S32 mNumBones;
     S32 mNumCollisionVolumes;
     LLAvatarAppearance::joint_alias_map_t mJointAliasMap;
-    typedef std::vector<LLAvatarBoneInfo*> bone_info_list_t;
     bone_info_list_t mBoneInfoList;
 };
 
@@ -1623,6 +1627,21 @@ bool LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
     return true;
 }
 
+
+glm::mat4 LLAvatarBoneInfo::getJointMatrix()
+{
+    glm::mat4 mat(1.0f);
+    // 1. Scaling
+    mat = glm::scale(mat, glm::vec3(mScale[0], mScale[1], mScale[2]));
+    // 2. Rotation (Euler angles rad)
+    mat = glm::rotate(mat, mRot[0], glm::vec3(1, 0, 0));
+    mat = glm::rotate(mat, mRot[1], glm::vec3(0, 1, 0));
+    mat = glm::rotate(mat, mRot[2], glm::vec3(0, 0, 1));
+    // 3. Position
+    mat = glm::translate(mat, glm::vec3(mPos[0], mPos[1], mPos[2]));
+    return mat;
+}
+
 //-----------------------------------------------------------------------------
 // LLAvatarSkeletonInfo::parseXml()
 //-----------------------------------------------------------------------------
@@ -1651,6 +1670,22 @@ bool LLAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
         mBoneInfoList.push_back(info);
     }
     return true;
+}
+
+void LLAvatarSkeletonInfo::getJointRestMatrices(
+    const bone_info_list_t& bone_list,
+    LLAvatarAppearance::joint_rest_map_t& result,
+    const glm::mat4& parent_mat)
+{
+    for (LLAvatarBoneInfo* bone_info : bone_list)
+    {
+        if (bone_info->mIsJoint)
+        {
+            glm::mat4 rest_mat = parent_mat * bone_info->getJointMatrix();
+            result[bone_info->mName] = rest_mat;
+            getJointRestMatrices(bone_info->mChildren, result, rest_mat);
+        }
+    }
 }
 
 //Make aliases for joint and push to map.
@@ -1712,6 +1747,14 @@ const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases
     }
 
     return mJointAliasMap;
+}
+
+LLAvatarAppearance::joint_rest_map_t LLAvatarAppearance:: getJointRestMatrices() const
+{
+    LLAvatarAppearance::joint_rest_map_t result;
+    glm::mat4 identity(1.f);
+    LLAvatarSkeletonInfo::getJointRestMatrices(sAvatarSkeletonInfo->mBoneInfoList, result, identity);
+    return result;
 }
 
 

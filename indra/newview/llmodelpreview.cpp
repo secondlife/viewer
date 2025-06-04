@@ -810,6 +810,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
     }
     else
     {
+        LLVOAvatar* av = getPreviewAvatar();
+        LLAvatarAppearance::joint_rest_map_t rest_pose = av->getJointRestMatrices();
         mModelLoader = new LLGLTFLoader(
             filename,
             lod,
@@ -822,7 +824,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
             mJointsFromNode,
             joint_alias_map,
             LLSkinningUtil::getMaxJointCount(),
-            gSavedSettings.getU32("ImporterModelLimit"));
+            gSavedSettings.getU32("ImporterModelLimit"),
+            rest_pose);
     }
 
     if (force_disable_slm)

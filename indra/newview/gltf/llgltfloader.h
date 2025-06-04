@@ -121,7 +121,7 @@ class LLGLTFLoader : public LLModelLoader
 {
   public:
     typedef std::map<std::string, LLImportMaterial> material_map;
-    typedef std::map<std::string, LLVector3> joint_pos_map_t;
+    typedef std::map<std::string, glm::mat4> joint_rest_map_t;
 
     LLGLTFLoader(std::string filename,
                     S32                                 lod,
@@ -134,7 +134,8 @@ class LLGLTFLoader : public LLModelLoader
                     JointNameSet &                      jointsFromNodes,
                     std::map<std::string, std::string> &jointAliasMap,
                     U32                                 maxJointsPerMesh,
-                    U32                                 modelLimit); //,
+                    U32                                 modelLimit,
+                    joint_rest_map_t                    jointRestMatrices); //,
                     //bool                                preprocess );
     virtual ~LLGLTFLoader();
 
@@ -164,6 +165,10 @@ protected:
     std::vector<gltf_image>             mImages;
     std::vector<gltf_sampler>           mSamplers;
 
+    // GLTF isn't aware of viewer's skeleton and uses it's own,
+    // so need to take viewer's joints and use them to
+    // recalculate iverse bind matrices
+    joint_rest_map_t                    mJointRestMatrices;
 
     // vector of vectors because of a posibility of having more than one skin
     typedef std::vector<LLMeshSkinInfo::matrix_list_t> bind_matrices_t;
@@ -183,6 +188,8 @@ private:
     S32 findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const;
     S32 findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
     S32 findParentNode(S32 node) const;
+    glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const;
+    glm::mat4 computeGltfToViewerSkeletonTransform(const LL::GLTF::Skin& gltf_skin, S32 joint_index, const std::string& joint_name) const;
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
     void notifyUnsupportedExtension(bool unsupported);
