@@ -112,6 +112,93 @@ void LLModel::remapVolumeFaces()
     }
 }
 
+void LLModel::remapSkinWeightsAndJoints()
+{
+    if (mSkinWeights.empty())
+    {
+        return;
+    }
+
+    mPosition.clear();
+
+    // Make a list of positions
+    std::set<LLVector3> positions;
+    for (S32 i = 0; i < getNumVolumeFaces(); ++i)
+    {
+        for (S32 j = 0; j < mVolumeFaces[i].mNumVertices; ++j)
+        {
+            positions.emplace(mVolumeFaces[i].mPositions[j].getF32ptr());
+        }
+    }
+
+    // Build new list of weights and record used joints
+    weight_map replacement_weights;
+    std::vector<S32> joint_index_use_count;
+    size_t joint_count = mSkinInfo.mJointNames.size();
+    joint_index_use_count.resize(joint_count, 0);
+    for (const LLVector3& pos : positions)
+    {
+        mPosition.push_back(pos);
+        auto found = mSkinWeights.find(pos);
+        if (found != mSkinWeights.end())
+        {
+            replacement_weights[pos] = found->second;
+
+            for (auto& weight : found->second)
+            {
+                if (joint_count > weight.mJointIdx)
+                {
+                    joint_index_use_count[weight.mJointIdx]++;
+                }
+            }
+        }
+    }
+
+    // go over joint data and remap joints
+    // prepare joint map
+    std::vector<std::string> replacement_joint_names;
+    std::vector<S32> replacement_joint_nums;
+    LLMeshSkinInfo::matrix_list_t replacement_inv_bind;
+    LLMeshSkinInfo::matrix_list_t replacement_alt_bind;
+    std::vector<S32> index_map;
+    index_map.resize(joint_count);
+    S32 replacement_index = 0;
+
+    for (S32 i = 0; i < joint_count; i++)
+    {
+        if (joint_index_use_count[i] > 0)
+        {
+            replacement_joint_names.push_back(mSkinInfo.mJointNames[i]);
+            replacement_joint_nums.push_back(mSkinInfo.mJointNums[i]);
+            replacement_inv_bind.push_back(mSkinInfo.mInvBindMatrix[i]);
+            replacement_alt_bind.push_back(mSkinInfo.mAlternateBindMatrix[i]);
+            index_map[i] = replacement_index++;
+        }
+    }
+
+    // Apply new data
+    mSkinInfo.mJointNames.clear();
+    mSkinInfo.mJointNames = replacement_joint_names;
+    mSkinInfo.mJointNums.clear();
+    mSkinInfo.mJointNums = replacement_joint_nums;
+    mSkinInfo.mInvBindMatrix.clear();
+    mSkinInfo.mInvBindMatrix = replacement_inv_bind;
+    mSkinInfo.mAlternateBindMatrix.clear();
+    mSkinInfo.mAlternateBindMatrix = replacement_alt_bind;
+
+    // remap weights
+    for (auto& weights : replacement_weights)
+    {
+        for (auto& weight : weights.second)
+        {
+            weight.mJointIdx = index_map[weight.mJointIdx];
+        }
+    }
+
+    mSkinWeights.clear();
+    mSkinWeights = replacement_weights;
+}
+
 void LLModel::optimizeVolumeFaces()
 {
     for (S32 i = 0; i < getNumVolumeFaces(); ++i)

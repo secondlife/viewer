@@ -165,9 +165,6 @@ void LLGLTFLoader::addModelToScene(
     {
         current_model->trimVolumeFacesToSize(LL_SCULPT_MESH_MAX_FACES, &remainder);
 
-        // remove unused/redundant vertices after normalizing
-        current_model->remapVolumeFaces();
-
         volume_faces = static_cast<U32>(remainder.size());
 
         // Don't add to scene yet because weights and materials aren't ready.
@@ -215,7 +212,8 @@ void LLGLTFLoader::addModelToScene(
     {
         // remove unused/redundant vertices
         current_model->remapVolumeFaces();
-        // Todo: go over skin weights, joints, matrices and remove unused ones
+        // remove unused/redundant weights and joints
+        current_model->remapSkinWeightsAndJoints();
 
         mModelList.push_back(model);
 
