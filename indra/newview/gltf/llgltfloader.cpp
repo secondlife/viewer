@@ -102,7 +102,8 @@ LLGLTFLoader::LLGLTFLoader(std::string filename,
                      maxJointsPerMesh ),
     //mPreprocessGLTF(preprocess),
     mMeshesLoaded(false),
-    mMaterialsLoaded(false)
+    mMaterialsLoaded(false),
+    mGeneratedModelLimit(modelLimit)
 {
 }
 
@@ -135,6 +136,99 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     return (mMeshesLoaded);
 }
 
+void LLGLTFLoader::addModelToScene(
+    LLModel* pModel,
+    U32 submodel_limit,
+    const LLMatrix4& transformation,
+    const LLVolumeParams& volume_params)
+{
+    U32 volume_faces = pModel->getNumVolumeFaces();
+
+    // Side-steps all manner of issues when splitting models
+    // and matching lower LOD materials to base models
+    //
+    pModel->sortVolumeFacesByMaterialName();
+
+    int submodelID = 0;
+
+    // remove all faces that definitely won't fit into one model and submodel limit
+    U32 face_limit = (submodel_limit + 1) * LL_SCULPT_MESH_MAX_FACES;
+    if (face_limit < volume_faces)
+    {
+        pModel->setNumVolumeFaces(face_limit);
+    }
+
+    LLVolume::face_list_t remainder;
+    std::vector<LLModel*> ready_models;
+    LLModel* current_model = pModel;
+    do
+    {
+        current_model->trimVolumeFacesToSize(LL_SCULPT_MESH_MAX_FACES, &remainder);
+
+        // remove unused/redundant vertices after normalizing
+        current_model->remapVolumeFaces();
+
+        volume_faces = static_cast<U32>(remainder.size());
+
+        // Don't add to scene yet because weights and materials aren't ready.
+        // Just save it
+        ready_models.push_back(current_model);
+
+        // If we have left-over volume faces, create another model
+        // to absorb them.
+        if (volume_faces)
+        {
+            LLModel* next = new LLModel(volume_params, 0.f);
+            next->ClearFacesAndMaterials();
+            next->mSubmodelID = ++submodelID;
+            next->mLabel = pModel->mLabel + (char)((int)'a' + next->mSubmodelID) + lod_suffix[mLod];
+            next->getVolumeFaces() = remainder;
+            next->mNormalizedScale = current_model->mNormalizedScale;
+            next->mNormalizedTranslation = current_model->mNormalizedTranslation;
+            next->mSkinWeights = current_model->mSkinWeights;
+            next->mPosition = current_model->mPosition;
+
+            const LLMeshSkinInfo& current_skin_info = current_model->mSkinInfo;
+            LLMeshSkinInfo& next_skin_info = next->mSkinInfo;
+            next_skin_info.mJointNames = current_skin_info.mJointNames;
+            next_skin_info.mJointNums = current_skin_info.mJointNums;
+            next_skin_info.mBindShapeMatrix = current_skin_info.mBindShapeMatrix;
+            next_skin_info.mInvBindMatrix = current_skin_info.mInvBindMatrix;
+            next_skin_info.mAlternateBindMatrix = current_skin_info.mAlternateBindMatrix;
+            next_skin_info.mPelvisOffset = current_skin_info.mPelvisOffset;
+
+
+            if (current_model->mMaterialList.size() > LL_SCULPT_MESH_MAX_FACES)
+            {
+                next->mMaterialList.assign(current_model->mMaterialList.begin() + LL_SCULPT_MESH_MAX_FACES, current_model->mMaterialList.end());
+                current_model->mMaterialList.resize(LL_SCULPT_MESH_MAX_FACES);
+            }
+
+            current_model = next;
+        }
+
+        remainder.clear();
+
+    } while (volume_faces);
+
+    for (auto model : ready_models)
+    {
+        // remove unused/redundant vertices
+        current_model->remapVolumeFaces();
+        // Todo: go over skin weights, joints, matrices and remove unused ones
+
+        mModelList.push_back(model);
+
+        std::map<std::string, LLImportMaterial> materials;
+        for (U32 i = 0; i < (U32)model->mMaterialList.size(); ++i)
+        {
+            materials[model->mMaterialList[i]] = LLImportMaterial();
+        }
+        mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
+        stretch_extents(model, transformation);
+    }
+}
+
 bool LLGLTFLoader::parseMeshes()
 {
     if (!mGltfLoaded) return false;
@@ -160,6 +254,7 @@ bool LLGLTFLoader::parseMeshes()
 
     // Track how many times each mesh name has been used
     std::map<std::string, S32> mesh_name_counts;
+    U32 submodel_limit = mGLTFAsset.mNodes.size() > 0 ? mGeneratedModelLimit / (U32)mGLTFAsset.mNodes.size() : 0;
 
     // Process each node
     for (auto& node : mGLTFAsset.mNodes)
@@ -188,8 +283,6 @@ bool LLGLTFLoader::parseMeshes()
                     (LLModel::NO_ERRORS == pModel->getStatus()) &&
                     validate_model(pModel))
                 {
-                    mModelList.push_back(pModel);
-
                     mTransform.setIdentity();
                     transformation = mTransform;
 
@@ -234,8 +327,7 @@ bool LLGLTFLoader::parseMeshes()
                         mWarningsArray.append(args);
                     }
 
-                    mScene[transformation].push_back(LLModelInstance(pModel, pModel->mLabel, transformation, mats));
-                    stretch_extents(pModel, transformation);
+                    addModelToScene(pModel, submodel_limit, transformation, volume_params);
                 }
                 else
                 {
@@ -347,8 +439,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         }
     }
 
-    auto prims = mesh.mPrimitives;
-    for (auto prim : prims)
+    for (const LL::GLTF::Primitive& prim : mesh.mPrimitives)
     {
         // Unfortunately, SLM does not support 32 bit indices.  Filter out anything that goes beyond 16 bit.
         if (prim.getVertexCount() < USHRT_MAX)
@@ -471,7 +562,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 {
                     vert.weights = glm::vec4(prim.mWeights[i]);
 
-                    auto accessorIdx = prim.mAttributes["JOINTS_0"];
+                    auto accessorIdx = prim.mAttributes.at("JOINTS_0");
                     LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
                     if (accessorIdx >= 0)
                     {
