@@ -593,7 +593,7 @@
     </scroll_list>
     </panel>
     <panel
-     follows="right|top|bottom"
+     follows="right|bottom"
 	 height="95"
 	 top_pad="0"
 	 width="238"
