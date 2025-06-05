@@ -140,7 +140,8 @@ void LLGLTFLoader::addModelToScene(
     LLModel* pModel,
     U32 submodel_limit,
     const LLMatrix4& transformation,
-    const LLVolumeParams& volume_params)
+    const LLVolumeParams& volume_params,
+    const material_map& mats)
 {
     U32 volume_faces = pModel->getNumVolumeFaces();
 
@@ -220,7 +221,15 @@ void LLGLTFLoader::addModelToScene(
         std::map<std::string, LLImportMaterial> materials;
         for (U32 i = 0; i < (U32)model->mMaterialList.size(); ++i)
         {
-            materials[model->mMaterialList[i]] = LLImportMaterial();
+            material_map::const_iterator found = mats.find(model->mMaterialList[i]);
+            if (found != mats.end())
+            {
+                materials[model->mMaterialList[i]] = found->second;
+            }
+            else
+            {
+                materials[model->mMaterialList[i]] = LLImportMaterial();
+            }
         }
         mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
         stretch_extents(model, transformation);
@@ -325,7 +334,8 @@ bool LLGLTFLoader::parseMeshes()
                         mWarningsArray.append(args);
                     }
 
-                    addModelToScene(pModel, submodel_limit, transformation, volume_params);
+                    addModelToScene(pModel, submodel_limit, transformation, volume_params, mats);
+                    mats.clear();
                 }
                 else
                 {
@@ -815,6 +825,10 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         }
 
         // Remap indices for pModel->mSkinWeights
+        // Todo: this is now partially redundant due to
+        // remapSkinWeightsAndJoints being called later.
+        // Consider storing all joints now as is and let it
+        // ramap later due to missing weights.
         for (auto& weights : pModel->mSkinWeights)
         {
             for (auto& weight : weights.second)
