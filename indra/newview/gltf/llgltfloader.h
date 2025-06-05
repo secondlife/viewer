@@ -181,7 +181,8 @@ private:
         LLModel* pModel,
         U32 submodel_limit,
         const LLMatrix4& transformation,
-        const LLVolumeParams& volume_params);
+        const LLVolumeParams& volume_params,
+        const material_map& mats);
     S32 findClosestValidJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const;
     S32 findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const;
     S32 findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
