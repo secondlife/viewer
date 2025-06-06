@@ -48,6 +48,7 @@ LLFloaterAvatarWelcomePack::~LLFloaterAvatarWelcomePack()
 
 bool LLFloaterAvatarWelcomePack::postBuild()
 {
+    center();
     mAvatarPicker = findChild<LLMediaCtrl>("avatar_picker_contents");
     if (mAvatarPicker)
     {

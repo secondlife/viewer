@@ -5,20 +5,20 @@
  can_minimize="true"
  can_close="true"
  can_resize="false"
- min_height="660"
- min_width="800"
- height="660"
+ min_height="420"
+ min_width="500"
+ height="420"
  layout="topleft"
  name="Avatar Welcome Pack"
  single_instance="true"
  save_rect="true"
  save_visibility="true"
  title="AVATAR WELCOME PACK"
- width="800">
+ width="500">
     <web_browser
       top="25"
-      height="660"
-      width="800"
+      height="420"
+      width="500"
       follows="all"
       name="avatar_picker_contents"
       trusted_content="true"/>
