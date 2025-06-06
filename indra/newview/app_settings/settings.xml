@@ -7594,7 +7594,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>25</integer>
+    <integer>24</integer>
   </map>
   <key>RenderScreenSpaceReflectionRayStep</key>
   <map>
@@ -7605,7 +7605,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.1</real>
+    <real>1.0</real>
   </map>
   <key>RenderScreenSpaceReflectionDistanceBias</key>
   <map>
@@ -7649,7 +7649,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>4</integer>
+    <integer>2</integer>
   </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>

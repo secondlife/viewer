@@ -750,7 +750,7 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
 
 #if defined(SSR)
-    if (cube_snapshot != 1 && glossiness >= 0.9)
+    if (cube_snapshot != 1)
     {
         vec4 ssr = vec4(0);
         if (transparent)

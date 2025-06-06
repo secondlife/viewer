@@ -75,113 +75,21 @@ float getLinearDepth(vec2 tc)
     return -pos.z;
 }
 
-bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame)
-{
-    // transform position and reflection into same coordinate frame as the sceneMap and sceneDepth
-    reflection += position;
-    position = (inv_modelview_delta * vec4(position, 1)).xyz;
-    reflection = (inv_modelview_delta * vec4(reflection, 1)).xyz;
-    reflection -= position;
-
-    depth = -position.z;
-
-    vec3 step = rayStep * reflection;
-    vec3 marchingPosition = position + step;
-    float delta;
-    float depthFromScreen;
-    vec2 screenPosition;
-    bool hit = false;
-    hitColor = vec4(0);
-
-    int i = 0;
-    if (depth > depthRejectBias)
-    {
-        for (; i < iterationCount && !hit; i++)
-        {
-            screenPosition = generateProjectedPosition(marchingPosition);
-            if (screenPosition.x > 1 || screenPosition.x < 0 ||
-                screenPosition.y > 1 || screenPosition.y < 0)
-            {
-                hit = false;
-                break;
-            }
-            depthFromScreen = getLinearDepth(screenPosition);
-            delta = abs(marchingPosition.z) - depthFromScreen;
-
-            if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
-            {
-                break;
-            }
-
-            if (abs(delta) < distanceBias)
-            {
-                vec4 color = vec4(1);
-                if(debugDraw)
-                    color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
-                hitColor = texture(sceneMap, screenPosition) * color;
-                hitDepth = depthFromScreen;
-                hit = true;
-                break;
-            }
-            if (isBinarySearchEnabled && delta > 0)
-            {
-                break;
-            }
-            if (isAdaptiveStepEnabled)
-            {
-                float directionSign = sign(abs(marchingPosition.z) - depthFromScreen);
-                //this is sort of adapting step, should prevent lining reflection by doing sort of iterative converging
-                //some implementation doing it by binary search, but I found this idea more cheaty and way easier to implement
-                step = step * (1.0 - rayStep * max(directionSign, 0.0));
-                marchingPosition += step * (-directionSign);
-            }
-            else
-            {
-                marchingPosition += step;
-            }
-
-            if (isExponentialStepEnabled)
-            {
-                step *= adaptiveStepMultiplier;
-            }
-        }
-        if(isBinarySearchEnabled)
-        {
-            for(; i < iterationCount && !hit; i++)
-            {
-                step *= 0.5;
-                marchingPosition = marchingPosition - step * sign(delta);
-
-                screenPosition = generateProjectedPosition(marchingPosition);
-                if (screenPosition.x > 1 || screenPosition.x < 0 ||
-                    screenPosition.y > 1 || screenPosition.y < 0)
-                {
-                    hit = false;
-                    break;
-                }
-                depthFromScreen = getLinearDepth(screenPosition);
-                delta = abs(marchingPosition.z) - depthFromScreen;
-
-                if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
-                {
-                    break;
-                }
-
-                if (abs(delta) < distanceBias && depthFromScreen != (depth - distanceBias))
-                {
-                    vec4 color = vec4(1);
-                    if(debugDraw)
-                        color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
-                    hitColor = texture(sceneMap, screenPosition) * color;
-                    hitDepth = depthFromScreen;
-                    hit = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    return hit;
+// Add this function to your shader code to calculate edge fade based on screen position
+float calculateEdgeFade(vec2 screenPos) {
+    // Start fading when we're this close to the edge (0.9 = start fading at 10% from edge)
+    const float edgeFadeStart = 0.9;
+    
+    // Convert 0-1 screen position to -1 to 1 range and take absolute value
+    // This gives us how far we are from the center (0 = center, 1 = edge)
+    vec2 distFromCenter = abs(screenPos * 2.0 - 1.0);
+    
+    // Calculate smooth fade for each axis
+    vec2 fade = smoothstep(edgeFadeStart, 1.0, distFromCenter);
+    
+    // Use the maximum fade value between X and Y axes
+    // (we want to fade if we're close to ANY edge)
+    return 1.0 - max(fade.x, fade.y);
 }
 
 uniform vec3 POISSON3D_SAMPLES[128] = vec3[128](
@@ -319,76 +227,275 @@ vec3 getPoissonSample(int i) {
     return POISSON3D_SAMPLES[i] * 2 - 1;
 }
 
-float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness)
-{
+float calculateMipmapLevels(vec2 resolution) {
+    // Find the maximum dimension
+    float maxDimension = max(resolution.x, resolution.y);
+    
+    // Calculate log2 of max dimension
+    // (the number of times we can divide by 2 until we reach 1)
+    return floor(log2(maxDimension)) + 1.0;
+}
+
+// Modified traceScreenRay function with improved fade
+bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D source, out float edgeFade, float roughness) {
+    // Transform position and reflection into same coordinate frame as the sceneMap and sceneDepth
+    reflection += position;
+    position = (inv_modelview_delta * vec4(position, 1)).xyz;
+    reflection = (inv_modelview_delta * vec4(reflection, 1)).xyz;
+    reflection -= position;
+
+    depth = -position.z;
+
+    vec3 step = rayStep * reflection;
+    vec3 marchingPosition = position + step;
+    float delta;
+    float depthFromScreen;
+    vec2 screenPosition;
+    bool hit = false;
+    hitColor = vec4(0);
+    edgeFade = 1.0; // Default to no fade
+    
+    int i = 0;
+    if (depth > depthRejectBias)
+    {
+        for (; i < iterationCount && !hit; i++)
+        {
+            screenPosition = generateProjectedPosition(marchingPosition);
+            
+            // Calculate edge fade when we hit screen boundaries
+            if (screenPosition.x > 1 || screenPosition.x < 0 ||
+                screenPosition.y > 1 || screenPosition.y < 0)
+            {
+                // Clamp screen position to 0-1 range for fade calculation
+                vec2 clampedPos = clamp(screenPosition, 0.0, 1.0);
+                vec2 distFromCenter = abs(clampedPos * 2.0 - 1.0);
+                edgeFade = calculateEdgeFade(clampedPos);
+                
+                hitDepth = depthFromScreen;
+                hit = false;
+                break;
+            }
+            
+            depthFromScreen = getLinearDepth(screenPosition);
+            delta = abs(marchingPosition.z) - depthFromScreen;
+
+            if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
+            {
+                // Calculate a fade factor based on how close we are to screen edges
+                vec2 distFromCenter = abs(screenPosition * 2.0 - 1.0);
+                edgeFade = calculateEdgeFade(screenPosition);
+                break;
+            }
+
+            if (abs(delta) < distanceBias)
+            {
+                vec4 color = vec4(1);
+                if(debugDraw)
+                    color = vec4(0.5 + sign(delta)/2, 0.3, 0.5 - sign(delta)/2, 0);
+                    
+                float mipLevel = calculateMipmapLevels(screen_res) * roughness; // Maps 0-1 roughness to 0-4 mip levels
+                vec2 screenCoord = screenPosition + (1 / screen_res * mipLevel );
+                // Do a box sample.
+                hitColor = textureLod(source, screenCoord, mipLevel) * color;
+                hitColor += textureLod(source, -screenCoord, mipLevel) * color;
+                hitColor += textureLod(source, vec2(-screenCoord.x, screenCoord.y), mipLevel) * color;
+                hitColor += textureLod(source, vec2(screenCoord.x, -screenCoord.y), mipLevel) * color;
+                hitColor *= 0.25;
+                hitColor.a = 1;
+                hitDepth = depthFromScreen;
+                hit = true;
+                
+                // Calculate edge fade even for successful hits
+                vec2 distFromCenter = abs(screenPosition * 2.0 - 1.0);
+                edgeFade = calculateEdgeFade(screenPosition);
+                
+                // Add depth discontinuity detection for improved quality
+                float depthGradient = 0.0;
+                vec2 texelSize = 1.0 / screen_res;
+                float depthRight = getLinearDepth(screenPosition + vec2(texelSize.x, 0));
+                float depthBottom = getLinearDepth(screenPosition + vec2(0, texelSize.y));
+                depthGradient = max(abs(depthRight - depthFromScreen), abs(depthBottom - depthFromScreen));
+                
+                break;
+            }
+            
+            // Rest of your existing tracing code with adaptive steps
+            if (isBinarySearchEnabled && delta > 0)
+            {
+                break;
+            }
+            if (isAdaptiveStepEnabled)
+            {
+                float directionSign = sign(abs(marchingPosition.z) - depthFromScreen);
+                step = step * (1.0 - rayStep * max(directionSign, 0.0));
+                marchingPosition += step * (-directionSign);
+            }
+            else
+            {
+                marchingPosition += step;
+            }
+
+            if (isExponentialStepEnabled)
+            {
+                step *= adaptiveStepMultiplier;
+            }
+        }
+        
+        // Binary search refinement with edge fade calculation
+        if(isBinarySearchEnabled)
+        {
+            for(; i < iterationCount && !hit; i++)
+            {
+                step *= 0.5;
+                marchingPosition = marchingPosition - step * sign(delta);
+
+                screenPosition = generateProjectedPosition(marchingPosition);
+                if (screenPosition.x > 1 || screenPosition.x < 0 ||
+                    screenPosition.y > 1 || screenPosition.y < 0)
+                {
+                    vec2 clampedPos = clamp(screenPosition, 0.0, 1.0);
+                    vec2 distFromCenter = abs(clampedPos * 2.0 - 1.0);
+                    edgeFade = calculateEdgeFade(screenPosition);
+                    hitDepth = depthFromScreen;
+                    hitColor.a = 0;
+                    hit = false;
+                    break;
+                }
+                
+                depthFromScreen = getLinearDepth(screenPosition);
+                delta = abs(marchingPosition.z) - depthFromScreen;
+
+                if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
+                {
+                    vec2 distFromCenter = abs(screenPosition * 2.0 - 1.0);
+                    edgeFade = calculateEdgeFade(screenPosition);
+                    break;
+                }
+
+                if (abs(delta) < distanceBias && depthFromScreen != (depth - distanceBias))
+                {
+                    vec4 color = vec4(1);
+                    if(debugDraw)
+                        color = vec4(0.5 + sign(delta)/2, 0.3, 0.5 - sign(delta)/2, 0);
+                        
+                    float mipLevel = calculateMipmapLevels(screen_res) * roughness; // Maps 0-1 roughness to 0-4 mip levels
+                    vec2 screenCoord = screenPosition + (1 / screen_res * mipLevel);
+                    // Do a box sample.
+                    hitColor = textureLod(source, screenCoord, mipLevel) * color;
+                    hitColor += textureLod(source, -screenCoord, mipLevel) * color;
+                    hitColor += textureLod(source, vec2(-screenCoord.x, screenCoord.y), mipLevel) * color;
+                    hitColor += textureLod(source, vec2(screenCoord.x, -screenCoord.y), mipLevel) * color;
+                    hitColor *= 0.25;
+                    hitDepth = depthFromScreen;
+                    hitColor.a = 1;
+                    hit = true;
+                    
+                    vec2 distFromCenter = abs(screenPosition * 2.0 - 1.0);
+                    edgeFade = calculateEdgeFade(screenPosition);
+                    
+                    // Add depth discontinuity detection for improved quality in binary search
+                    float depthGradient = 0.0;
+                    vec2 texelSize = 1.0 / screen_res;
+                    float depthRight = getLinearDepth(screenPosition + vec2(texelSize.x, 0));
+                    float depthBottom = getLinearDepth(screenPosition + vec2(0, texelSize.y));
+                    depthGradient = max(abs(depthRight - depthFromScreen), abs(depthBottom - depthFromScreen));
+                    
+                    break;
+                }
+            }
+        }
+    }
+
+    return hit;
+}
+
+// Enhanced tapScreenSpaceReflection function
+float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness) {
 #ifdef TRANSPARENT_SURFACE
-collectedColor = vec4(1, 0, 1, 1);
+    collectedColor = vec4(1, 0, 1, 1);
     return 0;
 #endif
     collectedColor = vec4(0);
     int hits = 0;
+    float cumulativeFade = 0.0;
+    float averageHitDepth = 0.0;
 
     float depth = -viewPos.z;
+    
+    // Flip normal if needed
+    if (dot(n, -viewPos) < 0.0) {
+        n = -n;
+    }
 
-    vec3 rayDirection = normalize(reflect(viewPos, normalize(n)));
+    vec3 rayDirection = normalize(reflect(normalize(viewPos), normalize(n)));
 
     vec2 uv2 = tc * screen_res;
     float c = (uv2.x + uv2.y) * 0.125;
-    float jitter = mod( c, 1.0);
+    float jitter = mod(c, 1.0);
 
-    vec2 screenpos = 1 - abs(tc * 2 - 1);
-    float vignette = clamp((abs(screenpos.x) * abs(screenpos.y)) * 16,0, 1);
-    vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5) * 5.5 - 0.8, 0, 1);
+    // Calculate a base edge fade for the current screen position
+    vec2 distFromCenter = abs(tc * 2.0 - 1.0);
+    float baseEdgeFade = 1.0 - smoothstep(0.85, 1.0, max(distFromCenter.x, distFromCenter.y));
+    
+    float zFar = 250.0;
+    // Distance-based vignette
+    float distanceVignette = clamp((1.0+(viewPos.z/zFar)) * 2, 0.0, 1.0);
 
-    float zFar = 128.0;
-    vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
+    // Improved roughness mapping
+    float roughness = 1.0 - glossiness;
+    //roughness = roughness * roughness; // More physically accurate roughness mapping
 
-    vignette *= clamp(glossiness * 3 - 1.7, 0, 1);
+    // Skip calculation entirely if we're right at the edge
+    if (baseEdgeFade > 0.01) {
+        // Calculate sample count based on roughness and edge fade
+        totalSamples = int(max(float(glossySampleCount), float(glossySampleCount) * (1.0 - roughness) * baseEdgeFade));
+        totalSamples = max(totalSamples, 1);
+        
+        for (int i = 0; i < totalSamples; i++) {
+            int poissonIndex = clamp(int(i + (random(tc) * (128 / totalSamples))), 0, 128);
+            vec3 firstBasis = normalize(cross(getPoissonSample(poissonIndex), rayDirection));
+            vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
+            vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
+            vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * min((roughness * roughness * roughness * roughness), 0.001));
 
-    vec4 hitpoint;
+            float hitDepth;
+            vec4 hitpoint;
+            float rayEdgeFade;
 
-    glossiness = 1 - glossiness;
-
-    totalSamples = int(max(glossySampleCount, glossySampleCount * glossiness * vignette));
-
-    totalSamples = max(totalSamples, 1);
-    if (glossiness < 0.35)
-    {
-        if (vignette > 0)
-        {
-            for (int i = 0; i < totalSamples; i++)
-            {
-                vec3 firstBasis = normalize(cross(getPoissonSample(i), rayDirection));
-                vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
-                vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
-                vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * glossiness);
-
-                //float hitDepth;
-
-                bool hit = traceScreenRay(viewPos, normalize(reflectionDirectionRandomized), hitpoint, depth, depth, source);
-
-                hitpoint.a = 0;
-
-                if (hit)
-                {
-                    ++hits;
-                    collectedColor += hitpoint;
-                    collectedColor.a += 1;
-                }
-            }
-
-            if (hits > 0)
-            {
-                collectedColor /= hits;
-            }
-            else
-            {
-                collectedColor = vec4(0);
+            bool hit = traceScreenRay(viewPos, reflectionDirectionRandomized, hitpoint, hitDepth, depth, source, rayEdgeFade, roughness);
+            
+            if (hit) {
+                ++hits;
+                collectedColor.rgb += hitpoint.rgb;
+                collectedColor.a += 1.0;
+                cumulativeFade += rayEdgeFade;
+                averageHitDepth += hitDepth;
             }
         }
+
+        if (hits > 0) {
+            collectedColor /= float(hits);
+            cumulativeFade /= float(hits);
+            averageHitDepth /= float(hits);
+            
+        } else {
+            collectedColor = vec4(0);
+            cumulativeFade = 0.0;
+        }
+    } else {
+        cumulativeFade = 0.0;
     }
-    float hitAlpha = hits;
-    hitAlpha /= totalSamples;
-    collectedColor.a = hitAlpha * vignette;
-    return hits;
+    
+    // Apply final edge fading
+    float finalEdgeFade = min(cumulativeFade * 1, 1) * distanceVignette;
+    
+    // Apply Fresnel effect
+    vec3 viewDir = normalize(-viewPos);
+    float NdotV = max(dot(normalize(n), viewDir), 0.0);
+    float fresnel = pow(1.0 - NdotV, 5.0); // Schlick's approximation
+    //collectedColor.rgb = vec3(1.0 / hits / 2);
+    // Combine fades and adjust alpha
+    collectedColor.a = finalEdgeFade;
+    
+    return float(hits);
 }
