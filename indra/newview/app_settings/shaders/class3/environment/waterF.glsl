@@ -24,8 +24,11 @@
  */
 
 // class3/environment/waterF.glsl
-
+#ifdef SSR
+#define WATER_MINIMAL_PLUS 1
+#else
 #define WATER_MINIMAL 1
+#endif
 
 out vec4 frag_color;
 
