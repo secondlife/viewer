@@ -410,32 +410,44 @@ void advanceRayMarch(
 )
 {
     vec3 actualMarchingVector;
+    
+    // Calculate a minimum step size based on the current position's depth
+    // This prevents steps that are smaller than the depth buffer's precision
+    float currentDepth = abs(currentMarchingPos.z);
+    float depthBasedMinStep = max(minStepLenScalar, currentDepth * 0.001); // 0.1% of current depth
+    
     if (useAdaptiveStepping) {
         if (deltaFromSurface < 0.0f) { // Ray is in front of the surface
             vec3 stepDir = normalize(currentBaseStepVec);
             if (abs(stepDir.z) > 0.0001f) { // Avoid division by zero if ray is mostly horizontal
                 // Project the Z-difference onto the ray's direction to estimate distance to intersection.
                 float distToPotentialIntersection = abs(deltaFromSurface) / abs(stepDir.z);
-                // Determine adaptive step length:
-                // - At least minStepLenScalar.
-                // - Try to step a fraction (e.g., 75%) towards potential intersection.
-                // - No more than the current length of currentBaseStepVec.
+                // Determine adaptive step length with enhanced minimum:
                 float adaptiveLength = clamp(distToPotentialIntersection * 0.75f,
-                                             minStepLenScalar,
+                                             depthBasedMinStep,
                                              length(currentBaseStepVec));
                 actualMarchingVector = stepDir * adaptiveLength;
             } else { // Ray is mostly horizontal, use a conservative step.
-                actualMarchingVector = stepDir * max(length(currentBaseStepVec) * 0.5f, minStepLenScalar);
+                float stepLength = max(length(currentBaseStepVec) * 0.5f, depthBasedMinStep);
+                actualMarchingVector = stepDir * stepLength;
             }
-        } else { // deltaFromSurface >= 0.0f (Ray is at or behind the surface, but not yet a 'hit' or triggering binary search)
-                 // This typically involves a retreat if the ray overshot.
-            float directionSign = sign(deltaFromSurface); // 0 if at surface, 1 if behind.
-            // Form a retreat vector.
-            vec3 baseStepForRetreat = currentBaseStepVec * (1.0f - minStepLenScalar * max(directionSign, 0.0f));
-            actualMarchingVector = baseStepForRetreat * (-directionSign); // Retreat if delta > 0.
+        } else { // deltaFromSurface >= 0.0f (Ray is at or behind the surface)
+            float directionSign = sign(deltaFromSurface);
+            // Ensure retreat step is also not too small
+            vec3 baseStepForRetreat = currentBaseStepVec * max(0.5f, 1.0f - minStepLenScalar * max(directionSign, 0.0f));
+            actualMarchingVector = baseStepForRetreat * (-directionSign);
+            
+            // Ensure minimum retreat distance
+            if (length(actualMarchingVector) < depthBasedMinStep) {
+                actualMarchingVector = normalize(actualMarchingVector) * depthBasedMinStep;
+            }
         }
     } else { // Not adaptive stepping, use the current base step vector.
         actualMarchingVector = currentBaseStepVec;
+        // But still enforce minimum step size
+        if (length(actualMarchingVector) < depthBasedMinStep) {
+            actualMarchingVector = normalize(actualMarchingVector) * depthBasedMinStep;
+        }
     }
     
     currentMarchingPos += actualMarchingVector; // Advance the ray position.
@@ -490,12 +502,11 @@ bool traceScreenRay(
     float passDistanceBias,
     float passDepthRejectBias,
     float passAdaptiveStepMultiplier,
+    float passDepthScaleExponent,
     vec2 distanceParams
 )
 {
     // Transform initialPosition and the target of initialReflection vector from current camera space to previous camera space.
-    // This is crucial if 'source' texture and 'sceneDepth' are from the previous frame's perspective,
-    // or if a consistent coordinate system is needed for ray marching against 'inv_modelview_delta'-transformed geometry.
     vec3 reflectionTargetPoint = initialPosition + initialReflection;
     vec3 currentPosition_transformed = (inv_modelview_delta * vec4(initialPosition, 1.0)).xyz;
     vec3 reflectionTarget_transformed = (inv_modelview_delta * vec4(reflectionTargetPoint, 1.0)).xyz;
@@ -508,9 +519,10 @@ bool traceScreenRay(
     float rangeStart = distanceParams.x;
     float rangeEnd = distanceParams.y;
 
-    // Initialize ray marching variables.
-    // 'baseStepVector' starts with 'rayStep' magnitude in the direction of the (transformed) reflection.
-    vec3 baseStepVector = passRayStep * reflectionVector_transformed;
+    // Initialize ray marching variables - NO SCALING
+    vec3 normalizedReflection = normalize(reflectionVector_transformed);
+    float depthScale = pow(reflectingSurfaceViewDepth, passDepthScaleExponent);
+    vec3 baseStepVector = passRayStep * max(1.0, depthScale) * normalizedReflection;
     vec3 marchingPosition = currentPosition_transformed + baseStepVector; // First step from origin.
     
     float delta; // Difference between ray's Z depth and scene's Z depth at the projected screen position.
@@ -543,10 +555,15 @@ bool traceScreenRay(
                 hit = false;
                 break;
             }
+            
+            // Early termination if ray has traveled too far from the reflector
+            float rayTravelDistance = abs(abs(marchingPosition.z) - reflectingSurfaceViewDepth);
+            if (rayTravelDistance > rangeEnd) {
+                hit = false;
+                break;
+            }
 
             // Calculate delta: difference between ray's absolute Z and scene's depth.
-            // Assumes marchingPosition.z and depthFromScreen are comparable (e.g., both positive view depths or both negative view Z).
-            // Original code uses abs(marchingPosition.z), implying positive view depth convention.
             delta = abs(marchingPosition.z) - depthFromScreen;
 
             // Check for self-intersection (ray hitting the surface it originated from).
@@ -578,7 +595,6 @@ bool traceScreenRay(
         
         // --- Binary Search Refinement Loop ---
         // Perform binary search if enabled, the main loop overshot (delta > 0), and no hit was found yet.
-        // 'delta' and 'baseStepVector' hold their values from the last iteration of the main loop.
         if (isBinarySearchEnabled && delta > 0.0 && !hit) {
             vec3 binarySearchBaseStep = baseStepVector; // Start with the step that caused the overshoot.
             
@@ -586,7 +602,6 @@ bool traceScreenRay(
             for (; i < int(passIterationCount) && !hit; i++) {
                 binarySearchBaseStep *= 0.5; // Halve the step size for refinement.
                 // Move back or forward along the ray based on the sign of the last known delta.
-                // If delta > 0 (overshot), sign(delta) is 1, so we subtract (move back).
                 marchingPosition = marchingPosition - binarySearchBaseStep * sign(delta);
 
                 screenPosition = generateProjectedPosition(marchingPosition);
@@ -603,6 +618,14 @@ bool traceScreenRay(
                     hit = false;
                     break;
                 }
+                
+                // Check if we've traveled too far
+                float rayTravelDistance = abs(abs(marchingPosition.z) - reflectingSurfaceViewDepth);
+                if (rayTravelDistance > rangeEnd) {
+                    hit = false;
+                    break;
+                }
+                
                 // Recalculate delta for this binary search iteration.
                 float currentBinarySearchDelta = abs(marchingPosition.z) - depthFromScreen;
 
@@ -613,8 +636,6 @@ bool traceScreenRay(
                 }
 
                 // Check for hit using the refined delta.
-                // The condition `depthFromScreen != (reflectingSurfaceViewDepth - distanceBias)` seems specific
-                // and might be trying to avoid certain self-reflection scenarios or floating point issues.
                 if (abs(currentBinarySearchDelta) < passDistanceBias &&
                     depthFromScreen != (reflectingSurfaceViewDepth - passDistanceBias)) {
                     if (isWithinReflectionRange(reflectingSurfaceViewDepth, depthFromScreen, rangeStart, rangeEnd)) {
@@ -650,7 +671,7 @@ bool traceScreenRay(
  */
 bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor, sampler2D source,
                float roughness, int iterations, float passRayStep, float passDistanceBias,
-               float passDepthRejectBias, float passAdaptiveStepMultiplier, vec2 distanceParams)
+               float passDepthRejectBias, float passAdaptiveStepMultiplier, float passDepthScaleExponent, vec2 distanceParams)
 {
     tracedColor = vec4(0.0); // Initialize accumulated color.
     int hits = 0;            // Counter for successful ray hits.
@@ -682,7 +703,7 @@ bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor,
 
         bool hit = traceScreenRay(viewPos, reflectionDirectionRandomized, hitpointColor,
                                 hitDepthVal, source, rayEdgeFadeVal, roughness * 2.0,
-                                iterations, passRayStep, passDistanceBias, passDepthRejectBias, passAdaptiveStepMultiplier, distanceParams);
+                                iterations, passRayStep, passDistanceBias, passDepthRejectBias, passAdaptiveStepMultiplier, passDepthScaleExponent, distanceParams);
         
         if (hit) {
             ++hits;
@@ -772,19 +793,19 @@ float tapScreenSpaceReflection(
             vec2 distanceParams = vec2(splitParamsStart.x, splitParamsEnd.x);
             hasNearHits = tracePass(viewPos, rayDirection, tc, nearColor, source, roughness,
                                     int(iterationCount.x), rayStep.x, distanceBias.x,
-                                    depthRejectBias.x, adaptiveStepMultiplier.x, distanceParams);
+                                    depthRejectBias.x, adaptiveStepMultiplier.x, 1.1, distanceParams);
             
             // Mid pass
             distanceParams = vec2(splitParamsStart.y, splitParamsEnd.y);
             hasMidHits = tracePass(viewPos, rayDirection, tc, midColor, source, roughness,
                                    int(iterationCount.y), rayStep.y, distanceBias.y,
-                                   depthRejectBias.y, adaptiveStepMultiplier.y, distanceParams);
+                                   depthRejectBias.y, adaptiveStepMultiplier.y, 0.8, distanceParams);
             
             // Far pass
             distanceParams = vec2(splitParamsStart.z, splitParamsEnd.z);
             hasFarHits = tracePass(viewPos, rayDirection, tc, farColor, source, roughness,
                                    int(iterationCount.z), rayStep.z, distanceBias.z,
-                                   depthRejectBias.z, adaptiveStepMultiplier.z, distanceParams);
+                                   depthRejectBias.z, adaptiveStepMultiplier.z, 0.5, distanceParams);
             
             // Combine results from all three passes
             collectedColor = vec4(0.0);
@@ -801,17 +822,20 @@ float tapScreenSpaceReflection(
                 collectedColor = farColor;
                 totalWeight = 1.0;
             }
-            
+
+            /*
             // Alternative: blend all hits with distance-based weighting
-            // if (hasNearHits || hasMidHits || hasFarHits) {
-            //     float nearWeight = hasNearHits ? 1.0 : 0.0;
-            //     float midWeight = hasMidHits ? 0.7 : 0.0;
-            //     float farWeight = hasFarHits ? 0.4 : 0.0;
-            //     totalWeight = nearWeight + midWeight + farWeight;
-            //
-            //     if (totalWeight > 0.0) {
-            //         collectedColor = (nearColor * nearWeight + midColor * midWeight + farColor * farWeight) / totalWeight;
-            // }
+            if (hasNearHits || hasMidHits || hasFarHits) {
+                float nearWeight = hasNearHits ? 1.0 : 0.0;
+                float midWeight = hasMidHits ? 0.7 : 0.0;
+                float farWeight = hasFarHits ? 0.4 : 0.0;
+                totalWeight = nearWeight + midWeight + farWeight;
+                
+                if (totalWeight > 0.0) {
+                    collectedColor = (nearColor * nearWeight + midColor * midWeight + farColor * farWeight) / totalWeight;
+                }
+            }
+            */
             
             if (totalWeight > 0.0) {
                 float finalEdgeFade = collectedColor.a * combinedFade * baseEdgeFade;
