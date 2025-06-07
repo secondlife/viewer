@@ -158,7 +158,7 @@ float calculateEdgeFade(vec2 screenPos) {
 /** @brief Predefined array of 128 3D Poisson disk sample offsets. Used for generating distributed samples, e.g., for glossy reflections. Values are in [0,1] range. */
 uniform vec3 POISSON3D_SAMPLES[128] = vec3[128](
     // ... (array values as provided) ...
-    vec3(0.5433144, 0.1122154, 0.2501391),
+    vec3(0.0581234, 0.1254093, 0.0214785),
     vec3(0.6575254, 0.721409, 0.16286),
     vec3(0.02888453, 0.05170321, 0.7573566),
     vec3(0.06635678, 0.8286457, 0.07157445),
@@ -295,7 +295,7 @@ uniform vec3 POISSON3D_SAMPLES[128] = vec3[128](
  */
 vec3 getPoissonSample(int i) {
     // Samples are stored in [0,1], scale and shift to [-1,1].
-    return POISSON3D_SAMPLES[i] * 2.0 - 1.0;
+    return POISSON3D_SAMPLES[i] * 2.0 - 1.0 / 2;
 }
 
 /**
@@ -449,6 +449,20 @@ void advanceRayMarch(
 const float MAX_Z_DEPTH = 512;
 
 /**
+ * @brief Checks if a hit point is within the specified distance range from the reflector.
+ * @param reflectorDepth The depth of the reflecting surface.
+ * @param hitDepth The depth of the hit point.
+ * @param rangeStart The start of the valid range (minimum distance from reflector).
+ * @param rangeEnd The end of the valid range (maximum distance from reflector).
+ * @return bool True if the hit is within the valid range, false otherwise.
+ */
+bool isWithinReflectionRange(float reflectorDepth, float hitDepth, float rangeStart, float rangeEnd)
+{
+    float distanceFromReflector = abs(hitDepth - reflectorDepth);
+    return distanceFromReflector >= rangeStart && distanceFromReflector <= rangeEnd;
+}
+
+/**
  * @brief Traces a single reflection ray through the scene using screen-space ray marching.
  * It attempts to find an intersection with the scene geometry represented by a depth buffer.
  * Features include adaptive step size, exponential step increase, binary search refinement,
@@ -475,7 +489,8 @@ bool traceScreenRay(
     float passRayStep,
     float passDistanceBias,
     float passDepthRejectBias,
-    float passAdaptiveStepMultiplier
+    float passAdaptiveStepMultiplier,
+    vec2 distanceParams
 )
 {
     // Transform initialPosition and the target of initialReflection vector from current camera space to previous camera space.
@@ -488,6 +503,10 @@ bool traceScreenRay(
 
     // Depth of the reflecting surface in the transformed view space.
     float reflectingSurfaceViewDepth = -currentPosition_transformed.z;
+
+    // Extract range parameters
+    float rangeStart = distanceParams.x;
+    float rangeEnd = distanceParams.y;
 
     // Initialize ray marching variables.
     // 'baseStepVector' starts with 'rayStep' magnitude in the direction of the (transformed) reflection.
@@ -539,10 +558,12 @@ bool traceScreenRay(
 
             // Check for intersection: if absolute delta is within distanceBias.
             if (abs(delta) < passDistanceBias) {
-                processRayIntersection(screenPosition, depthFromScreen, delta, source, roughness,
-                                       hitColor, hitDepth, edgeFade);
-                hit = true;
-                break; // Found a hit.
+                if (isWithinReflectionRange(reflectingSurfaceViewDepth, depthFromScreen, rangeStart, rangeEnd)) {
+                    processRayIntersection(screenPosition, depthFromScreen, delta, source, roughness,
+                                        hitColor, hitDepth, edgeFade);
+                    hit = true;
+                    break; // Found a hit.
+                }
             }
             
             // If ray overshot (delta > 0) and binary search is enabled, break to start binary search.
@@ -596,10 +617,12 @@ bool traceScreenRay(
                 // and might be trying to avoid certain self-reflection scenarios or floating point issues.
                 if (abs(currentBinarySearchDelta) < passDistanceBias &&
                     depthFromScreen != (reflectingSurfaceViewDepth - passDistanceBias)) {
-                    processRayIntersection(screenPosition, depthFromScreen, currentBinarySearchDelta, source, roughness,
-                                           hitColor, hitDepth, edgeFade);
-                    hit = true;
-                    break;
+                    if (isWithinReflectionRange(reflectingSurfaceViewDepth, depthFromScreen, rangeStart, rangeEnd)) {
+                        processRayIntersection(screenPosition, depthFromScreen, currentBinarySearchDelta, source, roughness,
+                                               hitColor, hitDepth, edgeFade);
+                        hit = true;
+                        break;
+                    }
                 }
                 delta = currentBinarySearchDelta; // Update delta for the next binary search refinement step.
             }
@@ -613,7 +636,7 @@ bool traceScreenRay(
  * @brief Handles the actual tracing logic for screen space reflections, including multi-sample glossy reflections.
  *
  * @param viewPos The view space position of the current pixel/surface.
- * @param normal The view space normal of the current pixel/surface.
+ * @param rayDirection The perfect reflection direction (already calculated).
  * @param tc The texture coordinates of the current pixel being processed (screen space, 0-1).
  * @param tracedColor Output: The accumulated reflection color. Alpha component is used for final fade/intensity.
  * @param source The sampler2D (e.g., sceneMap) from which to sample reflection colors.
@@ -625,107 +648,62 @@ bool traceScreenRay(
  * @param passAdaptiveStepMultiplier The multiplier for adaptive stepping.
  * @return bool True if at least one ray hit was successful, false otherwise.
  */
-bool tracePass(vec3 viewPos, vec3 normal, vec2 tc, inout vec4 tracedColor, sampler2D source,
+bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor, sampler2D source,
                float roughness, int iterations, float passRayStep, float passDistanceBias,
-               float passDepthRejectBias, float passAdaptiveStepMultiplier)
+               float passDepthRejectBias, float passAdaptiveStepMultiplier, vec2 distanceParams)
 {
     tracedColor = vec4(0.0); // Initialize accumulated color.
     int hits = 0;            // Counter for successful ray hits.
     float cumulativeFade = 0.0; // Accumulator for edge fade factors from successful rays.
     float averageHitDepth = 0.0;  // Accumulator for hit depths.
 
-    float currentPixelViewDepth = -viewPos.z; // View space depth of the reflecting pixel.
+    // Adjust the number of samples based on roughness.
+    // Smoother surfaces get more samples.
+    int totalSamples = int(max(float(glossySampleCount), float(glossySampleCount) * (1.0 - roughness)));
+    totalSamples = max(totalSamples, 1); // Ensure at least one sample.
     
-    // Ensure the normal is facing the camera.
-    vec3 n = normal;
-    if (dot(n, -viewPos) < 0.0) {
-        n = -n;
-    }
-
-    // Calculate the perfect reflection direction.
-    vec3 rayDirection = normalize(reflect(normalize(viewPos), normalize(n)));
-
-    // Calculate a base edge fade for the current pixel's screen position.
-    // This fade is applied regardless of where the reflection rays go.
-    vec2 distFromCenter = abs(tc * 2.0 - 1.0);
-    float baseEdgeFade = 1.0 - smoothstep(0.85, 1.0, max(distFromCenter.x, distFromCenter.y));
-
-    // Attenuation based on viewing angle (Fresnel-like effect).
-    // angleFactor is close to 1 for direct view, close to 0 for grazing angles.
-    float angleFactor = abs(dot(normalize(-viewPos), normalize(n)));
-    float angleFactorSq = angleFactor * angleFactor; // Square to make falloff more pronounced.
-
-    // Attenuation based on distance from the camera.
-    float distFadeDiv = 512.0 * angleFactor; // Denominator for distance fade calculation.
-    float distanceFactor = clamp((1.0 + (viewPos.z / distFadeDiv)) * 2, 0.0, 1.0);
-
-    // Combine angle and distance factors for fading.
-    // Also some nearby distance stuff to hide some up close artifacts.
-    float combinedFade = distanceFactor;
-    combinedFade *= 1 - angleFactorSq;
-    combinedFade *= min(1, max(0,dot(viewPos, viewPos) * 0.5 + 0.5 - 1));
-
-    // Skip reflection calculation entirely if the pixel is too close to the screen edge.
-    if (baseEdgeFade > 0.001) {
-        // Adjust the number of samples based on roughness and base edge fade.
-        // Smoother surfaces or surfaces away from edges get more samples.
-        int totalSamples = int(max(float(glossySampleCount), float(glossySampleCount) * (1.0 - roughness) * baseEdgeFade));
-        totalSamples = max(totalSamples, 1); // Ensure at least one sample.
+    for (int i = 0; i < totalSamples; i++) {
+        // Generate a perturbed reflection direction for glossy effects using Poisson disk samples.
+        // 'noiseSine' and 'random' calls add temporal and spatial variation to the sampling pattern.
+        float temporalOffset = fract(noiseSine * 0.1) * 127.0; // Temporal offset for Poisson index.
+        int poissonIndex = int(mod(float(i) + random(tc * noiseSine) * 64.0, 128.0));
         
-        for (int i = 0; i < totalSamples; i++) {
-            // Generate a perturbed reflection direction for glossy effects using Poisson disk samples.
-            // 'noiseSine' and 'random' calls add temporal and spatial variation to the sampling pattern.
-            float temporalOffset = fract(noiseSine * 0.1) * 127.0; // Temporal offset for Poisson index.
-            int poissonIndex = int(mod(float(i) + temporalOffset + random(tc * noiseSine) * 64.0, 128.0));
-            
-            // Create an orthonormal basis around the main ray direction.
-            vec3 firstBasis = normalize(cross(getPoissonSample(poissonIndex), rayDirection));
-            vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
-            // Generate random coefficients to offset the ray within the cone defined by roughness.
-            vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
-            // Cubic roughness term to make glossy reflections spread more at higher roughness values.
-            vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * (roughness * roughness));
+        // Create an orthonormal basis around the main ray direction.
+        vec3 firstBasis = normalize(cross(getPoissonSample(i), rayDirection));
+        vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
+        // Generate random coefficients to offset the ray within the cone defined by roughness.
+        vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
+        // Cubic roughness term to make glossy reflections spread more at higher roughness values.
+        vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * (roughness * roughness ) / 4);
 
-            float hitDepthVal;    // Stores depth of the hit for this ray.
-            vec4 hitpointColor; // Stores color of the hit for this ray.
-            float rayEdgeFadeVal; // Stores edge fade for this ray.
+        float hitDepthVal;    // Stores depth of the hit for this ray.
+        vec4 hitpointColor; // Stores color of the hit for this ray.
+        float rayEdgeFadeVal; // Stores edge fade for this ray.
 
-            bool hit = traceScreenRay(viewPos, reflectionDirectionRandomized, hitpointColor,
-                                    hitDepthVal, source, rayEdgeFadeVal, roughness * 2.0,
-                                    iterations, passRayStep, passDistanceBias, passDepthRejectBias, passAdaptiveStepMultiplier);
-            
-            if (hit) {
-                ++hits;
-                tracedColor.rgb += hitpointColor.rgb; // Accumulate color.
-                tracedColor.a += 1.0;                 // Using alpha to count hits for averaging, or for intensity.
-                cumulativeFade += rayEdgeFadeVal;        // Accumulate edge fade.
-                averageHitDepth += hitDepthVal;          // Accumulate hit depth.
-            }
+        bool hit = traceScreenRay(viewPos, reflectionDirectionRandomized, hitpointColor,
+                                hitDepthVal, source, rayEdgeFadeVal, roughness * 2.0,
+                                iterations, passRayStep, passDistanceBias, passDepthRejectBias, passAdaptiveStepMultiplier, distanceParams);
+        
+        if (hit) {
+            ++hits;
+            tracedColor.rgb += hitpointColor.rgb; // Accumulate color.
+            tracedColor.a += 1.0;                 // Using alpha to count hits for averaging, or for intensity.
+            cumulativeFade += rayEdgeFadeVal;        // Accumulate edge fade.
+            averageHitDepth += hitDepthVal;          // Accumulate hit depth.
         }
-
-        if (hits > 0) {
-            // Average the accumulated values if any rays hit.
-            tracedColor /= float(hits); // Average color. Note: alpha also gets divided.
-            cumulativeFade /= float(hits);   // Average edge fade.
-            averageHitDepth /= float(hits);  // Average hit depth.
-        } else {
-            // No hits, result is black and no fade.
-            tracedColor = vec4(0.0);
-            cumulativeFade = 0.0;
-        }
-    } else { // Pixel is too close to the edge (baseEdgeFade is ~0).
-        cumulativeFade = 0.0; // No reflection, so no cumulative fade.
     }
-    
-    // Apply final fading to the reflection.
-    // 'cumulativeFade' is the average edge fade of successful rays.
-    float finalEdgeFade = min(cumulativeFade * 1.0, 1.0); // Clamp fade.
 
-    // Apply the combined distance/angle fade.
-    finalEdgeFade *= combinedFade;
-    
-    // Set the alpha of the collected color to the final combined fade factor.
-    tracedColor.a = finalEdgeFade;
+    if (hits > 0) {
+        // Average the accumulated values if any rays hit.
+        tracedColor /= float(hits); // Average color. Note: alpha also gets divided.
+        cumulativeFade /= float(hits);   // Average edge fade.
+        averageHitDepth /= float(hits);  // Average hit depth.
+        // Store the average edge fade in the alpha channel for the caller to use.
+        tracedColor.a = cumulativeFade;
+    } else {
+        // No hits, result is black and no fade.
+        tracedColor = vec4(0.0);
+    }
     
     return hits > 0; // Return true if at least one ray hit was successful.
 }
@@ -753,23 +731,101 @@ float tapScreenSpaceReflection(
     float glossiness)
 {
 #ifdef TRANSPARENT_SURFACE
-    // Early out for transparent surfaces if this define is active.
-    // Sets a magenta color for debugging.
     collectedColor = vec4(1, 0, 1, 1);
-    return 0; // No hits for transparent surfaces.
+    return 0;
 #endif
 
-    // Convert glossiness to roughness. Squaring roughness provides a more perceptually linear response.
     float roughness = 1.0 - glossiness;
-    //roughness = min(0.05, roughness);
-    // Only proceed if the surface is not perfectly rough.
-    if (roughness < 1.0) { // Max roughness might be 1.0, so < 1.0 means some reflectivity.
-        bool hasHits = tracePass(viewPos, n, tc, collectedColor, source, roughness,
-                                int(iterationCount.x), rayStep.x, distanceBias.x,
-                                depthRejectBias.x, adaptiveStepMultiplier.x);
+    
+    if (roughness < 1.0) {
+        float currentPixelViewDepth = -viewPos.z;
         
-        return hasHits ? 1.0 : 0.0; // Return 1.0 if we had hits, 0.0 otherwise.
+        vec2 distFromCenter = abs(tc * 2.0 - 1.0);
+        float baseEdgeFade = 1.0 - smoothstep(0.85, 1.0, max(distFromCenter.x, distFromCenter.y));
+        
+        if (baseEdgeFade > 0.001) {
+            vec3 correctedNormal = n;
+            if (dot(correctedNormal, -viewPos) < 0.0) {
+                correctedNormal = -correctedNormal;
+            }
+            
+            vec3 rayDirection = normalize(reflect(normalize(viewPos), normalize(correctedNormal)));
+            
+            float angleFactor = abs(dot(normalize(-viewPos), normalize(correctedNormal)));
+            float angleFactorSq = angleFactor * angleFactor;
+            
+            float distFadeDiv = 512.0 * angleFactor;
+            float distanceFactor = clamp((1.0 + (viewPos.z / distFadeDiv)) * 2, 0.0, 1.0);
+            
+            float combinedFade = 1;// distanceFactor;
+            combinedFade *= 1 - angleFactorSq;
+            //combinedFade *= min(1, max(0,dot(viewPos, viewPos) * 0.5 + 0.5 - 1));
+            
+            vec4 nearColor = vec4(0.0);
+            vec4 midColor = vec4(0.0);
+            vec4 farColor = vec4(0.0);
+            bool hasNearHits = false;
+            bool hasMidHits = false;
+            bool hasFarHits = false;
+            
+            // Near pass
+            vec2 distanceParams = vec2(splitParamsStart.x, splitParamsEnd.x);
+            hasNearHits = tracePass(viewPos, rayDirection, tc, nearColor, source, roughness,
+                                    int(iterationCount.x), rayStep.x, distanceBias.x,
+                                    depthRejectBias.x, adaptiveStepMultiplier.x, distanceParams);
+            
+            // Mid pass
+            distanceParams = vec2(splitParamsStart.y, splitParamsEnd.y);
+            hasMidHits = tracePass(viewPos, rayDirection, tc, midColor, source, roughness,
+                                   int(iterationCount.y), rayStep.y, distanceBias.y,
+                                   depthRejectBias.y, adaptiveStepMultiplier.y, distanceParams);
+            
+            // Far pass
+            distanceParams = vec2(splitParamsStart.z, splitParamsEnd.z);
+            hasFarHits = tracePass(viewPos, rayDirection, tc, farColor, source, roughness,
+                                   int(iterationCount.z), rayStep.z, distanceBias.z,
+                                   depthRejectBias.z, adaptiveStepMultiplier.z, distanceParams);
+            
+            // Combine results from all three passes
+            collectedColor = vec4(0.0);
+            float totalWeight = 0.0;
+            
+            // Use a priority system: prefer near hits, then mid, then far
+            if (hasNearHits) {
+                collectedColor = nearColor;
+                totalWeight = 1.0;
+            } else if (hasMidHits) {
+                collectedColor = midColor;
+                totalWeight = 1.0;
+            } else if (hasFarHits) {
+                collectedColor = farColor;
+                totalWeight = 1.0;
+            }
+            
+            // Alternative: blend all hits with distance-based weighting
+            // if (hasNearHits || hasMidHits || hasFarHits) {
+            //     float nearWeight = hasNearHits ? 1.0 : 0.0;
+            //     float midWeight = hasMidHits ? 0.7 : 0.0;
+            //     float farWeight = hasFarHits ? 0.4 : 0.0;
+            //     totalWeight = nearWeight + midWeight + farWeight;
+            //
+            //     if (totalWeight > 0.0) {
+            //         collectedColor = (nearColor * nearWeight + midColor * midWeight + farColor * farWeight) / totalWeight;
+            // }
+            
+            if (totalWeight > 0.0) {
+                float finalEdgeFade = collectedColor.a * combinedFade * baseEdgeFade;
+                collectedColor.a = finalEdgeFade;
+                return 1.0;
+            } else {
+                collectedColor = vec4(0.0);
+                return 0.0;
+            }
+        } else {
+            collectedColor = vec4(0.0);
+            return 0.0;
+        }
     }
 
-    return 0; // Surface is perfectly rough, no reflections calculated.
+    return 0;
 }
