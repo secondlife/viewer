@@ -7592,9 +7592,13 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>S32</string>
+    <string>Vector3</string>
     <key>Value</key>
-    <integer>24</integer>
+    <array>
+      <real>24</real>
+      <real>24</real>
+      <real>24</real>
+    </array>
   </map>
   <key>RenderScreenSpaceReflectionRayStep</key>
   <map>
@@ -7603,9 +7607,13 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>F32</string>
+    <string>Vector3</string>
     <key>Value</key>
-    <real>1.0</real>
+    <array>
+      <real>1</real>
+      <real>1</real>
+      <real>1</real>
+    </array>
   </map>
   <key>RenderScreenSpaceReflectionDistanceBias</key>
   <map>
@@ -7614,9 +7622,13 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>F32</string>
+    <string>Vector3</string>
     <key>Value</key>
-    <real>0.015</real>
+    <array>
+      <real>0.015</real>
+      <real>0.015</real>
+      <real>0.015</real>
+    </array>
   </map>
   <key>RenderScreenSpaceReflectionDepthRejectBias</key>
   <map>
@@ -7625,9 +7637,13 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>F32</string>
+    <string>Vector3</string>
     <key>Value</key>
-    <real>0.001</real>
+    <array>
+      <real>0.001</real>
+      <real>0.001</real>
+      <real>0.001</real>
+    </array>
   </map>
   <key>RenderScreenSpaceReflectionAdaptiveStepMultiplier</key>
   <map>
@@ -7636,9 +7652,43 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>F32</string>
+    <string>Vector3</string>
     <key>Value</key>
-    <real>1.6</real>
+    <array>
+      <real>1.2</real>
+      <real>1.3</real>
+      <real>1.4</real>
+    </array>
+  </map>
+  <key>RenderScreenSpaceReflectionSplitStart</key>
+  <map>
+    <key>Comment</key>
+    <string>Starting splits for each SSR pass.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>0</real>
+      <real>25</real>
+      <real>100</real>
+    </array>
+  </map>
+  <key>RenderScreenSpaceReflectionSplitEnd</key>
+  <map>
+    <key>Comment</key>
+    <string>Ending splits for each SSR pass.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>25</real>
+      <real>100</real>
+      <real>256</real>
+    </array>
   </map>
   <key>RenderScreenSpaceReflectionGlossySamples</key>
   <map>

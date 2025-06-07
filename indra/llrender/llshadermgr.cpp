@@ -1349,6 +1349,8 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("glossySampleCount");
     mReservedUniforms.push_back("noiseSine");
     mReservedUniforms.push_back("adaptiveStepMultiplier");
+    mReservedUniforms.push_back("splitParamsStart");;
+    mReservedUniforms.push_back("splitParamsEnd");
 
     mReservedUniforms.push_back("modelview_delta");
     mReservedUniforms.push_back("inv_modelview_delta");
