@@ -664,9 +664,9 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         parammapping_t defaults = other->getParameterMap();
         stringset_t skip = getSkipInterpolateKeys();
         stringset_t slerps = getSlerpKeys();
-        mAbsorptionConfigs = interpolateSDMap(mAbsorptionConfigs, other->mAbsorptionConfigs, defaults, blendf, skip, slerps);
-        mMieConfigs = interpolateSDMap(mMieConfigs, other->mMieConfigs, defaults, blendf, skip, slerps);
-        mRayleighConfigs = interpolateSDMap(mRayleighConfigs, other->mRayleighConfigs, defaults, blendf, skip, slerps);
+        mAbsorptionConfigs = interpolateSDValue("absorption_config", mAbsorptionConfigs, other->mAbsorptionConfigs, defaults, blendf, skip, slerps);
+        mMieConfigs = interpolateSDValue("mie_config", mMieConfigs, other->mMieConfigs, defaults, blendf, skip, slerps);
+        mRayleighConfigs = interpolateSDValue("rayleigh_config", mRayleighConfigs, other->mRayleighConfigs, defaults, blendf, skip, slerps);
 
         setDirtyFlag(true);
         setReplaced();
