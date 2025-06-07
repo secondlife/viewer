@@ -695,7 +695,7 @@ bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor,
         // Generate random coefficients to offset the ray within the cone defined by roughness.
         vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
         // Cubic roughness term to make glossy reflections spread more at higher roughness values.
-        vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * (roughness * roughness ) / 4);
+        vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * (roughness * roughness ));
 
         float hitDepthVal;    // Stores depth of the hit for this ray.
         vec4 hitpointColor; // Stores color of the hit for this ray.
@@ -758,29 +758,25 @@ float tapScreenSpaceReflection(
 
     float roughness = 1.0 - glossiness;
     
-    if (roughness < 1.0) {
+    if (roughness < 0.3) {
+        float remappedRoughness = clamp((roughness - 0.2) / (0.3 - 0.2), 0.0, 1.0);
+        float roughnessIntensityFade = 1.0 - remappedRoughness;
+
+        float roughnessFade = roughnessIntensityFade;
         float currentPixelViewDepth = -viewPos.z;
         
         vec2 distFromCenter = abs(tc * 2.0 - 1.0);
         float baseEdgeFade = 1.0 - smoothstep(0.85, 1.0, max(distFromCenter.x, distFromCenter.y));
         
         if (baseEdgeFade > 0.001) {
-            vec3 correctedNormal = n;
-            if (dot(correctedNormal, -viewPos) < 0.0) {
-                correctedNormal = -correctedNormal;
-            }
             
-            vec3 rayDirection = normalize(reflect(normalize(viewPos), normalize(correctedNormal)));
+            vec3 rayDirection = normalize(reflect(normalize(viewPos), normalize(n)));
             
-            float angleFactor = abs(dot(normalize(-viewPos), normalize(correctedNormal)));
+            float angleFactor = abs(dot(normalize(-viewPos), normalize(n)));
             float angleFactorSq = angleFactor * angleFactor;
             
-            float distFadeDiv = 512.0 * angleFactor;
-            float distanceFactor = clamp((1.0 + (viewPos.z / distFadeDiv)) * 2, 0.0, 1.0);
-            
-            float combinedFade = 1;// distanceFactor;
+            float combinedFade = roughnessFade;// distanceFactor;
             combinedFade *= 1 - angleFactorSq;
-            //combinedFade *= min(1, max(0,dot(viewPos, viewPos) * 0.5 + 0.5 - 1));
             
             vec4 nearColor = vec4(0.0);
             vec4 midColor = vec4(0.0);

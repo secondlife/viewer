@@ -7595,7 +7595,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>48</real>
+      <real>30</real>
       <real>16</real>
       <real>8</real>
     </array>
@@ -7610,8 +7610,8 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.110</real>
-      <real>1</real>
+      <real>0.035</real>
+      <real>0.75</real>
       <real>1</real>
     </array>
   </map>
@@ -7626,8 +7626,8 @@
     <key>Value</key>
     <array>
       <real>0.003</real>
-      <real>0.015</real>
-      <real>0.015</real>
+      <real>1</real>
+      <real>2</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionDepthRejectBias</key>
@@ -7655,9 +7655,9 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>1.155</real>
-      <real>1.2</real>
-      <real>1.4</real>
+      <real>1.197</real>
+      <real>1.3</real>
+      <real>1.6</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionSplitStart</key>
@@ -7671,7 +7671,7 @@
     <key>Value</key>
     <array>
       <real>0</real>
-      <real>15</real>
+      <real>7</real>
       <real>100</real>
     </array>
   </map>
@@ -7685,7 +7685,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>15</real>
+      <real>10</real>
       <real>100</real>
       <real>256</real>
     </array>
