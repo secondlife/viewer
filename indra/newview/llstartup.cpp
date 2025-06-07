@@ -2455,7 +2455,11 @@ bool idle_startup()
             LLFloater* avatar_welcome_pack_floater = LLFloaterReg::findInstance("avatar_welcome_pack");
             if (avatar_welcome_pack_floater != nullptr)
             {
-                avatar_welcome_pack_floater->center();
+                // There is a (very - 1 in ~50 times) hard to repro bug where the login
+                // page is not hidden when the AWP floater is presented. This (agressive)
+                // approach to always close it seems like the best fix for now.
+                LLPanelLogin::closePanel();
+
                 avatar_welcome_pack_floater->setVisible(true);
             }
         }
