@@ -703,7 +703,7 @@ float tapScreenSpaceReflection(
             float angleFactorSq = angleFactor * angleFactor;
             
             float combinedFade = roughnessFade;// distanceFactor;
-            combinedFade *= 1 - angleFactorSq;
+            combinedFade *= min(1, (1 -angleFactorSq) * 2);
             
             vec4 nearColor = vec4(0.0);
             vec4 midColor = vec4(0.0);
