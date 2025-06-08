@@ -938,7 +938,7 @@ bool LLViewerShaderMgr::loadShadersWater()
         {
             gWaterProgram.addPermutation("HAS_SUN_SHADOW", "1");
         }
-        
+
         if (ssr)
         {
             gWaterProgram.addPermutation("SSR", "1");

@@ -9330,7 +9330,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         {
             gGL.getTexUnit(channel)->bind(&mSceneMap);
         }
-        
+
         static LLCachedControl<LLVector3> traceIterations(gSavedSettings, "RenderScreenSpaceReflectionIterations");
         static LLCachedControl<LLVector3> traceSteps(gSavedSettings, "RenderScreenSpaceReflectionRayStep");
         static LLCachedControl<LLVector3> traceDistanceBias(gSavedSettings, "RenderScreenSpaceReflectionDistanceBias");
