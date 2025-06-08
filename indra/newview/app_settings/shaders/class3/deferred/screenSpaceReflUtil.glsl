@@ -718,7 +718,7 @@ float tapScreenSpaceReflection(
             vec2 distanceParams = vec2(splitParamsStart.x, splitParamsEnd.x);
             hasNearHits = tracePass(viewPos, rayDirection, tc, nearColor, source, roughness,
                                     int(iterationCount.x), rayStep.x, distanceBias.x,
-                                    depthRejectBias.x, adaptiveStepMultiplier.x, 1.2 * stepRoughnesMultiplier, distanceParams);
+                                    depthRejectBias.x, adaptiveStepMultiplier.x, 0.6 * stepRoughnesMultiplier, distanceParams);
             
             // Mid pass
             distanceParams = vec2(splitParamsStart.y, splitParamsEnd.y);
