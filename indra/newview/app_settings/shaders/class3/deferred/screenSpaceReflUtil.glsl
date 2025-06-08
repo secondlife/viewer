@@ -515,11 +515,29 @@ bool traceScreenRay(
     // Transform initialPosition and the target of initialReflection vector from current camera space to previous camera space.
     vec3 reflectionTargetPoint = initialPosition + initialReflection;
     vec3 currentPosition_transformed = (inv_modelview_delta * vec4(initialPosition, 1.0)).xyz;
+
+    vec2 initialScreenPos = generateProjectedPosition(currentPosition_transformed);
+    if (initialScreenPos.x < 0.0 || initialScreenPos.x > 1.0 ||
+        initialScreenPos.y < 0.0 || initialScreenPos.y > 1.0) {
+        hitColor = vec4(0.0);
+        edgeFade = 0.0;
+        hitDepth = 0.0;
+        return false;
+    }
+
     vec3 reflectionTarget_transformed = (inv_modelview_delta * vec4(reflectionTargetPoint, 1.0)).xyz;
     vec3 reflectionVector_transformed = reflectionTarget_transformed - currentPosition_transformed;
 
     // Depth of the reflecting surface in the transformed view space.
     float reflectingSurfaceViewDepth = -currentPosition_transformed.z;
+
+    if (reflectingSurfaceViewDepth > MAX_Z_DEPTH) {
+        // Do a sanity check: if the reflecting surface is too far away, skip ray tracing.
+        hitColor = vec4(0.0);
+        edgeFade = 0.0;
+        hitDepth = 0.0;
+        return false;
+    }
 
     // Extract range parameters
     float rangeStart = distanceParams.x;
@@ -527,6 +545,14 @@ bool traceScreenRay(
 
     // Initialize ray marching variables - NO SCALING
     vec3 normalizedReflection = normalize(reflectionVector_transformed);
+
+    if (normalizedReflection.z >= 0.0) {
+        hitColor = vec4(0.0);
+        edgeFade = 0.0;
+        hitDepth = 0.0;
+        return false;
+    }
+
     float depthScale = pow(reflectingSurfaceViewDepth, passDepthScaleExponent);
     vec3 baseStepVector = passRayStep * max(1.0, depthScale) * normalizedReflection;
     vec3 marchingPosition = currentPosition_transformed + baseStepVector; // First step from origin.
@@ -783,6 +809,13 @@ float tapScreenSpaceReflection(
     float roughness = 1.0 - glossiness;
     
     if (roughness < 0.3) {
+
+        float viewDotNormal = dot(normalize(-viewPos), normalize(n));
+        if (viewDotNormal <= 0.0) {
+            collectedColor = vec4(0.0);
+            return 0.0;
+        }
+
         float remappedRoughness = clamp((roughness - 0.2) / (0.3 - 0.2), 0.0, 1.0);
         float roughnessIntensityFade = 1.0 - remappedRoughness;
 
@@ -793,10 +826,15 @@ float tapScreenSpaceReflection(
         float baseEdgeFade = 1.0 - smoothstep(0.85, 1.0, max(distFromCenter.x, distFromCenter.y));
         
         if (baseEdgeFade > 0.001) {
-            
             vec3 rayDirection = normalize(reflect(normalize(viewPos), normalize(n)));
-            
-            float angleFactor = abs(dot(normalize(-viewPos), normalize(n)));
+
+            float reflViewAngle = dot(normalize(rayDirection), normalize(viewPos));
+            if (reflViewAngle < 0.001) { // Threshold can be tuned
+                collectedColor = vec4(0.0);
+                return 0.0;
+            }
+
+            float angleFactor = viewDotNormal;
             float angleFactorSq = angleFactor * angleFactor;
             
             float combinedFade = roughnessFade;// distanceFactor;
