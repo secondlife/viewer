@@ -140,18 +140,18 @@ float calculateEdgeFade(vec2 screenPos) {
     // Defines how close to the edge the fade effect starts.
     // 0.9 means fading begins when the point is 10% away from the screen edge.
     const float edgeFadeStart = 0.9;
-    
+
     // Convert screen position from [0,1] to [-1,1] range and take absolute value.
     // This gives distance from the center: 0 at center, 1 at edges.
     vec2 distFromCenter = abs(screenPos * 2.0 - 1.0);
-    
+
     // Calculate a smooth fade for each axis using smoothstep.
     // smoothstep(edgeFadeStart, 1.0, x) will be:
     // - 0 if x < edgeFadeStart
     // - 1 if x > 1.0
     // - A smooth transition between 0 and 1 if edgeFadeStart <= x <= 1.0
     vec2 fade = smoothstep(edgeFadeStart, 1.0, distFromCenter);
-    
+
     // Use the maximum fade value between X and Y axes.
     // We want to fade if the point is close to ANY edge.
     // If fade.x is high (close to X-edge) or fade.y is high (close to Y-edge),
@@ -203,11 +203,11 @@ void processRayIntersection(
         // Helps visualize if the ray hit in front of or behind the surface.
         color = vec4(0.5 + sign(signedDelta) / 2.0, 0.3, 0.5 - sign(signedDelta) / 2.0, 0.0);
     }
-        
+
     // Calculate mip level for texture sampling based on screen resolution and roughness.
     // Higher roughness leads to sampling from higher (blurrier) mip levels.
     float mipLevel = calculateMipmapLevels(screen_res) * reflRoughness;
-    
+
     // Sample the source texture at the hit position using the calculated mip level.
     outHitColor = textureLod(texSource, screenPos, mipLevel) * color;
     outHitColor.a = 1.0; // Ensure full opacity for the hit.
@@ -273,12 +273,12 @@ void advanceRayMarch(
 )
 {
     vec3 actualMarchingVector;
-    
+
     // Calculate a minimum step size based on the current position's depth
     // This prevents steps that are smaller than the depth buffer's precision
     float currentDepth = abs(currentMarchingPos.z);
     float depthBasedMinStep = max(minStepLenScalar, currentDepth * 0.001); // 0.1% of current depth
-    
+
     if (useAdaptiveStepping) {
         if (deltaFromSurface < 0.0f) { // Ray is in front of the surface
             vec3 stepDir = normalize(currentBaseStepVec);
@@ -299,7 +299,7 @@ void advanceRayMarch(
             // Ensure retreat step is also not too small
             vec3 baseStepForRetreat = currentBaseStepVec * max(0.5f, 1.0f - minStepLenScalar * max(directionSign, 0.0f));
             actualMarchingVector = baseStepForRetreat * (-directionSign);
-            
+
             // Ensure minimum retreat distance
             if (length(actualMarchingVector) < depthBasedMinStep) {
                 actualMarchingVector = normalize(actualMarchingVector) * depthBasedMinStep;
@@ -312,7 +312,7 @@ void advanceRayMarch(
             actualMarchingVector = normalize(actualMarchingVector) * depthBasedMinStep;
         }
     }
-    
+
     currentMarchingPos += actualMarchingVector; // Advance the ray position.
 
     if (useExponentialStepping) {
@@ -414,7 +414,7 @@ bool traceScreenRay(
     float depthScale = pow(reflectingSurfaceViewDepth, passDepthScaleExponent);
     vec3 baseStepVector = passRayStep * max(1.0, depthScale) * normalizedReflection;
     vec3 marchingPosition = currentPosition_transformed + baseStepVector; // First step from origin.
-    
+
     float delta; // Difference between ray's Z depth and scene's Z depth at the projected screen position.
     vec2 screenPosition; // Ray's current projected 2D screen position.
     bool hit = false;    // Flag to indicate if an intersection was found.
@@ -429,13 +429,13 @@ bool traceScreenRay(
         for (; i < int(passIterationCount) && !hit; i++) {
             // Project current 3D marching position to 2D screen space.
             screenPosition = generateProjectedPosition(marchingPosition);
-            
+
             // Check if ray is off-screen. If so, update edgeFade and break.
             if (checkAndUpdateOffScreen(screenPosition, edgeFade)) {
                 hit = false; // Ensure hit is false as ray went out of bounds.
                 break;
             }
-            
+
             // Get linear depth of the scene at the ray's projected screen position.
             depthFromScreen = getLinearDepth(screenPosition);
 
@@ -445,7 +445,7 @@ bool traceScreenRay(
                 hit = false;
                 break;
             }
-            
+
             // Early termination if ray has traveled too far from the reflector
             float rayTravelDistance = abs(abs(marchingPosition.z) - reflectingSurfaceViewDepth);
             if (rayTravelDistance > rangeEnd) {
@@ -475,7 +475,7 @@ bool traceScreenRay(
                     break; // Found a hit.
                 }
             }
-            
+
             // If ray overshot (delta > 0) and binary search is enabled, break to start binary search.
             if (isBinarySearchEnabled && delta > 0.0) {
                 break;
@@ -485,12 +485,12 @@ bool traceScreenRay(
             advanceRayMarch(delta, marchingPosition, baseStepVector,
                             passRayStep, isAdaptiveStepEnabled, isExponentialStepEnabled, passAdaptiveStepMultiplier);
         }
-        
+
         // --- Binary Search Refinement Loop ---
         // Perform binary search if enabled, the main loop overshot (delta > 0), and no hit was found yet.
         if (isBinarySearchEnabled && delta > 0.0 && !hit) {
             vec3 binarySearchBaseStep = baseStepVector; // Start with the step that caused the overshoot.
-            
+
             // Continue iteration count from where the main loop left off.
             for (; i < int(passIterationCount) && !hit; i++) {
                 binarySearchBaseStep *= 0.5; // Halve the step size for refinement.
@@ -503,7 +503,7 @@ bool traceScreenRay(
                     hit = false;
                     break;
                 }
-                
+
                 depthFromScreen = getLinearDepth(screenPosition);
 
                 if (depthFromScreen >= MAX_Z_DEPTH)
@@ -511,14 +511,14 @@ bool traceScreenRay(
                     hit = false;
                     break;
                 }
-                
+
                 // Check if we've traveled too far
                 float rayTravelDistance = abs(abs(marchingPosition.z) - reflectingSurfaceViewDepth);
                 if (rayTravelDistance > rangeEnd) {
                     hit = false;
                     break;
                 }
-                
+
                 // Recalculate delta for this binary search iteration.
                 float currentBinarySearchDelta = abs(marchingPosition.z) - depthFromScreen;
 
@@ -534,7 +534,7 @@ bool traceScreenRay(
                     if (isWithinReflectionRange(reflectingSurfaceViewDepth, depthFromScreen, rangeStart, rangeEnd)) {
                         processRayIntersection(screenPosition, depthFromScreen, currentBinarySearchDelta, source, roughness,
                                                hitColor, hitDepth, edgeFade);
-                        
+
                         if (hitDepth > furthestValidDepth) {
                             furthestValidDepth = hitDepth; // Update the furthest valid depth.
                         }
@@ -625,7 +625,7 @@ bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor,
         bool hit = traceScreenRay(viewPos, reflectionDirectionRandomized, hitpointColor,
                                 hitDepthVal, source, rayEdgeFadeVal, roughness * 2.0,
                                 iterations, passRayStep, passDistanceBias, passDepthRejectBias, passAdaptiveStepMultiplier, passDepthScaleExponent, distanceParams);
-        
+
         if (hit) {
             ++hits;
             tracedColor.rgb += hitpointColor.rgb; // Accumulate color.
@@ -646,7 +646,7 @@ bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor,
         // No hits, result is black and no fade.
         tracedColor = vec4(0.0);
     }
-    
+
     return hits > 0; // Return true if at least one ray hit was successful.
 }
 
@@ -678,7 +678,7 @@ float tapScreenSpaceReflection(
 #endif
 
     float roughness = 1.0 - glossiness;
-    
+
     if (roughness < MAX_ROUGHNESS) {
 
         float viewDotNormal = dot(normalize(-viewPos), normalize(n));
@@ -692,26 +692,26 @@ float tapScreenSpaceReflection(
 
         float roughnessFade = roughnessIntensityFade;
         float currentPixelViewDepth = -viewPos.z;
-        
+
         vec2 distFromCenter = abs(tc * 2.0 - 1.0);
         float baseEdgeFade = 1.0 - smoothstep(0.85, 1.0, max(distFromCenter.x, distFromCenter.y));
-        
+
         if (baseEdgeFade > 0.001) {
             vec3 rayDirection = normalize(reflect(normalize(viewPos), normalize(n)));
 
             float angleFactor = viewDotNormal;
             float angleFactorSq = angleFactor * angleFactor;
-            
+
             float combinedFade = roughnessFade;// distanceFactor;
             combinedFade *= min(1, (1 -angleFactorSq) * 2);
-            
+
             vec4 nearColor = vec4(0.0);
             vec4 midColor = vec4(0.0);
             vec4 farColor = vec4(0.0);
             bool hasNearHits = false;
             bool hasMidHits = false;
             bool hasFarHits = false;
-            
+
             float stepRoughnesMultiplier = mix(1.0, 5.0, roughness);
 
             // Near pass
@@ -719,23 +719,23 @@ float tapScreenSpaceReflection(
             hasNearHits = tracePass(viewPos, rayDirection, tc, nearColor, source, roughness,
                                     int(iterationCount.x), rayStep.x, distanceBias.x,
                                     depthRejectBias.x, adaptiveStepMultiplier.x, 0.6 * stepRoughnesMultiplier, distanceParams);
-            
+
             // Mid pass
             distanceParams = vec2(splitParamsStart.y, splitParamsEnd.y);
             hasMidHits = tracePass(viewPos, rayDirection, tc, midColor, source, roughness,
                                    int(iterationCount.y), rayStep.y, distanceBias.y,
                                    depthRejectBias.y, adaptiveStepMultiplier.y, 0.35 * stepRoughnesMultiplier, distanceParams);
-            
+
             // Far pass
             distanceParams = vec2(splitParamsStart.z, splitParamsEnd.z);
             hasFarHits = tracePass(viewPos, rayDirection, tc, farColor, source, roughness,
                                    int(iterationCount.z), rayStep.z, distanceBias.z,
                                    depthRejectBias.z, adaptiveStepMultiplier.z, 0.1 * stepRoughnesMultiplier, distanceParams);
-            
+
             // Combine results from all three passes
             collectedColor = vec4(0.0);
             float totalWeight = 0.0;
-            
+
             // Use a priority system: prefer near hits, then mid, then far
             if (hasNearHits) {
                 collectedColor = nearColor;
@@ -747,7 +747,7 @@ float tapScreenSpaceReflection(
                 collectedColor = farColor;
                 totalWeight = 1.0;
             }
-            
+
             if (totalWeight > 0.0) {
                 float finalEdgeFade = collectedColor.a * combinedFade * baseEdgeFade;
                 collectedColor.a = finalEdgeFade;
