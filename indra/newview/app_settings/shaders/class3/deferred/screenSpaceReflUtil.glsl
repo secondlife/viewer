@@ -322,7 +322,7 @@ void advanceRayMarch(
 }
 
 const float MAX_Z_DEPTH = 256;
-const float MAX_ROUGHNESS = 0.5;
+const float MAX_ROUGHNESS = 0.45;
 
 /**
  * @brief Checks if a hit point is within the specified distance range from the reflector.
@@ -712,23 +712,25 @@ float tapScreenSpaceReflection(
             bool hasMidHits = false;
             bool hasFarHits = false;
             
+            float stepRoughnesMultiplier = mix(1.0, 5.0, roughness);
+
             // Near pass
             vec2 distanceParams = vec2(splitParamsStart.x, splitParamsEnd.x);
             hasNearHits = tracePass(viewPos, rayDirection, tc, nearColor, source, roughness,
                                     int(iterationCount.x), rayStep.x, distanceBias.x,
-                                    depthRejectBias.x, adaptiveStepMultiplier.x, 1.2, distanceParams);
+                                    depthRejectBias.x, adaptiveStepMultiplier.x, 1.2 * stepRoughnesMultiplier, distanceParams);
             
             // Mid pass
             distanceParams = vec2(splitParamsStart.y, splitParamsEnd.y);
             hasMidHits = tracePass(viewPos, rayDirection, tc, midColor, source, roughness,
                                    int(iterationCount.y), rayStep.y, distanceBias.y,
-                                   depthRejectBias.y, adaptiveStepMultiplier.y, 0.9, distanceParams);
+                                   depthRejectBias.y, adaptiveStepMultiplier.y, 0.35 * stepRoughnesMultiplier, distanceParams);
             
             // Far pass
             distanceParams = vec2(splitParamsStart.z, splitParamsEnd.z);
             hasFarHits = tracePass(viewPos, rayDirection, tc, farColor, source, roughness,
                                    int(iterationCount.z), rayStep.z, distanceBias.z,
-                                   depthRejectBias.z, adaptiveStepMultiplier.z, 0.5, distanceParams);
+                                   depthRejectBias.z, adaptiveStepMultiplier.z, 0.1 * stepRoughnesMultiplier, distanceParams);
             
             // Combine results from all three passes
             collectedColor = vec4(0.0);
