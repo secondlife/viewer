@@ -7597,7 +7597,7 @@
     <array>
       <real>30</real>
       <real>16</real>
-      <real>8</real>
+      <real>16</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionRayStep</key>
@@ -7625,9 +7625,9 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.003</real>
-      <real>1</real>
-      <real>2</real>
+      <real>0.01</real>
+      <real>0.4</real>
+      <real>10</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionDepthRejectBias</key>
@@ -7656,8 +7656,8 @@
     <key>Value</key>
     <array>
       <real>1.197</real>
-      <real>1.3</real>
-      <real>1.6</real>
+      <real>1.5</real>
+      <real>2</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionSplitStart</key>
@@ -7671,8 +7671,8 @@
     <key>Value</key>
     <array>
       <real>0</real>
-      <real>7</real>
-      <real>100</real>
+      <real>5</real>
+      <real>50</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionSplitEnd</key>
@@ -7685,9 +7685,9 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>10</real>
-      <real>100</real>
-      <real>256</real>
+      <real>25</real>
+      <real>150</real>
+      <real>1000</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionGlossySamples</key>

@@ -102,6 +102,11 @@ uniform vec3 adaptiveStepMultiplier;
 uniform vec3 splitParamsStart;
 uniform vec3 splitParamsEnd;
 
+float blurStepY = 0.01;
+float blurStepX = 0.01;
+float blurIterationX = 2;
+float blurIterationY = 4;
+
 /** @brief Number of samples to take for glossy reflections. Higher values give smoother but more expensive reflections. Debug setting: RenderScreenSpaceReflectionGlossySamples */
 uniform float glossySampleCount;
 /** @brief A time-varying sine value, used to introduce temporal variation with the poisson sphere sampling. */
@@ -332,7 +337,8 @@ void processRayIntersection(
     float reflRoughness,
     out vec4 outHitColor,
     out float outHitDepthValue,
-    out float outEdgeFactor)
+    out float outEdgeFactor
+)
 {
     vec4 color = vec4(1.0); // Default color multiplier.
     if(debugDraw) {
@@ -458,7 +464,7 @@ void advanceRayMarch(
     }
 }
 
-const float MAX_Z_DEPTH = 512;
+const float MAX_Z_DEPTH = 350;
 
 /**
  * @brief Checks if a hit point is within the specified distance range from the reflector.
@@ -531,7 +537,7 @@ bool traceScreenRay(
     hitColor = vec4(0.0); // Initialize output hit color.
     edgeFade = 1.0;       // Initialize output edge fade.
     float depthFromScreen = 0.0; // Linear depth sampled from the sceneDepth texture.
-
+    float furthestValidDepth = 0.0; // The furthest valid depth encountered during ray marching.
     int i = 0; // Iteration counter.
     // Only trace if the reflecting surface itself isn't too shallow (depthRejectBias).
     if (reflectingSurfaceViewDepth > passDepthRejectBias) {
@@ -578,6 +584,9 @@ bool traceScreenRay(
                 if (isWithinReflectionRange(reflectingSurfaceViewDepth, depthFromScreen, rangeStart, rangeEnd)) {
                     processRayIntersection(screenPosition, depthFromScreen, delta, source, roughness,
                                         hitColor, hitDepth, edgeFade);
+                    if (hitDepth > furthestValidDepth) {
+                        furthestValidDepth = hitDepth; // Update the furthest valid depth.
+                    }
                     hit = true;
                     break; // Found a hit.
                 }
@@ -641,6 +650,10 @@ bool traceScreenRay(
                     if (isWithinReflectionRange(reflectingSurfaceViewDepth, depthFromScreen, rangeStart, rangeEnd)) {
                         processRayIntersection(screenPosition, depthFromScreen, currentBinarySearchDelta, source, roughness,
                                                hitColor, hitDepth, edgeFade);
+                        
+                        if (hitDepth > furthestValidDepth) {
+                            furthestValidDepth = hitDepth; // Update the furthest valid depth.
+                        }
                         hit = true;
                         break;
                     }
@@ -648,6 +661,16 @@ bool traceScreenRay(
                 delta = currentBinarySearchDelta; // Update delta for the next binary search refinement step.
             }
         }
+    }
+
+    // Do a bit of distance fading if we have a hit.  Use it to fade out far off objects that just don't look right.
+    if (hit) {
+        float zFadeStart = MAX_Z_DEPTH * 0.75;
+        float zFade = 1.0 - smoothstep(zFadeStart, MAX_Z_DEPTH, furthestValidDepth);
+
+        // Combine both fades (multiply for stronger effect)
+        edgeFade *= zFade;
+
     }
 
     return hit; // Return whether a valid intersection was found.
@@ -682,7 +705,7 @@ bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor,
     // Smoother surfaces get more samples.
     int totalSamples = int(max(float(glossySampleCount), float(glossySampleCount) * (1.0 - roughness)));
     totalSamples = max(totalSamples, 1); // Ensure at least one sample.
-    
+    vec2 blurOffset = vec2(0);
     for (int i = 0; i < totalSamples; i++) {
         // Generate a perturbed reflection direction for glossy effects using Poisson disk samples.
         // 'noiseSine' and 'random' calls add temporal and spatial variation to the sampling pattern.
@@ -694,6 +717,7 @@ bool tracePass(vec3 viewPos, vec3 rayDirection, vec2 tc, inout vec4 tracedColor,
         vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
         // Generate random coefficients to offset the ray within the cone defined by roughness.
         vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
+        coeffs += blurOffset;
         // Cubic roughness term to make glossy reflections spread more at higher roughness values.
         vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * (roughness * roughness ));
 
