@@ -212,9 +212,9 @@ void LLGLTFLoader::addModelToScene(
     for (auto model : ready_models)
     {
         // remove unused/redundant vertices
-        current_model->remapVolumeFaces();
+        model->remapVolumeFaces();
         // remove unused/redundant weights and joints
-        current_model->remapSkinWeightsAndJoints();
+        model->remapSkinWeightsAndJoints();
 
         mModelList.push_back(model);
 
