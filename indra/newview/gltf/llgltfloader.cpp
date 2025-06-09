@@ -263,56 +263,40 @@ bool LLGLTFLoader::parseMeshes()
     std::map<std::string, S32> mesh_name_counts;
     U32 submodel_limit = mGLTFAsset.mNodes.size() > 0 ? mGeneratedModelLimit / (U32)mGLTFAsset.mNodes.size() : 0;
 
-    // Mark which nodes have been processed to avoid duplicates
-    std::vector<bool> node_processed(mGLTFAsset.mNodes.size(), false);
+    // Build parent mapping for efficient traversal
+    std::vector<S32> node_parents(mGLTFAsset.mNodes.size(), -1);
+    std::vector<bool> is_root(mGLTFAsset.mNodes.size(), true);
 
-    // First, find root nodes (nodes without parents) and process their hierarchies
-    for (size_t node_idx = 0; node_idx < mGLTFAsset.mNodes.size(); node_idx++)
+    // Build parent relationships
+    for (size_t parent_idx = 0; parent_idx < mGLTFAsset.mNodes.size(); parent_idx++)
     {
-        if (!node_processed[node_idx])
+        const auto& parent_node = mGLTFAsset.mNodes[parent_idx];
+        for (S32 child_idx : parent_node.mChildren)
         {
-            // Check if this node has a parent
-            bool has_parent = false;
-            for (const auto& potential_parent : mGLTFAsset.mNodes)
+            if (child_idx >= 0 && child_idx < static_cast<S32>(mGLTFAsset.mNodes.size()))
             {
-                if (std::find(potential_parent.mChildren.begin(),
-                             potential_parent.mChildren.end(),
-                             static_cast<S32>(node_idx)) != potential_parent.mChildren.end())
-                {
-                    has_parent = true;
-                    break;
-                }
-            }
-
-            // If no parent, this is a root node - process its hierarchy
-            if (!has_parent)
-            {
-                processNodeHierarchy(static_cast<S32>(node_idx), mesh_name_counts, submodel_limit, volume_params, node_processed);
+                node_parents[child_idx] = static_cast<S32>(parent_idx);
+                is_root[child_idx] = false;
             }
         }
     }
 
-    // Process any remaining unprocessed nodes (disconnected nodes)
+    // Process all root nodes and their hierarchies
     for (size_t node_idx = 0; node_idx < mGLTFAsset.mNodes.size(); node_idx++)
     {
-        if (!node_processed[node_idx])
+        if (is_root[node_idx])
         {
-            processNodeHierarchy(static_cast<S32>(node_idx), mesh_name_counts, submodel_limit, volume_params, node_processed);
+            processNodeHierarchy(static_cast<S32>(node_idx), mesh_name_counts, submodel_limit, volume_params);
         }
     }
 
     return true;
 }
 
-void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params, std::vector<bool>& node_processed)
+void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params)
 {
     if (node_idx < 0 || node_idx >= static_cast<S32>(mGLTFAsset.mNodes.size()))
         return;
-
-    if (node_processed[node_idx])
-        return;
-
-    node_processed[node_idx] = true;
 
     auto& node = mGLTFAsset.mNodes[node_idx];
 
@@ -393,10 +377,10 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         }
     }
 
-    // Process all children
+    // Process all children recursively
     for (S32 child_idx : node.mChildren)
     {
-        processNodeHierarchy(child_idx, mesh_name_counts, submodel_limit, volume_params, node_processed);
+        processNodeHierarchy(child_idx, mesh_name_counts, submodel_limit, volume_params);
     }
 }
 
