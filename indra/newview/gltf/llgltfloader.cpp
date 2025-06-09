@@ -265,31 +265,32 @@ bool LLGLTFLoader::parseMeshes()
     std::map<std::string, S32> mesh_name_counts;
     U32 submodel_limit = mGLTFAsset.mNodes.size() > 0 ? mGeneratedModelLimit / (U32)mGLTFAsset.mNodes.size() : 0;
 
-    // Build parent mapping for efficient traversal
-    std::vector<S32> node_parents(mGLTFAsset.mNodes.size(), -1);
-    std::vector<bool> is_root(mGLTFAsset.mNodes.size(), true);
-
-    // Build parent relationships
-    for (size_t parent_idx = 0; parent_idx < mGLTFAsset.mNodes.size(); parent_idx++)
+    // Check if we have scenes defined
+    if (!mGLTFAsset.mScenes.empty())
     {
-        const auto& parent_node = mGLTFAsset.mNodes[parent_idx];
-        for (S32 child_idx : parent_node.mChildren)
+        // Process the default scene (or first scene if no default)
+        S32 scene_idx = mGLTFAsset.mScene >= 0 ? mGLTFAsset.mScene : 0;
+
+        if (scene_idx < mGLTFAsset.mScenes.size())
         {
-            if (child_idx >= 0 && child_idx < static_cast<S32>(mGLTFAsset.mNodes.size()))
+            const LL::GLTF::Scene& scene = mGLTFAsset.mScenes[scene_idx];
+
+            LL_INFOS("GLTF_IMPORT") << "Processing scene " << scene_idx << " with " << scene.mNodes.size() << " root nodes" << LL_ENDL;
+
+            // Process all root nodes defined in the scene
+            for (S32 root_idx : scene.mNodes)
             {
-                node_parents[child_idx] = static_cast<S32>(parent_idx);
-                is_root[child_idx] = false;
+                if (root_idx >= 0 && root_idx < static_cast<S32>(mGLTFAsset.mNodes.size()))
+                {
+                    processNodeHierarchy(root_idx, mesh_name_counts, submodel_limit, volume_params);
+                }
             }
         }
     }
-
-    // Process all root nodes and their hierarchies
-    for (size_t node_idx = 0; node_idx < mGLTFAsset.mNodes.size(); node_idx++)
+    else
     {
-        if (is_root[node_idx])
-        {
-            processNodeHierarchy(static_cast<S32>(node_idx), mesh_name_counts, submodel_limit, volume_params);
-        }
+        LL_WARNS("GLTF_IMPORT") << "No scenes defined in GLTF file" << LL_ENDL;
+        return false;
     }
 
     return true;
@@ -301,6 +302,10 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         return;
 
     auto& node = mGLTFAsset.mNodes[node_idx];
+
+    LL_INFOS("GLTF_IMPORT") << "Processing node " << node_idx << " (" << node.mName << ")"
+                            << " - has mesh: " << (node.mMesh >= 0 ? "yes" : "no")
+                            << " - children: " << node.mChildren.size() << LL_ENDL;
 
     // Process this node's mesh if it has one
     if (node.mMesh >= 0 && node.mMesh < mGLTFAsset.mMeshes.size())
@@ -377,6 +382,12 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
             delete pModel;
             return;
         }
+    }
+    else if (node.mMesh >= 0)
+    {
+        // Log invalid mesh reference
+        LL_WARNS("GLTF_IMPORT") << "Node " << node_idx << " references invalid mesh " << node.mMesh
+                                << " (total meshes: " << mGLTFAsset.mMeshes.size() << ")" << LL_ENDL;
     }
 
     // Process all children recursively
