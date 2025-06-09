@@ -7701,6 +7701,28 @@
     <key>Value</key>
     <integer>2</integer>
   </map>
+  <key>RenderScreenSpaceReflectionMaxDepth</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum depth from the camera to attempt a trace.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>256</real>
+  </map>
+  <key>RenderScreenSpaceReflectionMaxRoughness</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum permitted roughness for screen space reflections.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.45</real>
+  </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
       <key>Comment</key>

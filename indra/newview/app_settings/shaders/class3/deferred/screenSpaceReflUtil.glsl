@@ -321,8 +321,8 @@ void advanceRayMarch(
     }
 }
 
-const float MAX_Z_DEPTH = 256;
-const float MAX_ROUGHNESS = 0.45;
+uniform float maxZDepth;
+uniform float maxRoughness;
 
 /**
  * @brief Checks if a hit point is within the specified distance range from the reflector.
@@ -389,7 +389,7 @@ bool traceScreenRay(
     // Depth of the reflecting surface in the transformed view space.
     float reflectingSurfaceViewDepth = -currentPosition_transformed.z;
 
-    if (reflectingSurfaceViewDepth > MAX_Z_DEPTH) {
+    if (reflectingSurfaceViewDepth > maxZDepth) {
         // Do a sanity check: if the reflecting surface is too far away, skip ray tracing.
         hitColor = vec4(0.0);
         edgeFade = 0.0;
@@ -438,7 +438,7 @@ bool traceScreenRay(
                 break;
             }
             depthFromScreen = getLinearDepth(screenPosition);
-            if (depthFromScreen >= MAX_Z_DEPTH) {
+            if (depthFromScreen >= maxZDepth) {
                 hit = false;
                 break;
             }
@@ -522,8 +522,8 @@ bool traceScreenRay(
 
     // Do a bit of distance fading if we have a hit.  Use it to fade out far off objects that just don't look right.
     if (hit) {
-        float zFadeStart = MAX_Z_DEPTH * 0.8;
-        float zFade = 1.0 - smoothstep(zFadeStart, MAX_Z_DEPTH, furthestValidDepth);
+        float zFadeStart = maxZDepth * 0.8;
+        float zFade = 1.0 - smoothstep(zFadeStart, maxZDepth, furthestValidDepth);
 
         // Combine both fades (multiply for stronger effect)
         edgeFade *= zFade;
@@ -652,7 +652,7 @@ float tapScreenSpaceReflection(
 
     float roughness = 1.0 - glossiness;
 
-    if (roughness < MAX_ROUGHNESS) {
+    if (roughness < maxRoughness) {
 
         float viewDotNormal = dot(normalize(-viewPos), normalize(n));
         if (viewDotNormal <= 0.0) {
@@ -660,7 +660,7 @@ float tapScreenSpaceReflection(
             return 0.0;
         }
 
-        float remappedRoughness = clamp((roughness - (MAX_ROUGHNESS * 0.6)) / (MAX_ROUGHNESS - (MAX_ROUGHNESS * 0.6)), 0.0, 1.0);
+        float remappedRoughness = clamp((roughness - (maxRoughness * 0.6)) / (maxRoughness - (maxRoughness * 0.6)), 0.0, 1.0);
         float roughnessIntensityFade = 1.0 - remappedRoughness;
 
         float roughnessFade = roughnessIntensityFade;
