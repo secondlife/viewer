@@ -9355,7 +9355,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         shader.uniform3fv(LLShaderMgr::DEFERRED_SSR_ADAPTIVE_STEP_MULT, 1, traceStepMultiplier().mV);
         shader.uniform3fv(LLShaderMgr::DEFERRED_SSR_SPLIT_START, 1, traceSplitStart().mV);
         shader.uniform3fv(LLShaderMgr::DEFERRED_SSR_SPLIT_END, 1, traceSplitEnd().mV);
-        
+
         shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_Z, traceMaxDepth());
         shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_ROUGHNESS, traceMaxRoughness());
 
