@@ -175,14 +175,10 @@ private:
     bool parseMaterials();
     void uploadMaterials();
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
+    void processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params, std::vector<bool>& node_processed);
     bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats, S32 instance_count);
     void populateJointFromSkin(S32 skin_idx);
-    void addModelToScene(
-        LLModel* pModel,
-        U32 submodel_limit,
-        const LLMatrix4& transformation,
-        const LLVolumeParams& volume_params,
-        const material_map& mats);
+    void addModelToScene(LLModel* pModel, U32 submodel_limit, const LLMatrix4& transformation, const LLVolumeParams& volume_params, const material_map& mats);
     S32 findClosestValidJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const;
     S32 findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const;
     S32 findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint

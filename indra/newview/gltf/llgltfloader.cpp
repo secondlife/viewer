@@ -263,91 +263,141 @@ bool LLGLTFLoader::parseMeshes()
     std::map<std::string, S32> mesh_name_counts;
     U32 submodel_limit = mGLTFAsset.mNodes.size() > 0 ? mGeneratedModelLimit / (U32)mGLTFAsset.mNodes.size() : 0;
 
-    // Process each node
-    for (auto& node : mGLTFAsset.mNodes)
+    // Mark which nodes have been processed to avoid duplicates
+    std::vector<bool> node_processed(mGLTFAsset.mNodes.size(), false);
+
+    // First, find root nodes (nodes without parents) and process their hierarchies
+    for (size_t node_idx = 0; node_idx < mGLTFAsset.mNodes.size(); node_idx++)
     {
-        LLMatrix4    transformation;
-        material_map mats;
-        auto meshidx = node.mMesh;
-
-        if (meshidx >= 0)
+        if (!node_processed[node_idx])
         {
-            if (mGLTFAsset.mMeshes.size() > meshidx)
+            // Check if this node has a parent
+            bool has_parent = false;
+            for (const auto& potential_parent : mGLTFAsset.mNodes)
             {
-                LLModel* pModel = new LLModel(volume_params, 0.f);
-                auto mesh = mGLTFAsset.mMeshes[meshidx];
-
-                // Get base mesh name and track usage
-                std::string base_name = mesh.mName;
-                if (base_name.empty())
+                if (std::find(potential_parent.mChildren.begin(),
+                             potential_parent.mChildren.end(),
+                             static_cast<S32>(node_idx)) != potential_parent.mChildren.end())
                 {
-                    base_name = "mesh_" + std::to_string(meshidx);
+                    has_parent = true;
+                    break;
                 }
+            }
 
-                S32 instance_count = mesh_name_counts[base_name]++;
-
-                if (populateModelFromMesh(pModel, mesh, node, mats, instance_count) &&
-                    (LLModel::NO_ERRORS == pModel->getStatus()) &&
-                    validate_model(pModel))
-                {
-                    mTransform.setIdentity();
-                    transformation = mTransform;
-
-                    // adjust the transformation to compensate for mesh normalization
-                    LLVector3 mesh_scale_vector;
-                    LLVector3 mesh_translation_vector;
-                    pModel->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
-
-                    LLMatrix4 mesh_translation;
-                    mesh_translation.setTranslation(mesh_translation_vector);
-                    mesh_translation *= transformation;
-                    transformation = mesh_translation;
-
-                    LLMatrix4 mesh_scale;
-                    mesh_scale.initScale(mesh_scale_vector);
-                    mesh_scale *= transformation;
-                    transformation = mesh_scale;
-
-                    if (node.mSkin >= 0)
-                    {
-                        // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
-                        // into the coordinate space of the joints.
-                        // In GLTF, this matrix is omitted, and it is assumed that this transform is either
-                        // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
-                        //
-                        // TODO: There appears to be missing rotation when joints rotate the model
-                        // or inverted bind matrices are missing inherited rotation
-                        // (based of values the 'bento shoes' mesh might be missing 90 degrees horizontaly
-                        // prior to skinning)
-
-                        pModel->mSkinInfo.mBindShapeMatrix.loadu(mesh_scale);
-                        LL_INFOS("GLTF_DEBUG") << "Model: " << pModel->mLabel << " mBindShapeMatrix: " << pModel->mSkinInfo.mBindShapeMatrix << LL_ENDL;
-                    }
-
-                    if (transformation.determinant() < 0)
-                    { // negative scales are not supported
-                        LL_INFOS("GLTF_IMPORT") << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
-                                   << pModel->mLabel << LL_ENDL;
-                        LLSD args;
-                        args["Message"] = "NegativeScaleNormTrans";
-                        args["LABEL"]   = pModel->mLabel;
-                        mWarningsArray.append(args);
-                    }
-
-                    addModelToScene(pModel, submodel_limit, transformation, volume_params, mats);
-                    mats.clear();
-                }
-                else
-                {
-                    setLoadState(ERROR_MODEL + pModel->getStatus());
-                    delete pModel;
-                    return false;
-                }
+            // If no parent, this is a root node - process its hierarchy
+            if (!has_parent)
+            {
+                processNodeHierarchy(static_cast<S32>(node_idx), mesh_name_counts, submodel_limit, volume_params, node_processed);
             }
         }
     }
 
+    // Process any remaining unprocessed nodes (disconnected nodes)
+    for (size_t node_idx = 0; node_idx < mGLTFAsset.mNodes.size(); node_idx++)
+    {
+        if (!node_processed[node_idx])
+        {
+            processNodeHierarchy(static_cast<S32>(node_idx), mesh_name_counts, submodel_limit, volume_params, node_processed);
+        }
+    }
+
     return true;
+}
+
+void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params, std::vector<bool>& node_processed)
+{
+    if (node_idx < 0 || node_idx >= static_cast<S32>(mGLTFAsset.mNodes.size()))
+        return;
+
+    if (node_processed[node_idx])
+        return;
+
+    node_processed[node_idx] = true;
+
+    auto& node = mGLTFAsset.mNodes[node_idx];
+
+    // Process this node's mesh if it has one
+    if (node.mMesh >= 0 && node.mMesh < mGLTFAsset.mMeshes.size())
+    {
+        LLMatrix4    transformation;
+        material_map mats;
+
+        LLModel* pModel = new LLModel(volume_params, 0.f);
+        auto& mesh = mGLTFAsset.mMeshes[node.mMesh];
+
+        // Get base mesh name and track usage
+        std::string base_name = mesh.mName;
+        if (base_name.empty())
+        {
+            base_name = "mesh_" + std::to_string(node.mMesh);
+        }
+
+        S32 instance_count = mesh_name_counts[base_name]++;
+
+        if (populateModelFromMesh(pModel, mesh, node, mats, instance_count) &&
+            (LLModel::NO_ERRORS == pModel->getStatus()) &&
+            validate_model(pModel))
+        {
+            mTransform.setIdentity();
+            transformation = mTransform;
+
+            // adjust the transformation to compensate for mesh normalization
+            LLVector3 mesh_scale_vector;
+            LLVector3 mesh_translation_vector;
+            pModel->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
+
+            LLMatrix4 mesh_translation;
+            mesh_translation.setTranslation(mesh_translation_vector);
+            mesh_translation *= transformation;
+            transformation = mesh_translation;
+
+            LLMatrix4 mesh_scale;
+            mesh_scale.initScale(mesh_scale_vector);
+            mesh_scale *= transformation;
+            transformation = mesh_scale;
+
+            if (node.mSkin >= 0)
+            {
+                // "Bind Shape Matrix" is supposed to transform the geometry of the skinned mesh
+                // into the coordinate space of the joints.
+                // In GLTF, this matrix is omitted, and it is assumed that this transform is either
+                // premultiplied with the mesh data, or postmultiplied to the inverse bind matrices.
+                //
+                // TODO: There appears to be missing rotation when joints rotate the model
+                // or inverted bind matrices are missing inherited rotation
+                // (based of values the 'bento shoes' mesh might be missing 90 degrees horizontaly
+                // prior to skinning)
+
+                pModel->mSkinInfo.mBindShapeMatrix.loadu(mesh_scale);
+                LL_INFOS("GLTF_DEBUG") << "Model: " << pModel->mLabel << " mBindShapeMatrix: " << pModel->mSkinInfo.mBindShapeMatrix << LL_ENDL;
+            }
+
+            if (transformation.determinant() < 0)
+            { // negative scales are not supported
+                LL_INFOS("GLTF_IMPORT") << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: "
+                           << pModel->mLabel << LL_ENDL;
+                LLSD args;
+                args["Message"] = "NegativeScaleNormTrans";
+                args["LABEL"]   = pModel->mLabel;
+                mWarningsArray.append(args);
+            }
+
+            addModelToScene(pModel, submodel_limit, transformation, volume_params, mats);
+            mats.clear();
+        }
+        else
+        {
+            setLoadState(ERROR_MODEL + pModel->getStatus());
+            delete pModel;
+            return;
+        }
+    }
+
+    // Process all children
+    for (S32 child_idx : node.mChildren)
+    {
+        processNodeHierarchy(child_idx, mesh_name_counts, submodel_limit, volume_params, node_processed);
+    }
 }
 
 void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const
