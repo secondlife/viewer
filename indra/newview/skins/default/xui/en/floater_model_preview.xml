@@ -61,10 +61,15 @@
   <string name="ParsingErrorNoRoot">Document has no root</string>
   <string name="ParsingErrorNoScene">Document has no visual_scene</string>
   <string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
-  <string name="InvalidGeometryNonTriangulated">Invalid geometry: GLTF files must contain triangulated meshes only.</string>
-  <string name="IgnoredExtension">Model uses unsupported extension: [EXT], related material properties are ignored.</string>
-  <string name="UnsupportedExtension">Unable to load a model, unsupported extension: [EXT]</string>
-  <string name="ErrorIndexLimit">Unable to process mesh due to 16-bit index limits</string>
+
+ <!-- GLTF specific messages -->
+  <string name="NoScenesFound">No scenes defined in GLTF file</string>
+  <string name="InvalidMeshReference">Node [NODE_NAME] references invalid mesh [MESH_INDEX] (total meshes: [TOTAL_MESHES])</string>
+  <string name="InvalidGeometryNonTriangulated">Mesh [MESH_NAME] primitive [PRIMITIVE_INDEX]: Invalid geometry with [INDEX_COUNT] indices (must be triangulated)</string>
+  <string name="ErrorIndexLimit">Mesh [MESH_NAME]: Vertex count [VERTEX_COUNT] exceeds 16-bit limit of [LIMIT]</string>
+  <string name="TextureFound">Found texture: [TEXTURE_NAME] for material: [MATERIAL_NAME]</string>
+  <string name="IgnoredExtension">Model uses unsupported extension: [EXT], related material properties are ignored</string>
+  <string name="UnsupportedExtension">Unable to load model, unsupported extension: [EXT]</string>
 
   <panel
     follows="top|left"
