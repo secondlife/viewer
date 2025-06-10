@@ -290,6 +290,10 @@ bool LLGLTFLoader::parseMeshes()
     else
     {
         LL_WARNS("GLTF_IMPORT") << "No scenes defined in GLTF file" << LL_ENDL;
+
+        LLSD args;
+        args["Message"] = "NoScenesFound";
+        mWarningsArray.append(args);
         return false;
     }
 
@@ -386,8 +390,16 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
     else if (node.mMesh >= 0)
     {
         // Log invalid mesh reference
-        LL_WARNS("GLTF_IMPORT") << "Node " << node_idx << " references invalid mesh " << node.mMesh
+        LL_WARNS("GLTF_IMPORT") << "Node " << node_idx << " (" << node.mName
+                                << ") references invalid mesh " << node.mMesh
                                 << " (total meshes: " << mGLTFAsset.mMeshes.size() << ")" << LL_ENDL;
+
+        LLSD args;
+        args["Message"] = "InvalidMeshReference";
+        args["NODE_NAME"] = node.mName;
+        args["MESH_INDEX"] = node.mMesh;
+        args["TOTAL_MESHES"] = static_cast<S32>(mGLTFAsset.mMeshes.size());
+        mWarningsArray.append(args);
     }
 
     // Process all children recursively
@@ -494,8 +506,9 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         }
     }
 
-    for (const LL::GLTF::Primitive& prim : mesh.mPrimitives)
+    for (size_t prim_idx = 0; prim_idx < mesh.mPrimitives.size(); ++prim_idx)
     {
+        const LL::GLTF::Primitive& prim = mesh.mPrimitives[prim_idx];
         // Unfortunately, SLM does not support 32 bit indices.  Filter out anything that goes beyond 16 bit.
         if (prim.getVertexCount() < USHRT_MAX)
         {
@@ -550,7 +563,14 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                                 impMat.mDiffuseMapFilename = filename;
                                 impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
 
-                                LL_INFOS("GLTF_IMPORT") << "Found texture: " << impMat.mDiffuseMapFilename << LL_ENDL;
+                                LL_INFOS("GLTF_IMPORT") << "Found texture: " << impMat.mDiffuseMapFilename
+                                                        << " for material: " << material->mName << LL_ENDL;
+
+                                LLSD args;
+                                args["Message"] = "TextureFound";
+                                args["TEXTURE_NAME"] = impMat.mDiffuseMapFilename;
+                                args["MATERIAL_NAME"] = material->mName;
+                                mWarningsArray.append(args);
 
                                 // If the image has a texture loaded already, use it
                                 if (image.mTexture.notNull())
@@ -647,10 +667,15 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
             if (prim.getIndexCount() % 3 != 0)
             {
-                LL_WARNS("GLTF_IMPORT") << "Invalid primitive: index count " << prim.getIndexCount()
-                                       << " is not divisible by 3. GLTF files must contain triangulated geometry." << LL_ENDL;
+                LL_WARNS("GLTF_IMPORT") << "Mesh '" << mesh.mName << "' primitive " << prim_idx
+                                       << ": Invalid index count " << prim.getIndexCount()
+                                       << " (not divisible by 3). GLTF files must contain triangulated geometry." << LL_ENDL;
+
                 LLSD args;
                 args["Message"] = "InvalidGeometryNonTriangulated";
+                args["MESH_NAME"] = mesh.mName;
+                args["PRIMITIVE_INDEX"] = static_cast<S32>(prim_idx);
+                args["INDEX_COUNT"] = static_cast<S32>(prim.getIndexCount());
                 mWarningsArray.append(args);
                 continue; // Skip this primitive
             }
@@ -802,10 +827,17 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             pModel->getMaterialList().push_back(materialName);
             mats[materialName] = impMat;
         }
-        else {
-            LL_INFOS("GLTF_IMPORT") << "Unable to process mesh due to 16-bit index limits" << LL_ENDL;
+        else
+        {
+            LL_INFOS("GLTF_IMPORT") << "Unable to process mesh '" << mesh.mName
+                                    << "' primitive " << prim_idx
+                                    << " due to 16-bit index limits. Vertex count: "
+                                    << prim.getVertexCount() << " exceeds limit: " << USHRT_MAX << LL_ENDL;
             LLSD args;
             args["Message"] = "ErrorIndexLimit";
+            args["MESH_NAME"] = mesh.mName.empty() ? ("mesh_" + std::to_string(&mesh - &mGLTFAsset.mMeshes[0])) : mesh.mName;
+            args["VERTEX_COUNT"] = static_cast<S32>(prim.getVertexCount());
+            args["LIMIT"] = USHRT_MAX;
             mWarningsArray.append(args);
             return false;
         }
