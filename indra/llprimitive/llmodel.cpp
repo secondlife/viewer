@@ -1804,12 +1804,20 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
     {
         ret["joint_names"][i] = mJointNames[i];
 
-        for (U32 j = 0; j < 4; j++)
+        if (i < mInvBindMatrix.size())
         {
-            for (U32 k = 0; k < 4; k++)
+            for (U32 j = 0; j < 4; j++)
             {
-                ret["inverse_bind_matrix"][i][j*4+k] = mInvBindMatrix[i].mMatrix[j][k];
+                for (U32 k = 0; k < 4; k++)
+                {
+                    ret["inverse_bind_matrix"][i][j*4+k] = mInvBindMatrix[i].mMatrix[j][k];
+                }
             }
+        }
+        else
+        {
+            LL_WARNS("MESHSKININFO") << "Joint index " << i << " (" << mJointNames[i] << ") exceeds inverse bind matrix size "
+                                     << mInvBindMatrix.size() << LL_ENDL;
         }
     }
 
@@ -1821,16 +1829,24 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
         }
     }
 
-    if ( include_joints && mAlternateBindMatrix.size() > 0 )
+    if (include_joints && mAlternateBindMatrix.size() > 0)
     {
         for (U32 i = 0; i < mJointNames.size(); ++i)
         {
-            for (U32 j = 0; j < 4; j++)
+            if (i < mAlternateBindMatrix.size())
             {
-                for (U32 k = 0; k < 4; k++)
+                for (U32 j = 0; j < 4; j++)
                 {
-                    ret["alt_inverse_bind_matrix"][i][j*4+k] = mAlternateBindMatrix[i].mMatrix[j][k];
+                    for (U32 k = 0; k < 4; k++)
+                    {
+                        ret["alt_inverse_bind_matrix"][i][j*4+k] = mAlternateBindMatrix[i].mMatrix[j][k];
+                    }
                 }
+            }
+            else
+            {
+                LL_WARNS("MESHSKININFO") << "Joint index " << i << " (" << mJointNames[i] << ") exceeds alternate bind matrix size "
+                                         << mAlternateBindMatrix.size() << LL_ENDL;
             }
         }
 
