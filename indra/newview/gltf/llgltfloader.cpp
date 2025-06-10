@@ -76,6 +76,13 @@ static const glm::mat4 coord_system_rotation(
 );
 
 
+static const glm::mat4 coord_system_rotationxy(
+    0.f, 1.f, 0.f, 0.f,
+    -1.f, 0.f, 0.f, 0.f,
+    0.f, 0.f, 1.f, 0.f,
+    0.f, 0.f, 0.f, 1.f
+);
+
 LLGLTFLoader::LLGLTFLoader(std::string filename,
     S32                                 lod,
     LLModelLoader::load_callback_t      load_cb,
@@ -252,6 +259,11 @@ bool LLGLTFLoader::parseMeshes()
     {
         // Make node matrix valid for correct transformation
         node.makeMatrixValid();
+    }
+
+    if (mGLTFAsset.mSkins.size() > 0)
+    {
+        checkForXYrotation(mGLTFAsset.mSkins[0]);
     }
 
     // Populate the joints from skins first.
@@ -450,7 +462,11 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     computeCombinedNodeTransform(mGLTFAsset, node_index, hierarchy_transform);
 
     // Combine transforms: coordinate rotation applied to hierarchy transform
-    const glm::mat4 final_transform = coord_system_rotation * hierarchy_transform;
+    glm::mat4 final_transform = coord_system_rotation * hierarchy_transform;
+    if (mApplyXYRotation)
+    {
+        final_transform = coord_system_rotationxy * final_transform;
+    }
 
     // Check if we have a negative scale (flipped coordinate system)
     bool hasNegativeScale = glm::determinant(final_transform) < 0.0f;
@@ -853,6 +869,10 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 // This is very likely incomplete in some way.
                 // Root shouldn't be the only one to need full coordinate fix
                 joint_mat = coord_system_rotation * joint_mat;
+                if (mApplyXYRotation)
+                {
+                    joint_mat = coord_system_rotationxy * joint_mat;
+                }
             }
             LLMatrix4 original_joint_transform(glm::value_ptr(joint_mat));
 
@@ -1140,7 +1160,71 @@ glm::mat4 LLGLTFLoader::computeGltfToViewerSkeletonTransform(const LL::GLTF::Ski
 
     // Compute transformation from GLTF space to viewer space
     // This assumes both skeletons are in rest pose initially
+    if (mApplyXYRotation)
+    {
+        return viewer_joint_rest_pose * glm::inverse(gltf_joint_rest_pose);
+    }
     return viewer_joint_rest_pose * glm::inverse(gltf_joint_rest_pose);
+}
+
+bool LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx)
+{
+    glm::mat4 gltf_joint_rest = buildGltfRestMatrix(joint_idx, gltf_skin);
+    glm::mat4 test_mat = glm::inverse(gltf_joint_rest) * gltf_skin.mInverseBindMatricesData[bind_indx];
+    // Normally for shoulders it should be something close to
+    // {1,0,0,0;0,-1,0,0;0,0,-1,0;0,0,0,1}
+    // rotated one will look like
+    // {0,0,0,-1;1,0,0,0;0,-1,0,0;0,0,0,1}
+    // Todo: This is a cheap hack,
+    // figure out how rotation is supposed to work
+    return abs(test_mat[0][0]) < 0.5 && abs(test_mat[1][1]) < 0.5 && abs(test_mat[2][2]) < 0.5;
+}
+
+void LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin)
+{
+    // HACK: figure out model's rotation from shoulders' matrix.
+    // This is wrong on many levels:
+    // Too limited (only models that have shoulders),
+    // Will not work well with things that emulate 3 hands in some manner
+    // Only supports xy 90 degree rotation
+    // Todo: figure out how to find skeleton's orientation Correctly
+    // when model is rotated at a triangle level
+    constexpr char right_shoulder_str[] = "mShoulderRight";
+    constexpr char left_shoulder_str[] = "mShoulderLeft";
+
+    S32 size = (S32)gltf_skin.mJoints.size();
+    S32 joints_found = 0;
+    for (S32 i= 0; i < size; i++)
+    {
+        S32 joint = gltf_skin.mJoints[i];
+        auto joint_node = mGLTFAsset.mNodes[joint];
+
+        // todo: we are doing this search thing everywhere,
+        // just pre-translate every joint
+        JointMap::iterator found = mJointMap.find(joint_node.mName);
+        if (found == mJointMap.end())
+        {
+            // unsupported joint
+            continue;
+        }
+        if (found->second == right_shoulder_str || found->second == left_shoulder_str)
+        {
+            if (checkForXYrotation(gltf_skin, joint, i))
+            {
+                joints_found++;
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+
+    if (joints_found == 2)
+    {
+        // Both joints in a weird position/rotation, assume rotated model
+        mApplyXYRotation = true;
+    }
 }
 
 bool LLGLTFLoader::parseMaterials()

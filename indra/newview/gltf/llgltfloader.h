@@ -156,6 +156,7 @@ protected:
     bool            mGltfLoaded;
     bool            mMeshesLoaded;
     bool            mMaterialsLoaded;
+    bool            mApplyXYRotation = false;
     U32             mGeneratedModelLimit;
 
     std::vector<gltf_mesh>              mMeshes;
@@ -190,6 +191,8 @@ private:
     S32 findParentNode(S32 node) const;
     glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const;
     glm::mat4 computeGltfToViewerSkeletonTransform(const LL::GLTF::Skin& gltf_skin, S32 joint_index, const std::string& joint_name) const;
+    bool checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx);
+    void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
     void notifyUnsupportedExtension(bool unsupported);
