@@ -1679,12 +1679,9 @@ void LLAvatarSkeletonInfo::getJointRestMatrices(
 {
     for (LLAvatarBoneInfo* bone_info : bone_list)
     {
-        if (bone_info->mIsJoint)
-        {
-            glm::mat4 rest_mat = parent_mat * bone_info->getJointMatrix();
-            result[bone_info->mName] = rest_mat;
-            getJointRestMatrices(bone_info->mChildren, result, rest_mat);
-        }
+        glm::mat4 rest_mat = parent_mat * bone_info->getJointMatrix();
+        result[bone_info->mName] = rest_mat;
+        getJointRestMatrices(bone_info->mChildren, result, rest_mat);
     }
 }
 
