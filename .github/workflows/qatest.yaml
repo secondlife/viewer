@@ -15,10 +15,6 @@ on:
         required: true
         default: '14806728332'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ matrix.runner }}
-  cancel-in-progress: false # Prevents cancellation of in-progress jobs
-
 jobs:
   debug-workflow:
     runs-on: ubuntu-latest
@@ -35,6 +31,10 @@ jobs:
           echo "GitHub Workflow Name: ${{ github.workflow }}"
 
   install-viewer-and-run-tests:
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.runner }}
+      cancel-in-progress: false # Prevents cancellation of in-progress jobs
+
     strategy:
       matrix:
         include:
@@ -48,7 +48,7 @@ jobs:
             install-path: 'C:\viewer-automation-main'
           # Commented out until mac runner is available
           # - os: mac
-          #   runner: qa-mac
+          #   runner: qa-mac-atlas
           #   artifact: Mac-installer
           #   install-path: '$HOME/Documents/viewer-automation'
       fail-fast: false
