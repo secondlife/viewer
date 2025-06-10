@@ -499,13 +499,13 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
     // Mark unsuported joints with '-1' so that they won't get added into weights
     // GLTF maps all joints onto all meshes. Gather use count per mesh to cut unused ones.
-    std::vector<S32> gltf_joint_index_use_count;
+    std::vector<S32> gltf_joint_index_valid;
     if (skinIdx >= 0 && mGLTFAsset.mSkins.size() > skinIdx)
     {
         LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
 
         size_t jointCnt = gltf_skin.mJoints.size();
-        gltf_joint_index_use_count.resize(jointCnt);
+        gltf_joint_index_valid.resize(jointCnt);
 
         S32 replacement_index = 0;
         for (size_t i = 0; i < jointCnt; ++i)
@@ -517,7 +517,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             std::string legal_name(jointNode.mName);
             if (mJointMap.find(legal_name) == mJointMap.end())
             {
-                gltf_joint_index_use_count[i] = -1; // mark as unsupported
+                gltf_joint_index_valid[i] = -1; // mark as unsupported
             }
         }
     }
@@ -760,29 +760,25 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     // don't reindex them yet, more indexes will be removed
                     // Also drop joints that have no weight. GLTF stores 4 per vertex, so there might be
                     // 'empty' ones
-                    if (gltf_joint_index_use_count[vertices[i].joints.x] >= 0
+                    if (gltf_joint_index_valid[vertices[i].joints.x] >= 0
                         && vertices[i].weights.x > 0.f)
                     {
                         weight_list.push_back(LLModel::JointWeight(vertices[i].joints.x, vertices[i].weights.x));
-                        gltf_joint_index_use_count[vertices[i].joints.x]++;
                     }
-                    if (gltf_joint_index_use_count[vertices[i].joints.y] >= 0
+                    if (gltf_joint_index_valid[vertices[i].joints.y] >= 0
                         && vertices[i].weights.y > 0.f)
                     {
                         weight_list.push_back(LLModel::JointWeight(vertices[i].joints.y, vertices[i].weights.y));
-                        gltf_joint_index_use_count[vertices[i].joints.y]++;
                     }
-                    if (gltf_joint_index_use_count[vertices[i].joints.z] >= 0
+                    if (gltf_joint_index_valid[vertices[i].joints.z] >= 0
                         && vertices[i].weights.z > 0.f)
                     {
                         weight_list.push_back(LLModel::JointWeight(vertices[i].joints.z, vertices[i].weights.z));
-                        gltf_joint_index_use_count[vertices[i].joints.z]++;
                     }
-                    if (gltf_joint_index_use_count[vertices[i].joints.w] >= 0
+                    if (gltf_joint_index_valid[vertices[i].joints.w] >= 0
                         && vertices[i].weights.w > 0.f)
                     {
                         weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
-                        gltf_joint_index_use_count[vertices[i].joints.w]++;
                     }
 
                     std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
@@ -868,20 +864,13 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
         LLMeshSkinInfo& skin_info = pModel->mSkinInfo;
 
-        std::vector<S32> gltfindex_to_joitindex_map;
         size_t jointCnt = gltf_skin.mJoints.size();
-        gltfindex_to_joitindex_map.resize(jointCnt);
 
         S32 replacement_index = 0;
         for (size_t i = 0; i < jointCnt; ++i)
         {
             // Process joint name and idnex
             S32 joint = gltf_skin.mJoints[i];
-            if (gltf_joint_index_use_count[i] <= 0)
-            {
-                // Unused (0) or unsupported (-1) joint, drop it
-                continue;
-            }
             LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
 
             std::string legal_name(jointNode.mName);
@@ -889,12 +878,10 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             {
                 legal_name = mJointMap[legal_name];
             }
-            else
-            {
-                llassert(false); // should have been stopped by gltf_joint_index_use_count[i] == -1
-                continue;
-            }
-            gltfindex_to_joitindex_map[i] = replacement_index++;
+            // else thanks to gltf_joint_index_valid any illegal
+            // joint should have zero uses.
+            // Add them anyway to preserve order, remapSkinWeightsAndJoints
+            // will sort them out later
 
             skin_info.mJointNames.push_back(legal_name);
             skin_info.mJointNums.push_back(-1);
@@ -921,19 +908,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
             LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
             skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(original_joint_transform));
-        }
-
-        // Remap indices for pModel->mSkinWeights
-        // Todo: this is now partially redundant due to
-        // remapSkinWeightsAndJoints being called later.
-        // Consider storing all joints now as is and let it
-        // ramap later due to missing weights.
-        for (auto& weights : pModel->mSkinWeights)
-        {
-            for (auto& weight : weights.second)
-            {
-                weight.mJointIdx = gltfindex_to_joitindex_map[weight.mJointIdx];
-            }
         }
     }
 
@@ -1203,10 +1177,6 @@ glm::mat4 LLGLTFLoader::computeGltfToViewerSkeletonTransform(const LL::GLTF::Ski
 
     // Compute transformation from GLTF space to viewer space
     // This assumes both skeletons are in rest pose initially
-    if (mApplyXYRotation)
-    {
-        return viewer_joint_rest_pose * glm::inverse(gltf_joint_rest_pose);
-    }
     return viewer_joint_rest_pose * glm::inverse(gltf_joint_rest_pose);
 }
 
