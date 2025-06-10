@@ -898,7 +898,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             {
                 // This is very likely incomplete in some way.
                 // Root shouldn't be the only one to need full coordinate fix
-                joint_mat = coord_system_rotation * joint_mat;
+                joint_mat = coord_system_rotation;
                 if (mApplyXYRotation)
                 {
                     joint_mat = coord_system_rotationxy * joint_mat;
