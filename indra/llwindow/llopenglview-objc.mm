@@ -685,7 +685,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
             // we must clear the marked text when aString is null.
             [self unmarkText];
         }
-        
+
         delete [] text;
     } else {
         if (mHasMarkedText)
