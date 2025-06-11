@@ -309,6 +309,21 @@ bool LLGLTFLoader::parseMeshes()
         return false;
     }
 
+    // Check total model count against limit
+    U32 total_models = static_cast<U32>(mModelList.size());
+    if (total_models > mGeneratedModelLimit)
+    {
+        LL_WARNS("GLTF_IMPORT") << "Model contains " << total_models
+                                << " mesh parts, exceeding the limit of " << mGeneratedModelLimit << LL_ENDL;
+
+        LLSD args;
+        args["Message"] = "TooManyMeshParts";
+        args["PART_COUNT"] = static_cast<S32>(total_models);
+        args["LIMIT"] = static_cast<S32>(mGeneratedModelLimit);
+        mWarningsArray.append(args);
+        return false;
+    }
+
     return true;
 }
 
@@ -843,13 +858,12 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         {
             LL_INFOS("GLTF_IMPORT") << "Unable to process mesh '" << mesh.mName
                                     << "' primitive " << prim_idx
-                                    << " due to 16-bit index limits. Vertex count: "
-                                    << prim.getVertexCount() << " exceeds limit: " << USHRT_MAX << LL_ENDL;
+                                    << " due to 65,534 vertex limit. Vertex count: "
+                                    << prim.getVertexCount() << LL_ENDL;
             LLSD args;
             args["Message"] = "ErrorIndexLimit";
             args["MESH_NAME"] = mesh.mName.empty() ? ("mesh_" + std::to_string(&mesh - &mGLTFAsset.mMeshes[0])) : mesh.mName;
             args["VERTEX_COUNT"] = static_cast<S32>(prim.getVertexCount());
-            args["LIMIT"] = USHRT_MAX;
             mWarningsArray.append(args);
             return false;
         }
