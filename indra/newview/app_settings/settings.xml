@@ -630,7 +630,7 @@
         <key>Type</key>
         <string>String</string>
         <key>Value</key>
-        <string>https://sl-viewer-media-system.s3.amazonaws.com/vawp/index.html</string>
+        <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/vawp/index.html</string>
     </map>
     <!--AvatarBakedTextureUploadTimeout is in use by QA-->
     <key>AvatarBakedTextureUploadTimeout</key>
