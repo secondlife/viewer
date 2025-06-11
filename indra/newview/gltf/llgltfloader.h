@@ -174,6 +174,7 @@ protected:
     // vector of vectors because of a posibility of having more than one skin
     typedef std::vector<LLMeshSkinInfo::matrix_list_t> bind_matrices_t;
     bind_matrices_t                     mInverseBindMatrices;
+    bind_matrices_t                     mAlternateBindMatrices;
 
 private:
     bool parseMeshes();

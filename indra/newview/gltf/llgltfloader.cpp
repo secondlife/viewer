@@ -903,25 +903,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             // In scope of same skin multiple meshes reuse same bind matrices
             skin_info.mInvBindMatrix.push_back(mInverseBindMatrices[skinIdx][i]);
 
-            // For alternate bind matrix, use the ORIGINAL joint transform (before rotation)
-            // Get the original joint node and use its matrix directly
-            // Todo: this seems blatantly wrong, it should have been rotated
-            glm::mat4 joint_mat = jointNode.mMatrix;
-            S32 root_joint = findValidRootJointNode(joint, gltf_skin); // skeleton can have multiple real roots
-            if (root_joint == joint)
-            {
-                // This is very likely incomplete in some way.
-                // Root shouldn't be the only one to need full coordinate fix
-                joint_mat = coord_system_rotation;
-                if (mApplyXYRotation)
-                {
-                    joint_mat = coord_system_rotationxy * joint_mat;
-                }
-            }
-            LLMatrix4 original_joint_transform(glm::value_ptr(joint_mat));
-
-            LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
-            skin_info.mAlternateBindMatrix.push_back(LLMatrix4a(original_joint_transform));
+            skin_info.mAlternateBindMatrix.push_back(mAlternateBindMatrices[skinIdx][i]);
         }
     }
 
@@ -992,7 +974,23 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
             LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " val: " << gltf_transform << LL_ENDL;
             mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
         }
-        // todo: prepare mAlternateBindMatrix here
+
+        // Todo: this seems blatantly wrong
+        glm::mat4 joint_mat = jointNode.mMatrix;
+        S32 root_joint = findValidRootJointNode(joint, skin); // skeleton can have multiple real roots and one gltf root to group them
+        if (root_joint == joint)
+        {
+            // This is very likely incomplete in some way.
+            joint_mat = coord_system_rotation;
+            if (mApplyXYRotation)
+            {
+                joint_mat = coord_system_rotationxy * joint_mat;
+            }
+        }
+        LLMatrix4 original_joint_transform(glm::value_ptr(joint_mat));
+
+        LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
+        mAlternateBindMatrices[skin_idx].push_back(LLMatrix4a(original_joint_transform));
 
         if (!legal_joint)
         {
