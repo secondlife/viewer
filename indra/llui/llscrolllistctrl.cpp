@@ -1007,7 +1007,7 @@ void LLScrollListCtrl::deleteItems(const LLSD& sd)
 void LLScrollListCtrl::deleteSelectedItems()
 {
     item_list::iterator iter;
-    for (iter = mItemList.begin(); iter < mItemList.end(); )
+    for (iter = mItemList.begin(); iter != mItemList.end(); )
     {
         LLScrollListItem* itemp = *iter;
         if (itemp->getSelected())

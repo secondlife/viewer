@@ -52,6 +52,7 @@ LLChatEntry::LLChatEntry(const Params& p)
     mCurrentHistoryLine = mLineHistory.begin();
 
     mAutoIndent = false;
+    mShowChatMentionPicker = true;
     keepSelectionOnReturn(true);
 }
 

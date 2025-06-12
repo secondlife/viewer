@@ -15,10 +15,6 @@ on:
         required: true
         default: '14806728332'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false # Prevents cancellation of in-progress jobs
-
 jobs:
   debug-workflow:
     runs-on: ubuntu-latest
@@ -35,6 +31,10 @@ jobs:
           echo "GitHub Workflow Name: ${{ github.workflow }}"
 
   install-viewer-and-run-tests:
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.runner }}
+      cancel-in-progress: false # Prevents cancellation of in-progress jobs
+
     strategy:
       matrix:
         include:
@@ -48,9 +48,9 @@ jobs:
             install-path: 'C:\viewer-automation-main'
           # Commented out until mac runner is available
           # - os: mac
-          #   runner: qa-mac
+          #   runner: qa-mac-atlas
           #   artifact: Mac-installer
-          #   install-path: 'HOME/Documents/viewer-automation-main'
+          #   install-path: '$HOME/Documents/viewer-automation'
       fail-fast: false
 
     runs-on: [self-hosted, "${{ matrix.runner }}"]
@@ -90,6 +90,96 @@ jobs:
             exit 1
           }
           Write-Host '✅ viewer-automation folder is provided.'
+
+      - name: Verify viewer-automation-main is Up-To-Date (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          cd ${{ matrix.install-path }}
+          Write-Host "Checking for repository updates..."
+
+          # Check if .git directory exists
+          if (Test-Path -Path ".git") {
+            try {
+              # Save local changes instead of discarding them
+              git stash push -m "Automated stash before update $(Get-Date)"
+              Write-Host "Local changes saved (if any)"
+
+              # Update the repository
+              git pull
+              Write-Host "✅ Repository updated successfully"
+
+              # Try to restore local changes if any were stashed
+              $stashList = git stash list
+              if ($stashList -match "Automated stash before update") {
+                try {
+                  git stash pop
+                  Write-Host "✅ Local changes restored successfully"
+                } catch {
+                  Write-Host "⚠️ Conflict when restoring local changes"
+                  # Save the conflicted state in a new branch for later review
+                  $branchName = "conflict-recovery-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                  git checkout -b $branchName
+                  Write-Host "✅ Created branch '$branchName' with conflicted state"
+
+                  # For test execution, revert to a clean state
+                  git reset --hard HEAD
+                  Write-Host "✅ Reset to clean state for test execution"
+                }
+              }
+            } catch {
+              Write-Host "⚠️ Could not update repository: $_"
+              Write-Host "Continuing with existing files..."
+            }
+          } else {
+            Write-Host "⚠️ Not a Git repository, using existing files"
+          }
+
+      - name: Verify Python Installation (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          try {
+            $pythonVersion = (python --version)
+            Write-Host "✅ Python found: $pythonVersion"
+          } catch {
+            Write-Host "❌ Error: Python not found in PATH. Please install Python on this runner."
+            exit 1
+          }
+
+      - name: Setup Python Virtual Environment (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+          cd ${{ matrix.install-path }}
+
+          if (-Not (Test-Path -Path ".venv")) {
+            Write-Host "Creating virtual environment..."
+            python -m venv .venv
+          } else {
+            Write-Host "Using existing virtual environment"
+          }
+
+          # Direct environment activation to avoid script execution issues
+          $env:VIRTUAL_ENV = "$PWD\.venv"
+          $env:PATH = "$env:VIRTUAL_ENV\Scripts;$env:PATH"
+
+          # Install dependencies
+          if (Test-Path -Path "requirements.txt") {
+            Write-Host "Installing dependencies from requirements.txt..."
+            pip install -r requirements.txt
+
+            # Install Playwright browsers - add this line
+            Write-Host "Installing Playwright browsers..."
+            python -m playwright install
+          } else {
+            pip install outleap requests behave playwright
+            # Install Playwright browsers - add this line
+            Write-Host "Installing Playwright browsers..."
+            python -m playwright install
+          }
 
       - name: Fetch & Download Installer Artifact (Windows)
         if: matrix.os == 'windows'
@@ -210,7 +300,18 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Running QA Test script on Windows runner: ${{ matrix.runner }}..."
-          python "${{ matrix.install-path }}\runTests.py"
+          cd ${{ matrix.install-path }}
+
+          # Activate virtual environment
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+          $env:VIRTUAL_ENV = "$PWD\.venv"
+          $env:PATH = "$env:VIRTUAL_ENV\Scripts;$env:PATH"
+
+          # Set runner name as environment variable
+          $env:RUNNER_NAME = "${{ matrix.runner }}"
+
+          # Run the test script
+          python runTests.py
 
       # Mac-specific steps
       - name: Set Build ID (Mac)
@@ -234,6 +335,91 @@ jobs:
             exit 1
           fi
           echo "✅ viewer-automation is provided."
+
+      - name: Verify viewer-automation-main is Up-To-Date (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        continue-on-error: true
+        run: |
+          cd ${{ matrix.install-path }}
+          echo "Checking for repository updates..."
+
+          # Check if .git directory exists
+          if [ -d ".git" ]; then
+            # Save local changes instead of discarding them
+            git stash push -m "Automated stash before update $(date)"
+            echo "Local changes saved (if any)"
+
+            # Update the repository
+            git pull || echo "⚠️ Could not update repository"
+            echo "✅ Repository updated (or attempted update)"
+
+            # Try to restore local changes if any were stashed
+            if git stash list | grep -q "Automated stash before update"; then
+              # Try to pop the stash, but be prepared for conflicts
+              if ! git stash pop; then
+                echo "⚠️ Conflict when restoring local changes"
+                # Save the conflicted state in a new branch for later review
+                branch_name="conflict-recovery-$(date +%Y%m%d-%H%M%S)"
+                git checkout -b "$branch_name"
+                echo "✅ Created branch '$branch_name' with conflicted state"
+
+                # For test execution, revert to a clean state
+                git reset --hard HEAD
+                echo "✅ Reset to clean state for test execution"
+              else
+                echo "✅ Local changes restored successfully"
+              fi
+            fi
+          else
+            echo "⚠️ Not a Git repository, using existing files"
+          fi
+
+      - name: Verify Python Installation (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if command -v python3 &> /dev/null; then
+            PYTHON_VERSION=$(python3 --version)
+            echo "✅ Python found: $PYTHON_VERSION"
+          else
+            echo "❌ Error: Python3 not found in PATH. Please install Python on this runner."
+            exit 1
+          fi
+
+      - name: Setup Python Virtual Environment (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          cd ${{ matrix.install-path }}
+
+          # Create virtual environment if it doesn't exist
+          if [ ! -d ".venv" ]; then
+            echo "Creating virtual environment..."
+            python3 -m venv .venv
+          else
+            echo "Using existing virtual environment"
+          fi
+
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Install dependencies
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+            echo "✅ Installed dependencies from requirements.txt"
+
+            # Install Playwright browsers - add this line
+            echo "Installing Playwright browsers..."
+            python -m playwright install
+          else
+            pip install outleap requests behave playwright
+            echo "⚠️ requirements.txt not found, installed basic dependencies"
+
+            # Install Playwright browsers - add this line
+            echo "Installing Playwright browsers..."
+            python -m playwright install
+          fi
 
       - name: Fetch & Download Installer Artifact (Mac)
         if: matrix.os == 'mac'
@@ -370,7 +556,16 @@ jobs:
         shell: bash
         run: |
           echo "Running QA Test script on Mac runner: ${{ matrix.runner }}..."
-          python "${{ matrix.install-path }}/runTests.py"
+          cd ${{ matrix.install-path }}
+
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Set runner name as environment variable
+          export RUNNER_NAME="${{ matrix.runner }}"
+
+          # Run the test script
+          python runTests.py
 
       # - name: Upload Test Results
       #   if: always()

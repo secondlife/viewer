@@ -225,10 +225,6 @@ void LLHUDText::renderText()
             }
 
             text_color = segment_iter->mColor;
-            if (mOnHUDAttachment)
-            {
-                text_color = linearColor4(text_color);
-            }
             text_color.mV[VALPHA] *= alpha_factor;
 
             hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);

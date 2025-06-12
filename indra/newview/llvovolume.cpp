@@ -860,8 +860,11 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
                 // animated faces get moved to a smaller partition to reduce
                 // side-effects of their updates (see shrinkWrap in
                 // LLVOVolume::animateTextures).
-                mDrawable->getSpatialGroup()->dirtyGeom();
-                gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                if (mDrawable->getSpatialGroup())
+                {
+                    mDrawable->getSpatialGroup()->dirtyGeom();
+                    gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                }
             }
         }
 
@@ -3780,7 +3783,12 @@ bool LLVOVolume::canBeAnimatedObject() const
 
 bool LLVOVolume::isAnimatedObject() const
 {
-    LLVOVolume *root_vol = (LLVOVolume*)getRootEdit();
+    LLViewerObject *root_obj = getRootEdit();
+    if (root_obj->getPCode() != LL_PCODE_VOLUME)
+    {
+        return false; // at the moment only volumes can be animated
+    }
+    LLVOVolume* root_vol = (LLVOVolume*)root_obj;
     mIsAnimatedObject = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
     return mIsAnimatedObject;
 }

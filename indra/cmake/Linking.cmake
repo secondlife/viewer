@@ -67,13 +67,11 @@ elseif (WINDOWS)
           legacy_stdio_definitions
           )
 else()
-  include(CMakeFindFrameworks)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
   find_library(CARBON_LIBRARY Carbon)
   find_library(COCOA_LIBRARY Cocoa)
   find_library(IOKIT_LIBRARY IOKit)
 
-  find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COREAUDIO_LIBRARY CoreAudio)
 
@@ -82,7 +80,6 @@ else()
           ${IOKIT_LIBRARY}
           ${COREFOUNDATION_LIBRARY}
           ${CARBON_LIBRARY}
-          ${AGL_LIBRARY}
           ${APPKIT_LIBRARY}
           ${COREAUDIO_LIBRARY}
           )

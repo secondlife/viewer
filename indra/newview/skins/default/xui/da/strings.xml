@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings
-     that are returned from one component and may appear in many places-->
 <strings>
 	<string name="CAPITALIZED_APP_NAME">
 		SECOND LIFE
@@ -554,9 +550,9 @@ Prøv venligst om lidt igen.
 	<string name="mesh">
 		mesh
 	</string>
-    <string name="settings">
-        indstillinger
-    </string>
+	<string name="settings">
+		indstillinger
+	</string>
 	<string name="AvatarEditingAppearance">
 		(Redigering Udseende)
 	</string>
@@ -819,10 +815,10 @@ Prøv venligst om lidt igen.
 		Du vil nu blive dirigeret til lokal stemme chat
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[OWNERNAME]&apos;, lokaliseret i [REGIONNAME] på [REGIONPOS], har fået tilladelse til: [PERMISSIONS].
+		'[OBJECTNAME]', en genstand, ejet af '[OWNERNAME]', lokaliseret i [REGIONNAME] på [REGIONPOS], har fået tilladelse til: [PERMISSIONS].
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[OWNERNAME]&apos;, lokaliseret i [REGIONNAME] på [REGIONPOS], er afvist tilladelse til: [PERMISSIONS].
+		'[OBJECTNAME]', en genstand, ejet af '[OWNERNAME]', lokaliseret i [REGIONNAME] på [REGIONPOS], er afvist tilladelse til: [PERMISSIONS].
 	</string>
 	<string name="ScriptTakeMoney">
 		Tag Linden dollars (L$) fra dig
@@ -933,16 +929,16 @@ Prøv venligst om lidt igen.
 		Vælg bibliotek
 	</string>
 	<string name="AvatarSetNotAway">
-		Sæt &quot;til stede&quot;
+		Sæt "til stede"
 	</string>
 	<string name="AvatarSetAway">
-		Sæt &quot;væk&quot;
+		Sæt "væk"
 	</string>
 	<string name="AvatarSetNotBusy">
-		Sæt &quot;ledig&quot;
+		Sæt "ledig"
 	</string>
 	<string name="AvatarSetBusy">
-		Sæt &quot;optaget&quot;
+		Sæt "optaget"
 	</string>
 	<string name="shape">
 		Form
@@ -1169,8 +1165,10 @@ Prøv venligst om lidt igen.
 	<string name="InventoryNoTexture">
 		Du har ikke en kopi af denne tekstur i din beholdning
 	</string>
-  <string name="Unconstrained">Ikke låst</string>
-  <string name="no_transfer" value=" (ikke overdragbar)"/>
+	<string name="Unconstrained">
+		Ikke låst
+	</string>
+	<string name="no_transfer" value=" (ikke overdragbar)"/>
 	<string name="no_modify" value=" (ikke redigere)"/>
 	<string name="no_copy" value=" (ikke kopiere)"/>
 	<string name="worn" value=" (båret)"/>
@@ -1568,16 +1566,16 @@ Prøv venligst om lidt igen.
 		nulstil
 	</string>
 	<string name="RunQueueTitle">
-		Sæt &quot;running&quot; fremskridt
+		Sæt "running" fremskridt
 	</string>
 	<string name="RunQueueStart">
-		sæt til &quot;running&quot;
+		sæt til "running"
 	</string>
 	<string name="NotRunQueueTitle">
-		Sæt &quot;Not Running&quot; fremskridt
+		Sæt "Not Running" fremskridt
 	</string>
 	<string name="NotRunQueueStart">
-		sæt til &quot;not running&quot;
+		sæt til "not running"
 	</string>
 	<string name="CompileSuccessful">
 		Kompleret uden fejl!
@@ -1589,7 +1587,7 @@ Prøv venligst om lidt igen.
 		Gemt.
 	</string>
 	<string name="ObjectOutOfRange">
-		Script (&quot;object out of range&quot;)
+		Script ("object out of range")
 	</string>
 	<string name="GodToolsObjectOwnedBy">
 		Objekt [OBJECT] ejet af [OWNER]
@@ -1660,13 +1658,13 @@ Prøv venligst om lidt igen.
 		Memory brugt: [COUNT] kb
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		Parcel Script URL&apos;er
+		Parcel Script URL'er
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		URL&apos;er brugt: [COUNT] ud af [MAX]; [AVAILABLE] tilgængelige
+		URL'er brugt: [COUNT] ud af [MAX]; [AVAILABLE] tilgængelige
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		URL&apos;er brugt: [COUNT]
+		URL'er brugt: [COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
 		Fejl ved anmodning om information
@@ -1813,7 +1811,7 @@ Prøv venligst om lidt igen.
 		Nyt script
 	</string>
 	<string name="BusyModeResponseDefault">
-		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
+		Beboeren du sendte en besked er 'optaget', hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
 	</string>
 	<string name="MuteByName">
 		(Efter navn)
@@ -2121,11 +2119,11 @@ Hvis fejlen stadig bliver ved, kan det være nødvendigt at afinstallere [APP_NA
 	</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] kører allerede.
-Undersøg din &quot;task bar&quot; for at se efter minimeret version af programmet.
+Undersøg din "task bar" for at se efter minimeret version af programmet.
 Hvis fejlen fortsætter, prøv at genstarte din computer.
 	</string>
 	<string name="MBFrozenCrashed">
-		[APP_NAME] ser ud til at være &quot;frosset&quot; eller gået ned tidligere.
+		[APP_NAME] ser ud til at være "frosset" eller gået ned tidligere.
 Ønsker du at sende en fejlrapport?
 	</string>
 	<string name="MBAlert">
@@ -2161,39 +2159,39 @@ Afvikler i vindue.
 		Fejl ved nedlukning
 	</string>
 	<string name="MBDevContextErr">
-		Kan ikke oprette &quot;GL device context&quot;
+		Kan ikke oprette "GL device context"
 	</string>
 	<string name="MBPixelFmtErr">
-		Kan ikke finde passende &quot;pixel format&quot;
+		Kan ikke finde passende "pixel format"
 	</string>
 	<string name="MBPixelFmtDescErr">
-		Kan ikke finde &quot;pixel format&quot; beskrivelse
+		Kan ikke finde "pixel format" beskrivelse
 	</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] kræver &quot;True Color (32-bit)&quot; for at kunne køre.
-Gå venligst til din computers skærmopsætning og sæt &quot;color mode&quot; til 32-bit.
+		[APP_NAME] kræver "True Color (32-bit)" for at kunne køre.
+Gå venligst til din computers skærmopsætning og sæt "color mode" til 32-bit.
 	</string>
 	<string name="MBAlpha">
-		[APP_NAME] kan ikke køre, da den ikke kan finde en &quot;8 bit alpha channel&quot;.  Normalt skyldes dette et problem med en video driver.
+		[APP_NAME] kan ikke køre, da den ikke kan finde en "8 bit alpha channel".  Normalt skyldes dette et problem med en video driver.
 Venligst undersøg om du har de nyeste drivere til dit videokort installeret.
-Din skærm skal også være sat op til at køre &quot;True Color (32-bit)&quot;  i din displayopsætning.
+Din skærm skal også være sat op til at køre "True Color (32-bit)"  i din displayopsætning.
 Hvis du bliver ved med at modtage denne besked, kontakt [SUPPORT_SITE].
 	</string>
 	<string name="MBPixelFmtSetErr">
-		Kan ikke sætte &quot;pixel format&quot;
+		Kan ikke sætte "pixel format"
 	</string>
 	<string name="MBGLContextErr">
-		Kan ikke oprette &quot;GL rendering context&quot;
+		Kan ikke oprette "GL rendering context"
 	</string>
 	<string name="MBGLContextActErr">
-		Kan ikke aktivere &quot;GL rendering context&quot;
+		Kan ikke aktivere "GL rendering context"
 	</string>
 	<string name="MBVideoDrvErr">
 		[APP_NAME] kan ikke afvikles da driverne til dit videokort ikke blev installeret korrekt, er forældede, eller du benytter hardware der ikke er supporteret. Undersøg venligst om du har installeret de nyeste drivere til dit grafikkort, og selv om du har de nyeste, prøv at geninstallere dem.
 
 Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
-	<string name="5 O&apos;Clock Shadow">
+	<string name="5 O'Clock Shadow">
 		Skægstubbe
 	</string>
 	<string name="All White">
@@ -3328,7 +3326,7 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		Skævt ansigt
 	</string>
 	<string name="Shear Front">
-		&quot;Måne&quot;
+		"Måne"
 	</string>
 	<string name="Shear Left Up">
 		Venstre op
@@ -3463,7 +3461,7 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		Sparsomt
 	</string>
 	<string name="Spiked Hair">
-		Hår med &quot;spikes&quot;
+		Hår med "spikes"
 	</string>
 	<string name="Square">
 		Firkantet
@@ -3724,7 +3722,7 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		Konference med [AGENT_NAME]
 	</string>
 	<string name="bot_warning">
-Du chatter med en bot, [NAME]. Del ikke personlige oplysninger.
+		Du chatter med en bot, [NAME]. Del ikke personlige oplysninger.
 Læs mere på https://second.life/scripted-agents.
 	</string>
 	<string name="no_session_message">
@@ -3767,7 +3765,7 @@ Læs mere på https://second.life/scripted-agents.
 		En gruppe moderator har deaktiveret din tekst chat.
 	</string>
 	<string name="muted_error">
-		Du er blevet &quot;blokeret&quot;.
+		Du er blevet "blokeret".
 	</string>
 	<string name="add_session_event">
 		Ikke muligt at tilføge brugere til samtale med [RECIPIENT].
@@ -3797,7 +3795,7 @@ Læs mere på https://second.life/scripted-agents.
 		[SOURCES] har sagt noget nyt
 	</string>
 	<string name="session_initialization_timed_out_error">
-		Initialisering af session er &quot;timed out&quot;
+		Initialisering af session er "timed out"
 	</string>
 	<string name="Home position set.">
 		Hjemmeposition sat.
@@ -4030,7 +4028,7 @@ Krænkelsesanmeldelse
 		Kvinde - Latter
 	</string>
 	<string name="Female - Looking good">
-		Kvinde - &quot;Ser godt ud&quot;
+		Kvinde - "Ser godt ud"
 	</string>
 	<string name="Female - Over here">
 		Kvinde - Herovre
@@ -4144,7 +4142,7 @@ Krænkelsesanmeldelse
 	<string name="ExternalEditorNotFound">
 		Kan ikke benytte deb eksterne editor der er angivet.
 Prøv at omkrandse stien til editor med anførselstegn.				
-(f.eks. &quot;/stil til min editor&quot; &quot;%s&quot;)
+(f.eks. "/stil til min editor" "%s")
 	</string>
 	<string name="ExternalEditorCommandParseError">
 		Fejl ved håndtering af kommando til ekstern editor.
@@ -4468,10 +4466,10 @@ Prøv at omkrandse stien til editor med anførselstegn.
 		Viser pejlelys for fysiske objekter (grøn)
 	</string>
 	<string name="BeaconScripted">
-		Viser pejlelys for &quot;scriptede&quot; objekter (rød)
+		Viser pejlelys for "scriptede" objekter (rød)
 	</string>
 	<string name="BeaconScriptedTouch">
-		Viser pejlelys for &quot;scriptede&quot; objekter med berøringsfunktion (rød)
+		Viser pejlelys for "scriptede" objekter med berøringsfunktion (rød)
 	</string>
 	<string name="BeaconSound">
 		Viser pejlelys for lyd  (gul)

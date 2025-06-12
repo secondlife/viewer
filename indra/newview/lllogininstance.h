@@ -70,6 +70,8 @@ public:
     void setNotificationsInterface(LLNotificationsInterface* ni) { mNotifications = ni; }
     LLNotificationsInterface& getNotificationsInterface() const { return *mNotifications; }
 
+    void saveMFAHash(LLSD const& response);
+
 private:
     typedef std::shared_ptr<LLEventAPI::Response> ResponsePtr;
     void constructAuthParams(LLPointer<LLCredential> user_credentials);
