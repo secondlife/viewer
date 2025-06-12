@@ -154,8 +154,9 @@ public:
     const avatar_joint_list_t& getSkeleton() { return mSkeleton; }
     typedef std::map<std::string, std::string> joint_alias_map_t;
     const joint_alias_map_t& getJointAliases();
+    typedef std::map<std::string, std::string> joint_parent_map_t; // matrix plus parent
     typedef std::map<std::string, glm::mat4> joint_rest_map_t;
-    joint_rest_map_t getJointRestMatrices() const;
+    void getJointRestMatrices(joint_rest_map_t& rest_map, joint_parent_map_t& parent_map) const;
 
 protected:
     static bool         parseSkeletonFile(const std::string& filename, LLXmlTree& skeleton_xml_tree);

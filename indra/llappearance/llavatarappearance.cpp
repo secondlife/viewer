@@ -108,7 +108,12 @@ public:
 
 private:
     typedef std::vector<LLAvatarBoneInfo*> bone_info_list_t;
-    static void getJointRestMatrices(const bone_info_list_t& bone_list, LLAvatarAppearance::joint_rest_map_t& result, const glm::mat4 &parent_mat);
+    static void getJointRestMatrices(
+        const bone_info_list_t& bone_list,
+        const std::string &parent_name,
+        LLAvatarAppearance::joint_rest_map_t& rest,
+        LLAvatarAppearance::joint_parent_map_t& parent_map,
+        const glm::mat4& parent_mat);
 
 private:
     S32 mNumBones;
@@ -1674,14 +1679,17 @@ bool LLAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
 
 void LLAvatarSkeletonInfo::getJointRestMatrices(
     const bone_info_list_t& bone_list,
-    LLAvatarAppearance::joint_rest_map_t& result,
+    const std::string& parent_name,
+    LLAvatarAppearance::joint_rest_map_t& rest,
+    LLAvatarAppearance::joint_parent_map_t& parent_map,
     const glm::mat4& parent_mat)
 {
     for (LLAvatarBoneInfo* bone_info : bone_list)
     {
         glm::mat4 rest_mat = parent_mat * bone_info->getJointMatrix();
-        result[bone_info->mName] = rest_mat;
-        getJointRestMatrices(bone_info->mChildren, result, rest_mat);
+        rest[bone_info->mName] = rest_mat;
+        parent_map[bone_info->mName] = parent_name;
+        getJointRestMatrices(bone_info->mChildren, bone_info->mName, rest, parent_map, rest_mat);
     }
 }
 
@@ -1746,12 +1754,10 @@ const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases
     return mJointAliasMap;
 }
 
-LLAvatarAppearance::joint_rest_map_t LLAvatarAppearance:: getJointRestMatrices() const
+void LLAvatarAppearance:: getJointRestMatrices(LLAvatarAppearance::joint_rest_map_t& rest_map, LLAvatarAppearance::joint_parent_map_t& parent_map) const
 {
-    LLAvatarAppearance::joint_rest_map_t result;
     glm::mat4 identity(1.f);
-    LLAvatarSkeletonInfo::getJointRestMatrices(sAvatarSkeletonInfo->mBoneInfoList, result, identity);
-    return result;
+    LLAvatarSkeletonInfo::getJointRestMatrices(sAvatarSkeletonInfo->mBoneInfoList, std::string(), rest_map, parent_map, identity);
 }
 
 
