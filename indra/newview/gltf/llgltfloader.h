@@ -121,7 +121,9 @@ class LLGLTFLoader : public LLModelLoader
 {
   public:
     typedef std::map<std::string, LLImportMaterial> material_map;
-    typedef std::map<std::string, glm::mat4> joint_rest_map_t;
+    typedef std::map<std::string, std::string> joint_viewer_parent_map_t;
+    typedef std::map<std::string, glm::mat4> joint_viewer_rest_map_t;
+    typedef std::map<S32, glm::mat4> joint_node_mat4_map_t;
 
     LLGLTFLoader(std::string filename,
                     S32                                 lod,
@@ -135,7 +137,8 @@ class LLGLTFLoader : public LLModelLoader
                     std::map<std::string, std::string> &jointAliasMap,
                     U32                                 maxJointsPerMesh,
                     U32                                 modelLimit,
-                    joint_rest_map_t                    jointRestMatrices); //,
+                    joint_viewer_rest_map_t             jointRestMatrices,
+                    joint_viewer_parent_map_t           jointParentPap); //,
                     //bool                                preprocess );
     virtual ~LLGLTFLoader();
 
@@ -169,7 +172,8 @@ protected:
     // GLTF isn't aware of viewer's skeleton and uses it's own,
     // so need to take viewer's joints and use them to
     // recalculate iverse bind matrices
-    joint_rest_map_t                    mJointRestMatrices;
+    joint_viewer_rest_map_t             mJointViewerRestMatrices;
+    joint_viewer_parent_map_t           mJointViewerParentMap;
 
     // vector of vectors because of a posibility of having more than one skin
     typedef std::vector<LLMeshSkinInfo::matrix_list_t> bind_matrices_t;
@@ -191,7 +195,7 @@ private:
     S32 findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
     S32 findParentNode(S32 node) const;
     glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const;
-    glm::mat4 computeGltfToViewerSkeletonTransform(const LL::GLTF::Skin& gltf_skin, S32 joint_index, const std::string& joint_name) const;
+    glm::mat4 computeGltfToViewerSkeletonTransform(const joint_node_mat4_map_t &gltf_rest_map, S32 gltf_node_index, const std::string& joint_name) const;
     bool checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx);
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
