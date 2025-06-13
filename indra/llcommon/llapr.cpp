@@ -307,15 +307,35 @@ private:
 //
 LLAPRFile::LLAPRFile()
     : mFile(NULL),
+      mMMapFile(NULL),
       mCurrentFilePoolp(NULL)
 {
 }
 
 LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool)
     : mFile(NULL),
+      mMMapFile(NULL),
       mCurrentFilePoolp(NULL)
 {
     open(filename, flags, pool);
+}
+
+// Create a memory map file file pointer
+LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool)
+    : mFile(NULL),
+      mMMapFile(NULL),
+      mCurrentFilePoolp(NULL)
+{
+    openMemoryMap(filename, flags, mmap_flags, pool);
+}
+
+// Create a memory map file pointer and initalize it.
+LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S64 init_file_size, bool zero_out, LLVolatileAPRPool* pool)
+    : mFile(NULL),
+      mMMapFile(NULL),
+      mCurrentFilePoolp(NULL)
+{
+    openMemoryMap64(filename, flags, mmap_flags, init_file_size, zero_out, pool);
 }
 
 LLAPRFile::~LLAPRFile()
@@ -326,6 +346,17 @@ LLAPRFile::~LLAPRFile()
 apr_status_t LLAPRFile::close()
 {
     apr_status_t ret = APR_SUCCESS ;
+    // Check if memory map file could be deleted, defaults to success so if not used, does not affect return value
+    apr_status_t mmap_ret = APR_SUCCESS;
+
+    // If the memory map file is used and exists
+    if (mMMapFile)
+    {
+        // Try to delete the memory map first
+        mmap_ret = apr_mmap_delete(mMMapFile);
+        mMMapFile = NULL;
+    }
+
     if(mFile)
     {
         ret = apr_file_close(mFile);
@@ -338,6 +369,7 @@ apr_status_t LLAPRFile::close()
         mCurrentFilePoolp = NULL ;
     }
 
+    ret = ret | mmap_ret; // Flag normal or memory map return state
     return ret ;
 }
 
@@ -355,6 +387,7 @@ apr_status_t LLAPRFile::open(const std::string& filename, apr_int32_t flags, LLV
 
     if (s != APR_SUCCESS || !mFile)
     {
+        LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
         mFile = NULL ;
 
         if (sizep)
@@ -368,7 +401,7 @@ apr_status_t LLAPRFile::open(const std::string& filename, apr_int32_t flags, LLV
         apr_off_t offset = 0;
         if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
         {
-            llassert_always(offset <= 0x7fffffff);
+            llassert_always(offset <= 0x7fffffffffffffff); //Use 64 bit assert instead of 32 bit
             file_size = (S32)offset;
             offset = 0;
             apr_file_seek(mFile, APR_SET, &offset);
@@ -383,6 +416,274 @@ apr_status_t LLAPRFile::open(const std::string& filename, apr_int32_t flags, LLV
     }
 
     return s ;
+}
+
+apr_status_t LLAPRFile::open64(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool, S64* sizep)
+{
+    apr_status_t s;
+
+    //check if already open some file
+    llassert_always(!mFile);
+    llassert_always(!mCurrentFilePoolp);
+
+    mCurrentFilePoolp = pool ? pool : sAPRFilePoolp;
+    apr_pool_t* apr_pool = mCurrentFilePoolp->getVolatileAPRPool(); //paired with clear in close()
+    s = apr_file_open(&mFile, filename.c_str(), flags, APR_OS_DEFAULT, apr_pool);
+
+    if (s != APR_SUCCESS || !mFile)
+    {
+        LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
+        mFile = NULL;
+
+        if (sizep)
+        {
+            *sizep = 0;
+        }
+    }
+    else if (sizep)
+    {
+        S64 file_size = 0;
+        apr_off_t offset = 0;
+        if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
+        {
+            llassert_always(offset <= 0x7fffffffffffffff);
+            file_size = offset;
+            offset = 0;
+            apr_file_seek(mFile, APR_SET, &offset);
+        }
+        *sizep = file_size;
+    }
+
+    if (!mFile)
+    {
+        // It will clean pool
+        close();
+    }
+
+    return s;
+}
+
+apr_status_t LLAPRFile::openMemoryMap(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool, S32* sizep)
+{
+    apr_status_t s;
+    S32 file_size = 0;
+
+    //check if already open some file
+    llassert_always(!mFile);
+    llassert_always(!mCurrentFilePoolp);
+
+    mCurrentFilePoolp = pool ? pool : sAPRFilePoolp;
+    apr_pool_t* apr_pool = mCurrentFilePoolp->getVolatileAPRPool(); //paired with clear in close()
+    s = apr_file_open(&mFile, filename.c_str(), flags, APR_OS_DEFAULT, apr_pool);
+
+    if (s != APR_SUCCESS || !mFile)
+    {
+        LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
+        mFile = NULL;
+
+        if (sizep)
+        {
+            *sizep = 0;
+        }
+    }
+    else
+    {
+        apr_off_t offset = 0;
+        if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
+        {
+            llassert_always(offset <= 0x7fffffffffffffff);
+            file_size = (S32)offset;
+            offset = 0;
+            apr_file_seek(mFile, APR_SET, &offset);
+        }
+        if (sizep) *sizep = file_size;
+
+        s = apr_mmap_create(&mMMapFile, mFile, 0, file_size, mmap_flags, apr_pool);
+    }
+
+    if (!mFile || !mMMapFile)
+    {
+        // It will clean pool
+        close();
+    }
+
+    return s;
+}
+
+apr_status_t LLAPRFile::openMemoryMap(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool, S32* sizep)
+{
+    apr_status_t s;
+    S32 file_size = 0;
+
+    //check if already open some file
+    llassert_always(!mFile);
+    llassert_always(!mCurrentFilePoolp);
+
+    mCurrentFilePoolp = pool ? pool : sAPRFilePoolp;
+    apr_pool_t* apr_pool = mCurrentFilePoolp->getVolatileAPRPool(); //paired with clear in close()
+    s = apr_file_open(&mFile, filename.c_str(), flags, APR_OS_DEFAULT, apr_pool);
+
+    if (s != APR_SUCCESS || !mFile)
+    {
+        LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
+        mFile = NULL;
+
+        if (sizep)
+        {
+            *sizep = 0;
+        }
+    }
+    else
+    {
+        apr_off_t offset = init_file_size;
+        if (apr_file_seek(mFile, APR_SET, &offset) == APR_SUCCESS)
+        {
+            llassert_always(offset <= 0x7fffffffffffffff);
+            apr_size_t one_char = 1;
+            apr_file_write(mFile, "\0", &one_char);
+            file_size = (S32)offset;
+            offset = 0;
+            apr_file_seek(mFile, APR_SET, &offset);
+        }
+        if (sizep) *sizep = file_size;
+
+        s = apr_mmap_create(&mMMapFile, mFile, 0, file_size, mmap_flags, apr_pool);
+        if (s != APR_SUCCESS)
+        {
+            LL_WARNS() << "Could not create Memory Map File: " << filename << LL_ENDL;
+            close();
+            return s;
+        }
+
+        // If need to zero out the file, then use memset over the memory map
+        if (zero_out)
+        {
+            memset(mMMapFile->mm, 0, sizeof(file_size));
+        }
+    }
+
+    if (!mFile)
+    {
+        // It will clean pool
+        close();
+    }
+
+    return s;
+}
+
+apr_status_t LLAPRFile::openMemoryMap64(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool, S64* sizep)
+{
+    apr_status_t s;
+    S64 file_size = 0;
+
+    //check if already open some file
+    llassert_always(!mFile);
+    llassert_always(!mCurrentFilePoolp);
+
+    mCurrentFilePoolp = pool ? pool : sAPRFilePoolp;
+    apr_pool_t* apr_pool = mCurrentFilePoolp->getVolatileAPRPool(); //paired with clear in close()
+    s = apr_file_open(&mFile, filename.c_str(), flags, APR_OS_DEFAULT, apr_pool);
+
+    if (s != APR_SUCCESS || !mFile)
+    {
+        LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
+        mFile = NULL;
+
+        if (sizep)
+        {
+            *sizep = 0;
+        }
+    }
+    else
+    {
+        apr_off_t offset = 0;
+        if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
+        {
+            llassert_always(offset <= 0x7fffffffffffffff);
+            file_size = offset;
+            offset = 0;
+            apr_file_seek(mFile, APR_SET, &offset);
+        }
+        if (sizep) *sizep = file_size;
+
+        s = apr_mmap_create(&mMMapFile, mFile, 0, file_size, mmap_flags, apr_pool);
+    }
+
+    if (!mFile)
+    {
+        // It will clean pool
+        close();
+    }
+
+    return s;
+}
+
+apr_status_t LLAPRFile::openMemoryMap64(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S64 init_file_size, bool zero_out, LLVolatileAPRPool* pool, S64* sizep)
+{
+    apr_status_t s;
+    S64 file_size = 0;
+
+    //check if already open some file
+    llassert_always(!mFile);
+    llassert_always(!mCurrentFilePoolp);
+
+    mCurrentFilePoolp = pool ? pool : sAPRFilePoolp;
+    apr_pool_t* apr_pool = mCurrentFilePoolp->getVolatileAPRPool(); //paired with clear in close()
+    s = apr_file_open(&mFile, filename.c_str(), flags, APR_OS_DEFAULT, apr_pool);
+
+    if (s != APR_SUCCESS || !mFile)
+    {
+        LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
+        mFile = NULL;
+
+        if (sizep)
+        {
+            *sizep = 0;
+        }
+    }
+    else
+    {
+        apr_off_t offset = init_file_size;
+        if (apr_file_seek(mFile, APR_SET, &offset) == APR_SUCCESS)
+        {
+            llassert_always(offset <= 0x7fffffffffffffff);
+            apr_size_t one_char = 1;
+            s = apr_file_write(mFile, "\0", &one_char);
+            if (s != APR_SUCCESS || one_char != 1)
+            {
+                LL_WARNS() << "Could not write to end of file: " << filename << LL_ENDL;
+                close();
+                return s;
+            }
+            file_size = offset;
+            offset = 0;
+            apr_file_seek(mFile, APR_SET, &offset);
+        }
+        if (sizep) *sizep = file_size;
+
+        s = apr_mmap_create(&mMMapFile, mFile, 0, file_size, mmap_flags, apr_pool);
+        if (s != APR_SUCCESS)
+        {
+            LL_WARNS() << "Could not create Memory Map File: " << filename << LL_ENDL;
+            close();
+            return s;
+        }
+
+        // If need to zero out the file, then use memset over the memory map
+        if (zero_out)
+        {
+            memset(mMMapFile->mm, 0, sizeof(file_size));
+        }
+    }
+
+    if (!mFile)
+    {
+        LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
+        // It will clean pool
+        close();
+    }
+
+    return s;
 }
 
 //use gAPRPoolp.
@@ -406,6 +707,41 @@ apr_status_t LLAPRFile::open(const std::string& filename, apr_int32_t flags, boo
     return s;
 }
 
+//use gAPRPoolp.
+apr_status_t LLAPRFile::openMemoryMap(const std::string& filename, apr_int32_t flags, bool use_global_pool, apr_int32_t mmap_flags)
+{
+    apr_status_t s;
+    S64 file_size = 0;
+
+    //check if already open some file
+    llassert_always(!mFile);
+    llassert_always(!mCurrentFilePoolp);
+    llassert_always(use_global_pool); //be aware of using gAPRPoolp.
+
+    s = apr_file_open(&mFile, filename.c_str(), flags, APR_OS_DEFAULT, gAPRPoolp);
+    if (s != APR_SUCCESS || !mFile)
+    {
+        mFile = NULL;
+        close();
+        return s;
+    }
+    else
+    {
+        apr_off_t offset = 0;
+        if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
+        {
+            llassert_always(offset <= 0x7fffffffffffffff);
+            file_size = (S64)offset;
+            offset = 0;
+            apr_file_seek(mFile, APR_SET, &offset);
+        }
+
+        s = apr_mmap_create(&mMMapFile, mFile, 0, file_size, mmap_flags, gAPRPoolp);
+    }
+
+    return s;
+}
+
 // File I/O
 S32 LLAPRFile::read(void *buf, S32 nbytes)
 {
@@ -424,8 +760,31 @@ S32 LLAPRFile::read(void *buf, S32 nbytes)
     }
     else
     {
-        llassert_always(sz <= 0x7fffffff);
+        llassert_always(sz <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
         return (S32)sz;
+    }
+}
+
+// File I/O
+S64 LLAPRFile::read64(void* buf, S64 nbytes)
+{
+    if (!mFile)
+    {
+        LL_WARNS() << "apr mFile is removed by somebody else. Can not read." << LL_ENDL;
+        return 0;
+    }
+
+    apr_size_t sz = nbytes;
+    apr_status_t s = apr_file_read(mFile, buf, &sz);
+    if (s != APR_SUCCESS)
+    {
+        ll_apr_warn_status(s);
+        return 0;
+    }
+    else
+    {
+        llassert_always(sz <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
+        return (S64)sz;
     }
 }
 
@@ -446,14 +805,107 @@ S32 LLAPRFile::write(const void *buf, S32 nbytes)
     }
     else
     {
-        llassert_always(sz <= 0x7fffffff);
+        llassert_always(sz <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
         return (S32)sz;
     }
 }
 
+S64 LLAPRFile::write64(const void* buf, S64 nbytes)
+{
+    if (!mFile)
+    {
+        LL_WARNS() << "apr mFile is removed by somebody else. Can not write." << LL_ENDL;
+        return 0;
+    }
+
+    apr_size_t sz = nbytes;
+    apr_status_t s = apr_file_write(mFile, buf, &sz);
+    if (s != APR_SUCCESS)
+    {
+        ll_apr_warn_status(s);
+        return 0;
+    }
+    else
+    {
+        llassert_always(sz <= 0x7fffffffffffffff);
+        return (S64)sz;
+    }
+}
+
+
 S32 LLAPRFile::seek(apr_seek_where_t where, S32 offset)
 {
     return LLAPRFile::seek(mFile, where, offset) ;
+}
+
+S64 LLAPRFile::seek64(apr_seek_where_t where, S64 offset)
+{
+    return LLAPRFile::seek64(mFile, where, offset);
+}
+
+// Memory map offset
+apr_status_t LLAPRFile::memoryMapAssign(void** addr, S32 offset)
+{
+    apr_status_t s = APR_SUCCESS;
+    // Only move the offset if the memory map is valid and was flaged to be used
+    if (mMMapFile)
+    {
+        s = apr_mmap_offset(addr, mMMapFile, offset);
+    }
+    else
+    {
+        LL_WARNS() << "ARP File does not contain a valid Memory Map File" << LL_ENDL;
+        s = APR_EINVAL;
+    }
+
+    return s;
+}
+
+// Memory map offset
+apr_status_t LLAPRFile::memoryMapAssign64(void** addr, S64 offset)
+{
+    apr_status_t s = APR_SUCCESS;
+    // Only move the offset if the memory map is valid and was flaged to be used
+    if (mMMapFile)
+    {
+        s = apr_mmap_offset(addr, mMMapFile, offset);
+    }
+    else
+    {
+        LL_WARNS() << "ARP File does not contain a valid Memory Map File" << LL_ENDL;
+        s = APR_EINVAL;
+    }
+
+    return s;
+}
+
+// Get the file size from the file info
+S64 LLAPRFile::size64()
+{
+    // If no file is present, then return 0 for file size
+    if (!mFile) return 0;
+
+    apr_finfo_t info;
+
+    // Get the file size information
+    apr_status_t s = apr_file_info_get(&info, APR_FINFO_SIZE, mFile);
+
+    if (s == APR_SUCCESS)
+    {
+        return info.size;
+    }
+    else
+    {
+        return 0;
+    }
+
+}
+
+// Get the file size from the file info
+S32 LLAPRFile::size()
+{
+    // Simply call size 64 and cast it down to 32 bit and return it
+    return (S32)size64();
 }
 
 //
@@ -521,8 +973,40 @@ S32 LLAPRFile::seek(apr_file_t* file_handle, apr_seek_where_t where, S32 offset)
     }
     else
     {
-        llassert_always(apr_offset <= 0x7fffffff);
+        llassert_always(apr_offset  <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
         return (S32)apr_offset;
+    }
+}
+
+//static
+S64 LLAPRFile::seek64(apr_file_t* file_handle, apr_seek_where_t where, S64 offset)
+{
+    if (!file_handle)
+    {
+        return -1;
+    }
+
+    apr_status_t s;
+    apr_off_t apr_offset;
+    if (offset >= 0)
+    {
+        apr_offset = (apr_off_t)offset;
+        s = apr_file_seek(file_handle, where, &apr_offset);
+    }
+    else
+    {
+        apr_offset = 0;
+        s = apr_file_seek(file_handle, APR_END, &apr_offset);
+    }
+    if (s != APR_SUCCESS)
+    {
+        ll_apr_warn_status(s);
+        return -1;
+    }
+    else
+    {
+        llassert_always(apr_offset <= 0x7fffffffffffffff);
+        return (S64)apr_offset;
     }
 }
 
@@ -561,7 +1045,7 @@ S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nb
         }
         else
         {
-            llassert_always(bytes_read <= 0x7fffffff);
+            llassert_always(bytes_read <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
         }
     }
 
@@ -569,6 +1053,51 @@ S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nb
     close(file_handle) ;
     //*****************************************
     return (S32)bytes_read;
+}
+
+//static
+S64 LLAPRFile::readEx64(const std::string& filename, void* buf, S64 offset, S64 nbytes, LLVolatileAPRPool* pool)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    //*****************************************
+    LLAPRFilePoolScope scope(pool);
+    apr_file_t* file_handle = open(filename, scope.getVolatileAPRPool(), APR_READ | APR_BINARY);
+    //*****************************************
+    if (!file_handle)
+    {
+        return 0;
+    }
+
+    llassert(offset >= 0);
+
+    if (offset > 0)
+        offset = LLAPRFile::seek64(file_handle, APR_SET, offset);
+
+    apr_size_t bytes_read;
+    if (offset < 0)
+    {
+        bytes_read = 0;
+    }
+    else
+    {
+        bytes_read = nbytes;
+        apr_status_t s = apr_file_read(file_handle, buf, &bytes_read);
+        if (s != APR_SUCCESS)
+        {
+            LL_WARNS("APR") << " Attempting to read filename: " << filename << LL_ENDL;
+            ll_apr_warn_status(s);
+            bytes_read = 0;
+        }
+        else
+        {
+            llassert_always(bytes_read <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
+        }
+    }
+
+    //*****************************************
+    close(file_handle);
+    //*****************************************
+    return (S64)bytes_read;
 }
 
 //static
@@ -617,7 +1146,7 @@ S32 LLAPRFile::writeEx(const std::string& filename, const void *buf, S32 offset,
         }
         else
         {
-            llassert_always(bytes_written <= 0x7fffffff);
+            llassert_always(bytes_written <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
         }
     }
 
@@ -626,6 +1155,63 @@ S32 LLAPRFile::writeEx(const std::string& filename, const void *buf, S32 offset,
     //*****************************************
 
     return (S32)bytes_written;
+}
+
+//static
+S64 LLAPRFile::writeEx64(const std::string& filename, const void *buf, S64 offset, S64 nbytes, LLVolatileAPRPool* pool)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    apr_int32_t flags = APR_CREATE | APR_WRITE | APR_BINARY;
+    if (offset < 0)
+    {
+        flags |= APR_APPEND;
+        offset = 0;
+    }
+
+    //*****************************************
+    LLAPRFilePoolScope scope(pool);
+    apr_file_t* file_handle = open(filename, scope.getVolatileAPRPool(), flags);
+    //*****************************************
+    if (!file_handle)
+    {
+        return 0;
+    }
+
+    if (offset > 0)
+    {
+        offset = LLAPRFile::seek64(file_handle, APR_SET, offset);
+    }
+
+    apr_size_t bytes_written;
+    if (offset < 0)
+    {
+        bytes_written = 0;
+    }
+    else
+    {
+        bytes_written = nbytes;
+        apr_status_t s = apr_file_write(file_handle, buf, &bytes_written);
+        if (s != APR_SUCCESS)
+        {
+            LL_WARNS("APR") << "Attempting to write filename: " << filename << LL_ENDL;
+            if (APR_STATUS_IS_ENOSPC(s))
+            {
+                LLApp::notifyOutOfDiskSpace();
+            }
+            ll_apr_warn_status(s);
+            bytes_written = 0;
+        }
+        else
+        {
+            llassert_always(bytes_written <= 0x7fffffffffffffff);
+        }
+    }
+
+    //*****************************************
+    LLAPRFile::close(file_handle);
+    //*****************************************
+
+    return (S64)bytes_written;
 }
 
 //static
@@ -705,6 +1291,37 @@ S32 LLAPRFile::size(const std::string& filename, LLVolatileAPRPool* pool)
         if (s == APR_SUCCESS)
         {
             return (S32)info.size;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}
+
+//static
+S64 LLAPRFile::size64(const std::string& filename, LLVolatileAPRPool* pool)
+{
+    apr_file_t* apr_file;
+    apr_finfo_t info;
+    apr_status_t s;
+
+    LLAPRFilePoolScope scope(pool);
+    s = apr_file_open(&apr_file, filename.c_str(), APR_READ, APR_OS_DEFAULT, scope.getVolatileAPRPool());
+
+    if (s != APR_SUCCESS || !apr_file)
+    {
+        return 0;
+    }
+    else
+    {
+        apr_status_t s = apr_file_info_get(&info, APR_FINFO_SIZE, apr_file);
+
+        apr_file_close(apr_file);
+
+        if (s == APR_SUCCESS)
+        {
+            return (S64)info.size;
         }
         else
         {
