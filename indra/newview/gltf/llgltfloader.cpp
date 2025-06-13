@@ -95,8 +95,7 @@ LLGLTFLoader::LLGLTFLoader(std::string filename,
     std::map<std::string, std::string> &jointAliasMap,
     U32                                 maxJointsPerMesh,
     U32                                 modelLimit,
-    joint_viewer_rest_map_t             jointRestMatrices,
-    joint_viewer_parent_map_t           jointParentMap) //,
+    std::vector<LLJointData>            viewer_skeleton) //,
     //bool                                preprocess)
     : LLModelLoader( filename,
                      lod,
@@ -113,8 +112,7 @@ LLGLTFLoader::LLGLTFLoader(std::string filename,
     , mMeshesLoaded(false)
     , mMaterialsLoaded(false)
     , mGeneratedModelLimit(modelLimit)
-    , mJointViewerRestMatrices(jointRestMatrices)
-    , mJointViewerParentMap(jointParentMap)
+    , mViewerJointData(viewer_skeleton)
 {
 }
 
@@ -934,13 +932,45 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
         mAlternateBindMatrices.resize(skin_idx + 1);
     }
 
-    // Build gltf rest matrices
-    // This is very inefficienct, todo: run from root to children, not from children to root
-    joint_node_mat4_map_t gltf_rest_map;
+    // fill up joints related data
+    joints_data_map_t joints_data;
+    joints_name_to_node_map_t names_to_nodes;
     for (S32 i = 0; i < joint_count; i++)
     {
         S32 joint = skin.mJoints[i];
-        gltf_rest_map[joint] = buildGltfRestMatrix(joint, skin);
+        LL::GLTF::Node jointNode = mGLTFAsset.mNodes[joint];
+        JointNodeData& data = joints_data[joint];
+        data.mNodeIdx = joint;
+        data.mJointListIdx = i;
+        data.mGltfRestMatrix = buildGltfRestMatrix(joint, skin);
+        data.mGltfMatrix = jointNode.mMatrix;
+        data.mOverrideMatrix = glm::mat4(1.f);
+
+        if (mJointMap.find(jointNode.mName) != mJointMap.end())
+        {
+            data.mName = mJointMap[jointNode.mName];
+            data.mIsValidViewerJoint = true;
+        }
+        else
+        {
+            data.mName = jointNode.mName;
+            data.mIsValidViewerJoint = false;
+        }
+        names_to_nodes[data.mName] = joint;
+
+        for (S32 child : jointNode.mChildren)
+        {
+            JointNodeData& child_data = joints_data[child];
+            child_data.mParentNodeIdx = joint;
+            child_data.mIsParentValidViewerJoint = data.mIsValidViewerJoint;
+        }
+    }
+
+    // Go over viewer joints and build overrides
+    glm::mat4 ident(1.0);
+    for (auto &viewer_data : mViewerJointData)
+    {
+        buildOverrideMatrix(viewer_data, joints_data, names_to_nodes, ident, ident);
     }
 
     for (S32 i = 0; i < joint_count; i++)
@@ -971,7 +1001,7 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
             // todo: probably should be 'to viewer's overriden skeleton'
             glm::mat4 original_bind_matrix = glm::inverse(skin.mInverseBindMatricesData[i]);
             glm::mat4 rotated_original = coord_system_rotation * original_bind_matrix;
-            glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(gltf_rest_map, joint, legal_name);
+            glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(joints_data, joint, legal_name);
             glm::mat4 tranlated_original = skeleton_transform * rotated_original;
             glm::mat4 final_inverse_bind_matrix = glm::inverse(tranlated_original);
 
@@ -985,7 +1015,7 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
             // assume an identy matrix
             // todo: find a model with this, might need to use rotated matrix
             glm::mat4 inv_bind(1.0f);
-            glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(gltf_rest_map, joint, legal_name);
+            glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(joints_data, joint, legal_name);
             inv_bind = glm::inverse(skeleton_transform * inv_bind);
 
             LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(inv_bind));
@@ -994,37 +1024,15 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
         }
 
         // Compute Alternative matrices also known as overrides
-
-        glm::mat4 joint_mat = glm::mat4(1.f);
-        if (legal_joint)
-        {
-            joint_viewer_parent_map_t::const_iterator found = mJointViewerParentMap.find(legal_name);
-            if (found != mJointViewerParentMap.end() && !found->second.empty())
-            {
-                glm::mat4 gltf_joint_rest_pose = coord_system_rotation * buildGltfRestMatrix(joint, skin);
-                if (mApplyXYRotation)
-                {
-                    gltf_joint_rest_pose = coord_system_rotationxy * gltf_joint_rest_pose;
-                }
-                // Compute viewer's override by moving joint to viewer's base
-                // This might be overused or somewhat incorect for regular cases
-                // But this logic should be solid for cases where model lacks
-                // parent joints that viewer has.
-                // ex: like boots that have only knees and feet, but no pelvis,
-                // or anything else, in which case we take viewer's pelvis
-                glm::mat4 viewer_rest = mJointViewerRestMatrices[found->second];
-                joint_mat = glm::inverse(viewer_rest) * gltf_joint_rest_pose;
-            }
-        }
-        LLMatrix4 original_joint_transform(glm::value_ptr(joint_mat));
+        LLMatrix4 original_joint_transform(glm::value_ptr(joints_data[joint].mOverrideMatrix));
 
         // Viewer seems to care only about translation part,
         // but for parity with collada taking original value
         LLMatrix4 newInverse = LLMatrix4(mInverseBindMatrices[skin_idx].back().getF32ptr());
         newInverse.setTranslation(original_joint_transform.getTranslation());
 
-        LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << original_joint_transform << LL_ENDL;
-        mAlternateBindMatrices[skin_idx].push_back(LLMatrix4a(original_joint_transform));
+        LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << newInverse << LL_ENDL;
+        mAlternateBindMatrices[skin_idx].push_back(LLMatrix4a(newInverse));
 
         if (legal_joint)
         {
@@ -1139,6 +1147,57 @@ S32 LLGLTFLoader::findParentNode(S32 node) const
     return -1;
 }
 
+void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& leftover) const
+{
+    glm::mat4 new_lefover(1.f);
+    glm::mat4 rest(1.f);
+    joints_name_to_node_map_t::iterator found_node = names_to_nodes.find(viewer_data.mName);
+    if (found_node != names_to_nodes.end())
+    {
+        S32 gltf_node_idx = found_node->second;
+        JointNodeData& node = gltf_nodes[gltf_node_idx];
+        node.mIsOverrideValid = true;
+
+        glm::mat4 gltf_joint_rest_pose = coord_system_rotation * node.mGltfRestMatrix;
+        if (mApplyXYRotation)
+        {
+            gltf_joint_rest_pose = coord_system_rotationxy * gltf_joint_rest_pose;
+        }
+        node.mOverrideMatrix = glm::inverse(parent_rest) * gltf_joint_rest_pose;
+
+        glm::vec3 override;
+        glm::vec3 skew;
+        glm::vec3 scale;
+        glm::vec4 perspective;
+        glm::quat rotation;
+        glm::decompose(node.mOverrideMatrix, scale, rotation, override, skew, perspective);
+        glm::vec3 translate;
+        glm::decompose(viewer_data.mJointMatrix, scale, rotation, translate, skew, perspective);
+        glm::mat4 viewer_joint = glm::recompose(scale, rotation, override, skew, perspective);
+
+        node.mOverrideMatrix = viewer_joint;
+        rest = parent_rest * viewer_joint;
+        node.mOverrideRestMatrix = rest;
+        if (viewer_data.mName == "mPelvis")
+        {
+            // Todo: This is wrong, but this is a temporary
+            // solution for parts staying behind.
+            // Something is still missing with override mechanics
+            node.mOverrideMatrix = glm::mat4(1.f);
+        }
+    }
+    else
+    {
+        // No override for this joint
+        new_lefover = leftover * viewer_data.mJointMatrix;
+        rest = parent_rest * viewer_data.mJointMatrix;
+    }
+    for (LLJointData& child_data : viewer_data.mChildren)
+    {
+        buildOverrideMatrix(child_data, gltf_nodes, names_to_nodes, rest, new_lefover);
+    }
+}
+
 glm::mat4 LLGLTFLoader::buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const
 {
     // This is inefficient since we are recalculating some joints multiple times over
@@ -1172,23 +1231,40 @@ glm::mat4 LLGLTFLoader::buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF
     return node.mMatrix;
 }
 
+glm::mat4 LLGLTFLoader::buildGltfRestMatrix(S32 joint_node_index, const joints_data_map_t& joint_data) const
+{
+    // This is inefficient since we are recalculating some joints multiple times over
+    // Todo: cache it?
+
+    if (joint_node_index < 0 || joint_node_index >= static_cast<S32>(mGLTFAsset.mNodes.size()))
+    {
+        return glm::mat4(1.0f);
+    }
+
+    auto& data = joint_data.at(joint_node_index);
+
+    if (data.mParentNodeIdx >=0)
+    {
+        return buildGltfRestMatrix(data.mParentNodeIdx, joint_data) * data.mGltfMatrix;
+    }
+    // Should we return armature or stop earlier?
+    return data.mGltfMatrix;
+}
+
 // This function computes the transformation matrix needed to convert from GLTF skeleton space
 // to viewer skeleton space for a specific joint
 
-glm::mat4 LLGLTFLoader::computeGltfToViewerSkeletonTransform(const joint_node_mat4_map_t& gltf_rest_map, S32 gltf_node_index, const std::string& joint_name) const
+glm::mat4 LLGLTFLoader::computeGltfToViewerSkeletonTransform(const joints_data_map_t& joints_data_map, S32 gltf_node_index, const std::string& joint_name) const
 {
-    joint_viewer_rest_map_t::const_iterator found = mJointViewerRestMatrices.find(joint_name);
-    if (found == mJointViewerRestMatrices.end())
+    const JointNodeData& node_data = joints_data_map.at(gltf_node_index);
+    if (!node_data.mIsOverrideValid)
     {
         // For now assume they are identical and return an identity (for ease of debuging)
-        // But there should be no joints viewer isn't aware about
-        // Warn or assert about missing joints
         return glm::mat4(1.0f);
     }
-    glm::mat4 viewer_joint_rest_pose = found->second;
 
     // Get the GLTF joint's rest pose (in GLTF coordinate system)
-    const glm::mat4 &gltf_joint_rest_pose = gltf_rest_map.at(gltf_node_index);
+    const glm::mat4 &gltf_joint_rest_pose = node_data.mGltfRestMatrix;
     glm::mat4 rest_pose = coord_system_rotation * gltf_joint_rest_pose;
 
     LL_INFOS("GLTF_DEBUG") << "rest matrix for joint " << joint_name << ": ";
@@ -1199,7 +1275,7 @@ glm::mat4 LLGLTFLoader::computeGltfToViewerSkeletonTransform(const joint_node_ma
 
     // Compute transformation from GLTF space to viewer space
     // This assumes both skeletons are in rest pose initially
-    return viewer_joint_rest_pose * glm::inverse(rest_pose);
+    return node_data.mOverrideRestMatrix * glm::inverse(rest_pose);
 }
 
 bool LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx)
