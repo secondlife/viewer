@@ -32,6 +32,7 @@
 #include "asset.h"
 
 #include "llglheaders.h"
+#include "lljointdata.h"
 #include "llmodelloader.h"
 
 // gltf_* structs are temporary, used to organize the subset of data that eventually goes into the material LLSD
@@ -125,6 +126,34 @@ class LLGLTFLoader : public LLModelLoader
     typedef std::map<std::string, glm::mat4> joint_viewer_rest_map_t;
     typedef std::map<S32, glm::mat4> joint_node_mat4_map_t;
 
+    struct JointNodeData
+    {
+        JointNodeData()
+            : mJointListIdx(-1)
+            , mNodeIdx(-1)
+            , mParentNodeIdx(-1)
+            , mIsValidViewerJoint(false)
+            , mIsParentValidViewerJoint(false)
+            , mIsOverrideValid(false)
+        {
+
+        }
+        S32 mJointListIdx;
+        S32 mNodeIdx;
+        S32 mParentNodeIdx;
+        glm::mat4 mGltfRestMatrix;
+        glm::mat4 mViewerRestMatrix;
+        glm::mat4 mOverrideRestMatrix;
+        glm::mat4 mGltfMatrix;
+        glm::mat4 mOverrideMatrix;
+        std::string mName;
+        bool mIsValidViewerJoint;
+        bool mIsParentValidViewerJoint;
+        bool mIsOverrideValid;
+    };
+    typedef std::map <S32, JointNodeData> joints_data_map_t;
+    typedef std::map <std::string, S32> joints_name_to_node_map_t;
+
     LLGLTFLoader(std::string filename,
                     S32                                 lod,
                     LLModelLoader::load_callback_t      load_cb,
@@ -137,8 +166,7 @@ class LLGLTFLoader : public LLModelLoader
                     std::map<std::string, std::string> &jointAliasMap,
                     U32                                 maxJointsPerMesh,
                     U32                                 modelLimit,
-                    joint_viewer_rest_map_t             jointRestMatrices,
-                    joint_viewer_parent_map_t           jointParentPap); //,
+                    std::vector<LLJointData>            viewer_skeleton); //,
                     //bool                                preprocess );
     virtual ~LLGLTFLoader();
 
@@ -172,8 +200,7 @@ protected:
     // GLTF isn't aware of viewer's skeleton and uses it's own,
     // so need to take viewer's joints and use them to
     // recalculate iverse bind matrices
-    joint_viewer_rest_map_t             mJointViewerRestMatrices;
-    joint_viewer_parent_map_t           mJointViewerParentMap;
+    std::vector<LLJointData>             mViewerJointData;
 
     // vector of vectors because of a posibility of having more than one skin
     typedef std::vector<LLMeshSkinInfo::matrix_list_t> bind_matrices_t;
@@ -194,8 +221,10 @@ private:
     S32 findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const;
     S32 findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
     S32 findParentNode(S32 node) const;
+    void buildOverrideMatrix(LLJointData& data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& leftover) const;
     glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const;
-    glm::mat4 computeGltfToViewerSkeletonTransform(const joint_node_mat4_map_t &gltf_rest_map, S32 gltf_node_index, const std::string& joint_name) const;
+    glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const joints_data_map_t& joint_data) const;
+    glm::mat4 computeGltfToViewerSkeletonTransform(const joints_data_map_t& joints_data_map, S32 gltf_node_index, const std::string& joint_name) const;
     bool checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx);
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);

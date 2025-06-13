@@ -29,6 +29,7 @@
 #include "llavatarappearance.h"
 #include "llavatarappearancedefines.h"
 #include "llavatarjointmesh.h"
+#include "lljointdata.h"
 #include "llstl.h"
 #include "lldir.h"
 #include "llpolymorph.h"
@@ -108,11 +109,9 @@ public:
 
 private:
     typedef std::vector<LLAvatarBoneInfo*> bone_info_list_t;
-    static void getJointRestMatrices(
-        const bone_info_list_t& bone_list,
-        const std::string &parent_name,
-        LLAvatarAppearance::joint_rest_map_t& rest,
-        LLAvatarAppearance::joint_parent_map_t& parent_map,
+    static void getJointMatricesAndHierarhy(
+        LLAvatarBoneInfo* bone_info,
+        LLJointData& data,
         const glm::mat4& parent_mat);
 
 private:
@@ -1677,19 +1676,18 @@ bool LLAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
     return true;
 }
 
-void LLAvatarSkeletonInfo::getJointRestMatrices(
-    const bone_info_list_t& bone_list,
-    const std::string& parent_name,
-    LLAvatarAppearance::joint_rest_map_t& rest,
-    LLAvatarAppearance::joint_parent_map_t& parent_map,
+void LLAvatarSkeletonInfo::getJointMatricesAndHierarhy(
+    LLAvatarBoneInfo* bone_info,
+    LLJointData& data,
     const glm::mat4& parent_mat)
 {
-    for (LLAvatarBoneInfo* bone_info : bone_list)
+    data.mName = bone_info->mName;
+    data.mJointMatrix = bone_info->getJointMatrix();
+    data.mRestMatrix = parent_mat * data.mJointMatrix;
+    for (LLAvatarBoneInfo* child_info : bone_info->mChildren)
     {
-        glm::mat4 rest_mat = parent_mat * bone_info->getJointMatrix();
-        rest[bone_info->mName] = rest_mat;
-        parent_map[bone_info->mName] = parent_name;
-        getJointRestMatrices(bone_info->mChildren, bone_info->mName, rest, parent_map, rest_mat);
+        LLJointData& child_data = data.mChildren.emplace_back();
+        getJointMatricesAndHierarhy(child_info, child_data, data.mRestMatrix);
     }
 }
 
@@ -1754,10 +1752,14 @@ const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases
     return mJointAliasMap;
 }
 
-void LLAvatarAppearance:: getJointRestMatrices(LLAvatarAppearance::joint_rest_map_t& rest_map, LLAvatarAppearance::joint_parent_map_t& parent_map) const
+void LLAvatarAppearance::getJointMatricesAndHierarhy(std::vector<LLJointData> &data) const
 {
     glm::mat4 identity(1.f);
-    LLAvatarSkeletonInfo::getJointRestMatrices(sAvatarSkeletonInfo->mBoneInfoList, std::string(), rest_map, parent_map, identity);
+    for (LLAvatarBoneInfo* bone_info : sAvatarSkeletonInfo->mBoneInfoList)
+    {
+        LLJointData& child_data = data.emplace_back();
+        LLAvatarSkeletonInfo::getJointMatricesAndHierarhy(bone_info, child_data, identity);
+    }
 }
 
 

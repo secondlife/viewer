@@ -42,6 +42,7 @@ class LLTexGlobalColorInfo;
 class LLWearableData;
 class LLAvatarBoneInfo;
 class LLAvatarSkeletonInfo;
+class LLJointData;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLAvatarAppearance
@@ -156,7 +157,7 @@ public:
     const joint_alias_map_t& getJointAliases();
     typedef std::map<std::string, std::string> joint_parent_map_t; // matrix plus parent
     typedef std::map<std::string, glm::mat4> joint_rest_map_t;
-    void getJointRestMatrices(joint_rest_map_t& rest_map, joint_parent_map_t& parent_map) const;
+    void getJointMatricesAndHierarhy(std::vector<LLJointData> &data) const;
 
 protected:
     static bool         parseSkeletonFile(const std::string& filename, LLXmlTree& skeleton_xml_tree);
