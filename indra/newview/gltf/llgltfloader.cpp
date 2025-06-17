@@ -514,13 +514,13 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
     // Mark unsuported joints with '-1' so that they won't get added into weights
     // GLTF maps all joints onto all meshes. Gather use count per mesh to cut unused ones.
-    std::vector<S32> gltf_joint_index_valid;
+    std::vector<S32> gltf_joint_index_use;
     if (skinIdx >= 0 && mGLTFAsset.mSkins.size() > skinIdx)
     {
         LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
 
         size_t jointCnt = gltf_skin.mJoints.size();
-        gltf_joint_index_valid.resize(jointCnt);
+        gltf_joint_index_use.resize(jointCnt);
 
         S32 replacement_index = 0;
         for (size_t i = 0; i < jointCnt; ++i)
@@ -532,7 +532,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             std::string legal_name(jointNode.mName);
             if (mJointMap.find(legal_name) == mJointMap.end())
             {
-                gltf_joint_index_valid[i] = -1; // mark as unsupported
+                // This might need to hold a substitute index
+                gltf_joint_index_use[i] = -1; // mark as unsupported
             }
         }
     }
@@ -540,180 +541,399 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     for (size_t prim_idx = 0; prim_idx < mesh.mPrimitives.size(); ++prim_idx)
     {
         const LL::GLTF::Primitive& prim = mesh.mPrimitives[prim_idx];
-        // Unfortunately, SLM does not support 32 bit indices.  Filter out anything that goes beyond 16 bit.
-        if (prim.getVertexCount() < USHRT_MAX)
+
+        // So primitives already have all of the data we need for a given face in SL land.
+        // Primitives may only ever have a single material assigned to them - as the relation is 1:1 in terms of intended draw call
+        // count. Just go ahead and populate faces direct from the GLTF primitives here. -Geenz 2025-04-07
+        LLVolumeFace face;
+        std::vector<GLTFVertex> vertices;
+
+        LLImportMaterial impMat;
+        impMat.mDiffuseColor = LLColor4::white; // Default color
+
+        // Process material if available
+        if (prim.mMaterial >= 0 && prim.mMaterial < mGLTFAsset.mMaterials.size())
         {
-            // So primitives already have all of the data we need for a given face in SL land.
-            // Primitives may only ever have a single material assigned to them - as the relation is 1:1 in terms of intended draw call
-            // count. Just go ahead and populate faces direct from the GLTF primitives here. -Geenz 2025-04-07
-            LLVolumeFace face;
-            std::vector<GLTFVertex> vertices;
-            std::vector<U16> indices;
+            LL::GLTF::Material* material = &mGLTFAsset.mMaterials[prim.mMaterial];
 
-            LLImportMaterial impMat;
-            impMat.mDiffuseColor = LLColor4::white; // Default color
+            // Set diffuse color from base color factor
+            impMat.mDiffuseColor = LLColor4(
+                material->mPbrMetallicRoughness.mBaseColorFactor[0],
+                material->mPbrMetallicRoughness.mBaseColorFactor[1],
+                material->mPbrMetallicRoughness.mBaseColorFactor[2],
+                material->mPbrMetallicRoughness.mBaseColorFactor[3]
+            );
 
-            // Process material if available
-            if (prim.mMaterial >= 0 && prim.mMaterial < mGLTFAsset.mMaterials.size())
+            // Process base color texture if it exists
+            if (material->mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0)
             {
-                LL::GLTF::Material* material = &mGLTFAsset.mMaterials[prim.mMaterial];
-
-                // Set diffuse color from base color factor
-                impMat.mDiffuseColor = LLColor4(
-                    material->mPbrMetallicRoughness.mBaseColorFactor[0],
-                    material->mPbrMetallicRoughness.mBaseColorFactor[1],
-                    material->mPbrMetallicRoughness.mBaseColorFactor[2],
-                    material->mPbrMetallicRoughness.mBaseColorFactor[3]
-                );
-
-                // Process base color texture if it exists
-                if (material->mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0)
+                S32 texIndex = material->mPbrMetallicRoughness.mBaseColorTexture.mIndex;
+                if (texIndex < mGLTFAsset.mTextures.size())
                 {
-                    S32 texIndex = material->mPbrMetallicRoughness.mBaseColorTexture.mIndex;
-                    if (texIndex < mGLTFAsset.mTextures.size())
+                    S32 sourceIndex = mGLTFAsset.mTextures[texIndex].mSource;
+                    if (sourceIndex >= 0 && sourceIndex < mGLTFAsset.mImages.size())
                     {
-                        S32 sourceIndex = mGLTFAsset.mTextures[texIndex].mSource;
-                        if (sourceIndex >= 0 && sourceIndex < mGLTFAsset.mImages.size())
+                        LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+
+                        // Use URI as texture file name
+                        if (!image.mUri.empty())
                         {
-                            LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+                            // URI might be a remote URL or a local path
+                            std::string filename = image.mUri;
 
-                            // Use URI as texture file name
-                            if (!image.mUri.empty())
+                            // Extract just the filename from the URI
+                            size_t pos = filename.find_last_of("/\\");
+                            if (pos != std::string::npos)
                             {
-                                // URI might be a remote URL or a local path
-                                std::string filename = image.mUri;
-
-                                // Extract just the filename from the URI
-                                size_t pos = filename.find_last_of("/\\");
-                                if (pos != std::string::npos)
-                                {
-                                    filename = filename.substr(pos + 1);
-                                }
-
-                                // Store the texture filename
-                                impMat.mDiffuseMapFilename = filename;
-                                impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
-
-                                LL_INFOS("GLTF_IMPORT") << "Found texture: " << impMat.mDiffuseMapFilename
-                                                        << " for material: " << material->mName << LL_ENDL;
-
-                                LLSD args;
-                                args["Message"] = "TextureFound";
-                                args["TEXTURE_NAME"] = impMat.mDiffuseMapFilename;
-                                args["MATERIAL_NAME"] = material->mName;
-                                mWarningsArray.append(args);
-
-                                // If the image has a texture loaded already, use it
-                                if (image.mTexture.notNull())
-                                {
-                                    impMat.setDiffuseMap(image.mTexture->getID());
-                                    LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
-                                }
-                                else
-                                {
-                                    // Let the model preview know we need to load this texture
-                                    mNumOfFetchingTextures++;
-                                    LL_INFOS("GLTF_IMPORT") << "Adding texture to load queue: " << impMat.mDiffuseMapFilename << LL_ENDL;
-                                }
+                                filename = filename.substr(pos + 1);
                             }
-                            else if (image.mTexture.notNull())
+
+                            // Store the texture filename
+                            impMat.mDiffuseMapFilename = filename;
+                            impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
+
+                            LL_INFOS("GLTF_IMPORT") << "Found texture: " << impMat.mDiffuseMapFilename
+                                << " for material: " << material->mName << LL_ENDL;
+
+                            LLSD args;
+                            args["Message"] = "TextureFound";
+                            args["TEXTURE_NAME"] = impMat.mDiffuseMapFilename;
+                            args["MATERIAL_NAME"] = material->mName;
+                            mWarningsArray.append(args);
+
+                            // If the image has a texture loaded already, use it
+                            if (image.mTexture.notNull())
                             {
-                                // No URI but we have a texture, use it directly
                                 impMat.setDiffuseMap(image.mTexture->getID());
-                                LL_INFOS("GLTF_IMPORT") << "Using existing texture ID without URI: " << image.mTexture->getID().asString() << LL_ENDL;
+                                LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
                             }
-                            else if (image.mBufferView >= 0)
+                            else
                             {
-                                // For embedded textures (no URI but has buffer data)
-                                // Create a pseudo filename for the embedded texture
-                                std::string pseudo_filename = "gltf_embedded_texture_" + std::to_string(sourceIndex) + ".png";
-                                impMat.mDiffuseMapFilename = pseudo_filename;
-                                impMat.mDiffuseMapLabel = material->mName.empty() ? pseudo_filename : material->mName;
-
-                                // Mark for loading
+                                // Let the model preview know we need to load this texture
                                 mNumOfFetchingTextures++;
-                                LL_INFOS("GLTF_IMPORT") << "Adding embedded texture to load queue: " << pseudo_filename << LL_ENDL;
+                                LL_INFOS("GLTF_IMPORT") << "Adding texture to load queue: " << impMat.mDiffuseMapFilename << LL_ENDL;
                             }
+                        }
+                        else if (image.mTexture.notNull())
+                        {
+                            // No URI but we have a texture, use it directly
+                            impMat.setDiffuseMap(image.mTexture->getID());
+                            LL_INFOS("GLTF_IMPORT") << "Using existing texture ID without URI: " << image.mTexture->getID().asString() << LL_ENDL;
+                        }
+                        else if (image.mBufferView >= 0)
+                        {
+                            // For embedded textures (no URI but has buffer data)
+                            // Create a pseudo filename for the embedded texture
+                            std::string pseudo_filename = "gltf_embedded_texture_" + std::to_string(sourceIndex) + ".png";
+                            impMat.mDiffuseMapFilename = pseudo_filename;
+                            impMat.mDiffuseMapLabel = material->mName.empty() ? pseudo_filename : material->mName;
+
+                            // Mark for loading
+                            mNumOfFetchingTextures++;
+                            LL_INFOS("GLTF_IMPORT") << "Adding embedded texture to load queue: " << pseudo_filename << LL_ENDL;
                         }
                     }
                 }
             }
+        }
 
-            // Apply the global scale and center offset to all vertices
-            for (U32 i = 0; i < prim.getVertexCount(); i++)
+        if (prim.getIndexCount() % 3 != 0)
+        {
+            LL_WARNS("GLTF_IMPORT") << "Mesh '" << mesh.mName << "' primitive " << prim_idx
+                << ": Invalid index count " << prim.getIndexCount()
+                << " (not divisible by 3). GLTF files must contain triangulated geometry." << LL_ENDL;
+
+            LLSD args;
+            args["Message"] = "InvalidGeometryNonTriangulated";
+            args["MESH_NAME"] = mesh.mName;
+            args["PRIMITIVE_INDEX"] = static_cast<S32>(prim_idx);
+            args["INDEX_COUNT"] = static_cast<S32>(prim.getIndexCount());
+            mWarningsArray.append(args);
+            return false; // Skip this primitive
+        }
+
+        // Apply the global scale and center offset to all vertices
+        for (U32 i = 0; i < prim.getVertexCount(); i++)
+        {
+            // Use pre-computed final_transform
+            glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
+            glm::vec4 transformed_pos = final_transform * pos;
+
+            GLTFVertex vert;
+            vert.position = glm::vec3(transformed_pos);
+
+            if (!prim.mNormals.empty())
             {
-                // Use pre-computed final_transform
-                glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
-                glm::vec4 transformed_pos = final_transform * pos;
+                // Use pre-computed normal_transform
+                glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                vert.normal = glm::normalize(normal_transform * normal_vec);
+            }
+            else
+            {
+                // Use default normal (pointing up in model space)
+                vert.normal = glm::normalize(normal_transform * glm::vec3(0.0f, 0.0f, 1.0f));
+                LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
+            }
 
-                GLTFVertex vert;
-                vert.position = glm::vec3(transformed_pos);
+            vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
 
-                if (!prim.mNormals.empty())
+            if (skinIdx >= 0)
+            {
+                vert.weights = glm::vec4(prim.mWeights[i]);
+
+                auto accessorIdx = prim.mAttributes.at("JOINTS_0");
+                LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
+                if (accessorIdx >= 0)
                 {
-                    // Use pre-computed normal_transform
-                    glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
-                    vert.normal = glm::normalize(normal_transform * normal_vec);
+                    auto accessor = mGLTFAsset.mAccessors[accessorIdx];
+                    componentType = accessor.mComponentType;
+                }
+
+                // The GLTF spec allows for either an unsigned byte for joint indices, or an unsigned short.
+                // Detect and unpack accordingly.
+                if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE)
+                {
+                    auto ujoint = glm::unpackUint4x8((U32)(prim.mJoints[i] & 0xFFFFFFFF));
+                    vert.joints = glm::u16vec4(ujoint.x, ujoint.y, ujoint.z, ujoint.w);
+                }
+                else if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_SHORT)
+                {
+                    vert.joints = glm::unpackUint4x16(prim.mJoints[i]);
                 }
                 else
                 {
-                    // Use default normal (pointing up in model space)
-                    vert.normal = glm::normalize(normal_transform * glm::vec3(0.0f, 0.0f, 1.0f));
-                    LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
+                    vert.joints = glm::zero<glm::u16vec4>();
+                    vert.weights = glm::zero<glm::vec4>();
+                }
+            }
+            vertices.push_back(vert);
+        }
+
+        // Check for empty vertex array before processing
+        if (vertices.empty())
+        {
+            LL_WARNS("GLTF_IMPORT") << "Empty vertex array for primitive " << prim_idx << " in model " << mesh.mName << LL_ENDL;
+            LLSD args;
+            args["Message"] = "EmptyVertexArray";
+            args["MESH_NAME"] = mesh.mName;
+            args["PRIMITIVE_INDEX"] = static_cast<S32>(prim_idx);
+            args["INDEX_COUNT"] = static_cast<S32>(prim.getIndexCount());
+            mWarningsArray.append(args);
+            return false; // Skip this primitive
+        }
+
+        std::vector<LLVolumeFace::VertexData> faceVertices;
+        glm::vec3 min = glm::vec3(FLT_MAX);
+        glm::vec3 max = glm::vec3(-FLT_MAX);
+
+        for (U32 i = 0; i < vertices.size(); i++)
+        {
+            LLVolumeFace::VertexData vert;
+
+            // Update min/max bounds
+            if (i == 0)
+            {
+                min = max = vertices[i].position;
+            }
+            else
+            {
+                min.x = std::min(min.x, vertices[i].position.x);
+                min.y = std::min(min.y, vertices[i].position.y);
+                min.z = std::min(min.z, vertices[i].position.z);
+                max.x = std::max(max.x, vertices[i].position.x);
+                max.y = std::max(max.y, vertices[i].position.y);
+                max.z = std::max(max.z, vertices[i].position.z);
+            }
+
+            LLVector4a position = LLVector4a(vertices[i].position.x, vertices[i].position.y, vertices[i].position.z);
+            LLVector4a normal = LLVector4a(vertices[i].normal.x, vertices[i].normal.y, vertices[i].normal.z);
+            vert.setPosition(position);
+            vert.setNormal(normal);
+            vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
+            faceVertices.push_back(vert);
+
+            if (skinIdx >= 0)
+            {
+                // create list of weights that influence this vertex
+                LLModel::weight_list weight_list;
+
+                // Drop joints that viewer doesn't support (negative in gltf_joint_index_use_count)
+                // don't reindex them yet, more indexes will be removed
+                // Also drop joints that have no weight. GLTF stores 4 per vertex, so there might be
+                // 'empty' ones
+                if (gltf_joint_index_use[vertices[i].joints.x] >= 0
+                    && vertices[i].weights.x > 0.f)
+                {
+                    weight_list.push_back(LLModel::JointWeight(vertices[i].joints.x, vertices[i].weights.x));
+                }
+                if (gltf_joint_index_use[vertices[i].joints.y] >= 0
+                    && vertices[i].weights.y > 0.f)
+                {
+                    weight_list.push_back(LLModel::JointWeight(vertices[i].joints.y, vertices[i].weights.y));
+                }
+                if (gltf_joint_index_use[vertices[i].joints.z] >= 0
+                    && vertices[i].weights.z > 0.f)
+                {
+                    weight_list.push_back(LLModel::JointWeight(vertices[i].joints.z, vertices[i].weights.z));
+                }
+                if (gltf_joint_index_use[vertices[i].joints.w] >= 0
+                    && vertices[i].weights.w > 0.f)
+                {
+                    weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
                 }
 
-                vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
+                std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
 
-                if (skinIdx >= 0)
+                std::vector<LLModel::JointWeight> wght;
+                F32                               total = 0.f;
+
+                for (U32 j = 0; j < llmin((U32)4, (U32)weight_list.size()); ++j)
                 {
-                    vert.weights = glm::vec4(prim.mWeights[i]);
+                    // take up to 4 most significant weights
+                    // Ported from the DAE loader - however, GLTF right now only supports up to four weights per vertex.
+                    wght.push_back(weight_list[j]);
+                    total += weight_list[j].mWeight;
+                }
 
-                    auto accessorIdx = prim.mAttributes.at("JOINTS_0");
-                    LL::GLTF::Accessor::ComponentType componentType = LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE;
-                    if (accessorIdx >= 0)
-                    {
-                        auto accessor = mGLTFAsset.mAccessors[accessorIdx];
-                        componentType = accessor.mComponentType;
+                if (total != 0.f)
+                {
+                    F32 scale = 1.f / total;
+                    if (scale != 1.f)
+                    { // normalize weights
+                        for (U32 j = 0; j < wght.size(); ++j)
+                        {
+                            wght[j].mWeight *= scale;
+                        }
                     }
+                }
 
-                    // The GLTF spec allows for either an unsigned byte for joint indices, or an unsigned short.
-                    // Detect and unpack accordingly.
-                    if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE)
+                if (wght.size() > 0)
+                {
+                    pModel->mSkinWeights[LLVector3(vertices[i].position)] = wght;
+                }
+            }
+        }
+
+        // Create a unique material name for this primitive
+        std::string materialName;
+        if (prim.mMaterial >= 0 && prim.mMaterial < mGLTFAsset.mMaterials.size())
+        {
+            LL::GLTF::Material* material = &mGLTFAsset.mMaterials[prim.mMaterial];
+            materialName = material->mName;
+
+            if (materialName.empty())
+            {
+                materialName = "mat" + std::to_string(prim.mMaterial);
+            }
+        }
+        else
+        {
+            materialName = "mat_default" + std::to_string(pModel->getNumVolumeFaces() - 1);
+        }
+        mats[materialName] = impMat;
+
+        // Indices handling
+        if (faceVertices.size() >= USHRT_MAX)
+        {
+            // Will have to remap 32 bit indices into 16 bit indices
+            // For the sake of simplicity build vector of 32 bit indices first
+            std::vector<U32> indices_32;
+            for (U32 i = 0; i < prim.getIndexCount(); i += 3)
+            {
+                // When processing indices, flip winding order if needed
+                if (hasNegativeScale)
+                {
+                    // Flip winding order for negative scale
+                    indices_32.push_back(prim.mIndexArray[i]);
+                    indices_32.push_back(prim.mIndexArray[i + 2]); // Swap these two
+                    indices_32.push_back(prim.mIndexArray[i + 1]);
+                }
+                else
+                {
+                    indices_32.push_back(prim.mIndexArray[i]);
+                    indices_32.push_back(prim.mIndexArray[i + 1]);
+                    indices_32.push_back(prim.mIndexArray[i + 2]);
+                }
+            }
+
+            // remap 32 bit into multiple 16 bit ones
+            std::vector<U16> indices_16;
+            std::vector<S64> vertices_remap; // should it be a point map?
+            vertices_remap.resize(faceVertices.size(), -1);
+            std::vector<LLVolumeFace::VertexData> face_verts;
+            min = glm::vec3(FLT_MAX);
+            max = glm::vec3(-FLT_MAX);
+            for (size_t idx = 0; idx < indices_32.size(); idx++)
+            {
+                size_t vert_index = indices_32[idx];
+                if (vertices_remap[vert_index] == -1)
+                {
+                    // First encounter, add it
+                    size_t new_vert_idx = face_verts.size();
+                    vertices_remap[vert_index] = (S64)new_vert_idx;
+                    face_verts.push_back(faceVertices[vert_index]);
+                    vert_index = new_vert_idx;
+
+                    // Update min/max bounds
+                    const LLVector4a& vec = face_verts[new_vert_idx].getPosition();
+                    if (new_vert_idx == 0)
                     {
-                        auto ujoint = glm::unpackUint4x8((U32)(prim.mJoints[i] & 0xFFFFFFFF));
-                        vert.joints = glm::u16vec4(ujoint.x, ujoint.y, ujoint.z, ujoint.w);
-                    }
-                    else if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_SHORT)
-                    {
-                        vert.joints = glm::unpackUint4x16(prim.mJoints[i]);
+                        min.x = vec[0];
+                        min.y = vec[1];
+                        min.z = vec[2];
+                        max = min;
                     }
                     else
                     {
-                        vert.joints = glm::zero<glm::u16vec4>();
-                        vert.weights = glm::zero<glm::vec4>();
+                        min.x = std::min(min.x, vec[0]);
+                        min.y = std::min(min.y, vec[1]);
+                        min.z = std::min(min.z, vec[2]);
+                        max.x = std::max(max.x, vec[0]);
+                        max.y = std::max(max.y, vec[1]);
+                        max.z = std::max(max.z, vec[2]);
                     }
                 }
-                vertices.push_back(vert);
-            }
+                else
+                {
+                    // already in vector, get position
+                    vert_index = (size_t)vertices_remap[vert_index];
+                }
+                indices_16.push_back((U16)vert_index);
 
-            if (prim.getIndexCount() % 3 != 0)
+                if (indices_16.size() % 3 == 0 && face_verts.size() >= 65532)
+                {
+                    LLVolumeFace face;
+                    face.fillFromLegacyData(face_verts, indices_16);
+                    face.mExtents[0] = LLVector4a(min.x, min.y, min.z, 0);
+                    face.mExtents[1] = LLVector4a(max.x, max.y, max.z, 0);
+                    pModel->getVolumeFaces().push_back(face);
+                    pModel->getMaterialList().push_back(materialName);
+
+                    std::fill(vertices_remap.begin(), vertices_remap.end(), -1);
+                    indices_16.clear();
+                    face_verts.clear();
+
+                    min = glm::vec3(FLT_MAX);
+                    max = glm::vec3(-FLT_MAX);
+                }
+            }
+            if (indices_16.size() > 0 && face_verts.size() > 0)
             {
-                LL_WARNS("GLTF_IMPORT") << "Mesh '" << mesh.mName << "' primitive " << prim_idx
-                                       << ": Invalid index count " << prim.getIndexCount()
-                                       << " (not divisible by 3). GLTF files must contain triangulated geometry." << LL_ENDL;
-
-                LLSD args;
-                args["Message"] = "InvalidGeometryNonTriangulated";
-                args["MESH_NAME"] = mesh.mName;
-                args["PRIMITIVE_INDEX"] = static_cast<S32>(prim_idx);
-                args["INDEX_COUNT"] = static_cast<S32>(prim.getIndexCount());
-                mWarningsArray.append(args);
-                continue; // Skip this primitive
+                LLVolumeFace face;
+                face.fillFromLegacyData(face_verts, indices_16);
+                face.mExtents[0] = LLVector4a(min.x, min.y, min.z, 0);
+                face.mExtents[1] = LLVector4a(max.x, max.y, max.z, 0);
+                pModel->getVolumeFaces().push_back(face);
+                pModel->getMaterialList().push_back(materialName);
             }
-
-            // When processing indices, flip winding order if needed
+        }
+        else
+        {
+            // can use indices directly
+            std::vector<U16> indices;
             for (U32 i = 0; i < prim.getIndexCount(); i += 3)
             {
+                // When processing indices, flip winding order if needed
                 if (hasNegativeScale)
                 {
                     // Flip winding order for negative scale
@@ -729,143 +949,12 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 }
             }
 
-            // Check for empty vertex array before processing
-            if (vertices.empty())
-            {
-                LL_WARNS("GLTF_IMPORT") << "Empty vertex array for primitive" << LL_ENDL;
-                continue; // Skip this primitive
-            }
-
-            std::vector<LLVolumeFace::VertexData> faceVertices;
-            glm::vec3 min = glm::vec3(FLT_MAX);
-            glm::vec3 max = glm::vec3(-FLT_MAX);
-
-            for (U32 i = 0; i < vertices.size(); i++)
-            {
-                LLVolumeFace::VertexData vert;
-
-                // Update min/max bounds
-                if (i == 0)
-                {
-                    min = max = vertices[i].position;
-                }
-                else
-                {
-                    min.x = std::min(min.x, vertices[i].position.x);
-                    min.y = std::min(min.y, vertices[i].position.y);
-                    min.z = std::min(min.z, vertices[i].position.z);
-                    max.x = std::max(max.x, vertices[i].position.x);
-                    max.y = std::max(max.y, vertices[i].position.y);
-                    max.z = std::max(max.z, vertices[i].position.z);
-                }
-
-                LLVector4a position = LLVector4a(vertices[i].position.x, vertices[i].position.y, vertices[i].position.z);
-                LLVector4a normal = LLVector4a(vertices[i].normal.x, vertices[i].normal.y, vertices[i].normal.z);
-                vert.setPosition(position);
-                vert.setNormal(normal);
-                vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
-                faceVertices.push_back(vert);
-
-                if (skinIdx >= 0)
-                {
-                    // create list of weights that influence this vertex
-                    LLModel::weight_list weight_list;
-
-                    // Drop joints that viewer doesn't support (negative in gltf_joint_index_use_count)
-                    // don't reindex them yet, more indexes will be removed
-                    // Also drop joints that have no weight. GLTF stores 4 per vertex, so there might be
-                    // 'empty' ones
-                    if (gltf_joint_index_valid[vertices[i].joints.x] >= 0
-                        && vertices[i].weights.x > 0.f)
-                    {
-                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.x, vertices[i].weights.x));
-                    }
-                    if (gltf_joint_index_valid[vertices[i].joints.y] >= 0
-                        && vertices[i].weights.y > 0.f)
-                    {
-                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.y, vertices[i].weights.y));
-                    }
-                    if (gltf_joint_index_valid[vertices[i].joints.z] >= 0
-                        && vertices[i].weights.z > 0.f)
-                    {
-                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.z, vertices[i].weights.z));
-                    }
-                    if (gltf_joint_index_valid[vertices[i].joints.w] >= 0
-                        && vertices[i].weights.w > 0.f)
-                    {
-                        weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
-                    }
-
-                    std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
-
-                    std::vector<LLModel::JointWeight> wght;
-                    F32                               total = 0.f;
-
-                    for (U32 j = 0; j < llmin((U32)4, (U32)weight_list.size()); ++j)
-                    {
-                        // take up to 4 most significant weights
-                        // Ported from the DAE loader - however, GLTF right now only supports up to four weights per vertex.
-                        wght.push_back(weight_list[j]);
-                        total += weight_list[j].mWeight;
-                    }
-
-                    if (total != 0.f)
-                    {
-                        F32 scale = 1.f / total;
-                        if (scale != 1.f)
-                        { // normalize weights
-                            for (U32 j = 0; j < wght.size(); ++j)
-                            {
-                                wght[j].mWeight *= scale;
-                            }
-                        }
-                    }
-
-                    if (wght.size() > 0)
-                    {
-                        pModel->mSkinWeights[LLVector3(vertices[i].position)] = wght;
-                    }
-                }
-            }
-
             face.fillFromLegacyData(faceVertices, indices);
             face.mExtents[0] = LLVector4a(min.x, min.y, min.z, 0);
             face.mExtents[1] = LLVector4a(max.x, max.y, max.z, 0);
 
             pModel->getVolumeFaces().push_back(face);
-
-            // Create a unique material name for this primitive
-            std::string materialName;
-            if (prim.mMaterial >= 0 && prim.mMaterial < mGLTFAsset.mMaterials.size())
-            {
-                LL::GLTF::Material* material = &mGLTFAsset.mMaterials[prim.mMaterial];
-                materialName = material->mName;
-
-                if (materialName.empty())
-                {
-                    materialName = "mat" + std::to_string(prim.mMaterial);
-                }
-            }
-            else
-            {
-                materialName = "mat_default" + std::to_string(pModel->getNumVolumeFaces() - 1);
-            }
-
             pModel->getMaterialList().push_back(materialName);
-            mats[materialName] = impMat;
-        }
-        else
-        {
-            LL_INFOS("GLTF_IMPORT") << "Unable to process mesh '" << mesh.mName
-                                    << "' primitive " << prim_idx
-                                    << " due to 65,534 vertex limit. Vertex count: "
-                                    << prim.getVertexCount() << LL_ENDL;
-            LLSD args;
-            args["Message"] = "ErrorIndexLimit";
-            args["MESH_NAME"] = mesh.mName.empty() ? ("mesh_" + std::to_string(&mesh - &mGLTFAsset.mMeshes[0])) : mesh.mName;
-            args["VERTEX_COUNT"] = static_cast<S32>(prim.getVertexCount());
-            mWarningsArray.append(args);
-            return false;
         }
     }
 
@@ -892,7 +981,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             {
                 legal_name = mJointMap[legal_name];
             }
-            // else thanks to gltf_joint_index_valid any illegal
+            // else thanks to gltf_joint_index_usage any illegal
             // joint should have zero uses.
             // Add them anyway to preserve order, remapSkinWeightsAndJoints
             // will sort them out later
@@ -970,7 +1059,7 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
     glm::mat4 ident(1.0);
     for (auto &viewer_data : mViewerJointData)
     {
-        buildOverrideMatrix(viewer_data, joints_data, names_to_nodes, ident, ident);
+        buildOverrideMatrix(viewer_data, joints_data, names_to_nodes, ident);
     }
 
     for (S32 i = 0; i < joint_count; i++)
@@ -1147,7 +1236,7 @@ S32 LLGLTFLoader::findParentNode(S32 node) const
     return -1;
 }
 
-void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& leftover) const
+void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest) const
 {
     glm::mat4 new_lefover(1.f);
     glm::mat4 rest(1.f);
@@ -1176,25 +1265,17 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         glm::mat4 viewer_joint = glm::recompose(scale, rotation, override, skew, perspective);
 
         node.mOverrideMatrix = viewer_joint;
-        rest = parent_rest * viewer_joint;
+        rest = parent_rest * node.mOverrideMatrix;
         node.mOverrideRestMatrix = rest;
-        if (viewer_data.mName == "mPelvis")
-        {
-            // Todo: This is wrong, but this is a temporary
-            // solution for parts staying behind.
-            // Something is still missing with override mechanics
-            node.mOverrideMatrix = glm::mat4(1.f);
-        }
     }
     else
     {
         // No override for this joint
-        new_lefover = leftover * viewer_data.mJointMatrix;
         rest = parent_rest * viewer_data.mJointMatrix;
     }
     for (LLJointData& child_data : viewer_data.mChildren)
     {
-        buildOverrideMatrix(child_data, gltf_nodes, names_to_nodes, rest, new_lefover);
+        buildOverrideMatrix(child_data, gltf_nodes, names_to_nodes, rest);
     }
 }
 
