@@ -677,6 +677,12 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                                         else
                                         {
                                             LL_WARNS("GLTF_IMPORT") << "Failed to create temporary file for embedded texture" << LL_ENDL;
+
+                                            LLSD args;
+                                            args["Message"] = "FailedToCreateTempFile";
+                                            args["TEXTURE_INDEX"] = sourceIndex;
+                                            args["TEMP_FILE"] = temp_filename;
+                                            mWarningsArray.append(args);
                                         }
                                     }
                                 }

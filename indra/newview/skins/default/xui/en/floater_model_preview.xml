@@ -71,6 +71,7 @@
   <string name="IgnoredExtension">Model uses unsupported extension: [EXT], related material properties are ignored</string>
   <string name="UnsupportedExtension">Unable to load model, unsupported extension: [EXT]</string>
   <string name="TooManyMeshParts">Model contains [PART_COUNT] mesh parts. Maximum allowed: [LIMIT]</string>
+  <string name="FailedToCreateTempFile">Failed to create temporary file for embedded texture [TEXTURE_INDEX]: [TEMP_FILE]</string>
 
   <panel
     follows="top|left"
