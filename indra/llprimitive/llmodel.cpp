@@ -1804,20 +1804,22 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
     {
         ret["joint_names"][i] = mJointNames[i];
 
-        if (i < mInvBindMatrix.size())
-        {
-            for (U32 j = 0; j < 4; j++)
-            {
-                for (U32 k = 0; k < 4; k++)
-                {
-                    ret["inverse_bind_matrix"][i][j*4+k] = mInvBindMatrix[i].mMatrix[j][k];
-                }
-            }
-        }
-        else
+        // For model to work at all there must be a matching bind matrix,
+        // so supply an indentity one if it isn't true
+        // Note: can build an actual bind matrix from joints
+        const LLMatrix4a& inv_bind = mInvBindMatrix.size() > i ? mInvBindMatrix[i] : LLMatrix4a::identity();
+        if (i >= mInvBindMatrix.size())
         {
             LL_WARNS("MESHSKININFO") << "Joint index " << i << " (" << mJointNames[i] << ") exceeds inverse bind matrix size "
                                      << mInvBindMatrix.size() << LL_ENDL;
+        }
+
+        for (U32 j = 0; j < 4; j++)
+        {
+            for (U32 k = 0; k < 4; k++)
+            {
+                ret["inverse_bind_matrix"][i][j * 4 + k] = inv_bind.mMatrix[j][k];
+            }
         }
     }
 
@@ -1829,24 +1831,26 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
         }
     }
 
+    // optional 'joint overrides'
     if (include_joints && mAlternateBindMatrix.size() > 0)
     {
         for (U32 i = 0; i < mJointNames.size(); ++i)
         {
-            if (i < mAlternateBindMatrix.size())
-            {
-                for (U32 j = 0; j < 4; j++)
-                {
-                    for (U32 k = 0; k < 4; k++)
-                    {
-                        ret["alt_inverse_bind_matrix"][i][j*4+k] = mAlternateBindMatrix[i].mMatrix[j][k];
-                    }
-                }
-            }
-            else
+            // If there is not enough to match mJointNames,
+            // either supply no alternate matrixes at all or supply
+            // replacements
+            const LLMatrix4a& alt_bind = mAlternateBindMatrix.size() > i ? mAlternateBindMatrix[i] : LLMatrix4a::identity();
+            if (i >= mAlternateBindMatrix.size())
             {
                 LL_WARNS("MESHSKININFO") << "Joint index " << i << " (" << mJointNames[i] << ") exceeds alternate bind matrix size "
                                          << mAlternateBindMatrix.size() << LL_ENDL;
+            }
+            for (U32 j = 0; j < 4; j++)
+            {
+                for (U32 k = 0; k < 4; k++)
+                {
+                    ret["alt_inverse_bind_matrix"][i][j * 4 + k] = alt_bind.mMatrix[j][k];
+                }
             }
         }
 
