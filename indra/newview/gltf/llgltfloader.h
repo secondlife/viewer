@@ -227,7 +227,6 @@ private:
     glm::mat4 computeGltfToViewerSkeletonTransform(const joints_data_map_t& joints_data_map, S32 gltf_node_index, const std::string& joint_name) const;
     bool checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx);
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
-    LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
     std::string extractTextureToTempFile(S32 textureIndex, const std::string& texture_type);
 
