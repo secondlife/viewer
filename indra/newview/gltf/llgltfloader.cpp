@@ -225,8 +225,6 @@ void LLGLTFLoader::addModelToScene(
     {
         // remove unused/redundant vertices
         model->remapVolumeFaces();
-        // remove unused/redundant weights and joints
-        model->remapSkinWeightsAndJoints();
 
         mModelList.push_back(model);
 
@@ -765,21 +763,25 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     && vertices[i].weights.x > 0.f)
                 {
                     weight_list.push_back(LLModel::JointWeight(vertices[i].joints.x, vertices[i].weights.x));
+                    gltf_joint_index_use[vertices[i].joints.x]++;
                 }
                 if (gltf_joint_index_use[vertices[i].joints.y] >= 0
                     && vertices[i].weights.y > 0.f)
                 {
                     weight_list.push_back(LLModel::JointWeight(vertices[i].joints.y, vertices[i].weights.y));
+                    gltf_joint_index_use[vertices[i].joints.y]++;
                 }
                 if (gltf_joint_index_use[vertices[i].joints.z] >= 0
                     && vertices[i].weights.z > 0.f)
                 {
                     weight_list.push_back(LLModel::JointWeight(vertices[i].joints.z, vertices[i].weights.z));
+                    gltf_joint_index_use[vertices[i].joints.z]++;
                 }
                 if (gltf_joint_index_use[vertices[i].joints.w] >= 0
                     && vertices[i].weights.w > 0.f)
                 {
                     weight_list.push_back(LLModel::JointWeight(vertices[i].joints.w, vertices[i].weights.w));
+                    gltf_joint_index_use[vertices[i].joints.w]++;
                 }
 
                 std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
@@ -966,14 +968,23 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
     {
         LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
         LLMeshSkinInfo& skin_info = pModel->mSkinInfo;
+        S32 valid_joints_count = mValidJointsCount[skinIdx];
 
+        std::vector<S32> gltfindex_to_joitindex_map;
         size_t jointCnt = gltf_skin.mJoints.size();
+        gltfindex_to_joitindex_map.resize(jointCnt);
 
         S32 replacement_index = 0;
+        S32 stripped_valid_joints = 0;
         for (size_t i = 0; i < jointCnt; ++i)
         {
             // Process joint name and idnex
             S32 joint = gltf_skin.mJoints[i];
+            if (gltf_joint_index_use[i] < 0)
+            {
+                // unsupported (-1) joint, drop it
+                continue;
+            }
             LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
 
             std::string legal_name(jointNode.mName);
@@ -981,10 +992,28 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             {
                 legal_name = mJointMap[legal_name];
             }
-            // else thanks to gltf_joint_index_usage any illegal
-            // joint should have zero uses.
-            // Add them anyway to preserve order, remapSkinWeightsAndJoints
-            // will sort them out later
+            else
+            {
+                llassert(false); // should have been stopped by gltf_joint_index_use[i] == -1
+                continue;
+            }
+
+            if (valid_joints_count > LL_MAX_JOINTS_PER_MESH_OBJECT
+                && gltf_joint_index_use[i] == 0
+                && legal_name != "mPelvis")
+            {
+                // Unused (0) joint
+                // It's perfectly valid to have more joints than is in use
+                // Ex: sandals that make your legs digitigrade despite not skining to
+                // knees or the like.
+                // But if model is over limid, drop extras sans pelvis.
+                // Keeping 'pelvis' is a workaround to keep preview whole.
+                // Todo: consider improving this, either take as much as possible or
+                // ensure common parents/roots are included
+                continue;
+            }
+
+            gltfindex_to_joitindex_map[i] = replacement_index++;
 
             skin_info.mJointNames.push_back(legal_name);
             skin_info.mJointNums.push_back(-1);
@@ -993,6 +1022,28 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             skin_info.mInvBindMatrix.push_back(mInverseBindMatrices[skinIdx][i]);
 
             skin_info.mAlternateBindMatrix.push_back(mAlternateBindMatrices[skinIdx][i]);
+        }
+
+        if (skin_info.mInvBindMatrix.size() > LL_MAX_JOINTS_PER_MESH_OBJECT)
+        {
+            LL_WARNS("GLTF_IMPORT") << "Too many jonts in " << pModel->mLabel
+                << " Count: " << (S32)skin_info.mInvBindMatrix.size()
+                << " Limit:" << (S32)LL_MAX_JOINTS_PER_MESH_OBJECT << LL_ENDL;
+            LLSD args;
+            args["Message"] = "ModelTooManyJoint";
+            args["MODEL_NAME"] = pModel->mLabel;
+            args["JOINT_COUNT"] = (S32)skin_info.mInvBindMatrix.size();
+            args["MAX"] = (S32)LL_MAX_JOINTS_PER_MESH_OBJECT;
+            mWarningsArray.append(args);
+        }
+
+        // Remap indices for pModel->mSkinWeights
+        for (auto& weights : pModel->mSkinWeights)
+        {
+            for (auto& weight : weights.second)
+            {
+                weight.mJointIdx = gltfindex_to_joitindex_map[weight.mJointIdx];
+            }
         }
     }
 
@@ -1019,6 +1070,7 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
     {
         mInverseBindMatrices.resize(skin_idx + 1);
         mAlternateBindMatrices.resize(skin_idx + 1);
+        mValidJointsCount.resize(skin_idx + 1, 0);
     }
 
     // fill up joints related data
@@ -1039,6 +1091,7 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
         {
             data.mName = mJointMap[jointNode.mName];
             data.mIsValidViewerJoint = true;
+            mValidJointsCount[skin_idx]++;
         }
         else
         {
@@ -1053,6 +1106,20 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
             child_data.mParentNodeIdx = joint;
             child_data.mIsParentValidViewerJoint = data.mIsValidViewerJoint;
         }
+    }
+
+    if (mValidJointsCount[skin_idx] > LL_MAX_JOINTS_PER_MESH_OBJECT)
+    {
+        LL_WARNS("GLTF_IMPORT") << "Too many jonts, will strip unused joints"
+            << " Count: " << mValidJointsCount[skin_idx]
+            << " Limit:" << (S32)LL_MAX_JOINTS_PER_MESH_OBJECT << LL_ENDL;
+
+        LLSD args;
+        args["Message"] = "SkinJointsOverLimit";
+        args["SKIN_INDEX"] = (S32)skin_idx;
+        args["JOINT_COUNT"] = mValidJointsCount[skin_idx];
+        args["MAX"] = (S32)LL_MAX_JOINTS_PER_MESH_OBJECT;
+        mWarningsArray.append(args);
     }
 
     // Go over viewer joints and build overrides

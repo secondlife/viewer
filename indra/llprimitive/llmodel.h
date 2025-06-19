@@ -205,7 +205,6 @@ public:
     void normalizeVolumeFacesAndWeights();
     void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
     void remapVolumeFaces();
-    void remapSkinWeightsAndJoints();
     void optimizeVolumeFaces();
     void offsetMesh( const LLVector3& pivotPoint );
     void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out) const;
