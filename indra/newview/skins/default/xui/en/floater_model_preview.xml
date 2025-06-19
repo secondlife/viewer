@@ -72,6 +72,8 @@
   <string name="UnsupportedExtension">Unable to load model, unsupported extension: [EXT]</string>
   <string name="TooManyMeshParts">Model contains [PART_COUNT] mesh parts. Maximum allowed: [LIMIT]</string>
   <string name="FailedToCreateTempFile">Failed to create temporary file for embedded texture [TEXTURE_INDEX]: [TEMP_FILE]</string>
+  <string name="SkinJointsOverLimit">Skin [SKIN_INDEX] defines [JOINT_COUNT] compatible joints, maximum is: [MAX]. Unused joints will be stripped on per model basis.</string>
+  <string name="ModelTooManyJoint">Model [MODEL_NAME] uses [JOINT_COUNT], maximum: [MAX], upload might fail</string>
 
   <panel
     follows="top|left"
