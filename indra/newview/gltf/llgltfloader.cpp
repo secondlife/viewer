@@ -623,67 +623,11 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                         else if (image.mBufferView >= 0)
                         {
                             // For embedded textures (no URI but has buffer data)
-                            // Extract the texture to a temporary file immediately
-                            if (image.mBufferView < mGLTFAsset.mBufferViews.size())
+                            std::string temp_filename = extractTextureToTempFile(texIndex, "base_color");
+                            if (!temp_filename.empty())
                             {
-                                const LL::GLTF::BufferView& buffer_view = mGLTFAsset.mBufferViews[image.mBufferView];
-                                if (buffer_view.mBuffer < mGLTFAsset.mBuffers.size())
-                                {
-                                    const LL::GLTF::Buffer& buffer = mGLTFAsset.mBuffers[buffer_view.mBuffer];
-
-                                    if (buffer_view.mByteOffset + buffer_view.mByteLength <= buffer.mData.size())
-                                    {
-                                        // Extract image data
-                                        const U8* data_ptr = &buffer.mData[buffer_view.mByteOffset];
-                                        U32 data_size = buffer_view.mByteLength;
-
-                                        // Determine the file extension
-                                        std::string extension = ".png"; // Default
-                                        if (!image.mMimeType.empty())
-                                        {
-                                            if (image.mMimeType == "image/jpeg")
-                                                extension = ".jpg";
-                                            else if (image.mMimeType == "image/png")
-                                                extension = ".png";
-                                        }
-                                        else if (data_size >= 4)
-                                        {
-                                            if (data_ptr[0] == 0xFF && data_ptr[1] == 0xD8)
-                                                extension = ".jpg"; // JPEG magic bytes
-                                            else if (data_ptr[0] == 0x89 && data_ptr[1] == 0x50 && data_ptr[2] == 0x4E && data_ptr[3] == 0x47)
-                                                extension = ".png"; // PNG magic bytes
-                                        }
-
-                                        // Create a temporary file
-                                        std::string temp_dir = gDirUtilp->getTempDir();
-                                        std::string temp_filename = temp_dir + gDirUtilp->getDirDelimiter() +
-                                                                   "gltf_embedded_" + std::to_string(sourceIndex) + extension;
-
-                                        // Write the image data to the temporary file
-                                        std::ofstream temp_file(temp_filename, std::ios::binary);
-                                        if (temp_file.is_open())
-                                        {
-                                            temp_file.write(reinterpret_cast<const char*>(data_ptr), data_size);
-                                            temp_file.close();
-
-                                            // Use the temp file as the texture filename
-                                            impMat.mDiffuseMapFilename = temp_filename;
-                                            impMat.mDiffuseMapLabel = material->mName.empty() ? temp_filename : material->mName;
-
-                                            LL_INFOS("GLTF_IMPORT") << "Extracted embedded texture to: " << temp_filename << LL_ENDL;
-                                        }
-                                        else
-                                        {
-                                            LL_WARNS("GLTF_IMPORT") << "Failed to create temporary file for embedded texture" << LL_ENDL;
-
-                                            LLSD args;
-                                            args["Message"] = "FailedToCreateTempFile";
-                                            args["TEXTURE_INDEX"] = sourceIndex;
-                                            args["TEMP_FILE"] = temp_filename;
-                                            mWarningsArray.append(args);
-                                        }
-                                    }
-                                }
+                                impMat.mDiffuseMapFilename = temp_filename;
+                                impMat.mDiffuseMapLabel = material->mName.empty() ? temp_filename : material->mName;
                             }
                         }
                     }
@@ -1730,286 +1674,89 @@ void LLGLTFLoader::uploadMeshes()
 // convert raw image buffers to texture UUIDs & assemble into a render material
 void LLGLTFLoader::uploadMaterials()
 {
-    LL_INFOS("GLTF_IMPORT") << "Uploading materials, count: " << mMaterials.size() << LL_ENDL;
+}
+std::string LLGLTFLoader::extractTextureToTempFile(S32 textureIndex, const std::string& texture_type)
+{
+    if (textureIndex < 0 || textureIndex >= mGLTFAsset.mTextures.size())
+        return "";
 
-    for (gltf_render_material& mat : mMaterials)
+    S32 sourceIndex = mGLTFAsset.mTextures[textureIndex].mSource;
+    if (sourceIndex < 0 || sourceIndex >= mGLTFAsset.mImages.size())
+        return "";
+
+    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+
+    // Handle URI-based textures
+    if (!image.mUri.empty())
     {
-        LL_INFOS("GLTF_IMPORT") << "Processing material: " << mat.name << LL_ENDL;
-
-        // Process base color texture
-        if (mat.hasBaseTex && mat.baseColorTexIdx < mTextures.size())
-        {
-            gltf_texture& gtex = mTextures[mat.baseColorTexIdx];
-            if (gtex.imageUuid.isNull())
-            {
-                LL_INFOS("GLTF_IMPORT") << "Loading base color texture for material " << mat.name << LL_ENDL;
-                gtex.imageUuid = imageBufferToTextureUUID(gtex);
-
-                if (gtex.imageUuid.notNull())
-                {
-                    LL_INFOS("GLTF_IMPORT") << "Base color texture loaded, ID: " << gtex.imageUuid.asString() << LL_ENDL;
-                }
-                else
-                {
-                    LL_WARNS("GLTF_IMPORT") << "Failed to load base color texture for material " << mat.name << LL_ENDL;
-                }
-            }
-        }
-
-        // Process other textures similarly
-        if (mat.hasMRTex && mat.metalRoughTexIdx < mTextures.size())
-        {
-            gltf_texture& gtex = mTextures[mat.metalRoughTexIdx];
-            if (gtex.imageUuid.isNull())
-            {
-                gtex.imageUuid = imageBufferToTextureUUID(gtex);
-            }
-        }
-
-        if (mat.hasNormalTex && mat.normalTexIdx < mTextures.size())
-        {
-            gltf_texture& gtex = mTextures[mat.normalTexIdx];
-            if (gtex.imageUuid.isNull())
-            {
-                gtex.imageUuid = imageBufferToTextureUUID(gtex);
-            }
-        }
-
-        if (mat.hasOcclusionTex && mat.occlusionTexIdx < mTextures.size())
-        {
-            gltf_texture& gtex = mTextures[mat.occlusionTexIdx];
-            if (gtex.imageUuid.isNull())
-            {
-                gtex.imageUuid = imageBufferToTextureUUID(gtex);
-            }
-        }
-
-        if (mat.hasEmissiveTex && mat.emissiveTexIdx < mTextures.size())
-        {
-            gltf_texture& gtex = mTextures[mat.emissiveTexIdx];
-            if (gtex.imageUuid.isNull())
-            {
-                gtex.imageUuid = imageBufferToTextureUUID(gtex);
-            }
-        }
+        return image.mUri; // Return URI directly
     }
 
-    // Update material map for all model instances to ensure textures are properly associated
-    // mScene is a std::map<LLMatrix4, model_instance_list>, not an array, so we need to iterate through it correctly
-    for (auto& scene_entry : mScene)
+    // Handle embedded textures
+    if (image.mBufferView >= 0)
     {
-        for (LLModelInstance& instance : scene_entry.second)
+        if (image.mBufferView < mGLTFAsset.mBufferViews.size())
         {
-            LLModel* model = instance.mModel;
-
-            if (model)
+            const LL::GLTF::BufferView& buffer_view = mGLTFAsset.mBufferViews[image.mBufferView];
+            if (buffer_view.mBuffer < mGLTFAsset.mBuffers.size())
             {
-                for (size_t i = 0; i < model->getMaterialList().size(); ++i)
+                const LL::GLTF::Buffer& buffer = mGLTFAsset.mBuffers[buffer_view.mBuffer];
+
+                if (buffer_view.mByteOffset + buffer_view.mByteLength <= buffer.mData.size())
                 {
-                    const std::string& matName = model->getMaterialList()[i];
-                    if (!matName.empty())
+                    // Extract image data
+                    const U8* data_ptr = &buffer.mData[buffer_view.mByteOffset];
+                    U32 data_size = buffer_view.mByteLength;
+
+                    // Determine the file extension
+                    std::string extension = ".png"; // Default
+                    if (!image.mMimeType.empty())
                     {
-                        // Ensure this material exists in the instance's material map
-                        if (instance.mMaterial.find(matName) == instance.mMaterial.end())
-                        {
-                            // Find material in our render materials
-                            for (const auto& renderMat : mMaterials)
-                            {
-                                if (renderMat.name == matName)
-                                {
-                                    // Create an import material from the render material
-                                    LLImportMaterial impMat;
-                                    impMat.mDiffuseColor = renderMat.baseColor;
+                        if (image.mMimeType == "image/jpeg")
+                            extension = ".jpg";
+                        else if (image.mMimeType == "image/png")
+                            extension = ".png";
+                    }
+                    else if (data_size >= 4)
+                    {
+                        if (data_ptr[0] == 0xFF && data_ptr[1] == 0xD8)
+                            extension = ".jpg"; // JPEG magic bytes
+                        else if (data_ptr[0] == 0x89 && data_ptr[1] == 0x50 && data_ptr[2] == 0x4E && data_ptr[3] == 0x47)
+                            extension = ".png"; // PNG magic bytes
+                    }
 
-                                    // Set diffuse texture if available
-                                    if (renderMat.hasBaseTex && renderMat.baseColorTexIdx < mTextures.size())
-                                    {
-                                        const gltf_texture& gtex = mTextures[renderMat.baseColorTexIdx];
-                                        if (!gtex.imageUuid.isNull())
-                                        {
-                                            impMat.setDiffuseMap(gtex.imageUuid);
-                                            LL_INFOS("GLTF_IMPORT") << "Setting texture " << gtex.imageUuid.asString() << " for material " << matName << LL_ENDL;
-                                        }
-                                    }
+                    // Create a temporary file
+                    std::string temp_dir = gDirUtilp->getTempDir();
+                    std::string temp_filename = temp_dir + gDirUtilp->getDirDelimiter() +
+                                               "gltf_embedded_" + texture_type + "_" + std::to_string(sourceIndex) + extension;
 
-                                    // Add material to instance's material map
-                                    instance.mMaterial[matName] = impMat;
-                                    LL_INFOS("GLTF_IMPORT") << "Added material " << matName << " to instance" << LL_ENDL;
-                                    break;
-                                }
-                            }
-                        }
+                    // Write the image data to the temporary file
+                    std::ofstream temp_file(temp_filename, std::ios::binary);
+                    if (temp_file.is_open())
+                    {
+                        temp_file.write(reinterpret_cast<const char*>(data_ptr), data_size);
+                        temp_file.close();
+
+                        LL_INFOS("GLTF_IMPORT") << "Extracted embedded " << texture_type << " texture to: " << temp_filename << LL_ENDL;
+                        return temp_filename;
+                    }
+                    else
+                    {
+                        LL_WARNS("GLTF_IMPORT") << "Failed to create temporary file for " << texture_type << " texture: " << temp_filename << LL_ENDL;
+
+                        LLSD args;
+                        args["Message"] = "FailedToCreateTempFile";
+                        args["TEXTURE_INDEX"] = sourceIndex;
+                        args["TEXTURE_TYPE"]  = texture_type;
+                        args["TEMP_FILE"] = temp_filename;
+                        mWarningsArray.append(args);
                     }
                 }
             }
         }
     }
-}
 
-LLUUID LLGLTFLoader::imageBufferToTextureUUID(const gltf_texture& tex)
-{
-    if (tex.imageIdx >= mImages.size() || tex.samplerIdx >= mSamplers.size())
-    {
-        LL_WARNS("GLTF_IMPORT") << "Invalid texture indices in imageBufferToTextureUUID" << LL_ENDL;
-        return LLUUID::null;
-    }
-
-    gltf_image& image = mImages[tex.imageIdx];
-    gltf_sampler& sampler = mSamplers[tex.samplerIdx];
-
-    S32 sourceIndex = tex.imageIdx;
-    if (sourceIndex < 0 || sourceIndex >= mGLTFAsset.mImages.size())
-    {
-        LL_WARNS("GLTF_IMPORT") << "Invalid image index: " << sourceIndex << LL_ENDL;
-        return LLUUID::null;
-    }
-
-    LL::GLTF::Image& source_image = mGLTFAsset.mImages[sourceIndex];
-
-    // If the image already has a texture loaded, use it
-    if (source_image.mTexture.notNull())
-    {
-        LL_INFOS("GLTF_IMPORT") << "Using already loaded texture ID: " << source_image.mTexture->getID().asString() << LL_ENDL;
-        return source_image.mTexture->getID();
-    }
-
-    // Create an import material to pass to the texture load function
-    LLImportMaterial material;
-
-    // Try to get the texture filename from the URI
-    if (!source_image.mUri.empty())
-    {
-        std::string filename = source_image.mUri;
-
-        // Extract just the filename from the URI
-        size_t pos = filename.find_last_of("/\\");
-        if (pos != std::string::npos)
-        {
-            filename = filename.substr(pos + 1);
-        }
-
-        material.mDiffuseMapFilename = filename;
-        material.mDiffuseMapLabel = filename;
-    }
-    else if (source_image.mBufferView >= 0)
-    {
-        // For embedded textures, create a pseudo-filename
-        std::string pseudo_filename = "gltf_embedded_texture_" + std::to_string(sourceIndex) + ".png";
-        material.mDiffuseMapFilename = pseudo_filename;
-        material.mDiffuseMapLabel = pseudo_filename;
-    }
-    else
-    {
-        LL_WARNS("GLTF_IMPORT") << "No URI or buffer data for image" << LL_ENDL;
-        return LLUUID::null;
-    }
-
-    // Create LLSD container with image and sampler data for texture upload
-    LLSD texture_data = LLSD::emptyMap();
-
-    // Image data
-    texture_data["width"] = LLSD::Integer(image.width);
-    texture_data["height"] = LLSD::Integer(image.height);
-    texture_data["components"] = LLSD::Integer(image.numChannels);
-    texture_data["bytes_per_component"] = LLSD::Integer(image.bytesPerChannel);
-    texture_data["pixel_type"] = LLSD::Integer(image.pixelType);
-
-    // Sampler data
-    texture_data["min_filter"] = LLSD::Integer(sampler.minFilter);
-    texture_data["mag_filter"] = LLSD::Integer(sampler.magFilter);
-    texture_data["wrap_s"] = LLSD::Integer(sampler.wrapS);
-    texture_data["wrap_t"] = LLSD::Integer(sampler.wrapT);
-
-    // Add URI for reference
-    if (!source_image.mUri.empty())
-    {
-        texture_data["uri"] = source_image.mUri;
-    }
-
-    // Check if we have a buffer view for embedded data
-    if (source_image.mBufferView >= 0)
-    {
-        texture_data["has_embedded_data"] = LLSD::Boolean(true);
-        texture_data["buffer_view"] = LLSD::Integer(source_image.mBufferView);
-
-        // Extract embedded data for texture loading
-        if (source_image.mBufferView < mGLTFAsset.mBufferViews.size())
-        {
-            const LL::GLTF::BufferView& buffer_view = mGLTFAsset.mBufferViews[source_image.mBufferView];
-            if (buffer_view.mBuffer < mGLTFAsset.mBuffers.size())
-            {
-                const LL::GLTF::Buffer& buffer = mGLTFAsset.mBuffers[buffer_view.mBuffer];
-                if (buffer_view.mByteOffset + buffer_view.mByteLength <= buffer.mData.size())
-                {
-                    // Add embedded data reference to texture_data
-                    texture_data["buffer_index"] = LLSD::Integer(buffer_view.mBuffer);
-                    texture_data["byte_offset"] = LLSD::Integer(buffer_view.mByteOffset);
-                    texture_data["byte_length"] = LLSD::Integer(buffer_view.mByteLength);
-
-                    LL_INFOS("GLTF_IMPORT") << "Found embedded texture data: offset=" << buffer_view.mByteOffset
-                                           << " length=" << buffer_view.mByteLength << LL_ENDL;
-                }
-            }
-        }
-    }
-
-    // Store the texture metadata in the binding field
-    std::ostringstream ostr;
-    LLSDSerialize::toXML(texture_data, ostr);
-    material.mBinding = ostr.str();
-
-    LL_INFOS("GLTF_IMPORT") << "Loading texture: " << material.mDiffuseMapFilename << LL_ENDL;
-
-    // Flag to track if texture was loaded immediately
-    bool texture_loaded = false;
-
-    // Call texture loading function with our import material
-    if (mTextureLoadFunc)
-    {
-        // Increment textures to fetch counter BEFORE calling load function
-        mNumOfFetchingTextures++;
-
-        U32 result = mTextureLoadFunc(material, mOpaqueData);
-
-        // If result is 0, texture is being loaded asynchronously
-        // If result is >0, texture was loaded immediately
-        if (result > 0)
-        {
-            // Texture was loaded immediately, so decrement counter
-            mNumOfFetchingTextures--;
-            texture_loaded = true;
-
-            if (material.getDiffuseMap().notNull())
-            {
-                LL_INFOS("GLTF_IMPORT") << "Texture loaded successfully, ID: " << material.getDiffuseMap().asString() << LL_ENDL;
-
-                // Store the texture in the source image for future reference
-                if (source_image.mTexture.isNull())
-                {
-                    // Create and store a texture object using the UUID
-                    source_image.mTexture = LLViewerTextureManager::getFetchedTexture(material.getDiffuseMap());
-                }
-
-                return material.getDiffuseMap();
-            }
-        }
-        else if (result == 0)
-        {
-            LL_INFOS("GLTF_IMPORT") << "Texture loading queued asynchronously for " << material.mDiffuseMapFilename << LL_ENDL;
-        }
-        else // result < 0, indicating error
-        {
-            // Texture loading failed, decrement counter
-            mNumOfFetchingTextures--;
-            LL_WARNS("GLTF_IMPORT") << "Texture loading failed for " << material.mDiffuseMapFilename << LL_ENDL;
-        }
-    }
-    else
-    {
-        LL_WARNS("GLTF_IMPORT") << "No texture loading function available" << LL_ENDL;
-    }
-
-    return LLUUID::null;
+    return "";
 }
 
 void LLGLTFLoader::notifyUnsupportedExtension(bool unsupported)
