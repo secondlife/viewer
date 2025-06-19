@@ -207,6 +207,9 @@ protected:
     bind_matrices_t                     mInverseBindMatrices;
     bind_matrices_t                     mAlternateBindMatrices;
 
+    // per skin joint count, needs to be tracked for the sake of limits check.
+    std::vector<S32>                    mValidJointsCount;
+
 private:
     bool parseMeshes();
     void uploadMeshes();
