@@ -111,9 +111,6 @@ LLGLTFLoader::LLGLTFLoader(std::string filename,
                      jointsFromNodes,
                      jointAliasMap,
                      maxJointsPerMesh )
-    //mPreprocessGLTF(preprocess),
-    , mMeshesLoaded(false)
-    , mMaterialsLoaded(false)
     , mGeneratedModelLimit(modelLimit)
     , mViewerJointData(viewer_skeleton)
 {
@@ -137,15 +134,11 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
 
     notifyUnsupportedExtension(false);
 
-    mMeshesLoaded = parseMeshes();
-    if (mMeshesLoaded) uploadMeshes();
-
-    mMaterialsLoaded = parseMaterials();
-    if (mMaterialsLoaded) uploadMaterials();
+    bool meshesLoaded = parseMeshes();
 
     setLoadState(DONE);
 
-    return (mMeshesLoaded);
+    return meshesLoaded;
 }
 
 void LLGLTFLoader::addModelToScene(
@@ -1486,195 +1479,6 @@ void LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin)
     }
 }
 
-bool LLGLTFLoader::parseMaterials()
-{
-    if (!mGltfLoaded) return false;
-
-    // fill local texture data structures
-    mSamplers.clear();
-    for (auto& in_sampler : mGLTFAsset.mSamplers)
-    {
-        gltf_sampler sampler;
-        sampler.magFilter = in_sampler.mMagFilter > 0 ? in_sampler.mMagFilter : GL_LINEAR;
-        sampler.minFilter = in_sampler.mMinFilter > 0 ? in_sampler.mMinFilter : GL_LINEAR;
-        sampler.wrapS = in_sampler.mWrapS;
-        sampler.wrapT = in_sampler.mWrapT;
-        sampler.name = in_sampler.mName;
-        mSamplers.push_back(sampler);
-    }
-
-    mImages.clear();
-    for (auto& in_image : mGLTFAsset.mImages)
-    {
-        gltf_image image;
-        image.numChannels = in_image.mComponent;
-        image.bytesPerChannel = in_image.mBits >> 3;     // Convert bits to bytes
-        image.pixelType = in_image.mPixelType;
-        image.size = 0; // We'll calculate this below if we have valid dimensions
-
-        // Get dimensions from the texture if available
-        if (in_image.mTexture && in_image.mTexture->getDiscardLevel() >= 0)
-        {
-            image.height = in_image.mTexture->getHeight();
-            image.width = in_image.mTexture->getWidth();
-            // Since we don't have direct access to the raw data, we'll use the dimensions to calculate size
-            if (image.height > 0 && image.width > 0 && image.numChannels > 0 && image.bytesPerChannel > 0)
-            {
-                image.size = static_cast<U32>(image.height * image.width * image.numChannels * image.bytesPerChannel);
-            }
-        }
-        else
-        {
-            // Fallback to provided dimensions
-            image.height = in_image.mHeight;
-            image.width = in_image.mWidth;
-            if (image.height > 0 && image.width > 0 && image.numChannels > 0 && image.bytesPerChannel > 0)
-            {
-                image.size = static_cast<U32>(image.height * image.width * image.numChannels * image.bytesPerChannel);
-            }
-        }
-
-        // If we couldn't determine the size, skip this image
-        if (image.size == 0)
-        {
-            LL_WARNS("GLTF_IMPORT") << "Image size could not be determined" << LL_ENDL;
-            continue;
-        }
-
-        // We don't have direct access to the image data, so data pointer remains nullptr
-        image.data = nullptr;
-        mImages.push_back(image);
-    }
-
-    mTextures.clear();
-    for (auto& in_tex : mGLTFAsset.mTextures)
-    {
-        gltf_texture tex;
-        tex.imageIdx = in_tex.mSource;
-        tex.samplerIdx = in_tex.mSampler;
-        tex.imageUuid.setNull();
-
-        if (tex.imageIdx >= mImages.size() || tex.samplerIdx >= mSamplers.size())
-        {
-            LL_WARNS("GLTF_IMPORT") << "Texture sampler/image index error" << LL_ENDL;
-            return false;
-        }
-
-        mTextures.push_back(tex);
-    }
-
-    // parse each material
-    mMaterials.clear();
-    for (const auto& gltf_material : mGLTFAsset.mMaterials)
-    {
-        gltf_render_material mat;
-        mat.name = gltf_material.mName;
-
-        // PBR Metallic Roughness properties
-        mat.hasPBR = true;
-
-        // Base color factor
-        mat.baseColor = LLColor4(
-            gltf_material.mPbrMetallicRoughness.mBaseColorFactor[0],
-            gltf_material.mPbrMetallicRoughness.mBaseColorFactor[1],
-            gltf_material.mPbrMetallicRoughness.mBaseColorFactor[2],
-            gltf_material.mPbrMetallicRoughness.mBaseColorFactor[3]
-        );
-
-        // Base color texture
-        mat.hasBaseTex = gltf_material.mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0;
-        mat.baseColorTexIdx = gltf_material.mPbrMetallicRoughness.mBaseColorTexture.mIndex;
-        mat.baseColorTexCoords = gltf_material.mPbrMetallicRoughness.mBaseColorTexture.mTexCoord;
-
-        // Metalness and roughness
-        mat.metalness = gltf_material.mPbrMetallicRoughness.mMetallicFactor;
-        mat.roughness = gltf_material.mPbrMetallicRoughness.mRoughnessFactor;
-
-        // Metallic-roughness texture
-        mat.hasMRTex = gltf_material.mPbrMetallicRoughness.mMetallicRoughnessTexture.mIndex >= 0;
-        mat.metalRoughTexIdx = gltf_material.mPbrMetallicRoughness.mMetallicRoughnessTexture.mIndex;
-        mat.metalRoughTexCoords = gltf_material.mPbrMetallicRoughness.mMetallicRoughnessTexture.mTexCoord;
-
-        // Normal texture
-        mat.normalScale = gltf_material.mNormalTexture.mScale;
-        mat.hasNormalTex = gltf_material.mNormalTexture.mIndex >= 0;
-        mat.normalTexIdx = gltf_material.mNormalTexture.mIndex;
-        mat.normalTexCoords = gltf_material.mNormalTexture.mTexCoord;
-
-        // Occlusion texture
-        mat.occlusionScale = gltf_material.mOcclusionTexture.mStrength;
-        mat.hasOcclusionTex = gltf_material.mOcclusionTexture.mIndex >= 0;
-        mat.occlusionTexIdx = gltf_material.mOcclusionTexture.mIndex;
-        mat.occlusionTexCoords = gltf_material.mOcclusionTexture.mTexCoord;
-
-        // Emissive texture and color
-        mat.emissiveColor = LLColor4(
-            gltf_material.mEmissiveFactor[0],
-            gltf_material.mEmissiveFactor[1],
-            gltf_material.mEmissiveFactor[2],
-            1.0f
-        );
-        mat.hasEmissiveTex = gltf_material.mEmissiveTexture.mIndex >= 0;
-        mat.emissiveTexIdx = gltf_material.mEmissiveTexture.mIndex;
-        mat.emissiveTexCoords = gltf_material.mEmissiveTexture.mTexCoord;
-
-        // Convert AlphaMode enum to string
-        switch (gltf_material.mAlphaMode)
-        {
-        case LL::GLTF::Material::AlphaMode::OPAQUE:
-            mat.alphaMode = "OPAQUE";
-            break;
-        case LL::GLTF::Material::AlphaMode::MASK:
-            mat.alphaMode = "MASK";
-            break;
-        case LL::GLTF::Material::AlphaMode::BLEND:
-            mat.alphaMode = "BLEND";
-            break;
-        default:
-            mat.alphaMode = "OPAQUE";
-            break;
-        }
-
-        mat.alphaMask = gltf_material.mAlphaCutoff;
-
-        // Verify that all referenced textures are valid
-        if ((mat.hasNormalTex && (mat.normalTexIdx >= mTextures.size())) ||
-            (mat.hasOcclusionTex && (mat.occlusionTexIdx >= mTextures.size())) ||
-            (mat.hasEmissiveTex && (mat.emissiveTexIdx >= mTextures.size())) ||
-            (mat.hasBaseTex && (mat.baseColorTexIdx >= mTextures.size())) ||
-            (mat.hasMRTex && (mat.metalRoughTexIdx >= mTextures.size())))
-        {
-            LL_WARNS("GLTF_IMPORT") << "Texture resource index error" << LL_ENDL;
-            return false;
-        }
-
-        // Verify texture coordinate sets are valid (mesh can have up to 3 sets of UV)
-        if ((mat.hasNormalTex && (mat.normalTexCoords > 2)) ||
-            (mat.hasOcclusionTex && (mat.occlusionTexCoords > 2)) ||
-            (mat.hasEmissiveTex && (mat.emissiveTexCoords > 2)) ||
-            (mat.hasBaseTex && (mat.baseColorTexCoords > 2)) ||
-            (mat.hasMRTex && (mat.metalRoughTexCoords > 2)))
-        {
-            LL_WARNS("GLTF_IMPORT") << "Image texcoord index error" << LL_ENDL;
-            return false;
-        }
-
-        mMaterials.push_back(mat);
-    }
-
-    return true;
-}
-
-// TODO: convert raw vertex buffers to UUIDs
-void LLGLTFLoader::uploadMeshes()
-{
-    //llassert(0);
-}
-
-// convert raw image buffers to texture UUIDs & assemble into a render material
-void LLGLTFLoader::uploadMaterials()
-{
-}
 std::string LLGLTFLoader::extractTextureToTempFile(S32 textureIndex, const std::string& texture_type)
 {
     if (textureIndex < 0 || textureIndex >= mGLTFAsset.mTextures.size())
