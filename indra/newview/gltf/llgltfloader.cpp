@@ -625,67 +625,11 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                         else if (image.mBufferView >= 0)
                         {
                             // For embedded textures (no URI but has buffer data)
-                            // Extract the texture to a temporary file immediately
-                            if (image.mBufferView < mGLTFAsset.mBufferViews.size())
+                            std::string temp_filename = extractTextureToTempFile(texIndex, "base_color");
+                            if (!temp_filename.empty())
                             {
-                                const LL::GLTF::BufferView& buffer_view = mGLTFAsset.mBufferViews[image.mBufferView];
-                                if (buffer_view.mBuffer < mGLTFAsset.mBuffers.size())
-                                {
-                                    const LL::GLTF::Buffer& buffer = mGLTFAsset.mBuffers[buffer_view.mBuffer];
-
-                                    if (buffer_view.mByteOffset + buffer_view.mByteLength <= buffer.mData.size())
-                                    {
-                                        // Extract image data
-                                        const U8* data_ptr = &buffer.mData[buffer_view.mByteOffset];
-                                        U32 data_size = buffer_view.mByteLength;
-
-                                        // Determine the file extension
-                                        std::string extension = ".png"; // Default
-                                        if (!image.mMimeType.empty())
-                                        {
-                                            if (image.mMimeType == "image/jpeg")
-                                                extension = ".jpg";
-                                            else if (image.mMimeType == "image/png")
-                                                extension = ".png";
-                                        }
-                                        else if (data_size >= 4)
-                                        {
-                                            if (data_ptr[0] == 0xFF && data_ptr[1] == 0xD8)
-                                                extension = ".jpg"; // JPEG magic bytes
-                                            else if (data_ptr[0] == 0x89 && data_ptr[1] == 0x50 && data_ptr[2] == 0x4E && data_ptr[3] == 0x47)
-                                                extension = ".png"; // PNG magic bytes
-                                        }
-
-                                        // Create a temporary file
-                                        std::string temp_dir = gDirUtilp->getTempDir();
-                                        std::string temp_filename = temp_dir + gDirUtilp->getDirDelimiter() +
-                                                                   "gltf_embedded_" + std::to_string(sourceIndex) + extension;
-
-                                        // Write the image data to the temporary file
-                                        std::ofstream temp_file(temp_filename, std::ios::binary);
-                                        if (temp_file.is_open())
-                                        {
-                                            temp_file.write(reinterpret_cast<const char*>(data_ptr), data_size);
-                                            temp_file.close();
-
-                                            // Use the temp file as the texture filename
-                                            impMat.mDiffuseMapFilename = temp_filename;
-                                            impMat.mDiffuseMapLabel = material->mName.empty() ? temp_filename : material->mName;
-
-                                            LL_INFOS("GLTF_IMPORT") << "Extracted embedded texture to: " << temp_filename << LL_ENDL;
-                                        }
-                                        else
-                                        {
-                                            LL_WARNS("GLTF_IMPORT") << "Failed to create temporary file for embedded texture" << LL_ENDL;
-
-                                            LLSD args;
-                                            args["Message"] = "FailedToCreateTempFile";
-                                            args["TEXTURE_INDEX"] = sourceIndex;
-                                            args["TEMP_FILE"] = temp_filename;
-                                            mWarningsArray.append(args);
-                                        }
-                                    }
-                                }
+                                impMat.mDiffuseMapFilename = temp_filename;
+                                impMat.mDiffuseMapLabel = material->mName.empty() ? temp_filename : material->mName;
                             }
                         }
                     }
@@ -1943,6 +1887,90 @@ LLUUID LLGLTFLoader::imageBufferToTextureUUID(const gltf_texture& tex)
     }
 
     return LLUUID::null;
+}
+
+std::string LLGLTFLoader::extractTextureToTempFile(S32 textureIndex, const std::string& texture_type)
+{
+    if (textureIndex < 0 || textureIndex >= mGLTFAsset.mTextures.size())
+        return "";
+
+    S32 sourceIndex = mGLTFAsset.mTextures[textureIndex].mSource;
+    if (sourceIndex < 0 || sourceIndex >= mGLTFAsset.mImages.size())
+        return "";
+
+    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+
+    // Handle URI-based textures
+    if (!image.mUri.empty())
+    {
+        return image.mUri; // Return URI directly
+    }
+
+    // Handle embedded textures
+    if (image.mBufferView >= 0)
+    {
+        if (image.mBufferView < mGLTFAsset.mBufferViews.size())
+        {
+            const LL::GLTF::BufferView& buffer_view = mGLTFAsset.mBufferViews[image.mBufferView];
+            if (buffer_view.mBuffer < mGLTFAsset.mBuffers.size())
+            {
+                const LL::GLTF::Buffer& buffer = mGLTFAsset.mBuffers[buffer_view.mBuffer];
+
+                if (buffer_view.mByteOffset + buffer_view.mByteLength <= buffer.mData.size())
+                {
+                    // Extract image data
+                    const U8* data_ptr = &buffer.mData[buffer_view.mByteOffset];
+                    U32 data_size = buffer_view.mByteLength;
+
+                    // Determine the file extension
+                    std::string extension = ".png"; // Default
+                    if (!image.mMimeType.empty())
+                    {
+                        if (image.mMimeType == "image/jpeg")
+                            extension = ".jpg";
+                        else if (image.mMimeType == "image/png")
+                            extension = ".png";
+                    }
+                    else if (data_size >= 4)
+                    {
+                        if (data_ptr[0] == 0xFF && data_ptr[1] == 0xD8)
+                            extension = ".jpg"; // JPEG magic bytes
+                        else if (data_ptr[0] == 0x89 && data_ptr[1] == 0x50 && data_ptr[2] == 0x4E && data_ptr[3] == 0x47)
+                            extension = ".png"; // PNG magic bytes
+                    }
+
+                    // Create a temporary file
+                    std::string temp_dir = gDirUtilp->getTempDir();
+                    std::string temp_filename = temp_dir + gDirUtilp->getDirDelimiter() +
+                                               "gltf_embedded_" + texture_type + "_" + std::to_string(sourceIndex) + extension;
+
+                    // Write the image data to the temporary file
+                    std::ofstream temp_file(temp_filename, std::ios::binary);
+                    if (temp_file.is_open())
+                    {
+                        temp_file.write(reinterpret_cast<const char*>(data_ptr), data_size);
+                        temp_file.close();
+
+                        LL_INFOS("GLTF_IMPORT") << "Extracted embedded " << texture_type << " texture to: " << temp_filename << LL_ENDL;
+                        return temp_filename;
+                    }
+                    else
+                    {
+                        LL_WARNS("GLTF_IMPORT") << "Failed to create temporary file for " << texture_type << " texture: " << temp_filename << LL_ENDL;
+
+                        LLSD args;
+                        args["Message"] = "FailedToCreateTempFile";
+                        args["TEXTURE_INDEX"] = sourceIndex;
+                        args["TEXTURE_TYPE"]  = texture_type;
+                        args["TEMP_FILE"] = temp_filename;
+                        mWarningsArray.append(args);
+                    }
+                }
+            }
+        }
+    }
+
+    return "";
 }
 
 void LLGLTFLoader::notifyUnsupportedExtension(bool unsupported)

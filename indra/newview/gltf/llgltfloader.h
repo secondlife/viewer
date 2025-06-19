@@ -229,6 +229,8 @@ private:
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
+    std::string extractTextureToTempFile(S32 textureIndex, const std::string& texture_type);
+
     void notifyUnsupportedExtension(bool unsupported);
 
     //    bool mPreprocessGLTF;
