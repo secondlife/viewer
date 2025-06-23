@@ -465,6 +465,9 @@ void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S3
 
 bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats, S32 instance_count)
 {
+    // Set the requested label for the floater display and uploading
+    pModel->mRequestedLabel = gDirUtilp->getBaseFileName(mFilename, true);
+
     // Create unique model name
     std::string base_name = mesh.mName;
     if (base_name.empty())
