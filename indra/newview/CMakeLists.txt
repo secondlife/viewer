@@ -178,11 +178,11 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloater360capture.cpp
     llfloaterabout.cpp
+    llfloateravatarwelcomepack.cpp
     llfloaterbvhpreview.cpp
     llfloateraddpaymentmethod.cpp
     llfloaterauction.cpp
     llfloaterautoreplacesettings.cpp
-    llfloateravatar.cpp
     llfloateravatarpicker.cpp
     llfloateravatarrendersettings.cpp
     llfloateravatartextures.cpp
@@ -849,11 +849,11 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloater360capture.h
     llfloaterabout.h
+    llfloateravatarwelcomepack.h
     llfloaterbvhpreview.h
     llfloateraddpaymentmethod.h
     llfloaterauction.h
     llfloaterautoreplacesettings.h
-    llfloateravatar.h
     llfloateravatarpicker.h
     llfloateravatarrendersettings.h
     llfloateravatartextures.h
