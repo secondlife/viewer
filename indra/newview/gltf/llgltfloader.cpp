@@ -1122,7 +1122,7 @@ void LLGLTFLoader::populateJointFromSkin(S32 skin_idx)
     glm::mat4 ident(1.0);
     for (auto &viewer_data : mViewerJointData)
     {
-        buildOverrideMatrix(viewer_data, joints_data, names_to_nodes, ident);
+        buildOverrideMatrix(viewer_data, joints_data, names_to_nodes, ident, ident);
     }
 
     for (S32 i = 0; i < joint_count; i++)
@@ -1299,7 +1299,7 @@ S32 LLGLTFLoader::findParentNode(S32 node) const
     return -1;
 }
 
-void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest) const
+void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& parent_support_rest) const
 {
     glm::mat4 new_lefover(1.f);
     glm::mat4 rest(1.f);
@@ -1309,26 +1309,42 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         S32 gltf_node_idx = found_node->second;
         JointNodeData& node = gltf_nodes[gltf_node_idx];
         node.mIsOverrideValid = true;
+        node.mViewerRestMatrix = viewer_data.mRestMatrix;
 
         glm::mat4 gltf_joint_rest_pose = coord_system_rotation * node.mGltfRestMatrix;
         if (mApplyXYRotation)
         {
             gltf_joint_rest_pose = coord_system_rotationxy * gltf_joint_rest_pose;
         }
-        node.mOverrideMatrix = glm::inverse(parent_rest) * gltf_joint_rest_pose;
 
-        glm::vec3 override;
+        glm::mat4 translated_joint;
+        // Example:
+        // Viewer has pelvis->spine1->spine2->torso.
+        // gltf example model has pelvis->torso
+        // By doing glm::inverse(transalted_rest_spine2) * gltf_rest_torso
+        // We get what torso would have looked like if gltf had a spine2
+        if (viewer_data.mIsJoint)
+        {
+            translated_joint = glm::inverse(parent_rest) * gltf_joint_rest_pose;
+        }
+        else
+        {
+            translated_joint = glm::inverse(parent_support_rest) * gltf_joint_rest_pose;
+        }
+
+        glm::vec3 translation_override;
         glm::vec3 skew;
         glm::vec3 scale;
         glm::vec4 perspective;
         glm::quat rotation;
-        glm::decompose(node.mOverrideMatrix, scale, rotation, override, skew, perspective);
-        glm::vec3 translate;
-        glm::decompose(viewer_data.mJointMatrix, scale, rotation, translate, skew, perspective);
-        glm::mat4 viewer_joint = glm::recompose(scale, rotation, override, skew, perspective);
+        glm::decompose(translated_joint, scale, rotation, translation_override, skew, perspective);
 
-        node.mOverrideMatrix = viewer_joint;
-        rest = parent_rest * node.mOverrideMatrix;
+        node.mOverrideMatrix = glm::recompose(glm::vec3(1, 1, 1), glm::identity<glm::quat>(), translation_override, glm::vec3(0, 0, 0), glm::vec4(0, 0, 0, 1));
+
+        glm::mat4 override_joint = node.mOverrideMatrix;
+        override_joint = glm::scale(override_joint, viewer_data.mScale);
+
+        rest = parent_rest * override_joint;
         node.mOverrideRestMatrix = rest;
     }
     else
@@ -1336,9 +1352,20 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         // No override for this joint
         rest = parent_rest * viewer_data.mJointMatrix;
     }
+
+    glm::mat4 support_rest(1.f);
+    if (viewer_data.mSupport == LLJointData::SUPPORT_BASE)
+    {
+        support_rest = rest;
+    }
+    else
+    {
+        support_rest = parent_support_rest;
+    }
+
     for (LLJointData& child_data : viewer_data.mChildren)
     {
-        buildOverrideMatrix(child_data, gltf_nodes, names_to_nodes, rest);
+        buildOverrideMatrix(child_data, gltf_nodes, names_to_nodes, rest, support_rest);
     }
 }
 

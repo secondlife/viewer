@@ -1683,7 +1683,10 @@ void LLAvatarSkeletonInfo::getJointMatricesAndHierarhy(
 {
     data.mName = bone_info->mName;
     data.mJointMatrix = bone_info->getJointMatrix();
+    data.mScale = glm::vec3(bone_info->mScale[0], bone_info->mScale[1], bone_info->mScale[2]);
+    data.mRotation = bone_info->mRot;
     data.mRestMatrix = parent_mat * data.mJointMatrix;
+    data.mIsJoint = bone_info->mIsJoint;
     for (LLAvatarBoneInfo* child_info : bone_info->mChildren)
     {
         LLJointData& child_data = data.mChildren.emplace_back();

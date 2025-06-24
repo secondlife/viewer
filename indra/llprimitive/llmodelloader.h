@@ -198,6 +198,7 @@ public:
 
     const LLSD logOut() const { return mWarningsArray; }
     void clearLog() { mWarningsArray.clear(); }
+    void dumpDebugData();
 
 protected:
 
