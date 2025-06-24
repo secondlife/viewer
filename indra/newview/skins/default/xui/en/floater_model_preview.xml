@@ -66,6 +66,7 @@
   <string name="NoScenesFound">No scenes defined in GLTF file</string>
   <string name="InvalidMeshReference">Node [NODE_NAME] references invalid mesh [MESH_INDEX] (total meshes: [TOTAL_MESHES])</string>
   <string name="InvalidGeometryNonTriangulated">Mesh [MESH_NAME] primitive [PRIMITIVE_INDEX]: Invalid geometry with [INDEX_COUNT] indices (must be triangulated)</string>
+  <string name="EmptyVertexArray">Mesh [MESH_NAME] primitive [PRIMITIVE_INDEX]: Empty vertex array</string>
   <string name="ErrorIndexLimit">Unable to process mesh [MESH_NAME] due to 65,534 vertex limit. Vertex count: [VERTEX_COUNT]</string>
   <string name="TextureFound">Found texture: [TEXTURE_NAME] for material: [MATERIAL_NAME]</string>
   <string name="IgnoredExtension">Model uses unsupported extension: [EXT], related material properties are ignored</string>
@@ -1720,7 +1721,6 @@ Analysed:
    height="408"/>
   <panel
     follows="right|bottom"
-    can_resize="false"
     height="140"
     layout="topleft"
     name="right_panel"
