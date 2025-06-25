@@ -34,6 +34,7 @@ class LLJointData
 {
 public:
     std::string mName;
+    std::string mGroup;
     glm::mat4 mJointMatrix;
     glm::mat4 mRestMatrix;
     glm::vec3 mScale;
