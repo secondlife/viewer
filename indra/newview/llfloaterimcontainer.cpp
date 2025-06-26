@@ -460,7 +460,7 @@ void LLFloaterIMContainer::processParticipantsStyleUpdate()
         LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = session_model->getChildrenEnd();
         while (current_participant_model != end_participant_model)
         {
-            LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+            LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>((*current_participant_model).get());
             if (participant_model)
             {
                 // Get the avatar name for this participant id from the cache and update the model
@@ -511,7 +511,7 @@ void LLFloaterIMContainer::idleUpdate()
                 bool can_ban = haveAbilityToBan();
                 while (current_participant_model != end_participant_model)
                 {
-                    LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
+                    LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>((*current_participant_model).get());
                     if (participant_model)
                     {
                         participant_model->setModeratorOptionsVisible(is_moderator);
@@ -1874,7 +1874,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
         LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
         while (current_participant_model != end_participant_model)
         {
-            LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
+            LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>((*current_participant_model).get());
             LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
             participant_view->addToFolder(widget);
             current_participant_model++;
