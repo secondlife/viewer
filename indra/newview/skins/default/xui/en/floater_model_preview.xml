@@ -14,7 +14,7 @@
  legacy_header_height="25">
 
   <string name="status_idle"></string>
-  <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
+  <string name="status_parse_error">Error: Model parsing issue - see log for details.</string>
   <string name="status_bind_shape_orientation">Warning: bind shape matrix is not in standard X-forward orientation.</string>
   <string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
   <string name="status_reading_file">Loading...</string>
@@ -75,6 +75,8 @@
   <string name="FailedToCreateTempFile">Failed to create temporary file for embedded [TEXTURE_TYPE] texture [TEXTURE_INDEX]: [TEMP_FILE]</string>
   <string name="SkinJointsOverLimit">Skin [SKIN_INDEX] defines [JOINT_COUNT] compatible joints, maximum is: [MAX]. Unused joints will be stripped on per model basis.</string>
   <string name="ModelTooManyJoint">Model [MODEL_NAME] uses [JOINT_COUNT], maximum: [MAX], upload might fail</string>
+  <string name="ParsingErrorMissingBuffer">Buffer is either missing or empty [BUFFER_NAME].</string>
+  <string name="ParsingErrorMissingBufferBin">Buffer is either missing or empty. Check presence of [BUFFER_URI] file.</string>
 
   <panel
     follows="top|left"

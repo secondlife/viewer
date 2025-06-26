@@ -129,6 +129,20 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     if (!mGltfLoaded)
     {
         notifyUnsupportedExtension(true);
+
+        for (const auto& buffer : mGLTFAsset.mBuffers)
+        {
+            if (buffer.mByteLength > 0 && buffer.mData.empty())
+            {
+                bool bin_file = buffer.mUri.ends_with(".bin");
+                LLSD args;
+                args["Message"] = bin_file ? "ParsingErrorMissingBufferBin" : "ParsingErrorMissingBuffer";
+                args["BUFFER_NAME"] = buffer.mName;
+                args["BUFFER_URI"] = buffer.mUri;
+                mWarningsArray.append(args);
+            }
+        }
+        setLoadState(ERROR_PARSING);
         return false;
     }
 
