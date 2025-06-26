@@ -3998,15 +3998,17 @@ void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
     for (; set_iter != selected_items.end(); ++set_iter)
     {
         viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
-        if (!viewModel || !viewModel->getInventoryObject()) continue;
-        if (gInventory.isObjectDescendentOf(viewModel->getInventoryObject()->getParentUUID(), marketplacelistings_id))
+        if (!viewModel) continue;
+        LLInventoryObject* inv_obj = viewModel->getInventoryObject();
+        if (!inv_obj) continue;
+        if (gInventory.isObjectDescendentOf(inv_obj->getParentUUID(), marketplacelistings_id))
         {
-            const LLUUID &parent_id = viewModel->getInventoryObject()->getParentUUID();
+            const LLUUID &parent_id = inv_obj->getParentUUID();
             if (parent_id != marketplacelistings_id)
             {
                 sMarketplaceFolders.push_back(parent_id);
             }
-            const LLUUID &curr_id = viewModel->getInventoryObject()->getUUID();
+            const LLUUID &curr_id = inv_obj->getUUID();
             if (curr_id != marketplacelistings_id)
             {
                 sMarketplaceFolders.push_back(curr_id);
