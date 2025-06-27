@@ -99,8 +99,7 @@ private:
         MEDIA_FIRST_CLICK_LAND       = 1 << 4,    // 0b00010000 (16)
 
         // Covers any object with PRIM_MEDIA_FIRST_CLICK_INTERACT (combines all previous flags)
-        MEDIA_FIRST_CLICK_ANY        = 1073741823,// 0b00111111111111111111111111111111
-        //                                           
+        MEDIA_FIRST_CLICK_ANY        = ~(3<<30),  // 0b00111111111111111111111111111111
 
         // Covers all media regardless of other rules or PRIM_MEDIA_FIRST_CLICK_INTERACT
         MEDIA_FIRST_CLICK_BYPASS_MOAP_FLAG = 1 << 30    // 0b01000000000000000000000000000000 (1073741824)

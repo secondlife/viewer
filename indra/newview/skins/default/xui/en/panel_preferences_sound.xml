@@ -408,7 +408,7 @@
             name="media_first_click_own"
             value="3"/>
         <item
-            label="Friend objects"
+            label="Friends' objects"
             name="media_first_click_friend"
             value="11"/>
         <item
@@ -420,7 +420,7 @@
             name="media_first_click_land"
             value="31"/>
         <item
-            label="Anyones objects"
+            label="Anyone's objects"
             name="media_first_interact_any"
             value="1073741823"/>
         <item
