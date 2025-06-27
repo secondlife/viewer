@@ -111,6 +111,7 @@ public:
     bool mCacheOnlyHitIfRigged; // ignore cached SLM if it does not contain rig info (and we want rig info)
 
     model_list      mModelList;
+    // The scene is pretty much what ends up getting loaded for upload.  Basically assign things to this guy if you want something uploaded.
     scene               mScene;
 
     typedef std::queue<LLPointer<LLModel> > model_queue;
@@ -119,9 +120,14 @@ public:
     model_queue mPhysicsQ;
 
     //map of avatar joints as named in COLLADA assets to internal joint names
+    // Do not use this for anything other than looking up the name of a joint.  This is populated elsewhere.
     JointMap            mJointMap;
+
+    // The joint list is what you want to use to actually setup the specific joint transformations.
     JointTransformMap&  mJointList;
     JointNameSet&       mJointsFromNode;
+
+
     U32                 mMaxJointsPerMesh;
 
     LLModelLoader(
@@ -192,6 +198,7 @@ public:
 
     const LLSD logOut() const { return mWarningsArray; }
     void clearLog() { mWarningsArray.clear(); }
+    void dumpDebugData();
 
 protected:
 

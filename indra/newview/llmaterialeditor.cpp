@@ -137,7 +137,8 @@ LLFloaterComboOptions* LLFloaterComboOptions::showUI(
         {
             combo_picker->mComboOptions->addSimpleElement(*iter);
         }
-        combo_picker->mComboOptions->selectFirstItem();
+        // select 'Bulk Upload All' option
+        combo_picker->mComboOptions->selectNthItem((S32)options.size() - 1);
 
         combo_picker->openFloater(LLSD(title));
         combo_picker->setFocus(true);
