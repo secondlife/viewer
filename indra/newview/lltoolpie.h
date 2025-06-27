@@ -98,15 +98,11 @@ private:
         MEDIA_FIRST_CLICK_FRIEND     = 1 << 3,    // 0b00001000 (8)
         MEDIA_FIRST_CLICK_LAND       = 1 << 4,    // 0b00010000 (16)
 
-        // Covers any object with PRIM_MEDIA_FIRST_CLICK_INTERACT (combines all other flags)
-        MEDIA_FIRST_CLICK_ANY        = MEDIA_FIRST_CLICK_HUD &
-                                       MEDIA_FIRST_CLICK_OWN &
-                                       MEDIA_FIRST_CLICK_GROUP &
-                                       MEDIA_FIRST_CLICK_FRIEND &
-                                       MEDIA_FIRST_CLICK_LAND,
+        // Covers any object with PRIM_MEDIA_FIRST_CLICK_INTERACT (combines all previous flags)
+        MEDIA_FIRST_CLICK_ANY        = ~(3<<30),  // 0b00111111111111111111111111111111
 
         // Covers all media regardless of other rules or PRIM_MEDIA_FIRST_CLICK_INTERACT
-        MEDIA_FIRST_CLICK_ALL        = 1 << 30    // 0b01000000000000000000000000000000 (1073741824)
+        MEDIA_FIRST_CLICK_BYPASS_MOAP_FLAG = 1 << 30    // 0b01000000000000000000000000000000 (1073741824)
     };
     bool shouldAllowFirstMediaInteraction(const LLPickInfo& info, bool moap_flag);
     bool handleMediaClick(const LLPickInfo& info);
