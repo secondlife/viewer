@@ -220,7 +220,16 @@ SimMeasurement<F64Megabytes >   SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL
 
 LLTrace::SampleStatHandle<F64Milliseconds > FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
                                             FRAMETIME("frametime", "Measured frame time"),
-                                            SIM_PING("simpingstat");
+                                            SIM_PING("simpingstat"),
+                                            FRAMETIME_JITTER_99TH("frametimejitter99", "99th percentile of frametime jitter over the last 5 seconds."),
+                                            FRAMETIME_JITTER_95TH("frametimejitter95", "99th percentile of frametime jitter over the last 5 seconds."),
+                                            FRAMETIME_99TH("frametime99", "99th percentile of frametime over the last 5 seconds."),
+                                            FRAMETIME_95TH("frametime95", "99th percentile of frametime over the last 5 seconds."),
+                                            FRAMETIME_JITTER_CUMULATIVE("frametimejitcumulative", "Cumulative frametime jitter over the session."),
+                                            FRAMETIME_JITTER_STDDEV("frametimejitterstddev", "Standard deviation of frametime jitter in a 5 second period."),
+                                            FRAMETIME_STDDEV("frametimestddev", "Standard deviation of frametime in a 5 second period.");
+
+LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS("frametimeevents", "Number of frametime events in the session.  Applies when jitter exceeds 10% of the previous frame.");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
@@ -272,8 +281,126 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
         // old stats that were never really used
         F64Seconds jit = (F64Seconds)std::fabs((mLastTimeDiff - time_diff));
         sample(LLStatViewer::FRAMETIME_JITTER, jit);
-    }
+        mTotalFrametimeJitter += jit;
+        sample(LLStatViewer::FRAMETIME_JITTER_CUMULATIVE, mTotalFrametimeJitter);
 
+        static LLCachedControl<F32> frameTimeEventThreshold(gSavedSettings, "StatsFrametimeEventThreshold", 0.1f);
+
+        if (time_diff - mLastTimeDiff > mLastTimeDiff * frameTimeEventThreshold())
+        {
+            sample(LLStatViewer::FRAMETIME_JITTER_EVENTS, mFrameJitterEvents++);
+        }
+
+        mFrameTimes.push_back(time_diff);
+        mFrameTimesJitter.push_back(jit);
+
+        mLastFrameTimeSample += time_diff;
+
+        static LLCachedControl<S32> frameTimeSampleSeconds(gSavedSettings, "StatsFrametimeSampleSeconds", 5);
+
+        if (mLastFrameTimeSample >= frameTimeSampleSeconds())
+        {
+            // @TODO: This needs to be de-duped and moved into specific functions.
+            // If we have more than 5 seconds of frame time samples, calculate the stddev, 99th percentile, and 95th percentile.
+            std::sort(mFrameTimes.begin(), mFrameTimes.end());
+            std::sort(mFrameTimesJitter.begin(), mFrameTimesJitter.end());
+            F64Seconds ninety_ninth_percentile;
+            F64Seconds ninety_fifth_percentile;
+
+            // Calculate standard deviation of mFrameTimes
+            F64Seconds frame_time_stddev(0);
+            if (mFrameTimes.size() > 1)
+            {
+                F64Seconds mean(0);
+                for (const auto& v : mFrameTimes)
+                {
+                    mean += v;
+                }
+                mean /= (F64)mFrameTimes.size();
+
+                F64Seconds variance(0);
+                for (const auto& v : mFrameTimes)
+                {
+                    F64Seconds diff = v - mean;
+                    F64             diff_squared;
+                    diff.value(diff_squared);
+                    diff_squared = std::pow(diff_squared, 2);
+                    variance += F64Seconds(diff_squared);
+                }
+                variance /= (F64)(mFrameTimes.size() - 1); // Use sample variance (n-1)
+                F64 val;
+                variance.value(val);
+                frame_time_stddev = F64Seconds(std::sqrt(val));
+            }
+            sample(LLStatViewer::FRAMETIME_STDDEV, frame_time_stddev);
+
+            if (mFrameTimes.size() > 0)
+            {
+                size_t n                  = mFrameTimes.size();
+                size_t ninety_ninth_index = (size_t)(n * 0.99);
+                size_t ninety_fifth_index = (size_t)(n * 0.95);
+                if (ninety_ninth_index < n)
+                {
+                    ninety_ninth_percentile = mFrameTimes[ninety_ninth_index];
+                }
+                if (ninety_fifth_index < n)
+                {
+                    ninety_fifth_percentile = mFrameTimes[ninety_fifth_index];
+                }
+            }
+            sample(LLStatViewer::FRAMETIME_99TH, ninety_ninth_percentile);
+            sample(LLStatViewer::FRAMETIME_95TH, ninety_fifth_percentile);
+
+            ninety_ninth_percentile = F64Seconds(0);
+            ninety_fifth_percentile = F64Seconds(0);
+            frame_time_stddev       = F64Seconds(0);
+            if (mFrameTimesJitter.size() > 1)
+            {
+                F64Seconds mean(0);
+                for (const auto& v : mFrameTimesJitter)
+                {
+                    mean += v;
+                }
+                mean /= (F64)mFrameTimesJitter.size();
+
+                F64Seconds variance(0);
+                for (const auto& v : mFrameTimesJitter)
+                {
+                    F64Seconds diff = v - mean;
+                    F64             diff_squared;
+                    diff.value(diff_squared);
+                    diff_squared = std::pow(diff_squared, 2);
+                    variance += F64Seconds(diff_squared);
+                }
+                variance /= (F64)(mFrameTimesJitter.size() - 1); // Use sample variance (n-1)
+                F64 val;
+                variance.value(val);
+                frame_time_stddev = F64Seconds(std::sqrt(val));
+            }
+            sample(LLStatViewer::FRAMETIME_JITTER_STDDEV, frame_time_stddev);
+
+            if (mFrameTimesJitter.size() > 0)
+            {
+                size_t n                  = mFrameTimesJitter.size();
+                size_t ninety_ninth_index = (size_t)(n * 0.99);
+                size_t ninety_fifth_index = (size_t)(n * 0.95);
+                if (ninety_ninth_index < n)
+                {
+                    ninety_ninth_percentile = mFrameTimesJitter[ninety_ninth_index];
+                }
+                if (ninety_fifth_index < n)
+                {
+                    ninety_fifth_percentile = mFrameTimesJitter[ninety_fifth_index];
+                }
+            }
+            sample(LLStatViewer::FRAMETIME_JITTER_99TH, ninety_ninth_percentile);
+            sample(LLStatViewer::FRAMETIME_JITTER_95TH, ninety_fifth_percentile);
+
+            mFrameTimes.clear();
+            mFrameTimesJitter.clear();
+            mLastFrameTimeSample = F64Seconds(0);
+        }
+    }
     mLastTimeDiff = time_diff;
 }
 
