@@ -11782,16 +11782,24 @@ void LLVOAvatar::readProfileQuery(S32 retries)
 
     }
     else
-    { // wait until next frame
-        LLUUID id = getID();
+    {
+        // wait until next frame
+        const LLUUID id = getID();
 
-        LL::WorkQueue::getInstance("mainloop")->post([id, retries] {
-            LLVOAvatar* avatar = (LLVOAvatar*) gObjectList.findObject(id);
-            if(avatar)
+        LL::WorkQueue::getInstance("mainloop")->post([id, retries]
+        {
+            LLViewerObject* object = gObjectList.findObject(id);
+            if (object
+                && !object->isDead()
+                && object->isAvatar()) // probably excessive, pcode isn't supposed to change
             {
-                avatar->readProfileQuery(retries);
+                LLVOAvatar* avatar = (LLVOAvatar*)object;
+                if (avatar)
+                {
+                    avatar->readProfileQuery(retries);
+                }
             }
-            });
+        });
     }
 }
 
