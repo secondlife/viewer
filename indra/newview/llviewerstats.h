@@ -275,6 +275,13 @@ private:
     LLTrace::Recording              mRecording;
 
     F64Seconds mLastTimeDiff;  // used for time stat updates
+    F64Seconds mTotalFrametimeJitter;
+
+    U32 mFrameJitterEvents;
+
+    F64Seconds              mLastFrameTimeSample; // used for frame time stats
+    std::vector<F64Seconds>      mFrameTimes;          // used for frame time stats
+    std::vector<F64Seconds> mFrameTimesJitter;    // used for frame time jitter stats
 };
 
 static const F32 SEND_STATS_PERIOD = 300.0f;
