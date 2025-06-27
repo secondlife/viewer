@@ -76,7 +76,7 @@ public:
     // get the specified joint
     // default implementation does recursive search,
     // subclasses may optimize/cache results.
-    virtual LLJoint* getJoint(std::string_view name);
+    virtual LLJoint *getJoint( const std::string &name );
 
     // get the position of the character
     virtual LLVector3 getCharacterPosition() = 0;

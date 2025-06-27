@@ -77,11 +77,12 @@ LLCharacter::~LLCharacter()
 //-----------------------------------------------------------------------------
 // getJoint()
 //-----------------------------------------------------------------------------
-LLJoint* LLCharacter::getJoint(std::string_view name)
+LLJoint *LLCharacter::getJoint( const std::string &name )
 {
-    LLJoint* joint = nullptr;
+    LLJoint* joint = NULL;
 
-    if (LLJoint* root = getRootJoint())
+    LLJoint *root = getRootJoint();
+    if (root)
     {
         joint = root->findJoint(name);
     }
