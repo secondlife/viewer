@@ -179,7 +179,7 @@ void LLFloaterBvhPreview::setAnimCallbacks()
     getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
-std::map<std::string, std::string, std::less<>> LLFloaterBvhPreview::getJointAliases()
+std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
 {
     LLPointer<LLVOAvatar> av = (LLVOAvatar*)mAnimPreview->getDummyAvatar();
     return av->getJointAliases();
@@ -252,7 +252,7 @@ bool LLFloaterBvhPreview::postBuild()
                 ELoadStatus load_status = E_ST_OK;
                 S32 line_number = 0;
 
-                auto joint_alias_map = getJointAliases();
+                std::map<std::string, std::string> joint_alias_map = getJointAliases();
 
                 loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
                 std::string status = getString(STATUS[load_status]);

@@ -781,7 +781,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
     mLODFile[lod] = filename;
 
-    std::map<std::string, std::string, std::less<>> joint_alias_map;
+    std::map<std::string, std::string> joint_alias_map;
     getJointAliases(joint_alias_map);
 
     LLHandle<LLModelPreview> preview_handle = getHandle();

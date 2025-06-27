@@ -756,7 +756,7 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
         mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
         break;
     default:
-        LL_ERRS() << "Only supposed to be called to generate models, val: " << mode << LL_ENDL;
+        LL_ERRS() << "Only supposed to be called to generate models" << LL_ENDL;
         break;
     }
 
@@ -1487,7 +1487,7 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
     {
         // Populate table
 
-        std::map<std::string, std::string, std::less<>> joint_alias_map;
+        std::map<std::string, std::string> joint_alias_map;
         mModelPreview->getJointAliases(joint_alias_map);
 
         S32 conflicts = 0;

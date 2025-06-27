@@ -6306,13 +6306,13 @@ const LLUUID& LLVOAvatar::getID() const
 // getJoint()
 //-----------------------------------------------------------------------------
 // RN: avatar joints are multi-rooted to include screen-based attachments
-LLJoint* LLVOAvatar::getJoint(std::string_view name)
+LLJoint *LLVOAvatar::getJoint( const std::string &name )
 {
     joint_map_t::iterator iter = mJointMap.find(name);
 
-    LLJoint* jointp = nullptr;
+    LLJoint* jointp = NULL;
 
-    if (iter == mJointMap.end() || iter->second == nullptr)
+    if (iter == mJointMap.end() || iter->second == NULL)
     {   //search for joint and cache found joint in lookup table
         if (mJointAliasMap.empty())
         {
@@ -6329,7 +6329,7 @@ LLJoint* LLVOAvatar::getJoint(std::string_view name)
             canonical_name = name;
         }
         jointp = mRoot->findJoint(canonical_name);
-        mJointMap[std::string(name)] = jointp;
+        mJointMap[name] = jointp;
     }
     else
     {   //return cached pointer
