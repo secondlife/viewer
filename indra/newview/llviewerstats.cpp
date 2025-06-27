@@ -348,10 +348,12 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
                     ninety_fifth_percentile = mFrameTimes[ninety_fifth_index];
                 }
             }
-            
             sample(LLStatViewer::FRAMETIME_99TH, ninety_ninth_percentile);
             sample(LLStatViewer::FRAMETIME_95TH, ninety_fifth_percentile);
 
+            ninety_ninth_percentile = F64Seconds(0);
+            ninety_fifth_percentile = F64Seconds(0);
+            frame_time_stddev       = F64Seconds(0);
             if (mFrameTimesJitter.size() > 1)
             {
                 F64Seconds mean(0);
