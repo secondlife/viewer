@@ -273,6 +273,38 @@ void LLViewerStats::resetStats()
     getRecording().reset();
 }
 
+// Helper for calculating Nth percentile with linear interpolation
+template<typename T>
+T calcPercentile(const std::vector<T>& sorted, double percent)
+{
+    if (sorted.empty())
+        return T(0);
+    double idx       = percent * (sorted.size() - 1);
+    size_t idx_below = static_cast<size_t>(std::floor(idx));
+    size_t idx_above = static_cast<size_t>(std::ceil(idx));
+    if (idx_below == idx_above)
+        return sorted[idx_below];
+    double weight_above = idx - idx_below;
+    return sorted[idx_below] * (1.0 - weight_above) + sorted[idx_above] * weight_above;
+}
+
+template<typename T>
+T calcStddev(const std::vector<T>& values)
+{
+    if (values.size() < 2)
+        return T(0);
+    double sum = 0, sq_sum = 0;
+    for (const auto& v : values)
+    {
+        double d = v.value();
+        sum += d;
+        sq_sum += d * d;
+    }
+    double mean     = sum / values.size();
+    double variance = (sq_sum / values.size()) - (mean * mean);
+    return T(std::sqrt(variance));
+}
+
 void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
     if (gFrameCount && mLastTimeDiff > (F64Seconds)0.0)
@@ -300,99 +332,23 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 
         if (mLastFrameTimeSample >= frameTimeSampleSeconds())
         {
-            // @TODO: This needs to be de-duped and moved into specific functions.
-            // If we have more than 5 seconds of frame time samples, calculate the stddev, 99th percentile, and 95th percentile.
             std::sort(mFrameTimes.begin(), mFrameTimes.end());
             std::sort(mFrameTimesJitter.begin(), mFrameTimesJitter.end());
-            F64Seconds ninety_ninth_percentile;
-            F64Seconds ninety_fifth_percentile;
 
-            // Calculate standard deviation of mFrameTimes
-            F64Seconds frame_time_stddev(0);
-            if (mFrameTimes.size() > 1)
-            {
-                F64Seconds mean(0);
-                for (const auto& v : mFrameTimes)
-                {
-                    mean += v;
-                }
-                mean /= (F64)mFrameTimes.size();
-
-                F64Seconds variance(0);
-                for (const auto& v : mFrameTimes)
-                {
-                    F64Seconds diff = v - mean;
-                    F64             diff_squared;
-                    diff.value(diff_squared);
-                    diff_squared = std::pow(diff_squared, 2);
-                    variance += F64Seconds(diff_squared);
-                }
-                variance /= (F64)(mFrameTimes.size() - 1); // Use sample variance (n-1)
-                F64 val;
-                variance.value(val);
-                frame_time_stddev = F64Seconds(std::sqrt(val));
-            }
+            // Use new helpers for calculations
+            F64Seconds frame_time_stddev = calcStddev(mFrameTimes);
             sample(LLStatViewer::FRAMETIME_STDDEV, frame_time_stddev);
 
-            if (mFrameTimes.size() > 0)
-            {
-                size_t n                  = mFrameTimes.size();
-                size_t ninety_ninth_index = (size_t)(n * 0.99);
-                size_t ninety_fifth_index = (size_t)(n * 0.95);
-                if (ninety_ninth_index < n)
-                {
-                    ninety_ninth_percentile = mFrameTimes[ninety_ninth_index];
-                }
-                if (ninety_fifth_index < n)
-                {
-                    ninety_fifth_percentile = mFrameTimes[ninety_fifth_index];
-                }
-            }
+            F64Seconds ninety_ninth_percentile = calcPercentile(mFrameTimes, 0.99);
+            F64Seconds ninety_fifth_percentile = calcPercentile(mFrameTimes, 0.95);
             sample(LLStatViewer::FRAMETIME_99TH, ninety_ninth_percentile);
             sample(LLStatViewer::FRAMETIME_95TH, ninety_fifth_percentile);
 
-            ninety_ninth_percentile = F64Seconds(0);
-            ninety_fifth_percentile = F64Seconds(0);
-            frame_time_stddev       = F64Seconds(0);
-            if (mFrameTimesJitter.size() > 1)
-            {
-                F64Seconds mean(0);
-                for (const auto& v : mFrameTimesJitter)
-                {
-                    mean += v;
-                }
-                mean /= (F64)mFrameTimesJitter.size();
-
-                F64Seconds variance(0);
-                for (const auto& v : mFrameTimesJitter)
-                {
-                    F64Seconds diff = v - mean;
-                    F64             diff_squared;
-                    diff.value(diff_squared);
-                    diff_squared = std::pow(diff_squared, 2);
-                    variance += F64Seconds(diff_squared);
-                }
-                variance /= (F64)(mFrameTimesJitter.size() - 1); // Use sample variance (n-1)
-                F64 val;
-                variance.value(val);
-                frame_time_stddev = F64Seconds(std::sqrt(val));
-            }
+            frame_time_stddev = calcStddev(mFrameTimesJitter);
             sample(LLStatViewer::FRAMETIME_JITTER_STDDEV, frame_time_stddev);
 
-            if (mFrameTimesJitter.size() > 0)
-            {
-                size_t n                  = mFrameTimesJitter.size();
-                size_t ninety_ninth_index = (size_t)(n * 0.99);
-                size_t ninety_fifth_index = (size_t)(n * 0.95);
-                if (ninety_ninth_index < n)
-                {
-                    ninety_ninth_percentile = mFrameTimesJitter[ninety_ninth_index];
-                }
-                if (ninety_fifth_index < n)
-                {
-                    ninety_fifth_percentile = mFrameTimesJitter[ninety_fifth_index];
-                }
-            }
+            ninety_ninth_percentile = calcPercentile(mFrameTimesJitter, 0.99);
+            ninety_fifth_percentile = calcPercentile(mFrameTimesJitter, 0.95);
             sample(LLStatViewer::FRAMETIME_JITTER_99TH, ninety_ninth_percentile);
             sample(LLStatViewer::FRAMETIME_JITTER_95TH, ninety_fifth_percentile);
 
