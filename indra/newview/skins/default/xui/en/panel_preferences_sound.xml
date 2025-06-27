@@ -409,20 +409,20 @@
             value="3"/>
         <item
             label="Friend objects"
-            name="media_first_click_group"
-            value="7"/>
+            name="media_first_click_friend"
+            value="11"/>
         <item
             label="Group objects"
-            name="media_first_click_friend"
+            name="media_first_click_group"
             value="15"/>
         <item
             label="Landowner objects"
             name="media_first_click_land"
             value="31"/>
         <item
-            label="Any object"
+            label="Anyones objects"
             name="media_first_interact_any"
-            value="31"/>
+            value="1073741823"/>
         <item
             label="All MOAP"
             name="media_first_click_all"
