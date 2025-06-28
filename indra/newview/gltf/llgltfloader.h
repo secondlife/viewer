@@ -72,19 +72,19 @@ class LLGLTFLoader : public LLModelLoader
     typedef std::map <std::string, S32> joints_name_to_node_map_t;
 
     LLGLTFLoader(std::string filename,
-                    S32                                 lod,
-                    LLModelLoader::load_callback_t      load_cb,
-                    LLModelLoader::joint_lookup_func_t  joint_lookup_func,
-                    LLModelLoader::texture_load_func_t  texture_load_func,
-                    LLModelLoader::state_callback_t     state_cb,
-                    void *                              opaque_userdata,
-                    JointTransformMap &                 jointTransformMap,
-                    JointNameSet &                      jointsFromNodes,
-                    std::map<std::string, std::string> &jointAliasMap,
-                    U32                                 maxJointsPerMesh,
-                    U32                                 modelLimit,
-                    std::vector<LLJointData>            viewer_skeleton); //,
-                    //bool                                preprocess );
+                    S32                                               lod,
+                    LLModelLoader::load_callback_t                    load_cb,
+                    LLModelLoader::joint_lookup_func_t                joint_lookup_func,
+                    LLModelLoader::texture_load_func_t                texture_load_func,
+                    LLModelLoader::state_callback_t                   state_cb,
+                    void *                                            opaque_userdata,
+                    JointTransformMap &                               jointTransformMap,
+                    JointNameSet &                                    jointsFromNodes,
+                    std::map<std::string, std::string, std::less<>> & jointAliasMap,
+                    U32                                               maxJointsPerMesh,
+                    U32                                               modelLimit,
+                    std::vector<LLJointData>                          viewer_skeleton); //,
+                    //bool                                            preprocess );
     virtual ~LLGLTFLoader();
 
     virtual bool OpenFile(const std::string &filename);

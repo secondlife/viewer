@@ -1487,7 +1487,7 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
     {
         // Populate table
 
-        std::map<std::string, std::string> joint_alias_map;
+        std::map<std::string, std::string, std::less<>> joint_alias_map;
         mModelPreview->getJointAliases(joint_alias_map);
 
         S32 conflicts = 0;
