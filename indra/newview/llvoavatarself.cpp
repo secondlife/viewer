@@ -697,17 +697,17 @@ void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 }
 
 // virtual
-LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
+LLJoint* LLVOAvatarSelf::getJoint(std::string_view name)
 {
     std::lock_guard lock(mJointMapMutex);
-    LLJoint *jointp = NULL;
+    LLJoint* jointp = nullptr;
     jointp = LLVOAvatar::getJoint(name);
     if (!jointp && mScreenp)
     {
         jointp = mScreenp->findJoint(name);
         if (jointp)
         {
-            mJointMap[name] = jointp;
+            mJointMap[std::string(name)] = jointp;
         }
     }
     if (jointp && jointp != mScreenp && jointp != mRoot)
