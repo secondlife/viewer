@@ -36,7 +36,7 @@ class LLJoint;
 
 typedef std::map<std::string, LLMatrix4> JointTransformMap;
 typedef std::map<std::string, LLMatrix4>::iterator JointTransformMapIt;
-typedef std::map<std::string, std::string> JointMap;
+typedef std::map<std::string, std::string, std::less<>> JointMap;
 typedef std::deque<std::string> JointNameSet;
 
 const S32 SLM_SUPPORTED_VERSION = 3;
