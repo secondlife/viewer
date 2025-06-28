@@ -90,7 +90,7 @@ public:
     /*virtual*/ bool        hasMotionFromSource(const LLUUID& source_id);
     /*virtual*/ void        stopMotionFromSource(const LLUUID& source_id);
     /*virtual*/ void        requestStopMotion(LLMotion* motion);
-    /*virtual*/ LLJoint*    getJoint(const std::string &name);
+    /*virtual*/ LLJoint*    getJoint(std::string_view name);
 
     /*virtual*/ void renderJoints();
 

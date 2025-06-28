@@ -150,8 +150,6 @@ void LLModelLoader::run()
 {
     mWarningsArray.clear();
     doLoadModel();
-    // todo: we are inside of a thread, push this into main thread worker,
-    // not into doOnIdleOneTime that laks tread safety
     doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
 }
 
@@ -468,58 +466,6 @@ bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::
     return true;
 }
 
-void LLModelLoader::dumpDebugData()
-{
-    std::string log_file = mFilename + "_importer.txt";
-    LLStringUtil::toLower(log_file);
-    llofstream file;
-    file.open(log_file.c_str());
-    if (!file)
-    {
-        LL_WARNS() << "dumpDebugData failed to open file " << log_file << LL_ENDL;
-        return;
-    }
-    file << "Importing: " << mFilename << "\n";
-
-    std::map<std::string, LLMatrix4a> inv_bind;
-    std::map<std::string, LLMatrix4a> alt_bind;
-    for (LLPointer<LLModel>& mdl : mModelList)
-    {
-
-        file << "Model name: " << mdl->mLabel << "\n";
-        const LLMeshSkinInfo& skin_info = mdl->mSkinInfo;
-        file << "Shape Bind matrix: " << skin_info.mBindShapeMatrix << "\n";
-        file << "Skin Weights count: " << (S32)mdl->mSkinWeights.size() << "\n";
-
-        // some objects might have individual bind matrices,
-        // but for now it isn't accounted for
-        size_t joint_count = skin_info.mJointNames.size();
-        for (size_t i = 0; i< joint_count;i++)
-        {
-            const std::string& joint = skin_info.mJointNames[i];
-            if (skin_info.mInvBindMatrix.size() > i)
-            {
-                inv_bind[joint] = skin_info.mInvBindMatrix[i];
-            }
-            if (skin_info.mAlternateBindMatrix.size() > i)
-            {
-                alt_bind[joint] = skin_info.mAlternateBindMatrix[i];
-            }
-        }
-    }
-
-    file << "Inv Bind matrices.\n";
-    for (auto& bind : inv_bind)
-    {
-        file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
-    }
-
-    file << "Alt Bind matrices.\n";
-    for (auto& bind : alt_bind)
-    {
-        file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
-    }
-}
 
 //called in the main thread
 void LLModelLoader::loadTextures()
