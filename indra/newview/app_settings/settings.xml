@@ -11488,6 +11488,28 @@
       <key>Value</key>
       <string>fss.txt</string>
     </map>
+    <key>StatsFrametimeSampleSeconds</key>
+    <map>
+        <key>Comment</key>
+        <string>The number of seconds to sample extended frametime data (percentiles, stddev).</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>5</integer>
+    </map>
+    <key>StatsFrametimeEventThreshold</key>
+    <map>
+        <key>Comment</key>
+        <string>The percentage that the frametime difference must exceed in order to register a frametime event. 0.1 = 10%, 0.25 = 25%, etc.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.1</real>
+    </map>
     <key>SystemLanguage</key>
     <map>
       <key>Comment</key>
@@ -16189,6 +16211,28 @@
         <string>Boolean</string>
         <key>Value</key>
         <integer>1</integer>
+    </map>
+    <key>MediaAutoPlayHuds</key>
+    <map>
+        <key>Comment</key>
+        <string>Automatically play HUD media</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>MediaFirstClickInteract</key>
+    <map>
+      <key>Comment</key>
+      <string>This setting controls which media (once loaded) does not require a first click to focus before interaction can begin. This allows clicks to be passed directly to media bypassing the focus click requirement. This setting is a bitfield, precomputed values are as follows: Disabled=0; Worn HUDs only=1; Owned objects=3; Friend objects=7; Group objects=15; Landowner objects=31; Any object=31; All MOAP=1073741824. For complete details see lltoolpie.h enum MediaFirstClickTypes.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
 </map>
 </llsd>

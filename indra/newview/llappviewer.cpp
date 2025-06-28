@@ -5679,9 +5679,9 @@ void LLAppViewer::forceErrorThreadCrash()
     thread->start();
 }
 
-void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::initMainloopTimeout(std::string_view state, F32 secs)
 {
-    if(!mMainloopTimeout)
+    if (!mMainloopTimeout)
     {
         mMainloopTimeout = new LLWatchdogTimeout();
         resumeMainloopTimeout(state, secs);
@@ -5690,20 +5690,20 @@ void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::destroyMainloopTimeout()
 {
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
         delete mMainloopTimeout;
-        mMainloopTimeout = NULL;
+        mMainloopTimeout = nullptr;
     }
 }
 
-void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::resumeMainloopTimeout(std::string_view state, F32 secs)
 {
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
-        if(secs < 0.0f)
+        if (secs < 0.0f)
         {
-            static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60);
+            static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60.f);
             secs = mainloop_timeout;
         }
 
@@ -5714,19 +5714,19 @@ void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::pauseMainloopTimeout()
 {
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
         mMainloopTimeout->stop();
     }
 }
 
-void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::pingMainloopTimeout(std::string_view state, F32 secs)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
 
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
-        if(secs < 0.0f)
+        if (secs < 0.0f)
         {
             static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60);
             secs = mainloop_timeout;
