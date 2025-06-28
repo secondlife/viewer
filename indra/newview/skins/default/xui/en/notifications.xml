@@ -9453,8 +9453,11 @@ Unable to upload texture: &apos;[NAME]&apos;
    icon="alertmodal.tga"
    name="CannotUploadMaterial"
    type="alertmodal">
-There was a problem uploading the file
+Unable to upload material file. The file may be corrupted, in an unsupported format, or contain invalid data. Please check that you're using a valid GLTF/GLB file with proper material definitions.
     <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
