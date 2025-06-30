@@ -1705,6 +1705,8 @@ void LLGLTFLoader::notifyUnsupportedExtension(bool unsupported)
         }
         args["EXT"] = ext;
         mWarningsArray.append(args);
+
+        LL_WARNS("GLTF_IMPORT") << "Model uses unsupported extension: " << ext << LL_ENDL;
     }
 }
 
