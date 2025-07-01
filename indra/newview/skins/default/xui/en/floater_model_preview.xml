@@ -61,6 +61,7 @@
   <string name="ParsingErrorNoRoot">Document has no root</string>
   <string name="ParsingErrorNoScene">Document has no visual_scene</string>
   <string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
+  <string name="UnknownException">Importer crashed while processing [FILENAME], if you encounter this and file is valid, please report the issue to Second Life Support. Exception: [EXCEPTION].</string>
 
  <!-- GLTF specific messages -->
   <string name="NoScenesFound">No scenes defined in GLTF file</string>
@@ -80,6 +81,7 @@
   <string name="ModelTooManySubmodels">Model [MODEL_NAME] contains [SUBMODEL_COUNT] generated mesh parts, parts were trimmed to [SUBMODEL_LIMIT]</string>
   <string name="ParsingErrorMissingBuffer">Buffer is either missing or empty [BUFFER_NAME].</string>
   <string name="ParsingErrorMissingBufferBin">Buffer is either missing or empty. Check presence of [BUFFER_URI] file.</string>
+  <string name="ParsingErrorException">Parser failed to process [FILENAME], file might be corrupt, incomplete or protected from reading. Exception: [EXCEPTION].</string>
 
   <panel
     follows="top|left"

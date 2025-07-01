@@ -5679,6 +5679,27 @@ void LLAppViewer::forceErrorThreadCrash()
     thread->start();
 }
 
+void LLAppViewer::forceExceptionThreadCrash()
+{
+    class LLCrashTestThread : public LLThread
+    {
+    public:
+
+        LLCrashTestThread() : LLThread("Crash logging test thread")
+        {
+        }
+
+        void run()
+        {
+            throw std::exception();
+        }
+    };
+
+    LL_WARNS() << "This is a deliberate exception in a thread" << LL_ENDL;
+    LLCrashTestThread* thread = new LLCrashTestThread();
+    thread->start();
+}
+
 void LLAppViewer::initMainloopTimeout(std::string_view state, F32 secs)
 {
     if (!mMainloopTimeout)

@@ -124,7 +124,32 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     std::string filename_lc(filename);
     LLStringUtil::toLower(filename_lc);
 
-    mGltfLoaded = mGLTFAsset.load(filename, false);
+    try
+    {
+        mGltfLoaded = mGLTFAsset.load(filename, false);
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS() << "Exception in LLModelLoader::run: " << e.what() << LL_ENDL;
+        LLSD args;
+        args["Message"] = "ParsingErrorException";
+        args["FILENAME"] = filename;
+        args["EXCEPTION"] = e.what();
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+        return false;
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("LLGLTFLoader");
+        LLSD args;
+        args["Message"] = "ParsingErrorException";
+        args["FILENAME"] = filename;
+        args["EXCEPTION"] = "Unknown exception";
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+        return false;
+    }
 
     if (!mGltfLoaded)
     {
