@@ -116,6 +116,7 @@ protected:
     bind_matrices_t                     mInverseBindMatrices;
     bind_matrices_t                     mAlternateBindMatrices;
     joint_names_t                       mJointNames; // empty string when no legal name for a given idx
+    std::vector<std::vector<S32>>       mJointUsage; // detect and warn about unsed joints
 
     // what group a joint belongs to.
     // For purpose of stripping unused groups when joints are over limit.
@@ -134,15 +135,11 @@ private:
     bool parseMeshes();
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
     void processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params);
-    bool addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx) const;
+    bool addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx);
     bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats, S32 instance_count);
     void populateJointsFromSkin(S32 skin_idx);
     void populateJointGroups();
     void addModelToScene(LLModel* pModel, U32 submodel_limit, const LLMatrix4& transformation, const LLVolumeParams& volume_params, const material_map& mats);
-    S32 findClosestValidJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const;
-    S32 findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const;
-    S32 findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const; // if there are multiple roots, gltf stores them under one commor joint
-    S32 findParentNode(S32 node) const;
     void buildJointGroup(LLJointData& viewer_data, const std::string& parent_group);
     void buildOverrideMatrix(LLJointData& data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& support_rest) const;
     glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const;
@@ -150,6 +147,7 @@ private:
     glm::mat4 computeGltfToViewerSkeletonTransform(const joints_data_map_t& joints_data_map, S32 gltf_node_index, const std::string& joint_name) const;
     bool checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx);
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
+    void checkGlobalJointUsage();
 
     std::string extractTextureToTempFile(S32 textureIndex, const std::string& texture_type);
 

@@ -27,7 +27,7 @@
   <key>ImporterModelLimit</key>
   <map>
     <key>Comment</key>
-    <string>Limits amount of importer generated models for dae files</string>
+    <string>Limits amount of importer generated (when over 8 faces) models for dae and gltf files</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

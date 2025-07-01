@@ -71,10 +71,13 @@
   <string name="TextureFound">Found texture: [TEXTURE_NAME] for material: [MATERIAL_NAME]</string>
   <string name="IgnoredExtension">Model uses unsupported extension: [EXT], related material properties are ignored</string>
   <string name="UnsupportedExtension">Unable to load model, unsupported extension: [EXT]</string>
-  <string name="TooManyMeshParts">Model contains [PART_COUNT] mesh parts. Maximum allowed: [LIMIT]</string>
   <string name="FailedToCreateTempFile">Failed to create temporary file for embedded [TEXTURE_TYPE] texture [TEXTURE_INDEX]: [TEMP_FILE]</string>
   <string name="SkinJointsOverLimit">Skin [SKIN_INDEX] defines [JOINT_COUNT] compatible joints, maximum is: [MAX]. Unused joints will be stripped on per model basis.</string>
-  <string name="ModelTooManyJoint">Model [MODEL_NAME] uses [JOINT_COUNT], maximum: [MAX], upload might fail</string>
+  <string name="SkinUsupportedJoints">Skin [SKIN_INDEX] defines [JOINT_COUNT] joints, but only [LEGAL_COUNT] were recognized and are compatible</string>
+  <string name="SkinUnusedJoints">Skin [SKIN_INDEX] defines [JOINT_COUNT] compatible joints, of them only [USED_COUNT] were used</string>
+  <string name="ModelTooManyJoints">Model [MODEL_NAME] uses [JOINT_COUNT], maximum: [MAX], upload might fail</string>
+  <string name="ModelSplitPrimitive">Too many vertices in primitive [MESH_NAME], it was split into [FACE_COUNT] faces</string>
+  <string name="ModelTooManySubmodels">Model [MODEL_NAME] contains [SUBMODEL_COUNT] generated mesh parts, parts were trimmed to [SUBMODEL_LIMIT]</string>
   <string name="ParsingErrorMissingBuffer">Buffer is either missing or empty [BUFFER_NAME].</string>
   <string name="ParsingErrorMissingBufferBin">Buffer is either missing or empty. Check presence of [BUFFER_URI] file.</string>
 
