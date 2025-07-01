@@ -149,7 +149,42 @@ LLModelLoader::~LLModelLoader()
 void LLModelLoader::run()
 {
     mWarningsArray.clear();
-    doLoadModel();
+    try
+    {
+        doLoadModel();
+    }
+    // Model loader isn't mission critical, so we just log all exceptions
+    catch (const LLException& e)
+    {
+        LL_WARNS("THREAD") << "LLException in model loader: " << e.what() << "" << LL_ENDL;
+        LLSD args;
+        args["Message"] = "UnknownException";
+        args["FILENAME"] = mFilename;
+        args["EXCEPTION"] = e.what();
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS() << "Exception in LLModelLoader::run: " << e.what() << LL_ENDL;
+        LLSD args;
+        args["Message"] = "UnknownException";
+        args["FILENAME"] = mFilename;
+        args["EXCEPTION"] = e.what();
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("LLModelLoader");
+        LLSD args;
+        args["Message"] = "UnknownException";
+        args["FILENAME"] = mFilename;
+        args["EXCEPTION"] = "Unknown exception";
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+    }
+
     // todo: we are inside of a thread, push this into main thread worker,
     // not into doOnIdleOneTime that laks tread safety
     doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
