@@ -581,7 +581,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
 
         for (size_t i = 0; i < jointCnt; ++i)
         {
-            if (mJointNames[i].empty())
+            if (mJointNames[skinIdx][i].empty())
             {
                 // This might need to hold a substitute index
                 gltf_joint_index_use[i] = -1; // mark as unsupported
