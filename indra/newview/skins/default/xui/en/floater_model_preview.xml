@@ -77,7 +77,7 @@
   <string name="SkinUsupportedJoints">Skin [SKIN_INDEX] defines [JOINT_COUNT] joints, but only [LEGAL_COUNT] were recognized and are compatible</string>
   <string name="SkinUnusedJoints">Skin [SKIN_INDEX] defines [JOINT_COUNT] compatible joints, of them only [USED_COUNT] were used</string>
   <string name="ModelTooManyJoints">Model [MODEL_NAME] uses [JOINT_COUNT], maximum: [MAX], upload might fail</string>
-  <string name="ModelSplitPrimitive">Too many vertices in primitive [MESH_NAME], it was split into [FACE_COUNT] faces</string>
+  <string name="ModelSplitPrimitive">Too many vertices in primitive [MODEL_NAME], it was split into [FACE_COUNT] faces</string>
   <string name="ModelTooManySubmodels">Model [MODEL_NAME] contains [SUBMODEL_COUNT] generated mesh parts, parts were trimmed to [SUBMODEL_LIMIT]</string>
   <string name="ParsingErrorMissingBuffer">Buffer is either missing or empty [BUFFER_NAME].</string>
   <string name="ParsingErrorMissingBufferBin">Buffer is either missing or empty. Check presence of [BUFFER_URI] file.</string>
