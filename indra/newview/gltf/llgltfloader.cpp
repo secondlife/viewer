@@ -175,6 +175,16 @@ void LLGLTFLoader::addModelToScene(
     U32 face_limit = (submodel_limit + 1) * LL_SCULPT_MESH_MAX_FACES;
     if (face_limit < volume_faces)
     {
+        LL_WARNS("GLTF_IMPORT") << "Model contains " << volume_faces
+            << " faces, exceeding the limit of " << face_limit << LL_ENDL;
+
+        LLSD args;
+        args["Message"] = "ModelTooManySubmodels";
+        args["MODEL_NAME"] = pModel->mLabel;
+        args["SUBMODEL_COUNT"] = static_cast<S32>(llfloor((F32)volume_faces / LL_SCULPT_MESH_MAX_FACES));
+        args["SUBMODEL_LIMIT"] = static_cast<S32>(submodel_limit);
+        mWarningsArray.append(args);
+
         pModel->setNumVolumeFaces(face_limit);
     }
 
@@ -284,7 +294,9 @@ bool LLGLTFLoader::parseMeshes()
 
     // Track how many times each mesh name has been used
     std::map<std::string, S32> mesh_name_counts;
-    U32 submodel_limit = mGLTFAsset.mNodes.size() > 0 ? mGeneratedModelLimit / (U32)mGLTFAsset.mNodes.size() : 0;
+
+    // For now use mesh count, but might be better to do 'mNodes.size() - joints count'.
+    U32 submodel_limit = mGLTFAsset.mMeshes.size() > 0 ? mGeneratedModelLimit / (U32)mGLTFAsset.mMeshes.size() : 0;
 
     // Check if we have scenes defined
     if (!mGLTFAsset.mScenes.empty())
@@ -318,20 +330,7 @@ bool LLGLTFLoader::parseMeshes()
         return false;
     }
 
-    // Check total model count against limit
-    U32 total_models = static_cast<U32>(mModelList.size());
-    if (total_models > mGeneratedModelLimit)
-    {
-        LL_WARNS("GLTF_IMPORT") << "Model contains " << total_models
-                                << " mesh parts, exceeding the limit of " << mGeneratedModelLimit << LL_ENDL;
-
-        LLSD args;
-        args["Message"] = "TooManyMeshParts";
-        args["PART_COUNT"] = static_cast<S32>(total_models);
-        args["LIMIT"] = static_cast<S32>(mGeneratedModelLimit);
-        mWarningsArray.append(args);
-        return false;
-    }
+    checkGlobalJointUsage();
 
     return true;
 }
@@ -478,7 +477,7 @@ void LLGLTFLoader::computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S3
     }
 }
 
-bool LLGLTFLoader::addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx) const
+bool LLGLTFLoader::addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx)
 {
     const std::string& legal_name = mJointNames[gltf_skin_idx][gltf_joint_idx];
     if (legal_name.empty())
@@ -492,6 +491,9 @@ bool LLGLTFLoader::addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_
     // In scope of same skin multiple meshes reuse same bind matrices
     skin_info.mInvBindMatrix.push_back(mInverseBindMatrices[gltf_skin_idx][gltf_joint_idx]);
     skin_info.mAlternateBindMatrix.push_back(mAlternateBindMatrices[gltf_skin_idx][gltf_joint_idx]);
+
+    // Track joint usage for this skin, for the sake of unused joints detection
+    mJointUsage[gltf_skin_idx][gltf_joint_idx]++;
 
     return true;
 }
@@ -550,7 +552,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skinIdx];
 
         size_t jointCnt = gltf_skin.mJoints.size();
-        gltf_joint_index_use.resize(jointCnt);
+        gltf_joint_index_use.resize(jointCnt, 0);
 
         for (size_t i = 0; i < jointCnt; ++i)
         {
@@ -885,6 +887,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             std::vector<U16> indices_16;
             std::vector<S64> vertices_remap; // should it be a point map?
             vertices_remap.resize(faceVertices.size(), -1);
+            S32 created_faces = 0;
             std::vector<LLVolumeFace::VertexData> face_verts;
             min = glm::vec3(FLT_MAX);
             max = glm::vec3(-FLT_MAX);
@@ -933,6 +936,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     face.mExtents[1] = LLVector4a(max.x, max.y, max.z, 0);
                     pModel->getVolumeFaces().push_back(face);
                     pModel->getMaterialList().push_back(materialName);
+                    created_faces++;
 
                     std::fill(vertices_remap.begin(), vertices_remap.end(), -1);
                     indices_16.clear();
@@ -950,7 +954,17 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 face.mExtents[1] = LLVector4a(max.x, max.y, max.z, 0);
                 pModel->getVolumeFaces().push_back(face);
                 pModel->getMaterialList().push_back(materialName);
+                created_faces++;
             }
+
+            LL_INFOS("GLTF_IMPORT") << "Primitive " << pModel->mLabel
+                << " is over vertices limit, it was split into " << created_faces
+                << " faces" << LL_ENDL;
+            LLSD args;
+            args["Message"] = "ModelSplitPrimitive";
+            args["MODEL_NAME"] = pModel->mLabel;
+            args["FACE_COUNT"] = created_faces;
+            mWarningsArray.append(args);
         }
         else
         {
@@ -996,7 +1010,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         S32 replacement_index = 0;
         std::vector<S32> gltfindex_to_joitindex_map;
         size_t jointCnt = gltf_skin.mJoints.size();
-        gltfindex_to_joitindex_map.resize(jointCnt);
+        gltfindex_to_joitindex_map.resize(jointCnt, -1);
 
         if (valid_joints_count > LL_MAX_JOINTS_PER_MESH_OBJECT)
         {
@@ -1094,7 +1108,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 << " Count: " << (S32)skin_info.mInvBindMatrix.size()
                 << " Limit:" << (S32)LL_MAX_JOINTS_PER_MESH_OBJECT << LL_ENDL;
             LLSD args;
-            args["Message"] = "ModelTooManyJoint";
+            args["Message"] = "ModelTooManyJoints";
             args["MODEL_NAME"] = pModel->mLabel;
             args["JOINT_COUNT"] = (S32)skin_info.mInvBindMatrix.size();
             args["MAX"] = (S32)LL_MAX_JOINTS_PER_MESH_OBJECT;
@@ -1135,6 +1149,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         mInverseBindMatrices.resize(skin_idx + 1);
         mAlternateBindMatrices.resize(skin_idx + 1);
         mJointNames.resize(skin_idx + 1);
+        mJointUsage.resize(skin_idx + 1);
         mValidJointsCount.resize(skin_idx + 1, 0);
     }
 
@@ -1173,20 +1188,6 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         }
     }
 
-    if (mValidJointsCount[skin_idx] > LL_MAX_JOINTS_PER_MESH_OBJECT)
-    {
-        LL_WARNS("GLTF_IMPORT") << "Too many jonts, will strip unused joints"
-            << " Count: " << mValidJointsCount[skin_idx]
-            << " Limit:" << (S32)LL_MAX_JOINTS_PER_MESH_OBJECT << LL_ENDL;
-
-        LLSD args;
-        args["Message"] = "SkinJointsOverLimit";
-        args["SKIN_INDEX"] = (S32)skin_idx;
-        args["JOINT_COUNT"] = mValidJointsCount[skin_idx];
-        args["MAX"] = (S32)LL_MAX_JOINTS_PER_MESH_OBJECT;
-        mWarningsArray.append(args);
-    }
-
     // Go over viewer joints and build overrides
     glm::mat4 ident(1.0);
     for (auto &viewer_data : mViewerJointData)
@@ -1210,6 +1211,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         {
             mJointNames[skin_idx].emplace_back();
         }
+        mJointUsage[skin_idx].push_back(0);
 
         // Compute bind matrices
 
@@ -1268,6 +1270,21 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
             mJointsFromNode.push_front(legal_name);
         }
     }
+
+    S32 valid_joints = mValidJointsCount[skin_idx];
+    if (valid_joints < joint_count)
+    {
+        LL_WARNS("GLTF_IMPORT") << "Skin " << skin_idx
+            << " defines " << joint_count
+            << " joints, but only " << valid_joints
+            << " were recognized and are compatible." << LL_ENDL;
+        LLSD args;
+        args["Message"] = "SkinUsupportedJoints";
+        args["SKIN_INDEX"] = skin_idx;
+        args["JOINT_COUNT"] = joint_count;
+        args["LEGAL_COUNT"] = valid_joints;
+        mWarningsArray.append(args);
+    }
 }
 
 void LLGLTFLoader::populateJointGroups()
@@ -1277,109 +1294,6 @@ void LLGLTFLoader::populateJointGroups()
     {
         buildJointGroup(viewer_data, parent);
     }
-}
-
-
-S32 LLGLTFLoader::findClosestValidJoint(S32 source_joint, const LL::GLTF::Skin& gltf_skin) const
-{
-    S32 source_joint_node = gltf_skin.mJoints[source_joint];
-    S32 root_node = source_joint_node;
-    S32 found_node = source_joint_node;
-    S32 size = (S32)gltf_skin.mJoints.size();
-    do
-    {
-        root_node = found_node;
-        for (S32 i = 0; i < size; i++)
-        {
-            S32 joint = gltf_skin.mJoints[i];
-            const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-            std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_node);
-            if (it != jointNode.mChildren.end())
-            {
-                // Found node's parent
-                found_node = joint;
-                if (mJointMap.find(jointNode.mName) != mJointMap.end())
-                {
-                    return i;
-                }
-                break;
-            }
-        }
-    } while (root_node != found_node);
-
-    return -1;
-}
-
-S32 LLGLTFLoader::findValidRootJointNode(S32 source_joint_node, const LL::GLTF::Skin& gltf_skin) const
-{
-    S32 root_node = 0;
-    S32 found_node = source_joint_node;
-    S32 size = (S32)gltf_skin.mJoints.size();
-    do
-    {
-        root_node = found_node;
-        for (S32 i = 0; i < size; i++)
-        {
-            S32 joint = gltf_skin.mJoints[i];
-            const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-
-            if (mJointMap.find(jointNode.mName) != mJointMap.end())
-            {
-                std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_node);
-                if (it != jointNode.mChildren.end())
-                {
-                    // Found node's parent
-                    found_node = joint;
-                    break;
-                }
-            }
-        }
-    } while (root_node != found_node);
-
-    return root_node;
-}
-
-S32 LLGLTFLoader::findGLTFRootJointNode(const LL::GLTF::Skin& gltf_skin) const
-{
-    S32 root_node = 0;
-    S32 found_node = 0;
-    S32 size = (S32)gltf_skin.mJoints.size();
-    do
-    {
-        root_node = found_node;
-        for (S32 i = 0; i < size; i++)
-        {
-            S32 joint = gltf_skin.mJoints[i];
-            const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[joint];
-            std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), root_node);
-            if (it != jointNode.mChildren.end())
-            {
-                // Found node's parent
-                found_node = joint;
-                break;
-            }
-        }
-    } while (root_node != found_node);
-
-    LL_INFOS("GLTF_DEBUG") << "mJointList name: ";
-    const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[root_node];
-    LL_CONT << jointNode.mName << " index: " << root_node << LL_ENDL;
-    return root_node;
-}
-
-S32 LLGLTFLoader::findParentNode(S32 node) const
-{
-    S32 size = (S32)mGLTFAsset.mNodes.size();
-    for (S32 i = 0; i < size; i++)
-    {
-        const LL::GLTF::Node& jointNode = mGLTFAsset.mNodes[i];
-        std::vector<S32>::const_iterator it = std::find(jointNode.mChildren.begin(), jointNode.mChildren.end(), node);
-        if (it != jointNode.mChildren.end())
-        {
-            return i;
-        }
-    }
-    return -1;
 }
 
 void LLGLTFLoader::buildJointGroup(LLJointData& viewer_data, const std::string &parent_group)
@@ -1436,11 +1350,22 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
 
         node.mOverrideMatrix = glm::recompose(glm::vec3(1, 1, 1), glm::identity<glm::quat>(), translation_override, glm::vec3(0, 0, 0), glm::vec4(0, 0, 0, 1));
 
-        glm::mat4 override_joint = node.mOverrideMatrix;
-        override_joint = glm::scale(override_joint, viewer_data.mScale);
+        glm::mat4 overriden_joint = node.mOverrideMatrix;
+        // This is incomplete or even wrong.
+        // Viewer allows overrides, which are base joint with applied translation override.
+        // So we should be taking viewer joint matrix and replacing translation part with an override.
+        // Or should rebuild the matrix from viewer_data.scale, viewer_data.rotation, translation_override parts.
+        overriden_joint = glm::scale(overriden_joint, viewer_data.mScale);
 
-        rest = parent_rest * override_joint;
-        node.mOverrideRestMatrix = rest;
+        rest = parent_rest * overriden_joint;
+        if (viewer_data.mIsJoint)
+        {
+            node.mOverrideRestMatrix = rest;
+        }
+        else
+        {
+            node.mOverrideRestMatrix = parent_support_rest * overriden_joint;
+        }
     }
     else
     {
@@ -1601,6 +1526,47 @@ void LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin)
     {
         // Both joints in a weird position/rotation, assume rotated model
         mApplyXYRotation = true;
+    }
+}
+
+void LLGLTFLoader::checkGlobalJointUsage()
+{
+    // Check if some joints remained unused
+    for (S32 skin_idx = 0; skin_idx < (S32)mGLTFAsset.mSkins.size(); ++skin_idx)
+    {
+        const LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skin_idx];
+        S32 joint_count = (S32)gltf_skin.mJoints.size();
+        S32 used_joints = 0;
+        for (S32 i = 0; i < joint_count; ++i)
+        {
+            S32 joint = gltf_skin.mJoints[i];
+            if (mJointUsage[skin_idx][i] == 0)
+            {
+                // Joint is unused, log it
+                LL_INFOS("GLTF_DEBUG") << "Joint " << mJointNames[skin_idx][i]
+                    << " in skin " << skin_idx << " is unused." << LL_ENDL;
+            }
+            else
+            {
+                used_joints++;
+            }
+        }
+
+        S32 valid_joints = mValidJointsCount[skin_idx];
+        if (valid_joints > used_joints)
+        {
+            S32 unsed_joints = valid_joints - used_joints;
+            LL_INFOS("GLTF_IMPORT") << "Skin " << skin_idx
+                << " declares " << valid_joints
+                << " valid joints, of them " << unsed_joints
+                << " remained unused" << LL_ENDL;
+            LLSD args;
+            args["Message"] = "SkinUnusedJoints";
+            args["SKIN_INDEX"] = (S32)skin_idx;
+            args["JOINT_COUNT"] = valid_joints;
+            args["USED_COUNT"] = used_joints;
+            mWarningsArray.append(args);
+        }
     }
 }
 
