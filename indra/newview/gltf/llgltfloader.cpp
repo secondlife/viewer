@@ -1373,15 +1373,14 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         glm::quat rotation;
         glm::decompose(translated_joint, scale, rotation, translation_override, skew, perspective);
 
+        // Viewer allows overrides, which are base joint with applied translation override.
+        // fortunately normal bones use only translation, without rotation or scale
         node.mOverrideMatrix = glm::recompose(glm::vec3(1, 1, 1), glm::identity<glm::quat>(), translation_override, glm::vec3(0, 0, 0), glm::vec4(0, 0, 0, 1));
 
         glm::mat4 overriden_joint = node.mOverrideMatrix;
-        // This is incomplete or even wrong.
-        // Viewer allows overrides, which are base joint with applied translation override.
-        // So we should be taking viewer joint matrix and replacing translation part with an override.
-        // Or should rebuild the matrix from viewer_data.scale, viewer_data.rotation, translation_override parts.
-        overriden_joint = glm::scale(overriden_joint, viewer_data.mScale);
 
+        // todo: if gltf bone had rotation or scale, they probably should be saved here
+        // then applied to bind matrix
         rest = parent_rest * overriden_joint;
         if (viewer_data.mIsJoint)
         {
@@ -1389,6 +1388,12 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         }
         else
         {
+            // This is likely incomplete or even wrong.
+            // Viewer Collision bones specify rotation and scale.
+            // Importer should apply rotation and scale to this matrix and save as needed
+            // then subsctruct them from bind matrix
+
+            overriden_joint = glm::scale(overriden_joint, viewer_data.mScale);
             node.mOverrideRestMatrix = parent_support_rest * overriden_joint;
         }
     }
