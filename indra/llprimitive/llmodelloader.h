@@ -129,6 +129,7 @@ public:
 
 
     U32                 mMaxJointsPerMesh;
+    U32                 mDebugMode; // see dumDebugData() for details
 
     LLModelLoader(
         std::string                         filename,
@@ -141,7 +142,9 @@ public:
         JointTransformMap&                  jointTransformMap,
         JointNameSet&                       jointsFromNodes,
         JointMap&                           legalJointNamesMap,
-        U32                                 maxJointsPerMesh);
+        U32                                 maxJointsPerMesh,
+        U32                                 modelLimit,
+        U32                                 debugMode);
     virtual ~LLModelLoader();
 
     virtual void setNoNormalize() { mNoNormalize = true; }
@@ -210,6 +213,7 @@ protected:
 
     bool        mRigValidJointUpload;
     U32         mLegacyRigFlags;
+    U32         mGeneratedModelLimit; // Attempt to limit amount of generated submodels
 
     bool        mNoNormalize;
     bool        mNoOptimize;

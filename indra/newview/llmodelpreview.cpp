@@ -167,7 +167,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     , mLastJointUpdate(false)
     , mFirstSkinUpdate(true)
     , mHasDegenerate(false)
-    , mImporterDebug(LLCachedControl<bool>(gSavedSettings, "ImporterDebug", false))
+    , mImporterDebug(LLCachedControl<bool>(gSavedSettings, "ImporterDebugVerboseLogging", false))
 {
     mNeedsUpdate = true;
     mCameraDistance = 0.f;
@@ -692,7 +692,7 @@ void LLModelPreview::saveUploadData(const std::string& filename,
                 save_skinweights,
                 save_joint_positions,
                 lock_scale_if_joint_position,
-                false, true, instance.mModel->mSubmodelID);
+                LLModel::WRITE_BINARY, true, instance.mModel->mSubmodelID);
 
             data["mesh"][instance.mModel->mLocalID] = str.str();
         }
@@ -807,6 +807,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
             joint_alias_map,
             LLSkinningUtil::getMaxJointCount(),
             gSavedSettings.getU32("ImporterModelLimit"),
+            gSavedSettings.getU32("ImporterDebugMode"),
             gSavedSettings.getBOOL("ImporterPreprocessDAE"));
     }
     else
@@ -827,6 +828,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
             joint_alias_map,
             LLSkinningUtil::getMaxJointCount(),
             gSavedSettings.getU32("ImporterModelLimit"),
+            gSavedSettings.getU32("ImporterDebugMode"),
             viewer_skeleton);
     }
 

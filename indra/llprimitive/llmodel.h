@@ -160,6 +160,12 @@ public:
     bool loadSkinInfo(LLSD& header, std::istream& is);
     bool loadDecomposition(LLSD& header, std::istream& is);
 
+    enum EWriteModelMode
+    {
+        WRITE_NO = 0,
+        WRITE_BINARY,
+        WRITE_HUMAN,
+    };
     static LLSD writeModel(
         std::ostream& ostr,
         LLModel* physics,
@@ -171,14 +177,14 @@ public:
         bool upload_skin,
         bool upload_joints,
         bool lock_scale_if_joint_position,
-        bool nowrite = false,
+        EWriteModelMode write_mode = WRITE_BINARY,
         bool as_slm = false,
         int submodel_id = 0);
 
     static LLSD writeModelToStream(
         std::ostream& ostr,
         LLSD& mdl,
-        bool nowrite = false, bool as_slm = false);
+        EWriteModelMode write_mode = WRITE_BINARY, bool as_slm = false);
 
     void ClearFacesAndMaterials() { mVolumeFaces.clear(); mMaterialList.clear(); }
 

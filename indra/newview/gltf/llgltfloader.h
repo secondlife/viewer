@@ -83,6 +83,7 @@ class LLGLTFLoader : public LLModelLoader
                     std::map<std::string, std::string, std::less<>> & jointAliasMap,
                     U32                                               maxJointsPerMesh,
                     U32                                               modelLimit,
+                    U32                                               debugMode,
                     std::vector<LLJointData>                          viewer_skeleton); //,
                     //bool                                            preprocess );
     virtual ~LLGLTFLoader();
@@ -103,7 +104,6 @@ protected:
     tinygltf::Model mGltfModel;
     bool            mGltfLoaded;
     bool            mApplyXYRotation = false;
-    U32             mGeneratedModelLimit;
 
     // GLTF isn't aware of viewer's skeleton and uses it's own,
     // so need to take viewer's joints and use them to
