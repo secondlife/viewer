@@ -164,6 +164,8 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     , mPhysicsSearchLOD(LLModel::LOD_PHYSICS)
     , mResetJoints(false)
     , mModelNoErrors(true)
+    , mLoading(false)
+    , mModelLoader(nullptr)
     , mLastJointUpdate(false)
     , mFirstSkinUpdate(true)
     , mHasDegenerate(false)
@@ -176,11 +178,9 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mCameraZoom = 1.f;
     mTextureName = 0;
     mPreviewLOD = 0;
-    mModelLoader = NULL;
     mMaxTriangleLimit = 0;
     mDirty = false;
     mGenLOD = false;
-    mLoading = false;
     mLookUpLodFiles = false;
     mLoadState = LLModelLoader::STARTING;
     mGroup = 0;
@@ -212,6 +212,7 @@ LLModelPreview::~LLModelPreview()
     {
         mModelLoader->shutdown();
         mModelLoader = NULL;
+        mLoading = false;
     }
 
     if (mPreviewAvatar)
@@ -754,6 +755,10 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
         LL_WARNS() << out.str() << LL_ENDL;
         LLFloaterModelPreview::addStringToLog(out, true);
         assert(lod >= LLModel::LOD_IMPOSTOR && lod < LLModel::NUM_LODS);
+        if (mModelLoader == nullptr)
+        {
+            mLoading = false;
+        }
         return;
     }
 
