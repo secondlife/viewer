@@ -2,7 +2,7 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
 <map>
-  <key>ImporterDebug</key>
+  <key>ImporterDebugVerboseLogging</key>
   <map>
     <key>Comment</key>
     <string>Enable debug output to more precisely identify sources of import errors. Warning: the output can slow down import on many machines.</string>
@@ -34,6 +34,17 @@
     <string>U32</string>
     <key>Value</key>
     <integer>768</integer>
+  </map>
+  <key>ImporterDebugMode</key>
+  <map>
+    <key>Comment</key>
+    <string>At 0 does nothing, at 1 dumps skinning data near orifinal file, at 2 dumps skining data and first 5 models as llsd</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
   <key>ImporterPreprocessDAE</key>
   <map>

@@ -113,7 +113,9 @@ LLModelLoader::LLModelLoader(
     JointTransformMap&  jointTransformMap,
     JointNameSet&       jointsFromNodes,
     JointMap&           legalJointNamesMap,
-    U32                 maxJointsPerMesh)
+    U32                 maxJointsPerMesh,
+    U32                 modelLimit,
+    U32                 debugMode)
 : mJointList( jointTransformMap )
 , mJointsFromNode( jointsFromNodes )
 , LLThread("Model Loader")
@@ -133,6 +135,8 @@ LLModelLoader::LLModelLoader(
 , mNoOptimize(false)
 , mCacheOnlyHitIfRigged(false)
 , mMaxJointsPerMesh(maxJointsPerMesh)
+, mGeneratedModelLimit(modelLimit)
+, mDebugMode(debugMode)
 , mJointMap(legalJointNamesMap)
 {
     assert_main_thread();
@@ -238,7 +242,9 @@ bool LLModelLoader::doLoadModel()
         }
     }
 
-    return OpenFile(mFilename);
+    bool res = OpenFile(mFilename);
+    dumpDebugData(); // conditional on mDebugMode
+    return res;
 }
 
 void LLModelLoader::setLoadState(U32 state)
@@ -505,6 +511,11 @@ bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::
 
 void LLModelLoader::dumpDebugData()
 {
+    if (mDebugMode == 0)
+    {
+        return;
+    }
+
     std::string log_file = mFilename + "_importer.txt";
     LLStringUtil::toLower(log_file);
     llofstream file;
@@ -543,16 +554,54 @@ void LLModelLoader::dumpDebugData()
         }
     }
 
-    file << "Inv Bind matrices.\n";
+    file << "\nInv Bind matrices.\n";
     for (auto& bind : inv_bind)
     {
         file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
     }
 
-    file << "Alt Bind matrices.\n";
+    file << "\nAlt Bind matrices.\n";
     for (auto& bind : alt_bind)
     {
         file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
+    }
+
+    if (mDebugMode < 1)
+    {
+        return;
+    }
+
+    file << "\nModel LLSDs\n";
+    S32 model_count = 0;
+    // some files contain too many models, so stop at 5.
+    for (LLPointer<LLModel>& mdl : mModelList)
+    {
+        const LLMeshSkinInfo& skin_info = mdl->mSkinInfo;
+        size_t joint_count = skin_info.mJointNames.size();
+        size_t alt_count = skin_info.mAlternateBindMatrix.size();
+
+        LLModel::writeModel(
+            file,
+            nullptr,
+            mdl,
+            nullptr,
+            nullptr,
+            nullptr,
+            mdl->mPhysics,
+            joint_count > 0,
+            alt_count > 0,
+            false,
+            LLModel::WRITE_HUMAN,
+            false,
+            mdl->mSubmodelID);
+
+        file << "\n";
+        model_count++;
+        if (model_count == 5)
+        {
+            file << "Too many models, stopping at 5.\n";
+            break;
+        }
     }
 }
 

@@ -59,6 +59,7 @@ public:
         std::map<std::string, std::string, std::less<>>& jointAliasMap,
         U32                                              maxJointsPerMesh,
         U32                                              modelLimit,
+        U32                                              debugMode,
         bool                                             preprocess);
     virtual ~LLDAELoader() ;
 
@@ -103,7 +104,6 @@ protected:
     static std::string preprocessDAE(std::string filename);
 
 private:
-    U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
     bool mPreprocessDAE;
 
 };

@@ -2740,7 +2740,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                 mUploadSkin,
                 mUploadJoints,
                 mLockScaleIfJointPosition,
-                false,
+                LLModel::WRITE_BINARY,
                 false,
                 data.mBaseModel->mSubmodelID);
 
@@ -2898,7 +2898,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                 mUploadSkin,
                 mUploadJoints,
                 mLockScaleIfJointPosition,
-                false,
+                LLModel::WRITE_BINARY,
                 false,
                 data.mBaseModel->mSubmodelID);
 

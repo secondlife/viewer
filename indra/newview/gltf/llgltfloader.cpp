@@ -98,6 +98,7 @@ LLGLTFLoader::LLGLTFLoader(std::string                filename,
     std::map<std::string, std::string, std::less<>> & jointAliasMap,
     U32                                               maxJointsPerMesh,
     U32                                               modelLimit,
+    U32                                               debugMode,
     std::vector<LLJointData>                          viewer_skeleton) //,
     //bool                                            preprocess)
     : LLModelLoader( filename,
@@ -110,8 +111,9 @@ LLGLTFLoader::LLGLTFLoader(std::string                filename,
                      jointTransformMap,
                      jointsFromNodes,
                      jointAliasMap,
-                     maxJointsPerMesh )
-    , mGeneratedModelLimit(modelLimit)
+                     maxJointsPerMesh,
+                     modelLimit,
+                     debugMode)
     , mViewerJointData(viewer_skeleton)
 {
 }
@@ -1037,7 +1039,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         size_t jointCnt = gltf_skin.mJoints.size();
         gltfindex_to_joitindex_map.resize(jointCnt, -1);
 
-        if (valid_joints_count > LL_MAX_JOINTS_PER_MESH_OBJECT)
+        if (valid_joints_count > (S32)mMaxJointsPerMesh)
         {
             std::map<std::string, S32> goup_use_count;
             // Assume that 'Torso' group is always in use since that's what everything else is attached to
@@ -1092,7 +1094,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                     // this step needs only joints that have zero uses
                     continue;
                 }
-                if (skin_info.mInvBindMatrix.size() > LL_MAX_JOINTS_PER_MESH_OBJECT)
+                if (skin_info.mInvBindMatrix.size() > mMaxJointsPerMesh)
                 {
                     break;
                 }
@@ -1127,16 +1129,18 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             }
         }
 
-        if (skin_info.mInvBindMatrix.size() > LL_MAX_JOINTS_PER_MESH_OBJECT)
+        if (skin_info.mInvBindMatrix.size() > mMaxJointsPerMesh)
         {
+            // mMaxJointsPerMesh ususlly is equal to LL_MAX_JOINTS_PER_MESH_OBJECT
+            // and is 110.
             LL_WARNS("GLTF_IMPORT") << "Too many jonts in " << pModel->mLabel
                 << " Count: " << (S32)skin_info.mInvBindMatrix.size()
-                << " Limit:" << (S32)LL_MAX_JOINTS_PER_MESH_OBJECT << LL_ENDL;
+                << " Limit:" << (S32)mMaxJointsPerMesh << LL_ENDL;
             LLSD args;
             args["Message"] = "ModelTooManyJoints";
             args["MODEL_NAME"] = pModel->mLabel;
             args["JOINT_COUNT"] = (S32)skin_info.mInvBindMatrix.size();
-            args["MAX"] = (S32)LL_MAX_JOINTS_PER_MESH_OBJECT;
+            args["MAX"] = (S32)mMaxJointsPerMesh;
             mWarningsArray.append(args);
         }
 

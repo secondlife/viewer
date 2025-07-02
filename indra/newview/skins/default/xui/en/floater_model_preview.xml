@@ -1426,7 +1426,7 @@
          word_wrap="true">
         </text_editor>
         <check_box
-         control_name="ImporterDebug"
+         control_name="ImporterDebugVerboseLogging"
          follows="top|left"
          top_pad="9"
          left="6"
