@@ -19,13 +19,13 @@ Issue Link: <!-- e.g., closes #123 or relates to #456 -->
 Please ensure the following before requesting review:
 
 - [ ] I have provided a clear title and detailed description for this pull request.
-- [ ] The PR is linked to a relevant issue with sufficient context (see above).
+- [ ] The PR is linked to a relevant issue with sufficient context.
 - [ ] I have tested the changes locally and verified they work as intended.
-- [ ] All new and existing tests pass (if applicable).
+- [ ] All new and existing tests pass.
 - [ ] Code follows the project's style guidelines.
-- [ ] Documentation (if needed) has been updated.
+- [ ] Documentation has been updated if needed.
 - [ ] Any dependent changes have been merged and published in downstream modules
-- [ ] I have reviewed the [contributing guidelines](../CONTRIBUTING.md).
+- [ ] I have reviewed the [contributing guidelines](https://github.com/secondlife/viewer/blob/develop/CONTRIBUTING.md).
 
 ---
 
