@@ -1333,21 +1333,21 @@ const std::string LLMaterialEditor::buildMaterialDescription()
         desc << mNormalName;
     }
 
-    // trim last char if it's a ',' in case there is no normal texture
-    // present and the code above inserts one
-    // (no need to check for string length - always has initial string)
-    std::string::iterator iter = desc.str().end() - 1;
-    if (*iter == ',')
-    {
-        desc.str().erase(iter);
-    }
-
     // sanitize the material description so that it's compatible with the inventory
     // note: split this up because clang doesn't like operating directly on the
     // str() - error: lvalue reference to type 'basic_string<...>' cannot bind to a
     // temporary of type 'basic_string<...>'
     std::string inv_desc = desc.str();
     LLInventoryObject::correctInventoryName(inv_desc);
+
+    // trim last char if it's a ',' in case there is no normal texture
+    // present and the code above inserts one
+    // (no need to check for string length - always has initial string)
+    std::string::iterator iter = inv_desc.end() - 1;
+    if (*iter == ',')
+    {
+        inv_desc.erase(iter);
+    }
 
     return inv_desc;
 }
@@ -2685,10 +2685,8 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
         // so we can include everything
         if (stripped_uri.length() > 0)
         {
-            // example "DamagedHelmet: base layer"
+            // example "base layer"
             return STRINGIZE(
-                mMaterialNameShort <<
-                ": " <<
                 stripped_uri <<
                 " (" <<
                 texture_type <<
@@ -2697,28 +2695,17 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
         }
         else
         // uri doesn't include the type (because the uri is empty)
-        // so we must reorganize the string a bit to include the name
-        // and an explicit name type
+        // include an explicit name type
         {
-            // example "DamagedHelmet: (Emissive)"
-            return STRINGIZE(
-                mMaterialNameShort <<
-                " (" <<
-                texture_type <<
-                ")"
-            );
+            // example "Emissive"
+            return texture_type;
         }
     }
     else
-    // uri includes the type so just use it directly with the
-    // name of the material
+    // uri includes the type so just use it directly
     {
-        return STRINGIZE(
-            // example: AlienBust: normal_layer
-            mMaterialNameShort <<
-            ": " <<
-            stripped_uri
-        );
+        // example: "normal_layer"
+        return stripped_uri;
     }
 }
 
