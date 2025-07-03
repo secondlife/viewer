@@ -38,7 +38,7 @@
   <key>ImporterDebugMode</key>
   <map>
     <key>Comment</key>
-    <string>At 0 does nothing, at 1 dumps skinning data near orifinal file, at 2 dumps skining data and first 5 models as llsd</string>
+    <string>At 0 does nothing, at 1 dumps skinning data near orifinal file, at 2 dumps skining data and positions/weights of first 5 models, at 3 dumps skinning data and models as llsd</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
