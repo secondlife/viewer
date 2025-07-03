@@ -102,7 +102,7 @@ class LLGLTFLoader : public LLModelLoader
 protected:
     LL::GLTF::Asset mGLTFAsset;
     tinygltf::Model mGltfModel;
-    bool            mGltfLoaded;
+    bool            mGltfLoaded = false;
     bool            mApplyXYRotation = false;
 
     // GLTF isn't aware of viewer's skeleton and uses it's own,
@@ -125,7 +125,7 @@ protected:
         std::string mGroup;
         std::string mParentGroup;
     };
-    typedef std::map<std::string, JointGroups> joint_to_group_map_t;
+    typedef std::map<std::string, JointGroups, std::less<> > joint_to_group_map_t;
     joint_to_group_map_t mJointGroups;
 
     // per skin joint count, needs to be tracked for the sake of limits check.

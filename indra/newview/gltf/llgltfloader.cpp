@@ -115,6 +115,8 @@ LLGLTFLoader::LLGLTFLoader(std::string                filename,
                      modelLimit,
                      debugMode)
     , mViewerJointData(viewer_skeleton)
+    , mGltfLoaded(false)
+    , mApplyXYRotation(false)
 {
 }
 
@@ -313,7 +315,7 @@ bool LLGLTFLoader::parseMeshes()
     }
 
     // Populate the joints from skins first.
-    // There's not many skins - and you can pretty easily iterate through the nodes from that.
+    // Multiple meshes can share the same skin, so preparing skins beforehand.
     for (S32 i = 0; i < mGLTFAsset.mSkins.size(); i++)
     {
         populateJointsFromSkin(i);
@@ -367,7 +369,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
     if (node_idx < 0 || node_idx >= static_cast<S32>(mGLTFAsset.mNodes.size()))
         return;
 
-    auto& node = mGLTFAsset.mNodes[node_idx];
+    const LL::GLTF::Node& node = mGLTFAsset.mNodes[node_idx];
 
     LL_INFOS("GLTF_IMPORT") << "Processing node " << node_idx << " (" << node.mName << ")"
                             << " - has mesh: " << (node.mMesh >= 0 ? "yes" : "no")
@@ -380,7 +382,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         material_map mats;
 
         LLModel* pModel = new LLModel(volume_params, 0.f);
-        auto& mesh = mGLTFAsset.mMeshes[node.mMesh];
+        const LL::GLTF::Mesh& mesh = mGLTFAsset.mMeshes[node.mMesh];
 
         // Get base mesh name and track usage
         std::string base_name = mesh.mName;
@@ -1042,6 +1044,13 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         if (valid_joints_count > (S32)mMaxJointsPerMesh)
         {
             std::map<std::string, S32> goup_use_count;
+
+            for (const auto& elem : mJointGroups)
+            {
+                goup_use_count[elem.second.mGroup] = 0;
+                goup_use_count[elem.second.mParentGroup] = 0;
+            }
+
             // Assume that 'Torso' group is always in use since that's what everything else is attached to
             goup_use_count["Torso"] = 1;
             // Note that Collisions and Extra groups are all over the place, might want to include them from the start
@@ -1188,7 +1197,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
     for (S32 i = 0; i < joint_count; i++)
     {
         S32 joint = skin.mJoints[i];
-        LL::GLTF::Node jointNode = mGLTFAsset.mNodes[joint];
+        const LL::GLTF::Node &jointNode = mGLTFAsset.mNodes[joint];
         JointNodeData& data = joints_data[joint];
         data.mNodeIdx = joint;
         data.mJointListIdx = i;
@@ -1218,6 +1227,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
     }
 
     // Go over viewer joints and build overrides
+    // This is needed because gltf skeleton doesn't necessarily match viewer's skeleton.
     glm::mat4 ident(1.0);
     for (auto &viewer_data : mViewerJointData)
     {
@@ -1227,8 +1237,10 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
     for (S32 i = 0; i < joint_count; i++)
     {
         S32 joint = skin.mJoints[i];
-        LL::GLTF::Node jointNode = mGLTFAsset.mNodes[joint];
+        const LL::GLTF::Node &jointNode = mGLTFAsset.mNodes[joint];
         std::string legal_name(jointNode.mName);
+
+        // Viewer supports a limited set of joints, mark them as legal
         bool legal_joint = false;
         if (mJointMap.find(legal_name) != mJointMap.end())
         {
@@ -1254,8 +1266,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         }
         else if (inverse_count > i)
         {
-            // Transalte existing bind matrix to viewer's skeleton
-            // todo: probably should be 'to viewer's overriden skeleton'
+            // Transalte existing bind matrix to viewer's overriden skeleton
             glm::mat4 original_bind_matrix = glm::inverse(skin.mInverseBindMatricesData[i]);
             glm::mat4 rotated_original = coord_system_rotation * original_bind_matrix;
             glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(joints_data, joint, legal_name);
@@ -1270,7 +1281,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         {
             // If bind matrices aren't present (they are optional in gltf),
             // assume an identy matrix
-            // todo: find a model with this, might need to use rotated matrix
+            // todo: find a model with this, might need to use YZ rotated matrix
             glm::mat4 inv_bind(1.0f);
             glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(joints_data, joint, legal_name);
             inv_bind = glm::inverse(skeleton_transform * inv_bind);
@@ -1303,7 +1314,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
     S32 valid_joints = mValidJointsCount[skin_idx];
     if (valid_joints < joint_count)
     {
-        LL_WARNS("GLTF_IMPORT") << "Skin " << skin_idx
+        LL_INFOS("GLTF_IMPORT") << "Skin " << skin_idx
             << " defines " << joint_count
             << " joints, but only " << valid_joints
             << " were recognized and are compatible." << LL_ENDL;
@@ -1339,7 +1350,6 @@ void LLGLTFLoader::buildJointGroup(LLJointData& viewer_data, const std::string &
 
 void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& parent_support_rest) const
 {
-    glm::mat4 new_lefover(1.f);
     glm::mat4 rest(1.f);
     joints_name_to_node_map_t::iterator found_node = names_to_nodes.find(viewer_data.mName);
     if (found_node != names_to_nodes.end())
@@ -1396,6 +1406,7 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
             // Viewer Collision bones specify rotation and scale.
             // Importer should apply rotation and scale to this matrix and save as needed
             // then subsctruct them from bind matrix
+            // Todo: get models that use collision bones, made by different programs
 
             overriden_joint = glm::scale(overriden_joint, viewer_data.mScale);
             node.mOverrideRestMatrix = parent_support_rest * overriden_joint;
@@ -1533,7 +1544,7 @@ void LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin)
     for (S32 i= 0; i < size; i++)
     {
         S32 joint = gltf_skin.mJoints[i];
-        auto joint_node = mGLTFAsset.mNodes[joint];
+        const LL::GLTF::Node &joint_node = mGLTFAsset.mNodes[joint];
 
         // todo: we are doing this search thing everywhere,
         // just pre-translate every joint
