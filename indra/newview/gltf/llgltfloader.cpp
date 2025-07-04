@@ -86,6 +86,8 @@ static const glm::mat4 coord_system_rotationxy(
     0.f, 0.f, 0.f, 1.f
 );
 
+static const S32 VERTICIES_LIMIT = USHRT_MAX - 2;
+
 LLGLTFLoader::LLGLTFLoader(std::string                filename,
     S32                                               lod,
     LLModelLoader::load_callback_t                    load_cb,
@@ -889,7 +891,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         mats[materialName] = impMat;
 
         // Indices handling
-        if (faceVertices.size() >= USHRT_MAX)
+        if (faceVertices.size() >= VERTICIES_LIMIT)
         {
             // Will have to remap 32 bit indices into 16 bit indices
             // For the sake of simplicity build vector of 32 bit indices first
@@ -957,7 +959,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 }
                 indices_16.push_back((U16)vert_index);
 
-                if (indices_16.size() % 3 == 0 && face_verts.size() >= 65532)
+                if (indices_16.size() % 3 == 0 && face_verts.size() >= VERTICIES_LIMIT - 1)
                 {
                     LLVolumeFace face;
                     face.fillFromLegacyData(face_verts, indices_16);
