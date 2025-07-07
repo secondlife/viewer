@@ -97,6 +97,11 @@ private:
 
     // static function passed to APR thread creation routine
     void threadRun();
+    void tryRun();
+
+#ifdef LL_WINDOWS
+    void sehHandle();
+#endif
 
 protected:
     std::string         mName;
