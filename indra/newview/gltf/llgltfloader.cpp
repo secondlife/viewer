@@ -373,7 +373,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
 
     const LL::GLTF::Node& node = mGLTFAsset.mNodes[node_idx];
 
-    LL_INFOS("GLTF_IMPORT") << "Processing node " << node_idx << " (" << node.mName << ")"
+    LL_DEBUGS("GLTF_IMPORT") << "Processing node " << node_idx << " (" << node.mName << ")"
                             << " - has mesh: " << (node.mMesh >= 0 ? "yes" : "no")
                             << " - children: " << node.mChildren.size() << LL_ENDL;
 
@@ -542,7 +542,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
         base_name = "mesh_" + std::to_string(mesh_index);
     }
 
-    LL_INFOS("GLTF_DEBUG") << "Processing model " << base_name << LL_ENDL;
+    LL_DEBUGS("GLTF_DEBUG") << "Processing model " << base_name << LL_ENDL;
 
     if (instance_count > 0)
     {
@@ -988,7 +988,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 created_faces++;
             }
 
-            LL_INFOS("GLTF_IMPORT") << "Primitive " << pModel->mLabel
+            LL_INFOS("GLTF_IMPORT") << "Primitive " << (S32)prim_idx << " from model " << pModel->mLabel
                 << " is over vertices limit, it was split into " << created_faces
                 << " faces" << LL_ENDL;
             LLSD args;
@@ -1276,7 +1276,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
             glm::mat4 final_inverse_bind_matrix = glm::inverse(tranlated_original);
 
             LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(final_inverse_bind_matrix));
-            LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " Translated val: " << gltf_transform << LL_ENDL;
+            LL_DEBUGS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " Translated val: " << gltf_transform << LL_ENDL;
             mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
         }
         else
@@ -1289,7 +1289,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
             inv_bind = glm::inverse(skeleton_transform * inv_bind);
 
             LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(inv_bind));
-            LL_INFOS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " Generated val: " << gltf_transform << LL_ENDL;
+            LL_DEBUGS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " Generated val: " << gltf_transform << LL_ENDL;
             mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
         }
 
@@ -1301,7 +1301,7 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         LLMatrix4 newInverse = LLMatrix4(mInverseBindMatrices[skin_idx].back().getF32ptr());
         newInverse.setTranslation(original_joint_transform.getTranslation());
 
-        LL_INFOS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << newInverse << LL_ENDL;
+        LL_DEBUGS("GLTF_DEBUG") << "mAlternateBindMatrix name: " << legal_name << " val: " << newInverse << LL_ENDL;
         mAlternateBindMatrices[skin_idx].push_back(LLMatrix4a(newInverse));
 
         if (legal_joint)
