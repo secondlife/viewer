@@ -98,7 +98,7 @@ protected:
     bool loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out, U32 submodel_limit);
 
     static std::string getElementLabel(daeElement *element);
-    static size_t getSuffixPosition(std::string label);
+    static size_t getSuffixPosition(const std::string& label);
     static std::string getLodlessLabel(daeElement *element);
 
     static std::string preprocessDAE(std::string filename);

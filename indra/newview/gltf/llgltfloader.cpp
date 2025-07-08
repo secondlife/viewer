@@ -188,6 +188,7 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
 
 void LLGLTFLoader::addModelToScene(
     LLModel* pModel,
+    const std::string& model_name,
     U32 submodel_limit,
     const LLMatrix4& transformation,
     const LLVolumeParams& volume_params,
@@ -239,7 +240,7 @@ void LLGLTFLoader::addModelToScene(
             LLModel* next = new LLModel(volume_params, 0.f);
             next->ClearFacesAndMaterials();
             next->mSubmodelID = ++submodelID;
-            next->mLabel = pModel->mLabel + (char)((int)'a' + next->mSubmodelID) + lod_suffix[mLod];
+            next->mLabel = model_name + (char)((int)'a' + next->mSubmodelID) + lod_suffix[mLod];
             next->getVolumeFaces() = remainder;
             next->mNormalizedScale = current_model->mNormalizedScale;
             next->mNormalizedTranslation = current_model->mNormalizedTranslation;
@@ -289,7 +290,12 @@ void LLGLTFLoader::addModelToScene(
                 materials[model->mMaterialList[i]] = LLImportMaterial();
             }
         }
-        mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
+        std::string base_name = model_name;
+        if (model->mSubmodelID > 0)
+        {
+            base_name += (char)((int)'a' + model->mSubmodelID);
+        }
+        mScene[transformation].push_back(LLModelInstance(model, base_name, transformation, materials));
         stretch_extents(model, transformation);
     }
 }
@@ -387,7 +393,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         const LL::GLTF::Mesh& mesh = mGLTFAsset.mMeshes[node.mMesh];
 
         // Get base mesh name and track usage
-        std::string base_name = mesh.mName;
+        std::string base_name = getLodlessLabel(mesh);
         if (base_name.empty())
         {
             base_name = "mesh_" + std::to_string(node.mMesh);
@@ -395,7 +401,13 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
 
         S32 instance_count = mesh_name_counts[base_name]++;
 
-        if (populateModelFromMesh(pModel, mesh, node, mats, instance_count) &&
+        // make name unique
+        if (instance_count > 0)
+        {
+            base_name = base_name + "_copy_" + std::to_string(instance_count);
+        }
+
+        if (populateModelFromMesh(pModel, base_name, mesh, node, mats) &&
             (LLModel::NO_ERRORS == pModel->getStatus()) &&
             validate_model(pModel))
         {
@@ -443,7 +455,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
                 mWarningsArray.append(args);
             }
 
-            addModelToScene(pModel, submodel_limit, transformation, volume_params, mats);
+            addModelToScene(pModel, base_name, submodel_limit, transformation, volume_params, mats);
             mats.clear();
         }
         else
@@ -529,29 +541,16 @@ bool LLGLTFLoader::addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_
     return true;
 }
 
-bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats, S32 instance_count)
+bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats)
 {
     // Set the requested label for the floater display and uploading
     pModel->mRequestedLabel = gDirUtilp->getBaseFileName(mFilename, true);
+    // Set name and suffix. Suffix is nessesary for model matching logic
+    // because sometimes higher lod can be used as a lower one, so they
+    // need unique names not just in scope of one lod, but across lods.
+    pModel->mLabel = base_name + lod_suffix[mLod];
 
-    // Create unique model name
-    std::string base_name = mesh.mName;
-    if (base_name.empty())
-    {
-        S32 mesh_index = static_cast<S32>(&mesh - &mGLTFAsset.mMeshes[0]);
-        base_name = "mesh_" + std::to_string(mesh_index);
-    }
-
-    LL_DEBUGS("GLTF_DEBUG") << "Processing model " << base_name << LL_ENDL;
-
-    if (instance_count > 0)
-    {
-        pModel->mLabel = base_name + "_copy_" + std::to_string(instance_count);
-    }
-    else
-    {
-        pModel->mLabel = base_name;
-    }
+    LL_DEBUGS("GLTF_DEBUG") << "Processing model " << pModel->mLabel << LL_ENDL;
 
     pModel->ClearFacesAndMaterials();
 
@@ -1721,5 +1720,24 @@ void LLGLTFLoader::notifyUnsupportedExtension(bool unsupported)
 
         LL_WARNS("GLTF_IMPORT") << "Model uses unsupported extension: " << ext << LL_ENDL;
     }
+}
+
+size_t LLGLTFLoader::getSuffixPosition(const std::string &label)
+{
+    if ((label.find("_LOD") != -1) || (label.find("_PHYS") != -1))
+    {
+        return label.rfind('_');
+    }
+    return -1;
+}
+
+std::string LLGLTFLoader::getLodlessLabel(const LL::GLTF::Mesh& mesh)
+{
+    size_t ext_pos = getSuffixPosition(mesh.mName);
+    if (ext_pos != -1)
+    {
+        return mesh.mName.substr(0, ext_pos);
+    }
+    return mesh.mName;
 }
 

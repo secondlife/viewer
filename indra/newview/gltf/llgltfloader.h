@@ -136,10 +136,10 @@ private:
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
     void processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params);
     bool addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx);
-    bool populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats, S32 instance_count);
+    bool populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
     void populateJointsFromSkin(S32 skin_idx);
     void populateJointGroups();
-    void addModelToScene(LLModel* pModel, U32 submodel_limit, const LLMatrix4& transformation, const LLVolumeParams& volume_params, const material_map& mats);
+    void addModelToScene(LLModel* pModel, const std::string& model_name, U32 submodel_limit, const LLMatrix4& transformation, const LLVolumeParams& volume_params, const material_map& mats);
     void buildJointGroup(LLJointData& viewer_data, const std::string& parent_group);
     void buildOverrideMatrix(LLJointData& data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& support_rest) const;
     glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const;
@@ -152,6 +152,9 @@ private:
     std::string extractTextureToTempFile(S32 textureIndex, const std::string& texture_type);
 
     void notifyUnsupportedExtension(bool unsupported);
+
+    static size_t getSuffixPosition(const std::string& label);
+    static std::string getLodlessLabel(const LL::GLTF::Mesh& mesh);
 
     //    bool mPreprocessGLTF;
 
@@ -189,10 +192,6 @@ private:
     // to get around volume face limitations while retaining >8 materials
     //
     bool loadModelsFromGltfMesh(gltfMesh *mesh, std::vector<LLModel *> &models_out, U32 submodel_limit);
-
-    static std::string getElementLabel(gltfElement *element);
-    static size_t      getSuffixPosition(std::string label);
-    static std::string getLodlessLabel(gltfElement *element);
 
     static std::string preprocessGLTF(std::string filename);
     */
