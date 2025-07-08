@@ -223,6 +223,7 @@ void LLGLTFLoader::addModelToScene(
     LLVolume::face_list_t remainder;
     std::vector<LLModel*> ready_models;
     LLModel* current_model = pModel;
+
     do
     {
         current_model->trimVolumeFacesToSize(LL_SCULPT_MESH_MAX_FACES, &remainder);
@@ -240,7 +241,26 @@ void LLGLTFLoader::addModelToScene(
             LLModel* next = new LLModel(volume_params, 0.f);
             next->ClearFacesAndMaterials();
             next->mSubmodelID = ++submodelID;
-            next->mLabel = model_name + (char)((int)'a' + next->mSubmodelID) + lod_suffix[mLod];
+
+            std::string instance_name = model_name;
+            if (next->mSubmodelID > 0)
+            {
+                instance_name += (char)((int)'a' + next->mSubmodelID);
+            }
+            // Check for duplicates and add copy suffix if needed
+            int duplicate_count = 0;
+            for (const auto& inst : mScene[transformation])
+            {
+                if (inst.mLabel == instance_name)
+                {
+                    ++duplicate_count;
+                }
+            }
+            if (duplicate_count > 0) {
+                instance_name += "_copy_" + std::to_string(duplicate_count);
+            }
+            next->mLabel = instance_name;
+
             next->getVolumeFaces() = remainder;
             next->mNormalizedScale = current_model->mNormalizedScale;
             next->mNormalizedTranslation = current_model->mNormalizedTranslation;
@@ -290,12 +310,10 @@ void LLGLTFLoader::addModelToScene(
                 materials[model->mMaterialList[i]] = LLImportMaterial();
             }
         }
-        std::string base_name = model_name;
-        if (model->mSubmodelID > 0)
-        {
-            base_name += (char)((int)'a' + model->mSubmodelID);
-        }
-        mScene[transformation].push_back(LLModelInstance(model, base_name, transformation, materials));
+        // Keep base name for scene instance, add LOD suffix to model label for matching
+        std::string instance_name = model->mLabel;
+        model->mLabel += lod_suffix[mLod];
+        mScene[transformation].push_back(LLModelInstance(model, instance_name, transformation, materials));
         stretch_extents(model, transformation);
     }
 }
