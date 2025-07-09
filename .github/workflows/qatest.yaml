@@ -46,11 +46,10 @@ jobs:
             runner: qa-dan-asus
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
-          # Commented out until mac runner is available
-          # - os: mac
-          #   runner: qa-mac-atlas
-          #   artifact: Mac-installer
-          #   install-path: '$HOME/Documents/viewer-automation'
+          - os: mac
+            runner: qa-mac-atlas
+            artifact: Mac-installer
+            install-path: '$HOME/Documents/viewer-automation'
       fail-fast: false
 
     runs-on: [self-hosted, "${{ matrix.runner }}"]
