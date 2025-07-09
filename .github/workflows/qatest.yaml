@@ -493,11 +493,11 @@ jobs:
         run: |
           # Mac installation
           echo "Mounting DMG installer..."
-          MOUNT_POINT="/tmp/secondlife-dmg"
+          MOUNT_POINT="/Volumes/SecondLifeMount"
           mkdir -p "$MOUNT_POINT"
 
           # Mount the DMG
-          hdiutil attach "${{ env.INSTALLER_PATH }}" -mountpoint "$MOUNT_POINT" -nobrowse
+          hdiutil attach "$INSTALLER_PATH" -mountpoint "$MOUNT_POINT" -nobrowse
 
           echo "✅ DMG mounted at $MOUNT_POINT"
 
@@ -511,14 +511,14 @@ jobs:
 
           echo "Installing application to Applications folder..."
 
-          # Copy the app to the Applications folder (or specified install path)
-          cp -R "$APP_PATH" "${{ matrix.install-path }}"
-
           # Fix permissions before copying
           chmod -R u+rw "$APP_PATH"
 
+          # Copy the app to the Applications folder (or specified install path)
+          cp -R "$APP_PATH" "${{ matrix.install-path }}"
+
           # Verify the app was copied successfully
-          if [ ! -d "${{ matrix.install-path }}/$(basename "$APP_PATH")" ]; then
+          if [ ! -d "${{ matrix.install-path }}/$(basename \"$APP_PATH\")" ]; then
             echo "❌ Error: Failed to install application to ${{ matrix.install-path }}!"
             exit 1
           fi
@@ -527,7 +527,7 @@ jobs:
 
           # Save mount point for cleanup
           echo "MOUNT_POINT=$MOUNT_POINT" >> $GITHUB_ENV
-
+          
       - name: Wait for Installation to Complete (Mac)
         if: matrix.os == 'mac'
         shell: bash
