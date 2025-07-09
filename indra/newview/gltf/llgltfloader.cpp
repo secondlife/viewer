@@ -310,8 +310,11 @@ void LLGLTFLoader::addModelToScene(
                 materials[model->mMaterialList[i]] = LLImportMaterial();
             }
         }
-        // Keep base name for scene instance, add LOD suffix to model label for matching
+        // Keep base name for scene instance.
         std::string instance_name = model->mLabel;
+        // Add suffix. Suffix is nessesary for model matching logic
+        // because sometimes higher lod can be used as a lower one, so models
+        // need unique names not just in scope of one lod, but across lods.
         model->mLabel += lod_suffix[mLod];
         mScene[transformation].push_back(LLModelInstance(model, instance_name, transformation, materials));
         stretch_extents(model, transformation);
@@ -563,10 +566,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
 {
     // Set the requested label for the floater display and uploading
     pModel->mRequestedLabel = gDirUtilp->getBaseFileName(mFilename, true);
-    // Set name and suffix. Suffix is nessesary for model matching logic
-    // because sometimes higher lod can be used as a lower one, so they
-    // need unique names not just in scope of one lod, but across lods.
-    pModel->mLabel = base_name + lod_suffix[mLod];
+    // Set only name, suffix will be added later
+    pModel->mLabel = base_name;
 
     LL_DEBUGS("GLTF_DEBUG") << "Processing model " << pModel->mLabel << LL_ENDL;
 
