@@ -527,7 +527,7 @@ jobs:
 
           # Save mount point for cleanup
           echo "MOUNT_POINT=$MOUNT_POINT" >> $GITHUB_ENV
-          
+
       - name: Wait for Installation to Complete (Mac)
         if: matrix.os == 'mac'
         shell: bash
