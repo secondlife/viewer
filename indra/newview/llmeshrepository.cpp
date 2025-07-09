@@ -2395,6 +2395,11 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
                 // might be good idea to turn mesh into pointer to avoid making a copy
                 mesh.mVolume = NULL;
             }
+            {
+                // make sure skin info is not removed from list while we are decreasing reference count
+                LLMutexLock lock(mSkinMapMutex);
+                skin_info = nullptr;
+            }
             return MESH_OK;
         }
     }
