@@ -514,6 +514,9 @@ jobs:
           # Copy the app to the Applications folder (or specified install path)
           cp -R "$APP_PATH" "${{ matrix.install-path }}"
 
+          # Fix permissions before copying
+          chmod -R u+rw "$APP_PATH"
+
           # Verify the app was copied successfully
           if [ ! -d "${{ matrix.install-path }}/$(basename "$APP_PATH")" ]; then
             echo "❌ Error: Failed to install application to ${{ matrix.install-path }}!"
