@@ -913,23 +913,40 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 }
             }
 
-            // remap 32 bit into multiple 16 bit ones
+            // Generates a vertex remap table with no gaps in the resulting sequence
+            std::vector<U32> remap(faceVertices.size());
+            size_t vertex_count = meshopt_generateVertexRemap(&remap[0], &indices_32[0], indices_32.size(), &faceVertices[0], faceVertices.size(), sizeof(LLVolumeFace::VertexData));
+
+            // Manually remap vertices
+            std::vector<LLVolumeFace::VertexData> optimized_vertices(vertex_count);
+            for (size_t i = 0; i < vertex_count; ++i)
+            {
+                optimized_vertices[i] = faceVertices[remap[i]];
+            }
+
+            std::vector<U32> optimized_indices(indices_32.size());
+            meshopt_remapIndexBuffer(&optimized_indices[0], &indices_32[0], indices_32.size(), &remap[0]);
+
+            // Sort indices to improve mesh splits (reducing amount of duplicated indices)
+            meshopt_optimizeVertexCache(&optimized_indices[0], &optimized_indices[0], indices_32.size(), vertex_count);
+
             std::vector<U16> indices_16;
-            std::vector<S64> vertices_remap; // should it be a point map?
-            vertices_remap.resize(faceVertices.size(), -1);
+            std::vector<S64> vertices_remap;
+            vertices_remap.resize(vertex_count, -1);
             S32 created_faces = 0;
             std::vector<LLVolumeFace::VertexData> face_verts;
             min = glm::vec3(FLT_MAX);
             max = glm::vec3(-FLT_MAX);
-            for (size_t idx = 0; idx < indices_32.size(); idx++)
+
+            for (size_t idx = 0; idx < optimized_indices.size(); idx++)
             {
-                size_t vert_index = indices_32[idx];
+                size_t vert_index = optimized_indices[idx];
                 if (vertices_remap[vert_index] == -1)
                 {
                     // First encounter, add it
                     size_t new_vert_idx = face_verts.size();
                     vertices_remap[vert_index] = (S64)new_vert_idx;
-                    face_verts.push_back(faceVertices[vert_index]);
+                    face_verts.push_back(optimized_vertices[vert_index]);
                     vert_index = new_vert_idx;
 
                     // Update min/max bounds
