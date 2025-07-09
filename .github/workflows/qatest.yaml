@@ -493,7 +493,7 @@ jobs:
         run: |
           # Mac installation
           echo "Mounting DMG installer..."
-          MOUNT_POINT="/Volumes/SecondLifeMount"
+          MOUNT_POINT="/tmp/secondlife-dmg"
           mkdir -p "$MOUNT_POINT"
 
           # Mount the DMG
