@@ -914,6 +914,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
                 }
             }
 
+            // Generates a vertex remap table with no gaps in the resulting sequence
             std::vector<U32> remap(faceVertices.size());
             size_t vertex_count = meshopt_generateVertexRemap(&remap[0], &indices_32[0], indices_32.size(), &faceVertices[0], faceVertices.size(), sizeof(LLVolumeFace::VertexData));
 
@@ -927,7 +928,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const LL::GLTF::Mesh& 
             std::vector<U32> optimized_indices(indices_32.size());
             meshopt_remapIndexBuffer(&optimized_indices[0], &indices_32[0], indices_32.size(), &remap[0]);
 
-            // Sort indices to improve mesh splits
+            // Sort indices to improve mesh splits (reducing amount of duplicated indices)
             meshopt_optimizeVertexCache(&optimized_indices[0], &optimized_indices[0], indices_32.size(), vertex_count);
 
             std::vector<U16> indices_16;
