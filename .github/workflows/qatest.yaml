@@ -48,7 +48,7 @@ jobs:
             install-path: 'C:\viewer-automation-main'
           - os: mac
             runner: qa-mac-atlas
-            artifact: Mac-installer
+            artifact: macOS-installer
             install-path: '$HOME/Documents/viewer-automation'
       fail-fast: false
 
