@@ -159,12 +159,6 @@ namespace LL
         }
 
         template<>
-        inline void copyVec3<F32, LLColor4U>(F32* src, LLColor4U& dst)
-        {
-            dst.set((U8)(src[0] * 255.f), (U8)(src[1] * 255.f), (U8)(src[2] * 255.f), 255);
-        }
-
-        template<>
         inline void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), 255);
@@ -375,11 +369,6 @@ namespace LL
         template<class T>
         inline void copy(Asset& asset, Accessor& accessor, LLStrider<T>& dst)
         {
-            if (accessor.mBufferView == INVALID_INDEX)
-            {
-                LL_WARNS("GLTF") << "Invalid buffer" << LL_ENDL;
-                return;
-            }
             const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
             const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
             const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;

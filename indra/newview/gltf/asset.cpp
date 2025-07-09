@@ -50,10 +50,6 @@ namespace LL
             "KHR_texture_transform"
         };
 
-        static std::unordered_set<std::string> ExtensionsIgnored = {
-            "KHR_materials_pbrSpecularGlossiness"
-        };
-
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
         {
             if (alpha_mode == "OPAQUE")
@@ -476,14 +472,11 @@ void Asset::update()
 
             for (auto& image : mImages)
             {
-                if (image.mLoadIntoTexturePipe)
-                {
-                    if (image.mTexture.notNull())
-                    { // HACK - force texture to be loaded full rez
-                        // TODO: calculate actual vsize
-                        image.mTexture->addTextureStats(2048.f * 2048.f);
-                        image.mTexture->setBoostLevel(LLViewerTexture::BOOST_HIGH);
-                    }
+                if (image.mTexture.notNull())
+                { // HACK - force texture to be loaded full rez
+                    // TODO: calculate actual vsize
+                    image.mTexture->addTextureStats(2048.f * 2048.f);
+                    image.mTexture->setBoostLevel(LLViewerTexture::BOOST_HIGH);
                 }
             }
         }
@@ -493,23 +486,18 @@ void Asset::update()
 bool Asset::prep()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
-    // check required extensions
+    // check required extensions and fail if not supported
+    bool unsupported = false;
     for (auto& extension : mExtensionsRequired)
     {
         if (ExtensionsSupported.find(extension) == ExtensionsSupported.end())
         {
-            if (ExtensionsIgnored.find(extension) == ExtensionsIgnored.end())
-            {
-                LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
-                mUnsupportedExtensions.push_back(extension);
-            }
-            else
-            {
-                mIgnoredExtensions.push_back(extension);
-            }
+            LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
+            unsupported = true;
         }
     }
-    if (mUnsupportedExtensions.size() > 0)
+
+    if (unsupported)
     {
         return false;
     }
@@ -525,7 +513,7 @@ bool Asset::prep()
 
     for (auto& image : mImages)
     {
-        if (!image.prep(*this, mLoadIntoVRAM))
+        if (!image.prep(*this))
         {
             return false;
         }
@@ -554,106 +542,102 @@ bool Asset::prep()
             return false;
         }
     }
-    if (mLoadIntoVRAM)
+
+    // prepare vertex buffers
+
+    // material count is number of materials + 1 for default material
+    U32 mat_count = (U32) mMaterials.size() + 1;
+
+    if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
+    { // make sure a shader is bound to satisfy mVertexBuffer->setBuffer
+        gDebugProgram.bind();
+    }
+
+    for (S32 double_sided = 0; double_sided < 2; ++double_sided)
     {
-        // prepare vertex buffers
-
-        // material count is number of materials + 1 for default material
-        U32 mat_count = (U32) mMaterials.size() + 1;
-
-        if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
-        { // make sure a shader is bound to satisfy mVertexBuffer->setBuffer
-            gDebugProgram.bind();
+        RenderData& rd = mRenderData[double_sided];
+        for (U32 i = 0; i < LLGLSLShader::NUM_GLTF_VARIANTS; ++i)
+        {
+            rd.mBatches[i].resize(mat_count);
         }
 
-        for (S32 double_sided = 0; double_sided < 2; ++double_sided)
+        // for each material
+        for (S32 mat_id = -1; mat_id < (S32)mMaterials.size(); ++mat_id)
         {
-            RenderData& rd = mRenderData[double_sided];
-            for (U32 i = 0; i < LLGLSLShader::NUM_GLTF_VARIANTS; ++i)
+            // for each shader variant
+            U32 vertex_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
+            U32 index_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
+
+            S32 ds_mat = mat_id == -1 ? 0 : mMaterials[mat_id].mDoubleSided;
+            if (ds_mat != double_sided)
             {
-                rd.mBatches[i].resize(mat_count);
+                continue;
             }
 
-            // for each material
-            for (S32 mat_id = -1; mat_id < (S32)mMaterials.size(); ++mat_id)
+            for (U32 variant = 0; variant < LLGLSLShader::NUM_GLTF_VARIANTS; ++variant)
             {
-                // for each shader variant
-                U32 vertex_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
-                U32 index_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
-
-                S32 ds_mat = mat_id == -1 ? 0 : mMaterials[mat_id].mDoubleSided;
-                if (ds_mat != double_sided)
+                U32 attribute_mask = 0;
+                // for each mesh
+                for (auto& mesh : mMeshes)
                 {
-                    continue;
+                    // for each primitive
+                    for (auto& primitive : mesh.mPrimitives)
+                    {
+                        if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
+                        {
+                            // accumulate vertex and index counts
+                            primitive.mVertexOffset = vertex_count[variant];
+                            primitive.mIndexOffset = index_count[variant];
+
+                            vertex_count[variant] += primitive.getVertexCount();
+                            index_count[variant] += primitive.getIndexCount();
+
+                            // all primitives of a given variant and material should all have the same attribute mask
+                            llassert(attribute_mask == 0 || primitive.mAttributeMask == attribute_mask);
+                            attribute_mask |= primitive.mAttributeMask;
+                        }
+                    }
                 }
 
-                for (U32 variant = 0; variant < LLGLSLShader::NUM_GLTF_VARIANTS; ++variant)
+                // allocate vertex buffer and pack it
+                if (vertex_count[variant] > 0)
                 {
-                    U32 attribute_mask = 0;
-                    // for each mesh
+                    U32 mat_idx = mat_id + 1;
+                    LLVertexBuffer* vb = new LLVertexBuffer(attribute_mask);
+
+                    rd.mBatches[variant][mat_idx].mVertexBuffer = vb;
+                    vb->allocateBuffer(vertex_count[variant],
+                        index_count[variant] * 2); // hack double index count... TODO: find a better way to indicate 32-bit indices will be used
+                    vb->setBuffer();
+
                     for (auto& mesh : mMeshes)
                     {
-                        // for each primitive
                         for (auto& primitive : mesh.mPrimitives)
                         {
                             if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
                             {
-                                // accumulate vertex and index counts
-                                primitive.mVertexOffset = vertex_count[variant];
-                                primitive.mIndexOffset = index_count[variant];
-
-                                vertex_count[variant] += primitive.getVertexCount();
-                                index_count[variant] += primitive.getIndexCount();
-
-                                // all primitives of a given variant and material should all have the same attribute mask
-                                llassert(attribute_mask == 0 || primitive.mAttributeMask == attribute_mask);
-                                attribute_mask |= primitive.mAttributeMask;
+                                primitive.upload(vb);
                             }
                         }
                     }
 
-                    // allocate vertex buffer and pack it
-                    if (vertex_count[variant] > 0)
-                    {
-                        U32 mat_idx = mat_id + 1;
-                        #if 0
-                        LLVertexBuffer* vb = new LLVertexBuffer(attribute_mask);
+                    vb->unmapBuffer();
 
-                        rd.mBatches[variant][mat_idx].mVertexBuffer = vb;
-                        vb->allocateBuffer(vertex_count[variant],
-                            index_count[variant] * 2); // hack double index count... TODO: find a better way to indicate 32-bit indices will be used
-                        vb->setBuffer();
-
-                        for (auto& mesh : mMeshes)
-                        {
-                            for (auto& primitive : mesh.mPrimitives)
-                            {
-                                if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
-                                {
-                                    primitive.upload(vb);
-                                }
-                            }
-                        }
-
-                        vb->unmapBuffer();
-
-                        vb->unbind();
-                        #endif
-                    }
+                    vb->unbind();
                 }
             }
         }
+    }
 
-        // sanity check that all primitives have a vertex buffer
-        for (auto& mesh : mMeshes)
+    // sanity check that all primitives have a vertex buffer
+    for (auto& mesh : mMeshes)
+    {
+        for (auto& primitive : mesh.mPrimitives)
         {
-            for (auto& primitive : mesh.mPrimitives)
-            {
-                //llassert(primitive.mVertexBuffer.notNull());
-            }
+            llassert(primitive.mVertexBuffer.notNull());
         }
     }
-    #if 0
+
     // build render batches
     for (S32 node_id = 0; node_id < mNodes.size(); ++node_id)
     {
@@ -680,7 +664,6 @@ bool Asset::prep()
             }
         }
     }
-    #endif
     return true;
 }
 
@@ -689,10 +672,9 @@ Asset::Asset(const Value& src)
     *this = src;
 }
 
-bool Asset::load(std::string_view filename, bool loadIntoVRAM)
+bool Asset::load(std::string_view filename)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
-    mLoadIntoVRAM = loadIntoVRAM;
     mFilename = filename;
     std::string ext = gDirUtilp->getExtension(mFilename);
 
@@ -710,7 +692,7 @@ bool Asset::load(std::string_view filename, bool loadIntoVRAM)
         }
         else if (ext == "glb")
         {
-            return loadBinary(str, mLoadIntoVRAM);
+            return loadBinary(str);
         }
         else
         {
@@ -727,9 +709,8 @@ bool Asset::load(std::string_view filename, bool loadIntoVRAM)
     return false;
 }
 
-bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
+bool Asset::loadBinary(const std::string& data)
 {
-    mLoadIntoVRAM = loadIntoVRAM;
     // load from binary gltf
     const U8* ptr = (const U8*)data.data();
     const U8* end = ptr + data.size();
@@ -954,9 +935,8 @@ void Asset::eraseBufferView(S32 bufferView)
 
 LLViewerFetchedTexture* fetch_texture(const LLUUID& id);
 
-bool Image::prep(Asset& asset, bool loadIntoVRAM)
+bool Image::prep(Asset& asset)
 {
-    mLoadIntoTexturePipe = loadIntoVRAM;
     LLUUID id;
     if (mUri.size() == UUID_STR_SIZE && LLUUID::parseUUID(mUri, &id) && id.notNull())
     { // loaded from an asset, fetch the texture from the asset system
@@ -971,12 +951,12 @@ bool Image::prep(Asset& asset, bool loadIntoVRAM)
     { // embedded in a buffer, load the texture from the buffer
         BufferView& bufferView = asset.mBufferViews[mBufferView];
         Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
-        if (mLoadIntoTexturePipe)
-        {
-            U8* data = buffer.mData.data() + bufferView.mByteOffset;
-            mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
-        }
-        else if (mTexture.isNull() && mLoadIntoTexturePipe)
+
+        U8* data = buffer.mData.data() + bufferView.mByteOffset;
+
+        mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
+
+        if (mTexture.isNull())
         {
             LL_WARNS("GLTF") << "Failed to load image from buffer:" << LL_ENDL;
             LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
@@ -991,12 +971,12 @@ bool Image::prep(Asset& asset, bool loadIntoVRAM)
         std::string img_file = dir + gDirUtilp->getDirDelimiter() + mUri;
 
         LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(img_file);
-        if (tracking_id.notNull() && mLoadIntoTexturePipe)
+        if (tracking_id.notNull())
         {
             LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
             mTexture = LLViewerTextureManager::getFetchedTexture(world_id);
         }
-        else if (mLoadIntoTexturePipe)
+        else
         {
             LL_WARNS("GLTF") << "Failed to load image from file:" << LL_ENDL;
             LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
@@ -1011,7 +991,7 @@ bool Image::prep(Asset& asset, bool loadIntoVRAM)
         return false;
     }
 
-    if (!asset.mFilename.empty() && mLoadIntoTexturePipe)
+    if (!asset.mFilename.empty())
     { // local preview, boost image so it doesn't discard and force to save raw image in case we save out or upload
         mTexture->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
         mTexture->forceToSaveRawImage(0, F32_MAX);

@@ -218,10 +218,8 @@ jobs:
               prefix=${ba[0]}
               if [ "$prefix" == "project" ]; then
                   IFS='_' read -ra prj <<< "${ba[1]}"
-                  prj_str="${prj[*]}"
                   # uppercase first letter of each word
-                  capitalized=$(echo "$prj_str" | awk '{for (i=1; i<=NF; i++) $i = toupper(substr($i,1,1)) substr($i,2); print}')
-                  export viewer_channel="Second Life Project $capitalized"
+                  export viewer_channel="Second Life Project ${prj[*]^}"
               elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
               then
                   export viewer_channel="Second Life Release"
@@ -457,6 +455,7 @@ jobs:
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
+          previous_tag: release
           append_body: true
           fail_on_unmatched_files: true
           files: |
