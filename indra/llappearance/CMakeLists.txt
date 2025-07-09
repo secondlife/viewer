@@ -14,7 +14,6 @@ set(llappearance_SOURCE_FILES
     llavatarjoint.cpp
     llavatarjointmesh.cpp
     lldriverparam.cpp
-    lljointdata.h
     lllocaltextureobject.cpp
     llpolyskeletaldistortion.cpp
     llpolymesh.cpp

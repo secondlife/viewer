@@ -14,7 +14,7 @@
  legacy_header_height="25">
 
   <string name="status_idle"></string>
-  <string name="status_parse_error">Error: Model parsing issue - see log for details.</string>
+  <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
   <string name="status_bind_shape_orientation">Warning: bind shape matrix is not in standard X-forward orientation.</string>
   <string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
   <string name="status_reading_file">Loading...</string>
@@ -45,7 +45,6 @@
   <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
   <string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
   <string name="ModelLoaded">Model [MODEL_NAME] loaded</string>
-  <string name="InvBindCountMismatch">Bind matrices count mismatch joints count</string>
 
   <string name="IncompleteTC">Texture coordinates data is not complete.</string>
   <string name="PositionNaN">Found NaN while loading position data from DAE-Model, invalid model.</string>
@@ -1728,6 +1727,7 @@ Analysed:
    height="408"/>
   <panel
     follows="right|bottom"
+    can_resize="false"
     height="140"
     layout="topleft"
     name="right_panel"

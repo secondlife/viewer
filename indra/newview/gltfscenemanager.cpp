@@ -317,7 +317,7 @@ void GLTFSceneManager::load(const std::string& filename)
 {
     std::shared_ptr<Asset> asset = std::make_shared<Asset>();
 
-    if (asset->load(filename, true))
+    if (asset->load(filename))
     {
         gDebugProgram.bind(); // bind a shader to satisfy LLVertexBuffer assertions
         asset->updateTransforms();
