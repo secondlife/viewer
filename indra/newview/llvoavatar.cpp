@@ -678,6 +678,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mVisuallyMuteSetting(AV_RENDER_NORMALLY),
     mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
     mFirstFullyVisible(true),
+    mWaitingForMeshes(false),
     mFirstDecloudTime(-1.f),
     mFullyLoaded(false),
     mPreviousFullyLoaded(false),
@@ -920,12 +921,12 @@ bool LLVOAvatar::isFullyTextured() const
 
 bool LLVOAvatar::hasGray() const
 {
-    return !getIsCloud() && !isFullyTextured();
+    return !getHasMissingParts() && !isFullyTextured();
 }
 
 S32 LLVOAvatar::getRezzedStatus() const
 {
-    if (getIsCloud()) return 0;
+    if (getHasMissingParts()) return 0;
     bool textured = isFullyTextured();
     bool all_baked_loaded = allBakedTexturesCompletelyDownloaded();
     if (textured && all_baked_loaded && getAttachmentCount() == mSimAttachments.size()) return 4;
@@ -972,30 +973,45 @@ bool LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
 }
 
 // static
-void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars)
+void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars, S32& pending_meshes, S32& control_avatars)
 {
     counts.clear();
     counts.resize(5);
     avg_cloud_time = 0;
     cloud_avatars = 0;
+    pending_meshes = 0;
+    control_avatars = 0;
     S32 count_avg = 0;
 
     for (LLCharacter* character : LLCharacter::sInstances)
     {
-        if (LLVOAvatar* inst = (LLVOAvatar*)character)
+        LLVOAvatar* inst = (LLVOAvatar*)character;
+        if (inst && !inst->isUIAvatar() && !inst->isSelf())
         {
-            S32 rez_status = inst->getRezzedStatus();
-            counts[rez_status]++;
-            F32 time = inst->getFirstDecloudTime();
-            if (time >= 0)
+            if (inst->isControlAvatar())
             {
-                avg_cloud_time+=time;
-                count_avg++;
+                control_avatars++;
             }
-            if (!inst->isFullyLoaded() || time < 0)
+            else
             {
-                // still renders as cloud
-                cloud_avatars++;
+                S32 rez_status = inst->getRezzedStatus();
+                counts[rez_status]++;
+                F32 time = inst->getFirstDecloudTime();
+                if (time >= 0)
+                {
+                    avg_cloud_time += time;
+                    count_avg++;
+                }
+                if (!inst->isFullyLoaded() || time < 0)
+                {
+                    // still renders as cloud
+                    cloud_avatars++;
+                    if (rez_status >= 4
+                        && inst->mWaitingForMeshes)
+                    {
+                        pending_meshes++;
+                    }
+                }
             }
         }
     }
@@ -1012,7 +1028,7 @@ std::string LLVOAvatar::rezStatusToString(S32 rez_status)
     switch (rez_status)
     {
     case 0:
-        return "cloud";
+        return "missing parts";
     case 1:
         return "gray";
     case 2:
@@ -3474,7 +3490,7 @@ void LLVOAvatar::idleUpdateNameTagText(bool new_name)
         is_muted = isInMuteList();
     }
     bool is_friend = isBuddy();
-    bool is_cloud = getIsCloud();
+    bool is_cloud = getHasMissingParts();
 
     if (is_appearance != mNameAppearance)
     {
@@ -8201,7 +8217,7 @@ bool LLVOAvatar::isVisible() const
 }
 
 // Determine if we have enough avatar data to render
-bool LLVOAvatar::getIsCloud() const
+bool LLVOAvatar::getHasMissingParts() const
 {
     if (mIsDummy)
     {
@@ -8408,8 +8424,12 @@ bool LLVOAvatar::updateIsFullyLoaded()
                    || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
                    || !mPendingAttachment.empty()
                    || (rez_status < 3 && !isFullyBaked())
-                   || hasPendingAttachedMeshes()
                   );
+        if (!loading)
+        {
+            mWaitingForMeshes = hasPendingAttachedMeshes();
+            loading = mWaitingForMeshes;
+        }
 
         // compare amount of attachments to one reported by simulator
         if (!isSelf() && mLastCloudAttachmentCount < mSimAttachments.size() && mSimAttachments.size() > 0)
