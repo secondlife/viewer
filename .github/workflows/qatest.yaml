@@ -511,12 +511,20 @@ jobs:
             exit 1
           fi
 
-          # Use the default macOS installer to copy the .app to /Applications
+          APP_NAME=$(basename "$APP_PATH")
+          DEST_PATH="/Applications/$APP_NAME"
+
+          # Remove existing installation if it exists to avoid permission conflicts
+          if [ -d "$DEST_PATH" ]; then
+            echo "Removing existing installation..."
+            sudo rm -rf "$DEST_PATH"
+          fi
+
+          # Copy the .app to /Applications
           cp -R "$APP_PATH" /Applications/
 
           # Verify the app was copied successfully
-          APP_NAME=$(basename "$APP_PATH")
-          if [ ! -d "/Applications/$APP_NAME" ]; then
+          if [ ! -d "$DEST_PATH" ]; then
             echo "❌ Error: Failed to install application to /Applications!"
             exit 1
           fi
