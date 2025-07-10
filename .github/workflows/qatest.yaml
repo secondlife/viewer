@@ -501,7 +501,9 @@ jobs:
 
           echo "✅ DMG mounted at $MOUNT_POINT"
 
-          # Find the app in the mounted DMG
+          echo "Installing application to default location from DMG..."
+
+          # Find the .app bundle in the DMG
           APP_PATH=$(find "$MOUNT_POINT" -name "*.app" -type d | head -1)
 
           if [ -z "$APP_PATH" ]; then
@@ -509,18 +511,17 @@ jobs:
             exit 1
           fi
 
-          echo "Installing application to Applications folder..."
-
-          # Copy the app to the Applications folder (or specified install path)
-          rsync -a --inplace "$APP_PATH" "${{ matrix.install-path }}/"
+          # Use the default macOS installer to copy the .app to /Applications
+          cp -R "$APP_PATH" /Applications/
 
           # Verify the app was copied successfully
-          if [ ! -d "${{ matrix.install-path }}/$(basename \"$APP_PATH\")" ]; then
-            echo "❌ Error: Failed to install application to ${{ matrix.install-path }}!"
+          APP_NAME=$(basename "$APP_PATH")
+          if [ ! -d "/Applications/$APP_NAME" ]; then
+            echo "❌ Error: Failed to install application to /Applications!"
             exit 1
           fi
 
-          echo "✅ Application installed successfully to ${{ matrix.install-path }}"
+          echo "✅ Application installed successfully to /Applications"
 
           # Save mount point for cleanup
           echo "MOUNT_POINT=$MOUNT_POINT" >> $GITHUB_ENV
