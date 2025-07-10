@@ -511,9 +511,6 @@ jobs:
 
           echo "Installing application to Applications folder..."
 
-          # Fix permissions before copying
-          chmod -R u+rw "$APP_PATH"
-
           # Copy the app to the Applications folder (or specified install path)
           cp -R "$APP_PATH" "${{ matrix.install-path }}"
 
