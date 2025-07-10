@@ -40,7 +40,8 @@
 //-----------------------------------------------------------------------------
 const std::string SYNTAX_ID_CAPABILITY_NAME = "LSLSyntax";
 const std::string SYNTAX_ID_SIMULATOR_FEATURE = "LSLSyntaxId";
-const std::string FILENAME_DEFAULT = "keywords_lsl_default.xml";
+const std::string FILENAME_DEFAULT_LSL = "keywords_lsl_default.xml";
+const std::string FILENAME_DEFAULT_LUA = "keywords_lua_default.xml";
 
 /**
  * @brief LLSyntaxIdLSL constructor
@@ -60,7 +61,7 @@ LLSyntaxIdLSL::LLSyntaxIdLSL()
 void LLSyntaxIdLSL::buildFullFileSpec()
 {
     ELLPath path = mSyntaxId.isNull() ? LL_PATH_APP_SETTINGS : LL_PATH_CACHE;
-    const std::string filename = mSyntaxId.isNull() ? FILENAME_DEFAULT : "keywords_lsl_" + mSyntaxId.asString() + ".llsd.xml";
+    const std::string filename = mSyntaxId.isNull() ? FILENAME_DEFAULT_LSL : "keywords_lsl_" + mSyntaxId.asString() + ".llsd.xml";
     mFullFileSpec = gDirUtilp->getExpandedFilename(path, filename);
 }
 
@@ -324,4 +325,39 @@ void LLSyntaxIdLSL::handleCapsReceived(const LLUUID& region_uuid)
 boost::signals2::connection LLSyntaxIdLSL::addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb)
 {
     return mSyntaxIDChangedSignal.connect(cb);
+}
+
+
+
+//-----------------------------------------------------------------------------
+// LLSyntaxLua
+//-----------------------------------------------------------------------------
+LLSyntaxLua::LLSyntaxLua()
+    : mKeywordsXml(LLSD())
+    , mInitialized(false)
+{
+}
+
+void LLSyntaxLua::initialize()
+{
+    if (mInitialized) return;
+
+    loadDefaultKeywordsIntoLLSD();
+
+    mInitialized = true;
+}
+
+void LLSyntaxLua::loadDefaultKeywordsIntoLLSD()
+{
+    std::string fullFileSpec = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, FILENAME_DEFAULT_LUA);
+    llifstream file(fullFileSpec.c_str());
+
+    if (file.good())
+    {
+        LLSD content;
+        if (LLSDSerialize::fromXML(content, file) != LLSDParser::PARSE_FAILURE)
+        {
+            mKeywordsXml = content;
+        }
+    }
 }

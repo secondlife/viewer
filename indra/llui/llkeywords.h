@@ -36,6 +36,7 @@
 #include <map>
 #include <list>
 #include <deque>
+#include <regex>
 #include "llpointer.h"
 
 class LLTextSegment;
@@ -53,6 +54,11 @@ public:
      * - TT_ONE_SIDED_DELIMITER are for open-ended delimiters which are terminated by EOL.
      * - TT_TWO_SIDED_DELIMITER are for delimiters that end with a different delimiter than they open with.
      * - TT_DOUBLE_QUOTATION_MARKS are for delimiting areas using the same delimiter to open and close.
+     * - TT_REGEX_MATCH are for pattern-based matching using regular expressions.
+     *      For TT_REGEX_MATCH: mToken contains the start pattern, mDelimiter contains the end pattern (if any).
+     *      If mDelimiter is empty, the entire match is considered one segment.
+     *      If mDelimiter contains capture group references (e.g. \1, \2), these will be replaced with
+     *      the corresponding capture groups from the start pattern match.
      */
     typedef enum e_token_type
     {
@@ -62,6 +68,7 @@ public:
         TT_TWO_SIDED_DELIMITER,
         TT_ONE_SIDED_DELIMITER,
         TT_DOUBLE_QUOTATION_MARKS,
+        TT_REGEX_MATCH,
         // Following constants are more specific versions of the preceding ones
         TT_CONSTANT,                        // WORD
         TT_CONTROL,                         // WORD
@@ -78,8 +85,18 @@ public:
         mToken( token ),
         mColor( color ),
         mToolTip( tool_tip ),
-        mDelimiter( delimiter )     // right delimiter
+        mDelimiter( delimiter ),     // right delimiter
+        mCompiledRegex( nullptr )
     {
+    }
+
+    ~LLKeywordToken()
+    {
+        if (mCompiledRegex)
+        {
+            delete mCompiledRegex;
+            mCompiledRegex = nullptr;
+        }
     }
 
     S32                 getLengthHead() const   { return static_cast<S32>(mToken.size()); }
@@ -91,6 +108,8 @@ public:
     ETokenType          getType()  const        { return mType; }
     const LLWString&    getToolTip() const      { return mToolTip; }
     const LLWString&    getDelimiter() const    { return mDelimiter; }
+    std::regex*         getCompiledRegex() const { return mCompiledRegex; }
+    void                setCompiledRegex(std::regex* regex) { mCompiledRegex = regex; }
 
 #ifdef _DEBUG
     void        dump();
@@ -102,6 +121,7 @@ private:
     LLUIColor    mColor;
     LLWString   mToolTip;
     LLWString   mDelimiter;
+    std::regex* mCompiledRegex;
 };
 
 class LLKeywords
@@ -118,7 +138,7 @@ public:
                              const LLWString& text,
                              class LLTextEditor& editor,
                              LLStyleConstSP style);
-    void        initialize(LLSD SyntaxXML);
+    void        initialize(LLSD SyntaxXML, bool luau_language = false);
     void        processTokens();
 
     // Add the token as described
@@ -189,10 +209,12 @@ protected:
 
     bool        mLoaded;
     LLSD        mSyntax;
+    bool        mLuauLanguage;
     word_token_map_t mWordTokenMap;
     typedef std::deque<LLKeywordToken*> token_list_t;
     token_list_t mLineTokenList;
     token_list_t mDelimiterTokenList;
+    token_list_t mRegexTokenList;
 
     typedef  std::map<std::string, std::string, std::less<>> element_attributes_t;
     typedef element_attributes_t::const_iterator attribute_iterator_t;
