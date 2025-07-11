@@ -219,7 +219,7 @@ bool LLMuteList::getLoadFailed() const
     if (mLoadState == ML_REQUESTED)
     {
         constexpr F64 WAIT_SECONDS = 30;
-        if (mRequestStartTime + WAIT_SECONDS > LLTimer::getTotalSeconds())
+        if (mRequestStartTime + WAIT_SECONDS < LLTimer::getTotalSeconds())
         {
             return true;
         }
