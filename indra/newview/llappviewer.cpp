@@ -1319,6 +1319,10 @@ bool LLAppViewer::frame()
 
 bool LLAppViewer::doFrame()
 {
+#ifdef LL_DISCORD
+    LLStartUp::runDiscordCallbacks();
+#endif
+
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
     {
     // and now adjust the visuals from previous frame.

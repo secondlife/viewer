@@ -1795,6 +1795,13 @@ function="World.EnvPreset"
             </menu_item_call>
 
         <menu_item_separator/>
+        <menu_item_call
+             label="Discord Social"
+             name="Discord Social">
+                <menu_item_call.on_click
+                 function="Advanced.DiscordSocial"/>
+            </menu_item_call>
+        <menu_item_separator/>
 		<menu_item_call
              label="Bumps, Pushes &amp; Hits"
              name="Bumps, Pushes &amp;amp; Hits">
