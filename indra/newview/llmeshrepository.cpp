@@ -2699,18 +2699,11 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
     S32 instance_num = 0;
 
-    // Upload should happen in deterministic order, so sort instances by model name.
-    // Note: probably can sort by mBaseModel->mSubmodelID here as well to avoid
-    // running over the list twice.
-    std::vector<std::pair<LLModel*, instance_list>> sorted_instances(mInstance.begin(), mInstance.end());
-    std::sort(sorted_instances.begin(), sorted_instances.end(),
-        [](const std::pair<LLModel*, instance_list>& a, const std::pair<LLModel*, instance_list>& b)
-    {
-        return a.first->mLabel < b.first->mLabel;
-    });
-
-    // Handle models, ignore submodels for now
-    for (auto& iter : sorted_instances)
+    // Handle models, ignore submodels for now.
+    // Probably should pre-sort by mSubmodelID instead of running twice.
+    // Note: mInstance should be sorted by model name for the sake of
+    // deterministic order.
+    for (auto& iter : mInstance)
     {
         LLMeshUploadData data;
         data.mBaseModel = iter.first;
@@ -2869,7 +2862,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
     }
 
     // Now handle the submodels.
-    for (auto& iter : sorted_instances)
+    for (auto& iter : mInstance)
     {
         LLMeshUploadData data;
         data.mBaseModel = iter.first;
