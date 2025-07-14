@@ -594,40 +594,20 @@ LLImportMaterial LLGLTFLoader::processMaterial(S32 material_index)
         if (material->mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0)
         {
             S32 texIndex = material->mPbrMetallicRoughness.mBaseColorTexture.mIndex;
-            if (texIndex < mGLTFAsset.mTextures.size())
+            std::string filename = processTexture(texIndex, "base_color", material->mName);
+
+            if (!filename.empty())
             {
-                S32 sourceIndex = mGLTFAsset.mTextures[texIndex].mSource;
-                if (sourceIndex >= 0 && sourceIndex < mGLTFAsset.mImages.size())
+                impMat.mDiffuseMapFilename = filename;
+                impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
+
+                // Check if the texture is already loaded
+                if (texIndex < mGLTFAsset.mTextures.size())
                 {
-                    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
-
-                    // Use URI as texture file name
-                    if (!image.mUri.empty())
+                    S32 sourceIndex = mGLTFAsset.mTextures[texIndex].mSource;
+                    if (sourceIndex >= 0 && sourceIndex < mGLTFAsset.mImages.size())
                     {
-                        // URI might be a remote URL or a local path
-                        std::string filename = image.mUri;
-
-                        // Extract just the filename from the URI
-                        size_t pos = filename.find_last_of("/\\");
-                        if (pos != std::string::npos)
-                        {
-                            filename = filename.substr(pos + 1);
-                        }
-
-                        // Store the texture filename
-                        impMat.mDiffuseMapFilename = filename;
-                        impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
-
-                        LL_INFOS("GLTF_IMPORT") << "Found texture: " << impMat.mDiffuseMapFilename
-                            << " for material: " << material->mName << LL_ENDL;
-
-                        LLSD args;
-                        args["Message"] = "TextureFound";
-                        args["TEXTURE_NAME"] = impMat.mDiffuseMapFilename;
-                        args["MATERIAL_NAME"] = material->mName;
-                        mWarningsArray.append(args);
-
-                        // If the image has a texture loaded already, use it
+                        LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
                         if (image.mTexture.notNull())
                         {
                             impMat.setDiffuseMap(image.mTexture->getID());
@@ -635,24 +615,7 @@ LLImportMaterial LLGLTFLoader::processMaterial(S32 material_index)
                         }
                         else
                         {
-                            // Texture will be loaded later through the callback system
                             LL_INFOS("GLTF_IMPORT") << "Texture needs loading: " << impMat.mDiffuseMapFilename << LL_ENDL;
-                        }
-                    }
-                    else if (image.mTexture.notNull())
-                    {
-                        // No URI but we have a texture, use it directly
-                        impMat.setDiffuseMap(image.mTexture->getID());
-                        LL_INFOS("GLTF_IMPORT") << "Using existing texture ID without URI: " << image.mTexture->getID().asString() << LL_ENDL;
-                    }
-                    else if (image.mBufferView >= 0)
-                    {
-                        // For embedded textures (no URI but has buffer data)
-                        std::string temp_filename = extractTextureToTempFile(texIndex, "base_color");
-                        if (!temp_filename.empty())
-                        {
-                            impMat.mDiffuseMapFilename = temp_filename;
-                            impMat.mDiffuseMapLabel = material->mName.empty() ? temp_filename : material->mName;
                         }
                     }
                 }
@@ -663,6 +626,66 @@ LLImportMaterial LLGLTFLoader::processMaterial(S32 material_index)
     // Cache the processed material
     mMaterialCache[material_index] = impMat;
     return impMat;
+}
+
+std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& texture_type, const std::string& material_name)
+{
+    if (texture_index < 0 || texture_index >= mGLTFAsset.mTextures.size())
+        return "";
+
+    S32 sourceIndex = mGLTFAsset.mTextures[texture_index].mSource;
+    if (sourceIndex < 0 || sourceIndex >= mGLTFAsset.mImages.size())
+        return "";
+
+    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+
+    // Process URI-based textures
+    if (!image.mUri.empty())
+    {
+        std::string filename = image.mUri;
+        size_t pos = filename.find_last_of("/\\");
+        if (pos != std::string::npos)
+        {
+            filename = filename.substr(pos + 1);
+        }
+
+        LL_INFOS("GLTF_IMPORT") << "Found texture: " << filename << " for material: " << material_name << LL_ENDL;
+
+        LLSD args;
+        args["Message"] = "TextureFound";
+        args["TEXTURE_NAME"] = filename;
+        args["MATERIAL_NAME"] = material_name;
+        mWarningsArray.append(args);
+
+        return filename;
+    }
+
+    // Process embedded textures
+    if (image.mBufferView >= 0)
+    {
+        return extractTextureToTempFile(texture_index, texture_type);
+    }
+
+    return "";
+}
+
+std::string LLGLTFLoader::generateMaterialName(S32 material_index, S32 fallback_index)
+{
+    if (material_index >= 0 && material_index < mGLTFAsset.mMaterials.size())
+    {
+        LL::GLTF::Material* material = &mGLTFAsset.mMaterials[material_index];
+        std::string materialName = material->mName;
+
+        if (materialName.empty())
+        {
+            materialName = "mat" + std::to_string(material_index);
+        }
+        return materialName;
+    }
+    else
+    {
+        return fallback_index >= 0 ? "mat_default" + std::to_string(fallback_index) : "mat_default";
+    }
 }
 
 bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats)
@@ -910,22 +933,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
             }
         }
 
-        // Create a unique material name for this primitive
-        std::string materialName;
-        if (prim.mMaterial >= 0 && prim.mMaterial < mGLTFAsset.mMaterials.size())
-        {
-            LL::GLTF::Material* material = &mGLTFAsset.mMaterials[prim.mMaterial];
-            materialName = material->mName;
-
-            if (materialName.empty())
-            {
-                materialName = "mat" + std::to_string(prim.mMaterial);
-            }
-        }
-        else
-        {
-            materialName = "mat_default" + std::to_string(pModel->getNumVolumeFaces() - 1);
-        }
+        // Generate material name using helper method
+        std::string materialName = generateMaterialName(prim.mMaterial, pModel->getNumVolumeFaces() - 1);
         mats[materialName] = impMat;
 
         // Indices handling
