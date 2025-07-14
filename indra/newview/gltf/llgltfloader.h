@@ -131,11 +131,15 @@ protected:
     // per skin joint count, needs to be tracked for the sake of limits check.
     std::vector<S32>                    mValidJointsCount;
 
+    // Material cache to avoid duplicate processing
+    std::map<S32, LLImportMaterial>     mMaterialCache;
+
 private:
     bool parseMeshes();
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
     void processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params);
     bool addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx);
+    LLImportMaterial processMaterial(S32 material_index);
     bool populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
     void populateJointsFromSkin(S32 skin_idx);
     void populateJointGroups();

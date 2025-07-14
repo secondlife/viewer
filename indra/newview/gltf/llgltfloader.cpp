@@ -126,6 +126,9 @@ LLGLTFLoader::~LLGLTFLoader() {}
 
 bool LLGLTFLoader::OpenFile(const std::string &filename)
 {
+    // Clear the material cache for new file
+    mMaterialCache.clear();
+
     tinygltf::TinyGLTF loader;
     std::string filename_lc(filename);
     LLStringUtil::toLower(filename_lc);
@@ -562,6 +565,106 @@ bool LLGLTFLoader::addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_
     return true;
 }
 
+LLImportMaterial LLGLTFLoader::processMaterial(S32 material_index)
+{
+    // Check cache first
+    auto cached = mMaterialCache.find(material_index);
+    if (cached != mMaterialCache.end())
+    {
+        return cached->second;
+    }
+
+    LLImportMaterial impMat;
+    impMat.mDiffuseColor = LLColor4::white; // Default color
+
+    // Process material if available
+    if (material_index >= 0 && material_index < mGLTFAsset.mMaterials.size())
+    {
+        LL::GLTF::Material* material = &mGLTFAsset.mMaterials[material_index];
+
+        // Set diffuse color from base color factor
+        impMat.mDiffuseColor = LLColor4(
+            material->mPbrMetallicRoughness.mBaseColorFactor[0],
+            material->mPbrMetallicRoughness.mBaseColorFactor[1],
+            material->mPbrMetallicRoughness.mBaseColorFactor[2],
+            material->mPbrMetallicRoughness.mBaseColorFactor[3]
+        );
+
+        // Process base color texture if it exists
+        if (material->mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0)
+        {
+            S32 texIndex = material->mPbrMetallicRoughness.mBaseColorTexture.mIndex;
+            if (texIndex < mGLTFAsset.mTextures.size())
+            {
+                S32 sourceIndex = mGLTFAsset.mTextures[texIndex].mSource;
+                if (sourceIndex >= 0 && sourceIndex < mGLTFAsset.mImages.size())
+                {
+                    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+
+                    // Use URI as texture file name
+                    if (!image.mUri.empty())
+                    {
+                        // URI might be a remote URL or a local path
+                        std::string filename = image.mUri;
+
+                        // Extract just the filename from the URI
+                        size_t pos = filename.find_last_of("/\\");
+                        if (pos != std::string::npos)
+                        {
+                            filename = filename.substr(pos + 1);
+                        }
+
+                        // Store the texture filename
+                        impMat.mDiffuseMapFilename = filename;
+                        impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
+
+                        LL_INFOS("GLTF_IMPORT") << "Found texture: " << impMat.mDiffuseMapFilename
+                            << " for material: " << material->mName << LL_ENDL;
+
+                        LLSD args;
+                        args["Message"] = "TextureFound";
+                        args["TEXTURE_NAME"] = impMat.mDiffuseMapFilename;
+                        args["MATERIAL_NAME"] = material->mName;
+                        mWarningsArray.append(args);
+
+                        // If the image has a texture loaded already, use it
+                        if (image.mTexture.notNull())
+                        {
+                            impMat.setDiffuseMap(image.mTexture->getID());
+                            LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
+                        }
+                        else
+                        {
+                            // Texture will be loaded later through the callback system
+                            LL_INFOS("GLTF_IMPORT") << "Texture needs loading: " << impMat.mDiffuseMapFilename << LL_ENDL;
+                        }
+                    }
+                    else if (image.mTexture.notNull())
+                    {
+                        // No URI but we have a texture, use it directly
+                        impMat.setDiffuseMap(image.mTexture->getID());
+                        LL_INFOS("GLTF_IMPORT") << "Using existing texture ID without URI: " << image.mTexture->getID().asString() << LL_ENDL;
+                    }
+                    else if (image.mBufferView >= 0)
+                    {
+                        // For embedded textures (no URI but has buffer data)
+                        std::string temp_filename = extractTextureToTempFile(texIndex, "base_color");
+                        if (!temp_filename.empty())
+                        {
+                            impMat.mDiffuseMapFilename = temp_filename;
+                            impMat.mDiffuseMapLabel = material->mName.empty() ? temp_filename : material->mName;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Cache the processed material
+    mMaterialCache[material_index] = impMat;
+    return impMat;
+}
+
 bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh& mesh, const LL::GLTF::Node& nodeno, material_map& mats)
 {
     // Set the requested label for the floater display and uploading
@@ -623,91 +726,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
         LLVolumeFace face;
         std::vector<GLTFVertex> vertices;
 
-        LLImportMaterial impMat;
-        impMat.mDiffuseColor = LLColor4::white; // Default color
-
-        // Process material if available
-        if (prim.mMaterial >= 0 && prim.mMaterial < mGLTFAsset.mMaterials.size())
-        {
-            LL::GLTF::Material* material = &mGLTFAsset.mMaterials[prim.mMaterial];
-
-            // Set diffuse color from base color factor
-            impMat.mDiffuseColor = LLColor4(
-                material->mPbrMetallicRoughness.mBaseColorFactor[0],
-                material->mPbrMetallicRoughness.mBaseColorFactor[1],
-                material->mPbrMetallicRoughness.mBaseColorFactor[2],
-                material->mPbrMetallicRoughness.mBaseColorFactor[3]
-            );
-
-            // Process base color texture if it exists
-            if (material->mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0)
-            {
-                S32 texIndex = material->mPbrMetallicRoughness.mBaseColorTexture.mIndex;
-                if (texIndex < mGLTFAsset.mTextures.size())
-                {
-                    S32 sourceIndex = mGLTFAsset.mTextures[texIndex].mSource;
-                    if (sourceIndex >= 0 && sourceIndex < mGLTFAsset.mImages.size())
-                    {
-                        LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
-
-                        // Use URI as texture file name
-                        if (!image.mUri.empty())
-                        {
-                            // URI might be a remote URL or a local path
-                            std::string filename = image.mUri;
-
-                            // Extract just the filename from the URI
-                            size_t pos = filename.find_last_of("/\\");
-                            if (pos != std::string::npos)
-                            {
-                                filename = filename.substr(pos + 1);
-                            }
-
-                            // Store the texture filename
-                            impMat.mDiffuseMapFilename = filename;
-                            impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
-
-                            LL_INFOS("GLTF_IMPORT") << "Found texture: " << impMat.mDiffuseMapFilename
-                                << " for material: " << material->mName << LL_ENDL;
-
-                            LLSD args;
-                            args["Message"] = "TextureFound";
-                            args["TEXTURE_NAME"] = impMat.mDiffuseMapFilename;
-                            args["MATERIAL_NAME"] = material->mName;
-                            mWarningsArray.append(args);
-
-                            // If the image has a texture loaded already, use it
-                            if (image.mTexture.notNull())
-                            {
-                                impMat.setDiffuseMap(image.mTexture->getID());
-                                LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
-                            }
-                            else
-                            {
-                                // Texture will be loaded later through the callback system
-                                LL_INFOS("GLTF_IMPORT") << "Texture needs loading: " << impMat.mDiffuseMapFilename << LL_ENDL;
-                            }
-                        }
-                        else if (image.mTexture.notNull())
-                        {
-                            // No URI but we have a texture, use it directly
-                            impMat.setDiffuseMap(image.mTexture->getID());
-                            LL_INFOS("GLTF_IMPORT") << "Using existing texture ID without URI: " << image.mTexture->getID().asString() << LL_ENDL;
-                        }
-                        else if (image.mBufferView >= 0)
-                        {
-                            // For embedded textures (no URI but has buffer data)
-                            std::string temp_filename = extractTextureToTempFile(texIndex, "base_color");
-                            if (!temp_filename.empty())
-                            {
-                                impMat.mDiffuseMapFilename = temp_filename;
-                                impMat.mDiffuseMapLabel = material->mName.empty() ? temp_filename : material->mName;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // Use cached material processing
+        LLImportMaterial impMat = processMaterial(prim.mMaterial);
 
         if (prim.getIndexCount() % 3 != 0)
         {
