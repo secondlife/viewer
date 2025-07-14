@@ -140,6 +140,8 @@ private:
     void processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params);
     bool addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx);
     LLImportMaterial processMaterial(S32 material_index);
+    std::string processTexture(S32 texture_index, const std::string& texture_type, const std::string& material_name);
+    std::string generateMaterialName(S32 material_index, S32 fallback_index = -1);
     bool populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
     void populateJointsFromSkin(S32 skin_idx);
     void populateJointGroups();
