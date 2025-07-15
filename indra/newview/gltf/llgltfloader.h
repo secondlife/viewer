@@ -71,6 +71,14 @@ class LLGLTFLoader : public LLModelLoader
     typedef std::map <S32, JointNodeData> joints_data_map_t;
     typedef std::map <std::string, S32> joints_name_to_node_map_t;
 
+    class LLGLTFImportMaterial : public LLImportMaterial
+    {
+    public:
+        std::string name;
+        LLGLTFImportMaterial() = default;
+        LLGLTFImportMaterial(const LLImportMaterial& mat, const std::string& n) : LLImportMaterial(mat), name(n) {}
+    };
+
     LLGLTFLoader(std::string filename,
                     S32                                               lod,
                     LLModelLoader::load_callback_t                    load_cb,
@@ -131,16 +139,18 @@ protected:
     // per skin joint count, needs to be tracked for the sake of limits check.
     std::vector<S32>                    mValidJointsCount;
 
-    // Material cache to avoid duplicate processing
-    std::map<S32, LLImportMaterial>     mMaterialCache;
+    // Cached material information
+    typedef std::map<S32, LLGLTFImportMaterial> MaterialCache;
+    MaterialCache mMaterialCache;
 
 private:
     bool parseMeshes();
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
     void processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params);
     bool addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx);
-    LLImportMaterial processMaterial(S32 material_index);
+    LLGLTFImportMaterial processMaterial(S32 material_index, S32 fallback_index);
     std::string processTexture(S32 texture_index, const std::string& texture_type, const std::string& material_name);
+    bool validateTextureIndex(S32 texture_index, S32& source_index);
     std::string generateMaterialName(S32 material_index, S32 fallback_index = -1);
     bool populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
     void populateJointsFromSkin(S32 skin_idx);

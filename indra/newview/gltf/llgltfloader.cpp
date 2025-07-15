@@ -565,7 +565,7 @@ bool LLGLTFLoader::addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_
     return true;
 }
 
-LLImportMaterial LLGLTFLoader::processMaterial(S32 material_index)
+LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_index, S32 fallback_index)
 {
     // Check cache first
     auto cached = mMaterialCache.find(material_index);
@@ -576,6 +576,9 @@ LLImportMaterial LLGLTFLoader::processMaterial(S32 material_index)
 
     LLImportMaterial impMat;
     impMat.mDiffuseColor = LLColor4::white; // Default color
+
+    // Generate material name
+    std::string materialName = generateMaterialName(material_index, fallback_index);
 
     // Process material if available
     if (material_index >= 0 && material_index < mGLTFAsset.mMaterials.size())
@@ -602,39 +605,36 @@ LLImportMaterial LLGLTFLoader::processMaterial(S32 material_index)
                 impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
 
                 // Check if the texture is already loaded
-                if (texIndex < mGLTFAsset.mTextures.size())
+                S32 sourceIndex;
+                if (validateTextureIndex(texIndex, sourceIndex))
                 {
-                    S32 sourceIndex = mGLTFAsset.mTextures[texIndex].mSource;
-                    if (sourceIndex >= 0 && sourceIndex < mGLTFAsset.mImages.size())
+                    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+                    if (image.mTexture.notNull())
                     {
-                        LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
-                        if (image.mTexture.notNull())
-                        {
-                            impMat.setDiffuseMap(image.mTexture->getID());
-                            LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
-                        }
-                        else
-                        {
-                            LL_INFOS("GLTF_IMPORT") << "Texture needs loading: " << impMat.mDiffuseMapFilename << LL_ENDL;
-                        }
+                        impMat.setDiffuseMap(image.mTexture->getID());
+                        LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_INFOS("GLTF_IMPORT") << "Texture needs loading: " << impMat.mDiffuseMapFilename << LL_ENDL;
                     }
                 }
             }
         }
     }
 
+    // Create cached material with both material and name
+    LLGLTFImportMaterial cachedMat(impMat, materialName);
+
     // Cache the processed material
-    mMaterialCache[material_index] = impMat;
-    return impMat;
+    mMaterialCache[material_index] = cachedMat;
+    return cachedMat;
 }
 
 std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& texture_type, const std::string& material_name)
 {
-    if (texture_index < 0 || texture_index >= mGLTFAsset.mTextures.size())
-        return "";
-
-    S32 sourceIndex = mGLTFAsset.mTextures[texture_index].mSource;
-    if (sourceIndex < 0 || sourceIndex >= mGLTFAsset.mImages.size())
+    S32 sourceIndex;
+    if (!validateTextureIndex(texture_index, sourceIndex))
         return "";
 
     LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
@@ -667,6 +667,18 @@ std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& t
     }
 
     return "";
+}
+
+bool LLGLTFLoader::validateTextureIndex(S32 texture_index, S32& source_index)
+{
+    if (texture_index < 0 || texture_index >= mGLTFAsset.mTextures.size())
+        return false;
+
+    source_index = mGLTFAsset.mTextures[texture_index].mSource;
+    if (source_index < 0 || source_index >= mGLTFAsset.mImages.size())
+        return false;
+
+    return true;
 }
 
 std::string LLGLTFLoader::generateMaterialName(S32 material_index, S32 fallback_index)
@@ -750,7 +762,10 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
         std::vector<GLTFVertex> vertices;
 
         // Use cached material processing
-        LLImportMaterial impMat = processMaterial(prim.mMaterial);
+        LLGLTFImportMaterial cachedMat = processMaterial(prim.mMaterial, pModel->getNumVolumeFaces() - 1);
+        LLImportMaterial impMat = cachedMat;
+        std::string materialName = cachedMat.name;
+        mats[materialName] = impMat;
 
         if (prim.getIndexCount() % 3 != 0)
         {
@@ -932,10 +947,6 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 }
             }
         }
-
-        // Generate material name using helper method
-        std::string materialName = generateMaterialName(prim.mMaterial, pModel->getNumVolumeFaces() - 1);
-        mats[materialName] = impMat;
 
         // Indices handling
         if (faceVertices.size() >= VERTICIES_LIMIT)
