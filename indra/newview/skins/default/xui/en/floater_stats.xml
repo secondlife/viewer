@@ -67,7 +67,7 @@
                     decimal_digits="1"
                     stat="frametimejitter95"/>
           <stat_bar name="framet_jitter_stddev"
-                    label="frametime jitter standard deviation"
+                    label="frametime jitter std dev"
                     decimal_digits="1"
                     stat="frametimejitterstddev"/>
           <stat_bar name="framet_99th"
@@ -79,7 +79,7 @@
                     decimal_digits="1"
                     stat="frametime95"/>
           <stat_bar name="framet_stddev"
-                    label="frametime standard deviation"
+                    label="frametime std dev"
                     decimal_digits="1"
                     stat="frametimestddev"/>
           <stat_bar name="framet_events"
