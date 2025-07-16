@@ -276,7 +276,7 @@ LLRender::eTexIndex LLPanelFace::getMatTextureChannel()
             return LLRender::NORMAL_MAP;
         break;
     case MATTYPE_SPECULAR: // "Shininess (specular)"
-        if (getCurrentNormalMap().notNull())
+        if (getCurrentSpecularMap().notNull())
             return LLRender::SPECULAR_MAP;
         break;
     }
