@@ -13742,7 +13742,7 @@
     <key>FullScreen</key>
     <map>
       <key>Comment</key>
-      <string>run a fullscreen session</string>
+      <string>Run a fullscreen session. MacOS not supported</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
