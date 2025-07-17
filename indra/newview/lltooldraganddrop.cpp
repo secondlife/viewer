@@ -1125,28 +1125,33 @@ void set_texture_to_material(LLViewerObject* hit_obj,
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR:
         default:
             {
-                material->setBaseColorId(asset_id);
+                material->setBaseColorId(asset_id, true);
             }
             break;
 
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS:
             {
-                material->setOcclusionRoughnessMetallicId(asset_id);
+                material->setOcclusionRoughnessMetallicId(asset_id, true);
             }
             break;
 
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE:
             {
-                material->setEmissiveId(asset_id);
+                material->setEmissiveId(asset_id, true);
             }
             break;
 
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL:
             {
-                material->setNormalId(asset_id);
+                material->setNormalId(asset_id, true);
             }
             break;
     }
+    // Update viewer side, needed for updating mSavedGLTFOverrideMaterials.
+    // Also for parity, we are immediately setting textures and materials,
+    // so we should immediate set overrides to.
+    hit_obj->setTEGLTFMaterialOverride(hit_face, material);
+    // update server
     LLGLTFMaterialList::queueModify(hit_obj, hit_face, material);
 }
 
