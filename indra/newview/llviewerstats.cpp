@@ -229,7 +229,11 @@ LLTrace::SampleStatHandle<F64Milliseconds > FRAMETIME_JITTER("frametimejitter", 
                                             FRAMETIME_JITTER_STDDEV("frametimejitterstddev", "Standard deviation of frametime jitter in a 5 second period."),
                                             FRAMETIME_STDDEV("frametimestddev", "Standard deviation of frametime in a 5 second period.");
 
-LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS("frametimeevents", "Number of frametime events in the session.  Applies when jitter exceeds 10% of the previous frame.");
+LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS("frametimeevents", "Number of frametime events in the session.  Applies when jitter exceeds 10% of the previous frame."),
+                                FRAMETIME_JITTER_EVENTS_PER_MINUTE("frametimeeventspm", "Average number of frametime events per minute."),
+                                FRAMETIME_JITTER_EVENTS_LAST_MINUTE("frametimeeventslastmin", "Number of frametime events in the last minute.");
+
+LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION("normalizedframetimejitter", "Normalized frametime jitter over the session.");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
@@ -309,24 +313,28 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
     if (gFrameCount && mLastTimeDiff > (F64Seconds)0.0)
     {
+        mTotalTime += time_diff;
         sample(LLStatViewer::FRAMETIME, time_diff);
         // old stats that were never really used
         F64Seconds jit = (F64Seconds)std::fabs((mLastTimeDiff - time_diff));
         sample(LLStatViewer::FRAMETIME_JITTER, jit);
         mTotalFrametimeJitter += jit;
         sample(LLStatViewer::FRAMETIME_JITTER_CUMULATIVE, mTotalFrametimeJitter);
+        sample(LLStatViewer::NOTRMALIZED_FRAMETIME_JITTER_SESSION, mTotalFrametimeJitter / mTotalTime);
 
         static LLCachedControl<F32> frameTimeEventThreshold(gSavedSettings, "StatsFrametimeEventThreshold", 0.1f);
 
         if (time_diff - mLastTimeDiff > mLastTimeDiff * frameTimeEventThreshold())
         {
             sample(LLStatViewer::FRAMETIME_JITTER_EVENTS, mFrameJitterEvents++);
+            mFrameJitterEventsLastMinute++;
         }
 
         mFrameTimes.push_back(time_diff);
         mFrameTimesJitter.push_back(jit);
 
         mLastFrameTimeSample += time_diff;
+        mTimeSinceLastEventSample += time_diff;
 
         static LLCachedControl<S32> frameTimeSampleSeconds(gSavedSettings, "StatsFrametimeSampleSeconds", 5);
 
@@ -355,6 +363,17 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
             mFrameTimes.clear();
             mFrameTimesJitter.clear();
             mLastFrameTimeSample = F64Seconds(0);
+        }
+
+        if (mTimeSinceLastEventSample >= 60)
+        {
+            mEventMinutes++;
+            // Calculate average events per minute
+            U64 frame_time_events_per_minute = (U64)mFrameJitterEvents / mEventMinutes;
+            sample(LLStatViewer::FRAMETIME_JITTER_EVENTS_PER_MINUTE, frame_time_events_per_minute);
+            sample(LLStatViewer::FRAMETIME_JITTER_EVENTS_LAST_MINUTE, mFrameJitterEventsLastMinute);
+            mFrameJitterEventsLastMinute   = 0;
+            mTimeSinceLastEventSample    = F64Seconds(0);
         }
     }
     mLastTimeDiff = time_diff;
