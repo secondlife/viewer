@@ -169,6 +169,52 @@ public:
 };
 LLWorldMapHandler gWorldMapHandler;
 
+// handle secondlife:///app/worldmap_global/{GLOBAL_COORDS} URLs
+class LLWorldMapGlobalHandler : public LLCommandHandler
+{
+public:
+    LLWorldMapGlobalHandler() : LLCommandHandler("worldmap_global", UNTRUSTED_THROTTLE)
+    {}
+
+    virtual bool canHandleUntrusted(
+        const LLSD& params,
+        const LLSD& query_map,
+        LLMediaCtrl* web,
+        const std::string& nav_type)
+    {
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
+        {
+            // NAV_TYPE_EXTERNAL will be throttled
+            return true;
+        }
+
+        return false;
+    }
+
+    bool handle(const LLSD& params,
+                const LLSD& query_map,
+                const std::string& grid,
+                LLMediaCtrl* web)
+    {
+        if (params.size() < 3)
+        {
+            LL_WARNS() << "Correct global coordinates are not provided." << LL_ENDL;
+            return true;
+        }
+
+        LLVector3d parcel_global_pos = LLVector3d(params[0].asInteger(), params[1].asInteger(), params[2].asInteger());
+        LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+        if (!parcel_global_pos.isExactlyZero() && worldmap_instance)
+        {
+            worldmap_instance->trackLocation(parcel_global_pos);
+            LLFloaterReg::showInstance("world_map", "center");
+        }
+        return true;
+    }
+};
+LLWorldMapGlobalHandler gWorldMapGlobalHandler;
+
 // SocialMap handler secondlife:///app/maptrackavatar/id
 class LLMapTrackAvatarHandler : public LLCommandHandler
 {
