@@ -34,11 +34,13 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
+#include "llaisapi.h"
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinspecttexture.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llmenubutton.h"
@@ -247,12 +249,22 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
 
     list->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onWearableItemsListRightClick, this, _1, _2, _3));
 
-    // Fetch the new outfit contents.
-    cat->fetch();
-
-    // Refresh the list of outfit items after fetch().
-    // Further list updates will be triggered by the category observer.
-    list->updateList(cat_id);
+    if (AISAPI::isAvailable() && LLInventoryModelBackgroundFetch::instance().folderFetchActive())
+    {
+        // for reliability just fetch it whole, linked items included
+        LLInventoryModelBackgroundFetch::instance().fetchFolderAndLinks(cat_id, [cat_id, list]
+        {
+            if (list) list->updateList(cat_id);
+        });
+    }
+    else
+    {
+        // Fetch the new outfit contents.
+        cat->fetch();
+        // Refresh the list of outfit items after fetch().
+        // Further list updates will be triggered by the category observer.
+        list->updateList(cat_id);
+    }
 
     // If filter is currently applied we store the initial tab state.
     if (!getFilterSubString().empty())
