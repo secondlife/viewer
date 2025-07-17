@@ -63,6 +63,8 @@ public:
     /// if the Url specifies an SL location, show it on a map
     static void showLocationOnMap(std::string url);
 
+    static void showParcelOnMap(std::string url);
+
     /// perform the appropriate action for left-clicking on a Url
     static void clickAction(std::string url, bool trusted_content);
 

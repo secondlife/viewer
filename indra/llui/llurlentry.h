@@ -41,6 +41,7 @@
 #include <map>
 
 class LLAvatarName;
+class LLVector3d;
 
 typedef boost::signals2::signal<void (const std::string& url,
                                       const std::string& label,
@@ -434,6 +435,8 @@ public:
     // Processes parcel label and triggers notifying observers.
     static void processParcelInfo(const LLParcelData& parcel_data);
 
+    static LLVector3d getParcelPos(const LLUUID& parcel_id);
+
     // Next setters are used to update agent and viewer connection information
     // upon events like user login, viewer disconnect and user changing region host.
     // These setters are made public to be accessible from newview and should not be
@@ -447,6 +450,7 @@ private:
     static LLHost                       sRegionHost;
     static bool                         sDisconnected;
     static std::set<LLUrlEntryParcel*>  sParcelInfoObservers;
+    static std::map<LLUUID, LLVector3d> sParcelPos;
 };
 
 ///
