@@ -1694,14 +1694,15 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
         if (!match.isUndefined())
         {
             mSearchResults->selectByValue(match);
+            mSearchResults->setFocus(true);
+            onCommitSearchResult();
         }
-        // else select first found item
+        // else let user decide
         else
         {
-            mSearchResults->selectFirstItem();
+            mSearchResults->operateOnAll(LLCtrlListInterface::OP_DESELECT);
+            mSearchResults->setFocus(true);
         }
-        mSearchResults->setFocus(true);
-        onCommitSearchResult();
     }
     else
     {
