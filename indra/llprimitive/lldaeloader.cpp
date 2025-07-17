@@ -880,7 +880,7 @@ LLDAELoader::LLDAELoader(
     void*               opaque_userdata,
     JointTransformMap&  jointTransformMap,
     JointNameSet&       jointsFromNodes,
-    std::map<std::string, std::string, std::less<>>&     jointAliasMap,
+    std::map<std::string, std::string>&     jointAliasMap,
     U32                 maxJointsPerMesh,
     U32                 modelLimit,
     bool                preprocess)

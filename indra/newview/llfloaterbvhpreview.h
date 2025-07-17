@@ -108,7 +108,7 @@ public:
                                        S32 status, LLExtStat ext_status);
 private:
     void setAnimCallbacks() ;
-    std::map<std::string, std::string, std::less<>> getJointAliases();
+    std::map <std::string, std::string> getJointAliases();
 
 
 protected:

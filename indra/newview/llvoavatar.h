@@ -202,7 +202,7 @@ public:
     void                    startDefaultMotions();
     void                    dumpAnimationState();
 
-    virtual LLJoint*        getJoint(std::string_view name);
+    virtual LLJoint*        getJoint(const std::string &name);
     LLJoint*                getJoint(S32 num);
     void                    initAllJoints();
 

@@ -334,6 +334,162 @@ void LLModel::normalizeVolumeFaces()
     }
 }
 
+void LLModel::normalizeVolumeFacesAndWeights()
+{
+    if (!mVolumeFaces.empty())
+    {
+        LLVector4a min, max;
+
+        // For all of the volume faces
+        // in the model, loop over
+        // them and see what the extents
+        // of the volume along each axis.
+        min = mVolumeFaces[0].mExtents[0];
+        max = mVolumeFaces[0].mExtents[1];
+
+        for (U32 i = 1; i < mVolumeFaces.size(); ++i)
+        {
+            LLVolumeFace& face = mVolumeFaces[i];
+
+            update_min_max(min, max, face.mExtents[0]);
+            update_min_max(min, max, face.mExtents[1]);
+
+            if (face.mTexCoords)
+            {
+                LLVector2& min_tc = face.mTexCoordExtents[0];
+                LLVector2& max_tc = face.mTexCoordExtents[1];
+
+                min_tc = face.mTexCoords[0];
+                max_tc = face.mTexCoords[0];
+
+                for (S32 j = 1; j < face.mNumVertices; ++j)
+                {
+                    update_min_max(min_tc, max_tc, face.mTexCoords[j]);
+                }
+            }
+            else
+            {
+                face.mTexCoordExtents[0].set(0, 0);
+                face.mTexCoordExtents[1].set(1, 1);
+            }
+        }
+
+        // Now that we have the extents of the model
+        // we can compute the offset needed to center
+        // the model at the origin.
+
+        // Compute center of the model
+        // and make it negative to get translation
+        // needed to center at origin.
+        LLVector4a trans;
+        trans.setAdd(min, max);
+        trans.mul(-0.5f);
+
+        // Compute the total size along all
+        // axes of the model.
+        LLVector4a size;
+        size.setSub(max, min);
+
+        // Prevent division by zero.
+        F32 x = size[0];
+        F32 y = size[1];
+        F32 z = size[2];
+        F32 w = size[3];
+        if (fabs(x) < F_APPROXIMATELY_ZERO)
+        {
+            x = 1.0;
+        }
+        if (fabs(y) < F_APPROXIMATELY_ZERO)
+        {
+            y = 1.0;
+        }
+        if (fabs(z) < F_APPROXIMATELY_ZERO)
+        {
+            z = 1.0;
+        }
+        size.set(x, y, z, w);
+
+        // Compute scale as reciprocal of size
+        LLVector4a scale;
+        scale.splat(1.f);
+        scale.div(size);
+
+        LLVector4a inv_scale(1.f);
+        inv_scale.div(scale);
+
+        for (U32 i = 0; i < mVolumeFaces.size(); ++i)
+        {
+            LLVolumeFace& face = mVolumeFaces[i];
+
+            // We shrink the extents so
+            // that they fall within
+            // the unit cube.
+            // VFExtents change
+            face.mExtents[0].add(trans);
+            face.mExtents[0].mul(scale);
+
+            face.mExtents[1].add(trans);
+            face.mExtents[1].mul(scale);
+
+            // For all the positions, we scale
+            // the positions to fit within the unit cube.
+            LLVector4a* pos = (LLVector4a*)face.mPositions;
+            LLVector4a* norm = (LLVector4a*)face.mNormals;
+            LLVector4a* t = (LLVector4a*)face.mTangents;
+
+            for (S32 j = 0; j < face.mNumVertices; ++j)
+            {
+                pos[j].add(trans);
+                pos[j].mul(scale);
+                if (norm && !norm[j].equals3(LLVector4a::getZero()))
+                {
+                    norm[j].mul(inv_scale);
+                    norm[j].normalize3();
+                }
+
+                if (t)
+                {
+                    F32 w = t[j].getF32ptr()[3];
+                    t[j].mul(inv_scale);
+                    t[j].normalize3();
+                    t[j].getF32ptr()[3] = w;
+                }
+            }
+        }
+
+        weight_map old_weights = mSkinWeights;
+        mSkinWeights.clear();
+        mPosition.clear();
+
+        for (auto& weights : old_weights)
+        {
+            LLVector4a pos(weights.first.mV[VX], weights.first.mV[VY], weights.first.mV[VZ]);
+            pos.add(trans);
+            pos.mul(scale);
+            LLVector3 scaled_pos(pos.getF32ptr());
+            mPosition.push_back(scaled_pos);
+            mSkinWeights[scaled_pos] = weights.second;
+        }
+
+        // mNormalizedScale is the scale at which
+        // we would need to multiply the model
+        // by to get the original size of the
+        // model instead of the normalized size.
+        LLVector4a normalized_scale;
+        normalized_scale.splat(1.f);
+        normalized_scale.div(scale);
+        mNormalizedScale.set(normalized_scale.getF32ptr());
+        mNormalizedTranslation.set(trans.getF32ptr());
+        mNormalizedTranslation *= -1.f;
+
+        // remember normalized scale so original dimensions can be recovered for mesh processing (i.e. tangent generation)
+        for (auto& face : mVolumeFaces)
+        {
+            face.mNormalizedScale = mNormalizedScale;
+        }
+    }
+}
+
 void LLModel::getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out) const
 {
     scale_out = mNormalizedScale;
@@ -1561,11 +1717,21 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
     {
         ret["joint_names"][i] = mJointNames[i];
 
+        // For model to work at all there must be a matching bind matrix,
+        // so supply an indentity one if it isn't true
+        // Note: can build an actual bind matrix from joints
+        const LLMatrix4a& inv_bind = mInvBindMatrix.size() > i ? mInvBindMatrix[i] : LLMatrix4a::identity();
+        if (i >= mInvBindMatrix.size())
+        {
+            LL_WARNS("MESHSKININFO") << "Joint index " << i << " (" << mJointNames[i] << ") exceeds inverse bind matrix size "
+                                     << mInvBindMatrix.size() << LL_ENDL;
+        }
+
         for (U32 j = 0; j < 4; j++)
         {
             for (U32 k = 0; k < 4; k++)
             {
-                ret["inverse_bind_matrix"][i][j*4+k] = mInvBindMatrix[i].mMatrix[j][k];
+                ret["inverse_bind_matrix"][i][j * 4 + k] = inv_bind.mMatrix[j][k];
             }
         }
     }
@@ -1578,15 +1744,25 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
         }
     }
 
-    if ( include_joints && mAlternateBindMatrix.size() > 0 )
+    // optional 'joint overrides'
+    if (include_joints && mAlternateBindMatrix.size() > 0)
     {
         for (U32 i = 0; i < mJointNames.size(); ++i)
         {
+            // If there is not enough to match mJointNames,
+            // either supply no alternate matrixes at all or supply
+            // replacements
+            const LLMatrix4a& alt_bind = mAlternateBindMatrix.size() > i ? mAlternateBindMatrix[i] : LLMatrix4a::identity();
+            if (i >= mAlternateBindMatrix.size())
+            {
+                LL_WARNS("MESHSKININFO") << "Joint index " << i << " (" << mJointNames[i] << ") exceeds alternate bind matrix size "
+                                         << mAlternateBindMatrix.size() << LL_ENDL;
+            }
             for (U32 j = 0; j < 4; j++)
             {
                 for (U32 k = 0; k < 4; k++)
                 {
-                    ret["alt_inverse_bind_matrix"][i][j*4+k] = mAlternateBindMatrix[i].mMatrix[j][k];
+                    ret["alt_inverse_bind_matrix"][i][j * 4 + k] = alt_bind.mMatrix[j][k];
                 }
             }
         }
