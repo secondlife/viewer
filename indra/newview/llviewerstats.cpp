@@ -234,6 +234,7 @@ LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS("frametimeevents", "Numbe
                                 FRAMETIME_JITTER_EVENTS_LAST_MINUTE("frametimeeventslastmin", "Number of frametime events in the last minute.");
 
 LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION("normalizedframetimejitter", "Normalized frametime jitter over the session.");
+LLTrace::SampleStatHandle<F64> NFTV("nftv", "Normalized frametime variation.");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
@@ -359,6 +360,15 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
             ninety_fifth_percentile = calcPercentile(mFrameTimesJitter, 0.95);
             sample(LLStatViewer::FRAMETIME_JITTER_99TH, ninety_ninth_percentile);
             sample(LLStatViewer::FRAMETIME_JITTER_95TH, ninety_fifth_percentile);
+
+            F64 averageFrameTime = 0;
+            for (const auto& frame_time : mFrameTimes)
+            {
+                averageFrameTime += frame_time.value();
+            }
+            averageFrameTime /= mFrameTimes.size();
+
+            sample(LLStatViewer::NFTV, frame_time_stddev / averageFrameTime);
 
             mFrameTimes.clear();
             mFrameTimesJitter.clear();
