@@ -5696,7 +5696,8 @@ void LLAppViewer::forceExceptionThreadCrash()
 
         void run()
         {
-            throw std::exception();
+            const std::string exception_text = "This is a deliberate exception in a thread";
+            throw std::runtime_error(exception_text);
         }
     };
 
