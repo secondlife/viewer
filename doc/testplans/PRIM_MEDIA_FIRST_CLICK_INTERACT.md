@@ -99,9 +99,19 @@ Perform the testing procedure on both sets of cubes.
 
 **Expected observations:** The webpage on Cube A will react to mouse cursor hover events and clicks without needing a focus click, but the webpage on Cube B will not. The other pair of cubes will react the same as your Cube B.
 
-### Case 4 (MEDIA_FIRST_CLICK_GROUP)
+### Case 4 (MEDIA_FIRST_CLICK_FRIEND)
 
 Ensure that debug setting `MediaFirstClickInteract` is set to `4`
+
+This test case requires three sets of cubes, one owned by you, one owned by another avatar on your friend list, and a third set owned by an avatar that is not on your friend list, or deeded to group. You can optionally use two sets of cubes, and dissolve friendship with your second account to test non-friend cubes.
+
+Perform the testing procedure on all cubes
+
+**Expected observations:** Cube A owned by a friended avatar will react to mouse cursor hover events and clicks without needing a focus click. All other cubes will not.
+
+### Case 5 (MEDIA_FIRST_CLICK_GROUP)
+
+Ensure that debug setting `MediaFirstClickInteract` is set to `8`
 
 This test case requires two pairs of cubes, and the second pair must be deeded or set to a group that your testing account is a member of, but does not have set as active at the beginning of the test. As long as the second set of cubes is set to a group that your primary test account is a member of, the avatar that owns them does not matter.
 
@@ -110,16 +120,6 @@ This test case requires two pairs of cubes, and the second pair must be deeded o
 3. Perform the testing procedure on both sets of cubes once more.
 
 **Expected observations:** Both cubes owned by your primary testing account will not react to mouse cursor hover events and clicks without needing a focus click. Cube A set to group will react to mouse cursor hover events and clicks without needing a focus click, but Cube B will not.
-
-### Case 5 (MEDIA_FIRST_CLICK_FRIEND)
-
-Ensure that debug setting `MediaFirstClickInteract` is set to `8`
-
-This test case requires three sets of cubes, one owned by you, one owned by another avatar on your friend list, and a third set owned by an avatar that is not on your friend list, or deeded to group. You can optionally use two sets of cubes, and dissolve friendship with your second account to test non-friend cubes.
-
-Perform the testing procedure on all cubes
-
-**Expected observations:** Cube A owned by a friended avatar will react to mouse cursor hover events and clicks without needing a focus click. All other cubes will not.
 
 ### Case 6 (MEDIA_FIRST_CLICK_LAND)
 
