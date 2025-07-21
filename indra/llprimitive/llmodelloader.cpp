@@ -123,7 +123,6 @@ LLModelLoader::LLModelLoader(
 , mLod(lod)
 , mTrySLM(false)
 , mFirstTransform(true)
-, mNumOfFetchingTextures(0)
 , mLoadCallback(load_cb)
 , mJointLookupFunc(joint_lookup_func)
 , mTextureLoadFunc(texture_load_func)
@@ -134,6 +133,7 @@ LLModelLoader::LLModelLoader(
 , mNoNormalize(false)
 , mNoOptimize(false)
 , mCacheOnlyHitIfRigged(false)
+, mTexturesNeedScaling(false)
 , mMaxJointsPerMesh(maxJointsPerMesh)
 , mGeneratedModelLimit(modelLimit)
 , mDebugMode(debugMode)
@@ -669,7 +669,7 @@ void LLModelLoader::loadTextures()
 
                 if(!material.mDiffuseMapFilename.empty())
                 {
-                    mNumOfFetchingTextures += mTextureLoadFunc(material, mOpaqueData);
+                    mTextureLoadFunc(material, mOpaqueData);
                 }
             }
         }

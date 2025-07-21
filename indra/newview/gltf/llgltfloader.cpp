@@ -611,6 +611,7 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                     LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
                     if (image.mTexture.notNull())
                     {
+                        mTexturesNeedScaling |= image.mHeight > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT || image.mWidth > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT;
                         impMat.setDiffuseMap(image.mTexture->getID());
                         LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
                     }

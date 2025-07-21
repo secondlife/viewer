@@ -169,6 +169,8 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     , mLastJointUpdate(false)
     , mFirstSkinUpdate(true)
     , mHasDegenerate(false)
+    , mNumOfFetchingTextures(0)
+    , mTexturesNeedScaling(false)
     , mImporterDebug(LLCachedControl<bool>(gSavedSettings, "ImporterDebugVerboseLogging", false))
 {
     mNeedsUpdate = true;
@@ -559,10 +561,7 @@ void LLModelPreview::rebuildUploadData()
                             texture->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, new LLHandle<LLModelPreview>(getHandle()), &mCallbackTextureList, false);
                             texture->forceToSaveRawImage(0, F32_MAX);
                             texture->updateFetch();
-                            if (mModelLoader)
-                            {
-                                mModelLoader->mNumOfFetchingTextures++;
-                            }
+                            mNumOfFetchingTextures++;
                         }
                     }
                 }
@@ -997,7 +996,9 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
     setRigValidForJointPositionUpload(mModelLoader->isRigValidForJointPositionUpload());
     setLegacyRigFlags(mModelLoader->getLegacyRigFlags());
 
+    mTexturesNeedScaling |= mModelLoader->mTexturesNeedScaling;
     mModelLoader->loadTextures();
+    warnTextureScaling();
 
     if (loaded_lod == -1)
     { //populate all LoDs from model loader scene
@@ -2510,7 +2511,7 @@ void LLModelPreview::updateStatusMessages()
         LLMutexLock lock(this);
         if (mModelLoader)
         {
-            if (!mModelLoader->areTexturesReady() && mFMP->childGetValue("upload_textures").asBoolean())
+            if (!areTexturesReady() && mFMP->childGetValue("upload_textures").asBoolean())
             {
                 // Some textures are still loading, prevent upload until they are done
                 mModelNoErrors = false;
@@ -3216,6 +3217,7 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material, LLHandle<LLModelPre
         tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, new LLHandle<LLModelPreview>(handle), &preview->mCallbackTextureList, false);
         tex->forceToSaveRawImage(0, F32_MAX);
         material.setDiffuseMap(tex->getID()); // record tex ID
+        preview->mNumOfFetchingTextures++;
         return 1;
     }
 
@@ -4060,6 +4062,18 @@ void LLModelPreview::setPreviewLOD(S32 lod)
     updateStatusMessages();
 }
 
+void LLModelPreview::warnTextureScaling()
+{
+    if (areTexturesReady() && mTexturesNeedScaling)
+    {
+        std::ostringstream out;
+        out << "One or more textures in this model were scaled to be within the allowed limits.";
+        LL_INFOS() << out.str() << LL_ENDL;
+        LLSD args;
+        LLFloaterModelPreview::addStringToLog("ModelTextureScaling", args, true, -1);
+    }
+}
+
 //static
 void LLModelPreview::textureLoadedCallback(
     bool success,
@@ -4080,11 +4094,19 @@ void LLModelPreview::textureLoadedCallback(
         LLModelPreview* preview = static_cast<LLModelPreview*>(handle->get());
         preview->refresh();
 
-        if (final && preview->mModelLoader)
+        if (final)
         {
-            if (preview->mModelLoader->mNumOfFetchingTextures > 0)
+            if (src_vi
+                && (src_vi->getOriginalWidth() > LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT
+                    || src_vi->getOriginalHeight() > LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT))
             {
-                preview->mModelLoader->mNumOfFetchingTextures--;
+                preview->mTexturesNeedScaling = true;
+            }
+
+            if (preview->mNumOfFetchingTextures > 0)
+            {
+                preview->mNumOfFetchingTextures--;
+                preview->warnTextureScaling();
             }
         }
     }
