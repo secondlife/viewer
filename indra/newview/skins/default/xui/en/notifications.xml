@@ -7136,6 +7136,20 @@ You don&apos;t have permission to view this notecard.
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="MaterialImagesWereScaled"
+   type="alertmodal">
+One or more textures in this material were scaled to be within the allowed limits.
+Textures must have power of two dimensions and must not exceed [MAX_SIZE]x[MAX_SIZE] pixels.
+    <unique/>
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Warn if textures will be scaled during upload."
+     name="okignore"
+     yestext="OK"/>
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="RezItemNoPermissions"
    type="notifytip">
