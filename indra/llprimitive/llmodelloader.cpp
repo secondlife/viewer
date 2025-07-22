@@ -33,6 +33,7 @@
 
 #include "llmatrix4a.h"
 #include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
@@ -184,7 +185,7 @@ void LLModelLoader::run()
         LLSD args;
         args["Message"] = "UnknownException";
         args["FILENAME"] = mFilename;
-        args["EXCEPTION"] = "Unknown exception";
+        args["EXCEPTION"] = boost::current_exception_diagnostic_information();
         mWarningsArray.append(args);
         setLoadState(ERROR_PARSING);
     }
