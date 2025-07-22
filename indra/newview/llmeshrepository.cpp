@@ -2362,7 +2362,13 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
     LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
     if (volume->unpackVolumeFaces(data, data_size))
     {
-        if (volume->getNumFaces() > 0)
+        // Use LLVolume::getNumVolumeFaces() here and not LLVolume::getNumFaces(),
+        // because setMeshAssetLoaded() has not yet been called for this volume
+        // (it is set later in LLMeshRepository::notifyMeshLoaded()), and
+        // getNumFaces() would return the number of faces in the LLProfile
+        // instead. HB
+        S32 num_faces = volume->getNumVolumeFaces();
+        if (num_faces > 0)
         {
             // if we have a valid SkinInfo, cache per-joint bounding boxes for this LOD
             LLPointer<LLMeshSkinInfo> skin_info = nullptr;
@@ -2376,7 +2382,7 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
             }
             if (skin_info.notNull() && isAgentAvatarValid())
             {
-                for (S32 i = 0; i < volume->getNumFaces(); ++i)
+                for (S32 i = 0; i < num_faces; ++i)
                 {
                     // NOTE: no need to lock gAgentAvatarp as the state being checked is not changed after initialization
                     LLVolumeFace& face = volume->getVolumeFace(i);
