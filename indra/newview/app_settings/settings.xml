@@ -1153,13 +1153,13 @@
     <key>DiskCachePercentOfTotal</key>
     <map>
       <key>Comment</key>
-      <string>The percent of total cache size (defined by CacheSize) to use for the disk cache</string>
+      <string>The percent of total cache size (defined by CacheSize) to use for the disk cache (ex: asset storage, excludes textures)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>40.0</real>
+      <real>35.0</real>
     </map>
     <key>DiskCacheDirName</key>
     <map>
@@ -1203,7 +1203,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>4096</integer>
+      <integer>6144</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
