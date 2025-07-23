@@ -859,6 +859,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     // Initialize (boot strap) the Language text input management,
     // based on the system's (or user's) default settings.
     allowLanguageTextInput(NULL, false);
+    updateWindowTheme();
 }
 
 
@@ -1829,8 +1830,6 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     mhDC = pair.second;
 
     sWindowHandleForMessageBox = mWindowHandle;
-
-    updateWindowTheme();
 }
 
 void* LLWindowWin32::createSharedContext()
