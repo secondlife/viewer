@@ -345,6 +345,7 @@ protected:
     void buildContextMenuOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
     void buildContextMenuFolderOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
     void addOpenFolderMenuOptions(U32 flags, menuentry_vec_t& items);
+    void addInventoryFavoritesMenuOptions(menuentry_vec_t& items); // Inventory favorites, not toolbar favorites
 
     //--------------------------------------------------------------------
     // Menu callbacks
