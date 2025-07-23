@@ -246,6 +246,10 @@ protected:
     RECT mRect;
     RECT mClientRect;
 
+    void updateWindowTheme();
+    bool isSystemAppDarkMode();
+    bool mCurrentDarkMode { false };
+
     struct LLWindowWin32Thread;
     LLWindowWin32Thread* mWindowThread = nullptr;
     LLThreadSafeQueue<std::function<void()>> mFunctionQueue;

@@ -76,6 +76,11 @@
 #pragma comment(lib, "dxguid.lib") // needed for llurlentry test to build on some systems
 #pragma comment(lib, "dinput8")
 
+#pragma comment(lib, "UxTheme.lib")
+#pragma comment(lib, "Dwmapi.lib")
+#include <Uxtheme.h>
+#include <dwmapi.h> // needed for DwmSetWindowAttribute to set window theme
+
 const S32   MAX_MESSAGE_PER_UPDATE = 20;
 const S32   BITS_PER_PIXEL = 32;
 const S32   MAX_NUM_RESOLUTIONS = 32;
@@ -83,6 +88,10 @@ const F32   ICON_FLASH_TIME = 0.5f;
 
 #ifndef USER_DEFAULT_SCREEN_DPI
 #define USER_DEFAULT_SCREEN_DPI 96 // Win7
+#endif
+
+#ifndef WM_DWMCOLORIZATIONCOLORCHANGED
+#define WM_DWMCOLORIZATIONCOLORCHANGED 0x0320
 #endif
 
 // Claim a couple unused GetMessage() message IDs
@@ -136,6 +145,17 @@ typedef HRESULT(STDAPICALLTYPE *GetDpiForMonitorType)(
     _In_ MONITOR_DPI_TYPE dpiType,
     _Out_ UINT *dpiX,
     _Out_ UINT *dpiY);
+
+typedef enum PREFERRED_APP_MODE
+{
+    DEFAULT,
+    ALLOW_DARK,
+    FORCE_DARK,
+    FORCE_LIGHT,
+    MAX
+} PREFERRED_APP_MODE;
+
+typedef PREFERRED_APP_MODE(WINAPI* fnSetPreferredAppMode)(PREFERRED_APP_MODE mode);
 
 //
 // LLWindowWin32
@@ -1809,6 +1829,8 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     mhDC = pair.second;
 
     sWindowHandleForMessageBox = mWindowHandle;
+
+    updateWindowTheme();
 }
 
 void* LLWindowWin32::createSharedContext()
@@ -3007,6 +3029,17 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     WINDOW_IMP_POST(window_imp->mMouseVanish = true);
                 }
             }
+            // Check if theme-related settings changed
+            else if (l_param && (wcscmp((LPCWSTR)l_param, L"ImmersiveColorSet") == 0))
+            {
+                WINDOW_IMP_POST(window_imp->updateWindowTheme());
+            }
+        }
+        break;
+
+        case WM_DWMCOLORIZATIONCOLORCHANGED:
+        {
+            WINDOW_IMP_POST(window_imp->updateWindowTheme());
         }
         break;
 
@@ -4961,4 +4994,53 @@ void LLWindowWin32::updateWindowRect()
                 mClientRect = client_rect;
             });
     }
+}
+
+bool LLWindowWin32::isSystemAppDarkMode()
+{
+    HKEY  hKey;
+    DWORD dwValue = 1; // Default to light theme
+    DWORD dwSize  = sizeof(DWORD);
+
+    // Check registry for system theme preference
+    LSTATUS ret_code =
+        RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &hKey);
+    if (ERROR_SUCCESS == ret_code)
+    {
+        if (RegQueryValueExW(hKey, L"AppsUseLightTheme", NULL, NULL, (LPBYTE)&dwValue, &dwSize) != ERROR_SUCCESS)
+        {
+            // If AppsUseLightTheme is not found, check SystemUsesLightTheme
+            dwSize = sizeof(DWORD);
+            RegQueryValueExW(hKey, L"SystemUsesLightTheme", NULL, NULL, (LPBYTE)&dwValue, &dwSize);
+        }
+        RegCloseKey(hKey);
+    }
+
+    // Return true if dark mode
+    return dwValue == 0;
+}
+
+void LLWindowWin32::updateWindowTheme()
+{
+    bool use_dark_mode = isSystemAppDarkMode();
+    if (use_dark_mode == mCurrentDarkMode)
+    {
+        return;
+    }
+    mCurrentDarkMode = use_dark_mode;
+
+    HMODULE hUxTheme = LoadLibraryExW(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (hUxTheme)
+    {
+        auto SetPreferredAppMode = (fnSetPreferredAppMode)GetProcAddress(hUxTheme, "SetPreferredAppMode");
+        if (SetPreferredAppMode)
+        {
+            SetPreferredAppMode(use_dark_mode ? ALLOW_DARK : FORCE_LIGHT);
+        }
+        FreeLibrary(hUxTheme);
+    }
+    BOOL dark_mode(use_dark_mode);
+    DwmSetWindowAttribute(mWindowHandle, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark_mode, sizeof(dark_mode));
+
+    LL_INFOS("Window") << "Viewer window theme is set to " << (use_dark_mode ? "dark" : "light") << " mode" << LL_ENDL;
 }
