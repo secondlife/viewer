@@ -144,16 +144,16 @@ Note: This requires the avatar that is performing the tests to physically be in 
 
 ### Case 7 (MEDIA_FIRST_CLICK_ANY) (optional)
 
-Ensure that debug setting `MediaFirstClickInteract` is set to `31`
+Ensure that debug setting `MediaFirstClickInteract` is set to `32767`
 
 Repeat test cases 1-6.
 
 1. Test case 1 should fail
 2. Test cases 2-6 should pass
 
-### Case 8 (MEDIA_FIRST_CLICK_ALL) (optional)
+### Case 8 (MEDIA_FIRST_CLICK_BYPASS_MOAP_FLAG) (optional)
 
-Ensure that debug setting `MediaFirstClickInteract` is set to `1073741824`
+Ensure that debug setting `MediaFirstClickInteract` is set to `65535`
 
 Repeat test cases 1-6, there is no pass/fail for this run.
 
