@@ -1579,11 +1579,9 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     // Check for objects set to or owned by the active group
     if(FirstClickPref & MEDIA_FIRST_CLICK_GROUP)
     {
-        // Get our active group
-        LLUUID active_group = gAgent.getGroupID();
-        if(active_group.notNull() && (active_group == group_id || active_group == owner_id))
+        if(gAgent.isInGroup(group_id) || gAgent.isInGroup(owner_id))
         {
-            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_GROUP.Active group: " << active_group << ", group_id:" << group_id << ", owner_id: " << owner_id << LL_ENDL;
+            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_GROUP. group_id:" << group_id << ", owner_id: " << owner_id << LL_ENDL;
             return true;
         }
     }
