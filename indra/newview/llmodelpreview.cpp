@@ -3084,9 +3084,12 @@ void LLModelPreview::loadedCallback(
     S32 lod,
     void* opaque)
 {
+    if(LLModelPreview::sIgnoreLoadedCallback)
+        return;
+
     LLModelPreview* pPreview = static_cast<LLModelPreview*>(opaque);
     LLMutexLock lock(pPreview);
-    if (pPreview && pPreview->mModelLoader && !LLModelPreview::sIgnoreLoadedCallback)
+    if (pPreview && pPreview->mModelLoader)
     {
         // Load loader's warnings into floater's log tab
         const LLSD out = pPreview->mModelLoader->logOut();
