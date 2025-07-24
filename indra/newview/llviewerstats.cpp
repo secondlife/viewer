@@ -322,7 +322,7 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
         mTotalFrametimeJitter += jit;
         sample(LLStatViewer::FRAMETIME_JITTER_CUMULATIVE, mTotalFrametimeJitter);
         sample(LLStatViewer::NOTRMALIZED_FRAMETIME_JITTER_SESSION, mTotalFrametimeJitter / mTotalTime);
-        
+
         mLastNoramlizedSessionJitter = mTotalFrametimeJitter / mTotalTime;
 
         static LLCachedControl<F32> frameTimeEventThreshold(gSavedSettings, "StatsFrametimeEventThreshold", 0.1f);
