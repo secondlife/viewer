@@ -271,6 +271,9 @@ public:
     LLTrace::Recording& getRecording() { return mRecording; }
     const LLTrace::Recording& getRecording() const { return mRecording; }
 
+    F32 getLastNormalizedSessionJitter() const { return mLastNoramlizedSessionJitter; }
+    F32 getLastNormalizedFrametimeVariance() const { return mLastNormalizedFrametimeVariance; }
+
 private:
     LLTrace::Recording              mRecording;
 
@@ -286,6 +289,10 @@ private:
     F64Seconds              mTimeSinceLastEventSample;
     std::vector<F64Seconds>      mFrameTimes;          // used for frame time stats
     std::vector<F64Seconds> mFrameTimesJitter;    // used for frame time jitter stats
+
+    F32 mLastNoramlizedSessionJitter; // used for frame time jitter stats
+    F32 mLastNormalizedFrametimeVariance; // Used when submitting jitter stats
+
 };
 
 static const F32 SEND_STATS_PERIOD = 300.0f;

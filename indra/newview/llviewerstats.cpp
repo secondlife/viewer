@@ -322,6 +322,8 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
         mTotalFrametimeJitter += jit;
         sample(LLStatViewer::FRAMETIME_JITTER_CUMULATIVE, mTotalFrametimeJitter);
         sample(LLStatViewer::NOTRMALIZED_FRAMETIME_JITTER_SESSION, mTotalFrametimeJitter / mTotalTime);
+        
+        mLastNoramlizedSessionJitter = mTotalFrametimeJitter / mTotalTime;
 
         static LLCachedControl<F32> frameTimeEventThreshold(gSavedSettings, "StatsFrametimeEventThreshold", 0.1f);
 
@@ -369,6 +371,7 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
             averageFrameTime /= mFrameTimes.size();
 
             sample(LLStatViewer::NFTV, frame_time_stddev / averageFrameTime);
+            mLastNormalizedFrametimeVariance = frame_time_stddev / averageFrameTime;
 
             mFrameTimes.clear();
             mFrameTimesJitter.clear();
@@ -658,6 +661,10 @@ void send_viewer_stats(bool include_preferences)
 
     // send fps only for time app spends in foreground
     agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
+
+    agent["normalized_session_jitter"] = LLViewerStats::instance().getLastNormalizedSessionJitter();
+    agent["normalized_frametime_variance"] = LLViewerStats::instance().getLastNormalizedFrametimeVariance();
+
     agent["version"] = LLVersionInfo::instance().getChannelAndVersion();
     std::string language = LLUI::getLanguage();
     agent["language"] = language;
