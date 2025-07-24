@@ -1573,8 +1573,11 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     // Check if the object is owned by a friend of the agent
     if(FirstClickPref & MEDIA_FIRST_CLICK_FRIEND)
     {
-        LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_FRIEND. id: " << owner_id << LL_ENDL;
-        return LLAvatarTracker::instance().isBuddy(owner_id);
+        if(LLAvatarTracker::instance().isBuddy(owner_id))
+        {
+            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_FRIEND. id: " << owner_id << LL_ENDL;
+            return true;
+        }
     }
 
     // Check for objects set to or owned by the active group
