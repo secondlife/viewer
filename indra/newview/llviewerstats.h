@@ -271,8 +271,8 @@ public:
     LLTrace::Recording& getRecording() { return mRecording; }
     const LLTrace::Recording& getRecording() const { return mRecording; }
 
-    F32 getLastNormalizedSessionJitter() const { return mLastNoramlizedSessionJitter; }
-    F32 getLastNormalizedFrametimeVariance() const { return mLastNormalizedFrametimeVariance; }
+    F64 getLastNormalizedSessionJitter() const { return mLastNoramlizedSessionJitter; }
+    F64 getLastNormalizedFrametimeVariance() const { return mLastNormalizedFrametimeVariance; }
 
 private:
     LLTrace::Recording              mRecording;
@@ -290,8 +290,8 @@ private:
     std::vector<F64Seconds>      mFrameTimes;          // used for frame time stats
     std::vector<F64Seconds> mFrameTimesJitter;    // used for frame time jitter stats
 
-    F32 mLastNoramlizedSessionJitter; // used for frame time jitter stats
-    F32 mLastNormalizedFrametimeVariance; // Used when submitting jitter stats
+    F64 mLastNoramlizedSessionJitter; // used for frame time jitter stats
+    F64 mLastNormalizedFrametimeVariance; // Used when submitting jitter stats
 
 };
 
