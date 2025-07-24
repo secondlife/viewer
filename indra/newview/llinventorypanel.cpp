@@ -366,9 +366,28 @@ void LLInventoryPanel::initializeViewBuilding()
         if (mInventory->isInventoryUsable()
             && LLStartUp::getStartupState() <= STATE_WEARABLES_WAIT)
         {
+            LLTimer timer;
             // Usually this happens on login, so we have less time constraits, but too long and we can cause a disconnect
             const F64 max_time = 20.f;
             initializeViews(max_time);
+
+            if (mViewsInitialized == VIEWS_INITIALIZED)
+            {
+                LL_INFOS("Inventory")
+                    << "Fully initialized inventory panel " << getName()
+                    << " with " << (S32)mItemMap.size()
+                    << " views in " << timer.getElapsedTimeF32() << " seconds."
+                    << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS("Inventory")
+                    << "Partially initialized inventory panel " << getName()
+                    << " with " << (S32)mItemMap.size()
+                    << " views in " << timer.getElapsedTimeF32()
+                    << " seconds. Pending known views: " << (S32)mBuildViewsQueue.size()
+                    << LL_ENDL;
+            }
         }
         else
         {
