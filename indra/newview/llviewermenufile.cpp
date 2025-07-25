@@ -549,6 +549,29 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
                 LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
                 if (gDirUtilp->fileExists(filename) && image_frmted && image_frmted->load(filename))
                 {
+                    LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+                    if (image_frmted->decode(raw_image, 0.0f))
+                    {
+                        S32 width = raw_image->getWidth();
+                        S32 height = raw_image->getHeight();
+                    
+                        if (width > 2048 || height > 2048)
+                        {
+                            F32 scale_ratio = llmin(2048.f / width, 2048.f / height);
+                            S32 new_width = llfloor(width * scale_ratio);
+                            S32 new_height = llfloor(height * scale_ratio);
+                            raw_image->scale(new_width, new_height);
+                        
+                            LL_INFOS("ImageUpload") << "Image resized from "
+                                                    << width << "x" << height << " to "
+                                                    << new_width << "x" << new_height << LL_ENDL;
+                        
+                            // Re-encode resized image back into image_frmted
+                            image_frmted->encode(raw_image);
+                            image_frmted->save(filename); // overwrite original file (or temp copy)
+                        }
+                    }
+
                     S32 biased_width = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getWidth(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
                     S32 biased_height = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getHeight(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
                     expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(biased_width, biased_height);
