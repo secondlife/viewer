@@ -761,18 +761,23 @@ void LLViewerInventoryCategory::exportLLSD(LLSD & cat_data) const
     cat_data[INV_VERSION] = mVersion;
 }
 
-bool LLViewerInventoryCategory::importLLSD(const LLSD& cat_data)
+bool LLViewerInventoryCategory::importLLSD(const std::string& label, const LLSD& value)
 {
-    LLInventoryCategory::importLLSD(cat_data);
-    if (cat_data.has(INV_OWNER_ID))
+    if (LLInventoryCategory::importLLSD(label, value))
     {
-        mOwnerID = cat_data[INV_OWNER_ID].asUUID();
+        return true;
     }
-    if (cat_data.has(INV_VERSION))
+    else if (label == INV_OWNER_ID)
     {
-        setVersion(cat_data[INV_VERSION].asInteger());
+        mOwnerID = value.asUUID();
+        return true;
     }
-    return true;
+    else if (label == INV_VERSION)
+    {
+        setVersion(value.asInteger());
+        return true;
+    }
+    return false;
 }
 
 bool LLViewerInventoryCategory::acceptItem(LLInventoryItem* inv_item)

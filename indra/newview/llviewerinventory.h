@@ -233,7 +233,7 @@ public:
     S32 getViewerDescendentCount() const;
 
     virtual void exportLLSD(LLSD &sd) const;
-    virtual bool importLLSD(const LLSD& cat_data);
+    virtual bool importLLSD(const std::string& label, const LLSD& value);
 
     void determineFolderType();
     void changeType(LLFolderType::EType new_folder_type);

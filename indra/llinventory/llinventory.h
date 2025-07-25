@@ -274,7 +274,8 @@ public:
     virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = true) const;
 
     virtual void exportLLSD(LLSD& sd) const;
-    bool importLLSD(const LLSD& cat_data);
+    bool importLLSDMap(const LLSD& cat_data);
+    virtual bool importLLSD(const std::string& label, const LLSD& value);
     //--------------------------------------------------------------------
     // Member Variables
     //--------------------------------------------------------------------

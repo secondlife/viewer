@@ -299,6 +299,8 @@ public:
     bool    importLegacyStream(std::istream& input_stream);
     bool    exportLegacyStream(std::ostream& output_stream) const;
 
+    void importLLSD(const LLSD& sd_perm);
+
     bool operator==(const LLPermissions &rhs) const;
     bool operator!=(const LLPermissions &rhs) const;
 

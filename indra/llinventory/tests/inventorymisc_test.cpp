@@ -518,7 +518,7 @@ namespace tut
         file.close();
 
         LLPointer<LLInventoryCategory> src2 = new LLInventoryCategory();
-        src2->importLLSD(s_item);
+        src2->importLLSDMap(s_item);
 
         ensure_equals("1.item id::getUUID() failed", src1->getUUID(), src2->getUUID());
         ensure_equals("2.parent::getParentUUID() failed", src1->getParentUUID(), src2->getParentUUID());
