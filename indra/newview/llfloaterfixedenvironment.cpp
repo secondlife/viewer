@@ -182,8 +182,10 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 
     // teach user about HDR settings
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     if (mSettings
         && mSettings->getSettingsType() == "sky"
+        && should_auto_adjust()
         && ((LLSettingsSky*)mSettings.get())->canAutoAdjust()
         && ((LLSettingsSky*)mSettings.get())->getReflectionProbeAmbiance(true) != 0.f)
     {

@@ -6,7 +6,7 @@
 			<text name="label">Textures figées</text>
 			<text name="composite_label">Textures composites</text>
 			<button label="Vider les ID dans la console" label_selected="Vider" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Cheveux" name="hair-baked"/>
 				<texture_picker label="Cheveux" name="hair_grain"/>
 				<texture_picker label="Alpha cheveux" name="hair_alpha"/>

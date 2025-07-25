@@ -574,12 +574,13 @@ bool LLToolDragAndDrop::handleKey(KEY key, MASK mask)
 
 bool LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 {
+    const F32 DRAG_N_DROP_TOOLTIP_DELAY = 0.1f;
     if (!mToolTipMsg.empty())
     {
         LLToolTipMgr::instance().unblockToolTips();
         LLToolTipMgr::instance().show(LLToolTip::Params()
             .message(mToolTipMsg)
-            .delay_time(gSavedSettings.getF32( "DragAndDropToolTipDelay" )));
+            .delay_time(DRAG_N_DROP_TOOLTIP_DELAY));
         return true;
     }
     return false;
@@ -1253,6 +1254,7 @@ void LLToolDragAndDrop::dropMaterial(LLViewerObject* hit_obj,
         // If user dropped a material onto face it implies
         // applying texture now without cancel, save to selection
         if (nodep
+            && gFloaterTools
             && gFloaterTools->getVisible()
             && nodep->mSavedGLTFMaterialIds.size() > hit_face)
         {
@@ -1410,6 +1412,7 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
                 LLTextureEntry* te = hit_obj->getTE(hit_face);
                 if (te && !remove_pbr)
                 {
+                    // saveGLTFMaterials will make a copy
                     override_materials.push_back(te->getGLTFMaterialOverride());
                 }
                 else
@@ -1428,10 +1431,10 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
 
         // If user dropped a texture onto face it implies
         // applying texture now without cancel, save to selection
-        LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+        LLPanelFace* panel_face = gFloaterTools ? gFloaterTools->getPanelFace() : nullptr;
         if (nodep
-            && gFloaterTools->getVisible()
             && panel_face
+            && gFloaterTools->getVisible()
             && panel_face->getTextureDropChannel() == 0 /*texture*/
             && nodep->mSavedTextures.size() > hit_face)
         {
@@ -1446,9 +1449,11 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
             }
 
             LLTextureEntry* te = hit_obj->getTE(hit_face);
-            if (te && !remove_pbr)
+            LLGLTFMaterial * override_mat = nullptr;
+            if (te && !remove_pbr && (override_mat = te->getGLTFMaterialOverride()))
             {
-                nodep->mSavedGLTFOverrideMaterials[hit_face] = te->getGLTFMaterialOverride();
+                LLGLTFMaterial* copy = new LLGLTFMaterial(*override_mat);
+                nodep->mSavedGLTFOverrideMaterials[hit_face] = copy;
             }
             else
             {
@@ -1485,8 +1490,8 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
         if (allow_adding_to_override)
         {
             LLGLTFMaterial::TextureInfo drop_channel = LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR;
-            LLPanelFace* panel_face = gFloaterTools->getPanelFace();
-            if (gFloaterTools->getVisible() && panel_face)
+            LLPanelFace* panel_face = gFloaterTools ? gFloaterTools->getPanelFace() : nullptr;
+            if (panel_face && gFloaterTools->getVisible())
             {
                 drop_channel = panel_face->getPBRDropChannel();
             }
@@ -1511,9 +1516,9 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 
     LLTextureEntry* tep = hit_obj->getTE(hit_face);
 
-    LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+    LLPanelFace* panel_face = gFloaterTools ? gFloaterTools->getPanelFace() : nullptr;
 
-    if (gFloaterTools->getVisible() && panel_face)
+    if (panel_face && gFloaterTools->getVisible())
     {
         tex_channel = (tex_channel > -1) ? tex_channel : panel_face->getTextureDropChannel();
         switch (tex_channel)
@@ -1608,7 +1613,10 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
             }
         }
         hit_obj->saveScript(new_script, active, true);
-        gFloaterTools->dirty();
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
 
         // VEFFECT: SetScript
         LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, true);
@@ -1841,7 +1849,10 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
     effectp->setTargetObject(hit_obj);
     effectp->setDuration(LL_HUD_DUR_SHORT);
     effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-    gFloaterTools->dirty();
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 }
 
 // accessor that looks at permissions, copyability, and names of
@@ -2340,6 +2351,47 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
     return rv;
 }
 
+
+bool is_water_exclusion_face(LLViewerObject* obj, S32 face)
+{
+    LLViewerTexture* image = obj->getTEImage(face);
+    if (!image)
+        return false;
+
+    // magic texture and alpha blending
+    bool exclude_water = (image->getID() == IMG_ALPHA_GRAD) && obj->isImageAlphaBlended(face);
+
+    // transparency
+    exclude_water &= (obj->getTE(face)->getColor().mV[VALPHA] == 1);
+
+    //absence of normal and specular textures
+    image = obj->getTENormalMap(face);
+    if (image && image != LLViewerFetchedTexture::sDefaultImagep)
+        exclude_water &= image->getID().isNull();
+    image = obj->getTESpecularMap(face);
+    if (image && image != LLViewerFetchedTexture::sDefaultImagep)
+        exclude_water &= image->getID().isNull();
+
+    return exclude_water;
+}
+
+bool is_water_exclusion_surface(LLViewerObject* obj, S32 face, bool all_faces)
+{
+    if (all_faces)
+    {
+        bool exclude_water = false;
+        for (S32 it_face = 0; it_face < obj->getNumTEs(); it_face++)
+        {
+            exclude_water |= is_water_exclusion_face(obj, it_face);
+        }
+        return exclude_water;
+    }
+    else
+    {
+        return is_water_exclusion_face(obj, face);
+    }
+}
+
 EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
     LLViewerObject* obj, S32 face, MASK mask, bool drop, EDragAndDropType cargo_type)
 {
@@ -2430,7 +2482,13 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
         else if (cargo_type == DAD_MATERIAL)
         {
             bool all_faces = mask & MASK_SHIFT;
-            if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+
+            if (is_water_exclusion_surface(obj, face, all_faces))
+            {
+                LLNotificationsUtil::add("WaterExclusionNoMaterial");
+                return ACCEPT_NO;
+            }
+            else if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
             {
                 dropMaterial(obj, face, item, mSource, mSourceID, all_faces);
             }

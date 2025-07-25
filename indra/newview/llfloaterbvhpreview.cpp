@@ -179,7 +179,7 @@ void LLFloaterBvhPreview::setAnimCallbacks()
     getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
-std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
+std::map<std::string, std::string, std::less<>> LLFloaterBvhPreview::getJointAliases()
 {
     LLPointer<LLVOAvatar> av = (LLVOAvatar*)mAnimPreview->getDummyAvatar();
     return av->getJointAliases();
@@ -252,7 +252,7 @@ bool LLFloaterBvhPreview::postBuild()
                 ELoadStatus load_status = E_ST_OK;
                 S32 line_number = 0;
 
-                std::map<std::string, std::string> joint_alias_map = getJointAliases();
+                auto joint_alias_map = getJointAliases();
 
                 loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
                 std::string status = getString(STATUS[load_status]);
@@ -406,12 +406,17 @@ void LLFloaterBvhPreview::draw()
 
         gGL.getTexUnit(0)->bind(mAnimPreview);
 
-        gGL.begin( LLRender::QUADS );
+        gGL.begin(LLRender::TRIANGLES);
         {
             gGL.texCoord2f(0.f, 1.f);
             gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
             gGL.texCoord2f(0.f, 0.f);
             gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+            gGL.texCoord2f(1.f, 0.f);
+            gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+
+            gGL.texCoord2f(0.f, 1.f);
+            gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
             gGL.texCoord2f(1.f, 0.f);
             gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
             gGL.texCoord2f(1.f, 1.f);

@@ -54,16 +54,16 @@
 //////////////////////////////////////////////////////////////////////////
 LLPanelGroupBulkImpl::LLPanelGroupBulkImpl(const LLUUID& group_id) :
     mGroupID(group_id),
-    mBulkAgentList(NULL),
-    mOKButton(NULL),
-    mRemoveButton(NULL),
-    mGroupName(NULL),
+    mBulkAgentList(nullptr),
+    mOKButton(nullptr),
+    mAddButton(nullptr),
+    mRemoveButton(nullptr),
+    mGroupName(nullptr),
     mLoadingText(),
     mTooManySelected(),
-    mCloseCallback(NULL),
-    mCloseCallbackUserData(NULL),
-    mAvatarNameCacheConnection(),
-    mRoleNames(NULL),
+    mCloseCallback(nullptr),
+    mCloseCallbackUserData(nullptr),
+    mRoleNames(nullptr),
     mOwnerWarning(),
     mAlreadyInGroup(),
     mConfirmedOwnerInvite(false),
@@ -73,35 +73,27 @@ LLPanelGroupBulkImpl::LLPanelGroupBulkImpl(const LLUUID& group_id) :
 
 LLPanelGroupBulkImpl::~LLPanelGroupBulkImpl()
 {
-    if (mAvatarNameCacheConnection.connected())
+    for (auto& [id, connection] : mAvatarNameCacheConnections)
     {
-        mAvatarNameCacheConnection.disconnect();
+        if (connection.connected())
+            connection.disconnect();
     }
+
+    mAvatarNameCacheConnections.clear();
 }
 
-// static
-void LLPanelGroupBulkImpl::callbackClickAdd(void* userdata)
+void LLPanelGroupBulkImpl::callbackClickAdd(LLPanelGroupBulk* panelp)
 {
-    if (LLPanelGroupBulk* panelp = (LLPanelGroupBulk*)userdata)
-    {
-        // Right now this is hard coded with some knowledge that it is part
-        // of a floater since the avatar picker needs to be added as a dependent
-        // floater to the parent floater.
-        // Soon the avatar picker will be embedded into this panel
-        // instead of being it's own separate floater.  But that is next week.
-        // This will do for now. -jwolk May 10, 2006
-        LLView* button = panelp->findChild<LLButton>("add_button");
-        LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
-        LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-            [&](const uuid_vec_t& agent_ids, const std::vector<LLAvatarName>&)
-            {
-                panelp->mImplementation->addUsers(agent_ids);
-            }, true, false, false, root_floater->getName(), button);
-        if (picker)
+    LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+        [this](const uuid_vec_t& agent_ids, const std::vector<LLAvatarName>&)
         {
-            root_floater->addDependentFloater(picker);
-            LLGroupMgr::getInstance()->sendCapGroupMembersRequest(panelp->mImplementation->mGroupID);
-        }
+            addUsers(agent_ids);
+        }, true, false, false, root_floater->getName(), mAddButton);
+    if (picker)
+    {
+        root_floater->addDependentFloater(picker);
+        LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
     }
 }
 
@@ -134,43 +126,42 @@ void LLPanelGroupBulkImpl::callbackSelect(LLUICtrl* ctrl, void* userdata)
 
 void LLPanelGroupBulkImpl::addUsers(const uuid_vec_t& agent_ids)
 {
-    std::vector<std::string> names;
     for (const LLUUID& agent_id : agent_ids)
     {
-        LLAvatarName av_name;
-        if (LLAvatarNameCache::get(agent_id, &av_name))
+        if (LLAvatarName av_name; LLAvatarNameCache::get(agent_id, &av_name))
         {
             onAvatarNameCache(agent_id, av_name);
         }
         else
         {
-            if (mAvatarNameCacheConnection.connected())
+            if (auto found = mAvatarNameCacheConnections.find(agent_id); found != mAvatarNameCacheConnections.end())
             {
-                mAvatarNameCacheConnection.disconnect();
+                if (found->second.connected())
+                    found->second.disconnect();
+
+                mAvatarNameCacheConnections.erase(found);
             }
-            // *TODO : Add a callback per avatar name being fetched.
-            mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id,
+
+            mAvatarNameCacheConnections.try_emplace(agent_id, LLAvatarNameCache::get(agent_id,
                 [&](const LLUUID& agent_id, const LLAvatarName& av_name)
                 {
                     onAvatarNameCache(agent_id, av_name);
-                });
+                }));
         }
     }
 }
 
 void LLPanelGroupBulkImpl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
-    if (mAvatarNameCacheConnection.connected())
+    if (auto found = mAvatarNameCacheConnections.find(agent_id); found != mAvatarNameCacheConnections.end())
     {
-        mAvatarNameCacheConnection.disconnect();
+        if (found->second.connected())
+            found->second.disconnect();
+
+        mAvatarNameCacheConnections.erase(found);
     }
 
-    std::vector<std::string> names;
-    uuid_vec_t agent_ids;
-    agent_ids.push_back(agent_id);
-    names.push_back(av_name.getCompleteName());
-
-    addUsers(names, agent_ids);
+    addUsers({ av_name.getCompleteName() }, { agent_id });
 }
 
 void LLPanelGroupBulkImpl::handleRemove()
@@ -242,7 +233,7 @@ void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const
     }
 }
 
-void LLPanelGroupBulkImpl::setGroupName(std::string name)
+void LLPanelGroupBulkImpl::setGroupName(const std::string& name)
 {
     if (mGroupName)
     {
@@ -347,12 +338,7 @@ void LLPanelGroupBulk::updateGroupData()
 
 void LLPanelGroupBulk::addUserCallback(const LLUUID& id, const LLAvatarName& av_name)
 {
-    std::vector<std::string> names;
-    uuid_vec_t agent_ids;
-    agent_ids.push_back(id);
-    names.push_back(av_name.getAccountName());
-
-    mImplementation->addUsers(names, agent_ids);
+    mImplementation->addUsers({ av_name.getAccountName() }, { id });
 }
 
 void LLPanelGroupBulk::setCloseCallback(void (*close_callback)(void*), void* data)

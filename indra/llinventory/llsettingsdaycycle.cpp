@@ -124,33 +124,38 @@ static const F32 DEFAULT_MULTISLIDER_INCREMENT(0.005f);
 //=========================================================================
 LLSettingsDay::LLSettingsDay(const LLSD &data) :
     LLSettingsBase(data),
-    mInitialized(false)
+    mInitialized(false),
+    mDaySettings(LLSD::emptyMap())
 {
     mDayTracks.resize(TRACK_MAX);
+    loadValuesFromLLSD();
 }
 
 LLSettingsDay::LLSettingsDay() :
     LLSettingsBase(),
-    mInitialized(false)
+    mInitialized(false),
+    mDaySettings(LLSD::emptyMap())
 {
     mDayTracks.resize(TRACK_MAX);
+    replaceSettings(defaults());
 }
 
 //=========================================================================
-LLSD LLSettingsDay::getSettings() const
+LLSD& LLSettingsDay::getSettings()
 {
-    LLSD settings(LLSD::emptyMap());
+    mDaySettings = LLSD::emptyMap();
+    LLSD& settings = LLSettingsBase::getSettings();
 
-    if (mSettings.has(SETTING_NAME))
-        settings[SETTING_NAME] = mSettings[SETTING_NAME];
+    if (settings.has(SETTING_NAME))
+        mDaySettings[SETTING_NAME] = settings[SETTING_NAME];
 
-    if (mSettings.has(SETTING_ID))
-        settings[SETTING_ID] = mSettings[SETTING_ID];
+    if (settings.has(SETTING_ID))
+        mDaySettings[SETTING_ID] = settings[SETTING_ID];
 
-    if (mSettings.has(SETTING_ASSETID))
-        settings[SETTING_ASSETID] = mSettings[SETTING_ASSETID];
+    if (settings.has(SETTING_ASSETID))
+        mDaySettings[SETTING_ASSETID] = settings[SETTING_ASSETID];
 
-    settings[SETTING_TYPE] = getSettingsType();
+    mDaySettings[SETTING_TYPE] = getSettingsType();
 
     std::map<std::string, LLSettingsBase::ptr_t> in_use;
 
@@ -174,7 +179,7 @@ LLSD LLSettingsDay::getSettings() const
         }
         tracks.append(trackout);
     }
-    settings[SETTING_TRACKS] = tracks;
+    mDaySettings[SETTING_TRACKS] = tracks;
 
     LLSD frames(LLSD::emptyMap());
     for (std::map<std::string, LLSettingsBase::ptr_t>::iterator itFrame = in_use.begin(); itFrame != in_use.end(); ++itFrame)
@@ -184,9 +189,15 @@ LLSD LLSettingsDay::getSettings() const
 
         frames[(*itFrame).first] = framesettings;
     }
-    settings[SETTING_FRAMES] = frames;
+    mDaySettings[SETTING_FRAMES] = frames;
 
-    return settings;
+    return mDaySettings;
+}
+
+void LLSettingsDay::setLLSDDirty()
+{
+    mDaySettings = LLSD::emptyMap();
+    LLSettingsBase::setLLSDDirty();
 }
 
 bool LLSettingsDay::initialize(bool validate_frames)
@@ -392,6 +403,8 @@ bool LLSettingsDay::initialize(bool validate_frames)
         mSettings[SETTING_ASSETID] = assetid;
     }
 
+    loadValuesFromLLSD();
+
     mInitialized = true;
     return true;
 }
@@ -449,7 +462,7 @@ LLSD LLSettingsDay::defaults()
     return dfltsetting;
 }
 
-void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F64 mix)
+void LLSettingsDay::blend(LLSettingsBase::ptr_t &other, F64 mix)
 {
     LL_ERRS("DAYCYCLE") << "Day cycles are not blendable!" << LL_ENDL;
 }

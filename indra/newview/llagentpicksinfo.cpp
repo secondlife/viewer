@@ -28,6 +28,7 @@
 #include "llagentpicksinfo.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llavatarpropertiesprocessor.h"
 
 const S32 MAX_AVATAR_PICKS = 10;
@@ -85,10 +86,9 @@ private:
 
 LLAgentPicksInfo::LLAgentPicksInfo()
  : mAgentPicksObserver(NULL)
- , mMaxNumberOfPicks(MAX_AVATAR_PICKS)
  // Disable Pick creation until we get number of Picks from server - in case
  // avatar has maximum number of Picks.
- , mNumberOfPicks(mMaxNumberOfPicks)
+ , mNumberOfPicks(S32_MAX)
 {
 }
 
@@ -110,7 +110,13 @@ void LLAgentPicksInfo::requestNumberOfPicks()
     mAgentPicksObserver->sendAgentPicksRequest();
 }
 
-bool LLAgentPicksInfo::isPickLimitReached()
+// static
+S32 LLAgentPicksInfo::getMaxNumberOfPicks()
+{
+    return LLAgentBenefitsMgr::current().getPicksLimit();
+}
+
+bool LLAgentPicksInfo::isPickLimitReached() const
 {
     return getNumberOfPicks() >= getMaxNumberOfPicks();
 }

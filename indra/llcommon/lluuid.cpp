@@ -25,11 +25,8 @@
 
 #include "linden_common.h"
 
- // We can't use WIN32_LEAN_AND_MEAN here, needs lots of includes.
 #if LL_WINDOWS
 #include "llwin32headers.h"
-// ugh, this is ugly.  We need to straighten out our linking for this library
-#pragma comment(lib, "IPHLPAPI.lib")
 #include <iphlpapi.h>
 #include <nb30.h>
 #endif
@@ -177,27 +174,12 @@ void LLUUID::toString(std::string& out) const
         (U8)(mData[15]));
 }
 
-// *TODO: deprecate
-void LLUUID::toString(char* out) const
-{
-    std::string buffer;
-    toString(buffer);
-    strcpy(out, buffer.c_str()); /* Flawfinder: ignore */
-}
-
 void LLUUID::toCompressedString(std::string& out) const
 {
     char bytes[UUID_BYTES + 1];
     memcpy(bytes, mData, UUID_BYTES);       /* Flawfinder: ignore */
     bytes[UUID_BYTES] = '\0';
     out.assign(bytes, UUID_BYTES);
-}
-
-// *TODO: deprecate
-void LLUUID::toCompressedString(char* out) const
-{
-    memcpy(out, mData, UUID_BYTES);     /* Flawfinder: ignore */
-    out[UUID_BYTES] = '\0';
 }
 
 std::string LLUUID::getString() const

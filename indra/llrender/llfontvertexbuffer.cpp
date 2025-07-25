@@ -31,6 +31,8 @@
 #include "llvertexbuffer.h"
 
 
+bool LLFontVertexBuffer::sEnableBufferCollection = true;
+
 LLFontVertexBuffer::LLFontVertexBuffer()
 {
 }
@@ -119,6 +121,11 @@ S32 LLFontVertexBuffer::render(
     {
         return static_cast<S32>(text.length());
     }
+    if (!sEnableBufferCollection)
+    {
+        // For debug purposes and performance testing
+        return fontp->render(text, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
+    }
     if (mBufferList.empty())
     {
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
@@ -137,7 +144,11 @@ S32 LLFontVertexBuffer::render(
              || mLastShadow != shadow // ex: buttons change shadow state
              || mLastScaleX != LLFontGL::sScaleX
              || mLastScaleY != LLFontGL::sScaleY
-             || mLastOrigin != LLFontGL::sCurOrigin)
+             || mLastVertDPI != LLFontGL::sVertDPI
+             || mLastHorizDPI != LLFontGL::sHorizDPI
+             || mLastOrigin != LLFontGL::sCurOrigin
+             || mLastResGeneration != LLFontGL::sResolutionGeneration
+             || mLastFontCacheGen != fontp->getCacheGeneration())
     {
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
             style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
@@ -169,6 +180,9 @@ void LLFontVertexBuffer::genBuffers(
 {
     // todo: add a debug build assert if this triggers too often for to long?
     mBufferList.clear();
+    // Save before rendreing, it can change mid-render,
+    // so will need to rerender previous characters
+    mLastFontCacheGen = fontp->getCacheGeneration();
 
     gGL.beginList(&mBufferList);
     mChars = fontp->render(text, begin_offset, x, y, color, halign, valign,
@@ -189,7 +203,10 @@ void LLFontVertexBuffer::genBuffers(
 
     mLastScaleX = LLFontGL::sScaleX;
     mLastScaleY = LLFontGL::sScaleY;
+    mLastVertDPI = LLFontGL::sVertDPI;
+    mLastHorizDPI = LLFontGL::sHorizDPI;
     mLastOrigin = LLFontGL::sCurOrigin;
+    mLastResGeneration = LLFontGL::sResolutionGeneration;
 
     if (right_x)
     {
@@ -202,6 +219,17 @@ void LLFontVertexBuffer::renderBuffers()
     gGL.flush(); // deliberately empty pending verts
     gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     gGL.pushUIMatrix();
+
+    gGL.loadUIIdentity();
+
+    // Depth translation, so that floating text appears 'in-world'
+    // and is correctly occluded.
+    gGL.translatef(0.f, 0.f, LLFontGL::sCurDepth);
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+    // Note: ellipses should technically be covered by push/load/translate of their own
+    // but it's more complexity, values do not change, skipping doesn't appear to break
+    // anything, so we can skip that until it proves to cause issues.
     for (LLVertexBufferData& buffer : mBufferList)
     {
         buffer.draw();

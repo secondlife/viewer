@@ -62,6 +62,8 @@ LLUrlRegistry::LLUrlRegistry()
     registerUrl(new LLUrlEntryAgentUserName());
     // LLUrlEntryAgent*Name must appear before LLUrlEntryAgent since
     // LLUrlEntryAgent is a less specific (catchall for agent urls)
+    mUrlEntryAgentMention = new LLUrlEntryAgentMention();
+    registerUrl(mUrlEntryAgentMention);
     registerUrl(new LLUrlEntryAgent());
     registerUrl(new LLUrlEntryChat());
     registerUrl(new LLUrlEntryGroup());
@@ -155,7 +157,7 @@ static bool stringHasUrl(const std::string &text)
             text.find("@") != std::string::npos);
 }
 
-bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted)
+bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted, bool skip_non_mentions)
 {
     // avoid costly regexes if there is clearly no URL in the text
     if (! stringHasUrl(text))
@@ -172,6 +174,11 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
     {
         //Skip for url entry icon if content is not trusted
         if((mUrlEntryIcon == *it) && ((text.find("Hand") != std::string::npos) || !is_content_trusted))
+        {
+            continue;
+        }
+
+        if (skip_non_mentions && (mUrlEntryAgentMention != *it))
         {
             continue;
         }
@@ -233,12 +240,13 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
                         match_entry->getQuery(url),
                         match_entry->getTooltip(url),
                         match_entry->getIcon(url),
-                        match_entry->getStyle(),
+                        match_entry->getStyle(url),
                         match_entry->getMenuName(),
                         match_entry->getLocation(url),
                         match_entry->getID(url),
-                        match_entry->underlineOnHoverOnly(url),
-                        match_entry->isTrusted());
+                        match_entry->getUnderline(url),
+                        match_entry->isTrusted(),
+                        match_entry->getSkipProfileIcon(url));
         return true;
     }
 
@@ -274,7 +282,9 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
                         match.getMenuName(),
                         match.getLocation(),
                         match.getID(),
-                        match.underlineOnHoverOnly());
+                        match.getUnderline(),
+                        false,
+                        match.getSkipProfileIcon());
         return true;
     }
     return false;
@@ -316,4 +326,31 @@ void LLUrlRegistry::setKeybindingHandler(LLKeyBindingToStringHandler* handler)
 {
     LLUrlEntryKeybinding *entry = (LLUrlEntryKeybinding*)mUrlEntryKeybinding;
     entry->setHandler(handler);
+}
+
+bool LLUrlRegistry::containsAgentMention(const std::string& text)
+{
+    // avoid costly regexes if there is clearly no URL in the text
+    if (!stringHasUrl(text))
+    {
+        return false;
+    }
+
+    try
+    {
+        boost::sregex_iterator it(text.begin(), text.end(), mUrlEntryAgentMention->getPattern());
+        boost::sregex_iterator end;
+        for (; it != end; ++it)
+        {
+            if (mUrlEntryAgentMention->isAgentID(it->str()))
+            {
+               return true;
+            }
+        }
+    }
+    catch (boost::regex_error&)
+    {
+        LL_INFOS() << "Regex error for: " << text << LL_ENDL;
+    }
+    return false;
 }

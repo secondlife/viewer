@@ -147,6 +147,9 @@ public:
 
     void toggleVSync(bool enable_vsync) override;
 
+    // enable or disable multithreaded GL
+    static void setUseMultGL(bool use_mult_gl);
+
 protected:
     LLWindowMacOSX(LLWindowCallbacks* callbacks,
         const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,

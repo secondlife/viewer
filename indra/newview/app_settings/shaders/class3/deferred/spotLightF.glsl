@@ -27,9 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D diffuseRect;
-uniform sampler2D specularRect;
-uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform samplerCube environmentMap;
 uniform sampler2D lightMap;
 uniform sampler2D lightFunc;
@@ -50,6 +47,7 @@ uniform vec3 proj_origin; //origin of projection to be used for angular attenuat
 uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
+uniform int classic_mode;
 
 // Light params
 #if defined(MULTI_SPOTLIGHT)
@@ -80,12 +78,17 @@ vec4 getPosition(vec2 pos_screen);
 
 const float M_PI = 3.14159265;
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    out float nl,
+                    out vec3 diff,
+                    out vec3 spec);
+
+GBufferInfo getGBuffer(vec2 screenpos);
 
 void main()
 {
@@ -118,8 +121,9 @@ void main()
         shadow = clamp(shadow, 0.0, 1.0);
     }
 
-    vec4 norm = getNorm(tc);
-    vec3 n = norm.xyz;
+    GBufferInfo gb = getGBuffer(tc);
+
+    vec3 n = gb.normal;
 
     float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
     if (dist_atten <= 0.0)
@@ -132,14 +136,14 @@ void main()
     float nh, nl, nv, vh, lightDist;
     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-    vec3 diffuse = texture(diffuseRect, tc).rgb;
-    vec4 spec    = texture(specularRect, tc);
+    vec3 diffuse = gb.albedo.rgb;
+    vec4 spec    = gb.specular;
     vec3 dlit    = vec3(0, 0, 0);
     vec3 slit    = vec3(0, 0, 0);
 
     vec3 amb_rgb = vec3(0);
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
+    if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
@@ -151,6 +155,8 @@ void main()
         diffuseColor *= 1.0 - metallic;
 
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+        vec3 diffPunc = vec3(0);
+        vec3 specPunc = vec3(0);
 
         // We need this additional test inside a light's frustum since a spotlight's ambiance can be applied
         if (proj_tc.x > 0.0 && proj_tc.x < 1.0
@@ -168,16 +174,21 @@ void main()
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
                 vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
+
+                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
+
+                final_color += intensity * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
             }
 
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy ) * 3.25; //magic number to balance with legacy ambiance
-            final_color += amb_rgb * pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, -lv);
+            pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
+
+            final_color += amb_rgb * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
         }
     }
     else
     {
-        float envIntensity = texture(emissiveRect, tc).r;
+        float envIntensity = gb.envIntensity;
 
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
@@ -257,8 +268,10 @@ void main()
 
     //not sure why, but this line prevents MATBUG-194
     final_color = max(final_color, vec3(0.0));
-
+    float final_scale = 1.0;
+    if (classic_mode > 0)
+        final_scale = 0.9;
     //output linear
-    frag_color.rgb = final_color;
+    frag_color.rgb = final_color * final_scale;
     frag_color.a = 0.0;
 }

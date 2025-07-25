@@ -242,21 +242,20 @@ LLJoint *LLJoint::getRoot()
 //-----------------------------------------------------------------------------
 // findJoint()
 //-----------------------------------------------------------------------------
-LLJoint *LLJoint::findJoint( const std::string &name )
+LLJoint* LLJoint::findJoint(std::string_view name)
 {
     if (name == getName())
         return this;
 
     for (LLJoint* joint : mChildren)
     {
-        LLJoint *found = joint->findJoint(name);
-        if (found)
+        if (LLJoint* found = joint->findJoint(name))
         {
             return found;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 

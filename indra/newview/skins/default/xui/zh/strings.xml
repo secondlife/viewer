@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings
-     that are returned from one component and may appear in many places-->
 <strings>
 	<string name="SECOND_LIFE">
 		第二人生
@@ -42,7 +38,7 @@
 		建製設置 [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;
 第二人生URL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 （全域坐標：[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]）
 [SERVER_VERSION]
@@ -69,7 +65,6 @@
 頻寬：[NET_BANDWITH]千位元/秒
 細節層次率：[LOD_FACTOR]
 呈像品質：[RENDER_QUALITY]
-進階照明模型：[GPU_SHADERS]
 材質記憶體：[TEXTURE_MEMORY]MB
 	</string>
 	<string name="AboutOSXHiDPI">
@@ -1104,10 +1099,10 @@ http://secondlife.com/support 求助解決問題。
 		現在你將重新聯接到附近的語音聊天
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		物件「[OBJECTNAME]&apos;」（所有人「[OWNERNAME]」，位於「[REGIONNAME]」，方位「[REGIONPOS]」）已獲得下列權限：[PERMISSIONS]。
+		物件「[OBJECTNAME]'」（所有人「[OWNERNAME]」，位於「[REGIONNAME]」，方位「[REGIONPOS]」）已獲得下列權限：[PERMISSIONS]。
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		物件「[OBJECTNAME]&apos;」（所有人「[OWNERNAME]」，位於「[REGIONNAME]」，方位「[REGIONPOS]」）已被撤除下列權限：[PERMISSIONS]。
+		物件「[OBJECTNAME]'」（所有人「[OWNERNAME]」，位於「[REGIONNAME]」，方位「[REGIONPOS]」）已被撤除下列權限：[PERMISSIONS]。
 	</string>
 	<string name="AdditionalPermissionsRequestHeader">
 		你如果打開帳戶權限，也將一併允許該物件：
@@ -2864,8 +2859,8 @@ http://secondlife.com/support 求助解決問題。
 	<string name=".">
 		.
 	</string>
-	<string name="&apos;">
-		&apos;
+	<string name="'">
+		'
 	</string>
 	<string name="---">
 		---
@@ -2980,7 +2975,7 @@ http://secondlife.com/support 求助解決問題。
 
 如果你繼續看到此訊息，請聯絡 [SUPPORT_SITE]。
 	</string>
-	<string name="5 O&apos;Clock Shadow">
+	<string name="5 O'Clock Shadow">
 		下午五點的新鬍渣
 	</string>
 	<string name="All White">
@@ -4568,10 +4563,14 @@ http://secondlife.com/support 求助解決問題。
 		和 [AGENT_NAME] 多方通話
 	</string>
 	<string name="inventory_item_offered-im">
-		收納區物品&apos;[ITEM_NAME]&apos;已向人提供
+		收納區物品'[ITEM_NAME]'已向人提供
 	</string>
 	<string name="inventory_folder_offered-im">
-		收納區資料夾&apos;[ITEM_NAME]&apos;已向人提供
+		收納區資料夾'[ITEM_NAME]'已向人提供
+	</string>
+	<string name="bot_warning">
+		您正在与人工智能机器人 [NAME] 聊天。请勿分享任何个人信息。
+了解更多：https://second.life/scripted-agents。
 	</string>
 	<string name="share_alert">
 		將收納區物品拖曳到這裡
@@ -5131,7 +5130,7 @@ http://secondlife.com/support 求助解決問題。
 	<string name="ExternalEditorNotFound">
 		找不到你指定的外部編輯器。
 請嘗試在編輯器路經前後加上英文雙括號。
-（例：&quot;/path to my/editor&quot; &quot;%s&quot;）
+（例："/path to my/editor" "%s"）
 	</string>
 	<string name="ExternalEditorCommandParseError">
 		解析外部編輯器指令時出錯。

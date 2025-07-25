@@ -68,6 +68,41 @@ namespace
 
 bool LLWindowMacOSX::sUseMultGL = false;
 
+//static
+void LLWindowMacOSX::setUseMultGL(bool use_mult_gl)
+{
+    bool was_enabled = sUseMultGL;
+
+    sUseMultGL = use_mult_gl;
+
+    if (gGLManager.mInited)
+    {
+        CGLContextObj ctx = CGLGetCurrentContext();
+        //enable multi-threaded OpenGL (whether or not sUseMultGL actually changed)
+        if (sUseMultGL)
+        {
+            CGLError cgl_err;
+
+            cgl_err =  CGLEnable( ctx, kCGLCEMPEngine);
+
+            if (cgl_err != kCGLNoError )
+            {
+                LL_INFOS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
+                sUseMultGL = false;
+            }
+            else
+            {
+                LL_INFOS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
+            }
+        }
+        else if (was_enabled)
+        {
+            CGLDisable( ctx, kCGLCEMPEngine);
+            LL_INFOS("GLInit") << "Multi-threaded OpenGL disabled." << LL_ENDL;
+        }
+    }
+}
+
 // Cross-platform bits:
 
 bool check_for_card(const char* RENDERER, const char* bad_card)
@@ -244,6 +279,10 @@ void callResetKeys()
 
 bool callUnicodeCallback(wchar_t character, unsigned int mask)
 {
+    if (!gWindowImplementation)
+    {
+        return false;
+    }
     NativeKeyEventData eventData;
 
     memset(&eventData, 0, sizeof(NativeKeyEventData));
@@ -265,7 +304,7 @@ bool callUnicodeCallback(wchar_t character, unsigned int mask)
 
 void callFocus()
 {
-    if (gWindowImplementation)
+    if (gWindowImplementation && gWindowImplementation->getCallbacks())
     {
         gWindowImplementation->getCallbacks()->handleFocus(gWindowImplementation);
     }
@@ -273,7 +312,7 @@ void callFocus()
 
 void callFocusLost()
 {
-    if (gWindowImplementation)
+    if (gWindowImplementation && gWindowImplementation->getCallbacks())
     {
         gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
     }
@@ -281,6 +320,10 @@ void callFocusLost()
 
 void callRightMouseDown(float *pos, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     if (gWindowImplementation->allowsLanguageInput())
     {
         gWindowImplementation->interruptLanguageTextInput();
@@ -294,6 +337,10 @@ void callRightMouseDown(float *pos, MASK mask)
 
 void callRightMouseUp(float *pos, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     if (gWindowImplementation->allowsLanguageInput())
     {
         gWindowImplementation->interruptLanguageTextInput();
@@ -307,6 +354,10 @@ void callRightMouseUp(float *pos, MASK mask)
 
 void callLeftMouseDown(float *pos, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     if (gWindowImplementation->allowsLanguageInput())
     {
         gWindowImplementation->interruptLanguageTextInput();
@@ -320,6 +371,10 @@ void callLeftMouseDown(float *pos, MASK mask)
 
 void callLeftMouseUp(float *pos, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     if (gWindowImplementation->allowsLanguageInput())
     {
         gWindowImplementation->interruptLanguageTextInput();
@@ -334,6 +389,10 @@ void callLeftMouseUp(float *pos, MASK mask)
 
 void callDoubleClick(float *pos, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     if (gWindowImplementation->allowsLanguageInput())
     {
         gWindowImplementation->interruptLanguageTextInput();
@@ -347,7 +406,7 @@ void callDoubleClick(float *pos, MASK mask)
 
 void callResize(unsigned int width, unsigned int height)
 {
-    if (gWindowImplementation != NULL)
+    if (gWindowImplementation && gWindowImplementation->getCallbacks())
     {
         gWindowImplementation->getCallbacks()->handleResize(gWindowImplementation, width, height);
     }
@@ -355,6 +414,10 @@ void callResize(unsigned int width, unsigned int height)
 
 void callMouseMoved(float *pos, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     LLCoordGL       outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
@@ -368,6 +431,10 @@ void callMouseMoved(float *pos, MASK mask)
 
 void callMouseDragged(float *pos, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     LLCoordGL       outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
@@ -389,6 +456,10 @@ void callScrollMoved(float deltaX, float deltaY)
 
 void callMouseExit()
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     gWindowImplementation->getCallbacks()->handleMouseLeave(gWindowImplementation);
 }
 
@@ -440,11 +511,19 @@ void callWindowDidChangeScreen()
 
 void callDeltaUpdate(float *delta, MASK mask)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     gWindowImplementation->updateMouseDeltas(delta);
 }
 
 void callOtherMouseDown(float *pos, MASK mask, int button)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     LLCoordGL       outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
@@ -465,6 +544,10 @@ void callOtherMouseDown(float *pos, MASK mask, int button)
 
 void callOtherMouseUp(float *pos, MASK mask, int button)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     LLCoordGL outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
@@ -489,27 +572,43 @@ void callModifier(MASK mask)
 
 void callHandleDragEntered(std::string url)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_START_TRACKING);
 }
 
 void callHandleDragExited(std::string url)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_STOP_TRACKING);
 }
 
 void callHandleDragUpdated(std::string url)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_TRACK);
 }
 
 void callHandleDragDropped(std::string url)
 {
+    if (!gWindowImplementation)
+    {
+        return;
+    }
     gWindowImplementation->handleDragNDrop(url, LLWindowCallbacks::DNDA_DROPPED);
 }
 
 void callQuitHandler()
 {
-    if (gWindowImplementation)
+    if (gWindowImplementation && gWindowImplementation->getCallbacks())
     {
         if(gWindowImplementation->getCallbacks()->handleCloseRequest(gWindowImplementation))
         {
@@ -520,7 +619,7 @@ void callQuitHandler()
 
 void getPreeditSelectionRange(int *position, int *length)
 {
-    if (gWindowImplementation->getPreeditor())
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         gWindowImplementation->getPreeditor()->getSelectionRange(position, length);
     }
@@ -528,7 +627,7 @@ void getPreeditSelectionRange(int *position, int *length)
 
 void getPreeditMarkedRange(int *position, int *length)
 {
-    if (gWindowImplementation->getPreeditor())
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         gWindowImplementation->getPreeditor()->getPreeditRange(position, length);
     }
@@ -536,7 +635,7 @@ void getPreeditMarkedRange(int *position, int *length)
 
 void setPreeditMarkedRange(int position, int length)
 {
-    if (gWindowImplementation->getPreeditor())
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         gWindowImplementation->getPreeditor()->markAsPreedit(position, length);
     }
@@ -545,7 +644,7 @@ void setPreeditMarkedRange(int position, int length)
 bool handleUnicodeCharacter(wchar_t c)
 {
     bool success = false;
-    if (gWindowImplementation->getPreeditor())
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         success = gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
     }
@@ -555,7 +654,7 @@ bool handleUnicodeCharacter(wchar_t c)
 
 void resetPreedit()
 {
-    if (gWindowImplementation->getPreeditor())
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         gWindowImplementation->getPreeditor()->resetPreedit();
     }
@@ -565,7 +664,7 @@ void resetPreedit()
 // This largely mirrors the old implementation, only sans the carbon parameters.
 void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments)
 {
-    if (gWindowImplementation->getPreeditor())
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
         preeditor->resetPreedit();
@@ -588,7 +687,7 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
 
 void getPreeditLocation(float *location, unsigned int length)
 {
-    if (gWindowImplementation->getPreeditor())
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
         LLCoordGL coord;
@@ -704,23 +803,8 @@ bool LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
     // Disable vertical sync for swap
     toggleVSync(enable_vsync);
 
-    //enable multi-threaded OpenGL
-    if (sUseMultGL)
-    {
-        CGLError cgl_err;
-        CGLContextObj ctx = CGLGetCurrentContext();
+    setUseMultGL(sUseMultGL);
 
-        cgl_err =  CGLEnable( ctx, kCGLCEMPEngine);
-
-        if (cgl_err != kCGLNoError )
-        {
-            LL_INFOS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
-        }
-        else
-        {
-            LL_INFOS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
-        }
-    }
     makeFirstResponder(mWindow, mGLView);
 
     return true;
@@ -1040,7 +1124,7 @@ F32 LLWindowMacOSX::getGamma()
         &greenGamma,
         &blueMin,
         &blueMax,
-        &blueGamma) == noErr)
+        &blueGamma) == kCGErrorSuccess)
     {
         // So many choices...
         // Let's just return the green channel gamma for now.
@@ -1091,7 +1175,7 @@ bool LLWindowMacOSX::setGamma(const F32 gamma)
         &greenGamma,
         &blueMin,
         &blueMax,
-        &blueGamma) != noErr)
+        &blueGamma) != kCGErrorSuccess)
     {
         return false;
     }
@@ -1106,7 +1190,7 @@ bool LLWindowMacOSX::setGamma(const F32 gamma)
         gamma,
         blueMin,
         blueMax,
-        gamma) != noErr)
+        gamma) != kCGErrorSuccess)
     {
         return false;
     }
@@ -1158,7 +1242,7 @@ bool LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
     newPosition.y = screen_pos.mY;
 
     CGSetLocalEventsSuppressionInterval(0.0);
-    if(CGWarpMouseCursorPosition(newPosition) == noErr)
+    if(CGWarpMouseCursorPosition(newPosition) == kCGErrorSuccess)
     {
         result = true;
     }

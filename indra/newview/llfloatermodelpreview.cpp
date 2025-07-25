@@ -757,7 +757,7 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
         mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
         break;
     default:
-        LL_ERRS() << "Only supposed to be called to generate models" << LL_ENDL;
+        LL_ERRS() << "Only supposed to be called to generate models, val: " << mode << LL_ENDL;
         break;
     }
 
@@ -782,16 +782,21 @@ void LLFloaterModelPreview::draw3dPreview()
 
     gGL.getTexUnit(0)->bind(mModelPreview);
 
-    gGL.begin( LLRender::QUADS );
+    gGL.begin(LLRender::TRIANGLES);
     {
         gGL.texCoord2f(0.f, 1.f);
-        gGL.vertex2i(mPreviewRect.mLeft+1, mPreviewRect.mTop-1);
+        gGL.vertex2i(mPreviewRect.mLeft + 1, mPreviewRect.mTop - 1);
         gGL.texCoord2f(0.f, 0.f);
-        gGL.vertex2i(mPreviewRect.mLeft+1, mPreviewRect.mBottom+1);
+        gGL.vertex2i(mPreviewRect.mLeft + 1, mPreviewRect.mBottom + 1);
         gGL.texCoord2f(1.f, 0.f);
-        gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mBottom+1);
+        gGL.vertex2i(mPreviewRect.mRight - 1, mPreviewRect.mBottom + 1);
+
+        gGL.texCoord2f(1.f, 0.f);
+        gGL.vertex2i(mPreviewRect.mRight - 1, mPreviewRect.mBottom + 1);
         gGL.texCoord2f(1.f, 1.f);
-        gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mTop-1);
+        gGL.vertex2i(mPreviewRect.mRight - 1, mPreviewRect.mTop - 1);
+        gGL.texCoord2f(0.f, 1.f);
+        gGL.vertex2i(mPreviewRect.mLeft + 1, mPreviewRect.mTop - 1);
     }
     gGL.end();
 
@@ -1483,7 +1488,7 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
     {
         // Populate table
 
-        std::map<std::string, std::string> joint_alias_map;
+        std::map<std::string, std::string, std::less<>> joint_alias_map;
         mModelPreview->getJointAliases(joint_alias_map);
 
         S32 conflicts = 0;

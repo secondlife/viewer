@@ -1007,7 +1007,8 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
         return;
     }
 
-    if (preferred_type != LLFolderType::FT_NONE)
+    if (preferred_type != LLFolderType::FT_NONE
+        && preferred_type != LLFolderType::FT_OUTFIT)
     {
         // Ultimately this should only be done for non-singleton
         // types. Requires back-end changes to guarantee that others
@@ -1303,6 +1304,47 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
             }
         }
     }
+}
+
+bool LLInventoryModel::hasMatchingDescendents(const LLUUID& id,
+    bool include_trash,
+    LLInventoryCollectFunctor& matches)
+{
+    if (!include_trash)
+    {
+        const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+        if (trash_id.notNull() && (trash_id == id))
+            return false;
+    }
+    cat_array_t* cat_array = get_ptr_in_map(mParentChildCategoryTree, id);
+    if (cat_array)
+    {
+        for (auto& cat : *cat_array)
+        {
+            if (matches(cat, NULL))
+            {
+                return true;
+            }
+            if (hasMatchingDescendents(cat->getUUID(), include_trash, matches))
+            {
+                return true;
+            }
+        }
+    }
+
+    item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
+
+    if (item_array)
+    {
+        for (auto& item : *item_array)
+        {
+            if (matches(NULL, item))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
@@ -2726,6 +2768,7 @@ bool LLInventoryModel::loadSkeleton(
         bool is_cache_obsolete = false;
         if (loadFromFile(inventory_filename, categories, items, categories_to_update, is_cache_obsolete))
         {
+            LL_PROFILE_ZONE_NAMED("loadFromFile");
             // We were able to find a cache of files. So, use what we
             // found to generate a set of categories we should add. We
             // will go through each category loaded and if the version
@@ -3484,7 +3527,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 
         fileXML.close();
 
-        LL_INFOS(LOG_INV) << "Inventory saved: " << cat_count << " categories, " << it_count << " items." << LL_ENDL;
+        LL_INFOS(LOG_INV) << "Inventory saved: " << (S32)cat_count << " categories, " << (S32)it_count << " items." << LL_ENDL;
     }
     catch (...)
     {

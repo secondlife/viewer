@@ -465,24 +465,6 @@
           <menu_item_check.on_click
            function="World.AlwaysRun" />
         </menu_item_check>
-        <menu_item_check
-          label="Hear Media and Sound from Avatar"
-          name="Hear Media and Sound from Avatar">
-          <menu_item_check.on_check
-           control="MediaSoundsEarLocation" />
-          <menu_item_check.on_click
-           function="Agent.ToggleHearMediaSoundFromAvatar" />
-        </menu_item_check>
-        <menu_item_check
-          label="Hear Voice from Avatar"
-          name="Hear Voice from Avatar">
-          <menu_item_check.on_check
-           control="VoiceEarLocation" />
-          <menu_item_check.on_click
-           function="Agent.ToggleHearVoiceFromAvatar" />
-          <menu_item_call.on_enable
-           control="EnableVoiceChat" />
-        </menu_item_check>
       <menu_item_separator/>
       <menu_item_check
        label="Gestures..."
@@ -1791,18 +1773,11 @@ function="World.EnvPreset"
         </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
-             label="[SECOND_LIFE] News"
-             name="Second Life News">
-             <menu_item_call.on_click
-                 function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/Featured-News/bg-p/blog_feature_news"/>  
-        </menu_item_call>
-        <menu_item_call
              label="[SECOND_LIFE] Blogs"
              name="Second Life Blogs">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="http://community.secondlife.com/t5/Blogs/ct-p/Blogs"/>
+                 parameter="https://community.secondlife.com/news/"/>
         </menu_item_call>
         <menu_item_separator/>
 
@@ -2813,12 +2788,24 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorOSException" />
                 <menu_item_call.on_visible
                  function="Advanced.EnableErrorOSException" />
-            </menu_item_call>            
+            </menu_item_call>
             <menu_item_call
              label="Force a Crash in a Coroutine"
              name="Force a Crash in a Coroutine">
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorCoroutineCrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force a Crash in a Coroprocedure"
+             name="Force a Crash in a Coroprocedure">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorCoroprocedureCrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force a Crash in a Work Queue"
+             name="Force a Crash in a Work Queue">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorWorkQueueCrash" />
             </menu_item_call>
             <menu_item_call
              label="Force a Crash in a Thread"
@@ -3435,6 +3422,16 @@ function="World.EnvPreset"
                  function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
+            <menu_item_check
+             label="Collect Font Vertex Buffers"
+             name="Collect Font Vertex Buffers">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="CollectFontVertexBuffers" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="CollectFontVertexBuffers" />
+            </menu_item_check>
           <menu_item_separator />
           <menu_item_check
              label="Enable Shader Cache"
@@ -3892,6 +3889,13 @@ function="World.EnvPreset"
                  function="Floater.Show"
                  parameter="font_test" />
             </menu_item_call>
+            <menu_item_call
+             label="Show SLapps Test"
+             name="Show SLapps Test">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="slapp_test" />
+            </menu_item_call>
             <menu_item_check
              label="Show XUI Names"
              name="Show XUI Names">
@@ -4217,16 +4221,6 @@ function="World.EnvPreset"
 
         <menu_item_separator/>
 
-        <menu_item_check
-         label="HTTP Textures"
-         name="HTTP Textures">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="ImagePipelineUseHTTP" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="ImagePipelineUseHTTP" />
-        </menu_item_check>
         <menu_item_call
          label="Compress Images"
          name="Compress Images">

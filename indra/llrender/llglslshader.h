@@ -30,6 +30,7 @@
 #include "llgl.h"
 #include "llrender.h"
 #include "llstaticstringtable.h"
+#include <boost/json.hpp>
 #include <unordered_map>
 
 class LLShaderFeatures
@@ -51,12 +52,14 @@ public:
     bool hasAmbientOcclusion = false;
     bool hasSrgb = false;
     bool isDeferred = false;
+    bool hasFullGBuffer = false;
     bool hasScreenSpaceReflections = false;
     bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
     bool attachNothing = false;
     bool hasHeroProbes = false;
     bool isPBRTerrain = false;
+    bool hasTonemap = false;
 };
 
 // ============= Structure for caching shader uniforms ===============
@@ -169,14 +172,14 @@ public:
     static U32 sMaxGLTFNodes;
 
     static void initProfile();
-    static void finishProfile(bool emit_report = true);
+    static void finishProfile(boost::json::value& stats=sDefaultStats);
 
     static void startProfile();
     static void stopProfile();
 
     void unload();
     void clearStats();
-    void dumpStats();
+    void dumpStats(boost::json::object& stats);
 
     // place query objects for profiling if profiling is enabled
     // if for_runtime is true, will place timer query only whether or not profiling is enabled
@@ -220,6 +223,7 @@ public:
     void uniform1f(const LLStaticHashedString& uniform, GLfloat v);
     void uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y);
     void uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z);
+    void uniform4f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
     void uniform1fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
     void uniform2fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
     void uniform3fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
@@ -363,6 +367,11 @@ public:
 
 private:
     void unloadInternal();
+    // This must be static because finishProfile() is called at least once
+    // within a __try block. If we default its stats parameter to a temporary
+    // json::value, that temporary must be destroyed when the stack is
+    // unwound, which __try forbids.
+    static boost::json::value sDefaultStats;
 };
 
 //UI shader (declared here so llui_libtest will link properly)

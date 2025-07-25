@@ -43,9 +43,10 @@ public:
     bool init() override; // Override to do application initialization
     bool cleanup() override;
 
-    void reportCrashToBugsplat(void* pExcepInfo) override;
+    bool reportCrashToBugsplat(void* pExcepInfo) override;
 
 protected:
+    bool initWindow() override; // Override to initialize the viewer's window.
     void initLoggingAndGetLastDuration() override; // Override to clean stack_trace info.
     void initConsole() override; // Initialize OS level debugging console.
     bool initHardwareTest() override; // Win32 uses DX9 to test hardware.

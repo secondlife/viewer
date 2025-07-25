@@ -932,6 +932,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
         bool render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
         bool render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
         bool render_no_post = gSavedSettings.getBOOL("RenderSnapshotNoPost");
+        bool render_balance = gSavedSettings.getBOOL("RenderBalanceInSnapshot");
 
         bool high_res = gSavedSettings.getBOOL("HighResSnapshot");
         if (high_res)
@@ -952,6 +953,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
                                        render_hud,
                                        false,
                                        render_no_post,
+                                       render_balance,
                                        LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                        high_res ? S32_MAX : MAX_SNAPSHOT_IMAGE_SIZE)) //per side
         {
@@ -990,7 +992,7 @@ class LLFileQuit : public view_listener_t
 };
 
 
-void handle_compress_image(void*)
+void handle_compress_image()
 {
     LLFilePicker& picker = LLFilePicker::instance();
     if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
@@ -1040,7 +1042,7 @@ size_t get_file_size(std::string &filename)
     return file_length;
 }
 
-void handle_compress_file_test(void*)
+void handle_compress_file_test()
 {
     LLFilePicker& picker = LLFilePicker::instance();
     if (picker.getOpenFile())

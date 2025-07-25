@@ -300,7 +300,7 @@ bool LLSpatialGroup::addObject(LLDrawable *drawablep)
     }
     {
         drawablep->setGroup(this);
-        setState(OBJECT_DIRTY | GEOM_DIRTY);
+        setState(static_cast<U32>(OBJECT_DIRTY) | static_cast<U32>(GEOM_DIRTY));
         setOcclusionState(LLSpatialGroup::DISCARD_QUERY, LLSpatialGroup::STATE_MODE_ALL_CAMERAS);
         gPipeline.markRebuild(this);
         if (drawablep->isSpatialBridge())
@@ -730,7 +730,7 @@ bool LLSpatialGroup::changeLOD()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
-    if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
+    if (hasState(static_cast<U32>(ALPHA_DIRTY) | static_cast<U32>(OBJECT_DIRTY)))
     {
         //a rebuild is going to happen, update distance and LoD
         return true;
@@ -2609,12 +2609,8 @@ void renderTexturePriority(LLDrawable* drawable)
 
         LLGLDisable blend(GL_BLEND);
 
-        //LLViewerTexture* imagep = facep->getTexture();
-        //if (imagep)
         if (facep)
         {
-
-            //F32 vsize = imagep->mMaxVirtualSize;
             F32 vsize = facep->getPixelArea();
 
             if (vsize > sCurMaxTexPriority)
@@ -2640,18 +2636,6 @@ void renderTexturePriority(LLDrawable* drawable)
         size.mul(0.5f);
         size.add(LLVector4a(0.01f));
         drawBox(center, size);
-
-        /*S32 boost = imagep->getBoostLevel();
-        if (boost>LLGLTexture::BOOST_NONE)
-        {
-            F32 t = (F32) boost / (F32) (LLGLTexture::BOOST_MAX_LEVEL-1);
-            LLVector4 col = lerp(boost_cold, boost_hot, t);
-            LLGLEnable blend_on(GL_BLEND);
-            gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
-            gGL.diffuseColor4fv(col.mV);
-            drawBox(center, size);
-            gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        }*/
     }
 }
 

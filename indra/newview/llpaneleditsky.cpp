@@ -209,7 +209,7 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     F32 droplet_radius  = mSkySettings->getSkyDropletRadius();
     F32 ice_level       = mSkySettings->getSkyIceLevel();
 
-    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     F32 rp_ambiance     = mSkySettings->getReflectionProbeAmbiance(should_auto_adjust);
 
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->setValue(moisture_level);

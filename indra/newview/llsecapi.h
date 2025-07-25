@@ -28,7 +28,7 @@
 #ifndef LLSECAPI_H
 #define LLSECAPI_H
 #include <vector>
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 #include <openssl/x509.h>
 #include <ostream>
 #include "llpointer.h"

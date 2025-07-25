@@ -61,6 +61,7 @@ uniform vec4 clipPlane;
 uniform float clipSign;
 
 void mirrorClip(vec3 pos);
+vec4 encodeNormal(vec3 n, float env, float gbuffer_flag);
 
 uniform mat3 normal_matrix;
 
@@ -113,8 +114,11 @@ void main()
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = max(vec4(col, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
-    frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
+    frag_data[2] = encodeNormal(tnorm, 0, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
+
+#if defined(HAS_EMISSIVE)
     frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
+#endif
 }
 
 #else

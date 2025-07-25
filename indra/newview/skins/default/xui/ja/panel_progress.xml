@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="login_progress_panel">
-	<layout_panel name="panel_icons"/>
 	<layout_stack name="vertical_centering"/>
 	<layout_panel name="panel4"/>
 	<layout_panel name="center"/>
 	<layout_stack name="horizontal_centering">
-		<text name="logos_lbl">
-			セカンドライフ使用
-		</text>
 	</layout_stack>
 </panel>

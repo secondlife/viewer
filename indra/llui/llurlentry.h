@@ -41,6 +41,7 @@
 #include <map>
 
 class LLAvatarName;
+class LLVector3d;
 
 typedef boost::signals2::signal<void (const std::string& url,
                                       const std::string& label,
@@ -85,7 +86,7 @@ public:
     virtual std::string getIcon(const std::string &url);
 
     /// Return the style to render the displayed text
-    virtual LLStyle::Params getStyle() const;
+    virtual LLStyle::Params getStyle(const std::string &url) const;
 
     /// Given a matched Url, return a tooltip string for the hyperlink
     virtual std::string getTooltip(const std::string &string) const { return mTooltip; }
@@ -96,18 +97,22 @@ public:
     /// Return the name of a SL location described by this Url, if any
     virtual std::string getLocation(const std::string &url) const { return ""; }
 
-    /// Should this link text be underlined only when mouse is hovered over it?
-    virtual bool underlineOnHoverOnly(const std::string &string) const { return false; }
+    virtual LLStyle::EUnderlineLink getUnderline(const std::string& string) const { return LLStyle::EUnderlineLink::UNDERLINE_ALWAYS; }
 
     virtual bool isTrusted() const { return false; }
 
+    virtual bool getSkipProfileIcon(const std::string& string) const { return false; }
+
     virtual LLUUID  getID(const std::string &string) const { return LLUUID::null; }
+    virtual bool isAgentID(const std::string& url) const { return false; }
 
     bool isLinkDisabled() const;
 
     bool isWikiLinkCorrect(const std::string &url) const;
 
     virtual bool isSLURLvalid(const std::string &url) const { return true; };
+
+    static void setAgentID(const LLUUID& id) { sAgentID = id; }
 
 protected:
     std::string getIDStringFromUrl(const std::string &url) const;
@@ -130,6 +135,8 @@ protected:
     std::string                                     mMenuName;
     std::string                                     mTooltip;
     std::multimap<std::string, LLUrlEntryObserver>  mObservers;
+
+    static LLUUID sAgentID;
 };
 
 ///
@@ -224,16 +231,33 @@ public:
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
     /*virtual*/ std::string getIcon(const std::string &url);
     /*virtual*/ std::string getTooltip(const std::string &string) const;
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
     /*virtual*/ LLUUID  getID(const std::string &string) const;
-    /*virtual*/ bool underlineOnHoverOnly(const std::string &string) const;
+
+    bool isAgentID(const std::string& url) const;
+
+    LLStyle::EUnderlineLink getUnderline(const std::string& string) const;
+
 protected:
     /*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 private:
     void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
-    typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    typedef std::multimap<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
+};
+
+///
+/// LLUrlEntryAgentMention Describes a chat mention Url, e.g.,
+/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/mention
+class LLUrlEntryAgentMention : public LLUrlEntryAgent
+{
+public:
+    LLUrlEntryAgentMention();
+
+    LLStyle::Params getStyle(const std::string& url) const;
+    LLStyle::EUnderlineLink getUnderline(const std::string& string) const;
+    bool getSkipProfileIcon(const std::string& string) const { return true; };
 };
 
 ///
@@ -257,14 +281,14 @@ public:
         mAvatarNameCacheConnections.clear();
     }
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
 protected:
     // override this to pull out relevant name fields
     virtual std::string getName(const LLAvatarName& avatar_name) = 0;
 private:
     void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
-    typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    typedef std::multimap<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 };
 
@@ -339,7 +363,7 @@ class LLUrlEntryGroup : public LLUrlEntryBase
 public:
     LLUrlEntryGroup();
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
     /*virtual*/ LLUUID  getID(const std::string &string) const;
 private:
     void onGroupNameReceived(const LLUUID& id, const std::string& name, bool is_group);
@@ -411,21 +435,22 @@ public:
     // Processes parcel label and triggers notifying observers.
     static void processParcelInfo(const LLParcelData& parcel_data);
 
-    // Next 4 setters are used to update agent and viewer connection information
+    static LLVector3d getParcelPos(const LLUUID& parcel_id);
+
+    // Next setters are used to update agent and viewer connection information
     // upon events like user login, viewer disconnect and user changing region host.
     // These setters are made public to be accessible from newview and should not be
     // used in other cases.
-    static void setAgentID(const LLUUID& id) { sAgentID = id; }
     static void setSessionID(const LLUUID& id) { sSessionID = id; }
     static void setRegionHost(const LLHost& host) { sRegionHost = host; }
     static void setDisconnected(bool disconnected) { sDisconnected = disconnected; }
 
 private:
-    static LLUUID                       sAgentID;
     static LLUUID                       sSessionID;
     static LLHost                       sRegionHost;
     static bool                         sDisconnected;
     static std::set<LLUrlEntryParcel*>  sParcelInfoObservers;
+    static std::map<LLUUID, LLVector3d> sParcelPos;
 };
 
 ///
@@ -486,7 +511,7 @@ public:
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
     /*virtual*/ std::string getUrl(const std::string &string) const;
     /*virtual*/ std::string getTooltip(const std::string &string) const;
-    /*virtual*/ bool underlineOnHoverOnly(const std::string &string) const;
+    LLStyle::EUnderlineLink getUnderline(const std::string& string) const;
 };
 
 ///
@@ -510,7 +535,7 @@ public:
     LLUrlEntryNoLink();
     /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
     /*virtual*/ std::string getUrl(const std::string &string) const;
-    /*virtual*/ LLStyle::Params getStyle() const;
+    /*virtual*/ LLStyle::Params getStyle(const std::string &url) const;
 };
 
 ///

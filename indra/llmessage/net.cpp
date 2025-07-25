@@ -32,7 +32,7 @@
 #include <stdexcept>
 
 #if LL_WINDOWS
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 #else
     #include <sys/types.h>
     #include <sys/socket.h>
@@ -76,14 +76,8 @@ static U32 gsnReceivingIFAddr = INVALID_HOST_IP_ADDRESS; // Address to which dat
 const char* LOOPBACK_ADDRESS_STRING = "127.0.0.1";
 const char* BROADCAST_ADDRESS_STRING = "255.255.255.255";
 
-#if LL_DARWIN
-    // macOS returns an error when trying to set these to 400000.  Smaller values succeed.
-    const int   SEND_BUFFER_SIZE    = 200000;
-    const int   RECEIVE_BUFFER_SIZE = 200000;
-#else // LL_DARWIN
-    const int   SEND_BUFFER_SIZE    = 400000;
-    const int   RECEIVE_BUFFER_SIZE = 400000;
-#endif // LL_DARWIN
+const int   SEND_BUFFER_SIZE    = 200000;
+const int   RECEIVE_BUFFER_SIZE = 800000;
 
 // universal functions (cross-platform)
 

@@ -52,6 +52,9 @@ LLReflectionMap::~LLReflectionMap()
 void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 near_clip, bool useClipPlane, LLPlane clipPlane)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    if (!mCubeArray.notNull())
+        return;
+
     mLastUpdateTime = gFrameTimeSeconds;
     llassert(mCubeArray.notNull());
     llassert(mCubeIndex != -1);
@@ -65,8 +68,9 @@ void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 n
     }
 
     F32 clip = (near_clip > 0) ? near_clip : getNearClip();
+    bool dynamic = force_dynamic || getIsDynamic();
 
-    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, clip, getIsDynamic() || force_dynamic, useClipPlane, clipPlane);
+    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, clip, dynamic, useClipPlane, clipPlane);
 }
 
 void LLReflectionMap::autoAdjustOrigin()
@@ -185,7 +189,7 @@ void LLReflectionMap::autoAdjustOrigin()
     }
 }
 
-bool LLReflectionMap::intersects(LLReflectionMap* other)
+bool LLReflectionMap::intersects(LLReflectionMap* other) const
 {
     LLVector4a delta;
     delta.setSub(other->mOrigin, mOrigin);
@@ -201,24 +205,24 @@ bool LLReflectionMap::intersects(LLReflectionMap* other)
 
 extern LLControlGroup gSavedSettings;
 
-F32 LLReflectionMap::getAmbiance()
+F32 LLReflectionMap::getAmbiance() const
 {
     F32 ret = 0.f;
-    if (mViewerObject && mViewerObject->getVolume())
+    if (mViewerObject && mViewerObject->getVolumeConst())
     {
-        ret = ((LLVOVolume*)mViewerObject)->getReflectionProbeAmbiance();
+        ret = mViewerObject->getReflectionProbeAmbiance();
     }
 
     return ret;
 }
 
-F32 LLReflectionMap::getNearClip()
+F32 LLReflectionMap::getNearClip() const
 {
     const F32 MINIMUM_NEAR_CLIP = 0.1f;
 
     F32 ret = 0.f;
 
-    if (mViewerObject && mViewerObject->getVolume())
+    if (mViewerObject && mViewerObject->getVolumeConst())
     {
         ret = mViewerObject->getReflectionProbeNearClip();
     }
@@ -234,11 +238,13 @@ F32 LLReflectionMap::getNearClip()
     return llmax(ret, MINIMUM_NEAR_CLIP);
 }
 
-bool LLReflectionMap::getIsDynamic()
+bool LLReflectionMap::getIsDynamic() const
 {
-    if (gSavedSettings.getS32("RenderReflectionProbeDetail") > (S32) LLReflectionMapManager::DetailLevel::STATIC_ONLY &&
+    static LLCachedControl<S32> detail(gSavedSettings, "RenderReflectionProbeDetail", 1);
+    if (detail() > (S32)LLReflectionMapManager::DetailLevel::STATIC_ONLY &&
         mViewerObject &&
-        mViewerObject->getVolume())
+        !mViewerObject->isDead() &&
+        mViewerObject->getVolumeConst())
     {
         return mViewerObject->getReflectionProbeIsDynamic();
     }
@@ -253,23 +259,22 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
         LLVolume* volume = mViewerObject->getVolume();
         if (volume && mViewerObject->getReflectionProbeIsBox())
         {
-            glh::matrix4f mv(gGLModelView);
-            glh::matrix4f scale;
+            glm::mat4 mv(get_current_modelview());
             LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
             mRadius = s.magVec();
-            scale.set_scale(glh::vec3f(s.mV));
+            glm::mat4 scale = glm::scale(glm::vec3(s));
             if (mViewerObject->mDrawable != nullptr)
             {
                 // object to agent space (no scale)
-                glh::matrix4f rm((F32*)mViewerObject->mDrawable->getWorldMatrix().mMatrix);
+                glm::mat4 rm(glm::make_mat4((F32*)mViewerObject->mDrawable->getWorldMatrix().mMatrix));
 
                 // construct object to camera space (with scale)
                 mv = mv * rm * scale;
 
                 // inverse is camera space to object unit cube
-                mv = mv.inverse();
+                mv = glm::inverse(mv);
 
-                box = LLMatrix4(mv.m);
+                box = LLMatrix4(glm::value_ptr(mv));
 
                 return true;
             }
@@ -279,12 +284,12 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
     return false;
 }
 
-bool LLReflectionMap::isActive()
+bool LLReflectionMap::isActive() const
 {
     return mCubeIndex != -1;
 }
 
-bool LLReflectionMap::isRelevant()
+bool LLReflectionMap::isRelevant() const
 {
     static LLCachedControl<S32> RenderReflectionProbeLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
 

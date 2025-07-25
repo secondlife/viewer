@@ -34,7 +34,6 @@
 #include "llstring.h"
 
 #include <string>
-#include <vector>
 
 class LLKeyBindingToStringHandler;
 
@@ -76,7 +75,7 @@ public:
     /// your callback is invoked if the matched Url's label changes in the future
     bool findUrl(const std::string &text, LLUrlMatch &match,
                  const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback,
-                 bool is_content_trusted = false);
+                 bool is_content_trusted = false, bool skip_non_mentions = false);
 
     /// a slightly less efficient version of findUrl for wide strings
     bool findUrl(const LLWString &text, LLUrlMatch &match,
@@ -93,6 +92,8 @@ public:
     // Set handler for url registry to be capable of parsing and populating keybindings
     void setKeybindingHandler(LLKeyBindingToStringHandler* handler);
 
+    bool containsAgentMention(const std::string& text);
+
 private:
     std::vector<LLUrlEntryBase *> mUrlEntry;
     LLUrlEntryBase* mUrlEntryTrusted;
@@ -102,6 +103,7 @@ private:
     LLUrlEntryBase* mUrlEntrySLLabel;
     LLUrlEntryBase* mUrlEntryNoLink;
     LLUrlEntryBase* mUrlEntryKeybinding;
+    LLUrlEntryBase* mUrlEntryAgentMention;
 };
 
 #endif

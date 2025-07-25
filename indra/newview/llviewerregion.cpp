@@ -38,7 +38,6 @@
 #include "llregionhandle.h"
 #include "llsurface.h"
 #include "message.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 
@@ -1303,12 +1302,15 @@ void LLViewerRegion::updateReflectionProbes(bool full_update)
                 mReflectionMaps[idx] = gPipeline.mReflectionMapManager.addProbe();
             }
 
-            LLVector3 probe_origin = LLVector3(x, y, llmax(water_height, mImpl->mLandp->resolveHeightRegion(x, y)));
-            probe_origin.mV[2] += hover_height;
-            probe_origin += origin;
+            if (mReflectionMaps[idx])
+            {
+                LLVector3 probe_origin = LLVector3(x, y, llmax(water_height, mImpl->mLandp->resolveHeightRegion(x, y)));
+                probe_origin.mV[2] += hover_height;
+                probe_origin += origin;
 
-            mReflectionMaps[idx]->mOrigin.load3(probe_origin.mV);
-            mReflectionMaps[idx]->mRadius = probe_radius;
+                mReflectionMaps[idx]->mOrigin.load3(probe_origin.mV);
+                mReflectionMaps[idx]->mRadius = probe_radius;
+            }
         }
     }
 }
@@ -2489,7 +2491,16 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
             if (features.has("GLTFEnabled"))
             {
                 bool enabled = features["GLTFEnabled"];
-                gSavedSettings.setBOOL("GLTFEnabled", enabled);
+
+                // call setShaders the first time GLTFEnabled is received as true (causes GLTF specific shaders to be loaded)
+                if (enabled != gSavedSettings.getBOOL("GLTFEnabled"))
+                {
+                    gSavedSettings.setBOOL("GLTFEnabled", enabled);
+                    if (enabled)
+                    {
+                        LLViewerShaderMgr::instance()->setShaders();
+                    }
+                }
             }
             else
             {
@@ -3227,6 +3238,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("FetchInventory2");
     capabilityNames.append("FetchInventoryDescendents2");
     capabilityNames.append("IncrementCOFVersion");
+    capabilityNames.append("RequestTaskInventory");
     AISAPI::getCapNames(capabilityNames);
 
     capabilityNames.append("InterestList");
@@ -3705,12 +3717,6 @@ bool LLViewerRegion::bakesOnMeshEnabled() const
 {
     return (mSimulatorFeatures.has("BakesOnMeshEnabled") &&
         mSimulatorFeatures["BakesOnMeshEnabled"].asBoolean());
-}
-
-bool LLViewerRegion::meshRezEnabled() const
-{
-    return (mSimulatorFeatures.has("MeshRezEnabled") &&
-                mSimulatorFeatures["MeshRezEnabled"].asBoolean());
 }
 
 bool LLViewerRegion::dynamicPathfindingEnabled() const

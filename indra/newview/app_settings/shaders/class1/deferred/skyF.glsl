@@ -117,8 +117,13 @@ void main()
         frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS);
     }
 
-    frag_data[0] = vec4(0);
     frag_data[1] = vec4(0);
+
+#if defined(HAS_EMISSIVE)
+    frag_data[0] = vec4(0);
     frag_data[3] = vec4(color.rgb, 1.0);
+#else
+    frag_data[0] = vec4(color.rgb, 1.0);
+#endif
 }
 

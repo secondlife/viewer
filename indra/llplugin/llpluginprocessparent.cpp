@@ -48,7 +48,7 @@ LLPluginProcessParentOwner::~LLPluginProcessParentOwner()
 bool LLPluginProcessParent::sUseReadThread = false;
 apr_pollset_t *LLPluginProcessParent::sPollSet = NULL;
 bool LLPluginProcessParent::sPollsetNeedsRebuild = false;
-LLCoros::Mutex *LLPluginProcessParent::sInstancesMutex;
+LLCoros::Mutex *LLPluginProcessParent::sInstancesMutex = nullptr;
 LLPluginProcessParent::mapInstances_t LLPluginProcessParent::sInstances;
 LLThread *LLPluginProcessParent::sReadThread = NULL;
 
@@ -155,6 +155,12 @@ LLPluginProcessParent::ptr_t LLPluginProcessParent::create(LLPluginProcessParent
 /*static*/
 void LLPluginProcessParent::shutdown()
 {
+    if (!sInstancesMutex)
+    {
+        // setup was not complete, skip shutdown
+        return;
+    }
+
     LLCoros::LockType lock(*sInstancesMutex);
 
     mapInstances_t::iterator it;
@@ -394,9 +400,14 @@ void LLPluginProcessParent::idle(void)
                 apr_sockaddr_t* addr = NULL;
                 mListenSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
                 mBoundPort = 0;
+                if (!mListenSocket)
+                {
+                    killSockets();
+                    errorState();
+                    break;
+                }
 
                 // This code is based on parts of LLSocket::create() in lliosocket.cpp.
-
                 status = apr_sockaddr_info_get(
                     &addr,
                     "127.0.0.1",
@@ -564,7 +575,7 @@ void LLPluginProcessParent::idle(void)
                             params.args.add("-e");
                             params.args.add("tell application \"Terminal\"");
                             params.args.add("-e");
-                            params.args.add(STRINGIZE("set win to do script \"lldb -pid "
+                            params.args.add(STRINGIZE("set win to do script \"lldb -p "
                                                       << mProcess->getProcessID() << "\""));
                             params.args.add("-e");
                             params.args.add("do script \"continue\" in win");

@@ -2408,6 +2408,16 @@ Unable to upload snapshot.
 File might be too big, try reducing resolution or try again later.
   <tag>fail</tag>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotOpenFileTooBig"
+   type="alertmodal">
+Unable to open file.
+
+Viewer run out of memory while opening file. File might be too big.
+  <tag>fail</tag>
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -8860,6 +8870,25 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
 
   <notification
    icon="notify.tga"
+   name="VoiceEffectsWillExpire"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+    <unique/>    
+One or more of your Voice Morphs will expire in less than [INTERVAL] days.
+[[URL] Click here] to renew your subscription.
+
+If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice morphing perk.
+  <tag>fail</tag>
+  <tag>voice</tag>
+  <usetemplate
+      ignoretext="Warn me about voice morph expiring"
+      name="okignore"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
@@ -10140,12 +10169,6 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
-  <global name="UnsupportedIntelDriver">
-The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
-
-Do you want to check the Intel driver website?
-  </global>
-
   <global name="UnsupportedCPUAmount">
 796
   </global>
@@ -10312,6 +10335,14 @@ You are now the owner of object [OBJECT_NAME]
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="NowOwnObjectInv"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME] and it has been placed in your inventory.
+  </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CantRezOnLand"
    type="notify">
@@ -12568,4 +12599,24 @@ are wearing now.
        yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="WaterExclusionSurfacesWarning"
+   type="alertmodal">
+    Checking the hide water box will overwrite the texture, bumpiness, and shininess choices.
+    <tag>confirm</tag>
+    <usetemplate
+      name="okcancelbuttons"
+      notext="Cancel"
+      yestext="Continue"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WaterExclusionNoMaterial"
+   persist="true"
+   type="notify">
+    Unable to apply material to the water exclusion surface.
+    <tag>fail</tag>
+  </notification>
 </notifications>

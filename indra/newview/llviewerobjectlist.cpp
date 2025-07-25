@@ -164,21 +164,14 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
     return (((U64)index) << 32) | (U64)local_id;
 }
 
-bool LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject* objectp)
+bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
-    if(objectp && objectp->getRegion())
+    if(objectp && objectp->mRegionIndex != 0)
     {
         U32 local_id = objectp->mLocalID;
-        U32 ip = objectp->getRegion()->getHost().getAddress();
-        U32 port = objectp->getRegion()->getHost().getPort();
-        U64 ipport = (((U64)ip) << 32) | (U64)port;
-        U32 index = mIPAndPortToIndex[ipport];
-
-        // LL_INFOS() << "Removing object from table, local ID " << local_id << ", ip " << ip << ":" << port << LL_ENDL;
-
-        U64 indexid = (((U64)index) << 32) | (U64)local_id;
+        U64 indexid = (((U64)objectp->mRegionIndex) << 32) | (U64)local_id;
 
         std::map<U64, LLUUID>::iterator iter = mIndexAndLocalIDToUUID.find(indexid);
         if (iter == mIndexAndLocalIDToUUID.end())
@@ -190,6 +183,7 @@ bool LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject* objectp)
         if (iter->second == objectp->getID())
         {   // Full UUIDs match, so remove the entry
             mIndexAndLocalIDToUUID.erase(iter);
+            objectp->mRegionIndex = 0;
             return true;
         }
         // UUIDs did not match - this would zap a valid entry, so don't erase it
@@ -203,7 +197,8 @@ bool LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject* objectp)
 void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
                                           const U32 local_id,
                                           const U32 ip,
-                                          const U32 port)
+                                          const U32 port,
+                                          LLViewerObject* objectp)
 {
     U64 ipport = (((U64)ip) << 32) | (U64)port;
 
@@ -215,6 +210,7 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
         mIPAndPortToIndex[ipport] = index;
     }
 
+    objectp->mRegionIndex = index; // should never be zero, sSimulatorMachineIndex starts from 1
     U64 indexid = (((U64)index) << 32) | (U64)local_id;
 
     mIndexAndLocalIDToUUID[indexid] = id;
@@ -335,7 +331,8 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
             removeFromLocalIDTable(objectp);
             setUUIDAndLocal(fullid, entry->getLocalID(),
                             regionp->getHost().getAddress(),
-                            regionp->getHost().getPort());
+                            regionp->getHost().getPort(),
+                            objectp);
 
             if (objectp->mLocalID != entry->getLocalID())
             {   // Update local ID in object with the one sent from the region
@@ -402,7 +399,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
     LLViewerObject *objectp;
     S32         num_objects;
-    U32         local_id;
+    U32         local_id = 0;
     LLPCode     pcode = 0;
     LLUUID      fullid;
     S32         i;
@@ -582,7 +579,8 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             setUUIDAndLocal(fullid,
                             local_id,
                             gMessageSystem->getSenderIP(),
-                            gMessageSystem->getSenderPort());
+                            gMessageSystem->getSenderPort(),
+                            objectp);
 
             if (objectp->mLocalID != local_id)
             {   // Update local ID in object with the one sent from the region
@@ -1381,11 +1379,20 @@ void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 void LLViewerObjectList::killAllObjects()
 {
     // Used only on global destruction.
-    LLViewerObject *objectp;
 
+    // Mass cleanup to not clear lists one item at a time
+    mIndexAndLocalIDToUUID.clear();
+    mActiveObjects.clear();
+    mMapObjects.clear();
+
+    LLViewerObject *objectp;
     for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
     {
         objectp = *iter;
+        objectp->setOnActiveList(false);
+        objectp->setListIndex(-1);
+        objectp->mRegionIndex = 0;
+        objectp->mOnMap = false;
         killObject(objectp);
         // Object must be dead, or it's the LLVOAvatarSelf which never dies.
         llassert((objectp == gAgentAvatarp) || objectp->isDead());
@@ -1397,18 +1404,6 @@ void LLViewerObjectList::killAllObjects()
     {
         LL_WARNS() << "LLViewerObjectList::killAllObjects still has entries in mObjects: " << mObjects.size() << LL_ENDL;
         mObjects.clear();
-    }
-
-    if (!mActiveObjects.empty())
-    {
-        LL_WARNS() << "Some objects still on active object list!" << LL_ENDL;
-        mActiveObjects.clear();
-    }
-
-    if (!mMapObjects.empty())
-    {
-        LL_WARNS() << "Some objects still on map object list!" << LL_ENDL;
-        mMapObjects.clear();
     }
 }
 
@@ -1471,20 +1466,25 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 {
     S32 idx = objectp->getListIndex();
     if (idx != -1)
-    { //remove by moving last element to this object's position
-        llassert(mActiveObjects[idx] == objectp);
-
+    {
         objectp->setListIndex(-1);
 
-        S32 last_index = static_cast<S32>(mActiveObjects.size()) - 1;
-
-        if (idx != last_index)
+        S32 size = (S32)mActiveObjects.size();
+        if (size > 0) // mActiveObjects could have been cleaned already
         {
-            mActiveObjects[idx] = mActiveObjects[last_index];
-            mActiveObjects[idx]->setListIndex(idx);
-        }
+            // Remove by moving last element to this object's position
 
-        mActiveObjects.pop_back();
+            llassert(idx < size); // idx should be always within mActiveObjects, unless killAllObjects was called
+            llassert(mActiveObjects[idx] == objectp); // object should be there
+
+            S32 last_index = size - 1;
+            if (idx < last_index)
+            {
+                mActiveObjects[idx] = mActiveObjects[last_index];
+                mActiveObjects[idx]->setListIndex(idx);
+            } // else assume it's the last element, no need to swap
+            mActiveObjects.pop_back();
+        }
     }
 }
 
@@ -1509,9 +1509,9 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
                 mActiveObjects.push_back(objectp);
                 objectp->setListIndex(static_cast<S32>(mActiveObjects.size()) - 1);
             objectp->setOnActiveList(true);
-        }
-        else
-        {
+            }
+            else
+            {
                 llassert(idx < mActiveObjects.size());
                 llassert(mActiveObjects[idx] == objectp);
 
@@ -1863,7 +1863,8 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
     setUUIDAndLocal(uuid,
                     local_id,
                     regionp->getHost().getAddress(),
-                    regionp->getHost().getPort());
+                    regionp->getHost().getPort(),
+                    objectp);
     mObjects.push_back(objectp);
 
     updateActive(objectp);
@@ -1901,7 +1902,8 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
     setUUIDAndLocal(fullid,
                     local_id,
                     gMessageSystem->getSenderIP(),
-                    gMessageSystem->getSenderPort());
+                    gMessageSystem->getSenderPort(),
+                    objectp);
 
     mObjects.push_back(objectp);
 

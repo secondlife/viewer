@@ -44,6 +44,7 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llsdutil.h"
+#include "llsys.h"
 #include "llglslshader.h"
 #include "llthreadsafequeue.h"
 #include "stringize.h"
@@ -75,17 +76,22 @@
 #pragma comment(lib, "dxguid.lib") // needed for llurlentry test to build on some systems
 #pragma comment(lib, "dinput8")
 
+#pragma comment(lib, "UxTheme.lib")
+#pragma comment(lib, "Dwmapi.lib")
+#include <Uxtheme.h>
+#include <dwmapi.h> // needed for DwmSetWindowAttribute to set window theme
+
 const S32   MAX_MESSAGE_PER_UPDATE = 20;
 const S32   BITS_PER_PIXEL = 32;
 const S32   MAX_NUM_RESOLUTIONS = 32;
 const F32   ICON_FLASH_TIME = 0.5f;
 
-#ifndef WM_DPICHANGED
-#define WM_DPICHANGED 0x02E0
-#endif
-
 #ifndef USER_DEFAULT_SCREEN_DPI
 #define USER_DEFAULT_SCREEN_DPI 96 // Win7
+#endif
+
+#ifndef WM_DWMCOLORIZATIONCOLORCHANGED
+#define WM_DWMCOLORIZATIONCOLORCHANGED 0x0320
 #endif
 
 // Claim a couple unused GetMessage() message IDs
@@ -107,6 +113,7 @@ static std::thread::id sMainThreadId;
 
 
 LPWSTR gIconResource = IDI_APPLICATION;
+LPWSTR gIconSmallResource = IDI_APPLICATION;
 LPDIRECTINPUT8 gDirectInput8;
 
 LLW32MsgCallback gAsyncMsgCallback = NULL;
@@ -139,6 +146,17 @@ typedef HRESULT(STDAPICALLTYPE *GetDpiForMonitorType)(
     _In_ MONITOR_DPI_TYPE dpiType,
     _Out_ UINT *dpiX,
     _Out_ UINT *dpiY);
+
+typedef enum PREFERRED_APP_MODE
+{
+    DEFAULT,
+    ALLOW_DARK,
+    FORCE_DARK,
+    FORCE_LIGHT,
+    MAX
+} PREFERRED_APP_MODE;
+
+typedef PREFERRED_APP_MODE(WINAPI* fnSetPreferredAppMode)(PREFERRED_APP_MODE mode);
 
 //
 // LLWindowWin32
@@ -510,6 +528,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
     mFSAASamples = fsaa_samples;
     mIconResource = gIconResource;
+    mIconSmallResource = gIconSmallResource;
     mOverrideAspectRatio = 0.f;
     mNativeAspectRatio = 0.f;
     mInputProcessingPaused = false;
@@ -698,8 +717,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             }
 
             if (dev_mode.dmPelsWidth == width &&
-                dev_mode.dmPelsHeight == height &&
-                dev_mode.dmBitsPerPel == BITS_PER_PIXEL)
+                dev_mode.dmPelsHeight == height)
             {
                 success = true;
                 if ((dev_mode.dmDisplayFrequency - current_refresh)
@@ -739,7 +757,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         // If we found a good resolution, use it.
         if (success)
         {
-            success = setDisplayResolution(width, height, BITS_PER_PIXEL, closest_refresh);
+            success = setDisplayResolution(width, height, closest_refresh);
         }
 
         // Keep a copy of the actual current device mode in case we minimize
@@ -752,7 +770,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             mFullscreen = true;
             mFullscreenWidth   = dev_mode.dmPelsWidth;
             mFullscreenHeight  = dev_mode.dmPelsHeight;
-            mFullscreenBits    = dev_mode.dmBitsPerPel;
             mFullscreenRefresh = dev_mode.dmDisplayFrequency;
 
             LL_INFOS("Window") << "Running at " << dev_mode.dmPelsWidth
@@ -766,7 +783,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             mFullscreen = false;
             mFullscreenWidth   = -1;
             mFullscreenHeight  = -1;
-            mFullscreenBits    = -1;
             mFullscreenRefresh = -1;
 
             std::map<std::string,std::string> args;
@@ -845,6 +861,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     // Initialize (boot strap) the Language text input management,
     // based on the system's (or user's) default settings.
     allowLanguageTextInput(NULL, false);
+    updateWindowTheme();
+    setCustomIcon();
 }
 
 
@@ -1188,7 +1206,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
         // If we found a good resolution, use it.
         if (success)
         {
-            success = setDisplayResolution(width, height, BITS_PER_PIXEL, closest_refresh);
+            success = setDisplayResolution(width, height, closest_refresh);
         }
 
         // Keep a copy of the actual current device mode in case we minimize
@@ -1200,7 +1218,6 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
             mFullscreen = true;
             mFullscreenWidth = dev_mode.dmPelsWidth;
             mFullscreenHeight = dev_mode.dmPelsHeight;
-            mFullscreenBits = dev_mode.dmBitsPerPel;
             mFullscreenRefresh = dev_mode.dmDisplayFrequency;
 
             LL_INFOS("Window") << "Running at " << dev_mode.dmPelsWidth
@@ -1226,7 +1243,6 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
             mFullscreen = false;
             mFullscreenWidth = -1;
             mFullscreenHeight = -1;
-            mFullscreenBits = -1;
             mFullscreenRefresh = -1;
 
             LL_INFOS("Window") << "Unable to run fullscreen at " << width << "x" << height << LL_ENDL;
@@ -1317,8 +1333,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     catch (...)
     {
         LOG_UNHANDLED_EXCEPTION("ChoosePixelFormat");
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1329,8 +1344,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
         &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtDescErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1368,8 +1382,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     if (!SetPixelFormat(mhDC, pixel_format, &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtSetErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1377,16 +1390,14 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     if (!(mhRC = SafeCreateContext(mhDC)))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
 
     if (!wglMakeCurrent(mhDC, mhRC))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextActErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextActErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1592,15 +1603,14 @@ const   S32   max_format  = (S32)num_formats - 1;
 
         if (!mhDC)
         {
-            OSMessageBox(mCallbacks->translateString("MBDevContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+            LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBDevContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
             close();
             return false;
         }
 
         if (!SetPixelFormat(mhDC, pixel_format, &pfd))
         {
-            OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
-                mCallbacks->translateString("MBError"), OSMB_OK);
+            LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtSetErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
             close();
             return false;
         }
@@ -1630,16 +1640,18 @@ const   S32   max_format  = (S32)num_formats - 1;
     }
     else
     {
-        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"));
-        // mWindowHandle is 0, going to crash either way
-        LL_ERRS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        LL_WARNS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        // cannot proceed without wgl_ARB_pixel_format extension, shutdown same as any other gGLManager.initGL() failure
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
+        close();
+        return false;
     }
 
     // Verify what pixel format we actually received.
     if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
         &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtDescErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1661,14 +1673,14 @@ const   S32   max_format  = (S32)num_formats - 1;
 
     if (!wglMakeCurrent(mhDC, mhRC))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextActErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextActErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
 
     if (!gGLManager.initGL())
     {
-        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1873,7 +1885,7 @@ void* LLWindowWin32::createSharedContext()
     if (!rc && !(rc = wglCreateContext(mhDC)))
     {
         close();
-        OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
     }
 
     return rc;
@@ -2972,6 +2984,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             return 0;
         }
 
+        case WM_DISPLAYCHANGE:
+        {
+            WINDOW_IMP_POST(window_imp->mCallbacks->handleDisplayChanged());
+        }
+
         case WM_SETFOCUS:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETFOCUS");
@@ -3014,6 +3031,17 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     WINDOW_IMP_POST(window_imp->mMouseVanish = true);
                 }
             }
+            // Check if theme-related settings changed
+            else if (l_param && (wcscmp((LPCWSTR)l_param, L"ImmersiveColorSet") == 0))
+            {
+                WINDOW_IMP_POST(window_imp->updateWindowTheme());
+            }
+        }
+        break;
+
+        case WM_DWMCOLORIZATIONCOLORCHANGED:
+        {
+            WINDOW_IMP_POST(window_imp->updateWindowTheme());
         }
         break;
 
@@ -3519,7 +3547,7 @@ F32 LLWindowWin32::getPixelAspectRatio()
 
 // Change display resolution.  Returns true if successful.
 // protected
-bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh)
+bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 refresh)
 {
     DEVMODE dev_mode;
     ::ZeroMemory(&dev_mode, sizeof(DEVMODE));
@@ -3531,7 +3559,6 @@ bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
     {
         if (dev_mode.dmPelsWidth        == width &&
             dev_mode.dmPelsHeight       == height &&
-            dev_mode.dmBitsPerPel       == bits &&
             dev_mode.dmDisplayFrequency == refresh )
         {
             // ...display mode identical, do nothing
@@ -3543,9 +3570,8 @@ bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
     dev_mode.dmSize = sizeof(dev_mode);
     dev_mode.dmPelsWidth        = width;
     dev_mode.dmPelsHeight       = height;
-    dev_mode.dmBitsPerPel       = bits;
     dev_mode.dmDisplayFrequency = refresh;
-    dev_mode.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
+    dev_mode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
 
     // CDS_FULLSCREEN indicates that this is a temporary change to the device mode.
     LONG cds_result = ChangeDisplaySettings(&dev_mode, CDS_FULLSCREEN);
@@ -3555,7 +3581,7 @@ bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
     if (!success)
     {
         LL_WARNS("Window") << "setDisplayResolution failed, "
-            << width << "x" << height << "x" << bits << " @ " << refresh << LL_ENDL;
+            << width << "x" << height << " @ " << refresh << LL_ENDL;
     }
 
     return success;
@@ -3566,7 +3592,7 @@ bool LLWindowWin32::setFullscreenResolution()
 {
     if (mFullscreen)
     {
-        return setDisplayResolution( mFullscreenWidth, mFullscreenHeight, mFullscreenBits, mFullscreenRefresh);
+        return setDisplayResolution( mFullscreenWidth, mFullscreenHeight, mFullscreenRefresh);
     }
     else
     {
@@ -4042,7 +4068,15 @@ void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont)
         break;
     }
 
-    logfont->lfHeight = mPreeditor->getPreeditFontSize();
+    if (mPreeditor)
+    {
+        logfont->lfHeight = mPreeditor->getPreeditFontSize();
+    }
+    else
+    {
+        // todo: extract from some font * LLUI::getScaleFactor() intead
+        logfont->lfHeight = 10;
+    }
     logfont->lfWeight = FW_NORMAL;
 }
 
@@ -4642,6 +4676,12 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
 {
     if (!mGLReady || mGotGLBuffer) { return; }
 
+    if ((gGLManager.mHasAMDAssociations || gGLManager.mHasNVXGpuMemoryInfo) && gGLManager.mVRAM != 0)
+    { // OpenGL already told us the memory budget, don't ask DX
+        mGotGLBuffer = true;
+        return;
+    }
+
     IDXGIFactory4* p_factory = nullptr;
 
     HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&p_factory);
@@ -4673,6 +4713,32 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
 
                     // Alternatively use GetDesc from below to get adapter's memory
                     UINT64 budget_mb = info.Budget / (1024 * 1024);
+                    if (gGLManager.mIsIntel)
+                    {
+                        U32Megabytes phys_mb = gSysMemory.getPhysicalMemoryKB();
+                        LL_WARNS() << "Physical memory: " << phys_mb << " MB" << LL_ENDL;
+
+                        if (phys_mb > 0)
+                        {
+                            if (gGLManager.mIsIntel)
+                            {
+                                // Intel uses 'shared' vram, cap it to 25% of total memory
+                                // Todo: consider a way of detecting integrated Intel and AMD
+                                budget_mb = llmin(budget_mb, (UINT64)(phys_mb * 0.25));
+                            }
+                            else
+                            {
+                                // More budget is generally better, but the way viewer
+                                // utilizes even dedicated VRAM leaves a footprint in RAM
+                                budget_mb = llmin(budget_mb, (UINT64)(phys_mb * 0.75));
+                            }
+                        }
+                        else
+                        {
+                            // if no data available, cap to 2Gb
+                            budget_mb = llmin(budget_mb, (UINT64)2048);
+                        }
+                    }
                     if (gGLManager.mVRAM < (S32)budget_mb)
                     {
                         gGLManager.mVRAM = (S32)budget_mb;
@@ -4738,7 +4804,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
-        // Check memory budget using DirectX
+        // Check memory budget using DirectX if OpenGL doesn't have the means to tell us
         checkDXMem();
 
         if (mWindowHandleThrd != 0)
@@ -4930,4 +4996,70 @@ void LLWindowWin32::updateWindowRect()
                 mClientRect = client_rect;
             });
     }
+}
+
+bool LLWindowWin32::isSystemAppDarkMode()
+{
+    HKEY  hKey;
+    DWORD dwValue = 1; // Default to light theme
+    DWORD dwSize  = sizeof(DWORD);
+
+    // Check registry for system theme preference
+    LSTATUS ret_code =
+        RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &hKey);
+    if (ERROR_SUCCESS == ret_code)
+    {
+        if (RegQueryValueExW(hKey, L"AppsUseLightTheme", NULL, NULL, (LPBYTE)&dwValue, &dwSize) != ERROR_SUCCESS)
+        {
+            // If AppsUseLightTheme is not found, check SystemUsesLightTheme
+            dwSize = sizeof(DWORD);
+            RegQueryValueExW(hKey, L"SystemUsesLightTheme", NULL, NULL, (LPBYTE)&dwValue, &dwSize);
+        }
+        RegCloseKey(hKey);
+    }
+
+    // Return true if dark mode
+    return dwValue == 0;
+}
+
+void LLWindowWin32::updateWindowTheme()
+{
+    bool use_dark_mode = isSystemAppDarkMode();
+    if (use_dark_mode == mCurrentDarkMode)
+    {
+        return;
+    }
+    mCurrentDarkMode = use_dark_mode;
+
+    HMODULE hUxTheme = LoadLibraryExW(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (hUxTheme)
+    {
+        auto SetPreferredAppMode = (fnSetPreferredAppMode)GetProcAddress(hUxTheme, "SetPreferredAppMode");
+        if (SetPreferredAppMode)
+        {
+            SetPreferredAppMode(use_dark_mode ? ALLOW_DARK : FORCE_LIGHT);
+        }
+        FreeLibrary(hUxTheme);
+    }
+    BOOL dark_mode(use_dark_mode);
+    DwmSetWindowAttribute(mWindowHandle, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark_mode, sizeof(dark_mode));
+
+    LL_INFOS("Window") << "Viewer window theme is set to " << (use_dark_mode ? "dark" : "light") << " mode" << LL_ENDL;
+}
+
+void LLWindowWin32::setCustomIcon()
+{
+        if (mWindowHandle)
+        {
+            HICON hDefaultIcon = LoadIcon(mhInstance, mIconResource);
+            HICON hSmallIcon   = LoadIcon(mhInstance, mIconSmallResource);
+            mWindowThread->post([=]()
+                {
+                    SendMessage(mWindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hDefaultIcon);
+                    SendMessage(mWindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hSmallIcon);
+
+                    SetClassLongPtr(mWindowHandle, GCLP_HICON, (LONG_PTR)hDefaultIcon);
+                    SetClassLongPtr(mWindowHandle, GCLP_HICONSM, (LONG_PTR)hSmallIcon);
+                });
+        }
 }

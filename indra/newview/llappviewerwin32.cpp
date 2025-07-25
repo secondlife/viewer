@@ -152,8 +152,15 @@ namespace
 
             // LL_ERRS message, when there is one
             sBugSplatSender->setDefaultUserDescription(WCSTR(LLError::getFatalMessage()));
-            // App state
+
+            sBugSplatSender->setAttribute(WCSTR(L"OS"), WCSTR(LLOSInfo::instance().getOSStringSimple())); // In case we ever stop using email for this
             sBugSplatSender->setAttribute(WCSTR(L"AppState"), WCSTR(LLStartUp::getStartupStateString()));
+            sBugSplatSender->setAttribute(WCSTR(L"GLVendor"), WCSTR(gGLManager.mGLVendor));
+            sBugSplatSender->setAttribute(WCSTR(L"GLVersion"), WCSTR(gGLManager.mGLVersionString));
+            sBugSplatSender->setAttribute(WCSTR(L"GPUVersion"), WCSTR(gGLManager.mDriverVersionVendorString));
+            sBugSplatSender->setAttribute(WCSTR(L"GLRenderer"), WCSTR(gGLManager.mGLRenderer));
+            sBugSplatSender->setAttribute(WCSTR(L"VRAM"), WCSTR(STRINGIZE(gGLManager.mVRAM)));
+            sBugSplatSender->setAttribute(WCSTR(L"RAM"), WCSTR(STRINGIZE(gSysMemory.getPhysicalMemoryKB().value())));
 
             if (gAgent.getRegion())
             {
@@ -441,6 +448,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
     // *FIX: global
     gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
+    gIconSmallResource = MAKEINTRESOURCE(IDI_LL_ICON_SMALL);
 
     LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(ll_convert_wide_to_string(pCmdLine).c_str());
 
@@ -797,14 +805,39 @@ bool LLAppViewerWin32::cleanup()
     return result;
 }
 
-void LLAppViewerWin32::reportCrashToBugsplat(void* pExcepInfo)
+bool LLAppViewerWin32::reportCrashToBugsplat(void* pExcepInfo)
 {
 #if defined(LL_BUGSPLAT)
     if (sBugSplatSender)
     {
         sBugSplatSender->createReport((EXCEPTION_POINTERS*)pExcepInfo);
+        return true;
     }
 #endif // LL_BUGSPLAT
+    return false;
+}
+
+bool LLAppViewerWin32::initWindow()
+{
+    // This is a workaround/hotfix for a change in Windows 11 24H2 (and possibly later)
+    // Where the window width and height need to correctly reflect an available FullScreen size
+    if (gSavedSettings.getBOOL("FullScreen"))
+    {
+        DEVMODE dev_mode;
+        ::ZeroMemory(&dev_mode, sizeof(DEVMODE));
+        dev_mode.dmSize = sizeof(DEVMODE);
+        if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
+        {
+            gSavedSettings.setU32("WindowWidth", dev_mode.dmPelsWidth);
+            gSavedSettings.setU32("WindowHeight", dev_mode.dmPelsHeight);
+        }
+        else
+        {
+            LL_WARNS("AppInit") << "Unable to set WindowWidth and WindowHeight for FullScreen mode" << LL_ENDL;
+        }
+    }
+
+    return LLAppViewer::initWindow();
 }
 
 void LLAppViewerWin32::initLoggingAndGetLastDuration()
@@ -833,68 +866,10 @@ void write_debug_dx(const std::string& str)
 
 bool LLAppViewerWin32::initHardwareTest()
 {
-    //
-    // Do driver verification and initialization based on DirectX
-    // hardware polling and driver versions
-    //
-    if (true == gSavedSettings.getBOOL("ProbeHardwareOnStartup") && false == gSavedSettings.getBOOL("NoHardwareProbe"))
-    {
-        // per DEV-11631 - disable hardware probing for everything
-        // but vram.
-        bool vram_only = true;
-
-        LLSplashScreen::update(LLTrans::getString("StartupDetectingHardware"));
-
-        LL_DEBUGS("AppInit") << "Attempting to poll DirectX for hardware info" << LL_ENDL;
-        gDXHardware.setWriteDebugFunc(write_debug_dx);
-        bool probe_ok = gDXHardware.getInfo(vram_only);
-
-        if (!probe_ok
-            && gWarningSettings.getBOOL("AboutDirectX9"))
-        {
-            LL_WARNS("AppInit") << "DirectX probe failed, alerting user." << LL_ENDL;
-
-            // Warn them that runnin without DirectX 9 will
-            // not allow us to tell them about driver issues
-            std::ostringstream msg;
-            msg << LLTrans::getString ("MBNoDirectX");
-            S32 button = OSMessageBox(
-                msg.str(),
-                LLTrans::getString("MBWarning"),
-                OSMB_YESNO);
-            if (OSBTN_NO== button)
-            {
-                LL_INFOS("AppInit") << "User quitting after failed DirectX 9 detection" << LL_ENDL;
-                LLWeb::loadURLExternal("http://secondlife.com/support/", false);
-                return false;
-            }
-            gWarningSettings.setBOOL("AboutDirectX9", false);
-        }
-        LL_DEBUGS("AppInit") << "Done polling DirectX for hardware info" << LL_ENDL;
-
-        // Only probe once after installation
-        gSavedSettings.setBOOL("ProbeHardwareOnStartup", false);
-
-        // Disable so debugger can work
-        std::string splash_msg;
-        LLStringUtil::format_map_t args;
-        args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
-        splash_msg = LLTrans::getString("StartupLoading", args);
-
-        LLSplashScreen::update(splash_msg);
-    }
-
     if (!restoreErrorTrap())
     {
-        LL_WARNS("AppInit") << " Someone took over my exception handler (post hardware probe)!" << LL_ENDL;
+        LL_WARNS("AppInit") << " Someone took over my exception handler!" << LL_ENDL;
     }
-
-    if (gGLManager.mVRAM == 0)
-    {
-        gGLManager.mVRAM = gDXHardware.getVRAM();
-    }
-
-    LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
 
     return true;
 }

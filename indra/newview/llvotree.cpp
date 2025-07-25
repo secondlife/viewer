@@ -1047,10 +1047,9 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
                 scale_mat.mMatrix[2][2] = scale*length;
                 scale_mat *= matrix;
 
-                glh::matrix4f norm((F32*) scale_mat.mMatrix);
-                LLMatrix4 norm_mat = LLMatrix4(norm.inverse().transpose().m);
+                glm::mat4 norm(glm::make_mat4((F32*) scale_mat.mMatrix));
+                LLMatrix4 norm_mat = LLMatrix4(glm::value_ptr(glm::transpose(glm::inverse(norm))));
 
-                norm_mat.invert();
                 appendMesh(vertices, normals, tex_coords, colors, indices, index_offset, scale_mat, norm_mat,
                             sLODVertexOffset[trunk_LOD], sLODVertexCount[trunk_LOD], sLODIndexCount[trunk_LOD], sLODIndexOffset[trunk_LOD]);
             }
@@ -1097,8 +1096,8 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
 
                 scale_mat *= matrix;
 
-                glh::matrix4f norm((F32*) scale_mat.mMatrix);
-                LLMatrix4 norm_mat = LLMatrix4(norm.inverse().transpose().m);
+                glm::mat4 norm(glm::make_mat4((F32*)scale_mat.mMatrix));
+                LLMatrix4 norm_mat = LLMatrix4(glm::value_ptr(glm::transpose(glm::inverse(norm))));
 
                 appendMesh(vertices, normals, tex_coords, colors, indices, index_offset, scale_mat, norm_mat, 0, LEAF_VERTICES, LEAF_INDICES, 0);
             }
@@ -1168,9 +1167,15 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     pos.load3(center.mV);
     mDrawable->setPositionGroup(pos);
 
-    LLFace* facep = mDrawable->getFace(0);
-    facep->mExtents[0] = newMin;
-    facep->mExtents[1] = newMax;
+    if (mDrawable->getNumFaces() > 0)
+    {
+        LLFace* facep = mDrawable->getFace(0);
+        if (facep)
+        {
+            facep->mExtents[0] = newMin;
+            facep->mExtents[1] = newMax;
+        }
+    }
 }
 
 bool LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,

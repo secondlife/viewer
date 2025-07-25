@@ -346,6 +346,17 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
+    <key>AudioLevelWind</key>
+    <map>
+      <key>Comment</key>
+      <string>Audio level of wind noise when standing still</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
 	<key>AudioStreamingMedia</key>
     <map>
       <key>Comment</key>
@@ -1142,13 +1153,13 @@
     <key>DiskCachePercentOfTotal</key>
     <map>
       <key>Comment</key>
-      <string>The percent of total cache size (defined by CacheSize) to use for the disk cache</string>
+      <string>The percent of total cache size (defined by CacheSize) to use for the disk cache (ex: asset storage, excludes textures)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>40.0</real>
+      <real>35.0</real>
     </map>
     <key>DiskCacheDirName</key>
     <map>
@@ -1192,7 +1203,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>4096</integer>
+      <integer>6144</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
@@ -2469,6 +2480,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseGroupMemberPagination</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable pagination of group memeber list 50 members at a time.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DisplayTimecode</key>
     <map>
       <key>Comment</key>
@@ -3664,6 +3686,17 @@
         <string>U32</string>
         <key>Value</key>
         <integer>5000</integer>
+    </map>
+    <key>InventoryExposeFolderID</key>
+    <map>
+        <key>Comment</key>
+        <string>Allows copying folder id from context menu</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
     </map>
     <key>MarketplaceListingsSortOrder</key>
     <map>
@@ -6328,6 +6361,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PlaySoundChatMention</key>
+    <map>
+      <key>Comment</key>
+      <string>Plays a sound when got mentioned in a chat</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PluginAttachDebuggerToPlugins</key>
     <map>
       <key>Comment</key>
@@ -7706,6 +7750,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderEnableEmissiveBuffer</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable emissive buffer in gbuffer.  Should only be disabled in GL3 mode.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderHDRIExposure</key>
   <map>
     <key>Comment</key>
@@ -7753,7 +7808,7 @@
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
-    <string>Maximum OpenGL version to attempt use (minimum 3.2 maximum 4.6).  Requires restart.</string>
+    <string>Maximum OpenGL version to attempt use (minimum 3.1 maximum 4.6).  Requires restart.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -7772,10 +7827,21 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderTextureVRAMDivisor</key>
+  <map>
+      <key>Comment</key>
+      <string>Divisor for maximum amount of VRAM the viewer will use for textures. 1 = all the VRAM.  Used in conjunction with RenderMaxVRAMBudget.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
+  </map>
   <key>RenderMinFreeMainMemoryThreshold</key>
   <map>
     <key>Comment</key>
-    <string>Minimum of available physical memory in MB before textures get scaled down</string>
+    <string>If available free physical memory is below this value textures get agresively scaled down</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
@@ -7786,7 +7852,18 @@
   <key>RenderLowMemMinDiscardIncrement</key>
   <map>
     <key>Comment</key>
-    <string>Minimum increment of discard level if system memory gets low</string>
+    <string>Minimum increment of discard bias if available texture memory gets low</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.1</real>
+  </map>
+  <key>RenderHighMemMinDiscardDecrement</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum decrement of discard bias if excess texture memory is available</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -7825,7 +7902,7 @@
         <key>Type</key>
         <string>U32</string>
         <key>Value</key>
-        <integer>1</integer>
+        <integer>0</integer>
     </map>
     <key>RenderDebugTextureBind</key>
     <map>
@@ -9032,6 +9109,28 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>RenderReflectionProbeDynamicAllocation</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable dynamic allocation of reflection probes. -1 means no dynamic allocation. Sets a buffer to allocate when a dynamic allocation occurs otherwise.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>-1</integer>
+    </map>
+    <key>RenderReflectionProbeCount</key>
+    <map>
+        <key>Comment</key>
+        <string>Number of probes to render.  Maximum of 256.  Clamps to the nearest power of 2.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>256</integer>
+    </map>
   <key>RenderReflectionProbeResolution</key>
   <map>
     <key>Comment</key>
@@ -9052,7 +9151,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1</real>
+    <real>1.0</real>
   </map>
   
   <key>RenderReflectionProbeDrawDistance</key>
@@ -9152,7 +9251,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>RenderSkyAutoAdjustAmbientScale</key>
   <map>
@@ -9223,14 +9322,25 @@
   <key>RenderSkySunlightScale</key>
   <map>
     <key>Comment</key>
-    <string>Sunlight scale fudge factor for matching with pre-PBR viewer</string>
+    <string>Sunlight scale fudge factor for matching with pre-PBR viewer when HDR is disabled</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
     <real>1.0</real>
   </map>
+    <key>RenderHDRSkySunlightScale</key>
+    <map>
+        <key>Comment</key>
+        <string>Sunlight scale fudge factor for matching with pre-PBR viewer when HDR is enabled</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
+    </map>
   <key>RenderSkyAmbientScale</key>
   <map>
     <key>Comment</key>
@@ -9240,7 +9350,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.7</real>
+    <real>1.0</real>
   </map>
   
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
@@ -9253,6 +9363,17 @@
     <string>F32</string>
     <key>Value</key>
     <real>4.0</real>
+  </map>
+  <key>RenderUseExposureSkySettings</key>
+  <map>
+    <key>Comment</key>
+    <string>Use exposure sky settings instead of deriving from HDR scale.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
   <key>RenderDynamicExposureCoefficient</key>
   <map>
@@ -9463,6 +9584,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderBalanceInSnapshot</key>
+    <map>
+      <key>Comment</key>
+      <string>Display L$ balance in snapshot</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderUIBuffer</key>
     <map>
       <key>Comment</key>
@@ -9563,6 +9695,17 @@
     <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>CollectFontVertexBuffers</key>
+  <map>
+    <key>Comment</key>
+    <string>When enabled some UI elements with cache buffers generated by fonts and reuse them. When disabled general cahce will be used with a significant overhead for hash, but it regenerates vertices each frame so it's always up to date.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>1</real>
   </map>
   <key>ShowMyComplexityChanges</key>
   <map>
@@ -9852,7 +9995,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>1.0</real>
+        <real>0.7</real>
     </map>
     <key>RenderTonemapType</key>
     <map>
@@ -9863,7 +10006,7 @@
         <key>Type</key>
         <string>U32</string>
         <key>Value</key>
-        <integer>0</integer>
+        <integer>1</integer>
     </map>
     <key>ReplaySession</key>
     <map>
@@ -11345,6 +11488,28 @@
       <key>Value</key>
       <string>fss.txt</string>
     </map>
+    <key>StatsFrametimeSampleSeconds</key>
+    <map>
+        <key>Comment</key>
+        <string>The number of seconds to sample extended frametime data (percentiles, stddev).</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>5</integer>
+    </map>
+    <key>StatsFrametimeEventThreshold</key>
+    <map>
+        <key>Comment</key>
+        <string>The percentage that the frametime difference must exceed in order to register a frametime event. 0.1 = 10%, 0.25 = 25%, etc.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.1</real>
+    </map>
     <key>SystemLanguage</key>
     <map>
       <key>Comment</key>
@@ -11389,29 +11554,16 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
-    <key>TextureBiasDistanceScale</key>
+    <key>TextureCameraBoost</key>
     <map>
       <key>Comment</key>
-      <string>When biasing textures to lower resolution due to lack of vram, weight to put on distance factor.</string>
+      <string>Amount to boost resolution of textures that are important to the camera.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
       <real>8.0</real>
-    </map>
-    <key>TextureBiasUnimportantFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>When biasing textures to lower resolution due to lack of vram, the importance threshold below which is considered unimportant and getting an extra bias.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.25</real>
-      <key>Backup</key>
-      <integer>0</integer>
     </map>
     <key>TextureDecodeDisabled</key>
     <map>
@@ -11445,6 +11597,28 @@
       <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>TextureDiscardBackgroundedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is backgrounded.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>60.0</real>
+    </map>
+    <key>TextureDiscardMinimizedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is minimized.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
     </map>
     <key>TextureFetchConcurrency</key>
     <map>
@@ -11543,7 +11717,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>0.04</real>
+        <real>0.0095</real>
     </map>
     <key>TextureScaleMaxAreaFactor</key>
     <map>
@@ -12254,6 +12428,28 @@
       <key>Value</key>
       <string>2ca849ba-2885-4bc3-90ef-d4987a5b983a</string>
     </map>
+    <key>UISndChatMention</key>
+    <map>
+      <key>Comment</key>
+      <string>Sound file for chat mention(uuid for sound asset)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>03e77cb5-592c-5b33-d271-2e46497c3fb3</string>
+    </map>
+    <key>UISndChatPing</key>
+    <map>
+      <key>Comment</key>
+      <string>Sound file for chat ping(uuid for sound asset)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>7dd36df6-2624-5438-f988-fdf8588a0ad9</string>
+    </map>
     <key>UISndClick</key>
     <map>
       <key>Comment</key>
@@ -12642,7 +12838,7 @@
     <key>UpdaterWillingToTest</key>
     <map>
       <key>Comment</key>
-      <string>Whether or not the updater should offer test candidate upgrades.</string>
+      <string>Whether or not the updater should offer Beta upgrades.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13422,6 +13618,17 @@
       <key>Value</key>
       <integer>4</integer>
     </map>
+    <key>VoiceVisualizerEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Display voice dot indicator above an avatar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>WarningsAsChat</key>
     <map>
       <key>Comment</key>
@@ -13535,7 +13742,7 @@
     <key>FullScreen</key>
     <map>
       <key>Comment</key>
-      <string>run a fullscreen session</string>
+      <string>Run a fullscreen session. MacOS not supported</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -15983,5 +16190,49 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderHDREnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable HDR rendering.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+    <key>RenderDisableVintageMode</key>
+    <map>
+        <key>Comment</key>
+        <string>Enables additional rendering pipeline features on newer machines such as HDR and emissive textures on PBR content.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>MediaAutoPlayHuds</key>
+    <map>
+        <key>Comment</key>
+        <string>Automatically play HUD media</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>MediaFirstClickInteract</key>
+    <map>
+      <key>Comment</key>
+      <string>This setting controls which media (once loaded) does not require a first click to focus before interaction can begin. This allows clicks to be passed directly to media bypassing the focus click requirement. This setting is a bitfield, precomputed values are as follows: Disabled=0; Worn HUDs only=1; Owned objects=3; Friend objects=7; Group objects=15; Landowner objects=31; Any object=31; All MOAP=1073741824. For complete details see lltoolpie.h enum MediaFirstClickTypes.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 </map>
 </llsd>

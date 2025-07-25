@@ -220,6 +220,7 @@ public:
     static S32 sAuxCount;
     static LLFrameTimer sEvaluationTimer;
     static F32 sDesiredDiscardBias;
+    static U32 sBiasTexturesUpdated;
     static S32 sMaxSculptRez ;
     static U32 sMinLargeImageSize ;
     static U32 sMaxSmallImageSize ;
@@ -410,6 +411,8 @@ public:
 
     /*virtual*/bool  isActiveFetching() override; //is actively in fetching by the fetching pipeline.
 
+    virtual bool scaleDown() { return false; };
+
     bool mCreatePending = false;    // if true, this is in gTextureList.mCreateTextureList
     mutable bool mDownScalePending = false; // if true, this is in gTextureList.mDownScaleQueue
 
@@ -420,6 +423,8 @@ protected:
 private:
     void init(bool firstinit) ;
     void cleanup() ;
+
+    bool processFetchResults(S32& desired_discard, S32 current_discard, S32 fetch_discard, F32 decode_priority);
 
     void saveRawImage() ;
 
@@ -527,19 +532,15 @@ public:
     LLViewerLODTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost(), bool usemipmaps = true);
     LLViewerLODTexture(const std::string& url, FTType f_type, const LLUUID& id, bool usemipmaps = true);
 
-    /*virtual*/ S8 getType() const;
+    S8 getType() const override;
     // Process image stats to determine priority/quality requirements.
-    /*virtual*/ void processTextureStats();
+    void processTextureStats() override;
     bool isUpdateFrozen() ;
 
-    bool scaleDown();
+    bool scaleDown() override;
 
 private:
     void init(bool firstinit) ;
-
-private:
-    F32 mDiscardVirtualSize;        // Virtual size used to calculate desired discard
-    F32 mCalculatedDiscardLevel;    // Last calculated discard level
 };
 
 //

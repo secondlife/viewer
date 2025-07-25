@@ -369,6 +369,7 @@ protected:
     void dropToFavorites(LLInventoryItem* inv_item, LLPointer<LLInventoryCallback> cb = NULL);
     void dropToOutfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit, LLPointer<LLInventoryCallback> cb = NULL);
     void dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLInventoryCallback> cb = NULL);
+    void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest, LLPointer<LLInventoryCallback> cb = NULL);
 
     //--------------------------------------------------------------------
     // Messy hacks for handling folder options
@@ -378,7 +379,10 @@ public:
     static void staticFolderOptionsMenu();
 
 protected:
-    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, LLPointer<LLInventoryCallback> cb);
+    static void outfitFolderCreatedCallback(LLUUID cat_source_id,
+                                            LLUUID cat_dest_id,
+                                            LLPointer<LLInventoryCallback> cb,
+                                            LLHandle<LLInventoryPanel> inventory_panel);
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);

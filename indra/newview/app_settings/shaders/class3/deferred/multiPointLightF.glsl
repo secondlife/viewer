@@ -27,9 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D diffuseRect;
-uniform sampler2D specularRect;
-uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform sampler2D     lightFunc;
 
 uniform vec3  env_mat[3];
@@ -41,6 +38,7 @@ uniform vec4  light_col[LIGHT_COUNT]; // .a = falloff
 uniform vec2  screen_res;
 uniform float far_z;
 uniform mat4  inv_proj;
+uniform int classic_mode;
 
 in vec4 vary_fragcoord;
 
@@ -55,13 +53,17 @@ vec3 srgb_to_linear(vec3 c);
 // Util
 vec3 hue_to_rgb(float hue);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    out float nl,
+                    out vec3 diff,
+                    out vec3 spec);
 
+GBufferInfo getGBuffer(vec2 screenpos);
 
 void main()
 {
@@ -73,18 +75,19 @@ void main()
         discard;
     }
 
-    vec4 norm = getNorm(tc); // need `norm.w` for GET_GBUFFER_FLAG()
-    vec3 n = norm.xyz;
+    GBufferInfo gb = getGBuffer(tc);
 
-    vec4 spec    = texture(specularRect, tc);
-    vec3 diffuse = texture(diffuseRect, tc).rgb;
+    vec3 n = gb.normal;
+
+    vec4 spec    = gb.specular;
+    vec3 diffuse = gb.albedo.rgb;
 
     vec3  h, l, v = -normalize(pos);
     float nh, nv, vh, lightDist;
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
+    if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
+        vec3 colorEmissive = gb.emissive.rgb;
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -113,8 +116,11 @@ void main()
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
                 vec3 intensity = dist_atten * lightColor * 3.25;
-
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
+                float nl = 0;
+                vec3 diff = vec3(0);
+                vec3 specPunc = vec3(0);
+                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, nl, diff, specPunc);
+                final_color += intensity * clamp(nl * (diff + specPunc), vec3(0), vec3(10));
             }
         }
     }
@@ -164,8 +170,10 @@ void main()
             }
         }
     }
-
-    frag_color.rgb = max(final_color, vec3(0));
+    float final_scale = 1.0;
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    frag_color.rgb = max(final_color * final_scale, vec3(0));
     frag_color.a   = 0.0;
 
 #ifdef IS_AMD_CARD

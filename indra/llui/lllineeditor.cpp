@@ -2230,6 +2230,9 @@ void LLLineEditor::clear()
 {
     mText.clear();
     setCursor(0);
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
 }
 
 //virtual
@@ -2505,9 +2508,24 @@ void LLLineEditor::resetPreedit()
     if (hasPreeditString())
     {
         const S32 preedit_pos = mPreeditPositions.front();
-        mText.erase(preedit_pos, mPreeditPositions.back() - preedit_pos);
-        mText.insert(preedit_pos, mPreeditOverwrittenWString);
-        setCursor(preedit_pos);
+        const S32 end = mPreeditPositions.back();
+        const S32 len = end - preedit_pos;
+        const S32 size = mText.length();
+        if (preedit_pos < size
+            && end <= size
+            && preedit_pos >= 0
+            && len > 0)
+        {
+            mText.erase(preedit_pos, len);
+            mText.insert(preedit_pos, mPreeditOverwrittenWString);
+            setCursor(preedit_pos);
+        }
+        else
+        {
+            LL_WARNS() << "Index out of bounds. Start: " << preedit_pos
+                << ", end:" << end
+                << ", full string length: " << size << LL_ENDL;
+        }
 
         mPreeditWString.clear();
         mPreeditOverwrittenWString.clear();

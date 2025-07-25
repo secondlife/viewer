@@ -28,8 +28,8 @@
 #include "llavatarappearancedefines.h"
 #include "indra_constants.h"
 
-const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH = 1024;
-const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT = 1024;
+const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH = 2048;
+const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT = 2048;
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -300,7 +300,8 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(std::strin
 
 LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIndex index ) const
 {
-    return getTexture(index)->mWearableType;
+    auto* tex = getTexture(index);
+    return tex ? tex->mWearableType : LLWearableType::WT_INVALID;
 }
 
 // static

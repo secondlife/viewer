@@ -337,6 +337,9 @@ public:
     // should be called just before rendering pre-water alpha objects
     void doWaterHaze();
 
+    // Generate the water exclusion surface mask.
+    void doWaterExclusionMask();
+
     void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
     void generateSunShadow(LLCamera& camera);
@@ -345,7 +348,7 @@ public:
 
     void renderHighlight(const LLViewerObject* obj, F32 fade);
 
-    void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
+    void renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
     void renderSelectedFaces(const LLColor4& color);
     void renderHighlights();
     void renderDebug();
@@ -500,6 +503,7 @@ public:
         RENDER_TYPE_AVATAR                      = LLDrawPool::POOL_AVATAR,
         RENDER_TYPE_CONTROL_AV                  = LLDrawPool::POOL_CONTROL_AV, // Animesh
         RENDER_TYPE_TREE                        = LLDrawPool::POOL_TREE,
+        RENDER_TYPE_WATEREXCLUSION              = LLDrawPool::POOL_WATEREXCLUSION,
         RENDER_TYPE_VOIDWATER                   = LLDrawPool::POOL_VOIDWATER,
         RENDER_TYPE_WATER                       = LLDrawPool::POOL_WATER,
         RENDER_TYPE_GLTF_PBR                    = LLDrawPool::POOL_GLTF_PBR,
@@ -714,6 +718,7 @@ public:
     LLRenderTarget          mSpotShadow[2];
 
     LLRenderTarget          mPbrBrdfLut;
+    LLRenderTarget          mWaterExclusionMask;
 
     // copy of the color/depth buffer just before gamma correction
     // for use by SSR
@@ -736,6 +741,9 @@ public:
 
     // downres scratch space for GPU downscaling of textures
     LLRenderTarget          mDownResMap;
+
+    // 2k bom scratch target
+    LLRenderTarget          mBakeMap;
 
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
@@ -760,10 +768,10 @@ public:
     LLCamera                mShadowCamera[8];
     LLVector3               mShadowExtents[4][2];
     // TODO : separate Sun Shadow and Spot Shadow matrices
-    glh::matrix4f           mSunShadowMatrix[6];
-    glh::matrix4f           mShadowModelview[6];
-    glh::matrix4f           mShadowProjection[6];
-    glh::matrix4f           mReflectionModelView;
+    glm::mat4               mSunShadowMatrix[6];
+    glm::mat4               mShadowModelview[6];
+    glm::mat4               mShadowProjection[6];
+    glm::mat4               mReflectionModelView;
 
     LLPointer<LLDrawable>   mShadowSpotLight[2];
     F32                     mSpotLightFade[2];
@@ -776,7 +784,7 @@ public:
     //water distortion texture (refraction)
     LLRenderTarget              mWaterDis;
 
-    static const U32 MAX_BAKE_WIDTH;
+    static const U32 MAX_PREVIEW_WIDTH;
 
     //texture for making the glow
     LLRenderTarget              mGlow[3];
@@ -950,6 +958,7 @@ protected:
     LLDrawPool*                 mWLSkyPool = nullptr;
     LLDrawPool*                 mPBROpaquePool = nullptr;
     LLDrawPool*                 mPBRAlphaMaskPool = nullptr;
+    LLDrawPool*                 mWaterExclusionPool      = nullptr;
 
     // Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 

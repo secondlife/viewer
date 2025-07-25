@@ -81,7 +81,6 @@ public:
 protected:
     LLTimer             mMouseDownTimer;    // timer for how long mouse has been held down on a hint.
     F32                 mLastHeldTime;
-    bool mAllowModify;
 
     LLButton* mLessBtn;
     LLButton* mMoreBtn;

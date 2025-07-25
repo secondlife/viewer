@@ -851,6 +851,13 @@ void LLPanelRegionInfo::initCtrl(const std::string& name)
     getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionInfo::onChangeAnything, this));
 }
 
+void LLPanelRegionInfo::initAndSetTexCtrl(LLTextureCtrl*& ctrl, const std::string& name)
+{
+    ctrl = findChild<LLTextureCtrl>(name);
+    if (ctrl)
+        ctrl->setOnSelectCallback([this](LLUICtrl* ctrl, const LLSD& param){ onChangeAnything(); });
+}
+
 template<typename CTRL>
 void LLPanelRegionInfo::initAndSetCtrl(CTRL*& ctrl, const std::string& name)
 {
@@ -1580,7 +1587,7 @@ bool LLPanelRegionTerrainInfo::postBuild()
 
     for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
-        initAndSetCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
+        initAndSetTexCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
         if (mTextureDetailCtrl[i])
         {
             mTextureDetailCtrl[i]->setBakeTextureEnabled(false);
@@ -2100,8 +2107,14 @@ LLPanelEstateInfo::LLPanelEstateInfo()
     mEstateID(0)    // invalid
 {
     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
-    estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
-    estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+    mEstateInfoCommitConnection = estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+    mEstateInfoUpdateConnection = estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+}
+
+LLPanelEstateInfo::~LLPanelEstateInfo()
+{
+    mEstateInfoCommitConnection.disconnect();
+    mEstateInfoUpdateConnection.disconnect();
 }
 
 // static
@@ -2817,6 +2830,16 @@ std::string LLPanelEstateCovenant::getEstateName() const
 void LLPanelEstateCovenant::setEstateName(const std::string& name)
 {
     mEstateNameText->setText(name);
+}
+
+// static
+void LLPanelEstateCovenant::updateCovenant(const LLTextBase* source, const LLUUID& asset_id)
+{
+    if (LLPanelEstateCovenant* panelp = LLFloaterRegionInfo::getPanelCovenant())
+    {
+        panelp->mEditor->copyContents(source);
+        panelp->setCovenantID(asset_id);
+    }
 }
 
 // static

@@ -35,5 +35,8 @@ void main()
     frag_data[0] = color*texture(diffuseMap, vary_texcoord0.xy);
     frag_data[1] = vec4(0.0);
     frag_data[2] = vec4(0.0, 1.0, 0.0, GBUFFER_FLAG_SKIP_ATMOS);
+
+#if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(0);
+#endif
 }

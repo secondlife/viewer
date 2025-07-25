@@ -3118,6 +3118,11 @@ Jeśli jesteś użytkownikiem premium, to [[PREMIUM_URL] kliknij tutaj] aby otrz
 [[URL] Kliknij tutaj] aby odnowić subskrypcję.
 Jeśli jesteś użytkownikiem premium, to [[PREMIUM_URL] kliknij tutaj] aby otrzymać swój perk Przekształceń Głosu.
 	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		Jedno lub więcej z Twoich Przekształceń Głosu wygaśnie za mniej niż [INTERVAL] dni.
+[[URL] Kliknij tutaj] aby odnowić subskrypcję.
+Jeśli jesteś użytkownikiem premium, to [[PREMIUM_URL] kliknij tutaj] aby otrzymać swój perk Przekształceń Głosu.
+	</notification>
 	<notification name="VoiceEffectsNew">
 		Nowe Przekształcenia Głosu są dostępne!
 	</notification>
@@ -3572,11 +3577,6 @@ Czy chcesz kontynuować?
 		Wybrany obiekt ma wpływ na Navmesh. Dodanie elastyczności spowoduje usunięcie go z Navmesha.
 		<usetemplate ignoretext="Wybrany obiekt ma wpływ na Navmesh. Dodanie elastyczności spowoduje usunięcie go z Navmesha." name="okcancelignore" notext="Anuluj" />
 	</notification>
-	<global name="UnsupportedIntelDriver">
-		Zainstalowany sterownik graficzny Intela dla [GPUNAME], wersja [VERSION], jest przestarzały i jest znany z powodowania awarii. Zdecydowanie zaleca się aktualizację do aktualnego sterownika Intel.
-
-Czy chcesz sprawdzić witrynę sterowników firmy Intel?
-	</global>
 	<global name="UnsupportedGPU">
 		- Twoja karta graficzna nie spełnia minimalnych wymagań.
 	</global>

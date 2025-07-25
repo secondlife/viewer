@@ -44,7 +44,7 @@ public:
     LLPanelGroupBulkImpl(const LLUUID& group_id);
     ~LLPanelGroupBulkImpl();
 
-    static void callbackClickAdd(void* userdata);
+    void callbackClickAdd(LLPanelGroupBulk* panelp);
     static void callbackClickRemove(void* userdata);
 
     static void callbackClickCancel(void* userdata);
@@ -59,7 +59,7 @@ public:
     void handleSelection();
 
     void addUsers(const std::vector<std::string>& names, const uuid_vec_t& agent_ids);
-    void setGroupName(std::string name);
+    void setGroupName(const std::string& name);
 
 
 public:
@@ -70,6 +70,7 @@ public:
 
     LLNameListCtrl*     mBulkAgentList;
     LLButton*           mOKButton;
+    LLButton*           mAddButton;
     LLButton*           mRemoveButton;
     LLTextBox*          mGroupName;
 
@@ -83,7 +84,7 @@ public:
 
     void (*mCloseCallback)(void* data);
     void* mCloseCallbackUserData;
-    boost::signals2::connection mAvatarNameCacheConnection;
+    std::map<LLUUID, boost::signals2::connection> mAvatarNameCacheConnections;
 
     // The following are for the LLPanelGroupInvite subclass only.
     // These aren't needed for LLPanelGroupBulkBan, but if we have to add another

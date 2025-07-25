@@ -13,7 +13,6 @@
 	<string name="SUPPORT_SITE">Second Life Support Portal</string>
 
 	<!-- starting up -->
-	<string name="StartupDetectingHardware">Detecting hardware...</string>
 	<string name="StartupLoading">Loading [APP_NAME]...</string>
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>
@@ -259,6 +258,7 @@ If you feel this is an error, please contact support@secondlife.com</string>
 	<string name="TooltipOutboxMixedStock">All items in a stock folder must have the same type and permission</string>
 	<string name="TooltipOutfitNotInInventory">You can only put items or outfits from your personal inventory into "My outfits"</string>
 	<string name="TooltipCantCreateOutfit">One or more items can't be used inside "My outfits"</string>
+    <string name="TooltipCantMoveOutfitIntoOutfit">Can not move an outfit into another outfit</string>
 	
 	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
 	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
@@ -3717,6 +3717,10 @@ Please reinstall viewer from  https://secondlife.com/support/downloads/ and cont
   <string name="inventory_folder_offered-im">
     Inventory folder '[ITEM_NAME]' offered
   </string>
+  <string name="bot_warning">
+  You are chatting with a bot, [NAME]. Do not share any personal information.
+Learn more at https://second.life/scripted-agents.
+  </string>
   <string name="share_alert">
     Drag items from inventory here
   </string>
@@ -4312,6 +4316,9 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
 
   <!-- PBR Materials -->
   <string name="Material Texture Name Header">Textures present this material: </string>
+  <string name="material_selection_title">Material selection</string>
+  <string name="material_selection_text">Select material:</string>
+  <string name="material_batch_import_text">--- Bulk Upload All ---</string>
   
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">

@@ -56,6 +56,7 @@
 #include "llgroupmgr.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
+#include "lllandmarkactions.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
@@ -355,20 +356,6 @@ bool LLAgent::isMicrophoneOn(const LLSD& sdname)
     return LLVoiceClient::getInstance()->getUserPTTState();
 }
 
-//static
-void LLAgent::toggleHearMediaSoundFromAvatar()
-{
-    const S32 mediaSoundsEarLocation = gSavedSettings.getS32("MediaSoundsEarLocation");
-    gSavedSettings.setS32("MediaSoundsEarLocation", !mediaSoundsEarLocation);
-}
-
-//static
-void LLAgent::toggleHearVoiceFromAvatar()
-{
-    const S32 voiceEarLocation = gSavedSettings.getS32("VoiceEarLocation");
-    gSavedSettings.setS32("VoiceEarLocation", !voiceEarLocation);
-}
-
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
 // locally believes the end user has godlike powers.
@@ -439,8 +426,6 @@ LLAgent::LLAgent() :
     mIsDoNotDisturb(false),
 
     mControlFlags(0x00000000),
-    mbFlagsDirty(false),
-    mbFlagsNeedReset(false),
 
     mAutoPilot(false),
     mAutoPilotFlyOnStop(false),
@@ -936,8 +921,6 @@ void LLAgent::setFlying(bool fly, bool fail_sound)
 
     // Update Movement Controls according to Fly mode
     LLFloaterMove::setFlyingMode(fly);
-
-    mbFlagsDirty = true;
 }
 
 
@@ -1068,7 +1051,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             {
                 regionp->setCapabilitiesReceivedCallback(LLAgent::capabilityReceivedCallback);
             }
-
         }
         else
         {
@@ -1556,7 +1538,6 @@ U32 LLAgent::getControlFlags()
 void LLAgent::setControlFlags(U32 mask)
 {
     mControlFlags |= mask;
-    mbFlagsDirty = true;
 }
 
 
@@ -1565,28 +1546,7 @@ void LLAgent::setControlFlags(U32 mask)
 //-----------------------------------------------------------------------------
 void LLAgent::clearControlFlags(U32 mask)
 {
-    U32 old_flags = mControlFlags;
     mControlFlags &= ~mask;
-    if (old_flags != mControlFlags)
-    {
-        mbFlagsDirty = true;
-    }
-}
-
-//-----------------------------------------------------------------------------
-// controlFlagsDirty()
-//-----------------------------------------------------------------------------
-bool LLAgent::controlFlagsDirty() const
-{
-    return mbFlagsDirty;
-}
-
-//-----------------------------------------------------------------------------
-// enableControlFlagReset()
-//-----------------------------------------------------------------------------
-void LLAgent::enableControlFlagReset()
-{
-    mbFlagsNeedReset = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1594,14 +1554,9 @@ void LLAgent::enableControlFlagReset()
 //-----------------------------------------------------------------------------
 void LLAgent::resetControlFlags()
 {
-    if (mbFlagsNeedReset)
-    {
-        mbFlagsNeedReset = false;
-        mbFlagsDirty = false;
-        // reset all of the ephemeral flags
-        // some flags are managed elsewhere
-        mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
-    }
+    // reset all of the ephemeral flags
+    // some flags are managed elsewhere
+    mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
 }
 
 //-----------------------------------------------------------------------------
@@ -2085,11 +2040,19 @@ void LLAgent::propagate(const F32 dt)
     }
 
     // handle rotation based on keyboard levels
-    const F32 YAW_RATE = 90.f * DEG_TO_RAD;             // radians per second
-    yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
+    constexpr F32 YAW_RATE = 90.f * DEG_TO_RAD;                // radians per second
+    F32 angle = YAW_RATE * gAgentCamera.getYawKey() * dt;
+    if (fabs(angle) > 0.0f)
+    {
+        yaw(angle);
+    }
 
-    const F32 PITCH_RATE = 90.f * DEG_TO_RAD;           // radians per second
-    pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
+    constexpr F32 PITCH_RATE = 90.f * DEG_TO_RAD;            // radians per second
+    angle = PITCH_RATE * gAgentCamera.getPitchKey() * dt;
+    if (fabs(angle) > 0.0f)
+    {
+        pitch(angle);
+    }
 
     // handle auto-land behavior
     if (isAgentAvatarValid())
@@ -2539,7 +2502,10 @@ void LLAgent::endAnimationUpdateUI()
         gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
     }
 
-    gFloaterTools->dirty();
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 
     // Don't let this be called more than once if the camera
     // mode hasn't changed.  --JC
@@ -3503,11 +3469,14 @@ void LLAgent::initOriginGlobal(const LLVector3d &origin_global)
 
 bool LLAgent::leftButtonGrabbed() const
 {
-    const bool camera_mouse_look = gAgentCamera.cameraMouselook();
-    return (!camera_mouse_look && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
-        || (camera_mouse_look && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0)
-        || (!camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
-        || (camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
+    if (gAgentCamera.cameraMouselook())
+    {
+        return mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0;
+    }
+    else
+    {
+        return mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0;
+    }
 }
 
 bool LLAgent::rotateGrabbed() const
@@ -4355,8 +4324,22 @@ void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 {
-    LLViewerRegion *regionp = getRegion();
-    if(regionp && teleportCore())
+    LLViewerRegion* regionp = getRegion();
+    if (!regionp)
+    {
+        LL_WARNS("Teleport") << "called when agent region is null" << LL_ENDL;
+        return;
+    }
+
+    bool is_local(false);
+    if (LLLandmark* landmark = gLandmarkList.getAsset(landmark_asset_id, NULL))
+    {
+        LLVector3d pos_global;
+        landmark->getGlobalPos(pos_global);
+        is_local = (regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY]));
+    }
+
+    if(regionp && teleportCore(is_local))
     {
         LL_INFOS("Teleport") << "Sending TeleportLandmarkRequest. Current region handle " << regionp->getHandle()
                              << " region id " << regionp->getRegionID()
@@ -4917,10 +4900,19 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
     LLXMLNodePtr root;
     bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 
-    if (!success || !root || !root->hasName( "teleport_messages" ))
+    if (!success)
     {
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Problem reading teleport string XML file: "
-               << xml_filename << LL_ENDL;
+            << xml_filename << LL_ENDL;
+        return;
+    }
+
+    if (!root || !root->hasName("teleport_messages"))
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Invalid teleport string XML file: "
+            << xml_filename << LL_ENDL;
         return;
     }
 

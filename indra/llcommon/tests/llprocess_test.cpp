@@ -1085,7 +1085,27 @@ namespace tut
             return false;
         }
 
-        std::list<LLSD> mHistory;
+        template <typename CALLABLE>
+        void checkHistory(CALLABLE&& code)
+        {
+            try
+            {
+                // we expect this lambda to contain tut::ensure() calls
+                std::forward<CALLABLE>(code)(mHistory);
+            }
+            catch (const failure&)
+            {
+                LL_INFOS() << "event history:" << LL_ENDL;
+                for (const LLSD& item : mHistory)
+                {
+                    LL_INFOS() << item << LL_ENDL;
+                }
+                throw;
+            }
+        }
+
+        using Listory = std::list<LLSD>;
+        Listory mHistory;
         LLTempBoundListener mConnection;
     };
 
@@ -1136,23 +1156,26 @@ namespace tut
         // finish out the run
         waitfor(*py.mPy);
         // now verify history
-        std::list<LLSD>::const_iterator li(listener.mHistory.begin()),
-                                        lend(listener.mHistory.end());
-        ensure("no events", li != lend);
-        ensure_equals("history[0]", (*li)["data"].asString(), "abc");
-        ensure_equals("history[0] len", (*li)["len"].asInteger(), 3);
-        ++li;
-        ensure("only 1 event", li != lend);
-        ensure_equals("history[1]", (*li)["data"].asString(), "abcdef");
-        ensure_equals("history[0] len", (*li)["len"].asInteger(), 6);
-        ++li;
-        ensure("only 2 events", li != lend);
-        ensure_equals("history[2]", (*li)["data"].asString(), "abcdefghi" EOL);
-        ensure_equals("history[0] len", (*li)["len"].asInteger(), 9 + sizeof(EOL) - 1);
-        ++li;
-        // We DO NOT expect a whole new event for the second line because we
-        // disconnected.
-        ensure("more than 3 events", li == lend);
+        listener.checkHistory(
+            [](const EventListener::Listory& history)
+            {
+                auto li(history.begin()), lend(history.end());
+                ensure("no events", li != lend);
+                ensure_equals("history[0]", (*li)["data"].asString(), "abc");
+                ensure_equals("history[0] len", (*li)["len"].asInteger(), 3);
+                ++li;
+                ensure("only 1 event", li != lend);
+                ensure_equals("history[1]", (*li)["data"].asString(), "abcdef");
+                ensure_equals("history[0] len", (*li)["len"].asInteger(), 6);
+                ++li;
+                ensure("only 2 events", li != lend);
+                ensure_equals("history[2]", (*li)["data"].asString(), "abcdefghi" EOL);
+                ensure_equals("history[0] len", (*li)["len"].asInteger(), 9 + sizeof(EOL) - 1);
+                ++li;
+                // We DO NOT expect a whole new event for the second line because we
+                // disconnected.
+                ensure("more than 3 events", li == lend);
+            });
     }
 
     template<> template<>
@@ -1172,14 +1195,17 @@ namespace tut
         // (or any other intervening layer) does crazy buffering. What we want
         // to ensure is that there was exactly ONE event with "eof" true, and
         // that it was the LAST event.
-        std::list<LLSD>::const_reverse_iterator rli(listener.mHistory.rbegin()),
-                                                rlend(listener.mHistory.rend());
-        ensure("no events", rli != rlend);
-        ensure("last event not \"eof\"", (*rli)["eof"].asBoolean());
-        while (++rli != rlend)
-        {
-            ensure("\"eof\" event not last", ! (*rli)["eof"].asBoolean());
-        }
+        listener.checkHistory(
+            [](const EventListener::Listory& history)
+            {
+                auto rli(history.rbegin()), rlend(history.rend());
+                ensure("no events", rli != rlend);
+                ensure("last event not \"eof\"", (*rli)["eof"].asBoolean());
+                while (++rli != rlend)
+                {
+                    ensure("\"eof\" event not last", ! (*rli)["eof"].asBoolean());
+                }
+            });
     }
 
     template<> template<>
@@ -1202,13 +1228,17 @@ namespace tut
         ensure_equals("getLimit() after setlimit(10)", childout.getLimit(), 10);
         // okay, pump I/O to pick up output from child
         waitfor(*py.mPy);
-        ensure("no events", ! listener.mHistory.empty());
-        // For all we know, that data could have arrived in several different
-        // bursts... probably not, but anyway, only check the last one.
-        ensure_equals("event[\"len\"]",
-                      listener.mHistory.back()["len"].asInteger(), abc.length());
-        ensure_equals("length of setLimit(10) data",
-                      listener.mHistory.back()["data"].asString().length(), 10);
+        listener.checkHistory(
+            [abc](const EventListener::Listory& history)
+            {
+                ensure("no events", ! history.empty());
+                // For all we know, that data could have arrived in several different
+                // bursts... probably not, but anyway, only check the last one.
+                ensure_equals("event[\"len\"]",
+                              history.back()["len"].asInteger(), abc.length());
+                ensure_equals("length of setLimit(10) data",
+                              history.back()["data"].asString().length(), 10);
+            });
     }
 
     template<> template<>
@@ -1275,18 +1305,22 @@ namespace tut
         params.postend = pumpname;
         LLProcessPtr child = LLProcess::create(params);
         ensure("shouldn't have launched", ! child);
-        ensure_equals("number of postend events", listener.mHistory.size(), 1);
-        LLSD postend(listener.mHistory.front());
-        ensure("has id", ! postend.has("id"));
-        ensure_equals("desc", postend["desc"].asString(), std::string(params.desc));
-        ensure_equals("state", postend["state"].asInteger(), LLProcess::UNSTARTED);
-        ensure("has data", ! postend.has("data"));
-        std::string error(postend["string"]);
-        // All we get from canned parameter validation is a bool, so the
-        // "validation failed" message we ourselves generate can't mention
-        // "executable" by name. Just check that it's nonempty.
-        //ensure_contains("error", error, "executable");
-        ensure("string", ! error.empty());
+        listener.checkHistory(
+            [&params](const EventListener::Listory& history)
+            {
+                ensure_equals("number of postend events", history.size(), 1);
+                LLSD postend(history.front());
+                ensure("has id", ! postend.has("id"));
+                ensure_equals("desc", postend["desc"].asString(), std::string(params.desc));
+                ensure_equals("state", postend["state"].asInteger(), LLProcess::UNSTARTED);
+                ensure("has data", ! postend.has("data"));
+                std::string error(postend["string"]);
+                // All we get from canned parameter validation is a bool, so the
+                // "validation failed" message we ourselves generate can't mention
+                // "executable" by name. Just check that it's nonempty.
+                //ensure_contains("error", error, "executable");
+                ensure("string", ! error.empty());
+            });
     }
 
     template<> template<>
@@ -1308,16 +1342,20 @@ namespace tut
         {
             yield();
         }
-        ensure("no postend event", i < timeout);
-        ensure_equals("number of postend events", listener.mHistory.size(), 1);
-        LLSD postend(listener.mHistory.front());
-        ensure_equals("id",    postend["id"].asInteger(), childid);
-        ensure("desc empty", ! postend["desc"].asString().empty());
-        ensure_equals("state", postend["state"].asInteger(), LLProcess::EXITED);
-        ensure_equals("data",  postend["data"].asInteger(),  35);
-        std::string str(postend["string"]);
-        ensure_contains("string", str, "exited");
-        ensure_contains("string", str, "35");
+        listener.checkHistory(
+            [i, timeout, childid](const EventListener::Listory& history)
+            {
+                ensure("no postend event", i < timeout);
+                ensure_equals("number of postend events", history.size(), 1);
+                LLSD postend(history.front());
+                ensure_equals("id",    postend["id"].asInteger(), childid);
+                ensure("desc empty", ! postend["desc"].asString().empty());
+                ensure_equals("state", postend["state"].asInteger(), LLProcess::EXITED);
+                ensure_equals("data",  postend["data"].asInteger(),  35);
+                std::string str(postend["string"]);
+                ensure_contains("string", str, "exited");
+                ensure_contains("string", str, "35");
+            });
     }
 
     struct PostendListener

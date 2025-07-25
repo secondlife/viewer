@@ -61,12 +61,21 @@ LLSD LlsdFromJson(const boost::json::value& val)
         result = LLSD(val.as_bool());
         break;
     case boost::json::kind::array:
+    {
         result = LLSD::emptyArray();
-        for (const auto &element : val.as_array())
+        const boost::json::array& array = val.as_array();
+        size_t size = array.size();
+        // allocate elements 0 .. (size() - 1) to avoid incremental allocation
+        if (! array.empty())
         {
-            result.append(LlsdFromJson(element));
+            result[size - 1] = LLSD();
+        }
+        for (size_t i = 0; i < size; i++)
+        {
+            result[i] = (LlsdFromJson(array[i]));
         }
         break;
+    }
     case boost::json::kind::object:
         result = LLSD::emptyMap();
         for (const auto& element : val.as_object())
@@ -106,6 +115,7 @@ boost::json::value LlsdToJson(const LLSD &val)
     case LLSD::TypeMap:
     {
         boost::json::object& obj = result.emplace_object();
+        obj.reserve(val.size());
         for (const auto& llsd_dat : llsd::inMap(val))
         {
             obj[llsd_dat.first] = LlsdToJson(llsd_dat.second);
@@ -115,6 +125,7 @@ boost::json::value LlsdToJson(const LLSD &val)
     case LLSD::TypeArray:
     {
         boost::json::array& json_array = result.emplace_array();
+        json_array.reserve(val.size());
         for (const auto& llsd_dat : llsd::inArray(val))
         {
             json_array.push_back(LlsdToJson(llsd_dat));
@@ -123,7 +134,8 @@ boost::json::value LlsdToJson(const LLSD &val)
     }
     case LLSD::TypeBinary:
     default:
-        LL_ERRS("LlsdToJson") << "Unsupported conversion to JSON from LLSD type (" << val.type() << ")." << LL_ENDL;
+        LL_ERRS("LlsdToJson") << "Unsupported conversion to JSON from LLSD type ("
+                              << val.type() << ")." << LL_ENDL;
         break;
     }
 

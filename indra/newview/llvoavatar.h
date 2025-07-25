@@ -109,7 +109,6 @@ public:
     virtual void        initInstance(); // Called after construction to initialize the class.
 protected:
     virtual             ~LLVOAvatar();
-    static bool         handleVOAvatarPrefsChanged(const LLSD &newvalue);
 
 /**                    Initialization
  **                                                                            **
@@ -127,17 +126,18 @@ public:
     /*virtual*/ void            updateGL();
     /*virtual*/ LLVOAvatar*     asAvatar();
 
-    virtual U32             processUpdateMessage(LLMessageSystem *mesgsys,
+    virtual U32                 processUpdateMessage(LLMessageSystem *mesgsys,
                                                      void **user_data,
                                                      U32 block_num,
                                                      const EObjectUpdateType update_type,
                                                      LLDataPacker *dp);
-    virtual void            idleUpdate(LLAgent &agent, const F64 &time);
+    virtual void                idleUpdate(LLAgent &agent, const F64 &time);
     /*virtual*/ bool            updateLOD();
-    bool                    updateJointLODs();
-    void                    updateLODRiggedAttachments( void );
+    bool                        updateJointLODs();
+    void                        updateLODRiggedAttachments(void);
+    void                        setCorrectedPixelArea(F32 area);
     /*virtual*/ bool            isActive() const; // Whether this object needs to do an idleUpdate.
-    S32Bytes                totalTextureMemForUUIDS(std::set<LLUUID>& ids);
+    S32Bytes                    totalTextureMemForUUIDS(std::set<LLUUID>& ids);
     bool                        allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
     bool                        allLocalTexturesCompletelyDownloaded() const;
     bool                        allBakedTexturesCompletelyDownloaded() const;
@@ -202,8 +202,9 @@ public:
     void                    startDefaultMotions();
     void                    dumpAnimationState();
 
-    virtual LLJoint*        getJoint(const std::string &name);
+    virtual LLJoint*        getJoint(std::string_view name);
     LLJoint*                getJoint(S32 num);
+    void                    initAllJoints();
 
     //if you KNOW joint_num is a valid animated joint index, use getSkeletonJoint for efficiency
     inline LLJoint* getSkeletonJoint(S32 joint_num) { return mSkeleton[joint_num]; }
@@ -226,7 +227,7 @@ public:
     // virtual
     void                    updateRiggingInfo();
     // This encodes mesh id and LOD, so we can see whether display is up-to-date.
-    std::map<LLUUID,S32>    mLastRiggingInfoKey;
+    size_t    mLastRiggingInfoKey;
 
     std::set<LLUUID>        mActiveOverrideMeshes;
     virtual void            onActiveOverrideMeshesChanged();
@@ -368,7 +369,6 @@ public:
     static F32      sLODFactor; // user-settable LOD factor
     static F32      sPhysicsLODFactor; // user-settable physics LOD factor
     static bool     sJointDebug; // output total number of joints being touched for each avatar
-    static bool     sLipSyncEnabled;
 
     static LLPointer<LLViewerTexture>  sCloudTexture;
 
@@ -386,6 +386,7 @@ public:
     //--------------------------------------------------------------------
 public:
     bool            isFullyLoaded() const;
+    bool            hasFirstFullAttachmentData() const;
     F32             getFirstDecloudTime() const {return mFirstDecloudTime;}
 
     // check and return current state relative to limits
@@ -399,7 +400,7 @@ public:
 
     bool            isTooComplex() const;
     bool            visualParamWeightsAreDefault();
-    virtual bool    getIsCloud() const;
+    virtual bool    getHasMissingParts() const;
     bool            isFullyTextured() const;
     bool            hasGray() const;
     S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
@@ -426,6 +427,7 @@ protected:
 
 private:
     bool            mFirstFullyVisible;
+    bool            mWaitingForMeshes;
     F32             mFirstDecloudTime;
     LLFrameTimer    mFirstAppearanceMessageTimer;
 
@@ -547,7 +549,7 @@ public:
     U32         renderTransparent(bool first_pass);
     void        renderCollisionVolumes();
     void        renderBones(const std::string &selected_joint = std::string());
-    void        renderJoints();
+    virtual void renderJoints();
     static void deleteCachedImages(bool clearAll=true);
     static void destroyGL();
     static void restoreGL();
@@ -620,6 +622,7 @@ public:
 protected:
     void        updateVisibility();
 private:
+    F32         mVisibilityPreference;
     U32         mVisibilityRank;
     bool        mVisible;
 
@@ -721,7 +724,7 @@ public:
 
     bool            isFullyBaked();
     static bool     areAllNearbyInstancesBaked(S32& grey_avatars);
-    static void     getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars);
+    static void     getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars, S32& pending_meshes, S32& control_avatars);
     static std::string rezStatusToString(S32 status);
 
     //--------------------------------------------------------------------

@@ -104,7 +104,6 @@ static bool check_item(const LLUUID& item_id,
                        LLInventoryFilter* filter);
 
 // Helper functions
-
 bool isAddAction(const std::string& action)
 {
     return ("wear" == action || "attach" == action || "activate" == action);
@@ -844,7 +843,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             disabled_items.push_back(std::string("Copy"));
         }
 
-        if (isAgentInventory() && !single_folder_root)
+        if (isAgentInventory() && !single_folder_root && !isMarketplaceListingsFolder())
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));
@@ -2665,6 +2664,7 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
         //
 
         bool is_movable = true;
+        bool create_outfit = false;
 
         if (is_movable && (marketplacelistings_id == cat_id))
         {
@@ -2697,14 +2697,24 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
         U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
         if (is_movable && move_is_into_outfit)
         {
-            if (mUUID == my_outifts_id)
+            if ((inv_cat->getPreferredType() != LLFolderType::FT_NONE) && (inv_cat->getPreferredType() != LLFolderType::FT_OUTFIT))
+            {
+                tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                is_movable = false;
+            }
+            else if (mUUID == my_outifts_id)
             {
                 if (source != LLToolDragAndDrop::SOURCE_AGENT || move_is_from_marketplacelistings)
                 {
                     tooltip_msg = LLTrans::getString("TooltipOutfitNotInInventory");
                     is_movable = false;
                 }
-                else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
+                else if (can_move_to_my_outfits_as_outfit(model, inv_cat, max_items_to_wear))
+                {
+                    is_movable = true;
+                    create_outfit = true;
+                }
+                else if (can_move_to_my_outfits_as_subfolder(model, inv_cat))
                 {
                     is_movable = true;
                 }
@@ -2714,13 +2724,44 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                     is_movable = false;
                 }
             }
-            else if(getCategory() && getCategory()->getPreferredType() == LLFolderType::FT_NONE)
+            else if (!getCategory())
             {
-                is_movable = ((inv_cat->getPreferredType() == LLFolderType::FT_NONE) || (inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT));
+                is_movable = false;
+                tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
             }
             else
             {
-                is_movable = false;
+                EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
+                EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
+                if ((dest_res == MY_OUTFITS_OUTFIT || dest_res == MY_OUTFITS_SUBOUTFIT) && inv_res == MY_OUTFITS_OUTFIT)
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantMoveOutfitIntoOutfit");
+                }
+                else if (dest_res == MY_OUTFITS_OUTFIT || dest_res == MY_OUTFITS_SUBOUTFIT)
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                }
+                else if (dest_res == MY_OUTFITS_SUBFOLDER && inv_res == MY_OUTFITS_SUBOUTFIT)
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                }
+                else if (can_move_to_my_outfits_as_outfit(model, inv_cat, max_items_to_wear))
+                {
+                    is_movable = true;
+                    create_outfit = true;
+                }
+                else if (can_move_to_my_outfits_as_subfolder(model, inv_cat))
+                {
+                    is_movable = true;
+                }
+                else
+                {
+                    is_movable = false;
+                    tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                }
             }
         }
         if (is_movable && move_is_into_current_outfit && is_link)
@@ -2912,9 +2953,81 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 
             if (mUUID == my_outifts_id)
             {
-                // Category can contains objects,
-                // create a new folder and populate it with links to original objects
-                dropToMyOutfits(inv_cat, cb);
+                EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
+                if (inv_res == MY_OUTFITS_SUBFOLDER || inv_res == MY_OUTFITS_OUTFIT || !create_outfit)
+                {
+                    LLInvFVBridge::changeCategoryParent(
+                        model,
+                        (LLViewerInventoryCategory*)inv_cat,
+                        mUUID,
+                        false);
+                    if (cb) cb->fire(inv_cat->getUUID());
+                }
+                else
+                {
+                    // Moving from inventory
+                    // create a new folder and populate it with links to original objects
+                    dropToMyOutfits(inv_cat, cb);
+                }
+            }
+            else if (move_is_into_my_outfits)
+            {
+                EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
+                EMyOutfitsSubfolderType inv_res = myoutfit_object_subfolder_type(model, cat_id, my_outifts_id);
+                switch (inv_res)
+                {
+                case MY_OUTFITS_NO:
+                    // Moning from outside outfits into outfits
+                    if (dest_res == MY_OUTFITS_SUBFOLDER && create_outfit)
+                    {
+                        // turn it into outfit
+                        dropToMyOutfitsSubfolder(inv_cat, mUUID, cb);
+                    }
+                    else
+                    {
+                        LLInvFVBridge::changeCategoryParent(
+                            model,
+                            (LLViewerInventoryCategory*)inv_cat,
+                            mUUID,
+                            move_is_into_trash);
+                        if (cb) cb->fire(inv_cat->getUUID());
+                    }
+                    break;
+                case MY_OUTFITS_SUBFOLDER:
+                case MY_OUTFITS_OUTFIT:
+                    // only permit moving subfodlers and outfits into other subfolders
+                    if (dest_res == MY_OUTFITS_SUBFOLDER)
+                    {
+                        LLInvFVBridge::changeCategoryParent(
+                            model,
+                            (LLViewerInventoryCategory*)inv_cat,
+                            mUUID,
+                            false);
+                        if (cb) cb->fire(inv_cat->getUUID());
+                    }
+                    else
+                    {
+                        assert(false); // mot permitted, shouldn't have accepted
+                    }
+                    break;
+                case MY_OUTFITS_SUBOUTFIT:
+                    if (dest_res == MY_OUTFITS_SUBOUTFIT || dest_res == MY_OUTFITS_OUTFIT)
+                    {
+                        LLInvFVBridge::changeCategoryParent(
+                            model,
+                            (LLViewerInventoryCategory*)inv_cat,
+                            mUUID,
+                            false);
+                        if (cb) cb->fire(inv_cat->getUUID());
+                    }
+                    else
+                    {
+                        assert(false); // mot permitted, shouldn't have accepted
+                    }
+                    break;
+                default:
+                    break;
+                }
             }
             // if target is current outfit folder we use link
             else if (move_is_into_current_outfit &&
@@ -3599,6 +3712,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
         move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("move_to_marketplace_listings" != action), (("copy_or_move_to_marketplace_listings" == action)));
     }
+    else if ("copy_folder_uuid" == action)
+    {
+        LLInventoryCategory* cat = gInventory.getCategory(mUUID);
+        if (!cat) return;
+        gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(mUUID.asString()));
+        return;
+    }
 }
 
 void LLFolderBridge::gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level)
@@ -3989,7 +4109,6 @@ void LLFolderBridge::perform_pasteFromClipboard()
             LLInventoryObject *obj = model->getObject(item_id);
             if (obj)
             {
-
                 if (move_is_into_lost_and_found)
                 {
                     if (LLAssetType::AT_CATEGORY == obj->getType())
@@ -3999,24 +4118,57 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 }
                 if (move_is_into_outfit)
                 {
-                    if (!move_is_into_my_outfits && item && can_move_to_outfit(item, move_is_into_current_outfit))
+                    bool handled = false;
+                    if (mUUID != my_outifts_id
+                        && dest_folder->getPreferredType() == LLFolderType::FT_OUTFIT
+                        && item
+                        && can_move_to_outfit(item, move_is_into_current_outfit))
                     {
                         dropToOutfit(item, move_is_into_current_outfit, cb);
+                        handled = true;
                     }
                     else if (move_is_into_my_outfits && LLAssetType::AT_CATEGORY == obj->getType())
                     {
-                        LLInventoryCategory* cat = model->getCategory(item_id);
+                        LLViewerInventoryCategory* cat = model->getCategory(item_id);
                         U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
-                        if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
+                        if (cat && can_move_to_my_outfits_as_outfit(model, cat, max_items_to_wear))
                         {
-                            dropToMyOutfits(cat, cb);
+                            if (mUUID == my_outifts_id)
+                            {
+                                dropToMyOutfits(cat, cb);
+                                handled = true;
+                            }
+                            else
+                            {
+                                EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
+                                if (dest_res == MY_OUTFITS_SUBFOLDER)
+                                {
+                                    // turn it into outfit
+                                    dropToMyOutfitsSubfolder(cat, mUUID, cb);
+                                    handled = true;
+                                }
+                            }
                         }
-                        else
+                        if (!handled && cat && can_move_to_my_outfits_as_subfolder(model, cat))
                         {
-                            LLNotificationsUtil::add("MyOutfitsPasteFailed");
+                            EMyOutfitsSubfolderType dest_res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
+                            if (dest_res == MY_OUTFITS_SUBFOLDER || mUUID == my_outifts_id)
+                            {
+                                if (LLClipboard::instance().isCutMode())
+                                {
+                                    changeCategoryParent(model, cat, parent_id, false);
+                                }
+                                else
+                                {
+                                    copy_inventory_category(model, cat, parent_id);
+                                }
+                                if (cb) cb->fire(item_id);
+                                handled = true;
+                            }
                         }
                     }
-                    else
+
+                    if (!handled)
                     {
                         LLNotificationsUtil::add("MyOutfitsPasteFailed");
                     }
@@ -4059,7 +4211,7 @@ void LLFolderBridge::perform_pasteFromClipboard()
                     // move_inventory_item() is not enough, as we have to update inventory locally too
                     if (LLAssetType::AT_CATEGORY == obj->getType())
                     {
-                        LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory *) model->getCategory(item_id);
+                        LLViewerInventoryCategory* vicat = model->getCategory(item_id);
                         llassert(vicat);
                         if (vicat)
                         {
@@ -4231,14 +4383,9 @@ void LLFolderBridge::staticFolderOptionsMenu()
 
 bool LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
 {
-    LLInventoryModel::cat_array_t cat_array;
-    LLInventoryModel::item_array_t item_array;
-    model->collectDescendentsIf(mUUID,
-                                cat_array,
-                                item_array,
+    return model->hasMatchingDescendents(mUUID,
                                 LLInventoryModel::EXCLUDE_TRASH,
                                 is_type);
-    return !item_array.empty();
 }
 
 void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items, menuentry_vec_t& disabled_items)
@@ -4254,6 +4401,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 
     if (outfits_id == mUUID)
     {
+        items.push_back(std::string("New Outfit Folder"));
         items.push_back(std::string("New Outfit"));
     }
 
@@ -4347,61 +4495,81 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     else if(isAgentInventory()) // do not allow creating in library
     {
         LLViewerInventoryCategory *cat = getCategory();
-        // BAP removed protected check to re-enable standard ops in untyped folders.
-        // Not sure what the right thing is to do here.
-        if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
+
+        if (cat)
         {
-            if (!isInboxFolder() // don't allow creation in inbox
-                && outfits_id != mUUID)
+            if (cat->getPreferredType() == LLFolderType::FT_OUTFIT)
             {
-                bool menu_items_added = false;
-                // Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
-                if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
-                {
-                    items.push_back(std::string("New Folder"));
-                    menu_items_added = true;
-                }
-                if (!isMarketplaceListingsFolder())
-                {
-                    items.push_back(std::string("upload_def"));
-                    items.push_back(std::string("create_new"));
-                    items.push_back(std::string("New Script"));
-                    items.push_back(std::string("New Note"));
-                    items.push_back(std::string("New Gesture"));
-                    items.push_back(std::string("New Material"));
-                    items.push_back(std::string("New Clothes"));
-                    items.push_back(std::string("New Body Parts"));
-                    items.push_back(std::string("New Settings"));
-                    if (!LLEnvironment::instance().isInventoryEnabled())
-                    {
-                        disabled_items.push_back("New Settings");
-                    }
-                }
-                else
-                {
-                    items.push_back(std::string("New Listing Folder"));
-                }
-                if (menu_items_added)
-                {
-                    items.push_back(std::string("Create Separator"));
-                }
-            }
-            getClipboardEntries(false, items, disabled_items, flags);
-        }
-        else
-        {
-            // Want some but not all of the items from getClipboardEntries for outfits.
-            if (cat && (cat->getPreferredType() == LLFolderType::FT_OUTFIT))
-            {
+                // Want some but not all of the items from getClipboardEntries for outfits.
                 items.push_back(std::string("Rename"));
                 items.push_back(std::string("thumbnail"));
 
                 addDeleteContextMenuOptions(items, disabled_items);
                 // EXT-4030: disallow deletion of currently worn outfit
-                const LLViewerInventoryItem *base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
+                const LLViewerInventoryItem* base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
                 if (base_outfit_link && (cat == base_outfit_link->getLinkedCategory()))
                 {
                     disabled_items.push_back(std::string("Delete"));
+                }
+            }
+            else if (outfits_id == mUUID)
+            {
+                getClipboardEntries(false, items, disabled_items, flags);
+            }
+            else if (!isCOFFolder())
+            {
+                EMyOutfitsSubfolderType in_my_outfits = myoutfit_object_subfolder_type(model, mUUID, outfits_id);
+                if (in_my_outfits != MY_OUTFITS_NO)
+                {
+                    if (in_my_outfits == MY_OUTFITS_SUBFOLDER)
+                    {
+                        // Not inside an outfit, but inside 'my outfits'
+                        items.push_back(std::string("New Outfit"));
+                        items.push_back(std::string("New Outfit Folder"));
+                    }
+                    items.push_back(std::string("Rename"));
+                    items.push_back(std::string("thumbnail"));
+
+                    addDeleteContextMenuOptions(items, disabled_items);
+                }
+                else
+                {
+                    if (!isInboxFolder() // don't allow creation in inbox
+                        && outfits_id != mUUID)
+                    {
+                        bool menu_items_added = false;
+                        // Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
+                        if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
+                        {
+                            items.push_back(std::string("New Folder"));
+                            menu_items_added = true;
+                        }
+                        if (!isMarketplaceListingsFolder())
+                        {
+                            items.push_back(std::string("upload_def"));
+                            items.push_back(std::string("create_new"));
+                            items.push_back(std::string("New Script"));
+                            items.push_back(std::string("New Note"));
+                            items.push_back(std::string("New Gesture"));
+                            items.push_back(std::string("New Material"));
+                            items.push_back(std::string("New Clothes"));
+                            items.push_back(std::string("New Body Parts"));
+                            items.push_back(std::string("New Settings"));
+                            if (!LLEnvironment::instance().isInventoryEnabled())
+                            {
+                                disabled_items.push_back("New Settings");
+                            }
+                        }
+                        else
+                        {
+                            items.push_back(std::string("New Listing Folder"));
+                        }
+                        if (menu_items_added)
+                        {
+                            items.push_back(std::string("Create Separator"));
+                        }
+                    }
+                    getClipboardEntries(false, items, disabled_items, flags);
                 }
             }
         }
@@ -4415,21 +4583,26 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         //Added by aura to force inventory pull on right-click to display folder options correctly. 07-17-06
         mCallingCards = mWearables = false;
 
-        LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
-        if (checkFolderForContentsOfType(model, is_callingcard))
+        if (gInventory.getRootFolderID() != mUUID)
         {
-            mCallingCards=true;
+            LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
+            if (checkFolderForContentsOfType(model, is_callingcard))
+            {
+                mCallingCards = true;
+            }
+
+            const std::vector<LLAssetType::EType> types = { LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART, LLAssetType::AT_OBJECT, LLAssetType::AT_GESTURE };
+            LLIsOneOfTypes is_wearable(types);
+
+            if (checkFolderForContentsOfType(model, is_wearable))
+            {
+                mWearables = true;
+            }
         }
-
-        LLFindWearables is_wearable;
-        LLIsType is_object( LLAssetType::AT_OBJECT );
-        LLIsType is_gesture( LLAssetType::AT_GESTURE );
-
-        if (checkFolderForContentsOfType(model, is_wearable) ||
-            checkFolderForContentsOfType(model, is_object)   ||
-            checkFolderForContentsOfType(model, is_gesture)    )
+        else
         {
-            mWearables=true;
+            // Assume that there are wearables in the root folder
+            mWearables = true;
         }
     }
     else
@@ -4442,13 +4615,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         LLFolderType::EType type = category->getPreferredType();
         const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
 
-        LLFindWearables is_wearable;
-        LLIsType is_object(LLAssetType::AT_OBJECT);
-        LLIsType is_gesture(LLAssetType::AT_GESTURE);
+        const std::vector<LLAssetType::EType> types = { LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART, LLAssetType::AT_OBJECT, LLAssetType::AT_GESTURE };
+        LLIsOneOfTypes is_wearable(types);
 
-        if (checkFolderForContentsOfType(model, is_wearable) ||
-            checkFolderForContentsOfType(model, is_object) ||
-            checkFolderForContentsOfType(model, is_gesture))
+        if (checkFolderForContentsOfType(model, is_wearable))
         {
             mWearables = true;
         }
@@ -4468,6 +4638,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if ((flags & FIRST_SELECTED_ITEM) == 0)
     {
         disabled_items.push_back(std::string("Delete System Folder"));
+    }
+    else
+    {
+        static LLCachedControl<bool> show_copy_id(gSavedSettings, "InventoryExposeFolderID", false);
+        if (show_copy_id())
+        {
+            items.push_back(std::string("Copy UUID"));
+        }
     }
 
     if (isAgentInventory() && !isMarketplaceListingsFolder())
@@ -4546,7 +4724,11 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 
         if (((flags & ITEM_IN_MULTI_SELECTION) == 0) && hasChildren() && (type != LLFolderType::FT_OUTFIT))
         {
-            items.push_back(std::string("Ungroup folder items"));
+            const LLUUID my_outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+            if (!gInventory.isObjectDescendentOf(mUUID, my_outfits))
+            {
+                items.push_back(std::string("Ungroup folder items"));
+            }
         }
     }
     else
@@ -4571,14 +4753,11 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 
     // wearables related functionality for folders.
     //is_wearable
-    LLFindWearables is_wearable;
-    LLIsType is_object( LLAssetType::AT_OBJECT );
-    LLIsType is_gesture( LLAssetType::AT_GESTURE );
+    const std::vector<LLAssetType::EType> types = { LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART, LLAssetType::AT_OBJECT, LLAssetType::AT_GESTURE };
+    LLIsOneOfTypes is_wearable(types);
 
     if (mWearables ||
-        checkFolderForContentsOfType(model, is_wearable)  ||
-        checkFolderForContentsOfType(model, is_object) ||
-        checkFolderForContentsOfType(model, is_gesture) )
+        checkFolderForContentsOfType(model, is_wearable))
     {
         // Only enable add/replace outfit for non-system folders.
         if (!is_system_folder)
@@ -5321,19 +5500,43 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
 
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
-    inventory_func_type func = boost::bind(&LLFolderBridge::outfitFolderCreatedCallback, this, inv_cat->getUUID(), _1, cb);
-    gInventory.createNewCategory(dest_id,
+    inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
+    getInventoryModel()->createNewCategory(dest_id,
                                  LLFolderType::FT_OUTFIT,
                                  inv_cat->getName(),
                                  func,
                                  inv_cat->getThumbnailUUID());
 }
 
-void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, LLPointer<LLInventoryCallback> cb)
+void LLFolderBridge::dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLPointer<LLInventoryCallback> cb)
+{
+    inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
+    getInventoryModel()->createNewCategory(dest_id,
+        LLFolderType::FT_OUTFIT,
+        inv_cat->getName(),
+        func,
+        inv_cat->getThumbnailUUID());
+}
+
+void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id,
+                                                 LLUUID cat_dest_id,
+                                                 LLPointer<LLInventoryCallback> cb,
+                                                 LLHandle<LLInventoryPanel> inventory_panel)
 {
     LLInventoryModel::cat_array_t* categories;
     LLInventoryModel::item_array_t* items;
-    getInventoryModel()->getDirectDescendentsOf(cat_source_id, categories, items);
+
+    LLInventoryPanel* panel = inventory_panel.get();
+    if (!panel)
+    {
+        return;
+    }
+    LLInventoryModel*  model = panel->getModel();
+    if (!model)
+    {
+        return;
+    }
+    model->getDirectDescendentsOf(cat_source_id, categories, items);
 
     LLInventoryObject::const_object_list_t link_array;
 
@@ -5488,7 +5691,9 @@ bool LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
         }
         else if (user_confirm && (move_is_into_current_outfit || move_is_into_outfit))
         {
-            accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
+            EMyOutfitsSubfolderType res = myoutfit_object_subfolder_type(model, mUUID, my_outifts_id);
+            // don't allow items in my outfits' subfodlers, only in outfits and outfit's subfolders
+            accept = res != MY_OUTFITS_SUBFOLDER && can_move_to_outfit(inv_item, move_is_into_current_outfit);
         }
         else if (user_confirm && (move_is_into_favorites || move_is_into_landmarks))
         {

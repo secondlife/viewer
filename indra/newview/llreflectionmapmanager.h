@@ -38,7 +38,7 @@ class LLViewerObject;
 #define LL_MAX_REFLECTION_PROBE_COUNT 256
 
 // reflection probe resolution
-#define LL_IRRADIANCE_MAP_RESOLUTION 64
+#define LL_IRRADIANCE_MAP_RESOLUTION 16
 
 // reflection probe mininum scale
 #define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
@@ -54,6 +54,51 @@ public:
         STATIC_ONLY = 0,
         STATIC_AND_DYNAMIC,
         REALTIME = 2
+    };
+
+    // General guidance for UBOs is to statically allocate all of these fields to make your life ever so slightly easier.
+    // Then set a "max" value for the number of probes you'll ever have, and use that to index into the arrays.
+    // We do this with refmapCount.  The shaders will just pick up on it there.
+    // This data structure should _always_ match what's in class3/deferred/reflectionProbeF.glsl.
+    // The shader can and will break otherwise.
+    // -Geenz 2025-03-10
+    struct ReflectionProbeData
+    {
+        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of
+        // the box probe
+        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        LLMatrix4 heroBox;
+
+        // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
+        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        // extra parameters
+        //  x - irradiance scale
+        //  y - radiance scale
+        //  z - fade in
+        //  w - znear
+        LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        LLVector4 heroSphere;
+
+        // indices used by probe:
+        //  [i][0] - cubemap array index for this probe
+        //  [i][1] - index into "refNeighbor" for probes that intersect this probe
+        //  [i][2] - number of probes  that intersect this probe, or -1 for no neighbors
+        //  [i][3] - priority (probe type stored in sign bit - positive for spheres, negative for boxes)
+        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
+
+        // list of neighbor indices
+        GLint refNeighbor[4096];
+
+        GLint refBucket[256][4]; // lookup table for which index to start with for the given Z depth
+        // numbrer of active refmaps
+        GLint refmapCount;
+
+        GLint heroShape;
+        GLint heroMipCount;
+        GLint heroProbeCount;
     };
 
     // allocate an environment map of the given resolution
@@ -114,12 +159,18 @@ public:
     // with false when done.
     void forceDefaultProbeAndUpdateUniforms(bool force = true);
 
+    U32 probeCount();
+    U32 probeMemory();
+
 private:
     friend class LLPipeline;
     friend class LLHeroProbeManager;
 
     // initialize mCubeFree array to default values
     void initCubeFree();
+
+    // Just does a bulk clear of all of the cubemaps.
+    void clearCubeMaps();
 
     // delete the probe with the given index in mProbes
     void deleteProbe(U32 i);
@@ -195,6 +246,8 @@ private:
     // number of reflection probes to use for rendering
     U32 mReflectionProbeCount;
 
+    U32 mDynamicProbeCount;
+
     // resolution of reflection probes
     U32 mProbeResolution = 128;
 
@@ -207,8 +260,13 @@ private:
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
 
+    float mResetFade = 1.f;
+    float mGlobalFadeTarget = 1.f;
+
     // if true, only update the default probe
     bool mPaused = false;
     F32 mResumeTime = 0.f;
+
+    ReflectionProbeData mProbeData;
 };
 

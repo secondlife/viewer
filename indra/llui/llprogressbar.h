@@ -48,9 +48,9 @@ public:
     LLProgressBar(const Params&);
     virtual ~LLProgressBar();
 
-    void setValue(const LLSD& value);
+    void setValue(const LLSD& value) override;
 
-    /*virtual*/ void draw();
+    void draw() override;
 
 private:
     F32 mPercentDone;

@@ -490,12 +490,12 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 // returns first matching item
 LLScrollListItem* LLScrollListCtrl::getItem(const LLSD& sd) const
 {
-    const std::string& string_val = sd.asStringRef();
+    std::string string_val = sd.asString();
 
     for (LLScrollListItem* item : mItemList)
     {
         // assumes string representation is good enough for comparison
-        if (item->getValue().asStringRef() == string_val)
+        if (item->getValue().asString() == string_val)
         {
             return item;
         }
@@ -1007,7 +1007,7 @@ void LLScrollListCtrl::deleteItems(const LLSD& sd)
 void LLScrollListCtrl::deleteSelectedItems()
 {
     item_list::iterator iter;
-    for (iter = mItemList.begin(); iter < mItemList.end(); )
+    for (iter = mItemList.begin(); iter != mItemList.end(); )
     {
         LLScrollListItem* itemp = *iter;
         if (itemp->getSelected())
@@ -3394,7 +3394,7 @@ bool LLScrollListCtrl::highlightMatchingItems(const std::string& filter_str)
 
     bool res = false;
 
-    setHighlightedColor(LLUIColorTable::instance().getColor("SearchableControlHighlightColor", LLColor4::red));
+    setHighlightedColor(LLUIColorTable::instance().getColor("SearchableControlHighlightBgColor", LLColor4::red4));
 
     std::string filter_str_lc(filter_str);
     LLStringUtil::toLower(filter_str_lc);

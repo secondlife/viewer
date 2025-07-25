@@ -1014,6 +1014,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             std::string old_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SLVoice.old");
             if (gDirUtilp->fileExists(new_log))
             {
+                LLFile::remove(old_log, ENOENT);
                 LLFile::rename(new_log, old_log);
             }
 
@@ -2004,7 +2005,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 recordingAndPlaybackMode();
             }
-            else if (mProcessChannels && (mNextAudioSession == NULL) && checkParcelChanged())
+            else if (mProcessChannels && ((mNextAudioSession == NULL) || checkParcelChanged()))
             {
                 // the parcel is changed, or we have no pending audio sessions,
                 // so try to request the parcel voice info
@@ -2024,23 +2025,48 @@ bool LLVivoxVoiceClient::waitForChannel()
                     llcoro::suspend();
                     break;
                 }
-                sessionStatePtr_t joinSession = mNextAudioSession;
-                mNextAudioSession.reset();
-                mIsProcessingChannels = true;
-                if (!runSession(joinSession)) //suspends
+
+                try
                 {
-                    mIsProcessingChannels = false;
-                    LL_DEBUGS("Voice") << "runSession returned false; leaving inner loop" << LL_ENDL;
-                    break;
+                    sessionStatePtr_t joinSession = mNextAudioSession;
+                    mNextAudioSession.reset();
+                    mIsProcessingChannels = true;
+                    if (!runSession(joinSession)) //suspends
+                    {
+                        mIsProcessingChannels = false;
+                        LL_DEBUGS("Voice") << "runSession returned false; leaving inner loop" << LL_ENDL;
+                        break;
+                    }
+                    else
+                    {
+                        mIsProcessingChannels = false;
+                        LL_DEBUGS("Voice")
+                            << "runSession returned true to inner loop"
+                            << " RelogRequested=" << mRelogRequested
+                            << " VoiceEnabled=" << mVoiceEnabled
+                            << LL_ENDL;
+                    }
                 }
-                else
+                catch (const LLCoros::Stop&)
                 {
-                    mIsProcessingChannels = false;
-                    LL_DEBUGS("Voice")
-                        << "runSession returned true to inner loop"
-                        << " RelogRequested=" << mRelogRequested
-                        << " VoiceEnabled=" << mVoiceEnabled
+                    LL_DEBUGS("LLVivoxVoiceClient") << "Received a shutdown exception" << LL_ENDL;
+                }
+                catch (const LLContinueError&)
+                {
+                    LOG_UNHANDLED_EXCEPTION("LLVivoxVoiceClient");
+                }
+                catch (...)
+                {
+                    // Ideally for Windows need to log SEH exception instead or to set SEH
+                    // handlers but bugsplat shows local variables for windows, which should
+                    // be enough
+                    LL_WARNS("Voice") << "voiceControlStateMachine crashed in state VOICE_CHANNEL_STATE_PROCESS_CHANNEL"
+                        << " mRelogRequested " << mRelogRequested
+                        << " mVoiceEnabled " << mVoiceEnabled
+                        << " mIsProcessingChannels " << mIsProcessingChannels
+                        << " mProcessChannels " << mProcessChannels
                         << LL_ENDL;
+                    throw;
                 }
             }
 
@@ -5011,8 +5037,7 @@ bool LLVivoxVoiceClient::isVoiceWorking() const
     //Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
     // Condition with joining spatial num was added to take into account possible problems with connection to voice
     // server(EXT-4313). See bug descriptions and comments for MAX_NORMAL_JOINING_SPATIAL_NUM for more info.
-    return (mSpatialJoiningNum < MAX_NORMAL_JOINING_SPATIAL_NUM) && mIsProcessingChannels;
-//  return (mSpatialJoiningNum < MAX_NORMAL_JOINING_SPATIAL_NUM) && (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
+    return (mSpatialJoiningNum < MAX_NORMAL_JOINING_SPATIAL_NUM) && mIsLoggedIn;
 }
 
 // Returns true if the indicated participant in the current audio session is really an SL avatar.

@@ -159,6 +159,7 @@ public:
 protected:
     void initCtrl(const std::string& name);
     template<typename CTRL> void initAndSetCtrl(CTRL*& ctrl, const std::string& name);
+    void initAndSetTexCtrl(LLTextureCtrl*& ctrl, const std::string& name);
 
     // Returns true if update sent and apply button should be
     // disabled.
@@ -320,7 +321,7 @@ public:
     bool onMessageCommit(const LLSD& notification, const LLSD& response);
 
     LLPanelEstateInfo();
-    ~LLPanelEstateInfo() {}
+    ~LLPanelEstateInfo();
 
     void updateControls(LLViewerRegion* region);
 
@@ -352,6 +353,8 @@ protected:
     bool checkSunHourSlider(LLUICtrl* child_ctrl);
 
     U32 mEstateID;
+    boost::signals2::connection mEstateInfoCommitConnection;
+    boost::signals2::connection mEstateInfoUpdateConnection;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -382,6 +385,7 @@ public:
                                void* user_data, S32 status, LLExtStat ext_status);
 
     // Accessor functions
+    static void updateCovenant(const LLTextBase* source, const LLUUID& asset_id);
     static void updateCovenantText(const std::string& string, const LLUUID& asset_id);
     static void updateEstateName(const std::string& name);
     static void updateLastModified(const std::string& text);

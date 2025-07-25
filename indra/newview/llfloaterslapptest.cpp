@@ -1,10 +1,9 @@
 /**
- * @file llwin32headerslean.h
- * @brief sanitized include of windows header files
+ * @file llfloaterslapptest.cpp
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2025&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2025, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,17 +23,29 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWS_H
-#define LL_LLWINDOWS_H
+#include "llviewerprecompiledheaders.h"
 
-#ifdef LL_WINDOWS
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
-#undef NOMINMAX
-#endif
+#include "llfloaterslapptest.h"
+#include "lluictrlfactory.h"
 
-#endif
+#include "lllineeditor.h"
+#include "lltextbox.h"
+
+LLFloaterSLappTest::LLFloaterSLappTest(const LLSD& key)
+    :   LLFloater("floater_test_slapp")
+{
+}
+
+LLFloaterSLappTest::~LLFloaterSLappTest()
+{}
+
+bool LLFloaterSLappTest::postBuild()
+{
+    getChild<LLLineEditor>("remove_folder_id")->setKeystrokeCallback([this](LLLineEditor* editor, void*)
+        {
+            std::string slapp(getString("remove_folder_slapp"));
+            getChild<LLTextBox>("remove_folder_txt")->setValue(slapp + editor->getValue().asString());
+        }, NULL);
+
+    return true;
+}

@@ -26,6 +26,7 @@
 out vec4 frag_color;
 
 uniform sampler2D bumpMap;
+uniform sampler2D exclusionTex;
 
 #ifdef TRANSPARENT_WATER
 uniform sampler2D screenTex;
@@ -59,6 +60,9 @@ void mirrorClip(vec3 position);
 void main()
 {
     mirrorClip(vary_position);
+    vec2 screen_tc = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
+    float water_mask = texture(exclusionTex, screen_tc).r;
+
     vec4 color;
 
     //get detail normals
@@ -68,8 +72,8 @@ void main()
     vec3 wavef = normalize(wave1+wave2+wave3);
 
     //figure out distortion vector (ripply)
-    vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
-    distort = distort+wavef.xy*refScale;
+    vec2 distort = screen_tc;
+    distort = mix(distort, distort+wavef.xy*refScale, water_mask);
 
 #ifdef TRANSPARENT_WATER
     vec4 fb = texture(screenTex, distort);

@@ -48,6 +48,7 @@
 
 #include "llappviewer.h"
 #include "llcallbacklist.h"
+#include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 
 #include "llinventorymodel.h"
@@ -288,7 +289,7 @@ void LLPanelEnvironmentInfo::refresh()
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
 
     if (dayoffset.value() > 12.0f)
-        dayoffset -= daylength;
+        dayoffset -= F32Hours(24.0);
 
     mSliderDayLength->setValue(daylength.value());
     mSliderDayOffset->setValue(dayoffset.value());
@@ -358,12 +359,14 @@ void LLPanelEnvironmentInfo::refresh()
 
 void LLPanelEnvironmentInfo::refreshFromEstate()
 {
-    LLViewerRegion *pRegion = gAgent.getRegion();
-
-    bool oldAO = mAllowOverride;
-    mAllowOverride = (isRegion() && LLEstateInfoModel::instance().getAllowEnvironmentOverride()) || pRegion->getAllowEnvironmentOverride();
-    if (oldAO != mAllowOverride)
-        refresh();
+    LLViewerRegion* pRegion = gAgent.getRegion();
+    if (pRegion)
+    {
+        bool oldAO = mAllowOverride;
+        mAllowOverride = (isRegion() && LLEstateInfoModel::instance().getAllowEnvironmentOverride()) || pRegion->getAllowEnvironmentOverride();
+        if (oldAO != mAllowOverride)
+            refresh();
+    }
 }
 
 std::string LLPanelEnvironmentInfo::getNameForTrackIndex(U32 index)
@@ -717,11 +720,6 @@ void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
         F32Hours daylength(value);
 
         mCurrentEnvironment->mDayLength = daylength;
-        F32 offset = (F32)mSliderDayOffset->getValue().asReal();
-        if (offset <= 0.0f)
-        {
-            onSldDayOffsetChanged(offset);
-        }
         setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
 
         udpateApparentTimeOfDay();
@@ -735,8 +733,7 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
         F32Hours dayoffset(value);
 
         if (dayoffset.value() <= 0.0f)
-            // if day cycle is 5 hours long, we want -1h offset to result in 4h
-            dayoffset += mCurrentEnvironment->mDayLength;
+            dayoffset += F32Hours(24.0);
 
         mCurrentEnvironment->mDayOffset = dayoffset;
         setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
@@ -928,7 +925,7 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
 {
     static const F32 SECONDSINDAY(24.0 * 60.0 * 60.0);
 
-    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mDayLength.value() < 1.0))
+    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mDayLength.value() < 1.0) || (mCurrentEnvironment->mDayOffset.value() < 1.0))
     {
         mLabelApparentTime->setVisible(false);
         return;
@@ -945,19 +942,29 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
     S32Hours    hourofday(secondofday);
     S32Seconds  secondofhour(secondofday - hourofday);
     S32Minutes  minutesofhour(secondofhour);
+    static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
     bool        am_pm(hourofday.value() >= 12);
 
-    if (hourofday.value() < 1)
-        hourofday = S32Hours(12);
-    if (hourofday.value() > 12)
-        hourofday -= S32Hours(12);
+    if (!use_24h)
+    {
+        if (hourofday.value() < 1)
+            hourofday = S32Hours(12);
+        if (hourofday.value() > 12)
+            hourofday -= S32Hours(12);
+    }
 
     std::string lblminute(((minutesofhour.value() < 10) ? "0" : "") + LLSD(minutesofhour.value()).asString());
 
-
     mLabelApparentTime->setTextArg("[HH]", LLSD(hourofday.value()).asString());
     mLabelApparentTime->setTextArg("[MM]", lblminute);
-    mLabelApparentTime->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
+    if (use_24h)
+    {
+        mLabelApparentTime->setTextArg("[AP]", std::string());
+    }
+    else
+    {
+        mLabelApparentTime->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
+    }
     mLabelApparentTime->setTextArg("[PRC]", LLSD((S32)(100 * perc)).asString());
 
 }

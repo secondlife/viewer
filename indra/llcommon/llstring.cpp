@@ -33,8 +33,7 @@
 #include <vector>
 
 #if LL_WINDOWS
-#include "llwin32headerslean.h"
-#include <winnls.h> // for WideCharToMultiByte
+#include "llwin32headers.h"
 #endif
 
 std::string ll_safe_string(const char* in)
@@ -1410,6 +1409,14 @@ bool LLStringUtil::simpleReplacement(std::string &replacement, std::string token
 template<>
 void LLStringUtil::setLocale(std::string inLocale)
 {
+    if(startsWith(inLocale, "MissingString"))
+    {
+        // it seems this hasn't been working for some time, and I'm not sure how it is intentded to
+        // properly discover the correct locale.  early out now to avoid failures later in
+        // formatNumber()
+        LL_WARNS() << "Failed attempting to set invalid locale: " << inLocale << LL_ENDL;
+        return;
+    }
     sLocale = inLocale;
 };
 

@@ -38,6 +38,7 @@
 /* image compression headers. */
 #include "llimagebmp.h"
 #include "llimagetga.h"
+#include "llimagej2c.h"
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 
@@ -105,6 +106,10 @@ LLLocalBitmap::LLLocalBitmap(std::string filename)
     else if (temp_exten == "jpg" || temp_exten == "jpeg")
     {
         mExtension = ET_IMG_JPG;
+    }
+    else if (temp_exten == "j2c" || temp_exten == "jp2")
+    {
+        mExtension = ET_IMG_J2C;
     }
     else if (temp_exten == "png")
     {
@@ -293,8 +298,9 @@ void LLLocalBitmap::addGLTFMaterial(LLGLTFMaterial* mat)
         return;
     }
 
-    mat_list_t::iterator end = mGLTFMaterialWithLocalTextures.end();
-    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
+    mat->addLocalTextureTracking(getTrackingID(), getWorldID());
+
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != mGLTFMaterialWithLocalTextures.end();)
     {
         if (it->get() == mat)
         {
@@ -304,15 +310,12 @@ void LLLocalBitmap::addGLTFMaterial(LLGLTFMaterial* mat)
         if ((*it)->getNumRefs() == 1)
         {
             it = mGLTFMaterialWithLocalTextures.erase(it);
-            end = mGLTFMaterialWithLocalTextures.end();
         }
         else
         {
             it++;
         }
     }
-
-    mat->addLocalTextureTracking(getTrackingID(), getWorldID());
     mGLTFMaterialWithLocalTextures.push_back(mat);
 }
 
@@ -352,6 +355,21 @@ bool LLLocalBitmap::decodeBitmap(LLPointer<LLImageRaw> rawimg)
             {
                 rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
                 decode_successful = true;
+            }
+            break;
+        }
+
+        case ET_IMG_J2C:
+        {
+            LLPointer<LLImageJ2C> jpeg_image = new LLImageJ2C;
+            if (jpeg_image->load(mFilename))
+            {
+                jpeg_image->setDiscardLevel(0);
+                if (jpeg_image->decode(rawimg, 0.0f))
+                {
+                    rawimg->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    decode_successful = true;
+                }
             }
             break;
         }
@@ -628,16 +646,16 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
 {
     // Might be a better idea to hold this in LLGLTFMaterialList
-    mat_list_t::iterator end = mGLTFMaterialWithLocalTextures.end();
-    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
+    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != mGLTFMaterialWithLocalTextures.end();)
     {
         if ((*it)->getNumRefs() == 1)
         {
             // render and override materials are often recreated,
             // clean up any remains
             it = mGLTFMaterialWithLocalTextures.erase(it);
-            end = mGLTFMaterialWithLocalTextures.end();
         }
+        // Render material consists of base and override materials, make sure replaceLocalTexture
+        // gets called for base and override before applyOverride
         else if ((*it)->replaceLocalTexture(mTrackingID, old_id, new_id))
         {
             it++;
@@ -647,43 +665,51 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
             // Matching id not found, no longer in use
             // material would clean itself, remove from the list
             it = mGLTFMaterialWithLocalTextures.erase(it);
-            end = mGLTFMaterialWithLocalTextures.end();
         }
     }
 
-    // Render material consists of base and override materials, make sure replaceLocalTexture
-    // gets called for base and override before applyOverride
-    end = mGLTFMaterialWithLocalTextures.end();
-    for (mat_list_t::iterator it = mGLTFMaterialWithLocalTextures.begin(); it != end;)
+    // Updating render materials calls updateTextureTracking which can modify
+    // mGLTFMaterialWithLocalTextures, so precollect all entries that need to be updated
+    std::set<LLTextureEntry*> update_entries;
+    for (LLGLTFMaterial* mat : mGLTFMaterialWithLocalTextures)
     {
-        LLFetchedGLTFMaterial* fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>((*it).get());
+        // mGLTFMaterialWithLocalTextures includes overrides that are not 'fetched'
+        // and don't have texture entries (they don't need to since render material does).
+        LLFetchedGLTFMaterial* fetched_mat = dynamic_cast<LLFetchedGLTFMaterial*>(mat);
         if (fetched_mat)
         {
             for (LLTextureEntry* entry : fetched_mat->mTextureEntires)
             {
-                // Normally a change in applied material id is supposed to
-                // drop overrides thus reset material, but local materials
-                // currently reuse their existing asset id, and purpose is
-                // to preview how material will work in-world, overrides
-                // included, so do an override to render update instead.
-                LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
-                if (override_mat)
-                {
-                    // do not create a new material, reuse existing pointer
-                    LLFetchedGLTFMaterial* render_mat = dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial());
-                    if (render_mat)
-                    {
-                            *render_mat = *fetched_mat;
-                        render_mat->applyOverride(*override_mat);
-                    }
-                    else
-                    {
-                        LL_WARNS_ONCE() << "Failed to apply local material override, render material not found" << LL_ENDL;
-                    }
-                }
+                update_entries.insert(entry);
             }
         }
-        ++it;
+    }
+
+
+    for (LLTextureEntry* entry : update_entries)
+    {
+        // Normally a change in applied material id is supposed to
+        // drop overrides thus reset material, but local materials
+        // currently reuse their existing asset id, and purpose is
+        // to preview how material will work in-world, overrides
+        // included, so do an override to render update instead.
+        LLGLTFMaterial* override_mat = entry->getGLTFMaterialOverride();
+        LLGLTFMaterial* mat = entry->getGLTFMaterial();
+        if (override_mat && mat)
+        {
+            // do not create a new material, reuse existing pointer
+            // so that mTextureEntires remains untouched
+            LLGLTFMaterial* render_mat = entry->getGLTFRenderMaterial();
+            if (render_mat && render_mat != mat)
+            {
+                *render_mat = *mat;
+                render_mat->applyOverride(*override_mat); // can update mGLTFMaterialWithLocalTextures
+            }
+            else
+            {
+                LL_WARNS() << "A TE had an override, but no render material" << LL_ENDL;
+            }
+        }
     }
 }
 

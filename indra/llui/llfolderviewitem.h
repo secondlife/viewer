@@ -135,7 +135,6 @@ protected:
     LLUIColor                   mFontHighlightColor;
 
     // For now assuming all colors are the same in derived classes.
-    static bool                 sColorSetInitialized;
     static LLUIColor            sFgColor;
     static LLUIColor            sFgDisabledColor;
     static LLUIColor            sHighlightBgColor;
@@ -155,9 +154,10 @@ protected:
     virtual bool isHighlightActive();
     virtual bool isFadeItem();
     virtual bool isFlashing() { return false; }
-    virtual void setFlashState(bool) { }
+    virtual void setFlashState(bool, bool) { }
 
     static LLFontGL* getLabelFontForStyle(U8 style);
+    const LLFontGL* getLabelFont();
 
     bool                        mIsSelected;
 
@@ -282,7 +282,7 @@ public:
     // Does not need filter update
     virtual void refreshSuffix();
 
-    bool isSingleFolderMode() { return mSingleFolderMode; }
+    bool isSingleFolderMode() const { return mSingleFolderMode; }
 
     // LLView functionality
     virtual bool handleRightMouseDown( S32 x, S32 y, MASK mask );
@@ -297,7 +297,7 @@ public:
 
     //  virtual void handleDropped();
     virtual void draw();
-    void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
+    void drawOpenFolderArrow();
     void drawHighlight(bool showContent, bool hasKeyboardFocus, const LLUIColor& selectColor, const LLUIColor& flashColor, const LLUIColor& outlineColor, const LLUIColor& mouseOverColor);
     void drawLabel(const LLFontGL* font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
     virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
@@ -308,9 +308,14 @@ public:
 
 private:
     static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
+    static S32 sTopPad;
+    static LLUIImagePtr sFolderArrowImg;
+    static LLUIImagePtr sSelectionImg;
+    static LLFontGL* sSuffixFont;
 
     LLFontVertexBuffer mLabelFontBuffer;
     LLFontVertexBuffer mSuffixFontBuffer;
+    LLFontGL* pLabelFont{nullptr};
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -409,9 +414,6 @@ public:
     // extractItem() removes the specified item from the folder, but
     // doesn't delete it.
     virtual void extractItem( LLFolderViewItem* item, bool deparent_model = true);
-
-    // This function is called by a child that needs to be resorted.
-    void resort(LLFolderViewItem* item);
 
     void setAutoOpenCountdown(F32 countdown) { mAutoOpenCountdown = countdown; }
 

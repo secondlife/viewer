@@ -78,6 +78,8 @@ public:
         F32* right_x = NULL,
         bool use_ellipses = false,
         bool use_color = true);
+
+    static void enableBufferCollection(bool enable) { sEnableBufferCollection = enable; }
 private:
 
     void genBuffers(const LLFontGL* fontp,
@@ -113,7 +115,16 @@ private:
     // LLFontGL's statics
     F32 mLastScaleX = 1.f;
     F32 mLastScaleY = 1.f;
+    F32 mLastVertDPI = 0.f;
+    F32 mLastHorizDPI = 0.f;
+    S32 mLastResGeneration = 0;
     LLCoordGL mLastOrigin;
+
+    // Adding new characters to bitmap cache can alter value from getBitmapWidth();
+    // which alters whole string. So rerender when new characters were added to cache.
+    S32 mLastFontCacheGen = 0;
+
+    static bool sEnableBufferCollection;
 };
 
 #endif

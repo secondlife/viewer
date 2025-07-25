@@ -282,7 +282,7 @@ public:
     LLRunner& getRunner() { return mRunner; }
 
 #ifdef LL_WINDOWS
-    virtual void reportCrashToBugsplat(void* pExcepInfo /*EXCEPTION_POINTERS*/) { }
+    virtual bool reportCrashToBugsplat(void* pExcepInfo /*EXCEPTION_POINTERS*/) { return false; }
 #endif
 
 public:
@@ -339,8 +339,12 @@ private:
     friend void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 #endif
 
-public:
-    static bool sLogInSignal;
+private:
+#ifdef LL_RELEASE_FOR_DOWNLOAD
+    static constexpr bool sLogInSignal = false;
+#else
+    static constexpr bool sLogInSignal = true;
+#endif
 };
 
 #endif // LL_LLAPP_H

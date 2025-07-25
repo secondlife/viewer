@@ -1294,10 +1294,11 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     c       = cos(ang)*lerp(radius_start, radius_end, t);
 
 
-    pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
+    pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
                       + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0,params.getShear().mV[1],s),
+                    c + lerp(0.f, params.getShear().mV[VY], s),
                     s);
+
     pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
         hole_y * lerp(taper_y_begin, taper_y_end, t),
         0,1);
@@ -1327,9 +1328,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
         c   = cos(ang)*lerp(radius_start, radius_end, t);
         s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-        pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
+        pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
                           + lerp(-skew ,skew, t) * 0.5f,
-                        c + lerp(0,params.getShear().mV[1],s),
+                        c + lerp(0.f, params.getShear().mV[VY], s),
                         s);
 
         pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
@@ -1354,9 +1355,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     c   = cos(ang)*lerp(radius_start, radius_end, t);
     s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-    pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
+    pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
                       + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0,params.getShear().mV[1],s),
+                    c + lerp(0.f, params.getShear().mV[VY], s),
                     s);
     pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
                    hole_y * lerp(taper_y_begin, taper_y_end, t),
@@ -1494,8 +1495,8 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
             for (S32 i=0;i<np;i++)
             {
                 F32 t = lerp(params.getBegin(),params.getEnd(),(F32)i * mStep);
-                mPath[i].mPos.set(lerp(0,params.getShear().mV[0],t),
-                                     lerp(0,params.getShear().mV[1],t),
+                mPath[i].mPos.set(lerp(0.f, params.getShear().mV[VX], t),
+                                     lerp(0.f ,params.getShear().mV[VY], t),
                                      t - 0.5f);
                 LLQuaternion quat;
                 quat.setQuat(lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
@@ -1559,10 +1560,10 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
         {
             F32 t = (F32)i * mStep;
             mPath[i].mPos.set(0,
-                                lerp(0,   -sin(F_PI*params.getTwist()*t)*0.5f,t),
-                                lerp(-0.5f, cos(F_PI*params.getTwist()*t)*0.5f,t));
-            mPath[i].mScale.set(lerp(1,params.getScale().mV[0],t),
-                                lerp(1,params.getScale().mV[1],t), 0,1);
+                                lerp(0.f,  -sin(F_PI*params.getTwist() * t) * 0.5f, t),
+                                lerp(-0.5f, cos(F_PI*params.getTwist() * t) * 0.5f, t));
+            mPath[i].mScale.set(lerp(1.f, params.getScale().mV[VX], t),
+                                lerp(1.f, params.getScale().mV[VY], t), 0.f, 1.f);
             mPath[i].mTexT  = t;
             LLQuaternion quat;
             quat.setQuat(F_PI * params.getTwist() * t,1,0,0);
@@ -5159,7 +5160,10 @@ bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector3& a
 void LLVolumeFace::remap()
 {
     // Generate a remap buffer
-    std::vector<unsigned int> remap(mNumVertices);
+    // Documentation for meshopt_generateVertexRemapMulti claims that remap should use vertice count
+    // but all examples use indice count. There are out of bounds crashes when using vertice count.
+    // To be on the safe side use bigger of the two.
+    std::vector<unsigned int> remap(llmax(mNumIndices, mNumVertices));
     S32 remap_vertices_count = static_cast<S32>(LLMeshOptimizer::generateRemapMultiU16(&remap[0],
         mIndices,
         mNumIndices,
@@ -5583,14 +5587,22 @@ struct MikktData
     {
         U32 count = face->mNumIndices;
 
-        p.resize(count);
-        n.resize(count);
-        tc.resize(count);
-        t.resize(count);
-
-        if (face->mWeights)
+        try
         {
-            w.resize(count);
+            p.resize(count);
+            n.resize(count);
+            tc.resize(count);
+            t.resize(count);
+
+            if (face->mWeights)
+            {
+                w.resize(count);
+            }
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("LLCoros") << "Bad memory allocation in MikktData, elements count: " << count << LL_ENDL;
         }
 
 
@@ -5662,7 +5674,16 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         // and is executed on a background thread
         MikktData data(this);
         mikk::Mikktspace ctx(data);
-        ctx.genTangSpace();
+        try
+        {
+            ctx.genTangSpace();
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("LLCoros") << "Bad memory allocation in MikktData::genTangSpace" << LL_ENDL;
+        }
+
 
         //re-weld
         meshopt_Stream mos[] =
@@ -5675,7 +5696,15 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         };
 
         std::vector<U32> remap;
-        remap.resize(data.p.size());
+        try
+        {
+            remap.resize(data.p.size());
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("LLCoros") << "Failed to allocate memory for remap: " << (S32)data.p.size() << LL_ENDL;
+        }
 
         U32 stream_count = data.w.empty() ? 4 : 5;
 

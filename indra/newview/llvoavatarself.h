@@ -90,7 +90,9 @@ public:
     /*virtual*/ bool        hasMotionFromSource(const LLUUID& source_id);
     /*virtual*/ void        stopMotionFromSource(const LLUUID& source_id);
     /*virtual*/ void        requestStopMotion(LLMotion* motion);
-    /*virtual*/ LLJoint*    getJoint(const std::string &name);
+    /*virtual*/ LLJoint*    getJoint(std::string_view name);
+
+    /*virtual*/ void renderJoints();
 
     /*virtual*/ bool setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
     /*virtual*/ bool setVisualParamWeight(const char* param_name, F32 weight);
@@ -102,6 +104,8 @@ public:
 private:
     // helper function. Passed in param is assumed to be in avatar's parameter list.
     bool setParamWeight(const LLViewerVisualParam *param, F32 weight);
+
+    std::mutex          mJointMapMutex; // getJoint gets used from mesh thread
 
 /********************************************************************************
  **                                                                            **
@@ -125,7 +129,7 @@ public:
     // Loading state
     //--------------------------------------------------------------------
 public:
-    /*virtual*/ bool    getIsCloud() const;
+    /*virtual*/ bool    getHasMissingParts() const;
 
     //--------------------------------------------------------------------
     // Region state

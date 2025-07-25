@@ -1175,6 +1175,7 @@ void LLPanelPermissions::onCommitName(LLUICtrl*, void* data)
         {
             LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
             new_item->rename(tb->getText());
+            new_item->setComplete(true); // to not err at updateServer
             new_item->updateServer(false);
             gInventory.updateItem(new_item);
             gInventory.notifyObservers();
