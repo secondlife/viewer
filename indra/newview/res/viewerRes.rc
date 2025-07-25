@@ -56,6 +56,7 @@ END
 // remains consistent on all systems.
 IDI_LL_ICON             ICON                    "ll_icon.ico"
 IDI_LCD_LL_ICON         ICON                    "icon1.ico"
+IDI_LL_ICON_SMALL       ICON                    "ll_icon_small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
