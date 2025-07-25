@@ -235,6 +235,7 @@ LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS("frametimeevents", "Numbe
 
 LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION("normalizedframetimejitter", "Normalized frametime jitter over the session.");
 LLTrace::SampleStatHandle<F64> NFTV("nftv", "Normalized frametime variation.");
+LLTrace::SampleStatHandle<F64> NORMALIZED_FRAMTIME_JITTER_PERIOD("normalizedframetimejitterperiod", "Normalized frametime jitter over the last 5 seconds.");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
@@ -372,6 +373,17 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 
             sample(LLStatViewer::NFTV, frame_time_stddev / averageFrameTime);
             mLastNormalizedFrametimeVariance = frame_time_stddev / averageFrameTime;
+
+            // Add up all of the jitter values.
+            F64 totalJitter = 0;
+            for (const auto& frame_jitter : mFrameTimesJitter)
+            {
+                totalJitter += frame_jitter.value();
+            }
+
+            mLastNormalizedPeriodJitter = totalJitter / mLastFrameTimeSample;
+
+            sample(LLStatViewer::NORMALIZED_FRAMTIME_JITTER_PERIOD, mLastNormalizedPeriodJitter);
 
             mFrameTimes.clear();
             mFrameTimesJitter.clear();
@@ -664,6 +676,7 @@ void send_viewer_stats(bool include_preferences)
 
     agent["normalized_session_jitter"] = LLViewerStats::instance().getLastNormalizedSessionJitter();
     agent["normalized_frametime_variance"] = LLViewerStats::instance().getLastNormalizedFrametimeVariance();
+    agent["normalized_period_jitter"]      = LLViewerStats::instance().getLastNormalizedPeriodJitter();
 
     agent["version"] = LLVersionInfo::instance().getChannelAndVersion();
     std::string language = LLUI::getLanguage();

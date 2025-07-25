@@ -273,6 +273,7 @@ public:
 
     F64 getLastNormalizedSessionJitter() const { return mLastNoramlizedSessionJitter; }
     F64 getLastNormalizedFrametimeVariance() const { return mLastNormalizedFrametimeVariance; }
+    F64 getLastNormalizedPeriodJitter() const { return mLastNormalizedPeriodJitter; }
 
 private:
     LLTrace::Recording              mRecording;
@@ -292,6 +293,7 @@ private:
 
     F64 mLastNoramlizedSessionJitter; // used for frame time jitter stats
     F64 mLastNormalizedFrametimeVariance; // Used when submitting jitter stats
+    F64 mLastNormalizedPeriodJitter;
 
 };
 

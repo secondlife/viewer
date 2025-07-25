@@ -58,6 +58,10 @@
                     label="normalized sess. jitter"
                     decimal_digits="4"
                     stat="normalizedframetimejitter"/>
+          <stat_bar name="normalized_period_jitter"
+                    label="normalized period jitter"
+                    decimal_digits="4"
+                    stat="normalizedframetimejitterperiod"/>
           <stat_bar name="normalized_frametime_variation"
                     label="normalized frametime variation"
                     decimal_digits="4"
