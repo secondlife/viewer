@@ -103,13 +103,11 @@ Perform the testing procedure on both sets of cubes.
 
 Ensure that debug setting `MediaFirstClickInteract` is set to `4`
 
-This test case requires two pairs of cubes, and the second pair must be deeded or set to a group that your testing account is a member of, but does not have set as active at the beginning of the test. As long as the second set of cubes is set to a group that your primary test account is a member of, the avatar that owns them does not matter.
+This test case requires two cubes, and the second cube must be deeded or set to a group that your testing account is a member of. As long as the second set of cubes is set to a group that your test account is a member of, the avatar that owns them does not matter.
 
-1. Perform the testing procedure on both sets of cubes.
-2. Activate the group that the second set of cubes is set / deeded to
-3. Perform the testing procedure on both sets of cubes once more.
+Perform the testing procedure on both sets of cubes.
 
-**Expected observations:** Both cubes owned by your primary testing account will not react to mouse cursor hover events and clicks without needing a focus click. Cube A set to group will react to mouse cursor hover events and clicks without needing a focus click, but Cube B will not.
+**Expected observations:** The cube owned by your primary account will not react to mouse cursor hover events and clicks without needing a focus click. The cube set to group will react to mouse cursor hover events and clicks without needing a focus click.
 
 ### Case 5 (MEDIA_FIRST_CLICK_FRIEND)
 
