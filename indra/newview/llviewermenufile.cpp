@@ -554,21 +554,23 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
                     {
                         S32 width = raw_image->getWidth();
                         S32 height = raw_image->getHeight();
-                    
+
                         if (width > 2048 || height > 2048)
                         {
                             F32 scale_ratio = llmin(2048.f / width, 2048.f / height);
                             S32 new_width = llfloor(width * scale_ratio);
                             S32 new_height = llfloor(height * scale_ratio);
                             raw_image->scale(new_width, new_height);
-                        
+
                             LL_INFOS("ImageUpload") << "Image resized from "
                                                     << width << "x" << height << " to "
                                                     << new_width << "x" << new_height << LL_ENDL;
-                        
+
                             // Re-encode resized image back into image_frmted
                             image_frmted->encode(raw_image);
-                            image_frmted->save(filename); // overwrite original file (or temp copy)
+                            std::string temp_filename = gDirUtilp->getTempFilename();
+                            image_frmted->save(temp_filename);
+                            filename = temp_filename;
                         }
                     }
 

@@ -81,8 +81,47 @@ LLFloaterImagePreview::LLFloaterImagePreview(const std::string& filename) :
     mLastMouseY(0),
     mImagep(NULL)
 {
+    // Create formatted image
+    std::string ext = gDirUtilp->getExtension(mFilenameAndPath);
+    U32 codec;
+    LLAssetType::EType asset_type;
+    if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
+    {
+        if (asset_type == LLAssetType::AT_TEXTURE)
+        {
+            LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
+            if (gDirUtilp->fileExists(mFilenameAndPath) && image_frmted && image_frmted->load(mFilenameAndPath))
+            {
+                LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+                if (image_frmted->decode(raw_image, 0.0f))
+                {
+                    S32 width = raw_image->getWidth();
+                    S32 height = raw_image->getHeight();
+
+                    if (width > 2048 || height > 2048)
+                    {
+                        F32 scale_ratio = llmin(2048.f / width, 2048.f / height);
+                        S32 new_width = llfloor(width * scale_ratio);
+                        S32 new_height = llfloor(height * scale_ratio);
+                        raw_image->scale(new_width, new_height);
+
+                        LL_INFOS("ImagePreview") << "Resized preview from "
+                                                 << width << "x" << height << " to "
+                                                 << new_width << "x" << new_height << LL_ENDL;
+
+                        image_frmted->encode(raw_image);
+                        std::string temp_filename = gDirUtilp->getTempFilename();
+                        image_frmted->save(temp_filename);
+                        mFilenameAndPath = temp_filename; // update path to resized
+                    }
+                }
+            }
+        }
+    }
+
     loadImage(mFilenameAndPath);
 }
+
 
 //-----------------------------------------------------------------------------
 // postBuild()
