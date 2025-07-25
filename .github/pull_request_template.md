@@ -19,6 +19,7 @@ Issue Link: <!-- e.g., closes #123 or relates to #456 -->
 Please ensure the following before requesting review:
 
 - [ ] I have provided a clear title and detailed description for this pull request.
+- [ ] If useful, I have included media such as screenshots and video to demonstrate my changes.
 - [ ] The PR is linked to a relevant issue with sufficient context.
 - [ ] I have tested the changes locally and verified they work as intended.
 - [ ] All new and existing tests pass.
