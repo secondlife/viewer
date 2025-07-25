@@ -995,6 +995,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
     // TODO - figure out if this should be moved into the noclobber fields above
     mThumbnailUUID.setNull();
     mFavorite = false;
+    mPermissions.init(LLUUID::null, LLUUID::null, LLUUID::null, LLUUID::null);
 
     // iterate as map to avoid making unnecessary temp copies of everything
     LLSD::map_const_iterator i, end;
@@ -1053,7 +1054,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 
         if (i->first == INV_PERMISSIONS_LABEL)
         {
-            mPermissions = ll_permissions_from_sd(i->second);
+            mPermissions.importLLSD(i->second);
             continue;
         }
 
@@ -1522,53 +1523,68 @@ void LLInventoryCategory::exportLLSD(LLSD& cat_data) const
     }
 }
 
-bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
+bool LLInventoryCategory::importLLSDMap(const LLSD& cat_data)
 {
-    if (cat_data.has(INV_FOLDER_ID_LABEL))
+    LLSD::map_const_iterator i, end;
+    end = cat_data.endMap();
+    for ( i = cat_data.beginMap(); i != end; ++i)
     {
-        setUUID(cat_data[INV_FOLDER_ID_LABEL].asUUID());
+        importLLSD(i->first, i->second);
     }
-    if (cat_data.has(INV_PARENT_ID_LABEL))
+    return true;
+}
+
+bool LLInventoryCategory::importLLSD(const std::string& label, const LLSD& value)
+{
+    if (label == INV_FOLDER_ID_LABEL)
     {
-        setParent(cat_data[INV_PARENT_ID_LABEL].asUUID());
+        setUUID(value.asUUID());
+        return true;
     }
-    if (cat_data.has(INV_ASSET_TYPE_LABEL))
+    else if (label == INV_PARENT_ID_LABEL)
     {
-        setType(LLAssetType::lookup(cat_data[INV_ASSET_TYPE_LABEL].asString()));
+        setParent(value.asUUID());
+        return true;
     }
-    if (cat_data.has(INV_PREFERRED_TYPE_LABEL))
+    else if (label == INV_ASSET_TYPE_LABEL)
     {
-        setPreferredType(LLFolderType::lookup(cat_data[INV_PREFERRED_TYPE_LABEL].asString()));
+        setType(LLAssetType::lookup(value.asString()));
+        return true;
     }
-    if (cat_data.has(INV_THUMBNAIL_LABEL))
+    else if (label == INV_PREFERRED_TYPE_LABEL)
+    {
+        setPreferredType(LLFolderType::lookup(value.asString()));
+        return true;
+    }
+    else if (label == INV_THUMBNAIL_LABEL)
     {
         LLUUID thumbnail_uuid;
-        const LLSD &thumbnail_data = cat_data[INV_THUMBNAIL_LABEL];
-        if (thumbnail_data.has(INV_ASSET_ID_LABEL))
+        if (value.has(INV_ASSET_ID_LABEL))
         {
-            thumbnail_uuid = thumbnail_data[INV_ASSET_ID_LABEL].asUUID();
+            thumbnail_uuid = value[INV_ASSET_ID_LABEL].asUUID();
         }
         setThumbnailUUID(thumbnail_uuid);
+        return true;
     }
-    if (cat_data.has(INV_FAVORITE_LABEL))
+    if (label == INV_FAVORITE_LABEL)
     {
         bool favorite = false;
-        const LLSD& favorite_data = cat_data[INV_FAVORITE_LABEL];
-        if (favorite_data.has(INV_TOGGLED_LABEL))
+        if (value.has(INV_TOGGLED_LABEL))
         {
-            favorite = favorite_data[INV_TOGGLED_LABEL].asBoolean();
+            favorite = value[INV_TOGGLED_LABEL].asBoolean();
         }
         setFavorite(favorite);
     }
-    if (cat_data.has(INV_NAME_LABEL))
+    else if (label == INV_NAME_LABEL)
     {
-        mName = cat_data[INV_NAME_LABEL].asString();
+        mName = value.asString();
         LLStringUtil::replaceNonstandardASCII(mName, ' ');
         LLStringUtil::replaceChar(mName, '|', ' ');
+        return true;
     }
-
-    return true;
+    return false;
 }
+
 ///----------------------------------------------------------------------------
 /// Local function definitions for testing purposes
 ///----------------------------------------------------------------------------

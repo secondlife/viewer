@@ -704,6 +704,79 @@ bool LLPermissions::exportLegacyStream(std::ostream& output_stream) const
     return true;
 }
 
+static const std::string PERM_CREATOR_ID_LABEL("creator_id");
+static const std::string PERM_OWNER_ID_LABEL("owner_id");
+static const std::string PERM_LAST_OWNER_ID_LABEL("last_owner_id");
+static const std::string PERM_GROUP_ID_LABEL("group_id");
+static const std::string PERM_IS_OWNER_GROUP_LABEL("is_owner_group");
+static const std::string PERM_BASE_MASK_LABEL("base_mask");
+static const std::string PERM_OWNER_MASK_LABEL("owner_mask");
+static const std::string PERM_GROUP_MASK_LABEL("group_mask");
+static const std::string PERM_EVERYONE_MASK_LABEL("everyone_mask");
+static const std::string PERM_NEXT_OWNER_MASK_LABEL("next_owner_mask");
+
+void LLPermissions::importLLSD(const LLSD& sd_perm)
+{
+    LLSD::map_const_iterator i, end;
+    end = sd_perm.endMap();
+    for (i = sd_perm.beginMap(); i != end; ++i)
+    {
+        const std::string& label = i->first;
+        if (label == PERM_CREATOR_ID_LABEL)
+        {
+            mCreator = i->second.asUUID();
+            continue;
+        }
+        if (label == PERM_OWNER_ID_LABEL)
+        {
+            mOwner = i->second.asUUID();
+            continue;
+        }
+        if (label == PERM_LAST_OWNER_ID_LABEL)
+        {
+            mLastOwner = i->second.asUUID();
+            continue;
+        }
+        if (label == PERM_GROUP_ID_LABEL)
+        {
+            mGroup = i->second.asUUID();
+            continue;
+        }
+        if (label == PERM_BASE_MASK_LABEL)
+        {
+            PermissionMask mask = i->second.asInteger();
+            mMaskBase = mask;
+            continue;
+        }
+        if (label == PERM_OWNER_MASK_LABEL)
+        {
+            PermissionMask mask = i->second.asInteger();
+            mMaskOwner = mask;
+            continue;
+        }
+        if (label == PERM_EVERYONE_MASK_LABEL)
+        {
+            PermissionMask mask = i->second.asInteger();
+            mMaskEveryone = mask;
+            continue;
+        }
+        if (label == PERM_GROUP_MASK_LABEL)
+        {
+            PermissionMask mask = i->second.asInteger();
+            mMaskGroup = mask;
+            continue;
+        }
+        if (label == PERM_NEXT_OWNER_MASK_LABEL)
+        {
+            PermissionMask mask = i->second.asInteger();
+            mMaskNextOwner = mask;
+            continue;
+        }
+    }
+
+    fix();
+}
+
 bool LLPermissions::operator==(const LLPermissions &rhs) const
 {
     return
@@ -998,16 +1071,6 @@ std::string mask_to_string(U32 mask)
 ///----------------------------------------------------------------------------
 /// exported functions
 ///----------------------------------------------------------------------------
-static const std::string PERM_CREATOR_ID_LABEL("creator_id");
-static const std::string PERM_OWNER_ID_LABEL("owner_id");
-static const std::string PERM_LAST_OWNER_ID_LABEL("last_owner_id");
-static const std::string PERM_GROUP_ID_LABEL("group_id");
-static const std::string PERM_IS_OWNER_GROUP_LABEL("is_owner_group");
-static const std::string PERM_BASE_MASK_LABEL("base_mask");
-static const std::string PERM_OWNER_MASK_LABEL("owner_mask");
-static const std::string PERM_GROUP_MASK_LABEL("group_mask");
-static const std::string PERM_EVERYONE_MASK_LABEL("everyone_mask");
-static const std::string PERM_NEXT_OWNER_MASK_LABEL("next_owner_mask");
 
 LLSD ll_create_sd_from_permissions(const LLPermissions& perm)
 {
@@ -1032,25 +1095,6 @@ void ll_fill_sd_from_permissions(LLSD& rv, const LLPermissions& perm)
 LLPermissions ll_permissions_from_sd(const LLSD& sd_perm)
 {
     LLPermissions rv;
-    rv.init(
-        sd_perm[PERM_CREATOR_ID_LABEL].asUUID(),
-        sd_perm[PERM_OWNER_ID_LABEL].asUUID(),
-        sd_perm[PERM_LAST_OWNER_ID_LABEL].asUUID(),
-        sd_perm[PERM_GROUP_ID_LABEL].asUUID());
-
-    // We do a cast to U32 here since LLSD does not attempt to
-    // represent unsigned ints.
-    PermissionMask mask;
-    mask = (U32)(sd_perm[PERM_BASE_MASK_LABEL].asInteger());
-    rv.setMaskBase(mask);
-    mask = (U32)(sd_perm[PERM_OWNER_MASK_LABEL].asInteger());
-    rv.setMaskOwner(mask);
-    mask = (U32)(sd_perm[PERM_EVERYONE_MASK_LABEL].asInteger());
-    rv.setMaskEveryone(mask);
-    mask = (U32)(sd_perm[PERM_GROUP_MASK_LABEL].asInteger());
-    rv.setMaskGroup(mask);
-    mask = (U32)(sd_perm[PERM_NEXT_OWNER_MASK_LABEL].asInteger());
-    rv.setMaskNext(mask);
-    rv.fix();
+    rv.importLLSD(sd_perm);
     return rv;
 }
