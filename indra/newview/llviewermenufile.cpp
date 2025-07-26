@@ -733,8 +733,31 @@ bool get_bulk_upload_expected_cost(
                 LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
                 if (gDirUtilp->fileExists(filename) && image_frmted && image_frmted->load(filename))
                 {
-                    S32 biased_width = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getWidth(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-                    S32 biased_height = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getHeight(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    S32 biased_width, biased_height;
+
+                    S32 max_width  = allow_2k ? gSavedSettings.getS32("max_texture_dimension_X") : 1024;
+                    S32 max_height = allow_2k ? gSavedSettings.getS32("max_texture_dimension_Y") : 1024;
+
+                    S32 orig_width  = image_frmted->getWidth();
+                    S32 orig_height = image_frmted->getHeight();
+
+                    if (orig_width > max_width || orig_height > max_height)
+                    {
+                        // Calculate scale factors
+                        F32 width_scale  = (F32)max_width / (F32)orig_width;
+                        F32 height_scale = (F32)max_height / (F32)orig_height;
+                        F32 scale        = llmin(width_scale, height_scale);
+
+                        // Calculate new dimensions, preserving aspect ratio
+                        biased_width = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_width * scale), 4, max_width));
+                        biased_height = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_height * scale), 4, max_height));
+                    }
+                    else
+                    {
+                        biased_width = LLImageRaw::biasedDimToPowerOfTwo(orig_width, LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                        biased_height = LLImageRaw::biasedDimToPowerOfTwo(orig_height, LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    }
+
                     total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(biased_width, biased_height);
                     S32 area = biased_width * biased_height;
                     if (area >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
