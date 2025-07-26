@@ -12611,12 +12611,31 @@ are wearing now.
       yestext="Continue"/>
   </notification>
 
-  <notification
-   icon="notify.tga"
-   name="WaterExclusionNoMaterial"
-   persist="true"
-   type="notify">
-    Unable to apply material to the water exclusion surface.
-    <tag>fail</tag>
-  </notification>
+    <notification
+     icon="notify.tga"
+     name="WaterExclusionNoMaterial"
+     persist="true"
+     type="notify">
+        Unable to apply material to the water exclusion surface.
+        <tag>fail</tag>
+    </notification>
+
+    <notification
+     icon="notify.tga"
+     name="ImageUploadResized"
+     type="alertmodal">
+        The texture you are uploading has been resized from [ORIGINAL_WIDTH]x[ORIGINAL_HEIGHT] to [NEW_WIDTH]x[NEW_HEIGHT] in order to to fit the maximum size of [MAX_WIDTH]x[MAX_HEIGHT] pixels.
+        <usetemplate
+            ignoretext="Image Upload Resized"
+            name="okignore"
+            yestext="OK"/>
+    </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ErrorEncodingImage"
+     type="alertmodal">
+        Error encoding image.
+        <tag>fail</tag>
+    </notification>
 </notifications>
