@@ -5888,15 +5888,15 @@ void LLAppViewer::initDiscordSocial()
 
 void LLAppViewer::handleDiscordSocial()
 {
-    static const uint64_t DISCORD_APPLICATION_ID = 1394782217405862001;
-    discordpp::AuthorizationArgs discordAuthArgs{};
-    discordAuthArgs.SetClientId(DISCORD_APPLICATION_ID);
-    discordAuthArgs.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
-    auto discordCodeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
-    discordAuthArgs.SetCodeChallenge(discordCodeVerifier.Challenge());
-    gDiscordClient->Authorize(discordAuthArgs, [discordCodeVerifier](auto result, auto code, auto redirectUri) {
+    static const uint64_t APPLICATION_ID = 1394782217405862001;
+    discordpp::AuthorizationArgs args{};
+    args.SetClientId(APPLICATION_ID);
+    args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
+    auto codeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
+    args.SetCodeChallenge(codeVerifier.Challenge());
+    gDiscordClient->Authorize(args, [codeVerifier](auto result, auto code, auto redirectUri) {
         if (result.Successful()) {
-            gDiscordClient->GetToken(DISCORD_APPLICATION_ID, code, discordCodeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
+            gDiscordClient->GetToken(APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
                 gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [](discordpp::ClientResult result) {
                     if (result.Successful())
                         gDiscordClient->Connect();
