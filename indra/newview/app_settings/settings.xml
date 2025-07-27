@@ -16245,5 +16245,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableLookAtHints</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to send animate the avatar head and send look at hints when moving the cursor or focusing on objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 </map>
 </llsd>
