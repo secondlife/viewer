@@ -392,6 +392,12 @@ void LLHUDEffectLookAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 //-----------------------------------------------------------------------------
 bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
+    static LLCachedControl<bool> enable_lookat_hints(gSavedSettings, "EnableLookAtHints", true);
+    if (!enable_lookat_hints)
+    {
+        return false;
+    }
+
     if (!mSourceObject)
     {
         return false;
