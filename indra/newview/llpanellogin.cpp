@@ -560,7 +560,6 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
 
     if(identifier.has("type") && (std::string)identifier["type"] == "agent")
     {
-        // not nessesary for panel_login.xml, needed for panel_login_first.xml
         std::string firstname = identifier["first_name"].asString();
         std::string lastname = identifier["last_name"].asString();
         std::string login_id = firstname;
