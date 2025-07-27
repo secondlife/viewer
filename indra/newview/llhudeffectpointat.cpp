@@ -34,6 +34,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "lldrawable.h"
+#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "message.h"
@@ -221,6 +222,12 @@ void LLHUDEffectPointAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 //-----------------------------------------------------------------------------
 bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
 {
+    static LLCachedControl<bool> enable_selection_hints(gSavedSettings, "EnableSelectionHints", true);
+    if (!enable_selection_hints)
+    {
+        return false;
+    }
+
     if (!mSourceObject)
     {
         return false;

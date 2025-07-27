@@ -2830,6 +2830,12 @@ void LLVOAvatarSelf::setHoverOffset(const LLVector3& hover_offset, bool send_upd
 //------------------------------------------------------------------------
 bool LLVOAvatarSelf::needsRenderBeam()
 {
+    static LLCachedControl<bool> enable_selection_hints(gSavedSettings, "EnableSelectionHints", true);
+    if (!enable_selection_hints)
+    {
+        return false;
+    }
+
     LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
     bool is_touching_or_grabbing = (tool == LLToolGrab::getInstance() && LLToolGrab::getInstance()->isEditing());
