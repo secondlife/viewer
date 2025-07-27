@@ -139,6 +139,7 @@
 #include "llwindow.h"
 #include "llpathfindingmanager.h"
 #include "llstartup.h"
+#include "llappviewer.h"
 #include "boost/unordered_map.hpp"
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
@@ -8827,7 +8828,7 @@ void handle_report_bug(const LLSD& param)
 #ifdef LL_DISCORD
 void handle_discord_social(const LLSD& param)
 {
-    LLStartUp::handleDiscordSocial();
+    LLAppViewer::handleDiscordSocial();
 }
 #endif
 

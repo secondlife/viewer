@@ -210,12 +210,6 @@
 #include "lldxhardware.h"
 #endif
 
-#ifdef LL_DISCORD
-#define DISCORDPP_IMPLEMENTATION
-#include <discordpp.h>
-static std::shared_ptr<discordpp::Client> gDiscordClient;
-#endif
-
 //
 // exported globals
 //
@@ -731,14 +725,7 @@ bool idle_startup()
         }
 
 #ifdef LL_DISCORD
-        gDiscordClient = std::make_shared<discordpp::Client>();
-        gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
-            if (status == discordpp::Client::Status::Ready) {
-                discordpp::Activity activity;
-                activity.SetType(discordpp::ActivityTypes::Playing);
-                gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
-            }
-        });
+        LLAppViewer::initDiscordSocial();
 #endif
 
         //
@@ -3391,35 +3378,6 @@ bool LLStartUp::startLLProxy()
 
     return proxy_ok;
 }
-
-#ifdef LL_DISCORD
-
-void LLStartUp::runDiscordCallbacks()
-{
-    discordpp::RunCallbacks();
-}
-
-void LLStartUp::handleDiscordSocial()
-{
-    static const uint64_t DISCORD_APPLICATION_ID = 1394782217405862001;
-    discordpp::AuthorizationArgs discordAuthArgs{};
-    discordAuthArgs.SetClientId(DISCORD_APPLICATION_ID);
-    discordAuthArgs.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
-    auto discordCodeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
-    discordAuthArgs.SetCodeChallenge(discordCodeVerifier.Challenge());
-    gDiscordClient->Authorize(discordAuthArgs, [discordCodeVerifier](auto result, auto code, auto redirectUri) {
-        if (result.Successful()) {
-            gDiscordClient->GetToken(DISCORD_APPLICATION_ID, code, discordCodeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
-                gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [](discordpp::ClientResult result) {
-                    if (result.Successful())
-                        gDiscordClient->Connect();
-                    });
-            });
-        }
-    });
-}
-
-#endif
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)
 {

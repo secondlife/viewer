@@ -128,12 +128,6 @@ public:
     static bool startLLProxy(); // Initialize the SOCKS 5 proxy
 
     static LLViewerStats::PhaseMap& getPhases() { return *sPhases; }
-
-#ifdef LL_DISCORD
-    static void runDiscordCallbacks();
-    static void handleDiscordSocial();
-#endif
-
 private:
     friend class LLStartupListener;
     static LLSLURL sStartSLURL;
