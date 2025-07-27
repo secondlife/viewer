@@ -237,6 +237,13 @@ void handleAppearanceCameraMovementChanged(const LLSD& newvalue)
     }
 }
 
+#ifdef LL_DISCORD
+void handleDiscordSocial(const LLSD& newvalue)
+{
+    LLAppViewer::handleDiscordSocial(newvalue.asBoolean());
+}
+#endif
+
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 {
     numerator = 0;
@@ -366,6 +373,9 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.ClearLog",               boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
     mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
     mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
+#ifdef LL_DISCORD
+    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&handleDiscordSocial,  _2));
+#endif
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )

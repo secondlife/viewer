@@ -5876,34 +5876,62 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 
 void LLAppViewer::initDiscordSocial()
 {
-        gDiscordClient = std::make_shared<discordpp::Client>();
-        gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
-            if (status == discordpp::Client::Status::Ready) {
-                discordpp::Activity activity;
-                activity.SetType(discordpp::ActivityTypes::Playing);
-                gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
-            }
-        });
-}
-
-void LLAppViewer::handleDiscordSocial()
-{
-    static const uint64_t APPLICATION_ID = 1394782217405862001;
-    discordpp::AuthorizationArgs args{};
-    args.SetClientId(APPLICATION_ID);
-    args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
-    auto codeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
-    args.SetCodeChallenge(codeVerifier.Challenge());
-    gDiscordClient->Authorize(args, [codeVerifier](auto result, auto code, auto redirectUri) {
-        if (result.Successful()) {
-            gDiscordClient->GetToken(APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
-                gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [](discordpp::ClientResult result) {
-                    if (result.Successful())
-                        gDiscordClient->Connect();
-                    });
-            });
+    gDiscordClient = std::make_shared<discordpp::Client>();
+    gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
+        if (status == discordpp::Client::Status::Ready)
+        {
+            discordpp::Activity activity;
+            activity.SetType(discordpp::ActivityTypes::Playing);
+            gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
         }
     });
+    if (gSavedSettings.getBOOL("EnableDiscord"))
+    {
+        gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, gSecAPIHandler->loadCredential("Discord")->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
+            if (result.Successful())
+                gDiscordClient->Connect();
+        });
+    }
+}
+
+void LLAppViewer::handleDiscordSocial(bool enable)
+{
+    static const uint64_t APPLICATION_ID = 1394782217405862001;
+    if (enable)
+    {
+        discordpp::AuthorizationArgs args{};
+        args.SetClientId(APPLICATION_ID);
+        args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
+        auto codeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
+        args.SetCodeChallenge(codeVerifier.Challenge());
+        gDiscordClient->Authorize(args, [codeVerifier](auto result, auto code, auto redirectUri) {
+            if (result.Successful())
+            {
+                gDiscordClient->GetToken(APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
+                    gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [](discordpp::ClientResult result) {
+                        if (result.Successful())
+                            gDiscordClient->Connect();
+                    });
+                    LLSD authenticator = LLSD::emptyMap();
+                    authenticator["token"] = accessToken;
+                    gSecAPIHandler->saveCredential(gSecAPIHandler->createCredential("Discord", LLSD::emptyMap(), authenticator), true);
+                });
+            }
+            else
+            {
+                gSavedSettings.setBOOL("EnableDiscord", false);
+            }
+        });
+    }
+    else
+    {
+        gDiscordClient->RevokeToken(APPLICATION_ID, gSecAPIHandler->loadCredential("Discord")->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
+            if (result.Successful())
+                gDiscordClient->Disconnect();
+            auto cred = new LLCredential("Discord");
+            gSecAPIHandler->deleteCredential(cred);
+        });
+    }
 }
 
 #endif

@@ -158,6 +158,7 @@
       follows="top|left">
 
       <check_box
+        control_name="EnableDiscord"
         height="16"
         enabled="true"
         label="Enable Discord integration"
@@ -168,6 +169,7 @@
         width="350" />
 
       <check_box
+        enabled_control="EnableDiscord"
         height="16"
         enabled="false"
         label="Show location"
