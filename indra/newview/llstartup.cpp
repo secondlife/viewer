@@ -2053,6 +2053,9 @@ bool idle_startup()
         // We have a region, and just did a big inventory download.
         // We can estimate the user's connection speed, and set their
         // max bandwidth accordingly.  JC
+#ifdef LL_DISCORD
+        LLAppViewer::updateDiscordActivity();
+#endif
         if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
         {
             // This is actually a pessimistic computation, because TCP may not have enough
