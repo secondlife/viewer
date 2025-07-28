@@ -5880,9 +5880,7 @@ void LLAppViewer::initDiscordSocial()
     gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
         if (status == discordpp::Client::Status::Ready)
         {
-            discordpp::Activity activity;
-            activity.SetType(discordpp::ActivityTypes::Playing);
-            gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
+            updateDiscordActivity();
         }
     });
     if (gSavedSettings.getBOOL("EnableDiscord"))
