@@ -222,14 +222,20 @@ void LLHUDEffectPointAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 //-----------------------------------------------------------------------------
 bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
 {
-    static LLCachedControl<bool> enable_selection_hints(gSavedSettings, "EnableSelectionHints", true);
-    if (!enable_selection_hints)
+    if (!mSourceObject)
     {
         return false;
     }
 
-    if (!mSourceObject)
+    static LLCachedControl<bool> enable_selection_hints(gSavedSettings, "EnableSelectionHints", true);
+    if (!enable_selection_hints)
     {
+        if (mTargetType != POINTAT_TARGET_NONE)
+        {
+            clearPointAtTarget();
+            setDuration(1.f);
+            setNeedsSendToSim(true);
+        }
         return false;
     }
 

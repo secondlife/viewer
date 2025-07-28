@@ -393,14 +393,22 @@ void LLHUDEffectLookAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 //-----------------------------------------------------------------------------
 bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
-    static LLCachedControl<bool> enable_lookat_hints(gSavedSettings, "EnableLookAtHints", true);
-    if (!enable_lookat_hints)
+    if (!mSourceObject)
     {
         return false;
     }
 
-    if (!mSourceObject)
+    static LLCachedControl<bool> enable_lookat_hints(gSavedSettings, "EnableLookAtHints", true);
+    if (!enable_lookat_hints)
     {
+        if (mTargetType != LOOKAT_TARGET_IDLE)
+        {
+            mTargetObject = gAgentAvatarp;
+            mTargetType = LOOKAT_TARGET_IDLE;
+            mTargetOffsetGlobal.set(2.f, 0.f, 0.f);
+            setDuration(3.f);
+            setNeedsSendToSim(true);
+        }
         return false;
     }
 
