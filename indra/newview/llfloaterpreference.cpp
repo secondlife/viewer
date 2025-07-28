@@ -237,20 +237,6 @@ void handleAppearanceCameraMovementChanged(const LLSD& newvalue)
     }
 }
 
-#ifdef LL_DISCORD
-
-void handleDiscordSocial(const LLSD& newvalue)
-{
-    LLAppViewer::handleDiscordSocial(newvalue.asBoolean());
-}
-
-void handleDiscordActivityState(const LLSD& newvalue)
-{
-    LLAppViewer::updateDiscordActivity();
-}
-
-#endif
-
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 {
     numerator = 0;
@@ -381,8 +367,9 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
     mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
 #ifdef LL_DISCORD
-    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&handleDiscordSocial,  _2));
-    gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(boost::bind(&handleDiscordActivityState,  _2));
+    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&LLAppViewer::handleDiscordSocial, _2));
+    gSavedSettings.getControl("ShowDiscordActivityDetails")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
+    gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
 #endif
 }
 
