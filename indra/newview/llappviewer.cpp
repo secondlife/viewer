@@ -272,6 +272,7 @@ using namespace LL;
 #define DISCORDPP_IMPLEMENTATION
 #include <discordpp.h>
 static std::shared_ptr<discordpp::Client> gDiscordClient;
+static uint64_t gDiscordTimestampsStart;
 #endif
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
@@ -5876,6 +5877,7 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 
 void LLAppViewer::initDiscordSocial()
 {
+    gDiscordTimestampsStart = time(nullptr);
     gDiscordClient = std::make_shared<discordpp::Client>();
     gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
         if (status == discordpp::Client::Status::Ready)
@@ -5934,11 +5936,17 @@ void LLAppViewer::handleDiscordSocial(const LLSD& value)
 
 void LLAppViewer::updateDiscordActivity()
 {
-    if (gAgent.getID() == LLUUID::null)
-        return;
-
     discordpp::Activity activity;
     activity.SetType(discordpp::ActivityTypes::Playing);
+    discordpp::ActivityTimestamps timestamps;
+    timestamps.SetStart(gDiscordTimestampsStart);
+    activity.SetTimestamps(timestamps);
+
+    if (gAgent.getID() == LLUUID::null)
+    {
+        gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
+        return;
+    }
 
     if (gSavedSettings.getBOOL("ShowDiscordActivityDetails"))
     {

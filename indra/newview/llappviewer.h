@@ -252,7 +252,7 @@ public:
 
 #ifdef LL_DISCORD
     static void initDiscordSocial();
-    static void handleDiscordSocial(const LLSD& newvalue);
+    static void handleDiscordSocial(const LLSD& value);
     static void updateDiscordActivity();
 #endif
 
