@@ -391,7 +391,7 @@ void LLHUDEffectLookAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 // setLookAt()
 // called by agent logic to set look at behavior locally, and propagate to sim
 //-----------------------------------------------------------------------------
-bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject* object, LLVector3 position)
+bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
     static LLCachedControl<bool> enable_lookat_hints(gSavedSettings, "EnableLookAtHints", true);
     if (!enable_lookat_hints)
