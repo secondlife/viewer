@@ -5936,11 +5936,21 @@ void LLAppViewer::handleDiscordSocial(bool enable)
 
 void LLAppViewer::updateDiscordActivity()
 {
+    if (gAgent.getID() == LLUUID::null)
+        return;
+
     discordpp::Activity activity;
     activity.SetType(discordpp::ActivityTypes::Playing);
-    if (gAgentAvatarp)
-        activity.SetDetails(gAgentAvatarp->getFullname());
-    if (gAgent.getID() != LLUUID::null && gSavedSettings.getBOOL("ShowDiscordActivityState"))
+
+    LLAvatarName av_name;
+    LLAvatarNameCache::get(gAgent.getID(), &av_name);
+    auto name = av_name.getUserName();
+    auto displayName = av_name.getDisplayName();
+    if (name != displayName)
+        name = displayName + " (" + name + ")";
+    activity.SetDetails(name);
+
+    if (gSavedSettings.getBOOL("ShowDiscordActivityState"))
     {
         auto agent_pos_region = gAgent.getPositionAgent();
         S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
@@ -5963,6 +5973,7 @@ void LLAppViewer::updateDiscordActivity()
         }
         activity.SetState(llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z));
     }
+
     gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
 }
 
