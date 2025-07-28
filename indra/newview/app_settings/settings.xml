@@ -16267,5 +16267,27 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>LimitLookAtHints</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to clamp the look at targets around the avatar head before sending</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>LimitLookAtHintsDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Distance to limit look at target to</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
 </map>
 </llsd>
