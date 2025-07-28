@@ -16245,10 +16245,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableLookAtHints</key>
+    <key>EnableLookAtTarget</key>
     <map>
       <key>Comment</key>
-      <string>Whether or not to send animate the avatar head and send look at hints when moving the cursor or focusing on objects</string>
+      <string>Whether or not to send animate the avatar head and send look at targets when moving the cursor or focusing on objects</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -16256,7 +16256,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>LimitLookAtHints</key>
+    <key>LimitLookAtTarget</key>
     <map>
       <key>Comment</key>
       <string>Whether or not to clamp the look at targets around the avatar head before sending</string>
@@ -16267,7 +16267,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>LimitLookAtHintsDistance</key>
+    <key>LimitLookAtTargetDistance</key>
     <map>
       <key>Comment</key>
       <string>Distance to limit look at target to</string>
