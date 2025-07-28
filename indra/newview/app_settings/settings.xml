@@ -16259,7 +16259,7 @@
     <key>EnableLookAtTarget</key>
     <map>
       <key>Comment</key>
-      <string>Whether or not to send animate the avatar head and send look at targets when moving the cursor or focusing on objects</string>
+      <string>Whether or not to animate the avatar head and send look at targets when moving the cursor or focusing on objects</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
