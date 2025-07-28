@@ -75,17 +75,17 @@
      top_pad="10"
      width="350" />
     <check_box
-     control_name="EnableLookAtHints"
+     control_name="EnableLookAtTarget"
      height="16"
      label="Enable LookAt"
      layout="topleft"
      left="30"
-     name="enable_lookat_hints"
+     name="enable_lookat_target"
      top_pad="10"
      width="350" />
     <check_box
-     enabled_control="EnableLookAtHints"
-     control_name="LimitLookAtHints"
+     enabled_control="EnableLookAtTarget"
+     control_name="LimitLookAtTarget"
      height="16"
      label="Limit LookAt Distance"
      layout="topleft"

@@ -398,7 +398,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
         return false;
     }
 
-    static LLCachedControl<bool> enable_lookat_hints(gSavedSettings, "EnableLookAtHints", true);
+    static LLCachedControl<bool> enable_lookat_hints(gSavedSettings, "EnableLookAtTarget", true);
     if (!enable_lookat_hints)
     {
         if (mTargetType != LOOKAT_TARGET_IDLE)
@@ -424,7 +424,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
         return false;
     }
 
-    static LLCachedControl<bool> limit_lookat_hints(gSavedSettings, "LimitLookAtHints", true);
+    static LLCachedControl<bool> limit_lookat_hints(gSavedSettings, "LimitLookAtTarget", true);
     // Don't affect the look at if object is gAgentAvatarp (cursor head follow)
     if (limit_lookat_hints && object != gAgentAvatarp)
     {
@@ -438,7 +438,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
         LLVector3 agentHeadPosition = gAgentAvatarp->mHeadp->getWorldPosition();
         float dist = (float)dist_vec(agentHeadPosition, position);
 
-        static LLCachedControl<F32> limit_lookat_hints_distance(gSavedSettings, "LimitLookAtHintsDistance", 2.0f);
+        static LLCachedControl<F32> limit_lookat_hints_distance(gSavedSettings, "LimitLookAtTargetDistance", 2.0f);
         if (dist > limit_lookat_hints_distance)
         {
             LLVector3 headOffset = position - agentHeadPosition;
