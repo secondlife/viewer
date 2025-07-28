@@ -63,7 +63,7 @@
       name="online_visibility"
       top_pad="30"
       width="350" />
-    
+
     <check_box
      enabled_control="EnableVoiceChat"
      control_name="AutoDisengageMic"
@@ -72,6 +72,34 @@
      layout="topleft"
      left="30"
      name="auto_disengage_mic_check"
+     top_pad="10"
+     width="350" />
+    <check_box
+     control_name="EnableLookAtHints"
+     height="16"
+     label="Enable LookAt"
+     layout="topleft"
+     left="30"
+     name="enable_lookat_hints"
+     top_pad="10"
+     width="350" />
+    <check_box
+     enabled_control="EnableLookAtHints"
+     control_name="LimitLookAtHints"
+     height="16"
+     label="Limit LookAt Distance"
+     layout="topleft"
+     left="50"
+     name="limit_lookat_distance"
+     top_pad="10"
+     width="350" />
+    <check_box
+     control_name="EnableSelectionHints"
+     height="16"
+     label="Enable Selection Hints"
+     layout="topleft"
+     left="30"
+     name="enable_selection_hints"
      top_pad="10"
      width="350" />
     <button
