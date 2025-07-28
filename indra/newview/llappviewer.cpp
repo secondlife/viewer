@@ -5971,7 +5971,19 @@ void LLAppViewer::updateDiscordActivity()
             pos_x -= pos_x % 2;
             pos_y -= pos_y % 2;
         }
-        activity.SetState(llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z));
+        auto location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
+        activity.SetState(location);
+
+        auto world = LLWorld::getInstance();
+        uuid_vec_t chat_radius_uuids, near_me_uuids;
+        auto position = gAgent.getPositionGlobal();
+        world->getAvatars(&chat_radius_uuids, NULL, position, CHAT_NORMAL_RADIUS);
+        world->getAvatars(&near_me_uuids, NULL, position, gSavedSettings.getF32("NearMeRange"));
+        discordpp::ActivityParty party;
+        party.SetId(location);
+        party.SetCurrentSize(chat_radius_uuids.size());
+        party.SetMaxSize(near_me_uuids.size());
+        activity.SetParty(party);
     }
 
     gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
