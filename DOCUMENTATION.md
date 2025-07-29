@@ -9,11 +9,12 @@ Our documentation should be **conversational, practical, and engineer-focused**.
 ## Tone and Voice
 
 ### Conversational and Approachable
-- Use phrases like "Think of this as...", "This is the thing that makes...", "Great for..."
-- Write like you're explaining to a friend, not reading from a technical manual.  Many viewer developers are doing this in their free time, and out of love for Second Life.
-- It's okay to be somewhat casual: "You should probably use this for..." or "This is like using a sledge hammer for...".  Avoid vague "magical" statements.
-- Don't get cocky: just because it meets your criteria on your system does not mean it does on everyone else's.
-- Assume that people will use it out of spec. Be respectful but firm on the use cases for a given piece of code.
+- Use clear, direct language: "This manages...", "Use this when...", "This handles..."
+- Write like you're explaining to a colleague, not reading from a technical manual. Many viewer developers are doing this in their free time, and out of love for Second Life.
+- Be friendly but professional: "Consider using this for..." or "This is designed for..."
+- Avoid vague language like "magical" or "where the magic happens" - be specific about what code does
+- Be mindful of platform differences: behavior on your system may differ on other configurations
+- Assume that people will use it out of spec. Be respectful but clear about intended use cases.
 
 ### Practical and Grounded
 - Connect abstract concepts to real-world use cases
@@ -26,9 +27,11 @@ Our documentation should be **conversational, practical, and engineer-focused**.
 /**
  * @brief Checks if a handle still points to a valid node.
  * 
- * Just because you have a handle doesn't mean the node still exists. This method
- * tells you if the handle is still good to use. Always check this before accessing
- * node data if you're not sure about the handle's validity.
+ * Handles can become invalid when their target nodes are destroyed. This method
+ * verifies handle validity before use. Always check this before accessing
+ * node data when the handle's validity is uncertain.
+ * 
+ * @return true if the handle points to a valid node, false otherwise
  */
 ```
 
@@ -156,6 +159,26 @@ Save this for more complex methods that aren't immediately obvious in how they s
 - Demonstrate the most common use case
 - Include error handling where relevant
 - Use meaningful variable names
+
+### Implementation Comments
+
+For inline comments in implementation files:
+- Explain non-obvious algorithms and optimizations
+- Document performance trade-offs
+- Keep comments concise and factual
+- Add context for workarounds or unusual approaches
+
+Example:
+```cpp
+// Combine IP:port into single 64-bit key for map lookup
+U64 ipport = (((U64)ip) << 32) | (U64)port;
+
+// Remove by moving last element to this object's position (swap-and-pop for O(1) removal)
+mActiveObjects[idx] = mActiveObjects[last_index];
+
+// Stack-allocated buffer to avoid heap fragmentation from frequent allocations
+U8 compressed_dpbuffer[2048];
+```
 
 ## Specific Patterns
 
@@ -317,13 +340,27 @@ When documenting legacy code:
  * @brief Implements Kahn's algorithm for topological sorting of directed acyclic graphs.
  */
 
-// Good: Explains the user benefit
+// Good: Explains the practical benefit
 /**
  * @brief Returns nodes in topological order (dependencies before dependents).
  * 
- * This is useful for dependency graphs. You get back a list where every
- * node comes after its dependencies. Perfect for execution ordering, build systems,
- * or any time you need to process things in dependency order.
+ * Useful for dependency graphs where you need to process items in order.
+ * Each node in the returned list comes after all its dependencies, making
+ * this ideal for build systems, execution ordering, or any dependency-based
+ * processing.
+ */
+```
+
+**Avoid overly casual language:**
+```cpp
+// Bad: Too casual
+/**
+ * @brief This is where the magic happens for object updates.
+ */
+
+// Good: Clear and professional
+/**
+ * @brief Core frame update that coordinates all object-related processing.
  */
 ```
 
@@ -334,15 +371,23 @@ When documenting legacy code:
  * @brief Gets the node count.
  */
 
-// Good: Explains what the count means
+// Good: Explains what the count represents
 /**
  * @brief Gets the number of valid nodes in the graph.
  * 
- * @return The count of nodes that are actually valid and usable.
- * Doesn't count nodes that have been removed but whose slots haven't
- * been reused yet.
+ * @return Count of active, usable nodes. Excludes nodes that have been
+ * removed but whose slots haven't been recycled yet.
  */
 ```
+
+### Language Guide
+
+**Professional alternatives to overly casual phrases:**
+- Instead of "This is the thing that..." → "This component handles..."
+- Instead of "Where the magic happens" → "Core processing occurs here" or "Primary functionality"
+- Instead of "You should probably..." → "Consider using..." or "Typically used for..."
+- Instead of "This is a hack" → "This is a workaround for..." or "This addresses a limitation..."
+- Instead of "Great for..." → "Useful for..." or "Designed for..."
 
 ## Tools and Automation
 
@@ -350,6 +395,38 @@ When documenting legacy code:
 - Consider automated checks for missing documentation
 - Review documentation during code review with the same rigor as code
 - Test that examples actually compile and work
+
+## Example
+
+Here's an example of how LLViewerObjectList is documented:
+
+```cpp
+/**
+ * @brief Manages all viewer-side objects in the virtual world.
+ * 
+ * This is the master registry for everything you can see in Second Life - from
+ * avatars to prims to particles. It serves as the central hub that tracks,
+ * updates, and manages the lifecycle of all objects in your viewing area,
+ * keeping the virtual world synchronized between the server and your viewer.
+ * 
+ * The class handles:
+ * - Object creation, updates, and destruction based on server messages
+ * - Tracking orphaned objects (children whose parents haven't loaded yet)
+ * - Managing active objects that need frequent updates
+ * - Caching and fetching object physics and cost data
+ * - Providing fast lookups by UUID or local ID
+ * 
+ * Performance note: This class is on the hot path for frame updates, so many
+ * operations are optimized for speed over memory usage.
+ */
+```
+
+Notice how this:
+- Starts with a clear, one-line summary
+- Uses concrete descriptions ("master registry") without being overly casual
+- Lists specific responsibilities
+- Includes performance considerations that matter to developers
+- Maintains a professional but approachable tone throughout
 
 ## Conclusion
 

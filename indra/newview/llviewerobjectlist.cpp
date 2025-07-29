@@ -28,6 +28,30 @@
 
 #include "llviewerobjectlist.h"
 
+/**
+ * Implementation Overview:
+ * 
+ * The LLViewerObjectList is the central manager for all objects in the virtual world.
+ * It maintains several key data structures:
+ * 
+ * 1. mObjects - Master list of all objects (including dead ones until cleanup)
+ * 2. mActiveObjects - Subset of objects needing per-frame updates
+ * 3. mUUIDObjectMap - Fast lookup from UUID to object pointer
+ * 4. mIndexAndLocalIDToUUID - Maps (region_index,local_id) pairs to UUIDs
+ * 5. mOrphanChildren/mOrphanParents - Tracks parent-child relationships that arrive out of order
+ * 
+ * Performance Considerations:
+ * - Object updates arrive hundreds of times per second, so operations are optimized
+ * - Uses "swap and pop" for O(1) removal from vectors
+ * - Lazy texture updates cycle through objects in bins to avoid frame spikes
+ * - Dead object cleanup is batched to minimize memory allocations
+ * - Stack-allocated buffers for decompression to avoid heap fragmentation
+ * 
+ * Thread Safety:
+ * - This class is NOT thread-safe and should only be accessed from the main thread
+ * - Coroutines are used for async HTTP requests but results are processed on main thread
+ */
+
 #include "message.h"
 #include "llfasttimer.h"
 #include "llrender.h"
@@ -97,6 +121,8 @@ LLViewerObjectList gObjectList;
 extern LLPipeline   gPipeline;
 
 // Statics for object lookup tables.
+// Start at 1, not 0, so we can use 0 as a sentinel value meaning "no region assigned yet"
+// This lets us quickly check if a region has been seen before in getIndex()
 U32                     LLViewerObjectList::sSimulatorMachineIndex = 1; // Not zero deliberately, to speed up index check.
 
 LLViewerObjectList::LLViewerObjectList()
@@ -133,7 +159,7 @@ void LLViewerObjectList::getUUIDFromLocal(LLUUID &id,
                                           const U32 ip,
                                           const U32 port)
 {
-    U64 ipport = (((U64)ip) << 32) | (U64)port;
+    U64 ipport = (((U64)ip) << 32) | (U64)port;  /// Combine IP:port into single 64-bit key for map lookup
 
     U32 index = mIPAndPortToIndex[ipport];
 
@@ -152,7 +178,7 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
                                  const U32 ip,
                                  const U32 port)
 {
-    U64 ipport = (((U64)ip) << 32) | (U64)port;
+    U64 ipport = (((U64)ip) << 32) | (U64)port;  /// Combine IP:port into single 64-bit key for map lookup
 
     U32 index = mIPAndPortToIndex[ipport];
 
@@ -200,7 +226,7 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
                                           const U32 port,
                                           LLViewerObject* objectp)
 {
-    U64 ipport = (((U64)ip) << 32) | (U64)port;
+    U64 ipport = (((U64)ip) << 32) | (U64)port;  /// Combine IP:port into single 64-bit key for map lookup
 
     U32 index = mIPAndPortToIndex[ipport];
 
@@ -457,6 +483,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
         return;
     }
 
+    // Stack-allocated buffer for decompressing object data. 2048 bytes is enough
+    // for most object updates - larger updates are extremely rare. Using stack
+    // allocation avoids heap fragmentation from frequent allocations.
     U8 compressed_dpbuffer[2048];
     LLDataPackerBinaryBuffer compressed_dp(compressed_dpbuffer, 2048);
     LLViewerStatsRecorder& recorder = LLViewerStatsRecorder::instance();
@@ -472,6 +501,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
             S32 uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
             LL_DEBUGS("ObjectUpdate") << "got binary data from message to compressed_dpbuffer" << LL_ENDL;
+            // Note: 2048 is the buffer size, not the data size. Data is typically much smaller.
             mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i, 2048);
             compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
 
@@ -499,7 +529,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
                 {
                     //send to object cache
                     regionp->cacheFullUpdate(compressed_dp, flags);
-                    continue;
+                    continue;  // Skip creating the object now - it's cached for later
                 }
             }
             else //OUT_TERSE_IMPROVED
@@ -558,9 +588,11 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             objectp = regionp->updateCacheEntry(local_id, objectp);
         }
 
-        // This looks like it will break if the local_id of the object doesn't change
-        // upon boundary crossing, but we check for region id matching later...
-        // Reset object local id and region pointer if things have changed
+        // Handle object region/local ID changes
+        // This happens when:
+        // 1. Object crosses region boundaries (gets new local ID in new region)
+        // 2. Object is rezzed from inventory (may reuse an old UUID with new local ID)
+        // We need to update our lookup tables to track the object correctly
         if (objectp &&
             ((objectp->mLocalID != local_id) ||
              (objectp->getRegion() != regionp)))
@@ -1060,7 +1092,7 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
 
 
 
-    uuid_set_t diff;
+    uuid_set_t diff;  // Objects that need cost fetch but aren't already pending
 
     std::set_difference(mStaleObjectCost.begin(), mStaleObjectCost.end(),
         mPendingObjectCost.begin(), mPendingObjectCost.end(),
@@ -1182,8 +1214,8 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD idList;
-    U32 objectIndex = 0;
+    LLSD idList;      // Array of object UUIDs to request physics for
+    U32 objectIndex = 0;  // Index for building the request array
 
     for (uuid_set_t::iterator it = mStalePhysicsFlags.begin(); it != mStalePhysicsFlags.end();)
     {
@@ -1420,6 +1452,7 @@ void LLViewerObjectList::cleanDeadObjects(bool use_timer)
     S32 num_removed = 0;
     LLViewerObject *objectp;
 
+    // Start from the back of the vector to build a contiguous block of dead objects
     vobj_list_t::reverse_iterator target = mObjects.rbegin();
 
     vobj_list_t::iterator iter = mObjects.begin();
@@ -1434,6 +1467,7 @@ void LLViewerObjectList::cleanDeadObjects(bool use_timer)
 
         if (objectp->isDead())
         {
+            // Swap dead object to the end without ref counting overhead
             LLPointer<LLViewerObject>::swap(*iter, *target);
             *target = NULL;
             ++target;
@@ -1472,7 +1506,7 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
         S32 size = (S32)mActiveObjects.size();
         if (size > 0) // mActiveObjects could have been cleaned already
         {
-            // Remove by moving last element to this object's position
+            // Remove by moving last element to this object's position (swap-and-pop for O(1) removal)
 
             llassert(idx < size); // idx should be always within mActiveObjects, unless killAllObjects was called
             llassert(mActiveObjects[idx] == objectp); // object should be there
@@ -1530,10 +1564,11 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
         }
     }
 
-    //post condition: if object is active, it must be on the active list
+    // Post-conditions to verify active list integrity (debug builds only)
+    // These asserts ensure our active list stays consistent with object state
     llassert(!active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) != mActiveObjects.end());
 
-    //post condition: if object is not active, it must not be on the active list
+    // Post-condition: if object is not active, it must not be on the active list
     llassert(active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) == mActiveObjects.end());
 }
 
@@ -2017,13 +2052,16 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
     }
     if (std::find(mOrphanParents.begin(), mOrphanParents.end(), getIndex(objectp->mLocalID, ip, port)) == mOrphanParents.end())
     {
-        // did not find objectp in OrphanParent list
+        // This object is not a parent of any known orphans, nothing to do
         return;
     }
 
     U64 parent_info = getIndex(objectp->mLocalID, ip, port);
     bool orphans_found = false;
     // Iterate through the orphan list, and set parents of matching children.
+    // We can't use remove_if here because we need to do complex operations
+    // on each orphan (reconnecting drawable hierarchy, updating visibility, etc.)
+    // This is why we manually iterate and track what to remove.
 
     for (std::vector<OrphanInfo>::iterator iter = mOrphanChildren.begin(); iter != mOrphanChildren.end(); )
     {
@@ -2079,6 +2117,7 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
     }
 
     // Remove orphan parent and children from lists now that they've been found
+    // We remove the parent info first, then remove all children with matching parent
     {
         std::vector<U64>::iterator iter = std::find(mOrphanParents.begin(), mOrphanParents.end(), parent_info);
         if (iter != mOrphanParents.end())
