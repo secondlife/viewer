@@ -5887,10 +5887,14 @@ void LLAppViewer::initDiscordSocial()
     });
     if (gSavedSettings.getBOOL("EnableDiscord"))
     {
-        gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, gSecAPIHandler->loadCredential("Discord")->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
-            if (result.Successful())
-                gDiscordClient->Connect();
-        });
+        auto credential = gSecAPIHandler->loadCredential("Discord");
+        if (credential.notNull())
+        {
+            gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
+                if (result.Successful())
+                    gDiscordClient->Connect();
+            });
+        }
     }
 }
 
@@ -5925,12 +5929,18 @@ void LLAppViewer::handleDiscordSocial(const LLSD& value)
     }
     else
     {
-        gDiscordClient->RevokeToken(APPLICATION_ID, gSecAPIHandler->loadCredential("Discord")->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
-            if (result.Successful())
-                gDiscordClient->Disconnect();
-            auto cred = new LLCredential("Discord");
-            gSecAPIHandler->deleteCredential(cred);
-        });
+        auto credential = gSecAPIHandler->loadCredential("Discord");
+        if (credential.notNull())
+        {
+            gDiscordClient->RevokeToken(APPLICATION_ID, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
+                if (result.Successful())
+                {
+                    gDiscordClient->Disconnect();
+                }
+                auto cred = new LLCredential("Discord");
+                gSecAPIHandler->deleteCredential(cred);
+            });
+        }
     }
 }
 
