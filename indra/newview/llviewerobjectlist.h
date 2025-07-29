@@ -62,25 +62,32 @@ const U32 GL_NAME_INDEX_OFFSET = 10;
  * updates, and manages the lifecycle of all objects in your viewing area,
  * keeping the virtual world synchronized between the server and your viewer.
  * 
- * The class handles:
- * - Object creation, updates, and destruction based on server messages
- * - Tracking orphaned objects (children whose parents haven't loaded yet)
- * - Managing active objects that need frequent updates
- * - Caching and fetching object physics and cost data
- * - Providing fast lookups by UUID or local ID
+ * Primary responsibilities:
+ * - Object lookup: Fast UUID-based lookups for avatars, prims, and UI elements
+ * - Frame updates: Per-frame object updates, texture priority, and animation
+ * - Object lifecycle: Creation from server messages, destruction on region changes
+ * - Cost tracking: Physics costs, streaming costs, and land impact calculations
+ * - Parent-child relationships: Handling linksets and attachment hierarchies
+ * - Debug visualization: Beacons and visual markers for development
  * 
  * Performance note: This class is on the hot path for frame updates, so many
- * operations are optimized for speed over memory usage.
+ * operations are optimized for speed over memory usage. The findObject() method
+ * is called hundreds of times per frame across the codebase.
  * 
  * @code
- * // Finding an object by UUID
+ * // Most common usage - finding objects by UUID
  * LLViewerObject* avatar = gObjectList.findObject(avatar_uuid);
  * if (avatar && avatar->isAvatar()) {
- *     // Do something with the avatar
+ *     // Process avatar-specific logic
  * }
  * 
- * // Creating a new prim
- * LLViewerObject* prim = gObjectList.createObjectViewer(LL_PCODE_VOLUME, regionp);
+ * // Creating UI avatars for preview windows
+ * LLVOAvatar* preview = (LLVOAvatar*)gObjectList.createObjectViewer(
+ *     LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), LLViewerObject::CO_FLAG_UI_AVATAR);
+ * 
+ * // Per-frame updates (called from main loop)
+ * gObjectList.update(gAgent);
+ * gObjectList.updateApparentAngles(gAgent);
  * @endcode
  */
 class LLViewerObjectList
@@ -126,16 +133,25 @@ public:
     /**
      * @brief Finds an object by its UUID.
      * 
-     * This is the primary way to look up objects. It's fast (uses a hash map)
-     * and reliable. Returns NULL for null UUIDs or objects that don't exist.
-     * Note: This will also return NULL for offline avatars.
+     * This is THE most frequently used method in the entire object system.
+     * It's called hundreds of times per frame for chat, UI updates, script
+     * messages, hover tooltips, and more. Uses an efficient hash map for O(1)
+     * lookups. Returns NULL for null UUIDs, non-existent objects, or offline avatars.
+     * 
+     * Common uses:
+     * - Finding chat speakers for name tags
+     * - Looking up script dialog sources
+     * - Resolving object references in messages
+     * - Finding selected objects for manipulation
      * 
      * @param id The UUID of the object to find
-     * @return The object if found, NULL otherwise
+     * @return The object if found and valid, NULL otherwise
      * 
      * @code
-     * if (LLViewerObject* obj = gObjectList.findObject(some_uuid)) {
+     * // Typical pattern - always check for NULL
+     * if (LLViewerObject* obj = gObjectList.findObject(object_id)) {
      *     // Object exists and is valid
+     *     obj->setDebugText("Found!");
      * }
      * @endcode
      */
@@ -314,10 +330,11 @@ public:
     /**
      * @brief Updates texture priorities based on viewing angle and distance.
      * 
-     * This does lazy updates of object texture priorities. We can't update
-     * every object every frame (too expensive), so we cycle through chunks
-     * of the object list each frame. This keeps textures loading smoothly
-     * without killing performance.
+     * Called every frame from LLAppViewer::idle(). This does lazy updates
+     * of object texture priorities - we can't update every object every frame
+     * (too expensive), so we cycle through chunks of the object list. This
+     * keeps textures loading smoothly without killing performance. Also handles
+     * texture priority boosts for selected objects.
      * 
      * @param agent The agent to calculate angles relative to
      */
@@ -325,13 +342,21 @@ public:
     /**
      * @brief Main update function called every frame.
      * 
-     * Core frame update that coordinates all object-related processing:
+     * Called from LLAppViewer::idle() immediately after gObjectList.updateApparentAngles().
+     * This is the core frame update that keeps all objects synchronized:
+     * 
      * - Updates global frame timers and interpolation settings
-     * - Calls idleUpdate on all active objects (avatars, moving objects, etc.)
+     * - Calls idleUpdate on all active objects (avatars, moving objects, particles)
      * - Updates flexible objects and animated textures if enabled
      * - Triggers asynchronous fetches for object costs and physics flags
      * - Updates render complexity calculations
      * - Collects frame statistics for performance monitoring
+     * 
+     * The active object list typically contains:
+     * - All avatars in view
+     * - Moving objects (vehicles, physical objects)
+     * - Animating objects (texture animations, particles)
+     * - Selected objects being edited
      * 
      * Performance note: This is one of the most performance-critical functions
      * in the viewer. The active object list is carefully maintained to minimize
