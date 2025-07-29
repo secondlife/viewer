@@ -61,7 +61,7 @@ Every public API should have a complete doxygen comment with:
  */
 ```
 
-As a rule, you should avoid duplicate documentation between the header and implementation.  If there's a unique or special behavior for a given method, it should be documented in the header.
+As a rule, you should avoid duplicate documentation between the header and implementation. The header should document what the API does and how to use it, while the implementation file should document specific implementation details, optimizations, and non-obvious behaviors.
 
 ### Required Elements
 
@@ -100,10 +100,13 @@ These things are all great to use when you have a great use case for them. Let o
 Even methods should get this treatment.  Why is a given method static?  Why isn't it an instance method?  Etc.
 
 **Implementation quirks, specifics**
-- Describe why, for example, you are allocating a large chunk of memory in a seemingly random location
-- Provide dicussion around why a given block does a unique thing that might not seem obvious at first
+- Inline comments explaining non-obvious code sections
+- Why specific buffer sizes or magic numbers were chosen
+- Algorithmic optimizations and their trade-offs
+- Workarounds for known issues or limitations
+- Important behavioral details not visible from the API
 
-These should be in the actual implementations themselves.  Avoid having tons of implementation specific descriptions in the header documentation if you can.
+These should be documented as inline comments close to the relevant code. Avoid speculation - only document what you can verify from the code or existing comments.
 
 ### What to Emphasize
 
@@ -241,6 +244,20 @@ std::vector<uint32_t> free_indices;         /// Why this exists and how it's use
 std::vector<uint32_t> slot_generations;     /// Key insight about this design choice
 ```
 
+### API Documentation vs Implementation Documentation
+
+**For public APIs:**
+- Document the public contract - what it does, how to use it
+- Include usage examples for complex APIs
+- Explain preconditions, postconditions, and invariants
+- Focus on the "what" and "why" from a user perspective
+
+**For implementations:**
+- Document implementation-specific details
+- Explain algorithmic choices and optimizations
+- Add inline comments for non-obvious code sections
+- Focus on the "how" and internal "why"
+
 ### Iterators and Complex APIs
 
 For iterators, document:
@@ -282,6 +299,14 @@ For iterators, document:
 - [ ] Member variables have inline documentation
 - [ ] Internal data structures explained
 - [ ] File-level overview explaining the component's role
+
+## Working with Existing Code
+
+When documenting legacy code:
+- **Preserve existing comments** - They often contain valuable historical context
+- **Don't replace, augment** - Add new documentation alongside existing comments
+- **Verify claims** - Don't make assumptions about why code exists; document only what you can verify
+- **Respect the unknown** - If you don't understand why something is done a certain way, don't guess
 
 ## Anti-Patterns to Avoid
 
