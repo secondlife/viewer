@@ -401,6 +401,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
     static LLCachedControl<bool> enable_lookat_hints(gSavedSettings, "EnableLookAtTarget", true);
     if (!enable_lookat_hints)
     {
+        // Clear the effect so it doesn't linger around if it gets disabled
         if (mTargetType != LOOKAT_TARGET_IDLE)
         {
             mTargetObject = gAgentAvatarp;

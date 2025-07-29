@@ -230,6 +230,7 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
     static LLCachedControl<bool> enable_selection_hints(gSavedSettings, "EnableSelectionHints", true);
     if (!enable_selection_hints)
     {
+        // Clear the effect so it doesn't linger around if it gets disabled
         if (mTargetType != POINTAT_TARGET_NONE)
         {
             clearPointAtTarget();
