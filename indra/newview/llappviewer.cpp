@@ -5948,7 +5948,8 @@ void LLAppViewer::updateDiscordActivity()
         return;
     }
 
-    if (gSavedSettings.getBOOL("ShowDiscordActivityDetails"))
+    static LLCachedControl<bool> show_details(gSavedSettings, "ShowDiscordActivityDetails", false);
+    if (show_details)
     {
         LLAvatarName av_name;
         LLAvatarNameCache::get(gAgent.getID(), &av_name);
@@ -5959,7 +5960,8 @@ void LLAppViewer::updateDiscordActivity()
         activity.SetDetails(name);
     }
 
-    if (gSavedSettings.getBOOL("ShowDiscordActivityState"))
+    static LLCachedControl<bool> show_state(gSavedSettings, "ShowDiscordActivityState", false);
+    if (show_state)
     {
         auto agent_pos_region = gAgent.getPositionAgent();
         S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
@@ -5987,7 +5989,8 @@ void LLAppViewer::updateDiscordActivity()
         uuid_vec_t chat_radius_uuids, near_me_uuids;
         auto position = gAgent.getPositionGlobal();
         world->getAvatars(&chat_radius_uuids, NULL, position, CHAT_NORMAL_RADIUS);
-        world->getAvatars(&near_me_uuids, NULL, position, gSavedSettings.getF32("NearMeRange"));
+        static LLCachedControl<F32> range(gSavedSettings, "NearMeRange", 130.0f);
+        world->getAvatars(&near_me_uuids, NULL, position, range);
         discordpp::ActivityParty party;
         party.SetId(location);
         party.SetCurrentSize(chat_radius_uuids.size());
