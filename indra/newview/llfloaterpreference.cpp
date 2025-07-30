@@ -367,7 +367,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
     mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
 #ifdef LL_DISCORD
-    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&LLAppViewer::handleDiscordSocial, _2));
+    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&LLAppViewer::toggleDiscordIntegration, _2));
     gSavedSettings.getControl("ShowDiscordActivityDetails")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
     gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
 #endif

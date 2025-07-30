@@ -252,7 +252,7 @@ public:
 
 #ifdef LL_DISCORD
     static void initDiscordSocial();
-    static void handleDiscordSocial(const LLSD& value);
+    static void toggleDiscordIntegration(const LLSD& value);
     static void updateDiscordActivity();
     static void updateDiscordPartyCurrentSize(int32_t size);
     static void updateDiscordPartyMaxSize(int32_t size);
