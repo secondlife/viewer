@@ -8065,52 +8065,6 @@ class LLAdvancedClickHDRIPreview: public view_listener_t
     }
 };
 
-
-class LLAdvancedClickGLTFOpen: public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        static LLCachedControl<bool> can_use_shaders(gSavedSettings, "RenderCanUseGLTFPBROpaqueShaders", true);
-        if (can_use_shaders)
-        {
-            LL::GLTFSceneManager::instance().load();
-        }
-        else
-        {
-            LLNotificationsUtil::add("NoSupportGLTFShader");
-        }
-
-        return true;
-    }
-};
-
-class LLAdvancedClickGLTFSaveAs : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        LL::GLTFSceneManager::instance().saveAs();
-        return true;
-    }
-};
-
-class LLAdvancedClickGLTFUpload: public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        LL::GLTFSceneManager::instance().uploadSelection();
-        return true;
-    }
-};
-
-class LLAdvancedClickGLTFEdit : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        LLFloaterReg::showInstance("gltf_asset_editor");
-        return true;
-    }
-};
-
 class LLAdvancedClickResizeWindow : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9770,10 +9724,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
     view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
     view_listener_t::addMenu(new LLAdvancedClickHDRIPreview(), "Advanced.ClickHDRIPreview");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFEdit(), "Advanced.ClickGLTFEdit");
     view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow");
     view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
 

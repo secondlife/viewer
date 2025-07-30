@@ -2829,44 +2829,6 @@ function="World.EnvPreset"
         </menu>
       <menu
          create_jump_keys="true"
-         label="GLTF"
-         name="GLTF"
-         tear_off="true">
-        <menu_item_call
-         label="Open..."
-         name="Open...">
-            <!--<menu_item_call.on_enable
-             function="EnableGLTF"/>-->
-          <menu_item_call.on_click
-           function="Advanced.ClickGLTFOpen" />
-        </menu_item_call>
-        <menu_item_call
-         label="Save As..."
-         name="Save As...">
-          <menu_item_call.on_enable
-             function="EnableGLTFSaveAs"/>
-          <menu_item_call.on_click
-           function="Advanced.ClickGLTFSaveAs" />
-        </menu_item_call>
-        <menu_item_call
-         label="Upload..."
-         name="Upload...">
-          <menu_item_call.on_enable
-             function="EnableGLTFUpload"/>
-          <menu_item_call.on_click
-           function="Advanced.ClickGLTFUpload" />
-        </menu_item_call>
-        <menu_item_call
-         label="Edit..."
-         name="Edit...">
-          <menu_item_call.on_enable
-             function="EnableGLTFUpload"/>
-          <menu_item_call.on_click
-           function="Advanced.ClickGLTFEdit" />
-        </menu_item_call>
-      </menu>
-      <menu
-         create_jump_keys="true"
          label="Video"
          name="Video"
          tear_off="true">

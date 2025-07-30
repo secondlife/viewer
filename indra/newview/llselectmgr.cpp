@@ -56,7 +56,6 @@
 #include "llattachmentsmgr.h"
 #include "llviewerwindow.h"
 #include "lldrawable.h"
-#include "llfloatergltfasseteditor.h"
 #include "llfloaterinspect.h"
 #include "llfloaterreporter.h"
 #include "llfloaterreg.h"
@@ -7313,12 +7312,6 @@ void dialog_refresh_all()
     if (panel_task_info)
     {
         panel_task_info->dirty();
-    }
-
-    LLFloaterGLTFAssetEditor * gltf_editor = LLFloaterReg::findTypedInstance<LLFloaterGLTFAssetEditor>("gltf_asset_editor");
-    if (gltf_editor)
-    {
-        gltf_editor->dirty();
     }
 }
 
