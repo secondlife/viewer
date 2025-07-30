@@ -273,6 +273,7 @@ using namespace LL;
 #include <discordpp.h>
 static std::shared_ptr<discordpp::Client> gDiscordClient;
 static uint64_t gDiscordTimestampsStart;
+static std::string gDiscordActivityDetails;
 static int32_t gDiscordPartyCurrentSize;
 static int32_t gDiscordPartyMaxSize;
 #endif
@@ -5995,13 +5996,16 @@ void LLAppViewer::updateDiscordActivity()
     static LLCachedControl<bool> show_details(gSavedSettings, "ShowDiscordActivityDetails", false);
     if (show_details)
     {
-        LLAvatarName av_name;
-        LLAvatarNameCache::get(gAgent.getID(), &av_name);
-        auto name = av_name.getUserName();
-        auto displayName = av_name.getDisplayName();
-        if (name != displayName)
-            name = displayName + " (" + name + ")";
-        activity.SetDetails(name);
+        if (gDiscordActivityDetails.empty())
+        {
+            LLAvatarName av_name;
+            LLAvatarNameCache::get(gAgent.getID(), &av_name);
+            gDiscordActivityDetails = av_name.getUserName();
+            auto displayName = av_name.getDisplayName();
+            if (gDiscordActivityDetails != displayName)
+                gDiscordActivityDetails = displayName + " (" + gDiscordActivityDetails + ")";
+        }
+        activity.SetDetails(gDiscordActivityDetails);
     }
 
     static LLCachedControl<bool> show_state(gSavedSettings, "ShowDiscordActivityState", false);
