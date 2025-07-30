@@ -323,6 +323,114 @@ For iterators, document:
 - [ ] Internal data structures explained
 - [ ] File-level overview explaining the component's role
 
+## Documentation Based on Real Usage Patterns
+
+When documenting existing systems, **ground your documentation in actual implementation details** rather than theoretical design. This creates more valuable, accurate documentation that reflects how the code actually works.
+
+### Research Real Usage First
+
+Before writing documentation, **search the codebase** to understand:
+- How the classes are actually instantiated and initialized
+- What the most common method calls are and in what contexts  
+- How lifecycle methods are actually triggered
+- What performance optimizations exist in practice
+- How error handling works in real scenarios
+- How the component integrates with the broader system
+
+### Document Actual Patterns, Not Idealized Ones
+
+**Bad approach:**
+```cpp
+/**
+ * @brief Motion registry for animation system.
+ * 
+ * @code
+ * // Theoretical usage
+ * LLMotionRegistry registry;
+ * registry.registerMotion(uuid, constructor);
+ * @endcode
+ */
+```
+
+**Good approach:**
+```cpp
+/**
+ * @brief Factory registry for creating motion instances by UUID.
+ * 
+ * All motion types are registered once during the first avatar initialization
+ * to populate the global registry shared by all characters.
+ * 
+ * @code
+ * // Actual registration pattern in LLVOAvatar::initInstance()
+ * if (LLCharacter::sInstances.size() == 1) {
+ *     registerMotion(ANIM_AGENT_WALK, LLKeyframeWalkMotion::create);
+ *     registerMotion(ANIM_AGENT_TARGET, LLTargetingMotion::create);
+ *     // ... ~40 more motion types registered once globally
+ * }
+ * @endcode
+ */
+```
+
+### Include Real Performance Details
+
+Document actual performance characteristics found in the codebase:
+- Specific limits (e.g., "32-motion instance limit with aggressive purging")
+- Actual optimization thresholds (e.g., "MIN_PIXEL_AREA_EYE: 25000.f for close-up only")
+- Real memory management patterns (e.g., "purgeExcessMotions() called every frame")
+- Performance trade-offs that exist in practice
+
+### Reference Stable API Elements
+
+**Do reference:**
+- ✅ Method names (`LLMotionController::updateMotions()`)
+- ✅ Class names (`LLVOAvatar::initInstance()`)
+- ✅ Constant names (`MAX_MOTION_INSTANCES`)
+- ✅ Enum values (`STATUS_HOLD`, `ADDITIVE_BLEND`)
+
+**Don't reference:**
+- ❌ Specific file paths (`/Users/dev/llvoavatar.cpp`)
+- ❌ Line number ranges (`lines 1208-1262`)
+- ❌ File organization details that can change
+
+Method and class names are much more stable than file locations and provide valuable API context for developers.
+
+### Show Real Error Handling
+
+Document actual error handling patterns, not idealized ones:
+
+```cpp
+/**
+ * @brief Initializes motion with robust error handling.
+ * 
+ * @code
+ * LLMotionInitStatus status = motion->onInitialize(character);
+ * switch (status) {
+ *     case STATUS_FAILURE:
+ *         LL_INFOS() << "Motion " << id << " init failed." << LL_ENDL;
+ *         sRegistry.markBad(id);  // Blacklist to prevent future attempts
+ *         delete motion;
+ *         return nullptr;
+ *     case STATUS_HOLD:
+ *         mLoadingMotions.insert(motion);  // Retry next frame
+ *         break;
+ *     case STATUS_SUCCESS:
+ *         mLoadedMotions.insert(motion);   // Ready for activation
+ *         break;
+ * }
+ * @endcode
+ */
+```
+
+### Update Documentation Iteratively
+
+After documenting based on research:
+1. **Cross-reference with actual usage** - Search for how the documented classes are really used
+2. **Update with real patterns** - Replace theoretical examples with actual usage patterns  
+3. **Add missing performance details** - Include the optimizations and limits you discover
+4. **Document edge cases** - Include the error handling and edge cases that actually exist
+
+This approach creates documentation that serves as a true guide to how the system works, rather than how it might theoretically work.
+
 ## Working with Existing Code
 
 When documenting legacy code:

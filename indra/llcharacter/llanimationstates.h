@@ -1,6 +1,17 @@
 /**
  * @file llanimationstates.h
- * @brief Implementation of animation state support.
+ * @brief Master registry of avatar animations shared between viewer and server.
+ *
+ * This file defines the complete set of avatar animations available in Second Life,
+ * from basic locomotion (walk, run, fly) to gestures and facial expressions. These
+ * animation UUIDs are synchronized between the viewer and simulator to ensure
+ * consistent avatar behavior across all clients.
+ *
+ * The system includes:
+ * - 150+ built-in animations covering all avatar behaviors
+ * - Categorized animation groups (walking, weapon holding, standing poses)
+ * - String-to-UUID mapping for user-triggered animations and gestures
+ * - Animation state management for the viewer's gesture system
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -32,15 +43,39 @@
 #include "llstringtable.h"
 #include "lluuid.h"
 
-//-----------------------------------------------------------------------------
-// These bit flags are generally used to track the animation state
-// of characters.  The simulator and viewer share these flags to interpret
-// the Animation name/value attribute on agents.
-//-----------------------------------------------------------------------------
+/**
+ * @brief Animation state flags and UUIDs used to synchronize avatar behavior.
+ * 
+ * These animation identifiers are shared between the simulator and viewer to interpret
+ * the Animation name/value attributes on agents. When an avatar starts or stops an
+ * animation, both the server and all nearby clients use these UUIDs to ensure
+ * consistent visual representation of avatar behavior.
+ * 
+ * The system works by:
+ * - Server maintains authoritative animation state for each avatar
+ * - Animation changes are broadcast to nearby clients via agent updates
+ * - Clients look up animations by UUID to trigger the correct visual behavior
+ * - Motion controller registers built-in animations during avatar initialization
+ * - String names provide human-readable references for gestures and user commands
+ * 
+ * @code
+ * // Typical motion registration pattern in avatar initialization:
+ * registerMotion(ANIM_AGENT_WALK,      LLKeyframeWalkMotion::create);
+ * registerMotion(ANIM_AGENT_RUN,       LLKeyframeWalkMotion::create);
+ * registerMotion(ANIM_AGENT_STAND,     LLKeyframeStandMotion::create);
+ * @endcode
+ */
 
-//-----------------------------------------------------------------------------
-// Agent Animation State
-//-----------------------------------------------------------------------------
+/**
+ * @brief Maximum number of animations that can be active simultaneously on an avatar.
+ * 
+ * This limit prevents performance issues from avatar animation overload and ensures
+ * consistent behavior across all clients. The server enforces this limit, rejecting
+ * additional animation requests when the cap is reached.
+ * 
+ * This limit applies to user-triggered animations (gestures, dance animations, etc.)
+ * but not to core system animations like walking or standing.
+ */
 const S32 MAX_CONCURRENT_ANIMS = 16;
 
 extern const LLUUID ANIM_AGENT_AFRAID;
@@ -183,58 +218,138 @@ extern const LLUUID ANIM_AGENT_YES;
 extern const LLUUID ANIM_AGENT_YES_HAPPY;
 extern const LLUUID ANIM_AGENT_YOGA_FLOAT;
 
-extern LLUUID AGENT_WALK_ANIMS[];
-extern S32 NUM_AGENT_WALK_ANIMS;
+/// Animation arrays for movement and pose categories (used by LLVOAvatar for state checking)  
+extern LLUUID AGENT_WALK_ANIMS[];          /// Walking animations: walk, run, crouchwalk, turnleft, turnright
+extern S32 NUM_AGENT_WALK_ANIMS;           /// Count of walking animations (5)
 
-extern LLUUID AGENT_GUN_HOLD_ANIMS[];
-extern S32 NUM_AGENT_GUN_HOLD_ANIMS;
+extern LLUUID AGENT_GUN_HOLD_ANIMS[];      /// Weapon holding poses: rifle, handgun, bazooka, bow
+extern S32 NUM_AGENT_GUN_HOLD_ANIMS;       /// Count of weapon holding animations (4)
 
-extern LLUUID AGENT_GUN_AIM_ANIMS[];
-extern S32 NUM_AGENT_GUN_AIM_ANIMS;
+extern LLUUID AGENT_GUN_AIM_ANIMS[];       /// Weapon aiming poses: rifle, handgun, bazooka, bow
+extern S32 NUM_AGENT_GUN_AIM_ANIMS;        /// Count of weapon aiming animations (4)
 
-extern LLUUID AGENT_NO_ROTATE_ANIMS[];
-extern S32 NUM_AGENT_NO_ROTATE_ANIMS;
+extern LLUUID AGENT_NO_ROTATE_ANIMS[];     /// Animations that prevent avatar rotation: sit variants, standup
+extern S32 NUM_AGENT_NO_ROTATE_ANIMS;      /// Count of no-rotation animations (3)
 
-extern LLUUID AGENT_STAND_ANIMS[];
-extern S32 NUM_AGENT_STAND_ANIMS;
+extern LLUUID AGENT_STAND_ANIMS[];         /// Standing pose variations: stand, stand_1 through stand_4
+extern S32 NUM_AGENT_STAND_ANIMS;          /// Count of standing animations (5)
 
+/**
+ * @brief Bidirectional mapping between animation UUIDs and string names.
+ * 
+ * This class provides fast lookups for converting between animation UUIDs and
+ * their human-readable string names. Used by the gesture system, chat commands,
+ * and animation debugging tools to allow users to reference animations by name
+ * instead of memorizing UUIDs.
+ * 
+ * The library is populated during construction with all built-in animation
+ * mappings (e.g., "dance1" <-> ANIM_AGENT_DANCE1). It's used primarily by
+ * the gesture system, keyframe motion loader, and debugging tools.
+ * 
+ * Performance characteristics:
+ * - String storage uses LLStringTable for memory efficiency
+ * - O(log n) lookups via std::map for both directions
+ * - Strings are stored once and referenced by pointer
+ */
 class LLAnimationLibrary
 {
 private:
-    LLStringTable mAnimStringTable;
+    LLStringTable mAnimStringTable;    /// Memory-efficient string storage with deduplication
 
     typedef std::map<LLUUID, char *> anim_map_t;
-    anim_map_t mAnimMap;
+    anim_map_t mAnimMap;               /// UUID to string name mapping
 
 public:
+    /**
+     * @brief Initializes the animation library with all built-in animation mappings.
+     * 
+     * Creates the complete UUID-to-string mapping for all 150+ built-in animations
+     * during construction. The string table is pre-sized to 16KB to minimize
+     * memory fragmentation from frequent small allocations.
+     */
     LLAnimationLibrary();
+    
+    /**
+     * @brief Destroys the animation library and frees string table memory.
+     */
     ~LLAnimationLibrary();
 
-    //-----------------------------------------------------------------------------
-    // Return the text name of a single animation state,
-    // Return NULL if the state is invalid
-    //-----------------------------------------------------------------------------
+    /**
+     * @brief Converts an animation UUID to its string name.
+     * 
+     * @param state The animation UUID to look up
+     * @return Pointer to the string name, or NULL if the UUID is not found
+     * 
+     * Used by debugging tools and gesture systems to display human-readable
+     * animation names. Returns a pointer into the string table for efficiency.
+     */
     const char *animStateToString( const LLUUID& state );
 
-    //-----------------------------------------------------------------------------
-    // Return the animation state for the given name.
-    // Retun NULL if the name is invalid.
-    //-----------------------------------------------------------------------------
+    /**
+     * @brief Converts a string name to its corresponding animation UUID.
+     * 
+     * @param name The animation name to look up (case-insensitive)
+     * @param allow_ids If true, treats UUID strings as valid input
+     * @return The animation UUID, or NULL UUID if not found
+     * 
+     * Primary interface for gesture system and animation lookups in keyframe motions.
+     * Performs case-insensitive lookup to handle user input variations.
+     * 
+     * @code
+     * // Used in gesture playback (LLViewerGesture::trigger)
+     * LLUUID anim_id = gAnimLibrary.stringToAnimState(mAnimation);
+     * gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_START);
+     * 
+     * // Used in keyframe motion loading for emotes
+     * joint_motion_list->mEmoteID = gAnimLibrary.stringToAnimState(joint_motion_list->mEmoteName);
+     * @endcode
+     */
     LLUUID stringToAnimState( const std::string& name, bool allow_ids = true );
 
-    //-----------------------------------------------------------------------------
-    // Associate an anim state with a name
-    //-----------------------------------------------------------------------------
+    /**
+     * @brief Associates a custom animation UUID with a string name.
+     * 
+     * @param state The animation UUID to register
+     * @param name The string name to associate with this animation
+     * 
+     * Used to register user-uploaded animations with custom names for easier
+     * reference in gestures and scripts. The string is stored in the internal
+     * string table for memory efficiency.
+     */
     void animStateSetString( const LLUUID& state, const std::string& name);
 
-    //-----------------------------------------------------------------------------
-    // Find the name for a given animation, or UUID string if none defined.
-    //-----------------------------------------------------------------------------
+    /**
+     * @brief Gets the display name for an animation, with fallback to UUID.
+     * 
+     * @param id The animation UUID to get a name for
+     * @return The animation name if known, or "[uuid-string]" if unknown
+     * 
+     * Convenience method that always returns a displayable string, using
+     * the UUID as a fallback when no name mapping exists. Used in UI contexts
+     * where some displayable text is always needed.
+     */
     std::string animationName( const LLUUID& id ) const;
 };
 
+/**
+ * @brief Simple pairing of animation name and UUID for user-triggerable animations.
+ * 
+ * Used to populate arrays of animations that users can directly trigger through
+ * gestures, chat commands, or UI elements. This is distinct from the full animation
+ * library which includes system animations that users cannot directly control.
+ * 
+ * Note: Display labels for user interfaces are handled separately in the viewer-specific
+ * LLAnimStateLabels system. This struct only contains the core name-UUID binding
+ * that both client and server need to understand.
+ */
 struct LLAnimStateEntry
 {
+    /**
+     * @brief Constructs an animation state entry.
+     * 
+     * @param name Internal string name for the animation (e.g., "dance1")
+     * @param id UUID identifier for the animation
+     */
     LLAnimStateEntry(const char* name, const LLUUID& id) :
         mName(name),
         mID(id)
@@ -246,14 +361,17 @@ struct LLAnimStateEntry
         // this is common code.
     }
 
-
-    const char* mName;
-    const LLUUID mID;
+    const char* mName;      /// Internal animation name used in gestures and commands
+    const LLUUID mID;       /// UUID that identifies this animation to the server
 };
 
-// Animation states that the user can trigger
+/// Array of ~70 animations that users can trigger directly through gestures or commands
 extern const LLAnimStateEntry gUserAnimStates[];
+
+/// Number of entries in gUserAnimStates array
 extern const S32 gUserAnimStatesCount;
+
+/// Global animation library instance used throughout the viewer
 extern LLAnimationLibrary gAnimLibrary;
 
 #endif // LL_LLANIMATIONSTATES_H

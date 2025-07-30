@@ -1,6 +1,25 @@
 /**
  * @file llbvhloader.h
- * @brief Translates a BVH files to LindenLabAnimation format.
+ * @brief Converts BVH motion capture files to Second Life's animation format.
+ *
+ * This system handles the complete pipeline for importing external animations into
+ * Second Life, including parsing BVH (Biovision Hierarchy) files, applying joint
+ * mappings and coordinate transformations, and optimizing the resulting keyframe data.
+ *
+ * The BVH loader supports:
+ * - Standard BVH file format from motion capture systems and animation tools
+ * - Joint name aliasing to map external skeletons to SL's avatar skeleton
+ * - Translation files for coordinate system conversions and joint hierarchies
+ * - Keyframe optimization to reduce animation file sizes
+ * - Constraint systems for inverse kinematics and physics interactions
+ * - Animation metadata (looping, priorities, hand poses, facial expressions)
+ *
+ * Usage workflow:
+ * 1. User uploads BVH file through the animation preview floater (LLFloaterBVHPreview)
+ * 2. LLBVHLoader constructor parses buffer, loads translation table from anim.ini
+ * 3. Joint aliases are applied, keyframes are optimized to remove redundant data  
+ * 4. Animation is validated against MAX_ANIM_DURATION limit before acceptance
+ * 5. Final animation is serialized to SL's internal format for distribution
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,34 +52,60 @@
 #include "llapr.h"
 #include "llbvhconsts.h"
 
+/// Maximum line length for BVH file parsing (includes joint names, keyframe data, etc.)
 const S32 BVH_PARSER_LINE_SIZE = 2048;
 class LLDataPacker;
 
-//------------------------------------------------------------------------
-// FileCloser
-//------------------------------------------------------------------------
+/**
+ * @brief RAII wrapper for automatically closing APR file handles.
+ * 
+ * Ensures that file handles are properly closed even if exceptions occur
+ * during BVH file processing. Used internally by the BVH loader to manage
+ * translation table files and other configuration files.
+ * 
+ * This is a simple utility class that follows RAII principles - the file
+ * is closed automatically when the FileCloser goes out of scope.
+ */
 class FileCloser
 {
 public:
+    /**
+     * @brief Takes ownership of an APR file handle.
+     * @param file The file handle to manage (must be valid)
+     */
     FileCloser( apr_file_t *file )
     {
         mFile = file;
     }
 
+    /**
+     * @brief Automatically closes the file handle.
+     */
     ~FileCloser()
     {
         apr_file_close(mFile);
     }
 protected:
-    apr_file_t* mFile;
+    apr_file_t* mFile;      /// File handle being managed
 };
 
 
-//------------------------------------------------------------------------
-// Key
-//------------------------------------------------------------------------
+/**
+ * @brief Single keyframe containing position and rotation data for a joint.
+ * 
+ * Represents one frame of animation data as parsed from a BVH file. Position
+ * data is in the BVH coordinate system and must be converted to SL's coordinate
+ * system during processing. Rotation data is stored as Euler angles in the
+ * order specified by the joint definition.
+ * 
+ * The ignore flags are set during optimization to mark keyframes that can be
+ * interpolated from surrounding frames, reducing the final animation size.
+ */
 struct Key
 {
+    /**
+     * @brief Initializes a keyframe with zero position/rotation and no ignore flags.
+     */
     Key()
     {
         mPos[0] = mPos[1] = mPos[2] = 0.0f;
@@ -69,23 +114,34 @@ struct Key
         mIgnoreRot = false;
     }
 
-    F32 mPos[3];
-    F32 mRot[3];
-    bool    mIgnorePos;
-    bool    mIgnoreRot;
+    F32 mPos[3];            /// Position offset in BVH coordinate system (X, Y, Z)
+    F32 mRot[3];            /// Euler rotation angles in joint's specified order
+    bool mIgnorePos;        /// True if this position keyframe can be optimized out
+    bool mIgnoreRot;        /// True if this rotation keyframe can be optimized out
 };
 
-
-//------------------------------------------------------------------------
-// KeyVector
-//------------------------------------------------------------------------
+/// Vector of keyframes representing a complete animation sequence for one joint
 typedef  std::vector<Key> KeyVector;
 
-//------------------------------------------------------------------------
-// Joint
-//------------------------------------------------------------------------
+/**
+ * @brief Complete joint definition including keyframe data and transformation parameters.
+ * 
+ * Represents a single joint (bone) from a BVH file with all its associated animation
+ * data and metadata. Joints are processed through several stages:
+ * 1. Parsed from BVH with original names and coordinate systems
+ * 2. Mapped to SL joint names via translation tables
+ * 3. Optimized to remove redundant keyframes
+ * 4. Serialized to SL's internal animation format
+ * 
+ * The transformation matrices handle coordinate system conversions between
+ * different animation tools and SL's avatar skeleton.
+ */
 struct Joint
 {
+    /**
+     * @brief Initializes a joint with default values.
+     * @param name The joint name from the BVH file
+     */
     Joint(const char *name)
     {
         mName = name;
@@ -94,7 +150,7 @@ struct Joint
         mRelativePositionKey = false;
         mRelativeRotationKey = false;
         mOutName = name;
-        mOrder[0] = 'X';
+        mOrder[0] = 'X';                /// Default Euler rotation order
         mOrder[1] = 'Y';
         mOrder[2] = 'Z';
         mOrder[3] = 0;
@@ -102,29 +158,38 @@ struct Joint
         mNumRotKeys = 0;
         mChildTreeMaxDepth = 0;
         mPriority = 0;
-        mNumChannels = 3;
+        mNumChannels = 3;               /// Default to rotation-only (3 channels)
     }
 
     // Include aligned members first
-    LLMatrix3       mFrameMatrix;
-    LLMatrix3       mOffsetMatrix;
-    LLVector3       mRelativePosition;
-    //
-    std::string     mName;
-    bool            mIgnore;
-    bool            mIgnorePositions;
-    bool            mRelativePositionKey;
-    bool            mRelativeRotationKey;
-    std::string     mOutName;
-    std::string     mMergeParentName;
-    std::string     mMergeChildName;
-    char            mOrder[4];          /* Flawfinder: ignore */
-    KeyVector       mKeys;
-    S32             mNumPosKeys;
-    S32             mNumRotKeys;
-    S32             mChildTreeMaxDepth;
-    S32             mPriority;
-    S32             mNumChannels;
+    LLMatrix3       mFrameMatrix;       /// Coordinate system conversion matrix
+    LLMatrix3       mOffsetMatrix;      /// Additional transformation offset
+    LLVector3       mRelativePosition;  /// Position offset from first frame
+    
+    // Joint identification and mapping
+    std::string     mName;              /// Original joint name from BVH file
+    std::string     mOutName;           /// Mapped SL joint name (e.g., "mPelvis")
+    std::string     mMergeParentName;   /// Parent joint to merge rotations with
+    std::string     mMergeChildName;    /// Child joint to merge rotations with
+    
+    // Processing flags
+    bool            mIgnore;            /// True if joint should be excluded from output
+    bool            mIgnorePositions;   /// True if position data should be ignored
+    bool            mRelativePositionKey; /// True if positions are relative to first frame
+    bool            mRelativeRotationKey; /// True if rotations are relative to first frame
+    
+    // BVH format data
+    char            mOrder[4];          /// Euler rotation order (e.g., "XYZ", "ZXY")
+    S32             mNumChannels;       /// 3=rotation only, 6=position+rotation
+    
+    // Animation data
+    KeyVector       mKeys;              /// All keyframes for this joint
+    S32             mNumPosKeys;        /// Count of position keyframes after optimization
+    S32             mNumRotKeys;        /// Count of rotation keyframes after optimization
+    
+    // Hierarchy information  
+    S32             mChildTreeMaxDepth; /// Maximum depth of child joints below this one
+    S32             mPriority;          /// Animation priority for this joint
 };
 
 
