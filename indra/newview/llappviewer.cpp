@@ -273,6 +273,8 @@ using namespace LL;
 #include <discordpp.h>
 static std::shared_ptr<discordpp::Client> gDiscordClient;
 static uint64_t gDiscordTimestampsStart;
+static int32_t gDiscordPartyCurrentSize;
+static int32_t gDiscordPartyMaxSize;
 #endif
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
@@ -5880,6 +5882,8 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 
 void LLAppViewer::initDiscordSocial()
 {
+    gDiscordPartyCurrentSize = 1;
+    gDiscordPartyMaxSize = 0;
     gDiscordTimestampsStart = time(nullptr);
     gDiscordClient = std::make_shared<discordpp::Client>();
     gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
@@ -6025,20 +6029,26 @@ void LLAppViewer::updateDiscordActivity()
         auto location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
         activity.SetState(location);
 
-        auto world = LLWorld::getInstance();
-        uuid_vec_t chat_radius_uuids, near_me_uuids;
-        auto position = gAgent.getPositionGlobal();
-        world->getAvatars(&chat_radius_uuids, NULL, position, CHAT_NORMAL_RADIUS);
-        static LLCachedControl<F32> range(gSavedSettings, "NearMeRange", 130.0f);
-        world->getAvatars(&near_me_uuids, NULL, position, range);
         discordpp::ActivityParty party;
         party.SetId(location);
-        party.SetCurrentSize(chat_radius_uuids.size());
-        party.SetMaxSize(near_me_uuids.size());
+        party.SetCurrentSize(gDiscordPartyCurrentSize);
+        party.SetMaxSize(gDiscordPartyMaxSize);
         activity.SetParty(party);
     }
 
     gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
+}
+
+void LLAppViewer::updateDiscordPartyCurrentSize(int32_t size)
+{
+    gDiscordPartyCurrentSize = size;
+    updateDiscordActivity();
+}
+
+void LLAppViewer::updateDiscordPartyMaxSize(int32_t size)
+{
+    gDiscordPartyMaxSize = size;
+    updateDiscordActivity();
 }
 
 #endif

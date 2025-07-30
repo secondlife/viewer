@@ -1026,6 +1026,9 @@ void LLLocalSpeakerMgr::updateSpeakerList()
     uuid_vec_t avatar_ids;
     std::vector<LLVector3d> positions;
     LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), CHAT_NORMAL_RADIUS);
+#ifdef LL_DISCORD
+    LLAppViewer::updateDiscordPartyCurrentSize(avatar_ids.size());
+#endif
     for(U32 i=0; i<avatar_ids.size(); i++)
     {
         setSpeaker(avatar_ids[i]);

@@ -843,6 +843,9 @@ void LLPanelPeople::updateNearbyList()
 
     LLWorld::getInstance()->getAvatars(&mNearbyList->getIDs(), &positions, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
     mNearbyList->setDirty();
+#ifdef LL_DISCORD
+    LLAppViewer::updateDiscordPartyMaxSize(mNearbyList->getIDs().size());
+#endif
 
     DISTANCE_COMPARATOR.updateAvatarsPositions(positions, mNearbyList->getIDs());
     LLActiveSpeakerMgr::instance().update(true);

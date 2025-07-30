@@ -254,6 +254,8 @@ public:
     static void initDiscordSocial();
     static void handleDiscordSocial(const LLSD& value);
     static void updateDiscordActivity();
+    static void updateDiscordPartyCurrentSize(int32_t size);
+    static void updateDiscordPartyMaxSize(int32_t size);
 #endif
 
 protected:
