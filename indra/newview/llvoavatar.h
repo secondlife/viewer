@@ -80,10 +80,38 @@ const F32 MAX_AVATAR_LOD_FACTOR = 1.0f;
 
 extern U32 gFrameCount;
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LLVOAvatar
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/**
+ * @brief Primary concrete implementation of avatar appearance and rendering.
+ * 
+ * LLVOAvatar is the main avatar class used throughout the Second Life viewer.
+ * It extends LLAvatarAppearance with viewer-specific functionality including:
+ * - **World Interaction**: Positioning, physics, and collision detection
+ * - **Rendering Pipeline**: OpenGL rendering, level-of-detail, and culling
+ * - **Network Integration**: Server communication and state synchronization
+ * - **Optimization Systems**: Impostor rendering, update prioritization, and performance monitoring
+ * - **Animation Integration**: Connects appearance system with world animations
+ * 
+ * This class serves as the foundation for both other avatars in the world and the
+ * user's own avatar (via LLVOAvatarSelf subclass). It bridges the abstract appearance
+ * system with the concrete viewer implementation.
+ * 
+ * Key responsibilities:
+ * - Implements all abstract methods from LLCharacter and LLAvatarAppearance
+ * - Manages avatar lifecycle in the world (creation, updates, destruction)
+ * - Handles rendering optimizations based on distance and visibility
+ * - Coordinates with physics, networking, and animation systems
+ * - Provides the concrete updateCharacter() implementation that drives motion updates
+ * 
+ * Performance characteristics:
+ * - Uses HIDDEN_UPDATE for distant/invisible avatars (major optimization)
+ * - Extensive use of mIsBuilt checks for safety and performance
+ * - Implements impostor rendering for very distant avatars
+ * - Heavily profiled under LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
+ * 
+ * Usage pattern: Avatars are created by the object manager when notified by the
+ * server, updated every frame via updateCharacter(), and destroyed when they
+ * leave the area or the viewer disconnects.
+ */
 class LLVOAvatar :
     public LLAvatarAppearance,
     public LLViewerObject,
@@ -102,12 +130,63 @@ public:
  **/
 
 public:
+    /**
+     * @brief Constructs an avatar for a specific agent in a region.
+     * 
+     * Creates an avatar instance associated with a particular agent UUID
+     * and positioned in a specific region. This is called by the object
+     * manager when the server notifies the viewer of a new avatar.
+     * 
+     * @param id UUID of the agent this avatar represents
+     * @param pcode Primitive code (should be LL_PCODE_LEGACY_AVATAR)
+     * @param regionp Region where this avatar is located
+     */
     LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
+    
+    /**
+     * @brief Marks the avatar as dead and begins cleanup process.
+     * 
+     * Called when the avatar is leaving the area or the connection is lost.
+     * Initiates the avatar destruction sequence while ensuring safe cleanup
+     * of all resources and references.
+     */
     virtual void        markDead();
-    static void         initClass(); // Initialize data that's only init'd once per class.
-    static void         cleanupClass(); // Cleanup data that's only init'd once per class.
-    virtual void        initInstance(); // Called after construction to initialize the class.
+    
+    /**
+     * @brief Initializes shared avatar class data.
+     * 
+     * Sets up static resources shared by all LLVOAvatar instances,
+     * including mesh templates, animation definitions, and rendering
+     * configurations. Called once during viewer startup.
+     */
+    static void         initClass();
+    
+    /**
+     * @brief Cleans up shared avatar class data.
+     * 
+     * Releases static resources allocated during initClass().
+     * Called during viewer shutdown to prevent memory leaks.
+     */
+    static void         cleanupClass();
+    
+    /**
+     * @brief Initializes this specific avatar instance.
+     * 
+     * Performs instance-specific setup that couldn't be done in the
+     * constructor, including building the skeleton, loading meshes,
+     * and connecting to the rendering pipeline. Sets mIsBuilt when complete.
+     */
+    virtual void        initInstance();
+    
 protected:
+    /**
+     * @brief Destroys the avatar and releases all resources.
+     * 
+     * Protected destructor ensures avatars are only destroyed through
+     * proper channels (markDead() -> reference counting -> destruction).
+     * Performs complete cleanup of meshes, textures, animations, and
+     * viewer-specific resources.
+     */
     virtual             ~LLVOAvatar();
 
 /**                    Initialization
@@ -272,7 +351,45 @@ public:
     void            updateAppearanceMessageDebugText();
     void            updateAnimationDebugText();
     virtual void    updateDebugText();
+    /**
+     * @brief Determines if this avatar needs a full update this frame.
+     * 
+     * Evaluates various conditions (distance, visibility, animation state, etc.)
+     * to determine whether this avatar requires full processing or can use
+     * optimized updates. This is a key performance optimization method.
+     * 
+     * @return true if avatar needs full update, false if minimal update sufficient
+     */
     virtual bool    computeNeedsUpdate();
+    
+    /**
+     * @brief Main avatar update method called every frame.
+     * 
+     * This is the primary entry point for avatar updates, called by the object
+     * manager every frame. Coordinates all avatar subsystems including:
+     * - Motion and animation updates (via updateMotions())
+     * - Position and orientation updates
+     * - Appearance and texture updates
+     * - Sound and visual effects
+     * - Performance optimizations based on visibility
+     * 
+     * The method implements the critical performance optimization where
+     * non-visible avatars use HIDDEN_UPDATE mode, visible avatars use
+     * NORMAL_UPDATE, and animation previews use FORCE_UPDATE.
+     * 
+     * This is where the abstract character system connects to the concrete
+     * viewer implementation.
+     * 
+     * @param agent Reference to the viewer's agent (for relative positioning)
+     * @return true if update was successful, false if avatar not ready
+     * 
+     * @code
+     * // Typical call pattern from object manager:
+     * if (avatar->computeNeedsUpdate()) {
+     *     avatar->updateCharacter(gAgent);
+     * }
+     * @endcode
+     */
     virtual bool    updateCharacter(LLAgent &agent);
     void            updateFootstepSounds();
     void            computeUpdatePeriod();

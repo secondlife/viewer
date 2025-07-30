@@ -38,10 +38,42 @@ struct LocalTextureData;
 class LLInventoryCallback;
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LLVOAvatarSelf
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/**
+ * @brief Specialized avatar implementation for the viewer's own agent.
+ * 
+ * LLVOAvatarSelf extends LLVOAvatar with additional functionality specific to
+ * the user's own avatar, including:
+ * - **Appearance Editing**: Real-time appearance customization and preview
+ * - **First-Person Integration**: Camera attachment and view management
+ * - **Attachment Management**: Enhanced attachment loading and positioning
+ * - **Performance Optimization**: Never uses HIDDEN_UPDATE (always visible to self)
+ * - **Texture Baking**: Local texture baking and upload capabilities
+ * - **Wearables Management**: Direct integration with inventory and appearance panels
+ * 
+ * This class represents the single instance of the user's avatar in the world.
+ * It has special privileges and behaviors not available to other avatars:
+ * - Always considered "self" (isSelf() returns true)
+ * - Receives priority updates and full processing
+ * - Can edit appearance in real-time
+ * - Has access to local texture baking
+ * - Integrates with the agent's movement and camera systems
+ * 
+ * Key differences from LLVOAvatar:
+ * - Never uses HIDDEN_UPDATE optimization (always fully processed)
+ * - Has additional methods for appearance editing and baking
+ * - Manages the connection between avatar appearance and user interface
+ * - Handles attachment notifications and updates differently
+ * - Provides local texture layer compositing
+ * 
+ * Performance considerations:
+ * - Always receives full updates regardless of camera position
+ * - Texture baking operations are more complex due to local processing
+ * - Additional overhead for appearance editing and real-time preview
+ * - Priority scheduling ensures smooth user experience
+ * 
+ * Usage: There is exactly one instance of this class per viewer session,
+ * created when the agent enters the world and destroyed on logout.
+ */
 class LLVOAvatarSelf :
     public LLVOAvatar
 {
@@ -53,15 +85,91 @@ class LLVOAvatarSelf :
  **/
 
 public:
+    /**
+     * @brief Constructs the user's own avatar.
+     * 
+     * Creates the special self avatar instance with enhanced capabilities
+     * for appearance editing, texture baking, and first-person integration.
+     * 
+     * @param id UUID of the user's agent
+     * @param pcode Should be LL_PCODE_LEGACY_AVATAR
+     * @param regionp Region where the avatar is being created
+     */
     LLVOAvatarSelf(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
+    
+    /**
+     * @brief Destroys the self avatar and cleans up special resources.
+     * 
+     * Performs cleanup specific to the self avatar, including appearance
+     * editing state, texture layers, and UI connections.
+     */
     virtual                 ~LLVOAvatarSelf();
+    
+    /**
+     * @brief Marks the self avatar as dead (usually during logout).
+     * 
+     * Initiates shutdown of self-specific systems including appearance
+     * editing, texture baking, and attachment management.
+     */
     virtual void            markDead();
-    virtual void            initInstance(); // Called after construction to initialize the class.
+    
+    /**
+     * @brief Initializes the self avatar with enhanced capabilities.
+     * 
+     * Extends the base avatar initialization with self-specific features
+     * including appearance editing setup, local texture baking, and
+     * attachment management systems.
+     */
+    virtual void            initInstance();
+    
+    /**
+     * @brief Performs cleanup of self-avatar specific resources.
+     * 
+     * Cleans up appearance editing state, texture layers, and other
+     * resources specific to the self avatar before destruction.
+     */
     void                    cleanup();
+    
 protected:
+    /**
+     * @brief Loads avatar data with self-specific enhancements.
+     * 
+     * Extends base avatar loading with additional functionality for
+     * appearance editing and local texture baking capabilities.
+     * 
+     * @return true if loading successful, false on error
+     */
     /*virtual*/ bool        loadAvatar();
+    
+    /**
+     * @brief Loads self-specific avatar components.
+     * 
+     * Handles loading of appearance editing interfaces, texture baking
+     * systems, and other components unique to the self avatar.
+     * 
+     * @return true if self-loading successful, false on error
+     */
     bool                    loadAvatarSelf();
+    
+    /**
+     * @brief Builds skeleton with self-specific enhancements.
+     * 
+     * Creates the avatar skeleton with additional features needed for
+     * appearance editing and attachment management.
+     * 
+     * @param info Skeleton configuration information
+     * @return true if skeleton built successfully, false on error
+     */
     bool                    buildSkeletonSelf(const LLAvatarSkeletonInfo *info);
+    
+    /**
+     * @brief Builds avatar-specific context menus and UI elements.
+     * 
+     * Sets up the context menus and interface elements specific to
+     * the self avatar, including appearance editing options.
+     * 
+     * @return true if menus built successfully, false on error
+     */
     bool                    buildMenus();
 
 /**                    Initialization
@@ -113,9 +221,38 @@ private:
  **/
 
 public:
+    /**
+     * @brief Always returns true - this is the user's own avatar.
+     * 
+     * Overrides the base implementation to identify this as the self avatar.
+     * This enables special behaviors throughout the codebase:
+     * - Never uses HIDDEN_UPDATE (always gets full processing)
+     * - Has access to appearance editing features
+     * - Receives priority in update scheduling
+     * - Can perform local texture baking
+     * - Integrates with first-person camera and movement
+     * 
+     * @return true always (this is the self avatar)
+     */
     /*virtual*/ bool    isSelf() const { return true; }
-        virtual bool    isBuddy() const { return false; }
-    /*virtual*/ bool    isValid() const; // use isAgentAvatarValid, it's fuller
+    
+    /**
+     * @brief Returns false - self avatar is not considered a "buddy".
+     * 
+     * @return false always
+     */
+    virtual bool    isBuddy() const { return false; }
+    
+    /**
+     * @brief Enhanced validity check for the self avatar.
+     * 
+     * Performs more comprehensive validation than the base class,
+     * checking self-specific systems and states. Consider using
+     * isAgentAvatarValid() for the most complete validation.
+     * 
+     * @return true if self avatar is in a valid, usable state
+     */
+    /*virtual*/ bool    isValid() const;
 
     //--------------------------------------------------------------------
     // Updates
