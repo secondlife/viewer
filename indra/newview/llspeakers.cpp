@@ -1027,7 +1027,8 @@ void LLLocalSpeakerMgr::updateSpeakerList()
     std::vector<LLVector3d> positions;
     LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), CHAT_NORMAL_RADIUS);
 #ifdef LL_DISCORD
-    LLAppViewer::updateDiscordPartyCurrentSize(avatar_ids.size());
+    if (gSavedSettings.getBOOL("EnableDiscord"))
+        LLAppViewer::updateDiscordPartyCurrentSize(avatar_ids.size());
 #endif
     for(U32 i=0; i<avatar_ids.size(); i++)
     {
