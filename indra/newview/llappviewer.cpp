@@ -5896,7 +5896,14 @@ void LLAppViewer::initDiscordSocial()
             gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
                 if (result.Successful())
                     gDiscordClient->Connect();
+                else
+                    LL_WARNS("Discord") << result.Error() << LL_ENDL;
             });
+        }
+        else
+        {
+            LL_WARNS("Discord") << "Integration was enabled, but no credentials. Disabling integration." << LL_ENDL;
+            gSavedSettings.setBOOL("EnableDiscord", false);
         }
     }
 }
@@ -5915,34 +5922,53 @@ void LLAppViewer::handleDiscordSocial(const LLSD& value)
             if (result.Successful())
             {
                 gDiscordClient->GetToken(APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
-                    gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [](discordpp::ClientResult result) {
-                        if (result.Successful())
-                            gDiscordClient->Connect();
-                    });
-                    LLSD authenticator = LLSD::emptyMap();
-                    authenticator["token"] = accessToken;
-                    gSecAPIHandler->saveCredential(gSecAPIHandler->createCredential("Discord", LLSD::emptyMap(), authenticator), true);
+                    if (result.Successful())
+                    {
+                        gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [accessToken](discordpp::ClientResult result) {
+                            if (result.Successful())
+                            {
+                                LLSD authenticator = LLSD::emptyMap();
+                                authenticator["token"] = accessToken;
+                                gSecAPIHandler->saveCredential(gSecAPIHandler->createCredential("Discord", LLSD::emptyMap(), authenticator), true);
+                                gDiscordClient->Connect();
+                            }
+                            else
+                            {
+                                LL_WARNS("Discord") << result.Error() << LL_ENDL;
+                            }
+                        });
+                    }
+                    else
+                    {
+                        LL_WARNS("Discord") << result.Error() << LL_ENDL;
+                    }
                 });
             }
             else
             {
+                LL_WARNS("Discord") << result.Error() << LL_ENDL;
                 gSavedSettings.setBOOL("EnableDiscord", false);
             }
         });
     }
     else
     {
+        gDiscordClient->Disconnect();
         auto credential = gSecAPIHandler->loadCredential("Discord");
         if (credential.notNull())
         {
             gDiscordClient->RevokeToken(APPLICATION_ID, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
                 if (result.Successful())
-                {
-                    gDiscordClient->Disconnect();
-                }
-                auto cred = new LLCredential("Discord");
-                gSecAPIHandler->deleteCredential(cred);
+                    LL_INFOS("Discord") << "Access token successfully revoked." << LL_ENDL;
+                else
+                    LL_WARNS("Discord") << "No access token to revoke." << LL_ENDL;
             });
+            auto cred = new LLCredential("Discord");
+            gSecAPIHandler->deleteCredential(cred);
+        }
+        else
+        {
+            LL_WARNS("Discord") << "Credentials are already nonexistent." << LL_ENDL;
         }
     }
 }
