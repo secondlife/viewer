@@ -2301,10 +2301,6 @@ bool idle_startup()
             do_startup_frame();
         }
 
-#ifdef LL_DISCORD
-        LLAppViewer::updateDiscordActivity();
-#endif
-
         return true;
     }
 
