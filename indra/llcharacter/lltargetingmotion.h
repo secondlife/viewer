@@ -27,14 +27,18 @@
 #ifndef LL_LLTARGETINGMOTION_H
 #define LL_LLTARGETINGMOTION_H
 
-//-----------------------------------------------------------------------------
-// Header files
-//-----------------------------------------------------------------------------
 #include "llmotion.h"
 
+/// Duration in seconds for smooth ease-in when targeting motion starts
 #define TARGETING_EASEIN_DURATION   0.3f
+
+/// Duration in seconds for smooth ease-out when targeting motion stops  
 #define TARGETING_EASEOUT_DURATION 0.5f
+
+/// Priority level for targeting motion in joint blending (high priority overrides lower motions)
 #define TARGETING_PRIORITY LLJoint::HIGH_PRIORITY
+
+/// Minimum character pixel area required for targeting motion to activate (performance optimization)
 #define MIN_REQUIRED_PIXEL_AREA_TARGETING 1000.f;
 
 

@@ -33,183 +33,415 @@
 #include "llmotion.h"
 #include "llframetimer.h"
 
+/// Minimum avatar pixel coverage required to activate head rotation tracking
+/// Lower threshold than other motions since head movement is visible at medium distances
 #define MIN_REQUIRED_PIXEL_AREA_HEAD_ROT 500.f;
+/// Minimum avatar pixel coverage required to activate detailed eye movement  
+/// High threshold since eye details only matter in close-up views
 #define MIN_REQUIRED_PIXEL_AREA_EYE 25000.f;
 
-//-----------------------------------------------------------------------------
-// class LLHeadRotMotion
-//-----------------------------------------------------------------------------
+/**
+ * @brief Procedural head rotation motion for natural avatar head movement.
+ * 
+ * LLHeadRotMotion provides realistic head tracking and orientation behavior
+ * for avatars, making them appear more lifelike by automatically adjusting
+ * head position based on various factors like look-at targets, conversation
+ * context, and environmental awareness.
+ * 
+ * This motion system handles:
+ * - Look-at target tracking (focusing on other avatars, objects, or UI elements)
+ * - Natural head bobbing and subtle movements during idle states
+ * - Smooth transitions between different head orientations
+ * - Integration with conversation systems for social interactions
+ * 
+ * The motion affects multiple joints in the spine/neck hierarchy:
+ * - Torso: Subtle upper body lean for more natural posture
+ * - Neck: Primary rotation point for head movement
+ * - Head: Fine-tuned adjustments for precise targeting
+ * 
+ * Performance optimization: Head rotation is only active when the avatar
+ * is visible enough on screen (MIN_REQUIRED_PIXEL_AREA_HEAD_ROT threshold).
+ * 
+ * @code
+ * // Real registration pattern in LLVOAvatar::initInstance() 
+ * registerMotion(ANIM_AGENT_HEAD_ROT, LLHeadRotMotion::create);
+ * 
+ * // Head rotation is managed automatically - no direct API calls needed
+ * // The motion reads look-at targets from character animation data
+ * // and coordinates with LLHUDEffectLookAt for target positioning
+ * @endcode
+ */
 class LLHeadRotMotion :
     public LLMotion
 {
 public:
-    // Constructor
+    /**
+     * @brief Constructor for head rotation motion controller.
+     * 
+     * @param id Motion UUID identifier for registration with motion controller
+     */
     LLHeadRotMotion(const LLUUID &id);
 
-    // Destructor
+    /**
+     * @brief Virtual destructor for proper cleanup.
+     */
     virtual ~LLHeadRotMotion();
 
 public:
-    //-------------------------------------------------------------------------
-    // functions to support MotionController and MotionRegistry
-    //-------------------------------------------------------------------------
-
-    // static constructor
-    // all subclasses must implement such a function and register it
+    /**
+     * @brief Static factory function for motion registry.
+     * 
+     * @param id Motion UUID identifier
+     * @return New LLHeadRotMotion instance
+     */
     static LLMotion *create(const LLUUID &id) { return new LLHeadRotMotion(id); }
 
 public:
-    //-------------------------------------------------------------------------
-    // animation callbacks to be implemented by subclasses
-    //-------------------------------------------------------------------------
-
-    // motions must specify whether or not they loop
+    /**
+     * @brief Indicates this motion loops continuously.
+     * 
+     * Head rotation runs continuously to provide ongoing head tracking behavior.
+     * 
+     * @return Always true for continuous head tracking
+     */
     virtual bool getLoop() { return true; }
 
-    // motions must report their total duration
+    /**
+     * @brief Gets the total duration of the motion.
+     * 
+     * Head rotation has no fixed duration as it provides continuous tracking.
+     * 
+     * @return 0.0 indicating indefinite duration
+     */
     virtual F32 getDuration() { return 0.0; }
 
-    // motions must report their "ease in" duration
+    /**
+     * @brief Gets the ease-in transition duration for smooth activation.
+     * 
+     * Head movement eases in over 1 second to avoid jarring transitions
+     * when the motion becomes active.
+     * 
+     * @return 1.0 second ease-in duration
+     */
     virtual F32 getEaseInDuration() { return 1.f; }
 
-    // motions must report their "ease out" duration.
+    /**
+     * @brief Gets the ease-out transition duration for smooth deactivation.
+     * 
+     * Head movement eases out over 1 second to return naturally to
+     * default position when the motion is deactivated.
+     * 
+     * @return 1.0 second ease-out duration
+     */
     virtual F32 getEaseOutDuration() { return 1.f; }
 
-    // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
+    /**
+     * @brief Gets minimum avatar pixel coverage to activate head tracking.
+     * 
+     * Head rotation is visible even at smaller avatar sizes, so it has
+     * a lower threshold (500px) compared to:
+     * - Eye movement: 25,000px (close-up only)
+     * - Hand gestures: 10,000px (medium distance)
+     * - Body noise: 10,000px (breathing, subtle movements)
+     * 
+     * @return Minimum pixel area (500 pixels)
+     */
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_HEAD_ROT; }
 
-    // motions must report their priority
+    /**
+     * @brief Gets the animation priority for blending with other motions.
+     * 
+     * Medium priority allows head rotation to blend naturally with most
+     * other animations while being overridden by high-priority actions.
+     * 
+     * @return MEDIUM_PRIORITY for natural blending behavior
+     */
     virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
 
+    /**
+     * @brief Gets the blending type for combining with other animations.
+     * 
+     * @return NORMAL_BLEND for standard animation blending
+     */
     virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
 
-    // run-time (post constructor) initialization,
-    // called after parameters have been set
-    // must return true to indicate success and be available for activation
+    /**
+     * @brief Initializes the head rotation motion for the specified character.
+     * 
+     * Locates and caches references to the torso, neck, head, pelvis, and root
+     * joints required for natural head movement. Creates joint states for
+     * animation blending.
+     * 
+     * @param character Avatar character to initialize head rotation for
+     * @return STATUS_SUCCESS if initialization completed successfully
+     */
     virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
-    // called when a motion is activated
-    // must return true to indicate success, or else
-    // it will be deactivated
+    /**
+     * @brief Activates the head rotation motion system.
+     * 
+     * Prepares the motion for active head tracking by initializing
+     * starting positions and clearing any previous state.
+     * 
+     * @return true if activation succeeded, false to deactivate immediately
+     */
     virtual bool onActivate();
 
-    // called per time step
-    // must return true while it is active, and
-    // must return false when the motion is completed.
+    /**
+     * @brief Updates head rotation to track current look-at targets.
+     * 
+     * Called every frame while active. Calculates appropriate head orientation
+     * based on look-at targets, applies smooth transitions, and updates the
+     * torso, neck, and head joint rotations for natural movement.
+     * 
+     * @param time Current animation time
+     * @param joint_mask Bitmask of joints affected by this motion
+     * @return true to continue running, false when motion completes
+     */
     virtual bool onUpdate(F32 time, U8* joint_mask);
 
-    // called when a motion is deactivated
+    /**
+     * @brief Deactivates the head rotation motion system.
+     * 
+     * Called when motion stops. Allows natural ease-out transition
+     * back to default head position.
+     */
     virtual void onDeactivate();
 
 public:
-    //-------------------------------------------------------------------------
-    // joint states to be animated
-    //-------------------------------------------------------------------------
+    /// Avatar character that owns the head being animated
     LLCharacter         *mCharacter;
 
-    LLJoint             *mTorsoJoint;
-    LLJoint             *mHeadJoint;
-    LLJoint             *mRootJoint;
-    LLJoint             *mPelvisJoint;
+    /// Cached joint references for head rotation chain
+    LLJoint             *mTorsoJoint;   /// Upper torso for subtle body lean
+    LLJoint             *mHeadJoint;    /// Primary head joint
+    LLJoint             *mRootJoint;    /// Avatar root for world positioning
+    LLJoint             *mPelvisJoint;  /// Pelvis reference for body coordination
 
-    LLPointer<LLJointState> mTorsoState;
-    LLPointer<LLJointState> mNeckState;
-    LLPointer<LLJointState> mHeadState;
+    /// Joint states for animation blending on rotation chain
+    LLPointer<LLJointState> mTorsoState;  /// Torso rotation state for subtle lean
+    LLPointer<LLJointState> mNeckState;   /// Neck rotation state for primary head turn
+    LLPointer<LLJointState> mHeadState;   /// Head rotation state for fine adjustment
 
+    /// Previous frame head rotation for smooth transition calculations
     LLQuaternion        mLastHeadRot;
 };
 
-//-----------------------------------------------------------------------------
-// class LLEyeMotion
-//-----------------------------------------------------------------------------
+/**
+ * @brief Procedural eye movement and blinking animation system.
+ * 
+ * LLEyeMotion provides realistic eye behavior including:
+ * - Eye tracking of look-at targets with natural lag behind head movement
+ * - Automatic eye jitter and micro-movements for lifelike appearance
+ * - Periodic look-away behavior to avoid "staring" effect
+ * - Automatic blinking with realistic timing and duration
+ * - Separate left/right eye control for slight asymmetry
+ * 
+ * Eye movement works in coordination with LLHeadRotMotion but operates
+ * independently with its own targeting and timing. Eyes typically follow
+ * the same targets as head rotation but with different movement characteristics:
+ * - Faster response time than head movement
+ * - Smaller range of motion (eyes can't rotate as far as head)
+ * - More frequent micro-adjustments and natural jitter
+ * 
+ * The system supports both primary and alternative eye joint sets for
+ * different avatar skeleton configurations (base vs extended rigs).
+ * 
+ * Performance optimization: Eye movement requires high avatar pixel coverage
+ * (MIN_REQUIRED_PIXEL_AREA_EYE) since eye details are only visible in close-up.
+ * 
+ * @code
+ * // Real registration pattern in LLVOAvatar::initInstance()
+ * registerMotion(ANIM_AGENT_EYE, LLEyeMotion::create);
+ * 
+ * // Eye motion coordinates automatically with head rotation
+ * // Uses internal timers for jitter, blinking, and look-away behavior
+ * // No direct API calls needed - works through animation data system
+ * @endcode
+ */
 class LLEyeMotion :
     public LLMotion
 {
 public:
-    // Constructor
+    /**
+     * @brief Constructor for eye movement motion controller.
+     * 
+     * @param id Motion UUID identifier for registration with motion controller
+     */
     LLEyeMotion(const LLUUID &id);
 
-    // Destructor
+    /**
+     * @brief Virtual destructor for proper cleanup.
+     */
     virtual ~LLEyeMotion();
 
 public:
-    //-------------------------------------------------------------------------
-    // functions to support MotionController and MotionRegistry
-    //-------------------------------------------------------------------------
-
-    // static constructor
-    // all subclasses must implement such a function and register it
+    /**
+     * @brief Static factory function for motion registry.
+     * 
+     * @param id Motion UUID identifier
+     * @return New LLEyeMotion instance
+     */
     static LLMotion *create( const LLUUID &id) { return new LLEyeMotion(id); }
 
 public:
-    //-------------------------------------------------------------------------
-    // animation callbacks to be implemented by subclasses
-    //-------------------------------------------------------------------------
-
-    // motions must specify whether or not they loop
+    /**
+     * @brief Indicates this motion loops continuously.
+     * 
+     * Eye movement and blinking run continuously to provide ongoing
+     * lifelike eye behavior.
+     * 
+     * @return Always true for continuous eye animation
+     */
     virtual bool getLoop() { return true; }
 
-    // motions must report their total duration
+    /**
+     * @brief Gets the total duration of the motion.
+     * 
+     * Eye motion has no fixed duration as it provides continuous animation.
+     * 
+     * @return 0.0 indicating indefinite duration
+     */
     virtual F32 getDuration() { return 0.0; }
 
-    // motions must report their "ease in" duration
+    /**
+     * @brief Gets the ease-in transition duration for smooth activation.
+     * 
+     * Eye movement eases in over 0.5 seconds to avoid sudden eye snapping
+     * when the motion becomes active.
+     * 
+     * @return 0.5 second ease-in duration
+     */
     virtual F32 getEaseInDuration() { return 0.5f; }
 
-    // motions must report their "ease out" duration.
+    /**
+     * @brief Gets the ease-out transition duration for smooth deactivation.
+     * 
+     * Eye movement eases out over 0.5 seconds to return naturally to
+     * default position when deactivated.
+     * 
+     * @return 0.5 second ease-out duration
+     */
     virtual F32 getEaseOutDuration() { return 0.5f; }
 
-    // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
+    /**
+     * @brief Gets minimum avatar pixel coverage to activate eye movement.
+     * 
+     * Eye details are only visible in close-up views, requiring the highest
+     * pixel coverage threshold (25,000px) of all avatar motions. For comparison:
+     * - Head rotation: 500px (visible at medium distance)
+     * - Hand gestures: 10,000px (visible at closer range)
+     * - Walk adjust: 20px (always active)
+     * 
+     * @return Minimum pixel area (25,000 pixels) for eye detail visibility
+     */
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_EYE; }
 
-    // motions must report their priority
+    /**
+     * @brief Gets the animation priority for blending with other motions.
+     * 
+     * Medium priority allows eye movement to blend with other facial
+     * animations while being overridden by high-priority actions.
+     * 
+     * @return MEDIUM_PRIORITY for natural blending behavior
+     */
     virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
 
+    /**
+     * @brief Gets the blending type for combining with other animations.
+     * 
+     * @return NORMAL_BLEND for standard animation blending
+     */
     virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
 
-    // run-time (post constructor) initialization,
-    // called after parameters have been set
-    // must return true to indicate success and be available for activation
+    /**
+     * @brief Initializes the eye motion for the specified character.
+     * 
+     * Locates and caches references to head and eye joints, creates joint
+     * states for both primary and alternative eye configurations, and
+     * initializes timing systems for jitter and blinking.
+     * 
+     * @param character Avatar character to initialize eye motion for
+     * @return STATUS_SUCCESS if initialization completed successfully
+     */
     virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
-    // called when a motion is activated
-    // must return true to indicate success, or else
-    // it will be deactivated
+    /**
+     * @brief Activates the eye motion system.
+     * 
+     * Prepares for active eye tracking by resetting timers and
+     * initializing starting eye positions.
+     * 
+     * @return true if activation succeeded, false to deactivate immediately
+     */
     virtual bool onActivate();
 
+    /**
+     * @brief Adjusts eye target position and applies to left/right eye states.
+     * 
+     * This helper function takes a target position and calculates appropriate
+     * rotations for both left and right eyes, handling the geometric constraints
+     * of eye movement and applying slight asymmetry for natural appearance.
+     * 
+     * @param targetPos Target position in world coordinates to look at
+     * @param left_eye_state Joint state for left eye rotation
+     * @param right_eye_state Joint state for right eye rotation
+     */
     void adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state);
 
-    // called per time step
-    // must return true while it is active, and
-    // must return false when the motion is completed.
+    /**
+     * @brief Updates eye movement, jitter, and blinking behavior.
+     * 
+     * Called every frame while active. Handles:
+     * - Eye tracking of look-at targets
+     * - Natural eye jitter and micro-movements
+     * - Periodic look-away behavior
+     * - Automatic blinking with realistic timing
+     * 
+     * @param time Current animation time
+     * @param joint_mask Bitmask of joints affected by this motion
+     * @return true to continue running, false when motion completes
+     */
     virtual bool onUpdate(F32 time, U8* joint_mask);
 
-    // called when a motion is deactivated
+    /**
+     * @brief Deactivates the eye motion system.
+     * 
+     * Called when motion stops. Allows natural ease-out transition
+     * back to default eye position and stops blinking behavior.
+     */
     virtual void onDeactivate();
 
 public:
-    //-------------------------------------------------------------------------
-    // joint states to be animated
-    //-------------------------------------------------------------------------
+    /// Avatar character that owns the eyes being animated
     LLCharacter         *mCharacter;
 
+    /// Cached head joint reference for eye movement calculations
     LLJoint             *mHeadJoint;
-    LLPointer<LLJointState> mLeftEyeState;
-    LLPointer<LLJointState> mRightEyeState;
-    LLPointer<LLJointState> mAltLeftEyeState;
-    LLPointer<LLJointState> mAltRightEyeState;
+    
+    /// Joint states for primary eye configuration
+    LLPointer<LLJointState> mLeftEyeState;   /// Left eye rotation state
+    LLPointer<LLJointState> mRightEyeState;  /// Right eye rotation state
+    
+    /// Joint states for alternative eye configuration (extended avatar rigs)
+    LLPointer<LLJointState> mAltLeftEyeState;   /// Alternative left eye state
+    LLPointer<LLJointState> mAltRightEyeState;  /// Alternative right eye state
 
-    LLFrameTimer        mEyeJitterTimer;
-    F32                 mEyeJitterTime;
-    F32                 mEyeJitterYaw;
-    F32                 mEyeJitterPitch;
-    F32                 mEyeLookAwayTime;
-    F32                 mEyeLookAwayYaw;
-    F32                 mEyeLookAwayPitch;
+    /// Timing system for natural eye jitter and micro-movements
+    LLFrameTimer        mEyeJitterTimer;    /// Timer for jitter intervals
+    F32                 mEyeJitterTime;     /// Duration of current jitter cycle
+    F32                 mEyeJitterYaw;      /// Current horizontal jitter offset
+    F32                 mEyeJitterPitch;    /// Current vertical jitter offset
+    
+    /// Timing system for periodic look-away behavior to avoid staring
+    F32                 mEyeLookAwayTime;   /// Duration of current look-away cycle
+    F32                 mEyeLookAwayYaw;    /// Horizontal look-away offset
+    F32                 mEyeLookAwayPitch;  /// Vertical look-away offset
 
-    // eye blinking
-    LLFrameTimer        mEyeBlinkTimer;
-    F32                 mEyeBlinkTime;
-    bool                mEyesClosed;
+    /// Automatic blinking system for realistic eye behavior
+    LLFrameTimer        mEyeBlinkTimer;     /// Timer for blink intervals
+    F32                 mEyeBlinkTime;      /// Duration of current blink cycle
+    bool                mEyesClosed;        /// Current eyelid state (open/closed)
 };
 
 #endif // LL_LLHEADROTMOTION_H

@@ -27,9 +27,6 @@
 #ifndef LL_LLMOTIONCONTROLLER_H
 #define LL_LLMOTIONCONTROLLER_H
 
-//-----------------------------------------------------------------------------
-// Header files
-//-----------------------------------------------------------------------------
 #include <string>
 #include <map>
 #include <deque>
@@ -40,10 +37,7 @@
 #include "llstatemachine.h"
 #include "llstring.h"
 
-//-----------------------------------------------------------------------------
-// Class predeclaration
-// This is necessary because llcharacter.h includes this file.
-//-----------------------------------------------------------------------------
+/// Forward declaration needed because llcharacter.h includes this file
 class LLCharacter;
 
 /**
@@ -596,33 +590,270 @@ public:
     void incMotionCounts(S32& num_motions, S32& num_loading_motions, S32& num_loaded_motions, S32& num_active_motions, S32& num_deprecated_motions);
 
 //protected:
+    /**
+     * @brief Checks if a motion instance is currently in the active motion list.
+     * 
+     * Tests whether the specified motion is actively playing and affecting the
+     * character's pose. A motion can exist in memory but not be active if it's
+     * in loading, loaded, or deprecated states.
+     * 
+     * @param motion Pointer to motion instance to check
+     * @return true if motion is in mActiveMotions list, false otherwise
+     */
     bool isMotionActive( LLMotion *motion );
+    
+    /**
+     * @brief Checks if a motion instance is currently loading asset data.
+     * 
+     * Tests whether the specified motion is in the loading state, waiting for
+     * animation asset data to complete downloading from servers.
+     * 
+     * @param motion Pointer to motion instance to check
+     * @return true if motion is in mLoadingMotions set, false otherwise
+     */
     bool isMotionLoading( LLMotion *motion );
+    
+    /**
+     * @brief Finds a motion instance by UUID in the motion registry.
+     * 
+     * Searches mAllMotions for a motion with the specified UUID. Returns the
+     * canonical motion instance for that ID, or nullptr if not found.
+     * 
+     * @param id UUID of motion to locate
+     * @return Pointer to motion instance, nullptr if not found
+     */
     LLMotion *findMotion( const LLUUID& id ) const;
 
+    /**
+     * @brief Outputs debug information about all motion states to log.
+     * 
+     * Prints detailed information about all motions in each state (loading,
+     * loaded, active, deprecated) for debugging and diagnostics. Includes
+     * motion names, UUIDs, and current status.
+     */
     void dumpMotions();
 
+    /**
+     * @brief Gets the high-resolution frame timer for animation timing.
+     * 
+     * Provides access to the internal timer used for precise motion timing
+     * calculations. Used primarily for debugging and time-based diagnostics.
+     * 
+     * @return Reference to the internal LLFrameTimer instance
+     */
     const LLFrameTimer& getFrameTimer() { return mTimer; }
 
+    /**
+     * @brief Gets the global default time factor for new motion controllers.
+     * 
+     * Returns the static time scaling factor that will be applied to newly
+     * created motion controllers. This allows global time scaling effects
+     * to be applied across all characters.
+     * 
+     * @return Current global time factor (1.0 = normal speed)
+     */
     static F32  getCurrentTimeFactor()              { return sCurrentTimeFactor;    };
+    
+    /**
+     * @brief Sets the global default time factor for new motion controllers.
+     * 
+     * Updates the static time scaling factor used to initialize new motion
+     * controllers. This enables global slow-motion or fast-motion effects
+     * across all characters in the system.
+     * 
+     * @param factor New global time factor (1.0 = normal speed)
+     */
     static void setCurrentTimeFactor(F32 factor)    { sCurrentTimeFactor = factor;  };
 
 protected:
-    // internal operations act on motion instances directly
-    // as there can be duplicate motions per id during blending overlap
+    /**
+     * @brief Internal operations act on motion instances directly.
+     * 
+     * These protected methods work with motion instances rather than UUIDs
+     * because there can be duplicate motions per ID during blending overlap
+     * when crossfading between different instances of the same motion type.
+     */
+    
+    /**
+     * @brief Destroys all motion instances and clears all motion collections.
+     * 
+     * This is the most thorough cleanup method, destroying every motion instance
+     * and clearing all motion collections (mAllMotions, mLoadingMotions, etc.).
+     * Used during motion controller destruction and complete resets.
+     * 
+     * Implementation removes motions from all collections, then uses DeletePairedPointer
+     * to safely destroy all motion instances and clear the mAllMotions map.
+     */
     void deleteAllMotions();
+    
+    /**
+     * @brief Activates a motion instance and adds it to the active motion list.
+     * 
+     * Transitions a loaded motion to active state by calling its onActivate()
+     * method and adding it to mActiveMotions. The motion begins affecting the
+     * character's pose immediately after activation.
+     * 
+     * @param motion Pointer to motion instance to activate
+     * @param time Animation time to start the motion from
+     * @return true if activation succeeded, false if motion failed to activate
+     */
     bool activateMotionInstance(LLMotion *motion, F32 time);
+    
+    /**
+     * @brief Deactivates a motion instance and removes it from active motions.
+     * 
+     * Calls the motion's onDeactivate() method, removes it from mActiveMotions,
+     * and moves it back to the loaded state. The motion stops affecting the
+     * character's pose but remains in memory for potential reactivation.
+     * 
+     * @param motion Pointer to motion instance to deactivate
+     * @return true if deactivation succeeded, false if motion wasn't active
+     */
     bool deactivateMotionInstance(LLMotion *motion);
+    
+    /**
+     * @brief Moves a motion instance to deprecated state during crossfading.
+     * 
+     * Removes the motion from mAllMotions (so it won't be found by UUID lookups)
+     * and adds it to mDeprecatedMotions. The motion continues playing with
+     * decreasing influence during blend-out transitions.
+     * 
+     * This allows smooth crossfading when starting a new instance of the same
+     * motion type while the old instance is still blending out.
+     * 
+     * @param motion Pointer to motion instance to deprecate
+     */
     void deprecateMotionInstance(LLMotion* motion);
+    
+    /**
+     * @brief Stops a motion instance with optional immediate termination.
+     * 
+     * Sets the motion's stop time and either begins blend-out or immediately
+     * deactivates it. Immediate stops bypass the ease-out phase for instant
+     * termination, while normal stops allow smooth transitions.
+     * 
+     * @param motion Pointer to motion instance to stop
+     * @param stop_imemdiate If true, stops immediately; if false, blends out
+     * @return true if stop was initiated, false if motion wasn't active
+     */
     bool stopMotionInstance(LLMotion *motion, bool stop_imemdiate);
+    
+    /**
+     * @brief Removes a motion instance from all runtime collections.
+     * 
+     * Removes the motion from all collection sets (loading, loaded, active,
+     * deprecated) and safely destroys the instance. Does not remove the entry
+     * from mAllMotions by UUID - use removeMotion(id) for complete removal.
+     * 
+     * This method handles the low-level cleanup when motion instances are
+     * no longer needed, ensuring they're removed from all tracking structures.
+     * 
+     * @param motion Pointer to motion instance to remove
+     */
     void removeMotionInstance(LLMotion* motion);
+    
+    /**
+     * @brief Processes all NORMAL_BLEND type motions during update cycle.
+     * 
+     * Updates regular (non-additive) motions by calling updateMotionsByType
+     * with NORMAL_BLEND. These motions replace each other based on priority
+     * rather than layering additively.
+     * 
+     * Called during the main update sequence after additive motions have
+     * been processed and joint signatures reset.
+     */
     void updateRegularMotions();
+    
+    /**
+     * @brief Processes all ADDITIVE_BLEND type motions during update cycle.
+     * 
+     * Updates additive motions by calling updateMotionsByType with ADDITIVE_BLEND.
+     * These motions layer on top of existing poses rather than replacing them,
+     * allowing effects like breathing or targeting to combine with locomotion.
+     * 
+     * Called first in the update sequence before regular motions are processed.
+     */
     void updateAdditiveMotions();
+    
+    /**
+     * @brief Clears joint signature tracking for the current frame.
+     * 
+     * Resets the joint signature arrays that track which joints are being
+     * modified by which motions at what priority levels. Called between
+     * additive and regular motion processing to ensure clean state.
+     * 
+     * The joint signature system optimizes pose blending by tracking which
+     * joints actually need processing, avoiding expensive calculations for
+     * unmodified joints.
+     */
     void resetJointSignatures();
+    
+    /**
+     * @brief Updates all motions of a specific blend type.
+     * 
+     * Core motion processing method that iterates through active motions,
+     * calls their onUpdate() methods, and adds them to the pose blender.
+     * Handles motion lifecycle transitions and pose contribution.
+     * 
+     * This method implements the main motion processing loop, handling:
+     * - Motion time advancement and onUpdate() calls
+     * - Pose blender integration for joint transformations
+     * - Motion state transitions (active -> stopped -> deactivated)
+     * - Priority-based motion blending
+     * 
+     * @param motion_type NORMAL_BLEND or ADDITIVE_BLEND to process
+     */
     void updateMotionsByType(LLMotion::LLMotionBlendType motion_type);
+    
+    /**
+     * @brief Performs minimal update for a single motion when paused.
+     * 
+     * Calls the motion's onUpdate() method with minimal processing to maintain
+     * motion state without full pose calculations. Used during pause states
+     * to keep motions alive without expensive processing.
+     * 
+     * @param motionp Pointer to motion instance to update minimally
+     */
     void updateIdleMotion(LLMotion* motionp);
+    
+    /**
+     * @brief Performs minimal updates on all active motions when paused.
+     * 
+     * Alternative to updateMotionsByType() used when the controller is paused
+     * or when minimal processing is needed. Maintains motion state without
+     * full pose blending calculations.
+     * 
+     * Called from updateMotions() when paused=true and force_update=false,
+     * providing a lightweight update path for background processing.
+     */
     void updateIdleActiveMotions();
+    
+    /**
+     * @brief Removes excess motion instances to prevent memory bloat.
+     * 
+     * Implements aggressive cleanup to maintain the MAX_MOTION_INSTANCES limit
+     * (32 motions). When exceeded, deprecated motions are purged first, followed
+     * by inactive loaded motions. Logs warnings when counts exceed 64 instances.
+     * 
+     * Called every frame during updateMotions() to prevent memory accumulation.
+     * Uses a two-phase approach: first remove deprecated motions, then remove
+     * inactive loaded motions if still over the limit.
+     * 
+     * Performance critical: prevents motion system memory bloat in crowded areas
+     * where many animations are being loaded and played.
+     */
     void purgeExcessMotions();
+    
+    /**
+     * @brief Deactivates all motions that have finished their stop transitions.
+     * 
+     * Scans active motions for those marked as stopped and deactivates them,
+     * removing them from the active list. Used during HIDDEN_UPDATE mode to
+     * clean up finished motions without full processing.
+     * 
+     * Called when characters are hidden or minimally updated to maintain
+     * motion state consistency without expensive pose calculations.
+     */
     void deactivateStoppedMotions();
 
 protected:
@@ -843,9 +1074,6 @@ private:
     U32                 mLastCountAfterPurge;
 };
 
-//-----------------------------------------------------------------------------
-// Class declaractions
-//-----------------------------------------------------------------------------
 #include "llcharacter.h"
 
 #endif // LL_LLMOTIONCONTROLLER_H

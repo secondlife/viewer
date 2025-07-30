@@ -44,9 +44,6 @@
 #ifndef LL_LLEDITINGMOTION_H
 #define LL_LLEDITINGMOTION_H
 
-//-----------------------------------------------------------------------------
-// Header files
-//-----------------------------------------------------------------------------
 #include "llmotion.h"
 #include "lljointsolverrp3.h"
 #include "v3dmath.h"
