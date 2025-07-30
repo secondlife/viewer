@@ -325,6 +325,7 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
     mWaitingForTracker(false),
     mIsClosing(false),
     mSetToUserPosition(true),
+    mProcessingSearchUpdate(false),
     mTrackedLocation(0.0,0.0,0.0),
     mTrackedStatus(LLTracker::TRACKING_NOTHING),
     mParcelInfoObserver(nullptr),
@@ -338,7 +339,7 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
     mCommitCallbackRegistrar.add("WMap.Location",       boost::bind(&LLFloaterWorldMap::onLocationCommit, this));
     mCommitCallbackRegistrar.add("WMap.AvatarCombo",    boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));
     mCommitCallbackRegistrar.add("WMap.Landmark",       boost::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this));
-    mCommitCallbackRegistrar.add("WMap.SearchResult",   boost::bind(&LLFloaterWorldMap::onCommitSearchResult, this));
+    mCommitCallbackRegistrar.add("WMap.SearchResult", [this](LLUICtrl* ctrl, const LLSD& data) { LLFloaterWorldMap::onCommitSearchResult(false); });
     mCommitCallbackRegistrar.add("WMap.GoHome",         boost::bind(&LLFloaterWorldMap::onGoHome, this));
     mCommitCallbackRegistrar.add("WMap.Teleport",       boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
     mCommitCallbackRegistrar.add("WMap.ShowTarget",     boost::bind(&LLFloaterWorldMap::onShowTargetBtn, this));
@@ -783,6 +784,7 @@ void LLFloaterWorldMap::trackGenericItem(const LLItemInfo &item)
 
 void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 {
+    mProcessingSearchUpdate = false;
     LLSimInfo* sim_info = LLWorldMap::getInstance()->simInfoFromPosGlobal(pos_global);
     if (!sim_info)
     {
@@ -922,7 +924,10 @@ void LLFloaterWorldMap::updateLocation()
             }
         }
 
-        mLocationEditor->setValue(sim_name);
+        if (!mProcessingSearchUpdate)
+        {
+            mLocationEditor->setValue(sim_name);
+        }
 
         // refresh coordinate display to reflect where user clicked.
         LLVector3d coord_pos = LLTracker::getTrackedPositionGlobal();
@@ -1196,6 +1201,7 @@ void LLFloaterWorldMap::onGoHome()
 {
     gAgent.teleportHome();
     closeFloater();
+    mProcessingSearchUpdate = false;
 }
 
 
@@ -1365,6 +1371,7 @@ void LLFloaterWorldMap::onLocationCommit()
     {
         return;
     }
+    mProcessingSearchUpdate = true;
 
     LLStringUtil::toLower(str);
     mCompletingRegionName = str;
@@ -1386,6 +1393,7 @@ void LLFloaterWorldMap::onCoordinatesCommit()
     {
         return;
     }
+    mProcessingSearchUpdate = false;
 
     S32 x_coord = (S32)mTeleportCoordSpinX->getValue().asReal();
     S32 y_coord = (S32)mTeleportCoordSpinY->getValue().asReal();
@@ -1399,6 +1407,7 @@ void LLFloaterWorldMap::onCoordinatesCommit()
 void LLFloaterWorldMap::onClearBtn()
 {
     mTrackedStatus = LLTracker::TRACKING_NOTHING;
+    mProcessingSearchUpdate = false;
     LLTracker::stopTracking(true);
     LLWorldMap::getInstance()->cancelTracking();
     mSLURL = LLSLURL();                 // Clear the SLURL since it's invalid
@@ -1415,6 +1424,7 @@ void LLFloaterWorldMap::onShowAgentBtn()
     mMapView->setPanWithInterpTime(0, 0, false, 0.1f);  // false == animate
     // Set flag so user's location will be displayed if not tracking anything else
     mSetToUserPosition = true;
+    mProcessingSearchUpdate = false;
 }
 
 void LLFloaterWorldMap::onClickTeleportBtn()
@@ -1570,6 +1580,12 @@ void LLFloaterWorldMap::teleport()
             gAgent.teleportViaLocation( pos_global );
         }
     }
+
+    if (mProcessingSearchUpdate)
+    {
+        mProcessingSearchUpdate = false;
+        mTrackedSimName.clear();
+    }
 }
 
 void LLFloaterWorldMap::flyToLandmark()
@@ -1695,18 +1711,20 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
         {
             mSearchResults->selectByValue(match);
             mSearchResults->setFocus(true);
-            onCommitSearchResult();
+            onCommitSearchResult(false /*fully commit the only option*/);
         }
         // else let user decide
         else
         {
-            mSearchResults->operateOnAll(LLCtrlListInterface::OP_DESELECT);
+            mSearchResults->selectFirstItem();
             mSearchResults->setFocus(true);
+            onCommitSearchResult(true /*don't update text field*/);
         }
     }
     else
     {
         // if we found nothing, say "none"
+        mProcessingSearchUpdate = false;
         mSearchResults->setCommentText(LLTrans::getString("worldmap_results_none_found"));
         mSearchResults->operateOnAll(LLCtrlListInterface::OP_DESELECT);
     }
@@ -1720,7 +1738,7 @@ void LLFloaterWorldMap::onTeleportFinished()
     }
 }
 
-void LLFloaterWorldMap::onCommitSearchResult()
+void LLFloaterWorldMap::onCommitSearchResult(bool from_search)
 {
     std::string sim_name = mSearchResults->getSelectedValue().asString();
     if (sim_name.empty())
@@ -1751,8 +1769,14 @@ void LLFloaterWorldMap::onCommitSearchResult()
             pos_global.mdV[VY] += (F64)pos_local.mV[VY];
             pos_global.mdV[VZ] = (F64)pos_local.mV[VZ];
 
-            mLocationEditor->setValue(sim_name);
+            // Commiting search string automatically selects first item in the search list,
+            // in such case onCommitSearchResult shouldn't modify search string
+            if (!from_search)
+            {
+                mLocationEditor->setValue(sim_name);
+            }
             trackLocation(pos_global);
+            mProcessingSearchUpdate = from_search;
             mTrackCtrlsPanel->setDefaultBtn(mTeleportButton);
             break;
         }
