@@ -41,4 +41,6 @@ set(LL_BUILD "-std=c++17 -fPIC -D${LL_SYSTEM_DEF}=1")
 message(INFO " executing cmake -G ${GENERATOR} -B ${FULL_BUILD_DIR} -S ${FULL_SOURCE_DIR} -DLL_BUILD_ENV='${LL_BUILD}'")
 execute_process(COMMAND cmake -G "${GENERATOR}" -B "${FULL_BUILD_DIR}" -S "${FULL_SOURCE_DIR}" -DLL_BUILD_ENV='${LL_BUILD}')
 
+message("")
 message("To build the viewer, now run the command `cmake --build \"${FULL_BUILD_DIR}\"`")
+message("")
