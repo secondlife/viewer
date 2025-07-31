@@ -37,6 +37,8 @@
 // Constants
 //-----------------------------------------------------------------------------
 
+/// Static hand pose names mapped to visual parameter morph names
+/// Used by getHandPoseName() and setVisualParamWeight() calls
 const char *gHandPoseNames[LLHandMotion::NUM_HAND_POSES] =  /* Flawfinder: ignore */
 {
     "",
@@ -55,6 +57,7 @@ const char *gHandPoseNames[LLHandMotion::NUM_HAND_POSES] =  /* Flawfinder: ignor
     "Hands_Spread_R"
 };
 
+/// Blend time constant for smooth transitions between hand poses
 const F32 HAND_MORPH_BLEND_TIME = 0.2f;
 
 //-----------------------------------------------------------------------------

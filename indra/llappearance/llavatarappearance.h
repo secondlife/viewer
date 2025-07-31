@@ -512,7 +512,8 @@ protected:
     avatar_joint_list_t mSkeleton;
     LLVector3OverrideMap    mPelvisFixups;
     joint_alias_map_t   mJointAliasMap;
-
+    
+public:
     /**
      * @brief Adds a pelvis height adjustment for a specific mesh.
      * 

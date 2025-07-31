@@ -282,14 +282,6 @@ public:
     eHandPose           mCurrentPose;
     /// Target hand pose to transition to (used during HAND_MORPH_BLEND_TIME transitions)
     eHandPose           mNewPose;
-
-private:
-    /// Static hand pose names mapped to visual parameter morph names
-    /// Used by getHandPoseName() and setVisualParamWeight() calls
-    static const char* gHandPoseNames[NUM_HAND_POSES];
-    
-    /// Blend time constant for smooth transitions between hand poses
-    static const F32 HAND_MORPH_BLEND_TIME; // 0.2 seconds
 };
 #endif // LL_LLHANDMOTION_H
 
