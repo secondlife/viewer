@@ -8,9 +8,7 @@
 ## 3.14 added FILE CREATE_LINK
 ## 3.16 is needed for target_precompile_headers
 ## Nicky: Ideally we want at least 3.21 for good preset support
-##   We're not there yet, but once done, there is a kludge in Linking.cmake
-#    "if(${CMAKE_VERSION} VERSION_LESS "3.20.0")" that can also be removed
-cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20.0 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
