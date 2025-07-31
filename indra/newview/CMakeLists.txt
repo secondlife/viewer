@@ -15,6 +15,9 @@ include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
 include(DBusGlib)
 include(DragDrop)
+if (USE_DISCORD)
+  include(Discord)
+endif ()
 include(EXPAT)
 include(Hunspell)
 include(JPEGEncoderBasic)
@@ -1994,6 +1997,10 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::tracy
         ll::openxr
         )
+
+if (USE_DISCORD)
+   target_link_libraries(${VIEWER_BINARY_NAME} ll::discord )
+endif ()
 
 if( TARGET ll::intel_memops )
    target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
