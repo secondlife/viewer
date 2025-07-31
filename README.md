@@ -26,11 +26,11 @@ Third party maintained forks, which include Linux compatible builds, are indexed
 
 ## Build Instructions
 
-[Windows](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Windows)
+configure the build by running: `cmake -P configure.cmake`
 
-[Mac](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_macOS)
+build the project by running: `cmake --build build-darwin-x86_64`
 
-[Linux](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Linux)
+run the tests by running: `cmake --build build-darwin-x86_64 -t tests_ok`
 
 ## Contribute
 
