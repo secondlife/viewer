@@ -36,10 +36,62 @@ if(NOT DEFINED GENERATOR)
 endif()
 
 string(TOUPPER "LL_${CMAKE_HOST_SYSTEM_NAME}" LL_SYSTEM_DEF)
-set(LL_BUILD "-std=c++17 -fPIC -D${LL_SYSTEM_DEF}=1")
+set(LL_BUILD "-std=c++20 -fPIC -D${LL_SYSTEM_DEF}=1")
 
-message(INFO " executing cmake -G ${GENERATOR} -B ${FULL_BUILD_DIR} -S ${FULL_SOURCE_DIR} -DLL_BUILD_ENV='${LL_BUILD}'")
-execute_process(COMMAND cmake -G "${GENERATOR}" -B "${FULL_BUILD_DIR}" -S "${FULL_SOURCE_DIR}" -DLL_BUILD_ENV='${LL_BUILD}')
+# Find Python executable
+find_program(PYTHON_EXECUTABLE python3 python)
+if(NOT PYTHON_EXECUTABLE)
+  message(FATAL_ERROR "Python not found. Please install Python 3.10 or later.")
+endif()
+
+message(INFO " Found Python: ${PYTHON_EXECUTABLE}")
+
+# Create Python virtual environment in build directory
+cmake_path(APPEND VENV_PATH "${FULL_BUILD_DIR}" "venv")
+if(NOT EXISTS "${VENV_PATH}")
+    message(INFO " Creating Python virtual environment at ${VENV_PATH}")
+    execute_process(
+      COMMAND ${PYTHON_EXECUTABLE} -m venv "${VENV_PATH}"
+      RESULT_VARIABLE VENV_RESULT
+    )
+    if(NOT VENV_RESULT EQUAL 0)
+      message(FATAL_ERROR "Failed to create Python virtual environment")
+    endif()
+    message(INFO " Python virtual environment created successfully at ${VENV_PATH}")
+else()
+    message(INFO " Python virtual environment already exists at ${VENV_PATH}")
+endif()
+
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+  cmake_path(APPEND VENV_PYTHON "${VENV_PATH}" "Scripts" "python")
+  cmake_path(APPEND VENV_PIP "${VENV_PATH}" "Scripts" "pip")
+  cmake_path(APPEND VENV_AUTOBUILD "${VENV_PATH}" "Scripts" "autobuild")
+else()
+  cmake_path(APPEND VENV_PYTHON "${VENV_PATH}" "bin" "python")
+  cmake_path(APPEND VENV_PIP "${VENV_PATH}" "bin" "pip")
+  cmake_path(APPEND VENV_AUTOBUILD "${VENV_PATH}" "bin" "autobuild")
+endif()
+
+set(ENV{PYTHON} "${VENV_PYTHON}")
+
+message(INFO " installing autobuild and llsd in python venv")
+execute_process(
+  COMMAND "${VENV_PIP}" install llsd autobuild
+  RESULT_VARIABLE PIP_RESULT
+)
+if(NOT PIP_RESULT EQUAL 0)
+  message(FATAL_ERROR "Failed to install autobuild and llsd Python virtual environment")
+endif()
+
+message(INFO " executing cmake -G ${GENERATOR} -B ${FULL_BUILD_DIR} -S ${FULL_SOURCE_DIR} -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'")
+execute_process(
+  COMMAND cmake -G "${GENERATOR}" -B "${FULL_BUILD_DIR}" -S "${FULL_SOURCE_DIR}" -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'
+  RESULT_VARIABLE CMAKE_RESULT
+)
+if(NOT CMAKE_RESULT EQUAL 0)
+  message(FATAL_ERROR "Failed to configure project using CMake")
+endif()
+
 
 message("")
 message("To build the viewer, now run the command `cmake --build \"${FULL_BUILD_DIR}\"`")
