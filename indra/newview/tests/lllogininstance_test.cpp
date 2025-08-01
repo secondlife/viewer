@@ -38,7 +38,7 @@
 // std headers
 // external library headers
 // other Linden headers
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "llevents.h"
 #include "llnotificationsutil.h"
 #include "lltrans.h"
@@ -331,10 +331,11 @@ std::string xml_escape_string(const std::string& in)
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
+TEST_SUITE("UnknownSuite") {
+
+struct lllogininstance_data
 {
-    struct lllogininstance_data
-    {
+
         lllogininstance_data() : logininstance(LLLoginInstance::getInstance())
         {
             // Global initialization
@@ -373,27 +374,18 @@ namespace tut
 
             logininstance->setNotificationsInterface(&notifications);
             logininstance->setPlatformInfo("win", "1.3.5", "Windows Bogus Version 100.6.6.6");
-        }
+        
+};
 
-        LLLoginInstance* logininstance;
-        LLPointer<LLCredential> agentCredential;
-        LLPointer<LLCredential> accountCredential;
-        MockNotifications notifications;
-    };
+TEST_CASE_FIXTURE(lllogininstance_data, "test_1")
+{
 
-    typedef test_group<lllogininstance_data> lllogininstance_group;
-    typedef lllogininstance_group::object lllogininstance_object;
-    lllogininstance_group llsdmgr("LLLoginInstance");
-
-    template<> template<>
-    void lllogininstance_object::test<1>()
-    {
         set_test_name("Test Simple Success And Disconnect");
 
         // Test default connect.
         logininstance->connect(agentCredential);
 
-        ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI);
+        CHECK_MESSAGE(gLoginURI == VIEWERLOGIN_URI, "Default connect uri");
 
         // Dummy success response.
         LLSD response;
@@ -405,12 +397,12 @@ namespace tut
 
         gTestPump.post(response);
 
-        ensure("Success response", logininstance->authSuccess());
+        CHECK_MESSAGE(logininstance->authSuccess(, "Success response"));
         ensure_equals("Test Response Data", logininstance->getResponse().asString(), "test_data");
 
         logininstance->disconnect();
 
-        ensure_equals("Called Login Module Disconnect", gDisconnectCalled, true);
+        CHECK_MESSAGE(gDisconnectCalled == true, "Called Login Module Disconnect");
 
         response.clear();
         response["state"] = "offline";
@@ -421,12 +413,13 @@ namespace tut
 
         gTestPump.post(response);
 
-        ensure("Disconnected", !(logininstance->authSuccess()));
-    }
+        CHECK_MESSAGE(!(logininstance->authSuccess(, "Disconnected")));
+    
+}
 
-    template<> template<>
-    void lllogininstance_object::test<2>()
-    {
+TEST_CASE_FIXTURE(lllogininstance_data, "test_2")
+{
+
         set_test_name("Test User TOS/Critical message Interaction");
 
         const std::string test_uri = "testing-uri";
@@ -435,7 +428,7 @@ namespace tut
         logininstance->connect(test_uri, agentCredential);
 
         // connect should call LLLogin::connect to init gLoginURI and gLoginCreds.
-        ensure_equals("Default connect uri", gLoginURI, "testing-uri");
+        CHECK_MESSAGE(gLoginURI == "testing-uri", "Default connect uri");
         ensure_equals("Default for agree to tos", gLoginCreds["params"]["agree_to_tos"].asBoolean(), false);
         ensure_equals("Default for read critical", gLoginCreds["params"]["read_critical"].asBoolean(), false);
 
@@ -448,23 +441,23 @@ namespace tut
         response["data"]["reason"] = "tos";
         gTestPump.post(response);
 
-        ensure_equals("TOS Dialog type", gTOSType, "message_tos");
-        ensure("TOS callback given", gTOSReplyPump != 0);
+        CHECK_MESSAGE(gTOSType == "message_tos", "TOS Dialog type");
+        CHECK_MESSAGE(gTOSReplyPump != 0, "TOS callback given");
         gTOSReplyPump->post(false); // Call callback denying TOS.
-        ensure("No TOS, failed auth", logininstance->authFailure());
+        CHECK_MESSAGE(logininstance->authFailure(, "No TOS, failed auth"));
 
         // Start again.
         logininstance->connect(test_uri, agentCredential);
         gTestPump.post(response); // Fail for tos again.
         gTOSReplyPump->post(true); // Accept tos, should reconnect w/ agree_to_tos.
         ensure_equals("Accepted agree to tos", gLoginCreds["params"]["agree_to_tos"].asBoolean(), true);
-        ensure("Incomplete login status", !logininstance->authFailure() && !logininstance->authSuccess());
+        CHECK_MESSAGE(!logininstance->authFailure(, "Incomplete login status") && !logininstance->authSuccess());
 
         // Fail connection, attempt connect again.
         // The new request should have reset agree to tos to default.
         response["data"]["reason"] = "key"; // bad creds.
         gTestPump.post(response);
-        ensure("TOS auth failure", logininstance->authFailure());
+        CHECK_MESSAGE(logininstance->authFailure(, "TOS auth failure"));
 
         logininstance->connect(test_uri, agentCredential);
         ensure_equals("Reset to default for agree to tos", gLoginCreds["params"]["agree_to_tos"].asBoolean(), false);
@@ -474,17 +467,20 @@ namespace tut
         response["data"]["reason"] = "critical"; // Change response to "critical message"
         gTestPump.post(response);
 
-        ensure_equals("TOS Dialog type", gTOSType, "message_critical");
-        ensure("TOS callback given", gTOSReplyPump != 0);
+        CHECK_MESSAGE(gTOSType == "message_critical", "TOS Dialog type");
+        CHECK_MESSAGE(gTOSReplyPump != 0, "TOS callback given");
         gTOSReplyPump->post(true);
         ensure_equals("Accepted read critical message", gLoginCreds["params"]["read_critical"].asBoolean(), true);
-        ensure("Incomplete login status", !logininstance->authFailure() && !logininstance->authSuccess());
+        CHECK_MESSAGE(!logininstance->authFailure(, "Incomplete login status") && !logininstance->authSuccess());
 
         // Fail then attempt new connection
         response["data"]["reason"] = "key"; // bad creds.
         gTestPump.post(response);
-        ensure("TOS auth failure", logininstance->authFailure());
+        CHECK_MESSAGE(logininstance->authFailure(, "TOS auth failure"));
         logininstance->connect(test_uri, agentCredential);
         ensure_equals("Default for agree to tos", gLoginCreds["params"]["read_critical"].asBoolean(), false);
-    }
+    
 }
+
+} // TEST_SUITE
+

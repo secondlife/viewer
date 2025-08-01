@@ -27,7 +27,7 @@
 // Precompiled header
 #include "../llviewerprecompiledheaders.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 #include "../llviewerhelputil.h"
 #include "../llweb.h"
@@ -96,57 +96,49 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 
 //----------------------------------------------------------------------------
 
-namespace tut
+TEST_SUITE("LLViewerHelpUtil") {
+
+TEST_CASE("test_1")
 {
-    struct viewerhelputil
-    {
-    };
 
-    typedef test_group<viewerhelputil> viewerhelputil_t;
-    typedef viewerhelputil_t::object viewerhelputil_object_t;
-    tut::viewerhelputil_t tut_viewerhelputil("LLViewerHelpUtil");
-
-    template<> template<>
-    void viewerhelputil_object_t::test<1>()
-    {
         std::string topic("test_topic");
         std::string subresult;
 
         gHelpURL = "fooformat";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("no substitution tags", subresult, "fooformat");
+        CHECK_MESSAGE(subresult == "fooformat", "no substitution tags");
 
         gHelpURL = "";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("blank substitution format", subresult, "");
+        CHECK_MESSAGE(subresult == "", "blank substitution format");
 
         gHelpURL = "[TOPIC]";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("topic name", subresult, "test_topic");
+        CHECK_MESSAGE(subresult == "test_topic", "topic name");
 
         gHelpURL = "[LANGUAGE]";
         gLanguage = "";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("simple substitution with blank", subresult, "");
+        CHECK_MESSAGE(subresult == "", "simple substitution with blank");
 
         gHelpURL = "[LANGUAGE]";
         gLanguage = "Esperanto";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("simple substitution", subresult, "Esperanto");
+        CHECK_MESSAGE(subresult == "Esperanto", "simple substitution");
 
         gHelpURL = "http://secondlife.com/[LANGUAGE]";
         gLanguage = "Gaelic";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("simple substitution with url", subresult, "http://secondlife.com/Gaelic");
+        CHECK_MESSAGE(subresult == "http://secondlife.com/Gaelic", "simple substitution with url");
 
         gHelpURL = "[XXX]";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("unknown substitution", subresult, "[XXX]");
+        CHECK_MESSAGE(subresult == "[XXX]", "unknown substitution");
 
         gHelpURL = "[LANGUAGE]/[LANGUAGE]";
         gLanguage = "Esperanto";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("multiple substitution", subresult, "Esperanto/Esperanto");
+        CHECK_MESSAGE(subresult == "Esperanto/Esperanto", "multiple substitution");
 
         gHelpURL = "http://[CHANNEL]/[VERSION]/[LANGUAGE]/[OS]/[GRID]/[XXX]";
         gChannel = "Second Life Test";
@@ -155,6 +147,9 @@ namespace tut
         gOS = "AmigaOS 2.1";
         gGrid = "mysim";
         subresult = LLViewerHelpUtil::buildHelpURL(topic);
-        ensure_equals("complex substitution", subresult, "http://Second Life Test/2.0/gaelic/AmigaOS 2.1/mysim/[XXX]");
-    }
+        CHECK_MESSAGE(subresult == "http://Second Life Test/2.0/gaelic/AmigaOS 2.1/mysim/[XXX]", "complex substitution");
+    
 }
+
+} // TEST_SUITE
+

@@ -31,460 +31,480 @@
 #include <boost/assign/list_of.hpp>
 #include "../llstring.h"
 #include "StringVec.h"                  // must come BEFORE lltut.h
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 using boost::assign::list_of;
 
-namespace tut
-{
-    struct string_index
-    {
-    };
-    typedef test_group<string_index> string_index_t;
-    typedef string_index_t::object string_index_object_t;
-    tut::string_index_t tut_string_index("LLString");
+TEST_SUITE("LLString") {
 
-    template<> template<>
-    void string_index_object_t::test<1>()
-    {
+TEST_CASE("test_1")
+{
+
         std::string llstr1;
-        ensure("Empty std::string", (llstr1.size() == 0) && llstr1.empty());
+        CHECK_MESSAGE((llstr1.size(, "Empty std::string") == 0) && llstr1.empty());
 
         std::string llstr2("Hello");
-        ensure("std::string = Hello", (!strcmp(llstr2.c_str(), "Hello")) && (llstr2.size() == 5) && !llstr2.empty());
+        CHECK_MESSAGE((!strcmp(llstr2.c_str(, "std::string = Hello"), "Hello")) && (llstr2.size() == 5) && !llstr2.empty());
 
         std::string llstr3(llstr2);
-        ensure("std::string = std::string(std::string)", (!strcmp(llstr3.c_str(), "Hello")) && (llstr3.size() == 5) && !llstr3.empty());
+        CHECK_MESSAGE((!strcmp(llstr3.c_str(, "std::string = std::string(std::string)"), "Hello")) && (llstr3.size() == 5) && !llstr3.empty());
 
         std::string str("Hello World");
         std::string llstr4(str, 6);
-        ensure("std::string = std::string(s, size_type pos, size_type n = npos)", (!strcmp(llstr4.c_str(), "World")) && (llstr4.size() == 5) && !llstr4.empty());
+        CHECK_MESSAGE((!strcmp(llstr4.c_str(, "std::string = std::string(s, size_type pos, size_type n = npos)"), "World")) && (llstr4.size() == 5) && !llstr4.empty());
 
         std::string llstr5(str, str.size());
-        ensure("std::string = std::string(s, size_type pos, size_type n = npos)", (llstr5.size() == 0) && llstr5.empty());
+        CHECK_MESSAGE((llstr5.size(, "std::string = std::string(s, size_type pos, size_type n = npos)") == 0) && llstr5.empty());
 
         std::string llstr6(5, 'A');
-        ensure("std::string = std::string(count, c)", (!strcmp(llstr6.c_str(), "AAAAA")) && (llstr6.size() == 5) && !llstr6.empty());
+        CHECK_MESSAGE((!strcmp(llstr6.c_str(, "std::string = std::string(count, c)"), "AAAAA")) && (llstr6.size() == 5) && !llstr6.empty());
 
         std::string llstr7("Hello World", 5);
-        ensure("std::string(s, n)", (!strcmp(llstr7.c_str(), "Hello")) && (llstr7.size() == 5) && !llstr7.empty());
+        CHECK_MESSAGE((!strcmp(llstr7.c_str(, "std::string(s, n)"), "Hello")) && (llstr7.size() == 5) && !llstr7.empty());
 
         std::string llstr8("Hello World", 6, 5);
-        ensure("std::string(s, n, count)", (!strcmp(llstr8.c_str(), "World")) && (llstr8.size() == 5) && !llstr8.empty());
+        CHECK_MESSAGE((!strcmp(llstr8.c_str(, "std::string(s, n, count)"), "World")) && (llstr8.size() == 5) && !llstr8.empty());
 
         std::string llstr9("Hello World", sizeof("Hello World")-1, 5); // go past end
-        ensure("std::string(s, n, count) goes past end", (llstr9.size() == 0) && llstr9.empty());
-    }
+        CHECK_MESSAGE((llstr9.size(, "std::string(s, n, count) goes past end") == 0) && llstr9.empty());
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         std::string str("Len=5");
-        ensure("isValidIndex failed", LLStringUtil::isValidIndex(str, 0) == true &&
+        CHECK_MESSAGE(LLStringUtil::isValidIndex(str, 0, "isValidIndex failed") == true &&
                                       LLStringUtil::isValidIndex(str, 5) == true &&
                                       LLStringUtil::isValidIndex(str, 6) == false);
 
         std::string str1;
-        ensure("isValidIndex failed fo rempty string", LLStringUtil::isValidIndex(str1, 0) == false);
-    }
+        CHECK_MESSAGE(LLStringUtil::isValidIndex(str1, 0, "isValidIndex failed fo rempty string") == false);
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         std::string str_val("               Testing the extra whitespaces   ");
         LLStringUtil::trimHead(str_val);
-        ensure_equals("1: trimHead failed", str_val, "Testing the extra whitespaces   ");
+        CHECK_MESSAGE(str_val == "Testing the extra whitespaces   ", "1: trimHead failed");
 
         std::string str_val1("\n\t\r\n  Testing the extra whitespaces   ");
         LLStringUtil::trimHead(str_val1);
-        ensure_equals("2: trimHead failed", str_val1, "Testing the extra whitespaces   ");
-    }
+        CHECK_MESSAGE(str_val1 == "Testing the extra whitespaces   ", "2: trimHead failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         std::string str_val("  Testing the   extra     whitespaces         ");
         LLStringUtil::trimTail(str_val);
-        ensure_equals("1: trimTail failed", str_val, "  Testing the   extra     whitespaces");
+        CHECK_MESSAGE(str_val == "  Testing the   extra     whitespaces", "1: trimTail failed");
 
         std::string str_val1("\n  Testing the extra whitespaces  \n\t\r\n   ");
         LLStringUtil::trimTail(str_val1);
-        ensure_equals("2: trimTail failed", str_val1, "\n  Testing the extra whitespaces");
-    }
+        CHECK_MESSAGE(str_val1 == "\n  Testing the extra whitespaces", "2: trimTail failed");
+    
+}
 
+TEST_CASE("test_6")
+{
 
-    template<> template<>
-    void string_index_object_t::test<6>()
-    {
         std::string str_val("  \t \r Testing the   extra     \r\n whitespaces     \n \t    ");
         LLStringUtil::trim(str_val);
-        ensure_equals("1: trim failed", str_val, "Testing the   extra     \r\n whitespaces");
-    }
+        CHECK_MESSAGE(str_val == "Testing the   extra     \r\n whitespaces", "1: trim failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         std::string str("Second LindenLabs");
         LLStringUtil::truncate(str, 6);
-        ensure_equals("1: truncate", str, "Second");
+        CHECK_MESSAGE(str == "Second", "1: truncate");
 
         // further truncate more than the length
         LLStringUtil::truncate(str, 0);
-        ensure_equals("2: truncate", str, "");
-    }
+        CHECK_MESSAGE(str == "", "2: truncate");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<8>()
-    {
+TEST_CASE("test_8")
+{
+
         std::string str_val("SecondLife Source");
         LLStringUtil::toUpper(str_val);
-        ensure_equals("toUpper failed", str_val, "SECONDLIFE SOURCE");
-    }
+        CHECK_MESSAGE(str_val == "SECONDLIFE SOURCE", "toUpper failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<9>()
-    {
+TEST_CASE("test_9")
+{
+
         std::string str_val("SecondLife Source");
         LLStringUtil::toLower(str_val);
-        ensure_equals("toLower failed", str_val, "secondlife source");
-    }
+        CHECK_MESSAGE(str_val == "secondlife source", "toLower failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<10>()
-    {
+TEST_CASE("test_10")
+{
+
         std::string str_val("Second");
-        ensure("1. isHead failed", LLStringUtil::isHead(str_val, "SecondLife Source") == true);
-        ensure("2. isHead failed", LLStringUtil::isHead(str_val, " SecondLife Source") == false);
+        CHECK_MESSAGE(LLStringUtil::isHead(str_val, "SecondLife Source", "1. isHead failed") == true);
+        CHECK_MESSAGE(LLStringUtil::isHead(str_val, " SecondLife Source", "2. isHead failed") == false);
         std::string str_val2("");
-        ensure("3. isHead failed", LLStringUtil::isHead(str_val2, "") == false);
-    }
+        CHECK_MESSAGE(LLStringUtil::isHead(str_val2, "", "3. isHead failed") == false);
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<11>()
-    {
+TEST_CASE("test_11")
+{
+
         std::string str_val("Hello.\n\n Lindenlabs. \n This is \na simple test.\n");
         std::string orig_str_val(str_val);
         LLStringUtil::addCRLF(str_val);
-        ensure_equals("addCRLF failed", str_val, "Hello.\r\n\r\n Lindenlabs. \r\n This is \r\na simple test.\r\n");
+        CHECK_MESSAGE(str_val == "Hello.\r\n\r\n Lindenlabs. \r\n This is \r\na simple test.\r\n", "addCRLF failed");
         LLStringUtil::removeCRLF(str_val);
-        ensure_equals("removeCRLF failed", str_val, orig_str_val);
-    }
+        CHECK_MESSAGE(str_val == orig_str_val, "removeCRLF failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<12>()
-    {
+TEST_CASE("test_12")
+{
+
         std::string str_val("Hello.\n\n\t \t Lindenlabs. \t\t");
         std::string orig_str_val(str_val);
         LLStringUtil::replaceTabsWithSpaces(str_val, 1);
-        ensure_equals("replaceTabsWithSpaces failed", str_val, "Hello.\n\n    Lindenlabs.   ");
+        CHECK_MESSAGE(str_val == "Hello.\n\n    Lindenlabs.   ", "replaceTabsWithSpaces failed");
         LLStringUtil::replaceTabsWithSpaces(orig_str_val, 0);
-        ensure_equals("replaceTabsWithSpaces failed for 0", orig_str_val, "Hello.\n\n  Lindenlabs. ");
+        CHECK_MESSAGE(orig_str_val == "Hello.\n\n  Lindenlabs. ", "replaceTabsWithSpaces failed for 0");
 
         str_val = "\t\t\t\t";
         LLStringUtil::replaceTabsWithSpaces(str_val, 0);
-        ensure_equals("replaceTabsWithSpaces failed for all tabs", str_val, "");
-    }
+        CHECK_MESSAGE(str_val == "", "replaceTabsWithSpaces failed for all tabs");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<13>()
-    {
+TEST_CASE("test_13")
+{
+
         std::string str_val("Hello.\n\n\t\t\r\nLindenlabsX.");
         LLStringUtil::replaceNonstandardASCII(str_val, 'X');
-        ensure_equals("replaceNonstandardASCII failed", str_val, "Hello.\n\nXXX\nLindenlabsX.");
-    }
+        CHECK_MESSAGE(str_val == "Hello.\n\nXXX\nLindenlabsX.", "replaceNonstandardASCII failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<14>()
-    {
+TEST_CASE("test_14")
+{
+
         std::string str_val("Hello.\n\t\r\nABCDEFGHIABABAB");
         LLStringUtil::replaceChar(str_val, 'A', 'X');
-        ensure_equals("1: replaceChar failed", str_val, "Hello.\n\t\r\nXBCDEFGHIXBXBXB");
+        CHECK_MESSAGE(str_val == "Hello.\n\t\r\nXBCDEFGHIXBXBXB", "1: replaceChar failed");
         std::string str_val1("Hello.\n\t\r\nABCDEFGHIABABAB");
-    }
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<15>()
-    {
+TEST_CASE("test_15")
+{
+
         std::string str_val("Hello.\n\r\t");
-        ensure("containsNonprintable failed", LLStringUtil::containsNonprintable(str_val) == true);
+        CHECK_MESSAGE(LLStringUtil::containsNonprintable(str_val, "containsNonprintable failed") == true);
 
         str_val = "ABC ";
-        ensure("containsNonprintable failed", LLStringUtil::containsNonprintable(str_val) == false);
-    }
+        CHECK_MESSAGE(LLStringUtil::containsNonprintable(str_val, "containsNonprintable failed") == false);
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<16>()
-    {
+TEST_CASE("test_16")
+{
+
         std::string str_val("Hello.\n\r\t Again!");
         LLStringUtil::stripNonprintable(str_val);
-        ensure_equals("stripNonprintable failed", str_val, "Hello. Again!");
+        CHECK_MESSAGE(str_val == "Hello. Again!", "stripNonprintable failed");
 
         str_val = "\r\n\t\t";
         LLStringUtil::stripNonprintable(str_val);
-        ensure_equals("stripNonprintable resulting in empty string failed", str_val, "");
+        CHECK_MESSAGE(str_val == "", "stripNonprintable resulting in empty string failed");
 
         str_val = "";
         LLStringUtil::stripNonprintable(str_val);
-        ensure_equals("stripNonprintable of empty string resulting in empty string failed", str_val, "");
-    }
+        CHECK_MESSAGE(str_val == "", "stripNonprintable of empty string resulting in empty string failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<17>()
-    {
+TEST_CASE("test_17")
+{
+
         bool value;
         std::string str_val("1");
-        ensure("convertToBOOL 1 failed", LLStringUtil::convertToBOOL(str_val, value) && value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL 1 failed") && value);
         str_val = "T";
-        ensure("convertToBOOL T failed", LLStringUtil::convertToBOOL(str_val, value) && value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL T failed") && value);
         str_val = "t";
-        ensure("convertToBOOL t failed", LLStringUtil::convertToBOOL(str_val, value) && value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL t failed") && value);
         str_val = "TRUE";
-        ensure("convertToBOOL TRUE failed", LLStringUtil::convertToBOOL(str_val, value) && value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL TRUE failed") && value);
         str_val = "True";
-        ensure("convertToBOOL True failed", LLStringUtil::convertToBOOL(str_val, value) && value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL True failed") && value);
         str_val = "true";
-        ensure("convertToBOOL true failed", LLStringUtil::convertToBOOL(str_val, value) && value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL true failed") && value);
 
         str_val = "0";
-        ensure("convertToBOOL 0 failed", LLStringUtil::convertToBOOL(str_val, value) && !value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL 0 failed") && !value);
         str_val = "F";
-        ensure("convertToBOOL F failed", LLStringUtil::convertToBOOL(str_val, value) && !value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL F failed") && !value);
         str_val = "f";
-        ensure("convertToBOOL f failed", LLStringUtil::convertToBOOL(str_val, value) && !value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL f failed") && !value);
         str_val = "FALSE";
-        ensure("convertToBOOL FASLE failed", LLStringUtil::convertToBOOL(str_val, value) && !value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL FASLE failed") && !value);
         str_val = "False";
-        ensure("convertToBOOL False failed", LLStringUtil::convertToBOOL(str_val, value) && !value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL False failed") && !value);
         str_val = "false";
-        ensure("convertToBOOL false failed", LLStringUtil::convertToBOOL(str_val, value) && !value);
+        CHECK_MESSAGE(LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL false failed") && !value);
 
         str_val = "Tblah";
-        ensure("convertToBOOL false failed", !LLStringUtil::convertToBOOL(str_val, value));
-    }
+        CHECK_MESSAGE(!LLStringUtil::convertToBOOL(str_val, value, "convertToBOOL false failed"));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<18>()
-    {
+TEST_CASE("test_18")
+{
+
         U8 value;
         std::string str_val("255");
-        ensure("1: convertToU8 failed", LLStringUtil::convertToU8(str_val, value) && value == 255);
+        CHECK_MESSAGE(LLStringUtil::convertToU8(str_val, value, "1: convertToU8 failed") && value == 255);
 
         str_val = "0";
-        ensure("2: convertToU8 failed", LLStringUtil::convertToU8(str_val, value) && value == 0);
+        CHECK_MESSAGE(LLStringUtil::convertToU8(str_val, value, "2: convertToU8 failed") && value == 0);
 
         str_val = "-1";
-        ensure("3: convertToU8 failed", !LLStringUtil::convertToU8(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToU8(str_val, value, "3: convertToU8 failed"));
 
         str_val = "256"; // bigger than MAX_U8
-        ensure("4: convertToU8 failed", !LLStringUtil::convertToU8(str_val, value));
-    }
+        CHECK_MESSAGE(!LLStringUtil::convertToU8(str_val, value, "4: convertToU8 failed"));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<19>()
-    {
+TEST_CASE("test_19")
+{
+
         S8 value;
         std::string str_val("127");
-        ensure("1: convertToS8 failed", LLStringUtil::convertToS8(str_val, value) && value == 127);
+        CHECK_MESSAGE(LLStringUtil::convertToS8(str_val, value, "1: convertToS8 failed") && value == 127);
 
         str_val = "0";
-        ensure("2: convertToS8 failed", LLStringUtil::convertToS8(str_val, value) && value == 0);
+        CHECK_MESSAGE(LLStringUtil::convertToS8(str_val, value, "2: convertToS8 failed") && value == 0);
 
         str_val = "-128";
-        ensure("3: convertToS8 failed", LLStringUtil::convertToS8(str_val, value) && value == -128);
+        CHECK_MESSAGE(LLStringUtil::convertToS8(str_val, value, "3: convertToS8 failed") && value == -128);
 
         str_val = "128"; // bigger than MAX_S8
-        ensure("4: convertToS8 failed", !LLStringUtil::convertToS8(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToS8(str_val, value, "4: convertToS8 failed"));
 
         str_val = "-129";
-        ensure("5: convertToS8 failed", !LLStringUtil::convertToS8(str_val, value));
-    }
+        CHECK_MESSAGE(!LLStringUtil::convertToS8(str_val, value, "5: convertToS8 failed"));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<20>()
-    {
+TEST_CASE("test_20")
+{
+
         S16 value;
         std::string str_val("32767");
-        ensure("1: convertToS16 failed", LLStringUtil::convertToS16(str_val, value) && value == 32767);
+        CHECK_MESSAGE(LLStringUtil::convertToS16(str_val, value, "1: convertToS16 failed") && value == 32767);
 
         str_val = "0";
-        ensure("2: convertToS16 failed", LLStringUtil::convertToS16(str_val, value) && value == 0);
+        CHECK_MESSAGE(LLStringUtil::convertToS16(str_val, value, "2: convertToS16 failed") && value == 0);
 
         str_val = "-32768";
-        ensure("3: convertToS16 failed", LLStringUtil::convertToS16(str_val, value) && value == -32768);
+        CHECK_MESSAGE(LLStringUtil::convertToS16(str_val, value, "3: convertToS16 failed") && value == -32768);
 
         str_val = "32768";
-        ensure("4: convertToS16 failed", !LLStringUtil::convertToS16(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToS16(str_val, value, "4: convertToS16 failed"));
 
         str_val = "-32769";
-        ensure("5: convertToS16 failed", !LLStringUtil::convertToS16(str_val, value));
-    }
+        CHECK_MESSAGE(!LLStringUtil::convertToS16(str_val, value, "5: convertToS16 failed"));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<21>()
-    {
+TEST_CASE("test_21")
+{
+
         U16 value;
         std::string str_val("65535"); //0xFFFF
-        ensure("1: convertToU16 failed", LLStringUtil::convertToU16(str_val, value) && value == 65535);
+        CHECK_MESSAGE(LLStringUtil::convertToU16(str_val, value, "1: convertToU16 failed") && value == 65535);
 
         str_val = "0";
-        ensure("2: convertToU16 failed", LLStringUtil::convertToU16(str_val, value) && value == 0);
+        CHECK_MESSAGE(LLStringUtil::convertToU16(str_val, value, "2: convertToU16 failed") && value == 0);
 
         str_val = "-1";
-        ensure("3: convertToU16 failed", !LLStringUtil::convertToU16(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToU16(str_val, value, "3: convertToU16 failed"));
 
         str_val = "65536";
-        ensure("4: convertToU16 failed", !LLStringUtil::convertToU16(str_val, value));
-    }
+        CHECK_MESSAGE(!LLStringUtil::convertToU16(str_val, value, "4: convertToU16 failed"));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<22>()
-    {
+TEST_CASE("test_22")
+{
+
         U32 value;
         std::string str_val("4294967295"); //0xFFFFFFFF
-        ensure("1: convertToU32 failed", LLStringUtil::convertToU32(str_val, value) && value == 4294967295UL);
+        CHECK_MESSAGE(LLStringUtil::convertToU32(str_val, value, "1: convertToU32 failed") && value == 4294967295UL);
 
         str_val = "0";
-        ensure("2: convertToU32 failed", LLStringUtil::convertToU32(str_val, value) && value == 0);
+        CHECK_MESSAGE(LLStringUtil::convertToU32(str_val, value, "2: convertToU32 failed") && value == 0);
 
         str_val = "4294967296";
-        ensure("3: convertToU32 failed", !LLStringUtil::convertToU32(str_val, value));
-    }
+        CHECK_MESSAGE(!LLStringUtil::convertToU32(str_val, value, "3: convertToU32 failed"));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<23>()
-    {
+TEST_CASE("test_23")
+{
+
         S32 value;
         std::string str_val("2147483647"); //0x7FFFFFFF
-        ensure("1: convertToS32 failed", LLStringUtil::convertToS32(str_val, value) && value == 2147483647);
+        CHECK_MESSAGE(LLStringUtil::convertToS32(str_val, value, "1: convertToS32 failed") && value == 2147483647);
 
         str_val = "0";
-        ensure("2: convertToS32 failed", LLStringUtil::convertToS32(str_val, value) && value == 0);
+        CHECK_MESSAGE(LLStringUtil::convertToS32(str_val, value, "2: convertToS32 failed") && value == 0);
 
         // Avoid "unary minus operator applied to unsigned type" warning on VC++. JC
         S32 min_val = -2147483647 - 1;
         str_val = "-2147483648";
-        ensure("3: convertToS32 failed", LLStringUtil::convertToS32(str_val, value)  && value == min_val);
+        CHECK_MESSAGE(LLStringUtil::convertToS32(str_val, value, "3: convertToS32 failed")  && value == min_val);
 
         str_val = "2147483648";
-        ensure("4: convertToS32 failed", !LLStringUtil::convertToS32(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToS32(str_val, value, "4: convertToS32 failed"));
 
         str_val = "-2147483649";
-        ensure("5: convertToS32 failed", !LLStringUtil::convertToS32(str_val, value));
-    }
+        CHECK_MESSAGE(!LLStringUtil::convertToS32(str_val, value, "5: convertToS32 failed"));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<24>()
-    {
+TEST_CASE("test_24")
+{
+
         F32 value;
         std::string str_val("2147483647"); //0x7FFFFFFF
-        ensure("1: convertToF32 failed", LLStringUtil::convertToF32(str_val, value) && value == 2147483647);
+        CHECK_MESSAGE(LLStringUtil::convertToF32(str_val, value, "1: convertToF32 failed") && value == 2147483647);
 
         str_val = "0";
-        ensure("2: convertToF32 failed", LLStringUtil::convertToF32(str_val, value) && value == 0);
+        CHECK_MESSAGE(LLStringUtil::convertToF32(str_val, value, "2: convertToF32 failed") && value == 0);
 
         /* Need to find max/min F32 values
         str_val = "-2147483648";
-        ensure("3: convertToF32 failed", LLStringUtil::convertToF32(str_val, value)  && value == -2147483648);
+        CHECK_MESSAGE(LLStringUtil::convertToF32(str_val, value, "3: convertToF32 failed")  && value == -2147483648);
 
         str_val = "2147483648";
-        ensure("4: convertToF32 failed", !LLStringUtil::convertToF32(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToF32(str_val, value, "4: convertToF32 failed"));
 
         str_val = "-2147483649";
-        ensure("5: convertToF32 failed", !LLStringUtil::convertToF32(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToF32(str_val, value, "5: convertToF32 failed"));
         */
-    }
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<25>()
-    {
+TEST_CASE("test_25")
+{
+
         F64 value;
         std::string str_val("9223372036854775807"); //0x7FFFFFFFFFFFFFFF
-        ensure("1: convertToF64 failed", LLStringUtil::convertToF64(str_val, value) && value == 9223372036854775807LL);
+        CHECK_MESSAGE(LLStringUtil::convertToF64(str_val, value, "1: convertToF64 failed") && value == 9223372036854775807LL);
 
         str_val = "0";
-        ensure("2: convertToF64 failed", LLStringUtil::convertToF64(str_val, value) && value == 0.0F);
+        CHECK_MESSAGE(LLStringUtil::convertToF64(str_val, value, "2: convertToF64 failed") && value == 0.0F);
 
         /* Need to find max/min F64 values
         str_val = "-2147483648";
-        ensure("3: convertToF32 failed", LLStringUtil::convertToF32(str_val, value)  && value == -2147483648);
+        CHECK_MESSAGE(LLStringUtil::convertToF32(str_val, value, "3: convertToF32 failed")  && value == -2147483648);
 
         str_val = "2147483648";
-        ensure("4: convertToF32 failed", !LLStringUtil::convertToF32(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToF32(str_val, value, "4: convertToF32 failed"));
 
         str_val = "-2147483649";
-        ensure("5: convertToF32 failed", !LLStringUtil::convertToF32(str_val, value));
+        CHECK_MESSAGE(!LLStringUtil::convertToF32(str_val, value, "5: convertToF32 failed"));
         */
-    }
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<26>()
-    {
+TEST_CASE("test_26")
+{
+
         const char* str1 = NULL;
         const char* str2 = NULL;
 
-        ensure("1: compareStrings failed", LLStringUtil::compareStrings(str1, str2) == 0);
+        CHECK_MESSAGE(LLStringUtil::compareStrings(str1, str2, "1: compareStrings failed") == 0);
         str2 = "A";
-        ensure("2: compareStrings failed", LLStringUtil::compareStrings(str1, str2) > 0);
-        ensure("3: compareStrings failed", LLStringUtil::compareStrings(str2, str1) < 0);
+        CHECK_MESSAGE(LLStringUtil::compareStrings(str1, str2, "2: compareStrings failed") > 0);
+        CHECK_MESSAGE(LLStringUtil::compareStrings(str2, str1, "3: compareStrings failed") < 0);
 
         str1 = "A is smaller than B";
         str2 = "B is greater than A";
-        ensure("4: compareStrings failed", LLStringUtil::compareStrings(str1, str2) < 0);
+        CHECK_MESSAGE(LLStringUtil::compareStrings(str1, str2, "4: compareStrings failed") < 0);
 
         str2 = "A is smaller than B";
-        ensure("5: compareStrings failed", LLStringUtil::compareStrings(str1, str2) == 0);
-    }
+        CHECK_MESSAGE(LLStringUtil::compareStrings(str1, str2, "5: compareStrings failed") == 0);
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<27>()
-    {
+TEST_CASE("test_27")
+{
+
         const char* str1 = NULL;
         const char* str2 = NULL;
 
-        ensure("1: compareInsensitive failed", LLStringUtil::compareInsensitive(str1, str2) == 0);
+        CHECK_MESSAGE(LLStringUtil::compareInsensitive(str1, str2, "1: compareInsensitive failed") == 0);
         str2 = "A";
-        ensure("2: compareInsensitive failed", LLStringUtil::compareInsensitive(str1, str2) > 0);
-        ensure("3: compareInsensitive failed", LLStringUtil::compareInsensitive(str2, str1) < 0);
+        CHECK_MESSAGE(LLStringUtil::compareInsensitive(str1, str2, "2: compareInsensitive failed") > 0);
+        CHECK_MESSAGE(LLStringUtil::compareInsensitive(str2, str1, "3: compareInsensitive failed") < 0);
 
         str1 = "A is equal to a";
         str2 = "a is EQUAL to A";
-        ensure("4: compareInsensitive failed", LLStringUtil::compareInsensitive(str1, str2) == 0);
-    }
+        CHECK_MESSAGE(LLStringUtil::compareInsensitive(str1, str2, "4: compareInsensitive failed") == 0);
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<28>()
-    {
+TEST_CASE("test_28")
+{
+
         std::string lhs_str("PROgraM12files");
         std::string rhs_str("PROgram12Files");
-        ensure("compareDict 1 failed", LLStringUtil::compareDict(lhs_str, rhs_str) < 0);
-        ensure("precedesDict 1 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == true);
+        CHECK_MESSAGE(LLStringUtil::compareDict(lhs_str, rhs_str, "compareDict 1 failed") < 0);
+        CHECK_MESSAGE(LLStringUtil::precedesDict(lhs_str, rhs_str, "precedesDict 1 failed") == true);
 
         lhs_str = "PROgram12Files";
         rhs_str = "PROgram12Files";
-        ensure("compareDict 2 failed", LLStringUtil::compareDict(lhs_str, rhs_str) == 0);
-        ensure("precedesDict 2 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == false);
+        CHECK_MESSAGE(LLStringUtil::compareDict(lhs_str, rhs_str, "compareDict 2 failed") == 0);
+        CHECK_MESSAGE(LLStringUtil::precedesDict(lhs_str, rhs_str, "precedesDict 2 failed") == false);
 
         lhs_str = "PROgram12Files";
         rhs_str = "PROgRAM12FILES";
-        ensure("compareDict 3 failed", LLStringUtil::compareDict(lhs_str, rhs_str) > 0);
-        ensure("precedesDict 3 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == false);
-    }
+        CHECK_MESSAGE(LLStringUtil::compareDict(lhs_str, rhs_str, "compareDict 3 failed") > 0);
+        CHECK_MESSAGE(LLStringUtil::precedesDict(lhs_str, rhs_str, "precedesDict 3 failed") == false);
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<29>()
-    {
+TEST_CASE("test_29")
+{
+
         char str1[] = "First String...";
         char str2[100];
 
         LLStringUtil::copy(str2, str1, 100);
-        ensure("LLStringUtil::copy with enough dest length failed", strcmp(str2, str1) == 0);
+        CHECK_MESSAGE(strcmp(str2, str1, "LLStringUtil::copy with enough dest length failed") == 0);
         LLStringUtil::copy(str2, str1, sizeof("First"));
-        ensure("LLStringUtil::copy with less dest length failed", strcmp(str2, "First") == 0);
-    }
+        CHECK_MESSAGE(strcmp(str2, "First", "LLStringUtil::copy with less dest length failed") == 0);
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<30>()
-    {
+TEST_CASE("test_30")
+{
+
         std::string str1 = "This is the sentence...";
         std::string str2 = "This is the ";
         std::string str3 = "first ";
@@ -494,23 +514,24 @@ namespace tut
 
         dest = str1;
         LLStringUtil::copyInto(dest, str3, str2.length());
-        ensure("LLStringUtil::copyInto insert failed", dest == str4);
+        CHECK_MESSAGE(dest == str4, "LLStringUtil::copyInto insert failed");
 
         dest = str1;
         LLStringUtil::copyInto(dest, str3, dest.length());
-        ensure("LLStringUtil::copyInto append failed", dest == str5);
-    }
+        CHECK_MESSAGE(dest == str5, "LLStringUtil::copyInto append failed");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<31>()
-    {
+TEST_CASE("test_31")
+{
+
         std::string stripped;
 
         // Plain US ASCII text, including spaces and punctuation,
         // should not be altered.
         std::string simple_text = "Hello, world!";
         stripped = LLStringFn::strip_invalid_xml(simple_text);
-        ensure("Simple text passed unchanged", stripped == simple_text);
+        CHECK_MESSAGE(stripped == simple_text, "Simple text passed unchanged");
 
         // Control characters should be removed
         // except for 0x09, 0x0a, 0x0d
@@ -518,29 +539,12 @@ namespace tut
         for (char c = 0x01; c < 0x20; c++)
         {
             control_chars.push_back(c);
-        }
-        std::string allowed_control_chars;
-        allowed_control_chars.push_back( (char)0x09 );
-        allowed_control_chars.push_back( (char)0x0a );
-        allowed_control_chars.push_back( (char)0x0d );
+        
+}
 
-        stripped = LLStringFn::strip_invalid_xml(control_chars);
-        ensure("Only tab, LF, CR control characters allowed",
-            stripped == allowed_control_chars);
+TEST_CASE("test_32")
+{
 
-        // UTF-8 should be passed intact, including high byte
-        // characters.  Try Francais (with C squiggle cedilla)
-        std::string french = "Fran";
-        french.push_back( (char)0xC3 );
-        french.push_back( (char)0xA7 );
-        french += "ais";
-        stripped = LLStringFn::strip_invalid_xml( french );
-        ensure("UTF-8 high byte text is allowed", french == stripped );
-    }
-
-    template<> template<>
-    void string_index_object_t::test<32>()
-    {
         // Test LLStringUtil::format() string interpolation
         LLStringUtil::format_map_t fmt_map;
         std::string s;
@@ -565,89 +569,16 @@ namespace tut
             std::string s1 = (std::string)iter->first;
             std::string s2 = (std::string)iter->second;
             subcount = LLStringUtil::format(s1, fmt_map);
-            ensure_equals("LLStringUtil::format: Raw interpolation result", s1, s2);
+            CHECK_MESSAGE(s1 == s2, "LLStringUtil::format: Raw interpolation result");
             if (s1 == "?" || s1 == "[]") // no interp expected
             {
-                ensure_equals("LLStringUtil::format: Raw interpolation result count", 0, subcount);
-            }
-            else
-            {
-                ensure_equals("LLStringUtil::format: Raw interpolation result count", 1, subcount);
-            }
-        }
+                CHECK_MESSAGE(0 == subcount, "LLStringUtil::format: Raw interpolation result count");
+            
+}
 
-        for (LLStringUtil::format_map_t::const_iterator iter = fmt_map.begin(); iter != fmt_map.end(); ++iter)
-        {
-            // Test when source string is one key, duplicated
-            std::string s1 = (std::string)iter->first;
-            std::string s2 = (std::string)iter->second;
-            s = s1 + s1 + s1 + s1;
-            subcount = LLStringUtil::format(s, fmt_map);
-            ensure_equals("LLStringUtil::format: Rawx4 interpolation result", s, s2 + s2 + s2 + s2);
-            if (s1 == "?" || s1 == "[]") // no interp expected
-            {
-                ensure_equals("LLStringUtil::format: Rawx4 interpolation result count", 0, subcount);
-            }
-            else
-            {
-                ensure_equals("LLStringUtil::format: Rawx4 interpolation result count", 4, subcount);
-            }
-        }
+TEST_CASE("test_33")
+{
 
-        // Test when source string has no keys
-        std::string srcs = "!!!!!!!!!!!!!!!!";
-        s = srcs;
-        subcount = LLStringUtil::format(s, fmt_map);
-        ensure_equals("LLStringUtil::format: No key test result", s, srcs);
-        ensure_equals("LLStringUtil::format: No key test result count", 0, subcount);
-
-        // Test when source string has no keys and is empty
-        std::string srcs3;
-        s = srcs3;
-        subcount = LLStringUtil::format(s, fmt_map);
-        ensure("LLStringUtil::format: No key test3 result", s.empty());
-        ensure_equals("LLStringUtil::format: No key test3 result count", 0, subcount);
-
-        // Test a substitution where a key is substituted with blankness
-        std::string srcs2 = "[DELETE]";
-        s = srcs2;
-        subcount = LLStringUtil::format(s, fmt_map);
-        ensure("LLStringUtil::format: Delete key test2 result", s.empty());
-        ensure_equals("LLStringUtil::format: Delete key test2 result count", 1, subcount);
-
-        // Test an assorted substitution
-        std::string srcs4 = "[TRICK1][A][B][AAA][BBB][TRICK2][KEYLONGER][KEYSHORTER]?[DELETE]";
-        s = srcs4;
-        subcount = LLStringUtil::format(s, fmt_map);
-        ensure_equals("LLStringUtil::format: Assorted Test1 result", s, "[A]abaaabbb[A]shortAm I not a long string??");
-        ensure_equals("LLStringUtil::format: Assorted Test1 result count", 9, subcount);
-
-        // Test an assorted substitution
-        std::string srcs5 = "[DELETE]?[KEYSHORTER][KEYLONGER][TRICK2][BBB][AAA][B][A][TRICK1]";
-        s = srcs5;
-        subcount = LLStringUtil::format(s, fmt_map);
-        ensure_equals("LLStringUtil::format: Assorted Test2 result", s, "?Am I not a long string?short[A]bbbaaaba[A]");
-        ensure_equals("LLStringUtil::format: Assorted Test2 result count", 9, subcount);
-
-        // Test on nested brackets
-        std::string srcs6 = "[[TRICK1]][[A]][[B]][[AAA]][[BBB]][[TRICK2]][[KEYLONGER]][[KEYSHORTER]]?[[DELETE]]";
-        s = srcs6;
-        subcount = LLStringUtil::format(s, fmt_map);
-        ensure_equals("LLStringUtil::format: Assorted Test2 result", s, "[[A]][a][b][aaa][bbb][[A]][short][Am I not a long string?]?[]");
-        ensure_equals("LLStringUtil::format: Assorted Test2 result count", 9, subcount);
-
-
-        // Test an assorted substitution
-        std::string srcs8 = "foo[DELETE]bar?";
-        s = srcs8;
-        subcount = LLStringUtil::format(s, fmt_map);
-        ensure_equals("LLStringUtil::format: Assorted Test3 result", s, "foobar?");
-        ensure_equals("LLStringUtil::format: Assorted Test3 result count", 1, subcount);
-    }
-
-    template<> template<>
-    void string_index_object_t::test<33>()
-    {
         // Test LLStringUtil::format() string interpolation
         LLStringUtil::format_map_t blank_fmt_map;
         std::string s;
@@ -657,20 +588,21 @@ namespace tut
         std::string srcs6 = "12345";
         s = srcs6;
         subcount = LLStringUtil::format(s, blank_fmt_map);
-        ensure_equals("LLStringUtil::format: Blankfmt Test1 result", s, "12345");
-        ensure_equals("LLStringUtil::format: Blankfmt Test1 result count", 0, subcount);
+        CHECK_MESSAGE(s == "12345", "LLStringUtil::format: Blankfmt Test1 result");
+        CHECK_MESSAGE(0 == subcount, "LLStringUtil::format: Blankfmt Test1 result count");
 
         // Test substituting a blank string out of a blank format_map
         std::string srcs7;
         s = srcs7;
         subcount = LLStringUtil::format(s, blank_fmt_map);
-        ensure("LLStringUtil::format: Blankfmt Test2 result", s.empty());
-        ensure_equals("LLStringUtil::format: Blankfmt Test2 result count", 0, subcount);
-    }
+        CHECK_MESSAGE(s.empty(, "LLStringUtil::format: Blankfmt Test2 result"));
+        CHECK_MESSAGE(0 == subcount, "LLStringUtil::format: Blankfmt Test2 result count");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<34>()
-    {
+TEST_CASE("test_34")
+{
+
         // Test that incorrect LLStringUtil::format() use does not explode.
         LLStringUtil::format_map_t nasty_fmt_map;
         std::string s;
@@ -682,131 +614,104 @@ namespace tut
         std::string srcs6 = "12345";
         s = srcs6;
         subcount = LLStringUtil::format(s, nasty_fmt_map);
-        ensure_equals("LLStringUtil::format: Nastyfmt Test1 result", s, "12345");
-        ensure_equals("LLStringUtil::format: Nastyfmt Test1 result count", 0, subcount);
+        CHECK_MESSAGE(s == "12345", "LLStringUtil::format: Nastyfmt Test1 result");
+        CHECK_MESSAGE(0 == subcount, "LLStringUtil::format: Nastyfmt Test1 result count");
 
         // Test substituting a blank string out of a nasty format_map
         std::string srcs7;
         s = srcs7;
         subcount = LLStringUtil::format(s, nasty_fmt_map);
-        ensure("LLStringUtil::format: Nastyfmt Test2 result", s.empty());
-        ensure_equals("LLStringUtil::format: Nastyfmt Test2 result count", 0, subcount);
-    }
+        CHECK_MESSAGE(s.empty(, "LLStringUtil::format: Nastyfmt Test2 result"));
+        CHECK_MESSAGE(0 == subcount, "LLStringUtil::format: Nastyfmt Test2 result count");
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<35>()
-    {
+TEST_CASE("test_35")
+{
+
         // Make sure startsWith works
         std::string string("anybody in there?");
         std::string substr("anybody");
-        ensure("startsWith works.", LLStringUtil::startsWith(string, substr));
-    }
+        CHECK_MESSAGE(LLStringUtil::startsWith(string, substr, "startsWith works."));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<36>()
-    {
+TEST_CASE("test_36")
+{
+
         // Make sure startsWith correctly fails
         std::string string("anybody in there?");
         std::string substr("there");
-        ensure("startsWith fails.", !LLStringUtil::startsWith(string, substr));
-    }
+        CHECK_MESSAGE(!LLStringUtil::startsWith(string, substr, "startsWith fails."));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<37>()
-    {
+TEST_CASE("test_37")
+{
+
         // startsWith fails on empty strings
         std::string value("anybody in there?");
         std::string empty;
-        ensure("empty string.", !LLStringUtil::startsWith(value, empty));
-        ensure("empty substr.", !LLStringUtil::startsWith(empty, value));
-        ensure("empty everything.", !LLStringUtil::startsWith(empty, empty));
-    }
+        CHECK_MESSAGE(!LLStringUtil::startsWith(value, empty, "empty string."));
+        CHECK_MESSAGE(!LLStringUtil::startsWith(empty, value, "empty substr."));
+        CHECK_MESSAGE(!LLStringUtil::startsWith(empty, empty, "empty everything."));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<38>()
-    {
+TEST_CASE("test_38")
+{
+
         // Make sure endsWith works correctly
         std::string string("anybody in there?");
         std::string substr("there?");
-        ensure("endsWith works.", LLStringUtil::endsWith(string, substr));
-    }
+        CHECK_MESSAGE(LLStringUtil::endsWith(string, substr, "endsWith works."));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<39>()
-    {
+TEST_CASE("test_39")
+{
+
         // Make sure endsWith correctly fails
         std::string string("anybody in there?");
         std::string substr("anybody");
-        ensure("endsWith fails.", !LLStringUtil::endsWith(string, substr));
+        CHECK_MESSAGE(!LLStringUtil::endsWith(string, substr, "endsWith fails."));
         substr = "there";
-        ensure("endsWith fails.", !LLStringUtil::endsWith(string, substr));
+        CHECK_MESSAGE(!LLStringUtil::endsWith(string, substr, "endsWith fails."));
         substr = "ther?";
-        ensure("endsWith fails.", !LLStringUtil::endsWith(string, substr));
-    }
+        CHECK_MESSAGE(!LLStringUtil::endsWith(string, substr, "endsWith fails."));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<40>()
-    {
+TEST_CASE("test_40")
+{
+
         // endsWith fails on empty strings
         std::string value("anybody in there?");
         std::string empty;
-        ensure("empty string.", !LLStringUtil::endsWith(value, empty));
-        ensure("empty substr.", !LLStringUtil::endsWith(empty, value));
-        ensure("empty everything.", !LLStringUtil::endsWith(empty, empty));
-    }
+        CHECK_MESSAGE(!LLStringUtil::endsWith(value, empty, "empty string."));
+        CHECK_MESSAGE(!LLStringUtil::endsWith(empty, value, "empty substr."));
+        CHECK_MESSAGE(!LLStringUtil::endsWith(empty, empty, "empty everything."));
+    
+}
 
-    template<> template<>
-    void string_index_object_t::test<41>()
-    {
+TEST_CASE("test_41")
+{
+
         set_test_name("getTokens(\"delims\")");
-        ensure_equals("empty string", LLStringUtil::getTokens("", " "), StringVec());
-        ensure_equals("only delims",
-                      LLStringUtil::getTokens("   \r\n   ", " \r\n"), StringVec());
-        ensure_equals("sequence of delims",
-                      LLStringUtil::getTokens(",,, one ,,,", ","), list_of("one"));
+        CHECK_MESSAGE(LLStringUtil::getTokens("" == " ", "empty string"), StringVec());
+        CHECK_MESSAGE(LLStringUtil::getTokens("   \r\n   " == " \r\n", "only delims"), StringVec());
+        CHECK_MESSAGE(LLStringUtil::getTokens(" == ,, one ,,,", ",", "sequence of delims"), list_of("one"));
         // nat considers this a dubious implementation side effect, but I'd
         // hate to change it now...
-        ensure_equals("noncontiguous tokens",
-                      LLStringUtil::getTokens(", ,, , one ,,,", ","), list_of("")("")("one"));
-        ensure_equals("space-padded tokens",
-                      LLStringUtil::getTokens(",    one  ,  two  ,", ","), list_of("one")("two"));
-        ensure_equals("no delims", LLStringUtil::getTokens("one", ","), list_of("one"));
-    }
+        CHECK_MESSAGE(LLStringUtil::getTokens(" == ,, , one ,,,", ",", "noncontiguous tokens"), list_of("")("")("one"));
+        CHECK_MESSAGE(LLStringUtil::getTokens(" == one  ,  two  ,", ",", "space-padded tokens"), list_of("one")("two"));
+        CHECK_MESSAGE(LLStringUtil::getTokens("one" == ",", "no delims"), list_of("one"));
+    
+}
 
-    // Shorthand for verifying that getTokens() behaves the same when you
-    // don't pass a string of escape characters, when you pass an empty string
-    // (different overloads), and when you pass a string of characters that
-    // aren't actually present.
-    void ensure_getTokens(const std::string& desc,
-                          const std::string& string,
-                          const std::string& drop_delims,
-                          const std::string& keep_delims,
-                          const std::string& quotes,
-                          const std::vector<std::string>& expect)
-    {
-        ensure_equals(desc + " - no esc",
-                      LLStringUtil::getTokens(string, drop_delims, keep_delims, quotes),
-                      expect);
-        ensure_equals(desc + " - empty esc",
-                      LLStringUtil::getTokens(string, drop_delims, keep_delims, quotes, ""),
-                      expect);
-        ensure_equals(desc + " - unused esc",
-                      LLStringUtil::getTokens(string, drop_delims, keep_delims, quotes, "!"),
-                      expect);
-    }
+TEST_CASE("test_42")
+{
 
-    void ensure_getTokens(const std::string& desc,
-                          const std::string& string,
-                          const std::string& drop_delims,
-                          const std::string& keep_delims,
-                          const std::vector<std::string>& expect)
-    {
-        ensure_getTokens(desc, string, drop_delims, keep_delims, "", expect);
-    }
-
-    template<> template<>
-    void string_index_object_t::test<42>()
-    {
         set_test_name("getTokens(\"delims\", etc.)");
         // Signatures to test in this method:
         // getTokens(string, drop_delims, keep_delims [, quotes [, escapes]])
@@ -855,17 +760,16 @@ namespace tut
         // Don't use backslash as an escape for these tests -- you'll go nuts
         // between the C++ string scanner and getTokens() escapes. Test with
         // something else!
-        ensure_equals("escaped delims",
-                      LLStringUtil::getTokens("^ a - dog^-gone^ phrase", " ", "-", "", "^"),
+        CHECK_MESSAGE(LLStringUtil::getTokens("^ a - dog^-gone^ phrase" == " ", "-", "", "^", "escaped delims"),
                       list_of(" a")("-")("dog-gone phrase"));
-        ensure_equals("escaped quotes",
-                      LLStringUtil::getTokens("say: 'this isn^'t w^orking'.", " ", "", "'", "^"),
+        CHECK_MESSAGE(LLStringUtil::getTokens("say: 'this isn^'t w^orking'." == " ", "", "'", "^", "escaped quotes"),
                       list_of("say:")("this isn't working."));
-        ensure_equals("escaped escape",
-                      LLStringUtil::getTokens("want x^^2", " ", "", "", "^"),
+        CHECK_MESSAGE(LLStringUtil::getTokens("want x^^2" == " ", "", "", "^", "escaped escape"),
                       list_of("want")("x^2"));
-        ensure_equals("escape at end",
-                      LLStringUtil::getTokens("it's^ up there^", " ", "", "'", "^"),
+        CHECK_MESSAGE(LLStringUtil::getTokens("it's^ up there^" == " ", "", "'", "^", "escape at end"),
                       list_of("it's up")("there^"));
-    }
+    
 }
+
+} // TEST_SUITE
+

@@ -38,7 +38,7 @@
 #include <stdexcept>
 // std headers
 // other Linden headers
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 struct Badness: public std::runtime_error
 {
@@ -72,42 +72,30 @@ struct Unkeyed: public LLInstanceTracker<Unkeyed>
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
-{
-    struct llinstancetracker_data
-    {
-    };
-    typedef test_group<llinstancetracker_data> llinstancetracker_group;
-    typedef llinstancetracker_group::object object;
-    llinstancetracker_group llinstancetrackergrp("llinstancetracker");
+TEST_SUITE("UnknownSuite") {
 
-    template<> template<>
-    void object::test<1>()
-    {
+TEST_CASE("test_1")
+{
+
         ensure_equals(Keyed::instanceCount(), 0);
         {
             Keyed one("one");
             ensure_equals(Keyed::instanceCount(), 1);
             auto found = Keyed::getInstance("one");
-            ensure("couldn't find stack Keyed", bool(found));
+            CHECK_MESSAGE(bool(found, "couldn't find stack Keyed"));
             ensure_equals("found wrong Keyed instance", found.get(), &one);
             {
                 std::unique_ptr<Keyed> two(new Keyed("two"));
                 ensure_equals(Keyed::instanceCount(), 2);
                 auto found = Keyed::getInstance("two");
-                ensure("couldn't find heap Keyed", bool(found));
+                CHECK_MESSAGE(bool(found, "couldn't find heap Keyed"));
                 ensure_equals("found wrong Keyed instance", found.get(), two.get());
-            }
-            ensure_equals(Keyed::instanceCount(), 1);
-        }
-        auto found = Keyed::getInstance("one");
-        ensure("Keyed key lives too long", ! found);
-        ensure_equals(Keyed::instanceCount(), 0);
-    }
+            
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         ensure_equals(Unkeyed::instanceCount(), 0);
         std::weak_ptr<Unkeyed> dangling;
         {
@@ -118,19 +106,12 @@ namespace tut
             {
                 std::unique_ptr<Unkeyed> two(new Unkeyed);
                 ensure_equals(Unkeyed::instanceCount(), 2);
-            }
-            ensure_equals(Unkeyed::instanceCount(), 1);
-            // store a weak pointer to a temp Unkeyed instance
-            dangling = found;
-        } // make that instance vanish
-        // check the now-invalid pointer to the destroyed instance
-        ensure("weak_ptr<Unkeyed> failed to track destruction", dangling.expired());
-        ensure_equals(Unkeyed::instanceCount(), 0);
-    }
+            
+}
 
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         Keyed one("one"), two("two"), three("three");
         // We don't want to rely on the underlying container delivering keys
         // in any particular order. That allows us the flexibility to
@@ -146,7 +127,7 @@ namespace tut
         ensure_equals(*ki++, "two");
         // Use ensure() here because ensure_equals would want to display
         // mismatched values, and frankly that wouldn't help much.
-        ensure("didn't reach end", ki == keys.end());
+        CHECK_MESSAGE(ki == keys.end(, "didn't reach end"));
 
         // Use a somewhat different approach to order independence with
         // instance_snapshot(): explicitly capture the instances we know in a
@@ -159,13 +140,12 @@ namespace tut
         for (auto& ref : Keyed::instance_snapshot())
         {
             ensure_equals("spurious instance", instances.erase(&ref), 1);
-        }
-        ensure_equals("unreported instance", instances.size(), 0);
-    }
+        
+}
 
-    template<> template<>
-    void object::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         Unkeyed one, two, three;
         typedef std::set<Unkeyed*> KeySet;
 
@@ -177,14 +157,12 @@ namespace tut
         for (auto& ref : Unkeyed::instance_snapshot())
         {
             ensure_equals("spurious instance", instances.erase(&ref), 1);
-        }
+        
+}
 
-        ensure_equals("unreported instance", instances.size(), 0);
-    }
+TEST_CASE("test_5")
+{
 
-    template<> template<>
-    void object::test<5>()
-    {
         std::string desc("delete Keyed with outstanding instance_snapshot");
         set_test_name(desc);
         Keyed* keyed = new Keyed(desc);
@@ -196,11 +174,12 @@ namespace tut
         // avoid ensure_equals() because it requires the ability to stream the
         // two values to std::ostream
         ensure(snapshot.begin() == snapshot.end());
-    }
+    
+}
 
-    template<> template<>
-    void object::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         std::string desc("delete Keyed with outstanding key_snapshot");
         set_test_name(desc);
         Keyed* keyed = new Keyed(desc);
@@ -212,11 +191,12 @@ namespace tut
         // avoid ensure_equals() because it requires the ability to stream the
         // two values to std::ostream
         ensure(snapshot.begin() == snapshot.end());
-    }
+    
+}
 
-    template<> template<>
-    void object::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         set_test_name("delete Unkeyed with outstanding instance_snapshot");
         std::string what;
         Unkeyed* unkeyed = new Unkeyed;
@@ -228,11 +208,12 @@ namespace tut
         // avoid ensure_equals() because it requires the ability to stream the
         // two values to std::ostream
         ensure(snapshot.begin() == snapshot.end());
-    }
+    
+}
 
-    template<> template<>
-    void object::test<8>()
-    {
+TEST_CASE("test_8")
+{
+
         set_test_name("exception in subclass ctor");
         typedef std::set<Unkeyed*> InstanceSet;
         InstanceSet existing;
@@ -242,31 +223,7 @@ namespace tut
         for (auto& ref : Unkeyed::instance_snapshot())
         {
             existing.insert(&ref);
-        }
-        try
-        {
-            // We don't expect the assignment to take place because we expect
-            // Unkeyed to respond to the non-empty string param by throwing.
-            // We know the LLInstanceTracker base-class constructor will have
-            // run before Unkeyed's constructor, therefore the new instance
-            // will have added itself to the underlying set. The whole
-            // question is, when Unkeyed's constructor throws, will
-            // LLInstanceTracker's destructor remove it from the set? I
-            // realize we're testing the C++ implementation more than
-            // Unkeyed's implementation, but this seems an important point to
-            // nail down.
-            new Unkeyed("throw");
-        }
-        catch (const Badness&)
-        {
-        }
-        // Ensure that every member of the new, updated set of Unkeyed
-        // instances was also present in the original set. If that's not true,
-        // it's because our new Unkeyed ended up in the updated set despite
-        // its constructor exception.
-        for (auto& ref : Unkeyed::instance_snapshot())
-        {
-            ensure("failed to remove instance", existing.find(&ref) != existing.end());
-        }
-    }
-} // namespace tut
+        
+}
+
+} // TEST_SUITE

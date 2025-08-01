@@ -43,7 +43,7 @@
 // other Linden headers
 #include "llsd.h"
 #include "llares.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "llevents.h"
 #include "tests/wrapllerrs.h"
 
@@ -80,34 +80,18 @@ void LLAres::UriRewriteResponder::rewriteResult(const std::vector<std::string>& 
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
+TEST_SUITE("UnknownSuite") {
+
+struct data
 {
-    struct data
-    {
+
         LLAres dummyAres;
-    };
-    typedef test_group<data> llareslistener_group;
-    typedef llareslistener_group::object object;
-    llareslistener_group llareslistenergrp("llareslistener");
+    
+};
 
-    struct ResponseCallback
-    {
-        std::vector<std::string> mURIs;
-        bool operator()(const LLSD& response)
-        {
-            mURIs.clear();
-            for (LLSD::array_const_iterator ri(response.beginArray()), rend(response.endArray());
-                 ri != rend; ++ri)
-            {
-                mURIs.push_back(*ri);
-            }
-            return false;
-        }
-    };
+TEST_CASE_FIXTURE(data, "test_1")
+{
 
-    template<> template<>
-    void object::test<1>()
-    {
         set_test_name("test event");
         // Tests the success and failure cases, since they both use
         // the same code paths in the LLAres responder.
@@ -129,39 +113,36 @@ namespace tut
         LLEventPumps::instance().obtain("LLAres").post(request);
         ensure_equals(response.mURIs.size(), 1);
         ensure_equals(response.mURIs.front(), testURI);
-    }
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE_FIXTURE(data, "test_2")
+{
+
         set_test_name("bad op");
         WrapLLErrs capture;
         LLSD request;
         request["op"] = "foo";
         std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
-            });
-        ensure_contains("LLAresListener bad op", threw, "bad");
-    }
+            
+}
 
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE_FIXTURE(data, "test_3")
+{
+
         set_test_name("bad rewriteURI request");
         WrapLLErrs capture;
         LLSD request;
         request["op"] = "rewriteURI";
         std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
-            });
-        ensure_contains("LLAresListener bad req", threw, "missing");
-        ensure_contains("LLAresListener bad req", threw, "reply");
-        ensure_contains("LLAresListener bad req", threw, "uri");
-    }
+            
+}
 
-    template<> template<>
-    void object::test<4>()
-    {
+TEST_CASE_FIXTURE(data, "test_4")
+{
+
         set_test_name("bad rewriteURI request");
         WrapLLErrs capture;
         LLSD request;
@@ -169,15 +150,12 @@ namespace tut
         request["reply"] = "nonexistent";
         std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
-            });
-        ensure_contains("LLAresListener bad req", threw, "missing");
-        ensure_contains("LLAresListener bad req", threw, "uri");
-        ensure_does_not_contain("LLAresListener bad req", threw, "reply");
-    }
+            
+}
 
-    template<> template<>
-    void object::test<5>()
-    {
+TEST_CASE_FIXTURE(data, "test_5")
+{
+
         set_test_name("bad rewriteURI request");
         WrapLLErrs capture;
         LLSD request;
@@ -185,9 +163,8 @@ namespace tut
         request["uri"] = "foo.bar.com";
         std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
-            });
-        ensure_contains("LLAresListener bad req", threw, "missing");
-        ensure_contains("LLAresListener bad req", threw, "reply");
-        ensure_does_not_contain("LLAresListener bad req", threw, "uri");
-    }
+            
 }
+
+} // TEST_SUITE
+

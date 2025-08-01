@@ -28,7 +28,7 @@
 #include "linden_common.h"
 
 #include "llunits.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 namespace LLUnits
 {
@@ -54,88 +54,78 @@ LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Fahrenheit);
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kelvin);
 
 
-namespace tut
+TEST_SUITE("LLUnit") {
+
+TEST_CASE("test_1")
 {
-    using namespace LLUnits;
-    struct units
-    {
-    };
 
-    typedef test_group<units> units_t;
-    typedef units_t::object units_object_t;
-    tut::units_t tut_singleton("LLUnit");
-
-    // storage type conversions
-    template<> template<>
-    void units_object_t::test<1>()
-    {
         LLUnit<F32, Quatloos> float_quatloos;
-        ensure("default float unit is zero", float_quatloos == F32Quatloos(0.f));
+        CHECK_MESSAGE(float_quatloos == F32Quatloos(0.f, "default float unit is zero"));
 
         LLUnit<F32, Quatloos> float_initialize_quatloos(1);
-        ensure("non-zero initialized unit", float_initialize_quatloos == F32Quatloos(1.f));
+        CHECK_MESSAGE(float_initialize_quatloos == F32Quatloos(1.f, "non-zero initialized unit"));
 
         LLUnit<S32, Quatloos> int_quatloos;
-        ensure("default int unit is zero", int_quatloos == S32Quatloos(0));
+        CHECK_MESSAGE(int_quatloos == S32Quatloos(0, "default int unit is zero"));
 
         int_quatloos = S32Quatloos(42);
-        ensure("int assignment is preserved", int_quatloos == S32Quatloos(42));
+        CHECK_MESSAGE(int_quatloos == S32Quatloos(42, "int assignment is preserved"));
         float_quatloos = int_quatloos;
-        ensure("float assignment from int preserves value", float_quatloos == F32Quatloos(42.f));
+        CHECK_MESSAGE(float_quatloos == F32Quatloos(42.f, "float assignment from int preserves value"));
 
         int_quatloos = float_quatloos;
-        ensure("int assignment from float preserves value", int_quatloos == S32Quatloos(42));
+        CHECK_MESSAGE(int_quatloos == S32Quatloos(42, "int assignment from float preserves value"));
 
         float_quatloos = F32Quatloos(42.1f);
         int_quatloos = float_quatloos;
-        ensure("int units truncate float units on assignment", int_quatloos == S32Quatloos(42));
+        CHECK_MESSAGE(int_quatloos == S32Quatloos(42, "int units truncate float units on assignment"));
 
         LLUnit<U32, Quatloos> unsigned_int_quatloos(float_quatloos);
-        ensure("unsigned int can be initialized from signed int", unsigned_int_quatloos == S32Quatloos(42));
+        CHECK_MESSAGE(unsigned_int_quatloos == S32Quatloos(42, "unsigned int can be initialized from signed int"));
 
         S32Solari int_solari(1);
 
         float_quatloos = int_solari;
-        ensure("fractional units are preserved in conversion from integer to float type", float_quatloos == F32Quatloos(0.25f));
+        CHECK_MESSAGE(float_quatloos == F32Quatloos(0.25f, "fractional units are preserved in conversion from integer to float type"));
 
         int_quatloos = S32Quatloos(1);
         F32Solari float_solari = int_quatloos;
-        ensure("can convert with fractional intermediates from integer to float type", float_solari == F32Solari(4.f));
-    }
+        CHECK_MESSAGE(float_solari == F32Solari(4.f, "can convert with fractional intermediates from integer to float type"));
+    
+}
 
-    // conversions to/from base unit
-    template<> template<>
-    void units_object_t::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         LLUnit<F32, Quatloos> quatloos(1.f);
         LLUnit<F32, Latinum> latinum_bars(quatloos);
-        ensure("conversion between units is automatic via initialization", latinum_bars == F32Latinum(1.f / 4.f));
+        CHECK_MESSAGE(latinum_bars == F32Latinum(1.f / 4.f, "conversion between units is automatic via initialization"));
 
         latinum_bars = S32Latinum(256);
         quatloos = latinum_bars;
-        ensure("conversion between units is automatic via assignment, and bidirectional", quatloos == S32Quatloos(1024));
+        CHECK_MESSAGE(quatloos == S32Quatloos(1024, "conversion between units is automatic via assignment, and bidirectional"));
 
         LLUnit<S32, Quatloos> single_quatloo(1);
         LLUnit<F32, Latinum> quarter_latinum = single_quatloo;
-        ensure("division of integer unit preserves fractional values when converted to float unit", quarter_latinum == F32Latinum(0.25f));
-    }
+        CHECK_MESSAGE(quarter_latinum == F32Latinum(0.25f, "division of integer unit preserves fractional values when converted to float unit"));
+    
+}
 
-    // conversions across non-base units
-    template<> template<>
-    void units_object_t::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         LLUnit<F32, Quatloos> quatloos(1024);
         LLUnit<F32, Solari> solari(quatloos);
-        ensure("conversions can work between indirectly related units: Quatloos -> Latinum -> Solari", solari == S32Solari(4096));
+        CHECK_MESSAGE(solari == S32Solari(4096, "conversions can work between indirectly related units: Quatloos -> Latinum -> Solari"));
 
         LLUnit<F32, Latinum> latinum_bars = solari;
-        ensure("Non base units can be converted between each other", latinum_bars == S32Latinum(256));
-    }
+        CHECK_MESSAGE(latinum_bars == S32Latinum(256, "Non base units can be converted between each other"));
+    
+}
 
-    // math operations
-    template<> template<>
-    void units_object_t::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         // exercise math operations
         LLUnit<F32, Quatloos> quatloos(1.f);
         quatloos *= 4.f;
@@ -179,56 +169,46 @@ namespace tut
         ensure(quatloos == S32Quatloos(4));
         quatloos -= LLUnit<F32, Latinum>(1.f);
         ensure(quatloos == S32Quatloos(0));
-    }
+    
+}
 
-    // comparison operators
-    template<> template<>
-    void units_object_t::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         LLUnit<S32, Quatloos> quatloos(1);
-        ensure("can perform less than comparison against same type", quatloos < S32Quatloos(2));
-        ensure("can perform less than comparison against different storage type", quatloos < F32Quatloos(2.f));
-        ensure("can perform less than comparison against different units", quatloos < S32Latinum(5));
-        ensure("can perform less than comparison against different storage type and units", quatloos < F32Latinum(5.f));
+        CHECK_MESSAGE(quatloos < S32Quatloos(2, "can perform less than comparison against same type"));
+        CHECK_MESSAGE(quatloos < F32Quatloos(2.f, "can perform less than comparison against different storage type"));
+        CHECK_MESSAGE(quatloos < S32Latinum(5, "can perform less than comparison against different units"));
+        CHECK_MESSAGE(quatloos < F32Latinum(5.f, "can perform less than comparison against different storage type and units"));
 
-        ensure("can perform greater than comparison against same type", quatloos > S32Quatloos(0));
-        ensure("can perform greater than comparison against different storage type", quatloos > F32Quatloos(0.f));
-        ensure("can perform greater than comparison against different units", quatloos > S32Latinum(0));
-        ensure("can perform greater than comparison against different storage type and units", quatloos > F32Latinum(0.f));
+        CHECK_MESSAGE(quatloos > S32Quatloos(0, "can perform greater than comparison against same type"));
+        CHECK_MESSAGE(quatloos > F32Quatloos(0.f, "can perform greater than comparison against different storage type"));
+        CHECK_MESSAGE(quatloos > S32Latinum(0, "can perform greater than comparison against different units"));
+        CHECK_MESSAGE(quatloos > F32Latinum(0.f, "can perform greater than comparison against different storage type and units"));
 
-    }
+    
+}
 
-    bool accept_explicit_quatloos(S32Quatloos q)
-    {
-        return true;
-    }
+TEST_CASE("test_6")
+{
 
-    bool accept_implicit_quatloos(S32Quatloos q)
-    {
-        return true;
-    }
-
-    // signature compatibility
-    template<> template<>
-    void units_object_t::test<6>()
-    {
         S32Quatloos quatloos(1);
-        ensure("can pass unit values as argument", accept_explicit_quatloos(S32Quatloos(1)));
-        ensure("can pass unit values as argument", accept_explicit_quatloos(quatloos));
-    }
+        CHECK_MESSAGE(accept_explicit_quatloos(S32Quatloos(1, "can pass unit values as argument")));
+        CHECK_MESSAGE(accept_explicit_quatloos(quatloos, "can pass unit values as argument"));
+    
+}
 
-    // implicit units
-    template<> template<>
-    void units_object_t::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         LLUnit<F32, Quatloos> quatloos;
         LLUnitImplicit<F32, Quatloos> quatloos_implicit = quatloos + S32Quatloos(1);
-        ensure("can initialize implicit unit from explicit", quatloos_implicit == 1);
+        CHECK_MESSAGE(quatloos_implicit == 1, "can initialize implicit unit from explicit");
 
         quatloos = quatloos_implicit;
-        ensure("can assign implicit unit to explicit unit", quatloos == S32Quatloos(1));
+        CHECK_MESSAGE(quatloos == S32Quatloos(1, "can assign implicit unit to explicit unit"));
         quatloos += quatloos_implicit;
-        ensure("can perform math operation using mixture of implicit and explicit units", quatloos == S32Quatloos(2));
+        CHECK_MESSAGE(quatloos == S32Quatloos(2, "can perform math operation using mixture of implicit and explicit units"));
 
         // math operations on implicits
         quatloos_implicit = 1;
@@ -260,65 +240,65 @@ namespace tut
 
         // implicit conversion to POD
         F32 float_val = quatloos_implicit;
-        ensure("implicit units convert implicitly to regular values", float_val == 16);
+        CHECK_MESSAGE(float_val == 16, "implicit units convert implicitly to regular values");
 
         S32 int_val = (S32)quatloos_implicit;
-        ensure("implicit units convert implicitly to regular values", int_val == 16);
+        CHECK_MESSAGE(int_val == 16, "implicit units convert implicitly to regular values");
 
         // conversion of implicits
         LLUnitImplicit<F32, Latinum> latinum_implicit(2);
-        ensure("implicit units of different types are comparable", latinum_implicit * 2 == quatloos_implicit);
+        CHECK_MESSAGE(latinum_implicit * 2 == quatloos_implicit, "implicit units of different types are comparable");
 
         quatloos_implicit += F32Quatloos(10);
-        ensure("can add-assign explicit units", quatloos_implicit == 26);
+        CHECK_MESSAGE(quatloos_implicit == 26, "can add-assign explicit units");
 
         quatloos_implicit -= F32Quatloos(10);
-        ensure("can subtract-assign explicit units", quatloos_implicit == 16);
+        CHECK_MESSAGE(quatloos_implicit == 16, "can subtract-assign explicit units");
 
         // comparisons
-        ensure("can compare greater than implicit unit", quatloos_implicit > F32QuatloosImplicit(0.f));
-        ensure("can compare greater than non-implicit unit", quatloos_implicit > F32Quatloos(0.f));
-        ensure("can compare greater than or equal to implicit unit", quatloos_implicit >= F32QuatloosImplicit(0.f));
-        ensure("can compare greater than or equal to non-implicit unit", quatloos_implicit >= F32Quatloos(0.f));
-        ensure("can compare less than implicit unit", quatloos_implicit < F32QuatloosImplicit(20.f));
-        ensure("can compare less than non-implicit unit", quatloos_implicit < F32Quatloos(20.f));
-        ensure("can compare less than or equal to implicit unit", quatloos_implicit <= F32QuatloosImplicit(20.f));
-        ensure("can compare less than or equal to non-implicit unit", quatloos_implicit <= F32Quatloos(20.f));
-    }
+        CHECK_MESSAGE(quatloos_implicit > F32QuatloosImplicit(0.f, "can compare greater than implicit unit"));
+        CHECK_MESSAGE(quatloos_implicit > F32Quatloos(0.f, "can compare greater than non-implicit unit"));
+        CHECK_MESSAGE(quatloos_implicit >= F32QuatloosImplicit(0.f, "can compare greater than or equal to implicit unit"));
+        CHECK_MESSAGE(quatloos_implicit >= F32Quatloos(0.f, "can compare greater than or equal to non-implicit unit"));
+        CHECK_MESSAGE(quatloos_implicit < F32QuatloosImplicit(20.f, "can compare less than implicit unit"));
+        CHECK_MESSAGE(quatloos_implicit < F32Quatloos(20.f, "can compare less than non-implicit unit"));
+        CHECK_MESSAGE(quatloos_implicit <= F32QuatloosImplicit(20.f, "can compare less than or equal to implicit unit"));
+        CHECK_MESSAGE(quatloos_implicit <= F32Quatloos(20.f, "can compare less than or equal to non-implicit unit"));
+    
+}
 
-    // precision tests
-    template<> template<>
-    void units_object_t::test<8>()
-    {
+TEST_CASE("test_8")
+{
+
         U32Bytes max_bytes(U32_MAX);
         S32Megabytes mega_bytes = max_bytes;
-        ensure("max available precision is used when converting units", mega_bytes == (S32Megabytes)4095);
+        CHECK_MESSAGE(mega_bytes == (S32Megabytes, "max available precision is used when converting units")4095);
 
         mega_bytes = (S32Megabytes)-5 + (U32Megabytes)1;
-        ensure("can mix signed and unsigned in units addition", mega_bytes == (S32Megabytes)-4);
+        CHECK_MESSAGE(mega_bytes == (S32Megabytes, "can mix signed and unsigned in units addition")-4);
 
         mega_bytes = (U32Megabytes)5 + (S32Megabytes)-1;
-        ensure("can mix unsigned and signed in units addition", mega_bytes == (S32Megabytes)4);
-    }
+        CHECK_MESSAGE(mega_bytes == (S32Megabytes, "can mix unsigned and signed in units addition")4);
+    
+}
 
-    // default units
-    template<> template<>
-    void units_object_t::test<9>()
-    {
+TEST_CASE("test_9")
+{
+
         U32Gigabytes GB(1);
         U32Megabytes MB(GB);
         U32Kilobytes KB(GB);
         U32Bytes B(GB);
 
-        ensure("GB -> MB conversion", MB.value() == 1024);
-        ensure("GB -> KB conversion", KB.value() == 1024 * 1024);
-        ensure("GB -> B conversion", B.value() == 1024 * 1024 * 1024);
+        CHECK_MESSAGE(MB.value(, "GB -> MB conversion") == 1024);
+        CHECK_MESSAGE(KB.value(, "GB -> KB conversion") == 1024 * 1024);
+        CHECK_MESSAGE(B.value(, "GB -> B conversion") == 1024 * 1024 * 1024);
 
         KB = U32Kilobytes(1);
         U32Kilobits Kb(KB);
         U32Bits b(KB);
-        ensure("KB -> Kb conversion", Kb.value() == 8);
-        ensure("KB -> b conversion", b.value() == 8 * 1024);
+        CHECK_MESSAGE(Kb.value(, "KB -> Kb conversion") == 8);
+        CHECK_MESSAGE(b.value(, "KB -> b conversion") == 8 * 1024);
 
         U32Days days(1);
         U32Hours hours(days);
@@ -326,63 +306,61 @@ namespace tut
         U32Seconds seconds(days);
         U32Milliseconds ms(days);
 
-        ensure("days -> hours conversion", hours.value() == 24);
-        ensure("days -> minutes conversion", minutes.value() == 24 * 60);
-        ensure("days -> seconds conversion", seconds.value() == 24 * 60 * 60);
-        ensure("days -> ms conversion", ms.value() == 24 * 60 * 60 * 1000);
+        CHECK_MESSAGE(hours.value(, "days -> hours conversion") == 24);
+        CHECK_MESSAGE(minutes.value(, "days -> minutes conversion") == 24 * 60);
+        CHECK_MESSAGE(seconds.value(, "days -> seconds conversion") == 24 * 60 * 60);
+        CHECK_MESSAGE(ms.value(, "days -> ms conversion") == 24 * 60 * 60 * 1000);
 
         U32Kilometers km(1);
         U32Meters m(km);
         U32Centimeters cm(km);
         U32Millimeters mm(km);
 
-        ensure("km -> m conversion", m.value() == 1000);
-        ensure("km -> cm conversion", cm.value() == 1000 * 100);
-        ensure("km -> mm conversion", mm.value() == 1000 * 1000);
+        CHECK_MESSAGE(m.value(, "km -> m conversion") == 1000);
+        CHECK_MESSAGE(cm.value(, "km -> cm conversion") == 1000 * 100);
+        CHECK_MESSAGE(mm.value(, "km -> mm conversion") == 1000 * 1000);
 
         U32Gigahertz GHz(1);
         U32Megahertz MHz(GHz);
         U32Kilohertz KHz(GHz);
         U32Hertz     Hz(GHz);
 
-        ensure("GHz -> MHz conversion", MHz.value() == 1000);
-        ensure("GHz -> KHz conversion", KHz.value() == 1000 * 1000);
-        ensure("GHz -> Hz conversion", Hz.value() == 1000 * 1000 * 1000);
+        CHECK_MESSAGE(MHz.value(, "GHz -> MHz conversion") == 1000);
+        CHECK_MESSAGE(KHz.value(, "GHz -> KHz conversion") == 1000 * 1000);
+        CHECK_MESSAGE(Hz.value(, "GHz -> Hz conversion") == 1000 * 1000 * 1000);
 
         F32Radians rad(6.2831853071795f);
         S32Degrees deg(rad);
-        ensure("radians -> degrees conversion", deg.value() == 360);
+        CHECK_MESSAGE(deg.value(, "radians -> degrees conversion") == 360);
 
         F32Percent percent(50);
         F32Ratio ratio(percent);
-        ensure("percent -> ratio conversion", ratio.value() == 0.5f);
+        CHECK_MESSAGE(ratio.value(, "percent -> ratio conversion") == 0.5f);
 
         U32Kilotriangles ktris(1);
         U32Triangles tris(ktris);
-        ensure("kilotriangles -> triangles conversion", tris.value() == 1000);
-    }
+        CHECK_MESSAGE(tris.value(, "kilotriangles -> triangles conversion") == 1000);
+    
+}
 
-    bool value_near(F32 value, F32 target, F32 threshold)
-    {
-        return fabsf(value - target) < threshold;
-    }
+TEST_CASE("test_10")
+{
 
-    // linear transforms
-    template<> template<>
-    void units_object_t::test<10>()
-    {
         F32Celcius float_celcius(100);
         F32Fahrenheit float_fahrenheit(float_celcius);
-        ensure("floating point celcius -> fahrenheit conversion using linear transform", value_near(float_fahrenheit.value(), 212, 0.1f) );
+        CHECK_MESSAGE(value_near(float_fahrenheit.value(, "floating point celcius -> fahrenheit conversion using linear transform"), 212, 0.1f) );
 
         float_celcius = float_fahrenheit;
-        ensure("floating point fahrenheit -> celcius conversion using linear transform (round trip)", value_near(float_celcius.value(), 100.f, 0.1f) );
+        CHECK_MESSAGE(value_near(float_celcius.value(, "floating point fahrenheit -> celcius conversion using linear transform (round trip)"), 100.f, 0.1f) );
 
         S32Celcius int_celcius(100);
         S32Fahrenheit int_fahrenheit(int_celcius);
-        ensure("integer celcius -> fahrenheit conversion using linear transform", int_fahrenheit.value() == 212);
+        CHECK_MESSAGE(int_fahrenheit.value(, "integer celcius -> fahrenheit conversion using linear transform") == 212);
 
         int_celcius = int_fahrenheit;
-        ensure("integer fahrenheit -> celcius conversion using linear transform (round trip)", int_celcius.value() == 100);
-    }
+        CHECK_MESSAGE(int_celcius.value(, "integer fahrenheit -> celcius conversion using linear transform (round trip)") == 100);
+    
 }
+
+} // TEST_SUITE
+

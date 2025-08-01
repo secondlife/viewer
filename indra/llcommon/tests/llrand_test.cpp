@@ -26,7 +26,7 @@
  */
 
 #include "linden_common.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 #include "../llrand.h"
 #include "stringize.h"
@@ -47,78 +47,72 @@ void ensure_in_range(const std::string_view& name,
     tut::ensure(failmsg, (value < high));
 }
 
-namespace tut
+TEST_SUITE("LLSeedRand") {
+
+TEST_CASE("test_1")
 {
-    struct random
-    {
-    };
 
-    typedef test_group<random> random_t;
-    typedef random_t::object random_object_t;
-    tut::random_t tut_random("LLSeedRand");
-
-    template<> template<>
-    void random_object_t::test<1>()
-    {
         for(S32 ii = 0; ii < 100000; ++ii)
         {
             ensure_in_range("frand", ll_frand(), 0.0f, 1.0f);
-        }
-    }
+        
+}
 
-    template<> template<>
-    void random_object_t::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         for(S32 ii = 0; ii < 100000; ++ii)
         {
             ensure_in_range("drand", ll_drand(), 0.0, 1.0);
-        }
-    }
+        
+}
 
-    template<> template<>
-    void random_object_t::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         for(S32 ii = 0; ii < 100000; ++ii)
         {
             ensure_in_range("frand(2.0f)", ll_frand(2.0f) - 1.0f, -1.0f, 1.0f);
-        }
-    }
+        
+}
 
-    template<> template<>
-    void random_object_t::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         for(S32 ii = 0; ii < 100000; ++ii)
         {
             // Negate the result so we don't have to allow a templated low-end
             // comparison as well.
             ensure_in_range("-frand(-7.0)", -ll_frand(-7.0), 0.0f, 7.0f);
-        }
-    }
+        
+}
 
-    template<> template<>
-    void random_object_t::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         for(S32 ii = 0; ii < 100000; ++ii)
         {
             ensure_in_range("-drand(-2.0)", -ll_drand(-2.0), 0.0, 2.0);
-        }
-    }
+        
+}
 
-    template<> template<>
-    void random_object_t::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         for(S32 ii = 0; ii < 100000; ++ii)
         {
             ensure_in_range("rand(100)", ll_rand(100), 0, 100);
-        }
-    }
+        
+}
 
-    template<> template<>
-    void random_object_t::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         for(S32 ii = 0; ii < 100000; ++ii)
         {
             ensure_in_range("-rand(-127)", -ll_rand(-127), 0, 127);
-        }
-    }
+        
 }
+
+} // TEST_SUITE
+

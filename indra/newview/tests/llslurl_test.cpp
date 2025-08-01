@@ -27,7 +27,7 @@
  */
 #include "../llviewerprecompiledheaders.h"
 #include "../llviewernetwork.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "../llslurl.h"
 #include "../../llxml/llcontrol.h"
 #include "llsdserialize.h"
@@ -140,32 +140,20 @@ const char *gSampleGridFile =
 // -------------------------------------------------------------------------------------------
 // TUT
 // -------------------------------------------------------------------------------------------
-namespace tut
+TEST_SUITE("LLSlurl") {
+
+struct slurlTest
 {
-    // Test wrapper declaration : wrapping nothing for the moment
-    struct slurlTest
-    {
+
         slurlTest()
         {
             LLGridManager::getInstance()->initialize(std::string(""));
-        }
-        ~slurlTest()
-        {
-        }
-    };
+        
+};
 
-    // Tut templating thingamagic: test group, object and test instance
-    typedef test_group<slurlTest> slurlTestFactory;
-    typedef slurlTestFactory::object slurlTestObject;
-    tut::slurlTestFactory tut_test("LLSlurl");
+TEST_CASE_FIXTURE(slurlTest, "test_1")
+{
 
-    // ---------------------------------------------------------------------------------------
-    // Test functions
-    // ---------------------------------------------------------------------------------------
-    // construction from slurl string
-    template<> template<>
-    void slurlTestObject::test<1>()
-    {
         llofstream gridfile(TEST_FILENAME);
         gridfile << gSampleGridFile;
         gridfile.close();
@@ -283,12 +271,12 @@ namespace tut
         ensure_equals("apppath2", slurl.getAppPath()[0].asString(), "bar");
         ensure_equals("appquery", slurl.getAppQuery(), "12345");
 
-    }
+    
+}
 
-    // construction from grid/region/vector combos
-    template<> template<>
-    void slurlTestObject::test<2>()
-    {
+TEST_CASE_FIXTURE(slurlTest, "test_2")
+{
+
         llofstream gridfile(TEST_FILENAME);
         gridfile << gSampleGridFile;
         gridfile.close();
@@ -317,11 +305,12 @@ namespace tut
         ensure_equals(" default grid/region/vector", slurl.getSLURLString(),
                       "https://my.grid.com/region/my%20region/1/2/3");
 
-    }
-    // Accessors
-    template<> template<>
-    void slurlTestObject::test<3>()
-    {
+    
+}
+
+TEST_CASE_FIXTURE(slurlTest, "test_3")
+{
+
         llofstream gridfile(TEST_FILENAME);
         gridfile << gSampleGridFile;
         gridfile.close();
@@ -336,5 +325,8 @@ namespace tut
         ensure_equals("region", slurl.getRegion(), "my region");
         ensure_equals("position", slurl.getPosition(), LLVector3(1, 2, 3));
 
-    }
+    
 }
+
+} // TEST_SUITE
+

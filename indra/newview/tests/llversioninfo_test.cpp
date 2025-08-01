@@ -25,7 +25,7 @@
 
 #include "linden_common.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 #include "../llversioninfo.h"
 
@@ -36,10 +36,11 @@
 // need to turn it into a quoted string. LL_TO_STRING() does that.
 #define ll_viewer_channel LL_TO_STRING(LL_VIEWER_CHANNEL)
 
-namespace tut
+TEST_SUITE("LLVersionInfo") {
+
+struct versioninfo
 {
-    struct versioninfo
-    {
+
         versioninfo()
             : mResetChannel("Reset Channel")
         {
@@ -67,21 +68,12 @@ namespace tut
                    << " "
                    << mVersion;
             mResetVersionAndChannel = stream.str();
-        }
-        std::string mResetChannel;
-        std::string mVersion;
-        std::string mShortVersion;
-        std::string mVersionAndChannel;
-        std::string mResetVersionAndChannel;
-    };
+        
+};
 
-    typedef test_group<versioninfo> versioninfo_t;
-    typedef versioninfo_t::object versioninfo_object_t;
-    tut::versioninfo_t tut_versioninfo("LLVersionInfo");
+TEST_CASE_FIXTURE(versioninfo, "test_1")
+{
 
-    template<> template<>
-    void versioninfo_object_t::test<1>()
-    {
         std::cout << "What we parsed from CMake: " << LL_VIEWER_VERSION_BUILD << std::endl;
         std::cout << "What we get from llversioninfo: " << LLVersionInfo::instance().getBuild() << std::endl;
         ensure_equals("Major version",
@@ -117,5 +109,8 @@ namespace tut
         ensure_equals("Reset Version and channel String",
                       LLVersionInfo::instance().getChannelAndVersion(),
                       mResetVersionAndChannel);
-    }
+    
 }
+
+} // TEST_SUITE
+

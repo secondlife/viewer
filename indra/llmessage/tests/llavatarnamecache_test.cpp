@@ -29,74 +29,71 @@
 
 #include "../llavatarnamecache.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
-namespace tut
+TEST_SUITE("LLAvatarNameCache") {
+
+TEST_CASE("test_1")
 {
-    struct avatarnamecache_data
-    {
-    };
-    typedef test_group<avatarnamecache_data> avatarnamecache_test;
-    typedef avatarnamecache_test::object avatarnamecache_object;
-    tut::avatarnamecache_test avatarnamecache_testcase("LLAvatarNameCache");
 
-    template<> template<>
-    void avatarnamecache_object::test<1>()
-    {
         bool valid = false;
         S32 max_age = 0;
 
         valid = max_age_from_cache_control("max-age=3600", &max_age);
-        ensure("typical input valid", valid);
-        ensure_equals("typical input parsed", max_age, 3600);
+        CHECK_MESSAGE(valid, "typical input valid");
+        CHECK_MESSAGE(max_age == 3600, "typical input parsed");
 
         valid = max_age_from_cache_control(
             " max-age=600 , no-cache,private=\"stuff\" ", &max_age);
-        ensure("complex input valid", valid);
-        ensure_equals("complex input parsed", max_age, 600);
+        CHECK_MESSAGE(valid, "complex input valid");
+        CHECK_MESSAGE(max_age == 600, "complex input parsed");
 
         valid = max_age_from_cache_control(
             "no-cache, max-age = 123 ", &max_age);
-        ensure("complex input 2 valid", valid);
-        ensure_equals("complex input 2 parsed", max_age, 123);
-    }
+        CHECK_MESSAGE(valid, "complex input 2 valid");
+        CHECK_MESSAGE(max_age == 123, "complex input 2 parsed");
+    
+}
 
-    template<> template<>
-    void avatarnamecache_object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         bool valid = false;
         S32 max_age = -1;
 
         valid = max_age_from_cache_control("", &max_age);
-        ensure("empty input returns invalid", !valid);
-        ensure_equals("empty input doesn't change val", max_age, -1);
+        CHECK_MESSAGE(!valid, "empty input returns invalid");
+        CHECK_MESSAGE(max_age == -1, "empty input doesn't change val");
 
         valid = max_age_from_cache_control("no-cache", &max_age);
-        ensure("no max-age field returns invalid", !valid);
+        CHECK_MESSAGE(!valid, "no max-age field returns invalid");
 
         valid = max_age_from_cache_control("max", &max_age);
-        ensure("just 'max' returns invalid", !valid);
+        CHECK_MESSAGE(!valid, "just 'max' returns invalid");
 
         valid = max_age_from_cache_control("max-age", &max_age);
-        ensure("partial max-age is invalid", !valid);
+        CHECK_MESSAGE(!valid, "partial max-age is invalid");
 
         valid = max_age_from_cache_control("max-age=", &max_age);
-        ensure("longer partial max-age is invalid", !valid);
+        CHECK_MESSAGE(!valid, "longer partial max-age is invalid");
 
         valid = max_age_from_cache_control("max-age=FOO", &max_age);
-        ensure("invalid integer max-age is invalid", !valid);
+        CHECK_MESSAGE(!valid, "invalid integer max-age is invalid");
 
         valid = max_age_from_cache_control("max-age 234", &max_age);
-        ensure("space separated max-age is invalid", !valid);
+        CHECK_MESSAGE(!valid, "space separated max-age is invalid");
 
         valid = max_age_from_cache_control("max-age=0", &max_age);
-        ensure("zero max-age is valid", valid);
+        CHECK_MESSAGE(valid, "zero max-age is valid");
 
         // *TODO: Handle "0000" as zero
         //valid = max_age_from_cache_control("max-age=0000", &max_age);
-        //ensure("multi-zero max-age is valid", valid);
+        //CHECK_MESSAGE(valid, "multi-zero max-age is valid");
 
         valid = max_age_from_cache_control("max-age=-123", &max_age);
-        ensure("less than zero max-age is invalid", !valid);
-    }
+        CHECK_MESSAGE(!valid, "less than zero max-age is invalid");
+    
 }
+
+} // TEST_SUITE
+

@@ -46,12 +46,13 @@
 // other Linden headers
 #include "../llsd.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
-namespace tut
+TEST_SUITE("stringize_h") {
+
+struct stringize_data
 {
-    struct stringize_data
-    {
+
         stringize_data():
             c('c'),
             s(17),
@@ -69,25 +70,12 @@ namespace tut
             llsd["abc"] = abc;
             def = L"def ghi";
 
-        }
+        
+};
 
-        char        c;
-        short       s;
-        int         i;
-        long        l;
-        float       f;
-        double      d;
-        std::string abc;
-        std::wstring def;
-        LLSD        llsd;
-    };
-    typedef test_group<stringize_data> stringize_group;
-    typedef stringize_group::object stringize_object;
-    tut::stringize_group strzgrp("stringize_h");
+TEST_CASE_FIXTURE(stringize_data, "test_1")
+{
 
-    template<> template<>
-    void stringize_object::test<1>()
-    {
         ensure_equals(stringize(c),    "c");
         ensure_equals(stringize(s),    "17");
         ensure_equals(stringize(i),    "34");
@@ -96,19 +84,20 @@ namespace tut
         ensure_equals(stringize(d),    "3.14159");
         ensure_equals(stringize(abc),  "abc def");
         ensure_equals(stringize(def),  "def ghi"); //Will generate LL_WARNS() due to narrowing.
-        ensure_equals(stringize(llsd), "{'abc':'abc def','d':r3.14159,'i':i34}");
-    }
+        ensure_equals(stringize(llsd), "{'abc':'abc def','d':r3.14159,'i':i34
+}
 
-    template<> template<>
-    void stringize_object::test<2>()
-    {
+TEST_CASE_FIXTURE(stringize_data, "test_2")
+{
+
         ensure_equals(STRINGIZE("c is " << c), "c is c");
         ensure_equals(STRINGIZE(std::setprecision(4) << d), "3.142");
-    }
+    
+}
 
-    template<> template<>
-    void stringize_object::test<3>()
-    {
+TEST_CASE_FIXTURE(stringize_data, "test_3")
+{
+
         //Tests rely on validity of wstring_to_utf8str()
         ensure_equals(wstring_to_utf8str(wstringize(c)),    wstring_to_utf8str(L"c"));
         ensure_equals(wstring_to_utf8str(wstringize(s)),    wstring_to_utf8str(L"17"));
@@ -119,6 +108,7 @@ namespace tut
         ensure_equals(wstring_to_utf8str(wstringize(abc)),  wstring_to_utf8str(L"abc def"));
         ensure_equals(wstring_to_utf8str(wstringize(abc)),  wstring_to_utf8str(wstringize(abc.c_str())));
         ensure_equals(wstring_to_utf8str(wstringize(def)),  wstring_to_utf8str(L"def ghi"));
- //       ensure_equals(wstring_to_utf8str(wstringize(llsd)), wstring_to_utf8str(L"{'abc':'abc def','d':r3.14159,'i':i34}"));
-    }
-} // namespace tut
+ //       ensure_equals(wstring_to_utf8str(wstringize(llsd)), wstring_to_utf8str(L"{'abc':'abc def','d':r3.14159,'i':i34
+}
+
+} // TEST_SUITE

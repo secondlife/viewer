@@ -29,7 +29,7 @@
 #include "../llurlentry.h"
 #include "../lluictrl.h"
 //#include "llurlentry_stub.cpp"
-#include "lltut.h"
+#include "../test/lldoctest.h"
 #include "../lluicolortable.h"
 #include "../llrender/lluiimage.h"
 #include "../llmessage/llexperiencecache.h"
@@ -91,81 +91,11 @@ S32 LLUIImage::getHeight() const
 }
 |*==========================================================================*/
 
-namespace tut
+TEST_SUITE("LLUrlEntry") {
+
+TEST_CASE("test_1")
 {
-    struct LLUrlEntryData
-    {
-    };
 
-    typedef test_group<LLUrlEntryData> factory;
-    typedef factory::object object;
-}
-
-namespace
-{
-    tut::factory tf("LLUrlEntry");
-}
-
-namespace tut
-{
-    void testRegex(const std::string &testname, LLUrlEntryBase &entry,
-                   const char *text, const std::string &expected)
-    {
-        boost::regex regex = entry.getPattern();
-        std::string url = "";
-        boost::cmatch result;
-        bool found = boost::regex_search(text, result, regex);
-        if (found)
-        {
-            S32 start = static_cast<U32>(result[0].first - text);
-            S32 end = static_cast<U32>(result[0].second - text);
-            url = entry.getUrl(std::string(text+start, end-start));
-        }
-        ensure_equals(testname, url, expected);
-    }
-
-    void dummyCallback(const std::string &url, const std::string &label, const std::string& icon)
-    {
-    }
-
-    void testLabel(const std::string &testname, LLUrlEntryBase &entry,
-                   const char *text, const std::string &expected)
-    {
-        boost::regex regex = entry.getPattern();
-        std::string label = "";
-        boost::cmatch result;
-        bool found = boost::regex_search(text, result, regex);
-        if (found)
-        {
-            S32 start = static_cast<U32>(result[0].first - text);
-            S32 end = static_cast<U32>(result[0].second - text);
-            std::string url = std::string(text+start, end-start);
-            label = entry.getLabel(url, boost::bind(dummyCallback, _1, _2, _3));
-        }
-        ensure_equals(testname, label, expected);
-    }
-
-    void testLocation(const std::string &testname, LLUrlEntryBase &entry,
-                      const char *text, const std::string &expected)
-    {
-        boost::regex regex = entry.getPattern();
-        std::string location = "";
-        boost::cmatch result;
-        bool found = boost::regex_search(text, result, regex);
-        if (found)
-        {
-            S32 start = static_cast<U32>(result[0].first - text);
-            S32 end = static_cast<U32>(result[0].second - text);
-            std::string url = std::string(text+start, end-start);
-            location = entry.getLocation(url);
-        }
-        ensure_equals(testname, location, expected);
-    }
-
-
-    template<> template<>
-    void object::test<1>()
-    {
         //
         // test LLUrlEntryHTTP - standard http Urls
         //
@@ -247,11 +177,12 @@ namespace tut
         testRegex("http url without tld shouldn't be decorated (2)", url,
                   "http://test .com",
                   "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         //
         // test LLUrlEntryHTTPLabel - wiki-style http Urls with labels
         //
@@ -288,11 +219,12 @@ namespace tut
         testRegex("SL http URL with label", url,
                   "[http://www.secondlife.com/?test=Hi%20There Second Life]",
                   "http://www.secondlife.com/?test=Hi%20There");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         //
         // test LLUrlEntrySLURL - second life URLs
         //
@@ -359,11 +291,12 @@ namespace tut
         testRegex("SLURL with quote", url,
                   "XXX http://slurl.com/secondlife/A'ksha%20Oasis/41/166/701 XXX",
                   "http://slurl.com/secondlife/A%27ksha%20Oasis/41/166/701");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         //
         // test LLUrlEntryAgent - secondlife://app/agent Urls
         //
@@ -396,11 +329,12 @@ namespace tut
         testRegex("Standalone Agent Url Multicase with Text", url,
                   "M x-grid-location-info://lincoln.lindenlab.com/app/AGENT/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about M",
                   "x-grid-location-info://lincoln.lindenlab.com/app/AGENT/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         //
         // test LLUrlEntryGroup - secondlife://app/group Urls
         //
@@ -434,11 +368,12 @@ namespace tut
                   "M x-grid-location-info://lincoln.lindenlab.com/app/GROUP/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about M",
                   "x-grid-location-info://lincoln.lindenlab.com/app/GROUP/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about");
 
-    }
+    
+}
 
-    template<> template<>
-    void object::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         //
         // test LLUrlEntryPlace - secondlife://<location> URLs
         //
@@ -485,11 +420,12 @@ namespace tut
         testRegex("Standalone All Hands (50,50) [2] with text", url,
                   "XXX x-grid-location-info://lincoln.lindenlab.com/region/All%20Hands/50/50/50 XXX",
                   "x-grid-location-info://lincoln.lindenlab.com/region/All%20Hands/50/50/50");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         //
         // test LLUrlEntryParcel - secondlife://app/parcel Urls
         //
@@ -510,10 +446,12 @@ namespace tut
         testRegex("Classified Url multicase", url,
                   "XXX secondlife:///APP/Parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/About XXX",
                   "secondlife:///APP/Parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/About");
-    }
-    template<> template<>
-    void object::test<8>()
-    {
+    
+}
+
+TEST_CASE("test_8")
+{
+
         //
         // test LLUrlEntryTeleport - secondlife://app/teleport URLs
         //
@@ -588,11 +526,12 @@ namespace tut
         testRegex("Standalone All Hands", url,
                   "XXX x-grid-location-info://lincoln.lindenlab.com/app/teleport/All%20Hands/50/50/50 XXX",
                   "x-grid-location-info://lincoln.lindenlab.com/app/teleport/All%20Hands/50/50/50");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<9>()
-    {
+TEST_CASE("test_9")
+{
+
         //
         // test LLUrlEntrySL - general secondlife:// URLs
         //
@@ -625,11 +564,12 @@ namespace tut
         testRegex("valid slapp [6]", url,
                   "secondlife://host:8080/foo/bar",
                   "secondlife://host:8080/foo/bar");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<10>()
-    {
+TEST_CASE("test_10")
+{
+
         //
         // test LLUrlEntrySLLabel - general secondlife:// URLs with labels
         //
@@ -662,11 +602,12 @@ namespace tut
         testRegex("teleport slurl with label", url,
                   "XXX [secondlife:///app/teleport/Ahern/50/50/50/ Teleport to Ahern] YYY",
                   "secondlife:///app/teleport/Ahern/50/50/50/");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<11>()
-    {
+TEST_CASE("test_11")
+{
+
         //
         // test LLUrlEntryNoLink - turn off hyperlinking
         //
@@ -691,11 +632,12 @@ namespace tut
         testRegex("<nolink> [5]", url,
                   "<nolink>My Object</nolink>",
                   "My Object");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<12>()
-    {
+TEST_CASE("test_12")
+{
+
         //
         // test LLUrlEntryRegion - secondlife:///app/region/<location> URLs
         //
@@ -796,11 +738,12 @@ namespace tut
         testLocation("Location /app/region/Product%20Engine", url,
             "secondlife:///app/region/Product%20Engine",
             "Product Engine");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<13>()
-    {
+TEST_CASE("test_13")
+{
+
         //
         // test LLUrlEntryemail - general emails
         //
@@ -830,11 +773,12 @@ namespace tut
         testRegex("don't match incorrect e-mail addresses", url,
                   "test@ foo.com",
                   "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<14>()
-    {
+TEST_CASE("test_14")
+{
+
         //
         // test LLUrlEntrySimpleSecondlifeURL - http://*.secondlife.com/* and http://*lindenlab.com/* urls
         //
@@ -867,11 +811,12 @@ namespace tut
         testRegex("don't match urls w/o protocol", url,
                   "and even no www something secondlife.com/status",
                   "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<15>()
-    {
+TEST_CASE("test_15")
+{
+
         //
         // test LLUrlEntrySimpleSecondlifeURL - http://*.secondlife.com and http://*lindenlab.com urls
         //
@@ -897,11 +842,12 @@ namespace tut
         testRegex("don't match urls w/o protocol", url,
                   "and even no www something lindenlab.com",
                   "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<16>()
-    {
+TEST_CASE("test_16")
+{
+
         //
         // test LLUrlEntryIPv6
         //
@@ -931,5 +877,8 @@ namespace tut
         testRegex("don't match incorrect urls", url,
             "http://[ 2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d ]",
             "");
-    }
+    
 }
+
+} // TEST_SUITE
+

@@ -73,7 +73,7 @@
 // external library headers
 #include <boost/throw_exception.hpp>
 // other Linden headers
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 // helper for display output
 // usage: std::cout << center(some string value, fill char, width) << std::endl;
@@ -265,18 +265,11 @@ void catch_both_several(const std::string& what)
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
-{
-    struct llexception_data
-    {
-    };
-    typedef test_group<llexception_data> llexception_group;
-    typedef llexception_group::object object;
-    llexception_group llexceptiongrp("llexception");
+TEST_SUITE("UnknownSuite") {
 
-    template<> template<>
-    void object::test<1>()
-    {
+TEST_CASE("test_1")
+{
+
         set_test_name("throwing exceptions");
 
         // For each kind of exception, try both kinds of throw against all
@@ -304,20 +297,18 @@ namespace tut
 
         std::cout << center("int", '=', margin) << std::endl;
         catch_several(throw_int, "throw_int");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         set_test_name("reporting exceptions");
 
         try
         {
             LLTHROW(LLException("badness"));
-        }
-        catch (...)
-        {
-            LOG_UNHANDLED_EXCEPTION("llexception test<2>()");
-        }
-    }
-} // namespace tut
+        
+}
+
+} // TEST_SUITE

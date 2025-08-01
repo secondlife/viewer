@@ -30,127 +30,126 @@
 
 #include "../llhost.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
-namespace tut
+TEST_SUITE("LLHost") {
+
+TEST_CASE("test_1")
 {
-    struct host_data
-    {
-    };
-    typedef test_group<host_data> host_test;
-    typedef host_test::object host_object;
-    tut::host_test host_testcase("LLHost");
 
-
-    template<> template<>
-    void host_object::test<1>()
-    {
         LLHost host;
-        ensure("IP address is not NULL", (0 == host.getAddress()) && (0 == host.getPort()) && !host.isOk());
-    }
-    template<> template<>
-    void host_object::test<2>()
-    {
+        CHECK_MESSAGE((0 == host.getAddress(, "IP address is not NULL")) && (0 == host.getPort()) && !host.isOk());
+    
+}
+
+TEST_CASE("test_2")
+{
+
         U32 ip_addr = 0xc098017d;
         U32 port = 8080;
         LLHost host(ip_addr, port);
-        ensure("IP address is invalid", ip_addr == host.getAddress());
-        ensure("Port Number is invalid", port == host.getPort());
-        ensure("IP address and port number both should be ok", host.isOk());
-    }
+        CHECK_MESSAGE(ip_addr == host.getAddress(, "IP address is invalid"));
+        CHECK_MESSAGE(port == host.getPort(, "Port Number is invalid"));
+        CHECK_MESSAGE(host.isOk(, "IP address and port number both should be ok"));
+    
+}
 
-    template<> template<>
-    void host_object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         const char* str = "192.168.1.1";
         U32 port = 8080;
         LLHost host(str, port);
-        ensure("IP address could not be processed", (host.getAddress() == ip_string_to_u32(str)));
-        ensure("Port Number is invalid", (port == host.getPort()));
-    }
+        CHECK_MESSAGE((host.getAddress(, "IP address could not be processed") == ip_string_to_u32(str)));
+        CHECK_MESSAGE((port == host.getPort(, "Port Number is invalid")));
+    
+}
 
-    template<> template<>
-    void host_object::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         U32 ip = ip_string_to_u32("192.168.1.1");
         U32 port = 22;
         U64 ip_port = (((U64) ip) << 32) | port;
         LLHost host(ip_port);
-        ensure("IP address is invalid", ip == host.getAddress());
-        ensure("Port Number is invalid", port == host.getPort());
-    }
+        CHECK_MESSAGE(ip == host.getAddress(, "IP address is invalid"));
+        CHECK_MESSAGE(port == host.getPort(, "Port Number is invalid"));
+    
+}
 
-    template<> template<>
-    void host_object::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         std::string ip_port_string = "192.168.1.1:8080";
         U32 ip = ip_string_to_u32("192.168.1.1");
         U32 port = 8080;
 
         LLHost host(ip_port_string);
-        ensure("IP address from IP:port is invalid", ip == host.getAddress());
-        ensure("Port Number from from IP:port is invalid", port == host.getPort());
-    }
+        CHECK_MESSAGE(ip == host.getAddress(, "IP address from IP:port is invalid"));
+        CHECK_MESSAGE(port == host.getPort(, "Port Number from from IP:port is invalid"));
+    
+}
 
-    template<> template<>
-    void host_object::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         U32 ip = 0xc098017d, port = 8080;
         LLHost host;
         host.set(ip,port);
-        ensure("IP address is invalid", (ip == host.getAddress()));
-        ensure("Port Number is invalid", (port == host.getPort()));
-    }
+        CHECK_MESSAGE((ip == host.getAddress(, "IP address is invalid")));
+        CHECK_MESSAGE((port == host.getPort(, "Port Number is invalid")));
+    
+}
 
-    template<> template<>
-    void host_object::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         const char* str = "192.168.1.1";
         U32 port = 8080, ip;
         LLHost host;
         host.set(str,port);
         ip = ip_string_to_u32(str);
-        ensure("IP address is invalid", (ip == host.getAddress()));
-        ensure("Port Number is invalid", (port == host.getPort()));
+        CHECK_MESSAGE((ip == host.getAddress(, "IP address is invalid")));
+        CHECK_MESSAGE((port == host.getPort(, "Port Number is invalid")));
 
         str = "64.233.187.99";
         ip = ip_string_to_u32(str);
         host.setAddress(str);
-        ensure("IP address is invalid", (ip == host.getAddress()));
+        CHECK_MESSAGE((ip == host.getAddress(, "IP address is invalid")));
 
         ip = 0xc098017b;
         host.setAddress(ip);
-        ensure("IP address is invalid", (ip == host.getAddress()));
+        CHECK_MESSAGE((ip == host.getAddress(, "IP address is invalid")));
         // should still use the old port
-        ensure("Port Number is invalid", (port == host.getPort()));
+        CHECK_MESSAGE((port == host.getPort(, "Port Number is invalid")));
 
         port = 8084;
         host.setPort(port);
-        ensure("Port Number is invalid", (port == host.getPort()));
+        CHECK_MESSAGE((port == host.getPort(, "Port Number is invalid")));
         // should still use the old address
-        ensure("IP address is invalid", (ip == host.getAddress()));
-    }
+        CHECK_MESSAGE((ip == host.getAddress(, "IP address is invalid")));
+    
+}
 
-    template<> template<>
-    void host_object::test<8>()
-    {
+TEST_CASE("test_8")
+{
+
         const std::string str("192.168.1.1");
         U32 port = 8080;
         LLHost host;
         host.set(str,port);
 
         std::string ip_string = host.getIPString();
-        ensure("Function Failed", (ip_string == str));
+        CHECK_MESSAGE((ip_string == str, "Function Failed"));
 
         std::string ip_string_port = host.getIPandPort();
-        ensure("Function Failed", (ip_string_port == "192.168.1.1:8080"));
-    }
+        CHECK_MESSAGE((ip_string_port == "192.168.1.1:8080", "Function Failed"));
+    
+}
 
+TEST_CASE("test_9")
+{
 
-//  getHostName()  and setHostByName
-    template<> template<>
-    void host_object::test<9>()
-    {
         skip("this test is irreparably flaky");
 //      skip("setHostByName(\"google.com\"); getHostName() -> (e.g.) \"yx-in-f100.1e100.net\"");
         // nat: is it reasonable to expect LLHost::getHostName() to echo
@@ -184,88 +183,87 @@ namespace tut
         std::string hostname = host.getHostName();
         try
         {
-            ensure("getHostName failed", hostname.find(hostStr) != std::string::npos);
-        }
-        catch (const std::exception&)
-        {
-            std::cerr << "set '" << hostStr << "'; reported '" << hostname << "'" << std::endl;
-            throw;
-        }
-    }
+            CHECK_MESSAGE(hostname.find(hostStr, "getHostName failed") != std::string::npos);
+        
+}
 
-//  setHostByName for dotted IP
-    template<> template<>
-    void host_object::test<10>()
-    {
+TEST_CASE("test_10")
+{
+
         std::string hostStr = "64.233.167.99";
         LLHost host;
         host.setHostByName(hostStr);
-        ensure("SetHostByName for dotted IP Address failed", host.getAddress() == ip_string_to_u32(hostStr.c_str()));
-    }
+        CHECK_MESSAGE(host.getAddress(, "SetHostByName for dotted IP Address failed") == ip_string_to_u32(hostStr.c_str()));
+    
+}
 
-    template<> template<>
-    void host_object::test<11>()
-    {
+TEST_CASE("test_11")
+{
+
         LLHost host1(0xc098017d, 8080);
         LLHost host2 = host1;
-        ensure("Both IP addresses are not same", (host1.getAddress() == host2.getAddress()));
-        ensure("Both port numbers are not same", (host1.getPort() == host2.getPort()));
-    }
+        CHECK_MESSAGE((host1.getAddress(, "Both IP addresses are not same") == host2.getAddress()));
+        CHECK_MESSAGE((host1.getPort(, "Both port numbers are not same") == host2.getPort()));
+    
+}
 
-    template<> template<>
-    void host_object::test<12>()
-    {
+TEST_CASE("test_12")
+{
+
         LLHost host1("192.168.1.1", 8080);
         std::string str1 = "192.168.1.1:8080";
         std::ostringstream stream;
         stream << host1;
-        ensure("Operator << failed", ( stream.str()== str1));
+        CHECK_MESSAGE(( stream.str(, "Operator << failed")== str1));
 
         // There is no istream >> llhost operator.
         //std::istringstream is(stream.str());
         //LLHost host2;
         //is >> host2;
-        //ensure("Operator >> failed. Not compatible with <<", host1 == host2);
-    }
+        //CHECK_MESSAGE(host1 == host2, "Operator >> failed. Not compatible with <<");
+    
+}
 
-    // operators ==, !=, <
-    template<> template<>
-    void host_object::test<13>()
-    {
+TEST_CASE("test_13")
+{
+
         U32 ip_addr = 0xc098017d;
         U32 port = 8080;
         LLHost host1(ip_addr, port);
         LLHost host2(ip_addr, port);
-        ensure("operator== failed", host1 == host2);
+        CHECK_MESSAGE(host1 == host2, "operator== failed");
 
         // change port
         host2.setPort(7070);
-        ensure("operator!= failed", host1 != host2);
+        CHECK_MESSAGE(host1 != host2, "operator!= failed");
 
         // set port back to 8080 and change IP address now
         host2.setPort(8080);
         host2.setAddress(ip_addr+10);
-        ensure("operator!= failed", host1 != host2);
+        CHECK_MESSAGE(host1 != host2, "operator!= failed");
 
-        ensure("operator<  failed", host1 < host2);
+        CHECK_MESSAGE(host1 < host2, "operator<  failed");
 
         // set IP address back to same value and change port
         host2.setAddress(ip_addr);
         host2.setPort(host1.getPort() + 10);
-        ensure("operator<  failed", host1 < host2);
-    }
+        CHECK_MESSAGE(host1 < host2, "operator<  failed");
+    
+}
 
-    // invalid ip address string
-    template<> template<>
-    void host_object::test<14>()
-    {
+TEST_CASE("test_14")
+{
+
         LLHost host1("10.0.1.2", 6143);
-        ensure("10.0.1.2 should be a valid address", host1.isOk());
+        CHECK_MESSAGE(host1.isOk(, "10.0.1.2 should be a valid address"));
 
         LLHost host2("booger-brains", 6143);
-        ensure("booger-brains should be an invalid ip addess", !host2.isOk());
+        CHECK_MESSAGE(!host2.isOk(, "booger-brains should be an invalid ip addess"));
 
         LLHost host3("255.255.255.255", 6143);
-        ensure("255.255.255.255 should be valid broadcast address", host3.isOk());
-    }
+        CHECK_MESSAGE(host3.isOk(, "255.255.255.255 should be valid broadcast address"));
+    
 }
+
+} // TEST_SUITE
+

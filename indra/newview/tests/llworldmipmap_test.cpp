@@ -32,7 +32,7 @@
 // Class to test
 #include "../llworldmipmap.h"
 // Tut header
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 // -------------------------------------------------------------------------------------------
 // Stubbing: Declarations required to link and run the class being tested
@@ -57,109 +57,76 @@ LLControlGroup gSavedSettings("test_settings");
 // -------------------------------------------------------------------------------------------
 // TUT
 // -------------------------------------------------------------------------------------------
-namespace tut
+TEST_SUITE("LLWorldMipmap") {
+
+struct worldmipmap_test
 {
-    // Test wrapper declaration
-    struct worldmipmap_test
-    {
+
         // Derived test class
         class LLTestWorldMipmap : public LLWorldMipmap
         {
             // Put here stubbs of virtual methods we shouldn't call all the way down
-        };
-        // Instance to be tested
-        LLTestWorldMipmap* mMap;
+        
+};
 
-        // Constructor and destructor of the test wrapper
-        worldmipmap_test()
-        {
-            mMap = new LLTestWorldMipmap;
-        }
-        ~worldmipmap_test()
-        {
-            delete mMap;
-        }
-    };
+TEST_CASE_FIXTURE(worldmipmap_test, "test_1")
+{
 
-    // Tut templating thingamagic: test group, object and test instance
-    typedef test_group<worldmipmap_test> worldmipmap_t;
-    typedef worldmipmap_t::object worldmipmap_object_t;
-    tut::worldmipmap_t tut_worldmipmap("LLWorldMipmap");
-
-    // ---------------------------------------------------------------------------------------
-    // Test functions
-    // Notes:
-    // * Test as many as you possibly can without requiring a full blown simulation of everything
-    // * The tests are executed in sequence so the test instance state may change between calls
-    // * Remember that you cannot test private methods with tut
-    // ---------------------------------------------------------------------------------------
-    // Test static methods
-    // Test 1 : scaleToLevel()
-    template<> template<>
-    void worldmipmap_object_t::test<1>()
-    {
         S32 level = mMap->scaleToLevel(0.0);
-        ensure("scaleToLevel() test 1 failed", level == LLWorldMipmap::MAP_LEVELS);
+        CHECK_MESSAGE(level == LLWorldMipmap::MAP_LEVELS, "scaleToLevel() test 1 failed");
         level = mMap->scaleToLevel((F32)LLWorldMipmap::MAP_TILE_SIZE);
-        ensure("scaleToLevel() test 2 failed", level == 1);
+        CHECK_MESSAGE(level == 1, "scaleToLevel() test 2 failed");
         level = mMap->scaleToLevel(10.f * LLWorldMipmap::MAP_TILE_SIZE);
-        ensure("scaleToLevel() test 3 failed", level == 1);
-    }
-    // Test 2 : globalToMipmap()
-    template<> template<>
-    void worldmipmap_object_t::test<2>()
-    {
+        CHECK_MESSAGE(level == 1, "scaleToLevel() test 3 failed");
+    
+}
+
+TEST_CASE_FIXTURE(worldmipmap_test, "test_2")
+{
+
         U32 grid_x, grid_y;
         mMap->globalToMipmap(1000.f*REGION_WIDTH_METERS, 1000.f*REGION_WIDTH_METERS, 1, &grid_x, &grid_y);
-        ensure("globalToMipmap() test 1 failed", (grid_x == 1000) && (grid_y == 1000));
+        CHECK_MESSAGE((grid_x == 1000, "globalToMipmap() test 1 failed") && (grid_y == 1000));
         mMap->globalToMipmap(0.0, 0.0, LLWorldMipmap::MAP_LEVELS, &grid_x, &grid_y);
-        ensure("globalToMipmap() test 2 failed", (grid_x == 0) && (grid_y == 0));
-    }
-    // Test 3 : getObjectsTile()
-    template<> template<>
-    void worldmipmap_object_t::test<3>()
-    {
+        CHECK_MESSAGE((grid_x == 0, "globalToMipmap() test 2 failed") && (grid_y == 0));
+    
+}
+
+TEST_CASE_FIXTURE(worldmipmap_test, "test_3")
+{
+
         // Depends on some inline methods in LLViewerImage... Thinking about how to make this work
         // LLPointer<LLViewerImage> img = mMap->getObjectsTile(0, 0, 1);
-        // ensure("getObjectsTile() test failed", img.isNull());
-    }
-    // Test 4 : equalizeBoostLevels()
-    template<> template<>
-    void worldmipmap_object_t::test<4>()
-    {
+        // CHECK_MESSAGE(img.isNull(, "getObjectsTile() test failed"));
+    
+}
+
+TEST_CASE_FIXTURE(worldmipmap_test, "test_4")
+{
+
         try
         {
             mMap->equalizeBoostLevels();
-        }
-        catch (...)
-        {
-            fail("equalizeBoostLevels() test failed");
-        }
-    }
-    // Test 5 : dropBoostLevels()
-    template<> template<>
-    void worldmipmap_object_t::test<5>()
-    {
+        
+}
+
+TEST_CASE_FIXTURE(worldmipmap_test, "test_5")
+{
+
         try
         {
             mMap->dropBoostLevels();
-        }
-        catch (...)
-        {
-            fail("dropBoostLevels() test failed");
-        }
-    }
-    // Test 6 : reset()
-    template<> template<>
-    void worldmipmap_object_t::test<6>()
-    {
+        
+}
+
+TEST_CASE_FIXTURE(worldmipmap_test, "test_6")
+{
+
         try
         {
             mMap->reset();
-        }
-        catch (...)
-        {
-            fail("reset() test failed");
-        }
-    }
+        
 }
+
+} // TEST_SUITE
+

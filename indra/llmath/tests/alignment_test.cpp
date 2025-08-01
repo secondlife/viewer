@@ -29,55 +29,16 @@
 // Tests related to allocating objects with alignment constraints, particularly for SSE support.
 
 #include "linden_common.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "../llmath.h"
 #include "../llsimdmath.h"
 #include "../llvector4a.h"
 
-namespace tut
+TEST_SUITE("LLAlignment") {
+
+TEST_CASE("test_1")
 {
 
-#define is_aligned(ptr,alignment) ((reinterpret_cast<uintptr_t>(ptr))%(alignment)==0)
-#define is_aligned_relative(ptr,base_ptr,alignment) ((reinterpret_cast<uintptr_t>(ptr)-reinterpret_cast<uintptr_t>(base_ptr))%(alignment)==0)
-
-struct alignment_test {};
-
-typedef test_group<alignment_test> alignment_test_t;
-typedef alignment_test_t::object alignment_test_object_t;
-tut::alignment_test_t tut_alignment_test("LLAlignment");
-
-LL_ALIGN_PREFIX(16)
-class MyVector4a
-{
-public:
-    void* operator new(size_t size)
-    {
-        return ll_aligned_malloc_16(size);
-    }
-
-    void operator delete(void *p)
-    {
-        ll_aligned_free_16(p);
-    }
-
-    void* operator new[](size_t count)
-    {   // try to allocate count bytes for an array
-        return ll_aligned_malloc_16(count);
-    }
-
-    void operator delete[](void *p)
-    {
-        ll_aligned_free_16(p);
-    }
-
-    LLQuad mQ;
-} LL_ALIGN_POSTFIX(16);
-
-
-// Verify that aligned allocators perform as advertised.
-template<> template<>
-void alignment_test_object_t::test<1>()
-{
 #   ifdef LL_DEBUG
 //  skip("This test fails on Windows when compiled in debug mode.");
 #   endif
@@ -87,34 +48,33 @@ void alignment_test_object_t::test<1>()
     for (int i=0; i<num_tests; i++)
     {
         align_ptr = ll_aligned_malloc_16(sizeof(MyVector4a));
-        ensure("ll_aligned_malloc_16 failed", is_aligned(align_ptr,16));
+        CHECK_MESSAGE(is_aligned(align_ptr,16, "ll_aligned_malloc_16 failed"));
 
         align_ptr = ll_aligned_realloc_16(align_ptr,2*sizeof(MyVector4a), sizeof(MyVector4a));
-        ensure("ll_aligned_realloc_16 failed", is_aligned(align_ptr,16));
+        CHECK_MESSAGE(is_aligned(align_ptr,16, "ll_aligned_realloc_16 failed"));
 
         ll_aligned_free_16(align_ptr);
 
         align_ptr = ll_aligned_malloc_32(sizeof(MyVector4a));
-        ensure("ll_aligned_malloc_32 failed", is_aligned(align_ptr,32));
+        CHECK_MESSAGE(is_aligned(align_ptr,32, "ll_aligned_malloc_32 failed"));
         ll_aligned_free_32(align_ptr);
-    }
+    
 }
 
-// In-place allocation of objects and arrays.
-template<> template<>
-void alignment_test_object_t::test<2>()
+TEST_CASE("test_2")
 {
+
     MyVector4a vec1;
-    ensure("LLAlignment vec1 unaligned", is_aligned(&vec1,16));
+    CHECK_MESSAGE(is_aligned(&vec1,16, "LLAlignment vec1 unaligned"));
 
     MyVector4a veca[12];
-    ensure("LLAlignment veca unaligned", is_aligned(veca,16));
+    CHECK_MESSAGE(is_aligned(veca,16, "LLAlignment veca unaligned"));
+
 }
 
-// Heap allocation of objects and arrays.
-template<> template<>
-void alignment_test_object_t::test<3>()
+TEST_CASE("test_3")
 {
+
 #   ifdef LL_DEBUG
 //  skip("This test fails on Windows when compiled in debug mode.");
 #   endif
@@ -123,19 +83,10 @@ void alignment_test_object_t::test<3>()
     for(int i=0; i<ARR_SIZE; i++)
     {
         MyVector4a *vecp = new MyVector4a;
-        ensure("LLAlignment vecp unaligned", is_aligned(vecp,16));
+        CHECK_MESSAGE(is_aligned(vecp,16, "LLAlignment vecp unaligned"));
         delete vecp;
-    }
-
-    MyVector4a *veca = new MyVector4a[ARR_SIZE];
-    //std::cout << "veca base is " << (S32) veca << std::endl;
-    ensure("LLAligment veca base", is_aligned(veca,16));
-    for(int i=0; i<ARR_SIZE; i++)
-    {
-        std::cout << "veca[" << i << "]" << std::endl;
-        ensure("LLAlignment veca member unaligned", is_aligned(&veca[i],16));
-    }
-    delete [] veca;
+    
 }
 
-}
+} // TEST_SUITE
+

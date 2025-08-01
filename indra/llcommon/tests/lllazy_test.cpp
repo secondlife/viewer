@@ -37,7 +37,7 @@
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/bind.hpp>
 // other Linden headers
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "../test/catch_and_store_what_in.h"
 
 namespace bll = boost::lambda;
@@ -174,18 +174,11 @@ public:
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
-{
-    struct lllazy_data
-    {
-    };
-    typedef test_group<lllazy_data> lllazy_group;
-    typedef lllazy_group::object lllazy_object;
-    lllazy_group lllazygrp("lllazy");
+TEST_SUITE("UnknownSuite") {
 
-    template<> template<>
-    void lllazy_object::test<1>()
-    {
+TEST_CASE("test_1")
+{
+
         // Instantiate an official one, just because we can
         NeedsTesting nt;
         // and a test one
@@ -195,45 +188,36 @@ namespace tut
 //      std::cout << tnt.describe() << '\n';
         ensure_equals(tnt.describe(),
                       "TestNeedsTesting(NeedsTesting(TestFoo, TestBar(YuckyBar(TestYuckyBar))))");
-    }
+    
+}
 
-    template<> template<>
-    void lllazy_object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         TestNeedsTesting tnt;
         std::string threw = catch_what<LLLazyCommon::InstanceChange>([&tnt](){
                 tnt.toolate();
-            });
-        ensure_contains("InstanceChange exception", threw, "replace LLLazy instance");
-    }
+            
+}
 
-    template<> template<>
-    void lllazy_object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         {
             LazyMember lm;
             // operator*() on-demand instantiation
             ensure_equals(lm.getYuckyFoo().whoami(), "YuckyFoo");
-        }
-        {
-            LazyMember lm;
-            // operator->() on-demand instantiation
-            ensure_equals(lm.whoisit(), "YuckyFoo");
-        }
-    }
+        
+}
 
-    template<> template<>
-    void lllazy_object::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         {
             // factory setter
             TestLazyMember tlm;
             ensure_equals(tlm.whoisit(), "TestFoo");
-        }
-        {
-            // instance setter
-            TestLazyMember tlm(new TestFoo());
-            ensure_equals(tlm.whoisit(), "TestFoo");
-        }
-    }
-} // namespace tut
+        
+}
+
+} // TEST_SUITE

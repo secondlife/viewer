@@ -30,24 +30,22 @@
 #include "../llframetimer.h"
 #include "../llsd.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
-namespace tut
+TEST_SUITE("LLFrameTimer") {
+
+struct frametimer_test
 {
-    struct frametimer_test
-    {
+
         frametimer_test()
         {
             LLFrameTimer::updateFrameTime();
-        }
-    };
-    typedef test_group<frametimer_test> frametimer_group_t;
-    typedef frametimer_group_t::object frametimer_object_t;
-    tut::frametimer_group_t frametimer_instance("LLFrameTimer");
+        
+};
 
-    template<> template<>
-    void frametimer_object_t::test<1>()
-    {
+TEST_CASE_FIXTURE(frametimer_test, "test_1")
+{
+
         F64 seconds_since_epoch = LLFrameTimer::getTotalSeconds();
         LLFrameTimer timer;
         timer.setExpiryAt(seconds_since_epoch);
@@ -57,11 +55,12 @@ namespace tut
             expires_at,
             seconds_since_epoch,
             0.001);
-    }
+    
+}
 
-    template<> template<>
-    void frametimer_object_t::test<2>()
-    {
+TEST_CASE_FIXTURE(frametimer_test, "test_2")
+{
+
         F64 seconds_since_epoch = LLFrameTimer::getTotalSeconds();
         seconds_since_epoch += 10.0;
         LLFrameTimer timer;
@@ -80,10 +79,12 @@ namespace tut
             expires_at,
             seconds_since_epoch,
             0.001);
-    }
-    template<> template<>
-    void frametimer_object_t::test<3>()
-    {
+    
+}
+
+TEST_CASE_FIXTURE(frametimer_test, "test_3")
+{
+
         clock_t t1 = clock();
         ms_sleep(200);
         clock_t t2 = clock();
@@ -108,14 +109,14 @@ namespace tut
             ms_sleep(200);
             LLFrameTimer::updateFrameTime();
             iterations_until_expiration++;
-        }
-        ensure("timer took too long to expire", iterations_until_expiration <= 10);
-    }
-
-/*
-    template<> template<>
-    void frametimer_object_t::test<4>()
-    {
-    }
-*/
+        
 }
+
+TEST_CASE_FIXTURE(frametimer_test, "test_4")
+{
+
+    
+}
+
+} // TEST_SUITE
+

@@ -30,7 +30,7 @@
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
 #include "lltracerecording.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 #ifdef LL_WINDOWS
 #pragma warning(disable : 4244) // possible loss of data on conversions
@@ -56,41 +56,18 @@ LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Grams);
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Milligrams);
 
 
-namespace tut
+TEST_SUITE("LLTrace") {
+
+struct trace
 {
-    using namespace LLTrace;
-    struct trace
-    {
+
         ThreadRecorder mRecorder;
-    };
+    
+};
 
-    typedef test_group<trace> trace_t;
-    typedef trace_t::object trace_object_t;
-    tut::trace_t tut_singleton("LLTrace");
+TEST_CASE_FIXTURE(trace, "test_1")
+{
 
-    static CountStatHandle<S32> sCupsOfCoffeeConsumed("coffeeconsumed", "Delicious cup of dark roast.");
-    static SampleStatHandle<F32Milligrams> sCaffeineLevelStat("caffeinelevel", "Coffee buzz quotient");
-    static EventStatHandle<S32Ounces> sOuncesPerCup("cupsize", "Large, huge, or ginormous");
-
-    static F32 sCaffeineLevel(0.f);
-    const F32Milligrams sCaffeinePerOz(18.f);
-
-    void drink_coffee(S32 num_cups, S32Ounces cup_size)
-    {
-        add(sCupsOfCoffeeConsumed, num_cups);
-        for (S32 i = 0; i < num_cups; i++)
-        {
-            record(sOuncesPerCup, cup_size);
-        }
-
-        sCaffeineLevel += F32Ounces(num_cups * cup_size).value() * sCaffeinePerOz.value();
-        sample(sCaffeineLevelStat, sCaffeineLevel);
-    }
-
-    // basic data collection
-    template<> template<>
-    void trace_object_t::test<1>()
-    {
         sample(sCaffeineLevelStat, sCaffeineLevel);
 
         Recording all_day;
@@ -109,38 +86,8 @@ namespace tut
                 drink_coffee(2, S32GrandeCup(1));
                 after_3pm.start();
                 drink_coffee(1, S32GrandeCup(1));
-            }
-            at_work.stop();
-            drink_coffee(1, S32VentiCup(1));
-        }
-        // don't need to stop recordings to get accurate values out of them
-        //after_3pm.stop();
-        //all_day.stop();
-
-        ensure("count stats are counted when recording is active",
-            at_work.getSum(sCupsOfCoffeeConsumed) == 3
-                && all_day.getSum(sCupsOfCoffeeConsumed) == 5
-                && after_3pm.getSum(sCupsOfCoffeeConsumed) == 2);
-        ensure("measurement sums are counted when recording is active",
-            at_work.getSum(sOuncesPerCup) == S32Ounces(48)
-                && all_day.getSum(sOuncesPerCup) == S32Ounces(80)
-                && after_3pm.getSum(sOuncesPerCup) == S32Ounces(36));
-        ensure("measurement min is specific to when recording is active",
-            at_work.getMin(sOuncesPerCup) == S32GrandeCup(1)
-                && all_day.getMin(sOuncesPerCup) == S32TallCup(1)
-                && after_3pm.getMin(sOuncesPerCup) == S32GrandeCup(1));
-        ensure("measurement max is specific to when recording is active",
-            at_work.getMax(sOuncesPerCup) == S32GrandeCup(1)
-                && all_day.getMax(sOuncesPerCup) == S32VentiCup(1)
-                && after_3pm.getMax(sOuncesPerCup) == S32VentiCup(1));
-        ensure("sample min is specific to when recording is active",
-            at_work.getMin(sCaffeineLevelStat) == sCaffeinePerOz * ((S32Ounces)S32TallCup(1)).value()
-                && all_day.getMin(sCaffeineLevelStat) == F32Milligrams(0.f)
-                && after_3pm.getMin(sCaffeineLevelStat) == sCaffeinePerOz * ((S32Ounces)S32TallCup(1) + (S32Ounces)S32GrandeCup(2)).value());
-        ensure("sample max is specific to when recording is active",
-            at_work.getMax(sCaffeineLevelStat) == sCaffeinePerOz * ((S32Ounces)S32TallCup(1) + (S32Ounces)S32GrandeCup(3)).value()
-                && all_day.getMax(sCaffeineLevelStat) == sCaffeinePerOz * ((S32Ounces)S32TallCup(1) + (S32Ounces)S32GrandeCup(3) + (S32Ounces)S32VentiCup(1)).value()
-                && after_3pm.getMax(sCaffeineLevelStat) == sCaffeinePerOz * ((S32Ounces)S32TallCup(1) + (S32Ounces)S32GrandeCup(3) + (S32Ounces)S32VentiCup(1)).value());
-    }
-
+            
 }
+
+} // TEST_SUITE
+

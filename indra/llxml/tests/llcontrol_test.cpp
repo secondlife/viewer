@@ -32,14 +32,15 @@
 
 #include "../llcontrol.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include <memory>
 #include <vector>
 
-namespace tut
+TEST_SUITE("UnknownSuite") {
+
+struct control_group
 {
-    struct control_group
-    {
+
         std::unique_ptr<LLControlGroup> mCG;
         std::string mTestConfigDir;
         std::string mTestConfigFile;
@@ -60,52 +61,21 @@ namespace tut
             config["TestSetting"]["Type"] = "U32";
             config["TestSetting"]["Value"] = 12;
             writeSettingsFile(config);
-        }
-        ~control_group()
-        {
-            //Remove test files
-            for (auto filename : mCleanups)
-            {
-                LLFile::remove(filename);
-            }
-            LLFile::remove(mTestConfigFile);
-            LLFile::rmdir(mTestConfigDir);
-        }
-        void writeSettingsFile(const LLSD& config)
-        {
-            llofstream file(mTestConfigFile.c_str());
-            if (file.is_open())
-            {
-                LLSDSerialize::toPrettyXML(config, file);
-            }
-            file.close();
-        }
-        static bool handleListenerTest()
-        {
-            control_group::mListenerFired = true;
-            return true;
-        }
-    };
+        
+};
 
-    bool control_group::mListenerFired = false;
+TEST_CASE_FIXTURE(control_group, "test_1")
+{
 
-    typedef test_group<control_group> control_group_test;
-    typedef control_group_test::object control_group_t;
-    control_group_test tut_control_group("control_group");
-
-    //load settings from files - LLSD
-    template<> template<>
-    void control_group_t::test<1>()
-    {
         int results = mCG->loadFromFile(mTestConfigFile.c_str());
-        ensure("number of settings", (results == 1));
-        ensure("value of setting", (mCG->getU32("TestSetting") == 12));
-    }
+        CHECK_MESSAGE((results == 1, "number of settings"));
+        CHECK_MESSAGE((mCG->getU32("TestSetting", "value of setting") == 12));
+    
+}
 
-    //save settings to files
-    template<> template<>
-    void control_group_t::test<2>()
-    {
+TEST_CASE_FIXTURE(control_group, "test_2")
+{
+
         int results = mCG->loadFromFile(mTestConfigFile.c_str());
         mCG->setU32("TestSetting", 13);
         ensure_equals("value of changed setting", mCG->getU32("TestSetting"), 13);
@@ -114,14 +84,14 @@ namespace tut
         mCleanups.push_back(temp_test_file);
         mCG->saveToFile(temp_test_file.c_str(), true);
         results = test_cg.loadFromFile(temp_test_file.c_str());
-        ensure("number of changed settings loaded", (results == 1));
-        ensure("value of changed settings loaded", (test_cg.getU32("TestSetting") == 13));
-    }
+        CHECK_MESSAGE((results == 1, "number of changed settings loaded"));
+        CHECK_MESSAGE((test_cg.getU32("TestSetting", "value of changed settings loaded") == 13));
+    
+}
 
-    //priorities
-    template<> template<>
-    void control_group_t::test<3>()
-    {
+TEST_CASE_FIXTURE(control_group, "test_3")
+{
+
         // Pass default_values = true. This tells loadFromFile() we're loading
         // a default settings file that declares variables, rather than a user
         // settings file. When loadFromFile() encounters an unrecognized user
@@ -137,18 +107,20 @@ namespace tut
         mCG->saveToFile(temp_test_file.c_str(), true);
         results = test_cg.loadFromFile(temp_test_file.c_str());
         //If we haven't changed any settings, then we shouldn't have any settings to load
-        ensure("number of non-persisted changed settings loaded", (results == 0));
-    }
+        CHECK_MESSAGE((results == 0, "number of non-persisted changed settings loaded"));
+    
+}
 
-    //listeners
-    template<> template<>
-    void control_group_t::test<4>()
-    {
+TEST_CASE_FIXTURE(control_group, "test_4")
+{
+
         int results = mCG->loadFromFile(mTestConfigFile.c_str());
-        ensure("number of settings", (results == 1));
+        CHECK_MESSAGE((results == 1, "number of settings"));
         mCG->getControl("TestSetting")->getSignal()->connect(boost::bind(&this->handleListenerTest));
         mCG->setU32("TestSetting", 13);
-        ensure("listener fired on changed setting", mListenerFired);
-    }
-
+        CHECK_MESSAGE(mListenerFired, "listener fired on changed setting");
+    
 }
+
+} // TEST_SUITE
+

@@ -35,7 +35,7 @@
 #include "../llquaternion.h"
 #include "../v3dmath.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 #if LL_WINDOWS
 // disable unreachable code warnings caused by usage of skip.
@@ -47,22 +47,14 @@
 #pragma warning(disable: 4702)
 #endif
 
-namespace tut
+TEST_SUITE("m3math_h") {
+
+TEST_CASE("test_1")
 {
-    struct m3math_test
-    {
-    };
-    typedef test_group<m3math_test> m3math_test_t;
-    typedef m3math_test_t::object m3math_test_object_t;
-    tut::m3math_test_t tut_m3math_test("m3math_h");
 
-    //test case for setIdentity() fn.
-    template<> template<>
-    void m3math_test_object_t::test<1>()
-    {
         LLMatrix3 llmat3_obj;
         llmat3_obj.setIdentity();
-        ensure("LLMatrix3::setIdentity failed", 1.f == llmat3_obj.mMatrix[0][0] &&
+        CHECK_MESSAGE(1.f == llmat3_obj.mMatrix[0][0] &&
                     0.f == llmat3_obj.mMatrix[0][1] &&
                     0.f == llmat3_obj.mMatrix[0][2] &&
                     0.f == llmat3_obj.mMatrix[1][0] &&
@@ -70,17 +62,17 @@ namespace tut
                     0.f == llmat3_obj.mMatrix[1][2] &&
                     0.f == llmat3_obj.mMatrix[2][0] &&
                     0.f == llmat3_obj.mMatrix[2][1] &&
-                    1.f == llmat3_obj.mMatrix[2][2]);
-    }
+                    1.f == llmat3_obj.mMatrix[2][2], "LLMatrix3::setIdentity failed");
+    
+}
 
-    //test case for LLMatrix3& setZero() fn.
-    template<> template<>
-    void m3math_test_object_t::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         LLMatrix3 llmat3_obj;
         llmat3_obj.setZero();
 
-        ensure("LLMatrix3::setZero failed", 0.f == llmat3_obj.setZero().mMatrix[0][0] &&
+        CHECK_MESSAGE(0.f == llmat3_obj.setZero(, "LLMatrix3::setZero failed").mMatrix[0][0] &&
                     0.f == llmat3_obj.setZero().mMatrix[0][1] &&
                     0.f == llmat3_obj.setZero().mMatrix[0][2] &&
                     0.f == llmat3_obj.setZero().mMatrix[1][0] &&
@@ -89,18 +81,18 @@ namespace tut
                     0.f == llmat3_obj.setZero().mMatrix[2][0] &&
                     0.f == llmat3_obj.setZero().mMatrix[2][1] &&
                     0.f == llmat3_obj.setZero().mMatrix[2][2]);
-    }
+    
+}
 
-    //test case for setRows(const LLVector3 &x_axis, const LLVector3 &y_axis, const LLVector3 &z_axis) fns.
-    template<> template<>
-    void m3math_test_object_t::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         LLMatrix3 llmat3_obj;
         LLVector3 vect1(2, 1, 4);
         LLVector3 vect2(3, 5, 7);
         LLVector3 vect3(6, 9, 7);
         llmat3_obj.setRows(vect1, vect2, vect3);
-        ensure("LLVector3::setRows failed ", 2 == llmat3_obj.mMatrix[0][0] &&
+        CHECK_MESSAGE(2 == llmat3_obj.mMatrix[0][0] &&
                         1 == llmat3_obj.mMatrix[0][1] &&
                         4 == llmat3_obj.mMatrix[0][2] &&
                         3 == llmat3_obj.mMatrix[1][0] &&
@@ -108,28 +100,28 @@ namespace tut
                         7 == llmat3_obj.mMatrix[1][2] &&
                         6 == llmat3_obj.mMatrix[2][0] &&
                         9 == llmat3_obj.mMatrix[2][1] &&
-                        7 == llmat3_obj.mMatrix[2][2]);
-    }
+                        7 == llmat3_obj.mMatrix[2][2], "LLVector3::setRows failed ");
+    
+}
 
-    //test case for getFwdRow(), getLeftRow(), getUpRow() fns.
-    template<> template<>
-    void m3math_test_object_t::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         LLMatrix3 llmat3_obj;
         LLVector3 vect1(2, 1, 4);
         LLVector3 vect2(3, 5, 7);
         LLVector3 vect3(6, 9, 7);
         llmat3_obj.setRows(vect1, vect2, vect3);
 
-        ensure("LLVector3::getFwdRow failed ", vect1 == llmat3_obj.getFwdRow());
-        ensure("LLVector3::getLeftRow failed ", vect2 == llmat3_obj.getLeftRow());
-        ensure("LLVector3::getUpRow failed ", vect3 == llmat3_obj.getUpRow());
-    }
+        CHECK_MESSAGE(vect1 == llmat3_obj.getFwdRow(, "LLVector3::getFwdRow failed "));
+        CHECK_MESSAGE(vect2 == llmat3_obj.getLeftRow(, "LLVector3::getLeftRow failed "));
+        CHECK_MESSAGE(vect3 == llmat3_obj.getUpRow(, "LLVector3::getUpRow failed "));
+    
+}
 
-    //test case for operator*(const LLMatrix3 &a, const LLMatrix3 &b)
-    template<> template<>
-    void m3math_test_object_t::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         LLMatrix3 llmat_obj1;
         LLMatrix3 llmat_obj2;
         LLMatrix3 llmat_obj3;
@@ -150,8 +142,7 @@ namespace tut
         llmat_obj2.setRows(llvec4, llvec5, llvec6);
         llmat_obj3.setRows(llvec7, llvec8, llvec9);
         llmat_obj3 = llmat_obj1 * llmat_obj2;
-        ensure("LLMatrix3::operator*(const LLMatrix3 &a, const LLMatrix3 &b) failed",
-                        50 == llmat_obj3.mMatrix[0][0] &&
+        CHECK_MESSAGE(50 == llmat_obj3.mMatrix[0][0] &&
                         49 == llmat_obj3.mMatrix[0][1] &&
                         39 == llmat_obj3.mMatrix[0][2] &&
                         29 == llmat_obj3.mMatrix[1][0] &&
@@ -159,14 +150,13 @@ namespace tut
                         65 == llmat_obj3.mMatrix[1][2] &&
                         94 == llmat_obj3.mMatrix[2][0] &&
                         94 == llmat_obj3.mMatrix[2][1] &&
-                        86 == llmat_obj3.mMatrix[2][2]);
-    }
+                        86 == llmat_obj3.mMatrix[2][2], "LLMatrix3::operator*(const LLMatrix3 &a, const LLMatrix3 &b) failed");
+    
+}
 
+TEST_CASE("test_6")
+{
 
-    //test case for operator*(const LLVector3 &a, const LLMatrix3 &b)
-    template<> template<>
-    void m3math_test_object_t::test<6>()
-    {
 
         LLMatrix3 llmat_obj1;
 
@@ -181,13 +171,13 @@ namespace tut
 
         LLVector3 expected_result(30, 51, 53);
 
-        ensure("LLMatrix3::operator*(const LLVector3 &a, const LLMatrix3 &b) failed", res_vec == expected_result);
-    }
+        CHECK_MESSAGE(res_vec == expected_result, "LLMatrix3::operator*(const LLVector3 &a, const LLMatrix3 &b) failed");
+    
+}
 
-    //test case for operator*(const LLVector3d &a, const LLMatrix3 &b)
-    template<> template<>
-    void m3math_test_object_t::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         LLMatrix3 llmat_obj1;
         LLVector3d llvec3d1;
         LLVector3d llvec3d2(0, 3, 4);
@@ -201,13 +191,13 @@ namespace tut
 
         LLVector3d expected_result(25, 30, 3);
 
-        ensure("LLMatrix3::operator*(const LLVector3 &a, const LLMatrix3 &b) failed", llvec3d1 == expected_result);
-    }
+        CHECK_MESSAGE(llvec3d1 == expected_result, "LLMatrix3::operator*(const LLVector3 &a, const LLMatrix3 &b) failed");
+    
+}
 
-    // test case for operator==(const LLMatrix3 &a, const LLMatrix3 &b)
-    template<> template<>
-    void m3math_test_object_t::test<8>()
-    {
+TEST_CASE("test_8")
+{
+
         LLMatrix3 llmat_obj1;
         LLMatrix3 llmat_obj2;
 
@@ -217,16 +207,16 @@ namespace tut
 
         llmat_obj1.setRows(llvec1, llvec2, llvec3);
         llmat_obj2.setRows(llvec1, llvec2, llvec3);
-        ensure("LLMatrix3::operator==(const LLMatrix3 &a, const LLMatrix3 &b) failed", llmat_obj1 == llmat_obj2);
+        CHECK_MESSAGE(llmat_obj1 == llmat_obj2, "LLMatrix3::operator==(const LLMatrix3 &a, const LLMatrix3 &b) failed");
 
         llmat_obj2.setRows(llvec2, llvec2, llvec3);
-        ensure("LLMatrix3::operator!=(const LLMatrix3 &a, const LLMatrix3 &b) failed", llmat_obj1 != llmat_obj2);
-    }
+        CHECK_MESSAGE(llmat_obj1 != llmat_obj2, "LLMatrix3::operator!=(const LLMatrix3 &a, const LLMatrix3 &b) failed");
+    
+}
 
-    //test case for quaternion() fn.
-    template<> template<>
-    void m3math_test_object_t::test<9>()
-    {
+TEST_CASE("test_9")
+{
+
         LLMatrix3 llmat_obj1;
         LLQuaternion llmat_quat;
 
@@ -236,16 +226,16 @@ namespace tut
 
         llmat_obj1.setRows(llmat1, llmat2, llmat3);
         llmat_quat = llmat_obj1.quaternion();
-        ensure("LLMatrix3::quaternion failed ", is_approx_equal(-0.66666669f, llmat_quat.mQ[0]) &&
+        CHECK_MESSAGE(is_approx_equal(-0.66666669f, llmat_quat.mQ[0], "LLMatrix3::quaternion failed ") &&
                         is_approx_equal(-0.83333337f, llmat_quat.mQ[1]) &&
                         is_approx_equal(0.0f, llmat_quat.mQ[2]) &&
                         is_approx_equal(1.5f, llmat_quat.mQ[3]));
-    }
+    
+}
 
-    //test case for transpose() fn.
-    template<> template<>
-    void m3math_test_object_t::test<10>()
-    {
+TEST_CASE("test_10")
+{
+
         LLMatrix3 llmat_obj;
 
         LLVector3 llvec1(1, 2, 3);
@@ -261,26 +251,26 @@ namespace tut
         LLMatrix3 expectedllmat_obj;
         expectedllmat_obj.setRows(resllvec1, resllvec2, resllvec3);
 
-        ensure("LLMatrix3::transpose failed ", llmat_obj == expectedllmat_obj);
-    }
+        CHECK_MESSAGE(llmat_obj == expectedllmat_obj, "LLMatrix3::transpose failed ");
+    
+}
 
-    //test case for determinant() fn.
-    template<> template<>
-    void m3math_test_object_t::test<11>()
-    {
+TEST_CASE("test_11")
+{
+
         LLMatrix3 llmat_obj1;
 
         LLVector3 llvec1(1, 2, 3);
         LLVector3 llvec2(3, 2, 1);
         LLVector3 llvec3(2, 2, 2);
         llmat_obj1.setRows(llvec1, llvec2, llvec3);
-        ensure("LLMatrix3::determinant failed ",  0.0f == llmat_obj1.determinant());
-    }
+        CHECK_MESSAGE(0.0f == llmat_obj1.determinant(, "LLMatrix3::determinant failed "));
+    
+}
 
-    //test case for orthogonalize() fn.
-    template<> template<>
-    void m3math_test_object_t::test<12>()
-    {
+TEST_CASE("test_12")
+{
+
         LLMatrix3 llmat_obj;
 
         LLVector3 llvec1(1, 4, 3);
@@ -292,8 +282,7 @@ namespace tut
         llmat_obj.setRows(llvec1, llvec2, llvec3);
         llmat_obj.orthogonalize();
 
-        ensure("LLMatrix3::orthogonalize failed ",
-               is_approx_equal(0.19611614f, llmat_obj.mMatrix[0][0]) &&
+        CHECK_MESSAGE(is_approx_equal(0.19611614f, llmat_obj.mMatrix[0][0], "LLMatrix3::orthogonalize failed ") &&
                is_approx_equal(0.78446454f, llmat_obj.mMatrix[0][1]) &&
                is_approx_equal(0.58834841f, llmat_obj.mMatrix[0][2]) &&
                is_approx_equal(0.47628204f, llmat_obj.mMatrix[1][0]) &&
@@ -302,12 +291,12 @@ namespace tut
                is_approx_equal(-0.85714286f, llmat_obj.mMatrix[2][0]) &&
                is_approx_equal(0.42857143f, llmat_obj.mMatrix[2][1]) &&
                is_approx_equal(-0.28571429f, llmat_obj.mMatrix[2][2]));
-    }
+    
+}
 
-    //test case for adjointTranspose() fn.
-    template<> template<>
-    void m3math_test_object_t::test<13>()
-    {
+TEST_CASE("test_13")
+{
+
         LLMatrix3 llmat_obj;
 
         LLVector3 llvec1(3, 2, 1);
@@ -317,7 +306,7 @@ namespace tut
         llmat_obj.setRows(llvec1, llvec2, llvec3);
         llmat_obj.adjointTranspose();
 
-        ensure("LLMatrix3::adjointTranspose failed ", 10 == llmat_obj.mMatrix[0][0] &&
+        CHECK_MESSAGE(10 == llmat_obj.mMatrix[0][0] &&
                         -45 == llmat_obj.mMatrix[1][0] &&
                         30 == llmat_obj.mMatrix[2][0] &&
                         -10 == llmat_obj.mMatrix[0][1] &&
@@ -325,8 +314,9 @@ namespace tut
                         -12 == llmat_obj.mMatrix[2][1] &&
                         0  == llmat_obj.mMatrix[0][2] &&
                         3 == llmat_obj.mMatrix[1][2] &&
-                        -6 == llmat_obj.mMatrix[2][2]);
-    }
-
-    /* TBD: Need to add test cases for getEulerAngles() and setRot() functions */
+                        -6 == llmat_obj.mMatrix[2][2], "LLMatrix3::adjointTranspose failed ");
+    
 }
+
+} // TEST_SUITE
+

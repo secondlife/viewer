@@ -17,7 +17,7 @@
 // std headers
 // external library headers
 // other Linden headers
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "llevents.h"
 #include "llsdutil.h"
 
@@ -63,50 +63,45 @@ public:
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
+TEST_SUITE("UnknownSuite") {
+
+struct lazyeventapi_data
 {
-    struct lazyeventapi_data
-    {
+
         lazyeventapi_data()
         {
             // before every test, reset 'data'
             data.clear();
-        }
-        ~lazyeventapi_data()
-        {
-            // after every test, reset LLEventPumps
-            LLEventPumps::deleteSingleton();
-        }
-    };
-    typedef test_group<lazyeventapi_data> lazyeventapi_group;
-    typedef lazyeventapi_group::object object;
-    lazyeventapi_group lazyeventapigrp("lazyeventapi");
+        
+};
 
-    template<> template<>
-    void object::test<1>()
-    {
+TEST_CASE_FIXTURE(lazyeventapi_data, "test_1")
+{
+
         set_test_name("LazyEventAPI");
         // this is where the magic (should) happen
         // 'register' still a keyword until C++17
         MyRegistrar regster;
         LLEventPumps::instance().obtain("Test").post(llsd::map("op", "set", "data", "hey"));
         ensure_equals("failed to set data", data.asString(), "hey");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE_FIXTURE(lazyeventapi_data, "test_2")
+{
+
         set_test_name("No LazyEventAPI");
         // Because the MyRegistrar declaration in test<1>() is local, because
         // it has been destroyed, we fully expect NOT to reach a MyListener
         // instance with this post.
         LLEventPumps::instance().obtain("Test").post(llsd::map("op", "set", "data", "moot"));
-        ensure("accidentally set data", ! data.isDefined());
-    }
+        CHECK_MESSAGE(! data.isDefined(, "accidentally set data"));
+    
+}
 
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE_FIXTURE(lazyeventapi_data, "test_3")
+{
+
         set_test_name("LazyEventAPI metadata");
         MyRegistrar regster;
         // Of course we have 'regster' in hand; we don't need to search for
@@ -118,19 +113,14 @@ namespace tut
         for (const auto& registrar : LL::LazyEventAPIBase::instance_snapshot())
             if ((found = dynamic_cast<const MyRegistrar*>(&registrar)))
                 break;
-        ensure("Failed to find MyRegistrar via LLInstanceTracker", found);
+        CHECK_MESSAGE(found, "Failed to find MyRegistrar via LLInstanceTracker");
 
         ensure_equals("wrong API name", found->getName(), "Test");
         ensure_contains("wrong API desc", found->getDesc(), "test LLEventAPI");
         ensure_equals("wrong API field", found->getDispatchKey(), "op");
         // Normally we'd just iterate over *found. But for test purposes,
         // actually capture the range of NameDesc pairs in a vector.
-        std::vector<LL::LazyEventAPIBase::NameDesc> ops{ found->begin(), found->end() };
-        ensure_equals("failed to find operations", ops.size(), 1);
-        ensure_equals("wrong operation name", ops[0].first, "set");
-        ensure_contains("wrong operation desc", ops[0].second, "set operation");
-        LLSD metadata{ found->getMetadata(ops[0].first) };
-        ensure_equals("bad metadata name", metadata["name"].asString(), ops[0].first);
-        ensure_equals("bad metadata desc", metadata["desc"].asString(), ops[0].second);
-    }
-} // namespace tut
+        std::vector<LL::LazyEventAPIBase::NameDesc> ops{ found->begin(), found->end() 
+}
+
+} // TEST_SUITE

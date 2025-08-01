@@ -31,7 +31,7 @@
 #include "../llstring.h"
 #include "../lldate.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 
 #define VALID_DATE                                  "2003-04-30T04:00:00Z"
@@ -63,20 +63,11 @@
 //#define INVALID_DATE_MONTH                            "2003-13-30T22:59:59Z"
 //#define INVALID_DATE_DAY                          "2003-04-35T22:59:59Z"
 
-namespace tut
+TEST_SUITE("LLDate") {
+
+TEST_CASE("test_1")
 {
-    struct date_test
-    {
 
-    };
-    typedef test_group<date_test> date_test_t;
-    typedef date_test_t::object date_test_object_t;
-    tut::date_test_t tut_date_test("LLDate");
-
-    /* format validation */
-    template<> template<>
-    void date_test_object_t::test<1>()
-    {
         LLDate date(VALID_DATE);
         std::string  expected_string;
         bool result;
@@ -121,12 +112,12 @@ namespace tut
 
         result = date.fromString(INVALID_DATE_EMPTY);
         ensure_equals("INVALID_DATE_EMPTY should have failed" , result, false);
-    }
+    
+}
 
-    /* Invalid Value Handling */
-    template<> template<>
-    void date_test_object_t::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
 #if LL_DATE_PARSER_CHECKS_BOUNDARY
         LLDate date;
         std::string  expected_string;
@@ -157,49 +148,53 @@ namespace tut
         result = date.fromString(INVALID_DATE_DAY);
         ensure_equals("INVALID_DATE_DAY should have failed" , result, false);
 #endif
-    }
+    
+}
 
-    /* API checks */
-    template<> template<>
-    void date_test_object_t::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         LLDate date;
         std::istringstream stream(VALID_DATE);
         std::string  expected_string = VALID_DATE;
         date.fromStream(stream);
         ensure_equals("fromStream failed", date.asString(), expected_string);
-    }
+    
+}
 
-    template<> template<>
-    void date_test_object_t::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         LLDate date1(VALID_DATE);
         LLDate date2(date1);
         ensure_equals("LLDate(const LLDate& date) constructor failed", date1.asString(), date2.asString());
-    }
+    
+}
 
-    template<> template<>
-    void date_test_object_t::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         LLDate date1(VALID_DATE);
         LLDate date2(date1.secondsSinceEpoch());
         ensure_equals("secondsSinceEpoch not equal",date1.secondsSinceEpoch(), date2.secondsSinceEpoch());
         ensure_equals("LLDate created using secondsSinceEpoch not equal", date1.asString(), date2.asString());
-    }
+    
+}
 
-    template<> template<>
-    void date_test_object_t::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         LLDate date(VALID_DATE);
         std::ostringstream stream;
         stream << date;
         std::string expected_str = VALID_DATE;
-        ensure_equals("ostringstream failed", expected_str, stream.str());
-    }
+        CHECK_MESSAGE(expected_str == stream.str(, "ostringstream failed"));
+    
+}
 
-    template<> template<>
-    void date_test_object_t::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         LLDate date;
         std::istringstream stream(VALID_DATE);
         stream >> date;
@@ -209,5 +204,8 @@ namespace tut
 
         ensure_equals("<< failed", date.asString(),expected_str);
         ensure_equals("<< to >> failed", stream.str(),out_stream.str());
-    }
+    
 }
+
+} // TEST_SUITE
+

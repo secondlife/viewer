@@ -28,7 +28,7 @@
 #include "../llviewerprecompiledheaders.h"
 
 #include <iostream>
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -223,10 +223,11 @@ static void pump_timers()
     LLEventTimer::updateClass();
 }
 
-namespace tut
+TEST_SUITE("LLMediaDataClient") {
+
+struct mediadataclient
 {
-    struct mediadataclient
-    {
+
         mediadataclient() {
             gPostRecords = &mLLSD;
             gMinimumInterestLevel = (F64)0.0;
@@ -234,57 +235,12 @@ namespace tut
 //          LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 //          LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
 //          LLError::setTagLevel("MediaOnAPrim", LLError::LEVEL_DEBUG);
-        }
-        LLSD mLLSD;
-    };
+        
+};
 
-    typedef test_group<mediadataclient> mediadataclient_t;
-    typedef mediadataclient_t::object mediadataclient_object_t;
-    tut::mediadataclient_t tut_mediadataclient("LLMediaDataClient");
+TEST_CASE_FIXTURE(mediadataclient, "test_1")
+{
 
-    void ensure(const std::string &msg, int value, int expected)
-    {
-        std::string m = msg;
-        m += " value: " + STR(value);
-        m += ", expected: " + STR(expected);
-        ensure(m, value == expected);
-    }
-
-    void ensure(const std::string &msg, const std::string & value, const std::string & expected)
-    {
-        std::string m = msg;
-        m += " value: " + value;
-        m += ", expected: " + expected;
-        ensure(m, value == expected);
-    }
-
-    void ensure(const std::string &msg, const LLUUID & value, const LLUUID & expected)
-    {
-        std::string m = msg;
-        m += " value: " + value.asString();
-        m += ", expected: " + expected.asString();
-        ensure(m, value == expected);
-    }
-
-    void ensure_llsd(const std::string &msg, const LLSD & value, const char *expected)
-    {
-        LLSD expected_llsd;
-        std::istringstream e(expected);
-        LLSDSerialize::fromXML(expected_llsd, e);
-
-        std::string value_str = ll_pretty_print_sd(value);
-        std::string expected_str = ll_pretty_print_sd(expected_llsd);
-        std::string m = msg;
-        m += " value: " + value_str;
-        m += ", expected: " + expected_str;
-        ensure(m, value_str == expected_str);
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    template<> template<>
-    void mediadataclient_object_t::test<1>()
-    {
         //
         // Test fetchMedia()
         //
@@ -297,26 +253,21 @@ namespace tut
             mdc->fetchMedia(o);
 
             // Make sure no posts happened yet...
-            ensure("post records", gPostRecords->size(), 0);
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 0);
 
             ::pump_timers();
 
-            ensure("post records", gPostRecords->size(), 1);
-            ensure("post url", (*gPostRecords)[0]["url"], FAKE_OBJECT_MEDIA_CAP_URL);
-            ensure("post GET", (*gPostRecords)[0]["body"]["verb"], "GET");
-            ensure("post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
-            ensure("queue empty", mdc->isEmpty());
-        }
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 1);
+            CHECK_MESSAGE((*gPostRecords, "post url")[0]["url"], FAKE_OBJECT_MEDIA_CAP_URL);
+            CHECK_MESSAGE((*gPostRecords, "post GET")[0]["body"]["verb"], "GET");
+            CHECK_MESSAGE((*gPostRecords, "post object id")[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
-        // Make sure everyone's destroyed properly
-        ensure("REF COUNT", o->getNumRefs(), num_refs_start);
-    }
+TEST_CASE_FIXTURE(mediadataclient, "test_2")
+{
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    template<> template<>
-    void mediadataclient_object_t::test<2>()
-    {
         //
         // Test updateMedia()
         //
@@ -327,26 +278,22 @@ namespace tut
             // queue time w/ no delay ensures that ::pump_timers() will hit the tick()
             LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
             mdc->updateMedia(o);
-            ensure("post records", gPostRecords->size(), 0);
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 0);
             ::pump_timers();
 
-            ensure("post records", gPostRecords->size(), 1);
-            ensure("post url", (*gPostRecords)[0]["url"], FAKE_OBJECT_MEDIA_CAP_URL);
-            ensure("post UPDATE", (*gPostRecords)[0]["body"]["verb"], "UPDATE");
-            ensure("post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 1);
+            CHECK_MESSAGE((*gPostRecords, "post url")[0]["url"], FAKE_OBJECT_MEDIA_CAP_URL);
+            CHECK_MESSAGE((*gPostRecords, "post UPDATE")[0]["body"]["verb"], "UPDATE");
+            CHECK_MESSAGE((*gPostRecords, "post object id")[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
             ensure_llsd("post data llsd", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_MEDIA_DATA_KEY],
                         "<llsd>" MEDIA_DATA "</llsd>");
-            ensure("queue empty", mdc->isEmpty());
-        }
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
-        ensure("REF COUNT", o->getNumRefs(), 1);
-    }
+TEST_CASE_FIXTURE(mediadataclient, "test_3")
+{
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    template<> template<>
-    void mediadataclient_object_t::test<3>()
-    {
         //
         // Test navigate()
         //
@@ -357,27 +304,24 @@ namespace tut
             LLPointer<LLObjectMediaNavigateClient> mdc = new LLObjectMediaNavigateClient(NO_PERIOD,NO_PERIOD);
             const char *TEST_URL = "http://example.com";
             mdc->navigate(o, 0, TEST_URL);
-            ensure("post records", gPostRecords->size(), 0);
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 0);
             ::pump_timers();
 
             // ensure no bounce back
-            ensure("bounce back", dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o))->getNumBounceBacks(), 0);
+            CHECK_MESSAGE(dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o, "bounce back"))->getNumBounceBacks(), 0);
 
-            ensure("post records", gPostRecords->size(), 1);
-            ensure("post url", (*gPostRecords)[0]["url"], FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL);
-            ensure("post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
-            ensure("post data", (*gPostRecords)[0]["body"][LLTextureEntry::TEXTURE_INDEX_KEY], 0);
-            ensure("post data", (*gPostRecords)[0]["body"][LLMediaEntry::CURRENT_URL_KEY], TEST_URL);
-            ensure("queue empty", mdc->isEmpty());
-        }
-        ensure("REF COUNT", o->getNumRefs(), 1);
-    }
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 1);
+            CHECK_MESSAGE((*gPostRecords, "post url")[0]["url"], FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL);
+            CHECK_MESSAGE((*gPostRecords, "post object id")[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
+            CHECK_MESSAGE((*gPostRecords, "post data")[0]["body"][LLTextureEntry::TEXTURE_INDEX_KEY], 0);
+            CHECK_MESSAGE((*gPostRecords, "post data")[0]["body"][LLMediaEntry::CURRENT_URL_KEY], TEST_URL);
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
-    //////////////////////////////////////////////////////////////////////////////////////////
+TEST_CASE_FIXTURE(mediadataclient, "test_4")
+{
 
-    template<> template<>
-    void mediadataclient_object_t::test<4>()
-    {
         //
         // Test queue ordering
         //
@@ -391,42 +335,12 @@ namespace tut
             _DATA(VALID_OBJECT_ID_3,"2.0","true"));
         {
             LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
-            const char *ORDERED_OBJECT_IDS[] = { VALID_OBJECT_ID_2, VALID_OBJECT_ID_3, VALID_OBJECT_ID_1 };
-            mdc->fetchMedia(o1);
-            mdc->fetchMedia(o2);
-            mdc->fetchMedia(o3);
+            const char *ORDERED_OBJECT_IDS[] = { VALID_OBJECT_ID_2, VALID_OBJECT_ID_3, VALID_OBJECT_ID_1 
+}
 
-            // Make sure no posts happened yet...
-            ensure("post records", gPostRecords->size(), 0);
+TEST_CASE_FIXTURE(mediadataclient, "test_5")
+{
 
-            // tick 3 times...
-            ::pump_timers();
-            ensure("post records", gPostRecords->size(), 1);
-            ::pump_timers();
-            ensure("post records", gPostRecords->size(), 2);
-            ::pump_timers();
-            ensure("post records", gPostRecords->size(), 3);
-
-            for( int i=0; i < 3; i++ )
-            {
-                ensure("[" + STR(i) + "] post url", (*gPostRecords)[i]["url"], FAKE_OBJECT_MEDIA_CAP_URL);
-                ensure("[" + STR(i) + "] post GET", (*gPostRecords)[i]["body"]["verb"], "GET");
-                ensure("[" + STR(i) + "] post object id", (*gPostRecords)[i]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(),
-                       LLUUID(ORDERED_OBJECT_IDS[i]));
-            }
-
-            ensure("queue empty", mdc->isEmpty());
-        }
-        ensure("refcount of o1", o1->getNumRefs(), 1);
-        ensure("refcount of o2", o2->getNumRefs(), 1);
-        ensure("refcount of o3", o3->getNumRefs(), 1);
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    template<> template<>
-    void mediadataclient_object_t::test<5>()
-    {
         //
         // Test fetchMedia() getting a 503 error
         //
@@ -446,7 +360,7 @@ namespace tut
             mdc->fetchMedia(o);
 
             // Make sure no posts happened yet...
-            ensure("post records before", gPostRecords->size(), 0);
+            CHECK_MESSAGE(gPostRecords->size(, "post records before"), 0);
 
             // Once, causes retry
             // Second, fires retry timer
@@ -457,31 +371,12 @@ namespace tut
                 // XXX This ensure is not guaranteed, because scheduling a timer might actually get it pumped in the same loop
                 //ensure("post records " + STR(i), gPostRecords->size(), i+1);
                 ::pump_timers();  // Should pump (fire) the retry timer, scheduling the queue timer
-            }
+            
+}
 
-            // Do some extra pumps to make sure no other timer work occurs.
-            ::pump_timers();
-            ::pump_timers();
-            ::pump_timers();
+TEST_CASE_FIXTURE(mediadataclient, "test_6")
+{
 
-            // Make sure there were 2 posts
-            ensure("post records after", gPostRecords->size(), NUM_RETRIES);
-            for (int i=0; i<NUM_RETRIES; ++i)
-            {
-                ensure("[" + STR(i) + "] post url", (*gPostRecords)[i]["url"], FAKE_OBJECT_MEDIA_CAP_URL_503);
-                ensure("[" + STR(i) + "] post GET", (*gPostRecords)[i]["body"]["verb"], "GET");
-                ensure("[" + STR(i) + "] post object id", (*gPostRecords)[i]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
-            }
-            ensure("queue empty", mdc->isEmpty());
-        }
-
-        // Make sure everyone's destroyed properly
-        ensure("REF COUNT", o->getNumRefs(), num_refs_start);
-    }
-
-    template<> template<>
-    void mediadataclient_object_t::test<6>()
-    {
         //
         // Test navigate() with a bounce back
         //
@@ -496,27 +391,25 @@ namespace tut
             LLPointer<LLObjectMediaNavigateClient> mdc = new LLObjectMediaNavigateClient(NO_PERIOD,NO_PERIOD);
             const char *TEST_URL = "http://example.com";
             mdc->navigate(o, 0, TEST_URL);
-            ensure("post records", gPostRecords->size(), 0);
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 0);
             ::pump_timers();
 
             // ensure bounce back
-            ensure("bounce back",
-                   dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o))->getNumBounceBacks(),
+            CHECK_MESSAGE(dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o, "bounce back"))->getNumBounceBacks(),
                    1);
 
-            ensure("post records", gPostRecords->size(), 1);
-            ensure("post url", (*gPostRecords)[0]["url"], FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL_ERROR);
-            ensure("post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
-            ensure("post data", (*gPostRecords)[0]["body"][LLTextureEntry::TEXTURE_INDEX_KEY], 0);
-            ensure("post data", (*gPostRecords)[0]["body"][LLMediaEntry::CURRENT_URL_KEY], TEST_URL);
-            ensure("queue empty", mdc->isEmpty());
-        }
-        ensure("REF COUNT", o->getNumRefs(), 1);
-    }
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 1);
+            CHECK_MESSAGE((*gPostRecords, "post url")[0]["url"], FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL_ERROR);
+            CHECK_MESSAGE((*gPostRecords, "post object id")[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID));
+            CHECK_MESSAGE((*gPostRecords, "post data")[0]["body"][LLTextureEntry::TEXTURE_INDEX_KEY], 0);
+            CHECK_MESSAGE((*gPostRecords, "post data")[0]["body"][LLMediaEntry::CURRENT_URL_KEY], TEST_URL);
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
-    template<> template<>
-    void mediadataclient_object_t::test<7>()
-    {
+TEST_CASE_FIXTURE(mediadataclient, "test_7")
+{
+
         // Test LLMediaDataClient::isInQueue()
         LOG_TEST(7);
 
@@ -528,30 +421,26 @@ namespace tut
         {
             LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
 
-            ensure("not in queue yet 1", ! mdc->isInQueue(o1));
-            ensure("not in queue yet 2", ! mdc->isInQueue(o2));
+            CHECK_MESSAGE(! mdc->isInQueue(o1, "not in queue yet 1"));
+            CHECK_MESSAGE(! mdc->isInQueue(o2, "not in queue yet 2"));
 
             mdc->fetchMedia(o1);
 
-            ensure("is in queue", mdc->isInQueue(o1));
-            ensure("is not in queue", ! mdc->isInQueue(o2));
+            CHECK_MESSAGE(mdc->isInQueue(o1, "is in queue"));
+            CHECK_MESSAGE(! mdc->isInQueue(o2, "is not in queue"));
 
             ::pump_timers();
 
-            ensure("not in queue anymore", ! mdc->isInQueue(o1));
-            ensure("still is not in queue", ! mdc->isInQueue(o2));
+            CHECK_MESSAGE(! mdc->isInQueue(o1, "not in queue anymore"));
+            CHECK_MESSAGE(! mdc->isInQueue(o2, "still is not in queue"));
 
-            ensure("queue empty", mdc->isEmpty());
-        }
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
-        // Make sure everyone's destroyed properly
-        ensure("REF COUNT", o1->getNumRefs(), num_refs_start);
+TEST_CASE_FIXTURE(mediadataclient, "test_8")
+{
 
-    }
-
-    template<> template<>
-    void mediadataclient_object_t::test<8>()
-    {
         // Test queue handling of objects that are marked dead.
         LOG_TEST(8);
 
@@ -568,11 +457,11 @@ namespace tut
             mdc->fetchMedia(o3);
             mdc->fetchMedia(o4);
 
-            ensure("is in queue 1", mdc->isInQueue(o1));
-            ensure("is in queue 2", mdc->isInQueue(o2));
-            ensure("is in queue 3", mdc->isInQueue(o3));
-            ensure("is in queue 4", mdc->isInQueue(o4));
-            ensure("post records", gPostRecords->size(), 0);
+            CHECK_MESSAGE(mdc->isInQueue(o1, "is in queue 1"));
+            CHECK_MESSAGE(mdc->isInQueue(o2, "is in queue 2"));
+            CHECK_MESSAGE(mdc->isInQueue(o3, "is in queue 3"));
+            CHECK_MESSAGE(mdc->isInQueue(o4, "is in queue 4"));
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 0);
 
             // and mark the second and fourth ones dead.  Call removeFromQueue when marking dead, since this is what LLVOVolume will do.
             dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o2))->markDead();
@@ -581,41 +470,34 @@ namespace tut
             mdc->removeFromQueue(o4);
 
             // The removeFromQueue calls should remove the second and fourth ones
-            ensure("is in queue 1", mdc->isInQueue(o1));
-            ensure("is not in queue 2", !mdc->isInQueue(o2));
-            ensure("is in queue 3", mdc->isInQueue(o3));
-            ensure("is not in queue 4", !mdc->isInQueue(o4));
-            ensure("post records", gPostRecords->size(), 0);
+            CHECK_MESSAGE(mdc->isInQueue(o1, "is in queue 1"));
+            CHECK_MESSAGE(!mdc->isInQueue(o2, "is not in queue 2"));
+            CHECK_MESSAGE(mdc->isInQueue(o3, "is in queue 3"));
+            CHECK_MESSAGE(!mdc->isInQueue(o4, "is not in queue 4"));
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 0);
 
             ::pump_timers();
 
             // The first tick should process the first item
-            ensure("is not in queue 1", !mdc->isInQueue(o1));
-            ensure("is not in queue 2", !mdc->isInQueue(o2));
-            ensure("is in queue 3", mdc->isInQueue(o3));
-            ensure("is not in queue 4", !mdc->isInQueue(o4));
-            ensure("post records", gPostRecords->size(), 1);
+            CHECK_MESSAGE(!mdc->isInQueue(o1, "is not in queue 1"));
+            CHECK_MESSAGE(!mdc->isInQueue(o2, "is not in queue 2"));
+            CHECK_MESSAGE(mdc->isInQueue(o3, "is in queue 3"));
+            CHECK_MESSAGE(!mdc->isInQueue(o4, "is not in queue 4"));
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 1);
 
             ::pump_timers();
 
             // The second tick should process the third, emptying the queue
-            ensure("is not in queue 3", !mdc->isInQueue(o3));
-            ensure("post records", gPostRecords->size(), 2);
+            CHECK_MESSAGE(!mdc->isInQueue(o3, "is not in queue 3"));
+            CHECK_MESSAGE(gPostRecords->size(, "post records"), 2);
 
-            ensure("queue empty", mdc->isEmpty());
-        }
-        ensure("refcount of o1", o1->getNumRefs(), 1);
-        ensure("refcount of o2", o2->getNumRefs(), 1);
-        ensure("refcount of o3", o3->getNumRefs(), 1);
-        ensure("refcount of o4", o4->getNumRefs(), 1);
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
-    }
+TEST_CASE_FIXTURE(mediadataclient, "test_9")
+{
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-
-    template<> template<>
-    void mediadataclient_object_t::test<9>()
-    {
         //
         // Test queue re-ordering
         //
@@ -683,18 +565,13 @@ namespace tut
             ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
             ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
 
-            ensure("queue empty", mdc->isEmpty());
-        }
-        ensure("refcount of o1", o1->getNumRefs(), 1);
-        ensure("refcount of o2", o2->getNumRefs(), 1);
-        ensure("refcount of o3", o3->getNumRefs(), 1);
-        ensure("refcount of o4", o4->getNumRefs(), 1);
-    }
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
+TEST_CASE_FIXTURE(mediadataclient, "test_10")
+{
 
-    template<> template<>
-    void mediadataclient_object_t::test<10>()
-    {
         //
         // Test using the "round-robin" queue
         //
@@ -782,18 +659,13 @@ namespace tut
             ::pump_timers();
 
             // Whew....better be empty
-            ensure("queue empty", mdc->isEmpty());
-        }
-        ensure("refcount of o1", o1->getNumRefs(), 1);
-        ensure("refcount of o2", o2->getNumRefs(), 1);
-        ensure("refcount of o3", o3->getNumRefs(), 1);
-        ensure("refcount of o4", o4->getNumRefs(), 1);
-    }
+            CHECK_MESSAGE(mdc->isEmpty(, "queue empty"));
+        
+}
 
+TEST_CASE_FIXTURE(mediadataclient, "test_11")
+{
 
-    template<> template<>
-    void mediadataclient_object_t::test<11>()
-    {
         //
         // Test LLMediaDataClient's destructor
         //
@@ -806,14 +678,12 @@ namespace tut
             mdc->fetchMedia(o);
             // must tick enough times to clear refcount of mdc
             ::pump_timers();
-        }
-        // Make sure everyone's destroyed properly
-        ensure("REF COUNT", o->getNumRefs(), num_refs_start);
-    }
+        
+}
 
-    template<> template<>
-    void mediadataclient_object_t::test<12>()
-    {
+TEST_CASE_FIXTURE(mediadataclient, "test_12")
+{
+
         //
         // Test the "not interesting enough" call
         //
@@ -920,23 +790,19 @@ namespace tut
             ++tick_num;
 
             // Whew....better NOT be empty ... o2 should still be there
-            ensure("queue not empty", !mdc->isEmpty());
+            CHECK_MESSAGE(!mdc->isEmpty(, "queue not empty"));
 
             // But, we need to clear the queue, or else we won't destroy MDC...
             // this is a strange interplay between the queue timer and the MDC
             mdc->removeFromQueue(o2);
             // tick
             ::pump_timers();
-        }
-        ensure("refcount of o1", o1->getNumRefs(), 1);
-        ensure("refcount of o2", o2->getNumRefs(), 1);
-        ensure("refcount of o3", o3->getNumRefs(), 1);
-        ensure("refcount of o4", o4->getNumRefs(), 1);
-    }
+        
+}
 
-    template<> template<>
-    void mediadataclient_object_t::test<13>()
-    {
+TEST_CASE_FIXTURE(mediadataclient, "test_13")
+{
+
         //
         // Test supression of redundant navigates.
         //
@@ -954,20 +820,21 @@ namespace tut
 
             // This should add two requests to the queue, one for face 0 of the object and one for face 1.
 
-            ensure("before pump: 1 is in queue", mdc->isInQueue(o1));
+            CHECK_MESSAGE(mdc->isInQueue(o1, "before pump: 1 is in queue"));
 
             ::pump_timers();
 
-            ensure("after first pump: 1 is in queue", mdc->isInQueue(o1));
+            CHECK_MESSAGE(mdc->isInQueue(o1, "after first pump: 1 is in queue"));
 
             ::pump_timers();
 
-            ensure("after second pump: 1 is not in queue", !mdc->isInQueue(o1));
+            CHECK_MESSAGE(!mdc->isInQueue(o1, "after second pump: 1 is not in queue"));
 
-            ensure("first post has correct url", (*gPostRecords)[0]["body"][LLMediaEntry::CURRENT_URL_KEY].asString(), std::string(TEST_URL_2));
-            ensure("second post has correct url", (*gPostRecords)[1]["body"][LLMediaEntry::CURRENT_URL_KEY].asString(), std::string(TEST_URL_2));
+            CHECK_MESSAGE((*gPostRecords, "first post has correct url")[0]["body"][LLMediaEntry::CURRENT_URL_KEY].asString(), std::string(TEST_URL_2));
+            CHECK_MESSAGE((*gPostRecords, "second post has correct url")[1]["body"][LLMediaEntry::CURRENT_URL_KEY].asString(), std::string(TEST_URL_2));
 
-        }
-    }
-
+        
 }
+
+} // TEST_SUITE
+

@@ -29,7 +29,7 @@
 
 #include "../llurlmatch.h"
 #include "../llrender/lluiimage.h"
-#include "lltut.h"
+#include "../test/lldoctest.h"
 
 // link seams
 
@@ -125,39 +125,25 @@ LLFontGL* LLFontGL::getFontDefault()
 }
 
 
-namespace tut
-{
-    struct LLUrlMatchData
-    {
-    };
+TEST_SUITE("LLUrlMatch") {
 
-    typedef test_group<LLUrlMatchData> factory;
-    typedef factory::object object;
-}
-
-namespace
+TEST_CASE("test_1")
 {
-    tut::factory tf("LLUrlMatch");
-}
 
-namespace tut
-{
-    template<> template<>
-    void object::test<1>()
-    {
         //
         // test the empty() method
         //
         LLUrlMatch match;
-        ensure("empty()", match.empty());
+        CHECK_MESSAGE(match.empty(, "empty()"));
 
         match.setValues(0, 1, "http://secondlife.com", "", "Second Life", "", "", LLStyle::Params(), "", "", LLUUID::null);
-        ensure("! empty()", ! match.empty());
-    }
+        CHECK_MESSAGE(! match.empty(, "! empty()"));
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         //
         // test the getStart() method
         //
@@ -166,11 +152,12 @@ namespace tut
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
         ensure_equals("getStart() == 10", match.getStart(), 10);
-    }
+    
+}
 
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         //
         // test the getEnd() method
         //
@@ -179,11 +166,12 @@ namespace tut
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
         ensure_equals("getEnd() == 20", match.getEnd(), 20);
-    }
+    
+}
 
-    template<> template<>
-    void object::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         //
         // test the getUrl() method
         //
@@ -195,11 +183,12 @@ namespace tut
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
         ensure_equals("getUrl() == '' (2)", match.getUrl(), "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         //
         // test the getLabel() method
         //
@@ -211,11 +200,12 @@ namespace tut
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
         ensure_equals("getLabel() == '' (2)", match.getLabel(), "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         //
         // test the getTooltip() method
         //
@@ -227,11 +217,12 @@ namespace tut
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
         ensure_equals("getTooltip() == '' (2)", match.getTooltip(), "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         //
         // test the getIcon() method
         //
@@ -243,37 +234,42 @@ namespace tut
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
         ensure_equals("getIcon() == '' (2)", match.getIcon(), "");
-    }
+    
+}
 
-    template<> template<>
-    void object::test<8>()
-    {
+TEST_CASE("test_8")
+{
+
         //
         // test the getMenuName() method
         //
         LLUrlMatch match;
-        ensure("getMenuName() empty", match.getMenuName().empty());
+        CHECK_MESSAGE(match.getMenuName(, "getMenuName() empty").empty());
 
         match.setValues(10, 20, "", "", "", "", "Icon", LLStyle::Params(), "xui_file.xml", "", LLUUID::null);
         ensure_equals("getMenuName() == \"xui_file.xml\"", match.getMenuName(), "xui_file.xml");
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
-        ensure("getMenuName() empty (2)", match.getMenuName().empty());
-    }
+        CHECK_MESSAGE(match.getMenuName(, "getMenuName() empty (2)").empty());
+    
+}
 
-    template<> template<>
-    void object::test<9>()
-    {
+TEST_CASE("test_9")
+{
+
         //
         // test the getLocation() method
         //
         LLUrlMatch match;
-        ensure("getLocation() empty", match.getLocation().empty());
+        CHECK_MESSAGE(match.getLocation(, "getLocation() empty").empty());
 
         match.setValues(10, 20, "", "", "", "", "Icon", LLStyle::Params(), "xui_file.xml", "Paris", LLUUID::null);
         ensure_equals("getLocation() == \"Paris\"", match.getLocation(), "Paris");
 
         match.setValues(10, 20, "", "", "", "", "", LLStyle::Params(), "", "", LLUUID::null);
-        ensure("getLocation() empty (2)", match.getLocation().empty());
-    }
+        CHECK_MESSAGE(match.getLocation(, "getLocation() empty (2)").empty());
+    
 }
+
+} // TEST_SUITE
+

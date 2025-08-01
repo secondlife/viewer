@@ -42,7 +42,7 @@
 // other Linden headers
 #include "../../../test/debug.h"
 #include "../../../test/lltestapp.h"
-#include "../../../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "llevents.h"
 #include "lleventcoro.h"
 #include "llsd.h"
@@ -200,28 +200,19 @@ public:
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
+TEST_SUITE("UnknownSuite") {
+
+struct llviewerlogin_data
 {
-    struct llviewerlogin_data
-    {
+
         llviewerlogin_data() :
             pumps(LLEventPumps::instance())
-        {}
-        ~llviewerlogin_data()
         {
-            pumps.clear();
-        }
-        LLEventPumps& pumps;
-        LLTestApp testApp;
-    };
+};
 
-    typedef test_group<llviewerlogin_data> llviewerlogin_group;
-    typedef llviewerlogin_group::object llviewerlogin_object;
-    llviewerlogin_group llviewerlogingrp("LLViewerLogin");
+TEST_CASE_FIXTURE(llviewerlogin_data, "test_1")
+{
 
-    template<> template<>
-    void llviewerlogin_object::test<1>()
-    {
         DEBUG;
         // Testing login with an immediate response from XMLPRC
         // The response will come before the post request exits.
@@ -247,12 +238,12 @@ namespace tut
         login.connect("login.bar.com", credentials);
         listener.waitFor(
             "online state",
-            [&listener]()->bool{ return listener.lastEvent()["state"].asString() == "online"; });
-    }
+            [&listener]()->bool{ return listener.lastEvent()["state"].asString() == "online"; 
+}
 
-    template<> template<>
-    void llviewerlogin_object::test<2>()
-    {
+TEST_CASE_FIXTURE(llviewerlogin_data, "test_2")
+{
+
         DEBUG;
         // Test completed response, that fails to login.
         set_test_name("LLLogin valid response, failure (eg. bad credentials)");
@@ -294,11 +285,12 @@ namespace tut
         listener.waitFor(prev, 11.0);
 
         ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
-    }
+    
+}
 
-    template<> template<>
-    void llviewerlogin_object::test<3>()
-    {
+TEST_CASE_FIXTURE(llviewerlogin_data, "test_3")
+{
+
         DEBUG;
         // Test incomplete response, that end the attempt.
         set_test_name("LLLogin valid response, failure (eg. bad credentials)");
@@ -339,5 +331,8 @@ namespace tut
         listener.waitFor(prev, 11.0);
 
         ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
-    }
+    
 }
+
+} // TEST_SUITE
+

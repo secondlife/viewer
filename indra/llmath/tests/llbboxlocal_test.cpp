@@ -27,29 +27,14 @@
  */
 
 #include "linden_common.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "../llbboxlocal.h"
 
-namespace tut
-{
-    struct LLBBoxLocalData
-    {
-    };
+TEST_SUITE("LLBBoxLocal") {
 
-    typedef test_group<LLBBoxLocalData> factory;
-    typedef factory::object object;
-}
-
-namespace
+TEST_CASE("test_1")
 {
-    tut::factory llbboxlocal_test_factory("LLBBoxLocal");
-}
 
-namespace tut
-{
-    template<> template<>
-    void object::test<1>()
-    {
         //
         // test the default constructor
         //
@@ -58,11 +43,12 @@ namespace tut
 
         ensure_equals("Default bbox min", bbox1.getMin(), LLVector3(0.0f, 0.0f, 0.0f));
         ensure_equals("Default bbox max", bbox1.getMax(), LLVector3(0.0f, 0.0f, 0.0f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         //
         // test the non-default constructor
         //
@@ -71,11 +57,12 @@ namespace tut
 
         ensure_equals("Custom bbox min", bbox2.getMin(), LLVector3(-1.0f, -2.0f, 0.0f));
         ensure_equals("Custom bbox max", bbox2.getMax(), LLVector3(1.0f, 2.0f, 3.0f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         //
         // test the setMin()
         //
@@ -87,11 +74,12 @@ namespace tut
         bbox2.setMin(LLVector3(1.0f, 2.0f, 3.0f));
 
         ensure_equals("Custom bbox min (2)", bbox2.getMin(), LLVector3(1.0f, 2.0f, 3.0f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         //
         // test the setMax()
         //
@@ -103,11 +91,12 @@ namespace tut
         bbox2.setMax(LLVector3(10.0f, 20.0f, 30.0f));
 
         ensure_equals("Custom bbox max (2)", bbox2.getMax(), LLVector3(10.0f, 20.0f, 30.0f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<5>()
-    {
+TEST_CASE("test_5")
+{
+
         //
         // test the getCenter() method
         //
@@ -121,11 +110,12 @@ namespace tut
         LLBBoxLocal bbox2(LLVector3(0.0f, 0.0f, 0.0f), LLVector3(-1.0f, -1.0f, -1.0f));
 
         ensure_equals("Invalid bbox center", bbox2.getCenter(), LLVector3(-0.5f, -0.5f, -0.5f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         //
         // test the getExtent() method
         //
@@ -137,11 +127,12 @@ namespace tut
         LLBBoxLocal bbox3(LLVector3(-1.0f, -1.0f, -1.0f), LLVector3(1.0f, 2.0f, 0.0f));
 
         ensure_equals("Custom bbox extent", bbox3.getExtent(), LLVector3(2.0f, 3.0f, 1.0f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         //
         // test the addPoint() method
         //
@@ -171,11 +162,12 @@ namespace tut
         ensure_equals("Custom BBox center (3)", bbox1.getCenter(), LLVector3(2.0f, 1.5f, 1.0f));
         ensure_equals("Custom BBox min (3)", bbox1.getMin(), LLVector3(-1.0f, -2.0f, -3.0f));
         ensure_equals("Custom BBox max (3)", bbox1.getMax(), LLVector3(5.0f, 5.0f, 5.0f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<8>()
-    {
+TEST_CASE("test_8")
+{
+
         //
         // test the addBBox() methods
         //
@@ -196,11 +188,12 @@ namespace tut
         ensure_equals("Custom BBox center (5)", bbox2.getCenter(), LLVector3(1.0f, 1.0f, 1.0f));
         ensure_equals("Custom BBox min (5)", bbox2.getMin(), LLVector3(-1.0f, -1.0f, -1.0f));
         ensure_equals("Custom BBox max (5)", bbox2.getMax(), LLVector3(3.0f, 3.0f, 3.0f));
-    }
+    
+}
 
-    template<> template<>
-    void object::test<9>()
-    {
+TEST_CASE("test_9")
+{
+
         //
         // test the expand() method
         //
@@ -228,5 +221,8 @@ namespace tut
         ensure_equals("Negative-expanded BBox center", bbox2.getCenter(), LLVector3(2.0f, 3.0f, 4.0f));
         ensure_equals("Negative-expanded BBox min", bbox2.getMin(), LLVector3(1.5f, 2.5f, 3.5f));
         ensure_equals("Negative-expanded BBox max", bbox2.getMax(), LLVector3(2.5f, 3.5f, 4.5f));
-    }
+    
 }
+
+} // TEST_SUITE
+

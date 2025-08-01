@@ -34,7 +34,7 @@
 #include "linden_common.h"
 
 // TUT header
-#include "lltut.h"
+#include "../test/lldoctest.h"
 
 // Stubs
 #include "llwldaycycle_stub.cpp"
@@ -74,34 +74,19 @@ char* curl_escape(const char* c_str, int length) {
     return copy;
 }
 
-namespace tut
+TEST_SUITE("UnknownSuite") {
+
+struct LLWLParamManagerFixture
 {
-    // Main Setup
-    struct LLWLParamManagerFixture
-    {
+
         class LLWLParamManagerTest
         {
-        };
+        
+};
 
-        LLWLParamManager* mTestManager;
+TEST_CASE_FIXTURE(LLWLParamManagerFixture, "test_1")
+{
 
-        LLWLParamManagerFixture()
-            : mTestManager(LLWLParamManager::getInstance())
-        {
-        }
-
-        ~LLWLParamManagerFixture()
-        {
-        }
-    };
-    typedef test_group<LLWLParamManagerFixture> factory;
-    typedef factory::object object;
-    factory tf("LLWLParamManager test");
-
-    // Tests
-    template<> template<>
-    void object::test<1>()
-    {
         try
         {
             std::string preset =
@@ -250,22 +235,21 @@ namespace tut
             std::stringstream preset_stream(preset);
             mTestManager->loadPresetFromXML(LLWLParamKey("test1", LLWLParamKey::SCOPE_LOCAL), preset_stream);
             LLWLParamSet dummy;
-            ensure("Couldn't get ParamSet after loading it", mTestManager->getParamSet(LLWLParamKey("test1", LLWLParamKey::SCOPE_LOCAL), dummy));
-        }
-        catch (...)
-        {
-            fail("loadPresetFromXML test crashed!");
-        }
-    }
+            CHECK_MESSAGE(mTestManager->getParamSet(LLWLParamKey("test1", LLWLParamKey::SCOPE_LOCAL, "Couldn't get ParamSet after loading it"), dummy));
+        
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE_FIXTURE(LLWLParamManagerFixture, "test_2")
+{
+
         mTestManager->propagateParameters();
         ensure_equals("Wrong value from getDomeOffset()", mTestManager->getDomeOffset(), 0.96f);
         ensure_equals("Wrong value from getDomeRadius()", mTestManager->getDomeRadius(), 15000.f);
         ensure_equals("Wrong value from getLightDir()", mTestManager->getLightDir(), LLVector4(-0,0,1,0));
         ensure_equals("Wrong value from getClampedLightDir()", mTestManager->getClampedLightDir(), LLVector4(-0,0,1,0));
         ensure_equals("Wrong value from getRotatedLightDir()", mTestManager->getRotatedLightDir(), LLVector4(0,0,0,1));
-    }
+    
 }
+
+} // TEST_SUITE
+

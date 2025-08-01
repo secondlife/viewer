@@ -32,7 +32,7 @@
 // Dependencies
 
 // Tut header
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 // -------------------------------------------------------------------------------------------
 // Stubbing: Declarations required to link and run the class being tested
@@ -50,43 +50,23 @@
 // TUT
 // -------------------------------------------------------------------------------------------
 
-namespace tut
+TEST_SUITE("LLTextureInfoDetails") {
+
+struct textureinfodetails_test
 {
-    // Test wrapper declarations
-    struct textureinfodetails_test
-    {
+
         // Constructor and destructor of the test wrapper
         textureinfodetails_test()
         {
-        }
-        ~textureinfodetails_test()
-        {
-        }
-    };
+        
+};
 
-    // Tut templating thingamagic: test group, object and test instance
-    typedef test_group<textureinfodetails_test> textureinfodetails_t;
-    typedef textureinfodetails_t::object textureinfodetails_object_t;
-    tut::textureinfodetails_t tut_textureinfodetails("LLTextureInfoDetails");
+TEST_CASE_FIXTURE(textureinfodetails_test, "test_1")
+{
 
-
-    // ---------------------------------------------------------------------------------------
-    // Test functions
-    // Notes:
-    // * Test as many as you possibly can without requiring a full blown simulation of everything
-    // * The tests are executed in sequence so the test instance state may change between calls
-    // * Remember that you cannot test private methods with tut
-    // ---------------------------------------------------------------------------------------
-
-    // ---------------------------------------------------------------------------------------
-    // Test the LLTextureInfo
-    // ---------------------------------------------------------------------------------------
-
-
-    // Test instantiation
-    template<> template<>
-    void textureinfodetails_object_t::test<1>()
-    {
-        ensure("have we crashed?", true);
-    }
+        CHECK_MESSAGE(true, "have we crashed?");
+    
 }
+
+} // TEST_SUITE
+

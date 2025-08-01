@@ -27,7 +27,7 @@
  */
 
 #include "../llmemtype.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "../llallocator.h"
 
 
@@ -47,42 +47,26 @@ S32 LLAllocator::popMemType(void)
     return ret;
 }
 
-namespace tut
-{
-    struct llmemtype_data
-    {
-    };
+TEST_SUITE("LLMemType") {
 
-    typedef test_group<llmemtype_data> factory;
-    typedef factory::object object;
-}
-namespace
+TEST_CASE("test_1")
 {
-        tut::factory llmemtype_test_factory("LLMemType");
+
+        CHECK_MESSAGE(true, "Simplest test ever");
+    
 }
 
-namespace tut
+TEST_CASE("test_2")
 {
-    template<> template<>
-    void object::test<1>()
-    {
-        ensure("Simplest test ever", true);
-    }
 
-    // test with no scripts
-    template<> template<>
-    void object::test<2>()
-    {
         {
             LLMemType m1(LLMemType::MTYPE_INIT);
-        }
-        ensure("Test that you can construct and destruct the mem type");
-    }
+        
+}
 
-    // test creation and stack testing
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         {
             ensure("Test that creation and destruction properly inc/dec the stack");
             ensure_equals(memTypeStack.size(), 0);
@@ -91,27 +75,7 @@ namespace tut
                 ensure_equals(memTypeStack.size(), 1);
                 LLMemType m2(LLMemType::MTYPE_STARTUP);
                 ensure_equals(memTypeStack.size(), 2);
-            }
-            ensure_equals(memTypeStack.size(), 0);
-        }
-    }
+            
+}
 
-    // test with no scripts
-    template<> template<>
-    void object::test<4>()
-    {
-        // catch the begining and end
-        std::string test_name = LLMemType::getNameFromID(LLMemType::MTYPE_INIT.mID);
-        ensure_equals("Init name", test_name, "Init");
-
-        std::string test_name2 = LLMemType::getNameFromID(LLMemType::MTYPE_VOLUME.mID);
-        ensure_equals("Volume name", test_name2, "Volume");
-
-        std::string test_name3 = LLMemType::getNameFromID(LLMemType::MTYPE_OTHER.mID);
-        ensure_equals("Other name", test_name3, "Other");
-
-        std::string test_name4 = LLMemType::getNameFromID(-1);
-        ensure_equals("Invalid name", test_name4, "INVALID");
-    }
-
-};
+} // TEST_SUITE

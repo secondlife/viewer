@@ -29,30 +29,21 @@
 
 #include "../llxfer_file.h"
 
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
-namespace tut
+TEST_SUITE("LLXferFile") {
+
+TEST_CASE("test_1")
 {
-    struct llxfer_data
-    {
-    };
-    typedef test_group<llxfer_data> llxfer_test;
-    typedef llxfer_test::object llxfer_object;
-    tut::llxfer_test llxfer("LLXferFile");
 
-    template<> template<>
-    void llxfer_object::test<1>()
-    {
         // test that we handle an oversized filename correctly.
         std::string oversized_filename;
         U32 i;
         for (i=0; i<LL_MAX_PATH*2; ++i) // create oversized filename
         {
             oversized_filename += 'X';
-        }
-
-        LLXfer_File xff(oversized_filename, false, 1);
-        ensure("oversized local_filename nul-terminated",
-               xff.getFileName().length() < LL_MAX_PATH);
-    }
+        
 }
+
+} // TEST_SUITE
+

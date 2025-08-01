@@ -31,7 +31,7 @@
 #include "llsdserialize.h"
 
 #include "../llinventory.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 
 #if LL_WINDOWS
@@ -93,70 +93,62 @@ LLPointer<LLInventoryCategory> create_random_inventory_cat()
     return cat;
 }
 
-namespace tut
+TEST_SUITE("LLInventory") {
+
+TEST_CASE("test_1")
 {
-    struct inventory_data
-    {
-    };
-    typedef test_group<inventory_data> inventory_test;
-    typedef inventory_test::object inventory_object;
-    tut::inventory_test inv("LLInventory");
 
-//***class LLInventoryType***//
-
-
-    template<> template<>
-    void inventory_object::test<1>()
-    {
         LLInventoryType::EType retType =  LLInventoryType::lookup(std::string("sound"));
-        ensure("1.LLInventoryType::lookup(char*) failed", retType == LLInventoryType::IT_SOUND);
+        CHECK_MESSAGE(retType == LLInventoryType::IT_SOUND, "1.LLInventoryType::lookup(char*) failed");
 
         retType = LLInventoryType::lookup(std::string("snapshot"));
-        ensure("2.LLInventoryType::lookup(char*) failed", retType == LLInventoryType::IT_SNAPSHOT);
-    }
+        CHECK_MESSAGE(retType == LLInventoryType::IT_SNAPSHOT, "2.LLInventoryType::lookup(char*) failed");
+    
+}
 
-    template<> template<>
-    void inventory_object::test<2>()
-    {
+TEST_CASE("test_2")
+{
+
         static std::string retType =  LLInventoryType::lookup(LLInventoryType::IT_CALLINGCARD);
-        ensure("1.LLInventoryType::lookup(EType) failed", (retType == "callcard"));
+        CHECK_MESSAGE((retType == "callcard", "1.LLInventoryType::lookup(EType) failed"));
 
         retType = LLInventoryType::lookup(LLInventoryType::IT_LANDMARK);
-        ensure("2.LLInventoryType::lookup(EType) failed", (retType == "landmark"));
+        CHECK_MESSAGE((retType == "landmark", "2.LLInventoryType::lookup(EType) failed"));
 
-    }
+    
+}
 
-    template<> template<>
-    void inventory_object::test<3>()
-    {
+TEST_CASE("test_3")
+{
+
         static std::string retType =  LLInventoryType::lookupHumanReadable(LLInventoryType::IT_CALLINGCARD);
-        ensure("1.LLInventoryType::lookupHumanReadable(EType) failed", (retType == "calling card"));
+        CHECK_MESSAGE((retType == "calling card", "1.LLInventoryType::lookupHumanReadable(EType) failed"));
 
         retType =  LLInventoryType::lookupHumanReadable(LLInventoryType::IT_LANDMARK);
-        ensure("2.LLInventoryType::lookupHumanReadable(EType) failed", (retType == "landmark"));
-    }
+        CHECK_MESSAGE((retType == "landmark", "2.LLInventoryType::lookupHumanReadable(EType) failed"));
+    
+}
 
-    template<> template<>
-    void inventory_object::test<4>()
-    {
+TEST_CASE("test_4")
+{
+
         static LLInventoryType::EType retType =  LLInventoryType::defaultForAssetType(LLAssetType::AT_TEXTURE);
-        ensure("1.LLInventoryType::defaultForAssetType(LLAssetType EType) failed", retType == LLInventoryType::IT_TEXTURE);
+        CHECK_MESSAGE(retType == LLInventoryType::IT_TEXTURE, "1.LLInventoryType::defaultForAssetType(LLAssetType EType) failed");
 
         retType =  LLInventoryType::defaultForAssetType(LLAssetType::AT_LANDMARK);
-        ensure("2.LLInventoryType::defaultForAssetType(LLAssetType EType) failed", retType == LLInventoryType::IT_LANDMARK);
-    }
+        CHECK_MESSAGE(retType == LLInventoryType::IT_LANDMARK, "2.LLInventoryType::defaultForAssetType(LLAssetType EType) failed");
+    
+}
 
-//*****class LLInventoryItem*****//
+TEST_CASE("test_5")
+{
 
-    template<> template<>
-    void inventory_object::test<5>()
-    {
         LLPointer<LLInventoryItem> src = create_random_inventory_item();
         LLSD sd = ll_create_sd_from_inventory_item(src);
         //LL_INFOS() << "sd: " << *sd << LL_ENDL;
         LLPointer<LLInventoryItem> dst = new LLInventoryItem;
         bool successful_parse = dst->fromLLSD(sd);
-        ensure_equals("0.LLInventoryItem::fromLLSD()", successful_parse, true);
+        CHECK_MESSAGE(successful_parse == true, "0.LLInventoryItem::fromLLSD()");
         ensure_equals("1.item id::getUUID() failed", dst->getUUID(), src->getUUID());
         ensure_equals("2.parent::getParentUUID() failed", dst->getParentUUID(), src->getParentUUID());
         ensure_equals("3.name::getName() failed", dst->getName(), src->getName());
@@ -235,11 +227,12 @@ namespace tut
         ensure_equals("23.flags::getFlags() failed", dst->getFlags(), src->getFlags());
         ensure_equals("24.creation::getCreationDate() failed", dst->getCreationDate(), src->getCreationDate());
 
-    }
+    
+}
 
-    template<> template<>
-    void inventory_object::test<6>()
-    {
+TEST_CASE("test_6")
+{
+
         LLPointer<LLInventoryItem> src = create_random_inventory_item();
 
         LLUUID new_item_id, new_parent_id;
@@ -293,7 +286,7 @@ namespace tut
         LLSD sd = ll_create_sd_from_inventory_item(src);
         LLPointer<LLInventoryItem> dst = new LLInventoryItem;
         bool successful_parse = dst->fromLLSD(sd);
-        ensure_equals("0.LLInventoryItem::fromLLSD()", successful_parse, true);
+        CHECK_MESSAGE(successful_parse == true, "0.LLInventoryItem::fromLLSD()");
 
         LLPointer<LLInventoryItem> src1 = create_random_inventory_item();
         src1->copyItem(src);
@@ -315,61 +308,24 @@ namespace tut
         // quick test to make sure generateUUID() really works
         src1->generateUUID();
         ensure_not_equals("13.item id::generateUUID() failed", src->getUUID(), src1->getUUID());
-    }
+    
+}
 
-    template<> template<>
-    void inventory_object::test<7>()
-    {
+TEST_CASE("test_7")
+{
+
         std::string filename("linden_file.dat");
         llofstream fileXML(filename.c_str());
         if (!fileXML.is_open())
         {
             LL_ERRS() << "file could not be opened\n" << LL_ENDL;
             return;
-        }
+        
+}
 
-        LLPointer<LLInventoryItem> src1 = create_random_inventory_item();
-        fileXML << LLSDOStreamer<LLSDNotationFormatter>(src1->asLLSD()) << std::endl;
-        fileXML.close();
+TEST_CASE("test_8")
+{
 
-
-        LLPointer<LLInventoryItem> src2 = new LLInventoryItem();
-        llifstream file(filename.c_str());
-        if (!file.is_open())
-        {
-            LL_ERRS() << "file could not be opened\n" << LL_ENDL;
-            return;
-        }
-        std::string line;
-        LLPointer<LLSDParser> parser = new LLSDNotationParser();
-        std::getline(file, line);
-        LLSD s_item;
-        std::istringstream iss(line);
-        if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
-        {
-            LL_ERRS()<< "Parsing cache failed" << LL_ENDL;
-            return;
-        }
-        src2->fromLLSD(s_item);
-
-        file.close();
-
-        ensure_equals("1.item id::getUUID() failed", src1->getUUID(), src2->getUUID());
-        ensure_equals("2.parent::getParentUUID() failed", src1->getParentUUID(), src2->getParentUUID());
-        ensure_equals("3.permissions::getPermissions() failed", src1->getPermissions(), src2->getPermissions());
-        ensure_equals("4.sale price::getSalePrice() failed price", src1->getSaleInfo().getSalePrice(), src2->getSaleInfo().getSalePrice());
-        ensure_equals("5.asset id::getAssetUUID() failed id", src1->getAssetUUID(), src2->getAssetUUID());
-        ensure_equals("6.type::getType() failed", src1->getType(), src2->getType());
-        ensure_equals("7.inventory type::getInventoryType() failed type", src1->getInventoryType(), src2->getInventoryType());
-        ensure_equals("8.name::getName() failed", src1->getName(), src2->getName());
-        ensure_equals("9.description::getDescription() failed", src1->getDescription(), src2->getDescription());
-        ensure_equals("10.creation::getCreationDate() failed", src1->getCreationDate(), src2->getCreationDate());
-
-    }
-
-    template<> template<>
-    void inventory_object::test<8>()
-    {
 
         LLPointer<LLInventoryItem> src1 = create_random_inventory_item();
 
@@ -392,18 +348,20 @@ namespace tut
         ensure_equals("10.creation::getCreationDate() failed", src1->getCreationDate(), src2->getCreationDate());
 
 
-    }
+    
+}
 
-    template<> template<>
-    void inventory_object::test<9>()
-    {
+TEST_CASE("test_9")
+{
+
         // Deleted LLInventoryItem::exportFileXML() and LLInventoryItem::importXML()
         // because I can't find any non-test code references to it. 2009-05-04 JC
-    }
+    
+}
 
-    template<> template<>
-    void inventory_object::test<11>()
-    {
+TEST_CASE("test_11")
+{
+
         LLPointer<LLInventoryItem> src1 = create_random_inventory_item();
         LLSD retSd = src1->asLLSD();
         LLPointer<LLInventoryItem> src2 = new LLInventoryItem();
@@ -421,13 +379,12 @@ namespace tut
         ensure_equals("10.name::getName() failed", src1->getName(), src2->getName());
         ensure_equals("11.description::getDescription() failed", src1->getDescription(), src2->getDescription());
         ensure_equals("12.creation::getCreationDate() failed", src1->getCreationDate(), src2->getCreationDate());
-    }
+    
+}
 
-//******class LLInventoryCategory*******//
+TEST_CASE("test_12")
+{
 
-    template<> template<>
-    void inventory_object::test<12>()
-    {
         LLPointer<LLInventoryCategory> src = create_random_inventory_cat();
         LLSD sd = ll_create_sd_from_inventory_category(src);
         LLPointer<LLInventoryCategory> dst = ll_create_category_from_sd(sd);
@@ -444,55 +401,24 @@ namespace tut
         ensure_equals("6.preferred type::getPreferredType() failed", dst->getPreferredType(), src->getPreferredType());
 
 
-    }
+    
+}
 
-    template<> template<>
-    void inventory_object::test<13>()
-    {
+TEST_CASE("test_13")
+{
+
         std::string filename("linden_file.dat");
         llofstream fileXML(filename.c_str());
         if (!fileXML.is_open())
         {
             LL_ERRS() << "file could not be opened\n" << LL_ENDL;
             return;
-        }
+        
+}
 
-        LLPointer<LLInventoryCategory> src1 = create_random_inventory_cat();
-        fileXML << LLSDOStreamer<LLSDNotationFormatter>(src1->exportLLSD()) << std::endl;
-        fileXML.close();
+TEST_CASE("test_14")
+{
 
-        llifstream file(filename.c_str());
-        if (!file.is_open())
-        {
-            LL_ERRS() << "file could not be opened\n" << LL_ENDL;
-            return;
-        }
-        std::string line;
-        LLPointer<LLSDParser> parser = new LLSDNotationParser();
-        std::getline(file, line);
-        LLSD s_item;
-        std::istringstream iss(line);
-        if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
-        {
-            LL_ERRS()<< "Parsing cache failed" << LL_ENDL;
-            return;
-        }
-
-        file.close();
-
-        LLPointer<LLInventoryCategory> src2 = new LLInventoryCategory();
-        src2->importLLSD(s_item);
-
-        ensure_equals("1.item id::getUUID() failed", src1->getUUID(), src2->getUUID());
-        ensure_equals("2.parent::getParentUUID() failed", src1->getParentUUID(), src2->getParentUUID());
-        ensure_equals("3.type::getType() failed", src1->getType(), src2->getType());
-        ensure_equals("4.preferred type::getPreferredType() failed", src1->getPreferredType(), src2->getPreferredType());
-        ensure_equals("5.name::getName() failed", src1->getName(), src2->getName());
-    }
-
-    template<> template<>
-    void inventory_object::test<14>()
-    {
         LLPointer<LLInventoryCategory> src1 = create_random_inventory_cat();
 
         std::ostringstream ostream;
@@ -508,5 +434,8 @@ namespace tut
         ensure_equals("4.preferred type::getPreferredType() failed", src1->getPreferredType(), src2->getPreferredType());
         ensure_equals("5.name::getName() failed", src1->getName(), src2->getName());
 
-    }
+    
 }
+
+} // TEST_SUITE
+

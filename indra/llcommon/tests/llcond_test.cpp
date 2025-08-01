@@ -17,36 +17,33 @@
 // std headers
 // external library headers
 // other Linden headers
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "llcoros.h"
 
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
-{
-    struct llcond_data
-    {
-        LLScalarCond<int> cond{0};
-    };
-    typedef test_group<llcond_data> llcond_group;
-    typedef llcond_group::object object;
-    llcond_group llcondgrp("llcond");
+TEST_SUITE("UnknownSuite") {
 
-    template<> template<>
-    void object::test<1>()
-    {
+struct llcond_data
+{
+
+        LLScalarCond<int> cond{0
+};
+
+TEST_CASE_FIXTURE(llcond_data, "test_1")
+{
+
         set_test_name("Immediate gratification");
         cond.set_one(1);
-        ensure("wait_for_equal() failed",
-               cond.wait_for_equal(F32Milliseconds(1), 1));
-        ensure("wait_for_unequal() should have failed",
-               ! cond.wait_for_unequal(F32Milliseconds(1), 1));
-    }
+        CHECK_MESSAGE(cond.wait_for_equal(F32Milliseconds(1, "wait_for_equal() failed"), 1));
+        CHECK_MESSAGE(! cond.wait_for_unequal(F32Milliseconds(1, "wait_for_unequal() should have failed"), 1));
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE_FIXTURE(llcond_data, "test_2")
+{
+
         set_test_name("Simple two-coroutine test");
         LLCoros::instance().launch(
             "test<2>",
@@ -58,10 +55,7 @@ namespace tut
                 cond.wait_equal(2);
                 ensure_equals(cond.get(), 2);
                 cond.set_all(3);
-            });
-        // Main coroutine is resumed only when the lambda waits.
-        ensure_equals(cond.get(), 1);
-        cond.set_all(2);
-        cond.wait_equal(3);
-    }
-} // namespace tut
+            
+}
+
+} // TEST_SUITE

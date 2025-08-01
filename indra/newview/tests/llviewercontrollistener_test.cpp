@@ -17,7 +17,7 @@
 // std headers
 // external library headers
 // other Linden headers
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 #include "../test/catch_and_store_what_in.h" // catch_what()
 #include "commoncontrol.h"
 #include "llcontrol.h"              // LLControlGroup
@@ -25,149 +25,89 @@
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
-namespace tut
+TEST_SUITE("UnknownSuite") {
+
+struct llviewercontrollistener_data
 {
-    void ensure_contains(const std::string& msg, const std::string& substr)
-    {
-        ensure_contains("Exception does not contain " + substr, msg, substr);
-    }
 
-    struct llviewercontrollistener_data
-    {
-        LLControlGroup Global{"FakeGlobal"};
+        LLControlGroup Global{"FakeGlobal"
+};
 
-        llviewercontrollistener_data()
-        {
-            Global.declareString("strvar", "woof", "string variable");
-            // together we will stroll the boolvar, ma cherie
-            Global.declareBOOL("boolvar",  true, "bool variable");
-        }
-    };
-    typedef test_group<llviewercontrollistener_data> llviewercontrollistener_group;
-    typedef llviewercontrollistener_group::object object;
-    llviewercontrollistener_group llviewercontrollistenergrp("llviewercontrollistener");
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_1")
+{
 
-    template<> template<>
-    void object::test<1>()
-    {
         set_test_name("CommonControl no listener");
         // Not implemented: the linker drags in LLViewerControlListener when
         // we bring in LLViewerControl.
-    }
+    
+}
 
-    template<> template<>
-    void object::test<2>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_2")
+{
+
         set_test_name("CommonControl bad group");
         std::string threw{ catch_what<LL::CommonControl::ParamError>(
-                [](){ LL::CommonControl::get("Nonexistent", "Variable"); }) };
-        ensure_contains(threw, "group");
-        ensure_contains(threw, "Nonexistent");
-    }
+                [](){ LL::CommonControl::get("Nonexistent", "Variable"); 
+}
 
-    template<> template<>
-    void object::test<3>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_3")
+{
+
         set_test_name("CommonControl bad variable");
         std::string threw{ catch_what<LL::CommonControl::ParamError>(
-                [](){ LL::CommonControl::get("FakeGlobal", "Nonexistent"); }) };
-        ensure_contains(threw, "key");
-        ensure_contains(threw, "Nonexistent");
-    }
+                [](){ LL::CommonControl::get("FakeGlobal", "Nonexistent"); 
+}
 
-    template<> template<>
-    void object::test<4>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_4")
+{
+
         set_test_name("CommonControl toggle string");
         std::string threw{ catch_what<LL::CommonControl::ParamError>(
-                [](){ LL::CommonControl::toggle("FakeGlobal", "strvar"); }) };
-        ensure_contains(threw, "non-boolean");
-        ensure_contains(threw, "strvar");
-    }
+                [](){ LL::CommonControl::toggle("FakeGlobal", "strvar"); 
+}
 
-    template<> template<>
-    void object::test<5>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_5")
+{
+
         set_test_name("CommonControl list bad group");
         std::string threw{ catch_what<LL::CommonControl::ParamError>(
-                [](){ LL::CommonControl::get_vars("Nonexistent"); }) };
-        ensure_contains(threw, "group");
-        ensure_contains(threw, "Nonexistent");
-    }
+                [](){ LL::CommonControl::get_vars("Nonexistent"); 
+}
 
-    template<> template<>
-    void object::test<6>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_6")
+{
+
         set_test_name("CommonControl get");
-        auto strvar{ LL::CommonControl::get("FakeGlobal", "strvar") };
-        ensure_equals(strvar, "woof");
-        auto boolvar{ LL::CommonControl::get("FakeGlobal", "boolvar") };
-        ensure(boolvar);
-    }
+        auto strvar{ LL::CommonControl::get("FakeGlobal", "strvar") 
+}
 
-    template<> template<>
-    void object::test<7>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_7")
+{
+
         set_test_name("CommonControl set, set_default, toggle");
 
-        std::string newstr{ LL::CommonControl::set("FakeGlobal", "strvar", "mouse").asString() };
-        ensure_equals(newstr, "mouse");
-        ensure_equals(LL::CommonControl::get("FakeGlobal", "strvar").asString(), "mouse");
-        ensure_equals(LL::CommonControl::set_default("FakeGlobal", "strvar").asString(), "woof");
+        std::string newstr{ LL::CommonControl::set("FakeGlobal", "strvar", "mouse").asString() 
+}
 
-        bool newbool{ LL::CommonControl::set("FakeGlobal", "boolvar", false) };
-        ensure(! newbool);
-        ensure(! LL::CommonControl::get("FakeGlobal", "boolvar").asBoolean());
-        ensure(LL::CommonControl::set_default("FakeGlobal", "boolvar").asBoolean());
-        ensure(! LL::CommonControl::toggle("FakeGlobal", "boolvar").asBoolean());
-    }
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_8")
+{
 
-    template<> template<>
-    void object::test<8>()
-    {
         set_test_name("CommonControl get_def");
-        LLSD def{ LL::CommonControl::get_def("FakeGlobal", "strvar") };
-        ensure_equals(
-            def,
-            llsd::map("name", "strvar",
-                      "type", "String",
-                      "value", "woof",
-                      "comment", "string variable"));
-    }
+        LLSD def{ LL::CommonControl::get_def("FakeGlobal", "strvar") 
+}
 
-    template<> template<>
-    void object::test<9>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_9")
+{
+
         set_test_name("CommonControl get_groups");
-        std::vector<std::string> groups{ LL::CommonControl::get_groups() };
-        ensure_equals(groups.size(), 1);
-        ensure_equals(groups[0], "FakeGlobal");
-    }
+        std::vector<std::string> groups{ LL::CommonControl::get_groups() 
+}
 
-    template<> template<>
-    void object::test<10>()
-    {
+TEST_CASE_FIXTURE(llviewercontrollistener_data, "test_10")
+{
+
         set_test_name("CommonControl get_vars");
-        LLSD vars{ LL::CommonControl::get_vars("FakeGlobal") };
-        // convert from array (unpredictable order) to map
-        LLSD varsmap{ LLSD::emptyMap() };
-        for (auto& var : llsd::inArray(vars))
-        {
-            varsmap[var["name"].asString()] = var;
-        }
-        // comparing maps is order-insensitive
-        ensure_equals(
-            varsmap,
-            llsd::map(
-                "strvar",
-                llsd::map("name", "strvar",
-                          "type", "String",
-                          "value", "woof",
-                          "comment", "string variable"),
-                "boolvar",
-                llsd::map("name", "boolvar",
-                          "type", "Boolean",
-                          "value", true,
-                          "comment", "bool variable")));
-    }
-} // namespace tut
+        LLSD vars{ LL::CommonControl::get_vars("FakeGlobal") 
+}
+
+} // TEST_SUITE

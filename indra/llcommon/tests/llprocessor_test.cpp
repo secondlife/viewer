@@ -25,24 +25,16 @@
  */
 
 #include "linden_common.h"
-#include "../test/lltut.h"
+#include "../test/lldoctest.h"
 
 #include "../llprocessor.h"
 
 
-namespace tut
+TEST_SUITE("LLProcessor") {
+
+TEST_CASE("test_1")
 {
-    struct processor
-    {
-    };
 
-    typedef test_group<processor> processor_t;
-    typedef processor_t::object processor_object_t;
-    tut::processor_t tut_processor("LLProcessor");
-
-    template<> template<>
-    void processor_object_t::test<1>()
-    {
         set_test_name("LLProcessorInfo regression test");
 
         LLProcessorInfo pi;
@@ -54,8 +46,11 @@ namespace tut
         std::string brand =  pi.getCPUBrandName();
         //std::string steam =  pi.getCPUFeatureDescription();
 
-        ensure_not_equals("Unknown Brand name", brand, "Unknown");
-        ensure_not_equals("Unknown Family name", family, "Unknown");
-        ensure("Reasonable CPU Frequency > 100 && < 10000", freq > 100 && freq < 10000);
-    }
+        CHECK_MESSAGE(brand != "Unknown", "Unknown Brand name");
+        CHECK_MESSAGE(family != "Unknown", "Unknown Family name");
+        CHECK_MESSAGE(freq > 100 && freq < 10000, "Reasonable CPU Frequency > 100 && < 10000");
+    
 }
+
+} // TEST_SUITE
+
