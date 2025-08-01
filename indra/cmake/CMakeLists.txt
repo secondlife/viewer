@@ -56,7 +56,7 @@ set(cmake_SOURCE_FILES
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
-        Tut.cmake
+        Doctest.cmake
         UI.cmake
         UnixInstall.cmake
         Variables.cmake

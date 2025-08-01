@@ -36,7 +36,7 @@
 
 #include "linden_common.h"
 #include "llerrorcontrol.h"
-#include "lltut.h"
+#include "lldoctest.h"
 #include "chained_callback.h"
 #include "stringize.h"
 #include "namedtempfile.h"

@@ -2,7 +2,7 @@
 include(00-Common)
 include(LLTestCommand)
 include(bugsplat)
-include(Tut)
+include(Doctest)
 
 #*****************************************************************************
 #   LL_ADD_PROJECT_UNIT_TESTS
@@ -26,8 +26,8 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   #project(UNITTEST_PROJECT_${project})
   # Setup includes, paths, etc
   set(alltest_SOURCE_FILES
-          ${CMAKE_SOURCE_DIR}/test/test.cpp
-          ${CMAKE_SOURCE_DIR}/test/lltut.cpp
+          ${CMAKE_SOURCE_DIR}/test/test_doctest.cpp
+          ${CMAKE_SOURCE_DIR}/test/lldoctest.cpp
           )
   set(alltest_DEP_TARGETS
           # needed by the test harness itself
