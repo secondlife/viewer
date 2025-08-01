@@ -82,21 +82,14 @@ else (ADDRESS_SIZE EQUAL 32)
     set(ADDRESS_SIZE 64)
     set(ARCH x86_64)
   else()
-    # Use Python's platform.machine() since uname -m isn't available everywhere.
-    # Even if you can assume cygwin uname -m, the answer depends on whether
-    # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
-    # report a 64-bit processor.
-    execute_process(COMMAND
-            "${PYTHON_EXECUTABLE}" "-c"
-            "import platform; print( platform.machine() )"
-            OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string( REGEX MATCH ".*(64)$" RE_MATCH "${ARCH}" )
-    if( RE_MATCH AND ${CMAKE_MATCH_1} STREQUAL "64" )
+    string( REGEX MATCH ".*(64)$" RE_MATCH "${CMAKE_HOST_SYSTEM_PROCESSOR}" )
+    if( RE_MATCH AND "${CMAKE_MATCH_1}" STREQUAL "64" )
       set(ADDRESS_SIZE 64)
       set(ARCH x86_64)
     else()
       set(ADDRESS_SIZE 32)
       set(ARCH i686)
+      message(WARNING " 32 bit builds are unsupported.  proceed at your own risk")
     endif()
   endif()
 endif (ADDRESS_SIZE EQUAL 32)
