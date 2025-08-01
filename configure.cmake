@@ -5,7 +5,11 @@ cmake_minimum_required(VERSION "3.20" FATAL_ERROR)
 
 string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} SYSTEM)
 set(ARCH "x86_64")
-set(BUILD_DIR "build-${SYSTEM}-${ARCH}")
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+  set(BUILD_DIR "build-vc170-64")
+else()
+  set(BUILD_DIR "build-${SYSTEM}-${ARCH}")
+endif()
 
 # note - must use CMAKE_CURRENT_LIST_DIR when running in `cmake -P` mode
 # CMAKE_CURRENT_SOURCE_DIR is misleadingly set to the current working directory
@@ -27,7 +31,7 @@ endif()
 
 if(NOT DEFINED GENERATOR)
    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-     set(GENERATOR "Visual Studio")
+     set(GENERATOR "Visual Studio 17 2022")
    elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
      set(GENERATOR "Xcode")
   else()
@@ -36,10 +40,14 @@ if(NOT DEFINED GENERATOR)
 endif()
 
 string(TOUPPER "LL_${CMAKE_HOST_SYSTEM_NAME}" LL_SYSTEM_DEF)
-set(LL_BUILD "-std=c++20 -fPIC -D${LL_SYSTEM_DEF}=1")
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+  set(LL_BUILD "/D_SECURE_STL=0 /D_HAS_ITERATOR_DEBUGGING=0 /DWIN32 /D_WINDOWS /DUNICODE /D_UNICODE /DWINVER=0x0602 /D_WIN32_WINNT=0x0602 /D${LL_SYSTEM_DEF}=1")
+else()
+  set(LL_BUILD "-std=c++20 -fPIC -D${LL_SYSTEM_DEF}=1")
+endif()
 
 # Find Python executable
-find_program(PYTHON_EXECUTABLE python3 python)
+find_program(PYTHON_EXECUTABLE NAMES python3 python)
 if(NOT PYTHON_EXECUTABLE)
   message(FATAL_ERROR "Python not found. Please install Python 3.10 or later.")
 endif()
@@ -83,9 +91,9 @@ if(NOT PIP_RESULT EQUAL 0)
   message(FATAL_ERROR "Failed to install autobuild and llsd Python virtual environment")
 endif()
 
-message(INFO " executing cmake -G ${GENERATOR} -B ${FULL_BUILD_DIR} -S ${FULL_SOURCE_DIR} -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'")
+message(INFO " executing cmake -G ${GENERATOR} -B ${FULL_BUILD_DIR} -S ${FULL_SOURCE_DIR} -DADDRESS_SIZE=64 -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'")
 execute_process(
-  COMMAND cmake -G "${GENERATOR}" -B "${FULL_BUILD_DIR}" -S "${FULL_SOURCE_DIR}" -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'
+  COMMAND cmake -G "${GENERATOR}" -B "${FULL_BUILD_DIR}" -S "${FULL_SOURCE_DIR}"  -DADDRESS_SIZE=64 -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'
   RESULT_VARIABLE CMAKE_RESULT
 )
 if(NOT CMAKE_RESULT EQUAL 0)
