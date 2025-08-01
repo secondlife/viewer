@@ -1520,12 +1520,6 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
         LL_DEBUGS_ONCE() << "FirstClickPref == MEDIA_FIRST_CLICK_NONE" << LL_ENDL;
         return false;
     }
-    // All objects (overriding PRIM_MEDIA_FIRST_CLICK_INTERACT)
-    if(FirstClickPref == MEDIA_FIRST_CLICK_ALL)
-    {
-        LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_ALL" << LL_ENDL;
-        return true;
-    }
     // Every check beyond this point requires PRIM_MEDIA_FIRST_CLICK_INTERACT to be TRUE
     if(!moap_flag && !(FirstClickPref & MEDIA_FIRST_CLICK_BYPASS_MOAP_FLAG))
     {
