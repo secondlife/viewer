@@ -27,7 +27,7 @@ Third party maintained forks, which include Linux compatible builds, are indexed
 ## Build Instructions
 
 configure the build for the first time by running: `cmake -P configure.cmake`
-after tht the build can be reconfigured by running `cmake -B ./build-darwin-x86_64 -S ./indra/`
+after that the build can be reconfigured by running `cmake -B ./build-darwin-x86_64 -S ./indra/`
 
 build the project by running: `cmake --build build-darwin-x86_64`
 
