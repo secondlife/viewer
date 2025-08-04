@@ -1785,6 +1785,12 @@ if (WINDOWS)
                )
     endif (ADDRESS_SIZE EQUAL 64)
 
+    if (TARGET ll::discord_sdk)
+        list(APPEND COPY_INPUT_DEPENDENCIES
+             ${SHARED_LIB_STAGING_DIR}/discord_partner_sdk.dll
+             )
+    endif ()
+
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/OpenAL32.dll
@@ -1801,6 +1807,7 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
+        "--discord=${USE_DISCORD}"
         "--openal=${USE_OPENAL}"
         "--tracy=${USE_TRACY}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -1839,6 +1846,7 @@ if (WINDOWS)
             --arch=${ARCH}
             --artwork=${ARTWORK_DIR}
             "--bugsplat=${BUGSPLAT_DB}"
+            "--discord=${USE_DISCORD}"
             "--openal=${USE_OPENAL}"
             "--tracy=${USE_TRACY}"
             --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -1903,6 +1911,7 @@ if (WINDOWS)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
+              "--discord=${USE_DISCORD}"
               "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -1999,7 +2008,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         )
 
 if (USE_DISCORD)
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::discord )
+   target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
 endif ()
 
 if( TARGET ll::intel_memops )
@@ -2058,6 +2067,7 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
+        "--discord=${USE_DISCORD}"
         "--openal=${USE_OPENAL}"
         "--tracy=${USE_TRACY}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -2086,6 +2096,7 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
+      "--discord=${USE_DISCORD}"
       "--openal=${USE_OPENAL}"
       "--tracy=${USE_TRACY}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -2162,6 +2173,7 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
+      "--discord=${USE_DISCORD}"
       "--openal=${USE_OPENAL}"
       "--tracy=${USE_TRACY}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -2197,6 +2209,7 @@ if (DARWIN)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
+              "--discord=${USE_DISCORD}"
               "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
               --build=${CMAKE_CURRENT_BINARY_DIR}

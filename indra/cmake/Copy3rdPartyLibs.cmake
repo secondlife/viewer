@@ -6,6 +6,7 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
+include(Discord)
 include(OPENAL)
 
 # When we copy our dependent libraries, we almost always want to copy them to
@@ -74,6 +75,10 @@ if(WINDOWS)
         set(release_files ${release_files} BsSndRpt64.exe)
       endif(ADDRESS_SIZE EQUAL 32)
     endif (USE_BUGSPLAT)
+
+    if (TARGET ll::discord_sdk)
+        list(APPEND release_files discord_partner_sdk.dll)
+    endif ()
 
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
@@ -179,6 +184,10 @@ elseif(DARWIN)
             libaprutil-1.dylib
             )
     endif()
+
+    if (TARGET ll::discord_sdk)
+      list(APPEND release_files libdiscord_partner_sdk.dylib)
+    endif ()
 
     if (TARGET ll::openal)
       list(APPEND release_files libalut.dylib libopenal.dylib)
