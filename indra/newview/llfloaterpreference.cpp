@@ -528,6 +528,10 @@ bool LLFloaterPreference::postBuild()
         getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
     }
 
+#ifndef LL_DISCORD
+    getChild<LLTabContainer>("privacy_tab_container")->childDisable("privacy_preferences_discord");
+#endif
+
     return true;
 }
 
