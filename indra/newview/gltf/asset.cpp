@@ -696,7 +696,7 @@ bool Asset::load(std::string_view filename, bool loadIntoVRAM)
     mFilename = filename;
     std::string ext = gDirUtilp->getExtension(mFilename);
 
-    std::ifstream file(filename.data(), std::ios::binary);
+    llifstream file(filename.data(), std::ios::binary);
     if (file.is_open())
     {
         std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
