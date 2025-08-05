@@ -1,5 +1,7 @@
 include(Prebuilt)
 
+include_guard()
+
 add_library(ll::discord_sdk INTERFACE IMPORTED)
 target_compile_definitions(ll::discord_sdk INTERFACE LL_DISCORD=1)
 

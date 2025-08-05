@@ -6,7 +6,9 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
-include(Discord)
+if (USE_DISCORD)
+  include(Discord)
+endif ()
 include(OPENAL)
 
 # When we copy our dependent libraries, we almost always want to copy them to

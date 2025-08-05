@@ -1022,7 +1022,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                     self.path2basename(relpkgdir, libfile)
 
                 # Discord social SDK
-                if self.args['DISCORD'] == 'ON':
+                if self.args['discord'] == 'ON':
                     for libfile in (
                                 "libdiscord_partner_sdk.dylib",
                                 ):
