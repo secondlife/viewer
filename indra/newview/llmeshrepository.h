@@ -674,7 +674,22 @@ public:
     typedef std::vector<LLModelInstance> instance_list;
     instance_list   mInstanceList;
 
-    typedef std::map<LLPointer<LLModel>, instance_list> instance_map;
+    // Upload should happen in deterministic order, so sort instances by model name.
+    struct LLUploadModelInstanceLess
+    {
+        inline bool operator()(const LLPointer<LLModel>& a, const LLPointer<LLModel>& b) const
+        {
+            if (a.isNull() || b.isNull())
+            {
+                llassert(false); // We are uploading these models, they shouldn't be null.
+                return true;
+            }
+            // Note: probably can sort by mBaseModel->mSubmodelID here as well to avoid
+            // running over the list twice in wholeModelToLLSD.
+            return a->mLabel < b->mLabel;
+        }
+    };
+    typedef std::map<LLPointer<LLModel>, instance_list, LLUploadModelInstanceLess> instance_map;
     instance_map    mInstance;
 
     LLMutex*        mMutex;

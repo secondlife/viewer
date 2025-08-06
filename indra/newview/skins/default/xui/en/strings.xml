@@ -4187,7 +4187,7 @@ Try enclosing path to the editor with double quotes.
 name="Command_360_Capture_Label">360 snapshot</string>
   <string name="Command_AboutLand_Label">About land</string>
   <string name="Command_Appearance_Label">Outfits</string>
-  <string name="Command_Avatar_Label">Complete avatars</string>
+  <string name="Command_Avatar_Label">Avatar Welcome Pack</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
   <string name="Command_Conversations_Label">Conversations</string>

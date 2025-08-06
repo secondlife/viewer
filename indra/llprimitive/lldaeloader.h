@@ -47,19 +47,20 @@ public:
     dae_model_map   mModelsMap;
 
     LLDAELoader(
-        std::string                         filename,
-        S32                                 lod,
-        LLModelLoader::load_callback_t      load_cb,
-        LLModelLoader::joint_lookup_func_t  joint_lookup_func,
-        LLModelLoader::texture_load_func_t  texture_load_func,
-        LLModelLoader::state_callback_t     state_cb,
-        void*                               opaque_userdata,
-        JointTransformMap&                  jointTransformMap,
-        JointNameSet&                       jointsFromNodes,
-        std::map<std::string, std::string>& jointAliasMap,
-        U32                                 maxJointsPerMesh,
-        U32                                 modelLimit,
-        bool                                preprocess);
+        std::string                                      filename,
+        S32                                              lod,
+        LLModelLoader::load_callback_t                   load_cb,
+        LLModelLoader::joint_lookup_func_t               joint_lookup_func,
+        LLModelLoader::texture_load_func_t               texture_load_func,
+        LLModelLoader::state_callback_t                  state_cb,
+        void*                                            opaque_userdata,
+        JointTransformMap&                               jointTransformMap,
+        JointNameSet&                                    jointsFromNodes,
+        std::map<std::string, std::string, std::less<>>& jointAliasMap,
+        U32                                              maxJointsPerMesh,
+        U32                                              modelLimit,
+        U32                                              debugMode,
+        bool                                             preprocess);
     virtual ~LLDAELoader() ;
 
     virtual bool OpenFile(const std::string& filename);
@@ -97,13 +98,12 @@ protected:
     bool loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out, U32 submodel_limit);
 
     static std::string getElementLabel(daeElement *element);
-    static size_t getSuffixPosition(std::string label);
+    static size_t getSuffixPosition(const std::string& label);
     static std::string getLodlessLabel(daeElement *element);
 
     static std::string preprocessDAE(std::string filename);
 
 private:
-    U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
     bool mPreprocessDAE;
 
 };

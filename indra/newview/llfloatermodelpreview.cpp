@@ -64,6 +64,7 @@
 #include "llcallbacklist.h"
 #include "llviewertexteditor.h"
 #include "llviewernetwork.h"
+#include "llmaterialeditor.h"
 
 
 //static
@@ -619,11 +620,9 @@ void LLFloaterModelPreview::onJointListSelection()
     LLPanel *panel = mTabContainer->getPanelByName("rigging_panel");
     LLScrollListCtrl *joints_list = panel->getChild<LLScrollListCtrl>("joints_list");
     LLScrollListCtrl *joints_pos = panel->getChild<LLScrollListCtrl>("pos_overrides_list");
-    LLScrollListCtrl *joints_scale = panel->getChild<LLScrollListCtrl>("scale_overrides_list");
     LLTextBox *joint_pos_descr = panel->getChild<LLTextBox>("pos_overrides_descr");
 
     joints_pos->deleteAllItems();
-    joints_scale->deleteAllItems();
 
     LLScrollListItem *selected = joints_list->getFirstSelected();
     if (selected)
@@ -1341,26 +1340,26 @@ void LLFloaterModelPreview::addStringToLog(const std::string& message, const LLS
     {
         std::string str;
         switch (lod)
-{
+        {
         case LLModel::LOD_IMPOSTOR: str = "LOD0 "; break;
         case LLModel::LOD_LOW:      str = "LOD1 "; break;
         case LLModel::LOD_MEDIUM:   str = "LOD2 "; break;
         case LLModel::LOD_PHYSICS:  str = "PHYS "; break;
         case LLModel::LOD_HIGH:     str = "LOD3 ";   break;
         default: break;
-}
+        }
 
         LLStringUtil::format_map_t args_msg;
         LLSD::map_const_iterator iter = args.beginMap();
         LLSD::map_const_iterator end = args.endMap();
         for (; iter != end; ++iter)
-{
+        {
             args_msg[iter->first] = iter->second.asString();
         }
         str += sInstance->getString(message, args_msg);
         sInstance->addStringToLogTab(str, flash);
     }
-    }
+}
 
 // static
 void LLFloaterModelPreview::addStringToLog(const std::string& str, bool flash)
@@ -1488,7 +1487,7 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
     {
         // Populate table
 
-        std::map<std::string, std::string> joint_alias_map;
+        std::map<std::string, std::string, std::less<>> joint_alias_map;
         mModelPreview->getJointAliases(joint_alias_map);
 
         S32 conflicts = 0;

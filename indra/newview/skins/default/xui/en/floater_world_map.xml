@@ -455,7 +455,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="330"
+	 height="235"
 	 top_pad="0"
 	 width="238"
 	 name="layout_panel_4">
@@ -532,9 +532,9 @@
      width="16" />
     <search_editor
      follows="top|right"
-  search_button_visible="false"
+     search_button_visible="false"
      height="22"
-  text_readonly_color="DkGray"
+     text_readonly_color="DkGray"
      label="Regions by Name"
      layout="topleft"
      top_delta="-2"
@@ -542,10 +542,7 @@
      name="location"
      select_on_focus="true"
      tool_tip="Type the name of a region"
-     width="152">
-               <search_editor.commit_callback
-                function="WMap.Location" />
-  </search_editor>
+     width="152"/>
    <button
      follows="top|right"
      height="23"
@@ -594,6 +591,13 @@
 		<scroll_list.commit_callback
 		function="WMap.SearchResult" />
     </scroll_list>
+    </panel>
+    <panel
+     follows="right|bottom"
+	 height="95"
+	 top_pad="0"
+	 width="238"
+	 name="layout_panel_7">
       <text
       type="string"
       length="1"

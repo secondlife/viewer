@@ -2870,6 +2870,64 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>version</key>
         <string>1.0.9-5e8947c</string>
       </map>
+      <key>discord_sdk</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>e11571bf76b27d15c244069988ae372eaa5afae9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-discord-sdk/releases/assets/279333720</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>dc21df8b051c425163acf3eff8f06e32f407c9e0</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-discord-sdk/releases/assets/279333706</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>discord_sdk</string>
+        <key>license_file</key>
+        <string>LICENSES/discord_sdk.txt</string>
+        <key>copyright</key>
+        <string>Discord Inc.</string>
+        <key>version</key>
+        <string>1.4.9649.16733550144</string>
+        <key>name</key>
+        <string>discord_sdk</string>
+        <key>vcs_branch</key>
+        <string>main</string>
+        <key>vcs_revision</key>
+        <string>ef5c7c4a490ceac2df2b2f046788b1daf1bbb392</string>
+        <key>vcs_url</key>
+        <string>https://github.com/secondlife/3p-discord-sdk</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-discord-sdk</string>
+        <key>description</key>
+        <string>Discord Social SDK</string>
+      </map>
     </map>
     <key>package_description</key>
     <map>

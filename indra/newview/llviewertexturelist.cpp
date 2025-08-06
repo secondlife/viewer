@@ -911,6 +911,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         bool on_screen = false;
 
         U32 face_count = 0;
+        U32 max_faces_to_check = 1024;
 
         // get adjusted bias based on image resolution
         LLImageGL* img = imagep->getGLTexture();
@@ -923,13 +924,15 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
         for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
         {
-            for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
+            face_count += imagep->getNumFaces(i);
+            S32 faces_to_check = (face_count > max_faces_to_check) ? 0 : imagep->getNumFaces(i);
+
+            for (S32 fi = 0; fi < faces_to_check; ++fi)
             {
                 LLFace* face = (*(imagep->getFaceList(i)))[fi];
 
                 if (face && face->getViewerObject())
                 {
-                    ++face_count;
                     F32 radius;
                     F32 cos_angle_to_view_dir;
 
@@ -992,11 +995,10 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
             }
         }
 
-        if (face_count > 1024)
+        if (face_count > max_faces_to_check)
         { // this texture is used in so many places we should just boost it and not bother checking its vsize
             // this is especially important because the above is not time sliced and can hit multiple ms for a single texture
-            imagep->setBoostLevel(LLViewerFetchedTexture::BOOST_HIGH);
-            // Do we ever remove it? This also sets texture nodelete!
+            max_vsize = MAX_IMAGE_AREA;
         }
 
         if (imagep->getType() == LLViewerTexture::LOD_TEXTURE && imagep->getBoostLevel() == LLViewerTexture::BOOST_NONE)
@@ -1195,6 +1197,8 @@ F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
         enditer = iter;
         LLViewerFetchedTexture *imagep = *curiter;
         imagep->loadFromFastCache();
+        if (timer.getElapsedTimeF32() > max_time)
+            break;
     }
     mFastCacheList.erase(mFastCacheList.begin(), enditer);
     return timer.getElapsedTimeF32();
@@ -1306,7 +1310,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
     LLTimer timer;
 
     //loading from fast cache
-    updateImagesLoadingFastCache(max_time);
+    max_time -= updateImagesLoadingFastCache(max_time);
 
     // Update texture stats and priorities
     std::vector<LLPointer<LLViewerFetchedTexture> > image_list;

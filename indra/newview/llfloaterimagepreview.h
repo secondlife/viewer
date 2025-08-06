@@ -126,6 +126,8 @@ public:
 
     void clearAllPreviewTextures();
 
+    void onBtnOK();
+
 protected:
     static void     onPreviewTypeCommit(LLUICtrl*,void*);
     void            draw() override;

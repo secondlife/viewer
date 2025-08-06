@@ -135,6 +135,12 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 
     initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
 
+    if (skin->mInvBindMatrix.size() < count )
+    {
+        // faulty model? mInvBindMatrix.size() should have matched mJointNames.size()
+        return;
+    }
+
     LLMatrix4a world[LL_CHARACTER_MAX_ANIMATED_JOINTS];
 
     for (S32 j = 0; j < count; ++j)
@@ -354,7 +360,8 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                             {
                                 rig_info_tab[joint_num].setIsRiggedTo(true);
 
-                                const LLMatrix4a& mat = skin->mBindPoseMatrix[joint_index];
+                                size_t bind_poses_size = skin->mBindPoseMatrix.size();
+                                const LLMatrix4a& mat = bind_poses_size > joint_index ? skin->mBindPoseMatrix[joint_index] : LLMatrix4a::identity();
                                 LLVector4a pos_joint_space;
 
                                 mat.affineTransform(pos, pos_joint_space);
