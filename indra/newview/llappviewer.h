@@ -175,6 +175,7 @@ public:
     virtual void forceErrorCoroprocedureCrash();
     virtual void forceErrorWorkQueueCrash();
     virtual void forceErrorThreadCrash();
+    virtual void forceExceptionThreadCrash();
 
     // The list is found in app_settings/settings_files.xml
     // but since they are used explicitly in code,
@@ -249,6 +250,14 @@ public:
     // Good chance of viewer crashing either way, but better than alternatives.
     // Note: mQuitRequested can be aborted by user.
     void outOfMemorySoftQuit();
+
+#ifdef LL_DISCORD
+    static void initDiscordSocial();
+    static void toggleDiscordIntegration(const LLSD& value);
+    static void updateDiscordActivity();
+    static void updateDiscordPartyCurrentSize(int32_t size);
+    static void updateDiscordPartyMaxSize(int32_t size);
+#endif
 
 protected:
     virtual bool initWindow(); // Initialize the viewer's window.

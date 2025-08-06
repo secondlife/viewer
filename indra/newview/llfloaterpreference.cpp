@@ -366,6 +366,11 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.ClearLog",               boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
     mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
     mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
+#ifdef LL_DISCORD
+    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&LLAppViewer::toggleDiscordIntegration, _2));
+    gSavedSettings.getControl("ShowDiscordActivityDetails")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
+    gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
+#endif
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -522,6 +527,10 @@ bool LLFloaterPreference::postBuild()
         LL_WARNS() << "Failed to load labels from " << user_filename << ". Using default." << LL_ENDL;
         getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
     }
+
+#ifndef LL_DISCORD
+    getChild<LLTabContainer>("privacy_tab_container")->childDisable("privacy_preferences_discord");
+#endif
 
     return true;
 }

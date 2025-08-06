@@ -268,6 +268,16 @@ using namespace LL;
 #include "glib.h"
 #endif // (LL_LINUX) && LL_GTK
 
+#ifdef LL_DISCORD
+#define DISCORDPP_IMPLEMENTATION
+#include <discordpp.h>
+static std::shared_ptr<discordpp::Client> gDiscordClient;
+static uint64_t gDiscordTimestampsStart;
+static std::string gDiscordActivityDetails;
+static int32_t gDiscordPartyCurrentSize;
+static int32_t gDiscordPartyMaxSize;
+#endif
+
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -1319,6 +1329,13 @@ bool LLAppViewer::frame()
 
 bool LLAppViewer::doFrame()
 {
+#ifdef LL_DISCORD
+    {
+        LL_PROFILE_ZONE_NAMED("discord_callbacks");
+        discordpp::RunCallbacks();
+    }
+#endif
+
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
     {
     // and now adjust the visuals from previous frame.
@@ -2245,10 +2262,7 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
 // Callback for LLError::LLUserWarningMsg
 void errorHandler(const std::string& title_string, const std::string& message_string, S32 code)
 {
-    if (!message_string.empty())
-    {
-        OSMessageBox(message_string, title_string.empty() ? LLTrans::getString("MBFatalError") : title_string, OSMB_OK);
-    }
+    // message is going to hang viewer, create marker first
     switch (code)
     {
     case LLError::LLUserWarningMsg::ERROR_OTHER:
@@ -2256,12 +2270,20 @@ void errorHandler(const std::string& title_string, const std::string& message_st
         break;
     case LLError::LLUserWarningMsg::ERROR_BAD_ALLOC:
         LLAppViewer::instance()->createErrorMarker(LAST_EXEC_BAD_ALLOC);
+        // When system run out of memory and errorHandler gets called from a thread,
+        // main thread might keep going while OSMessageBox freezes the caller.
+        // Todo: handle it better, but for now disconnect to avoid making things worse
+        gDisconnected = true;
         break;
     case LLError::LLUserWarningMsg::ERROR_MISSING_FILES:
         LLAppViewer::instance()->createErrorMarker(LAST_EXEC_MISSING_FILES);
         break;
     default:
         break;
+    }
+    if (!message_string.empty())
+    {
+        OSMessageBox(message_string, title_string.empty() ? LLTrans::getString("MBFatalError") : title_string, OSMB_OK);
     }
 }
 
@@ -5687,6 +5709,28 @@ void LLAppViewer::forceErrorThreadCrash()
     thread->start();
 }
 
+void LLAppViewer::forceExceptionThreadCrash()
+{
+    class LLCrashTestThread : public LLThread
+    {
+    public:
+
+        LLCrashTestThread() : LLThread("Crash logging test thread")
+        {
+        }
+
+        void run()
+        {
+            const std::string exception_text = "This is a deliberate exception in a thread";
+            throw std::runtime_error(exception_text);
+        }
+    };
+
+    LL_WARNS() << "This is a deliberate exception in a thread" << LL_ENDL;
+    LLCrashTestThread* thread = new LLCrashTestThread();
+    thread->start();
+}
+
 void LLAppViewer::initMainloopTimeout(std::string_view state, F32 secs)
 {
     if (!mMainloopTimeout)
@@ -5862,3 +5906,180 @@ void LLAppViewer::metricsSend(bool enable_reporting)
     gViewerAssetStats->restart();
 }
 
+#ifdef LL_DISCORD
+
+void LLAppViewer::initDiscordSocial()
+{
+    gDiscordPartyCurrentSize = 1;
+    gDiscordPartyMaxSize = 0;
+    gDiscordTimestampsStart = time(nullptr);
+    gDiscordClient = std::make_shared<discordpp::Client>();
+    gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
+        if (status == discordpp::Client::Status::Ready)
+        {
+            updateDiscordActivity();
+        }
+    });
+    if (gSavedSettings.getBOOL("EnableDiscord"))
+    {
+        auto credential = gSecAPIHandler->loadCredential("Discord");
+        if (credential.notNull())
+        {
+            gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
+                if (result.Successful())
+                    gDiscordClient->Connect();
+                else
+                    LL_WARNS("Discord") << result.Error() << LL_ENDL;
+            });
+        }
+        else
+        {
+            LL_WARNS("Discord") << "Integration was enabled, but no credentials. Disabling integration." << LL_ENDL;
+            gSavedSettings.setBOOL("EnableDiscord", false);
+        }
+    }
+}
+
+void LLAppViewer::toggleDiscordIntegration(const LLSD& value)
+{
+    static const uint64_t APPLICATION_ID = 1394782217405862001;
+    if (value.asBoolean())
+    {
+        discordpp::AuthorizationArgs args{};
+        args.SetClientId(APPLICATION_ID);
+        args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
+        auto codeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
+        args.SetCodeChallenge(codeVerifier.Challenge());
+        gDiscordClient->Authorize(args, [codeVerifier](auto result, auto code, auto redirectUri) {
+            if (result.Successful())
+            {
+                gDiscordClient->GetToken(APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
+                    if (result.Successful())
+                    {
+                        gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [accessToken](discordpp::ClientResult result) {
+                            if (result.Successful())
+                            {
+                                LLSD authenticator = LLSD::emptyMap();
+                                authenticator["token"] = accessToken;
+                                gSecAPIHandler->saveCredential(gSecAPIHandler->createCredential("Discord", LLSD::emptyMap(), authenticator), true);
+                                gDiscordClient->Connect();
+                            }
+                            else
+                            {
+                                LL_WARNS("Discord") << result.Error() << LL_ENDL;
+                            }
+                        });
+                    }
+                    else
+                    {
+                        LL_WARNS("Discord") << result.Error() << LL_ENDL;
+                    }
+                });
+            }
+            else
+            {
+                LL_WARNS("Discord") << result.Error() << LL_ENDL;
+                gSavedSettings.setBOOL("EnableDiscord", false);
+            }
+        });
+    }
+    else
+    {
+        gDiscordClient->Disconnect();
+        auto credential = gSecAPIHandler->loadCredential("Discord");
+        if (credential.notNull())
+        {
+            gDiscordClient->RevokeToken(APPLICATION_ID, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
+                if (result.Successful())
+                    LL_INFOS("Discord") << "Access token successfully revoked." << LL_ENDL;
+                else
+                    LL_WARNS("Discord") << "No access token to revoke." << LL_ENDL;
+            });
+            auto cred = new LLCredential("Discord");
+            gSecAPIHandler->deleteCredential(cred);
+        }
+        else
+        {
+            LL_WARNS("Discord") << "Credentials are already nonexistent." << LL_ENDL;
+        }
+    }
+}
+
+void LLAppViewer::updateDiscordActivity()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    discordpp::Activity activity;
+    activity.SetType(discordpp::ActivityTypes::Playing);
+    discordpp::ActivityTimestamps timestamps;
+    timestamps.SetStart(gDiscordTimestampsStart);
+    activity.SetTimestamps(timestamps);
+
+    if (gAgent.getID() == LLUUID::null)
+    {
+        gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
+        return;
+    }
+
+    static LLCachedControl<bool> show_details(gSavedSettings, "ShowDiscordActivityDetails", false);
+    if (show_details)
+    {
+        if (gDiscordActivityDetails.empty())
+        {
+            LLAvatarName av_name;
+            LLAvatarNameCache::get(gAgent.getID(), &av_name);
+            gDiscordActivityDetails = av_name.getUserName();
+            auto displayName = av_name.getDisplayName();
+            if (gDiscordActivityDetails != displayName)
+                gDiscordActivityDetails = displayName + " (" + gDiscordActivityDetails + ")";
+        }
+        activity.SetDetails(gDiscordActivityDetails);
+    }
+
+    static LLCachedControl<bool> show_state(gSavedSettings, "ShowDiscordActivityState", false);
+    if (show_state)
+    {
+        auto agent_pos_region = gAgent.getPositionAgent();
+        S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
+        S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
+        S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
+        F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
+        const F32 FLY_CUTOFF = 6.f;
+        const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
+        const F32 WALK_CUTOFF = 1.5f;
+        const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
+        if (velocity_mag_sq > FLY_CUTOFF_SQ)
+        {
+            pos_x -= pos_x % 4;
+            pos_y -= pos_y % 4;
+        }
+        else if (velocity_mag_sq > WALK_CUTOFF_SQ)
+        {
+            pos_x -= pos_x % 2;
+            pos_y -= pos_y % 2;
+        }
+        auto location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
+        activity.SetState(location);
+
+        discordpp::ActivityParty party;
+        party.SetId(location);
+        party.SetCurrentSize(gDiscordPartyCurrentSize);
+        party.SetMaxSize(gDiscordPartyMaxSize);
+        activity.SetParty(party);
+    }
+
+    gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
+}
+
+void LLAppViewer::updateDiscordPartyCurrentSize(int32_t size)
+{
+    gDiscordPartyCurrentSize = size;
+    updateDiscordActivity();
+}
+
+void LLAppViewer::updateDiscordPartyMaxSize(int32_t size)
+{
+    gDiscordPartyMaxSize = size;
+    updateDiscordActivity();
+}
+
+#endif

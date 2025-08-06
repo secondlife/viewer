@@ -176,7 +176,7 @@ protected:
     void            onLocationFocusChanged( LLFocusableElement* ctrl );
     void            onLocationCommit();
     void            onCoordinatesCommit();
-    void            onCommitSearchResult();
+    void            onCommitSearchResult(bool from_search);
 
     void            onTeleportFinished();
 
@@ -213,6 +213,7 @@ private:
 
     bool                    mIsClosing;
     bool                    mSetToUserPosition;
+    bool                    mProcessingSearchUpdate; // Don't update search string from what user set it to
 
     LLVector3d              mTrackedLocation;
     LLTracker::ETrackingStatus mTrackedStatus;

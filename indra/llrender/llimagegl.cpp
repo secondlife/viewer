@@ -1870,8 +1870,17 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
         glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, (GLint*)&glbytes);
         if(!imageraw->allocateDataSize(width, height, ncomponents, glbytes))
         {
-            LL_WARNS() << "Memory allocation failed for reading back texture. Size is: " << glbytes << LL_ENDL ;
-            LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL ;
+            constexpr S64 MAX_GL_BYTES = 2048 * 2048;
+            if (glbytes > 0 && glbytes <= MAX_GL_BYTES)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Memory allocation failed for reading back texture. Data size: " << glbytes << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS() << "Memory allocation failed for reading back texture. Data size is: " << glbytes << LL_ENDL;
+                LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL;
+            }
             return false ;
         }
 
@@ -1882,8 +1891,18 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
     {
         if(!imageraw->allocateDataSize(width, height, ncomponents))
         {
-            LL_WARNS() << "Memory allocation failed for reading back texture." << LL_ENDL ;
-            LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL ;
+            constexpr F32 MAX_IMAGE_SIZE = 2048 * 2048;
+            F32 size = (F32)width * (F32)height * (F32)ncomponents;
+            if (size > 0 && size <= MAX_IMAGE_SIZE)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Memory allocation failed for reading back texture. Data size: " << size << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS() << "Memory allocation failed for reading back texture." << LL_ENDL;
+                LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL;
+            }
             return false ;
         }
 

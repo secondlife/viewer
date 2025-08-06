@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel
+  <panel
     border="true"
     follows="left|top|right|bottom"
-    height="408"
-    label="Communication"
+    height="438"
+    label="Privacy"
     layout="topleft"
     left="102"
-    name="im"
+    name="Privacy panel"
     top="1"
     width="517">
+
+  <tab_container
+    top_pad="0"
+    enabled="true"
+    follows="left|top"
+    height="430"
+    width="517"
+    left_delta="0"
+    name="privacy_tab_container"
+    tab_position="top"
+    tab_stop="false">
+  <panel
+    label="General"
+    name="privacy_preferences_general"
+    layout="topleft"
+    follows="top|left">
 
   <panel.string
       name="log_in_to_change">
@@ -134,3 +150,48 @@
        (People and/or Objects you have blocked)
     </text>
     </panel>
+
+    <panel
+      label="Discord"
+      name="privacy_preferences_discord"
+      layout="topleft"
+      follows="top|left">
+
+      <check_box
+        control_name="EnableDiscord"
+        height="16"
+        enabled="true"
+        label="Enable Discord integration"
+        layout="topleft"
+        left="30"
+        name="enable_discord"
+        top_pad="20"
+        width="350" />
+
+      <check_box
+        enabled_control="EnableDiscord"
+        control_name="ShowDiscordActivityDetails"
+        height="16"
+        enabled="true"
+        label="Show avatar name"
+        layout="topleft"
+        left="30"
+        name="show_name"
+        top_pad="20"
+        width="350" />
+
+      <check_box
+        enabled_control="EnableDiscord"
+        control_name="ShowDiscordActivityState"
+        height="16"
+        enabled="false"
+        label="Show location"
+        layout="topleft"
+        left="30"
+        name="show_location"
+        top_pad="20"
+        width="350" />
+      </panel>
+  </tab_container>
+
+</panel>
