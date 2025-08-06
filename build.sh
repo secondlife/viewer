@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# This is the custom build script for the viewer
+# This is the legacy custom build script for the viewer
+# current usage can be found in the Build Instructions section of README.md
 #
 # It must be run by the Linden Lab build farm shared buildscript because
 # it relies on the environment that sets up, functions it provides, and
