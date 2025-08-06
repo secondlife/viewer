@@ -2342,9 +2342,9 @@ bool can_move_to_my_outfits_as_outfit(LLInventoryModel* model, LLInventoryCatego
         return false;
     }
 
-    if (items->size() == 0)
+    if (items->size() == 0 && inv_cat->getPreferredType() != LLFolderType::FT_OUTFIT)
     {
-        // Nothing to move(create)
+        // Nothing to create an outfit folder from
         return false;
     }
 

@@ -1987,16 +1987,6 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                 isConstrained = true;
             }
         }
-
-// JC - Could constrain camera based on parcel stuff here.
-//          LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(camera_position_global);
-//
-//          if (regionp && !regionp->mParcelOverlay->isBuildCameraAllowed(regionp->getPosRegionFromGlobal(camera_position_global)))
-//          {
-//              camera_position_global = last_position_global;
-//
-//              isConstrained = true;
-//          }
     }
 
     // Don't let camera go underground

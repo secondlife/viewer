@@ -32,6 +32,7 @@
 #include "llimagetga.h"
 #include "llimagejpeg.h"
 #include "llimagepng.h"
+#include "llimagej2c.h"
 
 #include "llagent.h"
 #include "llagentbenefits.h"
@@ -43,6 +44,10 @@
 #include "llrender.h"
 #include "llface.h"
 #include "llfocusmgr.h"
+#include "llfilesystem.h"
+#include "llfloaterperms.h"
+#include "llnotificationsutil.h"
+#include "llstatusbar.h"    // can_afford_transaction()
 #include "lltextbox.h"
 #include "lltoolmgr.h"
 #include "llui.h"
@@ -52,6 +57,7 @@
 #include "llvoavatar.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
+#include "llviewermenufile.h"   // upload_new_resource()
 #include "llviewershadermgr.h"
 #include "llviewertexturelist.h"
 #include "llstring.h"
@@ -140,7 +146,7 @@ bool LLFloaterImagePreview::postBuild()
         }
     }
 
-    getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+    getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterImagePreview::onBtnOK, this));
 
     return true;
 }
@@ -241,6 +247,59 @@ void LLFloaterImagePreview::clearAllPreviewTextures()
         mAvatarPreview->clearPreviewTexture("mLowerBodyMesh0");
         mAvatarPreview->clearPreviewTexture("mSkirtMesh0");
     }
+}
+
+//-----------------------------------------------------------------------------
+// onBtnOK()
+//-----------------------------------------------------------------------------
+void LLFloaterImagePreview::onBtnOK()
+{
+    getChildView("ok_btn")->setEnabled(false); // don't allow inadvertent extra uploads
+
+    S32 expected_upload_cost = getExpectedUploadCost();
+    if (can_afford_transaction(expected_upload_cost))
+    {
+        LL_INFOS() << "saving texture: " << mRawImagep->getWidth() << "x" << mRawImagep->getHeight() << LL_ENDL;
+        // gen a new uuid for this asset
+        LLTransactionID tid;
+        tid.generate();
+        LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+
+        LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
+
+        if (formatted->encode(mRawImagep, 0.0f))
+        {
+            LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
+            fmt_file.write(formatted->getData(), formatted->getDataSize());
+
+            LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
+                tid, LLAssetType::AT_TEXTURE,
+                getChild<LLUICtrl>("name_form")->getValue().asString(),
+                getChild<LLUICtrl>("description_form")->getValue().asString(),
+                0,
+                LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                LLFloaterPerms::getGroupPerms("Uploads"),
+                LLFloaterPerms::getEveryonePerms("Uploads"),
+                expected_upload_cost
+            ));
+
+            upload_new_resource(assetUploadInfo);
+        }
+        else
+        {
+            LLNotificationsUtil::add("ErrorEncodingImage");
+            LL_WARNS() << "Error encoding image" << LL_ENDL;
+        }
+    }
+    else
+    {
+        LLSD args;
+        args["COST"] = llformat("%d", expected_upload_cost);
+        LLNotificationsUtil::add("ErrorCannotAffordUpload", args);
+    }
+
+    closeFloater(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -364,19 +423,6 @@ bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
         return false;
     }
 
-    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
-
-    if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
-    {
-        LLStringUtil::format_map_t args;
-        args["WIDTH"] = llformat("%d", max_width);
-        args["HEIGHT"] = llformat("%d", max_height);
-
-        mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
-        return false;
-    }
-
     // Load the image
     LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
     if (image.isNull())
@@ -398,6 +444,46 @@ bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
     {
         image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
         return false;
+    }
+    // Downscale images to fit the max_texture_dimensions_*
+    S32 max_width  = gSavedSettings.getS32("max_texture_dimension_X");
+    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+
+    S32 orig_width  = raw_image->getWidth();
+    S32 orig_height = raw_image->getHeight();
+
+    if (orig_width > max_width || orig_height > max_height)
+    {
+        // Calculate scale factors
+        F32 width_scale  = (F32)max_width / (F32)orig_width;
+        F32 height_scale = (F32)max_height / (F32)orig_height;
+        F32 scale        = llmin(width_scale, height_scale);
+
+        // Calculate new dimensions, preserving aspect ratio
+        S32 new_width  = LLImageRaw::contractDimToPowerOfTwo(
+            llclamp((S32)llroundf(orig_width * scale), 4, max_width)
+        );
+        S32 new_height = LLImageRaw::contractDimToPowerOfTwo(
+            llclamp((S32)llroundf(orig_height * scale), 4, max_height)
+        );
+
+        if (!raw_image->scale(new_width, new_height))
+        {
+            LL_WARNS() << "Failed to scale image from "
+                       << orig_width << "x" << orig_height
+                       << " to " << new_width << "x" << new_height << LL_ENDL;
+            return false;
+        }
+
+        // Inform the resident about the resized image
+        LLSD subs;
+        subs["[ORIGINAL_WIDTH]"]  = orig_width;
+        subs["[ORIGINAL_HEIGHT]"] = orig_height;
+        subs["[NEW_WIDTH]"]       = new_width;
+        subs["[NEW_HEIGHT]"]      = new_height;
+        subs["[MAX_WIDTH]"]       = max_width;
+        subs["[MAX_HEIGHT]"]      = max_height;
+        LLNotificationsUtil::add("ImageUploadResized", subs);
     }
 
     raw_image->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);

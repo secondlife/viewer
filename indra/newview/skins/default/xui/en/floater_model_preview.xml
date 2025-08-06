@@ -14,7 +14,7 @@
  legacy_header_height="25">
 
   <string name="status_idle"></string>
-  <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
+  <string name="status_parse_error">Error: Model parsing issue - see log for details.</string>
   <string name="status_bind_shape_orientation">Warning: bind shape matrix is not in standard X-forward orientation.</string>
   <string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
   <string name="status_reading_file">Loading...</string>
@@ -39,12 +39,14 @@
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>
   <string name="tbd">TBD</string>
+  <string name="ModelTextureScaling">One or more textures in this model were scaled to be within the allowed limits.</string>
   
   <!-- Warnings and info from model loader-->
   <string name="TooManyJoint">Skinning disabled due to too many joints: [JOINTS], maximum: [MAX]</string>
   <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
   <string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
   <string name="ModelLoaded">Model [MODEL_NAME] loaded</string>
+  <string name="InvBindCountMismatch">Bind matrices count mismatch joints count</string>
 
   <string name="IncompleteTC">Texture coordinates data is not complete.</string>
   <string name="PositionNaN">Found NaN while loading position data from DAE-Model, invalid model.</string>
@@ -60,6 +62,27 @@
   <string name="ParsingErrorNoRoot">Document has no root</string>
   <string name="ParsingErrorNoScene">Document has no visual_scene</string>
   <string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
+  <string name="UnknownException">Importer crashed while processing [FILENAME], if you encounter this and file is valid, please report the issue to Second Life Support. Exception: [EXCEPTION].</string>
+
+ <!-- GLTF specific messages -->
+  <string name="NoScenesFound">No scenes defined in GLTF file</string>
+  <string name="InvalidMeshReference">Node [NODE_NAME] references invalid mesh [MESH_INDEX] (total meshes: [TOTAL_MESHES])</string>
+  <string name="InvalidGeometryNonTriangulated">Mesh [MESH_NAME] primitive [PRIMITIVE_INDEX]: Invalid geometry with [INDEX_COUNT] indices (must be triangulated)</string>
+  <string name="EmptyVertexArray">Mesh [MESH_NAME] primitive [PRIMITIVE_INDEX]: Empty vertex array</string>
+  <string name="ErrorIndexLimit">Unable to process mesh [MESH_NAME] due to 65,534 vertex limit. Vertex count: [VERTEX_COUNT]</string>
+  <string name="TextureFound">Found texture: [TEXTURE_NAME] for material: [MATERIAL_NAME]</string>
+  <string name="IgnoredExtension">Model uses unsupported extension: [EXT], related material properties are ignored</string>
+  <string name="UnsupportedExtension">Unable to load model, unsupported extension: [EXT]</string>
+  <string name="FailedToCreateTempFile">Failed to create temporary file for embedded [TEXTURE_TYPE] texture [TEXTURE_INDEX]: [TEMP_FILE]</string>
+  <string name="SkinJointsOverLimit">Skin [SKIN_INDEX] defines [JOINT_COUNT] compatible joints, maximum is: [MAX]. Unused joints will be stripped on per model basis.</string>
+  <string name="SkinUsupportedJoints">Skin [SKIN_INDEX] defines [JOINT_COUNT] joints, but only [LEGAL_COUNT] were recognized and are compatible</string>
+  <string name="SkinUnusedJoints">Skin [SKIN_INDEX] defines [JOINT_COUNT] compatible joints, of them only [USED_COUNT] were used</string>
+  <string name="ModelTooManyJoints">Model [MODEL_NAME] uses [JOINT_COUNT], maximum: [MAX], upload might fail</string>
+  <string name="ModelSplitPrimitive">Too many vertices in primitive [MODEL_NAME], it was split into [FACE_COUNT] faces</string>
+  <string name="ModelTooManySubmodels">Model [MODEL_NAME] contains [SUBMODEL_COUNT] generated mesh parts, parts were trimmed to [SUBMODEL_LIMIT]</string>
+  <string name="ParsingErrorMissingBuffer">Buffer is either missing or empty [BUFFER_NAME].</string>
+  <string name="ParsingErrorMissingBufferBin">Buffer is either missing or empty. Check presence of [BUFFER_URI] file.</string>
+  <string name="ParsingErrorException">Parser failed to process [FILENAME], file might be corrupt, incomplete or protected from reading. Exception: [EXCEPTION].</string>
 
   <panel
     follows="top|left"
@@ -1404,7 +1427,7 @@
          word_wrap="true">
         </text_editor>
         <check_box
-         control_name="ImporterDebug"
+         control_name="ImporterDebugVerboseLogging"
          follows="top|left"
          top_pad="9"
          left="6"
@@ -1706,7 +1729,6 @@ Analysed:
    height="408"/>
   <panel
     follows="right|bottom"
-    can_resize="false"
     height="140"
     layout="topleft"
     name="right_panel"

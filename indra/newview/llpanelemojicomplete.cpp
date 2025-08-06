@@ -463,6 +463,7 @@ void LLPanelEmojiComplete::updateConstraints()
     {
         mEmojiHeight = mRenderRect.getHeight();
         mRenderRect.stretch((mRenderRect.getWidth() - static_cast<S32>(mVisibleEmojis) * mEmojiWidth) / -2, 0);
+        mRenderRect.translate(-mRenderRect.mLeft, 0); // Left align emojis to fix hitboxes
     }
 
     updateScrollPos();

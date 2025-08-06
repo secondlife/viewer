@@ -79,9 +79,9 @@ static LLPanelInjector<LLPanelMainInventory> t_inventory("panel_main_inventory")
 class LLFloaterInventoryFinder : public LLFloater
 {
 public:
-    LLFloaterInventoryFinder( LLPanelMainInventory* inventory_view);
-    virtual void draw();
-    /*virtual*/ bool    postBuild();
+    LLFloaterInventoryFinder(LLPanelMainInventory* inventory_view);
+    void draw();
+    bool postBuild();
     void changeFilter(LLInventoryFilter* filter);
     void updateElementsFromFilter();
     bool getCheckShowEmpty();
@@ -91,17 +91,35 @@ public:
     void onCreatorSelfFilterCommit();
     void onCreatorOtherFilterCommit();
 
-    static void onTimeAgo(LLUICtrl*, void *);
-    static void onCloseBtn(void* user_data);
-    static void selectAllTypes(void* user_data);
-    static void selectNoTypes(void* user_data);
+    void onTimeAgo();
+    void onCloseBtn();
+    void selectAllTypes();
+    void selectNoTypes();
 private:
-    LLPanelMainInventory*   mPanelMainInventory;
-    LLSpinCtrl*         mSpinSinceDays;
-    LLSpinCtrl*         mSpinSinceHours;
-    LLCheckBoxCtrl*     mCreatorSelf;
-    LLCheckBoxCtrl*     mCreatorOthers;
-    LLInventoryFilter*  mFilter;
+    LLPanelMainInventory*   mPanelMainInventory{ nullptr };
+    LLSpinCtrl*         mSpinSinceDays{ nullptr };
+    LLSpinCtrl*         mSpinSinceHours{ nullptr };
+    LLCheckBoxCtrl*     mCreatorSelf{ nullptr };
+    LLCheckBoxCtrl*     mCreatorOthers{ nullptr };
+    LLInventoryFilter*  mFilter{ nullptr };
+
+    LLCheckBoxCtrl* mCheckAnimation{ nullptr };
+    LLCheckBoxCtrl* mCheckCallingCard{ nullptr };
+    LLCheckBoxCtrl* mCheckClothing{ nullptr };
+    LLCheckBoxCtrl* mCheckGesture{ nullptr };
+    LLCheckBoxCtrl* mCheckLandmark{ nullptr };
+    LLCheckBoxCtrl* mCheckMaterial{ nullptr };
+    LLCheckBoxCtrl* mCheckNotecard{ nullptr };
+    LLCheckBoxCtrl* mCheckObject{ nullptr };
+    LLCheckBoxCtrl* mCheckScript{ nullptr };
+    LLCheckBoxCtrl* mCheckSounds{ nullptr };
+    LLCheckBoxCtrl* mCheckTexture{ nullptr };
+    LLCheckBoxCtrl* mCheckSnapshot{ nullptr };
+    LLCheckBoxCtrl* mCheckSettings{ nullptr };
+    LLCheckBoxCtrl* mCheckShowEmpty{ nullptr };
+    LLCheckBoxCtrl* mCheckSinceLogoff{ nullptr };
+
+    LLRadioGroup* mRadioDateSearchDirection{ nullptr };
 };
 
 ///----------------------------------------------------------------------------
@@ -747,7 +765,6 @@ bool LLPanelMainInventory::filtersVisible(void* user_data)
 void LLPanelMainInventory::onClearSearch()
 {
     bool initially_active = false;
-    LLFloater *finder = getFinder();
     if (mActivePanel && (getActivePanel() != mWornItemsPanel))
     {
         initially_active = mActivePanel->getFilter().isNotDefault();
@@ -756,9 +773,9 @@ void LLPanelMainInventory::onClearSearch()
         mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
     }
 
-    if (finder)
+    if (LLFloaterInventoryFinder* finder = getFinder())
     {
-        LLFloaterInventoryFinder::selectAllTypes(finder);
+        finder->selectAllTypes();
     }
 
     // re-open folders that were initially open in case filter was active
@@ -1158,36 +1175,53 @@ bool LLFloaterInventoryFinder::postBuild()
     const LLRect& viewrect = mPanelMainInventory->getRect();
     setRect(LLRect(viewrect.mLeft - getRect().getWidth(), viewrect.mTop, viewrect.mLeft, viewrect.mTop - getRect().getHeight()));
 
-    childSetAction("All", selectAllTypes, this);
-    childSetAction("None", selectNoTypes, this);
+    childSetAction("All", [this](LLUICtrl*, const LLSD&) { selectAllTypes(); });
+    childSetAction("None", [this](LLUICtrl*, const LLSD&) { selectNoTypes(); });
 
     mSpinSinceHours = getChild<LLSpinCtrl>("spin_hours_ago");
-    childSetCommitCallback("spin_hours_ago", onTimeAgo, this);
+    mSpinSinceHours->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTimeAgo(); });
 
     mSpinSinceDays = getChild<LLSpinCtrl>("spin_days_ago");
-    childSetCommitCallback("spin_days_ago", onTimeAgo, this);
+    mSpinSinceDays->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTimeAgo(); });
 
     mCreatorSelf = getChild<LLCheckBoxCtrl>("check_created_by_me");
     mCreatorOthers = getChild<LLCheckBoxCtrl>("check_created_by_others");
     mCreatorSelf->setCommitCallback(boost::bind(&LLFloaterInventoryFinder::onCreatorSelfFilterCommit, this));
     mCreatorOthers->setCommitCallback(boost::bind(&LLFloaterInventoryFinder::onCreatorOtherFilterCommit, this));
 
-    childSetAction("Close", onCloseBtn, this);
+    mCheckAnimation = getChild<LLCheckBoxCtrl>("check_animation");
+    mCheckCallingCard = getChild<LLCheckBoxCtrl>("check_calling_card");
+    mCheckClothing = getChild<LLCheckBoxCtrl>("check_clothing");
+    mCheckGesture = getChild<LLCheckBoxCtrl>("check_gesture");
+    mCheckLandmark = getChild<LLCheckBoxCtrl>("check_landmark");
+    mCheckMaterial = getChild<LLCheckBoxCtrl>("check_material");
+    mCheckNotecard = getChild<LLCheckBoxCtrl>("check_notecard");
+    mCheckObject = getChild<LLCheckBoxCtrl>("check_object");
+    mCheckScript = getChild<LLCheckBoxCtrl>("check_script");
+    mCheckSounds = getChild<LLCheckBoxCtrl>("check_sound");
+    mCheckTexture = getChild<LLCheckBoxCtrl>("check_texture");
+    mCheckSnapshot = getChild<LLCheckBoxCtrl>("check_snapshot");
+    mCheckSettings = getChild<LLCheckBoxCtrl>("check_settings");
+    mCheckShowEmpty = getChild<LLCheckBoxCtrl>("check_show_empty");
+    mCheckSinceLogoff = getChild<LLCheckBoxCtrl>("check_since_logoff");
+
+    mRadioDateSearchDirection = getChild<LLRadioGroup>("date_search_direction");
+
+    childSetAction("Close", [this](LLUICtrl*, const LLSD&) { onCloseBtn(); });
 
     updateElementsFromFilter();
+
     return true;
 }
-void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
+
+void LLFloaterInventoryFinder::onTimeAgo()
 {
-    LLFloaterInventoryFinder *self = (LLFloaterInventoryFinder *)user_data;
-    if (!self) return;
-
-    if ( self->mSpinSinceDays->get() ||  self->mSpinSinceHours->get() )
+    if (mSpinSinceDays->get() || mSpinSinceHours->get())
     {
-        self->getChild<LLUICtrl>("check_since_logoff")->setValue(false);
+        mCheckSinceLogoff->setValue(false);
 
-        U32 days = (U32)self->mSpinSinceDays->get();
-        U32 hours = (U32)self->mSpinSinceHours->get();
+        U32 days = (U32)mSpinSinceDays->get();
+        U32 hours = (U32)mSpinSinceHours->get();
         if (hours >= 24)
         {
             // Try to handle both cases of spinner clicking and text input in a sensible fashion as best as possible.
@@ -1203,11 +1237,11 @@ void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
                 days = hours / 24;
             }
             hours = (U32)hours % 24;
-            self->mSpinSinceHours->setFocus(false);
-            self->mSpinSinceDays->setFocus(false);
-            self->mSpinSinceDays->set((F32)days);
-            self->mSpinSinceHours->set((F32)hours);
-            self->mSpinSinceHours->setFocus(true);
+            mSpinSinceHours->setFocus(false);
+            mSpinSinceDays->setFocus(false);
+            mSpinSinceDays->set((F32)days);
+            mSpinSinceHours->set((F32)hours);
+            mSpinSinceHours->setFocus(true);
         }
     }
 }
@@ -1236,29 +1270,28 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
     // update the ui elements
     setTitle(mFilter->getName());
 
-    getChild<LLUICtrl>("check_animation")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_ANIMATION));
+    mCheckAnimation->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_ANIMATION));
+    mCheckCallingCard->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_CALLINGCARD));
+    mCheckClothing->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_WEARABLE));
+    mCheckGesture->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_GESTURE));
+    mCheckLandmark->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LANDMARK));
+    mCheckMaterial->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_MATERIAL));
+    mCheckNotecard->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_NOTECARD));
+    mCheckObject->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_OBJECT));
+    mCheckScript->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LSL));
+    mCheckSounds->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SOUND));
+    mCheckTexture->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_TEXTURE));
+    mCheckSnapshot->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SNAPSHOT));
+    mCheckSettings->setValue((S32)(filter_types & 0x1 << LLInventoryType::IT_SETTINGS));
+    mCheckShowEmpty->setValue(show_folders == LLInventoryFilter::SHOW_ALL_FOLDERS);
 
-    getChild<LLUICtrl>("check_calling_card")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_CALLINGCARD));
-    getChild<LLUICtrl>("check_clothing")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_WEARABLE));
-    getChild<LLUICtrl>("check_gesture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_GESTURE));
-    getChild<LLUICtrl>("check_landmark")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LANDMARK));
-    getChild<LLUICtrl>("check_material")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_MATERIAL));
-    getChild<LLUICtrl>("check_notecard")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_NOTECARD));
-    getChild<LLUICtrl>("check_object")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_OBJECT));
-    getChild<LLUICtrl>("check_script")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LSL));
-    getChild<LLUICtrl>("check_sound")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SOUND));
-    getChild<LLUICtrl>("check_texture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_TEXTURE));
-    getChild<LLUICtrl>("check_snapshot")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SNAPSHOT));
-    getChild<LLUICtrl>("check_settings")->setValue((S32)(filter_types & 0x1 << LLInventoryType::IT_SETTINGS));
-    getChild<LLUICtrl>("check_show_empty")->setValue(show_folders == LLInventoryFilter::SHOW_ALL_FOLDERS);
+    mCreatorSelf->setValue(show_created_by_me);
+    mCreatorOthers->setValue(show_created_by_others);
 
-    getChild<LLUICtrl>("check_created_by_me")->setValue(show_created_by_me);
-    getChild<LLUICtrl>("check_created_by_others")->setValue(show_created_by_others);
-
-    getChild<LLUICtrl>("check_since_logoff")->setValue(mFilter->isSinceLogoff());
+    mCheckSinceLogoff->setValue(mFilter->isSinceLogoff());
     mSpinSinceHours->set((F32)(hours % 24));
     mSpinSinceDays->set((F32)(hours / 24));
-    getChild<LLRadioGroup>("date_search_direction")->setSelectedIndex(date_search_direction);
+    mRadioDateSearchDirection->setSelectedIndex(date_search_direction);
 }
 
 void LLFloaterInventoryFinder::draw()
@@ -1266,80 +1299,80 @@ void LLFloaterInventoryFinder::draw()
     U64 filter = 0xffffffffffffffffULL;
     bool filtered_by_all_types = true;
 
-    if (!getChild<LLUICtrl>("check_animation")->getValue())
+    if (!mCheckAnimation->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_ANIMATION);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_calling_card")->getValue())
+    if (!mCheckCallingCard->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_CALLINGCARD);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_clothing")->getValue())
+    if (!mCheckClothing->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_WEARABLE);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_gesture")->getValue())
+    if (!mCheckGesture->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_GESTURE);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_landmark")->getValue())
+    if (!mCheckLandmark->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_LANDMARK);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_material")->getValue())
+    if (!mCheckMaterial->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_MATERIAL);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_notecard")->getValue())
+    if (!mCheckNotecard->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_NOTECARD);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_object")->getValue())
+    if (!mCheckObject->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_OBJECT);
         filter &= ~(0x1 << LLInventoryType::IT_ATTACHMENT);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_script")->getValue())
+    if (!mCheckScript->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_LSL);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_sound")->getValue())
+    if (!mCheckSounds->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_SOUND);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_texture")->getValue())
+    if (!mCheckTexture->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_TEXTURE);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_snapshot")->getValue())
+    if (!mCheckSnapshot->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_SNAPSHOT);
         filtered_by_all_types = false;
     }
 
-    if (!getChild<LLUICtrl>("check_settings")->getValue())
+    if (!mCheckSettings->getValue())
     {
         filter &= ~(0x1 << LLInventoryType::IT_SETTINGS);
         filtered_by_all_types = false;
@@ -1457,65 +1490,56 @@ void LLFloaterInventoryFinder::onCreatorOtherFilterCommit()
 
 bool LLFloaterInventoryFinder::getCheckShowEmpty()
 {
-    return getChild<LLUICtrl>("check_show_empty")->getValue();
+    return mCheckShowEmpty->getValue();
 }
 
 bool LLFloaterInventoryFinder::getCheckSinceLogoff()
 {
-    return getChild<LLUICtrl>("check_since_logoff")->getValue();
+    return mCheckSinceLogoff->getValue();
 }
 
 U32 LLFloaterInventoryFinder::getDateSearchDirection()
 {
-    return  getChild<LLRadioGroup>("date_search_direction")->getSelectedIndex();
+    return mRadioDateSearchDirection->getSelectedIndex();
 }
 
-void LLFloaterInventoryFinder::onCloseBtn(void* user_data)
+void LLFloaterInventoryFinder::onCloseBtn()
 {
-    LLFloaterInventoryFinder* finderp = (LLFloaterInventoryFinder*)user_data;
-    finderp->closeFloater();
+    closeFloater();
 }
 
-// static
-void LLFloaterInventoryFinder::selectAllTypes(void* user_data)
+void LLFloaterInventoryFinder::selectAllTypes()
 {
-    LLFloaterInventoryFinder* self = (LLFloaterInventoryFinder*)user_data;
-    if(!self) return;
-
-    self->getChild<LLUICtrl>("check_animation")->setValue(true);
-    self->getChild<LLUICtrl>("check_calling_card")->setValue(true);
-    self->getChild<LLUICtrl>("check_clothing")->setValue(true);
-    self->getChild<LLUICtrl>("check_gesture")->setValue(true);
-    self->getChild<LLUICtrl>("check_landmark")->setValue(true);
-    self->getChild<LLUICtrl>("check_material")->setValue(true);
-    self->getChild<LLUICtrl>("check_notecard")->setValue(true);
-    self->getChild<LLUICtrl>("check_object")->setValue(true);
-    self->getChild<LLUICtrl>("check_script")->setValue(true);
-    self->getChild<LLUICtrl>("check_sound")->setValue(true);
-    self->getChild<LLUICtrl>("check_texture")->setValue(true);
-    self->getChild<LLUICtrl>("check_snapshot")->setValue(true);
-    self->getChild<LLUICtrl>("check_settings")->setValue(true);
+    mCheckAnimation->setValue(true);
+    mCheckCallingCard->setValue(true);
+    mCheckClothing->setValue(true);
+    mCheckGesture->setValue(true);
+    mCheckLandmark->setValue(true);
+    mCheckMaterial->setValue(true);
+    mCheckNotecard->setValue(true);
+    mCheckObject->setValue(true);
+    mCheckScript->setValue(true);
+    mCheckSounds->setValue(true);
+    mCheckTexture->setValue(true);
+    mCheckSnapshot->setValue(true);
+    mCheckSettings->setValue(true);
 }
 
-//static
-void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
+void LLFloaterInventoryFinder::selectNoTypes()
 {
-    LLFloaterInventoryFinder* self = (LLFloaterInventoryFinder*)user_data;
-    if(!self) return;
-
-    self->getChild<LLUICtrl>("check_animation")->setValue(false);
-    self->getChild<LLUICtrl>("check_calling_card")->setValue(false);
-    self->getChild<LLUICtrl>("check_clothing")->setValue(false);
-    self->getChild<LLUICtrl>("check_gesture")->setValue(false);
-    self->getChild<LLUICtrl>("check_landmark")->setValue(false);
-    self->getChild<LLUICtrl>("check_material")->setValue(false);
-    self->getChild<LLUICtrl>("check_notecard")->setValue(false);
-    self->getChild<LLUICtrl>("check_object")->setValue(false);
-    self->getChild<LLUICtrl>("check_script")->setValue(false);
-    self->getChild<LLUICtrl>("check_sound")->setValue(false);
-    self->getChild<LLUICtrl>("check_texture")->setValue(false);
-    self->getChild<LLUICtrl>("check_snapshot")->setValue(false);
-    self->getChild<LLUICtrl>("check_settings")->setValue(false);
+    mCheckAnimation->setValue(false);
+    mCheckCallingCard->setValue(false);
+    mCheckClothing->setValue(false);
+    mCheckGesture->setValue(false);
+    mCheckLandmark->setValue(false);
+    mCheckMaterial->setValue(false);
+    mCheckNotecard->setValue(false);
+    mCheckObject->setValue(false);
+    mCheckScript->setValue(false);
+    mCheckSounds->setValue(false);
+    mCheckTexture->setValue(false);
+    mCheckSnapshot->setValue(false);
+    mCheckSettings->setValue(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////

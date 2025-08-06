@@ -218,8 +218,10 @@ jobs:
               prefix=${ba[0]}
               if [ "$prefix" == "project" ]; then
                   IFS='_' read -ra prj <<< "${ba[1]}"
+                  prj_str="${prj[*]}"
                   # uppercase first letter of each word
-                  export viewer_channel="Second Life Project ${prj[*]^}"
+                  capitalized=$(echo "$prj_str" | awk '{for (i=1; i<=NF; i++) $i = toupper(substr($i,1,1)) substr($i,2); print}')
+                  export viewer_channel="Second Life Project $capitalized"
               elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
               then
                   export viewer_channel="Second Life Release"
@@ -304,7 +306,7 @@ jobs:
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
     needs: build
-    runs-on: windows-large
+    runs-on: windows-latest
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
@@ -455,7 +457,6 @@ jobs:
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
-          previous_tag: release
           append_body: true
           fail_on_unmatched_files: true
           files: |

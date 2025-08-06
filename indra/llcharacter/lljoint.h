@@ -222,7 +222,7 @@ public:
     LLJoint *getRoot();
 
     // search for child joints by name
-    LLJoint *findJoint( const std::string &name );
+    LLJoint* findJoint(std::string_view name);
 
     // add/remove children
     void addChild( LLJoint *joint );

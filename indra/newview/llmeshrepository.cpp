@@ -2380,7 +2380,13 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
     LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
     if (volume->unpackVolumeFaces(data, data_size))
     {
-        if (volume->getNumFaces() > 0)
+        // Use LLVolume::getNumVolumeFaces() here and not LLVolume::getNumFaces(),
+        // because setMeshAssetLoaded() has not yet been called for this volume
+        // (it is set later in LLMeshRepository::notifyMeshLoaded()), and
+        // getNumFaces() would return the number of faces in the LLProfile
+        // instead. HB
+        S32 num_faces = volume->getNumVolumeFaces();
+        if (num_faces > 0)
         {
             // if we have a valid SkinInfo, cache per-joint bounding boxes for this LOD
             LLPointer<LLMeshSkinInfo> skin_info = nullptr;
@@ -2394,7 +2400,7 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
             }
             if (skin_info.notNull() && isAgentAvatarValid())
             {
-                for (S32 i = 0; i < volume->getNumFaces(); ++i)
+                for (S32 i = 0; i < num_faces; ++i)
                 {
                     // NOTE: no need to lock gAgentAvatarp as the state being checked is not changed after initialization
                     LLVolumeFace& face = volume->getVolumeFace(i);
@@ -2412,6 +2418,11 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
                 volume = NULL;
                 // might be good idea to turn mesh into pointer to avoid making a copy
                 mesh.mVolume = NULL;
+            }
+            {
+                // make sure skin info is not removed from list while we are decreasing reference count
+                LLMutexLock lock(mSkinMapMutex);
+                skin_info = nullptr;
             }
             return MESH_OK;
         }
@@ -2721,10 +2732,14 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
 
     S32 instance_num = 0;
 
-    for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+    // Handle models, ignore submodels for now.
+    // Probably should pre-sort by mSubmodelID instead of running twice.
+    // Note: mInstance should be sorted by model name for the sake of
+    // deterministic order.
+    for (auto& iter : mInstance)
     {
         LLMeshUploadData data;
-        data.mBaseModel = iter->first;
+        data.mBaseModel = iter.first;
 
         if (data.mBaseModel->mSubmodelID)
         {
@@ -2733,7 +2748,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
             continue;
         }
 
-        LLModelInstance& first_instance = *(iter->second.begin());
+        LLModelInstance& first_instance = *(iter.second.begin());
         for (S32 i = 0; i < 5; i++)
         {
             data.mModel[i] = first_instance.mLOD[i];
@@ -2767,7 +2782,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
                 mUploadSkin,
                 mUploadJoints,
                 mLockScaleIfJointPosition,
-                false,
+                LLModel::WRITE_BINARY,
                 false,
                 data.mBaseModel->mSubmodelID);
 
@@ -2780,8 +2795,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
         }
 
         // For all instances that use this model
-        for (instance_list::iterator instance_iter = iter->second.begin();
-             instance_iter != iter->second.end();
+        for (instance_list::iterator instance_iter = iter.second.begin();
+             instance_iter != iter.second.end();
              ++instance_iter)
         {
 
@@ -2881,10 +2896,11 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
         }
     }
 
-    for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+    // Now handle the submodels.
+    for (auto& iter : mInstance)
     {
         LLMeshUploadData data;
-        data.mBaseModel = iter->first;
+        data.mBaseModel = iter.first;
 
         if (!data.mBaseModel->mSubmodelID)
         {
@@ -2893,7 +2909,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
             continue;
         }
 
-        LLModelInstance& first_instance = *(iter->second.begin());
+        LLModelInstance& first_instance = *(iter.second.begin());
         for (S32 i = 0; i < 5; i++)
         {
             data.mModel[i] = first_instance.mLOD[i];
@@ -2927,7 +2943,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
                 mUploadSkin,
                 mUploadJoints,
                 mLockScaleIfJointPosition,
-                false,
+                LLModel::WRITE_BINARY,
                 false,
                 data.mBaseModel->mSubmodelID);
 
@@ -2940,8 +2956,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
         }
 
         // For all instances that use this model
-        for (instance_list::iterator instance_iter = iter->second.begin();
-             instance_iter != iter->second.end();
+        for (instance_list::iterator instance_iter = iter.second.begin();
+             instance_iter != iter.second.end();
              ++instance_iter)
         {
 
