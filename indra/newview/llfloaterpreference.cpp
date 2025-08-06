@@ -529,7 +529,8 @@ bool LLFloaterPreference::postBuild()
     }
 
 #ifndef LL_DISCORD
-    getChild<LLTabContainer>("privacy_tab_container")->childDisable("privacy_preferences_discord");
+    LLPanel* panel = getChild<LLPanel>("privacy_preferences_discord");
+    getChild<LLTabContainer>("privacy_tab_container")->removeTabPanel(panel);
 #endif
 
     return true;
