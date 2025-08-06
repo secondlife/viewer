@@ -2,7 +2,7 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
 <map>
-  <key>ImporterDebug</key>
+  <key>ImporterDebugVerboseLogging</key>
   <map>
     <key>Comment</key>
     <string>Enable debug output to more precisely identify sources of import errors. Warning: the output can slow down import on many machines.</string>
@@ -27,13 +27,24 @@
   <key>ImporterModelLimit</key>
   <map>
     <key>Comment</key>
-    <string>Limits amount of importer generated models for dae files</string>
+    <string>Limits amount of importer generated (when over 8 faces) models for dae and gltf files</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
     <integer>768</integer>
+  </map>
+  <key>ImporterDebugMode</key>
+  <map>
+    <key>Comment</key>
+    <string>At 0 does nothing, at 1 dumps skinning data near orifinal file, at 2 dumps skining data and positions/weights of first 5 models, at 3 dumps skinning data and models as llsd</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
   <key>ImporterPreprocessDAE</key>
   <map>
@@ -621,16 +632,16 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
-    <key>AvatarPickerURL</key>
+    <key>AvatarWelcomePack</key>
     <map>
-      <key>Comment</key>
-      <string>Avatar picker contents</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/avatars.html</string>
+        <key>Comment</key>
+        <string>Avatar Welcome Pack contents</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/vawp/index.html</string>
     </map>
     <!--AvatarBakedTextureUploadTimeout is in use by QA-->
     <key>AvatarBakedTextureUploadTimeout</key>
@@ -16270,13 +16281,13 @@
     <key>MediaFirstClickInteract</key>
     <map>
       <key>Comment</key>
-      <string>This setting controls which media (once loaded) does not require a first click to focus before interaction can begin. This allows clicks to be passed directly to media bypassing the focus click requirement. This setting is a bitfield, precomputed values are as follows: Disabled=0; Worn HUDs only=1; Owned objects=3; Friend objects=7; Group objects=15; Landowner objects=31; Any object=31; All MOAP=1073741824. For complete details see lltoolpie.h enum MediaFirstClickTypes.</string>
+      <string>This setting controls which media (once loaded) does not require a first click to focus before interaction can begin. This allows clicks to be passed directly to media bypassing the focus click requirement. This setting is a bitfield, precomputed values are as follows: Disabled=0; Worn HUDs only=1; Owned objects=2; Friend objects=4; Group objects=8; Landowner objects=16; Any object=32767; All MOAP=32768. For complete details see lltoolpie.h enum MediaFirstClickTypes.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>31</integer>
     </map>
     <key>EnableSelectionHints</key>
     <map>

@@ -79,6 +79,7 @@ set(viewer_SOURCE_FILES
     gltf/accessor.cpp
     gltf/primitive.cpp
     gltf/animation.cpp
+    gltf/llgltfloader.cpp
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -181,11 +182,11 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloater360capture.cpp
     llfloaterabout.cpp
+    llfloateravatarwelcomepack.cpp
     llfloaterbvhpreview.cpp
     llfloateraddpaymentmethod.cpp
     llfloaterauction.cpp
     llfloaterautoreplacesettings.cpp
-    llfloateravatar.cpp
     llfloateravatarpicker.cpp
     llfloateravatarrendersettings.cpp
     llfloateravatartextures.cpp
@@ -749,6 +750,7 @@ set(viewer_HEADER_FILES
     gltf/buffer_util.h
     gltf/primitive.h
     gltf/animation.h
+    gltf/llgltfloader.h
     llaccountingcost.h
     llaccountingcostmanager.h
     llaisapi.h
@@ -852,11 +854,11 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloater360capture.h
     llfloaterabout.h
+    llfloateravatarwelcomepack.h
     llfloaterbvhpreview.h
     llfloateraddpaymentmethod.h
     llfloaterauction.h
     llfloaterautoreplacesettings.h
-    llfloateravatar.h
     llfloateravatarpicker.h
     llfloateravatarrendersettings.h
     llfloateravatartextures.h

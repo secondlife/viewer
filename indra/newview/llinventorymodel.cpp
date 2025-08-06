@@ -2682,6 +2682,7 @@ bool LLInventoryModel::loadSkeleton(
     LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS(LOG_INV) << "importing inventory skeleton for " << owner_id << LL_ENDL;
 
+    LLTimer timer;
     typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
     cat_set_t temp_cats;
     bool rv = true;
@@ -2966,7 +2967,8 @@ bool LLInventoryModel::loadSkeleton(
     }
 
     LL_INFOS(LOG_INV) << "Successfully loaded " << cached_category_count
-                      << " categories and " << cached_item_count << " items from cache."
+                      << " categories and " << cached_item_count << " items from cache"
+                      << " after " << timer.getElapsedTimeF32() << " seconds."
                       << LL_ENDL;
 
     return rv;

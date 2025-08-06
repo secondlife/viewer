@@ -95,7 +95,7 @@ class LLFileEnableUploadModel : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::findInstance("upload_model");
-        if (fmp && fmp->isModelLoading())
+        if (fmp && !fmp->isDead() && fmp->isModelLoading())
         {
             return false;
         }

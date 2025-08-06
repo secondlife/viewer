@@ -277,9 +277,13 @@ private:
     F64Seconds mLastTimeDiff;  // used for time stat updates
     F64Seconds mTotalFrametimeJitter;
 
-    U32 mFrameJitterEvents;
+    U32 mFrameJitterEvents = 0;
+    U32 mFrameJitterEventsLastMinute = 0;
+    U32 mEventMinutes = 0;
+    F64Seconds mTotalTime;
 
     F64Seconds              mLastFrameTimeSample; // used for frame time stats
+    F64Seconds              mTimeSinceLastEventSample;
     std::vector<F64Seconds>      mFrameTimes;          // used for frame time stats
     std::vector<F64Seconds> mFrameTimesJitter;    // used for frame time jitter stats
 };
