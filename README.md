@@ -26,12 +26,46 @@ Third party maintained forks, which include Linux compatible builds, are indexed
 
 ## Build Instructions
 
-configure the build for the first time by running: `cmake -P configure.cmake`
-after that the build can be reconfigured by running `cmake -B ./build-darwin-x86_64 -S ./indra/`
+### Initial Configuration
 
-build the project by running: `cmake --build build-darwin-x86_64`
+Configure the build for the first time by running:
+```bash
+cmake -P configure.cmake
+```
 
-run the tests by running: `cmake --build build-darwin-x86_64 -t tests_ok`
+This will create a platform-specific build directory:
+- **Windows**: `build-vc170-64`
+- **Linux**: `build-linux-x86_64`
+- **macOS**: `build-darwin-x86_64`
+
+### Reconfigure (if needed)
+
+**Note**: The `configure.cmake` script handles most configuration scenarios automatically. Manual reconfiguration is typically only needed if you want to change specific CMake options or if there were issues during the initial configuration.
+
+After the initial configuration, the build can be reconfigured by running:
+
+- **Windows**: `cmake -B ./build-vc170-64 -S ./indra/`
+- **Linux**: `cmake -B ./build-linux-x86_64 -S ./indra/`
+- **macOS**: `cmake -B ./build-darwin-x86_64 -S ./indra/`
+
+Additionally GUI based configuration can be used by replacing `cmake` with `cmake-gui` in the above commands.
+
+
+### Build the Project
+
+Build the project by running:
+
+- **Windows:** `cmake --build build-vc170-64`
+- **Linux:** `cmake --build build-linux-x86_64`
+- **macOS:** `cmake --build build-darwin-x86_64`
+
+### Run Tests
+
+Run the tests by running:
+
+- **Windows:** `cmake --build build-vc170-64 -t tests_ok`
+- **Linux:** `cmake --build build-linux-x86_64 -t tests_ok`
+- **macOS:** `cmake --build build-darwin-x86_64 -t tests_ok`
 
 ## Contribute
 
