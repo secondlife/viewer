@@ -82,9 +82,9 @@ endif()
 
 set(ENV{PYTHON} "${VENV_PYTHON}")
 
-message(INFO " installing autobuild and llsd in python venv")
+message(INFO " installing autobuild llsd and certifi in python venv")
 execute_process(
-  COMMAND "${VENV_PIP}" install llsd autobuild
+  COMMAND "${VENV_PIP}" install llsd autobuild certifi
   RESULT_VARIABLE PIP_RESULT
 )
 if(NOT PIP_RESULT EQUAL 0)
@@ -93,7 +93,7 @@ endif()
 
 message(INFO " executing cmake -G ${GENERATOR} -B ${FULL_BUILD_DIR} -S ${FULL_SOURCE_DIR} -DADDRESS_SIZE=64 -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'")
 execute_process(
-  COMMAND cmake -G "${GENERATOR}" -B "${FULL_BUILD_DIR}" -S "${FULL_SOURCE_DIR}"  -DADDRESS_SIZE=64 -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}'
+  COMMAND cmake -G "${GENERATOR}" -B "${FULL_BUILD_DIR}" -S "${FULL_SOURCE_DIR}"  -DADDRESS_SIZE=64 -DLL_BUILD_ENV='${LL_BUILD}' -DAUTOBUILD_EXECUTABLE='${VENV_AUTOBUILD}' -DINSTALL_PROPRIETARY=FALSE
   RESULT_VARIABLE CMAKE_RESULT
 )
 if(NOT CMAKE_RESULT EQUAL 0)
