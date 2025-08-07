@@ -38,6 +38,13 @@
 #include "volume_catcher.h"
 #include "media_plugin_base.h"
 
+// _getpid()/getpid()
+#if LL_WINDOWS
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "dullahan.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -729,17 +736,34 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 std::string user_data_path_cache = message_in.getValue("cache_path");
                 std::string subfolder = message_in.getValue("username");
 
+                // media plugin doesn't have access to gDirUtilp
+                std::string path_separator;
+#if LL_WINDOWS
+                path_separator = "\\";
+#else
+                path_separator = "/";
+#endif
+
                 mRootCachePath = user_data_path_cache + "cef_cache";
+
+                // Issue #4498 Introduce an additional sub-folder underneath the main cache
+                // folder so that each CEF media instance gets its own (as per the CEF API
+                // official position). These folders will be removed at startup by Viewer code
+                // so that their non-trivial size does not exhaust available disk space. This
+                // begs the question - why turn on the cache at all? There are 2 reasons - firstly
+                // some of the instances will benefit from per Viewer session caching and will
+                // use the injected SL cookie and secondly, it's not clear how having no cache
+                // interacts with the multiple simultaneous paradigm we use.
+                mRootCachePath += path_separator;
+# if LL_WINDOWS
+                mRootCachePath += std::to_string(_getpid());
+# else
+                mRootCachePath += std::to_string(getpid());
+# endif
+
                 if (!subfolder.empty())
                 {
-                    std::string delim;
-#if LL_WINDOWS
-                    // media plugin doesn't have access to gDirUtilp
-                    delim = "\\";
-#else
-                    delim = "/";
-#endif
-                    mCachePath = mRootCachePath + delim + subfolder;
+                    mCachePath = mRootCachePath + path_separator + subfolder;
                 }
                 else
                 {
