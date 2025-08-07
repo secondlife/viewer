@@ -5956,37 +5956,39 @@ void LLAppViewer::updateDiscordActivity()
         activity.SetDetails(gDiscordActivityDetails);
     }
 
+    auto agent_pos_region = gAgent.getPositionAgent();
+    S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
+    S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
+    S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
+    F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
+    const F32 FLY_CUTOFF = 6.f;
+    const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
+    const F32 WALK_CUTOFF = 1.5f;
+    const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
+    if (velocity_mag_sq > FLY_CUTOFF_SQ)
+    {
+        pos_x -= pos_x % 4;
+        pos_y -= pos_y % 4;
+    }
+    else if (velocity_mag_sq > WALK_CUTOFF_SQ)
+    {
+        pos_x -= pos_x % 2;
+        pos_y -= pos_y % 2;
+    }
+
+    std::string location = "Hidden Region";
     static LLCachedControl<bool> show_state(gSavedSettings, "ShowDiscordActivityState", false);
     if (show_state)
     {
-        auto agent_pos_region = gAgent.getPositionAgent();
-        S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
-        S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
-        S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
-        F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
-        const F32 FLY_CUTOFF = 6.f;
-        const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
-        const F32 WALK_CUTOFF = 1.5f;
-        const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
-        if (velocity_mag_sq > FLY_CUTOFF_SQ)
-        {
-            pos_x -= pos_x % 4;
-            pos_y -= pos_y % 4;
-        }
-        else if (velocity_mag_sq > WALK_CUTOFF_SQ)
-        {
-            pos_x -= pos_x % 2;
-            pos_y -= pos_y % 2;
-        }
-        auto location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
-        activity.SetState(location);
-
-        discordpp::ActivityParty party;
-        party.SetId(location);
-        party.SetCurrentSize(gDiscordPartyCurrentSize);
-        party.SetMaxSize(gDiscordPartyMaxSize);
-        activity.SetParty(party);
+        location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
     }
+    activity.SetState(location);
+
+    discordpp::ActivityParty party;
+    party.SetId(location);
+    party.SetCurrentSize(gDiscordPartyCurrentSize);
+    party.SetMaxSize(gDiscordPartyMaxSize);
+    activity.SetParty(party);
 
     gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
 }
