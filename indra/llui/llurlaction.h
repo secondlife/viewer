@@ -60,6 +60,10 @@ public:
     /// if the Url specifies an SL location, teleport there
     static void teleportToLocation(std::string url);
 
+    /// If the Url specifies an object id, attempt to zoom in.
+    /// If not possible to zoom in, show on map
+    static void zoomInObject(std::string url);
+
     /// if the Url specifies an SL location, show it on a map
     static void showLocationOnMap(std::string url);
 

@@ -37,6 +37,8 @@
 #include "lllocalcliprect.h"
 #include "lltrans.h"
 #include "llfloaterimnearbychat.h"
+#include "llfloaterworldmap.h"
+#include "llviewermenu.h"
 
 #include "llviewercontrol.h"
 #include "llagentdata.h"
@@ -72,6 +74,23 @@ public:
         if (verb == "inspect")
         {
             LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", object_id));
+            return true;
+        }
+
+        if (verb == "zoomin")
+        {
+            if (!handle_zoom_to_object(object_id) && params.size() > 2)
+            {
+                // zoom faled, show location
+                // secondlife:///app/object/object_id/zoomin/{LOCATION}/{COORDS} SLapp
+                const std::string region_name = LLURI::unescape(params[0].asString());
+                S32 x = (params.size() > 1) ? params[1].asInteger() : 128;
+                S32 y = (params.size() > 2) ? params[2].asInteger() : 128;
+                S32 z = (params.size() > 3) ? params[3].asInteger() : 0;
+
+                LLFloaterWorldMap::getInstance()->trackURL(region_name, x, y, z);
+                LLFloaterReg::showInstance("world_map", "center");
+            }
             return true;
         }
 
