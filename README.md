@@ -55,17 +55,17 @@ Additionally GUI based configuration can be used by replacing `cmake` with `cmak
 
 Build the project by running:
 
-- **Windows:** `cmake --build build-vc170-64`
-- **Linux:** `cmake --build build-linux-x86_64`
-- **macOS:** `cmake --build build-darwin-x86_64`
+- **Windows:** `cmake --build build-vc170-64 --parallel`
+- **Linux:** `cmake --build build-linux-x86_64 --parallel`
+- **macOS:** `cmake --build build-darwin-x86_64 --parallel`
 
 ### Run Tests
 
 Run the tests by running:
 
-- **Windows:** `cmake --build build-vc170-64 -t tests_ok`
-- **Linux:** `cmake --build build-linux-x86_64 -t tests_ok`
-- **macOS:** `cmake --build build-darwin-x86_64 -t tests_ok`
+- **Windows:** `cmake --build build-vc170-64 --parallel -t tests_ok`
+- **Linux:** `cmake --build build-linux-x86_64 --parallel -t tests_ok`
+- **macOS:** `cmake --build build-darwin-x86_64 --parallel -t tests_ok`
 
 ## Contribute
 
