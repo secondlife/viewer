@@ -181,14 +181,21 @@ Learn about [https://community.secondlife.com/knowledgebase/joining-and-particip
               control_name="NearMeRange"
               decimal_digits="0"
               increment="1"
-              follows="top|left"
+              follows="left|top"
               left="5"
               min_val="0"
               max_val="4096"
               label="Range:"
               name="near_me_range"
               tool_tip="Nearby people range"
-              width="250" />
+              width="230"/>
+            <text
+              type="string"
+              follows="left|top"
+              left_delta="225"
+              name="near_me_range_text2">
+              m
+            </text>
          <layout_stack
            clip="false"
            follows="all"
