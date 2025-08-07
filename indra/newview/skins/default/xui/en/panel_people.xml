@@ -235,7 +235,7 @@ Learn about [https://community.secondlife.com/knowledgebase/joining-and-particip
              <avatar_list
                allow_select="true"
                follows="all"
-               height="200"
+               height="197"
                ignore_online_status="true"
                layout="topleft"
                left="3"
