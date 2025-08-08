@@ -177,6 +177,25 @@ Learn about [https://community.secondlife.com/knowledgebase/joining-and-particip
                      function="People.DelFriend" />
                  </dnd_button>
             </panel>
+            <slider
+              control_name="NearMeRange"
+              decimal_digits="0"
+              increment="1"
+              follows="left|top"
+              left="5"
+              min_val="0"
+              max_val="4096"
+              label="Range:"
+              name="near_me_range"
+              tool_tip="Nearby people range"
+              width="230"/>
+            <text
+              type="string"
+              follows="left|top"
+              left_delta="225"
+              name="near_me_range_text2">
+              m
+            </text>
          <layout_stack
            clip="false"
            follows="all"
@@ -216,7 +235,7 @@ Learn about [https://community.secondlife.com/knowledgebase/joining-and-particip
              <avatar_list
                allow_select="true"
                follows="all"
-               height="211"
+               height="197"
                ignore_online_status="true"
                layout="topleft"
                left="3"
