@@ -1,8 +1,5 @@
 * text eol=lf
 
-# VSTool (normalization disabled)
-indra/tools/vstool/* -text
-
 # Images
 *.bmp binary
 *.BMP binary
