@@ -63,8 +63,6 @@ class ViewerManifest(LLManifest):
     def construct(self):
         super(ViewerManifest, self).construct()
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
-        self.path("app_settings/llplugin.xml")
-        self.path("app_settings/message.xml")
 
         if self.is_packaging_viewer():
             with self.prefix(src_dst="app_settings"):
