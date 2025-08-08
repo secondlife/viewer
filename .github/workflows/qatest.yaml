@@ -43,7 +43,11 @@ jobs:
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
           - os: windows
-            runner: qa-dan-asus
+            runner: qa-windows-asus-dan
+            artifact: Windows-installer
+            install-path: 'C:\viewer-automation-main'
+          - os: windows
+            runner: qa-windows-z600-dan
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
           - os: mac
