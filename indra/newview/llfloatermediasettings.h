@@ -48,7 +48,7 @@ public:
     static LLFloaterMediaSettings* getInstance();
     static bool instanceExists();
     static void apply();
-    static void initValues( const LLSD& media_settings , bool editable);
+    static void initValues( const LLSD& media_settings , bool editable, bool has_media_info, bool multiple_media, bool multiple_valid_media);
     static void clearValues( bool editable);
 
     LLPanelMediaSettingsSecurity* getPanelSecurity(){return mPanelMediaSettingsSecurity;};

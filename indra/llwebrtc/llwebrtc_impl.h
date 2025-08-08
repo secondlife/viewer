@@ -417,7 +417,12 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
 
-    bool mMute;
+    typedef enum {
+        MUTE_INITIAL,
+        MUTE_MUTED,
+        MUTE_UNMUTED,
+    } EMicMuteState;
+    EMicMuteState mMute;
 
     // signaling
     std::vector<LLWebRTCSignalingObserver *>  mSignalingObserverList;

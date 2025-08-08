@@ -20,5 +20,5 @@
     border="false"
     bevel_style="none"
     show_item_link_overlays="true">
-    <item allow_wear="false"/>
+    <item marketplace_item="true"/>
 </inventory_panel>

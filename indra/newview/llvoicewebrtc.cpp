@@ -52,6 +52,7 @@
 #include "llcachename.h"
 #include "llimview.h" // for LLIMMgr
 #include "llworld.h"
+#include "llviewerregion.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "llfirstuse.h"
@@ -336,35 +337,37 @@ void LLWebRTCVoiceClient::updateSettings()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     setVoiceEnabled(LLVoiceClient::getInstance()->voiceEnabled());
-    static LLCachedControl<S32> sVoiceEarLocation(gSavedSettings, "VoiceEarLocation");
-    setEarLocation(sVoiceEarLocation);
+    if (mVoiceEnabled)
+    {
+        static LLCachedControl<S32> sVoiceEarLocation(gSavedSettings, "VoiceEarLocation");
+        setEarLocation(sVoiceEarLocation);
 
-    static LLCachedControl<std::string> sInputDevice(gSavedSettings, "VoiceInputAudioDevice");
-    setCaptureDevice(sInputDevice);
+        static LLCachedControl<std::string> sInputDevice(gSavedSettings, "VoiceInputAudioDevice");
+        setCaptureDevice(sInputDevice);
 
-    static LLCachedControl<std::string> sOutputDevice(gSavedSettings, "VoiceOutputAudioDevice");
-    setRenderDevice(sOutputDevice);
+        static LLCachedControl<std::string> sOutputDevice(gSavedSettings, "VoiceOutputAudioDevice");
+        setRenderDevice(sOutputDevice);
 
-    LL_INFOS("Voice") << "Input device: " << std::quoted(sInputDevice()) << ", output device: " << std::quoted(sOutputDevice()) << LL_ENDL;
+        LL_INFOS("Voice") << "Input device: " << std::quoted(sInputDevice()) << ", output device: " << std::quoted(sOutputDevice()) << LL_ENDL;
 
-    static LLCachedControl<F32> sMicLevel(gSavedSettings, "AudioLevelMic");
-    setMicGain(sMicLevel);
+        static LLCachedControl<F32> sMicLevel(gSavedSettings, "AudioLevelMic");
+        setMicGain(sMicLevel);
 
-    llwebrtc::LLWebRTCDeviceInterface::AudioConfig config;
+        llwebrtc::LLWebRTCDeviceInterface::AudioConfig config;
 
-    static LLCachedControl<bool> sEchoCancellation(gSavedSettings, "VoiceEchoCancellation", true);
-    config.mEchoCancellation = sEchoCancellation;
+        static LLCachedControl<bool> sEchoCancellation(gSavedSettings, "VoiceEchoCancellation", true);
+        config.mEchoCancellation = sEchoCancellation;
 
-    static LLCachedControl<bool> sAGC(gSavedSettings, "VoiceAutomaticGainControl", true);
-    config.mAGC = sAGC;
+        static LLCachedControl<bool> sAGC(gSavedSettings, "VoiceAutomaticGainControl", true);
+        config.mAGC = sAGC;
 
-    static LLCachedControl<U32> sNoiseSuppressionLevel(gSavedSettings,
-                                                       "VoiceNoiseSuppressionLevel",
-                                                       llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel::NOISE_SUPPRESSION_LEVEL_VERY_HIGH);
-    config.mNoiseSuppressionLevel = (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel) (U32)sNoiseSuppressionLevel;
+        static LLCachedControl<U32> sNoiseSuppressionLevel(gSavedSettings,
+            "VoiceNoiseSuppressionLevel",
+            llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel::NOISE_SUPPRESSION_LEVEL_VERY_HIGH);
+        config.mNoiseSuppressionLevel = (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel)(U32)sNoiseSuppressionLevel;
 
-    mWebRTCDeviceInterface->setAudioConfig(config);
-
+        mWebRTCDeviceInterface->setAudioConfig(config);
+    }
 }
 
 // Observers
@@ -2002,6 +2005,33 @@ bool LLWebRTCVoiceClient::sessionState::processConnectionStates()
     return !mWebRTCConnections.empty();
 }
 
+// Helper function to check if a region supports WebRTC voice
+bool LLWebRTCVoiceClient::estateSessionState::isRegionWebRTCEnabled(const LLUUID& regionID)
+{
+    LLViewerRegion* region = LLWorld::getInstance()->getRegionFromID(regionID);
+    if (!region)
+    {
+        LL_WARNS("Voice") << "Could not find region " << regionID
+                         << " for voice server type validation" << LL_ENDL;
+        return false;
+    }
+
+    LLSD simulatorFeatures;
+    region->getSimulatorFeatures(simulatorFeatures);
+
+    bool isWebRTCEnabled = simulatorFeatures.has("VoiceServerType") &&
+                          simulatorFeatures["VoiceServerType"].asString() == "webrtc";
+
+    if (!isWebRTCEnabled)
+    {
+        LL_DEBUGS("Voice") << "Region " << regionID << " VoiceServerType is not 'webrtc' (got: "
+                           << (simulatorFeatures.has("VoiceServerType") ? simulatorFeatures["VoiceServerType"].asString() : "none") << ")"
+                           << LL_ENDL;
+    }
+
+    return isWebRTCEnabled;
+}
+
 // processing of spatial voice connection states requires special handling.
 // as neighboring regions need to be started up or shut down depending
 // on our location.
@@ -2026,6 +2056,13 @@ bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
                 // shut down connections to neighbors that are too far away.
                 spatialConnection.get()->shutDown();
             }
+            else if (!isRegionWebRTCEnabled(regionID))
+            {
+                // shut down connections to neighbors that no longer support WebRTC voice.
+                LL_DEBUGS("Voice") << "Shutting down connection to neighbor region " << regionID
+                                  << " - no longer supports WebRTC voice" << LL_ENDL;
+                spatialConnection.get()->shutDown();
+            }
             if (!spatialConnection.get()->isShuttingDown())
             {
                 neighbor_ids.erase(regionID);
@@ -2035,11 +2072,20 @@ bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
         // add new connections for new neighbors
         for (auto &neighbor : neighbor_ids)
         {
-            connectionPtr_t connection(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
+            // Only connect if the region supports WebRTC voice server type
+            if (isRegionWebRTCEnabled(neighbor))
+            {
+                connectionPtr_t connection(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
 
-            mWebRTCConnections.push_back(connection);
-            connection->setMuteMic(mMuted);
-            connection->setSpeakerVolume(mSpeakerVolume);
+                mWebRTCConnections.push_back(connection);
+                connection->setMuteMic(mMuted);  // mute will be set for primary connection when that connection comes up
+                connection->setSpeakerVolume(mSpeakerVolume);
+            }
+            else
+            {
+                LL_DEBUGS("Voice") << "Skipping neighbor region " << neighbor
+                                  << " - does not support WebRTC voice" << LL_ENDL;
+            }
         }
     }
     return LLWebRTCVoiceClient::sessionState::processConnectionStates();
@@ -2389,6 +2435,7 @@ void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterfac
             }
             LL_DEBUGS("Voice") << "On AudioEstablished." << LL_ENDL;
             mWebRTCAudioInterface = audio_interface;
+            mWebRTCAudioInterface->setMute(true);  // mute will be set appropriately later when we finish setting up.
             setVoiceConnectionState(VOICE_STATE_SESSION_ESTABLISHED);
         });
 }
@@ -2748,7 +2795,8 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             }
             // update the peer connection with the various characteristics of
             // this connection.
-            mWebRTCAudioInterface->setMute(mMuted);
+            // this connection will come up as muted, but will be set to the appropriate
+            // value later on.
             mWebRTCAudioInterface->setReceiveVolume(mSpeakerVolume);
             LLWebRTCVoiceClient::getInstance()->OnConnectionEstablished(mChannelID, mRegionID);
             setVoiceConnectionState(VOICE_STATE_WAIT_FOR_DATA_CHANNEL);
@@ -2793,6 +2841,10 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                     if (primary != mPrimary)
                     {
                         mPrimary = primary;
+                        if (mWebRTCAudioInterface)
+                        {
+                            mWebRTCAudioInterface->setMute(mMuted || !mPrimary);
+                        }
                         sendJoin();
                     }
                 }
@@ -3095,10 +3147,7 @@ LLVoiceWebRTCSpatialConnection::LLVoiceWebRTCSpatialConnection(const LLUUID &reg
     LLVoiceWebRTCConnection(regionID, channelID),
     mParcelLocalID(parcelLocalID)
 {
-    if (gAgent.getRegion())
-    {
-        mPrimary = (regionID == gAgent.getRegion()->getRegionID());
-    }
+    mPrimary = false;  // will be set to primary after connection established
 }
 
 LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection()

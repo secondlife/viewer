@@ -300,7 +300,7 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
 
         for (auto itemp : mChildren)
         {
-            LLConversationItem* current_participant = dynamic_cast<LLConversationItem*>(itemp);
+            LLConversationItem* current_participant = dynamic_cast<LLConversationItem*>(itemp.get());
             // Add the avatar uuid to the list (except if it's the own agent uuid)
             if (current_participant->getUUID() != gAgentID)
             {
@@ -329,6 +329,7 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
 
 void LLConversationItemSession::removeParticipant(LLConversationItemParticipant* participant)
 {
+    LLPointer<LLFolderViewModelItem> holder(participant);
     removeChild(participant);
     mNeedsRefresh = true;
     updateName(participant);
@@ -360,15 +361,10 @@ void LLConversationItemSession::clearAndDeparentModels()
     for (child_list_t::iterator it = mChildren.begin(); it != mChildren.end();)
     {
         LLFolderViewModelItem* child = *it;
-        if (child->getNumRefs() == 0)
+        // Note that model might still be assigned to some view/widget
+        // and have a different parent
+        if (child->getParent() == this)
         {
-            // LLConversationItemParticipant can be created but not assigned to any view,
-            // it was waiting for an "add_participant" event to be processed
-            delete child;
-        }
-        else
-        {
-            // Model is still assigned to some view/widget
             child->setParent(NULL);
         }
         it = mChildren.erase(it);
@@ -383,7 +379,7 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
     child_list_t::iterator iter;
     for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
     {
-        participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+        participant = dynamic_cast<LLConversationItemParticipant*>((*iter).get());
         if (participant && participant->hasSameValue(participant_id))
         {
             break;
@@ -493,7 +489,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
     child_list_t::const_iterator iter;
     for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
     {
-        participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+        participant = dynamic_cast<LLConversationItemParticipant*>((*iter).get());
         F64 participant_time;
         if (participant && participant->getTime(participant_time))
         {
@@ -517,7 +513,7 @@ void LLConversationItemSession::dumpDebugData(bool dump_children)
     {
         for (child_list_t::iterator iter = mChildren.begin(); iter != mChildren.end(); iter++)
         {
-            LLConversationItemParticipant* participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
+            LLConversationItemParticipant* participant = dynamic_cast<LLConversationItemParticipant*>((*iter).get());
             if (participant)
             {
                 participant->dumpDebugData();

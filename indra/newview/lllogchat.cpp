@@ -32,6 +32,8 @@
 #include "lllogchat.h"
 #include "llregex.h"
 #include "lltrans.h"
+#include "llurlaction.h"
+#include "llurlentry.h"
 #include "llviewercontrol.h"
 
 #include "lldiriterator.h"
@@ -358,13 +360,29 @@ void LLLogChat::saveHistory(const std::string& filename,
         return;
     }
 
+    std::string altered_line = line;
+
+    // avoid costly regex calls
+    if (line.find("/mention") != std::string::npos)
+    {
+        static const boost::regex mention_regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/mention", boost::regex::perl | boost::regex::icase);
+
+        // replace mention URL with [@username](URL)
+        altered_line = boost::regex_replace(line, mention_regex, [](const boost::smatch& match) -> std::string
+        {
+            std::string url = match[0].str();
+            std::string username = LLUrlAction::getURLLabel(url);
+            return "[" + username + "](" + url + ")";
+        });
+    }
+
     LLSD item;
 
     if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
          item["time"] = LLLogChat::timestamp2LogString(0, gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
 
     item["from_id"] = from_id;
-    item["message"] = line;
+    item["message"] = altered_line;
 
     //adding "Second Life:" for all system messages to make chat log history parsing more reliable
     if (from.empty() && from_id.isNull())
@@ -469,6 +487,19 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         }
 
         std::string line(remove_utf8_bom(buffer));
+
+
+        // fast heuristic test for a mention URL in a string
+        // this is used to avoid costly regex calls
+        if (line.find("/mention)") != std::string::npos)
+        {
+            // restore original mention URL from [@username](URL) format
+            static const boost::regex altered_mention_regex("\\[@([^\\]]+)\\]\\((" APP_HEADER_REGEX "/agent/[\\da-f-]+/mention)\\)",
+                                                            boost::regex::perl | boost::regex::icase);
+
+            // $2 captures the URL part
+            line = boost::regex_replace(line, altered_mention_regex, "$2");
+        }
 
         //updated 1.23 plain text log format requires a space added before subsequent lines in a multilined message
         if (' ' == line[0])

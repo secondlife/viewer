@@ -328,28 +328,30 @@ void LLCoordFrame::rotate(const LLMatrix3 &rotation_matrix)
 }
 
 
+// Rotate 2 normalized orthogonal vectors in direction from `source` to `target`
+static void rotate2(LLVector3& source, LLVector3& target, F32 angle)
+{
+    F32 sx = source[VX], sy = source[VY], sz = source[VZ];
+    F32 tx = target[VX], ty = target[VY], tz = target[VZ];
+    F32 c = cosf(angle), s = sinf(angle);
+
+    source.set(sx * c + tx * s, sy * c + ty * s, sz * c + tz * s);
+    target.set(tx * c - sx * s, ty * c - sy * s, tz * c - sz * s);
+}
+
 void LLCoordFrame::roll(F32 angle)
 {
-    LLQuaternion q(angle, mXAxis);
-    LLMatrix3 rotation_matrix(q);
-    rotate(rotation_matrix);
-    CHECK_FINITE_OBJ();
+    rotate2(mYAxis, mZAxis, angle);
 }
 
 void LLCoordFrame::pitch(F32 angle)
 {
-    LLQuaternion q(angle, mYAxis);
-    LLMatrix3 rotation_matrix(q);
-    rotate(rotation_matrix);
-    CHECK_FINITE_OBJ();
+    rotate2(mZAxis, mXAxis, angle);
 }
 
 void LLCoordFrame::yaw(F32 angle)
 {
-    LLQuaternion q(angle, mZAxis);
-    LLMatrix3 rotation_matrix(q);
-    rotate(rotation_matrix);
-    CHECK_FINITE_OBJ();
+    rotate2(mXAxis, mYAxis, angle);
 }
 
 // get*() routines

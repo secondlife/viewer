@@ -554,6 +554,45 @@ LLSD shallow(LLSD value, LLSD filter=LLSD()) { return llsd_shallow(value, filter
 } // namespace llsd
 
 /*****************************************************************************
+*   LLSDParam<std::vector<T>>
+*****************************************************************************/
+// Given an LLSD array, return a const std::vector<T>&, where T is a type
+// supported by LLSDParam. Bonus: if the LLSD value is actually a scalar,
+// return a single-element vector containing the converted value.
+template <typename T>
+class LLSDParam<std::vector<T>>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& array)
+    {
+        // treat undefined "array" as empty vector
+        if (array.isDefined())
+        {
+            // what if it's a scalar?
+            if (! array.isArray())
+            {
+                v.push_back(LLSDParam<T>(array));
+            }
+            else                        // really is an array
+            {
+                // reserve space for the array entries
+                v.reserve(array.size());
+                for (const auto& item : llsd::inArray(array))
+                {
+                    v.push_back(LLSDParam<T>(item));
+                }
+            }
+        }
+    }
+
+    operator const std::vector<T>&() const { return v; }
+
+private:
+    std::vector<T> v;
+};
+
+
+/*****************************************************************************
  *   toArray(), toMap()
  *****************************************************************************/
 namespace llsd

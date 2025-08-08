@@ -86,6 +86,7 @@ public:
 
     bool exportLegacyStream(std::ostream& output_stream) const;
     LLSD asLLSD() const;
+    void asLLSD(LLSD &sd) const;
     operator LLSD() const { return asLLSD(); }
     bool fromLLSD(const LLSD& sd, bool& has_perm_mask, U32& perm_mask);
     bool importLegacyStream(std::istream& input_stream, bool& has_perm_mask, U32& perm_mask);

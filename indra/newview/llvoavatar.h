@@ -233,6 +233,7 @@ public:
     virtual void            onActiveOverrideMeshesChanged();
 
     /*virtual*/ const LLUUID&   getID() const;
+    /*virtual*/ std::string     getDebugName() const;
     /*virtual*/ void            addDebugText(const std::string& text);
     /*virtual*/ F32             getTimeDilation();
     /*virtual*/ void            getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
@@ -330,16 +331,16 @@ public:
 
 
     // avatar render cost
-    U32             getVisualComplexity()           { return mVisualComplexity;             };
+    U32             getVisualComplexity()           { return mVisualComplexity; };
 
     // surface area calculation
-    F32             getAttachmentSurfaceArea()      { return mAttachmentSurfaceArea;        };
+    F32             getAttachmentSurfaceArea()      { return mAttachmentSurfaceArea; };
 
-    U32             getReportedVisualComplexity()                   { return mReportedVisualComplexity;             };  // Numbers as reported by the SL server
-    void            setReportedVisualComplexity(U32 value)          { mReportedVisualComplexity = value;            };
+    U32             getReportedVisualComplexity()   { return mReportedVisualComplexity; };  // Numbers as reported by the SL server
+    void            setReportedVisualComplexity(U32 value) { mReportedVisualComplexity = value; };
 
-    S32             getUpdatePeriod()               { return mUpdatePeriod;         };
-    const LLColor4 &  getMutedAVColor()             { return mMutedAVColor;         };
+    S32             getUpdatePeriod()               { return mUpdatePeriod; };
+    const LLColor4 &  getMutedAVColor()             { return mMutedAVColor; };
     static void     updateImpostorRendering(U32 newMaxNonImpostorsValue);
 
     void            idleUpdateBelowWater();
@@ -400,14 +401,13 @@ public:
 
     bool            isTooComplex() const;
     bool            visualParamWeightsAreDefault();
-    virtual bool    getIsCloud() const;
+    virtual bool    getHasMissingParts() const;
     bool            isFullyTextured() const;
     bool            hasGray() const;
-    S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
+    S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = waiting for attachments, 4 = full.
     void            updateRezzedStatusTimers(S32 status);
 
     S32             mLastRezzedStatus;
-
 
     void            startPhase(const std::string& phase_name);
     void            stopPhase(const std::string& phase_name, bool err_check = true);
@@ -427,6 +427,7 @@ protected:
 
 private:
     bool            mFirstFullyVisible;
+    bool            mWaitingForMeshes;
     F32             mFirstDecloudTime;
     LLFrameTimer    mFirstAppearanceMessageTimer;
 
@@ -723,7 +724,7 @@ public:
 
     bool            isFullyBaked();
     static bool     areAllNearbyInstancesBaked(S32& grey_avatars);
-    static void     getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars);
+    static void     getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars, S32& pending_meshes, S32& control_avatars);
     static std::string rezStatusToString(S32 status);
 
     //--------------------------------------------------------------------
@@ -742,7 +743,7 @@ protected:
     LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);    }
 
 
-    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
     bool mLoadedCallbacksPaused;
     S32 mLoadedCallbackTextures; // count of 'loaded' baked textures, filled from mCallbackTextureList
     LLFrameTimer mLastTexCallbackAddedTime;
