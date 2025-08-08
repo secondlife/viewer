@@ -30,7 +30,7 @@
 
 #include "llmodelloader.h"
 #include "lldaeloader.h"
-#include "llgltfloader.h"
+#include "gltf/llgltfloader.h"
 #include "llfloatermodelpreview.h"
 
 #include "llagent.h"
@@ -40,6 +40,7 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "lliconctrl.h"
+#include "lljointdata.h"
 #include "llmatrix4a.h"
 #include "llmeshrepository.h"
 #include "llmeshoptimizer.h"
@@ -163,10 +164,14 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     , mPhysicsSearchLOD(LLModel::LOD_PHYSICS)
     , mResetJoints(false)
     , mModelNoErrors(true)
+    , mLoading(false)
+    , mModelLoader(nullptr)
     , mLastJointUpdate(false)
     , mFirstSkinUpdate(true)
     , mHasDegenerate(false)
-    , mImporterDebug(LLCachedControl<bool>(gSavedSettings, "ImporterDebug", false))
+    , mNumOfFetchingTextures(0)
+    , mTexturesNeedScaling(false)
+    , mImporterDebug(LLCachedControl<bool>(gSavedSettings, "ImporterDebugVerboseLogging", false))
 {
     mNeedsUpdate = true;
     mCameraDistance = 0.f;
@@ -175,11 +180,9 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mCameraZoom = 1.f;
     mTextureName = 0;
     mPreviewLOD = 0;
-    mModelLoader = NULL;
     mMaxTriangleLimit = 0;
     mDirty = false;
     mGenLOD = false;
-    mLoading = false;
     mLookUpLodFiles = false;
     mLoadState = LLModelLoader::STARTING;
     mGroup = 0;
@@ -211,6 +214,7 @@ LLModelPreview::~LLModelPreview()
     {
         mModelLoader->shutdown();
         mModelLoader = NULL;
+        mLoading = false;
     }
 
     if (mPreviewAvatar)
@@ -557,10 +561,7 @@ void LLModelPreview::rebuildUploadData()
                             texture->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, new LLHandle<LLModelPreview>(getHandle()), &mCallbackTextureList, false);
                             texture->forceToSaveRawImage(0, F32_MAX);
                             texture->updateFetch();
-                            if (mModelLoader)
-                            {
-                                mModelLoader->mNumOfFetchingTextures++;
-                            }
+                            mNumOfFetchingTextures++;
                         }
                     }
                 }
@@ -691,7 +692,7 @@ void LLModelPreview::saveUploadData(const std::string& filename,
                 save_skinweights,
                 save_joint_positions,
                 lock_scale_if_joint_position,
-                false, true, instance.mModel->mSubmodelID);
+                LLModel::WRITE_BINARY, true, instance.mModel->mSubmodelID);
 
             data["mesh"][instance.mModel->mLocalID] = str.str();
         }
@@ -753,6 +754,10 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
         LL_WARNS() << out.str() << LL_ENDL;
         LLFloaterModelPreview::addStringToLog(out, true);
         assert(lod >= LLModel::LOD_IMPOSTOR && lod < LLModel::NUM_LODS);
+        if (mModelLoader == nullptr)
+        {
+            mLoading = false;
+        }
         return;
     }
 
@@ -780,7 +785,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
     mLODFile[lod] = filename;
 
-    std::map<std::string, std::string> joint_alias_map;
+    std::map<std::string, std::string, std::less<>> joint_alias_map;
     getJointAliases(joint_alias_map);
 
     LLHandle<LLModelPreview> preview_handle = getHandle();
@@ -806,10 +811,14 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
             joint_alias_map,
             LLSkinningUtil::getMaxJointCount(),
             gSavedSettings.getU32("ImporterModelLimit"),
+            gSavedSettings.getU32("ImporterDebugMode"),
             gSavedSettings.getBOOL("ImporterPreprocessDAE"));
     }
     else
     {
+        LLVOAvatar* av = getPreviewAvatar();
+        std::vector<LLJointData> viewer_skeleton;
+        av->getJointMatricesAndHierarhy(viewer_skeleton);
         mModelLoader = new LLGLTFLoader(
             filename,
             lod,
@@ -822,7 +831,9 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
             mJointsFromNode,
             joint_alias_map,
             LLSkinningUtil::getMaxJointCount(),
-            gSavedSettings.getU32("ImporterModelLimit"));
+            gSavedSettings.getU32("ImporterModelLimit"),
+            gSavedSettings.getU32("ImporterDebugMode"),
+            viewer_skeleton);
     }
 
     if (force_disable_slm)
@@ -985,7 +996,9 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
     setRigValidForJointPositionUpload(mModelLoader->isRigValidForJointPositionUpload());
     setLegacyRigFlags(mModelLoader->getLegacyRigFlags());
 
+    mTexturesNeedScaling |= mModelLoader->mTexturesNeedScaling;
     mModelLoader->loadTextures();
+    warnTextureScaling();
 
     if (loaded_lod == -1)
     { //populate all LoDs from model loader scene
@@ -1807,7 +1820,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
 
 void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 decimation, bool enforce_tri_limit)
 {
-    LL_INFOS() << "Generating lod " << which_lod << " using meshoptimizer" << LL_ENDL;
+    LL_DEBUGS("Upload") << "Generating lod " << which_lod << " using meshoptimizer" << LL_ENDL;
     // Allow LoD from -1 to LLModel::LOD_PHYSICS
     if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
     {
@@ -1884,6 +1897,12 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
     mMaxTriangleLimit = base_triangle_count;
 
+    // For logging purposes
+    S32 meshes_processed = 0;
+    S32 meshes_simplified = 0;
+    S32 meshes_sloppy_simplified = 0;
+    S32 meshes_fail_count = 0;
+
     // Build models
 
     S32 start = LLModel::LOD_HIGH;
@@ -1893,7 +1912,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
     {
         start = which_lod;
         end = which_lod;
-    }
+    };
 
     for (S32 lod = start; lod >= end; --lod)
     {
@@ -1956,6 +1975,11 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                         const LLVolumeFace &face = base->getVolumeFace(face_idx);
                         LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
                         new_face = face;
+                        meshes_fail_count++;
+                    }
+                    else
+                    {
+                        meshes_simplified++;
                     }
                 }
             }
@@ -1968,7 +1992,18 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                     if (genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY) < 0)
                     {
                         // Sloppy failed and returned an invalid model
-                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
+                        if (genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL) < 0)
+                        {
+                            meshes_fail_count++;
+                        }
+                        else
+                        {
+                            meshes_simplified++;
+                        }
+                    }
+                    else
+                    {
+                        meshes_sloppy_simplified++;
                     }
                 }
             }
@@ -2068,25 +2103,28 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                             precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
                         }
 
-                        LL_INFOS() << "Model " << target_model->getName()
+                        LL_DEBUGS("Upload") << "Model " << target_model->getName()
                             << " lod " << which_lod
                             << " resulting ratio " << precise_ratio
                             << " simplified using per model method." << LL_ENDL;
+                        meshes_simplified++;
                     }
                     else
                     {
-                        LL_INFOS() << "Model " << target_model->getName()
+                        LL_DEBUGS("Upload") << "Model " << target_model->getName()
                             << " lod " << which_lod
                             << " resulting ratio " << sloppy_ratio
                             << " sloppily simplified using per model method." << LL_ENDL;
+                        meshes_sloppy_simplified++;
                     }
                 }
                 else
                 {
-                    LL_INFOS() << "Model " << target_model->getName()
+                    LL_DEBUGS("Upload") << "Model " << target_model->getName()
                         << " lod " << which_lod
                         << " resulting ratio " << precise_ratio
                         << " simplified using per model method." << LL_ENDL;
+                    meshes_simplified++;
                 }
             }
 
@@ -2099,6 +2137,8 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             //copy material list
             target_model->mMaterialList = base->mMaterialList;
+
+            meshes_processed++;
 
             if (!validate_model(target_model))
             {
@@ -2129,6 +2169,11 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             }
         }
     }
+
+    LL_INFOS("Upload") << "LOD " << which_lod << ", Mesh optimizer processed meshes : " << meshes_processed
+        <<" simplified: " << meshes_simplified
+        << ", slopily simplified: " << meshes_sloppy_simplified
+        << ", failures: " << meshes_fail_count << LL_ENDL;
 }
 
 void LLModelPreview::updateStatusMessages()
@@ -2466,7 +2511,7 @@ void LLModelPreview::updateStatusMessages()
         LLMutexLock lock(this);
         if (mModelLoader)
         {
-            if (!mModelLoader->areTexturesReady() && mFMP->childGetValue("upload_textures").asBoolean())
+            if (!areTexturesReady() && mFMP->childGetValue("upload_textures").asBoolean())
             {
                 // Some textures are still loading, prevent upload until they are done
                 mModelNoErrors = false;
@@ -3039,9 +3084,12 @@ void LLModelPreview::loadedCallback(
     S32 lod,
     void* opaque)
 {
+    if(LLModelPreview::sIgnoreLoadedCallback)
+        return;
+
     LLModelPreview* pPreview = static_cast<LLModelPreview*>(opaque);
     LLMutexLock lock(pPreview);
-    if (pPreview && pPreview->mModelLoader && !LLModelPreview::sIgnoreLoadedCallback)
+    if (pPreview && pPreview->mModelLoader)
     {
         // Load loader's warnings into floater's log tab
         const LLSD out = pPreview->mModelLoader->logOut();
@@ -3090,25 +3138,48 @@ void LLModelPreview::lookupLODModelFiles(S32 lod)
     S32 next_lod = (lod - 1 >= LLModel::LOD_IMPOSTOR) ? lod - 1 : LLModel::LOD_PHYSICS;
 
     std::string lod_filename = mLODFile[LLModel::LOD_HIGH];
-    std::string ext = ".dae";
     std::string lod_filename_lower(lod_filename);
     LLStringUtil::toLower(lod_filename_lower);
-    std::string::size_type i = lod_filename_lower.rfind(ext);
-    if (i != std::string::npos)
+
+    // Check for each supported file extension
+    std::vector<std::string> supported_exts = { ".dae", ".gltf", ".glb" };
+    std::string found_ext;
+    std::string::size_type ext_pos = std::string::npos;
+
+    for (const auto& ext : supported_exts)
     {
-        lod_filename.replace(i, lod_filename.size() - ext.size(), getLodSuffix(next_lod) + ext);
-    }
-    if (gDirUtilp->fileExists(lod_filename))
-    {
-        LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-        if (fmp)
+        std::string::size_type i = lod_filename_lower.rfind(ext);
+        if (i != std::string::npos)
         {
-            fmp->setCtrlLoadFromFile(next_lod);
+            ext_pos = i;
+            found_ext = ext;
+            break;
         }
-        loadModel(lod_filename, next_lod);
+    }
+
+    if (ext_pos != std::string::npos)
+    {
+        // Replace extension with LOD suffix + original extension
+        std::string lod_file_to_check = lod_filename;
+        lod_file_to_check.replace(ext_pos, found_ext.size(), getLodSuffix(next_lod) + found_ext);
+
+        if (gDirUtilp->fileExists(lod_file_to_check))
+        {
+            LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+            if (fmp)
+            {
+                fmp->setCtrlLoadFromFile(next_lod);
+            }
+            loadModel(lod_file_to_check, next_lod);
+        }
+        else
+        {
+            lookupLODModelFiles(next_lod);
+        }
     }
     else
     {
+        // No recognized extension found, continue with next LOD
         lookupLODModelFiles(next_lod);
     }
 }
@@ -3149,6 +3220,7 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material, LLHandle<LLModelPre
         tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, new LLHandle<LLModelPreview>(handle), &preview->mCallbackTextureList, false);
         tex->forceToSaveRawImage(0, F32_MAX);
         material.setDiffuseMap(tex->getID()); // record tex ID
+        preview->mNumOfFetchingTextures++;
         return 1;
     }
 
@@ -3993,6 +4065,18 @@ void LLModelPreview::setPreviewLOD(S32 lod)
     updateStatusMessages();
 }
 
+void LLModelPreview::warnTextureScaling()
+{
+    if (areTexturesReady() && mTexturesNeedScaling)
+    {
+        std::ostringstream out;
+        out << "One or more textures in this model were scaled to be within the allowed limits.";
+        LL_INFOS() << out.str() << LL_ENDL;
+        LLSD args;
+        LLFloaterModelPreview::addStringToLog("ModelTextureScaling", args, true, -1);
+    }
+}
+
 //static
 void LLModelPreview::textureLoadedCallback(
     bool success,
@@ -4013,11 +4097,19 @@ void LLModelPreview::textureLoadedCallback(
         LLModelPreview* preview = static_cast<LLModelPreview*>(handle->get());
         preview->refresh();
 
-        if (final && preview->mModelLoader)
+        if (final)
         {
-            if (preview->mModelLoader->mNumOfFetchingTextures > 0)
+            if (src_vi
+                && (src_vi->getOriginalWidth() > LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT
+                    || src_vi->getOriginalHeight() > LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT))
             {
-                preview->mModelLoader->mNumOfFetchingTextures--;
+                preview->mTexturesNeedScaling = true;
+            }
+
+            if (preview->mNumOfFetchingTextures > 0)
+            {
+                preview->mNumOfFetchingTextures--;
+                preview->warnTextureScaling();
             }
         }
     }

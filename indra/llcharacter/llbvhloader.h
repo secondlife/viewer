@@ -227,7 +227,7 @@ class LLBVHLoader
     friend class LLKeyframeMotion;
 public:
     // Constructor
-    LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string>& joint_alias_map );
+    LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string, std::less<>>& joint_alias_map );
     ~LLBVHLoader();
 
 /*

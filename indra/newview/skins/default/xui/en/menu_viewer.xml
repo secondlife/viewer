@@ -2808,10 +2808,16 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorWorkQueueCrash" />
             </menu_item_call>
             <menu_item_call
-             label="Force a Crash in a Thread"
-             name="Force a Crash in a Thread">
+             label="Force an LLError Crash in a Thread"
+             name="Force an LLError Crash in a Thread">
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorThreadCrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force an Exception Crash in a Thread"
+             name="Force an Exception Crash in a Thread">
+                <menu_item_call.on_click
+                 function="Advanced.ForceExceptionThreadCrash" />
             </menu_item_call>
             <menu_item_call
              label="Force Disconnect Viewer"

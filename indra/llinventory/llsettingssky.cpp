@@ -657,15 +657,16 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mHasLegacyHaze |= lerp_legacy_float(mHazeDensity, mLegacyHazeDensity, other->mHazeDensity, other->mLegacyHazeDensity, 0.7f, (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_float(mDistanceMultiplier, mLegacyDistanceMultiplier, other->mDistanceMultiplier, other->mLegacyDistanceMultiplier, 0.8f, (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, (F32)blendf);
+        mHasLegacyHaze |= lerp_legacy_color(mAmbientColor, mLegacyAmbientColor, other->mAmbientColor, other->mLegacyAmbientColor, LLColor3(0.25f, 0.25f, 0.25f), (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_color(mBlueDensity, mLegacyBlueDensity, other->mBlueDensity, other->mLegacyBlueDensity, LLColor3(0.2447f, 0.4487f, 0.7599f), (F32)blendf);
 
         parammapping_t defaults = other->getParameterMap();
         stringset_t skip = getSkipInterpolateKeys();
         stringset_t slerps = getSlerpKeys();
-        mAbsorptionConfigs = interpolateSDMap(mAbsorptionConfigs, other->mAbsorptionConfigs, defaults, blendf, skip, slerps);
-        mMieConfigs = interpolateSDMap(mMieConfigs, other->mMieConfigs, defaults, blendf, skip, slerps);
-        mRayleighConfigs = interpolateSDMap(mRayleighConfigs, other->mRayleighConfigs, defaults, blendf, skip, slerps);
+        mAbsorptionConfigs = interpolateSDValue("absorption_config", mAbsorptionConfigs, other->mAbsorptionConfigs, defaults, blendf, skip, slerps);
+        mMieConfigs = interpolateSDValue("mie_config", mMieConfigs, other->mMieConfigs, defaults, blendf, skip, slerps);
+        mRayleighConfigs = interpolateSDValue("rayleigh_config", mRayleighConfigs, other->mRayleighConfigs, defaults, blendf, skip, slerps);
 
         setDirtyFlag(true);
         setReplaced();

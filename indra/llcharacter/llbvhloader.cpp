@@ -131,7 +131,7 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 // LLBVHLoader()
 //-----------------------------------------------------------------------------
 
-LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string>& joint_alias_map )
+LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string, std::less<>>& joint_alias_map )
 {
     reset();
     errorLine = 0;
@@ -156,9 +156,9 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
     }
 
     // Recognize all names we've been told are legal.
-    for (std::map<std::string, std::string>::value_type& alias_pair : joint_alias_map)
+    for (const auto& [alias, joint] : joint_alias_map)
     {
-        makeTranslation( alias_pair.first , alias_pair.second );
+        makeTranslation(alias, joint);
     }
 
     char error_text[128];       /* Flawfinder: ignore */

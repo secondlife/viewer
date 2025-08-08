@@ -29,6 +29,8 @@
 
 #include "llimagej2c.h"
 
+const F32 LAST_TCP_RATE = 1.f/DEFAULT_COMPRESSION_RATE; // should be 8, giving a 1:8 ratio
+
 class LLImageJ2COJ : public LLImageJ2CImpl
 {
 public:

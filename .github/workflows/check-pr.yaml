@@ -1,0 +1,21 @@
+name: Check PR
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  check-description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const description = context.payload.pull_request.body || '';
+            if (description.trim().length < 20) {
+              core.setFailed("❌ PR description is too short. Please provide at least 20 characters.");
+            }

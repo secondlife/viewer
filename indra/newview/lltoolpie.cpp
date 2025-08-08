@@ -72,6 +72,7 @@
 #include "llweb.h"
 #include "pipeline.h"   // setHighlightObject
 #include "lluiusage.h"
+#include "llcallingcard.h"
 
 extern bool gDebugClicks;
 
@@ -1501,6 +1502,136 @@ static void handle_click_action_play()
     }
 }
 
+bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool moap_flag)
+{
+    // Early failure cases
+    if(!pick.getObject())
+    {
+        LL_WARNS() << "pick.getObject() is NULL" << LL_ENDL;
+        return false;
+    }
+
+    static LLCachedControl<S32> FirstClickPref(gSavedSettings, "MediaFirstClickInteract", 1);
+
+    // Special / early-exit cases first, then checks get more complex and needy as we go down
+    // Feature disabled
+    if(FirstClickPref == MEDIA_FIRST_CLICK_NONE)
+    {
+        LL_DEBUGS_ONCE() << "FirstClickPref == MEDIA_FIRST_CLICK_NONE" << LL_ENDL;
+        return false;
+    }
+    // Every check beyond this point requires PRIM_MEDIA_FIRST_CLICK_INTERACT to be TRUE
+    if(!moap_flag && !(FirstClickPref & MEDIA_FIRST_CLICK_BYPASS_MOAP_FLAG))
+    {
+        LL_DEBUGS_ONCE() << "PRIM_MEDIA_FIRST_CLICK_INTERACT not set" << LL_ENDL;
+        return false;
+    }
+    // Any object with PRIM_MEDIA_FIRST_CLICK_INTERACT set to TRUE
+    if((FirstClickPref & MEDIA_FIRST_CLICK_ANY) == MEDIA_FIRST_CLICK_ANY)
+    {
+        LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_ANY" << LL_ENDL;
+        return true;
+    }
+
+    // The following checks require some object information so we obtain that
+    LLPointer<LLViewerObject> object = pick.getObject();
+    if(object.isNull())
+    {
+        LL_WARNS() << "pick.getObject() is NULL" << LL_ENDL;
+        return false;
+    }
+
+    // HUD attachments
+    if((FirstClickPref & MEDIA_FIRST_CLICK_HUD) && object->isHUDAttachment())
+    {
+        LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_HUD" << LL_ENDL;
+        return true;
+    }
+
+    // Further object detail required beyond this point
+    LLPermissions* perms = LLSelectMgr::getInstance()->getHoverNode()->mPermissions;
+    if(perms == nullptr)
+    {
+        LL_WARNS() << "LLSelectMgr::getInstance()->getHoverNode()->mPermissions is NULL" << LL_ENDL;
+        return false;
+    }
+    LLUUID owner_id = perms->getOwner();
+    LLUUID group_id = perms->getGroup();
+    if(owner_id.isNull() && group_id.isNull())
+    {
+        LL_WARNS() << "Owner information was not reliably obtained" << LL_ENDL;
+        return false;
+    }
+
+    // Own objects
+    if((FirstClickPref & MEDIA_FIRST_CLICK_OWN) && owner_id == gAgent.getID())
+    {
+        LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_OWN" << LL_ENDL;
+        return true;
+    }
+
+    // Check if the object is owned by a friend of the agent
+    if(FirstClickPref & MEDIA_FIRST_CLICK_FRIEND)
+    {
+        if(LLAvatarTracker::instance().isBuddy(owner_id))
+        {
+            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_FRIEND. id: " << owner_id << LL_ENDL;
+            return true;
+        }
+    }
+
+    // Check for objects set to or owned by the active group
+    if(FirstClickPref & MEDIA_FIRST_CLICK_GROUP)
+    {
+        if(gAgent.isInGroup(group_id) || gAgent.isInGroup(owner_id))
+        {
+            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_GROUP. group_id:" << group_id << ", owner_id: " << owner_id << LL_ENDL;
+            return true;
+        }
+    }
+
+    // This check ensures that the following conditions are met:
+    // 1. The object is located in the same parcel as the agent.
+    // 2. One of the following is true:
+    //    a. The object is owned by the same group as the parcel.
+    //    b. The object is set to the same group as the parcel.
+    //    c. The object is owned by the same owner as the parcel.
+    // Conditions 2a and 2b are mutually exclusive, our check is the same for both.
+    if(FirstClickPref & MEDIA_FIRST_CLICK_LAND)
+    {
+        LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+        if(parcel == nullptr)
+        {
+            LL_WARNS() << "LLViewerParcelMgr::getInstance()->getAgentParcel() is NULL" << LL_ENDL;
+            return false;
+        }
+
+        // Same parcel as the agent only
+        if(!LLViewerParcelMgr::getInstance()->inAgentParcel(object->getPositionGlobal()))
+        {
+            LL_WARNS_ONCE() << "Object is not in the same parcel as the agent" << LL_ENDL;
+            return false;
+        }
+
+        LLUUID parcel_owner = parcel->getOwnerID();
+        LLUUID parcel_group = parcel->getGroupID();
+
+        // The parcel owner and group can't both be null
+        if(parcel_owner.isNull() && parcel_group.isNull())
+        {
+            LL_WARNS() << "Parcel owner and group are both null" << LL_ENDL;
+            return false;
+        }
+
+        if(owner_id == parcel_owner || group_id == parcel_group)
+        {
+            LL_DEBUGS_ONCE() << "FirstClickPref & MEDIA_FIRST_CLICK_LAND. Parcel owner: " << parcel_owner << ", group_id:" << group_id << ", owner_id: " << owner_id << LL_ENDL;
+            return true;
+        }
+    }
+    return false;
+}
+
 bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 {
     //FIXME: how do we handle object in different parcel than us?
@@ -1535,6 +1666,16 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
         {
             // It's okay to give this a null impl
             LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, pick.mNormal);
+            if (shouldAllowFirstMediaInteraction(pick, mep->getFirstClickInteract()))
+            {
+                if (media_impl.notNull())
+                {
+                    media_impl->mouseDown(pick.mUVCoords, gKeyboard->currentMask(true));
+                    mMediaMouseCaptureID = mep->getMediaID();
+                    setMouseCapture(true);
+                    return true;
+                }
+            }
         }
         else
         {
@@ -1647,7 +1788,7 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
             }
 
             // If this is the focused media face, send mouse move events.
-            if (LLViewerMediaFocus::getInstance()->isFocusedOnFace(objectp, pick.mObjectFace))
+            if (LLViewerMediaFocus::getInstance()->isFocusedOnFace(objectp, pick.mObjectFace) || (shouldAllowFirstMediaInteraction(pick, mep->getFirstClickInteract())))
             {
                 media_impl->mouseMove(pick.mUVCoords, gKeyboard->currentMask(true));
                 gViewerWindow->setCursor(media_impl->getLastSetCursor());
