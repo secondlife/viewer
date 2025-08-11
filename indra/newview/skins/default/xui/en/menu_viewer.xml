@@ -411,11 +411,11 @@
       </menu_item_call>
       <menu_item_separator/>
       <menu_item_call
-        label="Complete avatars..."
-        name="Avatar Picker">
+        label="Avatar Welcome Pack..."
+        name="Avatar Welcome Pack">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
-         parameter="avatar" />
+         parameter="avatar_welcome_pack" />
       </menu_item_call>
       <menu_item_separator/>
 
@@ -1563,6 +1563,64 @@ function="World.EnvPreset"
              parameter="RenderDisablePostProcessing" />
           </menu_item_check>
           
+
+          <menu
+           create_jump_keys="true"
+           label="Selection level of detail"
+           name="Selection level of detail"
+           tear_off="true">
+
+              <menu_item_check
+                label="Default"
+                name="Default lod setting">
+                  <menu_item_check.on_check
+                   function="Tools.ToolsCheckSelectionLODMode"
+                   parameter="default" />
+                  <menu_item_check.on_click
+                   function="Tools.SelectionLODMode"
+                   parameter="default" />
+              </menu_item_check>
+              <menu_item_check
+                label="High"
+                name="High lod setting">
+                  <menu_item_check.on_check
+                   function="Tools.ToolsCheckSelectionLODMode"
+                   parameter="high" />
+                  <menu_item_check.on_click
+                   function="Tools.SelectionLODMode"
+                   parameter="high" />
+              </menu_item_check>
+              <menu_item_check
+                label="Medium"
+                name="Medium lod setting">
+                  <menu_item_check.on_check
+                   function="Tools.ToolsCheckSelectionLODMode"
+                   parameter="medium" />
+                  <menu_item_check.on_click
+                   function="Tools.SelectionLODMode"
+                   parameter="medium" />
+              </menu_item_check>
+              <menu_item_check
+                label="Low"
+                name="Low lod setting">
+                  <menu_item_check.on_check
+                   function="Tools.ToolsCheckSelectionLODMode"
+                   parameter="low" />
+                  <menu_item_check.on_click
+                   function="Tools.SelectionLODMode"
+                   parameter="low" />
+              </menu_item_check>
+              <menu_item_check
+                label="Lowest"
+                name="Lowest lod setting">
+                  <menu_item_check.on_check
+                   function="Tools.ToolsCheckSelectionLODMode"
+                   parameter="lowest" />
+                  <menu_item_check.on_click
+                   function="Tools.SelectionLODMode"
+                   parameter="lowest" />
+              </menu_item_check>
+          </menu>
         <menu_item_separator/>
 
                 <menu_item_check

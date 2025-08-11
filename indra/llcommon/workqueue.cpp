@@ -21,6 +21,7 @@
 #include "llcoros.h"
 #include LLCOROS_MUTEX_HEADER
 #include "llerror.h"
+#include "llevents.h"
 #include "llexception.h"
 #include "stringize.h"
 
@@ -30,11 +31,38 @@ using Lock  = LLCoros::LockType;
 /*****************************************************************************
 *   WorkQueueBase
 *****************************************************************************/
-LL::WorkQueueBase::WorkQueueBase(const std::string& name):
-    super(makeName(name))
+LL::WorkQueueBase::WorkQueueBase(const std::string& name, bool auto_shutdown)
+  : super(makeName(name))
 {
-    // TODO: register for "LLApp" events so we can implicitly close() on
-    // viewer shutdown.
+    if (auto_shutdown)
+    {
+        // Register for "LLApp" events so we can implicitly close() on viewer shutdown
+        std::string listener_name = "WorkQueue:" + getKey();
+        LLEventPumps::instance().obtain("LLApp").listen(
+            listener_name,
+            [this](const LLSD& stat)
+            {
+                std::string status(stat["status"]);
+                if (status != "running")
+                {
+                    // Viewer is shutting down, close this queue
+                    LL_DEBUGS("WorkQueue") << getKey() << " closing on app shutdown" << LL_ENDL;
+                    close();
+                }
+                return false;
+            });
+
+        // Store the listener name so we can unregister in the destructor
+        mListenerName = listener_name;
+    }
+}
+
+LL::WorkQueueBase::~WorkQueueBase()
+{
+    if (!mListenerName.empty() && !LLEventPumps::wasDeleted())
+    {
+        LLEventPumps::instance().obtain("LLApp").stopListening(mListenerName);
+    }
 }
 
 void LL::WorkQueueBase::runUntilClose()
@@ -182,14 +210,22 @@ void LL::WorkQueueBase::callWork(const Work& work)
     }
     catch (...)
     {
-        // Stash any other kind of uncaught exception to be rethrown by main thread.
-        LL_WARNS("LLCoros") << "Capturing and rethrowing uncaught exception in WorkQueueBase "
-            << getKey() << LL_ENDL;
+        if (getKey() != "mainloop")
+        {
+            // Stash any other kind of uncaught exception to be rethrown by main thread.
+            LL_WARNS("LLCoros") << "Capturing and rethrowing uncaught exception in WorkQueueBase "
+                                << getKey() << LL_ENDL;
 
-        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
-        main_queue->post(
-            // Bind the current exception, rethrow it in main loop.
-            [exc = std::current_exception()]() { std::rethrow_exception(exc); });
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            main_queue->post(
+                             // Bind the current exception, rethrow it in main loop.
+                             [exc = std::current_exception()]() { std::rethrow_exception(exc); });
+        }
+        else
+        {
+            // let main loop crash
+            throw;
+        }
     }
 #endif // else LL_WINDOWS
 }
@@ -212,8 +248,8 @@ void LL::WorkQueueBase::checkCoroutine(const std::string& method)
 /*****************************************************************************
 *   WorkQueue
 *****************************************************************************/
-LL::WorkQueue::WorkQueue(const std::string& name, size_t capacity):
-    super(name),
+LL::WorkQueue::WorkQueue(const std::string& name, size_t capacity, bool auto_shutdown):
+    super(name, auto_shutdown),
     mQueue(capacity)
 {
 }
@@ -261,8 +297,8 @@ bool LL::WorkQueue::tryPop_(Work& work)
 /*****************************************************************************
 *   WorkSchedule
 *****************************************************************************/
-LL::WorkSchedule::WorkSchedule(const std::string& name, size_t capacity):
-    super(name),
+LL::WorkSchedule::WorkSchedule(const std::string& name, size_t capacity, bool auto_shutdown):
+    super(name, auto_shutdown),
     mQueue(capacity)
 {
 }

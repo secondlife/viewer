@@ -33,6 +33,7 @@
 
 #include "llmatrix4a.h"
 #include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
@@ -123,7 +124,6 @@ LLModelLoader::LLModelLoader(
 , mLod(lod)
 , mTrySLM(false)
 , mFirstTransform(true)
-, mNumOfFetchingTextures(0)
 , mLoadCallback(load_cb)
 , mJointLookupFunc(joint_lookup_func)
 , mTextureLoadFunc(texture_load_func)
@@ -134,6 +134,7 @@ LLModelLoader::LLModelLoader(
 , mNoNormalize(false)
 , mNoOptimize(false)
 , mCacheOnlyHitIfRigged(false)
+, mTexturesNeedScaling(false)
 , mMaxJointsPerMesh(maxJointsPerMesh)
 , mGeneratedModelLimit(modelLimit)
 , mDebugMode(debugMode)
@@ -184,7 +185,7 @@ void LLModelLoader::run()
         LLSD args;
         args["Message"] = "UnknownException";
         args["FILENAME"] = mFilename;
-        args["EXCEPTION"] = "Unknown exception";
+        args["EXCEPTION"] = boost::current_exception_diagnostic_information();
         mWarningsArray.append(args);
         setLoadState(ERROR_PARSING);
     }
@@ -669,7 +670,7 @@ void LLModelLoader::loadTextures()
 
                 if(!material.mDiffuseMapFilename.empty())
                 {
-                    mNumOfFetchingTextures += mTextureLoadFunc(material, mOpaqueData);
+                    mTextureLoadFunc(material, mOpaqueData);
                 }
             }
         }

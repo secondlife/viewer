@@ -59,6 +59,7 @@
 
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 #include <fstream>
 
 static const std::string lod_suffix[LLModel::NUM_LODS] =
@@ -86,7 +87,8 @@ static const glm::mat4 coord_system_rotationxy(
     0.f, 0.f, 0.f, 1.f
 );
 
-static const S32 VERTICIES_LIMIT = USHRT_MAX - 2;
+static const S32 VERTEX_SPLIT_SAFETY_MARGIN = 3 * 3 + 1; // 10 vertices: 3 complete triangles plus remapping overhead
+static const S32 VERTEX_LIMIT = USHRT_MAX - VERTEX_SPLIT_SAFETY_MARGIN;
 
 LLGLTFLoader::LLGLTFLoader(std::string                filename,
     S32                                               lod,
@@ -154,7 +156,7 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
         LLSD args;
         args["Message"] = "ParsingErrorException";
         args["FILENAME"] = filename;
-        args["EXCEPTION"] = "Unknown exception";
+        args["EXCEPTION"] = boost::current_exception_diagnostic_information();
         mWarningsArray.append(args);
         setLoadState(ERROR_PARSING);
         return false;
@@ -611,6 +613,7 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                     LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
                     if (image.mTexture.notNull())
                     {
+                        mTexturesNeedScaling |= image.mHeight > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT || image.mWidth > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT;
                         impMat.setDiffuseMap(image.mTexture->getID());
                         LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
                     }
@@ -949,7 +952,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
         }
 
         // Indices handling
-        if (faceVertices.size() >= VERTICIES_LIMIT)
+        if (faceVertices.size() >= VERTEX_LIMIT)
         {
             // Will have to remap 32 bit indices into 16 bit indices
             // For the sake of simplicity build vector of 32 bit indices first
@@ -1034,7 +1037,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 }
                 indices_16.push_back((U16)vert_index);
 
-                if (indices_16.size() % 3 == 0 && face_verts.size() >= VERTICIES_LIMIT - 1)
+                if (indices_16.size() % 3 == 0 && face_verts.size() >= VERTEX_LIMIT)
                 {
                     LLVolumeFace face;
                     face.fillFromLegacyData(face_verts, indices_16);

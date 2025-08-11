@@ -39,6 +39,7 @@
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>
   <string name="tbd">TBD</string>
+  <string name="ModelTextureScaling">One or more textures in this model were scaled to be within the allowed limits.</string>
   
   <!-- Warnings and info from model loader-->
   <string name="TooManyJoint">Skinning disabled due to too many joints: [JOINTS], maximum: [MAX]</string>

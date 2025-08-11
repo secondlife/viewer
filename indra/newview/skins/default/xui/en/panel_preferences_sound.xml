@@ -422,11 +422,11 @@
         <item
             label="Anyone's objects"
             name="media_first_interact_any"
-            value="1073741823"/>
+            value="32767"/>
         <item
             label="All MOAP"
             name="media_first_click_all"
-            value="2147483647"/>
+            value="65535"/>
     </combo_box>
    <check_box
     name="media_show_on_others_btn"

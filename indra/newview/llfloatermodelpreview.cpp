@@ -350,14 +350,14 @@ void LLFloaterModelPreview::initModelPreview()
 }
 
 //static
-bool LLFloaterModelPreview::showModelPreview()
+void LLFloaterModelPreview::showModelPreview(const LLUUID& dest_folder)
 {
     LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)LLFloaterReg::getInstance("upload_model");
     if (fmp && !fmp->isModelLoading())
     {
+        fmp->setUploadDestination(dest_folder);
         fmp->loadHighLodModel();
     }
-    return true;
 }
 
 void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
@@ -506,7 +506,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
     gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
                           childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
-                          mUploadModelUrl, false,
+                          mUploadModelUrl, mDestinationFolderId, false,
                           getWholeModelFeeObserverHandle());
 
     toggleCalculateButton(false);
@@ -1340,26 +1340,26 @@ void LLFloaterModelPreview::addStringToLog(const std::string& message, const LLS
     {
         std::string str;
         switch (lod)
-{
+        {
         case LLModel::LOD_IMPOSTOR: str = "LOD0 "; break;
         case LLModel::LOD_LOW:      str = "LOD1 "; break;
         case LLModel::LOD_MEDIUM:   str = "LOD2 "; break;
         case LLModel::LOD_PHYSICS:  str = "PHYS "; break;
         case LLModel::LOD_HIGH:     str = "LOD3 ";   break;
         default: break;
-}
+        }
 
         LLStringUtil::format_map_t args_msg;
         LLSD::map_const_iterator iter = args.beginMap();
         LLSD::map_const_iterator end = args.endMap();
         for (; iter != end; ++iter)
-{
+        {
             args_msg[iter->first] = iter->second.asString();
         }
         str += sInstance->getString(message, args_msg);
         sInstance->addStringToLogTab(str, flash);
     }
-    }
+}
 
 // static
 void LLFloaterModelPreview::addStringToLog(const std::string& str, bool flash)
@@ -1659,7 +1659,7 @@ void LLFloaterModelPreview::onUpload(void* user_data)
     gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
                           mp->childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
-                          mp->mUploadModelUrl,
+                          mp->mUploadModelUrl, mp->mDestinationFolderId,
                           true, LLHandle<LLWholeModelFeeObserver>(), mp->getWholeModelUploadObserverHandle());
 }
 
@@ -1769,8 +1769,14 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
     if (index == LLModelPreview::MESH_OPTIMIZER_AUTO
         || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
         || index == LLModelPreview::MESH_OPTIMIZER_PRECISE)
-    { //rebuild LoD to update triangle counts
+    {
+        // rebuild LoD to update triangle counts
         onLODParamCommit(lod, true);
+    }
+    if (index == LLModelPreview::USE_LOD_ABOVE)
+    {
+        // refresh to pick triangle counts
+        mModelPreview->mDirty = true;
     }
 }
 

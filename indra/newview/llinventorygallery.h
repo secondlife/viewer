@@ -102,7 +102,7 @@ public:
     void getCurrentCategories(uuid_vec_t& vcur);
     bool updateAddedItem(LLUUID item_id); // returns true if added item is visible
     void updateRemovedItem(LLUUID item_id);
-    void updateChangedItemName(LLUUID item_id, std::string name);
+    void updateChangedItemData(LLUUID item_id, std::string name, bool is_favorite);
     void updateItemThumbnail(LLUUID item_id);
     void updateWornItem(LLUUID item_id, bool is_worn);
 
@@ -227,7 +227,7 @@ private:
     bool updateRowsIfNeeded();
     void updateGalleryWidth();
 
-    LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, time_t creation_date, bool is_link, bool is_worn);
+    LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, time_t creation_date, bool is_link, bool is_worn, bool is_favorite);
     LLInventoryGalleryItem* getItem(const LLUUID& id) const;
 
     void buildGalleryPanel(int row_count);
@@ -343,6 +343,7 @@ public:
     void setHidden(bool hidden) {mHidden = hidden;}
 
     void setType(LLAssetType::EType type, LLInventoryType::EType inventory_type, U32 flags, bool is_link);
+    void setFavorite(bool is_favorite);
     LLAssetType::EType getAssetType() { return mType; }
     void setThumbnail(LLUUID id);
     void setGallery(LLInventoryGallery* gallery) { mGallery = gallery; }
