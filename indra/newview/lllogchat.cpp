@@ -450,8 +450,8 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
     }
 
     // If we got here, we managed to stat the file.
-    // Open the file to read
-    LLFILE* fptr = LLFile::fopen(log_file_name, "r");       /*Flawfinder: ignore*/
+    // Open the file to read in binary mode to prevent interpreting other characters as EOF
+    LLFILE* fptr = LLFile::fopen(log_file_name, "rb");       /*Flawfinder: ignore*/
     if (!fptr)
     {   // Ok, this is strange but not really tragic in the big picture of things
         LL_WARNS("ChatHistory") << "Unable to read file " << log_file_name << " after stat was successful" << LL_ENDL;
@@ -1181,7 +1181,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
     }
 
     bool load_all_history = load_params.has("load_all_history") ? load_params["load_all_history"].asBoolean() : false;
-    LLFILE* fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
+    LLFILE* fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "rb");/*Flawfinder: ignore*/
 
     if (!fptr)
     {
@@ -1190,17 +1190,17 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
         {
             std::string old_name(file_name);
             old_name.erase(old_name.size() - GROUP_CHAT_SUFFIX.size());
-            fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "r");
+            fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "rb");
             if (fptr)
             {
                 fclose(fptr);
                 LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
             }
-            fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");
+            fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "rb");
         }
         if (!fptr)
         {
-            fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+            fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "rb");/*Flawfinder: ignore*/
             if (!fptr)
             {
                 mNewLoad = false;
