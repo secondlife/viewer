@@ -1000,7 +1000,7 @@ void LLWindowWin32::close()
     // Restore gamma to the system values.
     restoreGamma();
 
-    LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
+    LL_INFOS("Window") << "Destroying Window Thread" << LL_ENDL;
 
     if (sWindowHandleForMessageBox == mWindowHandle)
     {
@@ -4891,7 +4891,7 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 {
     if (mQueue->isClosed())
     {
-        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
+        LL_WARNS("Window") << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
         return false;
     }
 
@@ -4899,6 +4899,11 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
     if (mWindowHandleThrd)
     {
         ShowWindow(mWindowHandleThrd, SW_HIDE);
+    }
+    else
+    {
+        LL_WARNS("Window") << "Tried to hide window, but Win32 window handle is NULL." << LL_ENDL;
+        return false;
     }
 
     mGLReady = false;
