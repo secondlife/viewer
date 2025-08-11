@@ -4766,14 +4766,6 @@ bool LLVOAvatar::updateCharacter(LLAgent &agent)
     }
 
     bool visible = isVisible();
-    bool is_control_avatar = isControlAvatar(); // capture state to simplify tracing
-    bool is_attachment = false;
-
-    if (is_control_avatar)
-    {
-        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
-        is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
-    }
 
     // For fading out the names above heads, only let the timer
     // run if we're visible.

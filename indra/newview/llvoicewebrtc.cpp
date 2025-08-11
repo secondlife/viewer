@@ -2264,7 +2264,6 @@ void LLVoiceWebRTCConnection::processIceUpdatesCoro(connectionPtr_t connection)
         return;
     }
 
-    bool iceCompleted = false;
     LLSD body;
     if (!connection->mIceCandidates.empty() || connection->mIceCompleted)
     {
@@ -2303,7 +2302,6 @@ void LLVoiceWebRTCConnection::processIceUpdatesCoro(connectionPtr_t connection)
             LLSD body_candidate;
             body_candidate["completed"] = true;
             body["candidate"]           = body_candidate;
-            iceCompleted                = connection->mIceCompleted;
             connection->mIceCompleted   = false;
         }
 
@@ -2926,7 +2924,6 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
             return;
         }
         boost::json::object voice_data = voice_data_parsed.as_object();
-        bool new_participant = false;
         boost::json::object mute;
         boost::json::object user_gain;
         for (auto &participant_elem : voice_data)
@@ -2979,7 +2976,6 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                 }
             }
 
-            new_participant |= joined;
             if (!participant && joined && (primary || !isSpatial()))
             {
                 participant = LLWebRTCVoiceClient::getInstance()->addParticipantByID(mChannelID, agent_id, mRegionID);
