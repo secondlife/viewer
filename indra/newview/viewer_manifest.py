@@ -624,12 +624,16 @@ class Windows_x86_64_Manifest(ViewerManifest):
             with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
                 self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
+                self.path("dxcompiler.dll")
+                self.path("dxil.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("dullahan_host.exe")
-                self.path("snapshot_blob.bin")
                 self.path("v8_context_snapshot.bin")
+                self.path("vk_swiftshader.dll")
+                self.path("vk_swiftshader_icd.json")
+                self.path("vulkan-1.dll")
+                self.path("dullahan_host.exe")
 
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,

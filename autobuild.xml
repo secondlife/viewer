@@ -99,16 +99,6 @@
       </map>
       <key>boost</key>
       <map>
-        <key>copyright</key>
-        <string>(see individual source files)</string>
-        <key>description</key>
-        <string>Boost C++ Libraries</string>
-        <key>license</key>
-        <string>boost 1.0</string>
-        <key>license_file</key>
-        <string>LICENSES/boost.txt</string>
-        <key>name</key>
-        <string>boost</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -154,8 +144,18 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>boost 1.0</string>
+        <key>license_file</key>
+        <string>LICENSES/boost.txt</string>
+        <key>copyright</key>
+        <string>(see individual source files)</string>
         <key>version</key>
         <string>1.86</string>
+        <key>name</key>
+        <string>boost</string>
+        <key>description</key>
+        <string>Boost C++ Libraries</string>
       </map>
       <key>bugsplat</key>
       <map>
@@ -205,14 +205,6 @@
       </map>
       <key>colladadom</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
-        <key>license</key>
-        <string>SCEA</string>
-        <key>license_file</key>
-        <string>LICENSES/collada.txt</string>
-        <key>name</key>
-        <string>colladadom</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -258,8 +250,16 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>SCEA</string>
+        <key>license_file</key>
+        <string>LICENSES/collada.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
         <key>version</key>
         <string>2.3.0-r8</string>
+        <key>name</key>
+        <string>colladadom</string>
       </map>
       <key>cubemaptoequirectangular</key>
       <map>
@@ -441,16 +441,6 @@
       </map>
       <key>dullahan</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2017, Linden Research, Inc.</string>
-        <key>description</key>
-        <string>A headless browser SDK that uses the Chromium Embedded Framework (CEF). It is designed to make it easier to write applications that render modern web content directly to a memory buffer, inject synthesized mouse and keyboard events as well as interact with web based features like JavaScript or cookies.</string>
-        <key>license</key>
-        <string>MPL</string>
-        <key>license_file</key>
-        <string>LICENSES/LICENSE.txt</string>
-        <key>name</key>
-        <string>dullahan</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -458,11 +448,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7fde76e3f0e62d0e0593b6157f4d740ecef2429d</string>
+              <string>8f3672e548c140a48296669b65cb4ce9a54154e2</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0-r3/dullahan-1.14.0.202408091638_118.4.1_g3dd6078_chromium-118.0.5993.54-darwin64-10322607516.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.16.0-CEF_139.0.17/dullahan-1.16.0.202508120105_139.0.17_g6c347eb_chromium-139.0.7258.31-darwin64-16896111303.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -486,18 +476,28 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4124c79d8b0e319877ffa4c12581d5c1318b4d93</string>
+              <string>ec077eb13edf0b69324d73b49bb434e69e67d2d0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0-r3/dullahan-1.14.0.202408091639_118.4.1_g3dd6078_chromium-118.0.5993.54-windows64-10322607516.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.16.0-CEF_139.0.17/dullahan-1.16.0.202508120105_139.0.17_g6c347eb_chromium-139.0.7258.31-windows64-16896111303.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>MPL</string>
+        <key>license_file</key>
+        <string>LICENSES/LICENSE.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2017, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.14.0.202408091639_118.4.1_g3dd6078_chromium-118.0.5993.54</string>
+        <string>1.16.0.202508120105_139.0.17_g6c347eb_chromium-139.0.7258.31</string>
+        <key>name</key>
+        <string>dullahan</string>
+        <key>description</key>
+        <string>A headless browser SDK that uses the Chromium Embedded Framework (CEF). It is designed to make it easier to write applications that render modern web content directly to a memory buffer, inject synthesized mouse and keyboard events as well as interact with web based features like JavaScript or cookies.</string>
       </map>
       <key>emoji_shortcodes</key>
       <map>
@@ -625,16 +625,6 @@
       </map>
       <key>freetype</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
-        <key>description</key>
-        <string>Font rendering library</string>
-        <key>license</key>
-        <string>FreeType</string>
-        <key>license_file</key>
-        <string>LICENSES/freetype.txt</string>
-        <key>name</key>
-        <string>freetype</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -680,8 +670,18 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>FreeType</string>
+        <key>license_file</key>
+        <string>LICENSES/freetype.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>version</key>
         <string>2.13.3-cb2e120</string>
+        <key>name</key>
+        <string>freetype</string>
+        <key>description</key>
+        <string>Font rendering library</string>
       </map>
       <key>glext</key>
       <map>
@@ -1395,15 +1395,6 @@
       </map>
       <key>llca</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2016, Linden Research, Inc.; data provided by the Mozilla NSS Project.
-      </string>
-        <key>license</key>
-        <string>mit</string>
-        <key>license_file</key>
-        <string>LICENSES/ca-license.txt</string>
-        <key>name</key>
-        <string>llca</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -1421,8 +1412,17 @@
             <string>common</string>
           </map>
         </map>
+        <key>license</key>
+        <string>mit</string>
+        <key>license_file</key>
+        <string>LICENSES/ca-license.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2016, Linden Research, Inc.; data provided by the Mozilla NSS Project.
+      </string>
         <key>version</key>
         <string>202407221423.0</string>
+        <key>name</key>
+        <string>llca</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -2620,14 +2620,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>vlc-bin</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
-        <key>license</key>
-        <string>GPL2</string>
-        <key>license_file</key>
-        <string>LICENSES/vlc.txt</string>
-        <key>name</key>
-        <string>vlc-bin</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2659,8 +2651,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>GPL2</string>
+        <key>license_file</key>
+        <string>LICENSES/vlc.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
         <key>version</key>
         <string>3.0.21.10218721728</string>
+        <key>name</key>
+        <string>vlc-bin</string>
       </map>
       <key>vulkan_gltf</key>
       <map>
@@ -2858,16 +2858,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>tinyexr</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2014 - 2021, Syoyo Fujita and many contributors.</string>
-        <key>description</key>
-        <string>tinyexr import library</string>
-        <key>license</key>
-        <string>3-clause BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/tinyexr_license.txt</string>
-        <key>name</key>
-        <string>tinyexr</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -2885,16 +2875,26 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <string>common</string>
           </map>
         </map>
-        <key>source_type</key>
-        <string>git</string>
+        <key>license</key>
+        <string>3-clause BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/tinyexr_license.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2014 - 2021, Syoyo Fujita and many contributors.</string>
+        <key>version</key>
+        <string>1.0.9-5e8947c</string>
+        <key>name</key>
+        <string>tinyexr</string>
         <key>vcs_branch</key>
         <string>dependabot/github_actions/secondlife/action-autobuild-4</string>
         <key>vcs_revision</key>
         <string>4dc4d1d90d82a22843e2adf5130f9ecb5ee5769e</string>
         <key>vcs_url</key>
         <string>https://github.com/secondlife/3p-tinyexr</string>
-        <key>version</key>
-        <string>1.0.9-5e8947c</string>
+        <key>description</key>
+        <string>tinyexr import library</string>
+        <key>source_type</key>
+        <string>git</string>
       </map>
       <key>discord_sdk</key>
       <map>
