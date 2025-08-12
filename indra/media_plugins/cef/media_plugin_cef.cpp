@@ -617,7 +617,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
                 mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1, std::placeholders::_2));
 
-                // CEF 139 seems to have introduced a loading failure at the login page (only??) I haven't seen it on
+                // CEF 139 seems to have introduced a loading failure at the login page (only?) I haven't seen it on
                 // any other page and it only happens about 1 in 8 times. Without this handler for the error page
                 // (red box, error message/code/url) the page load recovers after display a brief built in error.
                 // Not ideal but better than stopping altgoether. Will restore this once I discover the error.
