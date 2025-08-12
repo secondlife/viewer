@@ -288,7 +288,9 @@ void LLFloaterImagePreview::onBtnOK()
         }
         else
         {
-            LLNotificationsUtil::add("ErrorEncodingImage");
+            LLSD args;
+            args["REASON"] = LLImage::getLastThreadError();
+            LLNotificationsUtil::add("ErrorEncodingImage", args);
             LL_WARNS() << "Error encoding image" << LL_ENDL;
         }
     }

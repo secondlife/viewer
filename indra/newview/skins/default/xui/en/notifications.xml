@@ -1322,6 +1322,14 @@ Error encoding snapshot.
   
   <notification
    icon="alertmodal.tga"
+   name="ErrorEncodingImage"
+   type="alertmodal">
+    Failed to encode image, reason: [REASON]
+    <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="ErrorTextureCannotAfford"
    type="alertmodal">
     You need L$[COST] to save a texture to your inventory. You may either buy L$ or save the photo to your computer instead.
