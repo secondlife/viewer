@@ -71,10 +71,10 @@ LLSLURL::LLSLURL(const std::string& slurl)
     {
         LLURI slurl_uri;
         // parse the slurl as a uri
-        if (slurl.find(':') == std::string::npos)
+        if (slurl.find("://") == std::string::npos)
         {
-            // There may be no scheme ('secondlife:' etc.) passed in.  In that case
-            // we want to normalize the slurl by putting the appropriate scheme
+            // There may be no scheme ('secondlife://', 'https://' etc.) passed in. In that
+            // case we want to normalize the slurl by putting the appropriate scheme
             // in front of the slurl.  So, we grab the appropriate slurl base
             // from the grid manager which may be http://slurl.com/secondlife/ for maingrid, or
             // https://<hostname>/region/ for Standalone grid (the word region, not the region name)
