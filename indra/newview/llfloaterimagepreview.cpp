@@ -425,6 +425,18 @@ bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
         return false;
     }
 
+    // raw image is limited to 256MB so need at least some upper limit that fits into that
+    constexpr S32 MAX_IMAGE_AREA = 8096 * 8096;
+
+    if (image_info.getWidth() * image_info.getHeight() > MAX_IMAGE_AREA)
+    {
+        LLStringUtil::format_map_t args;
+        args["PIXELS"] = llformat("%dM", (S32)(MAX_IMAGE_AREA / 1000000));
+
+        mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
+        return false;
+    }
+
     // Load the image
     LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
     if (image.isNull())
