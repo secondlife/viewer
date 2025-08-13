@@ -2795,8 +2795,12 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             }
             // update the peer connection with the various characteristics of
             // this connection.
-            // this connection will come up as muted, but will be set to the appropriate
-            // value later on.
+            // For spatial this connection will come up as muted, but will be set to the appropriate
+            // value later on when we determine the regions we connect to.
+            if (!isSpatial())
+            {
+                mWebRTCAudioInterface->setMute(mMuted);
+            }
             mWebRTCAudioInterface->setReceiveVolume(mSpeakerVolume);
             LLWebRTCVoiceClient::getInstance()->OnConnectionEstablished(mChannelID, mRegionID);
             setVoiceConnectionState(VOICE_STATE_WAIT_FOR_DATA_CHANNEL);

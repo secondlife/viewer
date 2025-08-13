@@ -1540,6 +1540,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     // Beyond that point, if only the user agent is selected, everything is disabled
     if (is_single_select && (single_id == gAgentID))
     {
+        if ("can_zoom_in" == item)
+        {
+            return true;
+        }
         if (is_moderator_option)
         {
             return enableModerateContextMenuItem(item, true);
