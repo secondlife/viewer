@@ -12,7 +12,7 @@
  save_visibility="true"
  reuse_instance="true"
  title="INVENTORY"
- width="363" >
+ width="418" >
    <panel
     class="sidepanel_inventory"
     name="main_panel"

@@ -1068,7 +1068,7 @@ void LLSnapshotLivePreview::saveTexture(bool outfit_snapshot, std::string name)
             tid, LLAssetType::AT_TEXTURE, res_name, res_desc, 0,
             folder_type, inv_type,
             PERM_ALL, LLFloaterPerms::getGroupPerms("Uploads"), LLFloaterPerms::getEveryonePerms("Uploads"),
-            expected_upload_cost, !outfit_snapshot));
+            expected_upload_cost, LLUUID::null, !outfit_snapshot));
 
         upload_new_resource(assetUploadInfo);
 
