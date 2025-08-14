@@ -223,6 +223,9 @@ private:
 
     void createSmoothComboBox(LLComboBox* combo_box, float min, float max);
 
+    typedef std::map<std::string, std::string> lod_sources_map_t;
+    void fillLODSourceStatistics(lod_sources_map_t& lod_sources) const;
+
     LLUUID mDestinationFolderId;
     LLButton* mUploadBtn;
     LLButton* mCalculateBtn;
