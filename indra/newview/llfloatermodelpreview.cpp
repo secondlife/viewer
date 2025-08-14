@@ -503,7 +503,10 @@ void LLFloaterModelPreview::onClickCalculateBtn()
     mUploadModelUrl.clear();
     mModelPhysicsFee.clear();
 
-    gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
+    lod_sources_map_t lod_sources;
+    fillLODSourceStatistics(lod_sources);
+
+    gMeshRepo.uploadModel(mModelPreview->mUploadData, lod_sources, mModelPreview->mPreviewScale,
                           childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
                           mUploadModelUrl, mDestinationFolderId, false,
@@ -1317,8 +1320,84 @@ void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float mi
         std::string label = (++ilabel == SMOOTH_VALUES_NUMBER) ? "10 (max)" : llformat("%.1d", ilabel);
         combo_box->add(label, value, ADD_BOTTOM, true);
     }
+}
 
+std::string get_source_file_extr(const std::string& filename)
+{
+    if (std::string::npos != filename.rfind(".gltf")
+        || std::string::npos != filename.rfind(".glb"))
+    {
+        return "gltf";
+    }
+    else if (std::string::npos != filename.rfind(".dae"))
+    {
+        return "dae";
+    }
+    else if (std::string::npos != filename.rfind(".slm"))
+    {
+        return "slm";
+    }
+    else
+    {
+        return "unknown file";
+    }
+}
 
+void LLFloaterModelPreview::fillLODSourceStatistics(LLFloaterModelPreview::lod_sources_map_t& lod_sources) const
+{
+    lod_sources.clear();
+
+    // This doesn't nessesarily reflect the actual source of meshes, just user choices,
+    // some meshes could have been matched from different lods, but should be good
+    // enough for statistics.
+    for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
+    {
+        const std::string &lod_string = lod_name[lod];
+        if (mLODMode[lod] == LLModelPreview::USE_LOD_ABOVE)
+        {
+            lod_sources[lod_string] = "lod above";
+        }
+        else if (mLODMode[lod] == LLModelPreview::MESH_OPTIMIZER_AUTO
+            || mLODMode[lod] == LLModelPreview::MESH_OPTIMIZER_PRECISE
+            || mLODMode[lod] == LLModelPreview::MESH_OPTIMIZER_SLOPPY)
+        {
+            lod_sources[lod_string] = "generated";
+        }
+        else if (mLODMode[lod] == LLModelPreview::LOD_FROM_FILE)
+        {
+            const std::string& file = mModelPreview->mLODFile[lod];
+            lod_sources[lod_string] = get_source_file_extr(file);
+        }
+        else
+        {
+            lod_sources[lod_string] = "unknown source";
+        }
+    }
+    if (mModelPreview->mLODFile[LLModel::LOD_PHYSICS].empty())
+    {
+        if (mModelPreview->mPhysicsSearchLOD >= 0 && mModelPreview->mPhysicsSearchLOD <= 3)
+        {
+            lod_sources["physics"] = lod_name[mModelPreview->mPhysicsSearchLOD];
+        }
+        else
+        {
+            lod_sources["physics"] = "none";
+        }
+    }
+    else
+    {
+        const std::string& file = mModelPreview->mLODFile[LLModel::LOD_PHYSICS];
+        if (std::string::npos == file.rfind("cube.dae"))
+        {
+            // There is a chance it will misfire if someone tries to upload a cube.dae mesh,
+            // but should be negligible enough.
+            lod_sources["physics"] = get_source_file_extr(file);
+        }
+        else
+        {
+            lod_sources["physics"] = "bounding box";
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1656,7 +1735,10 @@ void LLFloaterModelPreview::onUpload(void* user_data)
         mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions, lock_scale_if_joint_position);
     }
 
-    gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
+    lod_sources_map_t lod_sources;
+    mp->fillLODSourceStatistics(lod_sources);
+
+    gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, lod_sources, mp->mModelPreview->mPreviewScale,
                           mp->childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
                           mp->mUploadModelUrl, mp->mDestinationFolderId,
