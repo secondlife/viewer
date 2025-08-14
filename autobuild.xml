@@ -1435,11 +1435,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>9e59c93c7110e87b4ff3db330f11a23c50e5000f</string>
+              <string>7facda95e2f00c260513f3d4db42588fa8ba703c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910560</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289774</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1451,11 +1451,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>7ed994db5bafa9a7ad09a1b53da850a84715c65e</string>
+              <string>01d08f13c7bc8d1b95b0330fa6833b7d8274e4d0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910561</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289775</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1467,24 +1467,24 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>66824c02e0e5eabbfbe37bfb173360195f89697c</string>
+              <string>6d00345c7d3471bc5f7c1218e014dd0f1a2c069b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910562</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289778</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>license</key>
         <string>internal</string>
         <key>license_file</key>
         <string>LICENSES/llphysicsextensions.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.0.66e6919</string>
+        <string>1.0.11137145495</string>
         <key>name</key>
         <string>llphysicsextensions_source</string>
       </map>
