@@ -170,6 +170,16 @@ void LLUrlAction::copyLabelToClipboard(std::string url)
     }
 }
 
+std::string LLUrlAction::getURLLabel(std::string url)
+{
+    LLUrlMatch match;
+    if (LLUrlRegistry::instance().findUrl(url, match))
+    {
+       return match.getLabel();
+    }
+    return "";
+}
+
 void LLUrlAction::showProfile(std::string url)
 {
     // Get id from 'secondlife:///app/{cmd}/{id}/{action}'

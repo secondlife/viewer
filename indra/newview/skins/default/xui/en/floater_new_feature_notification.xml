@@ -17,17 +17,7 @@
 New inventory features
     </floater.string>
     <floater.string name="description_txt_inventory">
-You can now add preview images to inventory items and view a folder in its own window.
-Learn more in this [https://community.secondlife.com/blogs/entry/13637-new-features-inventory-item-preview-and-single-folder-view/ blogpost]
-    </floater.string>
-    <floater.string name="title_txt_gltf">
-New GLTF PBR materials support
-    </floater.string>
-    <floater.string name="description_txt_gltf">
-You can now use expanded material support with the ability to import and edit GLTF Physically Based Rendering (PBR) Materials.
-In order to support the addition of the GLTF format, some areas in the viewer may appear darker than usual.
-
-Learn more about [https://wiki.secondlife.com/wiki/PBR_Materials Physically Based Rendering (PBR)]
+You can now mark items and folders as favorites. Favorited items will appear in the Favorites tab of inventory and by default will be highlighted with a star in the main inventory view.
     </floater.string>
   <text
    type="string"

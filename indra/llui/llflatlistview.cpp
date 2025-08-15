@@ -1346,9 +1346,17 @@ bool LLFlatListViewEx::getForceShowingUnmatchedItems() const
     return mForceShowingUnmatchedItems;
 }
 
-void LLFlatListViewEx::setForceShowingUnmatchedItems(bool show)
+void LLFlatListViewEx::setForceShowingUnmatchedItems(bool show, bool notify_parent)
+{
+    if (mForceShowingUnmatchedItems != show)
 {
     mForceShowingUnmatchedItems = show;
+        if (!mFilterSubString.empty())
+        {
+            updateNoItemsMessage(mFilterSubString);
+            filterItems(false, true);
+        }
+    }
 }
 
 void LLFlatListViewEx::setFilterSubString(const std::string& filter_str, bool notify_parent)
@@ -1416,6 +1424,7 @@ void LLFlatListViewEx::filterItems(bool re_sort, bool notify_parent)
 
     if (visibility_changed && notify_parent)
     {
+        rearrangeItems();
         notifyParentItemsRectChanged();
     }
 }

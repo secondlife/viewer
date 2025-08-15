@@ -453,13 +453,28 @@ static bool app_metrics_qa_mode = false;
 
 void idle_afk_check()
 {
+    // Don't check AFK status during startup states
+    if (LLStartUp::getStartupState() < STATE_STARTED)
+    {
+        return;
+    }
+
     // check idle timers
     F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
     static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout", 300);
-    if (afk_timeout() && (current_idle > (F32)afk_timeout()) && !gAgent.getAFK())
+    if (afk_timeout() && (current_idle > afk_timeout()))
     {
-        LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
-        gAgent.setAFK();
+        if (!gAgent.getAFK())
+        {
+            LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
+            gAgent.setAFK();
+        }
+        else
+        {
+            // Refresh timer so that random one click or hover won't clear the status.
+            // But expanding the window still should lift afk status
+            gAwayTimer.reset();
+        }
     }
 }
 
@@ -1852,36 +1867,6 @@ bool LLAppViewer::cleanup()
     // Clean up before GL is shut down because we might be holding on to objects with texture references
     LLSelectMgr::cleanupGlobals();
 
-    LL_INFOS() << "Shutting down OpenGL" << LL_ENDL;
-
-    // Shut down OpenGL
-    if( gViewerWindow)
-    {
-        gViewerWindow->shutdownGL();
-
-        // Destroy window, and make sure we're not fullscreen
-        // This may generate window reshape and activation events.
-        // Therefore must do this before destroying the message system.
-        delete gViewerWindow;
-        gViewerWindow = NULL;
-        LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
-    }
-
-    LLSplashScreen::show();
-    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
-
-    LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
-
-    // viewer UI relies on keyboard so keep it aound until viewer UI isa gone
-    delete gKeyboard;
-    gKeyboard = NULL;
-
-    if (LLViewerJoystick::instanceExists())
-    {
-        // Turn off Space Navigator and similar devices
-        LLViewerJoystick::getInstance()->terminate();
-    }
-
     LL_INFOS() << "Cleaning up Objects" << LL_ENDL;
 
     LLViewerObject::cleanupVOClasses();
@@ -2041,6 +2026,36 @@ bool LLAppViewer::cleanup()
 
     sTextureFetch->shutDownTextureCacheThread() ;
     LLLFSThread::sLocal->shutdown();
+
+    LL_INFOS() << "Shutting down OpenGL" << LL_ENDL;
+
+    // Shut down OpenGL
+    if (gViewerWindow)
+    {
+        gViewerWindow->shutdownGL();
+
+        // Destroy window, and make sure we're not fullscreen
+        // This may generate window reshape and activation events.
+        // Therefore must do this before destroying the message system.
+        delete gViewerWindow;
+        gViewerWindow = NULL;
+        LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
+    }
+
+    LLSplashScreen::show();
+    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
+
+    LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
+
+    // viewer UI relies on keyboard so keep it aound until viewer UI isa gone
+    delete gKeyboard;
+    gKeyboard = NULL;
+
+    if (LLViewerJoystick::instanceExists())
+    {
+        // Turn off Space Navigator and similar devices
+        LLViewerJoystick::getInstance()->terminate();
+    }
 
     LL_INFOS() << "Shutting down message system" << LL_ENDL;
     end_messaging_system();
