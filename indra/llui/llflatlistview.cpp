@@ -69,7 +69,7 @@ const LLRect& LLFlatListView::getItemsRect() const
 bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*/, EAddPosition pos /*= ADD_BOTTOM*/,bool rearrange /*= true*/)
 {
     if (!item) return false;
-    if (value.isUndefined()) return false;
+    if (value.isUndefined()) return false; // item stays an orphan?!!!
 
     //force uniqueness of items, easiest check but unreliable
     if (item->getParent() == mItemsPanel) return false;
