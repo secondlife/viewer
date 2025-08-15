@@ -904,12 +904,12 @@ void LLWebRTCPeerConnectionImpl::enableSenderTracks(bool enable)
     // set_enabled shouldn't be done on the worker thread.
     if (mPeerConnection)
     {
+        mPeerConnection->SetAudioRecording(enable);
         auto senders = mPeerConnection->GetSenders();
         for (auto &sender : senders)
         {
             sender->track()->set_enabled(enable);
         }
-        mPeerConnection->SetAudioRecording(enable);
     }
 }
 
@@ -964,6 +964,9 @@ void LLWebRTCPeerConnectionImpl::setMute(bool mute)
         {
         if (mPeerConnection)
         {
+            // SetAudioRecording must be called before enabling/disabling tracks.
+            mPeerConnection->SetAudioRecording(enable);
+
             auto senders = mPeerConnection->GetSenders();
 
             RTC_LOG(LS_INFO) << __FUNCTION__ << (mMute ? "disabling" : "enabling") << " streams count " << senders.size();
@@ -982,7 +985,6 @@ void LLWebRTCPeerConnectionImpl::setMute(bool mute)
                     track->set_enabled(enable);
                 }
             }
-            mPeerConnection->SetAudioRecording(enable);
         }
     });
 }

@@ -306,6 +306,8 @@ with the same filename but different name
   <texture name="Inv_CallingCard" file_name="icons/Inv_CallingCard.png" preload="false" />
   <texture name="Inv_Clothing" file_name="icons/Inv_Clothing.png" preload="false" />
   <texture name="Inv_Eye" file_name="icons/Inv_Eye.png" preload="false" />
+  <texture name="Inv_Favorite_Star_Content" file_name="icons/Inv_Favorite_Star_Content.png" preload="false" />
+  <texture name="Inv_Favorite_Star_Full" file_name="icons/Inv_Favorite_Star_Full.png" preload="false" />
   <texture name="Inv_FolderClosed" file_name="icons/Inv_FolderClosed.png" preload="false" />
   <texture name="Inv_FolderOpen" file_name="icons/Inv_FolderOpen.png" preload="false" />
   <texture name="Inv_Gesture" file_name="icons/Inv_Gesture.png" preload="false" />
@@ -906,4 +908,5 @@ with the same filename but different name
   <texture name="Single_Folder_Up" file_name="icons/single_folder_up.png" preload="true"/>
   <texture name="Icon_Color_Palette" file_name="icons/Icon_Color_Palette.png" preload="false"/>
   <texture name="Icon_Font_Size" file_name="icons/Icon_Font_Size.png" preload="false"/>
+  <texture name="Icon_Pointer" file_name="icons/Icon_Pointer.png" preload="false"/>
 </textures>

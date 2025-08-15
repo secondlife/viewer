@@ -43,6 +43,8 @@
 class LLAvatarName;
 class LLVector3d;
 
+#define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
+
 typedef boost::signals2::signal<void (const std::string& url,
                                       const std::string& label,
                                       const std::string& icon)> LLUrlLabelSignal;
