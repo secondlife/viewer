@@ -165,6 +165,8 @@ public:
     static bool                 lookupIsAssetFetchByIDAllowed(EType asset_type); // the asset allows direct download
     static bool                 lookupIsAssetIDKnowable(EType asset_type); // asset data can be known by the viewer
 
+    static LLSD getTypeNames();
+
     static const std::string    BADLOOKUP;
 
 protected:

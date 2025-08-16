@@ -185,6 +185,7 @@ LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item
 
 // virtual
 void LLPanelWearableOutfitItem::updateItem(const std::string& name,
+                                           bool favorite,
                                            EItemState item_state)
 {
     std::string search_label = name;
@@ -215,7 +216,7 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
         }
     }
 
-    LLPanelInventoryListItemBase::updateItem(search_label, item_state);
+    LLPanelInventoryListItemBase::updateItem(search_label, favorite, item_state);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -442,6 +443,7 @@ LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryIt
 }
 
 void LLPanelAttachmentListItem::updateItem(const std::string& name,
+                                           bool favorite,
                                            EItemState item_state)
 {
     std::string title_joint = name;
@@ -459,7 +461,7 @@ void LLPanelAttachmentListItem::updateItem(const std::string& name,
         title_joint =  title_joint + " (" + trans_name + ")";
     }
 
-    LLPanelInventoryListItemBase::updateItem(title_joint, item_state);
+    LLPanelInventoryListItemBase::updateItem(title_joint, favorite, item_state);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -487,7 +489,7 @@ bool LLPanelDummyClothingListItem::postBuild()
     addWidgetToRightSide("btn_add_panel");
 
     setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, false));
-    updateItem(wearableTypeToString(mWearableType));
+    updateItem(wearableTypeToString(mWearableType), false);
 
     // Make it look loke clothing item - reserve space for 'delete' button
     setLeftWidgetsWidth(getChildView("item_icon")->getRect().mLeft);
@@ -921,8 +923,8 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
     registrar.add("Wearable.CreateNew", boost::bind(createNewWearable, selected_id));
     registrar.add("Wearable.ShowOriginal", boost::bind(show_item_original, selected_id));
     registrar.add("Wearable.TakeOffDetach",
-                  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
 
+                  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
     // Register handlers for clothing.
     registrar.add("Clothing.TakeOff",
                   boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
@@ -932,6 +934,7 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
     // Register handlers for attachments.
     registrar.add("Attachment.Detach",
                   boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
+    registrar.add("Attachment.Favorite", boost::bind(toggle_favorites, ids));
     registrar.add("Attachment.Touch", boost::bind(handle_attachment_touch, selected_id));
     registrar.add("Attachment.Profile", boost::bind(show_item_profile, selected_id));
     registrar.add("Object.Attach", boost::bind(LLViewerAttachMenu::attachObjects, ids, _2));
@@ -965,6 +968,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
     U32 n_touchable = 0;                        // number of touchable items among the selected ones
 
     bool can_be_worn = true;
+    bool can_favorite = false;
+    bool can_unfavorite = false;
 
     for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
     {
@@ -986,6 +991,12 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
         const bool is_editable = get_is_item_editable(id);
         const bool is_touchable = enable_attachment_touch(id);
         const bool is_already_worn = gAgentWearables.selfHasWearable(wearable_type);
+
+        LLUUID linked_id = item->getLinkedUUID();
+        LLViewerInventoryItem* linked_item = gInventory.getItem(linked_id);
+        can_favorite |= !linked_item->getIsFavorite();
+        can_unfavorite |= linked_item->getIsFavorite();
+
         if (is_worn)
         {
             ++n_worn;
@@ -1009,7 +1020,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
         if (can_be_worn)
         {
-            can_be_worn = get_can_item_be_worn(item->getLinkedUUID());
+            can_be_worn = get_can_item_be_worn(linked_id);
         }
     } // for
 
@@ -1031,6 +1042,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
     setMenuItemEnabled(menu, "create_new",          LLAppearanceMgr::instance().canAddWearables(ids));
     setMenuItemVisible(menu, "show_original",       !standalone);
     setMenuItemEnabled(menu, "show_original",       n_items == 1 && n_links == n_items);
+    setMenuItemVisible(menu, "favorites_add",       can_favorite);
+    setMenuItemVisible(menu, "favorites_remove",    can_unfavorite);
     setMenuItemVisible(menu, "take_off",            mask == MASK_CLOTHING && n_worn == n_items);
     setMenuItemVisible(menu, "detach",              mask == MASK_ATTACHMENT && n_worn == n_items);
     setMenuItemVisible(menu, "take_off_or_detach",  mask == (MASK_ATTACHMENT|MASK_CLOTHING));

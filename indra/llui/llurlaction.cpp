@@ -30,6 +30,7 @@
 #include "llview.h"
 #include "llwindow.h"
 #include "llurlregistry.h"
+#include "v3dmath.h"
 
 
 // global state for the callback functions
@@ -128,6 +129,23 @@ void LLUrlAction::showLocationOnMap(std::string url)
     }
 }
 
+void LLUrlAction::showParcelOnMap(std::string url)
+{
+    LLSD path_array = LLURI(url).pathArray();
+    auto path_parts = path_array.size();
+
+    if (path_parts < 3) // no parcel id
+    {
+        LL_WARNS() << "Global coordinates are missing in url: [" << url << "]" << LL_ENDL;
+        return;
+    }
+
+    LLVector3d parcel_pos = LLUrlEntryParcel::getParcelPos(LLUUID(LLURI::unescape(path_array[2])));
+    std::ostringstream pos;
+    pos << parcel_pos.mdV[VX] << '/' << parcel_pos.mdV[VY] << '/' << parcel_pos.mdV[VZ];
+    executeSLURL("secondlife:///app/worldmap_global/" + pos.str());
+}
+
 void LLUrlAction::copyURLToClipboard(std::string url)
 {
     LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(url));
@@ -140,6 +158,16 @@ void LLUrlAction::copyLabelToClipboard(std::string url)
     {
         LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(match.getLabel()));
     }
+}
+
+std::string LLUrlAction::getURLLabel(std::string url)
+{
+    LLUrlMatch match;
+    if (LLUrlRegistry::instance().findUrl(url, match))
+    {
+       return match.getLabel();
+    }
+    return "";
 }
 
 void LLUrlAction::showProfile(std::string url)

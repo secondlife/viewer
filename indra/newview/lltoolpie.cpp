@@ -1549,7 +1549,13 @@ bool LLToolPie::shouldAllowFirstMediaInteraction(const LLPickInfo& pick, bool mo
     }
 
     // Further object detail required beyond this point
-    LLPermissions* perms = LLSelectMgr::getInstance()->getHoverNode()->mPermissions;
+    LLSelectNode* hover_node = LLSelectMgr::instance().getHoverNode();
+    if (hover_node == nullptr)
+    {
+        LL_WARNS() << "No Hover node" << LL_ENDL;
+        return false;
+    }
+    LLPermissions* perms = hover_node->mPermissions;
     if(perms == nullptr)
     {
         LL_WARNS() << "LLSelectMgr::getInstance()->getHoverNode()->mPermissions is NULL" << LL_ENDL;

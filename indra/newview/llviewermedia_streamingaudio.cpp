@@ -60,13 +60,26 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
     if(!mMediaPlugin)
         return;
 
-    if (!url.empty()) {
+    if (!url.empty())
+    {
         LL_INFOS() << "Starting internet stream: " << url << LL_ENDL;
-        mURL = url;
-        mMediaPlugin->loadURI ( url );
+
+        mURL = url; // keep original url here for comparison purposes
+        std::string snt_url = url;
+        LLStringUtil::trim(snt_url);
+        size_t pos = snt_url.find(' ');
+        if (pos != std::string::npos)
+        {
+            // fmod permited having names after the url and people were using it.
+            // People label their streams this way, ignore the 'label'.
+            snt_url = snt_url.substr(0, pos);
+        }
+        mMediaPlugin->loadURI(snt_url);
         mMediaPlugin->start();
         LL_INFOS() << "Playing stream..." << LL_ENDL;
-    } else {
+    }
+    else
+    {
         LL_INFOS() << "setting stream to NULL"<< LL_ENDL;
         mURL.clear();
         mMediaPlugin->stop();

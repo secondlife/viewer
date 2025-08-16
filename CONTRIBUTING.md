@@ -8,6 +8,7 @@ changes.
 ## Table of contents
 
 - [Communication](#communication)
+- [What to work on](#what-to-work-on)
 - [Reporting bugs and requesting features](#reporting-bugs-and-requesting-features)
 - [Contributing pull requests](#contributing-pull-requests)
 
@@ -35,6 +36,16 @@ developer-to-developer or support.
   discussion between viewer maintainers.
 - Our [discord channel](https://discord.com/channels/677442248157167619/1357059883400167585) is available for real-time discussion.
 
+## What to work on
+
+If you're looking for ways to contribute code, here are some ways to get involved:
+
+- Explore existing issues on the [GitHub issue tracker](https://github.com/secondlife/viewer/issues) to find known problems, bugs, or enhancement discussions.
+- File new issues if you’ve discovered a bug or have a specific idea to propose. If your idea is user-facing, consider submitting it through feedback.secondlife.com so it can reach a broader audience and be prioritized by Linden Lab staff.
+- Look for the [help wanted](https://github.com/secondlife/viewer/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22) label. These are tasks the core maintainers have specifically identified as good candidates for community help.
+- Talk to maintainers before starting significant work. Even if an issue exists, discussing your approach first ensures alignment with ongoing efforts and increases the likelihood your pull request will be accepted.
+
+Collaboration is essential. We encourage contributors to work closely with the Second Life engineering team and other developers to keep work consistent and maintainable.
 
 ## Reporting bugs and requesting features
 

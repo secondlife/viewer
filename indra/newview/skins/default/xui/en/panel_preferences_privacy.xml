@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel
+  <panel
     border="true"
     follows="left|top|right|bottom"
-    height="408"
-    label="Communication"
+    height="438"
+    label="Privacy"
     layout="topleft"
     left="102"
-    name="im"
+    name="Privacy panel"
     top="1"
     width="517">
+
+  <tab_container
+    top_pad="0"
+    enabled="true"
+    follows="left|top"
+    height="430"
+    width="517"
+    left_delta="0"
+    name="privacy_tab_container"
+    tab_position="top"
+    tab_stop="false">
+  <panel
+    label="General"
+    name="privacy_preferences_general"
+    layout="topleft"
+    follows="top|left">
 
   <panel.string
       name="log_in_to_change">
@@ -63,7 +79,7 @@
       name="online_visibility"
       top_pad="30"
       width="350" />
-    
+
     <check_box
      enabled_control="EnableVoiceChat"
      control_name="AutoDisengageMic"
@@ -72,6 +88,37 @@
      layout="topleft"
      left="30"
      name="auto_disengage_mic_check"
+     top_pad="10"
+     width="350" />
+    <check_box
+     control_name="EnableLookAtTarget"
+     height="16"
+     label="Enable LookAt"
+     tool_tip="Enable tracking cursor position with avatar head's rotation"
+     layout="topleft"
+     left="30"
+     name="enable_lookat_target"
+     top_pad="10"
+     width="350" />
+    <check_box
+     enabled_control="EnableLookAtTarget"
+     control_name="LimitLookAtTarget"
+     height="16"
+     label="Limit LookAt Distance"
+     tool_tip="Limit the look at target's distance by restricting it around the avatar's head"
+     layout="topleft"
+     left="50"
+     name="limit_lookat_distance"
+     top_pad="10"
+     width="350" />
+    <check_box
+     control_name="EnableSelectionHints"
+     height="16"
+     label="Enable Selection Hints"
+     tool_tip="Enable reporting and tracking current selection using 'beam' particles and character animations"
+     layout="topleft"
+     left="30"
+     name="enable_selection_hints"
      top_pad="10"
      width="350" />
     <button
@@ -103,3 +150,48 @@
        (People and/or Objects you have blocked)
     </text>
     </panel>
+
+    <panel
+      label="Discord"
+      name="privacy_preferences_discord"
+      layout="topleft"
+      follows="top|left">
+
+      <check_box
+        control_name="EnableDiscord"
+        height="16"
+        enabled="true"
+        label="Enable Discord integration"
+        layout="topleft"
+        left="30"
+        name="enable_discord"
+        top_pad="20"
+        width="350" />
+
+      <check_box
+        enabled_control="EnableDiscord"
+        control_name="ShowDiscordActivityDetails"
+        height="16"
+        enabled="true"
+        label="Show avatar name"
+        layout="topleft"
+        left="30"
+        name="show_name"
+        top_pad="20"
+        width="350" />
+
+      <check_box
+        enabled_control="EnableDiscord"
+        control_name="ShowDiscordActivityState"
+        height="16"
+        enabled="false"
+        label="Show location"
+        layout="topleft"
+        left="30"
+        name="show_location"
+        top_pad="20"
+        width="350" />
+      </panel>
+  </tab_container>
+
+</panel>

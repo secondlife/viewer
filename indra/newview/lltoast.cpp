@@ -421,7 +421,7 @@ void LLToast::setVisible(bool show)
         if(mHideBtn)
             mHideBtn->setVisible(show);
     }
-    LLFloater::setVisible(show);
+    LLModalDialog::setVisible(show);
     if (mPanel
         && !mPanel->isDead()
         && mWrapperPanel

@@ -180,8 +180,15 @@ void LLFloaterMediaSettings::onClose(bool app_quitting)
 
 ////////////////////////////////////////////////////////////////////////////////
 //static
-void LLFloaterMediaSettings::initValues( const LLSD& media_settings, bool editable )
+void LLFloaterMediaSettings::initValues( const LLSD& media_settings, bool editable, bool has_media_info, bool multiple_media, bool multiple_valid_media)
 {
+    if (!sInstance)
+    {
+        return;
+    }
+    sInstance->mIdenticalHasMediaInfo = has_media_info;
+    sInstance->mMultipleMedia = multiple_media;
+    sInstance->mMultipleValidMedia = multiple_valid_media;
     if (sInstance->hasFocus()) return;
 
     // Clear values

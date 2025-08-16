@@ -57,7 +57,7 @@ LLQuaternion::LLQuaternion(const LLMatrix3 &mat)
 
 LLQuaternion::LLQuaternion(F32 angle, const LLVector4 &vec)
 {
-    F32 mag = sqrtf(vec.mV[VX] * vec.mV[VX] + vec.mV[VY] * vec.mV[VY] + vec.mV[VZ] * vec.mV[VZ]);
+    F32 mag = vec.length();
     if (mag > FP_MAG_THRESHOLD)
     {
         angle *= 0.5;
@@ -76,7 +76,7 @@ LLQuaternion::LLQuaternion(F32 angle, const LLVector4 &vec)
 
 LLQuaternion::LLQuaternion(F32 angle, const LLVector3 &vec)
 {
-    F32 mag = sqrtf(vec.mV[VX] * vec.mV[VX] + vec.mV[VY] * vec.mV[VY] + vec.mV[VZ] * vec.mV[VZ]);
+    F32 mag = vec.length();
     if (mag > FP_MAG_THRESHOLD)
     {
         angle *= 0.5;

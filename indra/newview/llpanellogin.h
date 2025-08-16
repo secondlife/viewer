@@ -119,7 +119,6 @@ private:
 
     static LLPanelLogin* sInstance;
     static bool     sCapslockDidNotification;
-    bool            mFirstLoginThisInstall;
 
     static bool sCredentialSet;
 

@@ -32,6 +32,8 @@
 #include "lllogchat.h"
 #include "llregex.h"
 #include "lltrans.h"
+#include "llurlaction.h"
+#include "llurlentry.h"
 #include "llviewercontrol.h"
 
 #include "lldiriterator.h"
@@ -358,13 +360,29 @@ void LLLogChat::saveHistory(const std::string& filename,
         return;
     }
 
+    std::string altered_line = line;
+
+    // avoid costly regex calls
+    if (line.find("/mention") != std::string::npos)
+    {
+        static const boost::regex mention_regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/mention", boost::regex::perl | boost::regex::icase);
+
+        // replace mention URL with [@username](URL)
+        altered_line = boost::regex_replace(line, mention_regex, [](const boost::smatch& match) -> std::string
+        {
+            std::string url = match[0].str();
+            std::string username = LLUrlAction::getURLLabel(url);
+            return "[" + username + "](" + url + ")";
+        });
+    }
+
     LLSD item;
 
     if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
          item["time"] = LLLogChat::timestamp2LogString(0, gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
 
     item["from_id"] = from_id;
-    item["message"] = line;
+    item["message"] = altered_line;
 
     //adding "Second Life:" for all system messages to make chat log history parsing more reliable
     if (from.empty() && from_id.isNull())
@@ -432,8 +450,8 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
     }
 
     // If we got here, we managed to stat the file.
-    // Open the file to read
-    LLFILE* fptr = LLFile::fopen(log_file_name, "r");       /*Flawfinder: ignore*/
+    // Open the file to read in binary mode to prevent interpreting other characters as EOF
+    LLFILE* fptr = LLFile::fopen(log_file_name, "rb");       /*Flawfinder: ignore*/
     if (!fptr)
     {   // Ok, this is strange but not really tragic in the big picture of things
         LL_WARNS("ChatHistory") << "Unable to read file " << log_file_name << " after stat was successful" << LL_ENDL;
@@ -469,6 +487,19 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         }
 
         std::string line(remove_utf8_bom(buffer));
+
+
+        // fast heuristic test for a mention URL in a string
+        // this is used to avoid costly regex calls
+        if (line.find("/mention)") != std::string::npos)
+        {
+            // restore original mention URL from [@username](URL) format
+            static const boost::regex altered_mention_regex("\\[@([^\\]]+)\\]\\((" APP_HEADER_REGEX "/agent/[\\da-f-]+/mention)\\)",
+                                                            boost::regex::perl | boost::regex::icase);
+
+            // $2 captures the URL part
+            line = boost::regex_replace(line, altered_mention_regex, "$2");
+        }
 
         //updated 1.23 plain text log format requires a space added before subsequent lines in a multilined message
         if (' ' == line[0])
@@ -1150,7 +1181,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
     }
 
     bool load_all_history = load_params.has("load_all_history") ? load_params["load_all_history"].asBoolean() : false;
-    LLFILE* fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
+    LLFILE* fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "rb");/*Flawfinder: ignore*/
 
     if (!fptr)
     {
@@ -1159,17 +1190,17 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
         {
             std::string old_name(file_name);
             old_name.erase(old_name.size() - GROUP_CHAT_SUFFIX.size());
-            fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "r");
+            fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "rb");
             if (fptr)
             {
                 fclose(fptr);
                 LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
             }
-            fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");
+            fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "rb");
         }
         if (!fptr)
         {
-            fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+            fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "rb");/*Flawfinder: ignore*/
             if (!fptr)
             {
                 mNewLoad = false;

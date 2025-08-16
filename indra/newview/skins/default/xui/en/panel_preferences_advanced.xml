@@ -32,15 +32,15 @@
    height="23"
    increment="64"
    initial_value="1024"
-   label="Cache size (256 - 9984MB)"
+   label="Cache size (896 - 32768MB)"
    label_width="150"
    layout="topleft"
    left="80"
-   max_val="9984"
-   min_val="256"
+   max_val="32768"
+   min_val="896"
    top_pad="10"
    name="cachesizespinner"
-   width="200" />
+   width="210" />
   <text
    type="string"
    length="1"
@@ -59,7 +59,7 @@
    label="Clear Cache"
    label_selected="Clear Cache"
    layout="topleft"
-   left_pad="30"
+   left_pad="20"
    name="clear_cache"
    top_delta="0"
    width="100">

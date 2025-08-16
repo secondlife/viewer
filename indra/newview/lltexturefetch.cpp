@@ -2484,7 +2484,7 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-                                   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
+    S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
 {
     LL_PROFILE_ZONE_SCOPED;
     if (mDebugPause)
@@ -2496,13 +2496,13 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
     {
         LL_DEBUGS("Avatar") << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << " type " << f_type << LL_ENDL;
     }
-    LLTextureFetchWorker* worker = getWorker(id) ;
+    LLTextureFetchWorker* worker = getWorker(id);
     if (worker)
     {
         if (worker->mHost != host)
         {
             LL_WARNS(LOG_TXT) << "LLTextureFetch::createRequest " << id << " called with multiple hosts: "
-                              << host << " != " << worker->mHost << LL_ENDL;
+                << host << " != " << worker->mHost << LL_ENDL;
             removeRequest(worker, true);
             worker = NULL;
             return CREATE_REQUEST_ERROR_MHOSTS;
@@ -2538,7 +2538,7 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
         // we really do get it.)
         desired_size = MAX_IMAGE_DATA_SIZE;
     }
-    else if (w*h*c > 0)
+    else if (w * h * c > 0)
     {
         // If the requester knows the dimensions of the image,
         // this will calculate how much data we need without having to parse the header
@@ -2596,14 +2596,15 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
         worker->lockWorkMutex();                                        // +Mw
         worker->mActiveCount++;
         worker->mNeedsAux = needs_aux;
-        worker->setCanUseHTTP(can_use_http) ;
+        worker->setCanUseHTTP(can_use_http);
         worker->unlockWorkMutex();                                      // -Mw
     }
 
     LL_DEBUGS(LOG_TXT) << "REQUESTED: " << id << " f_type " << fttype_to_string(f_type)
-                       << " Discard: " << desired_discard << " size " << desired_size << LL_ENDL;
+        << " Discard: " << desired_discard << " size " << desired_size << LL_ENDL;
     return desired_discard;
 }
+
 // Threads:  T*
 //
 // protected
