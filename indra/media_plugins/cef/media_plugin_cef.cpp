@@ -38,6 +38,13 @@
 #include "volume_catcher.h"
 #include "media_plugin_base.h"
 
+// _getpid()/getpid()
+#if LL_WINDOWS
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "dullahan.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +71,7 @@ private:
     void onLoadStartCallback();
     void onRequestExitCallback();
     void onLoadEndCallback(int httpStatusCode, std::string url);
-    void onLoadError(int status, const std::string error_text);
+    void onLoadError(int status, const std::string error_text, const std::string error_url);
     void onAddressChangeCallback(std::string url);
     void onOpenPopupCallback(std::string url, std::string target);
     bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
@@ -242,15 +249,17 @@ void MediaPluginCEF::onLoadStartCallback()
 
 /////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onLoadError(int status, const std::string error_text)
+void MediaPluginCEF::onLoadError(int status, const std::string error_text, const std::string error_url)
 {
     std::stringstream msg;
 
-    msg << "<b>Loading error!</b>";
+    msg << "<b>Loading error</b>";
     msg << "<p>";
-    msg << "Message: " << error_text;
-    msg << "<br>";
-    msg << "Code: " << status;
+    msg << "Error message: " << error_text;
+    msg << "<p>";
+    msg << "Error URL: <tt>" << error_url << "</tt>";
+    msg << "<p>";
+    msg << "Error code: " << status;
 
     mCEFLib->showBrowserMessage(msg.str());
 }
@@ -607,7 +616,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 mCEFLib->setOnTooltipCallback(std::bind(&MediaPluginCEF::onTooltipCallback, this, std::placeholders::_1));
                 mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
                 mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1, std::placeholders::_2));
-                mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
+
+                // CEF 139 seems to have introduced a loading failure at the login page (only?) I haven't seen it on
+                // any other page and it only happens about 1 in 8 times. Without this handler for the error page
+                // (red box, error message/code/url) the page load recovers after display a brief built in error.
+                // Not ideal but better than stopping altgoether. Will restore this once I discover the error.
+                //mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
                 mCEFLib->setOnOpenPopupCallback(std::bind(&MediaPluginCEF::onOpenPopupCallback, this, std::placeholders::_1, std::placeholders::_2));
                 mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
@@ -729,17 +743,34 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 std::string user_data_path_cache = message_in.getValue("cache_path");
                 std::string subfolder = message_in.getValue("username");
 
+                // media plugin doesn't have access to gDirUtilp
+                std::string path_separator;
+#if LL_WINDOWS
+                path_separator = "\\";
+#else
+                path_separator = "/";
+#endif
+
                 mRootCachePath = user_data_path_cache + "cef_cache";
+
+                // Issue #4498 Introduce an additional sub-folder underneath the main cache
+                // folder so that each CEF media instance gets its own (as per the CEF API
+                // official position). These folders will be removed at startup by Viewer code
+                // so that their non-trivial size does not exhaust available disk space. This
+                // begs the question - why turn on the cache at all? There are 2 reasons - firstly
+                // some of the instances will benefit from per Viewer session caching and will
+                // use the injected SL cookie and secondly, it's not clear how having no cache
+                // interacts with the multiple simultaneous paradigm we use.
+                mRootCachePath += path_separator;
+# if LL_WINDOWS
+                mRootCachePath += std::to_string(_getpid());
+# else
+                mRootCachePath += std::to_string(getpid());
+# endif
+
                 if (!subfolder.empty())
                 {
-                    std::string delim;
-#if LL_WINDOWS
-                    // media plugin doesn't have access to gDirUtilp
-                    delim = "\\";
-#else
-                    delim = "/";
-#endif
-                    mCachePath = mRootCachePath + delim + subfolder;
+                    mCachePath = mRootCachePath + path_separator + subfolder;
                 }
                 else
                 {
