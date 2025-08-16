@@ -1322,18 +1322,19 @@ void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float mi
     }
 }
 
-std::string get_source_file_extr(const std::string& filename)
+std::string get_source_file_format(const std::string& filename)
 {
-    if (std::string::npos != filename.rfind(".gltf")
-        || std::string::npos != filename.rfind(".glb"))
+    const std::string extension = gDirUtilp->getExtension(filename);
+    if (extension == "gltf"
+        || extension == "glb")
     {
         return "gltf";
     }
-    else if (std::string::npos != filename.rfind(".dae"))
+    else if (extension == "dae")
     {
         return "dae";
     }
-    else if (std::string::npos != filename.rfind(".slm"))
+    else if (extension == "slm")
     {
         return "slm";
     }
@@ -1366,7 +1367,7 @@ void LLFloaterModelPreview::fillLODSourceStatistics(LLFloaterModelPreview::lod_s
         else if (mLODMode[lod] == LLModelPreview::LOD_FROM_FILE)
         {
             const std::string& file = mModelPreview->mLODFile[lod];
-            lod_sources[lod_string] = get_source_file_extr(file);
+            lod_sources[lod_string] = get_source_file_format(file);
         }
         else
         {
@@ -1391,7 +1392,7 @@ void LLFloaterModelPreview::fillLODSourceStatistics(LLFloaterModelPreview::lod_s
         {
             // There is a chance it will misfire if someone tries to upload a cube.dae mesh,
             // but should be negligible enough.
-            lod_sources["physics"] = get_source_file_extr(file);
+            lod_sources["physics"] = get_source_file_format(file);
         }
         else
         {
