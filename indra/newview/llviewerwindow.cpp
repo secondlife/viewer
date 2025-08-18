@@ -2309,6 +2309,11 @@ void LLViewerWindow::initWorldUI()
             url = LLWeb::expandURLSubstitutions(url, LLSD());
             avatar_welcome_pack->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
         }
+        LLMediaCtrl* search = LLFloaterReg::getInstance("search")->findChild<LLMediaCtrl>("search_contents");
+        if (search)
+        {
+            search->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+        }
     }
 }
 
