@@ -2685,6 +2685,8 @@ void dump_llsd_to_file(const LLSD& content, std::string filename)
 {
     if (gSavedSettings.getBOOL("MeshUploadLogXML"))
     {
+        filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            filename);
         llofstream of(filename.c_str());
         LLSDSerialize::toPrettyXML(content,of);
     }
