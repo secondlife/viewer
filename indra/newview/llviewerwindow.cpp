@@ -2314,6 +2314,13 @@ void LLViewerWindow::initWorldUI()
         {
             search->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
         }
+        LLMediaCtrl* marketplace = LLFloaterReg::getInstance("marketplace")->getChild<LLMediaCtrl>("marketplace_contents");
+        if (marketplace)
+        {
+            marketplace->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+            std::string url = gSavedSettings.getString("MarketplaceURL");
+            marketplace->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+        }
     }
 }
 
