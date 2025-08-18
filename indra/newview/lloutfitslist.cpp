@@ -254,7 +254,11 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
         // for reliability just fetch it whole, linked items included
         LLInventoryModelBackgroundFetch::instance().fetchFolderAndLinks(cat_id, [cat_id, list]
         {
-            if (list) list->updateList(cat_id);
+            if (list)
+            {
+                list->updateList(cat_id);
+                list->setForceRefresh(true);
+            }
         });
     }
     else
@@ -264,6 +268,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
         // Refresh the list of outfit items after fetch().
         // Further list updates will be triggered by the category observer.
         list->updateList(cat_id);
+        list->setForceRefresh(true);
     }
 
     // If filter is currently applied we store the initial tab state.
@@ -590,7 +595,7 @@ void LLOutfitsList::onFilterSubStringChanged(const std::string& new_string, cons
         LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
         if (list)
         {
-            list->setFilterSubString(new_string, true);
+            list->setFilterSubString(new_string, tab->getDisplayChildren());
         }
 
         if (old_string.empty())
