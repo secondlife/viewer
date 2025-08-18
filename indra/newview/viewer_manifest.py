@@ -273,13 +273,13 @@ class ViewerManifest(LLManifest):
 
         # All lines up to and including the first blank line are the file header; skip them
         lines.reverse() # so that pop will pull from first to last line
-        while not re.match("\s*$", lines.pop()) :
+        while not re.match(r"\s*$", lines.pop()) :
             pass # do nothing
 
         # A line that starts with a non-whitespace character is a name; all others describe contributions, so collect the names
         names = []
         for line in lines :
-            if re.match("\S", line) :
+            if re.match(r"\S", line) :
                 names.append(line.rstrip())
         # It's not fair to always put the same people at the head of the list
         random.shuffle(names)
