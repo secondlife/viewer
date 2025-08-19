@@ -341,8 +341,8 @@ LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t
 // Create a 32 bit memory map file pointer and initalize it.
 LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool)
     : mFile(NULL),
-    mMMapFile(NULL),
-    mCurrentFilePoolp(NULL)
+      mMMapFile(NULL),
+      mCurrentFilePoolp(NULL)
 {
     openMemoryMap(filename, flags, mmap_flags, init_file_size, zero_out, pool);
 }
@@ -378,8 +378,36 @@ apr_status_t LLAPRFile::close()
         mCurrentFilePoolp = NULL ;
     }
 
-    ret = ret | mmap_ret; // Flag normal or memory map return state
-    return ret ;
+    // If both operations failed, log both errors
+    if (ret != APR_SUCCESS && mmap_ret != APR_SUCCESS)
+    {
+        LL_WARNS("APR") << "Both apr_file_close and apr_mmap_delete failed: "
+            << "apr_file_close returned " << (S32)ret << ", "
+            << "apr_mmap_delete returned " << (S32)mmap_ret << LL_ENDL;
+
+        // Return the file close error code by convention
+        return ret;
+    }
+
+    // If only one failed, return the error code
+    if (ret != APR_SUCCESS)
+    {
+        LL_WARNS("APR") << "apr_file_close failed: "
+            << "apr_file_close returned " << (S32)ret << LL_ENDL;
+
+        return ret;
+    }
+
+    if (mmap_ret != APR_SUCCESS)
+    {
+        LL_WARNS("APR") << "apr_mmap_delete failed: "
+            << "apr_mmap_delete returned " << (S32)mmap_ret << LL_ENDL;
+
+        return mmap_ret;
+    }
+
+    // Both succeeded
+    return APR_SUCCESS;
 }
 
 apr_status_t LLAPRFile::open(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool, S32* sizep)
@@ -571,7 +599,7 @@ apr_status_t LLAPRFile::openMemoryMap(const std::string& filename, apr_int32_t f
         }
     }
 
-    if (!mFile)
+    if (!mFile || !mMMapFile)
     {
         // It will clean pool
         close();
@@ -618,7 +646,7 @@ apr_status_t LLAPRFile::openMemoryMap64(const std::string& filename, apr_int32_t
         s = apr_mmap_create(&mMMapFile, mFile, 0, file_size, mmap_flags, apr_pool);
     }
 
-    if (!mFile)
+    if (!mFile || !mMMapFile)
     {
         // It will clean pool
         close();
@@ -685,7 +713,7 @@ apr_status_t LLAPRFile::openMemoryMap64(const std::string& filename, apr_int32_t
         }
     }
 
-    if (!mFile)
+    if (!mFile || !mMMapFile)
     {
         LL_WARNS() << "Could not open file: " << filename << LL_ENDL;
         // It will clean pool
@@ -863,7 +891,7 @@ apr_status_t LLAPRFile::memoryMapAssign(void** addr, S32 offset)
     }
     else
     {
-        LL_WARNS() << "ARP File does not contain a valid Memory Map File" << LL_ENDL;
+        LL_WARNS() << "APR File does not contain a valid Memory Map File" << LL_ENDL;
         s = APR_EINVAL;
     }
 
@@ -881,7 +909,7 @@ apr_status_t LLAPRFile::memoryMapAssign64(void** addr, S64 offset)
     }
     else
     {
-        LL_WARNS() << "ARP File does not contain a valid Memory Map File" << LL_ENDL;
+        LL_WARNS() << "APR File does not contain a valid Memory Map File" << LL_ENDL;
         s = APR_EINVAL;
     }
 

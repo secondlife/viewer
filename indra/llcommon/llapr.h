@@ -124,7 +124,7 @@ private:
 // File IO convenience functions.
 // Returns NULL if the file fails to open, sets *sizep to file size if not NULL
 // abbreviated flags
-// Updated to match the newer #define as the older API_ defines are depricated.
+// Updated to match the newer #define as the older API_ defines are deprecated.
 #define LL_APR_R (APR_FOPEN_READ) // "r"
 #define LL_APR_W (APR_FOPEN_CREATE|APR_FOPEN_TRUNCATE|APR_FOPEN_WRITE) // "w"
 #define LL_APR_A (APR_FOPEN_CREATE|APR_FOPEN_WRITE|APR_FOPEN_APPEND) // "w"
@@ -163,11 +163,11 @@ private:
 public:
     LLAPRFile() ;
     LLAPRFile(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL);
-    // Open existing memory map file (File must be fixed size)
+    // Open an existing memory map file (File must be fixed size)
     LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool = NULL );
-    // Opens a initialized 64 bit memory map file (File must be fixed size)
+    // Opens an initialized 64 bit memory map file (File must be fixed size)
     LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S64 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL);
-    // Opens a initialized 32 bit memory map file (File must be fixed size)
+    // Opens an initialized 32 bit memory map file (File must be fixed size)
     LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL);
     ~LLAPRFile() ;
 
@@ -179,9 +179,9 @@ public:
     apr_status_t openMemoryMap(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);
     // 64 bit Memory map version of open file (File must be fixed size)
     apr_status_t openMemoryMap64(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool = NULL, S64* sizep = NULL);
-    // 32 bit Memory map version of open file and initalizes with size and can zero out (File must be fixed size)
+    // 32 bit Memory map version of open file and initializes with size and can zero out (File must be fixed size)
     apr_status_t openMemoryMap(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);
-    // 64 bit Memory map version of open file and initalizes with size and can zero out (File must be fixed size)
+    // 64 bit Memory map version of open file and initializes with size and can zero out (File must be fixed size)
     apr_status_t openMemoryMap64(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S64 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL, S64* sizep = NULL);
     // Memory map version of open file allowing for manual opening of the memory map file (File must be fixed size)
     apr_status_t openMemoryMap(const std::string& filename, apr_int32_t flags, bool use_global_pool, apr_int32_t mmap_flags); // use gAPRPoolp.
@@ -203,9 +203,9 @@ public:
 
     apr_file_t* getFileHandle() {return mFile;}
 
-    // Assignes a variable to a memory map address (used for setting a variable pointer to the memory map (input needs to be casted) with 32 bit offset
+    // Assigns a variable to a memory map address (used for setting a variable pointer to the memory map (input needs to be casted) with 32 bit offset
     apr_status_t memoryMapAssign(void** addr, S32 offset);
-    // Assignes a variable to a memory map address (used for setting a variable pointer to the memory map (input needs to be casted) with 64 bit offset
+    // Assigns a variable to a memory map address (used for setting a variable pointer to the memory map (input needs to be casted) with 64 bit offset
     apr_status_t memoryMapAssign64(void** addr, S64 offset);
 
     // Helper method to get 32 bit size of file
