@@ -151,6 +151,7 @@ private:
     LLGLTFImportMaterial processMaterial(S32 material_index, S32 fallback_index);
     std::string processTexture(S32 texture_index, const std::string& texture_type, const std::string& material_name);
     bool validateTextureIndex(S32 texture_index, S32& source_index);
+    LLUUID getLoadedTextureIdIfAny(S32 texture_index, const std::string& log_name, bool check_scaling);
     std::string generateMaterialName(S32 material_index, S32 fallback_index = -1);
     bool populateModelFromMesh(LLModel* pModel, const std::string& base_name, const LL::GLTF::Mesh &mesh, const LL::GLTF::Node &node, material_map& mats);
     void populateJointsFromSkin(S32 skin_idx);
@@ -165,7 +166,6 @@ private:
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
     void checkGlobalJointUsage();
 
-    std::string extractTextureToTempFile(S32 textureIndex, const std::string& texture_type);
 
     void notifyUnsupportedExtension(bool unsupported);
 

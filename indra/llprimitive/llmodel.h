@@ -31,6 +31,8 @@
 #include "llvolume.h"
 #include "v4math.h"
 #include "m4math.h"
+#include "llsd.h"
+#include "v3color.h"
 #include <queue>
 
 #include <boost/align/aligned_allocator.hpp>
@@ -354,6 +356,10 @@ public:
     LLImportMaterial() : LLModelMaterialBase()
     {
         mDiffuseColor.set(1,1,1,1);
+        // Defaults for PBR fields
+        mMetallicFactor = 0.f;
+        mRoughnessFactor = 1.f;
+        mEmissiveFactor.set(0.f, 0.f, 0.f);
     }
 
     LLImportMaterial(LLSD& data);
@@ -364,6 +370,30 @@ public:
     const LLUUID&   getDiffuseMap() const                   { return mDiffuseMapID;     }
     void                setDiffuseMap(const LLUUID& texId)  { mDiffuseMapID = texId;    }
 
+    // Additional PBR texture getters/setters
+    const LLUUID&   getNormalMap() const                    { return mNormalMapID;      }
+    void                setNormalMap(const LLUUID& texId)   { mNormalMapID = texId;     }
+
+    const LLUUID&   getMetallicRoughnessMap() const         { return mMetallicRoughnessMapID; }
+    void                setMetallicRoughnessMap(const LLUUID& texId) { mMetallicRoughnessMapID = texId; }
+
+    const LLUUID&   getEmissiveMap() const                  { return mEmissiveMapID;    }
+    void                setEmissiveMap(const LLUUID& texId) { mEmissiveMapID = texId;   }
+
+    // Helper: does this material carry any PBR data at all?
+    bool hasPBRData() const
+    {
+        return (mMetallicFactor != 0.0f ||
+                mRoughnessFactor != 1.0f ||
+                mEmissiveFactor.mV[0] != 0.0f || mEmissiveFactor.mV[1] != 0.0f || mEmissiveFactor.mV[2] != 0.0f ||
+                !mNormalMapFilename.empty() ||
+                !mMetallicRoughnessMapFilename.empty() ||
+                !mEmissiveMapFilename.empty() ||
+                mNormalMapID.notNull() ||
+                mMetallicRoughnessMapID.notNull() ||
+                mEmissiveMapID.notNull());
+    }
+
 protected:
 
     LLUUID      mDiffuseMapID;
@@ -371,6 +401,24 @@ protected:
     // currently only stores an LLPointer< LLViewerFetchedTexture > > to
     // maintain refs to textures associated with each material for free
     // ref counting.
+
+    // PBR-related fields (normal, metallic-roughness, emissive)
+public:
+    std::string mNormalMapFilename;
+    std::string mNormalMapLabel;
+    std::string mMetallicRoughnessMapFilename;
+    std::string mMetallicRoughnessMapLabel;
+    std::string mEmissiveMapFilename;
+    std::string mEmissiveMapLabel;
+
+    F32 mMetallicFactor;
+    F32 mRoughnessFactor;
+    LLColor3 mEmissiveFactor;
+
+protected:
+    LLUUID      mNormalMapID;
+    LLUUID      mMetallicRoughnessMapID;
+    LLUUID      mEmissiveMapID;
 };
 
 typedef std::map<std::string, LLImportMaterial> material_map;
@@ -413,6 +461,8 @@ public:
     std::string mLabel;
     LLUUID mMeshID;
     S32 mLocalMeshID;
+    // Material data prepared for upload (per-instance); optional
+    LLSD mMaterialData;
 
     LLModelInstance(LLModel* model, const std::string& label, const LLMatrix4& transform, const material_map& materials)
         : LLModelInstanceBase(model, transform, materials), mLabel(label)

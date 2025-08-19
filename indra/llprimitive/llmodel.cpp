@@ -2305,11 +2305,67 @@ LLImportMaterial::~LLImportMaterial()
 
 LLImportMaterial::LLImportMaterial(LLSD& data)
 {
+    // Defaults for PBR-related fields
+    mMetallicFactor = 0.f;
+    mRoughnessFactor = 1.f;
+    mEmissiveFactor.set(0.f, 0.f, 0.f);
+
     mDiffuseMapFilename = data["diffuse"]["filename"].asString();
     mDiffuseMapLabel = data["diffuse"]["label"].asString();
     mDiffuseColor.setValue(data["diffuse"]["color"]);
     mFullbright = data["fullbright"].asBoolean();
     mBinding = data["binding"].asString();
+
+    // Read texture IDs and filenames for PBR maps if present
+    if (data.has("diffuse") && data["diffuse"].has("texture_id"))
+    {
+        mDiffuseMapID = data["diffuse"]["texture_id"].asUUID();
+    }
+    if (data.has("normal"))
+    {
+        if (data["normal"].has("texture_id"))
+        {
+            mNormalMapID = data["normal"]["texture_id"].asUUID();
+        }
+        mNormalMapFilename = data["normal"]["filename"].asString();
+        mNormalMapLabel = data["normal"]["label"].asString();
+    }
+    if (data.has("metallic_roughness"))
+    {
+        if (data["metallic_roughness"].has("texture_id"))
+        {
+            mMetallicRoughnessMapID = data["metallic_roughness"]["texture_id"].asUUID();
+        }
+        mMetallicRoughnessMapFilename = data["metallic_roughness"]["filename"].asString();
+        mMetallicRoughnessMapLabel = data["metallic_roughness"]["label"].asString();
+    }
+    if (data.has("emissive"))
+    {
+        if (data["emissive"].has("texture_id"))
+        {
+            mEmissiveMapID = data["emissive"]["texture_id"].asUUID();
+        }
+        mEmissiveMapFilename = data["emissive"]["filename"].asString();
+        mEmissiveMapLabel = data["emissive"]["label"].asString();
+    }
+
+    // Read PBR factors
+    if (data.has("pbr"))
+    {
+        const LLSD& pbr = data["pbr"];
+        if (pbr.has("metallic_factor")) mMetallicFactor = (F32)pbr["metallic_factor"].asReal();
+        if (pbr.has("roughness_factor")) mRoughnessFactor = (F32)pbr["roughness_factor"].asReal();
+        if (pbr.has("emissive_factor") && pbr["emissive_factor"].isArray())
+        {
+            const LLSD& emissive = pbr["emissive_factor"];
+            if (emissive.size() >= 3)
+            {
+                mEmissiveFactor.mV[0] = (F32)emissive[0].asReal();
+                mEmissiveFactor.mV[1] = (F32)emissive[1].asReal();
+                mEmissiveFactor.mV[2] = (F32)emissive[2].asReal();
+            }
+        }
+    }
 }
 
 
@@ -2322,6 +2378,40 @@ LLSD LLImportMaterial::asLLSD()
     ret["diffuse"]["color"] = mDiffuseColor.getValue();
     ret["fullbright"] = mFullbright;
     ret["binding"] = mBinding;
+
+    // Include texture IDs where available
+    if (mDiffuseMapID.notNull())
+    {
+        ret["diffuse"]["texture_id"] = mDiffuseMapID;
+    }
+    if (mNormalMapID.notNull() || !mNormalMapFilename.empty() || !mNormalMapLabel.empty())
+    {
+        if (mNormalMapID.notNull()) ret["normal"]["texture_id"] = mNormalMapID;
+        if (!mNormalMapFilename.empty()) ret["normal"]["filename"] = mNormalMapFilename;
+        if (!mNormalMapLabel.empty()) ret["normal"]["label"] = mNormalMapLabel;
+    }
+    if (mMetallicRoughnessMapID.notNull() || !mMetallicRoughnessMapFilename.empty() || !mMetallicRoughnessMapLabel.empty())
+    {
+        if (mMetallicRoughnessMapID.notNull()) ret["metallic_roughness"]["texture_id"] = mMetallicRoughnessMapID;
+        if (!mMetallicRoughnessMapFilename.empty()) ret["metallic_roughness"]["filename"] = mMetallicRoughnessMapFilename;
+        if (!mMetallicRoughnessMapLabel.empty()) ret["metallic_roughness"]["label"] = mMetallicRoughnessMapLabel;
+    }
+    if (mEmissiveMapID.notNull() || !mEmissiveMapFilename.empty() || !mEmissiveMapLabel.empty())
+    {
+        if (mEmissiveMapID.notNull()) ret["emissive"]["texture_id"] = mEmissiveMapID;
+        if (!mEmissiveMapFilename.empty()) ret["emissive"]["filename"] = mEmissiveMapFilename;
+        if (!mEmissiveMapLabel.empty()) ret["emissive"]["label"] = mEmissiveMapLabel;
+    }
+
+    // PBR factors block
+    if (hasPBRData())
+    {
+        ret["pbr"]["metallic_factor"] = mMetallicFactor;
+        ret["pbr"]["roughness_factor"] = mRoughnessFactor;
+        ret["pbr"]["emissive_factor"][0] = mEmissiveFactor.mV[0];
+        ret["pbr"]["emissive_factor"][1] = mEmissiveFactor.mV[1];
+        ret["pbr"]["emissive_factor"][2] = mEmissiveFactor.mV[2];
+    }
 
     return ret;
 }
@@ -2354,6 +2444,51 @@ bool LLImportMaterial::operator<(const LLImportMaterial &rhs) const
         return mBinding < rhs.mBinding;
     }
 
-    return mFullbright < rhs.mFullbright;
+    if (mFullbright != rhs.mFullbright)
+    {
+        return mFullbright < rhs.mFullbright;
+    }
+
+    // Extend ordering with PBR-related fields to stabilize maps/sets when PBR differs
+    if (mNormalMapID != rhs.mNormalMapID)
+    {
+        return mNormalMapID < rhs.mNormalMapID;
+    }
+    if (mMetallicRoughnessMapID != rhs.mMetallicRoughnessMapID)
+    {
+        return mMetallicRoughnessMapID < rhs.mMetallicRoughnessMapID;
+    }
+    if (mEmissiveMapID != rhs.mEmissiveMapID)
+    {
+        return mEmissiveMapID < rhs.mEmissiveMapID;
+    }
+    if (mMetallicFactor != rhs.mMetallicFactor)
+    {
+        return mMetallicFactor < rhs.mMetallicFactor;
+    }
+    if (mRoughnessFactor != rhs.mRoughnessFactor)
+    {
+        return mRoughnessFactor < rhs.mRoughnessFactor;
+    }
+    if (mEmissiveFactor.mV[0] != rhs.mEmissiveFactor.mV[0])
+        return mEmissiveFactor.mV[0] < rhs.mEmissiveFactor.mV[0];
+    if (mEmissiveFactor.mV[1] != rhs.mEmissiveFactor.mV[1])
+        return mEmissiveFactor.mV[1] < rhs.mEmissiveFactor.mV[1];
+    if (mEmissiveFactor.mV[2] != rhs.mEmissiveFactor.mV[2])
+        return mEmissiveFactor.mV[2] < rhs.mEmissiveFactor.mV[2];
+    if (mNormalMapFilename != rhs.mNormalMapFilename)
+    {
+        return mNormalMapFilename < rhs.mNormalMapFilename;
+    }
+    if (mMetallicRoughnessMapFilename != rhs.mMetallicRoughnessMapFilename)
+    {
+        return mMetallicRoughnessMapFilename < rhs.mMetallicRoughnessMapFilename;
+    }
+    if (mEmissiveMapFilename != rhs.mEmissiveMapFilename)
+    {
+        return mEmissiveMapFilename < rhs.mEmissiveMapFilename;
+    }
+
+    return false; // equal
 }
 

@@ -2856,6 +2856,20 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                 instance_entry["face_list"][face_num] = face_entry;
             }
 
+            // Optional: attach per-instance PBR materials if provided by the loader/UI
+            if (!instance.mMaterialData.isUndefined())
+            {
+                if (instance.mMaterialData.isMap() && instance.mMaterialData.has("materials"))
+                {
+                    instance_entry["materials"] = instance.mMaterialData["materials"];
+                }
+                else
+                {
+                    // If the data itself is already an array or another structure, pass it through
+                    instance_entry["materials"] = instance.mMaterialData;
+                }
+            }
+
             res["instance_list"][instance_num] = instance_entry;
             instance_num++;
         }
@@ -3011,6 +3025,19 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                 face_entry["diffuse_color"] = ll_sd_from_color4(material.mDiffuseColor);
                 face_entry["fullbright"] = material.mFullbright;
                 instance_entry["face_list"][face_num] = face_entry;
+            }
+
+            // Optional: attach per-instance PBR materials if provided by the loader/UI
+            if (!instance.mMaterialData.isUndefined())
+            {
+                if (instance.mMaterialData.isMap() && instance.mMaterialData.has("materials"))
+                {
+                    instance_entry["materials"] = instance.mMaterialData["materials"];
+                }
+                else
+                {
+                    instance_entry["materials"] = instance.mMaterialData;
+                }
             }
 
             res["instance_list"][instance_num] = instance_entry;

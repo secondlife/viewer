@@ -567,6 +567,31 @@ bool LLGLTFLoader::addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_
     return true;
 }
 
+LLUUID LLGLTFLoader::getLoadedTextureIdIfAny(S32 texture_index, const std::string& log_name, bool check_scaling)
+{
+    S32 sourceIndex;
+    if (!validateTextureIndex(texture_index, sourceIndex))
+    {
+        return LLUUID::null;
+    }
+
+    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+    if (image.mTexture.notNull())
+    {
+        if (check_scaling)
+        {
+            mTexturesNeedScaling |= image.mHeight > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT || image.mWidth > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT;
+        }
+        LL_INFOS("GLTF_IMPORT") << "Using existing texture ID for " << log_name << ": " << image.mTexture->getID().asString() << LL_ENDL;
+        return image.mTexture->getID();
+    }
+    else
+    {
+        LL_INFOS("GLTF_IMPORT") << "Texture needs loading for " << log_name << LL_ENDL;
+    }
+    return LLUUID::null;
+}
+
 LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_index, S32 fallback_index)
 {
     // Check cache first
@@ -595,32 +620,97 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
             material->mPbrMetallicRoughness.mBaseColorFactor[3]
         );
 
+        // PBR factors
+        impMat.mMetallicFactor = material->mPbrMetallicRoughness.mMetallicFactor;
+        impMat.mRoughnessFactor = material->mPbrMetallicRoughness.mRoughnessFactor;
+        impMat.mEmissiveFactor.set(
+            material->mEmissiveFactor[0],
+            material->mEmissiveFactor[1],
+            material->mEmissiveFactor[2]
+        );
+
         // Process base color texture if it exists
         if (material->mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0)
         {
             S32 texIndex = material->mPbrMetallicRoughness.mBaseColorTexture.mIndex;
             std::string filename = processTexture(texIndex, "base_color", material->mName);
 
+            // Record names if we have a URI-based file name
             if (!filename.empty())
             {
                 impMat.mDiffuseMapFilename = filename;
                 impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
+            }
 
-                // Check if the texture is already loaded
-                S32 sourceIndex;
-                if (validateTextureIndex(texIndex, sourceIndex))
+            // Always try to reuse a loaded texture UUID (no off-thread creation)
+            {
+                const std::string log_name = !impMat.mDiffuseMapFilename.empty() ? impMat.mDiffuseMapFilename : (material->mName.empty() ? std::string("base_color") : material->mName + ":base_color");
+                if (LLUUID id = getLoadedTextureIdIfAny(texIndex, log_name, /*check_scaling*/ true); id.notNull())
                 {
-                    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
-                    if (image.mTexture.notNull())
-                    {
-                        mTexturesNeedScaling |= image.mHeight > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT || image.mWidth > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT;
-                        impMat.setDiffuseMap(image.mTexture->getID());
-                        LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
-                    }
-                    else
-                    {
-                        LL_INFOS("GLTF_IMPORT") << "Texture needs loading: " << impMat.mDiffuseMapFilename << LL_ENDL;
-                    }
+                    impMat.setDiffuseMap(id);
+                }
+            }
+        }
+
+        // Normal map
+        if (material->mNormalTexture.mIndex >= 0)
+        {
+            S32 texIndex = material->mNormalTexture.mIndex;
+            std::string filename = processTexture(texIndex, "normal", material->mName);
+            if (!filename.empty())
+            {
+                impMat.mNormalMapFilename = filename;
+                impMat.mNormalMapLabel = material->mName.empty() ? filename : material->mName;
+            }
+
+            // Always attempt UUID reuse
+            {
+                const std::string log_name = !impMat.mNormalMapFilename.empty() ? impMat.mNormalMapFilename : (material->mName.empty() ? std::string("normal") : material->mName + ":normal");
+                if (LLUUID id = getLoadedTextureIdIfAny(texIndex, log_name, /*check_scaling*/ false); id.notNull())
+                {
+                    impMat.setNormalMap(id);
+                }
+            }
+        }
+
+        // Metallic-Roughness map
+        if (material->mPbrMetallicRoughness.mMetallicRoughnessTexture.mIndex >= 0)
+        {
+            S32 texIndex = material->mPbrMetallicRoughness.mMetallicRoughnessTexture.mIndex;
+            std::string filename = processTexture(texIndex, "metallic_roughness", material->mName);
+            if (!filename.empty())
+            {
+                impMat.mMetallicRoughnessMapFilename = filename;
+                impMat.mMetallicRoughnessMapLabel = material->mName.empty() ? filename : material->mName;
+            }
+
+            // Always attempt UUID reuse
+            {
+                const std::string log_name = !impMat.mMetallicRoughnessMapFilename.empty() ? impMat.mMetallicRoughnessMapFilename : (material->mName.empty() ? std::string("metallic_roughness") : material->mName + ":metallic_roughness");
+                if (LLUUID id = getLoadedTextureIdIfAny(texIndex, log_name, /*check_scaling*/ false); id.notNull())
+                {
+                    impMat.setMetallicRoughnessMap(id);
+                }
+            }
+        }
+
+        // Emissive map
+        if (material->mEmissiveTexture.mIndex >= 0)
+        {
+            S32 texIndex = material->mEmissiveTexture.mIndex;
+            std::string filename = processTexture(texIndex, "emissive", material->mName);
+            if (!filename.empty())
+            {
+                impMat.mEmissiveMapFilename = filename;
+                impMat.mEmissiveMapLabel = material->mName.empty() ? filename : material->mName;
+            }
+
+            // Always attempt UUID reuse
+            {
+                const std::string log_name = !impMat.mEmissiveMapFilename.empty() ? impMat.mEmissiveMapFilename : (material->mName.empty() ? std::string("emissive") : material->mName + ":emissive");
+                if (LLUUID id = getLoadedTextureIdIfAny(texIndex, log_name, /*check_scaling*/ false); id.notNull())
+                {
+                    impMat.setEmissiveMap(id);
                 }
             }
         }
@@ -663,11 +753,6 @@ std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& t
         return filename;
     }
 
-    // Process embedded textures
-    if (image.mBufferView >= 0)
-    {
-        return extractTextureToTempFile(texture_index, texture_type);
-    }
 
     return "";
 }
@@ -1695,89 +1780,6 @@ void LLGLTFLoader::checkGlobalJointUsage()
     }
 }
 
-std::string LLGLTFLoader::extractTextureToTempFile(S32 textureIndex, const std::string& texture_type)
-{
-    if (textureIndex < 0 || textureIndex >= mGLTFAsset.mTextures.size())
-        return "";
-
-    S32 sourceIndex = mGLTFAsset.mTextures[textureIndex].mSource;
-    if (sourceIndex < 0 || sourceIndex >= mGLTFAsset.mImages.size())
-        return "";
-
-    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
-
-    // Handle URI-based textures
-    if (!image.mUri.empty())
-    {
-        return image.mUri; // Return URI directly
-    }
-
-    // Handle embedded textures
-    if (image.mBufferView >= 0)
-    {
-        if (image.mBufferView < mGLTFAsset.mBufferViews.size())
-        {
-            const LL::GLTF::BufferView& buffer_view = mGLTFAsset.mBufferViews[image.mBufferView];
-            if (buffer_view.mBuffer < mGLTFAsset.mBuffers.size())
-            {
-                const LL::GLTF::Buffer& buffer = mGLTFAsset.mBuffers[buffer_view.mBuffer];
-
-                if (buffer_view.mByteOffset + buffer_view.mByteLength <= buffer.mData.size())
-                {
-                    // Extract image data
-                    const U8* data_ptr = &buffer.mData[buffer_view.mByteOffset];
-                    U32 data_size = buffer_view.mByteLength;
-
-                    // Determine the file extension
-                    std::string extension = ".png"; // Default
-                    if (!image.mMimeType.empty())
-                    {
-                        if (image.mMimeType == "image/jpeg")
-                            extension = ".jpg";
-                        else if (image.mMimeType == "image/png")
-                            extension = ".png";
-                    }
-                    else if (data_size >= 4)
-                    {
-                        if (data_ptr[0] == 0xFF && data_ptr[1] == 0xD8)
-                            extension = ".jpg"; // JPEG magic bytes
-                        else if (data_ptr[0] == 0x89 && data_ptr[1] == 0x50 && data_ptr[2] == 0x4E && data_ptr[3] == 0x47)
-                            extension = ".png"; // PNG magic bytes
-                    }
-
-                    // Create a temporary file
-                    std::string temp_dir = gDirUtilp->getTempDir();
-                    std::string temp_filename = temp_dir + gDirUtilp->getDirDelimiter() +
-                                               "gltf_embedded_" + texture_type + "_" + std::to_string(sourceIndex) + extension;
-
-                    // Write the image data to the temporary file
-                    std::ofstream temp_file(temp_filename, std::ios::binary);
-                    if (temp_file.is_open())
-                    {
-                        temp_file.write(reinterpret_cast<const char*>(data_ptr), data_size);
-                        temp_file.close();
-
-                        LL_INFOS("GLTF_IMPORT") << "Extracted embedded " << texture_type << " texture to: " << temp_filename << LL_ENDL;
-                        return temp_filename;
-                    }
-                    else
-                    {
-                        LL_WARNS("GLTF_IMPORT") << "Failed to create temporary file for " << texture_type << " texture: " << temp_filename << LL_ENDL;
-
-                        LLSD args;
-                        args["Message"] = "FailedToCreateTempFile";
-                        args["TEXTURE_INDEX"] = sourceIndex;
-                        args["TEXTURE_TYPE"]  = texture_type;
-                        args["TEMP_FILE"] = temp_filename;
-                        mWarningsArray.append(args);
-                    }
-                }
-            }
-        }
-    }
-
-    return "";
-}
 
 void LLGLTFLoader::notifyUnsupportedExtension(bool unsupported)
 {
