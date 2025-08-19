@@ -1284,7 +1284,7 @@ void LLFloaterEmojiPicker::saveState()
             if (!recentlyUsed.empty())
                 recentlyUsed += ",";
             char buffer[32];
-            sprintf(buffer, "%u", (U32)emoji);
+            snprintf(buffer, sizeof(buffer), "%u", (U32)emoji);
             recentlyUsed += buffer;
             if (!--maxCount)
                 break;
@@ -1301,7 +1301,7 @@ void LLFloaterEmojiPicker::saveState()
             if (!frequentlyUsed.empty())
                 frequentlyUsed += ",";
             char buffer[32];
-            sprintf(buffer, "%u:%u", (U32)it.first, (U32)it.second);
+            snprintf(buffer, sizeof(buffer), "%u:%u", (U32)it.first, (U32)it.second);
             frequentlyUsed += buffer;
             if (!--maxCount)
                 break;

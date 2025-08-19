@@ -28,6 +28,8 @@
 #import "llwindowmacosx-objc.h"
 #import "llappdelegate-objc.h"
 
+#import <Carbon/Carbon.h> 
+
 extern BOOL gHiDPISupport;
 
 #pragma mark local functions
@@ -103,20 +105,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
         ;
     
     return screen;
-}
-
-
-- (NSPoint)convertPointToScreenCoordinates:(NSPoint)aPoint
-{
-    float normalizedX = fabs(fabs(self.frame.origin.x) - fabs(aPoint.x));
-    float normalizedY = aPoint.y - self.frame.origin.y;
-    
-    return NSMakePoint(normalizedX, normalizedY);
-}
-
-- (NSPoint)flipPoint:(NSPoint)aPoint
-{
-    return NSMakePoint(aPoint.x, self.frame.size.height - aPoint.y);
 }
 
 @end
@@ -244,7 +232,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
-	[self registerForDraggedTypes:[NSArray arrayWithObject:NSURLPboardType]];
+    [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
 	[self initWithFrame:frame];
 	
 	// Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
@@ -295,13 +283,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	if (vsync)
 	{
 		GLint value = 1;
-		[glContext setValues:&value forParameter:NSOpenGLCPSwapInterval];
+        [glContext setValues:&value forParameter:NSOpenGLContextParameterSwapInterval];
 	} else {
 		// supress this error after move to Xcode 7:
 		// error: null passed to a callee that requires a non-null argument [-Werror,-Wnonnull]
 		// Tried using ObjC 'nonnull' keyword as per SO article but didn't build
 		GLint swapInterval=0;
-		[glContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
+        [glContext setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
 	}
 	
     mOldResize = false;
@@ -355,13 +343,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     mMousePos[1] = mPoint.y;
 
     // Apparently people still use this?
-    if ([theEvent modifierFlags] & NSCommandKeyMask &&
-        !([theEvent modifierFlags] & NSControlKeyMask) &&
-        !([theEvent modifierFlags] & NSShiftKeyMask) &&
-        !([theEvent modifierFlags] & NSAlternateKeyMask) &&
-        !([theEvent modifierFlags] & NSAlphaShiftKeyMask) &&
-        !([theEvent modifierFlags] & NSFunctionKeyMask) &&
-        !([theEvent modifierFlags] & NSHelpKeyMask))
+    if ([theEvent modifierFlags] & NSEventModifierFlagCommand &&
+        !([theEvent modifierFlags] & NSEventModifierFlagControl) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagShift) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagOption) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagCapsLock) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagFunction) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagHelp))
     {
         callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
@@ -511,7 +499,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
     if (acceptsText &&
         !mMarkedTextAllowed &&
-        !(mModifiers & (NSControlKeyMask | NSCommandKeyMask)) &&  // commands don't invoke InputWindow
+        !(mModifiers & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) &&  // commands don't invoke InputWindow
         ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
         ch > ' ' &&
         ch != NSDeleteCharacter &&
@@ -534,14 +522,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSInteger mask = 0;
     switch([theEvent keyCode])
     {        
-        case 56:
-            mask = NSShiftKeyMask;
+        case kVK_Shift:
+            mask = NSEventModifierFlagShift;
             break;
-        case 58:
-            mask = NSAlternateKeyMask;
+        case kVK_Option:
+            mask = NSEventModifierFlagOption;
             break;
-        case 59:
-            mask = NSControlKeyMask;
+        case kVK_Control:
+            mask = NSEventModifierFlagControl;
             break;
         default:
             return;            
@@ -582,7 +570,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	
 	pboard = [sender draggingPasteboard];
 	
-	if ([[pboard types] containsObject:NSURLPboardType])
+    if ([[pboard types] containsObject:NSPasteboardTypeURL])
 	{
 		if (sourceDragMask & NSDragOperationLink) {
 			NSURL *fileUrl = [[pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]] objectAtIndex:0];
@@ -657,7 +645,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         };
         
         int string_length = [aString length];
-        unichar text[string_length];
+        unichar* text = (unichar*)malloc(sizeof(unichar) *  string_length);
         attributedStringInfo segments;
         // I used 'respondsToSelector:@selector(string)'
         // to judge aString is an attributed string or not.
@@ -675,6 +663,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
             segments.seg_standouts.push_back(true);
         }
         setMarkedText(text, selected, replacement, string_length, segments);
+        free(text);
         if (string_length > 0)
         {
             mHasMarkedText = TRUE;
@@ -783,9 +772,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) insertNewline:(id)sender
 {
-	if (!(mModifiers & NSCommandKeyMask) &&
-		!(mModifiers & NSShiftKeyMask) &&
-		!(mModifiers & NSAlternateKeyMask))
+    if (!(mModifiers & NSEventModifierFlagCommand) &&
+        !(mModifiers & NSEventModifierFlagShift) &&
+        !(mModifiers & NSEventModifierFlagOption))
 	{
 		callUnicodeCallback(13, 0);
 	} else {
@@ -902,27 +891,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (id) init
 {
 	return self;
-}
-
-- (NSPoint)convertToScreenFromLocalPoint:(NSPoint)point relativeToView:(NSView *)view
-{
-	NSScreen *currentScreen = [NSScreen currentScreenForMouseLocation];
-	if(currentScreen)
-	{
-		NSPoint windowPoint = [view convertPoint:point toView:nil];
-		NSPoint screenPoint = [[view window] convertBaseToScreen:windowPoint];
-		NSPoint flippedScreenPoint = [currentScreen flipPoint:screenPoint];
-		flippedScreenPoint.y += [currentScreen frame].origin.y;
-		
-		return flippedScreenPoint;
-	}
-	
-	return NSZeroPoint;
-}
-
-- (NSPoint)flipPoint:(NSPoint)aPoint
-{
-    return NSMakePoint(aPoint.x, self.frame.size.height - aPoint.y);
 }
 
 - (BOOL) becomeFirstResponder

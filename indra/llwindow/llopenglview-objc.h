@@ -88,9 +88,6 @@
 
 @interface LLNSWindow : NSWindow
 
-- (NSPoint)convertToScreenFromLocalPoint:(NSPoint)point relativeToView:(NSView *)view;
-- (NSPoint)flipPoint:(NSPoint)aPoint;
-
 @end
 
 @interface NSScreen (PointConversion)
@@ -99,16 +96,6 @@
  Returns the screen where the mouse resides
  */
 + (NSScreen *)currentScreenForMouseLocation;
-
-/*
- Allows you to convert a point from global coordinates to the current screen coordinates.
- */
-- (NSPoint)convertPointToScreenCoordinates:(NSPoint)aPoint;
-
-/*
- Allows to flip the point coordinates, so y is 0 at the top instead of the bottom. x remains the same
- */
-- (NSPoint)flipPoint:(NSPoint)aPoint;
 
 @end
 

@@ -1314,7 +1314,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                     {
                         //Build a joint for the resolver to work with
                         char str[64]={0};
-                        sprintf(str,"./%s",(*jointIt).first.c_str() );
+                        snprintf(str, sizeof(str), "./%s",(*jointIt).first.c_str() );
                         //LL_WARNS()<<"Joint "<< str <<LL_ENDL;
 
                         //Setup the resolver
