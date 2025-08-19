@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#pragma once 
+#pragma once
 
 #include "llfloater.h"
 
