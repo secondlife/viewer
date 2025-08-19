@@ -165,8 +165,10 @@ public:
     LLAPRFile(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL);
     // Open existing memory map file (File must be fixed size)
     LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool = NULL );
-    // Opens a initialized memory map file (File must be fixed size)
+    // Opens a initialized 64 bit memory map file (File must be fixed size)
     LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S64 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL);
+    // Opens a initialized 32 bit memory map file (File must be fixed size)
+    LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL);
     ~LLAPRFile() ;
 
     apr_status_t open(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);
@@ -178,8 +180,8 @@ public:
     // 64 bit Memory map version of open file (File must be fixed size)
     apr_status_t openMemoryMap64(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, LLVolatileAPRPool* pool = NULL, S64* sizep = NULL);
     // 32 bit Memory map version of open file and initalizes with size and can zero out (File must be fixed size)
-    apr_status_t openMemoryMap(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);    
-	// 64 bit Memory map version of open file and initalizes with size and can zero out (File must be fixed size)
+    apr_status_t openMemoryMap(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);
+    // 64 bit Memory map version of open file and initalizes with size and can zero out (File must be fixed size)
     apr_status_t openMemoryMap64(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S64 init_file_size, bool zero_out, LLVolatileAPRPool* pool = NULL, S64* sizep = NULL);
     // Memory map version of open file allowing for manual opening of the memory map file (File must be fixed size)
     apr_status_t openMemoryMap(const std::string& filename, apr_int32_t flags, bool use_global_pool, apr_int32_t mmap_flags); // use gAPRPoolp.

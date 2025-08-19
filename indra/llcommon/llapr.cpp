@@ -329,13 +329,22 @@ LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t
     openMemoryMap(filename, flags, mmap_flags, pool);
 }
 
-// Create a memory map file pointer and initalize it.
+// Create a 64 bit memory map file pointer and initalize it.
 LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S64 init_file_size, bool zero_out, LLVolatileAPRPool* pool)
     : mFile(NULL),
       mMMapFile(NULL),
       mCurrentFilePoolp(NULL)
 {
     openMemoryMap64(filename, flags, mmap_flags, init_file_size, zero_out, pool);
+}
+
+// Create a 32 bit memory map file pointer and initalize it.
+LLAPRFile::LLAPRFile(const std::string& filename, apr_int32_t flags, apr_int32_t mmap_flags, S32 init_file_size, bool zero_out, LLVolatileAPRPool* pool)
+    : mFile(NULL),
+    mMMapFile(NULL),
+    mCurrentFilePoolp(NULL)
+{
+    openMemoryMap(filename, flags, mmap_flags, init_file_size, zero_out, pool);
 }
 
 LLAPRFile::~LLAPRFile()
@@ -401,7 +410,7 @@ apr_status_t LLAPRFile::open(const std::string& filename, apr_int32_t flags, LLV
         apr_off_t offset = 0;
         if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
         {
-            llassert_always(offset <= 0x7fffffffffffffff); //Use 64 bit assert instead of 32 bit
+            llassert_always(offset <= 0x7fffffff);
             file_size = (S32)offset;
             offset = 0;
             apr_file_seek(mFile, APR_SET, &offset);
@@ -491,7 +500,7 @@ apr_status_t LLAPRFile::openMemoryMap(const std::string& filename, apr_int32_t f
         apr_off_t offset = 0;
         if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
         {
-            llassert_always(offset <= 0x7fffffffffffffff);
+            llassert_always(offset <= 0x7fffffff);
             file_size = (S32)offset;
             offset = 0;
             apr_file_seek(mFile, APR_SET, &offset);
@@ -535,13 +544,13 @@ apr_status_t LLAPRFile::openMemoryMap(const std::string& filename, apr_int32_t f
     }
     else
     {
-        apr_off_t offset = init_file_size;
+        apr_off_t offset = init_file_size - 1;
         if (apr_file_seek(mFile, APR_SET, &offset) == APR_SUCCESS)
         {
-            llassert_always(offset <= 0x7fffffffffffffff);
+            llassert_always(offset <= 0x7fffffff);
             apr_size_t one_char = 1;
             apr_file_write(mFile, "\0", &one_char);
-            file_size = (S32)offset;
+            file_size = (S32)init_file_size;
             offset = 0;
             apr_file_seek(mFile, APR_SET, &offset);
         }
@@ -558,7 +567,7 @@ apr_status_t LLAPRFile::openMemoryMap(const std::string& filename, apr_int32_t f
         // If need to zero out the file, then use memset over the memory map
         if (zero_out)
         {
-            memset(mMMapFile->mm, 0, sizeof(file_size));
+            memset(mMMapFile->mm, 0, file_size);
         }
     }
 
@@ -643,7 +652,7 @@ apr_status_t LLAPRFile::openMemoryMap64(const std::string& filename, apr_int32_t
     }
     else
     {
-        apr_off_t offset = init_file_size;
+        apr_off_t offset = init_file_size - 1;
         if (apr_file_seek(mFile, APR_SET, &offset) == APR_SUCCESS)
         {
             llassert_always(offset <= 0x7fffffffffffffff);
@@ -655,7 +664,7 @@ apr_status_t LLAPRFile::openMemoryMap64(const std::string& filename, apr_int32_t
                 close();
                 return s;
             }
-            file_size = offset;
+            file_size = init_file_size;
             offset = 0;
             apr_file_seek(mFile, APR_SET, &offset);
         }
@@ -672,7 +681,7 @@ apr_status_t LLAPRFile::openMemoryMap64(const std::string& filename, apr_int32_t
         // If need to zero out the file, then use memset over the memory map
         if (zero_out)
         {
-            memset(mMMapFile->mm, 0, sizeof(file_size));
+            memset(mMMapFile->mm, 0, file_size);
         }
     }
 
@@ -760,7 +769,7 @@ S32 LLAPRFile::read(void *buf, S32 nbytes)
     }
     else
     {
-        llassert_always(sz <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
+        llassert_always(sz <= 0x7fffffff);
         return (S32)sz;
     }
 }
@@ -973,7 +982,7 @@ S32 LLAPRFile::seek(apr_file_t* file_handle, apr_seek_where_t where, S32 offset)
     }
     else
     {
-        llassert_always(apr_offset  <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
+        llassert_always(apr_offset  <= 0x7fffffff);
         return (S32)apr_offset;
     }
 }
@@ -1045,7 +1054,7 @@ S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nb
         }
         else
         {
-            llassert_always(bytes_read <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
+            llassert_always(bytes_read <= 0x7fffffff);
         }
     }
 
@@ -1090,7 +1099,7 @@ S64 LLAPRFile::readEx64(const std::string& filename, void* buf, S64 offset, S64 
         }
         else
         {
-            llassert_always(bytes_read <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
+            llassert_always(bytes_read <= 0x7fffffffffffffff);
         }
     }
 
@@ -1146,7 +1155,7 @@ S32 LLAPRFile::writeEx(const std::string& filename, const void *buf, S32 offset,
         }
         else
         {
-            llassert_always(bytes_written <= 0x7fffffffffffffff);  //Use 64 bit assert instead of 32 bit
+            llassert_always(bytes_written <= 0x7fffffff);
         }
     }
 
