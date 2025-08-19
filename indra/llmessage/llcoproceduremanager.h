@@ -79,7 +79,7 @@ public:
     void close();
     void close(const std::string &pool);
 
-    void initializePool(const std::string &poolName);
+    void initializePool(const std::string &poolName, size_t queue_size = DEFAULT_QUEUE_SIZE);
 
 private:
 
