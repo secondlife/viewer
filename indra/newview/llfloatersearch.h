@@ -33,7 +33,7 @@ class LLFloaterSearch:
         friend class LLFloaterReg;
 
     public:
-        void onOpen(const LLSD& key);
+        void onOpen(const LLSD& key) override;
 
     private:
         LLFloaterSearch(const LLSD& key);
