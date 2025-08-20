@@ -499,6 +499,12 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 
     resetLastError();
 
+    if (raw_image->isBufferInvalid())
+    {
+        setLastError("Invalid input, no buffer");
+        return false;
+    }
+
     LLImageDataSharedLock lockIn(raw_image);
     LLImageDataLock lockOut(this);
 

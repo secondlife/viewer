@@ -73,7 +73,6 @@ else()
   find_library(COCOA_LIBRARY Cocoa)
   find_library(IOKIT_LIBRARY IOKit)
 
-  find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COREAUDIO_LIBRARY CoreAudio)
   find_library(COREGRAPHICS_LIBRARY CoreGraphics)
@@ -84,7 +83,6 @@ else()
           ${IOKIT_LIBRARY}
           ${COREFOUNDATION_LIBRARY}
           ${CARBON_LIBRARY}
-          ${AGL_LIBRARY}
           ${APPKIT_LIBRARY}
           ${COREAUDIO_LIBRARY}
           ${AUDIOTOOLBOX_LIBRARY}

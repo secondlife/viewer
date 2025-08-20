@@ -43,7 +43,6 @@ class alignas(16) LLViewerCamera : public LLCamera, public LLSimpleton<LLViewerC
     LL_ALIGN_NEW
 public:
     LLViewerCamera();
-    ~LLViewerCamera();
 
     typedef enum
     {
@@ -61,12 +60,11 @@ public:
 
     static eCameraID sCurCameraID;
 
-    void updateCameraLocation(const LLVector3 &center,
+    bool updateCameraLocation(const LLVector3 &center,
                                 const LLVector3 &up_direction,
                                 const LLVector3 &point_of_interest);
 
     static void updateFrustumPlanes(LLCamera& camera, bool ortho = false, bool zflip = false, bool no_hacks = false);
-    void updateCameraAngle(const LLSD& value);
     void setPerspective(bool for_selection, S32 x, S32 y_from_bot, S32 width, S32 height, bool limit_select_distance, F32 z_near = 0, F32 z_far = 0);
 
     const LLMatrix4 &getProjection() const;
@@ -77,12 +75,12 @@ public:
     bool projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const bool clamp = true) const;
     bool projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
 
+    F32     getCosHalfFov() const { return mCosHalfCameraFOV; }
+    F32     getAverageSpeed() const { return mAverageSpeed; }
+    F32     getAverageAngularSpeed() const { return mAverageAngularSpeed; }
     LLVector3 getVelocityDir() const {return mVelocityDir;}
     static LLTrace::CountStatHandle<>* getVelocityStat()           {return &sVelocityStat; }
     static LLTrace::CountStatHandle<>* getAngularVelocityStat()  {return &sAngularVelocityStat; }
-    F32     getCosHalfFov() {return mCosHalfCameraFOV;}
-    F32     getAverageSpeed() {return mAverageSpeed ;}
-    F32     getAverageAngularSpeed() {return mAverageAngularSpeed;}
 
     void getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, LLVector3 &right);
     LLVector3 roundToPixel(const LLVector3 &pos_agent);
@@ -90,21 +88,21 @@ public:
     // Sets the current matrix
     /* virtual */ void setView(F32 vertical_fov_rads); // NOTE: broadcasts to simulator
     void setViewNoBroadcast(F32 vertical_fov_rads);  // set FOV without broadcasting to simulator (for temporary local cameras)
+    F32 getDefaultFOV() const { return mCameraFOVDefault; }
     void setDefaultFOV(F32 fov) ;
-    F32 getDefaultFOV() { return mCameraFOVDefault; }
 
     bool isDefaultFOVChanged();
 
     bool cameraUnderWater() const;
     bool areVertsVisible(LLViewerObject* volumep, bool all_verts);
 
-    const LLVector3 &getPointOfInterest() { return mLastPointOfInterest; }
+    const LLVector3& getPointOfInterest() const { return mLastPointOfInterest; }
     F32 getPixelMeterRatio() const              { return mPixelMeterRatio; }
     S32 getScreenPixelArea() const              { return mScreenPixelArea; }
 
     void setZoomParameters(F32 factor, S16 subregion) { mZoomFactor = factor; mZoomSubregion = subregion; }
-    F32 getZoomFactor() { return mZoomFactor; }
-    S16 getZoomSubRegion() { return mZoomSubregion; }
+    F32 getZoomFactor() const { return mZoomFactor; }
+    S16 getZoomSubRegion() const { return mZoomSubregion; }
 
 protected:
     void calcProjection(const F32 far_distance) const;
@@ -125,8 +123,6 @@ protected:
     S32                 mScreenPixelArea; // Pixel area of entire window
     F32                 mZoomFactor;
     S16                 mZoomSubregion;
-
-    boost::signals2::connection mCameraAngleChangedSignal;
 
 public:
 };

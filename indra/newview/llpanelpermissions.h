@@ -77,6 +77,7 @@ protected:
 
     static void onCommitSaleInfo(LLUICtrl* ctrl, void* data);
     static void onCommitSaleType(LLUICtrl* ctrl, void* data);
+    static void onCommitSalePrice(LLUICtrl *ctrl, void *data);
     void setAllSaleInfo();
 
     static void onCommitClickAction(LLUICtrl* ctrl, void*);

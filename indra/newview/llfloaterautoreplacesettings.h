@@ -105,6 +105,8 @@ private:
     bool callbackNewListName(const LLSD& notification, const LLSD& response);
     /// called from the RenameAutoReplaceList notification dialog
     bool callbackListNameConflict(const LLSD& notification, const LLSD& response);
+    /// called from the RemoveAutoReplaceList notification dialog
+    bool callbackRemoveList(const LLSD& notification, const LLSD& response);
 
     bool selectedListIsFirst();
     bool selectedListIsLast();

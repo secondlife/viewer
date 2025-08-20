@@ -454,6 +454,9 @@
      name="InventoryBackgroundColor"
      reference="DkGray2" />
     <color
+     name="InventoryFavoriteColor"
+     reference="Yellow" />
+    <color
      name="InventoryFocusOutlineColor"
      reference="White_25" />
     <color
@@ -1000,4 +1003,16 @@
   <color
     name="OutfitSnapshotMacMask2"
     value="0.1 0.1 0.1 1"/>
+  <color
+   name="ChatMentionFont"
+   value="0.3 0.82 1 1" />
+  <color
+    name="ChatMentionHighlight"
+    value="0.82 0.91 0.98 0.15" />
+  <color
+    name="ChatSelfMentionHighlight"
+    value="1 1 0 0.35" />
+  <color
+    name="MentionFlashBgColor"
+    value="1 1 0 0.5" />
 </colors>

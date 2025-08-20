@@ -1079,8 +1079,8 @@ void LLGLSLShader::bind()
 
 void LLGLSLShader::bind(U8 variant)
 {
-    llassert(mGLTFVariants.size() == LLGLSLShader::NUM_GLTF_VARIANTS);
-    llassert(variant < LLGLSLShader::NUM_GLTF_VARIANTS);
+    llassert_always(mGLTFVariants.size() == LLGLSLShader::NUM_GLTF_VARIANTS);
+    llassert_always(variant < LLGLSLShader::NUM_GLTF_VARIANTS);
     mGLTFVariants[variant].bind();
 }
 
@@ -1088,7 +1088,7 @@ void LLGLSLShader::bind(bool rigged)
 {
     if (rigged)
     {
-        llassert(mRiggedVariant);
+        llassert_always(mRiggedVariant);
         mRiggedVariant->bind();
     }
     else

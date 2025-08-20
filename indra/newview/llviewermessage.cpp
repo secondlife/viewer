@@ -2137,6 +2137,21 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
     EInstantMessage dialog = (EInstantMessage)d;
     LLHost sender = msg->getSender();
 
+    LLSD metadata;
+    if (msg->getNumberOfBlocksFast(_PREHASH_MetaData) > 0)
+    {
+        S32 metadata_size = msg->getSizeFast(_PREHASH_MetaData, 0, _PREHASH_Data);
+        std::string metadata_buffer;
+        metadata_buffer.resize(metadata_size, 0);
+
+        msg->getBinaryDataFast(_PREHASH_MetaData, _PREHASH_Data, &metadata_buffer[0], metadata_size, 0, metadata_size );
+        std::stringstream metadata_stream(metadata_buffer);
+        if (LLSDSerialize::fromBinary(metadata, metadata_stream, metadata_size) == LLSDParser::PARSE_FAILURE)
+        {
+            metadata.clear();
+        }
+    }
+
     LLIMProcessing::processNewMessage(from_id,
         from_group,
         to_id,
@@ -2151,7 +2166,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
         position,
         binary_bucket,
         binary_bucket_size,
-        sender);
+        sender,
+        metadata);
 }
 
 void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id)
@@ -2567,6 +2583,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["session_id"] = LLUUID();
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
+            // used to check if there is agent mention in the message
+            msg_notify["message"] = mesg;
             on_new_message(msg_notify);
         }
 
@@ -3034,6 +3052,11 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
         }
     }
 
+#ifdef LL_DISCORD
+    if (gSavedSettings.getBOOL("EnableDiscord"))
+        LLAppViewer::updateDiscordActivity();
+#endif
+
     if ( LLTracker::isTracking(NULL) )
     {
         // Check distance to beacon, if < 5m, remove beacon
@@ -3171,6 +3194,7 @@ void send_agent_update(bool force_send, bool send_reliable)
 
     static F64          last_send_time = 0.0;
     static U32          last_control_flags = 0;
+    static bool         control_flags_follow_up = false;
     static U8           last_render_state = 0;
     static U8           last_flags = AU_FLAGS_NONE;
     static LLQuaternion last_body_rot,
@@ -3243,6 +3267,20 @@ void send_agent_update(bool force_send, bool send_reliable)
 
             // check flags
             if (last_flags != flags)
+            {
+                send_update = true;
+                break;
+            }
+
+            // example:
+            // user taps crouch (control_flags 4128), viewer sends 4128 then immediately 0
+            // server starts crouching motion but does not stop it, only once viewer sends 0
+            // second time will server stop the motion. follow_up exists to make sure all
+            // states like 'crouch' motion are properly cleared server side.
+            //
+            // P.S. Server probably shouldn't require a reminder to stop a motion,
+            // but at the moment it does.
+            if (control_flags_follow_up)
             {
                 send_update = true;
                 break;
@@ -3381,6 +3419,7 @@ void send_agent_update(bool force_send, bool send_reliable)
 
     // remember last update data
     last_send_time = now;
+    control_flags_follow_up = last_control_flags != control_flags;
     last_control_flags = control_flags;
     last_render_state = render_state;
     last_flags = flags;

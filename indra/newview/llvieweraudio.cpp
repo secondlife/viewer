@@ -390,6 +390,7 @@ void init_audio()
         gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndWindowClose")));
         gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndWindowOpen")));
         gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndRestart")));
+        gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndChatMention")));
     }
 
     audio_update_volume(true);

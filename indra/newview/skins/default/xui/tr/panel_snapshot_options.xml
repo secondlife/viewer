@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
 	<button label="Diske Kaydet" name="save_to_computer_btn"/>
-	<button label="Envantere Kaydet (L$[AMOUNT])" name="save_to_inventory_btn"/>
+	<button label="Envantere Kaydet" name="save_to_inventory_btn"/>
 	<button label="Profil Akışında Paylaş" name="save_to_profile_btn"/>
 	<button label="Facebook&apos;ta Paylaş" name="send_to_facebook_btn"/>
 	<button label="Twitter&apos;da Paylaş" name="send_to_twitter_btn"/>

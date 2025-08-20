@@ -342,13 +342,11 @@ void pump_idle_startup_network(void)
 {
     // while there are message to process:
     //     process one then call display_startup()
-    S32 num_messages = 0;
     {
         LockMessageChecker lmc(gMessageSystem);
         while (lmc.checkAllMessages(gFrameCount, gServicePump))
         {
             display_startup();
-            ++num_messages;
         }
         lmc.processAcks();
     }
@@ -723,6 +721,10 @@ bool idle_startup()
         {
             LL_WARNS("AppInit") << "Unreliable timers detected (may be bad PCI chipset)!!" << LL_ENDL;
         }
+
+#ifdef LL_DISCORD
+        LLAppViewer::initDiscordSocial();
+#endif
 
         //
         // Log on to system
@@ -2103,9 +2105,6 @@ bool idle_startup()
 
         do_startup_frame();
 
-        // We're successfully logged in.
-        gSavedSettings.setBOOL("FirstLoginThisInstall", false);
-
         LLFloaterReg::showInitialVisibleInstances();
 
         LLFloaterGridStatus::getInstance()->startGridStatusTimer();
@@ -2450,6 +2449,27 @@ bool idle_startup()
         LLUIUsage::instance().clear();
 
         LLPerfStats::StatsRecorder::setAutotuneInit();
+
+        // Display Avatar Welcome Pack the first time a user logs in
+        // (or clears their settings....)
+        if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+        {
+            LLFloater* avatar_welcome_pack_floater = LLFloaterReg::findInstance("avatar_welcome_pack");
+            if (avatar_welcome_pack_floater != nullptr)
+            {
+                // There is a (very - 1 in ~50 times) hard to repro bug where the login
+                // page is not hidden when the AWP floater is presented. This (agressive)
+                // approach to always close it seems like the best fix for now.
+                LLPanelLogin::closePanel();
+
+                avatar_welcome_pack_floater->setVisible(true);
+            }
+        }
+
+        //// We're successfully logged in.
+        // 2025-06 Moved lower down in the state machine so the Avatar Welcome Pack
+        // floater display can be triggered correctly.
+        gSavedSettings.setBOOL("FirstLoginThisInstall", false);
 
         return true;
     }
@@ -3566,7 +3586,7 @@ bool process_login_success_response()
 
     // Agent id needed for parcel info request in LLUrlEntryParcel
     // to resolve parcel name.
-    LLUrlEntryParcel::setAgentID(gAgentID);
+    LLUrlEntryBase::setAgentID(gAgentID);
 
     text = response["session_id"].asString();
     if(!text.empty()) gAgentSessionID.set(text);
@@ -3884,25 +3904,7 @@ bool process_login_success_response()
         LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
     }
 
-
-    // Only save mfa_hash for future logins if the user wants their info remembered.
-    if(response.has("mfa_hash")
-       && gSavedSettings.getBOOL("RememberUser")
-       && LLLoginInstance::getInstance()->saveMFA())
-    {
-        std::string grid(LLGridManager::getInstance()->getGridId());
-        std::string user_id(gUserCredential->userID());
-        gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, response["mfa_hash"]);
-        // TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
-        gSecAPIHandler->syncProtectedMap();
-    }
-    else if (!LLLoginInstance::getInstance()->saveMFA())
-    {
-        std::string grid(LLGridManager::getInstance()->getGridId());
-        std::string user_id(gUserCredential->userID());
-        gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, user_id);
-        gSecAPIHandler->syncProtectedMap();
-    }
+    LLLoginInstance::getInstance()->saveMFAHash(response);
 
     bool success = false;
     // JC: gesture loading done below, when we have an asset system

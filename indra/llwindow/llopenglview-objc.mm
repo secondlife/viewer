@@ -629,7 +629,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         };
         
         int string_length = [aString length];
-        unichar* text = (unichar*)malloc(sizeof(unichar) *  string_length);
+        unichar *text = new unichar[string_length];
         attributedStringInfo segments;
         // I used 'respondsToSelector:@selector(string)'
         // to judge aString is an attributed string or not.
@@ -647,7 +647,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
             segments.seg_standouts.push_back(true);
         }
         setMarkedText(text, selected, replacement, string_length, segments);
-        free(text);
         if (string_length > 0)
         {
             mHasMarkedText = TRUE;
@@ -658,6 +657,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
             // we must clear the marked text when aString is null.
             [self unmarkText];
         }
+
+        delete [] text;
     } else {
         if (mHasMarkedText)
         {

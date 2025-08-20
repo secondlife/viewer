@@ -86,6 +86,7 @@ public:
     //--------------------------------------------------------------------
     virtual const LLUUID& getUUID() const { return mUUID; }
     virtual const LLUUID& getThumbnailUUID() const { return LLUUID::null; }
+    virtual bool isFavorite() const { return false; }
     virtual void clearDisplayName() { mDisplayName.clear(); }
     virtual void restoreItem() {}
     virtual void restoreToWorld() {}
@@ -175,6 +176,7 @@ protected:
     bool isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
 
     bool isAgentInventory() const; // false if lost or in the inventory library
+    bool isAgentInventoryRoot() const; // true if worn by agent
     bool isCOFFolder() const;       // true if COF or descendant of
     bool isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
 
@@ -259,6 +261,7 @@ public:
 
     LLViewerInventoryItem* getItem() const;
     virtual const LLUUID& getThumbnailUUID() const;
+    virtual bool isFavorite() const;
 
 protected:
     bool confirmRemoveItem(const LLSD& notification, const LLSD& response);
@@ -301,6 +304,7 @@ public:
     virtual std::string getLabelSuffix() const;
     virtual LLFontGL::StyleFlags getLabelStyle() const;
     virtual const LLUUID& getThumbnailUUID() const;
+    virtual bool isFavorite() const;
 
     void setShowDescendantsCount(bool show_count) {mShowDescendantsCount = show_count;}
 
@@ -341,6 +345,7 @@ protected:
     void buildContextMenuOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
     void buildContextMenuFolderOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
     void addOpenFolderMenuOptions(U32 flags, menuentry_vec_t& items);
+    void addInventoryFavoritesMenuOptions(menuentry_vec_t& items); // Inventory favorites, not toolbar favorites
 
     //--------------------------------------------------------------------
     // Menu callbacks
@@ -369,7 +374,7 @@ protected:
     void dropToFavorites(LLInventoryItem* inv_item, LLPointer<LLInventoryCallback> cb = NULL);
     void dropToOutfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit, LLPointer<LLInventoryCallback> cb = NULL);
     void dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLInventoryCallback> cb = NULL);
-    void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest, LLFolderType::EType preferred_type, LLPointer<LLInventoryCallback> cb = NULL);
+    void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest, LLPointer<LLInventoryCallback> cb = NULL);
 
     //--------------------------------------------------------------------
     // Messy hacks for handling folder options
@@ -755,6 +760,46 @@ public:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Favorites Inventory Panel related classes
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Overridden version of the Inventory-Folder-View-Bridge for Folders
+class LLFavoritesFolderBridge : public LLFolderBridge
+{
+    friend class LLInvFVBridgeAction;
+public:
+    // Creates context menu for Folders related to Recent Inventory Panel.
+    // Uses base logic and than removes from visible items "New..." menu items.
+    LLFavoritesFolderBridge(LLInventoryType::EType type,
+        LLInventoryPanel* inventory,
+        LLFolderView* root,
+        const LLUUID& uuid) :
+        LLFolderBridge(inventory, root, uuid)
+    {
+        mInvType = type;
+    }
+    /*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
+    /*virtual*/ bool canSortContent() const { return true; }
+};
+
+// Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
+class LLFavoritesInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
+{
+public:
+    LLFavoritesInventoryBridgeBuilder() {}
+    // Overrides FolderBridge for Recent Inventory Panel.
+    // It use base functionality for bridges other than FolderBridge.
+    virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+        LLAssetType::EType actual_asset_type,
+        LLInventoryType::EType inv_type,
+        LLInventoryPanel* inventory,
+        LLFolderViewModelInventory* view_model,
+        LLFolderView* root,
+        const LLUUID& uuid,
+        U32 flags = 0x00) const;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Marketplace Inventory Panel related classes
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -781,7 +826,7 @@ private:
 
 void rez_attachment(LLViewerInventoryItem* item,
                     LLViewerJointAttachment* attachment,
-                    bool replace = false);
+                    bool replace);
 
 // Move items from an in-world object's "Contents" folder to a specified
 // folder in agent inventory.

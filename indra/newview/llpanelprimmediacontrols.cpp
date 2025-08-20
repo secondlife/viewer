@@ -777,7 +777,7 @@ void LLPanelPrimMediaControls::draw()
     else if(mFadeTimer.getStarted())
     {
         F32 time = mFadeTimer.getElapsedTimeF32();
-        alpha *= llmax(lerp(1.0, 0.0, time / mControlFadeTime), 0.0f);
+        alpha *= llmax(lerp(1.f, 0.f, time / mControlFadeTime), 0.0f);
 
         if(time >= mControlFadeTime)
         {

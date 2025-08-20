@@ -1423,11 +1423,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>9e59c93c7110e87b4ff3db330f11a23c50e5000f</string>
+              <string>7facda95e2f00c260513f3d4db42588fa8ba703c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910560</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289774</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1439,11 +1439,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>7ed994db5bafa9a7ad09a1b53da850a84715c65e</string>
+              <string>01d08f13c7bc8d1b95b0330fa6833b7d8274e4d0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910561</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289775</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1455,24 +1455,24 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>66824c02e0e5eabbfbe37bfb173360195f89697c</string>
+              <string>6d00345c7d3471bc5f7c1218e014dd0f1a2c069b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910562</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289778</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>license</key>
         <string>internal</string>
         <key>license_file</key>
         <string>LICENSES/llphysicsextensions.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.0.66e6919</string>
+        <string>1.0.11137145495</string>
         <key>name</key>
         <string>llphysicsextensions_source</string>
       </map>
@@ -2354,59 +2354,33 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>threejs</key>
       <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>cfed00d8ea7265c035c2d86a234b28efb0b23756</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-b8f6746/threejs-0.132.2-darwin64-b8f6746.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>9de1295b157c9913c28be81ff933c73493ecc132</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-b8f6746/threejs-0.132.2-linux64-b8f6746.tar.zst</string>
-            </map>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>4141710fccbd1ea2b3b53d00e189bdfa2ee9d441</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-b8f6746/threejs-0.132.2-windows64-b8f6746.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
+        <key>copyright</key>
+        <string>Copyright © 2010-2021 three.js authors</string>
         <key>license</key>
         <string>MIT</string>
         <key>license_file</key>
         <string>LICENSES/THREEJS_LICENSE.txt</string>
-        <key>copyright</key>
-        <string>Copyright © 2010-2021 three.js authors</string>
-        <key>version</key>
-        <string>0.132.2</string>
         <key>name</key>
         <string>threejs</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>982c0fa427458082ea9e3cb9603904210732b64e</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-5da28d9/threejs-0.132.2-common-8454371083.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.132.2</string>
       </map>
       <key>tinygltf</key>
       <map>
@@ -2917,6 +2891,64 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>https://github.com/secondlife/3p-tinyexr</string>
         <key>version</key>
         <string>1.0.9-5e8947c</string>
+      </map>
+      <key>discord_sdk</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>e11571bf76b27d15c244069988ae372eaa5afae9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-discord-sdk/releases/assets/279333720</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>dc21df8b051c425163acf3eff8f06e32f407c9e0</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-discord-sdk/releases/assets/279333706</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>discord_sdk</string>
+        <key>license_file</key>
+        <string>LICENSES/discord_sdk.txt</string>
+        <key>copyright</key>
+        <string>Discord Inc.</string>
+        <key>version</key>
+        <string>1.4.9649.16733550144</string>
+        <key>name</key>
+        <string>discord_sdk</string>
+        <key>vcs_branch</key>
+        <string>main</string>
+        <key>vcs_revision</key>
+        <string>ef5c7c4a490ceac2df2b2f046788b1daf1bbb392</string>
+        <key>vcs_url</key>
+        <string>https://github.com/secondlife/3p-discord-sdk</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-discord-sdk</string>
+        <key>description</key>
+        <string>Discord Social SDK</string>
       </map>
     </map>
     <key>package_description</key>

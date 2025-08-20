@@ -88,7 +88,8 @@ bool get_is_predefined_texture(LLUUID asset_id)
         || asset_id == DEFAULT_OBJECT_NORMAL
         || asset_id == BLANK_OBJECT_NORMAL
         || asset_id == IMG_WHITE
-        || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
+        || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE)
+        || asset_id == BLANK_MATERIAL_ASSET_ID)
     {
         return true;
     }
@@ -163,7 +164,6 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
     mFallbackImage(fallback_image),
     mDefaultImageAssetID(default_image_asset_id),
     mBlankImageAssetID(blank_image_asset_id),
-    mTentative(tentative),
     mAllowNoTexture(allow_no_texture),
     mLabel(label),
     mTentativeLabel(NULL),
@@ -185,8 +185,10 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
     mSetImageAssetIDCallback(NULL),
     mOnUpdateImageStatsCallback(NULL),
     mBakeTextureEnabled(false),
+    mLocalTextureEnabled(false),
     mInventoryPickType(pick_type)
 {
+    setTentative(tentative);
     mCanApplyImmediately = can_apply_immediately;
     buildFromFile("floater_texture_ctrl.xml");
     setCanMinimize(false);
@@ -198,7 +200,7 @@ LLFloaterTexturePicker::~LLFloaterTexturePicker()
 
 void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selection /*=true*/)
 {
-    if( ((mImageAssetID != image_id) || mTentative) && mActive)
+    if( ((mImageAssetID != image_id) || getTentative()) && mActive)
     {
         mNoCopyTextureSelected = false;
         mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
@@ -276,6 +278,7 @@ void LLFloaterTexturePicker::setImageIDFromItem(const LLInventoryItem* itemp, bo
         asset_id = BLANK_MATERIAL_ASSET_ID;
     }
     setImageID(asset_id, set_selection);
+    setTentative(false);
 }
 
 void LLFloaterTexturePicker::setActive( bool active )
@@ -524,6 +527,8 @@ bool LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 void LLFloaterTexturePicker::onOpen(const LLSD& key)
 {
     if (sLastPickerMode != 0
+        && (mLocalTextureEnabled || sLastPickerMode != 1)
+        && (mBakeTextureEnabled || sLastPickerMode != 2)
         && mModeSelector->selectByValue(sLastPickerMode))
     {
         changeMode();
@@ -654,7 +659,7 @@ void LLFloaterTexturePicker::draw()
     bool valid_dims = updateImageStats();
 
     // if we're inactive, gray out "apply immediate" checkbox
-    mSelectBtn->setEnabled(mActive && mCanApply && valid_dims);
+    mSelectBtn->setEnabled(mActive && mCanApply && valid_dims && !getTentative());
     mPipetteBtn->setEnabled(mActive);
     mPipetteBtn->setValue(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
 
@@ -719,9 +724,9 @@ void LLFloaterTexturePicker::draw()
             mTentativeLabel->setVisible( false  );
         }
 
-        mDefaultBtn->setEnabled(mImageAssetID != mDefaultImageAssetID || mTentative);
-        mBlankBtn->setEnabled((mImageAssetID != mBlankImageAssetID && mBlankImageAssetID.notNull()) || mTentative);
-        mNoneBtn->setEnabled(mAllowNoTexture && (!mImageAssetID.isNull() || mTentative));
+        mDefaultBtn->setEnabled(mImageAssetID != mDefaultImageAssetID || getTentative());
+        mBlankBtn->setEnabled((mImageAssetID != mBlankImageAssetID && mBlankImageAssetID.notNull()) || getTentative());
+        mNoneBtn->setEnabled(mAllowNoTexture && (!mImageAssetID.isNull() || getTentative()));
 
         LLFloater::draw();
 
@@ -774,7 +779,7 @@ void LLFloaterTexturePicker::draw()
         }
 
         // Draw Tentative Label over the image
-        if( mTentative && !mViewModel->isDirty() )
+        if( getTentative() && !mViewModel->isDirty() )
         {
             mTentativeLabel->setVisible( true );
             drawChild(mTentativeLabel);
@@ -977,6 +982,7 @@ void LLFloaterTexturePicker::onBtnSetToDefault(void* userdata)
     if (self->mOwner)
     {
         self->setImageID( self->getDefaultImageAssetID() );
+        self->setTentative(false);
     }
     self->commitIfImmediateSet();
 }
@@ -987,6 +993,7 @@ void LLFloaterTexturePicker::onBtnBlank(void* userdata)
     LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
     self->setCanApply(true, true);
     self->setImageID( self->getBlankImageAssetID() );
+    self->setTentative(false);
     self->commitIfImmediateSet();
 }
 
@@ -997,20 +1004,9 @@ void LLFloaterTexturePicker::onBtnNone(void* userdata)
     LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
     self->setCanApply(true, true);
     self->setImageID( LLUUID::null );
+    self->setTentative(false);
     self->commitIfImmediateSet();
 }
-
-/*
-// static
-void LLFloaterTexturePicker::onBtnRevert(void* userdata)
-{
-    LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-    self->setImageID( self->mOriginalImageAssetID );
-    // TODO: Change this to tell the owner to cancel.  It needs to be
-    // smart enough to restore multi-texture selections.
-    self->mOwner->onFloaterCommit();
-    self->mViewModel->resetDirty();
-}*/
 
 // static
 void LLFloaterTexturePicker::onBtnCancel(void* userdata)
@@ -1218,6 +1214,7 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
         if (self->mSetImageAssetIDCallback)
         {
             self->mSetImageAssetIDCallback(inworld_id);
+            self->setTentative(false);
         }
 
         if (self->childGetValue("apply_immediate_check").asBoolean())
@@ -1296,6 +1293,7 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
     }
 
     self->setImageID(imageID);
+    self->setTentative(false);
     self->mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 
     if (!self->mPreviewSettingChanged)
@@ -1316,7 +1314,7 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
 
 void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply, bool inworld_image)
 {
-    mSelectBtn->setEnabled(can_apply);
+    mSelectBtn->setEnabled(can_apply && !getTentative()); // will be updated on draw
     getChildRef<LLUICtrl>("preview_disabled").setVisible(!can_preview && inworld_image);
     getChildRef<LLUICtrl>("apply_immediate_check").setVisible(can_preview);
 
@@ -1490,7 +1488,13 @@ void LLFloaterTexturePicker::refreshInventoryFilter()
 
 void LLFloaterTexturePicker::setLocalTextureEnabled(bool enabled)
 {
+    mLocalTextureEnabled = enabled;
     mModeSelector->setEnabledByValue(1, enabled);
+    if (!enabled && (mModeSelector->getValue().asInteger() == 2))
+    {
+        mModeSelector->selectByValue(0);
+        onModeSelect(0, this);
+    }
 }
 
 void LLFloaterTexturePicker::setBakeTextureEnabled(bool enabled)
@@ -1617,6 +1621,7 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
         else
         {
             setImageID(te.getID());
+            setTentative(false);
         }
 
         mNoCopyTextureSelected = false;
@@ -1830,6 +1835,17 @@ void LLTextureCtrl::clear()
     setImageAssetID(LLUUID::null);
 }
 
+void LLTextureCtrl::setTentative(bool tentative)
+{
+    LLFloater* floaterp = mFloaterHandle.get();
+
+    if (floaterp)
+    {
+        floaterp->setTentative(tentative);
+    }
+    LLUICtrl::setTentative(tentative);
+}
+
 void LLTextureCtrl::setLabel(const std::string& label)
 {
     mLabel = label;
@@ -1877,11 +1893,9 @@ void LLTextureCtrl::showPicker(bool take_focus)
         if (texture_floaterp)
         {
             texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4, _5));
-        }
-        if (texture_floaterp)
-        {
             texture_floaterp->setSetImageAssetIDCallback(boost::bind(&LLTextureCtrl::setImageAssetID, this, _1));
 
+            texture_floaterp->setLocalTextureEnabled(mAllowLocalTexture);
             texture_floaterp->setBakeTextureEnabled(mBakeTextureEnabled && mInventoryPickType != PICK_MATERIAL);
         }
 
@@ -1889,12 +1903,6 @@ void LLTextureCtrl::showPicker(bool take_focus)
         if (root_floater)
             root_floater->addDependentFloater(floaterp);
         floaterp->openFloater();
-    }
-
-    LLFloaterTexturePicker* picker_floater = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
-    if (picker_floater)
-    {
-        picker_floater->setLocalTextureEnabled(mAllowLocalTexture);
     }
 
     if (take_focus)
@@ -2076,7 +2084,17 @@ void LLTextureCtrl::setOnTextureSelectedCallback(texture_selected_callback cb)
     }
 }
 
-void    LLTextureCtrl::setImageAssetName(const std::string& name)
+void LLTextureCtrl::setAllowLocalTexture(bool b)
+{
+    mAllowLocalTexture = b;
+    LLFloaterTexturePicker* picker_floater = dynamic_cast<LLFloaterTexturePicker*>(mFloaterHandle.get());
+    if (picker_floater)
+    {
+        picker_floater->setLocalTextureEnabled(mAllowLocalTexture);
+    }
+}
+
+void LLTextureCtrl::setImageAssetName(const std::string& name)
 {
     LLPointer<LLUIImage> imagep = LLUI::getUIImage(name);
     if(imagep)
@@ -2101,6 +2119,7 @@ void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
         if( floaterp && getEnabled() )
         {
             floaterp->setImageID( asset_id );
+            floaterp->setTentative(getTentative());
             floaterp->resetDirty();
         }
     }

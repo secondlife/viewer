@@ -154,11 +154,15 @@ void PeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 
 bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 {
+    std::string item = userdata.asString();
     if(gAgent.getID() == mUUIDs.front())
     {
+        if (item == std::string("can_zoom_in"))
+        {
+            return true;
+        }
         return false;
     }
-    std::string item = userdata.asString();
 
     // Note: can_block and can_delete is used only for one person selected menu
     // so we don't need to go over all uuids.
@@ -350,7 +354,10 @@ void PeopleContextMenu::eject()
             avatar = (LLVOAvatar*) object;
         }
     }
-    if (!avatar) return;
+
+    if (!avatar)
+        return;
+
     LLSD payload;
     payload["avatar_id"] = avatar->getID();
     std::string fullname = avatar->getFullname();

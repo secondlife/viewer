@@ -38,7 +38,9 @@
 #include "llcheckboxctrl.h"
 #include "llviewerinventory.h"
 #include "llenvironment.h"
+#include "llnotificationsutil.h"
 #include "llparcel.h"
+#include "lltrans.h"
 #include "llviewerparcelmgr.h"
 
 //=========================================================================
@@ -223,16 +225,13 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
     mInventoryList->setFilterSubString(search_string);
 }
 
-void LLFloaterMyEnvironment::onDeleteSelected()
+void LLFloaterMyEnvironment::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, uuid_vec_t item_ids)
 {
-    uuid_vec_t selected;
-
-    getSelectedIds(selected);
-    if (selected.empty())
-        return;
-
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+{
     const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-    for (const LLUUID& itemid: selected)
+        for (const LLUUID& itemid : item_ids)
     {
         LLInventoryItem* inv_item = gInventory.getItem(itemid);
 
@@ -252,6 +251,27 @@ void LLFloaterMyEnvironment::onDeleteSelected()
         }
     }
     gInventory.notifyObservers();
+}
+}
+
+void LLFloaterMyEnvironment::onDeleteSelected()
+{
+    uuid_vec_t selected;
+
+    getSelectedIds(selected);
+    if (selected.empty())
+        return;
+
+    LLSD args;
+    args["QUESTION"] = LLTrans::getString(selected.size() > 1 ? "DeleteItems" : "DeleteItem");
+    LLNotificationsUtil::add(
+        "DeleteItems",
+        args,
+        LLSD(),
+        [this, selected](const LLSD& notification, const LLSD& response)
+        {
+            onItemsRemovalConfirmation(notification, response, selected);
+        });
 }
 
 
@@ -318,13 +338,13 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
 
     if (context == PARAMETER_EDIT)
     {
-        return (selected.size() == 1) && isSettingSelected(selected.front());
+        return (selected.size() == 1) && isSettingId(selected.front());
     }
     else if (context == PARAMETER_COPY)
     {
         for (std::vector<LLUUID>::iterator it = selected.begin(); it != selected.end(); it++)
         {
-            if(!isSettingSelected(*it))
+            if(!isSettingId(*it))
             {
                 return false;
             }
@@ -342,7 +362,7 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
         LLClipboard::instance().pasteFromClipboard(ids);
         for (std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
         {
-            if (!isSettingSelected(*it))
+            if (!isSettingId(*it))
             {
                 return false;
             }
@@ -351,7 +371,7 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
     }
     else if (context == PARAMETER_COPYUUID)
     {
-        return (selected.size() == 1) && isSettingSelected(selected.front());
+        return (selected.size() == 1) && isSettingId(selected.front());
     }
 
     return false;
@@ -367,16 +387,42 @@ bool LLFloaterMyEnvironment::canApply(const std::string &context)
 
     if (context == PARAMETER_REGION)
     {
-        return LLEnvironment::instance().canAgentUpdateRegionEnvironment();
+        return isSettingId(selected.front()) && LLEnvironment::instance().canAgentUpdateRegionEnvironment();
     }
     else if (context == PARAMETER_PARCEL)
     {
-        return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
+        return isSettingId(selected.front()) && LLEnvironment::instance().canAgentUpdateParcelEnvironment();
     }
-    else
+    else if (context == PARAMETER_LOCAL)
     {
-        return (context == PARAMETER_LOCAL);
+        return isSettingId(selected.front());
     }
+
+    return false;
+}
+
+bool can_delete(const LLUUID& id)
+{
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+    if (id == trash_id || gInventory.isObjectDescendentOf(id, trash_id))
+    {
+        return false;
+    }
+
+    LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+    if (cat)
+    {
+        if (!get_is_category_removable(&gInventory, id))
+        {
+            return false;
+        }
+    }
+    else if (!get_is_item_removable(&gInventory, id, false))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 //-------------------------------------------------------------------------
@@ -389,7 +435,14 @@ void LLFloaterMyEnvironment::refreshButtonStates()
 
     getChild<LLUICtrl>(BUTTON_GEAR)->setEnabled(settings_ok);
     getChild<LLUICtrl>(BUTTON_NEWSETTINGS)->setEnabled(true);
-    getChild<LLUICtrl>(BUTTON_DELETE)->setEnabled(settings_ok && !selected.empty());
+
+    bool enable_delete = false;
+    if(settings_ok && !selected.empty())
+    {
+        enable_delete = can_delete(selected.front());
+    }
+
+    getChild<LLUICtrl>(BUTTON_DELETE)->setEnabled(enable_delete);
 }
 
 //-------------------------------------------------------------------------
@@ -438,7 +491,7 @@ LLUUID LLFloaterMyEnvironment::findItemByAssetId(LLUUID asset_id, bool copyable_
     return LLUUID::null;
 }
 
-bool LLFloaterMyEnvironment::isSettingSelected(LLUUID item_id)
+bool LLFloaterMyEnvironment::isSettingId(const LLUUID& item_id)
 {
     LLInventoryItem* itemp = gInventory.getItem(item_id);
 

@@ -50,7 +50,9 @@ class LLFolderViewItem : public LLView
 public:
     struct Params : public LLInitParam::Block<Params, LLView::Params>
     {
-        Optional<LLUIImage*>                        folder_arrow_image,
+        Optional<LLUIImage*>                        favorite_image,
+                                                    favorite_content_image,
+                                                    folder_arrow_image,
                                                     selection_image;
         Mandatory<LLFolderView*>                    root;
         Mandatory<LLFolderViewModelItem*>           listener;
@@ -60,7 +62,7 @@ public:
                                                     item_top_pad;
 
         Optional<time_t>                            creation_date;
-        Optional<bool>                              allow_wear;
+        Optional<bool>                              marketplace_item;
         Optional<bool>                              allow_drop;
 
         Optional<LLUIColor>                         font_color;
@@ -93,6 +95,8 @@ protected:
     LLWString                   mLabel;
     S32                         mLabelWidth;
     bool                        mLabelWidthDirty;
+    bool                        mIsFavorite;
+    bool                        mHasFavorites;
     S32                         mLabelPaddingRight;
     LLFolderViewFolder*         mParentFolder;
     LLPointer<LLFolderViewModelItem> mViewModelItem;
@@ -122,7 +126,7 @@ protected:
                                 mIsCurSelection,
                                 mDragAndDropTarget,
                                 mIsMouseOverTitle,
-                                mAllowWear,
+                                mMarketplaceItem,
                                 mAllowDrop,
                                 mSingleFolderMode,
                                 mDoubleClickOverride,
@@ -133,6 +137,7 @@ protected:
 
     LLUIColor                   mFontColor;
     LLUIColor                   mFontHighlightColor;
+    static bool                 sColorSetInitialized;
 
     // For now assuming all colors are the same in derived classes.
     static LLUIColor            sFgColor;
@@ -145,6 +150,8 @@ protected:
     static LLUIColor            sFilterTextColor;
     static LLUIColor            sSuffixColor;
     static LLUIColor            sSearchStatusColor;
+    static LLUIColor            sFavoriteColor;
+
 
     // this is an internal method used for adding items to folders. A
     // no-op at this level, but reimplemented in derived classes.
@@ -154,7 +161,7 @@ protected:
     virtual bool isHighlightActive();
     virtual bool isFadeItem();
     virtual bool isFlashing() { return false; }
-    virtual void setFlashState(bool) { }
+    virtual void setFlashState(bool, bool) { }
 
     static LLFontGL* getLabelFontForStyle(U8 style);
     const LLFontGL* getLabelFont();
@@ -207,6 +214,8 @@ public:
 
     // Returns true is this object and all of its children can be moved
     virtual bool isMovable();
+
+    bool isFavorite() const { return mIsFavorite; }
 
     // destroys this item recursively
     virtual void destroyView();
@@ -282,7 +291,7 @@ public:
     // Does not need filter update
     virtual void refreshSuffix();
 
-    bool isSingleFolderMode() { return mSingleFolderMode; }
+    bool isSingleFolderMode() const { return mSingleFolderMode; }
 
     // LLView functionality
     virtual bool handleRightMouseDown( S32 x, S32 y, MASK mask );
@@ -298,6 +307,7 @@ public:
     //  virtual void handleDropped();
     virtual void draw();
     void drawOpenFolderArrow();
+    void drawFavoriteIcon();
     void drawHighlight(bool showContent, bool hasKeyboardFocus, const LLUIColor& selectColor, const LLUIColor& flashColor, const LLUIColor& outlineColor, const LLUIColor& mouseOverColor);
     void drawLabel(const LLFontGL* font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
     virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
@@ -311,6 +321,8 @@ private:
     static S32 sTopPad;
     static LLUIImagePtr sFolderArrowImg;
     static LLUIImagePtr sSelectionImg;
+    static LLUIImagePtr sFavoriteImg;
+    static LLUIImagePtr sFavoriteContentImg;
     static LLFontGL* sSuffixFont;
 
     LLFontVertexBuffer mLabelFontBuffer;
@@ -400,6 +412,18 @@ public:
     // Returns true is this object and all of its children can be moved
     virtual bool isMovable();
 
+    bool isFavorite() const { return mIsFavorite; }
+    bool hasFavorites() const { return mHasFavorites; }
+    void setHasFavorites(bool val) { mHasFavorites = val; }
+    void updateHasFavorites(bool new_childs_value);
+private:
+    static void onIdleUpdateFavorites(void* data);
+
+    constexpr static S32 FAVORITE_ADDED = 1;
+    constexpr static S32 FAVORITE_REMOVED = 2;
+    S32 mFavoritesDirtyFlags { 0 };
+public:
+
     // destroys this folder, and all children
     virtual void destroyView();
     void destroyRoot();
@@ -414,9 +438,6 @@ public:
     // extractItem() removes the specified item from the folder, but
     // doesn't delete it.
     virtual void extractItem( LLFolderViewItem* item, bool deparent_model = true);
-
-    // This function is called by a child that needs to be resorted.
-    void resort(LLFolderViewItem* item);
 
     void setAutoOpenCountdown(F32 countdown) { mAutoOpenCountdown = countdown; }
 

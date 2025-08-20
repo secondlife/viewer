@@ -168,7 +168,6 @@ public:
 
     void submitRequest(Request* request);
     static S32 llcdCallback(const char*, S32, S32);
-    void cancel();
 
     void setMeshData(LLCDMeshData& mesh, bool vertex_based);
     void doDecomposition();
@@ -206,19 +205,19 @@ private:
     LLFrameTimer mTimer;
 };
 
-
+class MeshLoadData;
 class PendingRequestBase
 {
 public:
     struct CompareScoreGreater
     {
-        bool operator()(const std::unique_ptr<PendingRequestBase>& lhs, const std::unique_ptr<PendingRequestBase>& rhs)
+        bool operator()(const std::shared_ptr<PendingRequestBase>& lhs, const std::shared_ptr<PendingRequestBase>& rhs)
         {
             return lhs->mScore > rhs->mScore; // greatest = first
         }
     };
 
-    PendingRequestBase() : mScore(0.f) {};
+    PendingRequestBase() : mScore(0.f), mTrackedData(nullptr), mScoreDirty(true) {};
     virtual ~PendingRequestBase() {}
 
     bool operator<(const PendingRequestBase& rhs) const
@@ -226,14 +225,34 @@ public:
         return mId < rhs.mId;
     }
 
-    void setScore(F32 score) { mScore = score; }
     F32 getScore() const { return mScore; }
+    void checkScore()
+    {
+        constexpr F32 EXPIRE_TIME_SECS = 8.f;
+        if (mScoreTimer.getElapsedTimeF32() > EXPIRE_TIME_SECS || mScoreDirty)
+        {
+            updateScore();
+            mScoreDirty = false;
+            mScoreTimer.reset();
+        }
+    };
+
     LLUUID getId() const { return mId; }
     virtual EMeshRequestType getRequestType() const = 0;
 
+    void trackData(MeshLoadData* data) { mTrackedData = data; mScoreDirty = true; }
+    void untrackData() { mTrackedData = nullptr; }
+    bool hasTrackedData() { return mTrackedData != nullptr; }
+    void setScoreDirty() { mScoreDirty = true; }
+
 protected:
-    F32 mScore;
+    void updateScore();
+
     LLUUID mId;
+    F32 mScore;
+    bool mScoreDirty;
+    LLTimer mScoreTimer;
+    MeshLoadData* mTrackedData;
 };
 
 class PendingRequestLOD : public PendingRequestBase
@@ -265,6 +284,37 @@ public:
 
 private:
     EMeshRequestType mRequestType;
+};
+
+
+class MeshLoadData
+{
+public:
+    MeshLoadData() {}
+    ~MeshLoadData()
+    {
+        if (std::shared_ptr<PendingRequestBase> request = mRequest.lock())
+        {
+            request->untrackData();
+        }
+    }
+    void initData(LLVOVolume* vol, std::shared_ptr<PendingRequestBase>& request)
+    {
+        mVolumes.push_back(vol);
+        request->trackData(this);
+        mRequest = request;
+    }
+    void addVolume(LLVOVolume* vol)
+    {
+        mVolumes.push_back(vol);
+        if (std::shared_ptr<PendingRequestBase> request = mRequest.lock())
+        {
+            request->setScoreDirty();
+        }
+    }
+    std::vector<LLVOVolume*> mVolumes;
+private:
+    std::weak_ptr<PendingRequestBase> mRequest;
 };
 
 class LLMeshHeader
@@ -624,7 +674,22 @@ public:
     typedef std::vector<LLModelInstance> instance_list;
     instance_list   mInstanceList;
 
-    typedef std::map<LLPointer<LLModel>, instance_list> instance_map;
+    // Upload should happen in deterministic order, so sort instances by model name.
+    struct LLUploadModelInstanceLess
+    {
+        inline bool operator()(const LLPointer<LLModel>& a, const LLPointer<LLModel>& b) const
+        {
+            if (a.isNull() || b.isNull())
+            {
+                llassert(false); // We are uploading these models, they shouldn't be null.
+                return true;
+            }
+            // Note: probably can sort by mBaseModel->mSubmodelID here as well to avoid
+            // running over the list twice in wholeModelToLLSD.
+            return a->mLabel < b->mLabel;
+        }
+    };
+    typedef std::map<LLPointer<LLModel>, instance_list, LLUploadModelInstanceLess> instance_map;
     instance_map    mInstance;
 
     LLMutex*        mMutex;
@@ -640,10 +705,13 @@ public:
     LLHost          mHost;
     std::string     mWholeModelFeeCapability;
     std::string     mWholeModelUploadURL;
+    LLUUID          mDestinationFolderId;
 
     LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
                        bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                       const std::string & upload_url, bool do_upload = true,
+                       const std::string & upload_url,
+                       const LLUUID destination_folder_id = LLUUID::null,
+                       bool do_upload = true,
                        LLHandle<LLWholeModelFeeObserver> fee_observer = (LLHandle<LLWholeModelFeeObserver>()),
                        LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
     ~LLMeshUploadThread();
@@ -659,7 +727,7 @@ public:
     void doWholeModelUpload();
     void requestWholeModelFee();
 
-    void wholeModelToLLSD(LLSD& dest, bool include_textures);
+    void wholeModelToLLSD(LLSD& dest, std::vector<std::string>& texture_list_dest, bool include_textures);
 
     void decomposeMeshMatrix(LLMatrix4& transformation,
                              LLVector3& result_pos,
@@ -680,6 +748,7 @@ private:
 
     bool mDoUpload; // if false only model data will be requested, otherwise the model will be uploaded
     LLSD mModelData;
+    std::vector<std::string> mTextureFiles;
 
     // llcorehttp library interface objects.
     LLCore::HttpStatus                  mHttpStatus;
@@ -802,7 +871,9 @@ public:
 
     void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
                      bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                     std::string upload_url, bool do_upload = true,
+                     std::string upload_url,
+                     const LLUUID& destination_folder_id = LLUUID::null,
+                     bool do_upload = true,
                      LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()),
                      LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 
@@ -814,7 +885,7 @@ public:
     static void metricsProgress(unsigned int count);
     static void metricsUpdate();
 
-    typedef std::unordered_map<LLUUID, std::vector<LLVOVolume*> > mesh_load_map;
+    typedef std::unordered_map<LLUUID, MeshLoadData> mesh_load_map;
     mesh_load_map mLoadingMeshes[4];
 
     typedef std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>> skin_map;
@@ -825,11 +896,11 @@ public:
 
     LLMutex*                    mMeshMutex;
 
-    typedef std::vector <std::unique_ptr<PendingRequestBase> > pending_requests_vec;
+    typedef std::vector <std::shared_ptr<PendingRequestBase> > pending_requests_vec;
     pending_requests_vec mPendingRequests;
 
     //list of mesh ids awaiting skin info
-    typedef std::unordered_map<LLUUID, std::vector<LLVOVolume*> > skin_load_map;
+    typedef std::unordered_map<LLUUID, MeshLoadData > skin_load_map;
     skin_load_map mLoadingSkins;
 
     //list of mesh ids awaiting decompositions

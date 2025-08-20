@@ -225,6 +225,8 @@ void LLVOAvatarSelf::initInstance()
     doPeriodically(update_avatar_rez_metrics, 5.0);
     doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
 
+    initAllJoints(); // mesh thread uses LLVOAvatarSelf as a joint source
+
     mInitFlags |= 1<<2;
 }
 
@@ -695,17 +697,17 @@ void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 }
 
 // virtual
-LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
+LLJoint* LLVOAvatarSelf::getJoint(std::string_view name)
 {
     std::lock_guard lock(mJointMapMutex);
-    LLJoint *jointp = NULL;
+    LLJoint* jointp = nullptr;
     jointp = LLVOAvatar::getJoint(name);
     if (!jointp && mScreenp)
     {
         jointp = mScreenp->findJoint(name);
         if (jointp)
         {
-            mJointMap[name] = jointp;
+            mJointMap[std::string(name)] = jointp;
         }
     }
     if (jointp && jointp != mScreenp && jointp != mRoot)
@@ -1925,7 +1927,7 @@ void LLVOAvatarSelf::dumpTotalLocalTextureByteCount()
     LL_INFOS() << "Total Avatar LocTex GL:" << (gl_bytes/1024) << "KB" << LL_ENDL;
 }
 
-bool LLVOAvatarSelf::getIsCloud() const
+bool LLVOAvatarSelf::getHasMissingParts() const
 {
     // Let people know why they're clouded without spamming them into oblivion.
     bool do_warn = false;
@@ -2235,14 +2237,18 @@ void LLVOAvatarSelf::appearanceChangeMetricsCoro(std::string url)
     std::vector<S32> rez_counts;
     F32 avg_time;
     S32 total_cloud_avatars;
-    LLVOAvatar::getNearbyRezzedStats(rez_counts, avg_time, total_cloud_avatars);
+    S32 waiting_for_meshes;
+    S32 control_avatars;
+    LLVOAvatar::getNearbyRezzedStats(rez_counts, avg_time, total_cloud_avatars, waiting_for_meshes, control_avatars);
     for (S32 rez_stat = 0; rez_stat < rez_counts.size(); ++rez_stat)
     {
         std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
         msg["nearby"][rez_status_name] = rez_counts[rez_stat];
     }
+    msg["nearby"]["waiting_for_meshes"] = waiting_for_meshes;
     msg["nearby"]["avg_decloud_time"] = avg_time;
     msg["nearby"]["cloud_total"] = total_cloud_avatars;
+    msg["nearby"]["animeshes"] = control_avatars;
 
     //  std::vector<std::string> bucket_fields("timer_name","is_self","grid_x","grid_y","is_using_server_bake");
     std::vector<std::string> by_fields;
@@ -2824,6 +2830,12 @@ void LLVOAvatarSelf::setHoverOffset(const LLVector3& hover_offset, bool send_upd
 //------------------------------------------------------------------------
 bool LLVOAvatarSelf::needsRenderBeam()
 {
+    static LLCachedControl<bool> enable_selection_hints(gSavedSettings, "EnableSelectionHints", true);
+    if (!enable_selection_hints)
+    {
+        return false;
+    }
+
     LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
     bool is_touching_or_grabbing = (tool == LLToolGrab::getInstance() && LLToolGrab::getInstance()->isEditing());

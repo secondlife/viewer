@@ -46,6 +46,7 @@ static const std::string INV_ITEM_ID_LABEL("item_id");
 static const std::string INV_FOLDER_ID_LABEL("cat_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
 static const std::string INV_THUMBNAIL_LABEL("thumbnail");
+static const std::string INV_FAVORITE_LABEL("favorite");
 static const std::string INV_THUMBNAIL_ID_LABEL("thumbnail_id");
 static const std::string INV_ASSET_TYPE_LABEL("type");
 static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
@@ -59,6 +60,7 @@ static const std::string INV_LINKED_ID_LABEL("linked_id");
 static const std::string INV_SALE_INFO_LABEL("sale_info");
 static const std::string INV_FLAGS_LABEL("flags");
 static const std::string INV_CREATION_DATE_LABEL("created_at");
+static const std::string INV_TOGGLED_LABEL("toggled");
 
 // key used by agent-inventory-service
 static const std::string INV_ASSET_TYPE_LABEL_WS("type_default");
@@ -82,14 +84,16 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
     mParentUUID(parent_uuid),
     mType(type),
     mName(name),
-    mCreationDate(0)
+    mCreationDate(0),
+    mFavorite(false)
 {
     correctInventoryName(mName);
 }
 
 LLInventoryObject::LLInventoryObject()
 :   mType(LLAssetType::AT_NONE),
-    mCreationDate(0)
+    mCreationDate(0),
+    mFavorite(false)
 {
 }
 
@@ -104,6 +108,7 @@ void LLInventoryObject::copyObject(const LLInventoryObject* other)
     mType = other->mType;
     mName = other->mName;
     mThumbnailUUID = other->mThumbnailUUID;
+    mFavorite = other->mFavorite;
 }
 
 const LLUUID& LLInventoryObject::getUUID() const
@@ -119,6 +124,11 @@ const LLUUID& LLInventoryObject::getParentUUID() const
 const LLUUID& LLInventoryObject::getThumbnailUUID() const
 {
     return mThumbnailUUID;
+}
+
+bool LLInventoryObject::getIsFavorite() const
+{
+    return mFavorite;
 }
 
 const std::string& LLInventoryObject::getName() const
@@ -173,6 +183,11 @@ void LLInventoryObject::setParent(const LLUUID& new_parent)
 void LLInventoryObject::setThumbnailUUID(const LLUUID& thumbnail_uuid)
 {
     mThumbnailUUID = thumbnail_uuid;
+}
+
+void LLInventoryObject::setFavorite(bool favorite)
+{
+    mFavorite = favorite;
 }
 
 void LLInventoryObject::setType(LLAssetType::EType type)
@@ -246,6 +261,23 @@ bool LLInventoryObject::importLegacyStream(std::istream& input_stream)
             else
             {
                 setThumbnailUUID(LLUUID::null);
+            }
+
+            if (metadata.has("favorite"))
+            {
+                const LLSD& favorite = metadata["favorite"];
+                if (favorite.has("toggled"))
+                {
+                    setFavorite(favorite["toggled"].asBoolean());
+                }
+                else
+                {
+                    setFavorite(false);
+                }
+            }
+            else
+            {
+                setFavorite(false);
             }
         }
         else if(0 == strcmp("name", keyword))
@@ -735,6 +767,23 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
             {
                 setThumbnailUUID(LLUUID::null);
             }
+
+            if (metadata.has("favorite"))
+            {
+                const LLSD& favorite = metadata["favorite"];
+                if (favorite.has("toggled"))
+                {
+                    setFavorite(favorite["toggled"].asBoolean());
+                }
+                else
+                {
+                    setFavorite(false);
+                }
+            }
+            else
+            {
+                setFavorite(false);
+            }
         }
         else if(0 == strcmp("inv_type", keyword))
         {
@@ -879,7 +928,7 @@ bool LLInventoryItem::exportLegacyStream(std::ostream& output_stream, bool inclu
 
 LLSD LLInventoryItem::asLLSD() const
 {
-    LLSD sd = LLSD();
+    LLSD sd;
     asLLSD(sd);
     return sd;
 }
@@ -888,11 +937,16 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 {
     sd[INV_ITEM_ID_LABEL] = mUUID;
     sd[INV_PARENT_ID_LABEL] = mParentUUID;
-    sd[INV_PERMISSIONS_LABEL] = ll_create_sd_from_permissions(mPermissions);
+    ll_fill_sd_from_permissions(sd[INV_PERMISSIONS_LABEL], mPermissions);
 
     if (mThumbnailUUID.notNull())
     {
         sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+    }
+
+    if (mFavorite)
+    {
+        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
     }
 
     U32 mask = mPermissions.getMaskBase();
@@ -909,19 +963,22 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
         cipher.encrypt(shadow_id.mData, UUID_BYTES);
         sd[INV_SHADOW_ID_LABEL] = shadow_id;
     }
-    sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
-    sd[INV_INVENTORY_TYPE_LABEL] = mInventoryType;
+    sd[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
     const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
     if(!inv_type_str.empty())
     {
         sd[INV_INVENTORY_TYPE_LABEL] = inv_type_str;
     }
+    else
+    {
+        sd[INV_INVENTORY_TYPE_LABEL] = (LLSD::Integer)mInventoryType;
+    }
     //sd[INV_FLAGS_LABEL] = (S32)mFlags;
     sd[INV_FLAGS_LABEL] = ll_sd_from_U32(mFlags);
-    sd[INV_SALE_INFO_LABEL] = mSaleInfo.asLLSD();
+    mSaleInfo.asLLSD(sd[INV_SALE_INFO_LABEL]);
     sd[INV_NAME_LABEL] = mName;
     sd[INV_DESC_LABEL] = mDescription;
-    sd[INV_CREATION_DATE_LABEL] = (S32) mCreationDate;
+    sd[INV_CREATION_DATE_LABEL] = (LLSD::Integer)mCreationDate;
 }
 
 bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
@@ -937,6 +994,8 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 
     // TODO - figure out if this should be moved into the noclobber fields above
     mThumbnailUUID.setNull();
+    mFavorite = false;
+    mPermissions.init(LLUUID::null, LLUUID::null, LLUUID::null, LLUUID::null);
 
     // iterate as map to avoid making unnecessary temp copies of everything
     LLSD::map_const_iterator i, end;
@@ -982,9 +1041,20 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             continue;
         }
 
+        if (i->first == INV_FAVORITE_LABEL)
+        {
+            const LLSD& favorite_map = i->second;
+            const std::string w = INV_TOGGLED_LABEL;
+            if (favorite_map.has(w))
+            {
+                mFavorite = favorite_map[w].asBoolean();
+            }
+            continue;
+        }
+
         if (i->first == INV_PERMISSIONS_LABEL)
         {
-            mPermissions = ll_permissions_from_sd(i->second);
+            mPermissions.importLLSD(i->second);
             continue;
         }
 
@@ -1177,6 +1247,11 @@ LLSD LLInventoryCategory::asLLSD() const
         sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
     }
 
+    if (mFavorite)
+    {
+        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+    }
+
     return sd;
 }
 
@@ -1188,9 +1263,15 @@ LLSD LLInventoryCategory::asAISCreateCatLLSD() const
     S8 type                 = static_cast<S8>(mPreferredType);
     sd[INV_ASSET_TYPE_LABEL_WS] = type;
     sd[INV_NAME_LABEL] = mName;
+
     if (mThumbnailUUID.notNull())
     {
         sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+    }
+
+    if (mFavorite)
+    {
+        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
     }
 
     return sd;
@@ -1238,6 +1319,17 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
         if (sd.has(w))
         {
             mThumbnailUUID = sd[w];
+        }
+    }
+    mFavorite = false;
+    w = INV_FAVORITE_LABEL;
+    if (sd.has(w))
+    {
+        const LLSD& favorite_map = sd[w];
+        w = INV_TOGGLED_LABEL;
+        if (favorite_map.has(w))
+        {
+            mFavorite = favorite_map[w].asBoolean();
         }
     }
     w = INV_ASSET_TYPE_LABEL;
@@ -1362,6 +1454,23 @@ bool LLInventoryCategory::importLegacyStream(std::istream& input_stream)
             {
                 setThumbnailUUID(LLUUID::null);
             }
+
+            if (metadata.has("favorite"))
+            {
+                const LLSD& favorite = metadata["favorite"];
+                if (favorite.has("toggled"))
+                {
+                    setFavorite(favorite["toggled"].asBoolean());
+                }
+                else
+                {
+                    setFavorite(false);
+                }
+            }
+            else
+            {
+                setFavorite(false);
+            }
         }
         else
         {
@@ -1396,12 +1505,11 @@ bool LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, bool) 
     return true;
 }
 
-LLSD LLInventoryCategory::exportLLSD() const
+void LLInventoryCategory::exportLLSD(LLSD& cat_data) const
 {
-    LLSD cat_data;
     cat_data[INV_FOLDER_ID_LABEL] = mUUID;
     cat_data[INV_PARENT_ID_LABEL] = mParentUUID;
-    cat_data[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
+    cat_data[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
     cat_data[INV_PREFERRED_TYPE_LABEL] = LLFolderType::lookup(mPreferredType);
     cat_data[INV_NAME_LABEL] = mName;
 
@@ -1409,49 +1517,76 @@ LLSD LLInventoryCategory::exportLLSD() const
     {
         cat_data[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
     }
-
-    return cat_data;
+    if (mFavorite)
+    {
+        cat_data[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+    }
 }
 
-bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
+bool LLInventoryCategory::importLLSDMap(const LLSD& cat_data)
 {
-    if (cat_data.has(INV_FOLDER_ID_LABEL))
+    LLSD::map_const_iterator i, end;
+    end = cat_data.endMap();
+    for ( i = cat_data.beginMap(); i != end; ++i)
     {
-        setUUID(cat_data[INV_FOLDER_ID_LABEL].asUUID());
+        importLLSD(i->first, i->second);
     }
-    if (cat_data.has(INV_PARENT_ID_LABEL))
-    {
-        setParent(cat_data[INV_PARENT_ID_LABEL].asUUID());
-    }
-    if (cat_data.has(INV_ASSET_TYPE_LABEL))
-    {
-        setType(LLAssetType::lookup(cat_data[INV_ASSET_TYPE_LABEL].asString()));
-    }
-    if (cat_data.has(INV_PREFERRED_TYPE_LABEL))
-    {
-        setPreferredType(LLFolderType::lookup(cat_data[INV_PREFERRED_TYPE_LABEL].asString()));
-    }
-    if (cat_data.has(INV_THUMBNAIL_LABEL))
-    {
-        LLUUID thumbnail_uuid;
-        const LLSD &thumbnail_data = cat_data[INV_THUMBNAIL_LABEL];
-        if (thumbnail_data.has(INV_ASSET_ID_LABEL))
-        {
-            thumbnail_uuid = thumbnail_data[INV_ASSET_ID_LABEL].asUUID();
-        }
-        setThumbnailUUID(thumbnail_uuid);
-    }
-    if (cat_data.has(INV_NAME_LABEL))
-    {
-        mName = cat_data[INV_NAME_LABEL].asString();
-        LLStringUtil::replaceNonstandardASCII(mName, ' ');
-        LLStringUtil::replaceChar(mName, '|', ' ');
-    }
-
     return true;
 }
+
+bool LLInventoryCategory::importLLSD(const std::string& label, const LLSD& value)
+{
+    if (label == INV_FOLDER_ID_LABEL)
+    {
+        setUUID(value.asUUID());
+        return true;
+    }
+    else if (label == INV_PARENT_ID_LABEL)
+    {
+        setParent(value.asUUID());
+        return true;
+    }
+    else if (label == INV_ASSET_TYPE_LABEL)
+    {
+        setType(LLAssetType::lookup(value.asString()));
+        return true;
+    }
+    else if (label == INV_PREFERRED_TYPE_LABEL)
+    {
+        setPreferredType(LLFolderType::lookup(value.asString()));
+        return true;
+    }
+    else if (label == INV_THUMBNAIL_LABEL)
+    {
+        LLUUID thumbnail_uuid;
+        if (value.has(INV_ASSET_ID_LABEL))
+        {
+            thumbnail_uuid = value[INV_ASSET_ID_LABEL].asUUID();
+        }
+        setThumbnailUUID(thumbnail_uuid);
+        return true;
+    }
+    if (label == INV_FAVORITE_LABEL)
+    {
+        bool favorite = false;
+        if (value.has(INV_TOGGLED_LABEL))
+        {
+            favorite = value[INV_TOGGLED_LABEL].asBoolean();
+        }
+        setFavorite(favorite);
+    }
+    else if (label == INV_NAME_LABEL)
+    {
+        mName = value.asString();
+        LLStringUtil::replaceNonstandardASCII(mName, ' ');
+        LLStringUtil::replaceChar(mName, '|', ' ');
+        return true;
+    }
+    return false;
+}
+
 ///----------------------------------------------------------------------------
-/// Local function definitions
+/// Local function definitions for testing purposes
 ///----------------------------------------------------------------------------
 
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item)

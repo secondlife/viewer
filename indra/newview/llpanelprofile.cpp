@@ -328,7 +328,7 @@ public:
         }
 
         const std::string verb = params[1].asString();
-        if (verb == "about")
+        if (verb == "about" || verb == "mention")
         {
             LLAvatarActions::showProfile(avatar_id);
             return true;
@@ -2066,6 +2066,7 @@ void LLPanelProfileFirstLife::onChangePhoto()
                 }
             });
             texture_floaterp->setLocalTextureEnabled(false);
+            texture_floaterp->setBakeTextureEnabled(false);
             texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);

@@ -368,7 +368,9 @@ public:
                     const LLUUID& region_id = LLUUID::null,
                     const LLVector3& position = LLVector3::zero,
                     bool is_region_msg = false,
-                    U32 timestamp = 0);
+                    U32 timestamp = 0,
+                    LLUUID display_id = LLUUID::null,
+                    std::string_view display_name = "");
 
     void addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args);
 

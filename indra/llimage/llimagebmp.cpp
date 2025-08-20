@@ -558,6 +558,12 @@ bool LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
         LL_INFOS() << "Dropping alpha information during BMP encoding" << LL_ENDL;
     }
 
+    if (raw_image->isBufferInvalid())
+    {
+        setLastError("Invalid input, no buffer");
+        return false;
+    }
+
     setSize(raw_image->getWidth(), raw_image->getHeight(), dst_components);
 
     U8 magic[14];

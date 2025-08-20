@@ -76,6 +76,11 @@
 #pragma comment(lib, "dxguid.lib") // needed for llurlentry test to build on some systems
 #pragma comment(lib, "dinput8")
 
+#pragma comment(lib, "UxTheme.lib")
+#pragma comment(lib, "Dwmapi.lib")
+#include <Uxtheme.h>
+#include <dwmapi.h> // needed for DwmSetWindowAttribute to set window theme
+
 const S32   MAX_MESSAGE_PER_UPDATE = 20;
 const S32   BITS_PER_PIXEL = 32;
 const S32   MAX_NUM_RESOLUTIONS = 32;
@@ -83,6 +88,10 @@ const F32   ICON_FLASH_TIME = 0.5f;
 
 #ifndef USER_DEFAULT_SCREEN_DPI
 #define USER_DEFAULT_SCREEN_DPI 96 // Win7
+#endif
+
+#ifndef WM_DWMCOLORIZATIONCOLORCHANGED
+#define WM_DWMCOLORIZATIONCOLORCHANGED 0x0320
 #endif
 
 // Claim a couple unused GetMessage() message IDs
@@ -104,6 +113,7 @@ static std::thread::id sMainThreadId;
 
 
 LPWSTR gIconResource = IDI_APPLICATION;
+LPWSTR gIconSmallResource = IDI_APPLICATION;
 LPDIRECTINPUT8 gDirectInput8;
 
 LLW32MsgCallback gAsyncMsgCallback = NULL;
@@ -136,6 +146,17 @@ typedef HRESULT(STDAPICALLTYPE *GetDpiForMonitorType)(
     _In_ MONITOR_DPI_TYPE dpiType,
     _Out_ UINT *dpiX,
     _Out_ UINT *dpiY);
+
+typedef enum PREFERRED_APP_MODE
+{
+    DEFAULT,
+    ALLOW_DARK,
+    FORCE_DARK,
+    FORCE_LIGHT,
+    MAX
+} PREFERRED_APP_MODE;
+
+typedef PREFERRED_APP_MODE(WINAPI* fnSetPreferredAppMode)(PREFERRED_APP_MODE mode);
 
 //
 // LLWindowWin32
@@ -350,10 +371,14 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     LLWindowWin32Thread();
 
     void run() override;
-    void close() override;
 
-    // closes queue, wakes thread, waits until thread closes
-    void wakeAndDestroy();
+    // Detroys handles and window
+    // Either post to or call from window thread
+    void destroyWindow();
+
+    // Closes queue, wakes thread, waits until thread closes.
+    // Call from main thread
+    bool wakeAndDestroy();
 
     void glReady()
     {
@@ -410,6 +435,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
+    LLAtomicBool mDeleteOnExit = false;
 };
 
 
@@ -507,6 +533,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
     mFSAASamples = fsaa_samples;
     mIconResource = gIconResource;
+    mIconSmallResource = gIconSmallResource;
     mOverrideAspectRatio = 0.f;
     mNativeAspectRatio = 0.f;
     mInputProcessingPaused = false;
@@ -695,8 +722,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             }
 
             if (dev_mode.dmPelsWidth == width &&
-                dev_mode.dmPelsHeight == height &&
-                dev_mode.dmBitsPerPel == BITS_PER_PIXEL)
+                dev_mode.dmPelsHeight == height)
             {
                 success = true;
                 if ((dev_mode.dmDisplayFrequency - current_refresh)
@@ -736,7 +762,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         // If we found a good resolution, use it.
         if (success)
         {
-            success = setDisplayResolution(width, height, BITS_PER_PIXEL, closest_refresh);
+            success = setDisplayResolution(width, height, closest_refresh);
         }
 
         // Keep a copy of the actual current device mode in case we minimize
@@ -749,7 +775,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             mFullscreen = true;
             mFullscreenWidth   = dev_mode.dmPelsWidth;
             mFullscreenHeight  = dev_mode.dmPelsHeight;
-            mFullscreenBits    = dev_mode.dmBitsPerPel;
             mFullscreenRefresh = dev_mode.dmDisplayFrequency;
 
             LL_INFOS("Window") << "Running at " << dev_mode.dmPelsWidth
@@ -763,7 +788,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             mFullscreen = false;
             mFullscreenWidth   = -1;
             mFullscreenHeight  = -1;
-            mFullscreenBits    = -1;
             mFullscreenRefresh = -1;
 
             std::map<std::string,std::string> args;
@@ -842,6 +866,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     // Initialize (boot strap) the Language text input management,
     // based on the system's (or user's) default settings.
     allowLanguageTextInput(NULL, false);
+    updateWindowTheme();
+    setCustomIcon();
 }
 
 
@@ -853,6 +879,7 @@ LLWindowWin32::~LLWindowWin32()
     }
 
     delete mDragDrop;
+    mDragDrop = NULL;
 
     delete [] mWindowTitle;
     mWindowTitle = NULL;
@@ -864,6 +891,7 @@ LLWindowWin32::~LLWindowWin32()
     mWindowClassName = NULL;
 
     delete mWindowThread;
+    mWindowThread = NULL;
 }
 
 void LLWindowWin32::show()
@@ -972,7 +1000,7 @@ void LLWindowWin32::close()
     // Restore gamma to the system values.
     restoreGamma();
 
-    LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
+    LL_INFOS("Window") << "Destroying Window Thread" << LL_ENDL;
 
     if (sWindowHandleForMessageBox == mWindowHandle)
     {
@@ -982,7 +1010,11 @@ void LLWindowWin32::close()
     mhDC = NULL;
     mWindowHandle = NULL;
 
-    mWindowThread->wakeAndDestroy();
+    if (mWindowThread->wakeAndDestroy())
+    {
+        // thread will delete itselfs once done
+        mWindowThread = NULL;
+    }
 }
 
 bool LLWindowWin32::isValid()
@@ -1185,7 +1217,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
         // If we found a good resolution, use it.
         if (success)
         {
-            success = setDisplayResolution(width, height, BITS_PER_PIXEL, closest_refresh);
+            success = setDisplayResolution(width, height, closest_refresh);
         }
 
         // Keep a copy of the actual current device mode in case we minimize
@@ -1197,7 +1229,6 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
             mFullscreen = true;
             mFullscreenWidth = dev_mode.dmPelsWidth;
             mFullscreenHeight = dev_mode.dmPelsHeight;
-            mFullscreenBits = dev_mode.dmBitsPerPel;
             mFullscreenRefresh = dev_mode.dmDisplayFrequency;
 
             LL_INFOS("Window") << "Running at " << dev_mode.dmPelsWidth
@@ -1223,7 +1254,6 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
             mFullscreen = false;
             mFullscreenWidth = -1;
             mFullscreenHeight = -1;
-            mFullscreenBits = -1;
             mFullscreenRefresh = -1;
 
             LL_INFOS("Window") << "Unable to run fullscreen at " << width << "x" << height << LL_ENDL;
@@ -3015,6 +3045,17 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     WINDOW_IMP_POST(window_imp->mMouseVanish = true);
                 }
             }
+            // Check if theme-related settings changed
+            else if (l_param && (wcscmp((LPCWSTR)l_param, L"ImmersiveColorSet") == 0))
+            {
+                WINDOW_IMP_POST(window_imp->updateWindowTheme());
+            }
+        }
+        break;
+
+        case WM_DWMCOLORIZATIONCOLORCHANGED:
+        {
+            WINDOW_IMP_POST(window_imp->updateWindowTheme());
         }
         break;
 
@@ -3107,10 +3148,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         break;
         }
     }
-    else
+    else // (NULL == window_imp)
     {
-        // (NULL == window_imp)
         LL_DEBUGS("Window") << "No window implementation to handle message with, message code: " << U32(u_msg) << LL_ENDL;
+        if (u_msg == WM_DESTROY)
+        {
+            PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
+            return 0;
+        }
     }
 
     // pass unhandled messages down to Windows
@@ -3520,7 +3565,7 @@ F32 LLWindowWin32::getPixelAspectRatio()
 
 // Change display resolution.  Returns true if successful.
 // protected
-bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh)
+bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 refresh)
 {
     DEVMODE dev_mode;
     ::ZeroMemory(&dev_mode, sizeof(DEVMODE));
@@ -3532,7 +3577,6 @@ bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
     {
         if (dev_mode.dmPelsWidth        == width &&
             dev_mode.dmPelsHeight       == height &&
-            dev_mode.dmBitsPerPel       == bits &&
             dev_mode.dmDisplayFrequency == refresh )
         {
             // ...display mode identical, do nothing
@@ -3544,9 +3588,8 @@ bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
     dev_mode.dmSize = sizeof(dev_mode);
     dev_mode.dmPelsWidth        = width;
     dev_mode.dmPelsHeight       = height;
-    dev_mode.dmBitsPerPel       = bits;
     dev_mode.dmDisplayFrequency = refresh;
-    dev_mode.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
+    dev_mode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
 
     // CDS_FULLSCREEN indicates that this is a temporary change to the device mode.
     LONG cds_result = ChangeDisplaySettings(&dev_mode, CDS_FULLSCREEN);
@@ -3556,7 +3599,7 @@ bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
     if (!success)
     {
         LL_WARNS("Window") << "setDisplayResolution failed, "
-            << width << "x" << height << "x" << bits << " @ " << refresh << LL_ENDL;
+            << width << "x" << height << " @ " << refresh << LL_ENDL;
     }
 
     return success;
@@ -3567,7 +3610,7 @@ bool LLWindowWin32::setFullscreenResolution()
 {
     if (mFullscreen)
     {
-        return setDisplayResolution( mFullscreenWidth, mFullscreenHeight, mFullscreenBits, mFullscreenRefresh);
+        return setDisplayResolution( mFullscreenWidth, mFullscreenHeight, mFullscreenRefresh);
     }
     else
     {
@@ -4042,7 +4085,15 @@ void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont)
         break;
     }
 
-    logfont->lfHeight = mPreeditor->getPreeditFontSize();
+    if (mPreeditor)
+    {
+        logfont->lfHeight = mPreeditor->getPreeditFontSize();
+    }
+    else
+    {
+        // todo: extract from some font * LLUI::getScaleFactor() intead
+        logfont->lfHeight = 10;
+    }
     logfont->lfWeight = FW_NORMAL;
 }
 
@@ -4573,24 +4624,10 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, true /*should be false, temporary workaround for SL-18721*/)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
 {
     LL::ThreadPool::start();
 }
-
-void LLWindowWin32::LLWindowWin32Thread::close()
-{
-    if (!mQueue->isClosed())
-    {
-        LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
-        LL::ThreadPool::close();
-
-        // Workaround for SL-18721 in case window closes too early and abruptly
-        LLSplashScreen::show();
-        LLSplashScreen::update("..."); // will be updated later
-    }
-}
-
 
 /**
  * LogChange is to log changes in status while trying to avoid spamming the
@@ -4815,108 +4852,110 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 #endif
     }
+
+    destroyWindow();
+
+    if (mDeleteOnExit)
+    {
+        delete this;
+    }
 }
 
-void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
+void LLWindowWin32::LLWindowWin32Thread::destroyWindow()
+{
+    if (mWindowHandleThrd != NULL && IsWindow(mWindowHandleThrd))
+            {
+                if (mhDCThrd)
+                {
+                    if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
+                    {
+                        LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
+                    }
+                    mhDCThrd = NULL;
+                }
+
+                // This causes WM_DESTROY to be sent *immediately*
+                if (!destroy_window_handler(mWindowHandleThrd))
+                {
+                    LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
+                }
+            }
+            else
+            {
+                // Something killed the window while we were busy destroying gl or handle somehow got broken
+                LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+            }
+            mWindowHandleThrd = NULL;
+            mhDCThrd = NULL;
+}
+
+bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 {
     if (mQueue->isClosed())
     {
-        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
-        return;
+        LL_WARNS("Window") << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
+        return false;
     }
 
-    // Make sure we don't leave a blank toolbar button.
-    // Also hiding window now prevents user from suspending it
-    // via some action (like dragging it around)
-    ShowWindow(mWindowHandleThrd, SW_HIDE);
+    // Hide the window immediately to prevent user interaction during shutdown
+    if (mWindowHandleThrd)
+    {
+        ShowWindow(mWindowHandleThrd, SW_HIDE);
+    }
+    else
+    {
+        LL_WARNS("Window") << "Tried to hide window, but Win32 window handle is NULL." << LL_ENDL;
+        return false;
+    }
 
-    // Schedule destruction
+    mGLReady = false;
+
+    // Capture current handle before we lose it
     HWND old_handle = mWindowHandleThrd;
-    post([this]()
-         {
-             if (IsWindow(mWindowHandleThrd))
-             {
-                 if (mhDCThrd)
-                 {
-                     if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
-                     {
-                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
-                     }
-                     mhDCThrd = NULL;
-                 }
 
-                 // This causes WM_DESTROY to be sent *immediately*
-                 if (!destroy_window_handler(mWindowHandleThrd))
-                 {
-                     LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
-                 }
-             }
-             else
-             {
-                 // Something killed the window while we were busy destroying gl or handle somehow got broken
-                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
-             }
-             mWindowHandleThrd = NULL;
-             mhDCThrd = NULL;
-             mGLReady = false;
-         });
+    // Clear the user data to prevent callbacks from finding us
+    if (old_handle)
+    {
+        SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
+    }
 
+    // Signal thread to clean up when done
+    mDeleteOnExit = true;
+
+    // Close the queue first
     LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
     mQueue->close();
 
-    // Post a nonsense user message to wake up the thread in
-    // case it is waiting for a getMessage()
+    // Wake up the thread if it's stuck in GetMessage()
     if (old_handle)
     {
         WPARAM wparam{ 0xB0B0 };
         LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
             << ", " << WM_DUMMY_
             << ", " << wparam << ")" << std::dec << LL_ENDL;
+
+        // Use PostMessage to signal thread to wake up
         PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
     }
 
-    // There are cases where window will refuse to close,
-    // can't wait forever on join, check state instead
-    LLTimer timeout;
-    timeout.setTimerExpirySec(2.0);
-    while (!getQueue().done() && !timeout.hasExpired() && mWindowHandleThrd)
+    // Cleanly detach threads instead of joining them to avoid blocking the main thread
+    // This is acceptable since the thread will self-delete with mDeleteOnExit
+    for (auto& pair : mThreads)
     {
-        ms_sleep(100);
+        try {
+            // Only detach if the thread is joinable
+            if (pair.second.joinable())
+            {
+                pair.second.detach();
+            }
+        }
+        catch (const std::system_error& e) {
+            LL_WARNS("Window") << "Exception detaching thread: " << e.what() << LL_ENDL;
+        }
     }
 
-    if (getQueue().done() || mWindowHandleThrd == NULL)
-    {
-        // Window is closed, started closing or is cleaning up
-        // now wait for our single thread to die.
-        if (mWindowHandleThrd)
-        {
-            LL_INFOS("Window") << "Window is closing, waiting on pool's thread to join, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        else
-        {
-            LL_DEBUGS("Window") << "Waiting on pool's thread, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        for (auto& pair : mThreads)
-        {
-            pair.second.join();
-        }
-    }
-    else
-    {
-        // Something suspended window thread, can't afford to wait forever
-        // so kill thread instead
-        // Ex: This can happen if user starts dragging window arround (if it
-        // was visible) or a modal notification pops up
-        LL_WARNS("Window") << "Window is frozen, couldn't perform clean exit" << LL_ENDL;
-
-        for (auto& pair : mThreads)
-        {
-            // very unsafe
-            TerminateThread(pair.second.native_handle(), 0);
-            pair.second.detach();
-        }
-    }
     LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
+    return true;
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)
@@ -4962,4 +5001,70 @@ void LLWindowWin32::updateWindowRect()
                 mClientRect = client_rect;
             });
     }
+}
+
+bool LLWindowWin32::isSystemAppDarkMode()
+{
+    HKEY  hKey;
+    DWORD dwValue = 1; // Default to light theme
+    DWORD dwSize  = sizeof(DWORD);
+
+    // Check registry for system theme preference
+    LSTATUS ret_code =
+        RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &hKey);
+    if (ERROR_SUCCESS == ret_code)
+    {
+        if (RegQueryValueExW(hKey, L"AppsUseLightTheme", NULL, NULL, (LPBYTE)&dwValue, &dwSize) != ERROR_SUCCESS)
+        {
+            // If AppsUseLightTheme is not found, check SystemUsesLightTheme
+            dwSize = sizeof(DWORD);
+            RegQueryValueExW(hKey, L"SystemUsesLightTheme", NULL, NULL, (LPBYTE)&dwValue, &dwSize);
+        }
+        RegCloseKey(hKey);
+    }
+
+    // Return true if dark mode
+    return dwValue == 0;
+}
+
+void LLWindowWin32::updateWindowTheme()
+{
+    bool use_dark_mode = isSystemAppDarkMode();
+    if (use_dark_mode == mCurrentDarkMode)
+    {
+        return;
+    }
+    mCurrentDarkMode = use_dark_mode;
+
+    HMODULE hUxTheme = LoadLibraryExW(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (hUxTheme)
+    {
+        auto SetPreferredAppMode = (fnSetPreferredAppMode)GetProcAddress(hUxTheme, "SetPreferredAppMode");
+        if (SetPreferredAppMode)
+        {
+            SetPreferredAppMode(use_dark_mode ? ALLOW_DARK : FORCE_LIGHT);
+        }
+        FreeLibrary(hUxTheme);
+    }
+    BOOL dark_mode(use_dark_mode);
+    DwmSetWindowAttribute(mWindowHandle, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark_mode, sizeof(dark_mode));
+
+    LL_INFOS("Window") << "Viewer window theme is set to " << (use_dark_mode ? "dark" : "light") << " mode" << LL_ENDL;
+}
+
+void LLWindowWin32::setCustomIcon()
+{
+        if (mWindowHandle)
+        {
+            HICON hDefaultIcon = LoadIcon(mhInstance, mIconResource);
+            HICON hSmallIcon   = LoadIcon(mhInstance, mIconSmallResource);
+            mWindowThread->post([=]()
+                {
+                    SendMessage(mWindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hDefaultIcon);
+                    SendMessage(mWindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hSmallIcon);
+
+                    SetClassLongPtr(mWindowHandle, GCLP_HICON, (LONG_PTR)hDefaultIcon);
+                    SetClassLongPtr(mWindowHandle, GCLP_HICONSM, (LONG_PTR)hSmallIcon);
+                });
+        }
 }

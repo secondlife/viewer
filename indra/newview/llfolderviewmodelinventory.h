@@ -48,6 +48,7 @@ public:
     virtual bool isItemInTrash( void) const { return false; } // TODO: make   into pure virtual.
     virtual bool isItemInOutfits() const { return false; }
     virtual bool isAgentInventory() const { return false; }
+    virtual bool isAgentInventoryRoot() const { return false; }
     virtual bool isUpToDate() const = 0;
     virtual void addChild(LLFolderViewModelItem* child);
     virtual bool hasChildren() const = 0;
@@ -58,6 +59,7 @@ public:
     virtual EInventorySortGroup getSortGroup() const = 0;
     virtual LLInventoryObject* getInventoryObject() const = 0;
     virtual void requestSort();
+    virtual bool canSortContent() const { return getUUID().notNull(); }
     virtual void setPassedFilter(bool filtered, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
     virtual bool filter( LLFolderViewFilter& filter);
     virtual bool filterChildItem( LLFolderViewModelItem* item, LLFolderViewFilter& filter);

@@ -329,6 +329,15 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     LL_DEBUGS("LLLogin") << "reason " << reason_response
                          << " message " << message_response
                          << LL_ENDL;
+
+    if (response.has("mfa_hash"))
+    {
+        mRequestData["params"]["mfa_hash"] = response["mfa_hash"];
+        mRequestData["params"]["token"] = "";
+
+        saveMFAHash(response);
+    }
+
     // For the cases of critical message or TOS agreement,
     // start the TOS dialog. The dialog response will be handled
     // by the LLLoginInstance::handleTOSResponse() callback.
@@ -591,6 +600,24 @@ bool LLLoginInstance::handleMFAChallenge(LLSD const & notif, LLSD const & respon
         attemptComplete();
     }
     return true;
+}
+
+void LLLoginInstance::saveMFAHash(LLSD const& response)
+{
+    std::string grid(LLGridManager::getInstance()->getGridId());
+    std::string user_id(LLStartUp::getUserId());
+
+    // Only save mfa_hash for future logins if the user wants their info remembered.
+    if (response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && LLLoginInstance::getInstance()->saveMFA())
+    {
+        gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, response["mfa_hash"]);
+    }
+    else if (!LLLoginInstance::getInstance()->saveMFA())
+    {
+        gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, user_id);
+    }
+    // TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
+    gSecAPIHandler->syncProtectedMap();
 }
 
 std::string construct_start_string()

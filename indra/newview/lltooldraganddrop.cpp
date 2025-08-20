@@ -1125,28 +1125,33 @@ void set_texture_to_material(LLViewerObject* hit_obj,
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR:
         default:
             {
-                material->setBaseColorId(asset_id);
+                material->setBaseColorId(asset_id, true);
             }
             break;
 
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS:
             {
-                material->setOcclusionRoughnessMetallicId(asset_id);
+                material->setOcclusionRoughnessMetallicId(asset_id, true);
             }
             break;
 
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE:
             {
-                material->setEmissiveId(asset_id);
+                material->setEmissiveId(asset_id, true);
             }
             break;
 
         case LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL:
             {
-                material->setNormalId(asset_id);
+                material->setNormalId(asset_id, true);
             }
             break;
     }
+    // Update viewer side, needed for updating mSavedGLTFOverrideMaterials.
+    // Also for parity, we are immediately setting textures and materials,
+    // so we should immediate set overrides to.
+    hit_obj->setTEGLTFMaterialOverride(hit_face, material);
+    // update server
     LLGLTFMaterialList::queueModify(hit_obj, hit_face, material);
 }
 
@@ -2156,7 +2161,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
     {
         if(mSource == SOURCE_LIBRARY)
         {
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, false));
             copy_inventory_item(
                 gAgent.getID(),
                 item->getPermissions().getOwner(),
@@ -2167,7 +2172,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
         }
         else
         {
-            rez_attachment(item, 0);
+            rez_attachment(item, 0, false);
         }
     }
     return ACCEPT_YES_SINGLE;
@@ -2351,6 +2356,47 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
     return rv;
 }
 
+
+bool is_water_exclusion_face(LLViewerObject* obj, S32 face)
+{
+    LLViewerTexture* image = obj->getTEImage(face);
+    if (!image)
+        return false;
+
+    // magic texture and alpha blending
+    bool exclude_water = (image->getID() == IMG_ALPHA_GRAD) && obj->isImageAlphaBlended(face);
+
+    // transparency
+    exclude_water &= (obj->getTE(face)->getColor().mV[VALPHA] == 1);
+
+    //absence of normal and specular textures
+    image = obj->getTENormalMap(face);
+    if (image && image != LLViewerFetchedTexture::sDefaultImagep)
+        exclude_water &= image->getID().isNull();
+    image = obj->getTESpecularMap(face);
+    if (image && image != LLViewerFetchedTexture::sDefaultImagep)
+        exclude_water &= image->getID().isNull();
+
+    return exclude_water;
+}
+
+bool is_water_exclusion_surface(LLViewerObject* obj, S32 face, bool all_faces)
+{
+    if (all_faces)
+    {
+        bool exclude_water = false;
+        for (S32 it_face = 0; it_face < obj->getNumTEs(); it_face++)
+        {
+            exclude_water |= is_water_exclusion_face(obj, it_face);
+        }
+        return exclude_water;
+    }
+    else
+    {
+        return is_water_exclusion_face(obj, face);
+    }
+}
+
 EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
     LLViewerObject* obj, S32 face, MASK mask, bool drop, EDragAndDropType cargo_type)
 {
@@ -2441,7 +2487,13 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
         else if (cargo_type == DAD_MATERIAL)
         {
             bool all_faces = mask & MASK_SHIFT;
-            if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+
+            if (is_water_exclusion_surface(obj, face, all_faces))
+            {
+                LLNotificationsUtil::add("WaterExclusionNoMaterial");
+                return ACCEPT_NO;
+            }
+            else if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
             {
                 dropMaterial(obj, face, item, mSource, mSourceID, all_faces);
             }

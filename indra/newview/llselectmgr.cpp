@@ -252,6 +252,7 @@ LLSelectMgr::LLSelectMgr()
 LLSelectMgr::~LLSelectMgr()
 {
     clearSelections();
+    mSlectionLodModChangedConnection.disconnect();
 }
 
 void LLSelectMgr::clearSelections()
@@ -2248,6 +2249,7 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
             {
                 // Restore base material
                 LLUUID asset_id = nodep->mSavedGLTFMaterialIds[te];
+                LLUUID old_asset_id = objectp->getRenderMaterialID(te);
 
                 // Update material locally
                 objectp->setRenderMaterialID(te, asset_id, false /*wait for LLGLTFMaterialList update*/);
@@ -2258,18 +2260,29 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                     objectp->setTEGLTFMaterialOverride(te, material);
                 }
 
-                // Enqueue update to server
-                if (asset_id.notNull() && material)
-                {
-                    // Restore overrides and base material
-                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, material);
-                }
-                else
+                if (asset_id.isNull() || !material)
                 {
                     //blank override out
                     LLGLTFMaterialList::queueApply(objectp, te, asset_id);
                 }
-
+                if (old_asset_id != asset_id)
+                {
+                    // Restore overrides and base material
+                    // Note: might not work reliably if asset is already there, might
+                    // have a server sided problem where servers applies override
+                    // first then resets it by adding asset, in which case need
+                    // to create a server ticket and chain asset then override
+                    // application.
+                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, material);
+                }
+                else
+                {
+                    // Enqueue override update to server
+                    // Note: this is suboptimal, better to send asset id as well
+                    // but there seems to be a server problem with queueApply
+                    // that ignores override in some cases
+                    LLGLTFMaterialList::queueModify(objectp, te, material);
+                }
             }
             return true;
         }
@@ -3142,36 +3155,43 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
                     F32 offset_x = 0;
                     F32 offset_y = 0;
 
-                    for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                    if (te_num < selectNode->mGLTFScaleRatios.size())
                     {
-                        LLVector3 scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
+                        for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                        {
+                            LLVector3 scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
 
-                        if (planar)
-                        {
-                            scale_x = scale_ratio.mV[s_axis] / object_scale.mV[s_axis];
-                            scale_y = scale_ratio.mV[t_axis] / object_scale.mV[t_axis];
-                        }
-                        else
-                        {
-                            scale_x = scale_ratio.mV[s_axis] * object_scale.mV[s_axis];
-                            scale_y = scale_ratio.mV[t_axis] * object_scale.mV[t_axis];
-                        }
-                        material->mTextureTransform[i].mScale.set(scale_x, scale_y);
+                            if (planar)
+                            {
+                                scale_x = scale_ratio.mV[s_axis] / object_scale.mV[s_axis];
+                                scale_y = scale_ratio.mV[t_axis] / object_scale.mV[t_axis];
+                            }
+                            else
+                            {
+                                scale_x = scale_ratio.mV[s_axis] * object_scale.mV[s_axis];
+                                scale_y = scale_ratio.mV[t_axis] * object_scale.mV[t_axis];
+                            }
+                            material->mTextureTransform[i].mScale.set(scale_x, scale_y);
 
-                        LLVector2 scales = selectNode->mGLTFScales[te_num][i];
-                        LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
-                        F64 int_part = 0;
-                        offset_x = (F32)modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part);
-                        if (offset_x < 0)
-                        {
-                            offset_x++;
+                            LLVector2 scales = selectNode->mGLTFScales[te_num][i];
+                            LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
+                            F64 int_part = 0;
+                            offset_x = (F32)modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part);
+                            if (offset_x < 0)
+                            {
+                                offset_x++;
+                            }
+                            offset_y = (F32)modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part);
+                            if (offset_y < 0)
+                            {
+                                offset_y++;
+                            }
+                            material->mTextureTransform[i].mOffset.set(offset_x, offset_y);
                         }
-                        offset_y = (F32)modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part);
-                        if (offset_y < 0)
-                        {
-                            offset_y++;
-                        }
-                        material->mTextureTransform[i].mOffset.set(offset_x, offset_y);
+                    }
+                    else
+                    {
+                        llassert(false); // make sure mGLTFScaleRatios is filled
                     }
 
                     const LLGLTFMaterial* base_material = tep->getGLTFMaterial();
@@ -6927,7 +6947,6 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 
     if (mObject.notNull())
     {
-
         LLVector3 scale = mObject->getScale();
 
         for (U8 i = 0; i < mObject->getNumTEs(); i++)

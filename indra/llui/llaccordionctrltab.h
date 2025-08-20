@@ -126,7 +126,7 @@ public:
 
     void setSelected(bool is_selected);
 
-    bool getCollapsible() { return mCollapsible; };
+    bool getCollapsible() const { return mCollapsible; };
 
     void setCollapsible(bool collapsible) { mCollapsible = collapsible; };
     void changeOpenClose(bool is_open);
@@ -140,7 +140,7 @@ public:
     S32 notify(const LLSD& info);
     bool notifyChildren(const LLSD& info);
 
-    void draw();
+    virtual void draw();
 
     void storeOpenCloseState();
     void restoreOpenCloseState();
@@ -181,7 +181,7 @@ public:
 
     void setHeaderVisible(bool value);
 
-    bool getHeaderVisible() { return mHeaderVisible;}
+    bool getHeaderVisible() const { return mHeaderVisible;}
 
     S32 mExpandedHeight; // Height of expanded ctrl.
                          // Used to restore height after expand.

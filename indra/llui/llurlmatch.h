@@ -31,7 +31,6 @@
 //#include "linden_common.h"
 
 #include <string>
-#include <vector>
 #include "llstyle.h"
 
 ///
@@ -80,18 +79,20 @@ public:
     /// return the SL location that this Url describes, or "" if none.
     std::string getLocation() const { return mLocation; }
 
-    /// Should this link text be underlined only when mouse is hovered over it?
-    bool underlineOnHoverOnly() const { return mUnderlineOnHoverOnly; }
+    typedef LLStyle::EUnderlineLink e_underline;
+    e_underline getUnderline() const { return mUnderline; }
 
     /// Return true if Url is trusted.
     bool isTrusted() const { return mTrusted; }
+
+    bool getSkipProfileIcon() const { return mSkipProfileIcon; }
 
     /// Change the contents of this match object (used by LLUrlRegistry)
     void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
                    const std::string& query, const std::string &tooltip, const std::string &icon,
                    const LLStyle::Params& style, const std::string &menu,
                    const std::string &location, const LLUUID& id,
-                   bool underline_on_hover_only = false, bool trusted = false);
+                   e_underline underline = e_underline::UNDERLINE_ALWAYS, bool trusted = false, bool skip_icon = false);
 
     const LLUUID& getID() const { return mID; }
 private:
@@ -106,8 +107,9 @@ private:
     std::string mLocation;
     LLUUID      mID;
     LLStyle::Params mStyle;
-    bool        mUnderlineOnHoverOnly;
+    e_underline mUnderline;
     bool        mTrusted;
+    bool mSkipProfileIcon;
 };
 
 #endif

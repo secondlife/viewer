@@ -361,14 +361,12 @@ LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD 
                 new_array = q.getValue();
             }
             else
-            {   // TODO: We could expand this to inspect the type and do a deep lerp based on type.
-                // for now assume a heterogeneous array of reals.
+            {
                 size_t len = std::max(value.size(), other_value.size());
 
                 for (size_t i = 0; i < len; ++i)
                 {
-
-                    new_array[i] = lerp((F32)value[i].asReal(), (F32)other_value[i].asReal(), (F32)mix);
+                    new_array[i] = interpolateSDValue(key_name, value[i], other_value[i], defaults, mix, skip, slerps);
                 }
             }
 

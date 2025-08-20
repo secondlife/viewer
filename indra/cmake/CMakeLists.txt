@@ -20,6 +20,7 @@ set(cmake_SOURCE_FILES
         Copy3rdPartyLibs.cmake
         DBusGlib.cmake
         DeploySharedLibs.cmake
+        Discord.cmake
         DragDrop.cmake
         EXPAT.cmake
         FindAutobuild.cmake

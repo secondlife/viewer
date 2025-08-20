@@ -47,6 +47,7 @@ HttpOptions::HttpOptions() :
     mVerifyPeer(sDefaultVerifyPeer),
     mVerifyHost(false),
     mDNSCacheTimeout(-1L),
+    mLastModified(0),
     mNoBody(false)
 {}
 
@@ -127,6 +128,11 @@ void HttpOptions::setHeadersOnly(bool nobody)
         setWantHeaders(true);
         setSSLVerifyPeer(false);
     }
+}
+
+void HttpOptions::setLastModified(time_t lastModified)
+{
+    mLastModified = lastModified;
 }
 
 void HttpOptions::setDefaultSSLVerifyPeer(bool verify)
