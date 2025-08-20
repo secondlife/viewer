@@ -61,6 +61,7 @@
 #include "llviewertexturelist.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
+#include "llimage.h"
 
 // ui controls (from floater)
 #include "llbutton.h"
@@ -3205,7 +3206,48 @@ LLJoint* LLModelPreview::lookupJointByName(const std::string& str, void* opaque)
 
 U32 LLModelPreview::loadTextures(LLImportMaterial& material, LLHandle<LLModelPreview> handle)
 {
-    if (material.mDiffuseMapFilename.size() && !handle.isDead())
+    if (handle.isDead())
+    {
+        material.mOpaqueData = NULL;
+        return 0;
+    }
+
+    // Case 1: embedded bytes present (from glTF)
+    if (!material.mDiffuseMapEmbeddedBytes.empty())
+    {
+        // Decode formatted bytes to raw and create a local fetched texture for preview
+        LLPointer<LLImageFormatted> image = LLImageFormatted::loadFromMemory(
+            material.mDiffuseMapEmbeddedBytes.data(),
+            (U32)material.mDiffuseMapEmbeddedBytes.size(),
+            material.mDiffuseMapEmbeddedMime);
+
+        if (image.notNull())
+        {
+            LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+            if (image->decode(raw_image, 0.0f))
+            {
+                // Create a local fetched texture from raw to reuse callback plumbing
+                material.mOpaqueData = new LLPointer< LLViewerFetchedTexture >;
+                LLPointer< LLViewerFetchedTexture >& tex = (*reinterpret_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData));
+                tex = LLViewerTextureManager::getFetchedTexture(raw_image.get(), FTT_LOCAL_FILE, true);
+                tex->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+
+                LLModelPreview* preview = (LLModelPreview*)handle.get();
+                tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, new LLHandle<LLModelPreview>(handle), &preview->mCallbackTextureList, false);
+                tex->forceToSaveRawImage(0, F32_MAX);
+                material.setDiffuseMap(tex->getID());
+                preview->mNumOfFetchingTextures++;
+                return 1;
+            }
+        }
+
+        // Fallback: couldn't decode; clear
+        material.mOpaqueData = NULL;
+        return 0;
+    }
+
+    // Case 2: file-backed local diffuse
+    if (!material.mDiffuseMapFilename.empty())
     {
         material.mOpaqueData = new LLPointer< LLViewerFetchedTexture >;
         LLPointer< LLViewerFetchedTexture >& tex = (*reinterpret_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData));

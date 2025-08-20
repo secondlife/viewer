@@ -650,6 +650,18 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                     impMat.setDiffuseMap(id);
                 }
             }
+
+            // If still no file/UUID, capture embedded bytes for preview/upload
+            if (impMat.getDiffuseMap().isNull() && impMat.mDiffuseMapFilename.empty())
+            {
+                std::string mime;
+                LLSD::Binary bytes;
+                if (captureEmbeddedImage(texIndex, mime, bytes))
+                {
+                    impMat.mDiffuseMapEmbeddedBytes.swap(bytes);
+                    impMat.mDiffuseMapEmbeddedMime = mime;
+                }
+            }
         }
 
         // Normal map
@@ -669,6 +681,17 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                 if (LLUUID id = getLoadedTextureIdIfAny(texIndex, log_name, /*check_scaling*/ false); id.notNull())
                 {
                     impMat.setNormalMap(id);
+                }
+            }
+
+            if (impMat.getNormalMap().isNull() && impMat.mNormalMapFilename.empty())
+            {
+                std::string mime;
+                LLSD::Binary bytes;
+                if (captureEmbeddedImage(texIndex, mime, bytes))
+                {
+                    impMat.mNormalMapEmbeddedBytes.swap(bytes);
+                    impMat.mNormalMapEmbeddedMime = mime;
                 }
             }
         }
@@ -692,6 +715,17 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                     impMat.setMetallicRoughnessMap(id);
                 }
             }
+
+            if (impMat.getMetallicRoughnessMap().isNull() && impMat.mMetallicRoughnessMapFilename.empty())
+            {
+                std::string mime;
+                LLSD::Binary bytes;
+                if (captureEmbeddedImage(texIndex, mime, bytes))
+                {
+                    impMat.mMetallicRoughnessMapEmbeddedBytes.swap(bytes);
+                    impMat.mMetallicRoughnessMapEmbeddedMime = mime;
+                }
+            }
         }
 
         // Emissive map
@@ -713,6 +747,17 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                     impMat.setEmissiveMap(id);
                 }
             }
+
+            if (impMat.getEmissiveMap().isNull() && impMat.mEmissiveMapFilename.empty())
+            {
+                std::string mime;
+                LLSD::Binary bytes;
+                if (captureEmbeddedImage(texIndex, mime, bytes))
+                {
+                    impMat.mEmissiveMapEmbeddedBytes.swap(bytes);
+                    impMat.mEmissiveMapEmbeddedMime = mime;
+                }
+            }
         }
     }
 
@@ -722,6 +767,38 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
     // Cache the processed material
     mMaterialCache[material_index] = cachedMat;
     return cachedMat;
+}
+
+// Capture embedded image bytes (bufferView-backed) without creating files or textures
+bool LLGLTFLoader::captureEmbeddedImage(S32 texture_index, std::string& out_mime, LLSD::Binary& out_bytes)
+{
+    S32 sourceIndex;
+    if (!validateTextureIndex(texture_index, sourceIndex))
+        return false;
+
+    LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
+
+    if (!image.mUri.empty())
+        return false; // URI-based
+
+    if (image.mBufferView >= 0 && image.mBufferView < (S32)mGLTFAsset.mBufferViews.size())
+    {
+        const LL::GLTF::BufferView& buffer_view = mGLTFAsset.mBufferViews[image.mBufferView];
+        if (buffer_view.mBuffer >= 0 && buffer_view.mBuffer < (S32)mGLTFAsset.mBuffers.size())
+        {
+            const LL::GLTF::Buffer& buffer = mGLTFAsset.mBuffers[buffer_view.mBuffer];
+            size_t start = (size_t)buffer_view.mByteOffset;
+            size_t end = start + (size_t)buffer_view.mByteLength;
+            if (end <= buffer.mData.size() && buffer_view.mByteLength > 0)
+            {
+                out_bytes.assign(buffer.mData.begin() + start, buffer.mData.begin() + end);
+                out_mime = image.mMimeType; // may be empty if not provided
+                return !out_bytes.empty();
+            }
+        }
+    }
+
+    return false;
 }
 
 std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& texture_type, const std::string& material_name)

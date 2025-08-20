@@ -411,6 +411,16 @@ public:
     std::string mEmissiveMapFilename;
     std::string mEmissiveMapLabel;
 
+    // Embedded image payloads (bytes + mime); used for GLTF embedded textures
+    LLSD::Binary mDiffuseMapEmbeddedBytes;
+    std::string  mDiffuseMapEmbeddedMime;
+    LLSD::Binary mNormalMapEmbeddedBytes;
+    std::string  mNormalMapEmbeddedMime;
+    LLSD::Binary mMetallicRoughnessMapEmbeddedBytes;
+    std::string  mMetallicRoughnessMapEmbeddedMime;
+    LLSD::Binary mEmissiveMapEmbeddedBytes;
+    std::string  mEmissiveMapEmbeddedMime;
+
     F32 mMetallicFactor;
     F32 mRoughnessFactor;
     LLColor3 mEmissiveFactor;

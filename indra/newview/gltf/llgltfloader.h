@@ -166,6 +166,9 @@ private:
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);
     void checkGlobalJointUsage();
 
+    // Capture embedded image bytes + mime for a texture index
+    bool captureEmbeddedImage(S32 texture_index, std::string& out_mime, LLSD::Binary& out_bytes);
+
 
     void notifyUnsupportedExtension(bool unsupported);
 

@@ -667,8 +667,7 @@ void LLModelLoader::loadTextures()
                 j != iter->second[i].mMaterial.end(); ++j)
             {
                 LLImportMaterial& material = j->second;
-
-                if(!material.mDiffuseMapFilename.empty())
+                if(!material.mDiffuseMapFilename.empty() || !material.mDiffuseMapEmbeddedBytes.empty())
                 {
                     mTextureLoadFunc(material, mOpaqueData);
                 }

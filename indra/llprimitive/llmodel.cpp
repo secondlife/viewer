@@ -2321,6 +2321,18 @@ LLImportMaterial::LLImportMaterial(LLSD& data)
     {
         mDiffuseMapID = data["diffuse"]["texture_id"].asUUID();
     }
+    if (data.has("diffuse") && data["diffuse"].has("embedded"))
+    {
+        const LLSD& emb = data["diffuse"]["embedded"];
+        if (emb.has("bytes") && emb["bytes"].isBinary())
+        {
+            mDiffuseMapEmbeddedBytes = emb["bytes"].asBinary();
+        }
+        if (emb.has("mime"))
+        {
+            mDiffuseMapEmbeddedMime = emb["mime"].asString();
+        }
+    }
     if (data.has("normal"))
     {
         if (data["normal"].has("texture_id"))
@@ -2329,6 +2341,18 @@ LLImportMaterial::LLImportMaterial(LLSD& data)
         }
         mNormalMapFilename = data["normal"]["filename"].asString();
         mNormalMapLabel = data["normal"]["label"].asString();
+        if (data["normal"].has("embedded"))
+        {
+            const LLSD& emb = data["normal"]["embedded"];
+            if (emb.has("bytes") && emb["bytes"].isBinary())
+            {
+                mNormalMapEmbeddedBytes = emb["bytes"].asBinary();
+            }
+            if (emb.has("mime"))
+            {
+                mNormalMapEmbeddedMime = emb["mime"].asString();
+            }
+        }
     }
     if (data.has("metallic_roughness"))
     {
@@ -2338,6 +2362,18 @@ LLImportMaterial::LLImportMaterial(LLSD& data)
         }
         mMetallicRoughnessMapFilename = data["metallic_roughness"]["filename"].asString();
         mMetallicRoughnessMapLabel = data["metallic_roughness"]["label"].asString();
+        if (data["metallic_roughness"].has("embedded"))
+        {
+            const LLSD& emb = data["metallic_roughness"]["embedded"];
+            if (emb.has("bytes") && emb["bytes"].isBinary())
+            {
+                mMetallicRoughnessMapEmbeddedBytes = emb["bytes"].asBinary();
+            }
+            if (emb.has("mime"))
+            {
+                mMetallicRoughnessMapEmbeddedMime = emb["mime"].asString();
+            }
+        }
     }
     if (data.has("emissive"))
     {
@@ -2347,6 +2383,18 @@ LLImportMaterial::LLImportMaterial(LLSD& data)
         }
         mEmissiveMapFilename = data["emissive"]["filename"].asString();
         mEmissiveMapLabel = data["emissive"]["label"].asString();
+        if (data["emissive"].has("embedded"))
+        {
+            const LLSD& emb = data["emissive"]["embedded"];
+            if (emb.has("bytes") && emb["bytes"].isBinary())
+            {
+                mEmissiveMapEmbeddedBytes = emb["bytes"].asBinary();
+            }
+            if (emb.has("mime"))
+            {
+                mEmissiveMapEmbeddedMime = emb["mime"].asString();
+            }
+        }
     }
 
     // Read PBR factors
@@ -2384,23 +2432,43 @@ LLSD LLImportMaterial::asLLSD()
     {
         ret["diffuse"]["texture_id"] = mDiffuseMapID;
     }
-    if (mNormalMapID.notNull() || !mNormalMapFilename.empty() || !mNormalMapLabel.empty())
+    if (!mDiffuseMapEmbeddedBytes.empty())
+    {
+        ret["diffuse"]["embedded"]["bytes"] = mDiffuseMapEmbeddedBytes;
+        ret["diffuse"]["embedded"]["mime"]  = mDiffuseMapEmbeddedMime;
+    }
+    if (mNormalMapID.notNull() || !mNormalMapFilename.empty() || !mNormalMapLabel.empty() || !mNormalMapEmbeddedBytes.empty())
     {
         if (mNormalMapID.notNull()) ret["normal"]["texture_id"] = mNormalMapID;
         if (!mNormalMapFilename.empty()) ret["normal"]["filename"] = mNormalMapFilename;
         if (!mNormalMapLabel.empty()) ret["normal"]["label"] = mNormalMapLabel;
+        if (!mNormalMapEmbeddedBytes.empty())
+        {
+            ret["normal"]["embedded"]["bytes"] = mNormalMapEmbeddedBytes;
+            ret["normal"]["embedded"]["mime"]  = mNormalMapEmbeddedMime;
+        }
     }
-    if (mMetallicRoughnessMapID.notNull() || !mMetallicRoughnessMapFilename.empty() || !mMetallicRoughnessMapLabel.empty())
+    if (mMetallicRoughnessMapID.notNull() || !mMetallicRoughnessMapFilename.empty() || !mMetallicRoughnessMapLabel.empty() || !mMetallicRoughnessMapEmbeddedBytes.empty())
     {
         if (mMetallicRoughnessMapID.notNull()) ret["metallic_roughness"]["texture_id"] = mMetallicRoughnessMapID;
         if (!mMetallicRoughnessMapFilename.empty()) ret["metallic_roughness"]["filename"] = mMetallicRoughnessMapFilename;
         if (!mMetallicRoughnessMapLabel.empty()) ret["metallic_roughness"]["label"] = mMetallicRoughnessMapLabel;
+        if (!mMetallicRoughnessMapEmbeddedBytes.empty())
+        {
+            ret["metallic_roughness"]["embedded"]["bytes"] = mMetallicRoughnessMapEmbeddedBytes;
+            ret["metallic_roughness"]["embedded"]["mime"]  = mMetallicRoughnessMapEmbeddedMime;
+        }
     }
-    if (mEmissiveMapID.notNull() || !mEmissiveMapFilename.empty() || !mEmissiveMapLabel.empty())
+    if (mEmissiveMapID.notNull() || !mEmissiveMapFilename.empty() || !mEmissiveMapLabel.empty() || !mEmissiveMapEmbeddedBytes.empty())
     {
         if (mEmissiveMapID.notNull()) ret["emissive"]["texture_id"] = mEmissiveMapID;
         if (!mEmissiveMapFilename.empty()) ret["emissive"]["filename"] = mEmissiveMapFilename;
         if (!mEmissiveMapLabel.empty()) ret["emissive"]["label"] = mEmissiveMapLabel;
+        if (!mEmissiveMapEmbeddedBytes.empty())
+        {
+            ret["emissive"]["embedded"]["bytes"] = mEmissiveMapEmbeddedBytes;
+            ret["emissive"]["embedded"]["mime"]  = mEmissiveMapEmbeddedMime;
+        }
     }
 
     // PBR factors block
