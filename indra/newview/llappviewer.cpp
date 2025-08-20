@@ -4530,6 +4530,7 @@ void LLAppViewer::forceDisconnect(const std::string& mesg)
     }
     else
     {
+        sendSimpleLogoutRequest();
         args["MESSAGE"] = big_reason;
         LLNotificationsUtil::add("YouHaveBeenLoggedOut", args, LLSD(), &finish_disconnect );
     }
@@ -5307,6 +5308,27 @@ void LLAppViewer::sendLogoutRequest()
         mLogoutRequestSent = true;
 
         LLVoiceClient::setVoiceEnabled(false);
+    }
+}
+
+void LLAppViewer::sendSimpleLogoutRequest()
+{
+    if (!mLogoutRequestSent && gMessageSystem)
+    {
+        gLogoutInProgress = true;
+
+        LLMessageSystem* msg = gMessageSystem;
+        msg->newMessageFast(_PREHASH_LogoutRequest);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        gAgent.sendReliableMessage();
+
+        LL_INFOS("Agent") << "Logging out as agent: " << gAgent.getID() << " Session: " << gAgent.getSessionID() << LL_ENDL;
+
+        gLogoutTimer.reset();
+        gLogoutMaxTime = LOGOUT_REQUEST_TIME;
+        mLogoutRequestSent = true;
     }
 }
 

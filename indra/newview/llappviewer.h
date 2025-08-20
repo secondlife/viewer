@@ -310,6 +310,10 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
+    // Does not create a marker file. For lost network case,
+    // to at least attempt to remove the ghost from the world.
+    void sendSimpleLogoutRequest();
+
     // *FIX: the app viewer class should be some sort of singleton, no?
     // Perhaps its child class is the singleton and this should be an abstract base.
     static LLAppViewer* sInstance;
