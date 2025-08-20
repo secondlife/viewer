@@ -16201,6 +16201,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>ModelPreviewUseGLTFShader</key>
+  <map>
+    <key>Comment</key>
+    <string>Use GLTF shader in the Upload Model preview. When disabled, the preview uses the legacy approximation. Enable for testing GLTF materials in preview.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderHDREnabled</key>
   <map>
     <key>Comment</key>

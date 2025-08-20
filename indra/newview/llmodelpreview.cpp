@@ -62,6 +62,7 @@
 #include "llvoavatar.h"
 #include "pipeline.h"
 #include "llimage.h"
+#include "llglslshader.h"
 
 // ui controls (from floater)
 #include "llbutton.h"
@@ -109,6 +110,125 @@ LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& mater
     }
 
     return NULL;
+}
+
+// Minimal GLTF UBO plumbing for preview rendering
+namespace
+{
+    GLuint sPreviewGLTFNodesUBO = 0;
+    GLuint sPreviewGLTFMaterialsUBO = 0;
+
+    // Check if GLTF PBR shader variants are initialized and supported
+    inline bool gltf_pbr_available()
+    {
+        static LLCachedControl<bool> can_use_shaders(gSavedSettings, "RenderCanUseGLTFPBROpaqueShaders", true);
+        // Don't depend on GLTFEnabled here; preview is offline and safe.
+        return can_use_shaders &&
+               (gGLTFPBRMetallicRoughnessProgram.mGLTFVariants.size() == LLGLSLShader::NUM_GLTF_VARIANTS);
+    }
+
+    // Ensure UBOs exist; initialize node UBO with identity transform for node 0
+    void ensure_gltf_preview_ubos()
+    {
+        if (sPreviewGLTFNodesUBO == 0)
+        {
+            glGenBuffers(1, &sPreviewGLTFNodesUBO);
+        }
+        if (sPreviewGLTFMaterialsUBO == 0)
+        {
+            glGenBuffers(1, &sPreviewGLTFMaterialsUBO);
+        }
+
+        // Upload identity transform for gltf_node_id 0 (3 vec4s)
+        struct V4 { F32 x,y,z,w; };
+        V4 nodes[3];
+        nodes[0] = { 1.f, 0.f, 0.f, 0.f };
+        nodes[1] = { 0.f, 1.f, 0.f, 0.f };
+        nodes[2] = { 0.f, 0.f, 1.f, 0.f };
+        glBindBuffer(GL_UNIFORM_BUFFER, sPreviewGLTFNodesUBO);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(nodes), nodes, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    // Pack a single GLTF material entry (12 vec4s) into the materials UBO at index 0
+    void upload_preview_material_to_ubo(const LLImportMaterial& m)
+    {
+        // Layout: see pbrmetallicroughnessV.glsl comments
+        // Index 0..9: texture transforms (2 vec4 per texture type) — use identity
+        // Index 10: emissive factor in rgb
+        // Index 11: .g roughness, .b metallic, .a minimum alpha (we'll set 0)
+        struct V4 { F32 x,y,z,w; };
+        V4 data[12];
+
+        auto ident = []() -> std::array<V4,2>
+        {
+            return { V4{1.f,1.f,0.f,0.f}, V4{0.f,0.f,0.f,0.f} };
+        };
+
+        auto bc = ident();
+        auto nm = ident();
+        auto mr = ident();
+        auto em = ident();
+        auto oc = ident();
+
+        data[0] = bc[0];
+        data[1] = bc[1];
+        data[2] = nm[0];
+        data[3] = nm[1];
+        data[4] = mr[0];
+        data[5] = mr[1];
+        data[6] = em[0];
+        data[7] = em[1];
+        data[8] = oc[0];
+        data[9] = oc[1];
+
+        // emissive factor
+        data[10] = { m.mEmissiveFactor.mV[0], m.mEmissiveFactor.mV[1], m.mEmissiveFactor.mV[2], 0.f };
+        // roughness/metallic/min alpha
+        F32 rough = llclamp(m.mRoughnessFactor, 0.f, 1.f);
+        F32 metal = llclamp(m.mMetallicFactor, 0.f, 1.f);
+        data[11] = { 0.f, rough, metal, 0.f };
+
+        glBindBuffer(GL_UNIFORM_BUFFER, sPreviewGLTFMaterialsUBO);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    // Bind textures expected by GLTF PBR shader, with sensible fallbacks
+    void bind_gltf_preview_textures(const LLImportMaterial& material, LLGLSLShader* shader)
+    {
+        auto bind_tex = [shader](S32 uniform, LLViewerTexture* tex)
+        {
+            S32 ch = shader->getTextureChannel(uniform);
+            if (ch >= 0)
+            {
+                gGL.getTexUnit(ch)->bind(tex);
+            }
+        };
+
+        // Diffuse/base color (sRGB)
+        LLPointer<LLViewerTexture> base = LLViewerTextureManager::getFetchedTexture(material.getDiffuseMap());
+        if (base.isNull()) base = LLViewerFetchedTexture::sWhiteImagep;
+        bind_tex(LLShaderMgr::DIFFUSE_MAP, base);
+
+        // Normal (use flat normal if missing since preview lacks tangents)
+        LLPointer<LLViewerTexture> nrm = LLViewerTextureManager::getFetchedTexture(material.getNormalMap());
+        if (nrm.isNull()) nrm = LLViewerFetchedTexture::sFlatNormalImagep;
+        bind_tex(LLShaderMgr::NORMAL_MAP, nrm);
+
+        // Metallic-Roughness
+        LLPointer<LLViewerTexture> mr = LLViewerTextureManager::getFetchedTexture(material.getMetallicRoughnessMap());
+        if (mr.isNull()) mr = LLViewerFetchedTexture::sWhiteImagep;
+        bind_tex(LLShaderMgr::METALLIC_ROUGHNESS_MAP, mr);
+
+        // Occlusion — no capture yet; use white
+        bind_tex(LLShaderMgr::OCCLUSION_MAP, LLViewerFetchedTexture::sWhiteImagep);
+
+        // Emissive
+        LLPointer<LLViewerTexture> em = LLViewerTextureManager::getFetchedTexture(material.getEmissiveMap());
+        if (em.isNull()) em = LLViewerFetchedTexture::sWhiteImagep;
+        bind_tex(LLShaderMgr::EMISSIVE_MAP, em);
+    }
 }
 
 std::string stripSuffix(std::string name)
@@ -3266,6 +3386,83 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material, LLHandle<LLModelPre
         return 1;
     }
 
+    // Load auxiliary maps (normal, metallic-roughness, emissive) for preview
+    auto load_from_embedded = [&](const LLSD::Binary& bytes, const std::string& mime, LLUUID& out_id) -> bool
+    {
+        if (bytes.empty()) return false;
+        LLPointer<LLImageFormatted> image = LLImageFormatted::loadFromMemory(bytes.data(), (U32)bytes.size(), mime);
+        if (image.isNull()) return false;
+        LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+        if (!image->decode(raw_image, 0.0f)) return false;
+        LLPointer< LLViewerFetchedTexture > tex = LLViewerTextureManager::getFetchedTexture(raw_image.get(), FTT_LOCAL_FILE, true);
+        tex->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+        LLModelPreview* preview = (LLModelPreview*)handle.get();
+        tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, new LLHandle<LLModelPreview>(handle), &preview->mCallbackTextureList, false);
+        tex->forceToSaveRawImage(0, F32_MAX);
+        out_id = tex->getID();
+        preview->mNumOfFetchingTextures++;
+        return true;
+    };
+
+    auto load_from_file = [&](const std::string& filename, LLUUID& out_id) -> bool
+    {
+        if (filename.empty()) return false;
+        LLPointer< LLViewerFetchedTexture > tex = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + LLURI::unescape(filename), FTT_LOCAL_FILE, true, LLGLTexture::BOOST_PREVIEW);
+        if (tex.isNull()) return false;
+        if (tex->getDiscardLevel() < tex->getMaxDiscardLevel())
+        {
+            tex->clearFetchedResults();
+        }
+        LLModelPreview* preview = (LLModelPreview*)handle.get();
+        tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, new LLHandle<LLModelPreview>(handle), &preview->mCallbackTextureList, false);
+        tex->forceToSaveRawImage(0, F32_MAX);
+        out_id = tex->getID();
+        preview->mNumOfFetchingTextures++;
+        return true;
+    };
+
+    // normal map
+    if (!material.mNormalMapEmbeddedBytes.empty())
+    {
+        load_from_embedded(material.mNormalMapEmbeddedBytes, material.mNormalMapEmbeddedMime, const_cast<LLUUID&>(material.getNormalMap()));
+    }
+    else if (!material.mNormalMapFilename.empty())
+    {
+        LLUUID id;
+        if (load_from_file(material.mNormalMapFilename, id))
+        {
+            material.setNormalMap(id);
+        }
+    }
+
+    // metallic-roughness map
+    if (!material.mMetallicRoughnessMapEmbeddedBytes.empty())
+    {
+        load_from_embedded(material.mMetallicRoughnessMapEmbeddedBytes, material.mMetallicRoughnessMapEmbeddedMime, const_cast<LLUUID&>(material.getMetallicRoughnessMap()));
+    }
+    else if (!material.mMetallicRoughnessMapFilename.empty())
+    {
+        LLUUID id;
+        if (load_from_file(material.mMetallicRoughnessMapFilename, id))
+        {
+            material.setMetallicRoughnessMap(id);
+        }
+    }
+
+    // emissive map
+    if (!material.mEmissiveMapEmbeddedBytes.empty())
+    {
+        load_from_embedded(material.mEmissiveMapEmbeddedBytes, material.mEmissiveMapEmbeddedMime, const_cast<LLUUID&>(material.getEmissiveMap()));
+    }
+    else if (!material.mEmissiveMapFilename.empty())
+    {
+        LLUUID id;
+        if (load_from_file(material.mEmissiveMapFilename, id))
+        {
+            material.setEmissiveMap(id);
+        }
+    }
+
     material.mOpaqueData = NULL;
     return 0;
 }
@@ -3591,6 +3788,19 @@ bool LLModelPreview::render()
                 gGL.multMatrix((GLfloat*)mat.mMatrix);
 
                 auto num_models = mVertexBuffer[mPreviewLOD][model].size();
+
+                // Try to render with GLTF PBR shader when showing textures (behind a debug setting)
+                static LLCachedControl<bool> sUseGLTFPreview(gSavedSettings, "ModelPreviewUseGLTFShader", false);
+                bool using_gltf_pbr = false;
+                if (show_textures && sUseGLTFPreview && gltf_pbr_available())
+                {
+                    ensure_gltf_preview_ubos();
+                    gGLTFPBRMetallicRoughnessProgram.bind(LLGLSLShader::GLTFVariant::UNLIT);
+                    glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, sPreviewGLTFNodesUBO);
+                    glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, sPreviewGLTFMaterialsUBO);
+                    gGL.syncMatrices();
+                    using_gltf_pbr = true;
+                }
                 for (size_t i = 0; i < num_models; ++i)
                 {
                     if (show_textures)
@@ -3600,15 +3810,60 @@ bool LLModelPreview::render()
                         {
                             const std::string& binding = instance.mModel->mMaterialList[i];
                             const LLImportMaterial& material = instance.mMaterial[binding];
-
-                            gGL.diffuseColor4fv(material.mDiffuseColor.mV);
-
-                            // Find the tex for this material, bind it, and add it to our set
-                            //
-                            LLViewerFetchedTexture* tex = bindMaterialDiffuseTexture(material);
-                            if (tex)
+                            if (using_gltf_pbr)
                             {
-                                mTextureSet.insert(tex);
+                                // Upload per-material factors and bind maps
+                                upload_preview_material_to_ubo(material);
+                                LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+                                if (shader)
+                                {
+                                    shader->uniform1i(LLShaderMgr::GLTF_NODE_ID, 0);
+                                    // Use material slot 0 so emissiveColor factor from UBO is applied (transforms are identity)
+                                    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, 0);
+                                }
+                                // Set vertex color as base color factor (shader multiplies texture by vertex_color)
+                                gGL.diffuseColor4fv(material.mDiffuseColor.mV);
+                                // Bind only base color and emissive for UNLIT
+                                if (shader)
+                                {
+                                    auto bind_tex = [shader](S32 uniform, LLViewerTexture* tex)
+                                    {
+                                        S32 ch = shader->getTextureChannel(uniform);
+                                        if (ch >= 0)
+                                        {
+                                            gGL.getTexUnit(ch)->bind(tex);
+                                        }
+                                    };
+
+                                    LLPointer<LLViewerTexture> base = LLViewerTextureManager::getFetchedTexture(material.getDiffuseMap());
+                                    if (base.isNull()) base = LLViewerFetchedTexture::sWhiteImagep;
+                                    bind_tex(LLShaderMgr::DIFFUSE_MAP, base);
+
+                                    LLPointer<LLViewerTexture> em = LLViewerTextureManager::getFetchedTexture(material.getEmissiveMap());
+                                    if (em.isNull()) em = LLViewerFetchedTexture::sWhiteImagep;
+                                    bind_tex(LLShaderMgr::EMISSIVE_MAP, em);
+                                }
+
+                                // Track diffuse texture in preview texture set for lifecycle parity
+                                LLViewerFetchedTexture* base = bindMaterialDiffuseTexture(material);
+                                if (base)
+                                {
+                                    mTextureSet.insert(base);
+                                }
+                            }
+                            else
+                            {
+                                // Fallback: fixed-function approximation
+                                LLColor4 combined = material.mDiffuseColor;
+                                combined.mV[0] = llclamp(combined.mV[0] + material.mEmissiveFactor.mV[0], 0.f, 1.f);
+                                combined.mV[1] = llclamp(combined.mV[1] + material.mEmissiveFactor.mV[1], 0.f, 1.f);
+                                combined.mV[2] = llclamp(combined.mV[2] + material.mEmissiveFactor.mV[2], 0.f, 1.f);
+                                gGL.diffuseColor4fv(combined.mV);
+                                LLViewerFetchedTexture* tex = bindMaterialDiffuseTexture(material);
+                                if (tex)
+                                {
+                                    mTextureSet.insert(tex);
+                                }
                             }
                         }
                     }
@@ -3635,6 +3890,12 @@ bool LLModelPreview::render()
                         glLineWidth(1.f);
                     }
                     buffer->unmapBuffer();
+                }
+                // Restore default preview shader if we switched to GLTF PBR
+                if (using_gltf_pbr)
+                {
+                    gGLTFPBRMetallicRoughnessProgram.unbind();
+                    gObjectPreviewProgram.bind();
                 }
                 gGL.popMatrix();
             }
@@ -3937,7 +4198,14 @@ bool LLModelPreview::render()
                                     const std::string& binding = instance.mModel->mMaterialList[i];
                                     const LLImportMaterial& material = instance.mMaterial[binding];
 
-                                    gGL.diffuseColor4fv(material.mDiffuseColor.mV);
+                                    // Quick approximation: base color + emissive factor
+                                    {
+                                        LLColor4 combined = material.mDiffuseColor;
+                                        combined.mV[0] = llclamp(combined.mV[0] + material.mEmissiveFactor.mV[0], 0.f, 1.f);
+                                        combined.mV[1] = llclamp(combined.mV[1] + material.mEmissiveFactor.mV[1], 0.f, 1.f);
+                                        combined.mV[2] = llclamp(combined.mV[2] + material.mEmissiveFactor.mV[2], 0.f, 1.f);
+                                        gGL.diffuseColor4fv(combined.mV);
+                                    }
 
                                     // Find the tex for this material, bind it, and add it to our set
                                     //
