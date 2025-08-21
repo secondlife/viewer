@@ -299,6 +299,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 
     // Devices
     void updateDevices();
+    void deployDevices();
     rtc::scoped_refptr<webrtc::AudioDeviceModule>              mTuningDeviceModule;
     rtc::scoped_refptr<webrtc::AudioDeviceModule>              mPeerDeviceModule;
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
