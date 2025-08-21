@@ -64,6 +64,7 @@ public:
     void save() const;
     void sendToSim() const;
 
+    static F32 getMaxBandwidthKbps();
     F32 getMaxBandwidth()const          { return mMaxBandwidth; }
     F32 getCurrentBandwidth() const     { return mCurrentBandwidth; }
 
