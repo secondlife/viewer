@@ -162,6 +162,7 @@ LLWebRTCImpl::LLWebRTCImpl(LLWebRTCLogCallback* logCallback) :
     mPeerCustomProcessor(nullptr),
     mMute(true),
     mTuningMode(false),
+    mDevicesDeploying(false),
     mPlayoutDevice(0),
     mRecordingDevice(0),
     mTuningAudioDeviceObserver(nullptr)
@@ -553,6 +554,11 @@ void LLWebRTCImpl::setTuningMode(bool enable)
 
 void LLWebRTCImpl::deployDevices()
 {
+    if (mDevicesDeploying)
+    {
+        return;
+    }
+    mDevicesDeploying = true;
     mWorkerThread->PostTask(
         [this] {
             if (mTuningMode)
@@ -596,6 +602,7 @@ void LLWebRTCImpl::deployDevices()
                         }
                         connection->enableReceiverTracks(!mTuningMode);
                     }
+                    mDevicesDeploying = false;
                 });
         });
 }
