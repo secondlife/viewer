@@ -165,7 +165,7 @@ bool LLFloaterSearch::postBuild()
 
     // This call is actioned by the preload code in llViewerWindow
     // that creates the search floater during the login process
-    // and navigates to the SearchURLPreload from settings.xml
+    // using a generic search with no query
     initiateSearch(LLSD());
 
     return true;
