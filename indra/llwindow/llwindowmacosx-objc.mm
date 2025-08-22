@@ -228,11 +228,6 @@ GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync)
 	return glview;
 }
 
-void setResizeMode(bool oldresize, void* glview)
-{
-    [(LLOpenGLView *)glview setOldResize:oldresize];
-}
-
 void glSwapBuffers(void* context)
 {
 	[(NSOpenGLContext*)context flushBuffer];

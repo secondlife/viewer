@@ -42,15 +42,12 @@
     unsigned int mMarkedTextLength;
     bool mMarkedTextAllowed;
     bool mSimulatedRightClick;
-    bool mOldResize;
 }
 - (id) initWithSamples:(NSUInteger)samples;
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync;
 
 - (void)commitCurrentPreedit;
-
-- (void) setOldResize:(bool)oldresize;
 
 // rebuildContext
 // Destroys and recreates a context with the view's internal format set via setPixelFormat;
@@ -68,7 +65,6 @@
 - (unsigned long) getVramSize;
 
 - (void) allowMarkedTextInput:(bool)allowed;
-- (void) viewDidEndLiveResize;
 
 @end
 
