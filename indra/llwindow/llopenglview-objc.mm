@@ -212,6 +212,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	return [self initWithFrame:[self bounds] withSamples:samples andVsync:vsync];
 }
 
+#if LL_DARWIN
+// For setView and opengl deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
     [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
@@ -300,6 +306,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	[ctx makeCurrentContext];
 	return true;
 }
+
+#if LL_DARWIN
+#pragma clang diagnostic pop
+#endif
 
 - (CGLContextObj)getCGLContextObj
 {
@@ -647,6 +657,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
     }
 }
 
+#if LL_DARWIN
+// For commitEditing deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 - (void)commitCurrentPreedit
 {
     if (mHasMarkedText)
@@ -657,6 +673,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
         }
     }
 }
+
+#if LL_DARWIN
+#pragma clang diagnostic pop
+#endif
 
 - (void)unmarkText
 {

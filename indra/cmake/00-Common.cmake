@@ -184,7 +184,7 @@ if (LINUX OR DARWIN)
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     # libstdc++ headers contain deprecated declarations that fail on clang
     # macOS currently has many deprecated calls
-    add_compile_options(-Wno-unused-local-typedef -Wno-deprecated-declarations)
+    add_compile_options(-Wno-unused-local-typedef)
   endif()
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

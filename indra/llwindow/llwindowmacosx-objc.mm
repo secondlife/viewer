@@ -162,10 +162,20 @@ void showNSCursor()
 	[NSCursor unhide];
 }
 
+#if LL_DARWIN
+// For CGCursorIsVisible no replacement in modern API
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 bool isCGCursorVisible()
 {
     return CGCursorIsVisible();
 }
+
+#if LL_DARWIN
+#pragma clang diagnostic pop
+#endif
 
 void hideNSCursorTillMove(bool hide)
 {

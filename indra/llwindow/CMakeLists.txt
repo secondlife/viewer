@@ -107,7 +107,7 @@ if (DARWIN)
       llkeyboardmacosx.cpp
       llwindowmacosx.cpp
       PROPERTIES
-      COMPILE_FLAGS "-Wno-deprecated-declarations -fpascal-strings"
+      COMPILE_FLAGS "-fpascal-strings"
       )
 endif (DARWIN)
 
