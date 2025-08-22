@@ -33,8 +33,6 @@ target_link_libraries(llimage_libtest
         llfilesystem
         llmath
         llimage
-        llkdu
-        llimagej2coj
         )
 
 # Ensure people working on the viewer don't break this library
