@@ -161,7 +161,8 @@ bool LLStatusBar::postBuild()
     getChild<LLUICtrl>("buyL")->setCommitCallback(
         boost::bind(&LLStatusBar::onClickBuyCurrency, this));
 
-    getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
+    getChild<LLUICtrl>("goShop")->setCommitCallback(
+        boost::bind(&LLStatusBar::onClickShop, this));
 
     mBoxBalance = getChild<LLTextBox>("balance");
     mBoxBalance->setClickedCallback(&LLStatusBar::onClickRefreshBalance, this);
@@ -518,6 +519,11 @@ void LLStatusBar::onClickBuyCurrency()
     // value specified in settings.xml
     LLBuyCurrencyHTML::openCurrencyFloater();
     LLFirstUse::receiveLindens(false);
+}
+
+void LLStatusBar::onClickShop()
+{
+    LLFloaterReg::toggleInstanceOrBringToFront("marketplace");
 }
 
 void LLStatusBar::onMouseEnterPresetsCamera()

@@ -1,6 +1,6 @@
 /**
- * @file llfloatersearch.h
- * @brief Floater for Search (update 2025, preload)
+ * @file llfloatermarketplace.cpp
+ * @brief floater for the Marketplace web site
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,23 +24,24 @@
  * $/LicenseInfo$
  */
 
-#pragma once
+#include "llviewerprecompiledheaders.h"
 
-#include "llfloater.h"
+#include "llfloatermarketplace.h"
+#include "lluictrlfactory.h"
 
-class LLFloaterSearch:
-    public LLFloater {
-        friend class LLFloaterReg;
+LLFloaterMarketplace::LLFloaterMarketplace(const LLSD& key)
+    :   LLFloater(key)
+{
+}
 
-    public:
-        void onOpen(const LLSD& key) override;
+LLFloaterMarketplace::~LLFloaterMarketplace()
+{
+}
 
-    private:
-        LLFloaterSearch(const LLSD& key);
-        ~LLFloaterSearch();
-        void initiateSearch(const LLSD& tokens);
-        bool postBuild() override;
+bool LLFloaterMarketplace::postBuild()
+{
+    enableResizeCtrls(true, true, false);
+    return true;
+}
 
-        std::set<std::string> mSearchType;
-        std::set<std::string> mCollectionType;
-};
+
