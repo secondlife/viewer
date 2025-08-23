@@ -1875,11 +1875,11 @@ void LLVOCache::removeGenericExtrasForHandle(U64 handle)
     }
 
     // NOTE: when removing the extras, we must also remove the objects so the simulator will send us a full upddate with the valid overrides
-    auto* entry = mHandleEntryMap[handle];
-    if (entry)
+    handle_entry_map_t::iterator iter = mHandleEntryMap.find(handle);
+    if (iter != mHandleEntryMap.end())
     {
-        LL_WARNS("GLTF", "VOCache") << "Removing generic extras for handle " << entry->mHandle << "Filename: " << getObjectCacheExtrasFilename(handle) << LL_ENDL;
-        removeEntry(entry);
+        LL_WARNS("GLTF", "VOCache") << "Removing generic extras for handle " << handle << "Filename: " << getObjectCacheExtrasFilename(handle) << LL_ENDL;
+        removeEntry(iter->second);
     }
     else
     {

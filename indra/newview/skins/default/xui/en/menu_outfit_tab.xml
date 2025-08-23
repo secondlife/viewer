@@ -50,6 +50,26 @@
         function="Outfit.Thumbnail" />
     </menu_item_call>
     <menu_item_call
+     label="Add to favorites"
+     layout="topleft"
+     name="favorites_add">
+       <on_visible
+        function="Outfit.OnVisible"
+        parameter="favorites_add" />
+       <on_click
+        function="Outfit.Favorite" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove from favorites"
+     layout="topleft"
+     name="favorites_remove">
+       <on_visible
+        function="Outfit.OnVisible"
+        parameter="favorites_remove" />
+       <on_click
+        function="Outfit.Favorite" />
+    </menu_item_call>
+    <menu_item_call
         label="Edit outfit"
         layout="topleft"
         name="edit">

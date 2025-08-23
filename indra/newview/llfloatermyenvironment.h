@@ -60,6 +60,7 @@ private:
     void                            onFilterCheckChange();
     void                            onFilterEdit(const std::string& search_string);
     void                            onSelectionChange();
+    void                            onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, uuid_vec_t item_ids);
     void                            onDeleteSelected();
     void                            onDoCreate(const LLSD &data);
     void                            onDoApply(const std::string &context);
@@ -69,7 +70,7 @@ private:
     void                            getSelectedIds(uuid_vec_t& ids) const;
     void                            refreshButtonStates();
 
-    bool                            isSettingSelected(LLUUID item_id);
+    static bool                     isSettingId(const LLUUID &item_id);
 
     static LLUUID                   findItemByAssetId(LLUUID asset_id, bool copyable_only, bool ignore_library);
 };

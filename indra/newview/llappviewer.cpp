@@ -453,13 +453,28 @@ static bool app_metrics_qa_mode = false;
 
 void idle_afk_check()
 {
+    // Don't check AFK status during startup states
+    if (LLStartUp::getStartupState() < STATE_STARTED)
+    {
+        return;
+    }
+
     // check idle timers
     F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
     static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout", 300);
-    if (afk_timeout() && (current_idle > (F32)afk_timeout()) && !gAgent.getAFK())
+    if (afk_timeout() && (current_idle > afk_timeout()))
     {
-        LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
-        gAgent.setAFK();
+        if (!gAgent.getAFK())
+        {
+            LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
+            gAgent.setAFK();
+        }
+        else
+        {
+            // Refresh timer so that random one click or hover won't clear the status.
+            // But expanding the window still should lift afk status
+            gAwayTimer.reset();
+        }
     }
 }
 
@@ -1852,36 +1867,6 @@ bool LLAppViewer::cleanup()
     // Clean up before GL is shut down because we might be holding on to objects with texture references
     LLSelectMgr::cleanupGlobals();
 
-    LL_INFOS() << "Shutting down OpenGL" << LL_ENDL;
-
-    // Shut down OpenGL
-    if( gViewerWindow)
-    {
-        gViewerWindow->shutdownGL();
-
-        // Destroy window, and make sure we're not fullscreen
-        // This may generate window reshape and activation events.
-        // Therefore must do this before destroying the message system.
-        delete gViewerWindow;
-        gViewerWindow = NULL;
-        LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
-    }
-
-    LLSplashScreen::show();
-    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
-
-    LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
-
-    // viewer UI relies on keyboard so keep it aound until viewer UI isa gone
-    delete gKeyboard;
-    gKeyboard = NULL;
-
-    if (LLViewerJoystick::instanceExists())
-    {
-        // Turn off Space Navigator and similar devices
-        LLViewerJoystick::getInstance()->terminate();
-    }
-
     LL_INFOS() << "Cleaning up Objects" << LL_ENDL;
 
     LLViewerObject::cleanupVOClasses();
@@ -2041,6 +2026,36 @@ bool LLAppViewer::cleanup()
 
     sTextureFetch->shutDownTextureCacheThread() ;
     LLLFSThread::sLocal->shutdown();
+
+    LL_INFOS() << "Shutting down OpenGL" << LL_ENDL;
+
+    // Shut down OpenGL
+    if (gViewerWindow)
+    {
+        gViewerWindow->shutdownGL();
+
+        // Destroy window, and make sure we're not fullscreen
+        // This may generate window reshape and activation events.
+        // Therefore must do this before destroying the message system.
+        delete gViewerWindow;
+        gViewerWindow = NULL;
+        LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
+    }
+
+    LLSplashScreen::show();
+    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
+
+    LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
+
+    // viewer UI relies on keyboard so keep it aound until viewer UI isa gone
+    delete gKeyboard;
+    gKeyboard = NULL;
+
+    if (LLViewerJoystick::instanceExists())
+    {
+        // Turn off Space Navigator and similar devices
+        LLViewerJoystick::getInstance()->terminate();
+    }
 
     LL_INFOS() << "Shutting down message system" << LL_ENDL;
     end_messaging_system();
@@ -4527,6 +4542,7 @@ void LLAppViewer::forceDisconnect(const std::string& mesg)
     }
     else
     {
+        sendSimpleLogoutRequest();
         args["MESSAGE"] = big_reason;
         LLNotificationsUtil::add("YouHaveBeenLoggedOut", args, LLSD(), &finish_disconnect );
     }
@@ -5307,6 +5323,27 @@ void LLAppViewer::sendLogoutRequest()
     }
 }
 
+void LLAppViewer::sendSimpleLogoutRequest()
+{
+    if (!mLogoutRequestSent && gMessageSystem)
+    {
+        gLogoutInProgress = true;
+
+        LLMessageSystem* msg = gMessageSystem;
+        msg->newMessageFast(_PREHASH_LogoutRequest);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        gAgent.sendReliableMessage();
+
+        LL_INFOS("Agent") << "Logging out as agent: " << gAgent.getID() << " Session: " << gAgent.getSessionID() << LL_ENDL;
+
+        gLogoutTimer.reset();
+        gLogoutMaxTime = LOGOUT_REQUEST_TIME;
+        mLogoutRequestSent = true;
+    }
+}
+
 void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 {
     if (!regionp || !regionp->capabilitiesReceived())
@@ -5926,100 +5963,21 @@ void LLAppViewer::initDiscordSocial()
     gDiscordPartyMaxSize = 0;
     gDiscordTimestampsStart = time(nullptr);
     gDiscordClient = std::make_shared<discordpp::Client>();
-    gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
-        if (status == discordpp::Client::Status::Ready)
-        {
-            updateDiscordActivity();
-        }
-    });
-    if (gSavedSettings.getBOOL("EnableDiscord"))
-    {
-        auto credential = gSecAPIHandler->loadCredential("Discord");
-        if (credential.notNull())
-        {
-            gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
-                if (result.Successful())
-                    gDiscordClient->Connect();
-                else
-                    LL_WARNS("Discord") << result.Error() << LL_ENDL;
-            });
-        }
-        else
-        {
-            LL_WARNS("Discord") << "Integration was enabled, but no credentials. Disabling integration." << LL_ENDL;
-            gSavedSettings.setBOOL("EnableDiscord", false);
-        }
-    }
-}
-
-void LLAppViewer::toggleDiscordIntegration(const LLSD& value)
-{
-    static const uint64_t APPLICATION_ID = 1394782217405862001;
-    if (value.asBoolean())
-    {
-        discordpp::AuthorizationArgs args{};
-        args.SetClientId(APPLICATION_ID);
-        args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
-        auto codeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
-        args.SetCodeChallenge(codeVerifier.Challenge());
-        gDiscordClient->Authorize(args, [codeVerifier](auto result, auto code, auto redirectUri) {
-            if (result.Successful())
-            {
-                gDiscordClient->GetToken(APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
-                    if (result.Successful())
-                    {
-                        gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [accessToken](discordpp::ClientResult result) {
-                            if (result.Successful())
-                            {
-                                LLSD authenticator = LLSD::emptyMap();
-                                authenticator["token"] = accessToken;
-                                gSecAPIHandler->saveCredential(gSecAPIHandler->createCredential("Discord", LLSD::emptyMap(), authenticator), true);
-                                gDiscordClient->Connect();
-                            }
-                            else
-                            {
-                                LL_WARNS("Discord") << result.Error() << LL_ENDL;
-                            }
-                        });
-                    }
-                    else
-                    {
-                        LL_WARNS("Discord") << result.Error() << LL_ENDL;
-                    }
-                });
-            }
-            else
-            {
-                LL_WARNS("Discord") << result.Error() << LL_ENDL;
-                gSavedSettings.setBOOL("EnableDiscord", false);
-            }
-        });
-    }
-    else
-    {
-        gDiscordClient->Disconnect();
-        auto credential = gSecAPIHandler->loadCredential("Discord");
-        if (credential.notNull())
-        {
-            gDiscordClient->RevokeToken(APPLICATION_ID, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
-                if (result.Successful())
-                    LL_INFOS("Discord") << "Access token successfully revoked." << LL_ENDL;
-                else
-                    LL_WARNS("Discord") << "No access token to revoke." << LL_ENDL;
-            });
-            auto cred = new LLCredential("Discord");
-            gSecAPIHandler->deleteCredential(cred);
-        }
-        else
-        {
-            LL_WARNS("Discord") << "Credentials are already nonexistent." << LL_ENDL;
-        }
-    }
+    gDiscordClient->SetApplicationId(1394782217405862001);
+    updateDiscordActivity();
 }
 
 void LLAppViewer::updateDiscordActivity()
 {
     LL_PROFILE_ZONE_SCOPED;
+
+    static LLCachedControl<bool> integration_enabled(gSavedSettings, "EnableDiscord", true);
+    if (!integration_enabled)
+    {
+        gDiscordClient->ClearRichPresence();
+        return;
+    }
+
     discordpp::Activity activity;
     activity.SetType(discordpp::ActivityTypes::Playing);
     discordpp::ActivityTimestamps timestamps;
@@ -6047,37 +6005,39 @@ void LLAppViewer::updateDiscordActivity()
         activity.SetDetails(gDiscordActivityDetails);
     }
 
+    auto agent_pos_region = gAgent.getPositionAgent();
+    S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
+    S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
+    S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
+    F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
+    const F32 FLY_CUTOFF = 6.f;
+    const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
+    const F32 WALK_CUTOFF = 1.5f;
+    const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
+    if (velocity_mag_sq > FLY_CUTOFF_SQ)
+    {
+        pos_x -= pos_x % 4;
+        pos_y -= pos_y % 4;
+    }
+    else if (velocity_mag_sq > WALK_CUTOFF_SQ)
+    {
+        pos_x -= pos_x % 2;
+        pos_y -= pos_y % 2;
+    }
+
+    std::string location = "Hidden Region";
     static LLCachedControl<bool> show_state(gSavedSettings, "ShowDiscordActivityState", false);
     if (show_state)
     {
-        auto agent_pos_region = gAgent.getPositionAgent();
-        S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
-        S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
-        S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
-        F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
-        const F32 FLY_CUTOFF = 6.f;
-        const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
-        const F32 WALK_CUTOFF = 1.5f;
-        const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
-        if (velocity_mag_sq > FLY_CUTOFF_SQ)
-        {
-            pos_x -= pos_x % 4;
-            pos_y -= pos_y % 4;
-        }
-        else if (velocity_mag_sq > WALK_CUTOFF_SQ)
-        {
-            pos_x -= pos_x % 2;
-            pos_y -= pos_y % 2;
-        }
-        auto location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
-        activity.SetState(location);
-
-        discordpp::ActivityParty party;
-        party.SetId(location);
-        party.SetCurrentSize(gDiscordPartyCurrentSize);
-        party.SetMaxSize(gDiscordPartyMaxSize);
-        activity.SetParty(party);
+        location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
     }
+    activity.SetState(location);
+
+    discordpp::ActivityParty party;
+    party.SetId(location);
+    party.SetCurrentSize(gDiscordPartyCurrentSize);
+    party.SetMaxSize(gDiscordPartyMaxSize);
+    activity.SetParty(party);
 
     gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
 }

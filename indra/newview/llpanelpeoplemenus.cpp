@@ -354,7 +354,10 @@ void PeopleContextMenu::eject()
             avatar = (LLVOAvatar*) object;
         }
     }
-    if (!avatar) return;
+
+    if (!avatar)
+        return;
+
     LLSD payload;
     payload["avatar_id"] = avatar->getID();
     std::string fullname = avatar->getFullname();
