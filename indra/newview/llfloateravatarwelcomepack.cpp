@@ -1,7 +1,7 @@
 /**
- * @file llfloateravatar.h
- * @author Leyla Farazha
- * @brief floater for the avatar changer
+ * @file llfloateravatarwelcomepack.cpp
+ * @author Callum Prentice (callum@lindenlab.com)
+ * @brief Floater container for the Avatar Welcome Pack we app
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,17 +27,16 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloateravatar.h"
+#include "llfloateravatarwelcomepack.h"
 #include "lluictrlfactory.h"
 #include "llmediactrl.h"
 
-
-LLFloaterAvatar::LLFloaterAvatar(const LLSD& key)
+LLFloaterAvatarWelcomePack::LLFloaterAvatarWelcomePack(const LLSD& key)
     :   LLFloater(key)
 {
 }
 
-LLFloaterAvatar::~LLFloaterAvatar()
+LLFloaterAvatarWelcomePack::~LLFloaterAvatarWelcomePack()
 {
     if (mAvatarPicker)
     {
@@ -47,15 +46,13 @@ LLFloaterAvatar::~LLFloaterAvatar()
     }
 }
 
-bool LLFloaterAvatar::postBuild()
+bool LLFloaterAvatarWelcomePack::postBuild()
 {
     mAvatarPicker = findChild<LLMediaCtrl>("avatar_picker_contents");
     if (mAvatarPicker)
     {
         mAvatarPicker->clearCache();
     }
-    enableResizeCtrls(true, true, false);
+
     return true;
 }
-
-

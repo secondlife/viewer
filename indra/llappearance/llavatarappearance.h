@@ -34,6 +34,7 @@
 #include "lltexlayer.h"
 #include "llviewervisualparam.h"
 #include "llxmltree.h"
+#include "v4math.h"
 
 class LLTexLayerSet;
 class LLTexGlobalColor;
@@ -41,6 +42,7 @@ class LLTexGlobalColorInfo;
 class LLWearableData;
 class LLAvatarBoneInfo;
 class LLAvatarSkeletonInfo;
+class LLJointData;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLAvatarAppearance
@@ -138,7 +140,7 @@ public:
     LLVector3           mHeadOffset{}; // current head position
     LLAvatarJoint*      mRoot{ nullptr };
 
-    typedef std::map<std::string, LLJoint*> joint_map_t;
+    typedef std::map<std::string, LLJoint*, std::less<>> joint_map_t;
     joint_map_t         mJointMap;
 
     typedef std::map<std::string, LLVector3> joint_state_map_t;
@@ -151,9 +153,11 @@ public:
 public:
     typedef std::vector<LLAvatarJoint*> avatar_joint_list_t;
     const avatar_joint_list_t& getSkeleton() { return mSkeleton; }
-    typedef std::map<std::string, std::string> joint_alias_map_t;
+    typedef std::map<std::string, std::string, std::less<>> joint_alias_map_t;
     const joint_alias_map_t& getJointAliases();
-
+    typedef std::map<std::string, std::string> joint_parent_map_t; // matrix plus parent
+    typedef std::map<std::string, glm::mat4> joint_rest_map_t;
+    void getJointMatricesAndHierarhy(std::vector<LLJointData> &data) const;
 
 protected:
     static bool         parseSkeletonFile(const std::string& filename, LLXmlTree& skeleton_xml_tree);

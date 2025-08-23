@@ -110,9 +110,10 @@ std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
 
     std::vector<std::string> v;
 
-    if (exists(p))
+    boost::system::error_code ec;
+    if (exists(p, ec) && !ec.failed())
     {
-        if (is_directory(p))
+        if (is_directory(p, ec) && !ec.failed())
         {
             boost::filesystem::directory_iterator end_iter;
             for (boost::filesystem::directory_iterator dir_itr(p);

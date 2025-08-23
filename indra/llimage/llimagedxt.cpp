@@ -329,6 +329,12 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
 {
     llassert_always(raw_image);
 
+    if (raw_image->isBufferInvalid())
+    {
+        setLastError("Invalid input, no buffer");
+        return false;
+    }
+
     S32 ncomponents = raw_image->getComponents();
     EFileFormat format;
     switch (ncomponents)

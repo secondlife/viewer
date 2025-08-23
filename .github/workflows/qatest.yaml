@@ -1,70 +1,198 @@
-name: Run QA Test # Runs automated tests on a self-hosted QA machine
+name: Run QA Test # Runs automated tests on self-hosted QA machines
+
 permissions:
   contents: read
-  #pull-requests: write # maybe need to re-add this later
 
 on:
   workflow_run:
     workflows: ["Build"]
     types:
       - completed
-
-concurrency:
-  group: qa-test-run
-  cancel-in-progress: true  # Cancels any queued job when a new one starts
+  workflow_dispatch:
+    inputs:
+      build_id:
+        description: 'Build workflow run ID (e.g. For github.com/secondlife/viewer/actions/runs/1234567890 the ID is 1234567890)'
+        required: true
+        default: '14806728332'
 
 jobs:
   debug-workflow:
     runs-on: ubuntu-latest
     steps:
       - name: Debug Workflow Variables
-        env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          HEAD_COMMIT_MSG: ${{ github.event.workflow_run.head_commit.message }}
         run: |
           echo "Workflow Conclusion: ${{ github.event.workflow_run.conclusion }}"
-          echo "Workflow Head Branch: $HEAD_BRANCH"
+          echo "Workflow Head Branch: ${{ github.event.workflow_run.head_branch }}"
           echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
-          echo "Head Commit Message: $HEAD_COMMIT_MSG"
+          echo "Head Commit Message: ${{ github.event.workflow_run.head_commit.message }}"
           echo "GitHub Ref: ${{ github.ref }}"
           echo "GitHub Ref Name: ${{ github.ref_name }}"
           echo "GitHub Event Name: ${{ github.event_name }}"
           echo "GitHub Workflow Name: ${{ github.workflow }}"
 
   install-viewer-and-run-tests:
-    runs-on: [self-hosted, qa-machine]
-    # Run test only on successful builds of Second_Life_X branches
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.runner }}
+      cancel-in-progress: false # Prevents cancellation of in-progress jobs
+
+    strategy:
+      matrix:
+        include:
+          - os: windows
+            runner: qa-windows-atlas
+            artifact: Windows-installer
+            install-path: 'C:\viewer-automation-main'
+          - os: windows
+            runner: qa-dan-asus
+            artifact: Windows-installer
+            install-path: 'C:\viewer-automation-main'
+          - os: mac
+            runner: qa-mac-atlas
+            artifact: macOS-installer
+            install-path: '$HOME/Documents/viewer-automation'
+      fail-fast: false
+
+    runs-on: [self-hosted, "${{ matrix.runner }}"]
+    # Run test only on successful builds of Second_Life_X branches or on manual dispatch
     if: >
+      (github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
-      (
-        startsWith(github.event.workflow_run.head_branch, 'Second_Life')
-      )
+      startsWith(github.event.workflow_run.head_branch, 'Second_Life')) ||
+      github.event_name == 'workflow_dispatch'
 
     steps:
-      - name: Temporarily Allow PowerShell Scripts (Process Scope)
+      # Windows-specific steps
+      - name: Set Build ID
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            echo "BUILD_ID=${{ github.event.inputs.build_id }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            echo "BUILD_ID=${{ github.event.workflow_run.id }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
+
+      - name: Temporarily Allow PowerShell Scripts (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 
-      - name: Verify viewer-sikulix-main Exists
-        run: |
-          if (-Not (Test-Path -Path 'C:\viewer-sikulix-main')) {
-            Write-Host '❌ Error: viewer-sikulix not found on runner!'
-            exit 1
-          }
-          Write-Host '✅ viewer-sikulix is already available.'
-
-      - name: Fetch & Download Windows Installer Artifact
+      - name: Verify viewer-automation-main Exists (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
-          $BUILD_ID = "${{ github.event.workflow_run.id }}"
-          $ARTIFACTS_URL = "https://api.github.com/repos/secondlife/viewer/actions/runs/$BUILD_ID/artifacts"
+          if (-Not (Test-Path -Path '${{ matrix.install-path }}')) {
+            Write-Host '❌ Error: viewer-automation folder not found on runner!'
+            exit 1
+          }
+          Write-Host '✅ viewer-automation folder is provided.'
+
+      - name: Verify viewer-automation-main is Up-To-Date (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          cd ${{ matrix.install-path }}
+          Write-Host "Checking for repository updates..."
+
+          # Check if .git directory exists
+          if (Test-Path -Path ".git") {
+            try {
+              # Save local changes instead of discarding them
+              git stash push -m "Automated stash before update $(Get-Date)"
+              Write-Host "Local changes saved (if any)"
+
+              # Update the repository
+              git pull
+              Write-Host "✅ Repository updated successfully"
+
+              # Try to restore local changes if any were stashed
+              $stashList = git stash list
+              if ($stashList -match "Automated stash before update") {
+                try {
+                  git stash pop
+                  Write-Host "✅ Local changes restored successfully"
+                } catch {
+                  Write-Host "⚠️ Conflict when restoring local changes"
+                  # Save the conflicted state in a new branch for later review
+                  $branchName = "conflict-recovery-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+                  git checkout -b $branchName
+                  Write-Host "✅ Created branch '$branchName' with conflicted state"
+
+                  # For test execution, revert to a clean state
+                  git reset --hard HEAD
+                  Write-Host "✅ Reset to clean state for test execution"
+                }
+              }
+            } catch {
+              Write-Host "⚠️ Could not update repository: $_"
+              Write-Host "Continuing with existing files..."
+            }
+          } else {
+            Write-Host "⚠️ Not a Git repository, using existing files"
+          }
+
+      - name: Verify Python Installation (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          try {
+            $pythonVersion = (python --version)
+            Write-Host "✅ Python found: $pythonVersion"
+          } catch {
+            Write-Host "❌ Error: Python not found in PATH. Please install Python on this runner."
+            exit 1
+          }
+
+      - name: Setup Python Virtual Environment (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+          cd ${{ matrix.install-path }}
+
+          if (-Not (Test-Path -Path ".venv")) {
+            Write-Host "Creating virtual environment..."
+            python -m venv .venv
+          } else {
+            Write-Host "Using existing virtual environment"
+          }
+
+          # Direct environment activation to avoid script execution issues
+          $env:VIRTUAL_ENV = "$PWD\.venv"
+          $env:PATH = "$env:VIRTUAL_ENV\Scripts;$env:PATH"
+
+          # Install dependencies
+          if (Test-Path -Path "requirements.txt") {
+            Write-Host "Installing dependencies from requirements.txt..."
+            pip install -r requirements.txt
+
+            # Install Playwright browsers - add this line
+            Write-Host "Installing Playwright browsers..."
+            python -m playwright install
+          } else {
+            pip install outleap requests behave playwright
+            # Install Playwright browsers - add this line
+            Write-Host "Installing Playwright browsers..."
+            python -m playwright install
+          }
+
+      - name: Fetch & Download Installer Artifact (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          $BUILD_ID = "${{ env.BUILD_ID }}"
+          $ARTIFACTS_URL = "${{ env.ARTIFACTS_URL }}"
 
           # Fetch the correct artifact URL
           $response = Invoke-RestMethod -Headers @{Authorization="token ${{ secrets.GITHUB_TOKEN }}" } -Uri $ARTIFACTS_URL
-          $ARTIFACT_NAME = ($response.artifacts | Where-Object { $_.name -eq "Windows-installer" }).archive_download_url
+          $ARTIFACT_NAME = ($response.artifacts | Where-Object { $_.name -eq "${{ matrix.artifact }}" }).archive_download_url
 
           if (-Not $ARTIFACT_NAME) {
-            Write-Host "❌ Error: Windows-installer artifact not found!"
+            Write-Host "❌ Error: ${{ matrix.artifact }} artifact not found!"
             exit 1
           }
 
@@ -80,16 +208,19 @@ jobs:
 
           # Ensure download succeeded
           if (-Not (Test-Path $InstallerPath)) {
-            Write-Host "❌ Error: Failed to download Windows-installer.zip"
+            Write-Host "❌ Error: Failed to download ${{ matrix.artifact }}.zip"
             exit 1
           }
 
-      - name: Extract Installer & Locate Executable
+          # Set the path for other steps
+          echo "DOWNLOAD_PATH=$DownloadPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Extract Installer & Locate Executable (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
-          # Explicitly set BUILD_ID again (since it does not appear to persist across steps)
-          $BUILD_ID = "${{ github.event.workflow_run.id }}"
-          $ExtractPath = "$env:TEMP\secondlife-build-$BUILD_ID"
+          $BUILD_ID = "${{ env.BUILD_ID }}"
+          $ExtractPath = "${{ env.DOWNLOAD_PATH }}"
           $InstallerZip = "$ExtractPath\installer.zip"
 
           # Print paths for debugging
@@ -119,16 +250,19 @@ jobs:
           Write-Host "✅ Installer found: $INSTALLER_PATH"
           echo "INSTALLER_PATH=$INSTALLER_PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Install Second Life Using Task Scheduler (Bypass UAC)
+      - name: Install Second Life (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
+          # Windows - Use Task Scheduler to bypass UAC
           $action = New-ScheduledTaskAction -Execute "${{ env.INSTALLER_PATH }}" -Argument "/S"
           $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
           $task = New-ScheduledTask -Action $action -Principal $principal
           Register-ScheduledTask -TaskName "SilentSLInstaller" -InputObject $task -Force
           Start-ScheduledTask -TaskName "SilentSLInstaller"
 
-      - name: Wait for Installation to Complete
+      - name: Wait for Installation to Complete (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
           Write-Host "Waiting for the Second Life installer to finish..."
@@ -139,18 +273,16 @@ jobs:
 
           Write-Host "✅ Installation completed!"
 
-      - name: Cleanup Task Scheduler Entry
+      - name: Cleanup After Installation (Windows)
+        if: matrix.os == 'windows'
         shell: pwsh
         run: |
+          # Cleanup Task Scheduler Entry
           Unregister-ScheduledTask -TaskName "SilentSLInstaller" -Confirm:$false
           Write-Host "✅ Task Scheduler entry removed."
 
-      - name: Delete Installer ZIP
-        shell: pwsh
-        run: |
-          # Explicitly set BUILD_ID again
-          $BUILD_ID = "${{ github.event.workflow_run.id }}"
-          $DeletePath = "$env:TEMP\secondlife-build-$BUILD_ID\installer.zip"
+          # Delete Installer ZIP
+          $DeletePath = "${{ env.DOWNLOAD_PATH }}\installer.zip"
 
           Write-Host "Checking if installer ZIP exists: $DeletePath"
 
@@ -162,13 +294,305 @@ jobs:
               Write-Host "⚠️ Warning: ZIP file does not exist, skipping deletion."
           }
 
-      - name: Run QA Test Script
+      - name: Run QA Test Script (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
         run: |
-          Write-Host "Running QA Test script..."
-          python C:\viewer-sikulix-main\runTests.py
+          Write-Host "Running QA Test script on Windows runner: ${{ matrix.runner }}..."
+          cd ${{ matrix.install-path }}
+
+          # Activate virtual environment
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+          $env:VIRTUAL_ENV = "$PWD\.venv"
+          $env:PATH = "$env:VIRTUAL_ENV\Scripts;$env:PATH"
+
+          # Set runner name as environment variable
+          $env:RUNNER_NAME = "${{ matrix.runner }}"
+
+          # Run the test script
+          python runTests.py
+
+      # Mac-specific steps
+      - name: Set Build ID (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "BUILD_ID=${{ github.event.inputs.build_id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.inputs.build_id }}/artifacts" >> $GITHUB_ENV
+          else
+            echo "BUILD_ID=${{ github.event.workflow_run.id }}" >> $GITHUB_ENV
+            echo "ARTIFACTS_URL=https://api.github.com/repos/secondlife/viewer/actions/runs/${{ github.event.workflow_run.id }}/artifacts" >> $GITHUB_ENV
+          fi
+
+      - name: Verify viewer-automation-main Exists (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if [ ! -d "${{ matrix.install-path }}" ]; then
+            echo "❌ Error: viewer-automation folder not found on runner!"
+            exit 1
+          fi
+          echo "✅ viewer-automation is provided."
+
+      - name: Verify viewer-automation-main is Up-To-Date (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        continue-on-error: true
+        run: |
+          cd ${{ matrix.install-path }}
+          echo "Checking for repository updates..."
+
+          # Check if .git directory exists
+          if [ -d ".git" ]; then
+            # Save local changes instead of discarding them
+            git stash push -m "Automated stash before update $(date)"
+            echo "Local changes saved (if any)"
+
+            # Update the repository
+            git pull || echo "⚠️ Could not update repository"
+            echo "✅ Repository updated (or attempted update)"
+
+            # Try to restore local changes if any were stashed
+            if git stash list | grep -q "Automated stash before update"; then
+              # Try to pop the stash, but be prepared for conflicts
+              if ! git stash pop; then
+                echo "⚠️ Conflict when restoring local changes"
+                # Save the conflicted state in a new branch for later review
+                branch_name="conflict-recovery-$(date +%Y%m%d-%H%M%S)"
+                git checkout -b "$branch_name"
+                echo "✅ Created branch '$branch_name' with conflicted state"
+
+                # For test execution, revert to a clean state
+                git reset --hard HEAD
+                echo "✅ Reset to clean state for test execution"
+              else
+                echo "✅ Local changes restored successfully"
+              fi
+            fi
+          else
+            echo "⚠️ Not a Git repository, using existing files"
+          fi
+
+      - name: Verify Python Installation (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          if command -v python3 &> /dev/null; then
+            PYTHON_VERSION=$(python3 --version)
+            echo "✅ Python found: $PYTHON_VERSION"
+          else
+            echo "❌ Error: Python3 not found in PATH. Please install Python on this runner."
+            exit 1
+          fi
+
+      - name: Setup Python Virtual Environment (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          cd ${{ matrix.install-path }}
+
+          # Create virtual environment if it doesn't exist
+          if [ ! -d ".venv" ]; then
+            echo "Creating virtual environment..."
+            python3 -m venv .venv
+          else
+            echo "Using existing virtual environment"
+          fi
+
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Install dependencies
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+            echo "✅ Installed dependencies from requirements.txt"
+
+            # Install Playwright browsers - add this line
+            echo "Installing Playwright browsers..."
+            python -m playwright install
+          else
+            pip install outleap requests behave playwright
+            echo "⚠️ requirements.txt not found, installed basic dependencies"
+
+            # Install Playwright browsers - add this line
+            echo "Installing Playwright browsers..."
+            python -m playwright install
+          fi
+
+      - name: Fetch & Download Installer Artifact (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          # Mac-specific Bash commands
+          response=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -s ${{ env.ARTIFACTS_URL }})
+          ARTIFACT_NAME=$(echo $response | jq -r '.artifacts[] | select(.name=="${{ matrix.artifact }}") | .archive_download_url')
+
+          if [ -z "$ARTIFACT_NAME" ]; then
+            echo "❌ Error: ${{ matrix.artifact }} artifact not found!"
+            exit 1
+          fi
+
+          echo "✅ Artifact found: $ARTIFACT_NAME"
+
+          # Secure download path
+          DOWNLOAD_PATH="/tmp/secondlife-build-${{ env.BUILD_ID }}"
+          mkdir -p $DOWNLOAD_PATH
+          INSTALLER_PATH="$DOWNLOAD_PATH/installer.zip"
+
+          # Download the ZIP
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L $ARTIFACT_NAME -o $INSTALLER_PATH
+
+          # Ensure download succeeded
+          if [ ! -f "$INSTALLER_PATH" ]; then
+            echo "❌ Error: Failed to download ${{ matrix.artifact }}.zip"
+            exit 1
+          fi
+
+          # Set the path for other steps
+          echo "DOWNLOAD_PATH=$DOWNLOAD_PATH" >> $GITHUB_ENV
+
+      - name: Extract Installer & Locate Executable (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          EXTRACT_PATH="${{ env.DOWNLOAD_PATH }}"
+          INSTALLER_ZIP="$EXTRACT_PATH/installer.zip"
+
+          # Debug output
+          echo "Extract Path: $EXTRACT_PATH"
+          echo "Installer ZIP Path: $INSTALLER_ZIP"
+
+          # Verify ZIP exists
+          if [ ! -f "$INSTALLER_ZIP" ]; then
+            echo "❌ Error: ZIP file not found at $INSTALLER_ZIP!"
+            exit 1
+          fi
+
+          echo "✅ ZIP file exists and is valid. Extracting..."
+
+          # Extract the ZIP
+          unzip -o "$INSTALLER_ZIP" -d "$EXTRACT_PATH"
+
+          # Find DMG file
+          INSTALLER_PATH=$(find "$EXTRACT_PATH" -name "*.dmg" -type f | head -1)
+
+          if [ -z "$INSTALLER_PATH" ]; then
+            echo "❌ Error: No installer DMG found in the extracted files!"
+            echo "📂 Extracted Files:"
+            ls -la "$EXTRACT_PATH"
+            exit 1
+          fi
+
+          echo "✅ Installer found: $INSTALLER_PATH"
+          echo "INSTALLER_PATH=$INSTALLER_PATH" >> $GITHUB_ENV
+
+      - name: Install Second Life (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          # Mac installation
+          echo "Mounting DMG installer..."
+          MOUNT_POINT="/tmp/secondlife-dmg"
+          mkdir -p "$MOUNT_POINT"
+
+          # Mount the DMG
+          hdiutil attach "$INSTALLER_PATH" -mountpoint "$MOUNT_POINT" -nobrowse
+
+          echo "✅ DMG mounted at $MOUNT_POINT"
+
+          echo "Installing application to default location from DMG..."
+
+          # Find the .app bundle in the DMG
+          APP_PATH=$(find "$MOUNT_POINT" -name "*.app" -type d | head -1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ Error: No .app bundle found in the mounted DMG!"
+            exit 1
+          fi
+
+          APP_NAME=$(basename "$APP_PATH")
+          DEST_PATH="/Applications/$APP_NAME"
+
+          # Handle existing installation
+          if [ -d "$DEST_PATH" ]; then
+            echo "Found existing installation at: $DEST_PATH"
+            echo "Moving existing installation to trash..."
+
+            # Move to trash instead of force removing
+            TRASH_PATH="$HOME/.Trash/$(date +%Y%m%d_%H%M%S)_$APP_NAME"
+            mv "$DEST_PATH" "$TRASH_PATH" || {
+              echo "⚠️ Could not move to trash, trying direct removal..."
+              rm -rf "$DEST_PATH" || {
+                echo "❌ Could not remove existing installation"
+                echo "Please manually remove: $DEST_PATH"
+                exit 1
+              }
+            }
+
+            echo "✅ Existing installation handled successfully"
+          fi
+
+          # Copy the .app to /Applications
+          echo "Copying app from: $APP_PATH"
+          echo "To destination: /Applications/"
+          cp -R "$APP_PATH" /Applications/
+
+          # Verify the app was copied successfully
+          if [ ! -d "$DEST_PATH" ]; then
+            echo "❌ Error: Failed to install application to /Applications!"
+            exit 1
+          fi
+
+          echo "✅ Application installed successfully to /Applications"
+
+          # Save mount point for cleanup
+          echo "MOUNT_POINT=$MOUNT_POINT" >> $GITHUB_ENV
+
+      - name: Wait for Installation to Complete (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          echo "Waiting for installation to complete..."
+          # Sleep to allow installation to finish (adjust as needed)
+          sleep 30
+          echo "✅ Installation completed"
+
+      - name: Cleanup After Installation (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          # Mac cleanup
+          # Unmount the DMG
+          echo "Unmounting DMG..."
+          hdiutil detach "${{ env.MOUNT_POINT }}" -force
+
+          # Clean up temporary files
+          echo "Cleaning up temporary files..."
+          rm -rf "${{ env.DOWNLOAD_PATH }}"
+          rm -rf "${{ env.MOUNT_POINT }}"
+
+          echo "✅ Cleanup completed"
+
+      - name: Run QA Test Script (Mac)
+        if: matrix.os == 'mac'
+        shell: bash
+        run: |
+          echo "Running QA Test script on Mac runner: ${{ matrix.runner }}..."
+          cd ${{ matrix.install-path }}
+
+          # Activate virtual environment
+          source .venv/bin/activate
+
+          # Set runner name as environment variable
+          export RUNNER_NAME="${{ matrix.runner }}"
+
+          # Run the test script
+          python runTests.py
 
       # - name: Upload Test Results
-      #   uses: actions/upload-artifact@v3
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
       #   with:
-      #     name: test-results
-      #     path: C:\viewer-sikulix-main\regressionTest\test_results.html
+      #     name: test-results-${{ matrix.runner }}
+      #     path: ${{ matrix.install-path }}/regressionTest/test_results.html
