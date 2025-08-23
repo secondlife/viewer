@@ -36,68 +36,10 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <thread>
+#include <atomic>
 
 #include <websocketpp/common/connection_hdl.hpp>
-
-#if 0
-// Forward declarations
-namespace websocketpp {
-    namespace config {
-        struct asio_client;
-        struct asio;
-    }
-    template <typename config>
-    class client;
-    template <typename config>
-    class server;
-    class connection_hdl;
-}
-
-namespace LLCore {
-    namespace WebSocket {
-
-        /// WebSocket connection state enumeration
-        enum class ConnectionState
-        {
-            DISCONNECTED,
-            CONNECTING,
-            CONNECTED,
-            DISCONNECTING,
-            FAILED
-        };
-
-        /// WebSocket message types
-        enum class MessageType
-        {
-            TEXT,
-            BINARY
-        };
-
-        /// WebSocket event types for callbacks
-        enum class EventType
-        {
-            OPEN,
-            CLOSE,
-            MESSAGE,
-            ERROR
-        };
-
-        /// Forward declarations for internal classes
-        class WSConnection;
-        class WSServer;
-
-        /// Callback function types
-        using EventCallback = std::function<void(EventType event, const LLUUID& connection_id, const LLSD& data)>;
-        using MessageCallback = std::function<void(const LLUUID& connection_id, const std::string& message, MessageType type)>;
-
-        /// WebSocket connection handle type
-        using ConnectionHandle = LLUUID;
-        using ServerHandle = LLUUID;
-
-    } // namespace WebSocket
-} // namespace LLCore
-#endif
-
 
 struct Server_impl;
 
@@ -126,6 +68,12 @@ public:
 
     public:
         using ptr_t = std::shared_ptr<WSConnection>;
+
+        /**
+         * @brief Constructor for WSConnection
+         * @param server Shared pointer to the parent WSServer
+         * @param handle WebSocket connection handle from websocketpp
+         */
         WSConnection(const std::shared_ptr<WSServer> &server, const connection_h& handle):
             mConnectionHandle(handle),
             mServer(server)
@@ -133,17 +81,169 @@ public:
 
         virtual ~WSConnection() = default;
 
+        /**
+         * @brief Called when the connection is opened
+         *
+         * Override this method in derived classes to handle connection establishment.
+         * This is called after the WebSocket handshake is complete and the connection
+         * is ready to send/receive messages.
+         */
         virtual void onOpen() {}
+
+        /**
+         * @brief Called when the connection is closed
+         *
+         * Override this method in derived classes to handle connection closure.
+         * This is called when the connection has been terminated, either normally
+         * or due to an error condition.
+         */
         virtual void onClose() {}
+
+        /**
+         * @brief Called when a message is received
+         * @param message The received message as a string
+         *
+         * Override this method in derived classes to handle incoming messages.
+         * Currently only text messages are supported.
+         *
+         * @code
+         * class MyConnection : public LLWebsocketMgr::WSConnection
+         * {
+         * public:
+         *     void onMessage(const std::string& message) override
+         *     {
+         *         // Parse and handle the message
+         *         if (message == "ping") {
+         *             sendMessage("pong");
+         *         }
+         *         // Process JSON messages
+         *         try {
+         *             LLSD data = LLSDSerialize::fromJSON(message);
+         *             handleStructuredMessage(data);
+         *         } catch (...) {
+         *             LL_WARNS("MyConnection") << "Invalid JSON received" << LL_ENDL;
+         *         }
+         *     }
+         * };
+         * @endcode
+         */
         virtual void onMessage(const std::string& message) {}
 
-        bool         sendMessage(const std::string& message);
+        /**
+         * @brief Send a message to the connected client
+         * @param message The message string to send
+         * @return true if the message was queued successfully, false on error
+         *
+         * Sends a text message to the remote endpoint. The message is queued
+         * asynchronously and may not be sent immediately.
+         *
+         * @code
+         * // Send a simple text message
+         * connection->sendMessage("Hello, client!");
+         *
+         * // Send JSON data
+         * LLSD response;
+         * response["status"] = "ok";
+         * response["data"] = "some data";
+         * connection->sendMessage(LLSDSerialize::toJSON(response));
+         * @endcode
+         */
+        bool sendMessage(const std::string& message);
+
+        /**
+         * @brief Close the WebSocket connection gracefully
+         * @param code Optional close code (default: normal closure)
+         * @param reason Optional reason string (default: empty)
+         *
+         * Initiates a graceful WebSocket close handshake. The connection will
+         * send a close frame with the specified code and reason, then wait for
+         * the remote endpoint to respond with its own close frame before
+         * actually closing the underlying TCP connection.
+         *
+         * Common close codes:
+         * - 1000: Normal closure (default)
+         * - 1001: Going away (server shutting down, page navigating away)
+         * - 1002: Protocol error
+         * - 1003: Unsupported data type
+         * - 1008: Policy violation
+         * - 1009: Message too big
+         *
+         * @code
+         * // Normal closure
+         * connection->closeConnection();
+         *
+         * // Close with specific reason
+         * connection->closeConnection(1000, "Session ended");
+         *
+         * // Close due to policy violation
+         * connection->closeConnection(1008, "Authentication failed");
+         * @endcode
+         *
+         * @note After calling this method, no further messages should be sent
+         * @note The onClose() callback will be invoked when the close handshake completes
+         */
+        void closeConnection(U16 code = 1000, const std::string& reason = std::string());
 
     private:
         connection_h mConnectionHandle;
         std::shared_ptr<WSServer> mServer; // Back-reference to the server this connection belongs to
     };
 
+    /**
+     * @class WSServer
+     * @brief Base class for WebSocket servers with customizable connection handling
+     *
+     * WSServer provides a high-level abstraction over websocketpp servers, handling
+     * threading, connection management, and event dispatching. Derive from this class
+     * to create custom WebSocket servers with application-specific logic.
+     *
+     * ## Basic Usage
+     *
+     * @code
+     * class MyServer : public LLWebsocketMgr::WSServer
+     * {
+     * public:
+     *     MyServer(const std::string& name, U16 port)
+     *         : WSServer(name, port, false) // Listen on all interfaces
+     *     {}
+     *
+     *     void onConnectionOpened(const WSConnection::ptr_t& connection) override
+     *     {
+     *         LL_INFOS("MyServer") << "New client connected" << LL_ENDL;
+     *         // Send welcome message
+     *         connection->sendMessage("Welcome to the server!");
+     *     }
+     *
+     *     void onConnectionClosed(const WSConnection::ptr_t& connection) override
+     *     {
+     *         LL_INFOS("MyServer") << "Client disconnected" << LL_ENDL;
+     *     }
+     *
+     * protected:
+     *     // Use custom connection class
+     *     WSConnection::ptr_t connectionFactory(WSServer::ptr_t server, connection_h handle) override
+     *     {
+     *         return std::make_shared<MyConnection>(server, handle);
+     *     }
+     * };
+     * @endcode
+     *
+     * ## Connection Management
+     *
+     * The server automatically manages connection lifetimes and provides several ways
+     * to interact with connections:
+     *
+     * - `broadcastMessage()` - Send message to all connected clients
+     * - `sendMessageTo()` - Send message to specific connection
+     * - `closeConnection()` - Close specific connection with code/reason
+     * - `getConnection()` - Get connection object by handle
+     *
+     * ## Thread Safety
+     *
+     * All public methods are thread-safe and can be called from any thread. The server
+     * runs its own background thread for handling WebSocket events, while connection
+     * callbacks are also executed on this background thread.
+     */
     class WSServer: public std::enable_shared_from_this<WSServer>
     {
         friend struct Server_impl;
@@ -154,7 +254,7 @@ public:
         using ptr_t = std::shared_ptr<WSServer>;
 
         WSServer(std::string_view name, U16 port, bool local_only = true);
-        virtual ~WSServer() = default;
+        virtual ~WSServer();
 
         virtual void    onConnectionOpened(const WSConnection::ptr_t& connection) { }
         virtual void    onConnectionClosed(const WSConnection::ptr_t& connection) { }
@@ -170,6 +270,18 @@ public:
 
         bool            sendMessageTo(const connection_h& handle, const std::string& message);
 
+        /**
+         * @brief Close a specific connection gracefully
+         * @param handle The connection handle to close
+         * @param code Close code (default: normal closure)
+         * @param reason Close reason string (default: empty)
+         * @return true if close was initiated successfully, false on error
+         *
+         * Internal method used by WSConnection to close individual connections.
+         * This method is thread-safe and can be called from any thread.
+         */
+        bool            closeConnection(const connection_h& handle, U16 code = 1000, const std::string& reason = std::string());
+
     private:
         using connection_map_t = std::map<connection_h, WSConnection::ptr_t, std::owner_less<connection_h> >;
 
@@ -183,6 +295,11 @@ public:
         std::unique_ptr<Server_impl> mImpl;
         connection_map_t             mConnections;
         LLMutex                      mConnectionMutex;
+
+        // Threading support
+        std::thread                  mServerThread;        ///< Thread running the ASIO event loop
+        std::atomic<bool>            mShouldStop{ false }; ///< Thread-safe stop flag
+        mutable LLMutex              mThreadMutex;         ///< Mutex for thread synchronization
     };
 
     // Server and Connection Management
