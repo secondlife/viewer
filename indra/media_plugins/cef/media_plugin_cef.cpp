@@ -110,8 +110,6 @@ private:
     bool mCanCopy;
     bool mCanPaste;
     std::string mRootCachePath;
-    std::string mCachePath;
-    std::string mContextCachePath;
     std::string mCefLogFile;
     bool mCefLogVerbose;
     std::vector<std::string> mPickedFiles;
@@ -149,7 +147,6 @@ MediaPluginBase(host_send_func, host_user_data)
     mCanCut = false;
     mCanCopy = false;
     mCanPaste = false;
-    mCachePath = "";
     mCefLogFile = "";
     mCefLogVerbose = false;
     mPickedFiles.clear();
@@ -649,10 +646,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // and set it to white
                 settings.background_color = 0xffffffff; // white
 
-                settings.cache_enabled = true;
                 settings.root_cache_path = mRootCachePath;
-                settings.cache_path = mCachePath;
-                settings.context_cache_path = mContextCachePath;
                 settings.cookies_enabled = mCookiesEnabled;
 
                 // configure proxy argument if enabled and valid
@@ -768,15 +762,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 mRootCachePath += std::to_string(getpid());
 # endif
 
-                if (!subfolder.empty())
-                {
-                    mCachePath = mRootCachePath + path_separator + subfolder;
-                }
-                else
-                {
-                    mCachePath = mRootCachePath;
-                }
-                mContextCachePath = ""; // disabled by ""
+
                 mCefLogFile = message_in.getValue("cef_log_file");
                 mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
             }
