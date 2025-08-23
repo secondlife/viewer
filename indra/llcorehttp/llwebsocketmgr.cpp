@@ -592,8 +592,7 @@ void LLWebsocketMgr::WSServer::handleOpenConnection(const connection_h& handle)
         {
             LL_WARNS("WebSocket") << mServerName << " failed to create connection object" << LL_ENDL;
             return;
-        }
-        mConnections[handle] = connection;
+        // Removed redundant assignment to mConnections[handle]
         size = mConnections.size();
     }
 
