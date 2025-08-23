@@ -37,6 +37,7 @@ uniform mat3 env_mat;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
 uniform int classic_mode;
+uniform float alpha_gamma;
 
 #ifdef USE_DIFFUSE_TEX
 uniform sampler2D diffuseMap;
@@ -215,7 +216,7 @@ void main()
     }
 
     color.rgb = diffuse_srgb.rgb;
-    color.a = final_alpha;
+    color.a = pow(final_alpha, alpha_gamma);
 
 #else // FOR_IMPOSTOR
 
@@ -263,7 +264,7 @@ void main()
 
     vec4 color = vec4(0.0);
 
-    color.a   = final_alpha;
+    color.a = pow(final_alpha, alpha_gamma);
 
     color.rgb = irradiance;
     if (classic_mode > 0)
