@@ -63,6 +63,8 @@ public:
     /// if the Url specifies an SL location, show it on a map
     static void showLocationOnMap(std::string url);
 
+    static void showParcelOnMap(std::string url);
+
     /// perform the appropriate action for left-clicking on a Url
     static void clickAction(std::string url, bool trusted_content);
 
@@ -71,6 +73,8 @@ public:
 
     /// copy a Url to the clipboard
     static void copyURLToClipboard(std::string url);
+
+    static std::string getURLLabel(std::string url);
 
     /// if the Url specifies an SL command in the form like 'app/{cmd}/{id}/*', show its profile
     static void showProfile(std::string url);

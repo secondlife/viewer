@@ -37,98 +37,98 @@
 #include "llsettingsdaycycle.h"
 
 // Grid out of which parcels taken is stepped every 4 meters.
-const F32 PARCEL_GRID_STEP_METERS   = 4.f;
+constexpr F32 PARCEL_GRID_STEP_METERS   = 4.f;
 
 // Area of one "square" of parcel
-const S32 PARCEL_UNIT_AREA          = 16;
+constexpr S32 PARCEL_UNIT_AREA          = 16;
 
 // Height _above_ground_ that parcel boundary ends
-const F32 PARCEL_HEIGHT = 50.f;
+constexpr F32 PARCEL_HEIGHT = 50.f;
 
 //Height above ground which parcel boundries exist for explicitly banned avatars
-const F32 BAN_HEIGHT = 5000.f;
+constexpr F32 BAN_HEIGHT = 5000.f;
 
 // Maximum number of entries in an access list
-const S32 PARCEL_MAX_ACCESS_LIST = 300;
+constexpr S32 PARCEL_MAX_ACCESS_LIST = 300;
 //Maximum number of entires in an update packet
 //for access/ban lists.
-const F32 PARCEL_MAX_ENTRIES_PER_PACKET = 48.f;
+constexpr F32 PARCEL_MAX_ENTRIES_PER_PACKET = 48.f;
 
 // Maximum number of experiences
-const S32 PARCEL_MAX_EXPERIENCE_LIST = 24;
+constexpr S32 PARCEL_MAX_EXPERIENCE_LIST = 24;
 
 // Weekly charge for listing a parcel in the directory
-const S32 PARCEL_DIRECTORY_FEE = 30;
+constexpr S32 PARCEL_DIRECTORY_FEE = 30;
 
-const S32 PARCEL_PASS_PRICE_DEFAULT = 10;
-const F32 PARCEL_PASS_HOURS_DEFAULT = 1.f;
+constexpr S32 PARCEL_PASS_PRICE_DEFAULT = 10;
+constexpr F32 PARCEL_PASS_HOURS_DEFAULT = 1.f;
 
 // Number of "chunks" in which parcel overlay data is sent
 // Chunk 0 = southern rows, entire width
-const S32 PARCEL_OVERLAY_CHUNKS = 4;
+constexpr S32 PARCEL_OVERLAY_CHUNKS = 4;
 
 // Bottom three bits are a color index for the land overlay
-const U8 PARCEL_COLOR_MASK  = 0x07;
-const U8 PARCEL_PUBLIC      = 0x00;
-const U8 PARCEL_OWNED       = 0x01;
-const U8 PARCEL_GROUP       = 0x02;
-const U8 PARCEL_SELF        = 0x03;
-const U8 PARCEL_FOR_SALE    = 0x04;
-const U8 PARCEL_AUCTION     = 0x05;
+constexpr U8 PARCEL_COLOR_MASK  = 0x07;
+constexpr U8 PARCEL_PUBLIC      = 0x00;
+constexpr U8 PARCEL_OWNED       = 0x01;
+constexpr U8 PARCEL_GROUP       = 0x02;
+constexpr U8 PARCEL_SELF        = 0x03;
+constexpr U8 PARCEL_FOR_SALE    = 0x04;
+constexpr U8 PARCEL_AUCTION     = 0x05;
 // unused 0x06
 // unused 0x07
 // flag, unused 0x08
-const U8 PARCEL_HIDDENAVS   = 0x10; // avatars not visible outside of parcel.  Used for 'see avs' feature, but must be off for compatibility
-const U8 PARCEL_SOUND_LOCAL = 0x20;
-const U8 PARCEL_WEST_LINE   = 0x40; // flag, property line on west edge
-const U8 PARCEL_SOUTH_LINE  = 0x80; // flag, property line on south edge
+constexpr U8 PARCEL_HIDDENAVS   = 0x10; // avatars not visible outside of parcel.  Used for 'see avs' feature, but must be off for compatibility
+constexpr U8 PARCEL_SOUND_LOCAL = 0x20;
+constexpr U8 PARCEL_WEST_LINE   = 0x40; // flag, property line on west edge
+constexpr U8 PARCEL_SOUTH_LINE  = 0x80; // flag, property line on south edge
 
 // Transmission results for parcel properties
-const S32 PARCEL_RESULT_NO_DATA = -1;
-const S32 PARCEL_RESULT_SUCCESS = 0;    // got exactly one parcel
-const S32 PARCEL_RESULT_MULTIPLE = 1;   // got multiple parcels
+constexpr S32 PARCEL_RESULT_NO_DATA = -1;
+constexpr S32 PARCEL_RESULT_SUCCESS = 0;    // got exactly one parcel
+constexpr S32 PARCEL_RESULT_MULTIPLE = 1;   // got multiple parcels
 
-const S32 SELECTED_PARCEL_SEQ_ID = -10000;
-const S32 COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID =  -20000;
-const S32 COLLISION_BANNED_PARCEL_SEQ_ID = -30000;
-const S32 COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID =  -40000;
-const S32 HOVERED_PARCEL_SEQ_ID =  -50000;
+constexpr S32 SELECTED_PARCEL_SEQ_ID = -10000;
+constexpr S32 COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID =  -20000;
+constexpr S32 COLLISION_BANNED_PARCEL_SEQ_ID = -30000;
+constexpr S32 COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID =  -40000;
+constexpr S32 HOVERED_PARCEL_SEQ_ID =  -50000;
 
-const U32 RT_NONE   = 0x1 << 0;
-const U32 RT_OWNER  = 0x1 << 1;
-const U32 RT_GROUP  = 0x1 << 2;
-const U32 RT_OTHER  = 0x1 << 3;
-const U32 RT_LIST   = 0x1 << 4;
-const U32 RT_SELL   = 0x1 << 5;
+constexpr U32 RT_NONE   = 0x1 << 0;
+constexpr U32 RT_OWNER  = 0x1 << 1;
+constexpr U32 RT_GROUP  = 0x1 << 2;
+constexpr U32 RT_OTHER  = 0x1 << 3;
+constexpr U32 RT_LIST   = 0x1 << 4;
+constexpr U32 RT_SELL   = 0x1 << 5;
 
-const S32 INVALID_PARCEL_ID = -1;
+constexpr S32 INVALID_PARCEL_ID = -1;
 
-const S32 INVALID_PARCEL_ENVIRONMENT_VERSION = -2;
+constexpr S32 INVALID_PARCEL_ENVIRONMENT_VERSION = -2;
 // if Region settings are used, parcel env. version is -1
-const S32 UNSET_PARCEL_ENVIRONMENT_VERSION = -1;
+constexpr S32 UNSET_PARCEL_ENVIRONMENT_VERSION = -1;
 
 // Timeouts for parcels
 // default is 21 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 1814400000000
-const U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(1814400000000);
+constexpr U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(1814400000000);
 // ***** TESTING is 10 minutes
 //const U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(600000000);
 
 // group is 60 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 5184000000000
-const U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(5184000000000);
+constexpr U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(5184000000000);
 // ***** TESTING is 10 minutes
 //const U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(600000000);
 
 // default sale timeout is 2 days -> 172800000000
-const U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(172800000000);
+constexpr U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(172800000000);
 // ***** TESTING is 10 minutes
 //const U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(600000000);
 
 // more grace period extensions.
-const U64 SEVEN_DAYS_IN_USEC = U64L(604800000000);
+constexpr U64 SEVEN_DAYS_IN_USEC = U64L(604800000000);
 
 // if more than 100,000s before sale revert, and no extra extension
 // has been given, go ahead and extend it more. That's about 1.2 days.
-const S32 EXTEND_GRACE_IF_MORE_THAN_SEC = 100000;
+constexpr S32 EXTEND_GRACE_IF_MORE_THAN_SEC = 100000;
 
 
 
@@ -250,9 +250,9 @@ public:
     void setMediaURL(const std::string& url);
     void setMediaType(const std::string& type);
     void setMediaDesc(const std::string& desc);
-    void    setMediaID(const LLUUID& id) { mMediaID = id; }
-    void    setMediaAutoScale ( U8 flagIn ) { mMediaAutoScale = flagIn; }
-    void    setMediaLoop (U8 loop) { mMediaLoop = loop; }
+    void setMediaID(const LLUUID& id) { mMediaID = id; }
+    void setMediaAutoScale ( U8 flagIn ) { mMediaAutoScale = flagIn; }
+    void setMediaLoop(U8 loop) { mMediaLoop = loop; }
     void setMediaWidth(S32 width);
     void setMediaHeight(S32 height);
     void setMediaCurrentURL(const std::string& url);

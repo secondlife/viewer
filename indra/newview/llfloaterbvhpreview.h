@@ -70,7 +70,7 @@ protected:
 class LLFloaterBvhPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterBvhPreview(const std::string& filename);
+    LLFloaterBvhPreview(const LLSD& args);
     virtual ~LLFloaterBvhPreview();
 
     bool postBuild();
@@ -108,7 +108,7 @@ public:
                                        S32 status, LLExtStat ext_status);
 private:
     void setAnimCallbacks() ;
-    std::map <std::string, std::string> getJointAliases();
+    std::map<std::string, std::string, std::less<>> getJointAliases();
 
 
 protected:

@@ -2267,19 +2267,21 @@ void LLPanelObject::onCopyParams()
     if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-
-        LLUUID texture_id = sculpt_params->getSculptTexture();
-        if (get_can_copy_texture(texture_id))
+        if (sculpt_params)
         {
-            LL_DEBUGS("FloaterTools") << "Recording texture" << LL_ENDL;
-            mClipboardParams["sculpt"]["id"] = texture_id;
-        }
-        else
-        {
-            mClipboardParams["sculpt"]["id"] = SCULPT_DEFAULT_TEXTURE;
-        }
+            LLUUID texture_id = sculpt_params->getSculptTexture();
+            if (get_can_copy_texture(texture_id))
+            {
+                LL_DEBUGS("FloaterTools") << "Recording texture" << LL_ENDL;
+                mClipboardParams["sculpt"]["id"] = texture_id;
+            }
+            else
+            {
+                mClipboardParams["sculpt"]["id"] = SCULPT_DEFAULT_TEXTURE;
+            }
 
-        mClipboardParams["sculpt"]["type"] = sculpt_params->getSculptType();
+            mClipboardParams["sculpt"]["type"] = sculpt_params->getSculptType();
+        }
     }
 }
 

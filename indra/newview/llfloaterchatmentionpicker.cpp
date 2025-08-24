@@ -88,7 +88,7 @@ uuid_vec_t LLFloaterChatMentionPicker::getParticipantIds()
     LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = item->getChildrenEnd();
     while (current_participant_model != end_participant_model)
     {
-        LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
+        LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>((*current_participant_model).get());
         if (participant_model)
         {
             avatar_ids.push_back(participant_model->getUUID());

@@ -351,6 +351,9 @@ public:
         bool isSpatial() override { return true; }
         bool isEstate() override { return true; }
         bool isCallbackPossible() override { return false; }
+
+      private:
+        bool isRegionWebRTCEnabled(const LLUUID& regionID);
     };
 
     class parcelSessionState : public sessionState

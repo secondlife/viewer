@@ -28,6 +28,7 @@
 
 #include "apr_portable.h"
 
+#include "llapp.h"
 #include "llthread.h"
 #include "llmutex.h"
 
@@ -35,6 +36,7 @@
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
 #include "llexception.h"
+#include "workqueue.h"
 
 #if LL_LINUX
 #include <sched.h>
@@ -106,6 +108,27 @@ namespace
         return s_thread_id;
     }
 
+#if LL_WINDOWS
+
+    static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+
+    U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
+    {
+        if (LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
+        {
+            // Handled
+            return EXCEPTION_CONTINUE_SEARCH;
+        }
+        else if (code == STATUS_MSC_EXCEPTION)
+        {
+            // C++ exception, go on
+            return EXCEPTION_CONTINUE_SEARCH;
+        }
+
+        // handle it, convert to std::exception
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+#endif // LL_WINDOWS
 } // anonymous namespace
 
 LL_COMMON_API bool on_main_thread()
@@ -157,20 +180,11 @@ void LLThread::threadRun()
     // Run the user supplied function
     do
     {
-        try
-        {
-            run();
-        }
-        catch (const LLContinueError &e)
-        {
-            LL_WARNS("THREAD") << "ContinueException on thread '" << mName <<
-                "' reentering run(). Error what is: '" << e.what() << "'" << LL_ENDL;
-            //output possible call stacks to log file.
-            LLError::LLCallStacks::print();
-
-            LOG_UNHANDLED_EXCEPTION("LLThread");
-            continue;
-        }
+#ifdef LL_WINDOWS
+        sehHandle(); // Structured Exception Handling
+#else
+        tryRun();
+#endif
         break;
 
     } while (true);
@@ -187,6 +201,69 @@ void LLThread::threadRun()
     // We are using "while (mStatus != STOPPED) {ms_sleep();}" everywhere.
     mStatus = STOPPED;
 }
+
+void LLThread::tryRun()
+{
+    try
+    {
+        run();
+    }
+    catch (const LLContinueError& e)
+    {
+        LL_WARNS("THREAD") << "ContinueException on thread '" << mName <<
+            "'. Error what is: '" << e.what() << "'" << LL_ENDL;
+        LLError::LLCallStacks::print();
+
+        LOG_UNHANDLED_EXCEPTION("LLThread");
+    }
+    catch (std::bad_alloc&)
+    {
+        // Todo: improve this, this is going to have a different callstack
+        // instead of showing where it crashed
+        LL_WARNS("THREAD") << "Out of memory in a thread: " << mName << LL_ENDL;
+
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        main_queue->post(
+            // Bind the current exception, rethrow it in main loop.
+            []() {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS("THREAD") << "Out of memory in a thread" << LL_ENDL;
+        });
+    }
+#ifndef LL_WINDOWS
+    catch (...)
+    {
+        // Stash any other kind of uncaught exception to be rethrown by main thread.
+        LL_WARNS("THREAD") << "Capturing and rethrowing uncaught exception in LLThread "
+            << mName << LL_ENDL;
+
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        main_queue->post(
+            // Bind the current exception, rethrow it in main loop.
+            [exc = std::current_exception()]() { std::rethrow_exception(exc); });
+    }
+#endif // else LL_WINDOWS
+}
+
+#ifdef LL_WINDOWS
+void LLThread::sehHandle()
+{
+    __try
+    {
+        // handle stop and continue exceptions first
+        tryRun();
+    }
+    __except (exception_filter(GetExceptionCode(), GetExceptionInformation()))
+    {
+        // convert to C++ styled exception
+        // Note: it might be better to use _se_set_translator
+        // if you want exception to inherit full callstack
+        char integer_string[512];
+        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
+        throw std::exception(integer_string);
+    }
+}
+#endif
 
 LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
     mPaused(false),

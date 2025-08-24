@@ -176,7 +176,7 @@ bool LLPanelPermissions::postBuild()
 
     childSetCommitCallback("sale type",LLPanelPermissions::onCommitSaleType,this);
 
-    childSetCommitCallback("Edit Cost", LLPanelPermissions::onCommitSaleInfo, this);
+    childSetCommitCallback("Edit Cost", LLPanelPermissions::onCommitSalePrice, this);
 
     childSetCommitCallback("checkbox next owner can modify",LLPanelPermissions::onCommitNextOwnerModify,this);
     childSetCommitCallback("checkbox next owner can copy",LLPanelPermissions::onCommitNextOwnerCopy,this);
@@ -781,7 +781,9 @@ void LLPanelPermissions::refresh()
 
     if (has_change_sale_ability && (owner_mask_on & PERM_TRANSFER))
     {
-        getChildView("checkbox for sale")->setEnabled(can_transfer || (!can_transfer && num_for_sale));
+        bool change_sale_allowed = can_transfer || (!can_transfer && num_for_sale);
+        getChildView("checkbox for sale")->setEnabled(change_sale_allowed);
+        getChildView("Edit Cost")->setEnabled(change_sale_allowed && !is_for_sale_mixed);
         // Set the checkbox to tentative if the prices of each object selected
         // are not the same.
         getChild<LLUICtrl>("checkbox for sale")->setTentative(              is_for_sale_mixed);
@@ -1175,6 +1177,7 @@ void LLPanelPermissions::onCommitName(LLUICtrl*, void* data)
         {
             LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
             new_item->rename(tb->getText());
+            new_item->setComplete(true); // to not err at updateServer
             new_item->updateServer(false);
             gInventory.updateItem(new_item);
             gInventory.notifyObservers();
@@ -1221,6 +1224,16 @@ void LLPanelPermissions::onCommitSaleType(LLUICtrl*, void* data)
 {
     LLPanelPermissions* self = (LLPanelPermissions*)data;
     self->setAllSaleInfo();
+}
+
+void LLPanelPermissions::onCommitSalePrice(LLUICtrl *, void *data)
+{
+    LLPanelPermissions *self = (LLPanelPermissions *) data;
+    LLCheckBoxCtrl *checkPurchase = self->getChild<LLCheckBoxCtrl>("checkbox for sale");
+    if (checkPurchase && checkPurchase->get())
+    {
+        self->setAllSaleInfo();
+    }
 }
 
 void LLPanelPermissions::setAllSaleInfo()

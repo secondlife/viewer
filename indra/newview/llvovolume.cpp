@@ -352,8 +352,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
     if (isSculpted())
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        sculpt_id = sculpt_params->getSculptTexture();
-        sculpt_type = sculpt_params->getSculptType();
+        if (sculpt_params)
+        {
+            sculpt_id = sculpt_params->getSculptTexture();
+            sculpt_type = sculpt_params->getSculptType();
+        }
 
         LL_DEBUGS("ObjectUpdate") << "uuid " << mID << " set sculpt_id " << sculpt_id << LL_ENDL;
     }
@@ -1191,12 +1194,15 @@ void LLVOVolume::updateSculptTexture()
     if (isSculpted() && !isMesh())
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        LLUUID id =  sculpt_params->getSculptTexture();
-        if (id.notNull())
+        if (sculpt_params)
         {
-            mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_SCULPTED, LLViewerTexture::LOD_TEXTURE);
-            mSculptTexture->forceToSaveRawImage(0, F32_MAX);
-            mSculptTexture->setKnownDrawSize(256, 256);
+            LLUUID id = sculpt_params->getSculptTexture();
+            if (id.notNull())
+            {
+                mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_SCULPTED, LLViewerTexture::LOD_TEXTURE);
+                mSculptTexture->forceToSaveRawImage(0, F32_MAX);
+                mSculptTexture->setKnownDrawSize(256, 256);
+            }
         }
 
         mSkinInfoUnavaliable = false;
@@ -1484,6 +1490,7 @@ bool LLVOVolume::calcLOD()
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
             radius = diag.magVec() * 0.5f;
+            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         else
         {
@@ -1494,6 +1501,7 @@ bool LLVOVolume::calcLOD()
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
             radius = diag.magVec(); // preserve old BinRadius behavior - 2x off
+            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         if (distance <= 0.f || radius <= 0.f)
         {
@@ -1558,10 +1566,15 @@ bool LLVOVolume::calcLOD()
 
     mLODAdjustedDistance = distance;
 
+    static LLCachedControl<S32> debug_selection_lods(gSavedSettings, "DebugSelectionLODs", 0);
     if (isHUDAttachment())
     {
         // HUDs always show at highest detail
         cur_detail = 3;
+    }
+    else if (isSelected() && debug_selection_lods() >= 0)
+    {
+        cur_detail = llmin(debug_selection_lods(), 3);
     }
     else
     {
@@ -2643,6 +2656,17 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
         }
         viewer_media_t media_impl = LLViewerMedia::getInstance()->updateMediaImpl(mep, previous_url, update_from_self);
 
+        static LLCachedControl<bool> media_autoplay_huds(gSavedSettings, "MediaAutoPlayHuds", true);
+        bool was_loaded = media_impl->hasMedia();
+        if (isHUDAttachment() && media_autoplay_huds && !was_loaded)
+        {
+            std::string url = mep->getCurrentURL();
+            if (media_impl->getCurrentMediaURL() != url)
+            {
+                media_impl->navigateTo(url, "", false, true);
+            }
+        }
+
         addMediaImpl(media_impl, texture_index) ;
     }
     else
@@ -3576,12 +3600,15 @@ bool LLVOVolume::isMesh() const
     if (isSculpted())
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        U8 sculpt_type = sculpt_params->getSculptType();
-
-        if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
-            // mesh is a mesh
+        if (sculpt_params)
         {
-            return true;
+            U8 sculpt_type = sculpt_params->getSculptType();
+
+            if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+                // mesh is a mesh
+            {
+                return true;
+            }
         }
     }
 
@@ -3783,7 +3810,12 @@ bool LLVOVolume::canBeAnimatedObject() const
 
 bool LLVOVolume::isAnimatedObject() const
 {
-    LLVOVolume *root_vol = (LLVOVolume*)getRootEdit();
+    LLViewerObject *root_obj = getRootEdit();
+    if (root_obj->getPCode() != LL_PCODE_VOLUME)
+    {
+        return false; // at the moment only volumes can be animated
+    }
+    LLVOVolume* root_vol = (LLVOVolume*)root_obj;
     mIsAnimatedObject = root_vol->getExtendedMeshFlags() & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG;
     return mIsAnimatedObject;
 }

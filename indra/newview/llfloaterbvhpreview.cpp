@@ -118,8 +118,8 @@ std::string STATUS[] =
 //-----------------------------------------------------------------------------
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
-LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) :
-    LLFloaterNameDesc(filename)
+LLFloaterBvhPreview::LLFloaterBvhPreview(const LLSD& args) :
+    LLFloaterNameDesc(args)
 {
     mLastMouseX = 0;
     mLastMouseY = 0;
@@ -179,7 +179,7 @@ void LLFloaterBvhPreview::setAnimCallbacks()
     getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
-std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
+std::map<std::string, std::string, std::less<>> LLFloaterBvhPreview::getJointAliases()
 {
     LLPointer<LLVOAvatar> av = (LLVOAvatar*)mAnimPreview->getDummyAvatar();
     return av->getJointAliases();
@@ -252,7 +252,7 @@ bool LLFloaterBvhPreview::postBuild()
                 ELoadStatus load_status = E_ST_OK;
                 S32 line_number = 0;
 
-                std::map<std::string, std::string> joint_alias_map = getJointAliases();
+                auto joint_alias_map = getJointAliases();
 
                 loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
                 std::string status = getString(STATUS[load_status]);
@@ -1028,7 +1028,8 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
                     LLFloaterPerms::getNextOwnerPerms("Uploads"),
                     LLFloaterPerms::getGroupPerms("Uploads"),
                     LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost));
+                    expected_upload_cost,
+                    floaterp->mDestinationFolderId));
 
                 upload_new_resource(assetUploadInfo);
             }

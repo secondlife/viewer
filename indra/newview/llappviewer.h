@@ -175,6 +175,7 @@ public:
     virtual void forceErrorCoroprocedureCrash();
     virtual void forceErrorWorkQueueCrash();
     virtual void forceErrorThreadCrash();
+    virtual void forceExceptionThreadCrash();
 
     // The list is found in app_settings/settings_files.xml
     // but since they are used explicitly in code,
@@ -197,11 +198,11 @@ public:
     // For thread debugging.
     // llstartup needs to control init.
     // llworld, send_agent_pause() also controls pause/resume.
-    void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
+    void initMainloopTimeout(std::string_view state, F32 secs = -1.0f);
     void destroyMainloopTimeout();
     void pauseMainloopTimeout();
-    void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
-    void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
+    void resumeMainloopTimeout(std::string_view state = "", F32 secs = -1.0f);
+    void pingMainloopTimeout(std::string_view state, F32 secs = -1.0f);
 
     // Handle the 'login completed' event.
     // *NOTE:Mani Fix this for login abstraction!!
@@ -249,6 +250,14 @@ public:
     // Good chance of viewer crashing either way, but better than alternatives.
     // Note: mQuitRequested can be aborted by user.
     void outOfMemorySoftQuit();
+
+#ifdef LL_DISCORD
+    static void initDiscordSocial();
+    static void toggleDiscordIntegration(const LLSD& value);
+    static void updateDiscordActivity();
+    static void updateDiscordPartyCurrentSize(int32_t size);
+    static void updateDiscordPartyMaxSize(int32_t size);
+#endif
 
 protected:
     virtual bool initWindow(); // Initialize the viewer's window.
