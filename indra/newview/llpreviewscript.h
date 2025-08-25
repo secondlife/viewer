@@ -219,7 +219,8 @@ public:
     bool handleKeyHere(KEY key, MASK mask);
 
 protected:
-    std::string     getTmpFileName(const std::string& script_name);
+    std::string     getTmpFileName(const std::string& script_name) const;
+    std::string     getUniqueHash() const;
     std::string     getErrorLogFileName(const std::string& script_path);
     bool            onExternalChange(const std::string& filename);
     virtual void    saveIfNeeded(bool sync = true) = 0;

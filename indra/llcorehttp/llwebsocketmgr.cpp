@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llsdserialize.h"
 #include "llhost.h"
+#include "llsdjson.h"
 
 #include <websocketpp/config/boost_config.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
@@ -242,14 +243,16 @@ struct Server_impl
      */
     bool start()
     {
-        if (!mServer.stopped())
-        {
-            LL_WARNS("WebSocket") << "WebSocket server is already running" << LL_ENDL;
-            return false;
-        }
+        //if (!mServer.stopped())
+        //{
+        //    LL_WARNS("WebSocket") << "WebSocket server is already running" << LL_ENDL;
+        //    return false;
+        //}
 
         try
         {
+            LL_INFOS("WebSocket") << "Starting WebSocket server on port " << mPort
+                                  << (mLocalOnly ? " (localhost only)" : " (all interfaces)") << LL_ENDL;
             mServer.start_accept();
 
             // Run controlled event loop with periodic stop flag checking
@@ -592,6 +595,7 @@ void LLWebsocketMgr::WSServer::handleOpenConnection(const connection_h& handle)
         {
             LL_WARNS("WebSocket") << mServerName << " failed to create connection object" << LL_ENDL;
             return;
+        }
         // Removed redundant assignment to mConnections[handle]
         size = mConnections.size();
     }
@@ -641,7 +645,7 @@ void LLWebsocketMgr::WSServer::handleMessage(const connection_h& handle, const s
 }
 
 //------------------------------------------------------------------------
-bool LLWebsocketMgr::WSConnection::sendMessage(const std::string& message)
+bool LLWebsocketMgr::WSConnection::sendMessage(const std::string& message) const
 {
     if (!mServer)
     {
@@ -649,6 +653,17 @@ bool LLWebsocketMgr::WSConnection::sendMessage(const std::string& message)
         return false;
     }
     return mServer->sendMessageTo(mConnectionHandle, message);
+}
+
+bool LLWebsocketMgr::WSConnection::sendMessage(const boost::json::value& json) const
+{
+    std::string message = boost::json::serialize(json);
+    return sendMessage(message);
+}
+
+bool LLWebsocketMgr::WSConnection::sendMessage(const LLSD& data) const
+{
+    return sendMessage(LlsdToJson(data));
 }
 
 void LLWebsocketMgr::WSConnection::closeConnection(U16 code, const std::string& reason)
