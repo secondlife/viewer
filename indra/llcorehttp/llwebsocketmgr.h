@@ -39,6 +39,8 @@
 #include <thread>
 #include <atomic>
 
+#include <boost/json.hpp>
+
 #include <websocketpp/common/connection_hdl.hpp>
 
 struct Server_impl;
@@ -148,7 +150,9 @@ public:
          * connection->sendMessage(LLSDSerialize::toJSON(response));
          * @endcode
          */
-        bool sendMessage(const std::string& message);
+        bool sendMessage(const std::string& message) const;
+        bool sendMessage(const boost::json::value& json) const;
+        bool sendMessage(const LLSD& data) const;
 
         /**
          * @brief Close the WebSocket connection gracefully
@@ -260,6 +264,11 @@ public:
         virtual void    onConnectionClosed(const WSConnection::ptr_t& connection) { }
 
         bool            isRunning() const;
+        size_t          getConnectionCount() const
+        {
+            LLMutexLock lock(&mConnectionMutex);
+            return mConnections.size();
+        }
 
         void            broadcastMessage(const std::string& message);
     protected:
@@ -294,7 +303,7 @@ public:
         std::string                  mServerName;
         std::unique_ptr<Server_impl> mImpl;
         connection_map_t             mConnections;
-        LLMutex                      mConnectionMutex;
+        mutable LLMutex              mConnectionMutex;
 
         // Threading support
         std::thread                  mServerThread;        ///< Thread running the ASIO event loop

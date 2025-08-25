@@ -65,22 +65,12 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-#include "llkeyboard.h"
-#include "llscrollcontainer.h"
-#include "llcheckboxctrl.h"
 #include "llscripteditor.h"
-#include "llselectmgr.h"
-#include "lltooldraganddrop.h"
-#include "llscrolllistctrl.h"
 #include "lltextbox.h"
-#include "llslider.h"
-#include "lldir.h"
-#include "llcombobox.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "lluictrlfactory.h"
 #include "llmediactrl.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
@@ -91,6 +81,8 @@
 #include "lltoggleablemenu.h"
 #include "llmenubutton.h"
 #include "llinventoryfunctions.h"
+#include "llwebsocketmgr.h"
+#include "llscripteditorws.h"
 #include <regex>
 
 const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
@@ -1129,11 +1121,13 @@ void LLScriptEdCore::openInExternalEditor()
 
     // Generate a suitable filename
     std::string script_name = mScriptName;
-    std::string forbidden_chars = "<>:\"\\/|?*";
-    for (std::string::iterator c = forbidden_chars.begin(); c != forbidden_chars.end(); c++)
-    {
-        script_name.erase(std::remove(script_name.begin(), script_name.end(), *c), script_name.end());
-    }
+
+    static const std::set<char> forbidden_chars{ '<', '>', ':', '"', '\\', '/', '|', '?', '*' };
+    script_name.erase(
+        std::remove_if(script_name.begin(), script_name.end(), [](char c) {
+            return forbidden_chars.contains(c);
+        }), script_name.end());
+
     std::string filename = mContainer->getTmpFileName(script_name);
 
     // Save the script to a temporary file.
@@ -1150,6 +1144,28 @@ void LLScriptEdCore::openInExternalEditor()
     // Start watching file changes.
     mContainer->mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
     mContainer->mLiveFile->addToEventTimer();
+
+    // if the user has enabled websockets, create the server to talk to the external editor
+    {
+        // TODO: Get the name, port, and locality from settings
+        std::string server_name(LLScriptEditorWSServer::DEFAULT_SERVER_NAME);
+        U16         server_port(LLScriptEditorWSServer::DEFAULT_SERVER_PORT);
+        bool        server_localhost(true);
+
+        LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
+        LLScriptEditorWSServer::ptr_t server =
+            std::static_pointer_cast<LLScriptEditorWSServer>(wsmgr.findServerByName(server_name));
+
+        if (!server)
+        {
+            server = std::make_shared<LLScriptEditorWSServer>(server_name, server_port, server_localhost);
+            wsmgr.addServer(server);
+            wsmgr.startServer(server_name);
+        }
+
+        std::string script_id_hash_str(mContainer->getUniqueHash());
+        server->associateEditor(getHandle(), script_id_hash_str);
+    }
 
     // Open it in external editor.
     {
@@ -1560,18 +1576,9 @@ LLScriptEdContainer::~LLScriptEdContainer()
     mLiveLogFile = nullptr;
 }
 
-std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name)
+std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name) const
 {
-    // Take script inventory item id (within the object inventory)
-    // to consideration so that it's possible to edit multiple scripts
-    // in the same object inventory simultaneously (STORM-781).
-    std::string script_id = mObjectUUID.asString() + "_" + mItemUUID.asString();
-
-    // Use MD5 sum to make the file name shorter and not exceed maximum path length.
-    char script_id_hash_str[33];               /* Flawfinder: ignore */
-    LLMD5 script_id_hash((const U8 *)script_id.c_str());
-    script_id_hash.hex_digest(script_id_hash_str);
-
+    std::string script_id_hash_str(getUniqueHash());
     std::string script_extension = mScriptEd->mEditor->getIsLuauLanguage() ? ".luau" : ".lsl";
 
     if (script_name.empty())
@@ -1582,6 +1589,21 @@ std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name)
     {
         return std::string(LLFile::tmpdir()) + "sl_script_" + script_name + "_" + script_id_hash_str + script_extension;
     }
+}
+
+std::string LLScriptEdContainer::getUniqueHash() const
+{
+    // Take script inventory item id (within the object inventory)
+    // to consideration so that it's possible to edit multiple scripts
+    // in the same object inventory simultaneously (STORM-781).
+    std::string script_id = mObjectUUID.asString() + "_" + mItemUUID.asString();
+
+    // Use MD5 sum to make the file name shorter and not exceed maximum path length.
+    char  script_id_hash_str[33]; /* Flawfinder: ignore */
+    LLMD5 script_id_hash((const U8*)script_id.c_str());
+    script_id_hash.hex_digest(script_id_hash_str);
+
+    return std::string(script_id_hash_str);
 }
 
 std::string LLScriptEdContainer::getErrorLogFileName(const std::string& script_path)
