@@ -47,7 +47,7 @@ jobs:
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
           - os: windows
-            runner: qa-windows-asus-kurt
+            runner: qa-windows-kurt
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
           - os: mac
