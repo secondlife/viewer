@@ -47,11 +47,19 @@ jobs:
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
           - os: windows
-            runner: qa-windows-z600-dan
+            runner: qa-windows-asus-kurt
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
           - os: mac
+            runner: qa-mac-dan
+            artifact: macOS-installer
+            install-path: '$HOME/Documents/viewer-automation'
+          - os: mac
             runner: qa-mac-atlas
+            artifact: macOS-installer
+            install-path: '$HOME/Documents/viewer-automation'
+          - os: mac
+            runner: qa-mac-caleb
             artifact: macOS-installer
             install-path: '$HOME/Documents/viewer-automation'
       fail-fast: false
