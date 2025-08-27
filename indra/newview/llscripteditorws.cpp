@@ -104,7 +104,7 @@ void LLScriptEditorWSServer::onConnectionClosed(const LLWebsocketMgr::WSConnecti
 
         LL_DEBUGS("ScriptEditorWS") << "Removed connection from active connections. Total: "
                                    << mActiveConnections.size() << LL_ENDL;
-        // TODO: When connections reach 0, stop the server aftera a timeout.
+        // TODO: When connections reach 0, stop the server after a timeout.
     }
 }
 
