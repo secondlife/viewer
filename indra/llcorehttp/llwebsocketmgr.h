@@ -78,7 +78,7 @@ public:
          */
         WSConnection(const std::shared_ptr<WSServer> &server, const connection_h& handle):
             mConnectionHandle(handle),
-            mServer(server)
+            mOwningServer(server)
         {}
 
         virtual ~WSConnection() = default;
@@ -188,9 +188,9 @@ public:
          */
         void closeConnection(U16 code = 1000, const std::string& reason = std::string());
 
-    private:
+    protected:
         connection_h mConnectionHandle;
-        std::shared_ptr<WSServer> mServer; // Back-reference to the server this connection belongs to
+        std::weak_ptr<WSServer> mOwningServer; // Back-reference to the server this connection belongs to
     };
 
     /**
@@ -271,6 +271,8 @@ public:
         }
 
         void            broadcastMessage(const std::string& message);
+        virtual bool    update() { return true; }
+
     protected:
         virtual WSConnection::ptr_t connectionFactory(WSServer::ptr_t server, connection_h handle);
 
@@ -319,6 +321,8 @@ public:
 
     bool            startServer(const std::string &name) const;
     void            stopServer(const std::string &name) const;
+
+    void            update();
 
 protected:
     void            initSingleton() override;

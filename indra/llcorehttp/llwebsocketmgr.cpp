@@ -63,6 +63,32 @@ void LLWebsocketMgr::cleanupSingleton()
     stopAllServers();
 }
 
+void LLWebsocketMgr::update()
+{
+    std::vector<WSServer::ptr_t> stops;
+
+    for (auto &[name, server] : mServers)
+    {
+        if (server && server->isRunning())
+        {
+            if (!server->update())
+            {
+                stops.push_back(server);
+            }
+        }
+    }
+
+    for (const auto& server : stops)
+    {
+        if (server)
+        {
+            LL_DEBUGS("WebSocket") << "Stopping server: " << server->mServerName << LL_ENDL;
+            removeServer(server->mServerName);
+        }
+    }
+}
+
+
 LLWebsocketMgr::WSServer::ptr_t LLWebsocketMgr::findServerByName(const std::string &name) const
 {
     auto it = mServers.find(std::string(name));
@@ -192,6 +218,7 @@ struct Server_impl
         mPort(port),
         mLocalOnly(local_only)
     {
+
         mServer.set_open_handler([this](websocketpp::connection_hdl hdl) { this->onOpen(hdl); });
         mServer.set_close_handler([this](websocketpp::connection_hdl hdl) { this->onClose(hdl); });
         mServer.set_message_handler([this](websocketpp::connection_hdl hdl, Server_t::message_ptr msg) { this->onMessage(hdl, msg); });
@@ -647,12 +674,12 @@ void LLWebsocketMgr::WSServer::handleMessage(const connection_h& handle, const s
 //------------------------------------------------------------------------
 bool LLWebsocketMgr::WSConnection::sendMessage(const std::string& message) const
 {
-    if (!mServer)
+    if (mOwningServer.expired())
     {
         LL_WARNS("WebSocket") << "Attempted to send message on connection with null server reference" << LL_ENDL;
         return false;
     }
-    return mServer->sendMessageTo(mConnectionHandle, message);
+    return mOwningServer.lock()->sendMessageTo(mConnectionHandle, message);
 }
 
 bool LLWebsocketMgr::WSConnection::sendMessage(const boost::json::value& json) const
@@ -668,7 +695,7 @@ bool LLWebsocketMgr::WSConnection::sendMessage(const LLSD& data) const
 
 void LLWebsocketMgr::WSConnection::closeConnection(U16 code, const std::string& reason)
 {
-    if (!mServer)
+    if (mOwningServer.expired())
     {
         LL_WARNS("WebSocket") << "Attempted to close connection with null server reference" << LL_ENDL;
         return;
@@ -677,7 +704,7 @@ void LLWebsocketMgr::WSConnection::closeConnection(U16 code, const std::string& 
     LL_INFOS("WebSocket") << "WSConnection closing connection with code " << code
                           << " and reason: " << (reason.empty() ? "(no reason)" : reason) << LL_ENDL;
 
-    if (!mServer->closeConnection(mConnectionHandle, code, reason))
+    if (!mOwningServer.lock()->closeConnection(mConnectionHandle, code, reason))
     {
         LL_WARNS("WebSocket") << "Failed to close connection through server" << LL_ENDL;
     }

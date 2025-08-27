@@ -25,6 +25,7 @@ set(llcorehttp_SOURCE_FILES
     httpresponse.cpp
     httpstats.cpp
     llwebsocketmgr.cpp
+    lljsonrpcws.cpp
     _httplibcurl.cpp
     _httpopcancel.cpp
     _httpoperation.cpp
@@ -54,6 +55,7 @@ set(llcorehttp_HEADER_FILES
     httpresponse.h
     httpstats.h
     llwebsocketmgr.h
+    lljsonrpcws.h
     _httpinternal.h
     _httplibcurl.h
     _httpopcancel.h
