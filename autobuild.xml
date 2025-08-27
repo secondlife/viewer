@@ -448,11 +448,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>67f6df74e64ec7706b59192dbdef1d0da2754127</string>
+              <string>d44256458ff0ef4db4c91e8e8cc83e8f98b4f1b8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.20.0-CEF_139.0.28a/dullahan-1.20.0.202508222243_139.0.28_g55ab8a8_chromium-139.0.7258.139-darwin64-17167490569.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.21.0-CEF_139.0.28/dullahan-1.21.0.202508272158_139.0.28_g55ab8a8_chromium-139.0.7258.139-darwin64-17279703032.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -476,11 +476,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7fe15918eeeb5121b6c5af9427f581a775b88758</string>
+              <string>9d5af766a87052808e4062978504e9af124fb558</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.20.0-CEF_139.0.28a/dullahan-1.20.0.202508222244_139.0.28_g55ab8a8_chromium-139.0.7258.139-windows64-17167490569.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.21.0-CEF_139.0.28/dullahan-1.21.0.202508272159_139.0.28_g55ab8a8_chromium-139.0.7258.139-windows64-17279703032.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -493,7 +493,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2017, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.20.0.202508222243_139.0.28_g55ab8a8_chromium-139.0.7258.139</string>
+        <string>1.21.0.202508272158_139.0.28_g55ab8a8_chromium-139.0.7258.139</string>
         <key>name</key>
         <string>dullahan</string>
         <key>description</key>
@@ -1477,12 +1477,12 @@
             <string>windows64</string>
           </map>
         </map>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>license</key>
         <string>internal</string>
         <key>license_file</key>
         <string>LICENSES/llphysicsextensions.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>version</key>
         <string>1.0.11137145495</string>
         <key>name</key>
@@ -2332,14 +2332,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>threejs</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright © 2010-2021 three.js authors</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/THREEJS_LICENSE.txt</string>
-        <key>name</key>
-        <string>threejs</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -2357,8 +2349,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <string>common</string>
           </map>
         </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/THREEJS_LICENSE.txt</string>
+        <key>copyright</key>
+        <string>Copyright © 2010-2021 three.js authors</string>
         <key>version</key>
         <string>0.132.2</string>
+        <key>name</key>
+        <string>threejs</string>
       </map>
       <key>tinygltf</key>
       <map>
