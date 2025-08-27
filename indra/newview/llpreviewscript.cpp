@@ -1144,28 +1144,7 @@ void LLScriptEdCore::openInExternalEditor()
     // Start watching file changes.
     mContainer->mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
     mContainer->mLiveFile->addToEventTimer();
-
-    // if the user has enabled websockets, create the server to talk to the external editor
-    {
-        // TODO: Get the name, port, and locality from settings
-        std::string server_name(LLScriptEditorWSServer::DEFAULT_SERVER_NAME);
-        U16         server_port(LLScriptEditorWSServer::DEFAULT_SERVER_PORT);
-        bool        server_localhost(true);
-
-        LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
-        LLScriptEditorWSServer::ptr_t server =
-            std::static_pointer_cast<LLScriptEditorWSServer>(wsmgr.findServerByName(server_name));
-
-        if (!server)
-        {
-            server = std::make_shared<LLScriptEditorWSServer>(server_name, server_port, server_localhost);
-            wsmgr.addServer(server);
-            wsmgr.startServer(server_name);
-        }
-
-        std::string script_id_hash_str(mContainer->getUniqueHash());
-        server->associateEditor(getHandle(), script_id_hash_str);
-    }
+    mContainer->startWebsocketServer();
 
     // Open it in external editor.
     {
@@ -1685,6 +1664,54 @@ bool LLScriptEdContainer::handleKeyHere(KEY key, MASK mask)
         return mScriptEd->handleKeyHere(key, mask);
     }
     return true;
+}
+
+void LLScriptEdContainer::startWebsocketServer()
+{
+    // if the user has enabled websockets, create the server to talk to the external editor
+    {
+        // TODO: Get the name, port, and locality from settings
+        std::string server_name(LLScriptEditorWSServer::DEFAULT_SERVER_NAME);
+        U16         server_port(LLScriptEditorWSServer::DEFAULT_SERVER_PORT);
+        bool        server_localhost(true);
+
+        LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
+        LLScriptEditorWSServer::ptr_t server = std::static_pointer_cast<LLScriptEditorWSServer>(wsmgr.findServerByName(server_name));
+
+        if (!server)
+        {
+            server = std::make_shared<LLScriptEditorWSServer>(server_name, server_port, server_localhost);
+            wsmgr.addServer(server);
+            wsmgr.startServer(server_name);
+        }
+
+        std::string script_id_hash_str(getUniqueHash());
+        server->associateEditor(getHandle(), script_id_hash_str);
+    }
+}
+
+void LLScriptEdContainer::attachToWebSocket(const std::shared_ptr<LLScriptEditorWSConnection>& connection)
+{
+    mWebSocket = connection;
+}
+
+void LLScriptEdContainer::detachFromWebSocket(bool send_disconnect)
+{
+    if (mWebSocket)
+    {
+        if (send_disconnect)
+        {
+            // TODO:
+            mWebSocket->sendDisconnect(LLScriptEditorWSConnection::REASON_EDITOR_CLOSED);
+            mWebSocket->closeConnection();
+        }
+        mWebSocket.reset();
+    }
+}
+
+void LLScriptEdContainer::cleanupWebSocket()
+{
+    mWebSocket.reset();
 }
 
 /// ---------------------------------------------------------------------------

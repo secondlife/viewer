@@ -54,6 +54,7 @@ class LLScriptEdContainer;
 class LLFloaterGotoLine;
 class LLFloaterExperienceProfile;
 class LLScriptMovedObserver;
+class LLScriptEditorWSConnection;
 
 class LLLiveLSLFile : public LLLiveFile
 {
@@ -99,14 +100,14 @@ protected:
         bool live,
         S32 bottom_pad = 0);    // pad below bottom row of buttons
 public:
-    ~LLScriptEdCore();
+    ~LLScriptEdCore() override;
 
     void            initMenu();
     void            processKeywords();
     void            processKeywords(bool luau_language);
 
-    virtual void    draw();
-    /*virtual*/ bool    postBuild();
+    void            draw() override;
+    bool            postBuild() override;
     bool            canClose();
     void            setEnableEditing(bool enable);
     bool            canLoadOrSaveToFile( void* userdata );
@@ -159,6 +160,7 @@ public:
     void            enableSave(bool b) { mEnableSave = b; }
     bool            hasChanged() const;
 
+
   private:
     void        onBtnDynamicHelp();
     void        onBtnUndoChanges();
@@ -204,7 +206,7 @@ private:
 
     LLScriptEdContainer* mContainer; // parent view
 
-public:
+ public:
     boost::signals2::connection mSyntaxIDConnection;
 };
 
@@ -218,6 +220,11 @@ public:
 
     bool handleKeyHere(KEY key, MASK mask);
 
+    void startWebsocketServer();
+    void attachToWebSocket(const std::shared_ptr<LLScriptEditorWSConnection>& connection);
+    void detachFromWebSocket(bool send_disconnect);
+    void cleanupWebSocket();
+
 protected:
     std::string     getTmpFileName(const std::string& script_name) const;
     std::string     getUniqueHash() const;
@@ -230,6 +237,8 @@ protected:
     LLScriptEdCore*     mScriptEd;
     LLLiveLSLFile*      mLiveFile = nullptr;
     LLLiveLSLFile*      mLiveLogFile = nullptr;
+
+    std::shared_ptr<LLScriptEditorWSConnection> mWebSocket;
 };
 
 // Used to view and edit an LSL script from your inventory.

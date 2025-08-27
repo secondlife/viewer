@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "llwebsocketmgr.h"
+#include "lljsonrpcws.h"
 #include "llsd.h"
 #include "lluuid.h"
 #include "llhandle.h"
@@ -39,48 +39,43 @@
 
 // Forward declarations
 class LLLiveLSLEditor;
-class LLScriptEdCore;
+class LLScriptEdContainer;
+class LLScriptEditorWSServer;
 
 /**
  * @class LLScriptEditorWSConnection
- * @brief WebSocket connection specialized for external script editor communication
+ * @brief JSON-RPC WebSocket connection specialized for external script editor communication
  *
- * This class handles WebSocket communication between the Second Life viewer
- * and external script editors. It manages script content synchronization,
- * compilation status updates, and editor metadata exchange.
+ * This class handles JSON-RPC 2.0 communication between the Second Life viewer
+ * and external script editors. It provides a clean base for implementing
+ * script editor integration using the standard JSON-RPC 2.0 protocol.
  *
- * ## Message Protocol
+ * ## Usage
  *
- * The connection uses JSON messages with the following structure:
- * - `type`: Message type identifier
- * - `data`: Message payload (varies by type)
- * - `timestamp`: Message timestamp for ordering
- * - `id`: Optional message ID for request/response correlation
+ * @code
+ * // Create server and let base JSON-RPC handle method registration
+ * auto server = std::make_shared<LLScriptEditorWSServer>("script_editor_server", 9020);
  *
- * ### Supported Message Types:
- *
- * #### From Editor to Viewer:
- * - `script_updated`: Script content has been modified
- * - `save_request`: Request to save script to SL servers
- * - `compile_request`: Request to compile script
- * - `editor_ready`: Editor initialization complete
- * - `ping`: Connection health check
- *
- * #### From Viewer to Editor:
- * - `script_content`: Full script content
- * - `compile_result`: Compilation success/failure with errors
- * - `save_result`: Save operation result
- * - `metadata`: Script and object metadata
- * - `pong`: Response to ping
+ * // Register custom methods as needed
+ * connection->registerMethod("custom.method", handler);
+ * @endcode
  */
-class LLScriptEditorWSConnection : public LLWebsocketMgr::WSConnection
+class LLScriptEditorWSConnection : public LLJSONRPCConnection,
+    public std::enable_shared_from_this<LLScriptEditorWSConnection>
 {
 public:
+    enum DisconnectReason
+    {
+        REASON_NORMAL = 0,
+        REASON_EDITOR_CLOSED = 1,
+        REASON_PROTOCOL_ERROR = 2,
+        REASON_TIMEOUT = 3,
+        REASON_INTERNAL_ERROR = 4
+    };
 
     LLScriptEditorWSConnection(const LLWebsocketMgr::WSServer::ptr_t server,
-                              const LLWebsocketMgr::connection_h& handle):
-        LLWebsocketMgr::WSConnection(server, handle),
-        mMessageSequence(0)
+                              const LLWebsocketMgr::connection_h& handle)
+        : LLJSONRPCConnection(server, handle)
     { }
 
     ~LLScriptEditorWSConnection() override = default;
@@ -89,32 +84,57 @@ public:
     // Connection lifecycle overrides
     void onOpen() override;
     void onClose() override;
-    void onMessage(const std::string& message) override;
+
+    /**
+     * @brief Send session disconnect message to the external editor
+     * @param reason Numeric reason code for the disconnect (default 0 for normal closure)
+     * @param message Human-readable disconnect message (default "Goodbye")
+     */
+    void sendDisconnect(S32 reason = 0, const std::string& message = "Goodbye");
 
 private:
+    using string_set_t = std::set<std::string>;
     /**
-     * @brief Handle connect/connection messages from editor
-     * @param message Parsed LLSD message
+     * @brief Handle the handshake response from the client
+     * @param result The response data from the client containing client information
      */
-    void processConnectMessage(const LLSD& message);
+    void handleHandshakeResponse(const LLSD& result);
+
+    bool connectToEditor(const std::string& script_id);
+    void cleanupConnection();
+
+    LLScriptEdContainer* getEditor() const;
+    std::shared_ptr<LLScriptEditorWSServer> getServer() const;
 
     std::string mEditorId;              ///< Unique identifier for this editor session
     LLSD mEditorCapabilities;           ///< Editor capabilities metadata
-    U32 mMessageSequence;               ///< Message sequence counter
     std::string mScriptId;              ///< Unique identifier for the script being edited
+    bool mEditorReady;                  ///< Whether editor has completed initialization
+    LLHandle<LLPanel> mEditorPanel;     ///< Handle to the associated LSL editor panel
+
+    // Client handshake response data
+    std::string mClientName;            ///< Name of the external editor client
+    std::string mClientVersion;         ///< Version of the external editor client
+    std::string mProtocolVersion;       ///< JSON-RPC protocol version supported by client
+    std::string mScriptName;            ///< Name of the script being edited
+    std::string mScriptLanguage;        ///< Programming language of the script (lsl, luau, etc.)
+    string_set_t mLanguages;            ///< Set of supported scripting languages
+    string_set_t mFeatures;             ///< Active client features (live_sync, compilation, etc.)
 };
 
 /**
  * @class LLScriptEditorWSServer
- * @brief WebSocket server for external script editor integration
+ * @brief JSON-RPC 2.0 WebSocket server for external script editor integration
  *
- * This server manages WebSocket connections from external script editors,
- * providing a bridge between the Second Life viewer's script editing
- * functionality and external development tools.
+ * This server extends the JSON-RPC server to provide specialized functionality
+ * for external script editor integration. It manages WebSocket connections from
+ * external script editors and provides a structured JSON-RPC 2.0 interface
+ * between the Second Life viewer's script editing functionality and external
+ * development tools.
  *
  * ## Architecture
  *
- * The server acts as a communication hub between:
+ * The server acts as a JSON-RPC communication hub between:
  * - LLLiveLSLEditor instances (in-world script editing)
  * - External script editors (VS Code, Atom, Sublime Text, etc.)
  * - Script compilation and save services
@@ -122,8 +142,8 @@ private:
  * ## Usage
  *
  * @code
- * // Create and start the server
- * auto server = std::make_shared<LLScriptEditorWSServer>("script_editor_server", 8080);
+ * // Create and start the JSON-RPC server
+ * auto server = std::make_shared<LLScriptEditorWSServer>("script_editor_server", 9020);
  * LLWebsocketMgr::getInstance()->addServer(server);
  * LLWebsocketMgr::getInstance()->startServer("script_editor_server");
  *
@@ -134,11 +154,11 @@ private:
  * ## Security Considerations
  *
  * - Server binds to localhost only by default for security
- * - Editor authentication via connection handshake
- * - Script content encryption for sensitive projects
- * - Rate limiting to prevent abuse
+ * - JSON-RPC 2.0 structured protocol with validation
+ * - Rate limiting handled by base JSON-RPC server
+ * - Error handling with standardized JSON-RPC error codes
  */
-class LLScriptEditorWSServer : public LLWebsocketMgr::WSServer
+class LLScriptEditorWSServer : public LLJSONRPCServer
 {
 public:
     static constexpr char const* DEFAULT_SERVER_NAME = "script_editor_server";
@@ -146,7 +166,7 @@ public:
 
     using ptr_t = std::shared_ptr<LLScriptEditorWSServer>;
 
-    LLScriptEditorWSServer(const std::string_view name, U16 port, bool local_only = true);
+    LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only = true);
 
     virtual ~LLScriptEditorWSServer() = default;
 
@@ -166,14 +186,40 @@ public:
      */
     std::set<std::string> getActiveScripts() const;
 
+    /**
+     * @brief Send script content to all connected editors for a specific script
+     * @param script_id The script identifier
+     * @param content The script content
+     * @param metadata Optional metadata about the script
+     */
+    void broadcastScriptUpdate(const std::string& script_id, const std::string& content, const LLSD& metadata = LLSD());
+
+    /**
+     * @brief Send compilation results to all connected editors for a specific script
+     * @param script_id The script identifier
+     * @param success Whether compilation succeeded
+     * @param errors Array of compilation errors/warnings
+     */
+    void broadcastCompilationResult(const std::string& script_id, bool success, const LLSD& errors = LLSD());
+
 protected:
-    LLWebsocketMgr::WSConnection::ptr_t connectionFactory(WSServer::ptr_t server, LLWebsocketMgr::connection_h handle) override;
+    LLWebsocketMgr::WSConnection::ptr_t connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
+                                                         LLWebsocketMgr::connection_h handle) override;
+
+    /**
+     * @brief Apply global method handlers to a new connection
+     * @param connection The connection to configure
+     *
+     * Override this method to customize which methods are registered on
+     * new connections. The base implementation registers all global methods,
+     * but derived classes can add additional script-specific methods.
+     */
+    virtual void setupConnectionMethods(LLJSONRPCConnection::ptr_t connection) override;
 
 private:
-    using map_id_to_editor_t = std::unordered_map<std::string, LLHandle<LLPanel> >;
+    using map_id_to_editor_t = std::unordered_map<std::string, LLHandle<LLPanel>>;
 
     map_id_to_editor_t  mScriptEditors;
-
     std::set<std::shared_ptr<LLScriptEditorWSConnection>> mActiveConnections;
 
     /**
