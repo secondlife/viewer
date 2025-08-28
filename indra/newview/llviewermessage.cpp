@@ -3364,6 +3364,17 @@ void send_agent_update(bool force_send, bool send_reliable)
     msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
 
     static F32 last_draw_disatance_step = 1024;
+    F32 memory_limited_draw_distance = gAgentCamera.mDrawDistance;
+
+    if (LLViewerTexture::sDesiredDiscardBias > 2.f && LLViewerTexture::isSystemMemoryLow())
+    {
+        // If we are low on memory, reduce requested draw distance
+        // Discard's bias is clamped to 4 so we need to check 2 to 4 range
+        // Factor is intended to go from 1.0 to 2.0
+        F32 factor = 1.f + (LLViewerTexture::sDesiredDiscardBias - 2.f) / 2.f;
+        memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / factor, gAgentCamera.mDrawDistance / 2.f);
+    }
+
     if (tp_state == LLAgent::TELEPORT_ARRIVING || LLStartUp::getStartupState() < STATE_MISC)
     {
         // Inform interest list, prioritize closer area.
@@ -3372,25 +3383,25 @@ void send_agent_update(bool force_send, bool send_reliable)
         // closer ones.
         // Todo: revise and remove once server gets distance sorting.
         last_draw_disatance_step = llmax((F32)(gAgentCamera.mDrawDistance / 2.f), 50.f);
+        last_draw_disatance_step = llmin(last_draw_disatance_step, memory_limited_draw_distance);
         msg->addF32Fast(_PREHASH_Far, last_draw_disatance_step);
     }
-    else if (last_draw_disatance_step < gAgentCamera.mDrawDistance)
+    else if (last_draw_disatance_step < memory_limited_draw_distance)
     {
         static LLFrameTimer last_step_time;
         if (last_step_time.getElapsedTimeF32() > 1.f)
         {
             // gradually increase draw distance
-            // Idealy this should be not per second, but based on how loaded
-            // mesh thread is, but hopefully this is temporary.
             last_step_time.reset();
-            F32 step = gAgentCamera.mDrawDistance * 0.1f;
-            last_draw_disatance_step = llmin(last_draw_disatance_step + step, gAgentCamera.mDrawDistance);
+            F32 step = memory_limited_draw_distance * 0.1f;
+            last_draw_disatance_step = llmin(last_draw_disatance_step + step, memory_limited_draw_distance);
         }
         msg->addF32Fast(_PREHASH_Far, last_draw_disatance_step);
     }
     else
     {
-        msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
+        last_draw_disatance_step = memory_limited_draw_distance;
+        msg->addF32Fast(_PREHASH_Far, memory_limited_draw_distance);
     }
 
     msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
