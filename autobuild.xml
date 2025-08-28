@@ -2087,11 +2087,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>39007a526bffffd0bde691f616491b70cf284496</string>
+              <string>94a72c6ddbfb23796ce913c55bc47c128542a582</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.2-r2/openjpeg-2.5.2.11968808495-darwin64-11968808495.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.3-r1/openjpeg-2.5.3.15590356935-darwin64-15590356935.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2101,11 +2101,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>066e7b1ee58d5aff8efe065d598d56226c249a94</string>
+              <string>751172af405f4a47a3aebb37729d62229cab6c07</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.2-r2/openjpeg-2.5.2.11968808495-linux64-11968808495.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.3-r1/openjpeg-2.5.3.15590356935-linux64-15590356935.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2115,11 +2115,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fe98fc9f4f3d94399c3078cad1bdcfdb37ce397b</string>
+              <string>8aab9cf250dfee252386e1c79b5205e6d3b3e19e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.2-r2/openjpeg-2.5.2.11968808495-windows64-11968808495.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.3-r1/openjpeg-2.5.3.15590356935-windows64-15590356935.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2132,7 +2132,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2002-2007, Communications and Remote Sensing Laboratory, Universite catholique de Louvain (UCL), Belgium; Copyright (c) 2002-2007, Professor Benoit Macq; Copyright (c) 2001-2003, David Janssens; Copyright (c) 2002-2003, Yannick Verschueren; Copyright (c) 2003-2007, Francois-Olivier Devaux and Antonin Descampe; Copyright (c) 2005, Herve Drolon, FreeImage Team; Copyright (c) 2006-2007, Parvatha Elangovan; Copyright (c) 2008, Jerome Fimes, Communications &amp; Systemes &lt;jerome.fimes@c-s.fr&gt;; Copyright (c) 2010-2011, Kaori Hagihara; Copyright (c) 2011-2012, Centre National d'Etudes Spatiales (CNES), France; Copyright (c) 2012, CS Systemes d'Information, France;</string>
         <key>version</key>
-        <string>2.5.2.11968808495</string>
+        <string>2.5.3.15590356935</string>
         <key>name</key>
         <string>openjpeg</string>
         <key>description</key>
