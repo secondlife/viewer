@@ -640,43 +640,6 @@ public:
     {
         getCPUIDInfo();
         uint64_t frequency = getSysctlInt64("hw.cpufrequency");
-        if(frequency == 0) // Attempt to query IO Services for pcore frequency
-        {
-            CFMutableDictionaryRef arm_io_matching = IOServiceMatching("AppleARMIODevice");
-            io_iterator_t  iter;
-            kern_return_t ret = IOServiceGetMatchingServices(kIOMasterPortDefault, arm_io_matching, &iter);
-            if(ret == KERN_SUCCESS)
-            {
-                io_object_t obj;
-                while ((obj = IOIteratorNext(iter)))
-                {
-                    io_name_t obj_class;
-                    ret = IOObjectGetClass(obj, obj_class);
-                    if(ret == KERN_SUCCESS)
-                    {
-                        io_name_t obj_name;
-                        ret = IORegistryEntryGetName(obj, obj_name);
-                        if(ret == KERN_SUCCESS)
-                        {
-                            if (strncmp(obj_name, "pmgr", sizeof(obj_name)) == 0)
-                            {
-                                CFTypeRef cfData = IORegistryEntryCreateCFProperty(obj, CFSTR("voltage-states5-sram"), kCFAllocatorDefault, 0); // pcore frequency
-                                if(cfData)
-                                {
-                                    CFIndex size = CFDataGetLength((CFDataRef)cfData);
-                                    std::vector<U8> databuf(size);
-                                    CFDataGetBytes((CFDataRef)cfData, CFRangeMake(0, size), databuf.data());
-
-                                    frequency = 0x00000000FFFFFFFF & ((databuf[size-5] << 24) | (databuf[size-6] << 16) | (databuf[size-7] << 8) | (databuf[size-8]));
-                                    CFRelease(cfData);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         if (frequency == 0) // fallback to clockrate and tbfrequency
         {
             frequency = getSysctlClockrate() * getSysctlInt64("hw.tbfrequency");
