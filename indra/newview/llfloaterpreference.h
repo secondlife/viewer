@@ -218,6 +218,7 @@ private:
     bool mGotPersonalInfo;
     bool mLanguageChanged;
     bool mAvatarDataInitialized;
+    U32 mLastQualityLevel = 0;
     std::string mPriorInstantMessageLogPath;
 
     bool mOriginalHideOnlineStatus;
