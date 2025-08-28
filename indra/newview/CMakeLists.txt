@@ -18,6 +18,7 @@ include(DragDrop)
 if (USE_DISCORD)
   include(Discord)
 endif ()
+include(EntropyCore)
 include(EXPAT)
 include(Hunspell)
 include(JPEGEncoderBasic)
@@ -2013,6 +2014,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::bugsplat
         ll::tracy
         ll::openxr
+        ll::entropycore
         )
 
 if (USE_DISCORD)
