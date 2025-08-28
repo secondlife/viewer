@@ -1000,7 +1000,7 @@ void LLWindowWin32::close()
     // Restore gamma to the system values.
     restoreGamma();
 
-    LL_INFOS("Window") << "Destroying Window Thread" << LL_ENDL;
+    LL_INFOS("Window") << "Cleanup and destruction of Window Thread" << LL_ENDL;
 
     if (sWindowHandleForMessageBox == mWindowHandle)
     {
@@ -4897,17 +4897,7 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
         return false;
     }
 
-    // Hide the window immediately to prevent user interaction during shutdown
-    if (mWindowHandleThrd)
-    {
-        ShowWindow(mWindowHandleThrd, SW_HIDE);
-    }
-    else
-    {
-        LL_WARNS("Window") << "Tried to hide window, but Win32 window handle is NULL." << LL_ENDL;
-        return false;
-    }
-
+    // Stop checking budget
     mGLReady = false;
 
     // Capture current handle before we lose it
@@ -4922,24 +4912,10 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
     // Signal thread to clean up when done
     mDeleteOnExit = true;
 
-    // Close the queue first
-    LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
-    mQueue->close();
-
-    // Wake up the thread if it's stuck in GetMessage()
-    if (old_handle)
-    {
-        WPARAM wparam{ 0xB0B0 };
-        LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
-            << ", " << WM_DUMMY_
-            << ", " << wparam << ")" << std::dec << LL_ENDL;
-
-        // Use PostMessage to signal thread to wake up
-        PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
-    }
-
+    LL_INFOS("Window") << "Detaching window's thread" << LL_ENDL;
     // Cleanly detach threads instead of joining them to avoid blocking the main thread
     // This is acceptable since the thread will self-delete with mDeleteOnExit
+    // Doing it before close() to make sure thread doesn't die before or mid detach.
     for (auto& pair : mThreads)
     {
         try {
@@ -4954,7 +4930,23 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
         }
     }
 
-    LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
+    // Close the queue.
+    LL_INFOS("Window") << "Closing window's pool queue" << LL_ENDL;
+    mQueue->close();
+
+    // Wake up the thread if it's stuck in GetMessage()
+    if (old_handle)
+    {
+        WPARAM wparam{ 0xB0B0 };
+        LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
+            << ", " << WM_DUMMY_
+            << ", " << wparam << ")" << std::dec << LL_ENDL;
+
+        // Use PostMessage to signal thread to wake up
+        PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
+    }
+
+    LL_INFOS("Window") << "Thread pool shutdown complete" << LL_ENDL;
     return true;
 }
 

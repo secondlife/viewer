@@ -145,6 +145,7 @@ static void touch_default_probe(LLReflectionMap* probe)
 LLReflectionMapManager::LLReflectionMapManager()
 {
     mDynamicProbeCount = LL_MAX_REFLECTION_PROBE_COUNT;
+    refreshSettings();
     initCubeFree();
 }
 
@@ -223,25 +224,21 @@ void LLReflectionMapManager::update()
         resume();
     }
 
-    static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
-    static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
-    static LLCachedControl<U32> sReflectionProbeCount(gSavedSettings, "RenderReflectionProbeCount", 256U);
-    static LLCachedControl<S32> sProbeDynamicAllocation(gSavedSettings, "RenderReflectionProbeDynamicAllocation", -1);
     mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
 
     {
         U32 probe_count_temp = mDynamicProbeCount;
-        if (sProbeDynamicAllocation > -1)
+        if (mRenderReflectionProbeDynamicAllocation > -1)
         {
-            if (sLevel == 0)
+            if (mRenderReflectionProbeLevel == 0)
             {
                 mDynamicProbeCount = 1;
             }
-            else if (sLevel == 1)
+            else if (mRenderReflectionProbeLevel == 1)
             {
                 mDynamicProbeCount = (U32)mProbes.size();
             }
-            else if (sLevel == 2)
+            else if (mRenderReflectionProbeLevel == 2)
             {
                 mDynamicProbeCount = llmax((U32)mProbes.size(), 128);
             }
@@ -250,20 +247,20 @@ void LLReflectionMapManager::update()
                 mDynamicProbeCount = 256;
             }
 
-            if (sProbeDynamicAllocation > 1)
+            if (mRenderReflectionProbeDynamicAllocation > 1)
             {
                 // Round mDynamicProbeCount to the nearest increment of 16
-                mDynamicProbeCount = ((mDynamicProbeCount + sProbeDynamicAllocation / 2) / sProbeDynamicAllocation) * 16;
-                mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, sReflectionProbeCount);
+                mDynamicProbeCount = ((mDynamicProbeCount + mRenderReflectionProbeDynamicAllocation / 2) / mRenderReflectionProbeDynamicAllocation) * 16;
+                mDynamicProbeCount = llclamp(mDynamicProbeCount, 1, mRenderReflectionProbeCount);
             }
             else
             {
-                mDynamicProbeCount = llclamp(mDynamicProbeCount + sProbeDynamicAllocation, 1, sReflectionProbeCount);
+                mDynamicProbeCount = llclamp(mDynamicProbeCount + mRenderReflectionProbeDynamicAllocation, 1, mRenderReflectionProbeCount);
             }
         }
         else
         {
-            mDynamicProbeCount = sReflectionProbeCount;
+            mDynamicProbeCount = mRenderReflectionProbeCount;
         }
 
         mDynamicProbeCount = llmin(mDynamicProbeCount, LL_MAX_REFLECTION_PROBE_COUNT);
@@ -329,7 +326,7 @@ void LLReflectionMapManager::update()
 
     bool did_update = false;
 
-    bool realtime = sDetail >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
+    bool realtime = mRenderReflectionProbeDetail >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
 
     LLReflectionMap* closestDynamic = nullptr;
 
@@ -458,7 +455,7 @@ void LLReflectionMapManager::update()
             closestDynamic = probe;
         }
 
-        if (sLevel == 0)
+        if (mRenderReflectionProbeLevel == 0)
         {
             // only update default probe when coverage is set to none
             llassert(probe == mDefaultProbe);
@@ -490,12 +487,12 @@ void LLReflectionMapManager::update()
     static LLCachedControl<F32> sUpdatePeriod(gSavedSettings, "RenderDefaultProbeUpdatePeriod", 2.f);
     if ((gFrameTimeSeconds - mDefaultProbe->mLastUpdateTime) < sUpdatePeriod)
     {
-        if (sLevel == 0)
+        if (mRenderReflectionProbeLevel == 0)
         { // when probes are disabled don't update the default probe more often than the prescribed update period
             oldestProbe = nullptr;
         }
     }
-    else if (sLevel > 0)
+    else if (mRenderReflectionProbeLevel > 0)
     { // when probes are enabled don't update the default probe less often than the prescribed update period
       oldestProbe = mDefaultProbe;
     }
@@ -519,6 +516,14 @@ void LLReflectionMapManager::update()
         oldestOccluded->autoAdjustOrigin();
         oldestOccluded->mLastUpdateTime = gFrameTimeSeconds;
     }
+}
+
+void LLReflectionMapManager::refreshSettings()
+{
+    mRenderReflectionProbeDetail = gSavedSettings.getS32("RenderReflectionProbeDetail");
+    mRenderReflectionProbeLevel = gSavedSettings.getS32("RenderReflectionProbeLevel");
+    mRenderReflectionProbeCount = gSavedSettings.getU32("RenderReflectionProbeCount");
+    mRenderReflectionProbeDynamicAllocation = gSavedSettings.getS32("RenderReflectionProbeDynamicAllocation");
 }
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
@@ -785,7 +790,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     }
     else
     {
-        llassert(gSavedSettings.getS32("RenderReflectionProbeLevel") > 0); // should never update a probe that's not the default probe if reflection coverage is none
+        llassert(mRenderReflectionProbeLevel > 0); // should never update a probe that's not the default probe if reflection coverage is none
         probe->update(mRenderTarget.getWidth(), face);
     }
 
