@@ -237,7 +237,7 @@ private:
     std::unique_ptr< ll::prefs::SearchData > mSearchData;
     bool mSearchDataDirty;
 
-    boost::signals2::connection	mImpostorsChangedSignal;
+    boost::signals2::connection mImpostorsChangedSignal;
     boost::signals2::connection mComplexityChangedSignal;
 
     void onUpdateFilterTerm( bool force = false );

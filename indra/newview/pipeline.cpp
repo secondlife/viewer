@@ -7419,7 +7419,7 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 {
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
-	LL_PROFILE_GPU_ZONE("cas");
+    LL_PROFILE_GPU_ZONE("cas");
     if (cas_sharpness == 0.0f || !gCASProgram.isComplete())
     {
         gPipeline.copyRenderTarget(src, dst);
@@ -7464,7 +7464,7 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
-	LL_PROFILE_GPU_ZONE("FXAA");
+    LL_PROFILE_GPU_ZONE("FXAA");
     {
         llassert(!gCubeSnapshot);
         bool multisample = RenderFSAAType == 1 && gFXAAProgram[0].isComplete() && mFXAAMap.isComplete();
@@ -7668,7 +7668,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
 
 void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
-	LL_PROFILE_GPU_ZONE("SMAA");
+    LL_PROFILE_GPU_ZONE("SMAA");
     llassert(!gCubeSnapshot);
     bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
@@ -7773,7 +7773,7 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 {
-	LL_PROFILE_GPU_ZONE("dof");
+    LL_PROFILE_GPU_ZONE("dof");
     {
         bool dof_enabled =
             (RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
