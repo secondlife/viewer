@@ -2156,10 +2156,8 @@ if (DARWIN)
     PROPERTIES
     OUTPUT_NAME "${product}"
     # From Contents/MacOS/SecondLife, look in Contents/Frameworks
-    INSTALL_RPATH "@loader_path/../Frameworks"
-    # SIGH, as of 2018-05-24 (cmake 3.11.1) the INSTALL_RPATH property simply
-    # does not work. Try this:
-    LINK_FLAGS "-rpath @loader_path/../Frameworks"
+    BUILD_WITH_INSTALL_RPATH 1
+    INSTALL_RPATH "@executable_path/../Frameworks"
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${MACOSX_BUNDLE_GUI_IDENTIFIER}"
     )
