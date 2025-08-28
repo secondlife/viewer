@@ -69,16 +69,8 @@ if (DARWIN)
     PROPERTIES
     PREFIX ""
     BUILD_WITH_INSTALL_RPATH 1
-    INSTALL_NAME_DIR "@executable_path"
+    INSTALL_RPATH "@executable_path/../Frameworks"
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
-  )
-
-  add_custom_command(TARGET media_plugin_cef
-    POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change "@executable_path/Chromium Embedded Framework"
-        "@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework"
-        "$<TARGET_FILE:media_plugin_cef>"
-    VERBATIM
-    COMMENT "Fixing path to CEF Framework"
   )
 
 endif (DARWIN)

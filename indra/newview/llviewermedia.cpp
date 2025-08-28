@@ -1259,35 +1259,46 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
     {
         LLAppViewer::instance()->postToMainCoro([=]()
             {
-                LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-                if (media_instance)
+                std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
+                std::string cookie_name = "";
+                std::string cookie_value = "";
+                std::string cookie_path = "";
+                bool httponly = true;
+                bool secure = true;
+
+                LLViewerMedia* inst = getInstance();
+                if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure))
                 {
-                    LLViewerMedia* inst = getInstance();
-                    std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
-                    std::string cookie_name = "";
-                    std::string cookie_value = "";
-                    std::string cookie_path = "";
-                    bool httponly = true;
-                    bool secure = true;
-                    if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
-                        media_instance->getMediaPlugin())
+                    // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
+                    // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
+                    // For now, we use the URL for the OpenID POST request since it will have the same authority
+                    // as the domain field.
+                    // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
+                    // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
+                    // down.
+                    std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
+
+                    // list of floater names and webbrowser therein to set the cookie that arrived via login into
+                    struct MediaCookieInstance {
+                        std::string floater_name;
+                        std::string browser_name;
+                    };
+                    struct MediaCookieInstance media_cookie_instances[] = {
+                        {"search", "search_contents" },
+                        {"marketplace", "marketplace_contents" },
+                        {"destinations", "destination_guide_contents" },
+                    };
+                    for (MediaCookieInstance mci : media_cookie_instances)
                     {
-                        // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
-                        // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
-                        // For now, we use the URL for the OpenID POST request since it will have the same authority
-                        // as the domain field.
-                        // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
-                        // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
-                        // down.
-                        std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
+                        LLMediaCtrl* media_instance = LLFloaterReg::getInstance(mci.floater_name)->getChild<LLMediaCtrl>(mci.browser_name);
+                        if (media_instance && media_instance->getMediaPlugin())
+                        {
+                            media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
+                                cookie_path, httponly, secure);
 
-                        media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
-                            cookie_path, httponly, secure);
-
-                        // Now that we have parsed the raw cookie, we must store it so that each new media instance
-                        // can also get a copy and faciliate logging into internal SL sites.
-                        media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
-                            cookie_host, cookie_path, httponly, secure);
+                            media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
+                                cookie_host, cookie_path, httponly, secure);
+                        }
                     }
                 }
             });
@@ -3500,6 +3511,46 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
 void
+LLViewerMediaImpl::undo()
+{
+    if (mMediaSource)
+        mMediaSource->undo();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+bool
+LLViewerMediaImpl::canUndo() const
+{
+    if (mMediaSource)
+        return mMediaSource->canUndo();
+    else
+        return FALSE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+void
+LLViewerMediaImpl::redo()
+{
+    if (mMediaSource)
+        mMediaSource->redo();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+bool
+LLViewerMediaImpl::canRedo() const
+{
+    if (mMediaSource)
+        return mMediaSource->canRedo();
+    else
+        return FALSE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+void
 LLViewerMediaImpl::cut()
 {
     if (mMediaSource)
@@ -3555,6 +3606,46 @@ LLViewerMediaImpl::canPaste() const
         return mMediaSource->canPaste();
     else
         return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+void
+LLViewerMediaImpl::doDelete()
+{
+    if (mMediaSource)
+        mMediaSource->doDelete();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+bool
+LLViewerMediaImpl::canDoDelete() const
+{
+    if (mMediaSource)
+        return mMediaSource->canDoDelete();
+    else
+        return FALSE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+void
+LLViewerMediaImpl::selectAll()
+{
+    if (mMediaSource)
+        mMediaSource->selectAll();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual
+bool
+LLViewerMediaImpl::canSelectAll() const
+{
+    if (mMediaSource)
+        return mMediaSource->canSelectAll();
+    else
+        return FALSE;
 }
 
 void LLViewerMediaImpl::setUpdated(bool updated)

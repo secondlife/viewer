@@ -9,18 +9,18 @@
  min_width="800"
  height="800"
  layout="topleft"
- name="Search"
+ name="Marketplace"
  single_instance="true"
- help_topic="search"
+ help_topic="marketplace"
  save_rect="true"
  save_visibility="true"
- title="SEARCH"
+ title="MARKETPLACE"
  width="800">
     <web_browser
       top="25"
       height="775"
       width="800"
       follows="all"
-      name="search_contents"
+      name="marketplace_contents"
       trusted_content="true"/>
 </floater>

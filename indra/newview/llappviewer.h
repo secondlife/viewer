@@ -220,6 +220,7 @@ public:
 
     void initGeneralThread();
     void purgeUserDataOnExit() { mPurgeUserDataOnExit = true; }
+    void purgeCefStaleCaches();  // Remove old, stale CEF cache folders
     void purgeCache(); // Clear the local cache.
     void purgeCacheImmediate(); //clear local cache immediately.
     S32  updateTextureThreads(F32 max_time);
@@ -309,6 +310,10 @@ private:
 
     void sendLogoutRequest();
     void disconnectViewer();
+
+    // Does not create a marker file. For lost network case,
+    // to at least attempt to remove the ghost from the world.
+    void sendSimpleLogoutRequest();
 
     // *FIX: the app viewer class should be some sort of singleton, no?
     // Perhaps its child class is the singleton and this should be an abstract base.
