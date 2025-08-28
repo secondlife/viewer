@@ -148,6 +148,9 @@ std::unordered_set<LLImageGL*> LLImageGL::sImageList;
 bool LLImageGLThread::sEnabledTextures = false;
 bool LLImageGLThread::sEnabledMedia = false;
 
+bool LLImageGLWorkGroup::sEnabledTextures = false;
+bool LLImageGLWorkGroup::sEnabledMedia    = false;
+
 //****************************************************************************************************
 //The below for texture auditing use only
 //****************************************************************************************************
@@ -246,7 +249,7 @@ bool is_little_endian()
 }
 
 //static
-void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyze_alpha /* = false */, bool thread_texture_loads /* = false */, bool thread_media_updates /* = false */)
+void LLImageGL::initClass(LLWindow* window, WorkService* service, S32 num_catagories, bool skip_analyze_alpha /* = false */, bool thread_texture_loads /* = false */, bool thread_media_updates /* = false */)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     sSkipAnalyzeAlpha = skip_analyze_alpha;
@@ -261,6 +264,11 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyz
         LLImageGLThread::createInstance(window);
         LLImageGLThread::sEnabledTextures = gGLManager.mGLVersion > 3.95f ? thread_texture_loads : false;
         LLImageGLThread::sEnabledMedia = gGLManager.mGLVersion > 3.95f ? thread_media_updates : false;
+
+        
+        LLImageGLWorkGroup::createInstance(service);
+        LLImageGLWorkGroup::sEnabledTextures = gGLManager.mGLVersion > 3.95f ? thread_texture_loads : false;
+        LLImageGLWorkGroup::sEnabledMedia    = gGLManager.mGLVersion > 3.95f ? thread_media_updates : false;
     }
 }
 
@@ -2635,3 +2643,9 @@ void LLImageGLThread::run()
     mWindow->destroySharedContext(mContext);
 }
 
+
+LLImageGLWorkGroup::LLImageGLWorkGroup(WorkService* service) : mWorkGroup(1024, "LLImageGLWorkGroup")
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    service->addWorkContractGroup(&mWorkGroup);
+}

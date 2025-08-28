@@ -95,7 +95,8 @@ LLTextureKey::LLTextureKey(LLUUID id, ETexListType tex_type)
 
 LLViewerTextureList::LLViewerTextureList()
     : mForceResetTextureStats(false),
-    mInitialized(false)
+    mInitialized(false),
+    mRequestContractGroup(1024, "RequestGroup")
 {
 }
 
@@ -103,6 +104,7 @@ void LLViewerTextureList::init()
 {
     mInitialized = true ;
     sNumImages = 0;
+    gWorkService->addWorkContractGroup(&mRequestContractGroup);
     doPreloadImages();
 }
 
@@ -363,6 +365,8 @@ void LLViewerTextureList::shutdown()
     mImageList.clear();
 
     mInitialized = false ; //prevent loading textures again.
+
+    gWorkService->removeWorkContractGroup(&mRequestContractGroup);
 }
 
 void LLViewerTextureList::dump()

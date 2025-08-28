@@ -52,6 +52,11 @@
 #include "threadpool_fwd.h"
 
 #include <boost/signals2.hpp>
+#include <EntropyCore/Concurrency/WorkService.h>
+
+using WorkService = EntropyEngine::Core::Concurrency::WorkService;
+using WorkContractGroup = EntropyEngine::Core::Concurrency::WorkContractGroup;
+using WorkContractHandle = EntropyEngine::Core::Concurrency::WorkContractHandle;
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -242,6 +247,10 @@ public:
     // post given work to the "mainloop" work queue for handling on the main thread
     void postToMainCoro(const LL::WorkQueue::Work& work);
 
+    // Posts given work to the "app" work contract group for async execution.
+    // You should use this sparingly - ideally, you should only use this for classes where a full work contract group would be overkill.
+    void postToAppWorkGroup(const LL::WorkQueue::Work& work);
+
     // Writes an error code into the error_marker file for use on next startup.
     void createErrorMarker(eLastExecEvent error_code) const;
 
@@ -369,6 +378,8 @@ private:
     LLAppCoreHttp mAppCoreHttp;
 
     bool mIsFirstRun;
+
+    WorkContractGroup mMainAppGroup;
 };
 
 // Globals with external linkage. From viewer.h
@@ -428,5 +439,7 @@ extern bool gPeriodicSlowFrame;
 extern bool gDoDisconnect;
 
 extern bool gSimulateMemLeak;
+
+extern WorkService* gWorkService;
 
 #endif // LL_LLAPPVIEWER_H

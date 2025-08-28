@@ -36,6 +36,11 @@
 #include <unordered_set>
 #include "lluiimage.h"
 
+#include <EntropyCore/Concurrency/WorkContractGroup.h>
+
+using WorkContractGroup = EntropyEngine::Core::Concurrency::WorkContractGroup;
+using WorkContractHandle = EntropyEngine::Core::Concurrency::WorkContractHandle;
+
 const U32 LL_IMAGE_REZ_LOSSLESS_CUTOFF = 128;
 
 const bool MIPMAP_YES = true;
@@ -238,6 +243,8 @@ private:
 
     bool mInitialized ;
     LLFrameTimer mForceDecodeTimer;
+
+    WorkContractGroup mRequestContractGroup;
 
 private:
     static S32 sNumImages;

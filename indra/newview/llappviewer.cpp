@@ -369,6 +369,9 @@ bool gLogoutInProgress = false;
 bool gSimulateMemLeak = false;
 bool gDoDisconnect = false;
 
+EntropyEngine::Core::Concurrency::WorkService* gWorkService =
+    new EntropyEngine::Core::Concurrency::WorkService{ EntropyEngine::Core::Concurrency::WorkService::Config() };
+
 // We don't want anyone, especially threads working on the graphics pipeline,
 // to have to block due to this WorkQueue being full.
 WorkQueue gMainloopWork("mainloop", 1024*1024);
@@ -669,7 +672,8 @@ LLAppViewer::LLAppViewer()
     mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", false)),
     mFastTimerLogThread(NULL),
     mSettingsLocationList(NULL),
-    mIsFirstRun(false)
+    mIsFirstRun(false),
+    mMainAppGroup(2048, "LLAppViewer main group")
 {
     if(NULL != sInstance)
     {
@@ -1263,6 +1267,9 @@ bool LLAppViewer::init()
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
 
+    gWorkService->start();
+
+    gWorkService->addWorkContractGroup(&mMainAppGroup);
 
 #if LL_WINDOWS
     if (!mSecondInstance)
@@ -1350,6 +1357,13 @@ bool LLAppViewer::doFrame()
         discordpp::RunCallbacks();
     }
 #endif
+
+    // Execute any main thread jobs in the work service.
+    if (gWorkService->hasMainThreadWork())
+    {
+        // Just use some arbitrary number for now to determine how many work contracts to try and execute per frame on the main thread.
+        gWorkService->executeMainThreadWork(20);
+    }
 
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
     {
@@ -5375,7 +5389,15 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 
 void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
-    gMainloopWork.post(work);
+    //gMainloopWork.post(work);
+    mMainAppGroup.createContract(work, EntropyEngine::Core::Concurrency::ExecutionType::MainThread).schedule();
+}
+
+void LLAppViewer::postToAppWorkGroup(const LL::WorkQueue::Work& work)
+{
+    // Create and immediately schedule a contract to execute work in the app work group.
+    // We assume that the caller has already made sure that the work is generally thread safe.
+    mMainAppGroup.createContract(work).schedule();
 }
 
 void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const

@@ -2004,7 +2004,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
     // Init the image list.  Must happen after GL is initialized and before the images that
     // LLViewerWindow needs are requested, as well as before LLViewerMedia starts updating images.
-    LLImageGL::initClass(mWindow, LLViewerTexture::MAX_GL_IMAGE_CATEGORY, false, gSavedSettings.getBOOL("RenderGLMultiThreadedTextures"), gSavedSettings.getBOOL("RenderGLMultiThreadedMedia"));
+    LLImageGL::initClass(mWindow, gWorkService, LLViewerTexture::MAX_GL_IMAGE_CATEGORY, false, gSavedSettings.getBOOL("RenderGLMultiThreadedTextures"), gSavedSettings.getBOOL("RenderGLMultiThreadedMedia"));
     gTextureList.init();
     LLViewerTextureManager::init() ;
     gBumpImageList.init();
