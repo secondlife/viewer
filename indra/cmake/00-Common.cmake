@@ -162,6 +162,9 @@ endif (LINUX)
 
 
 if (DARWIN)
+  # Use rpath loading on macos
+  set(CMAKE_MACOSX_RPATH TRUE)
+
   # Warnings should be fatal -- thanks, Nicky Perian, for spotting reversed default
   set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
