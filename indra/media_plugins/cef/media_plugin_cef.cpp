@@ -106,9 +106,13 @@ private:
     std::string mAuthUsername;
     std::string mAuthPassword;
     bool mAuthOK;
+    bool mCanUndo;
+    bool mCanRedo;
     bool mCanCut;
     bool mCanCopy;
     bool mCanPaste;
+    bool mCanDelete;
+    bool mCanSelectAll;
     std::string mRootCachePath;
     std::string mCefLogFile;
     bool mCefLogVerbose;
@@ -144,9 +148,13 @@ MediaPluginBase(host_send_func, host_user_data)
     mAuthUsername = "";
     mAuthPassword = "";
     mAuthOK = false;
+    mCanUndo = false;
+    mCanRedo = false;
     mCanCut = false;
     mCanCopy = false;
     mCanPaste = false;
+    mCanDelete = false;
+    mCanSelectAll = false;
     mCefLogFile = "";
     mCefLogVerbose = false;
     mPickedFiles.clear();
@@ -940,6 +948,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             {
                 authResponse(message_in);
             }
+            if (message_name == "edit_undo")
+            {
+                mCEFLib->editUndo();
+            }
+            if (message_name == "edit_redo")
+            {
+                mCEFLib->editRedo();
+            }
             if (message_name == "edit_cut")
             {
                 mCEFLib->editCut();
@@ -951,6 +967,18 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             if (message_name == "edit_paste")
             {
                 mCEFLib->editPaste();
+            }
+            if (message_name == "edit_delete")
+            {
+                mCEFLib->editDelete();
+            }
+            if (message_name == "edit_select_all")
+            {
+                mCEFLib->editSelectAll();
+            }
+            if (message_name == "edit_show_source")
+            {
+                mCEFLib->viewSource();
             }
         }
         else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
@@ -1103,13 +1131,30 @@ void MediaPluginCEF::unicodeInput(std::string event, LLSD native_key_data = LLSD
 //
 void MediaPluginCEF::checkEditState()
 {
+    bool can_undo = mCEFLib->editCanUndo();
+    bool can_redo = mCEFLib->editCanRedo();
     bool can_cut = mCEFLib->editCanCut();
     bool can_copy = mCEFLib->editCanCopy();
     bool can_paste = mCEFLib->editCanPaste();
+    bool can_delete = mCEFLib->editCanDelete();
+    bool can_select_all = mCEFLib->editCanSelectAll();
 
-    if ((can_cut != mCanCut) || (can_copy != mCanCopy) || (can_paste != mCanPaste))
+    if ((can_undo != mCanUndo) || (can_redo != mCanRedo) || (can_cut != mCanCut) || (can_copy != mCanCopy)
+        || (can_paste != mCanPaste) || (can_delete != mCanDelete) || (can_select_all != mCanSelectAll))
     {
         LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "edit_state");
+
+        if (can_undo != mCanUndo)
+        {
+            mCanUndo = can_undo;
+            message.setValueBoolean("undo", can_undo);
+        }
+
+        if (can_redo != mCanRedo)
+        {
+            mCanRedo = can_redo;
+            message.setValueBoolean("redo", can_redo);
+        }
 
         if (can_cut != mCanCut)
         {
@@ -1127,6 +1172,18 @@ void MediaPluginCEF::checkEditState()
         {
             mCanPaste = can_paste;
             message.setValueBoolean("paste", can_paste);
+        }
+
+        if (can_delete != mCanDelete)
+        {
+            mCanDelete = can_delete;
+            message.setValueBoolean("delete", can_delete);
+        }
+
+        if (can_select_all != mCanSelectAll)
+        {
+            mCanSelectAll = can_select_all;
+            message.setValueBoolean("select_all", can_select_all);
         }
 
         sendMessage(message);
