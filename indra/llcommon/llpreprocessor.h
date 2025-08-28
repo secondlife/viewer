@@ -181,7 +181,7 @@
 
 #define LL_TO_STRING_HELPER(x) #x
 #define LL_TO_STRING(x) LL_TO_STRING_HELPER(x)
-#define LL_TO_WSTRING_HELPER(x) L#x
+#define LL_TO_WSTRING_HELPER(x) L## #x
 #define LL_TO_WSTRING(x) LL_TO_WSTRING_HELPER(x)
 #define LL_FILE_LINENO_MSG(msg) __FILE__ "(" LL_TO_STRING(__LINE__) ") : " msg
 #define LL_GLUE_IMPL(x, y) x##y
