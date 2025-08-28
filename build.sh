@@ -40,7 +40,7 @@ retry_cmd()
 
 build_dir_Darwin()
 {
-  echo build-darwin-x86_64
+  echo build-darwin-universal
 }
 
 build_dir_Linux()

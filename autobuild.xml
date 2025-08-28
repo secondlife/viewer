@@ -3171,7 +3171,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             </map>
           </map>
           <key>build_directory</key>
-          <string>build-darwin-x86_64</string>
+          <string>build-darwin-universal</string>
           <key>name</key>
           <string>darwin64</string>
         </map>

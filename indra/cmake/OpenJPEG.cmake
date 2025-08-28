@@ -1,7 +1,9 @@
 # -*- cmake -*-
-include(Prebuilt)
-
 include_guard()
+
+include(Prebuilt)
+include(Linking)
+
 add_library( ll::openjpeg INTERFACE IMPORTED )
 
 use_system_binary(openjpeg)
