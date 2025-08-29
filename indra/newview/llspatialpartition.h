@@ -136,6 +136,8 @@ public:
     U8   mShiny = 0;
     bool mFullbright = false;
     bool mHasGlow = false;
+	// Set to 'true' when a PBR material is actually used to render this face. HB
+    bool mHasPBR = false;
 
     struct CompareTexture
     {

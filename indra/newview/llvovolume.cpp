@@ -5372,10 +5372,9 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
     U8 index = facep->getTextureIndex();
 
+    bool has_pbr = false;
     LLMaterial* mat = nullptr;
-
     LLUUID mat_id;
-
     auto* gltf_mat = (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial();
     llassert(gltf_mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
     if (gltf_mat != nullptr)
@@ -5384,6 +5383,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         if (!facep->hasMedia() || (tex && tex->getType() != LLViewerTexture::MEDIA_TEXTURE))
         { // no media texture, face texture will be unused
             tex = nullptr;
+            has_pbr = true;
         }
     }
     else
@@ -5447,6 +5447,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         info->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
         info->mMaterialID == mat_id &&
+        info->mHasPBR == has_pbr &&
         info->mFullbright == fullbright &&
         info->mBump == bump &&
         (!mat || (info->mShiny == shiny)) && // need to break batches when a material is shared, but legacy settings are different
@@ -5501,6 +5502,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         draw_info->mShaderMask = shader_mask;
         draw_info->mAvatar = facep->mAvatar;
         draw_info->mSkinInfo = facep->mSkinInfo;
+        draw_info->mHasPBR = has_pbr;
 
         if (gltf_mat)
         {

@@ -37,6 +37,7 @@
 uniform float emissive_brightness;  // fullbright flag, 1.0 == fullbright, 0.0 otherwise
 uniform int sun_up_factor;
 uniform int classic_mode;
+uniform float alpha_gamma;
 
 vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 vec3 scaleSoftClipFragLinear(vec3 l);
@@ -420,7 +421,7 @@ void main()
 
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);
-    float al = max(diffcol.a, glare) * vertex_color.a;
+    float al = pow(max(diffcol.a, glare) * vertex_color.a, alpha_gamma);
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
