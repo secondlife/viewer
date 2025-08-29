@@ -74,4 +74,20 @@ public:
     boost::signals2::connection addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb);
 };
 
+
+class LLSyntaxLua : public LLSingleton<LLSyntaxLua>
+{
+    LLSINGLETON(LLSyntaxLua);
+
+public:
+    void initialize();
+    LLSD getKeywordsXML() const { return mKeywordsXml; }
+
+private:
+    void loadDefaultKeywordsIntoLLSD();
+
+    LLSD mKeywordsXml;
+    bool mInitialized;
+};
+
 #endif // LLSYNTAXID_H
