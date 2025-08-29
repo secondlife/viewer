@@ -695,21 +695,38 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 
     LL_DEBUGS("Voice") << "Setting devices to-input: '" << inputDevice << "' output: '" << outputDevice << "'" << LL_ENDL;
-    clearRenderDevices();
-    for (auto &device : render_devices)
-    {
-        addRenderDevice(LLVoiceDevice(device.mDisplayName, device.mID));
-    }
-    setRenderDevice(outputDevice);
 
-    clearCaptureDevices();
-    for (auto &device : capture_devices)
+    // only set the render device if the device list has changed.
+    if (mRenderDevices.size() != render_devices.size() || !std::equal(mRenderDevices.begin(),
+                    mRenderDevices.end(),
+                    render_devices.begin(),
+                    [](const LLVoiceDevice& a, const llwebrtc::LLWebRTCVoiceDevice& b) {
+            return a.display_name == b.mDisplayName && a.full_name == b.mID; }))
     {
-        LL_DEBUGS("Voice") << "Checking capture device:'" << device.mID << "'" << LL_ENDL;
-
-        addCaptureDevice(LLVoiceDevice(device.mDisplayName, device.mID));
+        clearRenderDevices();
+        for (auto& device : render_devices)
+        {
+            addRenderDevice(LLVoiceDevice(device.mDisplayName, device.mID));
+        }
+        setRenderDevice(outputDevice);
     }
-    setCaptureDevice(inputDevice);
+
+    // only set the capture device if the device list has changed.
+    if (mCaptureDevices.size() != capture_devices.size() ||!std::equal(mCaptureDevices.begin(),
+                    mCaptureDevices.end(),
+                    capture_devices.begin(),
+                    [](const LLVoiceDevice& a, const llwebrtc::LLWebRTCVoiceDevice& b)
+                    { return a.display_name == b.mDisplayName && a.full_name == b.mID; }))
+    {
+        clearCaptureDevices();
+        for (auto& device : capture_devices)
+        {
+            LL_DEBUGS("Voice") << "Checking capture device:'" << device.mID << "'" << LL_ENDL;
+
+            addCaptureDevice(LLVoiceDevice(device.mDisplayName, device.mID));
+        }
+        setCaptureDevice(inputDevice);
+    }
 
     setDevicesListUpdated(true);
 }
