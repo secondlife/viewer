@@ -2460,7 +2460,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
         LLPointer<LLMeshSkinInfo> info = nullptr;
         info = new LLMeshSkinInfo(mesh_id, skin);
 
-        if (isAgentAvatarValid())
+        if (isAgentAvatarValid() && gAgentAvatarp->mInitFlags != 0)
         { // joint numbers are consistent inside LLVOAvatar and animations, but inconsistent inside meshes,
             // generate a map of mesh joint numbers to LLVOAvatar joint numbers
             LLSkinningUtil::initJointNums(info, gAgentAvatarp);
@@ -2569,7 +2569,8 @@ EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_
     return MESH_OK;
 }
 
-LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
+LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, const LLMeshUploadThread::lod_sources_map_t& sources_list,
+                                       LLVector3& scale, bool upload_textures,
                                        bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
                                        const std::string & upload_url, LLUUID destination_folder_id, bool do_upload,
                                        LLHandle<LLWholeModelFeeObserver> fee_observer,
@@ -2584,6 +2585,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
     mUploadObserverHandle(upload_observer)
 {
     mInstanceList = data;
+    mLodSources = sources_list;
     mUploadTextures = upload_textures;
     mUploadSkin = upload_skin;
     mUploadJoints = upload_joints;
@@ -2683,6 +2685,8 @@ void dump_llsd_to_file(const LLSD& content, std::string filename)
 {
     if (gSavedSettings.getBOOL("MeshUploadLogXML"))
     {
+        filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            filename);
         llofstream of(filename.c_str());
         LLSDSerialize::toPrettyXML(content,of);
     }
@@ -2721,6 +2725,12 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
     res["mesh_list"] = LLSD::emptyArray();
     res["texture_list"] = LLSD::emptyArray();
     res["instance_list"] = LLSD::emptyArray();
+    LLSD& lod_sources = res["source_format"];
+    lod_sources["high"] = 0;
+    for (auto &source : mLodSources)
+    {
+        lod_sources[source.first] = source.second;
+    }
     S32 mesh_num = 0;
     S32 texture_num = 0;
 
@@ -5026,12 +5036,13 @@ bool LLMeshRepoThread::hasHeader(const LLUUID& mesh_id) const
     return iter != mMeshHeader.end();
 }
 
-void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
+void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, const std::map<std::string, std::string> &lod_sources,
+                                   LLVector3& scale, bool upload_textures,
                                    bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
                                    std::string upload_url, const LLUUID& destination_folder_id, bool do_upload,
                                    LLHandle<LLWholeModelFeeObserver> fee_observer, LLHandle<LLWholeModelUploadObserver> upload_observer)
 {
-    LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures,
+    LLMeshUploadThread* thread = new LLMeshUploadThread(data, lod_sources, scale, upload_textures,
                                                         upload_skin, upload_joints, lock_scale_if_joint_position,
                                                         upload_url, destination_folder_id, do_upload, fee_observer, upload_observer);
     mUploadWaitList.push_back(thread);

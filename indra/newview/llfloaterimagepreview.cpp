@@ -433,7 +433,7 @@ bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
         LLStringUtil::format_map_t args;
         args["PIXELS"] = llformat("%dM", (S32)(MAX_IMAGE_AREA / 1000000));
 
-        mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
+        mImageLoadError = LLTrans::getString("texture_load_area_error", args);
         return false;
     }
 
