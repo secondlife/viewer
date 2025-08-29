@@ -8,7 +8,7 @@
  width="500">
    <floater.string
     name="remove_folder_slapp">
-    secondlife://app/remove_folder/?folder_id=
+    secondlife:///app/remove_folder/?folder_id=
    </floater.string>
    <text
     type="string"
@@ -42,7 +42,7 @@
     width="450"
     layout="topleft"
     left="16">
-        secondlife://app/wear_folder/?folder_name=Daisy
+        secondlife:///app/wear_folder/?folder_name=Daisy
    </text>
    <text
     type="string"
@@ -63,7 +63,7 @@
     width="450"
     layout="topleft"
     left="16">
-        secondlife://app/add_folder/?folder_name=Cardboard%20Boxbot
+        secondlife:///app/add_folder/?folder_name=Cardboard%20Boxbot
    </text>
    <text
     type="string"
@@ -73,7 +73,7 @@
     height="16"
     width="450"
     layout="topleft">
-        secondlife://app/add_folder/?folder_id=59219db2-c260-87d3-213d-bb3bc298a3d8
+        secondlife:///app/add_folder/?folder_id=59219db2-c260-87d3-213d-bb3bc298a3d8
    </text>
    <text
     type="string"
@@ -118,6 +118,6 @@
     name="remove_folder_txt"
     layout="topleft"
     left="16">
-        secondlife://app/remove_folder/?folder_id=
+        secondlife:///app/remove_folder/?folder_id=
    </text>
 </floater>

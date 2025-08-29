@@ -71,6 +71,7 @@ public:
     virtual const LLUUID& getLinkedUUID() const; // inventoryID that this item points to, else this item's inventoryID
     const LLUUID& getParentUUID() const;
     virtual const LLUUID& getThumbnailUUID() const;
+    virtual bool getIsFavorite() const;
     virtual const std::string& getName() const;
     virtual LLAssetType::EType getType() const;
     LLAssetType::EType getActualType() const; // bypasses indirection for linked items
@@ -86,6 +87,7 @@ public:
     virtual void rename(const std::string& new_name);
     void setParent(const LLUUID& new_parent);
     virtual void setThumbnailUUID(const LLUUID& thumbnail_uuid);
+    virtual void setFavorite(bool favorite);
     void setType(LLAssetType::EType type);
     virtual void setCreationDate(time_t creation_date_utc); // only stored for items
 
@@ -111,6 +113,7 @@ protected:
     LLUUID mUUID;
     LLUUID mParentUUID; // Parent category.  Root categories have LLUUID::NULL.
     LLUUID mThumbnailUUID;
+    bool mFavorite;
     LLAssetType::EType mType;
     std::string mName;
     time_t mCreationDate; // seconds from 1/1/1970, UTC
@@ -270,8 +273,9 @@ public:
     virtual bool importLegacyStream(std::istream& input_stream);
     virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = true) const;
 
-    LLSD exportLLSD() const;
-    bool importLLSD(const LLSD& cat_data);
+    virtual void exportLLSD(LLSD& sd) const;
+    bool importLLSDMap(const LLSD& cat_data);
+    virtual bool importLLSD(const std::string& label, const LLSD& value);
     //--------------------------------------------------------------------
     // Member Variables
     //--------------------------------------------------------------------
@@ -285,6 +289,7 @@ protected:
 //
 //   These functions convert between structured data and an inventory
 //   item, appropriate for serialization.
+//   Not up to date (no favorites, nor thumbnails), for testing purposes
 //-----------------------------------------------------------------------------
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item);
 LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat);

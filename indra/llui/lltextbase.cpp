@@ -1069,6 +1069,14 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
+    S32 text_length = (S32)getLength();
+    if (pos >= text_length || pos < 0)
+    {
+        return 0; // nothing to remove
+    }
+    // Clamp length to not go past the end of the text
+    length = std::min(length, text_length - pos);
+
     beforeValueChange();
     segment_set_t::iterator seg_iter = getSegIterContaining(pos);
     while(seg_iter != mSegments.end())
@@ -2228,6 +2236,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     registrar.add("Url.ReportAbuse", boost::bind(&LLUrlAction::reportAbuse, url));
     registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
     registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
+    registrar.add("Url.ShowParcelOnMap", boost::bind(&LLUrlAction::showParcelOnMap, url));
     registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
     registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
 

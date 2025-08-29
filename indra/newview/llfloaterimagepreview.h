@@ -110,7 +110,7 @@ protected:
 class LLFloaterImagePreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterImagePreview(const std::string& filename);
+    LLFloaterImagePreview(const LLSD& args);
     virtual ~LLFloaterImagePreview();
 
     bool postBuild() override;
@@ -125,6 +125,8 @@ public:
     static void onMouseCaptureLostImagePreview(LLMouseHandler*);
 
     void clearAllPreviewTextures();
+
+    void onBtnOK();
 
 protected:
     static void     onPreviewTypeCommit(LLUICtrl*,void*);

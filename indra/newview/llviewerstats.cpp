@@ -234,6 +234,8 @@ LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS("frametimeevents", "Numbe
                                 FRAMETIME_JITTER_EVENTS_LAST_MINUTE("frametimeeventslastmin", "Number of frametime events in the last minute.");
 
 LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION("normalizedframetimejitter", "Normalized frametime jitter over the session.");
+LLTrace::SampleStatHandle<F64> NFTV("nftv", "Normalized frametime variation.");
+LLTrace::SampleStatHandle<F64> NORMALIZED_FRAMTIME_JITTER_PERIOD("normalizedframetimejitterperiod", "Normalized frametime jitter over the last 5 seconds.");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
@@ -322,6 +324,8 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
         sample(LLStatViewer::FRAMETIME_JITTER_CUMULATIVE, mTotalFrametimeJitter);
         sample(LLStatViewer::NOTRMALIZED_FRAMETIME_JITTER_SESSION, mTotalFrametimeJitter / mTotalTime);
 
+        mLastNoramlizedSessionJitter = mTotalFrametimeJitter / mTotalTime;
+
         static LLCachedControl<F32> frameTimeEventThreshold(gSavedSettings, "StatsFrametimeEventThreshold", 0.1f);
 
         if (time_diff - mLastTimeDiff > mLastTimeDiff * frameTimeEventThreshold())
@@ -359,6 +363,27 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
             ninety_fifth_percentile = calcPercentile(mFrameTimesJitter, 0.95);
             sample(LLStatViewer::FRAMETIME_JITTER_99TH, ninety_ninth_percentile);
             sample(LLStatViewer::FRAMETIME_JITTER_95TH, ninety_fifth_percentile);
+
+            F64 averageFrameTime = 0;
+            for (const auto& frame_time : mFrameTimes)
+            {
+                averageFrameTime += frame_time.value();
+            }
+            averageFrameTime /= mFrameTimes.size();
+
+            sample(LLStatViewer::NFTV, frame_time_stddev / averageFrameTime);
+            mLastNormalizedFrametimeVariance = frame_time_stddev / averageFrameTime;
+
+            // Add up all of the jitter values.
+            F64 totalJitter = 0;
+            for (const auto& frame_jitter : mFrameTimesJitter)
+            {
+                totalJitter += frame_jitter.value();
+            }
+
+            mLastNormalizedPeriodJitter = totalJitter / mLastFrameTimeSample;
+
+            sample(LLStatViewer::NORMALIZED_FRAMTIME_JITTER_PERIOD, mLastNormalizedPeriodJitter);
 
             mFrameTimes.clear();
             mFrameTimesJitter.clear();
@@ -648,6 +673,11 @@ void send_viewer_stats(bool include_preferences)
 
     // send fps only for time app spends in foreground
     agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
+
+    agent["normalized_session_jitter"] = LLViewerStats::instance().getLastNormalizedSessionJitter();
+    agent["normalized_frametime_variance"] = LLViewerStats::instance().getLastNormalizedFrametimeVariance();
+    agent["normalized_period_jitter"]      = LLViewerStats::instance().getLastNormalizedPeriodJitter();
+
     agent["version"] = LLVersionInfo::instance().getChannelAndVersion();
     std::string language = LLUI::getLanguage();
     agent["language"] = language;

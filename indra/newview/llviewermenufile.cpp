@@ -69,6 +69,7 @@
 #include "llviewerassetupload.h"
 
 // linden libraries
+#include "llfilesystem.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -478,13 +479,19 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
     return true;
 }
 
-const void upload_single_file(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
+void upload_single_file(
+    const std::vector<std::string>& filenames,
+    LLFilePicker::ELoadFilter type,
+    const LLUUID& dest)
 {
     std::string filename = filenames[0];
     if (!check_file_extension(filename, type)) return;
 
     if (!filename.empty())
     {
+        LLSD args;
+        args["filename"] = filename;
+        args["dest"] = dest;
         if (type == LLFilePicker::FFLOAD_WAV)
         {
             // pre-qualify wavs to make sure the format is acceptable
@@ -499,12 +506,12 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
             }
             else
             {
-                LLFloaterReg::showInstance("upload_sound", LLSD(filename));
+                LLFloaterReg::showInstance("upload_sound", args);
             }
         }
         if (type == LLFilePicker::FFLOAD_IMAGE)
         {
-            LLFloaterReg::showInstance("upload_image", LLSD(filename));
+            LLFloaterReg::showInstance("upload_image", args);
         }
         if (type == LLFilePicker::FFLOAD_ANIM)
         {
@@ -512,11 +519,11 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
             LLStringUtil::toLower(filename_lc);
             if (filename_lc.rfind(".anim") != std::string::npos)
             {
-                LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
+                LLFloaterReg::showInstance("upload_anim_anim", args);
             }
             else
             {
-                LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
+                LLFloaterReg::showInstance("upload_anim_bvh", args);
             }
         }
     }
@@ -544,16 +551,9 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
         if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
         {
             bool resource_upload = false;
-            if (asset_type == LLAssetType::AT_TEXTURE && allow_2k)
+            if (asset_type == LLAssetType::AT_TEXTURE)
             {
-                LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
-                if (gDirUtilp->fileExists(filename) && image_frmted && image_frmted->load(filename))
-                {
-                    S32 biased_width = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getWidth(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-                    S32 biased_height = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getHeight(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-                    expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(biased_width, biased_height);
-                    resource_upload = true;
-                }
+                resource_upload = true;
             }
             else if (LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
             {
@@ -562,23 +562,115 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
 
             if (resource_upload)
             {
-                LLNewFileResourceUploadInfo* info_p = new LLNewFileResourceUploadInfo(
-                    filename,
-                    asset_name,
-                    asset_name, 0,
-                    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
-                    LLFloaterPerms::getGroupPerms("Uploads"),
-                    LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost);
-
-                if (!allow_2k)
+                if (asset_type == LLAssetType::AT_TEXTURE)
                 {
-                    info_p->setMaxImageSize(1024);
-                }
-                LLResourceUploadInfo::ptr_t uploadInfo(info_p);
+                    std::string exten = gDirUtilp->getExtension(filename);
+                    U32         codec = LLImageBase::getCodecFromExtension(exten);
 
-                upload_new_resource(uploadInfo);
+                    // Load the image
+                    LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
+                    if (image.isNull())
+                    {
+                        LL_WARNS() << "Failed to create image container for " << filename << LL_ENDL;
+                        continue;
+                    }
+                    if (!image->load(filename))
+                    {
+                        LL_WARNS() << "Failed to load image: " << filename << LL_ENDL;
+                        continue;
+                    }
+                    // Decompress or expand it in a raw image structure
+                    LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+                    if (!image->decode(raw_image, 0.0f))
+                    {
+                        LL_WARNS() << "Failed to decode image: " << filename << LL_ENDL;
+                        continue;
+                    }
+                    // Check the image constraints
+                    if ((image->getComponents() != 3) && (image->getComponents() != 4))
+                    {
+                        LL_WARNS() << "Attempted to upload a texture that has " << image->getComponents()
+                                   << " components, but only 3 (RGB) or 4 (RGBA) are allowed." << LL_ENDL;
+                        continue;
+                    }
+                    // Downscale images to fit the max_texture_dimensions_*, or 1024 if allow_2k is false
+                    S32 max_width  = allow_2k ? gSavedSettings.getS32("max_texture_dimension_X") : 1024;
+                    S32 max_height = allow_2k ? gSavedSettings.getS32("max_texture_dimension_Y") : 1024;
+
+                    S32 orig_width  = raw_image->getWidth();
+                    S32 orig_height = raw_image->getHeight();
+
+                    if (orig_width > max_width || orig_height > max_height)
+                    {
+                        // Calculate scale factors
+                        F32 width_scale  = (F32)max_width / (F32)orig_width;
+                        F32 height_scale = (F32)max_height / (F32)orig_height;
+                        F32 scale        = llmin(width_scale, height_scale);
+
+                        // Calculate new dimensions, preserving aspect ratio
+                        S32 new_width  = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_width * scale), 4, max_width));
+                        S32 new_height = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_height * scale), 4, max_height));
+
+                        if (!raw_image->scale(new_width, new_height))
+                        {
+                            LL_WARNS() << "Failed to scale image from " << orig_width << "x" << orig_height << " to " << new_width << "x"
+                                       << new_height << LL_ENDL;
+                            continue;
+                        }
+
+                        // Inform the resident about the resized image
+                        LLSD subs;
+                        subs["[ORIGINAL_WIDTH]"]  = orig_width;
+                        subs["[ORIGINAL_HEIGHT]"] = orig_height;
+                        subs["[NEW_WIDTH]"]       = new_width;
+                        subs["[NEW_HEIGHT]"]      = new_height;
+                        subs["[MAX_WIDTH]"]       = max_width;
+                        subs["[MAX_HEIGHT]"]      = max_height;
+                        LLNotificationsUtil::add("ImageUploadResized", subs);
+                    }
+
+                    raw_image->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+
+                    LLTransactionID tid;
+                    tid.generate();
+                    LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+
+                    LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
+
+                    if (formatted->encode(raw_image, 0.0f))
+                    {
+                        LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
+                        fmt_file.write(formatted->getData(), formatted->getDataSize());
+
+                        LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
+                            tid, LLAssetType::AT_TEXTURE,
+                            asset_name,
+                            asset_name, 0,
+                            LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                            LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                            LLFloaterPerms::getGroupPerms("Uploads"),
+                            LLFloaterPerms::getEveryonePerms("Uploads"),
+                            LLAgentBenefitsMgr::current().getTextureUploadCost(raw_image->getWidth(), raw_image->getHeight())
+                        ));
+
+                        upload_new_resource(assetUploadInfo);
+                    }
+                }
+                else
+                {
+                    LLNewFileResourceUploadInfo* info_p = new LLNewFileResourceUploadInfo(
+                        filename,
+                        asset_name,
+                        asset_name, 0,
+                        LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                        LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                        LLFloaterPerms::getGroupPerms("Uploads"),
+                        LLFloaterPerms::getEveryonePerms("Uploads"),
+                        expected_upload_cost);
+                    LLResourceUploadInfo::ptr_t uploadInfo(info_p);
+
+                    upload_new_resource(uploadInfo);
+                }
             }
         }
 
@@ -647,8 +739,31 @@ bool get_bulk_upload_expected_cost(
                 LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
                 if (gDirUtilp->fileExists(filename) && image_frmted && image_frmted->load(filename))
                 {
-                    S32 biased_width = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getWidth(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-                    S32 biased_height = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getHeight(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    S32 biased_width, biased_height;
+
+                    S32 max_width  = allow_2k ? gSavedSettings.getS32("max_texture_dimension_X") : 1024;
+                    S32 max_height = allow_2k ? gSavedSettings.getS32("max_texture_dimension_Y") : 1024;
+
+                    S32 orig_width  = image_frmted->getWidth();
+                    S32 orig_height = image_frmted->getHeight();
+
+                    if (orig_width > max_width || orig_height > max_height)
+                    {
+                        // Calculate scale factors
+                        F32 width_scale  = (F32)max_width / (F32)orig_width;
+                        F32 height_scale = (F32)max_height / (F32)orig_height;
+                        F32 scale        = llmin(width_scale, height_scale);
+
+                        // Calculate new dimensions, preserving aspect ratio
+                        biased_width = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_width * scale), 4, max_width));
+                        biased_height = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_height * scale), 4, max_height));
+                    }
+                    else
+                    {
+                        biased_width = LLImageRaw::biasedDimToPowerOfTwo(orig_width, LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                        biased_height = LLImageRaw::biasedDimToPowerOfTwo(orig_height, LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    }
+
                     total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(biased_width, biased_height);
                     S32 area = biased_width * biased_height;
                     if (area >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
@@ -709,7 +824,7 @@ bool get_bulk_upload_expected_cost(
     return file_count > 0;
 }
 
-const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k)
+void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k, const LLUUID& dest)
 {
     S32 expected_upload_cost;
     S32 expected_upload_count;
@@ -721,6 +836,7 @@ const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool 
         key["upload_cost"] = expected_upload_cost;
         key["upload_count"] = expected_upload_count;
         key["has_2k_textures"] = (textures_2k_count > 0);
+        key["dest"] = dest;
 
         LLSD array;
         for (const std::string& str : filtered_filenames)
@@ -754,7 +870,7 @@ const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool 
 
 }
 
-const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k)
+void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k, const LLUUID& dest)
 {
     // TODO:
     // Check user balance for entire cost
@@ -776,7 +892,7 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
             filtered_filenames.push_back(filename);
         }
     }
-    upload_bulk(filtered_filenames, allow_2k);
+    upload_bulk(filtered_filenames, allow_2k, dest);
 }
 
 class LLFileUploadImage : public view_listener_t
@@ -787,7 +903,7 @@ class LLFileUploadImage : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_IMAGE, false);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_IMAGE, false);
         return true;
     }
 };
@@ -818,7 +934,7 @@ class LLFileUploadSound : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_WAV, false);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_WAV, false);
         return true;
     }
 };
@@ -831,7 +947,7 @@ class LLFileUploadAnim : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_ANIM, false);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_ANIM, false);
         return true;
     }
 };
@@ -844,7 +960,7 @@ class LLFileUploadBulk : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
         return true;
     }
 };
@@ -1134,7 +1250,7 @@ LLUUID upload_new_resource(
         name, desc, compression_info,
         destination_folder_type, inv_type,
         next_owner_perms, group_perms, everyone_perms,
-        expected_upload_cost, show_inventory));
+        expected_upload_cost, LLUUID::null, show_inventory));
     upload_new_resource(uploadInfo, callback, userdata);
 
     return LLUUID::null;
