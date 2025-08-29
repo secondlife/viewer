@@ -43,7 +43,7 @@ class LLPlane
 public:
 
     // Constructors
-    LLPlane() {}; // no default constructor
+    LLPlane() = default;
     LLPlane(const LLVector3 &p0, F32 d) { setVec(p0, d); }
     LLPlane(const LLVector3 &p0, const LLVector3 &n) { setVec(p0, n); }
     inline void setVec(const LLVector3 &p0, F32 d) { mV.set(p0[0], p0[1], p0[2], d); }
@@ -104,6 +104,7 @@ private:
     LLVector4a mV;
 } LL_ALIGN_POSTFIX(16);
 
+static_assert(std::is_trivial<LLPlane>::value, "LLPlane must be a trivial type");
 
 
 #endif // LL_LLPLANE_H

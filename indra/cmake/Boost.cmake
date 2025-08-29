@@ -16,41 +16,65 @@ use_prebuilt_binary(boost)
 # with the address size.
 set(addrsfx "-x${ADDRESS_SIZE}")
 
-if (WINDOWS)
-  target_link_libraries( ll::boost INTERFACE
-          libboost_context-mt${addrsfx}
-          libboost_fiber-mt${addrsfx}
-          libboost_filesystem-mt${addrsfx}
-          libboost_program_options-mt${addrsfx}
-          libboost_regex-mt${addrsfx}
-          libboost_system-mt${addrsfx}
-          libboost_thread-mt${addrsfx}
-          libboost_url-mt${addrsfx})
-elseif (LINUX)
-  target_link_libraries( ll::boost INTERFACE
-          boost_context-mt${addrsfx}
-          boost_fiber-mt${addrsfx}
-          boost_filesystem-mt${addrsfx}
-          boost_program_options-mt${addrsfx}
-          boost_regex-mt${addrsfx}
-          boost_signals-mt${addrsfx}
-          boost_system-mt${addrsfx}
-          boost_thread-mt${addrsfx}
-          boost_url-mt${addrsfx})
-elseif (DARWIN)
-  target_link_libraries( ll::boost INTERFACE
-          boost_context-mt${addrsfx}
-          boost_fiber-mt${addrsfx}
-          boost_filesystem-mt${addrsfx}
-          boost_program_options-mt${addrsfx}
-          boost_regex-mt${addrsfx}
-          boost_system-mt${addrsfx}
-          boost_thread-mt${addrsfx}
-          boost_url-mt${addrsfx})
-endif (WINDOWS)
+find_library(BOOST_CONTEXT_LIBRARY
+    NAMES
+    boost_context-mt
+    boost_context-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(BOOST_FIBER_LIBRARY
+    NAMES
+    boost_fiber-mt
+    boost_fiber-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(BOOST_FILESYSTEM_LIBRARY
+    NAMES
+    boost_filesystem-mt
+    boost_filesystem-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(BOOST_PROGRAMOPTIONS_LIBRARY
+    NAMES
+    boost_program_options-mt
+    boost_program_options-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(BOOST_REGEX_LIBRARY
+    NAMES
+    boost_regex-mt
+    boost_regex-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(BOOST_SYSTEM_LIBRARY
+    NAMES
+    boost_system-mt
+    boost_system-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(BOOST_THREAD_LIBRARY
+    NAMES
+    boost_thread-mt
+    boost_thread-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(BOOST_URL_LIBRARY
+    NAMES
+    boost_url-mt
+    boost_url-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+target_link_libraries(ll::boost INTERFACE
+    ${BOOST_FIBER_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_FILESYSTEM_LIBRARY}
+    ${BOOST_PROGRAMOPTIONS_LIBRARY}
+    ${BOOST_REGEX_LIBRARY}
+    ${BOOST_SYSTEM_LIBRARY}
+    ${BOOST_THREAD_LIBRARY}
+    ${BOOST_URL_LIBRARY})
 
 if (LINUX)
-    set(BOOST_SYSTEM_LIBRARY ${BOOST_SYSTEM_LIBRARY} rt)
-    set(BOOST_THREAD_LIBRARY ${BOOST_THREAD_LIBRARY} rt)
+    target_link_libraries(ll::boost INTERFACE rt)
 endif (LINUX)
 

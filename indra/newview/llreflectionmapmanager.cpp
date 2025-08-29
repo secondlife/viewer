@@ -211,6 +211,7 @@ void LLReflectionMapManager::update()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("reflection manager update");
     llassert(!gCubeSnapshot); // assert a snapshot is not in progress
     if (LLAppViewer::instance()->logoutRequestSent())
     {
@@ -760,6 +761,8 @@ void LLReflectionMapManager::doProbeUpdate()
 // In effect this simulates single-bounce lighting.
 void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("probe update");
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
 
@@ -1075,6 +1078,7 @@ void LLReflectionMapManager::updateUniforms()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("rmmu - uniforms")
 
 
     mReflectionMaps.resize(mReflectionProbeCount);

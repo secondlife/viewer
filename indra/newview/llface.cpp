@@ -767,9 +767,6 @@ static void xform4a(LLVector4a &tex_coord, const LLVector4a& trans, const LLVect
     // Texture transforms are done about the center of the face.
     st.setAdd(tex_coord, trans);
 
-    // Handle rotation
-    LLVector4a rot_st;
-
     // <s0 * cosAng, s0*-sinAng, s1*cosAng, s1*-sinAng>
     LLVector4a s0;
     s0.splat(st, 0);
@@ -842,7 +839,6 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         //VECTORIZE THIS
         LLMatrix4a mat_vert;
         mat_vert.loadu(mat_vert_in);
-        LLVector4a new_extents[2];
 
         llassert(less_than_max_mag(face.mExtents[0]));
         llassert(less_than_max_mag(face.mExtents[1]));
@@ -2255,8 +2251,6 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 
                         if (joint)
                         {
-                            LLVector4a jointPos;
-
                             LLMatrix4a worldMat;
                             worldMat.loadu((F32*)&joint->getWorldMatrix().mMatrix[0][0]);
 

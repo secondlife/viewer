@@ -29,7 +29,6 @@
 #ifndef LL_LLPLUGINCLASSMEDIA_H
 #define LL_LLPLUGINCLASSMEDIA_H
 
-#include "llgltypes.h"
 #include "llpluginprocessparent.h"
 #include "llrect.h"
 #include "llpluginclassmediaowner.h"
@@ -201,6 +200,12 @@ public:
 
     LLPluginClassMediaOwner::EMediaStatus getStatus() const { return mStatus; }
 
+    void    undo();
+    bool    canUndo() const { return mCanUndo; };
+
+    void    redo();
+    bool    canRedo() const { return mCanRedo; };
+
     void    cut();
     bool    canCut() const { return mCanCut; };
 
@@ -209,6 +214,14 @@ public:
 
     void    paste();
     bool    canPaste() const { return mCanPaste; };
+
+    void    doDelete();
+    bool    canDoDelete() const { return mCanDoDelete; };
+
+    void    selectAll();
+    bool    canSelectAll() const { return mCanSelectAll; };
+
+    void    showPageSource();
 
     // These can be called before init(), and they will be queued and sent before the media init message.
     void    setUserDataPath(const std::string &user_data_path_cache, const std::string &username, const std::string &user_data_path_cef_log);
@@ -351,9 +364,9 @@ protected:
 
     bool        mTextureParamsReceived;     // the mRequestedTexture* fields are only valid when this is true
     S32         mRequestedTextureDepth;
-    LLGLenum    mRequestedTextureInternalFormat;
-    LLGLenum    mRequestedTextureFormat;
-    LLGLenum    mRequestedTextureType;
+    U32         mRequestedTextureInternalFormat;
+    U32         mRequestedTextureFormat;
+    U32         mRequestedTextureType;
     bool        mRequestedTextureSwapBytes;
     bool        mRequestedTextureCoordsOpenGL;
 
@@ -419,9 +432,13 @@ protected:
 
     F64             mSleepTime;
 
+    bool            mCanUndo;
+    bool            mCanRedo;
     bool            mCanCut;
     bool            mCanCopy;
     bool            mCanPaste;
+    bool            mCanDoDelete;
+    bool            mCanSelectAll;
 
     std::string     mMediaName;
     std::string     mMediaDescription;
