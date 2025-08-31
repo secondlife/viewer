@@ -29,6 +29,8 @@
 
 // library headers
 #include "llnotificationsutil.h"
+#include <vector>
+#include <tuple>
 // project headers
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -1297,7 +1299,91 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
         asset_id = BLANK_MATERIAL_ASSET_ID;
     }
 
-    hit_obj->setRenderMaterialID(hit_face, asset_id);
+        // Preserve existing texture transforms when switching to PBR material
+    LLTextureEntry* tep = hit_obj->getTE(hit_face);
+    F32 existing_scale_s = LLGLTFMaterial::TextureTransform().mScale.mV[0];
+    F32 existing_scale_t = LLGLTFMaterial::TextureTransform().mScale.mV[1];
+    F32 existing_offset_s = LLGLTFMaterial::TextureTransform().mOffset.mV[0];
+    F32 existing_offset_t = LLGLTFMaterial::TextureTransform().mOffset.mV[1];
+    F32 existing_rotation = LLGLTFMaterial::TextureTransform().mRotation;
+    bool should_preserve_transforms = false;
+    LLGLTFMaterial* preserved_override = nullptr;
+
+    if (tep && asset_id.notNull())
+    {
+        // Check if we have non-default texture transforms to preserve
+        // First check GLTF material override, then fall back to texture entry
+        LLGLTFMaterial* existing_override = tep->getGLTFMaterialOverride();
+        if (existing_override)
+        {
+            // Check if existing override has non-default transforms
+            const LLGLTFMaterial::TextureTransform& existing_transform = existing_override->mTextureTransform[0];
+            const LLGLTFMaterial::TextureTransform& default_transform = LLGLTFMaterial::TextureTransform();
+
+            if (existing_transform.mScale != default_transform.mScale ||
+                existing_transform.mOffset != default_transform.mOffset ||
+                existing_transform.mRotation != default_transform.mRotation)
+            {
+                // Read from existing GLTF material override
+                existing_scale_s = existing_transform.mScale.mV[0];
+                existing_scale_t = existing_transform.mScale.mV[1];
+                existing_offset_s = existing_transform.mOffset.mV[0];
+                existing_offset_t = existing_transform.mOffset.mV[1];
+                existing_rotation = existing_transform.mRotation;
+                should_preserve_transforms = true;
+            }
+            else
+            {
+                // Existing override has default transforms, fall back to texture entry
+                tep->getScale(&existing_scale_s, &existing_scale_t);
+                tep->getOffset(&existing_offset_s, &existing_offset_t);
+                existing_rotation = tep->getRotation();
+
+                should_preserve_transforms = (existing_scale_s != default_transform.mScale.mV[0] || existing_scale_t != default_transform.mScale.mV[1] ||
+                                              existing_offset_s != default_transform.mOffset.mV[0] || existing_offset_t != default_transform.mOffset.mV[1] ||
+                                              existing_rotation != default_transform.mRotation);
+            }
+        }
+        else
+        {
+            // No existing override, check texture entry transforms
+            tep->getScale(&existing_scale_s, &existing_scale_t);
+            tep->getOffset(&existing_offset_s, &existing_offset_t);
+            existing_rotation = tep->getRotation();
+
+            // Only preserve if texture entry transforms are non-default
+            const LLGLTFMaterial::TextureTransform& default_transform = LLGLTFMaterial::TextureTransform();
+            should_preserve_transforms = (existing_scale_s != default_transform.mScale.mV[0] || existing_scale_t != default_transform.mScale.mV[1] ||
+                                          existing_offset_s != default_transform.mOffset.mV[0] || existing_offset_t != default_transform.mOffset.mV[1] ||
+                                          existing_rotation != default_transform.mRotation);
+        }
+
+        // Create override material with preserved transforms if needed
+        if (should_preserve_transforms)
+        {
+            preserved_override = new LLGLTFMaterial();
+            // Transfer texture entry transforms to all PBR texture channels
+            for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+            {
+                preserved_override->mTextureTransform[i].mScale.set(existing_scale_s, existing_scale_t);
+                preserved_override->mTextureTransform[i].mOffset.set(existing_offset_s, existing_offset_t);
+                preserved_override->mTextureTransform[i].mRotation = existing_rotation;
+            }
+        }
+    }
+
+    if (should_preserve_transforms && preserved_override)
+    {
+        // Apply material with preserved transforms
+        LLGLTFMaterialList::queueApply(hit_obj, hit_face, asset_id, preserved_override);
+        // Update local state
+        hit_obj->setRenderMaterialID(hit_face, asset_id, false, true);
+        tep->setGLTFMaterialOverride(preserved_override);
+    }
+    else
+    {
+        hit_obj->setRenderMaterialID(hit_face, asset_id);
+    }
 
     dialog_refresh_all();
 
@@ -1333,7 +1419,98 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
         asset_id = BLANK_MATERIAL_ASSET_ID;
     }
 
-    hit_obj->setRenderMaterialIDs(asset_id);
+        // Preserve existing texture transforms when switching to PBR material for all faces
+    std::vector<std::pair<bool, LLGLTFMaterial*>> preserved_transforms(hit_obj->getNumTEs());
+
+    if (asset_id.notNull())
+    {
+        for (S32 te = 0; te < hit_obj->getNumTEs(); ++te)
+        {
+            LLTextureEntry* tep = hit_obj->getTE(te);
+            if (!tep) continue;
+
+            bool should_preserve = false;
+            LLGLTFMaterial* preserved_override = nullptr;
+
+            // Only preserve transforms from existing GLTF material override
+            // Do not fall back to texture entry transforms when switching between PBR materials
+            LLGLTFMaterial* existing_override = tep->getGLTFMaterialOverride();
+            if (existing_override)
+            {
+                // Check if existing override has non-default transforms
+                const LLGLTFMaterial::TextureTransform& existing_transform = existing_override->mTextureTransform[0];
+                const LLGLTFMaterial::TextureTransform& default_transform = LLGLTFMaterial::TextureTransform();
+
+                if (existing_transform.mScale != default_transform.mScale ||
+                    existing_transform.mOffset != default_transform.mOffset ||
+                    existing_transform.mRotation != default_transform.mRotation)
+                {
+                    // Preserve non-default transforms from current PBR material
+                    preserved_override = new LLGLTFMaterial();
+                    for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                    {
+                        preserved_override->mTextureTransform[i].mScale = existing_transform.mScale;
+                        preserved_override->mTextureTransform[i].mOffset = existing_transform.mOffset;
+                        preserved_override->mTextureTransform[i].mRotation = existing_transform.mRotation;
+                    }
+                    should_preserve = true;
+                }
+                // If existing override has default transforms, don't preserve anything
+            }
+            else
+            {
+                // No existing PBR material override - check texture entry transforms
+                // This handles the case of switching from Blinn-Phong to PBR material
+                F32 existing_scale_s, existing_scale_t, existing_offset_s, existing_offset_t, existing_rotation;
+                tep->getScale(&existing_scale_s, &existing_scale_t);
+                tep->getOffset(&existing_offset_s, &existing_offset_t);
+                existing_rotation = tep->getRotation();
+
+                const LLGLTFMaterial::TextureTransform& default_transform = LLGLTFMaterial::TextureTransform();
+                if (existing_scale_s != default_transform.mScale.mV[0] || existing_scale_t != default_transform.mScale.mV[1] ||
+                    existing_offset_s != default_transform.mOffset.mV[0] || existing_offset_t != default_transform.mOffset.mV[1] ||
+                    existing_rotation != default_transform.mRotation)
+                {
+                    // Preserve non-default transforms from texture entry
+                    preserved_override = new LLGLTFMaterial();
+                    for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                    {
+                        preserved_override->mTextureTransform[i].mScale.set(existing_scale_s, existing_scale_t);
+                        preserved_override->mTextureTransform[i].mOffset.set(existing_offset_s, existing_offset_t);
+                        preserved_override->mTextureTransform[i].mRotation = existing_rotation;
+                    }
+                    should_preserve = true;
+                }
+            }
+
+            preserved_transforms[te] = std::make_pair(should_preserve, preserved_override);
+        }
+    }
+
+    // Apply materials with preserved transforms
+    if (asset_id.notNull())
+    {
+        for (S32 te = 0; te < hit_obj->getNumTEs(); ++te)
+        {
+            LLGLTFMaterial* preserved_override = preserved_transforms[te].second;
+            if (preserved_override)
+            {
+                // Apply material with preserved transforms
+                LLGLTFMaterialList::queueApply(hit_obj, te, asset_id, preserved_override);
+                // Update local state
+                hit_obj->setRenderMaterialID(te, asset_id, false, true);
+                hit_obj->getTE(te)->setGLTFMaterialOverride(preserved_override);
+            }
+            else
+            {
+                hit_obj->setRenderMaterialID(te, asset_id, false, true);
+            }
+        }
+    }
+    else
+    {
+        hit_obj->setRenderMaterialIDs(asset_id);
+    }
     dialog_refresh_all();
     // send the update to the simulator
     hit_obj->sendTEUpdate();
