@@ -32,10 +32,12 @@
 #include "api/audio_codecs/audio_encoder_factory.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
+#include "api/audio/builtin_audio_processing_builder.h"
 #include "api/media_stream_interface.h"
 #include "api/media_stream_track.h"
 #include "modules/audio_processing/audio_buffer.h"
 #include "modules/audio_mixer/audio_mixer_impl.h"
+#include "api/environment/environment_factory.h"
 
 namespace llwebrtc
 {
@@ -48,23 +50,54 @@ static int16_t RECORD_DEVICE_DEFAULT  = 0;
 #endif
 
 
-LLAudioDeviceObserver::LLAudioDeviceObserver() : mSumVector {0}, mMicrophoneEnergy(0.0) {}
+//
+// LLWebRTCAudioTransport implementation
+//
 
-float LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
-
-// TODO: Pull smoothing/filtering code into a common helper function
-// for LLAudioDeviceObserver and LLCustomProcessor
-
-void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
-                                          const size_t   num_samples,
-                                          const size_t   bytes_per_sample,
-                                          const size_t   num_channels,
-                                          const uint32_t samples_per_sec)
+LLWebRTCAudioTransport::LLWebRTCAudioTransport() : mMicrophoneEnergy(0.0)
 {
+    memset(mSumVector, 0, sizeof(mSumVector));
+}
+
+void LLWebRTCAudioTransport::SetEngineTransport(webrtc::AudioTransport* t)
+{
+    engine_.store(t, std::memory_order_release);
+}
+
+int32_t LLWebRTCAudioTransport::RecordedDataIsAvailable(const void* audio_data,
+                                                        size_t      number_of_samples,
+                                                        size_t      bytes_per_sample,
+                                                        size_t      number_of_channels,
+                                                        uint32_t    samples_per_sec,
+                                                        uint32_t    total_delay_ms,
+                                                        int32_t     clock_drift,
+                                                        uint32_t    current_mic_level,
+                                                        bool        key_pressed,
+                                                        uint32_t&   new_mic_level)
+{
+    auto* engine = engine_.load(std::memory_order_acquire);
+
+    // 1) Deliver to engine (authoritative).
+    int32_t ret = 0;
+    if (engine)
+    {
+        ret = engine->RecordedDataIsAvailable(audio_data,
+                                              number_of_samples,
+                                              bytes_per_sample,
+                                              number_of_channels,
+                                              samples_per_sec,
+                                              total_delay_ms,
+                                              clock_drift,
+                                              current_mic_level,
+                                              key_pressed,
+                                              new_mic_level);
+    }
+
+    // 2) Calculate energy for microphone level monitoring
     // calculate the energy
     float        energy  = 0;
-    const short *samples = (const short *) audio_samples;
-    for (size_t index = 0; index < num_samples * num_channels; index++)
+    const short *samples = (const short *) audio_data;
+    for (size_t index = 0; index < number_of_samples * number_of_channels; index++)
     {
         float sample = (static_cast<float>(samples[index]) / (float) 32767);
         energy += sample * sample;
@@ -81,18 +114,59 @@ void LLAudioDeviceObserver::OnCaptureData(const void    *audio_samples,
     }
     mSumVector[i] = energy;
     totalSum += energy;
-    mMicrophoneEnergy = std::sqrt(totalSum / (num_samples * buffer_size));
+    mMicrophoneEnergy = std::sqrt(totalSum / (number_of_samples * buffer_size));
+
+    return ret;
 }
 
-void LLAudioDeviceObserver::OnRenderData(const void    *audio_samples,
-                                         const size_t   num_samples,
-                                         const size_t   bytes_per_sample,
-                                         const size_t   num_channels,
-                                         const uint32_t samples_per_sec)
+int32_t LLWebRTCAudioTransport::NeedMorePlayData(size_t   number_of_samples,
+                                                 size_t   bytes_per_sample,
+                                                 size_t   number_of_channels,
+                                                 uint32_t samples_per_sec,
+                                                 void*    audio_data,
+                                                 size_t&  number_of_samples_out,
+                                                 int64_t* elapsed_time_ms,
+                                                 int64_t* ntp_time_ms)
 {
+    auto* engine = engine_.load(std::memory_order_acquire);
+    if (!engine)
+    {
+        // No engine sink; output silence to be safe.
+        const size_t bytes = number_of_samples * bytes_per_sample * number_of_channels;
+        memset(audio_data, 0, bytes);
+        number_of_samples_out = number_of_samples;
+        return 0;
+    }
+
+    // Only the engine should fill the buffer.
+    return engine->NeedMorePlayData(number_of_samples,
+                                    bytes_per_sample,
+                                    number_of_channels,
+                                    samples_per_sec,
+                                    audio_data,
+                                    number_of_samples_out,
+                                    elapsed_time_ms,
+                                    ntp_time_ms);
 }
 
-LLCustomProcessor::LLCustomProcessor() : mSampleRateHz(0), mNumChannels(0), mMicrophoneEnergy(0.0), mGain(1.0)
+void LLWebRTCAudioTransport::PullRenderData(int      bits_per_sample,
+                                            int      sample_rate,
+                                            size_t   number_of_channels,
+                                            size_t   number_of_frames,
+                                            void*    audio_data,
+                                            int64_t* elapsed_time_ms,
+                                            int64_t* ntp_time_ms)
+{
+    auto* engine = engine_.load(std::memory_order_acquire);
+
+    if (engine)
+    {
+        engine
+            ->PullRenderData(bits_per_sample, sample_rate, number_of_channels, number_of_frames, audio_data, elapsed_time_ms, ntp_time_ms);
+    }
+}
+
+LLCustomProcessor::LLCustomProcessor(LLCustomProcessorStatePtr state) : mSampleRateHz(0), mNumChannels(0), mState(state)
 {
     memset(mSumVector, 0, sizeof(mSumVector));
 }
@@ -129,10 +203,11 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
 
     // calculate the energy
     float energy = 0;
+    float gain   = mState->getGain();
     for (size_t index = 0; index < stream_config.num_samples(); index++)
     {
         float sample = frame_samples[index];
-        sample       = sample * mGain; // apply gain
+        sample       = sample * gain; // apply gain
         frame_samples[index] = sample; // write processed sample back to buffer.
         energy += sample * sample;
     }
@@ -150,7 +225,7 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
     }
     mSumVector[i] = energy;
     totalSum += energy;
-    mMicrophoneEnergy = std::sqrt(totalSum / (stream_config.num_samples() * buffer_size));
+    mState->setMicrophoneEnergy(std::sqrt(totalSum / (stream_config.num_samples() * buffer_size)));
 }
 
 //
@@ -163,82 +238,48 @@ LLWebRTCImpl::LLWebRTCImpl(LLWebRTCLogCallback* logCallback) :
     mMute(true),
     mTuningMode(false),
     mDevicesDeploying(false),
-    mPlayoutDevice(0),
-    mRecordingDevice(0),
-    mTuningAudioDeviceObserver(nullptr)
+    mPlayoutDevice(PLAYOUT_DEVICE_DEFAULT),
+    mRecordingDevice(RECORD_DEVICE_DEFAULT)
 {
 }
 
 void LLWebRTCImpl::init()
 {
-    mPlayoutDevice   = 0;
-    mRecordingDevice = 0;
-    rtc::InitializeSSL();
+    webrtc::InitializeSSL();
 
     // Normal logging is rather spammy, so turn it off.
-    rtc::LogMessage::LogToDebug(rtc::LS_NONE);
-    rtc::LogMessage::SetLogToStderr(true);
-    rtc::LogMessage::AddLogToStream(mLogSink, rtc::LS_VERBOSE);
+    webrtc::LogMessage::LogToDebug(webrtc::LS_NONE);
+    webrtc::LogMessage::SetLogToStderr(true);
+    webrtc::LogMessage::AddLogToStream(mLogSink, webrtc::LS_VERBOSE);
 
     mTaskQueueFactory = webrtc::CreateDefaultTaskQueueFactory();
 
     // Create the native threads.
-    mNetworkThread = rtc::Thread::CreateWithSocketServer();
+    mNetworkThread = webrtc::Thread::CreateWithSocketServer();
     mNetworkThread->SetName("WebRTCNetworkThread", nullptr);
     mNetworkThread->Start();
-    mWorkerThread = rtc::Thread::Create();
+    mWorkerThread = webrtc::Thread::Create();
     mWorkerThread->SetName("WebRTCWorkerThread", nullptr);
     mWorkerThread->Start();
-    mSignalingThread = rtc::Thread::Create();
+    mSignalingThread = webrtc::Thread::Create();
     mSignalingThread->SetName("WebRTCSignalingThread", nullptr);
     mSignalingThread->Start();
-
-    mTuningAudioDeviceObserver = new LLAudioDeviceObserver;
-    mWorkerThread->PostTask(
-        [this]()
-        {
-            // Initialize the audio devices on the Worker Thread
-            mTuningDeviceModule =
-                webrtc::CreateAudioDeviceWithDataObserver(webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
-                                                          mTaskQueueFactory.get(),
-                                                          std::unique_ptr<webrtc::AudioDeviceDataObserver>(mTuningAudioDeviceObserver));
-
-            mTuningDeviceModule->Init();
-            mTuningDeviceModule->SetPlayoutDevice(mPlayoutDevice);
-            mTuningDeviceModule->SetRecordingDevice(mRecordingDevice);
-            mTuningDeviceModule->EnableBuiltInAEC(false);
-            mTuningDeviceModule->SetAudioDeviceSink(this);
-            mTuningDeviceModule->InitMicrophone();
-            mTuningDeviceModule->InitSpeaker();
-            mTuningDeviceModule->SetStereoRecording(false);
-            mTuningDeviceModule->SetStereoPlayout(true);
-            mTuningDeviceModule->InitRecording();
-            mTuningDeviceModule->InitPlayout();
-            updateDevices();
-        });
 
     mWorkerThread->BlockingCall(
         [this]()
         {
-            // the peer device module doesn't need an observer
-            // as we pull peer data after audio processing.
-            mPeerDeviceModule = webrtc::CreateAudioDeviceWithDataObserver(webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio,
-                                                                          mTaskQueueFactory.get(),
-                                                                          nullptr);
-            mPeerDeviceModule->Init();
-            mPeerDeviceModule->SetPlayoutDevice(mPlayoutDevice);
-            mPeerDeviceModule->SetRecordingDevice(mRecordingDevice);
-            mPeerDeviceModule->EnableBuiltInAEC(false);
-            mPeerDeviceModule->InitMicrophone();
-            mPeerDeviceModule->InitSpeaker();
+            webrtc::scoped_refptr<webrtc::AudioDeviceModule> realADM =
+                webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio, mTaskQueueFactory.get());
+            mDeviceModule = webrtc::make_ref_counted<LLWebRTCAudioDeviceModule>(realADM);
+            mDeviceModule->SetObserver(this);
         });
 
     // The custom processor allows us to retrieve audio data (and levels)
     // from after other audio processing such as AEC, AGC, etc.
-    mPeerCustomProcessor = new LLCustomProcessor;
-    webrtc::AudioProcessingBuilder apb;
-    apb.SetCapturePostProcessing(std::unique_ptr<webrtc::CustomProcessing>(mPeerCustomProcessor));
-    mAudioProcessingModule = apb.Create();
+    mPeerCustomProcessor = std::make_shared<LLCustomProcessorState>();
+    webrtc::BuiltinAudioProcessingBuilder apb;
+    apb.SetCapturePostProcessing(std::make_unique<LLCustomProcessor>(mPeerCustomProcessor));
+    mAudioProcessingModule = apb.Build(webrtc::CreateEnvironment());
 
     webrtc::AudioProcessing::Config apm_config;
     apm_config.echo_canceller.enabled         = false;
@@ -270,13 +311,20 @@ void LLWebRTCImpl::init()
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
                                                                  mSignalingThread.get(),
-                                                                 mPeerDeviceModule,
+                                                                 mDeviceModule,
                                                                  webrtc::CreateBuiltinAudioEncoderFactory(),
                                                                  webrtc::CreateBuiltinAudioDecoderFactory(),
                                                                  nullptr /* video_encoder_factory */,
                                                                  nullptr /* video_decoder_factory */,
                                                                  nullptr /* audio_mixer */,
                                                                  mAudioProcessingModule);
+    mWorkerThread->PostTask(
+        [this]()
+        {
+            mDeviceModule->EnableBuiltInAEC(false);
+            workerDeployDevices();
+            updateDevices();
+        });
 
 }
 
@@ -298,64 +346,16 @@ void LLWebRTCImpl::terminate()
     mWorkerThread->BlockingCall(
         [this]()
         {
-            if (mTuningDeviceModule)
+            if (mDeviceModule)
             {
-                mTuningDeviceModule->StopRecording();
-                mTuningDeviceModule->Terminate();
+                mDeviceModule->StopRecording();
+                mDeviceModule->StopPlayout();
+                mDeviceModule->Terminate();
             }
-            if (mPeerDeviceModule)
-            {
-                mPeerDeviceModule->StopRecording();
-                mPeerDeviceModule->Terminate();
-            }
-            mTuningDeviceModule = nullptr;
-            mPeerDeviceModule   = nullptr;
-            mTaskQueueFactory   = nullptr;
+            mDeviceModule     = nullptr;
+            mTaskQueueFactory = nullptr;
         });
-    rtc::LogMessage::RemoveLogToStream(mLogSink);
-}
-
-//
-// Devices functions
-//
-// Most device-related functionality needs to happen
-// on the worker thread (the audio thread,) so those calls will be
-// proxied over to that thread.
-//
-void LLWebRTCImpl::setRecording(bool recording)
-{
-    mWorkerThread->PostTask(
-        [this, recording]()
-        {
-            if (recording)
-            {
-                mPeerDeviceModule->SetStereoRecording(false);
-                mPeerDeviceModule->InitRecording();
-                mPeerDeviceModule->StartRecording();
-            }
-            else
-            {
-                mPeerDeviceModule->StopRecording();
-            }
-        });
-}
-
-void LLWebRTCImpl::setPlayout(bool playing)
-{
-    mWorkerThread->PostTask(
-        [this, playing]()
-        {
-            if (playing)
-            {
-                mPeerDeviceModule->SetStereoPlayout(true);
-                mPeerDeviceModule->InitPlayout();
-                mPeerDeviceModule->StartPlayout();
-            }
-            else
-            {
-                mPeerDeviceModule->StopPlayout();
-            }
-        });
+    webrtc::LogMessage::RemoveLogToStream(mLogSink);
 }
 
 void LLWebRTCImpl::setAudioConfig(LLWebRTCDeviceInterface::AudioConfig config)
@@ -418,20 +418,55 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
     }
 }
 
-void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
+// must be run in the worker thread.
+void LLWebRTCImpl::workerDeployDevices()
 {
-    device_module->SetRecordingDevice(device);
-    device_module->InitMicrophone();
-    device_module->SetStereoRecording(false);
-    device_module->InitRecording();
-}
+    mDeviceModule->StopPlayout();
+    mDeviceModule->ForceStopRecording();
+#if WEBRTC_WIN
+    if (mRecordingDevice < 0) {
+        mDeviceModule->SetRecordingDevice((webrtc::AudioDeviceModule::WindowsDeviceType)mRecordingDevice);
+    }
+    else
+    {
+        mDeviceModule->SetRecordingDevice(mRecordingDevice);
+    }
+#else
+    mDeviceModule->SetRecordingDevice(mRecordingDevice);
+#endif
+    mDeviceModule->InitMicrophone();
+    mDeviceModule->SetStereoRecording(false);
+    mDeviceModule->InitRecording();
 
-void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
-{
-    device_module->SetPlayoutDevice(device);
-    device_module->InitSpeaker();
-    device_module->SetStereoPlayout(true);
-    device_module->InitPlayout();
+#if WEBRTC_WIN
+    if (mPlayoutDevice < 0)
+    {
+        mDeviceModule->SetPlayoutDevice((webrtc::AudioDeviceModule::WindowsDeviceType)mPlayoutDevice);
+    }
+    else
+    {
+        mDeviceModule->SetPlayoutDevice(mPlayoutDevice);
+    }
+#else
+    mDeviceModule->SetPlayoutDevice(mPlayoutDevice);
+#endif
+    mDeviceModule->InitSpeaker();
+    mDeviceModule->SetStereoPlayout(true);
+    mDeviceModule->InitPlayout();
+    mDeviceModule->ForceStartRecording();
+    uint32_t min_v = 0, max_v = 0, cur_v = 0;
+    bool     have_hw = false;
+
+    mDeviceModule->MicrophoneVolumeIsAvailable(&have_hw);
+    if (have_hw)
+    {
+        mDeviceModule->MinMicrophoneVolume(&min_v);
+        mDeviceModule->MaxMicrophoneVolume(&max_v);
+        uint32_t target = min_v + (max_v - min_v) * 8 / 10; // ~80%
+        mDeviceModule->SetMicrophoneVolume(target);
+        mDeviceModule->MicrophoneVolume(&cur_v);
+    }
+    mDeviceModule->StartPlayout();
 }
 
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
@@ -460,6 +495,9 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
         }
     }
 
+    // Always deploy devices, as we may have received a device update
+    // for the default device, which may be the same as mRecordingDevice
+    // but still needs to be refreshed.
     mRecordingDevice = recordingDevice;
     deployDevices();
 }
@@ -488,6 +526,10 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
             }
         }
     }
+
+    // Always deploy devices, as we may have received a device update
+    // for the default device, which may be the same as mPlayoutDevice
+    // but still needs to be refreshed.
     mPlayoutDevice = playoutDevice;
     deployDevices();
 }
@@ -495,7 +537,7 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
 // updateDevices needs to happen on the worker thread.
 void LLWebRTCImpl::updateDevices()
 {
-    int16_t renderDeviceCount  = mTuningDeviceModule->PlayoutDevices();
+    int16_t renderDeviceCount  = mDeviceModule->PlayoutDevices();
 
     mPlayoutDeviceList.clear();
 #if WEBRTC_WIN
@@ -509,11 +551,11 @@ void LLWebRTCImpl::updateDevices()
     {
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
-        mTuningDeviceModule->PlayoutDeviceName(index, name, guid);
+        mDeviceModule->PlayoutDeviceName(index, name, guid);
         mPlayoutDeviceList.emplace_back(name, guid);
     }
 
-    int16_t captureDeviceCount        = mTuningDeviceModule->RecordingDevices();
+    int16_t captureDeviceCount        = mDeviceModule->RecordingDevices();
 
     mRecordingDeviceList.clear();
 #if WEBRTC_WIN
@@ -527,7 +569,7 @@ void LLWebRTCImpl::updateDevices()
     {
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
-        mTuningDeviceModule->RecordingDeviceName(index, name, guid);
+        mDeviceModule->RecordingDeviceName(index, name, guid);
         mRecordingDeviceList.emplace_back(name, guid);
     }
 
@@ -549,7 +591,28 @@ void LLWebRTCImpl::OnDevicesUpdated()
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
     mTuningMode = enable;
-    deployDevices();
+    mDeviceModule->SetTuning(mTuningMode);
+    mWorkerThread->PostTask(
+        [this]
+        {
+            mDeviceModule->SetTuning(mTuningMode);
+            mSignalingThread->PostTask(
+                [this]
+                {
+                    for (auto& connection : mPeerConnections)
+                    {
+                        if (mTuningMode)
+                        {
+                            connection->enableSenderTracks(false);
+                        }
+                        else
+                        {
+                            connection->resetMute();
+                        }
+                        connection->enableReceiverTracks(!mTuningMode);
+                    }
+                });
+        });
 }
 
 void LLWebRTCImpl::deployDevices()
@@ -561,32 +624,7 @@ void LLWebRTCImpl::deployDevices()
     mDevicesDeploying = true;
     mWorkerThread->PostTask(
         [this] {
-            if (mTuningMode)
-            {
-                mPeerDeviceModule->StopPlayout();
-                mPeerDeviceModule->StopRecording();
-                mTuningDeviceModule->StopPlayout();
-                mTuningDeviceModule->StopRecording();
-                ll_set_device_module_render_device(mTuningDeviceModule, mPlayoutDevice);
-                ll_set_device_module_capture_device(mTuningDeviceModule, mRecordingDevice);
-                mTuningDeviceModule->StartRecording();
-                // TODO:  Starting Playout on the TDM appears to create an audio artifact (click)
-                // in this case, so disabling it for now.  We may have to do something different
-                // if we enable 'echo playback' via the TDM when tuning.
-                //mTuningDeviceModule->InitPlayout();
-                //mTuningDeviceModule->StartPlayout();
-            }
-            else
-            {
-                mTuningDeviceModule->StopPlayout();
-                mTuningDeviceModule->StopRecording();
-                mPeerDeviceModule->StopPlayout();
-                mPeerDeviceModule->StopRecording();
-                ll_set_device_module_render_device(mPeerDeviceModule, mPlayoutDevice);
-                ll_set_device_module_capture_device(mPeerDeviceModule, mRecordingDevice);
-                mPeerDeviceModule->StartPlayout();
-                mPeerDeviceModule->StartRecording();
-            }
+            workerDeployDevices();
             mSignalingThread->PostTask(
                 [this]
                 {
@@ -607,11 +645,11 @@ void LLWebRTCImpl::deployDevices()
         });
 }
 
-float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mTuningAudioDeviceObserver->getMicrophoneEnergy()); }
+float LLWebRTCImpl::getTuningAudioLevel() { return mDeviceModule ? -20 * log10f(mDeviceModule->GetMicrophoneEnergy()) : 0.0f; }
 
-float LLWebRTCImpl::getPeerConnectionAudioLevel() { return -20 * log10f(mPeerCustomProcessor->getMicrophoneEnergy()); }
+float LLWebRTCImpl::getPeerConnectionAudioLevel() { return mPeerCustomProcessor ? -20 * log10f(mPeerCustomProcessor->getMicrophoneEnergy()) : 0.0f; }
 
-void LLWebRTCImpl::setPeerConnectionGain(float gain) { mPeerCustomProcessor->setGain(gain); }
+void LLWebRTCImpl::setPeerConnectionGain(float gain) { if (mPeerCustomProcessor) mPeerCustomProcessor->setGain(gain); }
 
 
 //
@@ -620,34 +658,22 @@ void LLWebRTCImpl::setPeerConnectionGain(float gain) { mPeerCustomProcessor->set
 
 LLWebRTCPeerConnectionInterface *LLWebRTCImpl::newPeerConnection()
 {
-    rtc::scoped_refptr<LLWebRTCPeerConnectionImpl> peerConnection = rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>(new rtc::RefCountedObject<LLWebRTCPeerConnectionImpl>());
+    bool empty = mPeerConnections.empty();
+    webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl> peerConnection = webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl>(new webrtc::RefCountedObject<LLWebRTCPeerConnectionImpl>());
     peerConnection->init(this);
 
     mPeerConnections.emplace_back(peerConnection);
-    // Should it really start disabled?
-    // Seems like something doesn't get the memo and senders need to be reset later
-    // to remove the voice indicator from taskbar
     peerConnection->enableSenderTracks(false);
-    if (mPeerConnections.empty())
-    {
-        setRecording(true);
-        setPlayout(true);
-    }
     return peerConnection.get();
 }
 
 void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_connection)
 {
-    std::vector<rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>>::iterator it =
+    std::vector<webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl>>::iterator it =
     std::find(mPeerConnections.begin(), mPeerConnections.end(), peer_connection);
     if (it != mPeerConnections.end())
     {
         mPeerConnections.erase(it);
-    }
-    if (mPeerConnections.empty())
-    {
-        setRecording(false);
-        setPlayout(false);
     }
 }
 
@@ -707,7 +733,6 @@ void LLWebRTCPeerConnectionImpl::terminate()
                         track->set_enabled(false);
                     }
                 }
-                mPeerConnection->SetAudioRecording(false);
 
                 mPeerConnection->Close();
                 if (mLocalStream)
@@ -794,7 +819,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 mDataChannel->RegisterObserver(this);
             }
 
-            cricket::AudioOptions audioOptions;
+            webrtc::AudioOptions audioOptions;
             audioOptions.auto_gain_control = true;
             audioOptions.echo_cancellation = true;
             audioOptions.noise_suppression = true;
@@ -802,7 +827,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
 
             mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
 
-            rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
+            webrtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
                 mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
             audio_track->set_enabled(false);
             mLocalStream->AddTrack(audio_track);
@@ -816,7 +841,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 webrtc::RtpParameters      params;
                 webrtc::RtpCodecParameters codecparam;
                 codecparam.name                       = "opus";
-                codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+                codecparam.kind                       = webrtc::MediaType::AUDIO;
                 codecparam.clock_rate                 = 48000;
                 codecparam.num_channels               = 2;
                 codecparam.parameters["stereo"]       = "1";
@@ -831,7 +856,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 webrtc::RtpParameters      params;
                 webrtc::RtpCodecParameters codecparam;
                 codecparam.name                       = "opus";
-                codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+                codecparam.kind                       = webrtc::MediaType::AUDIO;
                 codecparam.clock_rate                 = 48000;
                 codecparam.num_channels               = 2;
                 codecparam.parameters["stereo"]       = "1";
@@ -858,7 +883,6 @@ void LLWebRTCPeerConnectionImpl::enableSenderTracks(bool enable)
     // set_enabled shouldn't be done on the worker thread.
     if (mPeerConnection)
     {
-        mPeerConnection->SetAudioRecording(enable);
         auto senders = mPeerConnection->GetSenders();
         for (auto &sender : senders)
         {
@@ -892,7 +916,7 @@ void LLWebRTCPeerConnectionImpl::AnswerAvailable(const std::string &sdp)
                                    {
                                        RTC_LOG(LS_INFO) << __FUNCTION__ << " " << mPeerConnection->peer_connection_state();
                                        mPeerConnection->SetRemoteDescription(webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdp),
-                                                                             rtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface>(this));
+                                                                             webrtc::scoped_refptr<webrtc::SetRemoteDescriptionObserverInterface>(this));
                                    }
                                });
 }
@@ -920,9 +944,6 @@ void LLWebRTCPeerConnectionImpl::setMute(bool mute)
         {
         if (mPeerConnection)
         {
-            // SetAudioRecording must be called before enabling/disabling tracks.
-            mPeerConnection->SetAudioRecording(enable);
-
             auto senders = mPeerConnection->GetSenders();
 
             RTC_LOG(LS_INFO) << __FUNCTION__ << (mMute ? "disabling" : "enabling") << " streams count " << senders.size();
@@ -1002,14 +1023,14 @@ void LLWebRTCPeerConnectionImpl::setSendVolume(float volume)
 // PeerConnectionObserver implementation.
 //
 
-void LLWebRTCPeerConnectionImpl::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface>                     receiver,
-                                            const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>> &streams)
+void LLWebRTCPeerConnectionImpl::OnAddTrack(webrtc::scoped_refptr<webrtc::RtpReceiverInterface>                     receiver,
+                                            const std::vector<webrtc::scoped_refptr<webrtc::MediaStreamInterface>> &streams)
 {
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << receiver->id();
     webrtc::RtpParameters      params;
     webrtc::RtpCodecParameters codecparam;
     codecparam.name                       = "opus";
-    codecparam.kind                       = cricket::MEDIA_TYPE_AUDIO;
+    codecparam.kind                       = webrtc::MediaType::AUDIO;
     codecparam.clock_rate                 = 48000;
     codecparam.num_channels               = 2;
     codecparam.parameters["stereo"]       = "1";
@@ -1018,12 +1039,12 @@ void LLWebRTCPeerConnectionImpl::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiv
     receiver->SetParameters(params);
 }
 
-void LLWebRTCPeerConnectionImpl::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
+void LLWebRTCPeerConnectionImpl::OnRemoveTrack(webrtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
 {
     RTC_LOG(LS_INFO) << __FUNCTION__ << " " << receiver->id();
 }
 
-void LLWebRTCPeerConnectionImpl::OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel)
+void LLWebRTCPeerConnectionImpl::OnDataChannel(webrtc::scoped_refptr<webrtc::DataChannelInterface> channel)
 {
     if (mDataChannel)
     {
@@ -1110,23 +1131,23 @@ static std::string iceCandidateToTrickleString(const webrtc::IceCandidateInterfa
     candidate->candidate().address().ipaddr().ToString() << " " <<
     candidate->candidate().address().PortAsString() << " typ ";
 
-    if (candidate->candidate().type() == cricket::LOCAL_PORT_TYPE)
+    if (candidate->candidate().type() == webrtc::IceCandidateType::kHost)
     {
         candidate_stream << "host";
     }
-    else if (candidate->candidate().type() == cricket::STUN_PORT_TYPE)
+    else if (candidate->candidate().type() == webrtc::IceCandidateType::kSrflx)
     {
         candidate_stream << "srflx " <<
         "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
         "rport " << candidate->candidate().related_address().PortAsString();
     }
-    else if (candidate->candidate().type() == cricket::RELAY_PORT_TYPE)
+    else if (candidate->candidate().type() == webrtc::IceCandidateType::kRelay)
     {
         candidate_stream << "relay " <<
         "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
         "rport " << candidate->candidate().related_address().PortAsString();
     }
-    else if (candidate->candidate().type() == cricket::PRFLX_PORT_TYPE)
+    else if (candidate->candidate().type() == webrtc::IceCandidateType::kPrflx)
     {
         candidate_stream << "prflx " <<
         "raddr " << candidate->candidate().related_address().ipaddr().ToString() << " " <<
@@ -1221,7 +1242,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
 
    mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(
                                                      webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, mangled_sdp)),
-                                                 rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
+                                                 webrtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
 
 }
 
@@ -1331,7 +1352,7 @@ void LLWebRTCPeerConnectionImpl::sendData(const std::string& data, bool binary)
 {
     if (mDataChannel)
     {
-        rtc::CopyOnWriteBuffer cowBuffer(data.data(), data.length());
+        webrtc::CopyOnWriteBuffer cowBuffer(data.data(), data.length());
         webrtc::DataBuffer     buffer(cowBuffer, binary);
         mWebRTCImpl->PostNetworkTask([this, buffer]() {
                 if (mDataChannel)
