@@ -992,7 +992,7 @@ bool LLShaderMgr::validateProgramObject(GLuint obj)
 void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version, const LLUUID& current_cache_version, bool second_instance)
 {
     LL_PROFILE_ZONE_SCOPED;
-    LL_INFOS() << "Initializing shader cache" << LL_ENDL;
+    LL_INFOS("ShaderMgr") << "Initializing shader cache" << LL_ENDL;
 
     mShaderCacheEnabled = gGLManager.mGLVersion >= 4.09 && enabled;
 
@@ -1009,12 +1009,12 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
         if (gDirUtilp->fileExists(meta_out_path))
         {
             LL_PROFILE_ZONE_NAMED("shader_cache");
-            LL_INFOS() << "Loading shader cache metadata" << LL_ENDL;
+            LL_INFOS("ShaderMgr") << "Loading shader cache metadata" << LL_ENDL;
 
-            llifstream instream(meta_out_path);
+            llifstream instream(meta_out_path, std::ifstream::in | std::ifstream::binary);
             LLSD in_data;
             // todo: this is likely very expensive to parse, should use binary
-            LLSDSerialize::fromNotation(in_data, instream, LLSDSerialize::SIZE_UNLIMITED);
+            LLSDSerialize::fromBinary(in_data, instream, LLSDSerialize::SIZE_UNLIMITED);
             instream.close();
 
             if (old_cache_version == current_cache_version
@@ -1031,12 +1031,12 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
             }
             else if (!second_instance)
             {
-                LL_INFOS() << "Shader cache version mismatch detected. Purging." << LL_ENDL;
+                LL_INFOS("ShaderMgr") << "Shader cache version mismatch detected. Purging." << LL_ENDL;
                 clearShaderCache();
             }
             else
             {
-                LL_INFOS() << "Shader cache version mismatch detected." << LL_ENDL;
+                LL_INFOS("ShaderMgr") << "Shader cache version mismatch detected." << LL_ENDL;
             }
         }
     }
@@ -1045,7 +1045,7 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
 void LLShaderMgr::clearShaderCache()
 {
     std::string shader_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "shader_cache");
-    LL_INFOS() << "Removing shader cache at " << shader_cache << LL_ENDL;
+    LL_INFOS("ShaderMgr") << "Removing shader cache at " << shader_cache << LL_ENDL;
     const std::string mask = "*";
     gDirUtilp->deleteFilesInDir(shader_cache, mask);
     mShaderBinaryCache.clear();
@@ -1056,11 +1056,11 @@ void LLShaderMgr::persistShaderCacheMetadata()
     if(!mShaderCacheEnabled) return;
     if (mShaderCacheVersion.isNull())
     {
-        LL_WARNS() << "Attempted to save shader cache with no version set" << LL_ENDL;
+        LL_WARNS("ShaderMgr") << "Attempted to save shader cache with no version set" << LL_ENDL;
         return;
     }
 
-    LL_INFOS() << "Persisting shader cache metadata to disk" << LL_ENDL;
+    LL_INFOS("ShaderMgr") << "Persisting shader cache metadata to disk" << LL_ENDL;
 
     LLSD out;
     // Settings and shader cache get saved at different time, thus making
@@ -1094,8 +1094,13 @@ void LLShaderMgr::persistShaderCacheMetadata()
     }
 
     std::string meta_out_path = gDirUtilp->add(mShaderCacheDir, "shaderdata.llsd");
-    llofstream outstream(meta_out_path);
-    LLSDSerialize::toNotation(out, outstream);
+    llofstream outstream(meta_out_path, std::ios_base::out | std::ios_base::binary);
+    if (!outstream.is_open())
+    {
+        LL_WARNS("ShaderMgr") << "Failed to open file. Unable to save shader cache to: " << mShaderCacheDir << LL_ENDL;
+        return;
+    }
+    LLSDSerialize::toBinary(out, outstream);
     outstream.close();
 }
 
