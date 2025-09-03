@@ -527,8 +527,16 @@ void LLViewerTexture::updateClass()
 
     if (is_low && !was_low)
     {
-        // slam to 1.5 bias the moment we hit low memory (discards off screen textures immediately)
-        sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
+        if (is_sys_low)
+        {
+            // Not having system memory is more serious, so discard harder
+            sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f * getSystemMemoryBudgetFactor());
+        }
+        else
+        {
+            // Slam to 1.5 bias the moment we hit low memory (discards off screen textures immediately)
+            sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
+        }
 
         if (is_sys_low || over_pct > 2.f)
         { // if we're low on system memory, emergency purge off screen textures to avoid a death spiral
@@ -559,8 +567,13 @@ void LLViewerTexture::updateClass()
         sEvaluationTimer.reset();
 
         // lower discard bias over time when at least 10% of budget is free
-        const F32 FREE_PERCENTAGE_TRESHOLD = -0.1f;
-        if (sDesiredDiscardBias > 1.f && over_pct < FREE_PERCENTAGE_TRESHOLD)
+        constexpr F32 FREE_PERCENTAGE_TRESHOLD = -0.1f;
+        constexpr U32 FREE_SYS_MEM_TRESHOLD = 100;
+        static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
+        const S32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory() + FREE_SYS_MEM_TRESHOLD);
+        if (sDesiredDiscardBias > 1.f
+            && over_pct < FREE_PERCENTAGE_TRESHOLD
+            && getFreeSystemMemory() > MIN_FREE_MAIN_MEMORY)
         {
             static LLCachedControl<F32> high_mem_discard_decrement(gSavedSettings, "RenderHighMemMinDiscardDecrement", .1f);
 
@@ -627,24 +640,42 @@ void LLViewerTexture::updateClass()
 }
 
 //static
-bool LLViewerTexture::isSystemMemoryLow()
+U32Megabytes LLViewerTexture::getFreeSystemMemory()
 {
     static LLFrameTimer timer;
     static U32Megabytes physical_res = U32Megabytes(U32_MAX);
 
-    static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
-    const U32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
-
     if (timer.getElapsedTimeF32() < MEMORY_CHECK_WAIT_TIME) //call this once per second.
     {
-        return physical_res < MIN_FREE_MAIN_MEMORY;
+        return physical_res;
     }
 
     timer.reset();
 
     LLMemory::updateMemoryInfo();
     physical_res = LLMemory::getAvailableMemKB();
-    return physical_res < MIN_FREE_MAIN_MEMORY;
+    return physical_res;
+}
+
+//static
+bool LLViewerTexture::isSystemMemoryLow()
+{
+    static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
+    const U32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
+    return getFreeSystemMemory() < MIN_FREE_MAIN_MEMORY;
+}
+
+F32 LLViewerTexture::getSystemMemoryBudgetFactor()
+{
+    static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
+    const S32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
+    S32 free_budget = (S32Megabytes)getFreeSystemMemory() - MIN_FREE_MAIN_MEMORY;
+    if (free_budget < 0)
+    {
+        // Result should range from 1 (0 free budget) to 2 (-512 free budget)
+        return 1.f - free_budget / MIN_FREE_MAIN_MEMORY;
+    }
+    return 1.f;
 }
 
 //end of static functions

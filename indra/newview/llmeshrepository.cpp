@@ -2460,7 +2460,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
         LLPointer<LLMeshSkinInfo> info = nullptr;
         info = new LLMeshSkinInfo(mesh_id, skin);
 
-        if (isAgentAvatarValid())
+        if (isAgentAvatarValid() && gAgentAvatarp->mInitFlags != 0)
         { // joint numbers are consistent inside LLVOAvatar and animations, but inconsistent inside meshes,
             // generate a map of mesh joint numbers to LLVOAvatar joint numbers
             LLSkinningUtil::initJointNums(info, gAgentAvatarp);

@@ -145,7 +145,6 @@ static void touch_default_probe(LLReflectionMap* probe)
 LLReflectionMapManager::LLReflectionMapManager()
 {
     mDynamicProbeCount = LL_MAX_REFLECTION_PROBE_COUNT;
-    refreshSettings();
     initCubeFree();
 }
 
