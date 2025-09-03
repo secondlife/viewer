@@ -8,7 +8,7 @@ include_guard()
 # to have memory leaks, has no option to play music streams
 # It probably makes sense to to completely remove it
 
-set(USE_OPENAL OFF CACHE BOOL "Enable OpenAL")
+set(USE_OPENAL ON CACHE BOOL "Enable OpenAL")
 # ND: To streamline arguments passed, switch from OPENAL to USE_OPENAL
 # To not break all old build scripts convert old arguments but warn about it
 if(OPENAL)
@@ -22,20 +22,21 @@ if (USE_OPENAL)
   target_compile_definitions( ll::openal INTERFACE LL_OPENAL=1)
   use_prebuilt_binary(openal)
 
-  if(WINDOWS)
-    target_link_libraries( ll::openal INTERFACE
-            OpenAL32
-            alut
-            )
-  elseif(LINUX)
-    target_link_libraries( ll::openal INTERFACE
-            openal
-            alut
-            )
-  else()
-    target_link_libraries( ll::openal INTERFACE
-            openal
-            alut
-            )
-  endif()
+  find_library(OPENAL_LIBRARY
+      NAMES
+      OpenAL32
+      openal
+      libopenal.dylib
+      libopenal.so
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+  find_library(ALUT_LIBRARY
+      NAMES
+      alut
+      libalut.dylib
+      libalut.so
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+  target_link_libraries(ll::openal INTERFACE ${OPENAL_LIBRARY} ${ALUT_LIBRARY})
+
 endif ()

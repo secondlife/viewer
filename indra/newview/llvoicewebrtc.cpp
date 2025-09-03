@@ -2900,9 +2900,13 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             }
             // else was already posted by llwebrtc::terminate().
             break;
+        }
+
         case VOICE_STATE_WAIT_FOR_CLOSE:
             break;
+
         case VOICE_STATE_CLOSED:
+        {
             if (!mShutDown)
             {
                 mVoiceConnectionState = VOICE_STATE_START_SESSION;
