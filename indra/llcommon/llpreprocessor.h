@@ -76,6 +76,23 @@
     #endif
 #endif
 
+// Set up CPU architecture defines
+#if LL_MSVC && defined(_M_ARM64)
+#      define LL_ARM64 1
+#elif LL_GNUC && (defined(__arm64__) || defined(__aarch64__))
+#      define LL_ARM64 1
+#elif LL_MSVC && _M_X64
+#      define LL_X86_64 1
+#      define LL_X86 1
+#elif LL_MSVC && _M_IX86
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__amd64__) || defined(__x86_64__) )
+#      define LL_X86_64 1
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__i386__) )
+#      define LL_X86 1
+#endif
+
 // Deal with minor differences on Unixy OSes.
 #if LL_DARWIN || LL_LINUX
     // Different name, same functionality.
@@ -118,11 +135,8 @@
 #if LL_WINDOWS
 #define LL_DLLEXPORT __declspec(dllexport)
 #define LL_DLLIMPORT __declspec(dllimport)
-#elif LL_LINUX
-#define LL_DLLEXPORT __attribute__ ((visibility("default")))
-#define LL_DLLIMPORT
 #else
-#define LL_DLLEXPORT
+#define LL_DLLEXPORT __attribute__ ((visibility("default")))
 #define LL_DLLIMPORT
 #endif // LL_WINDOWS
 
@@ -167,7 +181,7 @@
 
 #define LL_TO_STRING_HELPER(x) #x
 #define LL_TO_STRING(x) LL_TO_STRING_HELPER(x)
-#define LL_TO_WSTRING_HELPER(x) L#x
+#define LL_TO_WSTRING_HELPER(x) L## #x
 #define LL_TO_WSTRING(x) LL_TO_WSTRING_HELPER(x)
 #define LL_FILE_LINENO_MSG(msg) __FILE__ "(" LL_TO_STRING(__LINE__) ") : " msg
 #define LL_GLUE_IMPL(x, y) x##y
@@ -185,6 +199,18 @@
 #define LL_PRETTY_FUNCTION __FUNCSIG__
 #else
 #define LL_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
+#if LL_ARM64
+#define GLM_FORCE_NEON 1
+#else
+#define GLM_FORCE_SSE2 1
+#endif
+
+#if LL_ARM64
+#define KDU_NEON_INTRINSICS 1
+#else
+#define KDU_X86_INTRINSICS 1
 #endif
 
 #endif  //  not LL_LINDEN_PREPROCESSOR_H

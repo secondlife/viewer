@@ -10,7 +10,9 @@
 ## Nicky: Ideally we want at least 3.21 for good preset support
 ##   We're not there yet, but once done, there is a kludge in Linking.cmake
 #    "if(${CMAKE_VERSION} VERSION_LESS "3.20.0")" that can also be removed
-cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16.0...4.0 FATAL_ERROR)
+cmake_policy(SET CMP0156 NEW)
+cmake_policy(SET CMP0179 NEW)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
@@ -33,6 +35,14 @@ if (NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF) # This slows down build massively
+
+set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
+
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+
+# Speeds up cmake generation significantly in some cases
+set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY ON)
 
 include(Variables)
 include(BuildVersion)

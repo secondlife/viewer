@@ -31,18 +31,10 @@ set(llplugin_HEADER_FILES
     llpluginsharedmemory.h
     )
 
-if(NOT ADDRESS_SIZE EQUAL 32)
-  if(WINDOWS)
-    ##add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(WINDOWS)
-endif(NOT ADDRESS_SIZE EQUAL 32)
-
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
 add_library (llplugin ${llplugin_SOURCE_FILES})
 target_include_directories( llplugin  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries( llplugin llcommon llmath llrender llmessage )
+target_link_libraries( llplugin llcommon llmath llmessage llxml )
 add_subdirectory(slplugin)
 

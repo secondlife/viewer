@@ -43,6 +43,8 @@
 #include "v4coloru.h"
 #include "llsdserialize.h"
 #include "llcleanup.h"
+#include "lltrace.h"
+#include "llfasttimer.h"
 
 // system libraries
 #include <iostream>
@@ -573,10 +575,10 @@ int main(int argc, char** argv)
 
 
     // Create the logging thread if required
-    if (LLFastTimer::sMetricLog)
+    if (LLTrace::BlockTimer::sMetricLog)
     {
-        LLFastTimer::sLogLock = new LLMutex(NULL);
-        fast_timer_log_thread = new LogThread(LLFastTimer::sLogName);
+        LLTrace::BlockTimer::setLogLock(new LLMutex());
+        fast_timer_log_thread = new LogThread(LLTrace::BlockTimer::sLogName);
         fast_timer_log_thread->start();
     }
 
@@ -618,9 +620,9 @@ int main(int argc, char** argv)
     // Output perf data if requested by user
     if (analyze_performance)
     {
-        std::string baseline_name = LLFastTimer::sLogName + "_baseline.slp";
-        std::string current_name  = LLFastTimer::sLogName + ".slp";
-        std::string report_name   = LLFastTimer::sLogName + "_report.csv";
+        std::string baseline_name = LLTrace::BlockTimer::sLogName + "_baseline.slp";
+        std::string current_name  = LLTrace::BlockTimer::sLogName + ".slp";
+        std::string report_name   = LLTrace::BlockTimer::sLogName + "_report.csv";
 
         std::cout << "Analyzing performance, check report in : " << report_name << std::endl;
 
@@ -628,9 +630,9 @@ int main(int argc, char** argv)
     }
 
     // Stop the perf gathering system if needed
-    if (LLFastTimer::sMetricLog)
+    if (LLTrace::BlockTimer::sMetricLog)
     {
-        LLMetricPerformanceTesterBasic::deleteTester(LLFastTimer::sLogName);
+        LLMetricPerformanceTesterBasic::deleteTester(LLTrace::BlockTimer::sLogName);
         sAllDone = true;
     }
 
