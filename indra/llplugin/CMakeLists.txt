@@ -31,14 +31,6 @@ set(llplugin_HEADER_FILES
     llpluginsharedmemory.h
     )
 
-if(NOT ADDRESS_SIZE EQUAL 32)
-  if(WINDOWS)
-    ##add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(WINDOWS)
-endif(NOT ADDRESS_SIZE EQUAL 32)
-
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
 add_library (llplugin ${llplugin_SOURCE_FILES})

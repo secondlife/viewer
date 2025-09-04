@@ -144,8 +144,11 @@ public:
     inline void exp(); // Do an exponential on the color
 };
 
-LLColor3 lerp(const LLColor3& a, const LLColor3& b, F32 u);
+static_assert(std::is_trivially_copyable<LLColor3>::value, "LLColor3 must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLColor3>::value, "LLColor3 must be trivial move");
+static_assert(std::is_standard_layout<LLColor3>::value, "LLColor3 must be a standard layout type");
 
+LLColor3 lerp(const LLColor3& a, const LLColor3& b, F32 u);
 void LLColor3::clamp()
 {
     // Clamp the color...

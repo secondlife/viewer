@@ -10,10 +10,6 @@ include(WebRTC)
 
 project(llwebrtc)
 
-if (LINUX)
-    add_compile_options(-Wno-deprecated-declarations) # webrtc::CreateAudioDeviceWithDataObserver is deprecated
-endif (LINUX)
-
 set(llwebrtc_SOURCE_FILES
     llwebrtc.cpp
     )
@@ -65,6 +61,8 @@ target_include_directories( llwebrtc INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 if (WINDOWS)
     set_property(TARGET llwebrtc PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+else()
+    target_compile_options(llwebrtc PRIVATE -Wno-deprecated-declarations) # webrtc::CreateAudioDeviceWithDataObserver is deprecated
 endif (WINDOWS)
 
 ADD_CUSTOM_COMMAND(TARGET llwebrtc POST_BUILD

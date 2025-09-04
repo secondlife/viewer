@@ -2310,6 +2310,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
             }
             if (request_skin)
             {
+                LLMutexLock lock(mMutex);
                 mSkinRequests.push_back(UUIDBasedRequest(mesh_id));
             }
         }
