@@ -63,6 +63,7 @@
 #include "pipeline.h"
 #include "llimage.h"
 #include "llglslshader.h"
+#include "llgltfmaterial.h"
 
 // ui controls (from floater)
 #include "llbutton.h"
@@ -663,6 +664,86 @@ void LLModelPreview::rebuildUploadData()
                 }
             }
             instance.mTransform = mat;
+
+            // Build per-face compact PBR materials array matching the material editor/uploader schema
+            // Only attach if there is any non-default PBR data across faces
+            {
+                LLSD materials_array = LLSD::emptyArray();
+                bool has_any_override = false;
+
+                if (base_model)
+                {
+                    const S32 face_count = llmin((S32)base_model->mMaterialList.size(), instance.mModel ? instance.mModel->getNumVolumeFaces() : 0);
+
+                    for (S32 face_num = 0; face_num < face_count; ++face_num)
+                    {
+                        const std::string& binding = base_model->mMaterialList[face_num];
+                        std::map<std::string, LLImportMaterial>::iterator it = instance.mMaterial.find(binding);
+                        if (it == instance.mMaterial.end())
+                        {
+                            // No material info; leave empty map for this face
+                            materials_array.append(LLSD::emptyMap());
+                            continue;
+                        }
+
+                        const LLImportMaterial& im = it->second;
+
+                        // Convert LLImportMaterial to a compact override LLSD via LLGLTFMaterial
+                        LLGLTFMaterial base_mat; // defaults
+                        LLGLTFMaterial override_mat;
+
+                        // Textures
+                        if (im.getDiffuseMap().notNull())
+                        {
+                            override_mat.setBaseColorId(im.getDiffuseMap(), true);
+                        }
+                        if (im.getNormalMap().notNull())
+                        {
+                            override_mat.setNormalId(im.getNormalMap(), true);
+                        }
+                        if (im.getMetallicRoughnessMap().notNull())
+                        {
+                            override_mat.setOcclusionRoughnessMetallicId(im.getMetallicRoughnessMap(), true);
+                        }
+                        if (im.getEmissiveMap().notNull())
+                        {
+                            override_mat.setEmissiveId(im.getEmissiveMap(), true);
+                        }
+
+                        // Factors
+                        override_mat.setBaseColorFactor(im.mDiffuseColor, true);
+                        override_mat.setEmissiveColorFactor(im.mEmissiveFactor, true);
+                        override_mat.setMetallicFactor(im.mMetallicFactor, true);
+                        override_mat.setRoughnessFactor(im.mRoughnessFactor, true);
+
+                        LLSD compact;
+                        base_mat.getOverrideLLSD(override_mat, compact);
+
+                        if (compact.isUndefined())
+                        {
+                            // No overrides for this face; use empty map to keep indices aligned
+                            materials_array.append(LLSD::emptyMap());
+                        }
+                        else
+                        {
+                            materials_array.append(compact);
+                            has_any_override = true;
+                        }
+                    }
+                }
+
+                if (has_any_override)
+                {
+                    LLSD mat_block;
+                    mat_block = LLSD::emptyMap();
+                    mat_block["materials"] = materials_array;
+                    instance.mMaterialData = mat_block;
+                }
+                else
+                {
+                    instance.mMaterialData.clear();
+                }
+            }
             mUploadData.push_back(instance);
 
             // if uploading textures, make sure textures are present
