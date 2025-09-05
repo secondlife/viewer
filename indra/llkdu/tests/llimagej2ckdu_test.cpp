@@ -80,6 +80,7 @@ U8* LLImageBase::getData() { return NULL; }
 U8* LLImageBase::reallocateData(S32 ) { return NULL; }
 void LLImageBase::sanityCheck() { }
 void LLImageBase::setSize(S32 , S32 , S32 ) { }
+bool LLImageBase::isBufferInvalid() const { return false; }
 
 LLImageJ2CImpl::~LLImageJ2CImpl() { }
 
