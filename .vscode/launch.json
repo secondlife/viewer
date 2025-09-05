@@ -51,7 +51,7 @@
         },
         {
             "name": "Second Life Viewer (Windows)",
-            "type": "cppvsdbg",
+            "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/newview/${input:buildConfig}/secondlife-bin.exe",
             "args": [
@@ -73,9 +73,17 @@
                     "value": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/packages/bin;${env:PATH}"
                 }
             ],
-            "console": "integratedTerminal",
-            "preLaunchTask": "Incremental Build",
-            "visualizerFile": "${workspaceFolder}/.vscode/natvis/secondlife.natvis"
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Incremental Build"
         },
         {
             "name": "Second Life Viewer (macOS)",
@@ -91,22 +99,17 @@
             ],
             "stopOnEntry": false,
             "cwd": "${workspaceFolder}/build-darwin-x86_64/newview/${input:buildConfig}",
-            "environment": [
-                {
-                    "name": "VIEWER_CHANNEL",
-                    "value": "Second Life Development"
-                },
-                {
-                    "name": "DYLD_LIBRARY_PATH",
-                    "value": "${workspaceFolder}/build-darwin-x86_64/packages/lib:${env:DYLD_LIBRARY_PATH}"
-                }
-            ],
+            "env": {
+                "VIEWER_CHANNEL": "Second Life Development",
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/build-darwin-x86_64/packages/lib:${env:DYLD_LIBRARY_PATH}"
+            },
             "preLaunchTask": "Incremental Build"
         },
         {
             "name": "Attach to Second Life Process",
             "type": "cppdbg",
             "request": "attach",
+            "program": "${workspaceFolder}/build-linux-x86_64/newview/secondlife-bin",
             "processId": "${command:pickProcess}",
             "MIMode": "gdb",
             "setupCommands": [
