@@ -1,0 +1,309 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Configure (Debug)",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "configure",
+                "-c",
+                "ReleaseOS",
+                "--",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DLL_TESTS=ON"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Configure the project for Debug build using Autobuild"
+        },
+        {
+            "label": "Configure (Release)",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "configure",
+                "-c",
+                "ReleaseOS"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Configure the project for Release build using Autobuild"
+        },
+        {
+            "label": "Configure (RelWithDebInfo)",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "configure",
+                "-c",
+                "ReleaseOS",
+                "--",
+                "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Configure the project for RelWithDebInfo build using Autobuild"
+        },
+        {
+            "label": "Build (Debug)",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "build",
+                "-c",
+                "ReleaseOS",
+                "--no-configure",
+                "--",
+                "-j${env:NUMBER_OF_PROCESSORS}"
+            ],
+            "options": {
+                "env": {
+                    "CMAKE_BUILD_TYPE": "Debug"
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc",
+            "dependsOn": "Configure (Debug)",
+            "detail": "Build the Second Life viewer in Debug mode"
+        },
+        {
+            "label": "Build (Release)",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "build",
+                "-c",
+                "ReleaseOS",
+                "--no-configure",
+                "--",
+                "-j${env:NUMBER_OF_PROCESSORS}"
+            ],
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "dependsOn": "Configure (Release)",
+            "detail": "Build the Second Life viewer in Release mode"
+        },
+        {
+            "label": "Build (RelWithDebInfo)",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "build",
+                "-c",
+                "ReleaseOS",
+                "--no-configure",
+                "--",
+                "-j${env:NUMBER_OF_PROCESSORS}"
+            ],
+            "options": {
+                "env": {
+                    "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+                }
+            },
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "dependsOn": "Configure (RelWithDebInfo)",
+            "detail": "Build the Second Life viewer in RelWithDebInfo mode"
+        },
+        {
+            "label": "Incremental Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build-linux-x86_64",
+                "-j${env:NUMBER_OF_PROCESSORS}"
+            ],
+            "windows": {
+                "args": [
+                    "--build",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "-j${env:NUMBER_OF_PROCESSORS}"
+                ]
+            },
+            "osx": {
+                "args": [
+                    "--build",
+                    "${workspaceFolder}/build-darwin-x86_64",
+                    "-j${env:NUMBER_OF_PROCESSORS}"
+                ]
+            },
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "detail": "Quick incremental build without reconfiguration"
+        },
+        {
+            "label": "Clean Build",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "build",
+                "-c",
+                "ReleaseOS",
+                "--clean"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Clean all build artifacts"
+        },
+        {
+            "label": "Install Dependencies",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "install"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Install third-party dependencies using Autobuild"
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build-linux-x86_64",
+                "--target",
+                "test"
+            ],
+            "windows": {
+                "args": [
+                    "--build",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "--target",
+                    "RUN_TESTS"
+                ]
+            },
+            "osx": {
+                "args": [
+                    "--build",
+                    "${workspaceFolder}/build-darwin-x86_64",
+                    "--target",
+                    "test"
+                ]
+            },
+            "group": "test",
+            "problemMatcher": "$gcc",
+            "detail": "Run all unit tests"
+        },
+        {
+            "label": "Package Viewer",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "package",
+                "-c",
+                "ReleaseOS"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Create a distributable package of the viewer"
+        },
+        {
+            "label": "Generate CMake Cache",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}/indra",
+                "-B",
+                "${workspaceFolder}/build-linux-x86_64",
+                "-DCMAKE_BUILD_TYPE=${input:buildType}",
+                "-DLL_TESTS=ON",
+                "-DVIEWER=ON",
+                "-DPACKAGE=ON"
+            ],
+            "windows": {
+                "args": [
+                    "-S",
+                    "${workspaceFolder}/indra",
+                    "-B",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "-G",
+                    "Visual Studio 17 2022",
+                    "-A",
+                    "x64",
+                    "-DCMAKE_BUILD_TYPE=${input:buildType}",
+                    "-DLL_TESTS=ON",
+                    "-DVIEWER=ON",
+                    "-DPACKAGE=ON"
+                ]
+            },
+            "osx": {
+                "args": [
+                    "-S",
+                    "${workspaceFolder}/indra",
+                    "-B",
+                    "${workspaceFolder}/build-darwin-x86_64",
+                    "-G",
+                    "Xcode",
+                    "-DCMAKE_BUILD_TYPE=${input:buildType}",
+                    "-DLL_TESTS=ON",
+                    "-DVIEWER=ON",
+                    "-DPACKAGE=ON"
+                ]
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Generate CMake cache directly (alternative to autobuild configure)"
+        },
+        {
+            "label": "Build Specific Target",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build-linux-x86_64",
+                "--target",
+                "${input:targetName}",
+                "-j${env:NUMBER_OF_PROCESSORS}"
+            ],
+            "windows": {
+                "args": [
+                    "--build",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "--target",
+                    "${input:targetName}",
+                    "-j${env:NUMBER_OF_PROCESSORS}"
+                ]
+            },
+            "osx": {
+                "args": [
+                    "--build",
+                    "${workspaceFolder}/build-darwin-x86_64",
+                    "--target",
+                    "${input:targetName}",
+                    "-j${env:NUMBER_OF_PROCESSORS}"
+                ]
+            },
+            "group": "build",
+            "problemMatcher": "$gcc",
+            "detail": "Build a specific CMake target"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildType",
+            "type": "pickString",
+            "description": "Select build type",
+            "options": [
+                "Debug",
+                "Release",
+                "RelWithDebInfo",
+                "MinSizeRel"
+            ],
+            "default": "RelWithDebInfo"
+        },
+        {
+            "id": "targetName",
+            "type": "promptString",
+            "description": "Enter the CMake target name to build",
+            "default": "secondlife-bin"
+        }
+    ]
+}

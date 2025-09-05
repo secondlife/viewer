@@ -1,0 +1,173 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/indra/**",
+                "${workspaceFolder}/indra/llcommon",
+                "${workspaceFolder}/indra/llmath",
+                "${workspaceFolder}/indra/llrender",
+                "${workspaceFolder}/indra/llwindow",
+                "${workspaceFolder}/indra/llxml",
+                "${workspaceFolder}/indra/llui",
+                "${workspaceFolder}/indra/llmessage",
+                "${workspaceFolder}/indra/llinventory",
+                "${workspaceFolder}/indra/llprimitive",
+                "${workspaceFolder}/indra/llcharacter",
+                "${workspaceFolder}/indra/llimage",
+                "${workspaceFolder}/indra/llaudio",
+                "${workspaceFolder}/indra/llplugin",
+                "${workspaceFolder}/indra/llfilesystem",
+                "${workspaceFolder}/indra/llappearance",
+                "${workspaceFolder}/indra/llcorehttp",
+                "${workspaceFolder}/indra/newview",
+                "${workspaceFolder}/build-linux-x86_64/**",
+                "${workspaceFolder}/build-linux-x86_64/packages/include",
+                "${workspaceFolder}/packages/include/**",
+                "/usr/include",
+                "/usr/local/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "LL_LINUX=1",
+                "LL_GTK=1",
+                "LL_X11=1",
+                "LL_MESA_HEADLESS=0",
+                "LL_MESA=1",
+                "APPID=secondlife",
+                "LL_IGNORE_SIGCHLD",
+                "_REENTRANT",
+                "GLIB_DISABLE_DEPRECATION_WARNINGS"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "compileCommands": "${workspaceFolder}/compile_commands.json",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/indra/**",
+                    "${workspaceFolder}/build-linux-x86_64/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
+        },
+        {
+            "name": "Windows",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/indra/**",
+                "${workspaceFolder}/indra/llcommon",
+                "${workspaceFolder}/indra/llmath",
+                "${workspaceFolder}/indra/llrender",
+                "${workspaceFolder}/indra/llwindow",
+                "${workspaceFolder}/indra/llxml",
+                "${workspaceFolder}/indra/llui",
+                "${workspaceFolder}/indra/llmessage",
+                "${workspaceFolder}/indra/llinventory",
+                "${workspaceFolder}/indra/llprimitive",
+                "${workspaceFolder}/indra/llcharacter",
+                "${workspaceFolder}/indra/llimage",
+                "${workspaceFolder}/indra/llaudio",
+                "${workspaceFolder}/indra/llplugin",
+                "${workspaceFolder}/indra/llfilesystem",
+                "${workspaceFolder}/indra/llappearance",
+                "${workspaceFolder}/indra/llcorehttp",
+                "${workspaceFolder}/indra/newview",
+                "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/**",
+                "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/packages/include",
+                "${workspaceFolder}/packages/include/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "LL_WINDOWS=1",
+                "WIN32",
+                "_WINDOWS",
+                "_WIN32",
+                "WINVER=0x0601",
+                "_WIN32_WINNT=0x0601",
+                "_CRT_SECURE_NO_WARNINGS",
+                "_SCL_SECURE_NO_WARNINGS",
+                "_WINSOCK_DEPRECATED_NO_WARNINGS",
+                "BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.30.30705/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "windows-msvc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "compileCommands": "${workspaceFolder}/compile_commands.json",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/indra/**",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
+        },
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/indra/**",
+                "${workspaceFolder}/indra/llcommon",
+                "${workspaceFolder}/indra/llmath",
+                "${workspaceFolder}/indra/llrender",
+                "${workspaceFolder}/indra/llwindow",
+                "${workspaceFolder}/indra/llxml",
+                "${workspaceFolder}/indra/llui",
+                "${workspaceFolder}/indra/llmessage",
+                "${workspaceFolder}/indra/llinventory",
+                "${workspaceFolder}/indra/llprimitive",
+                "${workspaceFolder}/indra/llcharacter",
+                "${workspaceFolder}/indra/llimage",
+                "${workspaceFolder}/indra/llaudio",
+                "${workspaceFolder}/indra/llplugin",
+                "${workspaceFolder}/indra/llfilesystem",
+                "${workspaceFolder}/indra/llappearance",
+                "${workspaceFolder}/indra/llcorehttp",
+                "${workspaceFolder}/indra/newview",
+                "${workspaceFolder}/build-darwin-x86_64/**",
+                "${workspaceFolder}/build-darwin-x86_64/packages/include",
+                "${workspaceFolder}/packages/include/**",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+                "/usr/local/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "LL_DARWIN=1",
+                "LL_GL_IMAGEGL_AVAILABLE=1"
+            ],
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang++",
+            "cStandard": "c11",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "macos-clang-x64",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "compileCommands": "${workspaceFolder}/compile_commands.json",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "${workspaceFolder}/indra/**",
+                    "${workspaceFolder}/build-darwin-x86_64/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            }
+        }
+    ],
+    "version": 4
+}

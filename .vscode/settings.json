@@ -1,0 +1,244 @@
+{
+    "files.associations": {
+        "*.h": "cpp",
+        "*.cpp": "cpp",
+        "*.inl": "cpp",
+        "*.hpp": "cpp",
+        "*.hh": "cpp",
+        "*.cc": "cpp",
+        "*.cxx": "cpp",
+        "*.c++": "cpp",
+        "*.tcc": "cpp",
+        "*.ipp": "cpp"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "build-*": false,
+        "autobuild-package-*": true,
+        "*.pyc": true,
+        "__pycache__": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "build-*/**": true,
+        "autobuild-package-*/**": true,
+        "packages/**": true
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.cppStandard": "c++20",
+    "C_Cpp.default.cStandard": "c11",
+    "C_Cpp.default.intelliSenseMode": "${default}",
+    "C_Cpp.formatting": "clangFormat",
+    "C_Cpp.clang_format_path": "/usr/bin/clang-format",
+    "C_Cpp.clang_format_style": "file",
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.autocomplete": "default",
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.intelliSenseEngineFallback": "enabled",
+    "C_Cpp.dimInactiveRegions": true,
+    "C_Cpp.enhancedColorization": "enabled",
+    "C_Cpp.suggestSnippets": true,
+    "cmake.configureOnOpen": false,
+    "cmake.sourceDirectory": "${workspaceFolder}/indra",
+    "cmake.buildDirectory": "${workspaceFolder}/build-${buildKit}",
+    "cmake.installPrefix": "${workspaceFolder}/install-${buildKit}",
+    "cmake.generator": "Ninja",
+    "cmake.configureSettings": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "LL_TESTS": "ON",
+        "VIEWER": "ON",
+        "PACKAGE": "ON",
+        "USE_PRECOMPILED_HEADERS": "ON",
+        "ENABLE_MEDIA_PLUGINS": "ON"
+    },
+    "cmake.buildArgs": [
+        "-j${env:NUMBER_OF_PROCESSORS}"
+    ],
+    "cmake.parallelJobs": 0,
+    "cmake.ctestArgs": [
+        "--output-on-failure"
+    ],
+    "cmake.showSystemKits": false,
+    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+    "editor.rulers": [
+        100,
+        120
+    ],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": true,
+    "editor.trimAutoWhitespace": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.encoding": "utf8",
+    "files.eol": "\n",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "black",
+    "xml.format.enabled": true,
+    "xml.format.splitAttributes": true,
+    "terminal.integrated.env.linux": {
+        "AUTOBUILD_VSVER": "143",
+        "AUTOBUILD_ADDRSIZE": "64",
+        "VIEWER_CHANNEL": "Second Life Development"
+    },
+    "terminal.integrated.env.windows": {
+        "AUTOBUILD_VSVER": "143",
+        "AUTOBUILD_ADDRSIZE": "64",
+        "VIEWER_CHANNEL": "Second Life Development"
+    },
+    "terminal.integrated.env.osx": {
+        "AUTOBUILD_VSVER": "143",
+        "AUTOBUILD_ADDRSIZE": "64",
+        "VIEWER_CHANNEL": "Second Life Development"
+    },
+    "debug.console.fontSize": 12,
+    "debug.console.wordWrap": true,
+    "debug.internalConsoleOptions": "openOnSessionStart",
+    "debug.showBreakpointsInOverviewRuler": true,
+    "debug.showInlineBreakpointCandidates": true,
+    "debug.allowBreakpointsEverywhere": true,
+    "debug.onTaskErrors": "showErrors",
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#1a1a2e",
+        "activityBar.foreground": "#e8e8e8",
+        "statusBar.background": "#0f3460",
+        "statusBar.foreground": "#e8e8e8",
+        "statusBar.debuggingBackground": "#e94560",
+        "statusBar.debuggingForeground": "#ffffff"
+    },
+    "git.ignoreLimitWarning": true,
+    "git.autoStash": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "problems.showCurrentInStatus": true,
+    "extensions.ignoreRecommendations": false,
+    "workbench.editor.enablePreview": true,
+    "workbench.editor.enablePreviewFromQuickOpen": true,
+    "explorer.confirmDelete": true,
+    "explorer.confirmDragAndDrop": true,
+    "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.detectLocale": "auto",
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
+        "**/.hg/store/**": true,
+        "build-*/**": true,
+        "autobuild-package-*/**": true
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools",
+        "editor.wordBasedSuggestions": "off",
+        "editor.suggest.insertMode": "replace",
+        "editor.semanticHighlighting.enabled": true
+    },
+    "[cmake]": {
+        "editor.defaultFormatter": "cheshirekow.cmake-format",
+        "editor.tabSize": 2
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "[xml]": {
+        "editor.defaultFormatter": "redhat.vscode-xml"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features",
+        "editor.tabSize": 2
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features",
+        "editor.tabSize": 2
+    },
+    "todohighlight.keywords": [
+        {
+            "text": "TODO:",
+            "color": "#fff",
+            "backgroundColor": "#ffbd2a",
+            "overviewRulerColor": "#ffbd2a"
+        },
+        {
+            "text": "FIXME:",
+            "color": "#fff",
+            "backgroundColor": "#f06292",
+            "overviewRulerColor": "#f06292"
+        },
+        {
+            "text": "HACK:",
+            "color": "#fff",
+            "backgroundColor": "#ff6900",
+            "overviewRulerColor": "#ff6900"
+        },
+        {
+            "text": "NOTE:",
+            "color": "#fff",
+            "backgroundColor": "#009688",
+            "overviewRulerColor": "#009688"
+        }
+    ],
+    "cSpell.words": [
+        "Linden",
+        "llcommon",
+        "llmath",
+        "llrender",
+        "newview",
+        "secondlife",
+        "autobuild",
+        "indra",
+        "llui",
+        "llwindow",
+        "llxml",
+        "llaudio",
+        "llcharacter",
+        "llimage",
+        "llinventory",
+        "llmessage",
+        "llplugin",
+        "llprimitive",
+        "llfilesystem",
+        "llappearance",
+        "llcorehttp",
+        "llcrashlogger",
+        "llimagej2coj",
+        "llkdu",
+        "llmeshoptimizer",
+        "llwebrtc",
+        "LLUUID",
+        "LLVector",
+        "LLQuaternion",
+        "LLMatrix"
+    ],
+    "cSpell.enableFiletypes": [
+        "cpp",
+        "cmake",
+        "python",
+        "xml"
+    ],
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}",
+        "--background-index",
+        "--clang-tidy",
+        "--completion-style=detailed",
+        "--header-insertion=iwyu",
+        "--pch-storage=memory"
+    ],
+    "clangd.path": "clangd",
+    "lldb.launch.expressions": "native",
+    "lldb.launch.terminal": "integrated"
+}

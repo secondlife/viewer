@@ -1,0 +1,245 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Second Life Viewer (Linux)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-linux-x86_64/newview/secondlife-bin",
+            "args": [
+                "--set",
+                "CrashOnStartup",
+                "FALSE",
+                "--settings",
+                "settings_debug.xml"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build-linux-x86_64/newview",
+            "environment": [
+                {
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/build-linux-x86_64/packages/lib:${env:LD_LIBRARY_PATH}"
+                },
+                {
+                    "name": "VIEWER_CHANNEL",
+                    "value": "Second Life Development"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Incremental Build",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "logging": {
+                "moduleLoad": false,
+                "trace": false,
+                "engineLogging": false,
+                "programOutput": true,
+                "exceptions": true
+            }
+        },
+        {
+            "name": "Second Life Viewer (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/newview/${input:buildConfig}/secondlife-bin.exe",
+            "args": [
+                "--set",
+                "CrashOnStartup",
+                "FALSE",
+                "--settings",
+                "settings_debug.xml"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/newview/${input:buildConfig}",
+            "environment": [
+                {
+                    "name": "VIEWER_CHANNEL",
+                    "value": "Second Life Development"
+                },
+                {
+                    "name": "PATH",
+                    "value": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/packages/bin;${env:PATH}"
+                }
+            ],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Incremental Build",
+            "visualizerFile": "${workspaceFolder}/.vscode/natvis/secondlife.natvis"
+        },
+        {
+            "name": "Second Life Viewer (macOS)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-darwin-x86_64/newview/${input:buildConfig}/Second Life.app/Contents/MacOS/Second Life",
+            "args": [
+                "--set",
+                "CrashOnStartup",
+                "FALSE",
+                "--settings",
+                "settings_debug.xml"
+            ],
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}/build-darwin-x86_64/newview/${input:buildConfig}",
+            "environment": [
+                {
+                    "name": "VIEWER_CHANNEL",
+                    "value": "Second Life Development"
+                },
+                {
+                    "name": "DYLD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/build-darwin-x86_64/packages/lib:${env:DYLD_LIBRARY_PATH}"
+                }
+            ],
+            "preLaunchTask": "Incremental Build"
+        },
+        {
+            "name": "Attach to Second Life Process",
+            "type": "cppdbg",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Second Life Test Suite",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-linux-x86_64/test/${input:testExecutable}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build-linux-x86_64/test",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Second Life with Logging",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-linux-x86_64/newview/secondlife-bin",
+            "args": [
+                "--set",
+                "CrashOnStartup",
+                "FALSE",
+                "--settings",
+                "settings_debug.xml",
+                "--logfile",
+                "${workspaceFolder}/debug.log",
+                "--debug"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build-linux-x86_64/newview",
+            "environment": [
+                {
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/build-linux-x86_64/packages/lib:${env:LD_LIBRARY_PATH}"
+                },
+                {
+                    "name": "LL_DEBUG",
+                    "value": "1"
+                },
+                {
+                    "name": "VIEWER_CHANNEL",
+                    "value": "Second Life Development"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Incremental Build"
+        },
+        {
+            "name": "Second Life Grid Selection",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-linux-x86_64/newview/secondlife-bin",
+            "args": [
+                "--grid",
+                "${input:gridSelection}",
+                "--set",
+                "CrashOnStartup",
+                "FALSE"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build-linux-x86_64/newview",
+            "environment": [
+                {
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/build-linux-x86_64/packages/lib:${env:LD_LIBRARY_PATH}"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Incremental Build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildConfig",
+            "type": "pickString",
+            "description": "Select build configuration",
+            "options": [
+                "Debug",
+                "Release",
+                "RelWithDebInfo"
+            ],
+            "default": "RelWithDebInfo"
+        },
+        {
+            "id": "testExecutable",
+            "type": "promptString",
+            "description": "Enter the test executable name",
+            "default": "llcommon_test"
+        },
+        {
+            "id": "gridSelection",
+            "type": "pickString",
+            "description": "Select grid to connect to",
+            "options": [
+                "agni",
+                "aditi",
+                "localhost",
+                "util.agni.lindenlab.com",
+                "util.aditi.lindenlab.com"
+            ],
+            "default": "agni"
+        }
+    ]
+}
