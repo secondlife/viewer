@@ -1040,11 +1040,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>243709fbbb58a91dca81d16df650e9c6ff910d0d</string>
+              <string>da318f0813e4126d90e35b22a8dce235e908707a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/202118207</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/208381808</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1056,11 +1056,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>7fd0a7ee71a4e76b49e31b75f8622852324d58a4</string>
+              <string>1ba58cf884726dfdf02a7662d52f1befe3f16d44</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/202118208</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/208381812</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1072,14 +1072,30 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>8c475dd9616c7e0e3029cc38aefc1e0ab34d2e73</string>
+              <string>e8d693089b9ecd15b6644f13ada7ae7c317944df</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/202118209</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/208381814</string>
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>85e294becce8b2ac5d2e5e052b0e21ff865d1108</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/208381806</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
           </map>
         </map>
         <key>license</key>
@@ -1089,7 +1105,7 @@
         <key>copyright</key>
         <string>Kakadu software</string>
         <key>version</key>
-        <string>8.4.1.11540433907</string>
+        <string>8.4.1.11976899217</string>
         <key>name</key>
         <string>kdu</string>
         <key>description</key>
