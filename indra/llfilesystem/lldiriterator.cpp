@@ -28,9 +28,9 @@
 
 #include "fix_macros.h"
 #include "llregex.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 static std::string glob_to_regex(const std::string& glob);
 
