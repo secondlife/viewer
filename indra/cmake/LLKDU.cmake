@@ -14,10 +14,19 @@ if (USE_KDU)
   include(Prebuilt)
   use_prebuilt_binary(kdu)
 
-  find_library(KDU_LIBRARY
-    NAMES
-    kdu
-    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+  if (WINDOWS)
+    find_library(KDU_LIBRARY
+      NAMES
+      kdu
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+  else (WINDOWS)
+    find_library(KDU_LIBRARY
+      NAMES
+      libkdu.a
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+  endif (WINDOWS)
 
   target_link_libraries(ll::kdu INTERFACE ${KDU_LIBRARY})
 
