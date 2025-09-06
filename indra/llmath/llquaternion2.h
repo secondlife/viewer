@@ -49,7 +49,7 @@ public:
     //////////////////////////
 
     // Ctor
-    LLQuaternion2() {}
+    LLQuaternion2() = default;
 
     // Ctor from LLQuaternion
     explicit LLQuaternion2( const class LLQuaternion& quat );
@@ -101,5 +101,7 @@ protected:
     LLVector4a mQ;
 
 };
+
+static_assert(std::is_trivial<LLQuaternion2>::value, "LLQuaternion2 must be a trivial type");
 
 #endif

@@ -220,6 +220,7 @@ public:
 
     void initGeneralThread();
     void purgeUserDataOnExit() { mPurgeUserDataOnExit = true; }
+    void purgeCefStaleCaches();  // Remove old, stale CEF cache folders
     void purgeCache(); // Clear the local cache.
     void purgeCacheImmediate(); //clear local cache immediately.
     S32  updateTextureThreads(F32 max_time);

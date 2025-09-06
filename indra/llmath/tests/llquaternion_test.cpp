@@ -349,9 +349,9 @@ namespace tut
         ensure(
             "2. LLVector4 operator*(const LLVector4 &a, const LLQuaternion &rot) failed",
             is_approx_equal(-58153.5390f, result.mV[0]) &&
-            (183787.8125f == result.mV[1]) &&
-            (116864.164063f == result.mV[2]) &&
-            (78.099998f == result.mV[3]));
+            is_approx_equal(183787.8125f, result.mV[1]) &&
+            is_approx_equal(116864.164063f, result.mV[2]) &&
+            is_approx_equal(78.099998f, result.mV[3]));
     }
 
     //test case for LLVector3 operator*(const LLVector3 &a, const LLQuaternion &rot) fn.

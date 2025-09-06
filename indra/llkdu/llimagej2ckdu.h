@@ -27,12 +27,13 @@
 #ifndef LL_LLIMAGEJ2CKDU_H
 #define LL_LLIMAGEJ2CKDU_H
 
+#include "llpreprocessor.h"
+
 #include "llimagej2c.h"
 
 //
 // KDU core header files
 //
-#define KDU_NO_THREADS
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"
@@ -41,7 +42,6 @@
 #include "include_kdu_xxxx.h"
 
 #include "kdu_sample_processing.h"
-#include <boost/scoped_ptr.hpp>
 #include <boost/noncopyable.hpp>
 
 class LLKDUDecodeState;

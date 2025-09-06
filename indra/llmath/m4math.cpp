@@ -156,10 +156,6 @@ LLMatrix4::LLMatrix4(const F32 roll, const F32 pitch, const F32 yaw)
     mMatrix[3][3] = 1.f;
 }
 
-LLMatrix4::~LLMatrix4(void)
-{
-}
-
 // Clear and Assignment Functions
 
 const LLMatrix4& LLMatrix4::setZero()
