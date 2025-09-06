@@ -122,7 +122,16 @@ std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
             {
                 if (boost::filesystem::is_regular_file(dir_itr->status()))
                 {
-                    v.push_back(dir_itr->path().filename().string());
+#ifdef LL_WINDOWS
+                    // Path and filename can be converted directly to string(),
+                    // but that uses system locale.
+                    // While locale can be UTF-8, typicaly it is ANSI, so it's
+                    // better to convert explicitly.
+                    std::string filename = ll_convert<std::string>(dir_itr->path().filename().wstring());
+#else
+                    std::string filename = dir_itr->path().filename().string();
+#endif
+                    v.push_back(filename);
                 }
             }
         }

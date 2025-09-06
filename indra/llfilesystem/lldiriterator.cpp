@@ -72,7 +72,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 
     if (!is_dir)
     {
-        LL_WARNS() << "Invalid path: \"" << dir_path.string() << "\"" << LL_ENDL;
+        LL_WARNS() << "Invalid path: \"" << dirname << "\"" << LL_ENDL;
         return;
     }
 
@@ -129,8 +129,16 @@ bool LLDirIterator::Impl::next(std::string &fname)
     {
         while (mIter != end_itr && !found)
         {
-            boost::smatch match;
+#ifdef LL_WINDOWS
+            // Path and filename can be converted directly to string(),
+            // but that uses system locale.
+            // While locale can be UTF-8, typicaly it is ANSI, so it's
+            // better to convert explicitly.
+            std::string name = ll_convert<std::string>(mIter->path().filename().wstring());
+#else
             std::string name = mIter->path().filename().string();
+#endif
+            boost::smatch match;
             found = ll_regex_match(name, match, mFilterExp);
             if (found)
             {
