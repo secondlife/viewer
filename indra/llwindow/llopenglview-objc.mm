@@ -28,7 +28,7 @@
 #import "llwindowmacosx-objc.h"
 #import "llappdelegate-objc.h"
 
-#import <Carbon/Carbon.h> 
+#import <Carbon/Carbon.h>
 
 extern BOOL gHiDPISupport;
 
@@ -66,16 +66,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
     segment_standouts seg_standouts;
     NSRange effectiveRange;
     NSRange limitRange = NSMakeRange(0, [str length]);
-    
+
     while (limitRange.length > 0) {
         NSNumber *attr = [str attribute:NSUnderlineStyleAttributeName atIndex:limitRange.location longestEffectiveRange:&effectiveRange inRange:limitRange];
         limitRange = NSMakeRange(NSMaxRange(effectiveRange), NSMaxRange(limitRange) - NSMaxRange(effectiveRange));
-        
+
         if (effectiveRange.length <= 0)
         {
             effectiveRange.length = 1;
         }
-        
+
         if ([attr integerValue] == 2)
         {
             seg_lengths.push_back(effectiveRange.length);
@@ -98,12 +98,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
 + (NSScreen *)currentScreenForMouseLocation
 {
     NSPoint mouseLocation = [NSEvent mouseLocation];
-    
+
     NSEnumerator *screenEnumerator = [[NSScreen screens] objectEnumerator];
     NSScreen *screen;
     while ((screen = [screenEnumerator nextObject]) && !NSMouseInRect(mouseLocation, screen.frame, NO))
         ;
-    
+
     return screen;
 }
 
@@ -131,7 +131,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         vram_megabytes = 256;
     }
-    
+
 	return (unsigned long)vram_megabytes; // return value is in megabytes.
 }
 
@@ -140,15 +140,15 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowResized:) name:NSWindowDidResizeNotification
 											   object:[self window]];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowWillMiniaturize:) name:NSWindowWillMiniaturizeNotification
 											   object:[self window]];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowDidDeminiaturize:) name:NSWindowDidDeminiaturizeNotification
 											   object:[self window]];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification
 											   object:[self window]];
@@ -222,7 +222,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
 	[self initWithFrame:frame];
-	
+
 	// Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
 	// Any specialized pixel formats, i.e. a core profile pixel format, should be initialized through rebuildContextWithFormat.
 	// 10.7 and 10.8 don't really care if we're defining a profile or not.  If we don't explicitly request a core or legacy profile, it'll always assume a legacy profile (for compatibility reasons).
@@ -240,34 +240,34 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion4_1Core,
 		0
     };
-	
+
 	NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:attrs] autorelease];
-	
+
 	if (pixelFormat == nil)
 	{
 		NSLog(@"Failed to create pixel format!", nil);
 		return nil;
 	}
-	
+
 	NSOpenGLContext *glContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-	
+
 	if (glContext == nil)
 	{
 		NSLog(@"Failed to create OpenGL context!", nil);
 		return nil;
 	}
-	
+
 	[self setPixelFormat:pixelFormat];
 
 	//for retina support
 	[self setWantsBestResolutionOpenGLSurface:gHiDPISupport];
 
 	[self setOpenGLContext:glContext];
-	
+
 	[glContext setView:self];
-	
+
 	[glContext makeCurrentContext];
-	
+
 	if (vsync)
 	{
 		GLint value = 1;
@@ -291,16 +291,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (BOOL) rebuildContextWithFormat:(NSOpenGLPixelFormat *)format
 {
 	NSOpenGLContext *ctx = [self openGLContext];
-	
+
 	[ctx clearDrawable];
 	[ctx initWithFormat:format shareContext:nil];
-	
+
 	if (ctx == nil)
 	{
 		NSLog(@"Failed to create OpenGL context!", nil);
 		return false;
 	}
-	
+
 	[self setOpenGLContext:ctx];
 	[ctx setView:self];
 	[ctx makeCurrentContext];
@@ -405,9 +405,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		float(dev_delta.x),
 		float(dev_delta.y)
 	};
-	
+
 	callDeltaUpdate(mouseDeltas, 0);
-	
+
 	NSPoint mPoint = [self convertPointToBacking:[theEvent locationInWindow]];
 	mMousePos[0] = mPoint.x;
 	mMousePos[1] = mPoint.y;
@@ -431,7 +431,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) otherMouseDragged:(NSEvent *)theEvent
 {
-	[self mouseDragged:theEvent];        
+	[self mouseDragged:theEvent];
 }
 
 - (void) scrollWheel:(NSEvent *)theEvent
@@ -455,7 +455,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     NativeKeyEventData eventData = extractKeyDataFromKeyEvent(theEvent);
     eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
-   
+
     uint keycode = [theEvent keyCode];
     // We must not depend on flagsChange event to detect modifier flags changed,
     // must depend on the modifire flags in the event parameter.
@@ -489,13 +489,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void)flagsChanged:(NSEvent *)theEvent
 {
     NativeKeyEventData eventData = extractKeyDataFromModifierEvent(theEvent);
- 
+
 	mModifiers = [theEvent modifierFlags];
 	callModifier([theEvent modifierFlags]);
-     
+
     NSInteger mask = 0;
     switch([theEvent keyCode])
-    {        
+    {
         case kVK_Shift:
             mask = NSEventModifierFlagShift;
             break;
@@ -506,9 +506,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
             mask = NSEventModifierFlagControl;
             break;
         default:
-            return;            
+            return;
     }
-    
+
     if (mModifiers & mask)
     {
         eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
@@ -527,7 +527,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         eventData.mKeyEvent = NativeKeyEventData::KEYUP;
         callKeyUp(&eventData, [theEvent keyCode], 0);
-    }  
+    }
 }
 
 - (BOOL) acceptsFirstResponder
@@ -539,11 +539,11 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
 	NSPasteboard *pboard;
     NSDragOperation sourceDragMask;
-	
+
 	sourceDragMask = [sender draggingSourceOperationMask];
-	
+
 	pboard = [sender draggingPasteboard];
-	
+
     if ([[pboard types] containsObject:NSPasteboardTypeURL])
 	{
 		if (sourceDragMask & NSDragOperationLink) {
@@ -558,7 +558,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender
 {
 	callHandleDragUpdated(mLastDraggedUrl);
-	
+
 	return NSDragOperationLink;
 }
 
@@ -612,12 +612,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
             unsigned(selectedRange.location),
             unsigned(selectedRange.length)
         };
-        
+
         unsigned int replacement[2] = {
             unsigned(replacementRange.location),
             unsigned(replacementRange.length)
         };
-        
+
         int string_length = [aString length];
         unichar *text = new unichar[string_length];
         attributedStringInfo segments;
@@ -728,7 +728,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
             return;
         }
 	}
-    
+
     @try
     {
         if (!mHasMarkedText)
@@ -741,7 +741,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
             resetPreedit();
             // We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
             // But just in case...
-            
+
             for (NSInteger i = 0; i < [aString length]; i++)
             {
                 handleUnicodeCharacter([aString characterAtIndex:i]);

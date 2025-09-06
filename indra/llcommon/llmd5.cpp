@@ -279,7 +279,7 @@ void LLMD5::hex_digest(char* s) const
 }
 
 #if LL_DARWIN
-#pragma clang diagnostic push
+#pragma clang diagnostic pop
 #endif
 
 std::ostream& operator<<(std::ostream& stream, const LLMD5& context)

@@ -5660,6 +5660,8 @@ void LLAppViewer::forceErrorBreakpoint()
 #else
 #if defined(LL_X86) || defined(LL_X86_64)
     asm ("int $3");
+#else
+    __builtin_trap();
 #endif
 #endif
     return;

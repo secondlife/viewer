@@ -316,7 +316,7 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
         // *TODO: This seems to be wrong. The base class should have no idea of
         // how j2c compression works so no good way of computing what's the byte
         // range to be used.
-    mCodeStreamp->set_max_bytes(max_bytes);
+        mCodeStreamp->set_max_bytes(max_bytes);
 
         //  If you want to flip or rotate the image for some reason, change
         // the resolution, or identify a restricted region of interest, this is
