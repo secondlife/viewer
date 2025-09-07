@@ -94,8 +94,9 @@
         "VIEWER_CHANNEL": "Second Life Development"
     },
     "terminal.integrated.env.windows": {
-        "AUTOBUILD_VSVER": "143",
+        "AUTOBUILD_VSVER": "175",
         "AUTOBUILD_ADDRSIZE": "64",
+        "AUTOBUILD_CONFIGURATION": "RelWithDebInfoOS",
         "VIEWER_CHANNEL": "Second Life Development"
     },
     "terminal.integrated.env.osx": {

@@ -51,9 +51,9 @@
         },
         {
             "name": "Second Life Viewer (Windows)",
-            "type": "cppdbg",
+            "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/newview/${input:buildConfig}/secondlife-bin.exe",
+            "program": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64/newview/${input:buildConfig}/secondlife-bin.exe",
             "args": [
                 "--set",
                 "CrashOnStartup",
@@ -62,7 +62,7 @@
                 "settings_debug.xml"
             ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/newview/${input:buildConfig}",
+            "cwd": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64/newview/${input:buildConfig}",
             "environment": [
                 {
                     "name": "VIEWER_CHANNEL",
@@ -70,20 +70,11 @@
                 },
                 {
                     "name": "PATH",
-                    "value": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/packages/bin;${env:PATH}"
+                    "value": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64/packages/bin;${env:PATH}"
                 }
             ],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "miDebuggerPath": "gdb.exe",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "Incremental Build"
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build (RelWithDebInfoOS)"
         },
         {
             "name": "Second Life Viewer (macOS)",
@@ -110,6 +101,10 @@
             "type": "cppdbg",
             "request": "attach",
             "program": "${workspaceFolder}/build-linux-x86_64/newview/secondlife-bin",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64/newview/${input:buildConfig}/secondlife-bin.exe"
+            },
             "processId": "${command:pickProcess}",
             "MIMode": "gdb",
             "setupCommands": [
@@ -219,11 +214,10 @@
             "type": "pickString",
             "description": "Select build configuration",
             "options": [
-                "Debug",
-                "Release",
-                "RelWithDebInfo"
+                "ReleaseOS",
+                "RelWithDebInfoOS"
             ],
-            "default": "RelWithDebInfo"
+            "default": "RelWithDebInfoOS"
         },
         {
             "id": "testExecutable",

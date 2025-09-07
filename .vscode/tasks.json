@@ -2,112 +2,151 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Configure (Debug)",
+            "label": "Configure (RelWithDebInfoOS)",
+            "type": "shell",
+            "command": "autobuild",
+            "args": [
+                "configure",
+                "-c",
+                "RelWithDebInfoOS",
+                "-A",
+                "64"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c"]
+                    }
+                }
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Configure the project for RelWithDebInfoOS build using Autobuild"
+        },
+        {
+            "label": "Configure (ReleaseOS)",
             "type": "shell",
             "command": "autobuild",
             "args": [
                 "configure",
                 "-c",
                 "ReleaseOS",
-                "--",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                "-DLL_TESTS=ON"
+                "-A",
+                "64"
             ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c"]
+                    }
+                }
+            },
             "group": "build",
             "problemMatcher": [],
-            "detail": "Configure the project for Debug build using Autobuild"
+            "detail": "Configure the project for ReleaseOS build using Autobuild"
         },
         {
-            "label": "Configure (Release)",
+            "label": "Configure (Attended Mode)",
             "type": "shell",
             "command": "autobuild",
             "args": [
                 "configure",
                 "-c",
-                "ReleaseOS"
-            ],
-            "group": "build",
-            "problemMatcher": [],
-            "detail": "Configure the project for Release build using Autobuild"
-        },
-        {
-            "label": "Configure (RelWithDebInfo)",
-            "type": "shell",
-            "command": "autobuild",
-            "args": [
-                "configure",
-                "-c",
-                "ReleaseOS",
+                "${input:buildConfiguration}",
+                "-A",
+                "64",
                 "--",
-                "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+                "-DUNATTENDED:BOOL=FALSE"
             ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c"]
+                    }
+                }
+            },
             "group": "build",
             "problemMatcher": [],
-            "detail": "Configure the project for RelWithDebInfo build using Autobuild"
+            "detail": "Configure for Visual Studio attended mode (opens VS solution)"
         },
         {
-            "label": "Build (Debug)",
+            "label": "Build (RelWithDebInfoOS)",
             "type": "shell",
             "command": "autobuild",
             "args": [
                 "build",
                 "-c",
-                "ReleaseOS",
-                "--no-configure",
-                "--",
-                "-j${env:NUMBER_OF_PROCESSORS}"
+                "RelWithDebInfoOS",
+                "--no-configure"
             ],
-            "options": {
-                "env": {
-                    "CMAKE_BUILD_TYPE": "Debug"
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c", "eval $(autobuild source_environment) &&"]
+                    }
                 }
             },
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": "$gcc",
-            "dependsOn": "Configure (Debug)",
-            "detail": "Build the Second Life viewer in Debug mode"
+            "problemMatcher": "$msCompile",
+            "dependsOn": "Configure (RelWithDebInfoOS)",
+            "detail": "Build the Second Life viewer in RelWithDebInfoOS mode"
         },
         {
-            "label": "Build (Release)",
+            "label": "Build (ReleaseOS)",
             "type": "shell",
             "command": "autobuild",
             "args": [
                 "build",
                 "-c",
                 "ReleaseOS",
-                "--no-configure",
-                "--",
-                "-j${env:NUMBER_OF_PROCESSORS}"
+                "--no-configure"
             ],
-            "group": "build",
-            "problemMatcher": "$gcc",
-            "dependsOn": "Configure (Release)",
-            "detail": "Build the Second Life viewer in Release mode"
-        },
-        {
-            "label": "Build (RelWithDebInfo)",
-            "type": "shell",
-            "command": "autobuild",
-            "args": [
-                "build",
-                "-c",
-                "ReleaseOS",
-                "--no-configure",
-                "--",
-                "-j${env:NUMBER_OF_PROCESSORS}"
-            ],
-            "options": {
-                "env": {
-                    "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c", "eval $(autobuild source_environment) &&"]
+                    }
                 }
             },
             "group": "build",
-            "problemMatcher": "$gcc",
-            "dependsOn": "Configure (RelWithDebInfo)",
-            "detail": "Build the Second Life viewer in RelWithDebInfo mode"
+            "problemMatcher": "$msCompile",
+            "dependsOn": "Configure (ReleaseOS)",
+            "detail": "Build the Second Life viewer in ReleaseOS mode"
+        },
+        {
+            "label": "Open Visual Studio Solution",
+            "type": "shell",
+            "windows": {
+                "command": "start",
+                "args": [
+                    "devenv.exe",
+                    "${workspaceFolder}\\build-vc${env:AUTOBUILD_VSVER}-64\\SecondLife.sln"
+                ]
+            },
+            "osx": {
+                "command": "open",
+                "args": [
+                    "${workspaceFolder}/build-darwin-x86_64/SecondLife.xcodeproj"
+                ]
+            },
+            "linux": {
+                "command": "echo",
+                "args": [
+                    "Visual Studio is not available on Linux. Use command line build."
+                ]
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": "Configure (Attended Mode)",
+            "detail": "Open the generated solution in Visual Studio or Xcode"
         },
         {
             "label": "Incremental Build",
@@ -121,7 +160,7 @@
             "windows": {
                 "args": [
                     "--build",
-                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64",
                     "-j${env:NUMBER_OF_PROCESSORS}"
                 ]
             },
@@ -174,7 +213,7 @@
             "windows": {
                 "args": [
                     "--build",
-                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64",
                     "--target",
                     "RUN_TESTS"
                 ]
@@ -223,7 +262,7 @@
                     "-S",
                     "${workspaceFolder}/indra",
                     "-B",
-                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64",
                     "-G",
                     "Visual Studio 17 2022",
                     "-A",
@@ -266,7 +305,7 @@
             "windows": {
                 "args": [
                     "--build",
-                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}",
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64",
                     "--target",
                     "${input:targetName}",
                     "-j${env:NUMBER_OF_PROCESSORS}"
@@ -287,6 +326,16 @@
         }
     ],
     "inputs": [
+        {
+            "id": "buildConfiguration",
+            "type": "pickString",
+            "description": "Select build configuration",
+            "options": [
+                "ReleaseOS",
+                "RelWithDebInfoOS"
+            ],
+            "default": "RelWithDebInfoOS"
+        },
         {
             "id": "buildType",
             "type": "pickString",

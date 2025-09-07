@@ -80,8 +80,8 @@
                 "${workspaceFolder}/indra/llappearance",
                 "${workspaceFolder}/indra/llcorehttp",
                 "${workspaceFolder}/indra/newview",
-                "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/**",
-                "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/packages/include",
+                "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64/**",
+                "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64/packages/include",
                 "${workspaceFolder}/packages/include/**"
             ],
             "defines": [
@@ -110,7 +110,7 @@
                 "path": [
                     "${workspaceFolder}/**",
                     "${workspaceFolder}/indra/**",
-                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-${env:AUTOBUILD_ADDRSIZE}/**"
+                    "${workspaceFolder}/build-vc${env:AUTOBUILD_VSVER}-64/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
