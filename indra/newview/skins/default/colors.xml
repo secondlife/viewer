@@ -377,7 +377,7 @@
      reference="Black_50" />
     <color
      name="FocusColor"
-     reference="EmphasisColor" />
+     reference="white" />
     <color
      name="FolderViewLoadingMessageTextColor"
      value="0.3344 0.5456 0.5159 1" />
