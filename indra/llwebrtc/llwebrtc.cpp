@@ -9,7 +9,7 @@
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * version 2.1 of the License only
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -178,7 +178,7 @@ void LLCustomProcessor::Initialize(int sample_rate_hz, int num_channels)
     memset(mSumVector, 0, sizeof(mSumVector));
 }
 
-void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
+void LLCustomProcessor::Process(webrtc::AudioBuffer *audio)
 {
     webrtc::StreamConfig stream_config;
     stream_config.set_sample_rate_hz(mSampleRateHz);
@@ -186,7 +186,7 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
     std::vector<float *> frame;
     std::vector<float>   frame_samples;
 
-    if (audio_in->num_channels() < 1 || audio_in->num_frames() < 480)
+    if (audio->num_channels() < 1 || audio->num_frames() < 480)
     {
         return;
     }
@@ -199,20 +199,57 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
         frame[ch] = &(frame_samples)[ch * stream_config.num_frames()];
     }
 
-    audio_in->CopyTo(stream_config, &frame[0]);
+    audio->CopyTo(stream_config, &frame[0]);
 
     // calculate the energy
-    float energy = 0;
-    float gain   = mState->getGain();
-    for (size_t index = 0; index < stream_config.num_samples(); index++)
+
+    float desired_gain = mState->getGain();
+    if (mState->getDirty())
     {
-        float sample = frame_samples[index];
-        sample       = sample * gain; // apply gain
-        frame_samples[index] = sample; // write processed sample back to buffer.
-        energy += sample * sample;
+        // We'll delay ramping by 30ms in order to clear out buffers that may
+        // have had content before muting.  And for the last 20ms, we'll ramp
+        // down or up smoothly.
+        mRampFrames = 5;
+
+        // we've changed our desired gain, so set the incremental
+        // gain change so that we smoothly step over 20ms
+        mGainStep = (desired_gain - mCurrentGain) / (mSampleRateHz / 50);
     }
 
-    audio_in->CopyFrom(&frame[0], stream_config);
+    if (mRampFrames)
+    {
+        if (mRampFrames-- > 2)
+        {
+            // don't change the gain if we're still in the 'don't move' phase
+            mGainStep = 0.0f;
+        }
+    }
+    else
+    {
+        // We've ramped all the way down, so don't step the gain any more and
+        // just maintaint he current gain.
+        mGainStep = 0.0f;
+        mCurrentGain = desired_gain;
+    }
+
+    float energy       = 0;
+
+    float gain         = mCurrentGain;
+    for (size_t index = 0; index < stream_config.num_samples() / stream_config.num_channels(); index++)
+    {
+        for (size_t ch = 0; ch < stream_config.num_channels(); ch++)
+        {
+            size_t sample_index  = index * stream_config.num_channels() + ch;
+            float sample         = frame_samples[sample_index];
+            sample               = sample * gain;    // apply gain
+            frame_samples[sample_index] = sample;        // write processed sample back to buffer.
+            energy += sample * sample;
+        }
+        gain = gain + mGainStep; // adjust gain
+    }
+    mCurrentGain = gain;
+
+    audio->CopyFrom(&frame[0], stream_config);
 
     // smooth it.
     size_t buffer_size = sizeof(mSumVector) / sizeof(mSumVector[0]);
@@ -239,7 +276,8 @@ LLWebRTCImpl::LLWebRTCImpl(LLWebRTCLogCallback* logCallback) :
     mTuningMode(false),
     mDevicesDeploying(false),
     mPlayoutDevice(PLAYOUT_DEVICE_DEFAULT),
-    mRecordingDevice(RECORD_DEVICE_DEFAULT)
+    mRecordingDevice(RECORD_DEVICE_DEFAULT),
+    mGain(0.0f)
 {
 }
 
@@ -453,7 +491,11 @@ void LLWebRTCImpl::workerDeployDevices()
     mDeviceModule->InitSpeaker();
     mDeviceModule->SetStereoPlayout(true);
     mDeviceModule->InitPlayout();
-    mDeviceModule->ForceStartRecording();
+
+    if (!mMute || mTuningMode)
+    {
+        mDeviceModule->ForceStartRecording();
+    }
     uint32_t min_v = 0, max_v = 0, cur_v = 0;
     bool     have_hw = false;
 
@@ -591,11 +633,10 @@ void LLWebRTCImpl::OnDevicesUpdated()
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
     mTuningMode = enable;
-    mDeviceModule->SetTuning(mTuningMode);
     mWorkerThread->PostTask(
         [this]
         {
-            mDeviceModule->SetTuning(mTuningMode);
+            mDeviceModule->SetTuning(mTuningMode, mMute);
             mSignalingThread->PostTask(
                 [this]
                 {
@@ -649,8 +690,47 @@ float LLWebRTCImpl::getTuningAudioLevel() { return mDeviceModule ? -20 * log10f(
 
 float LLWebRTCImpl::getPeerConnectionAudioLevel() { return mPeerCustomProcessor ? -20 * log10f(mPeerCustomProcessor->getMicrophoneEnergy()) : 0.0f; }
 
-void LLWebRTCImpl::setPeerConnectionGain(float gain) { if (mPeerCustomProcessor) mPeerCustomProcessor->setGain(gain); }
+void LLWebRTCImpl::setPeerConnectionGain(float gain)
+{
+    mGain = gain;
+    if (mPeerCustomProcessor)
+    {
+        mPeerCustomProcessor->setGain(gain);
+    }
+}
 
+void LLWebRTCImpl::setMute(bool mute, int delay_ms)
+{
+    mMute = mute;
+    if (mPeerCustomProcessor)
+    {
+        mPeerCustomProcessor->setGain(mMute ? 0.0f : mGain);
+    }
+    if (mMute)
+    {
+        mWorkerThread->PostDelayedTask(
+            [this]
+            {
+                if (mDeviceModule)
+                {
+                    mDeviceModule->ForceStopRecording();
+                }
+            },
+            webrtc::TimeDelta::Millis(delay_ms));
+    }
+    else
+    {
+        mWorkerThread->PostTask(
+            [this]
+            {
+                if (mDeviceModule)
+                {
+                    mDeviceModule->InitRecording();
+                    mDeviceModule->ForceStartRecording();
+                }
+            });
+    }
+}
 
 //
 // Peer Connection Helpers
@@ -938,6 +1018,7 @@ void LLWebRTCPeerConnectionImpl::setMute(bool mute)
     bool force_reset = mMute == MUTE_INITIAL && mute;
     bool enable = !mute;
     mMute = new_state;
+
 
     mWebRTCImpl->PostSignalingTask(
         [this, force_reset, enable]()

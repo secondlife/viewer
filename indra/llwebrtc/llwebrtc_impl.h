@@ -227,7 +227,11 @@ public:
 
     int32_t InitRecording() override { return inner_->InitRecording(); }
     bool    RecordingIsInitialized() const override { return inner_->RecordingIsInitialized(); }
-    int32_t StartRecording() override { return inner_->StartRecording(); }
+    int32_t StartRecording() override {
+        if (tuning_)
+            return 0; // For tuning, we'll force a Start when we're ready
+        return inner_->StartRecording();
+    }
     int32_t StopRecording() override {
         if (tuning_) return 0;  // if we're tuning, disregard the StopRecording we get from disabling the streams
         return inner_->StopRecording();
@@ -311,17 +315,26 @@ public:
 
     // tuning microphone energy calculations
     float GetMicrophoneEnergy() { return audio_transport_.GetMicrophoneEnergy(); }
-    void  SetTuning(bool tuning)
+    void  SetTuning(bool tuning, bool mute)
     {
         tuning_ = tuning;
-        inner_->InitRecording();
-        inner_->StartRecording();
         if (tuning)
         {
+            inner_->InitRecording();
+            inner_->StartRecording();
             inner_->StopPlayout();
         }
         else
         {
+            if (mute)
+            {
+                inner_->StopRecording();
+            }
+            else
+            {
+                inner_->InitRecording();
+                inner_->StartRecording();
+            }
             inner_->StartPlayout();
         }
     }
@@ -343,10 +356,18 @@ public:
     float getMicrophoneEnergy() { return mMicrophoneEnergy.load(std::memory_order_relaxed); }
     void setMicrophoneEnergy(float energy) { mMicrophoneEnergy.store(energy, std::memory_order_relaxed); }
 
-    void setGain(float gain) { mGain.store(gain, std::memory_order_relaxed); }
+    void setGain(float gain)
+    {
+        mGain.store(gain, std::memory_order_relaxed);
+        mDirty.store(true, std::memory_order_relaxed);
+    }
+
     float getGain() { return mGain.load(std::memory_order_relaxed); }
 
+    bool getDirty() { return mDirty.exchange(false, std::memory_order_relaxed); }
+
  protected:
+    std::atomic<bool>  mDirty{ true };
     std::atomic<float> mMicrophoneEnergy{ 0.0f };
     std::atomic<float> mGain{ 0.0f };
 };
@@ -357,7 +378,7 @@ using LLCustomProcessorStatePtr = std::shared_ptr<LLCustomProcessorState>;
 // all of the processing (AGC, AEC, etc.) for display in-world to the user.
 class LLCustomProcessor : public webrtc::CustomProcessing
 {
-  public:
+public:
     LLCustomProcessor(LLCustomProcessorStatePtr state);
     ~LLCustomProcessor() override {}
 
@@ -365,15 +386,18 @@ class LLCustomProcessor : public webrtc::CustomProcessing
     void Initialize(int sample_rate_hz, int num_channels) override;
 
     // Analyzes the given capture or render signal.
-    void Process(webrtc::AudioBuffer *audio) override;
+    void Process(webrtc::AudioBuffer* audio) override;
 
     // Returns a string representation of the module state.
     std::string ToString() const override { return ""; }
 
-  protected:
-    static const int NUM_PACKETS_TO_FILTER = 30;  // 300 ms of smoothing
-    int              mSampleRateHz;
-    int              mNumChannels;
+protected:
+    static const int NUM_PACKETS_TO_FILTER = 30; // 300 ms of smoothing
+    int              mSampleRateHz{ 48000 };
+    int              mNumChannels{ 2 };
+    int              mRampFrames{ 2 };
+    float            mCurrentGain{ 0.0f };
+    float            mGainStep{ 0.0f };
 
     float mSumVector[NUM_PACKETS_TO_FILTER];
     friend LLCustomProcessorState;
@@ -414,6 +438,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     float getPeerConnectionAudioLevel() override;
 
     void setPeerConnectionGain(float gain) override;
+
+    void setMute(bool mute, int delay_ms = 20) override;
 
     //
     // AudioDeviceObserver
@@ -509,6 +535,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     LLWebRTCVoiceDeviceList                                    mPlayoutDeviceList;
 
     bool                                                       mMute;
+    float                                                      mGain;
 
     LLCustomProcessorStatePtr                                  mPeerCustomProcessor;
 

@@ -160,6 +160,8 @@ class LLWebRTCDeviceInterface
     virtual float getTuningAudioLevel() = 0; // for use during tuning
     virtual float getPeerConnectionAudioLevel() = 0; // for use when not tuning
     virtual void setPeerConnectionGain(float gain) = 0;
+
+    virtual void setMute(bool mute, int delay_ms = 0) = 0;
 };
 
 // LLWebRTCAudioInterface provides the viewer with a way

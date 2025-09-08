@@ -85,6 +85,9 @@ namespace {
     const F32 MAX_AUDIO_DIST      = 50.0f;
     const F32 VOLUME_SCALE_WEBRTC = 0.01f;
     const F32 LEVEL_SCALE_WEBRTC  = 0.008f;
+    const uint32_t SET_HIDDEN_RESTORE_DELAY_MS = 200;  // 200 ms to unmute again after hiding during teleport
+    const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
+                                                     // This is because the buffers and processing is cleared by the silence.
 
     const F32 SPEAKING_AUDIO_LEVEL = 0.30;
 
@@ -841,6 +844,11 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
 
     if (inSpatialChannel())
     {
+        if (mWebRTCDeviceInterface)
+        {
+            mWebRTCDeviceInterface->setMute(mHidden || mMuteMic,
+                                            mHidden ? 0 : SET_HIDDEN_RESTORE_DELAY_MS); // delay 200ms so as to not pile up mutes/unmutes.
+        }
         if (mHidden)
         {
             // get out of the channel entirely
@@ -1007,7 +1015,6 @@ void LLWebRTCVoiceClient::updatePosition(void)
         {
             if (participant->mRegion != region->getRegionID()) {
                 participant->mRegion = region->getRegionID();
-                setMuteMic(mMuteMic);
             }
         }
     }
@@ -1535,6 +1542,12 @@ void LLWebRTCVoiceClient::setMuteMic(bool muted)
     }
 
     mMuteMic = muted;
+
+    if (mWebRTCDeviceInterface)
+    {
+        mWebRTCDeviceInterface->setMute(muted, muted ? MUTE_FADE_DELAY_MS : 0);  // delay for 40ms on mute to allow buffers to empty
+    }
+
     // when you're hidden, your mic is always muted.
     if (!mHidden)
     {
