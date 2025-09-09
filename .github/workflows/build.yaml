@@ -93,7 +93,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Checkout build variables
         uses: actions/checkout@v4
         with:
@@ -242,6 +241,11 @@ jobs:
             export PYTHON_COMMAND="python3"
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
+
+          # make sure nsis is installed
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            choco install nsis -y
+          fi
 
           ./build.sh
 
