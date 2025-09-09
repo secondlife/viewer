@@ -307,10 +307,6 @@ jobs:
     needs: build
     runs-on: windows-2022
     steps:
-      - name: Install NSIS
-        run: choco install nsis -y
-        shell: powershell
-
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
         uses: secondlife/viewer-build-util/sign-pkg-windows@v2
