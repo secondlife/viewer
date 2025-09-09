@@ -10,7 +10,7 @@
 	 value="0.3 0.82 1 0.13" />
 	<color
 	 name="EmphasisColor_35"
-	 value="0.38 0.694 0.573 0.35" />
+	 value="0.3 0.82 1 0.35" />
 	<color
 	 name="BeaconColor"
     value="0.749 0.298 0 1" />	 
@@ -359,7 +359,7 @@
      reference="Black" />
     <color
      name="FilterTextColor"
-     value="0.38 0.69 0.57 1" />
+     reference="EmphasisColor" />
      <color
      name="FloaterButtonImageColor"
      reference="LtGray" />
@@ -453,9 +453,6 @@
     <color
      name="InventoryBackgroundColor"
      reference="DkGray2" />
-    <color
-     name="InventoryFavoriteColor"
-     reference="Yellow" />
     <color
      name="InventoryFocusOutlineColor"
      reference="White_25" />
@@ -863,18 +860,24 @@
     name="ColorSwatchBorderColor"
     value="0.45098 0.517647 0.607843 1"/>
     <color
+    name="ColorSwatchBorderColorGray"
+    value="0.329 0.329 0.329 1"/>
+    <color
      name="ChatTeleportSeparatorColor"
      reference="Black" />
     <color
      name="ChatTimestampColor"
      reference="White" />
     <color
+      name="MenuBarStreamingBgColor"
+      reference="DkGray" />
+    <color
       name="MenuBarBetaBgColor"
       reference="DkBlue" />
-  <color
-     name="MenuBarProjectBgColor"
-     reference="MdBlue" />
-  <color
+    <color
+      name="MenuBarProjectBgColor"
+      reference="MdBlue" />
+    <color
       name="MenuBarTestBgColor"
       reference="DkRed" />
     <color

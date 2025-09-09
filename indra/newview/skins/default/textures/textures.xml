@@ -648,6 +648,8 @@ with the same filename but different name
   <texture name="OBJECT_Icon" file_name="icons/object_icon.png" preload="true" />
   <texture name="Unknown_Icon" file_name="icons/unknown_icon.png" preload="true" />
 
+  <texture name="Square_Selection" file_name="square_selection.png" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
+
   <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Download" file_name="snapshot_download.png" preload="false" />
   <texture name="Snapshot_Email" file_name="snapshot_email.png" preload="false" />
@@ -874,6 +876,7 @@ with the same filename but different name
   <texture name="badge_warn.j2c" />
   <texture name="badge_ok.j2c" />
   <texture name="materials_ui_x_24.png" />
+  <texture name="locked_image" file_name="locked_image_dark.png" preload="true"/>
 
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="true" />
   <texture name="Progress_2" file_name="icons/Progress_2.png" preload="true" />

@@ -2,7 +2,7 @@
 <inbox_folder_view_item
   item_height="20" 
   item_top_pad="4"
-  selection_image="Rounded_Square"
+  selection_image="Square_Selection"
   >
 	<new_badge 
         label="New" 
