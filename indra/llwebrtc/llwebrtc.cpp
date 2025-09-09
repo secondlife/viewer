@@ -323,8 +323,7 @@ void LLWebRTCImpl::init()
     apm_config.echo_canceller.enabled         = false;
     apm_config.echo_canceller.mobile_mode     = false;
     apm_config.gain_controller1.enabled       = false;
-    apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
-    apm_config.gain_controller2.enabled       = false;
+    apm_config.gain_controller2.enabled       = true;
     apm_config.high_pass_filter.enabled       = true;
     apm_config.noise_suppression.enabled      = true;
     apm_config.noise_suppression.level        = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
@@ -401,9 +400,9 @@ void LLWebRTCImpl::setAudioConfig(LLWebRTCDeviceInterface::AudioConfig config)
     webrtc::AudioProcessing::Config apm_config;
     apm_config.echo_canceller.enabled         = config.mEchoCancellation;
     apm_config.echo_canceller.mobile_mode     = false;
-    apm_config.gain_controller1.enabled       = config.mAGC;
-    apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
-    apm_config.gain_controller2.enabled       = false;
+    apm_config.gain_controller1.enabled       = false;
+    apm_config.gain_controller2.enabled       = config.mAGC;
+    apm_config.gain_controller2.adaptive_digital.enabled = true; // auto-level speech
     apm_config.high_pass_filter.enabled       = true;
     apm_config.transient_suppression.enabled  = true;
     apm_config.pipeline.multi_channel_render  = true;
@@ -686,14 +685,22 @@ void LLWebRTCImpl::deployDevices()
         });
 }
 
-float LLWebRTCImpl::getTuningAudioLevel() { return mDeviceModule ? -20 * log10f(mDeviceModule->GetMicrophoneEnergy()) : 0.0f; }
+float LLWebRTCImpl::getTuningAudioLevel()
+{
+    return mDeviceModule ? -20 * log10f(mDeviceModule->GetMicrophoneEnergy()) : std::numeric_limits<float>::infinity();
+}
 
-float LLWebRTCImpl::getPeerConnectionAudioLevel() { return mPeerCustomProcessor ? -20 * log10f(mPeerCustomProcessor->getMicrophoneEnergy()) : 0.0f; }
+float LLWebRTCImpl::getPeerConnectionAudioLevel()
+{
+    return mTuningMode ? std::numeric_limits<float>::infinity()
+                       : (mPeerCustomProcessor ? -20 * log10f(mPeerCustomProcessor->getMicrophoneEnergy())
+                                               : std::numeric_limits<float>::infinity());
+}
 
-void LLWebRTCImpl::setPeerConnectionGain(float gain)
+void LLWebRTCImpl::setMicGain(float gain)
 {
     mGain = gain;
-    if (mPeerCustomProcessor)
+    if (!mTuningMode && mPeerCustomProcessor)
     {
         mPeerCustomProcessor->setGain(gain);
     }

@@ -204,7 +204,6 @@ bool LLWebRTCVoiceClient::sShuttingDown = false;
 
 LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
     mHidden(false),
-    mTuningMode(false),
     mTuningMicGain(0.0),
     mTuningSpeakerVolume(50),  // Set to 50 so the user can hear themselves when he sets his mic volume
     mDevicesListUpdated(false),
@@ -794,21 +793,9 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
     }
 }
 
-float LLWebRTCVoiceClient::getAudioLevel()
-{
-    if (mIsInTuningMode)
-    {
-        return (1.0f - mWebRTCDeviceInterface->getTuningAudioLevel() * LEVEL_SCALE_WEBRTC) * mTuningMicGain / 2.1f;
-    }
-    else
-    {
-        return (1.0f - mWebRTCDeviceInterface->getPeerConnectionAudioLevel() * LEVEL_SCALE_WEBRTC) * mMicGain / 2.1f;
-    }
-}
-
 float LLWebRTCVoiceClient::tuningGetEnergy(void)
 {
-    return getAudioLevel();
+    return (1.0f - mWebRTCDeviceInterface->getTuningAudioLevel() * LEVEL_SCALE_WEBRTC) * mTuningMicGain / 2.1f;
 }
 
 bool LLWebRTCVoiceClient::deviceSettingsAvailable()
@@ -1140,11 +1127,7 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
 // in the UI.  This is done on all sessions, so switching
 // sessions retains consistent volume levels.
 void LLWebRTCVoiceClient::updateOwnVolume() {
-    F32 audio_level = 0.0;
-    if (!mMuteMic && !mTuningMode)
-    {
-        audio_level = getAudioLevel();
-    }
+    F32 audio_level = (1.0f - mWebRTCDeviceInterface->getPeerConnectionAudioLevel() * LEVEL_SCALE_WEBRTC) / 2.1f;
 
     sessionState::for_each(boost::bind(predUpdateOwnVolume, _1, audio_level));
 }
@@ -1586,7 +1569,7 @@ void LLWebRTCVoiceClient::setMicGain(F32 gain)
     if (gain != mMicGain)
     {
         mMicGain = gain;
-        mWebRTCDeviceInterface->setPeerConnectionGain(gain);
+        mWebRTCDeviceInterface->setMicGain(gain);
     }
 }
 

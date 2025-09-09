@@ -437,7 +437,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     float getTuningAudioLevel() override;
     float getPeerConnectionAudioLevel() override;
 
-    void setPeerConnectionGain(float gain) override;
+    void setMicGain(float gain) override;
 
     void setMute(bool mute, int delay_ms = 20) override;
 
