@@ -242,6 +242,16 @@ void LLFloaterURLEntry::getMediaTypeCoro(std::string url, LLHandle<LLFloater> pa
             resolvedMimeType = mimeType;
         }
     }
+    else if (resultHeaders.has(HTTP_IN_HEADER_X_CONTENT_TYPE_OPTIONS))
+    {
+        const std::string& val = resultHeaders[HTTP_IN_HEADER_X_CONTENT_TYPE_OPTIONS];
+        if (val == HTTP_NOSNIFF)
+        {
+            // Doesn't permit 'sniffing' mime type, default to either html or plain
+            // If this doesn't work user will have to choose something manually.
+            resolvedMimeType = HTTP_CONTENT_TEXT_HTML;
+        }
+    }
 
     floaterUrlEntry->headerFetchComplete(status.getType(), resolvedMimeType);
 

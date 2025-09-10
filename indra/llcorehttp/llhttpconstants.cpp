@@ -100,6 +100,7 @@ const std::string HTTP_IN_HEADER_LOCATION("location");
 const std::string HTTP_IN_HEADER_RETRY_AFTER("retry-after");
 const std::string HTTP_IN_HEADER_SET_COOKIE("set-cookie");
 const std::string HTTP_IN_HEADER_USER_AGENT("user-agent");
+const std::string HTTP_IN_HEADER_X_CONTENT_TYPE_OPTIONS("x-content-type-options");
 const std::string HTTP_IN_HEADER_X_FORWARDED_FOR("x-forwarded-for");
 
 const std::string HTTP_CONTENT_LLSD_XML("application/llsd+xml");
@@ -122,6 +123,7 @@ const std::string HTTP_CONTENT_IMAGE_BMP("image/bmp");
 
 const std::string HTTP_NO_CACHE("no-cache");
 const std::string HTTP_NO_CACHE_CONTROL("no-cache, max-age=0");
+const std::string HTTP_NOSNIFF("nosniff");
 
 const std::string HTTP_VERB_INVALID("(invalid)");
 const std::string HTTP_VERB_HEAD("HEAD");
