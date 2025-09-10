@@ -66,6 +66,7 @@
    visible="false"
    name="comment_text"
    follows="left|top"
+   max_length="1024"
    width="240"
    top_delta="20"
    word_wrap="true" />

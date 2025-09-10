@@ -157,9 +157,9 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     // update pixel meter ratio using default fov, not modified one
     mPixelMeterRatio = (F32)(getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5f)));
     // update screen pixel area
+    mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
 
     return true;
-    mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
 }
 
 const LLMatrix4 &LLViewerCamera::getProjection() const
