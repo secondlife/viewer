@@ -730,7 +730,8 @@ public:
     LLRenderTarget          mLastExposure;
 
     // tonemapped and gamma corrected render ready for post
-    LLRenderTarget          mPostMap;
+    LLRenderTarget          mPostPingMap;
+    LLRenderTarget          mPostPongMap;
 
     // FXAA helper target
     LLRenderTarget          mFXAAMap;
