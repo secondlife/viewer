@@ -65,8 +65,8 @@ void LLWebRTCAudioTransport::SetEngineTransport(webrtc::AudioTransport* t)
 }
 
 int32_t LLWebRTCAudioTransport::RecordedDataIsAvailable(const void* audio_data,
-                                                        size_t      number_of_samples,
-                                                        size_t      bytes_per_sample,
+                                                        size_t      number_of_frames,
+                                                        size_t      bytes_per_frame,
                                                         size_t      number_of_channels,
                                                         uint32_t    samples_per_sec,
                                                         uint32_t    total_delay_ms,
@@ -82,8 +82,8 @@ int32_t LLWebRTCAudioTransport::RecordedDataIsAvailable(const void* audio_data,
     if (engine)
     {
         ret = engine->RecordedDataIsAvailable(audio_data,
-                                              number_of_samples,
-                                              bytes_per_sample,
+                                              number_of_frames,
+                                              bytes_per_frame,
                                               number_of_channels,
                                               samples_per_sec,
                                               total_delay_ms,
@@ -97,12 +97,14 @@ int32_t LLWebRTCAudioTransport::RecordedDataIsAvailable(const void* audio_data,
     // calculate the energy
     float        energy  = 0;
     const short *samples = (const short *) audio_data;
-    for (size_t index = 0; index < number_of_samples * number_of_channels; index++)
+
+    for (size_t index = 0; index < number_of_frames * number_of_channels; index++)
     {
         float sample = (static_cast<float>(samples[index]) / (float) 32767);
         energy += sample * sample;
     }
-
+    float gain = mGain.load(std::memory_order_relaxed);
+    energy     = energy * gain * gain;
     // smooth it.
     size_t buffer_size = sizeof(mSumVector) / sizeof(mSumVector[0]);
     float  totalSum    = 0;
@@ -114,13 +116,13 @@ int32_t LLWebRTCAudioTransport::RecordedDataIsAvailable(const void* audio_data,
     }
     mSumVector[i] = energy;
     totalSum += energy;
-    mMicrophoneEnergy = std::sqrt(totalSum / (number_of_samples * buffer_size));
+    mMicrophoneEnergy = std::sqrt(totalSum / (number_of_frames * number_of_channels * buffer_size));
 
     return ret;
 }
 
-int32_t LLWebRTCAudioTransport::NeedMorePlayData(size_t   number_of_samples,
-                                                 size_t   bytes_per_sample,
+int32_t LLWebRTCAudioTransport::NeedMorePlayData(size_t   number_of_frames,
+                                                 size_t   bytes_per_frame,
                                                  size_t   number_of_channels,
                                                  uint32_t samples_per_sec,
                                                  void*    audio_data,
@@ -132,15 +134,15 @@ int32_t LLWebRTCAudioTransport::NeedMorePlayData(size_t   number_of_samples,
     if (!engine)
     {
         // No engine sink; output silence to be safe.
-        const size_t bytes = number_of_samples * bytes_per_sample * number_of_channels;
+        const size_t bytes = number_of_frames * bytes_per_frame * number_of_channels;
         memset(audio_data, 0, bytes);
-        number_of_samples_out = number_of_samples;
+        number_of_samples_out = bytes_per_frame;
         return 0;
     }
 
     // Only the engine should fill the buffer.
-    return engine->NeedMorePlayData(number_of_samples,
-                                    bytes_per_sample,
+    return engine->NeedMorePlayData(number_of_frames,
+                                    bytes_per_frame,
                                     number_of_channels,
                                     samples_per_sec,
                                     audio_data,
@@ -180,26 +182,10 @@ void LLCustomProcessor::Initialize(int sample_rate_hz, int num_channels)
 
 void LLCustomProcessor::Process(webrtc::AudioBuffer *audio)
 {
-    webrtc::StreamConfig stream_config;
-    stream_config.set_sample_rate_hz(mSampleRateHz);
-    stream_config.set_num_channels(mNumChannels);
-    std::vector<float *> frame;
-    std::vector<float>   frame_samples;
-
     if (audio->num_channels() < 1 || audio->num_frames() < 480)
     {
         return;
     }
-
-    // grab the input audio
-    frame_samples.resize(stream_config.num_samples());
-    frame.resize(stream_config.num_channels());
-    for (size_t ch = 0; ch < stream_config.num_channels(); ++ch)
-    {
-        frame[ch] = &(frame_samples)[ch * stream_config.num_frames()];
-    }
-
-    audio->CopyTo(stream_config, &frame[0]);
 
     // calculate the energy
 
@@ -234,22 +220,21 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio)
 
     float energy       = 0;
 
-    float gain         = mCurrentGain;
-    for (size_t index = 0; index < stream_config.num_samples() / stream_config.num_channels(); index++)
+    auto chans = audio->channels();
+    for (size_t ch = 0; ch < audio->num_channels(); ch++)
     {
-        for (size_t ch = 0; ch < stream_config.num_channels(); ch++)
+        float* frame_samples = chans[ch];
+        float  gain          = mCurrentGain;
+        for (size_t index = 0; index < audio->num_frames(); index++)
         {
-            size_t sample_index  = index * stream_config.num_channels() + ch;
-            float sample         = frame_samples[sample_index];
+            float sample         = frame_samples[index];
             sample               = sample * gain;    // apply gain
-            frame_samples[sample_index] = sample;        // write processed sample back to buffer.
+            frame_samples[index] = sample;        // write processed sample back to buffer.
             energy += sample * sample;
+            gain += mGainStep;
         }
-        gain = gain + mGainStep; // adjust gain
     }
-    mCurrentGain = gain;
-
-    audio->CopyFrom(&frame[0], stream_config);
+    mCurrentGain += audio->num_frames() * mGainStep;
 
     // smooth it.
     size_t buffer_size = sizeof(mSumVector) / sizeof(mSumVector[0]);
@@ -262,7 +247,7 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio)
     }
     mSumVector[i] = energy;
     totalSum += energy;
-    mState->setMicrophoneEnergy(std::sqrt(totalSum / (stream_config.num_samples() * buffer_size)));
+    mState->setMicrophoneEnergy(std::sqrt(totalSum / (audio->num_channels() * audio->num_frames() * buffer_size)));
 }
 
 //
@@ -334,6 +319,7 @@ void LLWebRTCImpl::init()
     mAudioProcessingModule->ApplyConfig(apm_config);
 
     webrtc::ProcessingConfig processing_config;
+
     processing_config.input_stream().set_num_channels(2);
     processing_config.input_stream().set_sample_rate_hz(48000);
     processing_config.output_stream().set_num_channels(2);
@@ -690,6 +676,14 @@ float LLWebRTCImpl::getTuningAudioLevel()
     return mDeviceModule ? -20 * log10f(mDeviceModule->GetMicrophoneEnergy()) : std::numeric_limits<float>::infinity();
 }
 
+void LLWebRTCImpl::setTuningMicGain(float gain)
+{
+    if (mTuningMode && mDeviceModule)
+    {
+        mDeviceModule->SetTuningMicGain(gain);
+    }
+}
+
 float LLWebRTCImpl::getPeerConnectionAudioLevel()
 {
     return mTuningMode ? std::numeric_limits<float>::infinity()
@@ -796,7 +790,7 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 }
 void LLWebRTCPeerConnectionImpl::terminate()
 {
-    mWebRTCImpl->SignalingBlockingCall(
+    mWebRTCImpl->PostSignalingTask(
         [this]()
         {
             if (mPeerConnection)

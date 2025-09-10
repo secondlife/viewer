@@ -160,13 +160,16 @@ public:
                         int64_t* elapsed_time_ms,
                         int64_t* ntp_time_ms) override;
 
-    float GetMicrophoneEnergy() { return mMicrophoneEnergy; }
+    float GetMicrophoneEnergy() { return mMicrophoneEnergy.load(std::memory_order_relaxed); }
+    void  SetGain(float gain) { mGain.store(gain, std::memory_order_relaxed); }
 
 private:
     std::atomic<webrtc::AudioTransport*> engine_{ nullptr };
     static const int                     NUM_PACKETS_TO_FILTER = 30; // 300 ms of smoothing (30 frames)
     float                                mSumVector[NUM_PACKETS_TO_FILTER];
-    float                                mMicrophoneEnergy;
+    std::atomic<float>                   mMicrophoneEnergy;
+    std::atomic<float>                   mGain{ 0.0f };
+
 };
 
 
@@ -312,9 +315,9 @@ public:
     virtual int32_t GetRecordingDevice() const override { return inner_->GetRecordingDevice(); }
     virtual int32_t SetObserver(webrtc::AudioDeviceObserver* observer) override { return inner_->SetObserver(observer); }
 
-
     // tuning microphone energy calculations
     float GetMicrophoneEnergy() { return audio_transport_.GetMicrophoneEnergy(); }
+    void SetTuningMicGain(float gain) { audio_transport_.SetGain(gain); }
     void  SetTuning(bool tuning, bool mute)
     {
         tuning_ = tuning;
@@ -438,6 +441,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     float getPeerConnectionAudioLevel() override;
 
     void setMicGain(float gain) override;
+    void setTuningMicGain(float gain) override;
 
     void setMute(bool mute, int delay_ms = 20) override;
 

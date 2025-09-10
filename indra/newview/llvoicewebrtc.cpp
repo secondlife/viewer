@@ -84,7 +84,7 @@ namespace {
 
     const F32 MAX_AUDIO_DIST      = 50.0f;
     const F32 VOLUME_SCALE_WEBRTC = 0.01f;
-    const F32 LEVEL_SCALE_WEBRTC  = 0.008f;
+    const F32 LEVEL_SCALE_WEBRTC  = 0.015f;
     const uint32_t SET_HIDDEN_RESTORE_DELAY_MS = 200;  // 200 ms to unmute again after hiding during teleport
     const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
                                                      // This is because the buffers and processing is cleared by the silence.
@@ -781,7 +781,14 @@ bool LLWebRTCVoiceClient::inTuningMode()
 
 void LLWebRTCVoiceClient::tuningSetMicVolume(float volume)
 {
-    mTuningMicGain      = volume;
+    if (volume != mTuningMicGain)
+    {
+        mTuningMicGain = volume;
+        if (mWebRTCDeviceInterface)
+        {
+            mWebRTCDeviceInterface->setTuningMicGain(volume);
+        }
+    }
 }
 
 void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
@@ -795,7 +802,7 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
 
 float LLWebRTCVoiceClient::tuningGetEnergy(void)
 {
-    return (1.0f - mWebRTCDeviceInterface->getTuningAudioLevel() * LEVEL_SCALE_WEBRTC) * mTuningMicGain / 2.1f;
+    return (1.0f - mWebRTCDeviceInterface->getTuningAudioLevel() * LEVEL_SCALE_WEBRTC)/1.5f;
 }
 
 bool LLWebRTCVoiceClient::deviceSettingsAvailable()
@@ -1127,7 +1134,7 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
 // in the UI.  This is done on all sessions, so switching
 // sessions retains consistent volume levels.
 void LLWebRTCVoiceClient::updateOwnVolume() {
-    F32 audio_level = (1.0f - mWebRTCDeviceInterface->getPeerConnectionAudioLevel() * LEVEL_SCALE_WEBRTC) / 2.1f;
+    F32 audio_level = (1.0f - mWebRTCDeviceInterface->getPeerConnectionAudioLevel() * LEVEL_SCALE_WEBRTC) / 4.0f;
 
     sessionState::for_each(boost::bind(predUpdateOwnVolume, _1, audio_level));
 }
@@ -1569,7 +1576,10 @@ void LLWebRTCVoiceClient::setMicGain(F32 gain)
     if (gain != mMicGain)
     {
         mMicGain = gain;
-        mWebRTCDeviceInterface->setMicGain(gain);
+        if (mWebRTCDeviceInterface)
+        {
+            mWebRTCDeviceInterface->setMicGain(gain);
+        }
     }
 }
 
