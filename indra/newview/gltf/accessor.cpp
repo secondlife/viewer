@@ -158,6 +158,11 @@ bool Buffer::prep(Asset& asset)
     {
         std::string dir = gDirUtilp->getDirName(asset.mFilename);
         std::string bin_file = dir + gDirUtilp->getDirDelimiter() + mUri;
+        if (!gDirUtilp->fileExists(bin_file))
+        {
+            // Characters might be escaped in the URI
+            bin_file = dir + gDirUtilp->getDirDelimiter() + LLURI::unescape(mUri);
+        }
 
         llifstream file(bin_file.c_str(), std::ios::binary);
         if (!file.is_open())
