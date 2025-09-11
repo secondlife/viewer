@@ -231,9 +231,12 @@ public:
     int32_t InitRecording() override { return inner_->InitRecording(); }
     bool    RecordingIsInitialized() const override { return inner_->RecordingIsInitialized(); }
     int32_t StartRecording() override {
-        if (tuning_)
-            return 0; // For tuning, we'll force a Start when we're ready
-        return inner_->StartRecording();
+        // ignore start recording as webrtc.lib will
+        // send one when streams first connect, resulting
+        // in an inadvertant 'recording' when mute is on.
+        // We take full control of StartRecording via
+        // ForceStartRecording below.
+        return 0;
     }
     int32_t StopRecording() override {
         if (tuning_) return 0;  // if we're tuning, disregard the StopRecording we get from disabling the streams

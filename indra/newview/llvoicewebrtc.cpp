@@ -82,9 +82,12 @@ const std::string WEBRTC_VOICE_SERVER_TYPE = "webrtc";
 
 namespace {
 
-    const F32 MAX_AUDIO_DIST      = 50.0f;
-    const F32 VOLUME_SCALE_WEBRTC = 0.01f;
-    const F32 LEVEL_SCALE_WEBRTC  = 0.015f;
+    const F32      MAX_AUDIO_DIST           = 50.0f;
+    const F32      VOLUME_SCALE_WEBRTC      = 0.01f;
+    const F32      TUNING_LEVEL_SCALE       = 0.01f;
+    const F32      TUNING_LEVEL_START_POINT = 0.8f;
+    const F32      LEVEL_SCALE              = 0.005f;
+    const F32      LEVEL_START_POINT        = 0.18f;
     const uint32_t SET_HIDDEN_RESTORE_DELAY_MS = 200;  // 200 ms to unmute again after hiding during teleport
     const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
                                                      // This is because the buffers and processing is cleared by the silence.
@@ -350,25 +353,45 @@ void LLWebRTCVoiceClient::updateSettings()
         static LLCachedControl<std::string> sOutputDevice(gSavedSettings, "VoiceOutputAudioDevice");
         setRenderDevice(sOutputDevice);
 
-        LL_INFOS("Voice") << "Input device: " << std::quoted(sInputDevice()) << ", output device: " << std::quoted(sOutputDevice()) << LL_ENDL;
+        LL_INFOS("Voice") << "Input device: " << std::quoted(sInputDevice()) << ", output device: " << std::quoted(sOutputDevice())
+                            << LL_ENDL;
 
         static LLCachedControl<F32> sMicLevel(gSavedSettings, "AudioLevelMic");
         setMicGain(sMicLevel);
 
         llwebrtc::LLWebRTCDeviceInterface::AudioConfig config;
 
+        bool audioConfigChanged = false;
+
         static LLCachedControl<bool> sEchoCancellation(gSavedSettings, "VoiceEchoCancellation", true);
-        config.mEchoCancellation = sEchoCancellation;
+        if (sEchoCancellation != config.mEchoCancellation)
+        {
+            config.mEchoCancellation = sEchoCancellation;
+            audioConfigChanged       = true;
+        }
 
         static LLCachedControl<bool> sAGC(gSavedSettings, "VoiceAutomaticGainControl", true);
-        config.mAGC = sAGC;
+        if (sAGC != config.mAGC)
+        {
+            config.mAGC        = sAGC;
+            audioConfigChanged = true;
+        }
 
-        static LLCachedControl<U32> sNoiseSuppressionLevel(gSavedSettings,
+        static LLCachedControl<U32> sNoiseSuppressionLevel(
+            gSavedSettings,
             "VoiceNoiseSuppressionLevel",
             llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel::NOISE_SUPPRESSION_LEVEL_VERY_HIGH);
-        config.mNoiseSuppressionLevel = (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel)(U32)sNoiseSuppressionLevel;
-
-        mWebRTCDeviceInterface->setAudioConfig(config);
+        auto noiseSuppressionLevel =
+            (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel)(U32)sNoiseSuppressionLevel;
+        if (noiseSuppressionLevel != config.mNoiseSuppressionLevel)
+        {
+            config.mNoiseSuppressionLevel = noiseSuppressionLevel;
+            audioConfigChanged            = true;
+        }
+        if (audioConfigChanged)
+        {
+            mWebRTCDeviceInterface->setAudioConfig(config);
+        }
     }
 }
 
@@ -802,7 +825,8 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
 
 float LLWebRTCVoiceClient::tuningGetEnergy(void)
 {
-    return (1.0f - mWebRTCDeviceInterface->getTuningAudioLevel() * LEVEL_SCALE_WEBRTC)/1.5f;
+    float rms = mWebRTCDeviceInterface->getTuningAudioLevel();
+    return TUNING_LEVEL_START_POINT - TUNING_LEVEL_SCALE * rms;
 }
 
 bool LLWebRTCVoiceClient::deviceSettingsAvailable()
@@ -1133,9 +1157,14 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
 // Update our own volume on our participant, so it'll show up
 // in the UI.  This is done on all sessions, so switching
 // sessions retains consistent volume levels.
-void LLWebRTCVoiceClient::updateOwnVolume() {
-    F32 audio_level = (1.0f - mWebRTCDeviceInterface->getPeerConnectionAudioLevel() * LEVEL_SCALE_WEBRTC) / 4.0f;
-
+void LLWebRTCVoiceClient::updateOwnVolume()
+{
+    F32 audio_level = 0.0f;
+    if (!mMuteMic)
+    {
+        float rms = mWebRTCDeviceInterface->getPeerConnectionAudioLevel();
+        audio_level = LEVEL_START_POINT - LEVEL_SCALE * rms;
+    }
     sessionState::for_each(boost::bind(predUpdateOwnVolume, _1, audio_level));
 }
 
@@ -1532,6 +1561,11 @@ void LLWebRTCVoiceClient::setMuteMic(bool muted)
     }
 
     mMuteMic = muted;
+
+    if (mIsInTuningMode)
+    {
+        return;
+    }
 
     if (mWebRTCDeviceInterface)
     {

@@ -481,18 +481,6 @@ void LLWebRTCImpl::workerDeployDevices()
     {
         mDeviceModule->ForceStartRecording();
     }
-    uint32_t min_v = 0, max_v = 0, cur_v = 0;
-    bool     have_hw = false;
-
-    mDeviceModule->MicrophoneVolumeIsAvailable(&have_hw);
-    if (have_hw)
-    {
-        mDeviceModule->MinMicrophoneVolume(&min_v);
-        mDeviceModule->MaxMicrophoneVolume(&max_v);
-        uint32_t target = min_v + (max_v - min_v) * 8 / 10; // ~80%
-        mDeviceModule->SetMicrophoneVolume(target);
-        mDeviceModule->MicrophoneVolume(&cur_v);
-    }
     mDeviceModule->StartPlayout();
 }
 
@@ -522,11 +510,11 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
         }
     }
 
-    // Always deploy devices, as we may have received a device update
-    // for the default device, which may be the same as mRecordingDevice
-    // but still needs to be refreshed.
-    mRecordingDevice = recordingDevice;
-    deployDevices();
+    if (mRecordingDevice != recordingDevice)
+    {
+        mRecordingDevice = recordingDevice;
+        deployDevices();
+    }
 }
 
 void LLWebRTCImpl::setRenderDevice(const std::string &id)
@@ -554,11 +542,11 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
         }
     }
 
-    // Always deploy devices, as we may have received a device update
-    // for the default device, which may be the same as mPlayoutDevice
-    // but still needs to be refreshed.
-    mPlayoutDevice = playoutDevice;
-    deployDevices();
+    if (mPlayoutDevice != playoutDevice)
+    {
+        mPlayoutDevice = playoutDevice;
+        deployDevices();
+    }
 }
 
 // updateDevices needs to happen on the worker thread.
@@ -611,7 +599,7 @@ void LLWebRTCImpl::OnDevicesUpdated()
     mRecordingDevice = RECORD_DEVICE_DEFAULT;
     mPlayoutDevice   = PLAYOUT_DEVICE_DEFAULT;
 
-    updateDevices();
+    deployDevices();
 }
 
 
