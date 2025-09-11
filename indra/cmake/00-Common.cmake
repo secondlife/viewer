@@ -34,7 +34,7 @@ add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 # Force enable SSE2 instructions in GLM per the manual
 # https://github.com/g-truc/glm/blob/master/manual.md#section2_10
-add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_FORCE_SSE2=1 GLM_ENABLE_EXPERIMENTAL=1)
+add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_ENABLE_EXPERIMENTAL=1)
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
