@@ -2343,11 +2343,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c578c2a7f4355197d0ce8544310bc5e785531018</string>
+              <string>e51fb1d24836d897ce90b8a72010635915b959d6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sse2neon/releases/download/v1.7.0-r2/sse2neon-1.7.0-dev0.gc8ad5f1.d20241212-common-12287325635.tar.zst</string>
+              <string>https://github.com/secondlife/3p-sse2neon/releases/download/v1.8.0/sse2neon-1.8.0-common-17657389472.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2360,7 +2360,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2015-2024 SSE2NEON Contributors.</string>
         <key>version</key>
-        <string>1.7.0-dev0.gc8ad5f1.d20241212</string>
+        <string>1.8.0</string>
         <key>name</key>
         <string>sse2neon</string>
         <key>canonical_repo</key>
