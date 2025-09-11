@@ -50,24 +50,14 @@ width="333">
       layout="topleft"
       name="openoutfit_btn"
       visible="false" />
-      <icon
-      follows="top|left"
-      height="31"
-      image_name="Shirt_Large"
-      name="outfit_icon"
-      mouse_opaque="false"
-      visible="true"
-      left="1"
-      top="0"
-      width="31" />
       <text
-      font="SansSerifSmall"
+      font="SansSerifSmallBold"
       text_color="EmphasisColor"
       width="300"
       height="13"
       follows="top|left|right"
       layout="topleft"
-      left="35"
+      left="5"
       top="3"
       mouse_opaque="false"
       name="currentlook_status" >
@@ -76,7 +66,7 @@ width="333">
       <text
       font="SansSerifLargeBold"
       height="20"
-      left="35"
+      left="5"
       parse_urls="false"
       text_color="White"
       top="15"

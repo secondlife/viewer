@@ -338,7 +338,7 @@
      reference="EmphasisColor" />
     <color
      name="ConversationFriendColor"
-     value="0.42 0.85 0.71 1" />
+     reference="EmphasisColor" />
     <color
      name="DefaultHighlightDark"
      reference="White_10" />
@@ -592,7 +592,7 @@
      reference="White" />
     <color
      name="NameTagFriend"
-     value="0.447 0.784 0.663 1" />
+     reference="EmphasisColor" />
     <color
      name="NameTagLegacy"
      reference="White" />
@@ -758,6 +758,9 @@
     <color
      name="SelectedOutfitTextColor"
      reference="EmphasisColor" />
+    <color
+     name="WornOutfitTextColor"
+     value="0.54 0.73 0.87 1" />
     <color
      name="SearchableControlHighlightFontColor"
      value="1 0 0 1" />
