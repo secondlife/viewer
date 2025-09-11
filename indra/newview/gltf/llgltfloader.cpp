@@ -652,6 +652,14 @@ std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& t
             filename = filename.substr(pos + 1);
         }
 
+        std::string dir = gDirUtilp->getDirName(mFilename);
+        std::string full_path = dir + gDirUtilp->getDirDelimiter() + filename;
+        if (!gDirUtilp->fileExists(full_path) && filename.find("data:") == std::string::npos)
+        {
+            // Uri might be escaped
+            filename = LLURI::unescape(filename);
+        }
+
         LL_INFOS("GLTF_IMPORT") << "Found texture: " << filename << " for material: " << material_name << LL_ENDL;
 
         LLSD args;
