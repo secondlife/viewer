@@ -805,7 +805,7 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
+void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb, U32Kilobytes& avail_page_kb)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if LL_WINDOWS
@@ -814,6 +814,7 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     LLSD statsMap(loadStatsMap());
 
     avail_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
+    avail_page_kb = (U32Kilobytes)statsMap["Avail page KB"].asInteger();
 
 #elif LL_DARWIN
     // use host_statistics64 to get memory info
@@ -831,6 +832,7 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     {
         avail_mem_kb = (U32Kilobytes)-1;
     }
+    avail_page_kb = (U32Kilobytes)0; // not implemented
 
 #elif LL_LINUX
     // mStatsMap is derived from MEMINFO_FILE:
@@ -884,11 +886,13 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     LLSD statsMap(loadStatsMap());
 
     avail_mem_kb = (U32Kilobytes)statsMap["MemFree"].asInteger();
+    avail_page_kb = (U32Kilobytes)0; // not implemented
 #else
     //do not know how to collect available memory info for other systems.
     //leave it blank here for now.
 
     avail_mem_kb = (U32Kilobytes)-1 ;
+    avail_page_kb = (U32Kilobytes)-1;
 #endif
 }
 

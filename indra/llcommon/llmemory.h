@@ -430,10 +430,12 @@ public:
     static void logMemoryInfo(bool update = false);
 
     static U32Kilobytes getAvailableMemKB() ;
+    static U32Kilobytes getAvailablePageKB();
     static U32Kilobytes getMaxMemKB() ;
     static U32Kilobytes getAllocatedMemKB() ;
 private:
     static U32Kilobytes sAvailPhysicalMemInKB ;
+    static U32Kilobytes sAvailPageMemInKB; // at the moment Win only
     static U32Kilobytes sMaxPhysicalMemInKB ;
     static U32Kilobytes sAllocatedMemInKB;
     static U32Kilobytes sAllocatedPageSizeInKB ;

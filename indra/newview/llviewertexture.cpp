@@ -101,6 +101,7 @@ bool LLViewerTexture::sFreezeImageUpdates = false;
 F32 LLViewerTexture::sCurrentTime = 0.0f;
 
 constexpr F32 MEMORY_CHECK_WAIT_TIME = 1.0f;
+constexpr U32 MIN_PAGE_AVAIL = 524288; // 512 MB, used as a threshold in low RAM memory calculations
 constexpr F32 MIN_VRAM_BUDGET = 768.f;
 F32 LLViewerTexture::sFreeVRAMMegabytes = MIN_VRAM_BUDGET;
 
@@ -661,20 +662,39 @@ U32Megabytes LLViewerTexture::getFreeSystemMemory()
 bool LLViewerTexture::isSystemMemoryLow()
 {
     static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
-    const U32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
+    const S32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
+#if LL_WINDOWS
+    if (MIN_PAGE_AVAIL < LLMemory::getAvailablePageKB())
+    {
+        // if we have a lot of page file, be more tolerant of low RAM
+        F32 divider = llmin(3.f, (F32)LLMemory::getAvailablePageKB() / MIN_PAGE_AVAIL);
+        return getFreeSystemMemory() < MIN_FREE_MAIN_MEMORY / divider;
+    }
+#endif
     return getFreeSystemMemory() < MIN_FREE_MAIN_MEMORY;
 }
 
 F32 LLViewerTexture::getSystemMemoryBudgetFactor()
 {
+#if LL_WINDOWS
+    // Windows only until we add page file size to memory info on other platforms.
     static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
-    const S32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
-    S32 free_budget = (S32Megabytes)getFreeSystemMemory() - MIN_FREE_MAIN_MEMORY;
+    S32Megabytes main_free_mb(min_free_main_memory);
+
+    if (MIN_PAGE_AVAIL < LLMemory::getAvailablePageKB())
+    {
+        // if we have a lot of page file, be more tolerant of low RAM
+        F32 divider = llmin(3.f, (F32)LLMemory::getAvailablePageKB() / MIN_PAGE_AVAIL);
+        main_free_mb = (S32Megabytes)main_free_mb/divider;
+    }
+
+    S32 free_budget = (S32Megabytes)getFreeSystemMemory() - main_free_mb;
     if (free_budget < 0)
     {
         // Result should range from 1 (0 free budget) to 2 (-512 free budget)
-        return 1.f - free_budget / MIN_FREE_MAIN_MEMORY;
+        return 1.f - free_budget / main_free_mb;
     }
+#endif
     return 1.f;
 }
 

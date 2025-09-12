@@ -135,7 +135,7 @@ public:
 #endif
 
     //get the available memory in KiloBytes.
-    static void getAvailableMemoryKB(U32Kilobytes& avail_mem_kb);
+    static void getAvailableMemoryKB(U32Kilobytes& avail_mem_kb, U32Kilobytes& avail_page_kb);
 
     // Retrieve a map of memory statistics. The keys of the map are platform-
     // dependent. The values are in kilobytes to try to avoid integer overflow.

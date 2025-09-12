@@ -58,6 +58,7 @@
 // NOTE: this number MAY be less than the actual available memory on systems with more than MaxHeapSize64 GB of physical memory (default 16GB)
 //  In that case, should report min(available, sMaxHeapSizeInKB-sAllocateMemInKB)
 U32Kilobytes LLMemory::sAvailPhysicalMemInKB(U32_MAX);
+U32Kilobytes LLMemory::sAvailPageMemInKB(U32_MAX);
 
 // Installed physical memory
 U32Kilobytes LLMemory::sMaxPhysicalMemInKB(0);
@@ -105,8 +106,10 @@ void LLMemory::updateMemoryInfo()
     sMaxPhysicalMemInKB = gSysMemory.getPhysicalMemoryKB();
 
     U32Kilobytes avail_mem;
-    LLMemoryInfo::getAvailableMemoryKB(avail_mem);
+    U32Kilobytes avail_page;
+    LLMemoryInfo::getAvailableMemoryKB(avail_mem, avail_page);
     sAvailPhysicalMemInKB = avail_mem;
+    sAvailPageMemInKB     = avail_page;
 
 #if LL_WINDOWS
     PROCESS_MEMORY_COUNTERS counters;
@@ -205,6 +208,12 @@ void LLMemory::logMemoryInfo(bool update)
 U32Kilobytes LLMemory::getAvailableMemKB()
 {
     return sAvailPhysicalMemInKB ;
+}
+
+//static
+U32Kilobytes LLMemory::getAvailablePageKB()
+{
+    return sAvailPageMemInKB; // at the moment Win only
 }
 
 //static

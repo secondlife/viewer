@@ -3366,6 +3366,9 @@ void send_agent_update(bool force_send, bool send_reliable)
     static F32 last_draw_disatance_step = 1024;
     F32 memory_limited_draw_distance = gAgentCamera.mDrawDistance;
 
+#if LL_WINDOWS
+    // Until we have page file info for other platforms, only do this on Windows.
+    // Otherwise isSystemMemoryLow is going to be too agressive for draw range.
     if (LLViewerTexture::sDesiredDiscardBias > 2.f && LLViewerTexture::isSystemMemoryLow())
     {
         // If we are low on memory, reduce requested draw distance
@@ -3374,6 +3377,7 @@ void send_agent_update(bool force_send, bool send_reliable)
         F32 factor = 1.f + (LLViewerTexture::sDesiredDiscardBias - 2.f) / 2.f;
         memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / factor, gAgentCamera.mDrawDistance / 2.f);
     }
+#endif
 
     if (tp_state == LLAgent::TELEPORT_ARRIVING || LLStartUp::getStartupState() < STATE_MISC)
     {
