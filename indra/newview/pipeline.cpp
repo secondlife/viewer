@@ -7200,7 +7200,7 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 
 extern LLPointer<LLImageGL> gEXRImage;
 
-void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
+void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct)
 {
     LL_PROFILE_GPU_ZONE("tonemap");
 
@@ -7218,17 +7218,33 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
         bool no_post = gSnapshotNoPost || psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f || (buildNoPost && gFloaterTools && gFloaterTools->isAvailable());
-        LLGLSLShader& shader = no_post ? gNoPostTonemapProgram : gDeferredPostTonemapProgram;
+        LLGLSLShader* shader = nullptr;
+        if(gamma_correct)
+        {
+            bool legacy_gamma = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f;
+            if(legacy_gamma)
+            {
+                shader = no_post ? &gNoPostTonemapLegacyGammaCorrectProgram : &gDeferredPostTonemapLegacyGammaCorrectProgram;
+            }
+            else
+            {
+                shader = no_post ? &gNoPostTonemapGammaCorrectProgram : &gDeferredPostTonemapGammaCorrectProgram;
+            }
+        }
+        else
+        {
+            shader = no_post ? &gNoPostTonemapProgram : &gDeferredPostTonemapProgram;
+        }
 
-        shader.bind();
+        shader->bind();
 
         S32 channel = 0;
 
-        shader.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_POINT);
+        shader->bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_POINT);
 
-        shader.bindTexture(LLShaderMgr::EXPOSURE_MAP, &mExposureMap);
+        shader->bindTexture(LLShaderMgr::EXPOSURE_MAP, &mExposureMap);
 
-        shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
+        shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
 
         static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
 
@@ -7238,17 +7254,17 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
         static LLStaticHashedString tonemap_mix("tonemap_mix");
         static LLStaticHashedString tonemap_type("tonemap_type");
 
-        shader.uniform1f(s_exposure, e);
+        shader->uniform1f(s_exposure, e);
 
         static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
-        shader.uniform1i(tonemap_type, tonemap_type_setting);
-        shader.uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
+        shader->uniform1i(tonemap_type, tonemap_type_setting);
+        shader->uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
         gGL.getTexUnit(channel)->unbind(src->getUsage());
-        shader.unbind();
+        shader->unbind();
     }
     dst->flush();
 }
@@ -7422,13 +7438,21 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 {
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
     LL_PROFILE_GPU_ZONE("cas");
-    if (cas_sharpness == 0.0f || !gCASProgram.isComplete())
+    if (cas_sharpness == 0.0f || !gCASProgram.isComplete() || !gCASLegacyGammaProgram.isComplete())
     {
         gPipeline.copyRenderTarget(src, dst);
         return;
     }
 
     LLGLSLShader* sharpen_shader = &gCASProgram;
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
+
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    bool legacy_gamma = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f;
+    if(legacy_gamma)
+    {
+        sharpen_shader = &gCASLegacyGammaProgram;
+    }
 
     // Bind setup:
     dst->bindTarget();
@@ -7990,7 +8014,6 @@ void LLPipeline::renderFinalize()
 
     static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
     bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
-    LLRenderTarget* postHDRBuffer = &mRT->screen;
     if (hdr)
     {
         copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
@@ -7999,21 +8022,21 @@ void LLPipeline::renderFinalize()
 
         generateExposure(&mLuminanceMap, &mExposureMap);
 
-        tonemap(&mRT->screen, &mRT->deferredLight);
-
         static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
-        if (cas_sharpness != 0.0f && gCASProgram.isComplete())
+        bool apply_cas = cas_sharpness != 0.0f && gCASProgram.isComplete() && gCASLegacyGammaProgram.isComplete();
+
+        tonemap(&mRT->screen, apply_cas ? &mRT->deferredLight : &mPostPingMap, !apply_cas);
+
+        if (apply_cas)
         {
-            applyCAS(&mRT->deferredLight, &mRT->screen);
-            postHDRBuffer = &mRT->screen;
-        }
-        else
-        {
-            postHDRBuffer = &mRT->deferredLight;
+            // Gamma Corrects
+            applyCAS(&mRT->deferredLight, &mPostPingMap);
         }
     }
-
-    gammaCorrect(postHDRBuffer, &mPostPingMap);
+    else
+    {
+        gammaCorrect(&mRT->screen, &mPostPingMap);
+    }
 
     LLVertexBuffer::unbind();
 
