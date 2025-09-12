@@ -3945,8 +3945,15 @@ void LLAppViewer::processMarkerFiles()
         else if (marker_is_same_version)
         {
             // the file existed, is ours, and matched our version, so we can report on what it says
-            LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed" << LL_ENDL;
+            LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed or froze" << LL_ENDL;
+#if LL_WINDOWS && LL_BUGSPLAT
+            // bugsplat will set correct state in bugsplatSendLog
+            // Might be more accurate to rename this one into 'unknown'
+            gLastExecEvent = LAST_EXEC_FROZE;
+#else
             gLastExecEvent = LAST_EXEC_OTHER_CRASH;
+#endif // LL_WINDOWS
+
         }
         else
         {
