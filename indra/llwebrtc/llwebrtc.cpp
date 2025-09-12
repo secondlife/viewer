@@ -735,7 +735,7 @@ LLWebRTCPeerConnectionInterface *LLWebRTCImpl::newPeerConnection()
         intSetMute(mMute);
     }
     mPeerConnections.emplace_back(peerConnection);
-    
+
     peerConnection->enableSenderTracks(false);
     peerConnection->resetMute();
     return peerConnection.get();
