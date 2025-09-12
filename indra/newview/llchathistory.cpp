@@ -441,6 +441,7 @@ public:
                 time_t current_time = time_corrected();
                 time_t message_time = (time_t)(current_time - LLFrameTimer::getElapsedSeconds() + mTime);
 
+                // Report abuse shouldn't use AM/PM, use 24-hour time
                 time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
                     + LLTrans::getString("TimeDay") + "]/["
                     + LLTrans::getString("TimeYear") + "] ["

@@ -4195,7 +4195,7 @@ void LLAppViewer::earlyExit(const std::string& name, const LLSD& substitutions)
 // case where we need the viewer to exit without any need for notifications
 void LLAppViewer::earlyExitNoNotify()
 {
-    LL_WARNS() << "app_early_exit with no notification: " << LL_ENDL;
+    LL_WARNS() << "app_early_exit with no notification." << LL_ENDL;
     gDoDisconnect = true;
     finish_early_exit( LLSD(), LLSD() );
 }
