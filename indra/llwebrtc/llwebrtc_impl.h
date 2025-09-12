@@ -448,6 +448,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     void setMute(bool mute, int delay_ms = 20) override;
 
+    void intSetMute(bool mute, int delay_ms = 20);
+
     //
     // AudioDeviceObserver
     //
@@ -523,22 +525,22 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     webrtc::scoped_refptr<webrtc::AudioProcessing>                mAudioProcessingModule;
 
     // more native webrtc stuff
-    std::unique_ptr<webrtc::TaskQueueFactory>                  mTaskQueueFactory;
+    std::unique_ptr<webrtc::TaskQueueFactory>                     mTaskQueueFactory;
 
 
     // Devices
     void updateDevices();
     void deployDevices();
-    bool                                                       mDevicesDeploying;
-    webrtc::scoped_refptr<LLWebRTCAudioDeviceModule>              mDeviceModule;
+    std::atomic<int>                                           mDevicesDeploying;
+    webrtc::scoped_refptr<LLWebRTCAudioDeviceModule>           mDeviceModule;
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
 
     // accessors in native webrtc for devices aren't apparently implemented yet.
     bool                                                       mTuningMode;
-    int32_t                                                    mRecordingDevice;
+    std::string                                                mRecordingDevice;
     LLWebRTCVoiceDeviceList                                    mRecordingDeviceList;
 
-    int32_t                                                    mPlayoutDevice;
+    std::string                                                mPlayoutDevice;
     LLWebRTCVoiceDeviceList                                    mPlayoutDeviceList;
 
     bool                                                       mMute;
