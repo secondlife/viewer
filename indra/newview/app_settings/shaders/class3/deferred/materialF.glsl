@@ -37,7 +37,6 @@
 uniform float emissive_brightness;  // fullbright flag, 1.0 == fullbright, 0.0 otherwise
 uniform int sun_up_factor;
 uniform int classic_mode;
-uniform float alpha_gamma;
 
 vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 vec3 scaleSoftClipFragLinear(vec3 l);
@@ -285,10 +284,10 @@ float getShadow(vec3 pos, vec3 norm)
     #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
         return sampleDirectionalShadow(pos, norm, vary_texcoord0.xy);
     #else
-        return 1;
+        return 1.;
     #endif
 #else
-    return 1;
+    return 1.;
 #endif
 }
 
@@ -349,9 +348,7 @@ void main()
     {
         da = pow(da,1.2);
         vec3 sun_contrib = vec3(min(da, shadow));
-
         color.rgb = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit_linear * 0.7);
-        sunlit_linear = srgb_to_linear(sunlit_linear);
     }
     else
     {
@@ -408,20 +405,20 @@ void main()
 #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, spec, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
-        LIGHT_LOOP(2)
-        LIGHT_LOOP(3)
-        LIGHT_LOOP(4)
-        LIGHT_LOOP(5)
-        LIGHT_LOOP(6)
-        LIGHT_LOOP(7)
+    LIGHT_LOOP(2)
+    LIGHT_LOOP(3)
+    LIGHT_LOOP(4)
+    LIGHT_LOOP(5)
+    LIGHT_LOOP(6)
+    LIGHT_LOOP(7)
 
-    color += light;
+    color.rgb += light;
 
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);
-    float al = pow(max(diffcol.a, glare) * vertex_color.a, alpha_gamma);
+    float al = max(diffcol.a, glare) * vertex_color.a;
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
@@ -442,5 +439,3 @@ void main()
 
 #endif
 }
-
-

@@ -5295,7 +5295,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         LL_WARNS_ONCE("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
     }
 
-    bool selected = facep->getViewerObject()->isSelected();
+    LLViewerObject* vobjp = facep->getViewerObject();
+    bool selected = vobjp->isSelected();
 
     if (selected && LLSelectMgr::getInstance()->mHideSelectedObjects)
     {
@@ -5465,6 +5466,12 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
             info->mTextureList.resize(index+1);
             info->mTextureList[index] = tex;
         }
+        // Make sure the PBR flag usage is set on the root object when PBR is
+        // used on this face. HB
+        if (has_pbr && info->mRootObject.notNull())
+        {
+            info->mRootObject->setUsePBR();
+        }
         info->validate();
     }
     else
@@ -5503,7 +5510,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         draw_info->mAvatar = facep->mAvatar;
         draw_info->mSkinInfo = facep->mSkinInfo;
         draw_info->mHasPBR = has_pbr;
-
+        draw_info->mRootObject = vobjp->getRootEdit();
+        if (has_pbr)
+        {
+            draw_info->mRootObject->setUsePBR();
+        }
         if (gltf_mat)
         {
             // just remember the material ID, render pools will reference the GLTF material

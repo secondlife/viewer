@@ -216,7 +216,10 @@ void main()
     }
 
     color.rgb = diffuse_srgb.rgb;
-    color.a = pow(final_alpha, alpha_gamma);
+    if (alpha_gamma != 0.0 && alpha_gamma != 1.0)
+        color.a = pow(final_alpha, alpha_gamma);
+    else
+        color.a = final_alpha;
 
 #else // FOR_IMPOSTOR
 
@@ -255,25 +258,21 @@ void main()
     vec3 legacyenv;
     sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, frag, pos.xyz, norm.xyz, 0.0, 0.0, true, amblit_linear);
 
-
-    float da = dot(norm.xyz, light_dir.xyz);
-          da = clamp(da, -1.0, 1.0);
-
-    float final_da = da;
-          final_da = clamp(final_da, 0.0f, 1.0f);
+    float final_da = clamp(dot(norm.xyz, light_dir.xyz), 0.0f, 1.0f);
 
     vec4 color = vec4(0.0);
 
-    color.a = pow(final_alpha, alpha_gamma);
+    if (alpha_gamma != 0.0 && alpha_gamma != 1.0)
+        color.a = pow(final_alpha, alpha_gamma);
+    else
+        color.a = final_alpha;
 
     color.rgb = irradiance;
     if (classic_mode > 0)
     {
         final_da = pow(final_da,1.2);
         vec3 sun_contrib = vec3(min(final_da, shadow));
-
         color.rgb = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit_linear * 0.7);
-        sunlit_linear = srgb_to_linear(sunlit_linear);
     }
     else
     {
@@ -301,9 +300,12 @@ void main()
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, color).rgb;
 
 #endif // #else // FOR_IMPOSTOR
-    float final_scale = 1;
+    float final_scale = 1.0;
+    // HACK: to get more saturated colors, which otherwise get washed out when alpha_gamma > 1.0. HB
+    if (alpha_gamma > 1.0)
+        final_scale = pow(alpha_gamma, 0.333333);
     if (classic_mode > 0)
-        final_scale = 1.1;
+        final_scale *= 1.1;
 #ifdef IS_HUD
     color.rgb = linear_to_srgb(color.rgb);
     final_scale = 1;
@@ -312,4 +314,3 @@ void main()
     color.rgb *= final_scale;
     frag_color = max(color, vec4(0));
 }
-

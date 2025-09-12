@@ -597,9 +597,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
      // Gamma correction factor for alpha faces without PBR material, in PBR
     // rendering mode. HB
+    static LLCachedControl<bool> use_gamma(gSavedSettings,
+                                           "RenderLegacyAlphaGammaEnable");
     static LLCachedControl<F32> legacy_gamma(gSavedSettings,
                                              "RenderLegacyAlphaGamma");
-    F32 alpha_gamma = llclamp((F32)legacy_gamma, 1.f, 2.2f);
+    F32 alpha_gamma = use_gamma ? llclamp((F32)legacy_gamma, 1.f, 2.f) : 1.f;
 
     for (LLCullResult::sg_iterator i = begin; i != end; ++i)
     {
@@ -765,8 +767,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[VRED], spec_color.mV[VGREEN], spec_color.mV[VBLUE], spec_color.mV[VALPHA]);
                         current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env_intensity);
                         current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, brightness);
-                        // Fix for alpha gamma on non-PBR (legacy) faces. HB
-                        current_shader->uniform1f(LLShaderMgr::ALPHA_GAMMA, params.mHasPBR ? 1.f : alpha_gamma);
+                        // Alpha-gamma correction/workaround, which only applies to
+                        // faces pertaining to a legacy (non-PBR) object. HB
+                        LLViewerObject* objp = params.mRootObject.get();
+                        F32 agamma = objp && objp->getUsePBR() ? 1.f : alpha_gamma;
+                        current_shader->uniform1f(LLShaderMgr::ALPHA_GAMMA, agamma);
                     }
                 }
 

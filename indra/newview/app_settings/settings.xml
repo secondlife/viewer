@@ -7481,13 +7481,24 @@
   <key>RenderLegacyAlphaGamma</key>
   <map>
     <key>Comment</key>
-    <string>Gamma correction factor (clamped between 1.0 and 2.2) used to render non-PBR faces with alpha blend. 1.0 to disable.</string>
+    <string>Gamma correction factor (clamped between 1.0 and 2.0) used to render non-PBR faces with alpha blend. 1.0 to disable.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.8</real>
+    <real>1.4</real>
+  </map>
+  <key>RenderLegacyAlphaGammaEnable</key>
+  <map>
+    <key>Comment</key>
+    <string>TRUE to enable the alpha-gamma workaround (see RenderLegacyAlphaGamma).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <boolean>1</boolean>
   </map>
   <key>RenderLocalLightCount</key>
   <map>

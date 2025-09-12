@@ -110,7 +110,8 @@ public:
     const LLMatrix4* mTextureMatrix = nullptr;
     const LLMatrix4* mModelMatrix = nullptr;
 
-    LLPointer<LLVOAvatar> mAvatar = nullptr;
+    LLPointer<LLVOAvatar> mAvatar;
+    LLPointer<LLViewerObject> mRootObject;
     LLMeshSkinInfo* mSkinInfo = nullptr;
 
     // Material pointer here is likely for debugging only and are immaterial (zing!)
@@ -136,7 +137,7 @@ public:
     U8   mShiny = 0;
     bool mFullbright = false;
     bool mHasGlow = false;
-	// Set to 'true' when a PBR material is actually used to render this face. HB
+    // Set to 'true' when a PBR material is actually used to render this face. HB
     bool mHasPBR = false;
 
     struct CompareTexture
