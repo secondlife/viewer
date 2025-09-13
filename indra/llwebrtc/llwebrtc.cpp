@@ -558,20 +558,14 @@ void LLWebRTCImpl::workerDeployDevices()
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
 {
 
-    if (mRecordingDevice != id)
-    {
-        mRecordingDevice = id;
-        deployDevices();
-    }
+    mRecordingDevice = id;
+    deployDevices();
 }
 
 void LLWebRTCImpl::setRenderDevice(const std::string &id)
 {
-    if (mPlayoutDevice != id)
-    {
-        mPlayoutDevice = id;
-        deployDevices();
-    }
+    mPlayoutDevice = id;
+    deployDevices();
 }
 
 // updateDevices needs to happen on the worker thread.
@@ -621,7 +615,7 @@ void LLWebRTCImpl::updateDevices()
 
 void LLWebRTCImpl::OnDevicesUpdated()
 {
-    deployDevices();
+    updateDevices();
 }
 
 
