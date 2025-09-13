@@ -42,7 +42,7 @@ if (WINDOWS)
                                        iphlpapi
                                        libcmt)
     # as the webrtc libraries are release, build this binary as release as well.
-    target_compile_options(llwebrtc PRIVATE "/MT")
+    target_compile_options(llwebrtc PRIVATE "/MT" "/Zc:wchar_t")
     if (USE_BUGSPLAT)
         set_target_properties(llwebrtc PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}")
     endif (USE_BUGSPLAT)
