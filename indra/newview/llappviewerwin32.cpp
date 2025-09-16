@@ -173,16 +173,13 @@ namespace
                                     << '/' << loc.mV[2])));
             }
 
-            if (!LLAppViewer::instance()->isSecondInstance())
+            LLAppViewer* app = LLAppViewer::instance();
+            if (!app->isSecondInstance() && !app->errorMarkerExists())
             {
-                std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-                if (!LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
-                {
-                    // If marker doesn't exist, create a marker with 'other' code for next launch
-                    // otherwise don't override existing file
-                    // Any unmarked crashes will be considered as freezes
-                    LLAppViewer::instance()->createErrorMarker(LAST_EXEC_OTHER_CRASH);
-                }
+                // If marker doesn't exist, create a marker with 'other' code for next launch
+                // otherwise don't override existing file
+                // Any unmarked crashes will be considered as freezes
+                app->createErrorMarker(LAST_EXEC_OTHER_CRASH);
             }
         } // MDSCB_EXCEPTIONCODE
 

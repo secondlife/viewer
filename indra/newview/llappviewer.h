@@ -250,6 +250,7 @@ public:
 
     // Writes an error code into the error_marker file for use on next startup.
     void createErrorMarker(eLastExecEvent error_code) const;
+    bool errorMarkerExists() const;
 
     // Attempt a 'soft' quit with disconnect and saving of settings/cache.
     // Intended to be thread safe.
