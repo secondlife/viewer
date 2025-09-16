@@ -5403,6 +5403,12 @@ void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
     }
 }
 
+bool LLAppViewer::errorMarkerExists() const
+{
+    std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+    return LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB);
+}
+
 void LLAppViewer::outOfMemorySoftQuit()
 {
     if (!mQuitRequested)
