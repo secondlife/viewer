@@ -151,10 +151,16 @@ namespace Details
         LLSD acknowledge;
         int errorCount = 0;
         int counter = mCounter; // saved on the stack for logging.
+        LLTimer message_time;
 
         LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
 
         mAdapter = httpAdapter;
+
+        // This is a loop with own waitToRetry implementation,
+        // cut retries.
+        LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpOpts->setRetries(0);
 
         LL::WorkQueue::ptr_t main_queue = nullptr;
 
@@ -172,11 +178,13 @@ namespace Details
             request["ack"] = acknowledge;
             request["done"] = mDone;
 
+            message_time.reset();
+
 //          LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> request = "
 //              << LLSDXMLStreamer(request) << LL_ENDL;
 
             LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> posting and yielding." << LL_ENDL;
-            LLSD result = httpAdapter->postAndSuspend(mHttpRequest, url, request);
+            LLSD result = httpAdapter->postAndSuspend(mHttpRequest, url, request, httpOpts);
 
 //          LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> result = "
 //              << LLSDXMLStreamer(result) << LL_ENDL;
@@ -194,11 +202,27 @@ namespace Details
 
             if (!status)
             {
-                if (status == LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT))
-                {   // A standard timeout response we get this when there are no events.
-                    LL_DEBUGS("LLEventPollImpl") << "All is very quiet on target server. It may have gone idle?" << LL_ENDL;
-                    errorCount = 0;
-                    continue;
+                if (status == LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT) // A standard timeout, no events.
+                    || status == LLCore::HttpStatus(HTTP_BAD_GATEWAY) // An expected 'No events' case.
+                    || status == LLCore::HttpStatus(HTTP_INTERNAL_ERROR)
+                    || status == LLCore::HttpStatus(HTTP_SERVICE_UNAVAILABLE)
+                    || status == LLCore::HttpStatus(HTTP_GATEWAY_TIME_OUT))
+                {
+                    constexpr F64 MIN_SECONDS_PASSED = 10.0;
+                    if (message_time.getElapsedSeconds() < MIN_SECONDS_PASSED)
+                    {
+                        // Server is supposed to hold request for 20 to 30 seconds.
+                        // If it didn't hold the request at least for 10s, treat as an error.
+                        LL_WARNS("LLEventPollImpl") << "Response arrived too early, status: " << status.toTerseString()
+                            << ", time passed: " << message_time.getElapsedSeconds() << LL_ENDL;
+                    }
+                    else
+                    {
+                        // No events.
+                        LL_DEBUGS("LLEventPollImpl") << "No events, from: " << mSenderIp <<" status: " << (S32)status.getStatus() << LL_ENDL;
+                        errorCount = 0;
+                        continue;
+                    }
                 }
                 else if ((status == LLCore::HttpStatus(LLCore::HttpStatus::LLCORE, LLCore::HE_OP_CANCELED)) ||
                         (status == LLCore::HttpStatus(HTTP_NOT_FOUND)))
@@ -206,7 +230,7 @@ namespace Details
                     // some cases the server gets ahead of the viewer and will
                     // return a 404 error (Not Found) before the cancel event
                     // comes back in the queue
-                    LL_WARNS("LLEventPollImpl") << "Canceling coroutine" << LL_ENDL;
+                    LL_WARNS("LLEventPollImpl") << "Canceling coroutine, status: " << status.toTerseString() << LL_ENDL;
                     break;
                 }
                 else if (!status.isHttpStatus())
@@ -254,6 +278,10 @@ namespace Details
                     {
                         LL_WARNS("LLEventPollImpl") << "< " << counter << "> Forcing disconnect due to stalled main region event poll." << LL_ENDL;
                         LLAppViewer::instance()->forceDisconnect(LLTrans::getString("AgentLostConnection"));
+                    }
+                    else
+                    {
+                        LL_WARNS("LLEventPollImpl") << "< " << counter << "> Stopping event poll for " << mSenderIp << " due to failures." << LL_ENDL;
                     }
                     break;
                 }
