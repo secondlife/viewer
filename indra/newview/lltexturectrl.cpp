@@ -1012,6 +1012,8 @@ void LLFloaterTexturePicker::onBtnSetToDefault(void* userdata)
     {
         self->setImageID( self->getDefaultImageAssetID() );
         self->setTentative(false);
+        // Deselect in case inventory has a selected item with the same id
+        self->mInventoryPanel->getRootFolder()->clearSelection();
     }
     self->commitIfImmediateSet();
 }
@@ -1023,6 +1025,8 @@ void LLFloaterTexturePicker::onBtnBlank(void* userdata)
     self->setCanApply(true, true);
     self->setImageID( self->getBlankImageAssetID() );
     self->setTentative(false);
+    // Deselect in case inventory has a selected item with the same id
+    self->mInventoryPanel->getRootFolder()->clearSelection();
     self->commitIfImmediateSet();
 }
 
@@ -1034,6 +1038,8 @@ void LLFloaterTexturePicker::onBtnNone(void* userdata)
     self->setCanApply(true, true);
     self->setImageID( LLUUID::null );
     self->setTentative(false);
+    // Deselect in case inventory has a selected item with null id
+    self->mInventoryPanel->getRootFolder()->clearSelection();
     self->commitIfImmediateSet();
 }
 
