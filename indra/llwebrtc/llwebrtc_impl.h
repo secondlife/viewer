@@ -239,8 +239,10 @@ public:
         return 0;
     }
     int32_t StopRecording() override {
-        if (tuning_) return 0;  // if we're tuning, disregard the StopRecording we get from disabling the streams
-        return inner_->StopRecording();
+        // ignore stop recording as webrtc.lib will send one when streams shut down,
+        // even if there are other streams in place.  Start/Stop recording are entirely
+        // controlled by the app
+        return 0;
     }
     int32_t ForceStartRecording() { return inner_->StartRecording(); }
     int32_t ForceStopRecording() { return inner_->StopRecording(); }
