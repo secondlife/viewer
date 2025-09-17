@@ -1367,6 +1367,7 @@ void LLFloaterPreference::onChangeQuality(const LLSD& data)
     }
     mLastQualityLevel = level;
     LLFeatureManager::getInstance()->setGraphicsLevel(level, true);
+    gSavedSettings.setU32("DebugQualityPerformance", level);
     refreshEnabledGraphics();
     refresh();
 }
