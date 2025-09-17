@@ -288,6 +288,8 @@ void LLWebRTCVoiceClient::terminate()
         return;
     }
 
+    LL_INFOS("Voice") << "Terminating WebRTC" << LL_ENDL;
+
     mVoiceEnabled = false;
     llwebrtc::terminate();
 
