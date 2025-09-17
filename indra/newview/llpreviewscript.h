@@ -54,7 +54,7 @@ class LLScriptEdContainer;
 class LLFloaterGotoLine;
 class LLFloaterExperienceProfile;
 class LLScriptMovedObserver;
-class LLScriptEditorWSConnection;
+class LLScriptEditorWSServer;
 
 class LLLiveLSLFile : public LLLiveFile
 {
@@ -105,6 +105,7 @@ public:
     void            initMenu();
     void            processKeywords();
     void            processKeywords(bool luau_language);
+    LLKeywords&     getKeywords() { return mEditor->getKeywords(); }
 
     void            draw() override;
     bool            postBuild() override;
@@ -221,9 +222,9 @@ public:
     bool handleKeyHere(KEY key, MASK mask);
 
     void startWebsocketServer();
-    void attachToWebSocket(const std::shared_ptr<LLScriptEditorWSConnection>& connection);
-    void detachFromWebSocket(bool send_disconnect);
-    void cleanupWebSocket();
+    void unsubscribeScript();
+
+    LLScriptEdCore* getScriptEdCore() const { return mScriptEd; }
 
 protected:
     std::string     getTmpFileName(const std::string& script_name) const;
@@ -238,7 +239,7 @@ protected:
     LLLiveLSLFile*      mLiveFile = nullptr;
     LLLiveLSLFile*      mLiveLogFile = nullptr;
 
-    std::shared_ptr<LLScriptEditorWSConnection> mWebSocket;
+    std::weak_ptr<LLScriptEditorWSServer> mWebSocketServer;
 };
 
 // Used to view and edit an LSL script from your inventory.

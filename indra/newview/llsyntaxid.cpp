@@ -343,7 +343,7 @@ void LLSyntaxLua::initialize()
     if (mInitialized) return;
 
     loadDefaultKeywordsIntoLLSD();
-
+    loadLuaTypesIntoLLSD();
     mInitialized = true;
 }
 
@@ -358,6 +358,21 @@ void LLSyntaxLua::loadDefaultKeywordsIntoLLSD()
         if (LLSDSerialize::fromXML(content, file) != LLSDParser::PARSE_FAILURE)
         {
             mKeywordsXml = content;
+        }
+    }
+}
+
+void LLSyntaxLua::loadLuaTypesIntoLLSD()
+{
+    std::string fullFileSpec = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "types_lua_default.llsd");
+    llifstream  file(fullFileSpec.c_str());
+
+    if (file.good())
+    {
+        LLSD content;
+        if (LLSDSerialize::fromXML(content, file) != LLSDParser::PARSE_FAILURE)
+        {
+            mTypesXml = content;
         }
     }
 }

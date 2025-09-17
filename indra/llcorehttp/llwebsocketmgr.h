@@ -64,6 +64,14 @@ public:
     using connection_h = websocketpp::connection_hdl;
     class WSServer;
 
+    enum connection_state_t
+    { // must map to websocketpp::session::state
+        connection_connecting = 0,
+        connection_open       = 1,
+        connection_closing    = 2,
+        connection_closed     = 3
+    };
+
     class WSConnection
     {
         friend class LLWebsocketMgr;
@@ -84,8 +92,6 @@ public:
         virtual ~WSConnection() = default;
 
         /**
-         * @brief Called when the connection is opened
-         *
          * Override this method in derived classes to handle connection establishment.
          * This is called after the WebSocket handshake is complete and the connection
          * is ready to send/receive messages.
@@ -93,8 +99,6 @@ public:
         virtual void onOpen() {}
 
         /**
-         * @brief Called when the connection is closed
-         *
          * Override this method in derived classes to handle connection closure.
          * This is called when the connection has been terminated, either normally
          * or due to an error condition.
@@ -107,27 +111,6 @@ public:
          *
          * Override this method in derived classes to handle incoming messages.
          * Currently only text messages are supported.
-         *
-         * @code
-         * class MyConnection : public LLWebsocketMgr::WSConnection
-         * {
-         * public:
-         *     void onMessage(const std::string& message) override
-         *     {
-         *         // Parse and handle the message
-         *         if (message == "ping") {
-         *             sendMessage("pong");
-         *         }
-         *         // Process JSON messages
-         *         try {
-         *             LLSD data = LLSDSerialize::fromJSON(message);
-         *             handleStructuredMessage(data);
-         *         } catch (...) {
-         *             LL_WARNS("MyConnection") << "Invalid JSON received" << LL_ENDL;
-         *         }
-         *     }
-         * };
-         * @endcode
          */
         virtual void onMessage(const std::string& message) {}
 
@@ -138,17 +121,6 @@ public:
          *
          * Sends a text message to the remote endpoint. The message is queued
          * asynchronously and may not be sent immediately.
-         *
-         * @code
-         * // Send a simple text message
-         * connection->sendMessage("Hello, client!");
-         *
-         * // Send JSON data
-         * LLSD response;
-         * response["status"] = "ok";
-         * response["data"] = "some data";
-         * connection->sendMessage(LLSDSerialize::toJSON(response));
-         * @endcode
          */
         bool sendMessage(const std::string& message) const;
         bool sendMessage(const boost::json::value& json) const;
@@ -172,21 +144,12 @@ public:
          * - 1008: Policy violation
          * - 1009: Message too big
          *
-         * @code
-         * // Normal closure
-         * connection->closeConnection();
-         *
-         * // Close with specific reason
-         * connection->closeConnection(1000, "Session ended");
-         *
-         * // Close due to policy violation
-         * connection->closeConnection(1008, "Authentication failed");
-         * @endcode
-         *
          * @note After calling this method, no further messages should be sent
          * @note The onClose() callback will be invoked when the close handshake completes
          */
         void closeConnection(U16 code = 1000, const std::string& reason = std::string());
+
+        bool isConnected() const;
 
     protected:
         connection_h mConnectionHandle;
@@ -260,6 +223,9 @@ public:
         WSServer(std::string_view name, U16 port, bool local_only = true);
         virtual ~WSServer();
 
+        virtual void    onStarted() {}
+        virtual void    onStopped() {}
+
         virtual void    onConnectionOpened(const WSConnection::ptr_t& connection) { }
         virtual void    onConnectionClosed(const WSConnection::ptr_t& connection) { }
 
@@ -272,6 +238,8 @@ public:
 
         void            broadcastMessage(const std::string& message);
         virtual bool    update() { return true; }
+
+        connection_state_t  getConnectionState(const connection_h& handle) const;
 
     protected:
         virtual WSConnection::ptr_t connectionFactory(WSServer::ptr_t server, connection_h handle);

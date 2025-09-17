@@ -485,6 +485,7 @@ bool LLWebsocketMgr::WSServer::start()
         LL_INFOS("WebSocket") << "WebSocket server thread exiting for: " << mServerName << LL_ENDL;
     });
 
+    onStarted();
     LL_INFOS("WebSocket") << "Started WebSocket server thread: " << mServerName << LL_ENDL;
     return true;
 }
@@ -517,6 +518,7 @@ void LLWebsocketMgr::WSServer::stop()
         mServerThread.join();
         LL_INFOS("WebSocket") << "WebSocket server thread joined for: " << mServerName << LL_ENDL;
     }
+    onStopped();
 }
 
 bool LLWebsocketMgr::WSServer::isRunning() const
@@ -595,6 +597,20 @@ LLWebsocketMgr::WSConnection::ptr_t LLWebsocketMgr::WSServer::getConnection(cons
     }
     return nullptr;
 }
+
+LLWebsocketMgr::connection_state_t LLWebsocketMgr::WSServer::getConnectionState(const connection_h& handle) const
+{
+    websocketpp::lib::error_code ec;
+    auto con = mImpl->mServer.get_con_from_hdl(handle, ec);
+    if (ec)
+    {
+        LL_WARNS("WebSocket") << mServerName << " failed to get connection state: " << ec.message() << LL_ENDL;
+        websocketpp::session::state::value state = websocketpp::session::state::closed;
+        return connection_closed;
+    }
+    return static_cast<connection_state_t>(con->get_state());
+}
+
 
 void LLWebsocketMgr::WSServer::handleOpenConnection(const connection_h& handle)
 {
@@ -708,4 +724,19 @@ void LLWebsocketMgr::WSConnection::closeConnection(U16 code, const std::string& 
     {
         LL_WARNS("WebSocket") << "Failed to close connection through server" << LL_ENDL;
     }
+}
+
+bool LLWebsocketMgr::WSConnection::isConnected() const
+{
+    if (mOwningServer.expired())
+    {
+        return false;
+    }
+
+    LLWebsocketMgr::WSServer::ptr_t server = mOwningServer.lock();
+    if (!server)
+    {
+        return false;
+    }
+    return server->getConnectionState(mConnectionHandle) == connection_open;
 }

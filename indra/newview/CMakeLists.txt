@@ -1663,6 +1663,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/ignorable_dialogs.xml
     app_settings/key_bindings.xml
     app_settings/keywords_lsl_default.xml
+    app_settings/keywords_lua_default.xml
     app_settings/logcontrol.xml
     app_settings/settings.xml
     app_settings/settings_crash_behavior.xml
@@ -1671,6 +1672,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/std_bump.ini
     app_settings/toolbars.xml
     app_settings/trees.xml
+    app_settings/types_lua_default.llsd
     app_settings/viewerart.xml
     app_settings/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg

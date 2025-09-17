@@ -1553,6 +1553,11 @@ LLScriptEdContainer::~LLScriptEdContainer()
 
     delete mLiveLogFile;
     mLiveLogFile = nullptr;
+
+    if (!mWebSocketServer.expired())
+    {
+        unsubscribeScript();
+    }
 }
 
 std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name) const
@@ -1675,44 +1680,45 @@ void LLScriptEdContainer::startWebsocketServer()
         U16         server_port(LLScriptEditorWSServer::DEFAULT_SERVER_PORT);
         bool        server_localhost(true);
 
+        // Attempt to find an existing server
         LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
         LLScriptEditorWSServer::ptr_t server = std::static_pointer_cast<LLScriptEditorWSServer>(wsmgr.findServerByName(server_name));
 
         if (!server)
-        {
+        {   // We couldn't find one, so create it
             server = std::make_shared<LLScriptEditorWSServer>(server_name, server_port, server_localhost);
             wsmgr.addServer(server);
-            wsmgr.startServer(server_name);
+        }
+
+        bool is_running = server->isRunning();
+        if (!is_running)
+        {   // Server isn't running, so start it
+            is_running = wsmgr.startServer(server_name);
+        }
+
+        if (!is_running && !server->isRunning())
+        {   // Failed to start the server
+            LL_WARNS() << "Failed to start script editor websocket server" << LL_ENDL;
+            return;
         }
 
         std::string script_id_hash_str(getUniqueHash());
-        server->associateEditor(getHandle(), script_id_hash_str);
+        server->subscribeScriptEditor(getHandle(), script_id_hash_str);
+        mWebSocketServer = server;
     }
 }
 
-void LLScriptEdContainer::attachToWebSocket(const std::shared_ptr<LLScriptEditorWSConnection>& connection)
+void LLScriptEdContainer::unsubscribeScript()
 {
-    mWebSocket = connection;
-}
-
-void LLScriptEdContainer::detachFromWebSocket(bool send_disconnect)
-{
-    if (mWebSocket)
+    auto server = mWebSocketServer.lock();
+    if (server)
     {
-        if (send_disconnect)
-        {
-            // TODO:
-            mWebSocket->sendDisconnect(LLScriptEditorWSConnection::REASON_EDITOR_CLOSED);
-            mWebSocket->closeConnection();
-        }
-        mWebSocket.reset();
+        std::string script_id_hash_str(getUniqueHash());
+        server->sendUnsubscribeScriptEditor(script_id_hash_str);
+        server->unsubscribeEditor(script_id_hash_str);
     }
 }
 
-void LLScriptEdContainer::cleanupWebSocket()
-{
-    mWebSocket.reset();
-}
 
 /// ---------------------------------------------------------------------------
 /// LLPreviewLSL

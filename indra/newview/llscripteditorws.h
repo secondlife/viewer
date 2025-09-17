@@ -42,44 +42,30 @@ class LLLiveLSLEditor;
 class LLScriptEdContainer;
 class LLScriptEditorWSServer;
 
-/**
- * @class LLScriptEditorWSConnection
- * @brief JSON-RPC WebSocket connection specialized for external script editor communication
- *
- * This class handles JSON-RPC 2.0 communication between the Second Life viewer
- * and external script editors. It provides a clean base for implementing
- * script editor integration using the standard JSON-RPC 2.0 protocol.
- *
- * ## Usage
- *
- * @code
- * // Create server and let base JSON-RPC handle method registration
- * auto server = std::make_shared<LLScriptEditorWSServer>("script_editor_server", 9020);
- *
- * // Register custom methods as needed
- * connection->registerMethod("custom.method", handler);
- * @endcode
- */
-class LLScriptEditorWSConnection : public LLJSONRPCConnection,
-    public std::enable_shared_from_this<LLScriptEditorWSConnection>
+class LLScriptEditorWSConnection : public LLJSONRPCConnection, public std::enable_shared_from_this<LLScriptEditorWSConnection>
 {
 public:
+    using ptr_t  = std::shared_ptr<LLScriptEditorWSConnection>;
+    using wptr_t = std::weak_ptr<LLScriptEditorWSConnection>;
+
     enum DisconnectReason
     {
-        REASON_NORMAL = 0,
-        REASON_EDITOR_CLOSED = 1,
+        REASON_NORMAL         = 0,
+        REASON_EDITOR_CLOSED  = 1,
         REASON_PROTOCOL_ERROR = 2,
-        REASON_TIMEOUT = 3,
+        REASON_TIMEOUT        = 3,
         REASON_INTERNAL_ERROR = 4
     };
 
-    LLScriptEditorWSConnection(const LLWebsocketMgr::WSServer::ptr_t server,
-                              const LLWebsocketMgr::connection_h& handle)
-        : LLJSONRPCConnection(server, handle)
-    { }
+    LLScriptEditorWSConnection(const LLWebsocketMgr::WSServer::ptr_t server, const LLWebsocketMgr::connection_h& handle) :
+        LLJSONRPCConnection(server, handle)
+    {
+        mConnectionID = sNextConnectionID++;
+    }
 
     ~LLScriptEditorWSConnection() override = default;
 
+    U32 getConnectionID() const { return mConnectionID; }
 
     // Connection lifecycle overrides
     void onOpen() override;
@@ -100,26 +86,21 @@ private:
      */
     void handleHandshakeResponse(const LLSD& result);
 
-    bool connectToEditor(const std::string& script_id);
-    void cleanupConnection();
-
-    LLScriptEdContainer* getEditor() const;
+    LLScriptEdContainer*                    getEditor() const;
     std::shared_ptr<LLScriptEditorWSServer> getServer() const;
 
-    std::string mEditorId;              ///< Unique identifier for this editor session
-    LLSD mEditorCapabilities;           ///< Editor capabilities metadata
-    std::string mScriptId;              ///< Unique identifier for the script being edited
-    bool mEditorReady;                  ///< Whether editor has completed initialization
-    LLHandle<LLPanel> mEditorPanel;     ///< Handle to the associated LSL editor panel
+    U32 mConnectionID{ 0 }; ///< Unique identifier for this connection
 
     // Client handshake response data
-    std::string mClientName;            ///< Name of the external editor client
-    std::string mClientVersion;         ///< Version of the external editor client
-    std::string mProtocolVersion;       ///< JSON-RPC protocol version supported by client
-    std::string mScriptName;            ///< Name of the script being edited
-    std::string mScriptLanguage;        ///< Programming language of the script (lsl, luau, etc.)
-    string_set_t mLanguages;            ///< Set of supported scripting languages
-    string_set_t mFeatures;             ///< Active client features (live_sync, compilation, etc.)
+    std::string  mClientName;      ///< Name of the external editor client
+    std::string  mClientVersion;   ///< Version of the external editor client
+    std::string  mProtocolVersion; ///< JSON-RPC protocol version supported by client
+    std::string  mScriptName;      ///< Name of the script being edited
+    std::string  mScriptLanguage;  ///< Programming language of the script (lsl, luau, etc.)
+    string_set_t mLanguages;       ///< Set of supported scripting languages
+    string_set_t mFeatures;        ///< Active client features (live_sync, compilation, etc.)
+
+    static U32   sNextConnectionID;
 };
 
 /**
@@ -161,21 +142,34 @@ private:
 class LLScriptEditorWSServer : public LLJSONRPCServer
 {
 public:
+    enum SubscriptionError_t
+    {
+        SUBSCRIPTION_SUCCESS = 0,
+        SUBSCRIPTION_INVALID_EDITOR,
+        SUBSCRIPTION_INVALID_SUBSCRIPTION,
+        SUBSCRIPTION_ALREADY_SUBSCRIBED,
+        SUBSCRIPTION_INTERNAL_ERROR
+    };
+
     static constexpr char const* DEFAULT_SERVER_NAME = "script_editor_server";
     static constexpr U16         DEFAULT_SERVER_PORT = 9020;
 
     using ptr_t = std::shared_ptr<LLScriptEditorWSServer>;
+    using wptr_t = std::weak_ptr<LLScriptEditorWSServer>;
 
     LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only = true);
 
     virtual ~LLScriptEditorWSServer() = default;
 
-    // Server lifecycle callbacks
+    void onStarted() override;
+    void onStopped() override;
     void onConnectionOpened(const LLWebsocketMgr::WSConnection::ptr_t& connection) override;
     void onConnectionClosed(const LLWebsocketMgr::WSConnection::ptr_t& connection) override;
 
-    bool associateEditor(const LLHandle<LLPanel>& editor_handle, const std::string& script_id);
-    void dissociateEditor(const std::string& script_id);
+    bool subscribeScriptEditor(const LLHandle<LLPanel>& editor_handle, const std::string &script_id);
+    void unsubscribeEditor(const std::string &script_id);
+
+    void sendUnsubscribeScriptEditor(const std::string& script_id);
 
     LLHandle<LLPanel>                           findEditorForScript(const std::string& script_id) const;
     std::shared_ptr<LLScriptEditorWSConnection> findConnectionForScript(const std::string& script_id);
@@ -186,45 +180,38 @@ public:
      */
     std::set<std::string> getActiveScripts() const;
 
-    /**
-     * @brief Send script content to all connected editors for a specific script
-     * @param script_id The script identifier
-     * @param content The script content
-     * @param metadata Optional metadata about the script
-     */
-    void broadcastScriptUpdate(const std::string& script_id, const std::string& content, const LLSD& metadata = LLSD());
-
-    /**
-     * @brief Send compilation results to all connected editors for a specific script
-     * @param script_id The script identifier
-     * @param success Whether compilation succeeded
-     * @param errors Array of compilation errors/warnings
-     */
-    void broadcastCompilationResult(const std::string& script_id, bool success, const LLSD& errors = LLSD());
-
 protected:
     LLWebsocketMgr::WSConnection::ptr_t connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
                                                          LLWebsocketMgr::connection_h handle) override;
 
-    /**
-     * @brief Apply global method handlers to a new connection
-     * @param connection The connection to configure
-     *
-     * Override this method to customize which methods are registered on
-     * new connections. The base implementation registers all global methods,
-     * but derived classes can add additional script-specific methods.
-     */
-    virtual void setupConnectionMethods(LLJSONRPCConnection::ptr_t connection) override;
+    void setupConnectionMethods(LLJSONRPCConnection::ptr_t connection) override;
+
+    void broadcastLangugeChange();
+
+    LLSD handleLanguageIdRequest() const;
+    LLSD handleSyntaxRequest(const LLSD &params) const;
+    LLSD handleScriptSubscribe(U32 connection_id, const LLSD& params);
+    LLSD handleScriptUnsubscribe(U32 connection_id, const LLSD& params);
 
 private:
-    using map_id_to_editor_t = std::unordered_map<std::string, LLHandle<LLPanel>>;
+    struct EditorSubscription
+    {
+        LLHandle<LLPanel> mEditorHandle;
+        LLScriptEditorWSConnection::wptr_t mConnection;
+        U32 mConnectionID{ 0 };
+    };
+    using subscriptions_t = std::unordered_map<std::string, EditorSubscription>;
 
-    map_id_to_editor_t  mScriptEditors;
-    std::set<std::shared_ptr<LLScriptEditorWSConnection>> mActiveConnections;
+    SubscriptionError_t updateScriptSubscription(const std::string &script_id, U32 connection_id);
+    void                unsubscribeConnection(U32 connection_id);
 
-    /**
-     * @brief Connection timeout management
-     */
+    subscriptions_t mSubscriptions;
+    std::map<U32, LLScriptEditorWSConnection::wptr_t> mActiveConnections;
+
+    boost::signals2::connection mLanguageChangeSignal;
+    LLUUID mLastSyntaxId;
+
+
     LLTimer mCleanupTimer;
     static constexpr F32 CLEANUP_INTERVAL = 60.0f; // seconds
     static constexpr F32 CONNECTION_TIMEOUT = 300.0f; // 5 minutes

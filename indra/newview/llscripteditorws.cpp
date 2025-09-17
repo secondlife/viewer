@@ -24,24 +24,6 @@
  * $/LicenseInfo$
  */
 
-/**
- * This implementation provides JSON-RPC 2.0 WebSocket communication between
- * the Second Life viewer and external script editors. It uses the standard
- * JSON-RPC 2.0 protocol without pre-defined script-specific methods,
- * allowing for flexible integration approaches.
- *
- * ## JSON-RPC Integration
- *
- * The connection provides a clean JSON-RPC 2.0 interface that can be
- * extended with script-specific functionality as needed:
- *
- * ### Server-to-Client (Viewer to Editor):
- * - `session.handshake`: Welcome message on connection
- * - `session.disconnect`: Notify editor of disconnection
- *
- * ### Notifications (no response expected):
- */
-
 #include "llviewerprecompiledheaders.h"
 #include "llscripteditorws.h"
 #include "llpreviewscript.h"
@@ -51,6 +33,7 @@
 #include "llerror.h"
 #include "lluuid.h"
 #include "llversioninfo.h"
+#include "llagent.h"
 
 //========================================================================
 LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only)
@@ -64,12 +47,35 @@ LLWebsocketMgr::WSConnection::ptr_t LLScriptEditorWSServer::connectionFactory(LL
                                                                               LLWebsocketMgr::connection_h handle)
 {
     auto connection = std::make_shared<LLScriptEditorWSConnection>(server, handle);
-    mActiveConnections.insert(connection);
+    mActiveConnections[connection->getConnectionID()] = connection;
 
     // Call setupConnectionMethods to register any global methods
     setupConnectionMethods(connection);
 
     return connection;
+}
+
+void LLScriptEditorWSServer::onStarted()
+{
+    LLSyntaxIdLSL& syntax_id_mgr = LLSyntaxIdLSL::instance();
+    wptr_t that(std::static_pointer_cast<LLScriptEditorWSServer>(shared_from_this()));
+
+    mLastSyntaxId = syntax_id_mgr.getSyntaxID();
+    mLanguageChangeSignal = syntax_id_mgr.addSyntaxIDCallback(
+        [that]()
+        {
+            auto server = that.lock();
+            if (server && server->isRunning())
+            {
+                server->broadcastLangugeChange();
+            }
+        });
+}
+
+void LLScriptEditorWSServer::onStopped()
+{
+    mLanguageChangeSignal.disconnect();
+    mLastSyntaxId.setNull();
 }
 
 void LLScriptEditorWSServer::onConnectionOpened(const LLWebsocketMgr::WSConnection::ptr_t& connection)
@@ -92,35 +98,102 @@ void LLScriptEditorWSServer::onConnectionClosed(const LLWebsocketMgr::WSConnecti
     auto script_connection = std::dynamic_pointer_cast<LLScriptEditorWSConnection>(connection);
     if (script_connection)
     {
-        mActiveConnections.erase(script_connection);
+        U32 connection_id = script_connection->getConnectionID();
+        unsubscribeConnection(connection_id);
+        mActiveConnections.erase(connection_id);
 
-        LL_INFOS("ScriptEditorWS") << "Removed connection from active connections. Total: "
+        LL_DEBUGS("ScriptEditorWS") << "Removed connection from active connections. Total: "
                                    << mActiveConnections.size() << LL_ENDL;
         // TODO: When connections reach 0, stop the server aftera a timeout.
     }
 }
 
-bool LLScriptEditorWSServer::associateEditor(const LLHandle<LLPanel>& editor_handle, const std::string& script_id)
+bool LLScriptEditorWSServer::subscribeScriptEditor(const LLHandle<LLPanel>& editor_handle, const std::string &script_id)
 {
     if (!editor_handle.isDead())
     {
-        mScriptEditors[script_id] = editor_handle;
+        auto it = mSubscriptions.find(script_id);
+        if (it == mSubscriptions.end())
+        {   // Don't readd if already subscribed
+            mSubscriptions.emplace(script_id, EditorSubscription{ editor_handle, LLScriptEditorWSConnection::wptr_t() });
+            return false;
+        }
+        else
+        { // Update existing subscription with new editor handle
+            it->second.mEditorHandle = editor_handle;
+        }
         return true;
     }
     return false;
 }
 
-void LLScriptEditorWSServer::dissociateEditor(const std::string& script_id)
+void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
 {
-    mScriptEditors.erase(script_id);
+    auto it = mSubscriptions.find(script_id);
+    if (it != mSubscriptions.end())
+    {
+        mSubscriptions.erase(it);
+    }
 }
+
+void LLScriptEditorWSServer::unsubscribeConnection(U32 connection_id)
+{
+    for (auto it = mSubscriptions.begin(); it != mSubscriptions.end(); )
+    {
+        if (it->second.mConnectionID == connection_id)
+        {
+            LL_DEBUGS("ScriptEditorWS") << "Unsubscribing script " << it->first
+                                       << " from connection ID " << connection_id << LL_ENDL;
+            it = mSubscriptions.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+LLScriptEditorWSServer::SubscriptionError_t LLScriptEditorWSServer::updateScriptSubscription(const std::string &script_id, U32 connection_id)
+{
+    auto it = mSubscriptions.find(script_id);
+    if (it != mSubscriptions.end())
+    {
+        if (it->second.mEditorHandle.isDead())
+        {
+            unsubscribeEditor(script_id);
+            return SUBSCRIPTION_INVALID_EDITOR;
+        }
+
+        auto con_it = mActiveConnections.find(connection_id);
+        if (con_it == mActiveConnections.end())
+        {
+            return SUBSCRIPTION_INTERNAL_ERROR;
+        }
+
+        if ((it->second.mConnectionID != 0) && !it->second.mConnection.expired()
+            && it->second.mConnection.lock()->isConnected())
+        {
+            LL_WARNS("ScriptEditorWS") << "Script " << script_id << " is already subscribed on connection ID " << it->second.mConnectionID
+                                       << ", cannot subscribe again on connection ID " << connection_id << LL_ENDL;
+            // In the future we may want to support multiple connections per script.
+            // That would imply it was open in multiple editors.
+            return SUBSCRIPTION_ALREADY_SUBSCRIBED;
+        }
+
+        it->second.mConnectionID = connection_id;
+        it->second.mConnection   = con_it->second;
+        return SUBSCRIPTION_SUCCESS;
+    }
+    return SUBSCRIPTION_INVALID_SUBSCRIPTION;
+}
+
 
 LLHandle<LLPanel> LLScriptEditorWSServer::findEditorForScript(const std::string& script_id) const
 {
-    auto it = mScriptEditors.find(script_id);
-    if (it != mScriptEditors.end())
+    auto it = mSubscriptions.find(script_id);
+    if (it != mSubscriptions.end())
     {
-        return it->second;
+        return it->second.mEditorHandle;
     }
     return LLHandle<LLPanel>();
 }
@@ -135,51 +208,14 @@ std::shared_ptr<LLScriptEditorWSConnection> LLScriptEditorWSServer::findConnecti
 std::set<std::string> LLScriptEditorWSServer::getActiveScripts() const
 {
     std::set<std::string> active_scripts;
-    for (const auto& [script_id, editor_handle] : mScriptEditors)
+    for (const auto& [script_id, subinfo] : mSubscriptions)
     {
-        if (!editor_handle.isDead())
+        if (!subinfo.mEditorHandle.isDead())
         {
             active_scripts.insert(script_id);
         }
     }
     return active_scripts;
-}
-
-void LLScriptEditorWSServer::broadcastScriptUpdate(const std::string& script_id, const std::string& content, const LLSD& metadata)
-{
-    LL_DEBUGS("ScriptEditorWS") << "Broadcasting script update for script: " << script_id << LL_ENDL;
-
-    LLSD params;
-    params["script_id"] = script_id;
-    params["content"] = content;
-    params["timestamp"] = LLDate::now().asString();
-
-    if (!metadata.isUndefined())
-    {
-        params["metadata"] = metadata;
-    }
-
-    // Send to all connected editors as a notification
-    broadcastNotification("script.update", params);
-}
-
-void LLScriptEditorWSServer::broadcastCompilationResult(const std::string& script_id, bool success, const LLSD& errors)
-{
-    LL_DEBUGS("ScriptEditorWS") << "Broadcasting compilation result for script: " << script_id
-                                << " (success: " << success << ")" << LL_ENDL;
-
-    LLSD params;
-    params["script_id"] = script_id;
-    params["success"] = success;
-    params["timestamp"] = LLDate::now().asString();
-
-    if (!errors.isUndefined() && errors.isArray())
-    {
-        params["errors"] = errors;
-    }
-
-    // Send to all connected editors as a notification
-    broadcastNotification("compilation.result", params);
 }
 
 void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t connection)
@@ -191,22 +227,172 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
     auto script_connection = std::dynamic_pointer_cast<LLScriptEditorWSConnection>(connection);
     if (script_connection)
     {
-        LL_INFOS("ScriptEditorWS") << "Setting up script editor connection methods" << LL_ENDL;
+        LL_DEBUGS("ScriptEditorWS") << "Setting up script editor connection methods" << LL_ENDL;
+        wptr_t that(std::static_pointer_cast<LLScriptEditorWSServer>(shared_from_this()));
 
-        // Here derived classes could add script-specific method registrations
-        // For now, the base LLScriptEditorWSConnection doesn't register any specific methods
-        // but this provides a hook for future customization
+        U32 connection_id = script_connection->getConnectionID();
 
-        // Example of how custom methods could be registered:
-        // script_connection->registerMethod("script.custom", handler);
+        script_connection->registerMethod("language.syntax.id",
+            [that](const std::string&, const LLSD&, const LLSD&) -> LLSD
+            {
+                auto server = that.lock();
+                if (server)
+                {
+                    return server->handleLanguageIdRequest();
+                }
+                return LLSD();
+            });
+        script_connection->registerMethod("language.syntax",
+            [that](const std::string&, const LLSD&, const LLSD& params)
+            {
+                auto server = that.lock();
+                if (server)
+                {
+                    return server->handleSyntaxRequest(params);
+                }
+                return LLSD();
+            });
+        script_connection->registerMethod("script.subscribe",
+            [that, connection_id](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+            {
+                auto server = that.lock();
+                if (server)
+                {
+                    return server->handleScriptSubscribe(connection_id, params);
+                }
+                return LLSD();
+            });
+        script_connection->registerMethod("script.unsubscribe", [](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+            {   // this is a notification, no response expected
+                return LLSD();
+            });
+        // script_connection->registerMethod("language.syntax", )
+    }
+}
+
+void LLScriptEditorWSServer::broadcastLangugeChange()
+{
+    LLUUID syntax_id = LLSyntaxIdLSL::instance().getSyntaxID();
+
+    if (syntax_id != mLastSyntaxId)
+    {
+        mLastSyntaxId = syntax_id;
+        LLSD params;
+        params["id"] = syntax_id;
+
+        if (isRunning())
+        {
+            broadcastNotification("language.syntax.change", params);
+        }
+    }
+}
+
+LLSD LLScriptEditorWSServer::handleLanguageIdRequest() const
+{
+    LLSD response;
+
+    response["id"] = mLastSyntaxId;
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleSyntaxRequest(const LLSD& params) const
+{
+    LLSD        response(LLSD::emptyMap());
+    std::string category = params["kind"].asString();
+
+    response["id"] = mLastSyntaxId;
+
+    if (category == "types.luau")
+    {
+        response["types"] = LLSyntaxLua::instance().getTypesXML();
+    }
+    else
+    {
+        LLSD syntax = LLSyntaxIdLSL::instance().getKeywordsXML();
+
+        // TODO: support language definitions and additional modules.
+
+        if (syntax.has(category))
+        {
+            response[category] = syntax[category];
+        }
+    }
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleScriptSubscribe(U32 connection_id, const LLSD& params)
+{
+    LLSD response(LLSD::emptyMap());
+
+    std::string script_id = params["script_id"].asString();
+    std::string script_name = params["script_name"].asString();
+    std::string language    = params["script_language"].asString();
+
+    SubscriptionError_t result = updateScriptSubscription(script_id, connection_id);
+
+    response["script_id"] = script_id;
+    response["success"]   = (result == SUBSCRIPTION_SUCCESS);
+    response["status"]    = result;
+
+    LL_WARNS_IF(result != SUBSCRIPTION_SUCCESS, "ScriptEditorWS")
+        << "Script connect request for script " << script_id << " failed with status " << result << LL_ENDL;
+    switch (result)
+    {
+    case SUBSCRIPTION_SUCCESS:
+        response["message"] = "OK";
+        break;
+    case SUBSCRIPTION_INVALID_EDITOR:
+        response["message"] = "Invalid editor handle";
+        break;
+    case SUBSCRIPTION_INVALID_SUBSCRIPTION:
+        response["message"] = "No subscription found for script";
+        break;
+    case SUBSCRIPTION_ALREADY_SUBSCRIBED:
+        response["message"] = "Script already subscribed";
+        break;
+    case SUBSCRIPTION_INTERNAL_ERROR:
+        response["message"] = "Internal server error";
+        break;
+    }
+
+    if (result == SUBSCRIPTION_SUCCESS)
+    {
+        //TODO: Build an info block for the subscribed script.
+        //buildScriptSubscriptionInfo(result);
+    }
+
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleScriptUnsubscribe(U32 connection_id, const LLSD& params)
+{
+    std::string script_id = params["script_id"].asString();
+
+    auto it = mSubscriptions.find(script_id);
+    if (it != mSubscriptions.end() && (it->second.mConnectionID == connection_id))
+    {
+        unsubscribeEditor(script_id);
+    }
+    return LLSD();
+}
+
+void LLScriptEditorWSServer::sendUnsubscribeScriptEditor(const std::string& script_id)
+{
+    auto it = mSubscriptions.find(script_id);
+    if (it != mSubscriptions.end())
+    {
+        auto connection = it->second.mConnection.lock();
+        if (connection)
+        {
+            LLSD params;
+            params["script_id"] = script_id;
+            connection->notify("script.unsubscribe", params);
+        }
     }
 }
 
 //========================================================================
-LLScriptEdContainer* LLScriptEditorWSConnection::getEditor() const
-{
-    return mEditorPanel.isDead() ? nullptr : dynamic_cast<LLScriptEdContainer*>(mEditorPanel.get());
-}
+U32 LLScriptEditorWSConnection::sNextConnectionID = 1;
 
 std::shared_ptr<LLScriptEditorWSServer> LLScriptEditorWSConnection::getServer() const
 {
@@ -220,20 +406,17 @@ void LLScriptEditorWSConnection::onOpen()
 
     LL_INFOS("ScriptEditorWS") << "Script editor JSON-RPC connection opened" << LL_ENDL;
 
-    // Generate unique editor session ID
-    mEditorId = LLUUID::generateNewID().asString();
-    mEditorReady = false;
-
-    LL_INFOS("ScriptEditorWS") << "Initialized editor session: " << mEditorId << LL_ENDL;
-
-    // Build hello data according to the protocol specification
+    // Build hello data
     LLSD handshake;
     handshake["server_version"]   = "1.0.0";
     handshake["protocol_version"] = "1.0";
     handshake["viewer_name"]      = LLVersionInfo::instance().getChannel();
     handshake["viewer_version"]   = LLVersionInfo::instance().getVersion();
 
-    // Supported languages array
+    handshake["agent_id"] = gAgent.getID();
+
+    // handshake["challenge"] = ... TODO: simple challenge, write to a file and have the client echo it back?
+
     LLSD languages = LLSD::emptyArray();
     languages.append("lsl");
     languages.append("luau");
@@ -243,14 +426,19 @@ void LLScriptEditorWSConnection::onOpen()
     LLSD features;
     features["live_sync"]        = true;
     features["compilation"]      = true;
-    features["syntax_highlight"] = true;
     handshake["features"]        = features;
 
-    // Send editor.handshake method call to the client and handle response
-    call("session.handshake", handshake, [this](const LLSD& result, const LLSD& error) {
+    wptr_t that = shared_from_this();
+
+    // Send session.handshake method call and the response
+    call("session.handshake", handshake, [that](const LLSD& result, const LLSD& error) {
         if (error.isUndefined())
         {
-            handleHandshakeResponse(result);
+            auto self = that.lock();
+            if (self)
+            {
+                self->handleHandshakeResponse(result);
+            }
         }
         else
         {
@@ -266,17 +454,7 @@ void LLScriptEditorWSConnection::onClose()
 {
     // Call parent class to clean up JSON-RPC infrastructure
     LLJSONRPCConnection::onClose();
-
-    LL_INFOS("ScriptEditorWS") << "Script editor JSON-RPC connection closed for session: "
-                               << mEditorId << LL_ENDL;
-
-    cleanupConnection();
-
-    // Clean up editor-specific state
-    mEditorId.clear();
-    mEditorCapabilities.clear();
-    mScriptId.clear();
-    mEditorReady = false;
+    mOwningServer.reset();
 
     // Clean up handshake response data
     mClientName.clear();
@@ -297,6 +475,8 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
     mClientVersion = result["client_version"].asString();
     mProtocolVersion = result["protocol_version"].asString();
 
+    // TODO: Validate challenge_response if implemented
+
     // Validate protocol compatibility
     if (mProtocolVersion != "1.0")
     {
@@ -307,7 +487,6 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
     // Store script information if provided
     mScriptName = result["script_name"].asString();
     mScriptLanguage = result["script_language"].asString();
-    mScriptId = result["script_id"].asString();
 
     // Store supported languages
     for (const auto& lang : llsd::inArray( result["languages"]))
@@ -326,67 +505,7 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
         }
     }
 
-    connectToEditor(mScriptId);
-    // Mark editor as ready
-    mEditorReady = true;
+    notify("session.ok");
 
-    LL_INFOS("ScriptEditorWS") << "Handshake completed successfully for session: " << mEditorId << LL_ENDL;
-}
-
-bool LLScriptEditorWSConnection::connectToEditor(const std::string& script_id)
-{
-    LLScriptEditorWSServer::ptr_t server = std::dynamic_pointer_cast<LLScriptEditorWSServer>(mOwningServer.lock());
-    if (!server)
-    {
-        LL_WARNS("ScriptEditorWS") << "Cannot connect to editor - server reference lost" << LL_ENDL;
-        return false;
-    }
-
-    mEditorPanel = server->findEditorForScript(script_id);
-
-    LLScriptEdContainer* editor_core = getEditor();
-    if (!editor_core)
-    {
-        LL_INFOS("ScriptEditorWS") << "Could not find editor: " << script_id << LL_ENDL;
-        // TODO: Disconnect the client if no editor found
-        return false;
-    }
-
-    return true;
-}
-
-void LLScriptEditorWSConnection::cleanupConnection()
-{
-    LL_INFOS("ScriptEditorWS") << "Cleaning up connection for editor session: " << mEditorId << LL_ENDL;
-
-    LLScriptEditorWSServer::ptr_t server = getServer();
-    if (server)
-    {
-        server->dissociateEditor(mScriptId);
-    }
-
-    LLScriptEdContainer* editor_core = getEditor();
-
-    if (editor_core)
-    {
-        editor_core->cleanupWebSocket();
-
-        // Notify the editor panel of disconnection
-        //editor_core->onExternalEditorDisconnected();
-    }
-
-    mEditorPanel = LLHandle<LLPanel>();
-}
-
-
-void LLScriptEditorWSConnection::sendDisconnect(S32 reason, const std::string& message)
-{
-    LL_INFOS("ScriptEditorWS") << "Sending disconnect message to editor (reason: "
-                               << reason << ", message: " << message << ")" << LL_ENDL;
-
-    LLSD params;
-    params["reason"] = reason;
-    params["message"] = message;
-
-    notify("session.disconnect", params);
+    LL_INFOS("ScriptEditorWS") << "Handshake completed successfully." << LL_ENDL;
 }
