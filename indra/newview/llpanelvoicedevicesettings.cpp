@@ -240,13 +240,38 @@ void LLPanelVoiceDeviceSettings::refresh()
         if(mCtrlInputDevices)
         {
             mCtrlInputDevices->removeall();
-            mCtrlInputDevices->add(getLocalizedDeviceName(mInputDevice), mInputDevice, ADD_BOTTOM);
+            auto it = mLocalizedDeviceNames.find(mInputDevice);
+            if (it != mLocalizedDeviceNames.end())
+            {
+                mCtrlInputDevices->add(getLocalizedDeviceName(mInputDevice), mInputDevice, ADD_BOTTOM);
+            }
+            else
+            {
+                // Display name generaly doesn't match value.
+                // Value is an id so it's not nessesary readable,
+                // might not even be valid (disconnected usb).
+                // Until we get the data, don't change the device,
+                // otherwise box might override the control.
+                // But show a readable placeholder.
+                // Combo is disabled so it's safe to show
+                // a placeholder.
+                mCtrlInputDevices->add(getString("device_not_loaded"), mInputDevice, ADD_BOTTOM);
+            }
             mCtrlInputDevices->setValue(mInputDevice);
         }
         if(mCtrlOutputDevices)
         {
             mCtrlOutputDevices->removeall();
-            mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, ADD_BOTTOM);
+            auto it = mLocalizedDeviceNames.find(mOutputDevice);
+            if (it != mLocalizedDeviceNames.end())
+            {
+                mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, ADD_BOTTOM);
+            }
+            else
+            {
+                // Don't change the device, only the label
+                mCtrlOutputDevices->add(getString("device_not_loaded"), mOutputDevice, ADD_BOTTOM);
+            }
             mCtrlOutputDevices->setValue(mOutputDevice);
         }
     }
