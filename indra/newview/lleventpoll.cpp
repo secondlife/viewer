@@ -54,13 +54,6 @@ namespace Details
         void stop();
 
     private:
-        // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
-        // This means we attempt to recover relatively quickly but back off giving more time to recover
-        // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
-        static const F32                EVENT_POLL_ERROR_RETRY_SECONDS;
-        static const F32                EVENT_POLL_ERROR_RETRY_SECONDS_INC;
-        static const S32                MAX_EVENT_POLL_HTTP_ERRORS;
-
         void                            eventPollCoro(std::string url);
 
         void                            handleMessage(const LLSD &content);
@@ -76,9 +69,13 @@ namespace Details
     };
 
 
-    const F32 LLEventPollImpl::EVENT_POLL_ERROR_RETRY_SECONDS = 15.f; // ~ half of a normal timeout.
-    const F32 LLEventPollImpl::EVENT_POLL_ERROR_RETRY_SECONDS_INC = 5.f; // ~ half of a normal timeout.
-    const S32 LLEventPollImpl::MAX_EVENT_POLL_HTTP_ERRORS = 10; // ~5 minutes, by the above rules.
+    // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
+    // This means we attempt to recover relatively quickly but back off giving more time to recover
+    // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
+    constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS = 15.f; // ~ half of a normal timeout.
+    constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS_INC = 5.f; // ~ half of a normal timeout.
+    constexpr S32 MAX_EVENT_POLL_HTTP_ERRORS = 10; // ~5 minutes, by the above rules.
+    constexpr F64 MIN_SECONDS_PASSED = 10.0; // Minimum time we expect the server to hold the request.
 
     int LLEventPollImpl::sNextCounter = 1;
 
@@ -157,8 +154,8 @@ namespace Details
 
         mAdapter = httpAdapter;
 
-        // This is a loop with own waitToRetry implementation,
-        // cut retries.
+        // This is a loop with its own waitToRetry implementation,
+        // so disable retries.
         LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
         httpOpts->setRetries(0);
 
@@ -208,7 +205,6 @@ namespace Details
                     || status == LLCore::HttpStatus(HTTP_SERVICE_UNAVAILABLE)
                     || status == LLCore::HttpStatus(HTTP_GATEWAY_TIME_OUT))
                 {
-                    constexpr F64 MIN_SECONDS_PASSED = 10.0;
                     if (message_time.getElapsedSeconds() < MIN_SECONDS_PASSED)
                     {
                         // Server is supposed to hold request for 20 to 30 seconds.
@@ -218,7 +214,11 @@ namespace Details
                     }
                     else
                     {
-                        // No events.
+                        // Timeout, expected and means 'no events'. Request is to be re-issued immediately.
+                        // Current definition of a timeout is any of :
+                        // - libcurl easy 28 status code
+                        // - Linden 499 special http status code
+                        // - RFC - standard 502 - 504 http status codes
                         LL_DEBUGS("LLEventPollImpl") << "No events, from: " << mSenderIp <<" status: " << (S32)status.getStatus() << LL_ENDL;
                         errorCount = 0;
                         continue;
@@ -230,13 +230,13 @@ namespace Details
                     // some cases the server gets ahead of the viewer and will
                     // return a 404 error (Not Found) before the cancel event
                     // comes back in the queue
-                    LL_WARNS("LLEventPollImpl") << "Canceling coroutine, status: " << status.toTerseString() << LL_ENDL;
+                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Canceling coroutine, status: " << status.toTerseString() << LL_ENDL;
                     break;
                 }
                 else if (!status.isHttpStatus())
                 {
                     /// Some LLCore or LIBCurl error was returned.  This is unlikely to be recoverable
-                    LL_WARNS("LLEventPollImpl") << "Critical error from poll request returned from libraries.  Canceling coroutine." << LL_ENDL;
+                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Critical error from poll request returned from libraries.  Canceling coroutine." << LL_ENDL;
                     break;
                 }
                 LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
