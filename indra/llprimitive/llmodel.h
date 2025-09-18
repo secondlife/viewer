@@ -305,7 +305,8 @@ public:
     S32 mDecompID;
 
     void setConvexHullDecomposition(
-        const convex_hull_decomposition& decomp);
+        const convex_hull_decomposition& decomp,
+        const std::vector<LLModel::PhysicsMesh>& decomp_mesh);
     void updateHullCenters();
 
     LLVector3 mCenterOfHullCenters;

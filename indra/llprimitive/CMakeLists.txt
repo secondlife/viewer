@@ -70,6 +70,12 @@ target_link_libraries(llprimitive
         ll::glm
         )
 
+if (TARGET llconvexdecomposition)
+    target_link_libraries(llprimitive
+            llconvexdecomposition
+            )
+endif ()
+
 #add unit tests
 if (LL_TESTS)
     INCLUDE(LLAddBuildTest)

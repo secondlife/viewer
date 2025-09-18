@@ -1496,41 +1496,19 @@
       <map>
         <key>platforms</key>
         <map>
-          <key>darwin64</key>
+          <key>common</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f290b000b31f9e36f2489946cbc99f5e</string>
+              <string>bc41438b10ac6474cf5560465a3662a64f9e65a81342e4c33f18f6694581c7ee28c9ee6f091c36e80a0b1e10c68205be71eb5f8e40fef115d2c744fc2bbfcb43</string>
+              <key>hash_algorithm</key>
+              <string>blake2b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59995/563653/llphysicsextensions_stub-1.0.542456-darwin64-542456.tar.bz2</string>
+              <string>https://github.com/AlchemyViewer/llphysicsextensions_stub/releases/download/v1.0-cb4900e/llphysicsextensions_stub-1.0-common-17836965684.tar.zst</string>
             </map>
             <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>711f4ec769e4b5f59ba25ee43c11bcbc</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4724/14846/llphysicsextensions_stub-1.0.504712-linux64-504712.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2e5f1f7046a49d8b0bc295aa878116bc</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60043/564063/llphysicsextensions_stub-1.0.542456-windows-542456.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
+            <string>common</string>
           </map>
         </map>
         <key>license</key>
@@ -1540,7 +1518,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.0.542456</string>
+        <string>1.0</string>
         <key>name</key>
         <string>llphysicsextensions_stub</string>
       </map>
@@ -2965,6 +2943,38 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>https://github.com/secondlife/3p-discord-sdk</string>
         <key>description</key>
         <string>Discord Social SDK</string>
+      </map>
+      <key>vhacd</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>140d8fc952a10edb5f2d72ab405336019ef32cadfa64f0cfce76c9de4bc6268cbc87cc8cd89d3417fb78b531d441701afc8d016bafe4bd275df2707f7daf1387</string>
+              <key>hash_algorithm</key>
+              <string>blake2b</string>
+              <key>url</key>
+              <string>https://github.com/AlchemyViewer/3p-vhacd/releases/download/v4.1.0-r2/vhacd-4.1.0-r2-common-18166921729.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/vhacd.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2011, Khaled Mamou</string>
+        <key>version</key>
+        <string>4.1.0-r2</string>
+        <key>name</key>
+        <string>vhacd</string>
+        <key>description</key>
+        <string>Voxelized Hierarchical Approximate Convex Decomposition</string>
       </map>
     </map>
     <key>package_description</key>
