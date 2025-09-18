@@ -178,8 +178,7 @@ int LLFile::mkdir(const std::string& dirname, int perms)
 {
 #if LL_WINDOWS
     // permissions are ignored on Windows
-    std::string utf8dirname = dirname;
-    llutf16string utf16dirname = utf8str_to_utf16str(utf8dirname);
+    std::wstring utf16dirname = ll_convert<std::wstring>(dirname);
     int rc = _wmkdir(utf16dirname.c_str());
 #else
     int rc = ::mkdir(dirname.c_str(), (mode_t)perms);
@@ -201,8 +200,7 @@ int LLFile::rmdir(const std::string& dirname)
 {
 #if LL_WINDOWS
     // permissions are ignored on Windows
-    std::string utf8dirname = dirname;
-    llutf16string utf16dirname = utf8str_to_utf16str(utf8dirname);
+    std::wstring utf16dirname = ll_convert<std::wstring>(dirname);
     int rc = _wrmdir(utf16dirname.c_str());
 #else
     int rc = ::rmdir(dirname.c_str());
@@ -214,10 +212,8 @@ int LLFile::rmdir(const std::string& dirname)
 LLFILE* LLFile::fopen(const std::string& filename, const char* mode)    /* Flawfinder: ignore */
 {
 #if LL_WINDOWS
-    std::string utf8filename = filename;
-    std::string utf8mode = std::string(mode);
-    llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
-    llutf16string utf16mode = utf8str_to_utf16str(utf8mode);
+    std::wstring utf16filename = ll_convert<std::wstring>(filename);
+    std::wstring utf16mode = ll_convert<std::wstring>(std::string(mode));
     return _wfopen(utf16filename.c_str(),utf16mode.c_str());
 #else
     return ::fopen(filename.c_str(),mode);  /* Flawfinder: ignore */
@@ -227,10 +223,8 @@ LLFILE* LLFile::fopen(const std::string& filename, const char* mode)    /* Flawf
 LLFILE* LLFile::_fsopen(const std::string& filename, const char* mode, int sharingFlag)
 {
 #if LL_WINDOWS
-    std::string utf8filename = filename;
-    std::string utf8mode = std::string(mode);
-    llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
-    llutf16string utf16mode = utf8str_to_utf16str(utf8mode);
+    std::wstring utf16filename = ll_convert<std::wstring>(filename);
+    std::wstring utf16mode = ll_convert<std::wstring>(std::string(mode));
     return _wfsopen(utf16filename.c_str(),utf16mode.c_str(),sharingFlag);
 #else
     llassert(0);//No corresponding function on non-windows
@@ -270,8 +264,7 @@ std::string LLFile::getContents(const std::string& filename)
 int LLFile::remove(const std::string& filename, int supress_error)
 {
 #if LL_WINDOWS
-    std::string utf8filename = filename;
-    llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
+    std::wstring utf16filename = ll_convert<std::wstring>(filename);
     int rc = _wremove(utf16filename.c_str());
 #else
     int rc = ::remove(filename.c_str());
@@ -282,10 +275,8 @@ int LLFile::remove(const std::string& filename, int supress_error)
 int LLFile::rename(const std::string& filename, const std::string& newname, int supress_error)
 {
 #if LL_WINDOWS
-    std::string utf8filename = filename;
-    std::string utf8newname = newname;
-    llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
-    llutf16string utf16newname = utf8str_to_utf16str(utf8newname);
+    std::wstring utf16filename = ll_convert<std::wstring>(filename);
+    std::wstring utf16newname = ll_convert<std::wstring>(newname);
     int rc = _wrename(utf16filename.c_str(),utf16newname.c_str());
 #else
     int rc = ::rename(filename.c_str(),newname.c_str());
@@ -327,8 +318,7 @@ bool LLFile::copy(const std::string& from, const std::string& to)
 int LLFile::stat(const std::string& filename, llstat* filestatus)
 {
 #if LL_WINDOWS
-    std::string utf8filename = filename;
-    llutf16string utf16filename = utf8str_to_utf16str(utf8filename);
+    std::wstring utf16filename = ll_convert<std::wstring>(filename);
     int rc = _wstat(utf16filename.c_str(),filestatus);
 #else
     int rc = ::stat(filename.c_str(),filestatus);
@@ -453,14 +443,14 @@ llifstream::llifstream() {}
 
 // explicit
 llifstream::llifstream(const std::string& _Filename, ios_base::openmode _Mode):
-    std::ifstream(utf8str_to_utf16str( _Filename ).c_str(),
+    std::ifstream(ll_convert<std::wstring>( _Filename ).c_str(),
                   _Mode | ios_base::in)
 {
 }
 
 void llifstream::open(const std::string& _Filename, ios_base::openmode _Mode)
 {
-    std::ifstream::open(utf8str_to_utf16str(_Filename).c_str(),
+    std::ifstream::open(ll_convert<std::wstring>(_Filename).c_str(),
                         _Mode | ios_base::in);
 }
 
@@ -472,14 +462,14 @@ llofstream::llofstream() {}
 
 // explicit
 llofstream::llofstream(const std::string& _Filename, ios_base::openmode _Mode):
-    std::ofstream(utf8str_to_utf16str( _Filename ).c_str(),
+    std::ofstream(ll_convert<std::wstring>( _Filename ).c_str(),
                   _Mode | ios_base::out)
 {
 }
 
 void llofstream::open(const std::string& _Filename, ios_base::openmode _Mode)
 {
-    std::ofstream::open(utf8str_to_utf16str( _Filename ).c_str(),
+    std::ofstream::open(ll_convert<std::wstring>( _Filename ).c_str(),
                         _Mode | ios_base::out);
 }
 

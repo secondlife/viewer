@@ -30,9 +30,6 @@
 #include <string>
 #include <vector>
 
-//Why?  Because BOOL
-void launchApplication(const std::string* app_name, const std::vector<std::string>* args);
-
 void force_ns_sxeption();
 
 #endif // LL_LLAPPVIEWERMACOSX_OBJC_H

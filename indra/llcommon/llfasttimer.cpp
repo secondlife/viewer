@@ -64,7 +64,7 @@ bool        BlockTimer::sLog             = false;
 std::string BlockTimer::sLogName         = "";
 bool        BlockTimer::sMetricLog       = false;
 
-#if LL_LINUX
+#if LL_LINUX || (LL_DARWIN && LL_ARM64)
 U64         BlockTimer::sClockResolution = 1000000000; // Nanosecond resolution
 #else
 U64         BlockTimer::sClockResolution = 1000000; // Microsecond resolution

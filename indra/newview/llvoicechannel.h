@@ -103,6 +103,7 @@ public:
 
     static void suspend();
     static void resume();
+    static bool isSuspended() { return sSuspended; }
 
   protected:
     virtual void setState(EState state);

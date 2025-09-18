@@ -200,8 +200,17 @@ void SpeakingIndicatorManager::cleanupSingleton()
 
 void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
-    switchSpeakerIndicators(mSwitchedIndicatorsOn, false);
-    mSwitchedIndicatorsOn.clear();
+    if (LLVoiceChannel::isSuspended())
+    {
+        switchSpeakerIndicators(mSwitchedIndicatorsOn, false);
+        mSwitchedIndicatorsOn.clear();
+    }
+    else
+    {
+        // Multiple onParticipantsChanged can arrive at the same time
+        // from different sources, might want to filter by some factor.
+        onParticipantsChanged();
+    }
 }
 
 void SpeakingIndicatorManager::onParticipantsChanged()

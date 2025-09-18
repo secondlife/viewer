@@ -110,6 +110,7 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
     registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
 
     enable_registrar.add("Inventory.CanSetUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
+    enable_registrar.add("Inventory.FileUploadLocation.Check", boost::bind(&LLInventoryGalleryContextMenu::isUploadLocationSelected, this, _2));
 
     enable_registrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl*, const LLSD&)
                          {
@@ -487,6 +488,12 @@ void LLInventoryGalleryContextMenu::fileUploadLocation(const LLSD& userdata)
 {
     const std::string param = userdata.asString();
     LLInventoryAction::fileUploadLocation(mUUIDs.front(), param);
+}
+
+bool LLInventoryGalleryContextMenu::isUploadLocationSelected(const LLSD& userdata)
+{
+    const std::string param = userdata.asString();
+    return LLInventoryAction::isFileUploadLocation(mUUIDs.front(), param);
 }
 
 bool LLInventoryGalleryContextMenu::canSetUploadLocation(const LLSD& userdata)
