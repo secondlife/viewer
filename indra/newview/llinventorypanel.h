@@ -225,6 +225,7 @@ public:
     void doCreate(const LLSD& userdata);
     bool beginIMSession();
     void fileUploadLocation(const LLSD& userdata);
+    bool isUploadLocationSelected(const LLSD& userdata);
     void openSingleViewInventory(LLUUID folder_id = LLUUID());
     void purgeSelectedItems();
     bool attachObject(const LLSD& userdata);

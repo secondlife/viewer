@@ -9,23 +9,29 @@ use_system_binary(vorbis)
 use_prebuilt_binary(ogg_vorbis)
 target_include_directories( ll::vorbis SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include )
 
-if (WINDOWS)
-  target_link_libraries(ll::vorbis INTERFACE
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libogg.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libogg.lib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisenc.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libvorbisenc.lib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisfile.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libvorbisfile.lib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbis.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libvorbis.lib
-    )
-else (WINDOWS)
-  target_link_libraries(ll::vorbis INTERFACE
-        ${ARCH_PREBUILT_DIRS_RELEASE}/libogg.a
-        ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisenc.a
-        ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisfile.a
-        ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbis.a
-        )
-endif (WINDOWS)
+find_library(OGG_LIBRARY
+    NAMES
+    libogg.lib
+    libogg.a
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(VORBIS_LIBRARY
+    NAMES
+    libvorbis.lib
+    libvorbis.a
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(VORBISENC_LIBRARY
+    NAMES
+    libvorbisenc.lib
+    libvorbisenc.a
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+find_library(VORBISFILE_LIBRARY
+    NAMES
+    libvorbisfile.lib
+    libvorbisfile.a
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
+target_link_libraries(ll::vorbis INTERFACE ${VORBISENC_LIBRARY} ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIBRARY} )
 

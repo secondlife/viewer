@@ -1,32 +1,24 @@
 # -*- cmake -*-
+include_guard()
+
 include(Linking)
 include(Prebuilt)
-
-include_guard()
 
 add_library( ll::webrtc INTERFACE IMPORTED )
 target_include_directories( ll::webrtc SYSTEM INTERFACE "${LIBS_PREBUILT_DIR}/include/webrtc" "${LIBS_PREBUILT_DIR}/include/webrtc/third_party/abseil-cpp")
 use_prebuilt_binary(webrtc)
 
-if (WINDOWS)
-    target_link_libraries( ll::webrtc INTERFACE webrtc.lib )
-elseif (DARWIN)
-    FIND_LIBRARY(COREAUDIO_LIBRARY CoreAudio)
-    FIND_LIBRARY(COREGRAPHICS_LIBRARY CoreGraphics)
-    FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY AudioToolbox)
-    FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
-    FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+find_library(WEBRTC_LIBRARY
+    NAMES
+    webrtc
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
-    target_link_libraries( ll::webrtc INTERFACE
-        libwebrtc.a
-        ${COREAUDIO_LIBRARY}
-        ${AUDIOTOOLBOX_LIBRARY}
-        ${COREGRAPHICS_LIBRARY}
-        ${COREFOUNDATION_LIBRARY}
-        ${COCOA_LIBRARY}
-    )
+target_link_libraries( ll::webrtc INTERFACE ${WEBRTC_LIBRARY} )
+
+if (DARWIN)
+    target_link_libraries( ll::webrtc INTERFACE ll::oslibraries )
 elseif (LINUX)
-    target_link_libraries( ll::webrtc INTERFACE libwebrtc.a X11 )
-endif (WINDOWS)
+    target_link_libraries( ll::webrtc INTERFACE X11 )
+endif ()
 
 

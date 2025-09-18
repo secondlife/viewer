@@ -42,7 +42,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge"]' || '["windows-latest","macos-15"]') }}
+        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge"]' || '["windows-2022","macos-15-xlarge"]') }}
         configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
     runs-on: ${{ matrix.runner }}
     outputs:
@@ -64,7 +64,7 @@ jobs:
       # autobuild-package.xml.
       AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
-      DEVELOPER_DIR: "/Applications/Xcode_16.1.app/Contents/Developer"
+      DEVELOPER_DIR: "/Applications/Xcode_16.4.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
       build_coverity: false
@@ -93,12 +93,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Checkout build variables
         uses: actions/checkout@v4
         with:
           repository: secondlife/build-variables
-          ref: master
+          ref: universal
           path: .build-variables
 
       - name: Checkout master-message-template
@@ -306,7 +305,7 @@ jobs:
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
     needs: build
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID

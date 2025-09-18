@@ -187,6 +187,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
     mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
     mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
     mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
+    mEnableCallbackRegistrar.add("Inventory.FileUploadLocation.Check", boost::bind(&LLInventoryPanel::isUploadLocationSelected, this, _2));
     mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", boost::bind(&LLInventoryPanel::openSingleViewInventory, this, LLUUID()));
 }
 
@@ -1830,6 +1831,13 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
     const std::string param = userdata.asString();
     const LLUUID dest = LLFolderBridge::sSelf.get()->getUUID();
     LLInventoryAction::fileUploadLocation(dest, param);
+}
+
+bool LLInventoryPanel::isUploadLocationSelected(const LLSD& userdata)
+{
+    const std::string param = userdata.asString();
+    const LLUUID dest = LLFolderBridge::sSelf.get()->getUUID();
+    return LLInventoryAction::isFileUploadLocation(dest, param);
 }
 
 void LLInventoryPanel::openSingleViewInventory(LLUUID folder_id)
