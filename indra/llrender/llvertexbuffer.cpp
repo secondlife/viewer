@@ -787,12 +787,6 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
     gGL.syncMatrices();
 
-    U32 mask = LLVertexBuffer::MAP_VERTEX;
-    if (tc)
-    {
-        mask = mask | LLVertexBuffer::MAP_TEXCOORD0;
-    }
-
     unbind();
 
     gGL.begin(mode);
@@ -885,7 +879,7 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
     return true;
 }
 
-#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+#if LL_PROFILER_ENABLE_RENDER_DOC
 void LLVertexBuffer::setLabel(const char* label) {
     LL_LABEL_OBJECT_GL(GL_BUFFER, mGLBuffer, strlen(label), label);
 }

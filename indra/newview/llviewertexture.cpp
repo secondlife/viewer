@@ -657,23 +657,35 @@ U32Megabytes LLViewerTexture::getFreeSystemMemory()
     return physical_res;
 }
 
-//static
-bool LLViewerTexture::isSystemMemoryLow()
+S32Megabytes get_render_free_main_memory_treshold()
 {
     static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
     const U32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
-    return getFreeSystemMemory() < MIN_FREE_MAIN_MEMORY;
+    return MIN_FREE_MAIN_MEMORY;
+}
+
+//static
+bool LLViewerTexture::isSystemMemoryLow()
+{
+    return getFreeSystemMemory() < get_render_free_main_memory_treshold();
+}
+
+//static
+bool LLViewerTexture::isSystemMemoryCritical()
+{
+    return getFreeSystemMemory() < get_render_free_main_memory_treshold() / 2;
 }
 
 F32 LLViewerTexture::getSystemMemoryBudgetFactor()
 {
-    static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
-    const S32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
+    const S32Megabytes MIN_FREE_MAIN_MEMORY(get_render_free_main_memory_treshold() / 2);
     S32 free_budget = (S32Megabytes)getFreeSystemMemory() - MIN_FREE_MAIN_MEMORY;
     if (free_budget < 0)
     {
-        // Result should range from 1 (0 free budget) to 2 (-512 free budget)
-        return 1.f - free_budget / MIN_FREE_MAIN_MEMORY;
+        // Leave some padding, otherwise we will crash out of memory before hitting factor 2.
+        const S32Megabytes PAD_BUFFER(32);
+        // Result should range from 1 at 0 free budget to 2 at -224 free budget, 2.14 at -256MB
+        return 1.f - free_budget / (MIN_FREE_MAIN_MEMORY - PAD_BUFFER);
     }
     return 1.f;
 }

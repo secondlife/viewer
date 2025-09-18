@@ -3366,13 +3366,10 @@ void send_agent_update(bool force_send, bool send_reliable)
     static F32 last_draw_disatance_step = 1024;
     F32 memory_limited_draw_distance = gAgentCamera.mDrawDistance;
 
-    if (LLViewerTexture::sDesiredDiscardBias > 2.f && LLViewerTexture::isSystemMemoryLow())
+    if (LLViewerTexture::isSystemMemoryCritical())
     {
         // If we are low on memory, reduce requested draw distance
-        // Discard's bias is clamped to 4 so we need to check 2 to 4 range
-        // Factor is intended to go from 1.0 to 2.0
-        F32 factor = 1.f + (LLViewerTexture::sDesiredDiscardBias - 2.f) / 2.f;
-        memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / factor, gAgentCamera.mDrawDistance / 2.f);
+        memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / LLViewerTexture::getSystemMemoryBudgetFactor(), gAgentCamera.mDrawDistance / 2.f);
     }
 
     if (tp_state == LLAgent::TELEPORT_ARRIVING || LLStartUp::getStartupState() < STATE_MISC)

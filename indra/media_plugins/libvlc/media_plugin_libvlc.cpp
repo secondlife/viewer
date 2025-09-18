@@ -174,7 +174,7 @@ void MediaPluginLibVLC::initVLC()
     };
 
 #if LL_DARWIN
-    setenv("VLC_PLUGIN_PATH", ".", 1);
+    setenv("VLC_PLUGIN_PATH", "./plugins", 1);
 #endif
 
     int vlc_argc = sizeof(vlc_argv) / sizeof(*vlc_argv);

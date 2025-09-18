@@ -95,6 +95,10 @@ private:
     bool                mEmpty;     // Nothing has been added to this bbox yet
 };
 
+static_assert(std::is_trivially_copyable<LLBBox>::value, "LLBBox must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLBBox>::value, "LLBBox must be trivial move");
+static_assert(std::is_standard_layout<LLBBox>::value, "LLBBox must be a standard layout type");
+
 //LLBBox operator*(const LLBBox &a, const LLMatrix4 &b);
 
 

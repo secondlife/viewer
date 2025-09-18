@@ -110,6 +110,17 @@ namespace tut
     void stringize_object::test<3>()
     {
         //Tests rely on validity of wstring_to_utf8str()
+#if LL_WINDOWS // Windows wstring is a 2byte UTF16 type
+        ensure_equals(ll_convert<std::string>(wstringize(c)), ll_convert<std::string>(std::wstring(L"c")));
+        ensure_equals(ll_convert<std::string>(wstringize(s)), ll_convert<std::string>(std::wstring(L"17")));
+        ensure_equals(ll_convert<std::string>(wstringize(i)), ll_convert<std::string>(std::wstring(L"34")));
+        ensure_equals(ll_convert<std::string>(wstringize(l)), ll_convert<std::string>(std::wstring(L"68")));
+        ensure_equals(ll_convert<std::string>(wstringize(f)), ll_convert<std::string>(std::wstring(L"3.14159")));
+        ensure_equals(ll_convert<std::string>(wstringize(d)), ll_convert<std::string>(std::wstring(L"3.14159")));
+        ensure_equals(ll_convert<std::string>(wstringize(abc)), ll_convert<std::string>(std::wstring(L"abc def")));
+        ensure_equals(ll_convert<std::string>(wstringize(abc)), ll_convert<std::string>(wstringize(abc.c_str())));
+        ensure_equals(ll_convert<std::string>(wstringize(def)), ll_convert<std::string>(std::wstring(L"def ghi")));
+#else
         ensure_equals(wstring_to_utf8str(wstringize(c)),    wstring_to_utf8str(L"c"));
         ensure_equals(wstring_to_utf8str(wstringize(s)),    wstring_to_utf8str(L"17"));
         ensure_equals(wstring_to_utf8str(wstringize(i)),    wstring_to_utf8str(L"34"));
@@ -119,6 +130,7 @@ namespace tut
         ensure_equals(wstring_to_utf8str(wstringize(abc)),  wstring_to_utf8str(L"abc def"));
         ensure_equals(wstring_to_utf8str(wstringize(abc)),  wstring_to_utf8str(wstringize(abc.c_str())));
         ensure_equals(wstring_to_utf8str(wstringize(def)),  wstring_to_utf8str(L"def ghi"));
+#endif
  //       ensure_equals(wstring_to_utf8str(wstringize(llsd)), wstring_to_utf8str(L"{'abc':'abc def','d':r3.14159,'i':i34}"));
     }
 } // namespace tut

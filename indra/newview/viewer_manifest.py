@@ -624,12 +624,16 @@ class Windows_x86_64_Manifest(ViewerManifest):
             with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
                 self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
+                self.path("dxcompiler.dll")
+                self.path("dxil.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
-                self.path("dullahan_host.exe")
-                self.path("snapshot_blob.bin")
                 self.path("v8_context_snapshot.bin")
+                self.path("vk_swiftshader.dll")
+                self.path("vk_swiftshader_icd.json")
+                self.path("vulkan-1.dll")
+                self.path("dullahan_host.exe")
 
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
@@ -861,13 +865,28 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
             # CEF framework goes inside Contents/Frameworks.
             # Remember where we parked this car.
-            with self.prefix(src="", dst="Frameworks"):
-                CEF_framework = "Chromium Embedded Framework.framework"
-                self.path2basename(relpkgdir, CEF_framework)
-                CEF_framework = self.dst_path_of(CEF_framework)
+            with self.prefix(src=relpkgdir, dst="Frameworks"):
+                self.path("libndofdev.dylib")
+
 
                 if self.args.get('bugsplat'):
                     self.path2basename(relpkgdir, "BugsplatMac.framework")
+
+                # OpenAL dylibs
+                if self.args['openal'] == 'ON':
+                    for libfile in (
+                                "libopenal.dylib",
+                                "libalut.dylib",
+                                ):
+                        self.path(libfile)
+
+                # WebRTC libraries
+                with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                          'sharedlibs', self.args['buildtype'], 'Resources')):
+                    for libfile in (
+                            'libllwebrtc.dylib',
+                    ):
+                        self.path(libfile)
 
             with self.prefix(dst="MacOS"):
                 executable = self.dst_path_of(self.channel())
@@ -928,16 +947,12 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                         self.path("*.png")
                         self.path("*.gif")
 
-                with self.prefix(src=relpkgdir, dst=""):
-                    self.path("libndofdev.dylib")
-
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
 
                 self.path("licenses-mac.txt", dst="licenses.txt")
                 self.path("featuretable_mac.txt")
                 self.path("cube.dae")
-                self.path("SecondLife.nib")
 
                 with self.prefix(src=pkgdir,dst=""):
                     self.path("ca-bundle.crt")
@@ -990,20 +1005,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                         print("Skipping %s" % dst)
                     return added
 
-                # WebRTC libraries
-                with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                          'sharedlibs', self.args['buildtype'], 'Resources')):
-                    for libfile in (
-                            'libllwebrtc.dylib',
-                    ):
-                        self.path(libfile)
-
-                        oldpath = os.path.join("@rpath", libfile)
-                        self.run_command(
-                            ['install_name_tool', '-change', oldpath,
-                             '@executable_path/../Resources/%s' % libfile,
-                             executable])
-
                 # dylibs is a list of all the .dylib files we expect to need
                 # in our bundled sub-apps. For each of these we'll create a
                 # symlink from sub-app/Contents/Resources to the real .dylib.
@@ -1028,20 +1029,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 ):
                         self.path2basename(relpkgdir, libfile)
 
-                # OpenAL dylibs
-                if self.args['openal'] == 'ON':
-                    for libfile in (
-                                "libopenal.dylib",
-                                "libalut.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
-
-                        oldpath = os.path.join("@rpath", libfile)
-                        self.run_command(
-                            ['install_name_tool', '-change', oldpath,
-                             '@executable_path/../Resources/%s' % libfile,
-                             executable])
-
                 # our apps
                 executable_path = {}
                 embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
@@ -1052,122 +1039,33 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                     executable_path[app] = \
                         self.dst_path_of(os.path.join(app, "Contents", "MacOS"))
 
-                    # our apps dependencies on shared libs
-                    # for each app, for each dylib we collected in dylibs,
-                    # create a symlink to the real copy of the dylib.
-                    with self.prefix(dst=os.path.join(app, "Contents", "Resources")):
-                        for libfile in dylibs:
-                            self.relsymlinkf(os.path.join(libfile_parent, libfile))
-
                 # Dullahan helper apps go inside SLPlugin.app
                 with self.prefix(dst=os.path.join(
                     "SLPlugin.app", "Contents", "Frameworks")):
-
-                    frameworkname = 'Chromium Embedded Framework'
-
-                    # This code constructs a relative symlink from the
-                    # target framework folder back to the real CEF framework.
-                    # It needs to be relative so that the symlink still works when
-                    # (as is normal) the user moves the app bundle out of the DMG
-                    # and into the /Applications folder. Note we pass catch=False,
-                    # letting the uncaught exception terminate the process, since
-                    # without this symlink, Second Life web media can't possibly work.
-
-                    # It might seem simpler just to symlink Frameworks back to
-                    # the parent of Chromimum Embedded Framework.framework. But
-                    # that would create a symlink cycle, which breaks our
-                    # packaging step. So make a symlink from Chromium Embedded
-                    # Framework.framework to the directory of the same name, which
-                    # is NOT an ancestor of the symlink.
-
-                    # from SLPlugin.app/Contents/Frameworks/Chromium Embedded
-                    # Framework.framework back to
-                    # $viewer_app/Contents/Frameworks/Chromium Embedded Framework.framework
-                    SLPlugin_framework = self.relsymlinkf(CEF_framework, catch=False)
-
-                    # for all the multiple CEF/Dullahan (as of CEF 76) helper app bundles we need:
-                    for helper in (
-                        "DullahanHelper",
-                        "DullahanHelper (GPU)",
-                        "DullahanHelper (Renderer)",
-                        "DullahanHelper (Plugin)",
-                    ):
-                        # app is the directory name of the app bundle, with app/Contents/MacOS/helper as the executable
-                        app = helper + ".app"
-
-                        # copy DullahanHelper.app
-                        self.path2basename(relpkgdir, app)
-
-                        # and fix that up with a Frameworks/CEF symlink too
-                        with self.prefix(dst=os.path.join(
-                                app, 'Contents', 'Frameworks')):
-                            # from Dullahan Helper *.app/Contents/Frameworks/Chromium Embedded
-                            # Framework.framework back to
-                            # SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework
-                            # Since SLPlugin_framework is itself a
-                            # symlink, don't let relsymlinkf() resolve --
-                            # explicitly call relpath(symlink=True) and
-                            # create that symlink here.
-                            helper_framework = \
-                            self.symlinkf(self.relpath(SLPlugin_framework, symlink=True), catch=False)
-
-                        # change_command includes install_name_tool, the
-                        # -change subcommand and the old framework rpath
-                        # stamped into the executable. To use it with
-                        # run_command(), we must still append the new
-                        # framework path and the pathname of the
-                        # executable to change.
-                        change_command = [
-                            'install_name_tool', '-change',
-                            '@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework']
-
-                        with self.prefix(dst=os.path.join(
-                                app, 'Contents', 'MacOS')):
-                            # Now self.get_dst_prefix() is, at runtime,
-                            # @executable_path. Locate the helper app
-                            # framework (which is a symlink) from here.
-                            newpath = os.path.join(
-                                '@executable_path',
-                                    self.relpath(helper_framework, symlink=True),
-                                frameworkname)
-                                # and restamp the Dullahan Helper executable itself
-                            self.run_command(
-                                change_command +
-                                    [newpath, self.dst_path_of(helper)])
-
-                # SLPlugin plugins
-                with self.prefix(dst="llplugin"):
-                    dylibexecutable = 'media_plugin_cef.dylib'
+                    # copy CEF plugin
                     self.path2basename("../media_plugins/cef/" + self.args['configuration'],
-                                       dylibexecutable)
+                                       "media_plugin_cef.dylib")
 
-                    # Do this install_name_tool *after* media plugin is copied over.
-                    # Locate the framework lib executable -- relative to
-                    # SLPlugin.app/Contents/MacOS, which will be our
-                    # @executable_path at runtime!
-                    newpath = os.path.join(
-                        '@executable_path',
-                        self.relpath(SLPlugin_framework, executable_path["SLPlugin.app"],
-                                     symlink=True),
-                        frameworkname)
-                    # restamp media_plugin_cef.dylib
-                    self.run_command(
-                        change_command +
-                        [newpath, self.dst_path_of(dylibexecutable)])
+                    # copy LibVLC plugin
+                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
+                                       "media_plugin_libvlc.dylib")
 
-                    # copy LibVLC plugin itself
-                    dylibexecutable = 'media_plugin_libvlc.dylib'
-                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'], dylibexecutable)
-                    # add @rpath for the correct LibVLC subfolder
-                    self.run_command(['install_name_tool', '-add_rpath', '@loader_path/lib', self.dst_path_of(dylibexecutable)])
+                    # CEF framework and vlc libraries goes inside Contents/Frameworks.
+                    with self.prefix(src=os.path.join(pkgdir, 'lib', 'release')):
+                        self.path("Chromium Embedded Framework.framework")
+                        self.path("DullahanHelper.app")
+                        self.path("DullahanHelper (Alerts).app")
+                        self.path("DullahanHelper (GPU).app")
+                        self.path("DullahanHelper (Renderer).app")
+                        self.path("DullahanHelper (Plugin).app")
 
-                    # copy LibVLC dynamic libraries
-                    with self.prefix(src=relpkgdir, dst="lib"):
+                        # Copy libvlc
                         self.path( "libvlc*.dylib*" )
                         # copy LibVLC plugins folder
-                        with self.prefix(src='plugins', dst=""):
+                        with self.prefix(src='plugins', dst="plugins"):
                             self.path( "*.dylib" )
                             self.path( "plugins.dat" )
+
 
     def package_finish(self):
         imagename = self.installer_base_name()

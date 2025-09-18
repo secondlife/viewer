@@ -92,6 +92,7 @@ void LLHeroProbeManager::update()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("hero manager update");
     llassert(!gCubeSnapshot); // assert a snapshot is not in progress
     if (LLAppViewer::instance()->logoutRequestSent())
     {
@@ -293,6 +294,9 @@ void LLHeroProbeManager::renderProbes()
 // In effect this simulates single-bounce lighting.
 void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool is_dynamic, F32 near_clip)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("hero probe update");
+
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mHeroProbeRT;
 
@@ -363,7 +367,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
 
         for (int i = 0; i < mMipChain.size(); ++i)
         {
-            LL_PROFILE_GPU_ZONE("probe mip");
+            LL_PROFILE_GPU_ZONE("hero probe mip");
             mMipChain[i].bindTarget();
             if (i == 0)
             {
@@ -390,7 +394,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
 
             if (mip >= 0)
             {
-                LL_PROFILE_GPU_ZONE("probe mip copy");
+                LL_PROFILE_GPU_ZONE("hero probe mip copy");
                 mTexture->bind(0);
 
                 glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, sourceIdx * 6 + face, 0, 0, res, res);
@@ -438,7 +442,7 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
 
             for (int i = 0; i < mMipChain.size() / 4; ++i)
             {
-                LL_PROFILE_GPU_ZONE("probe radiance gen");
+                LL_PROFILE_GPU_ZONE("hero probe radiance gen");
                 static LLStaticHashedString sMipLevel("mipLevel");
                 static LLStaticHashedString sRoughness("roughness");
                 static LLStaticHashedString sWidth("u_width");
@@ -485,6 +489,7 @@ void LLHeroProbeManager::updateUniforms()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("hpmu - uniforms")
 
     LLMatrix4a modelview;
     modelview.loadu(gGLModelView);
