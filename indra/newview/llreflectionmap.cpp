@@ -177,7 +177,7 @@ void LLReflectionMap::autoAdjustOrigin()
         mPriority = 1;
         mOrigin.load3(mViewerObject->getPositionAgent().mV);
 
-        if (mViewerObject->getVolume() && ((LLVOVolume*)mViewerObject)->getReflectionProbeIsBox())
+        if (mViewerObject->getVolume() && ((LLVOVolume*)mViewerObject.get())->getReflectionProbeIsBox())
         {
             LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
             mRadius = s.magVec();

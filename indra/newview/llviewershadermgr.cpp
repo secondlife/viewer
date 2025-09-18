@@ -545,7 +545,11 @@ void LLViewerShaderMgr::setShaders()
             gSavedSettings.setString("RenderShaderCacheVersion", current_cache_version.asString());
         }
 
-        initShaderCache(shader_cache_enabled, old_cache_version, current_cache_version);
+        initShaderCache(
+            shader_cache_enabled,
+            old_cache_version,
+            current_cache_version,
+            LLAppViewer::instance()->isSecondInstance());
     }
 
     static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
@@ -703,7 +707,10 @@ void LLViewerShaderMgr::setShaders()
     loaded = loaded && loadShadersDeferred();
     llassert(loaded);
 
-    persistShaderCacheMetadata();
+    if (!LLAppViewer::instance()->isSecondInstance())
+    {
+        persistShaderCacheMetadata();
+    }
 
     if (gViewerWindow)
     {

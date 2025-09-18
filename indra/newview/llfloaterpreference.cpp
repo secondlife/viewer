@@ -366,6 +366,11 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.ClearLog",               boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
     mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
     mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
+#ifdef LL_DISCORD
+    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
+    gSavedSettings.getControl("ShowDiscordActivityDetails")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
+    gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
+#endif
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -470,6 +475,8 @@ bool LLFloaterPreference::postBuild()
     getChild<LLUICtrl>("log_path_string")->setEnabled(false); // make it read-only but selectable
 
     getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
+    mTimeFormatCombobox = getChild<LLComboBox>("time_format_combobox");
+    mTimeFormatCombobox->setCommitCallback(boost::bind(&LLFloaterPreference::onTimeFormatChange, this));
 
     getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
     getChild<LLComboBox>("NonFriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NonFriendIMOptions"));
@@ -522,6 +529,11 @@ bool LLFloaterPreference::postBuild()
         LL_WARNS() << "Failed to load labels from " << user_filename << ". Using default." << LL_ENDL;
         getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
     }
+
+#ifndef LL_DISCORD
+    LLPanel* panel = getChild<LLPanel>("privacy_preferences_discord");
+    getChild<LLTabContainer>("privacy_tab_container")->removeTabPanel(panel);
+#endif
 
     return true;
 }
@@ -748,6 +760,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
     // Forget previous language changes.
     mLanguageChanged = false;
+    mLastQualityLevel = gSavedSettings.getU32("RenderQualityPerformance");
 
     // Display selected maturity icons.
     onChangeMaturity();
@@ -1092,6 +1105,13 @@ void LLFloaterPreference::onLanguageChange()
     }
 }
 
+void LLFloaterPreference::onTimeFormatChange()
+{
+    std::string val = mTimeFormatCombobox->getValue();
+    gSavedSettings.setBOOL("Use24HourClock", val == "1");
+    onLanguageChange();
+}
+
 void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
 {
     mNotificationOptions[OptionName] = getChild<LLComboBox>(OptionName)->getSelectedItemLabel();
@@ -1307,6 +1327,8 @@ void LLFloaterPreference::refresh()
         advanced->refresh();
     }
     updateClickActionViews();
+
+    mTimeFormatCombobox->selectByValue(gSavedSettings.getBOOL("Use24HourClock") ? "1" : "0");
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1317,7 +1339,35 @@ void LLFloaterPreference::onCommitWindowedMode()
 void LLFloaterPreference::onChangeQuality(const LLSD& data)
 {
     U32 level = (U32)(data.asReal());
+    constexpr U32 LVL_HIGH = 4;
+    if (level >= LVL_HIGH && mLastQualityLevel < level)
+    {
+        constexpr U32 LOW_MEM_THRESHOLD = 4097;
+        U32 total_mem = (U32Megabytes)LLMemory::getMaxMemKB();
+        if (total_mem < LOW_MEM_THRESHOLD)
+        {
+            LLSD args;
+            args["TOTAL_MEM"] = LLSD::Integer(total_mem);
+            LLNotificationsUtil::add("PreferenceQualityWithLowMemory", args, LLSD(), [this](const LLSD& notification, const LLSD& response)
+            {
+                S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+                // If cancel pressed
+                if (option == 1)
+                {
+                    constexpr U32 LVL_MED_PLUS = 3;
+                    gSavedSettings.setU32("RenderQualityPerformance", LVL_MED_PLUS);
+                    mLastQualityLevel = LVL_MED_PLUS;
+                    LLFeatureManager::getInstance()->setGraphicsLevel(LVL_MED_PLUS, true);
+                    refreshEnabledGraphics();
+                    refresh();
+                }
+            }
+            );
+        }
+    }
+    mLastQualityLevel = level;
     LLFeatureManager::getInstance()->setGraphicsLevel(level, true);
+    gSavedSettings.setU32("DebugQualityPerformance", level);
     refreshEnabledGraphics();
     refresh();
 }
@@ -1968,7 +2018,21 @@ void LLFloaterPreference::selectChatPanel()
 
 void LLFloaterPreference::changed()
 {
+    if (LLConversationLog::instance().getIsLoggingEnabled())
+    {
     getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
+    }
+    else
+    {
+        // onClearLog clears list, then notifies changed() and only then clears file,
+        // so check presence of conversations before checking file, file will cleared later.
+        llstat st;
+        bool has_logs = LLConversationLog::instance().getConversations().size() > 0
+                        && LLFile::stat(LLConversationLog::instance().getFileName(), &st) == 0
+                        && S_ISREG(st.st_mode)
+                        && st.st_size > 0;
+        getChild<LLButton>("clear_log")->setEnabled(has_logs);
+    }
 
     // set 'enable' property for 'Delete transcripts...' button
     updateDeleteTranscriptsButton();

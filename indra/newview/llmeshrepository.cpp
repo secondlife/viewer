@@ -816,8 +816,12 @@ public:
 };
 
 
-void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
-                      const char * const stage, const std::string & model_name)
+void log_upload_error(
+    LLCore::HttpStatus status,
+    const LLSD& content,
+    const char * const stage,
+    const std::string & model_name,
+    const std::vector<std::string> & texture_filenames)
 {
     // Add notification popup.
     LLSD args;
@@ -873,6 +877,20 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
                                        << map_it->second << LL_ENDL;
                 }
                 error_num++;
+            }
+        }
+
+        if (err.has("TextureIndex"))
+        {
+            S32 texture_index = err["TextureIndex"].asInteger();
+            if (texture_index < texture_filenames.size())
+            {
+                args["MESSAGE"] = message + "\n" + texture_filenames[texture_index];
+            }
+            else
+            {
+                llassert(false); // figure out why or how texture wasn't in the list
+                args["MESSAGE"] = message + llformat("\nTexture index: %d", texture_index);
             }
         }
     }
@@ -2292,6 +2310,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
             }
             if (request_skin)
             {
+                LLMutexLock lock(mMutex);
                 mSkinRequests.push_back(UUIDBasedRequest(mesh_id));
             }
         }
@@ -2362,7 +2381,13 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
     LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
     if (volume->unpackVolumeFaces(data, data_size))
     {
-        if (volume->getNumFaces() > 0)
+        // Use LLVolume::getNumVolumeFaces() here and not LLVolume::getNumFaces(),
+        // because setMeshAssetLoaded() has not yet been called for this volume
+        // (it is set later in LLMeshRepository::notifyMeshLoaded()), and
+        // getNumFaces() would return the number of faces in the LLProfile
+        // instead. HB
+        S32 num_faces = volume->getNumVolumeFaces();
+        if (num_faces > 0)
         {
             // if we have a valid SkinInfo, cache per-joint bounding boxes for this LOD
             LLPointer<LLMeshSkinInfo> skin_info = nullptr;
@@ -2376,7 +2401,7 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
             }
             if (skin_info.notNull() && isAgentAvatarValid())
             {
-                for (S32 i = 0; i < volume->getNumFaces(); ++i)
+                for (S32 i = 0; i < num_faces; ++i)
                 {
                     // NOTE: no need to lock gAgentAvatarp as the state being checked is not changed after initialization
                     LLVolumeFace& face = volume->getVolumeFace(i);
@@ -2394,6 +2419,11 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
                 volume = NULL;
                 // might be good idea to turn mesh into pointer to avoid making a copy
                 mesh.mVolume = NULL;
+            }
+            {
+                // make sure skin info is not removed from list while we are decreasing reference count
+                LLMutexLock lock(mSkinMapMutex);
+                skin_info = nullptr;
             }
             return MESH_OK;
         }
@@ -2431,7 +2461,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
         LLPointer<LLMeshSkinInfo> info = nullptr;
         info = new LLMeshSkinInfo(mesh_id, skin);
 
-        if (isAgentAvatarValid())
+        if (isAgentAvatarValid() && gAgentAvatarp->mInitFlags != 0)
         { // joint numbers are consistent inside LLVOAvatar and animations, but inconsistent inside meshes,
             // generate a map of mesh joint numbers to LLVOAvatar joint numbers
             LLSkinningUtil::initJointNums(info, gAgentAvatarp);
@@ -2540,9 +2570,10 @@ EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_
     return MESH_OK;
 }
 
-LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
+LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, const LLMeshUploadThread::lod_sources_map_t& sources_list,
+                                       LLVector3& scale, bool upload_textures,
                                        bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                                       const std::string & upload_url, bool do_upload,
+                                       const std::string & upload_url, LLUUID destination_folder_id, bool do_upload,
                                        LLHandle<LLWholeModelFeeObserver> fee_observer,
                                        LLHandle<LLWholeModelUploadObserver> upload_observer)
   : LLThread("mesh upload"),
@@ -2550,10 +2581,12 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
     mDiscarded(false),
     mDoUpload(do_upload),
     mWholeModelUploadURL(upload_url),
+    mDestinationFolderId(destination_folder_id),
     mFeeObserverHandle(fee_observer),
     mUploadObserverHandle(upload_observer)
 {
     mInstanceList = data;
+    mLodSources = sources_list;
     mUploadTextures = upload_textures;
     mUploadSkin = upload_skin;
     mUploadJoints = upload_joints;
@@ -2653,6 +2686,8 @@ void dump_llsd_to_file(const LLSD& content, std::string filename)
 {
     if (gSavedSettings.getBOOL("MeshUploadLogXML"))
     {
+        filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            filename);
         llofstream of(filename.c_str());
         LLSDSerialize::toPrettyXML(content,of);
     }
@@ -2666,13 +2701,21 @@ LLSD llsd_from_file(std::string filename)
     return result;
 }
 
-void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
+void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& texture_list_dest, bool include_textures)
 {
     LLSD result;
 
     LLSD res;
+    if (mDestinationFolderId.isNull())
+    {
     result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
     result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+    }
+    else
+    {
+        result["folder_id"] = mDestinationFolderId;
+        result["texture_folder_id"] = mDestinationFolderId;
+    }
     result["asset_type"] = "mesh";
     result["inventory_type"] = "object";
     result["description"] = "(No Description)";
@@ -2683,6 +2726,12 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
     res["mesh_list"] = LLSD::emptyArray();
     res["texture_list"] = LLSD::emptyArray();
     res["instance_list"] = LLSD::emptyArray();
+    LLSD& lod_sources = res["source_format"];
+    lod_sources["high"] = 0;
+    for (auto &source : mLodSources)
+    {
+        lod_sources[source.first] = source.second;
+    }
     S32 mesh_num = 0;
     S32 texture_num = 0;
 
@@ -2694,10 +2743,14 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
     S32 instance_num = 0;
 
-    for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+    // Handle models, ignore submodels for now.
+    // Probably should pre-sort by mSubmodelID instead of running twice.
+    // Note: mInstance should be sorted by model name for the sake of
+    // deterministic order.
+    for (auto& iter : mInstance)
     {
         LLMeshUploadData data;
-        data.mBaseModel = iter->first;
+        data.mBaseModel = iter.first;
 
         if (data.mBaseModel->mSubmodelID)
         {
@@ -2706,7 +2759,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
             continue;
         }
 
-        LLModelInstance& first_instance = *(iter->second.begin());
+        LLModelInstance& first_instance = *(iter.second.begin());
         for (S32 i = 0; i < 5; i++)
         {
             data.mModel[i] = first_instance.mLOD[i];
@@ -2740,7 +2793,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                 mUploadSkin,
                 mUploadJoints,
                 mLockScaleIfJointPosition,
-                false,
+                LLModel::WRITE_BINARY,
                 false,
                 data.mBaseModel->mSubmodelID);
 
@@ -2753,8 +2806,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
         }
 
         // For all instances that use this model
-        for (instance_list::iterator instance_iter = iter->second.begin();
-             instance_iter != iter->second.end();
+        for (instance_list::iterator instance_iter = iter.second.begin();
+             instance_iter != iter.second.end();
              ++instance_iter)
         {
 
@@ -2815,7 +2868,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                         LLPointer<LLImageJ2C> upload_file =
                             LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
 
-                        if (!upload_file.isNull() && upload_file->getDataSize())
+                        if (!upload_file.isNull() && upload_file->getDataSize() && !upload_file->isBufferInvalid())
                         {
                             texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
                         }
@@ -2829,6 +2882,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                     texture_index[texture] = texture_num;
                     std::string str = texture_str.str();
                     res["texture_list"][texture_num] = LLSD::Binary(str.begin(),str.end());
+                    // store indexes for error handling;
+                    texture_list_dest.push_back(material.mDiffuseMapFilename);
                     texture_num++;
                 }
 
@@ -2852,10 +2907,11 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
         }
     }
 
-    for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+    // Now handle the submodels.
+    for (auto& iter : mInstance)
     {
         LLMeshUploadData data;
-        data.mBaseModel = iter->first;
+        data.mBaseModel = iter.first;
 
         if (!data.mBaseModel->mSubmodelID)
         {
@@ -2864,7 +2920,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
             continue;
         }
 
-        LLModelInstance& first_instance = *(iter->second.begin());
+        LLModelInstance& first_instance = *(iter.second.begin());
         for (S32 i = 0; i < 5; i++)
         {
             data.mModel[i] = first_instance.mLOD[i];
@@ -2898,7 +2954,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
                 mUploadSkin,
                 mUploadJoints,
                 mLockScaleIfJointPosition,
-                false,
+                LLModel::WRITE_BINARY,
                 false,
                 data.mBaseModel->mSubmodelID);
 
@@ -2911,8 +2967,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
         }
 
         // For all instances that use this model
-        for (instance_list::iterator instance_iter = iter->second.begin();
-             instance_iter != iter->second.end();
+        for (instance_list::iterator instance_iter = iter.second.begin();
+             instance_iter != iter.second.end();
              ++instance_iter)
         {
 
@@ -3093,7 +3149,8 @@ void LLMeshUploadThread::doWholeModelUpload()
         LL_DEBUGS(LOG_MESH) << "Hull generation completed." << LL_ENDL;
 
         mModelData = LLSD::emptyMap();
-        wholeModelToLLSD(mModelData, true);
+        mTextureFiles.clear();
+        wholeModelToLLSD(mModelData, mTextureFiles, true);
         LLSD body = mModelData["asset_resources"];
 
         dump_llsd_to_file(body, make_dump_name("whole_model_body_", dump_num));
@@ -3146,7 +3203,8 @@ void LLMeshUploadThread::requestWholeModelFee()
     generateHulls();
 
     mModelData = LLSD::emptyMap();
-    wholeModelToLLSD(mModelData, false);
+    mTextureFiles.clear();
+    wholeModelToLLSD(mModelData, mTextureFiles, false);
     dump_llsd_to_file(mModelData, make_dump_name("whole_model_fee_request_", dump_num));
     LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
                                                                     mHttpPolicyClass,
@@ -3212,7 +3270,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
             body["error"] = LLSD::emptyMap();
             body["error"]["message"] = reason;
             body["error"]["identifier"] = "NetworkError";       // from asset-upload/upload_util.py
-            log_upload_error(status, body, "upload", mModelData["name"].asString());
+            log_upload_error(status, body, "upload", mModelData["name"].asString(), mTextureFiles);
 
             if (observer)
             {
@@ -3247,7 +3305,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
             else
             {
                 LL_WARNS(LOG_MESH) << "Upload failed.  Not in expected 'complete' state." << LL_ENDL;
-                log_upload_error(status, body, "upload", mModelData["name"].asString());
+                log_upload_error(status, body, "upload", mModelData["name"].asString(), mTextureFiles);
 
                 if (observer)
                 {
@@ -3272,7 +3330,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
             body["error"] = LLSD::emptyMap();
             body["error"]["message"] = reason;
             body["error"]["identifier"] = "NetworkError";       // from asset-upload/upload_util.py
-            log_upload_error(status, body, "fee", mModelData["name"].asString());
+            log_upload_error(status, body, "fee", mModelData["name"].asString(), mTextureFiles);
 
             if (observer)
             {
@@ -3305,7 +3363,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
             else
             {
                 LL_WARNS(LOG_MESH) << "Fee request failed.  Not in expected 'upload' state." << LL_ENDL;
-                log_upload_error(status, body, "fee", mModelData["name"].asString());
+                log_upload_error(status, body, "fee", mModelData["name"].asString(), mTextureFiles);
 
                 if (observer)
                 {
@@ -4979,14 +5037,15 @@ bool LLMeshRepoThread::hasHeader(const LLUUID& mesh_id) const
     return iter != mMeshHeader.end();
 }
 
-void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
+void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, const std::map<std::string, std::string> &lod_sources,
+                                   LLVector3& scale, bool upload_textures,
                                    bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                                   std::string upload_url, bool do_upload,
+                                   std::string upload_url, const LLUUID& destination_folder_id, bool do_upload,
                                    LLHandle<LLWholeModelFeeObserver> fee_observer, LLHandle<LLWholeModelUploadObserver> upload_observer)
 {
-    LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures,
+    LLMeshUploadThread* thread = new LLMeshUploadThread(data, lod_sources, scale, upload_textures,
                                                         upload_skin, upload_joints, lock_scale_if_joint_position,
-                                                        upload_url, do_upload, fee_observer, upload_observer);
+                                                        upload_url, destination_folder_id, do_upload, fee_observer, upload_observer);
     mUploadWaitList.push_back(thread);
 }
 

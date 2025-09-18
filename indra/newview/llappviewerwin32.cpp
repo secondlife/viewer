@@ -172,6 +172,15 @@ namespace
                                     << '/' << loc.mV[1]
                                     << '/' << loc.mV[2])));
             }
+
+            LLAppViewer* app = LLAppViewer::instance();
+            if (!app->isSecondInstance() && !app->errorMarkerExists())
+            {
+                // If marker doesn't exist, create a marker with 'other' code for next launch
+                // otherwise don't override existing file
+                // Any unmarked crashes will be considered as freezes
+                app->createErrorMarker(LAST_EXEC_OTHER_CRASH);
+            }
         } // MDSCB_EXCEPTIONCODE
 
         return false;
@@ -448,6 +457,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
     // *FIX: global
     gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
+    gIconSmallResource = MAKEINTRESOURCE(IDI_LL_ICON_SMALL);
 
     LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(ll_convert_wide_to_string(pCmdLine).c_str());
 

@@ -369,6 +369,12 @@ void LLVoiceChannel::resume()
         {
             if (sSuspendedVoiceChannel)
             {
+                if (sSuspendedVoiceChannel->callStarted())
+                {
+                    // should have channel data already, restart
+                    sSuspendedVoiceChannel->setState(STATE_READY);
+                }
+                // won't do anything if call is already started
                 sSuspendedVoiceChannel->activate();
             }
             else

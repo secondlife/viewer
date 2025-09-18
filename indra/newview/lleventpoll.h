@@ -40,7 +40,30 @@ namespace Details
 
 
 class LLEventPoll
-    ///< implements the viewer side of server-to-viewer pushed events.
+    ///< Implements the viewer side of server-to-viewer pushed events.
+    ///
+    /// This class implements the sole consumer of the EventQueueGet capability
+    /// and delivers data, including llsd-encoded llmessage payloads, from
+    /// simulator to viewer.
+    ///
+    /// https://wiki.secondlife.com/wiki/EventQueueGet
+    /// The wiki page is neither complete nor entirely correct. Request timeouts
+    /// became the de facto method of returning an empty event set to the viewer.
+    /// But the timeout behavior was never defined. It was simply whatever
+    /// behavior a given grid implementation implemented.
+    ///
+    /// In SL's case, the path may include reverse proxies, http caches, http and
+    /// socks proxies, transparent hijacking, and other horrors. A pitfall for
+    /// implementors.
+    ///
+    /// Current definition of a timeout is any of :
+    /// - libcurl easy 28 status code
+    /// - Linden 499 special http status code
+    /// - RFC - standard 502 - 504 http status codes
+    /// If requests are failing too quickly with the above errors, they are treated
+    /// as actual errors and not an empty payload. These will count towards a final
+    /// error declaration and can lead to disconnection from a simulator or the
+    /// entire grid.
 {
 public:
     LLEventPoll(const std::string& pollURL, const LLHost& sender);

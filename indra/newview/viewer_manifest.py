@@ -63,7 +63,6 @@ class ViewerManifest(LLManifest):
     def construct(self):
         super(ViewerManifest, self).construct()
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
-        self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
         if self.is_packaging_viewer():
             with self.prefix(src_dst="app_settings"):
@@ -275,13 +274,13 @@ class ViewerManifest(LLManifest):
 
         # All lines up to and including the first blank line are the file header; skip them
         lines.reverse() # so that pop will pull from first to last line
-        while not re.match("\s*$", lines.pop()) :
+        while not re.match(r"\s*$", lines.pop()) :
             pass # do nothing
 
         # A line that starts with a non-whitespace character is a name; all others describe contributions, so collect the names
         names = []
         for line in lines :
-            if re.match("\S", line) :
+            if re.match(r"\S", line) :
                 names.append(line.rstrip())
         # It's not fair to always put the same people at the head of the list
         random.shuffle(names)
@@ -556,6 +555,9 @@ class Windows_x86_64_Manifest(ViewerManifest):
                     'llwebrtc.dll',
             ):
                 self.path(libfile)
+
+            if self.args['discord'] == 'ON':
+                self.path("discord_partner_sdk.dll")
 
             if self.args['openal'] == 'ON':
                 # Get openal dll
@@ -1019,6 +1021,13 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 ):
                     self.path2basename(relpkgdir, libfile)
 
+                # Discord social SDK
+                if self.args['discord'] == 'ON':
+                    for libfile in (
+                                "libdiscord_partner_sdk.dylib",
+                                ):
+                        self.path2basename(relpkgdir, libfile)
+
                 # OpenAL dylibs
                 if self.args['openal'] == 'ON':
                     for libfile in (
@@ -1385,6 +1394,7 @@ if __name__ == "__main__":
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
+        dict(name='discord', description="""Indication discord social sdk libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
         ]

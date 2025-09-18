@@ -897,6 +897,12 @@ bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 
 bool LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time, bool reversible)
 {
+    if (raw_image.isBufferInvalid())
+    {
+        base.setLastError("Invalid input, no buffer");
+        return false;
+    }
+
     JPEG2KEncode encode(comment_text, reversible);
     bool encoded = encode.encode(raw_image, base);
     if (!encoded)

@@ -114,6 +114,8 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
     mBtnVolume(NULL),
     mBoxBalance(NULL),
     mBalance(0),
+    mBalanceClicked(false),
+    mObscureBalance(false),
     mHealth(100),
     mSquareMetersCredit(0),
     mSquareMetersCommitted(0),
@@ -125,20 +127,11 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
     // status bar can possible overlay menus?
     setMouseOpaque(false);
 
-    mBalanceTimer = new LLFrameTimer();
-    mHealthTimer = new LLFrameTimer();
-
     buildFromFile("panel_status_bar.xml");
 }
 
 LLStatusBar::~LLStatusBar()
 {
-    delete mBalanceTimer;
-    mBalanceTimer = NULL;
-
-    delete mHealthTimer;
-    mHealthTimer = NULL;
-
     // LLView destructor cleans up children
 }
 
@@ -168,10 +161,12 @@ bool LLStatusBar::postBuild()
     getChild<LLUICtrl>("buyL")->setCommitCallback(
         boost::bind(&LLStatusBar::onClickBuyCurrency, this));
 
-    getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
+    getChild<LLUICtrl>("goShop")->setCommitCallback(
+        boost::bind(&LLStatusBar::onClickShop, this));
 
     mBoxBalance = getChild<LLTextBox>("balance");
-    mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
+    mBoxBalance->setClickedCallback(&LLStatusBar::onClickRefreshBalance, this);
+    mBoxBalance->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onClickToggleBalance(); });
 
     mIconPresetsCamera = getChild<LLIconCtrl>( "presets_icon_camera" );
     mIconPresetsCamera->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresetsCamera, this));
@@ -191,12 +186,14 @@ bool LLStatusBar::postBuild()
 
     gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
     gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(boost::bind(&LLStatusBar::onVoiceChanged, this, _2));
+    gSavedSettings.getControl("ObscureBalanceInStatusBar")->getSignal()->connect(boost::bind(&LLStatusBar::onObscureBalanceChanged, this, _2));
 
     if (!gSavedSettings.getBOOL("EnableVoiceChat") && LLAppViewer::instance()->isSecondInstance())
     {
         // Indicate that second instance started without sound
         mBtnVolume->setImageUnselected(LLUI::getUIImage("VoiceMute_Off"));
     }
+    mObscureBalance = gSavedSettings.getBOOL("ObscureBalanceInStatusBar");
 
     // Adding Net Stat Graph
     S32 x = getRect().getWidth() - 2;
@@ -319,6 +316,12 @@ void LLStatusBar::refresh()
         mTextTime->setToolTip (dtStr);
     }
 
+    if (mBalanceClicked && mBalanceClickTimer.getElapsedTimeF32() > 1.f)
+    {
+        mBalanceClicked = false;
+        sendMoneyBalanceRequest();
+    }
+
     LLRect r;
     const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 
@@ -384,9 +387,17 @@ void LLStatusBar::setBalance(S32 balance)
     std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
 
     LLStringUtil::format_map_t string_args;
-    string_args["[AMT]"] = llformat("%s", money_str.c_str());
+    if (mObscureBalance)
+    {
+        string_args["[AMT]"] = "****";
+    }
+    else
+    {
+        string_args["[AMT]"] = llformat("%s", money_str.c_str());
+    }
     std::string label_str = getString("buycurrencylabel", string_args);
     mBoxBalance->setValue(label_str);
+    mBoxBalance->setToolTipArg(LLStringExplicit("[AMT]"), llformat("%s", money_str.c_str()));
 
     updateBalancePanelPosition();
 
@@ -406,8 +417,6 @@ void LLStatusBar::setBalance(S32 balance)
 
     if( balance != mBalance )
     {
-        mBalanceTimer->reset();
-        mBalanceTimer->setTimerExpirySec( ICON_TIMER_EXPIRY );
         mBalance = balance;
     }
 }
@@ -459,9 +468,6 @@ void LLStatusBar::setHealth(S32 health)
                 }
             }
         }
-
-        mHealthTimer->reset();
-        mHealthTimer->setTimerExpirySec( ICON_TIMER_EXPIRY );
     }
 
     mHealth = health;
@@ -513,6 +519,11 @@ void LLStatusBar::onClickBuyCurrency()
     // value specified in settings.xml
     LLBuyCurrencyHTML::openCurrencyFloater();
     LLFirstUse::receiveLindens(false);
+}
+
+void LLStatusBar::onClickShop()
+{
+    LLFloaterReg::toggleInstanceOrBringToFront("marketplace");
 }
 
 void LLStatusBar::onMouseEnterPresetsCamera()
@@ -621,11 +632,25 @@ static void onClickVolume(void* data)
 }
 
 //static
-void LLStatusBar::onClickBalance(void* )
+void LLStatusBar::onClickRefreshBalance(void* data)
 {
-    // Force a balance request message:
-    LLStatusBar::sendMoneyBalanceRequest();
+    LLStatusBar* status_bar = (LLStatusBar*)data;
+
+    if (!status_bar->mBalanceClicked)
+    {
+        // Schedule a balance request message:
+        status_bar->mBalanceClicked = true;
+        status_bar->mBalanceClickTimer.reset();
+    }
     // The refresh of the display (call to setBalance()) will be done by process_money_balance_reply()
+}
+
+void LLStatusBar::onClickToggleBalance()
+{
+    mObscureBalance = !mObscureBalance;
+    gSavedSettings.setBOOL("ObscureBalanceInStatusBar", mObscureBalance);
+    setBalance(mBalance);
+    mBalanceClicked = false; // supress click
 }
 
 //static
@@ -655,6 +680,12 @@ void LLStatusBar::onVoiceChanged(const LLSD& newvalue)
         mBtnVolume->setImageUnselected(LLUI::getUIImage("Audio_Off"));
     }
     refresh();
+}
+
+void LLStatusBar::onObscureBalanceChanged(const LLSD& newvalue)
+{
+    mObscureBalance = newvalue.asBoolean();
+    setBalance(mBalance);
 }
 
 void LLStatusBar::onUpdateFilterTerm()

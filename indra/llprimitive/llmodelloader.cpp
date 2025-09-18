@@ -33,6 +33,7 @@
 
 #include "llmatrix4a.h"
 #include <boost/bind.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
@@ -113,7 +114,9 @@ LLModelLoader::LLModelLoader(
     JointTransformMap&  jointTransformMap,
     JointNameSet&       jointsFromNodes,
     JointMap&           legalJointNamesMap,
-    U32                 maxJointsPerMesh)
+    U32                 maxJointsPerMesh,
+    U32                 modelLimit,
+    U32                 debugMode)
 : mJointList( jointTransformMap )
 , mJointsFromNode( jointsFromNodes )
 , LLThread("Model Loader")
@@ -121,7 +124,6 @@ LLModelLoader::LLModelLoader(
 , mLod(lod)
 , mTrySLM(false)
 , mFirstTransform(true)
-, mNumOfFetchingTextures(0)
 , mLoadCallback(load_cb)
 , mJointLookupFunc(joint_lookup_func)
 , mTextureLoadFunc(texture_load_func)
@@ -132,7 +134,10 @@ LLModelLoader::LLModelLoader(
 , mNoNormalize(false)
 , mNoOptimize(false)
 , mCacheOnlyHitIfRigged(false)
+, mTexturesNeedScaling(false)
 , mMaxJointsPerMesh(maxJointsPerMesh)
+, mGeneratedModelLimit(modelLimit)
+, mDebugMode(debugMode)
 , mJointMap(legalJointNamesMap)
 {
     assert_main_thread();
@@ -149,7 +154,44 @@ LLModelLoader::~LLModelLoader()
 void LLModelLoader::run()
 {
     mWarningsArray.clear();
-    doLoadModel();
+    try
+    {
+        doLoadModel();
+    }
+    // Model loader isn't mission critical, so we just log all exceptions
+    catch (const LLException& e)
+    {
+        LL_WARNS("THREAD") << "LLException in model loader: " << e.what() << "" << LL_ENDL;
+        LLSD args;
+        args["Message"] = "UnknownException";
+        args["FILENAME"] = mFilename;
+        args["EXCEPTION"] = e.what();
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS() << "Exception in LLModelLoader::run: " << e.what() << LL_ENDL;
+        LLSD args;
+        args["Message"] = "UnknownException";
+        args["FILENAME"] = mFilename;
+        args["EXCEPTION"] = e.what();
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("LLModelLoader");
+        LLSD args;
+        args["Message"] = "UnknownException";
+        args["FILENAME"] = mFilename;
+        args["EXCEPTION"] = boost::current_exception_diagnostic_information();
+        mWarningsArray.append(args);
+        setLoadState(ERROR_PARSING);
+    }
+
+    // todo: we are inside of a thread, push this into main thread worker,
+    // not into doOnIdleOneTime that laks tread safety
     doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
 }
 
@@ -201,7 +243,9 @@ bool LLModelLoader::doLoadModel()
         }
     }
 
-    return OpenFile(mFilename);
+    bool res = OpenFile(mFilename);
+    dumpDebugData(); // conditional on mDebugMode
+    return res;
 }
 
 void LLModelLoader::setLoadState(U32 state)
@@ -466,6 +510,148 @@ bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::
     return true;
 }
 
+void LLModelLoader::dumpDebugData()
+{
+    if (mDebugMode == 0)
+    {
+        return;
+    }
+
+    std::string log_file = mFilename + "_importer.txt";
+    LLStringUtil::toLower(log_file);
+    llofstream file;
+    file.open(log_file.c_str());
+    if (!file)
+    {
+        LL_WARNS() << "dumpDebugData failed to open file " << log_file << LL_ENDL;
+        return;
+    }
+    file << "Importing: " << mFilename << "\n";
+
+    std::map<std::string, LLMatrix4a> inv_bind;
+    std::map<std::string, LLMatrix4a> alt_bind;
+    for (LLPointer<LLModel>& mdl : mModelList)
+    {
+
+        file << "Model name: " << mdl->mLabel << "\n";
+        const LLMeshSkinInfo& skin_info = mdl->mSkinInfo;
+        file << "Shape Bind matrix: " << skin_info.mBindShapeMatrix << "\n";
+        file << "Skin Weights count: " << (S32)mdl->mSkinWeights.size() << "\n";
+
+        // some objects might have individual bind matrices,
+        // but for now it isn't accounted for
+        size_t joint_count = skin_info.mJointNames.size();
+        for (size_t i = 0; i< joint_count;i++)
+        {
+            const std::string& joint = skin_info.mJointNames[i];
+            if (skin_info.mInvBindMatrix.size() > i)
+            {
+                inv_bind[joint] = skin_info.mInvBindMatrix[i];
+            }
+            if (skin_info.mAlternateBindMatrix.size() > i)
+            {
+                alt_bind[joint] = skin_info.mAlternateBindMatrix[i];
+            }
+        }
+    }
+
+    file << "\nInv Bind matrices.\n";
+    for (auto& bind : inv_bind)
+    {
+        file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
+    }
+
+    file << "\nAlt Bind matrices.\n";
+    for (auto& bind : alt_bind)
+    {
+        file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
+    }
+
+    if (mDebugMode == 2)
+    {
+        S32 model_count = 0;
+        for (LLPointer<LLModel>& mdl : mModelList)
+        {
+            const LLVolume::face_list_t &face_list = mdl->getVolumeFaces();
+            for (S32 face = 0; face < face_list.size(); face++)
+            {
+                const LLVolumeFace& vf = face_list[face];
+                file << "\nModel: " << mdl->mLabel
+                    << " face " << face
+                    << " has " << vf.mNumVertices
+                    << " vertices and " << vf.mNumIndices
+                    << " indices " << "\n";
+
+                file << "\nPositions for model: " << mdl->mLabel << " face " << face << "\n";
+
+                for (S32 pos = 0; pos < vf.mNumVertices; ++pos)
+                {
+                    file << vf.mPositions[pos] << " ";
+                }
+
+                file << "\n\nIndices for model: " << mdl->mLabel << " face " << face << "\n";
+
+                for (S32 ind = 0; ind < vf.mNumIndices; ++ind)
+                {
+                    file << vf.mIndices[ind] << " ";
+                }
+            }
+
+            file << "\n\nWeights for model: " << mdl->mLabel;
+            for (auto& weights : mdl->mSkinWeights)
+            {
+                file << "\nVertex: " << weights.first << " Weights: ";
+                for (auto& weight : weights.second)
+                {
+                    file << weight.mJointIdx << ":" << weight.mWeight << " ";
+                }
+            }
+
+            file << "\n";
+            model_count++;
+            if (model_count == 5)
+            {
+                file << "Too many models, stopping at 5.\n";
+                break;
+            }
+        }
+    }
+    else if (mDebugMode > 2)
+    {
+        file << "\nModel LLSDs\n";
+        S32 model_count = 0;
+        // some files contain too many models, so stop at 5.
+        for (LLPointer<LLModel>& mdl : mModelList)
+        {
+            const LLMeshSkinInfo& skin_info = mdl->mSkinInfo;
+            size_t joint_count = skin_info.mJointNames.size();
+            size_t alt_count = skin_info.mAlternateBindMatrix.size();
+
+            LLModel::writeModel(
+                file,
+                nullptr,
+                mdl,
+                nullptr,
+                nullptr,
+                nullptr,
+                mdl->mPhysics,
+                joint_count > 0,
+                alt_count > 0,
+                false,
+                LLModel::WRITE_HUMAN,
+                false,
+                mdl->mSubmodelID);
+
+            file << "\n";
+            model_count++;
+            if (model_count == 5)
+            {
+                file << "Too many models, stopping at 5.\n";
+                break;
+            }
+        }
+    }
+}
 
 //called in the main thread
 void LLModelLoader::loadTextures()
@@ -484,7 +670,7 @@ void LLModelLoader::loadTextures()
 
                 if(!material.mDiffuseMapFilename.empty())
                 {
-                    mNumOfFetchingTextures += mTextureLoadFunc(material, mOpaqueData);
+                    mTextureLoadFunc(material, mOpaqueData);
                 }
             }
         }
