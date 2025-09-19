@@ -371,10 +371,14 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     LLWindowWin32Thread();
 
     void run() override;
-    void close() override;
 
-    // closes queue, wakes thread, waits until thread closes
-    void wakeAndDestroy();
+    // Detroys handles and window
+    // Either post to or call from window thread
+    void destroyWindow();
+
+    // Closes queue, wakes thread, waits until thread closes.
+    // Call from main thread
+    bool wakeAndDestroy();
 
     void glReady()
     {
@@ -431,6 +435,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
+    LLAtomicBool mDeleteOnExit = false;
 };
 
 
@@ -805,7 +810,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     //  }
 
     // SL-12971 dual GPU display
-    DISPLAY_DEVICEA display_device;
+    DISPLAY_DEVICE display_device;
     int             display_index = -1;
     DWORD           display_flags = 0; // EDD_GET_DEVICE_INTERFACE_NAME ?
     const size_t    display_bytes = sizeof(display_device);
@@ -816,23 +821,23 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         {
             // CHAR DeviceName  [ 32] Adapter name
             // CHAR DeviceString[128]
-            CHAR text[256];
+            WCHAR text[256];
 
-            size_t name_len = strlen(display_device.DeviceName  );
-            size_t desc_len = strlen(display_device.DeviceString);
+            size_t name_len = lstrlen(display_device.DeviceName  );
+            size_t desc_len = lstrlen(display_device.DeviceString);
 
-            const CHAR *name = name_len ? display_device.DeviceName   : "???";
-            const CHAR *desc = desc_len ? display_device.DeviceString : "???";
+            const WCHAR *name = name_len ? display_device.DeviceName   : TEXT("???");
+            const WCHAR *desc = desc_len ? display_device.DeviceString : TEXT("???");
 
-            sprintf(text, "Display Device %d: %s, %s", display_index, name, desc);
-            LL_INFOS("Window") << text << LL_ENDL;
+            wsprintf(text, TEXT("Display Device %d: %s, %s"), display_index, name, desc);
+            LL_INFOS("Window") << ll_convert<std::string>(std::wstring(text)) << LL_ENDL;
         }
 
         ::ZeroMemory(&display_device,display_bytes);
         display_device.cb = display_bytes;
 
         display_index++;
-    }  while( EnumDisplayDevicesA(NULL, display_index, &display_device, display_flags ));
+    }  while( EnumDisplayDevices(NULL, display_index, &display_device, display_flags ));
 
     LL_INFOS("Window") << "Total Display Devices: " << display_index << LL_ENDL;
 
@@ -874,6 +879,7 @@ LLWindowWin32::~LLWindowWin32()
     }
 
     delete mDragDrop;
+    mDragDrop = NULL;
 
     delete [] mWindowTitle;
     mWindowTitle = NULL;
@@ -885,6 +891,7 @@ LLWindowWin32::~LLWindowWin32()
     mWindowClassName = NULL;
 
     delete mWindowThread;
+    mWindowThread = NULL;
 }
 
 void LLWindowWin32::show()
@@ -993,7 +1000,7 @@ void LLWindowWin32::close()
     // Restore gamma to the system values.
     restoreGamma();
 
-    LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
+    LL_INFOS("Window") << "Cleanup and destruction of Window Thread" << LL_ENDL;
 
     if (sWindowHandleForMessageBox == mWindowHandle)
     {
@@ -1003,7 +1010,11 @@ void LLWindowWin32::close()
     mhDC = NULL;
     mWindowHandle = NULL;
 
-    mWindowThread->wakeAndDestroy();
+    if (mWindowThread->wakeAndDestroy())
+    {
+        // thread will delete itselfs once done
+        mWindowThread = NULL;
+    }
 }
 
 bool LLWindowWin32::isValid()
@@ -1685,6 +1696,11 @@ const   S32   max_format  = (S32)num_formats - 1;
         return false;
     }
 
+    // Setup Tracy gpu context
+    {
+        LL_PROFILER_GPU_CONTEXT;
+    }
+
     // Disable vertical sync for swap
     toggleVSync(enable_vsync);
 
@@ -1715,8 +1731,6 @@ const   S32   max_format  = (S32)num_formats - 1;
         glClear(GL_COLOR_BUFFER_BIT);
         swapBuffers();
     }
-
-    LL_PROFILER_GPU_CONTEXT;
 
     return true;
 }
@@ -1950,7 +1964,7 @@ void LLWindowWin32::setTitle(const std::string title)
     // to support non-ascii usernames (and region names?)
     mWindowThread->post([=]()
         {
-            SetWindowTextA(mWindowHandle, title.c_str());
+            SetWindowText(mWindowHandle, ll_convert<std::wstring>(title).c_str());
         });
 }
 
@@ -2450,10 +2464,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_CLOSE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CLOSE");
+            // todo: WM_CLOSE can be caused by user and by task manager,
+            // distinguish these cases.
+            // For now assume it is always user.
             window_imp->post([=]()
                 {
                     // Will the app allow the window to close?
-                    if (window_imp->mCallbacks->handleCloseRequest(window_imp))
+                    if (window_imp->mCallbacks->handleCloseRequest(window_imp, true))
                     {
                         // Get the app to initiate cleanup.
                         window_imp->mCallbacks->handleQuit(window_imp);
@@ -2469,6 +2486,50 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             {
                 PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
             }
+            return 0;
+        }
+        case WM_QUERYENDSESSION:
+        {
+            // Generally means that OS is going to shut down or user is going to log off.
+            // Can use ShutdownBlockReasonCreate here.
+            LL_INFOS("Window") << "Received WM_QUERYENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            return TRUE; // 1 = ok to end session. 0 no longer works by itself, use ShutdownBlockReasonCreate
+        }
+        case WM_ENDSESSION:
+        {
+            // OS session is shutting down, initiate cleanup.
+            // Comes after WM_QUERYENDSESSION
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ENDSESSION");
+            LL_INFOS("Window") << "Received WM_ENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            unsigned int end_session_flags = (U32)w_param;
+            if (end_session_flags == 0)
+            {
+                // session is not actually ending
+                return 0;
+            }
+
+            if ((end_session_flags & ENDSESSION_CLOSEAPP)
+                || (end_session_flags & ENDSESSION_CRITICAL)
+                || (end_session_flags & ENDSESSION_LOGOFF))
+            {
+                window_imp->post([=]()
+                {
+                    // Check if app needs cleanup or can be closed immediately.
+                    if (window_imp->mCallbacks->handleSessionExit(window_imp))
+                    {
+                        // Get the app to initiate cleanup.
+                        window_imp->mCallbacks->handleQuit(window_imp);
+                        // The app is responsible for calling destroyWindow when done with GL
+                    }
+                });
+                // Give app a second to finish up. That's not enough for a clean exit,
+                // but better than nothing.
+                // Todo: sync this better, some kind of waitForResult? Can't wait forever,
+                // but can potentially use ShutdownBlockReasonCreate for a bigger delay.
+                ms_sleep(1000);
+            }
+            // Don't need to post quit or destroy window,
+            // if session is ending OS is going to take care of it.
             return 0;
         }
         case WM_COMMAND:
@@ -3134,10 +3195,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         break;
         }
     }
-    else
+    else // (NULL == window_imp)
     {
-        // (NULL == window_imp)
         LL_DEBUGS("Window") << "No window implementation to handle message with, message code: " << U32(u_msg) << LL_ENDL;
+        if (u_msg == WM_DESTROY)
+        {
+            PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
+            return 0;
+        }
     }
 
     // pass unhandled messages down to Windows
@@ -3271,7 +3336,7 @@ bool LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
                 WCHAR *utf16str = (WCHAR*) GlobalLock(h_data);
                 if (utf16str)
                 {
-                    dst = utf16str_to_wstring(utf16str);
+                    dst = ll_convert<LLWString>(std::wstring(utf16str));
                     LLWStringUtil::removeWindowsCR(dst);
                     GlobalUnlock(h_data);
                     success = true;
@@ -3296,8 +3361,8 @@ bool LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
         // Provide a copy of the data in Unicode format.
         LLWString sanitized_string(wstr);
         LLWStringUtil::addCRLF(sanitized_string);
-        llutf16string out_utf16 = wstring_to_utf16str(sanitized_string);
-        const size_t size_utf16 = (out_utf16.length() + 1) * sizeof(WCHAR);
+        std::wstring out_utf16 = ll_convert<std::wstring>(sanitized_string);
+        const size_t size_utf16 = (out_utf16.length() + 1) * sizeof(wchar_t);
 
         // Memory is allocated and then ownership of it is transfered to the system.
         HGLOBAL hglobal_copy_utf16 = GlobalAlloc(GMEM_MOVEABLE, size_utf16);
@@ -3657,7 +3722,7 @@ void LLSplashScreenWin32::showImpl()
     ShowWindow(mWindow, SW_SHOW);
 
     // Should set taskbar text without creating a header for the window (caption)
-    SetWindowTextA(mWindow, "Second Life");
+    SetWindowText(mWindow, TEXT("Second Life"));
 }
 
 
@@ -3794,8 +3859,7 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
     // reliablly on Vista.
 
     // this is madness.. no, this is..
-    LLWString url_wstring = utf8str_to_wstring( escaped_url );
-    llutf16string url_utf16 = wstring_to_utf16str( url_wstring );
+    std::wstring url_utf16 = ll_convert<std::wstring>(escaped_url);
 
     // let the OS decide what to use to open the URL
     SHELLEXECUTEINFO sei = { sizeof( sei ) };
@@ -4083,7 +4147,7 @@ void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont)
 U32 LLWindowWin32::fillReconvertString(const LLWString &text,
     S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string)
 {
-    const llutf16string text_utf16 = wstring_to_utf16str(text);
+    const std::wstring text_utf16 = ll_convert<std::wstring>(text);
     const DWORD required_size = sizeof(RECONVERTSTRING) + (static_cast<DWORD>(text_utf16.length()) + 1) * sizeof(WCHAR);
     if (reconvert_string && reconvert_string->dwSize >= required_size)
     {
@@ -4183,7 +4247,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
             size = LLWinImm::getCompositionString(himc, GCS_RESULTSTR, data, size);
             if (size > 0)
             {
-                result_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
+                result_string = ll_convert_wide_to_wstring(std::wstring(data, size / sizeof(WCHAR)));
             }
             delete[] data;
             needs_update = true;
@@ -4200,7 +4264,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
             if (size > 0)
             {
                 preedit_string_utf16_length = size / sizeof(WCHAR);
-                preedit_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
+                preedit_string = ll_convert_wide_to_wstring(std::wstring(data, size / sizeof(WCHAR)));
             }
             delete[] data;
             needs_update = true;
@@ -4607,24 +4671,10 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, true /*should be false, temporary workaround for SL-18721*/)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
 {
     LL::ThreadPool::start();
 }
-
-void LLWindowWin32::LLWindowWin32Thread::close()
-{
-    if (!mQueue->isClosed())
-    {
-        LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
-        LL::ThreadPool::close();
-
-        // Workaround for SL-18721 in case window closes too early and abruptly
-        LLSplashScreen::show();
-        LLSplashScreen::update("..."); // will be updated later
-    }
-}
-
 
 /**
  * LogChange is to log changes in status while trying to avoid spamming the
@@ -4849,108 +4899,102 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 #endif
     }
+
+    destroyWindow();
+
+    if (mDeleteOnExit)
+    {
+        delete this;
+    }
 }
 
-void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
+void LLWindowWin32::LLWindowWin32Thread::destroyWindow()
+{
+    if (mWindowHandleThrd != NULL && IsWindow(mWindowHandleThrd))
+            {
+                if (mhDCThrd)
+                {
+                    if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
+                    {
+                        LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
+                    }
+                    mhDCThrd = NULL;
+                }
+
+                // This causes WM_DESTROY to be sent *immediately*
+                if (!destroy_window_handler(mWindowHandleThrd))
+                {
+                    LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
+                }
+            }
+            else
+            {
+                // Something killed the window while we were busy destroying gl or handle somehow got broken
+                LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+            }
+            mWindowHandleThrd = NULL;
+            mhDCThrd = NULL;
+}
+
+bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 {
     if (mQueue->isClosed())
     {
-        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
-        return;
+        LL_WARNS("Window") << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
+        return false;
     }
 
-    // Make sure we don't leave a blank toolbar button.
-    // Also hiding window now prevents user from suspending it
-    // via some action (like dragging it around)
-    ShowWindow(mWindowHandleThrd, SW_HIDE);
+    // Stop checking budget
+    mGLReady = false;
 
-    // Schedule destruction
+    // Capture current handle before we lose it
     HWND old_handle = mWindowHandleThrd;
-    post([this]()
-         {
-             if (IsWindow(mWindowHandleThrd))
-             {
-                 if (mhDCThrd)
-                 {
-                     if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
-                     {
-                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
-                     }
-                     mhDCThrd = NULL;
-                 }
 
-                 // This causes WM_DESTROY to be sent *immediately*
-                 if (!destroy_window_handler(mWindowHandleThrd))
-                 {
-                     LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
-                 }
-             }
-             else
-             {
-                 // Something killed the window while we were busy destroying gl or handle somehow got broken
-                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
-             }
-             mWindowHandleThrd = NULL;
-             mhDCThrd = NULL;
-             mGLReady = false;
-         });
+    // Clear the user data to prevent callbacks from finding us
+    if (old_handle)
+    {
+        SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
+    }
 
-    LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
+    // Signal thread to clean up when done
+    mDeleteOnExit = true;
+
+    LL_INFOS("Window") << "Detaching window's thread" << LL_ENDL;
+    // Cleanly detach threads instead of joining them to avoid blocking the main thread
+    // This is acceptable since the thread will self-delete with mDeleteOnExit
+    // Doing it before close() to make sure thread doesn't die before or mid detach.
+    for (auto& pair : mThreads)
+    {
+        try {
+            // Only detach if the thread is joinable
+            if (pair.second.joinable())
+            {
+                pair.second.detach();
+            }
+        }
+        catch (const std::system_error& e) {
+            LL_WARNS("Window") << "Exception detaching thread: " << e.what() << LL_ENDL;
+        }
+    }
+
+    // Close the queue.
+    LL_INFOS("Window") << "Closing window's pool queue" << LL_ENDL;
     mQueue->close();
 
-    // Post a nonsense user message to wake up the thread in
-    // case it is waiting for a getMessage()
+    // Wake up the thread if it's stuck in GetMessage()
     if (old_handle)
     {
         WPARAM wparam{ 0xB0B0 };
         LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
             << ", " << WM_DUMMY_
             << ", " << wparam << ")" << std::dec << LL_ENDL;
+
+        // Use PostMessage to signal thread to wake up
         PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
     }
 
-    // There are cases where window will refuse to close,
-    // can't wait forever on join, check state instead
-    LLTimer timeout;
-    timeout.setTimerExpirySec(2.0);
-    while (!getQueue().done() && !timeout.hasExpired() && mWindowHandleThrd)
-    {
-        ms_sleep(100);
-    }
-
-    if (getQueue().done() || mWindowHandleThrd == NULL)
-    {
-        // Window is closed, started closing or is cleaning up
-        // now wait for our single thread to die.
-        if (mWindowHandleThrd)
-        {
-            LL_INFOS("Window") << "Window is closing, waiting on pool's thread to join, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        else
-        {
-            LL_DEBUGS("Window") << "Waiting on pool's thread, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        for (auto& pair : mThreads)
-        {
-            pair.second.join();
-        }
-    }
-    else
-    {
-        // Something suspended window thread, can't afford to wait forever
-        // so kill thread instead
-        // Ex: This can happen if user starts dragging window arround (if it
-        // was visible) or a modal notification pops up
-        LL_WARNS("Window") << "Window is frozen, couldn't perform clean exit" << LL_ENDL;
-
-        for (auto& pair : mThreads)
-        {
-            // very unsafe
-            TerminateThread(pair.second.native_handle(), 0);
-            pair.second.detach();
-        }
-    }
-    LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
+    LL_INFOS("Window") << "Thread pool shutdown complete" << LL_ENDL;
+    return true;
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)

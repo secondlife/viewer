@@ -189,7 +189,14 @@ public:
             std::string url = "secondlife://" + mObjectData["slurl"].asString();
             LLUrlAction::teleportToLocation(url);
         }
-
+        else if (level == "obj_zoom_in")
+        {
+            LLUUID obj_id = mObjectData["object_id"];
+            if (obj_id.notNull())
+            {
+                handle_zoom_to_object(obj_id);
+            }
+        }
     }
 
     bool onObjectIconContextMenuItemVisible(const LLSD& userdata)
@@ -202,6 +209,15 @@ public:
         else if (level == "not_blocked")
         {
             return !LLMuteList::getInstance()->isMuted(getAvatarId(), mFrom, LLMute::flagTextChat);
+        }
+        else if (level == "obj_zoom_in")
+        {
+            LLUUID obj_id = mObjectData["object_id"];
+            if (obj_id.notNull())
+            {
+                return nullptr != gObjectList.findObject(mAvatarID);
+            }
+            return false;
         }
         return false;
     }
@@ -425,6 +441,7 @@ public:
                 time_t current_time = time_corrected();
                 time_t message_time = (time_t)(current_time - LLFrameTimer::getElapsedSeconds() + mTime);
 
+                // Report abuse shouldn't use AM/PM, use 24-hour time
                 time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
                     + LLTrans::getString("TimeDay") + "]/["
                     + LLTrans::getString("TimeYear") + "] ["
@@ -936,7 +953,7 @@ protected:
                 menu->setItemEnabled("Voice Call", false);
                 menu->setItemEnabled("Chat History", false);
                 menu->setItemEnabled("Invite Group", false);
-                menu->setItemEnabled("Zoom In", false);
+                menu->setItemEnabled("Zoom In", true);
                 menu->setItemEnabled("Share", false);
                 menu->setItemEnabled("Pay", false);
                 menu->setItemEnabled("Block Unblock", false);

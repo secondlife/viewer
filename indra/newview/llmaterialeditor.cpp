@@ -63,8 +63,9 @@
 
 #include "tinygltf/tiny_gltf.h"
 #include "lltinygltfhelper.h"
-#include <strstream>
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 const std::string MATERIAL_BASE_COLOR_DEFAULT_NAME = "Base Color";
 const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
@@ -1246,7 +1247,7 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
 {
     LLSD asset;
 
-    std::istrstream str(&buffer[0], buffer.size());
+    boost::iostreams::stream<boost::iostreams::array_source> str(buffer.data(), buffer.size());
     if (LLSDSerialize::deserialize(asset, str, buffer.size()))
     {
         if (asset.has("version") && LLGLTFMaterial::isAcceptedVersion(asset["version"].asString()))
@@ -1415,7 +1416,7 @@ bool LLMaterialEditor::saveIfNeeded()
         }
 
         std::string res_desc = buildMaterialDescription();
-        createInventoryItem(buffer, mMaterialName, res_desc, local_permissions);
+        createInventoryItem(buffer, mMaterialName, res_desc, local_permissions, mUploadFolder);
 
         // We do not update floater with uploaded asset yet, so just close it.
         closeFloater();
@@ -1585,12 +1586,12 @@ private:
     std::string mNewName;
 };
 
-void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& permissions)
+void LLMaterialEditor::createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& permissions, const LLUUID& upload_folder)
 {
     // gen a new uuid for this asset
     LLTransactionID tid;
     tid.generate();     // timestamp-based randomization + uniquification
-    LLUUID parent = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+    LLUUID parent = upload_folder.isNull() ? gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_MATERIAL) : upload_folder;
     const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
 
     LLPointer<LLObjectsMaterialItemCallback> cb = new LLObjectsMaterialItemCallback(permissions, buffer, name);
@@ -1904,7 +1905,11 @@ static void pack_textures(
     }
 }
 
-void LLMaterialEditor::uploadMaterialFromModel(const std::string& filename, tinygltf::Model& model_in, S32 index)
+void LLMaterialEditor::uploadMaterialFromModel(
+    const std::string& filename,
+    tinygltf::Model& model_in,
+    S32 index,
+    const LLUUID& dest)
 {
     if (index < 0 || !LLMaterialEditor::capabilitiesAvailable())
     {
@@ -1927,12 +1932,13 @@ void LLMaterialEditor::uploadMaterialFromModel(const std::string& filename, tiny
     // This uses 'filename' to make sure multiple bulk uploads work
     // instead of fighting for a single instance.
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD().with("filename", filename).with("index", LLSD::Integer(index)));
+    me->mUploadFolder = dest;
     me->loadMaterial(model_in, filename, index, false);
     me->saveIfNeeded();
 }
 
 
-void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index)
+void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index, const LLUUID& dest_folder)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -2432,17 +2438,17 @@ void LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback(const LLSD& notificati
         return;
     }
 
-    createInventoryItem(str.str(), new_name, std::string(), permissions);
+    createInventoryItem(str.str(), new_name, std::string(), permissions, LLUUID::null);
 }
 
-const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k);
+void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k, const LLUUID& dest);
 
 void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename, S32 index, bool open_floater)
 {
     if (index == model_in.materials.size())
     {
         // bulk upload all the things
-        upload_bulk({ filename }, LLFilePicker::FFLOAD_MATERIAL, true);
+        upload_bulk({ filename }, LLFilePicker::FFLOAD_MATERIAL, true, LLUUID::null);
         return;
     }
 
@@ -2872,10 +2878,10 @@ void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, const ti
     }
 }
 
-void LLMaterialEditor::importMaterial()
+void LLMaterialEditor::importMaterial(const LLUUID dest_folder)
 {
     LLFilePickerReplyThread::startPicker(
-        [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+        [dest_folder](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
             {
                 if (LLAppViewer::instance()->quitRequested())
                 {
@@ -2885,7 +2891,7 @@ void LLMaterialEditor::importMaterial()
                 {
                     if (filenames.size() > 0)
                     {
-                        LLMaterialEditor::loadMaterialFromFile(filenames[0], -1);
+                        LLMaterialEditor::loadMaterialFromFile(filenames[0], -1, dest_folder);
                     }
                 }
                 catch (std::bad_alloc&)
@@ -3573,6 +3579,7 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
         LLFloaterPerms::getGroupPerms("Uploads"),
         LLFloaterPerms::getEveryonePerms("Uploads"),
         expected_upload_cost,
+        mUploadFolder,
         false,
         cb,
         failed_upload));

@@ -196,6 +196,10 @@ LLGLSLShader            gDeferredCoFProgram;
 LLGLSLShader            gDeferredDoFCombineProgram;
 LLGLSLShader            gDeferredPostTonemapProgram;
 LLGLSLShader            gNoPostTonemapProgram;
+LLGLSLShader            gDeferredPostTonemapGammaCorrectProgram;
+LLGLSLShader            gNoPostTonemapGammaCorrectProgram;
+LLGLSLShader            gDeferredPostTonemapLegacyGammaCorrectProgram;
+LLGLSLShader            gNoPostTonemapLegacyGammaCorrectProgram;
 LLGLSLShader            gDeferredPostGammaCorrectProgram;
 LLGLSLShader            gLegacyPostGammaCorrectProgram;
 LLGLSLShader            gExposureProgram;
@@ -206,6 +210,7 @@ LLGLSLShader            gSMAAEdgeDetectProgram[4];
 LLGLSLShader            gSMAABlendWeightsProgram[4];
 LLGLSLShader            gSMAANeighborhoodBlendProgram[4];
 LLGLSLShader            gCASProgram;
+LLGLSLShader            gCASLegacyGammaProgram;
 LLGLSLShader            gDeferredPostNoDoFProgram;
 LLGLSLShader            gDeferredPostNoDoFNoiseProgram;
 LLGLSLShader            gDeferredWLSkyProgram;
@@ -443,6 +448,11 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredPostTonemapProgram);
     mShaderList.push_back(&gNoPostTonemapProgram);
+    mShaderList.push_back(&gDeferredPostTonemapGammaCorrectProgram);
+    mShaderList.push_back(&gNoPostTonemapGammaCorrectProgram);
+    mShaderList.push_back(&gDeferredPostTonemapLegacyGammaCorrectProgram);
+    mShaderList.push_back(&gNoPostTonemapLegacyGammaCorrectProgram);
+    mShaderList.push_back(&gCASLegacyGammaProgram);
     mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
     mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
     mShaderList.push_back(&gDeferredDiffuseProgram);
@@ -545,7 +555,11 @@ void LLViewerShaderMgr::setShaders()
             gSavedSettings.setString("RenderShaderCacheVersion", current_cache_version.asString());
         }
 
-        initShaderCache(shader_cache_enabled, old_cache_version, current_cache_version);
+        initShaderCache(
+            shader_cache_enabled,
+            old_cache_version,
+            current_cache_version,
+            LLAppViewer::instance()->isSecondInstance());
     }
 
     static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
@@ -703,7 +717,10 @@ void LLViewerShaderMgr::setShaders()
     loaded = loaded && loadShadersDeferred();
     llassert(loaded);
 
-    persistShaderCacheMetadata();
+    if (!LLAppViewer::instance()->isSecondInstance())
+    {
+        persistShaderCacheMetadata();
+    }
 
     if (gViewerWindow)
     {
@@ -1109,6 +1126,11 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gLegacyPostGammaCorrectProgram.unload();
         gDeferredPostTonemapProgram.unload();
         gNoPostTonemapProgram.unload();
+        gDeferredPostTonemapGammaCorrectProgram.unload();
+        gNoPostTonemapGammaCorrectProgram.unload();
+        gDeferredPostTonemapLegacyGammaCorrectProgram.unload();
+        gNoPostTonemapLegacyGammaCorrectProgram.unload();
+
         for (auto i = 0; i < 4; ++i)
         {
             gFXAAProgram[i].unload();
@@ -1117,6 +1139,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
             gSMAANeighborhoodBlendProgram[i].unload();
         }
         gCASProgram.unload();
+        gCASLegacyGammaProgram.unload();
         gEnvironmentMapProgram.unload();
         gDeferredWLSkyProgram.unload();
         gDeferredWLCloudProgram.unload();
@@ -2479,6 +2502,74 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         llassert(success);
     }
 
+    if (success)
+    {
+        gDeferredPostTonemapGammaCorrectProgram.mName = "Deferred Tonemap Gamma Post Process";
+        gDeferredPostTonemapGammaCorrectProgram.mFeatures.hasSrgb = true;
+        gDeferredPostTonemapGammaCorrectProgram.mFeatures.isDeferred = true;
+        gDeferredPostTonemapGammaCorrectProgram.mFeatures.hasTonemap = true;
+        gDeferredPostTonemapGammaCorrectProgram.mShaderFiles.clear();
+        gDeferredPostTonemapGammaCorrectProgram.clearPermutations();
+        gDeferredPostTonemapGammaCorrectProgram.addPermutation("GAMMA_CORRECT", "1");
+        gDeferredPostTonemapGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gDeferredPostTonemapGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
+        gDeferredPostTonemapGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gDeferredPostTonemapGammaCorrectProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gNoPostTonemapGammaCorrectProgram.mName = "No Post Tonemap Gamma Post Process";
+        gNoPostTonemapGammaCorrectProgram.mFeatures.hasSrgb = true;
+        gNoPostTonemapGammaCorrectProgram.mFeatures.isDeferred = true;
+        gNoPostTonemapGammaCorrectProgram.mFeatures.hasTonemap = true;
+        gNoPostTonemapGammaCorrectProgram.mShaderFiles.clear();
+        gNoPostTonemapGammaCorrectProgram.clearPermutations();
+        gNoPostTonemapGammaCorrectProgram.addPermutation("GAMMA_CORRECT", "1");
+        gNoPostTonemapGammaCorrectProgram.addPermutation("NO_POST", "1");
+        gNoPostTonemapGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gNoPostTonemapGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
+        gNoPostTonemapGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gNoPostTonemapGammaCorrectProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gDeferredPostTonemapLegacyGammaCorrectProgram.mName = "Deferred Tonemap Legacy Gamma Post Process";
+        gDeferredPostTonemapLegacyGammaCorrectProgram.mFeatures.hasSrgb = true;
+        gDeferredPostTonemapProgram.mFeatures.isDeferred = true;
+        gDeferredPostTonemapLegacyGammaCorrectProgram.mFeatures.hasTonemap = true;
+        gDeferredPostTonemapLegacyGammaCorrectProgram.mShaderFiles.clear();
+        gDeferredPostTonemapLegacyGammaCorrectProgram.clearPermutations();
+        gDeferredPostTonemapLegacyGammaCorrectProgram.addPermutation("GAMMA_CORRECT", "1");
+        gDeferredPostTonemapLegacyGammaCorrectProgram.addPermutation("LEGACY_GAMMA", "1");
+        gDeferredPostTonemapLegacyGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gDeferredPostTonemapLegacyGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
+        gDeferredPostTonemapLegacyGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gDeferredPostTonemapLegacyGammaCorrectProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gNoPostTonemapLegacyGammaCorrectProgram.mName = "No Post Tonemap Legacy Gamma Post Process";
+        gNoPostTonemapLegacyGammaCorrectProgram.mFeatures.hasSrgb = true;
+        gNoPostTonemapLegacyGammaCorrectProgram.mFeatures.isDeferred = true;
+        gNoPostTonemapLegacyGammaCorrectProgram.mFeatures.hasTonemap = true;
+        gNoPostTonemapLegacyGammaCorrectProgram.mShaderFiles.clear();
+        gNoPostTonemapLegacyGammaCorrectProgram.clearPermutations();
+        gNoPostTonemapLegacyGammaCorrectProgram.addPermutation("NO_POST", "1");
+        gNoPostTonemapLegacyGammaCorrectProgram.addPermutation("GAMMA_CORRECT", "1");
+        gNoPostTonemapLegacyGammaCorrectProgram.addPermutation("LEGACY_GAMMA", "1");
+        gNoPostTonemapLegacyGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gNoPostTonemapLegacyGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
+        gNoPostTonemapLegacyGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gNoPostTonemapLegacyGammaCorrectProgram.createShader();
+        llassert(success);
+    }
+
     if (success && gGLManager.mGLVersion > 3.9f)
     {
         std::vector<std::pair<std::string, std::string>> quality_levels = { {"12", "Low"},
@@ -2653,6 +2744,27 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gCASProgram.mShaderFiles.push_back(make_pair("deferred/CASF.glsl", GL_FRAGMENT_SHADER));
         gCASProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gCASProgram.createShader();
+        // llassert(success);
+        if (!success)
+        {
+            LL_WARNS() << "Failed to create shader '" << gCASProgram.mName << "', disabling!" << LL_ENDL;
+            // continue as if this shader never happened
+            success = true;
+        }
+    }
+
+    if (success && gGLManager.mGLVersion > 4.05f)
+    {
+        gCASLegacyGammaProgram.mName = "Contrast Adaptive Sharpening Legacy Gamma Shader";
+        gCASLegacyGammaProgram.mFeatures.hasSrgb = true;
+        gCASLegacyGammaProgram.mShaderFiles.clear();
+        gCASLegacyGammaProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gCASLegacyGammaProgram.mShaderFiles.push_back(make_pair("deferred/CASF.glsl", GL_FRAGMENT_SHADER));
+        gCASLegacyGammaProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gCASLegacyGammaProgram.clearPermutations();
+        gCASLegacyGammaProgram.addPermutation("GAMMA_CORRECT", "1");
+        gCASLegacyGammaProgram.addPermutation("LEGACY_GAMMA", "1");
+        success = gCASLegacyGammaProgram.createShader();
         // llassert(success);
         if (!success)
         {

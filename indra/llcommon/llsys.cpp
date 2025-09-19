@@ -192,6 +192,9 @@ LLOSInfo::LLOSInfo() :
         GetSystemInfo(&si); //if it fails get regular system info
     //(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
 
+#pragma warning(push)
+#pragma warning(disable : 4996) // ignore 'deprecated.' GetVersionEx is deprecated
+
     // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
     OSVERSIONINFOEX osvi;
     ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
@@ -209,6 +212,8 @@ LLOSInfo::LLOSInfo() :
             mBuild = osvi.dwBuildNumber & 0xffff;
         }
     }
+
+#pragma warning(pop)
 
     S32 ubr = 0; // Windows 10 Update Build Revision, can be retrieved from a registry
     if (mMajorVer == 10)
@@ -1323,7 +1328,7 @@ bool gunzip_file(const std::string& srcfile, const std::string& dstfile)
     S32 bytes = 0;
     tmpfile = dstfile + ".t";
 #ifdef LL_WINDOWS
-    llutf16string utf16filename = utf8str_to_utf16str(srcfile);
+    std::wstring utf16filename = ll_convert<std::wstring>(srcfile);
     src = gzopen_w(utf16filename.c_str(), "rb");
 #else
     src = gzopen(srcfile.c_str(), "rb");
@@ -1367,7 +1372,7 @@ bool gzip_file(const std::string& srcfile, const std::string& dstfile)
     tmpfile = dstfile + ".t";
 
 #ifdef LL_WINDOWS
-    llutf16string utf16filename = utf8str_to_utf16str(tmpfile);
+    std::wstring utf16filename = ll_convert<std::wstring>(tmpfile);
     dst = gzopen_w(utf16filename.c_str(), "wb");
 #else
     dst = gzopen(tmpfile.c_str(), "wb");

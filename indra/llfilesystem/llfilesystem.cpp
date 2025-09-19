@@ -316,7 +316,7 @@ void LLFileSystem::updateFileAccessTime(const std::string& file_path)
     boost::system::error_code ec;
 #if LL_WINDOWS
     // file last write time
-    const std::time_t last_write_time = boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), ec);
+    const std::time_t last_write_time = boost::filesystem::last_write_time(ll_convert<std::wstring>(file_path), ec);
     if (ec.failed())
     {
         LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
@@ -330,7 +330,7 @@ void LLFileSystem::updateFileAccessTime(const std::string& file_path)
     // before the last one
     if (delta_time > time_threshold)
     {
-        boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), cur_time, ec);
+        boost::filesystem::last_write_time(ll_convert<std::wstring>(file_path), cur_time, ec);
     }
 #else
     // file last write time

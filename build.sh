@@ -41,7 +41,7 @@ retry_cmd()
 
 build_dir_Darwin()
 {
-  echo build-darwin-x86_64
+  echo build-darwin-universal
 }
 
 build_dir_Linux()
@@ -159,6 +159,7 @@ pre_build()
 
         if [[ "$arch" == "Darwin" ]]
         then
+            HAVOK=OFF
             SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                           "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
         fi
@@ -388,7 +389,7 @@ do
       if `cat "$build_dir/build_ok"`
       then
           case "$variant" in
-            Release)
+            Release*)
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"

@@ -117,6 +117,16 @@ void LLUrlAction::teleportToLocation(std::string url)
     }
 }
 
+void LLUrlAction::zoomInObject(std::string url)
+{
+    LLUrlMatch match;
+    std::string object_id = getObjectId(url);
+    if (LLUUID::validate(object_id) && LLUrlRegistry::instance().findUrl(url, match))
+    {
+        executeSLURL("secondlife:///app/object/" + object_id + "/zoomin/" + match.getLocation());
+    }
+}
+
 void LLUrlAction::showLocationOnMap(std::string url)
 {
     LLUrlMatch match;
@@ -158,6 +168,16 @@ void LLUrlAction::copyLabelToClipboard(std::string url)
     {
         LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(match.getLabel()));
     }
+}
+
+std::string LLUrlAction::getURLLabel(std::string url)
+{
+    LLUrlMatch match;
+    if (LLUrlRegistry::instance().findUrl(url, match))
+    {
+       return match.getLabel();
+    }
+    return "";
 }
 
 void LLUrlAction::showProfile(std::string url)

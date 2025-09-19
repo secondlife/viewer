@@ -130,7 +130,7 @@ void LLFloaterWebContent::initializeURLHistory()
     for(; iter_history != end_history; ++iter_history)
     {
         std::string url = (*iter_history).asString();
-        if(! url.empty())
+        if(! url.empty() && url_list)
             url_list->addSimpleElement(url);
     }
 }

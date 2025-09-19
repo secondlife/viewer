@@ -51,7 +51,9 @@ namespace LL
          * You may omit the WorkQueueBase name, in which case a unique name is
          * synthesized; for practical purposes that makes it anonymous.
          */
-        WorkQueueBase(const std::string& name);
+        WorkQueueBase(const std::string& name, bool auto_shutdown);
+
+        virtual ~WorkQueueBase();
 
         /**
          * Since the point of WorkQueue is to pass work to some other worker
@@ -197,6 +199,9 @@ namespace LL
     private:
         virtual Work pop_() = 0;
         virtual bool tryPop_(Work&) = 0;
+
+        // Name used for the LLApp event listener (empty if not registered)
+        std::string mListenerName;
     };
 
 /*****************************************************************************
@@ -212,7 +217,7 @@ namespace LL
          * You may omit the WorkQueue name, in which case a unique name is
          * synthesized; for practical purposes that makes it anonymous.
          */
-        WorkQueue(const std::string& name = std::string(), size_t capacity=1024);
+        WorkQueue(const std::string& name = std::string(), size_t capacity=1024, bool auto_shutdown = true);
 
         /**
          * Since the point of WorkQueue is to pass work to some other worker
@@ -282,7 +287,7 @@ namespace LL
          * You may omit the WorkSchedule name, in which case a unique name is
          * synthesized; for practical purposes that makes it anonymous.
          */
-        WorkSchedule(const std::string& name = std::string(), size_t capacity=1024);
+        WorkSchedule(const std::string& name = std::string(), size_t capacity=1024, bool auto_shutdown = true);
 
         /**
          * Since the point of WorkSchedule is to pass work to some other worker

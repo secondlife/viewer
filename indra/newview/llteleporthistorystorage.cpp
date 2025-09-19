@@ -127,6 +127,12 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
     S32 removed_index = -1;
     if (item_iter != mItems.end())
     {
+        // When teleporting via history it's possible that there can be
+        // an offset applied to the position, so each new teleport can
+        // be a meter higher than the last.
+        // Avoid it by preserving original position.
+        item.mGlobalPos = item_iter->mGlobalPos;
+
         removed_index = (S32)(item_iter - mItems.begin());
         mItems.erase(item_iter);
     }

@@ -188,6 +188,17 @@ public:
                                << childout.peek(0, peeklen) << "..." << LL_ENDL;
         }
 
+        // Handle any remaining stderr data (partial lines) the same way as we do
+        // for stdout: log it.
+        LLProcess::ReadPipe& childerr(mChild->getReadPipe(LLProcess::STDERR));
+        if (childerr.size())
+        {
+            LLProcess::ReadPipe::size_type
+                peeklen((std::min)(LLProcess::ReadPipe::size_type(50), childerr.size()));
+            LL_WARNS("LLLeap") << "Final stderr " << childerr.size() << " bytes: "
+                               << childerr.peek(0, peeklen) << "..." << LL_ENDL;
+        }
+
         // Kill this instance. MUST BE LAST before return!
         delete this;
         return false;

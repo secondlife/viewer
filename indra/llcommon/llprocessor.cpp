@@ -628,6 +628,8 @@ private:
 
 #elif LL_DARWIN
 
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
 #include <mach/machine.h>
 #include <sys/sysctl.h>
 
@@ -638,17 +640,21 @@ public:
     {
         getCPUIDInfo();
         uint64_t frequency = getSysctlInt64("hw.cpufrequency");
+        if (frequency == 0) // fallback to clockrate and tbfrequency
+        {
+            frequency = getSysctlClockrate() * getSysctlInt64("hw.tbfrequency");
+        }
         setInfo(eFrequency, (F64)frequency  / (F64)1000000);
     }
 
-    virtual ~LLProcessorInfoDarwinImpl() {}
+    virtual ~LLProcessorInfoDarwinImpl() = default;
 
 private:
     int getSysctlInt(const char* name)
     {
         int result = 0;
         size_t len = sizeof(int);
-        int error = sysctlbyname(name, (void*)&result, &len, NULL, 0);
+        int error = sysctlbyname(name, (void*)&result, &len, nullptr, 0);
         return error == -1 ? 0 : result;
     }
 
@@ -656,7 +662,7 @@ private:
     {
         uint64_t value = 0;
         size_t size = sizeof(value);
-        int result = sysctlbyname(name, (void*)&value, &size, NULL, 0);
+        int result = sysctlbyname(name, (void*)&value, &size, nullptr, 0);
         if ( result == 0 )
         {
             if ( size == sizeof( uint64_t ) )
@@ -674,6 +680,14 @@ private:
         }
 
         return result == -1 ? 0 : value;
+    }
+
+    uint64_t getSysctlClockrate()
+    {
+        struct clockinfo clockrate{};
+        size_t size = sizeof(clockrate);
+        int error = sysctlbyname("kern.clockrate", &clockrate, &size, nullptr, 0);
+        return error == -1 ? 0 : clockrate.hz;
     }
 
     void getCPUIDInfo()

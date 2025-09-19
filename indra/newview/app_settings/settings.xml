@@ -102,7 +102,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>300.0</real>
+      <real>300</real>
     </map>
     <key>AckCollectTime</key>
     <map>
@@ -1159,7 +1159,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowDiscordActivityDetails</key>
     <map>
@@ -1908,6 +1908,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+    <key>DebugSelectionLODs</key>
+    <map>
+        <key>Comment</key>
+        <string>Force selection to show specific LOD, -1 for off, 0 - lowest, 4 - high.</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>-1</integer>
+    </map>
   <key>AnimatedObjectsAllowLeftClick</key>
   <map>
     <key>Comment</key>
@@ -9100,7 +9111,7 @@
     <key>RenderQualityPerformance</key>
     <map>
       <key>Comment</key>
-      <string>Which graphics settings you've chosen</string>
+      <string>Which graphics settings you've chosen. Don't use this setting to change quality directly from debug settings.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9108,7 +9119,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  
+    <key>DebugQualityPerformance</key>
+    <map>
+        <key>Comment</key>
+        <string>Allows to change performance quality directly from debug settings.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+
   <key>RenderReflectionDetail</key>
     <map>
       <key>Comment</key>
@@ -13025,9 +13047,9 @@
     <key>Use24HourClock</key>
     <map>
         <key>Comment</key>
-        <string>12 vs 24. At the moment only for region restart schedule floater</string>
+        <string>12 vs 24. At the moment coverage is partial</string>
         <key>Persist</key>
-        <integer>0</integer>
+        <integer>1</integer>
         <key>Type</key>
         <string>Boolean</string>
         <key>Value</key>
@@ -14295,10 +14317,32 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>OutfitGallerySortByName</key>
+    <key>OutfitGallerySortOrder</key>
     <map>
       <key>Comment</key>
-      <string>Always sort outfits by name in Outfit Gallery</string>
+      <string>Gallery sorting: 0 - sort outfits by name, 1 - images frst, 2 - favorites first</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>OutfitListSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>How outfit list in Avatar's floater is sorted. 0 - by name 1 - favorites to top</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>OutfitListFilterFullList</key>
+    <map>
+      <key>Comment</key>
+      <string> 0 - show only matches. 1 - show all items in outfit as long as outfit or item inside matches.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -16172,6 +16216,50 @@
   <map>
     <key>Comment</key>
     <string>Sets the action for 'Find original' and 'Show in Inventory' (0 - shows item in main Inventory, 1 - opens a new single-folder window)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>InventoryFavoritesUseStar</key>
+  <map>
+    <key>Comment</key>
+    <string>Show star near favorited items in inventory</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>InventoryFavoritesUseHollowStar</key>
+  <map>
+    <key>Comment</key>
+    <string>Show star near folders that contain favorites</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>InventoryFavoritesColorText</key>
+  <map>
+    <key>Comment</key>
+    <string>render favorite items using InventoryFavoriteText as color</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>InventoryAddAttachmentBehavior</key>
+  <map>
+    <key>Comment</key>
+    <string>Defines behavior when hitting return on an inventory item</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
