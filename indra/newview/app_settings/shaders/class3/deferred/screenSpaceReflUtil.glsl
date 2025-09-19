@@ -685,19 +685,19 @@ float tapScreenSpaceReflection(
             bool hasMidHits = false;
             bool hasFarHits = false;
 
-            float stepRoughnesMultiplier = mix(0, 8.5, roughness);
+            float stepRoughnesMultiplier = mix(0.0, 8.5, roughness);
 
             // Near pass
             vec2 distanceParams = vec2(splitParamsStart.x, splitParamsEnd.x);
             hasNearHits = tracePass(viewPos, rayDirection, tc, nearColor, source, roughness,
                                     int(iterationCount.x), rayStep.x, distanceBias.x,
-                                    depthRejectBias.x, adaptiveStepMultiplier.x, mix(1, 20, roughness * roughness), distanceParams);
+                                    depthRejectBias.x, adaptiveStepMultiplier.x, mix(1.0, 20.0, roughness * roughness), distanceParams);
 
             // Mid pass
             distanceParams = vec2(splitParamsStart.y, splitParamsEnd.y);
             hasMidHits = tracePass(viewPos, rayDirection, tc, midColor, source, roughness,
                                    int(iterationCount.y), rayStep.y, distanceBias.y,
-                                   depthRejectBias.y, adaptiveStepMultiplier.y, mix(0.8, 12, roughness * roughness), distanceParams);
+                                   depthRejectBias.y, adaptiveStepMultiplier.y, mix(0.8, 12.0, roughness * roughness), distanceParams);
 
             // Far pass
             distanceParams = vec2(splitParamsStart.z, splitParamsEnd.z);
