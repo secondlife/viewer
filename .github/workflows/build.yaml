@@ -97,7 +97,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: secondlife/build-variables
-          ref: universal
+          ref: master
           path: .build-variables
 
       - name: Checkout master-message-template
