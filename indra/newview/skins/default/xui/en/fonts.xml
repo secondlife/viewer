@@ -180,15 +180,15 @@
 	     />
   <font_size name="Large"
 	     comment="Size of large font (points, or 1/72 of an inch)"
-	     size="10.6"
+	     size="11.0"
 	     />
   <font_size name="Medium"
 	     comment="Size of medium font (points, or 1/72 of an inch)"
-	     size="8.6"
+	     size="9"
 	     />
   <font_size name="Small"
 	     comment="Size of small font (points, or 1/72 of an inch)"
-	     size="7.6"
+	     size="8"
 	     />
   <font_size name="SmallLSL"
          comment="Size of small font for LSL editor (points, or 1/72 of an inch)"
