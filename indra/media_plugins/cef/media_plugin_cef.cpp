@@ -38,6 +38,13 @@
 #include "volume_catcher.h"
 #include "media_plugin_base.h"
 
+// _getpid()/getpid()
+#if LL_WINDOWS
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "dullahan.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +71,7 @@ private:
     void onLoadStartCallback();
     void onRequestExitCallback();
     void onLoadEndCallback(int httpStatusCode, std::string url);
-    void onLoadError(int status, const std::string error_text);
+    void onLoadError(int status, const std::string error_text, const std::string error_url);
     void onAddressChangeCallback(std::string url);
     void onOpenPopupCallback(std::string url, std::string target);
     bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
@@ -99,12 +106,14 @@ private:
     std::string mAuthUsername;
     std::string mAuthPassword;
     bool mAuthOK;
+    bool mCanUndo;
+    bool mCanRedo;
     bool mCanCut;
     bool mCanCopy;
     bool mCanPaste;
+    bool mCanDelete;
+    bool mCanSelectAll;
     std::string mRootCachePath;
-    std::string mCachePath;
-    std::string mContextCachePath;
     std::string mCefLogFile;
     bool mCefLogVerbose;
     std::vector<std::string> mPickedFiles;
@@ -139,10 +148,13 @@ MediaPluginBase(host_send_func, host_user_data)
     mAuthUsername = "";
     mAuthPassword = "";
     mAuthOK = false;
+    mCanUndo = false;
+    mCanRedo = false;
     mCanCut = false;
     mCanCopy = false;
     mCanPaste = false;
-    mCachePath = "";
+    mCanDelete = false;
+    mCanSelectAll = false;
     mCefLogFile = "";
     mCefLogVerbose = false;
     mPickedFiles.clear();
@@ -242,15 +254,17 @@ void MediaPluginCEF::onLoadStartCallback()
 
 /////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onLoadError(int status, const std::string error_text)
+void MediaPluginCEF::onLoadError(int status, const std::string error_text, const std::string error_url)
 {
     std::stringstream msg;
 
-    msg << "<b>Loading error!</b>";
+    msg << "<b>Loading error</b>";
     msg << "<p>";
-    msg << "Message: " << error_text;
-    msg << "<br>";
-    msg << "Code: " << status;
+    msg << "Error message: " << error_text;
+    msg << "<p>";
+    msg << "Error URL: <tt>" << error_url << "</tt>";
+    msg << "<p>";
+    msg << "Error code: " << status;
 
     mCEFLib->showBrowserMessage(msg.str());
 }
@@ -607,7 +621,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 mCEFLib->setOnTooltipCallback(std::bind(&MediaPluginCEF::onTooltipCallback, this, std::placeholders::_1));
                 mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
                 mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1, std::placeholders::_2));
-                mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
+
+                // CEF 139 seems to have introduced a loading failure at the login page (only?) I haven't seen it on
+                // any other page and it only happens about 1 in 8 times. Without this handler for the error page
+                // (red box, error message/code/url) the page load recovers after display a brief built in error.
+                // Not ideal but better than stopping altgoether. Will restore this once I discover the error.
+                //mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
                 mCEFLib->setOnOpenPopupCallback(std::bind(&MediaPluginCEF::onOpenPopupCallback, this, std::placeholders::_1, std::placeholders::_2));
                 mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
@@ -635,10 +654,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // and set it to white
                 settings.background_color = 0xffffffff; // white
 
-                settings.cache_enabled = true;
                 settings.root_cache_path = mRootCachePath;
-                settings.cache_path = mCachePath;
-                settings.context_cache_path = mContextCachePath;
                 settings.cookies_enabled = mCookiesEnabled;
 
                 // configure proxy argument if enabled and valid
@@ -729,23 +745,32 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 std::string user_data_path_cache = message_in.getValue("cache_path");
                 std::string subfolder = message_in.getValue("username");
 
-                mRootCachePath = user_data_path_cache + "cef_cache";
-                if (!subfolder.empty())
-                {
-                    std::string delim;
+                // media plugin doesn't have access to gDirUtilp
+                std::string path_separator;
 #if LL_WINDOWS
-                    // media plugin doesn't have access to gDirUtilp
-                    delim = "\\";
+                path_separator = "\\";
 #else
-                    delim = "/";
+                path_separator = "/";
 #endif
-                    mCachePath = mRootCachePath + delim + subfolder;
-                }
-                else
-                {
-                    mCachePath = mRootCachePath;
-                }
-                mContextCachePath = ""; // disabled by ""
+
+                mRootCachePath = user_data_path_cache + "cef_cache";
+
+                // Issue #4498 Introduce an additional sub-folder underneath the main cache
+                // folder so that each CEF media instance gets its own (as per the CEF API
+                // official position). These folders will be removed at startup by Viewer code
+                // so that their non-trivial size does not exhaust available disk space. This
+                // begs the question - why turn on the cache at all? There are 2 reasons - firstly
+                // some of the instances will benefit from per Viewer session caching and will
+                // use the injected SL cookie and secondly, it's not clear how having no cache
+                // interacts with the multiple simultaneous paradigm we use.
+                mRootCachePath += path_separator;
+# if LL_WINDOWS
+                mRootCachePath += std::to_string(_getpid());
+# else
+                mRootCachePath += std::to_string(getpid());
+# endif
+
+
                 mCefLogFile = message_in.getValue("cef_log_file");
                 mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
             }
@@ -923,6 +948,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             {
                 authResponse(message_in);
             }
+            if (message_name == "edit_undo")
+            {
+                mCEFLib->editUndo();
+            }
+            if (message_name == "edit_redo")
+            {
+                mCEFLib->editRedo();
+            }
             if (message_name == "edit_cut")
             {
                 mCEFLib->editCut();
@@ -934,6 +967,18 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             if (message_name == "edit_paste")
             {
                 mCEFLib->editPaste();
+            }
+            if (message_name == "edit_delete")
+            {
+                mCEFLib->editDelete();
+            }
+            if (message_name == "edit_select_all")
+            {
+                mCEFLib->editSelectAll();
+            }
+            if (message_name == "edit_show_source")
+            {
+                mCEFLib->viewSource();
             }
         }
         else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
@@ -1086,13 +1131,30 @@ void MediaPluginCEF::unicodeInput(std::string event, LLSD native_key_data = LLSD
 //
 void MediaPluginCEF::checkEditState()
 {
+    bool can_undo = mCEFLib->editCanUndo();
+    bool can_redo = mCEFLib->editCanRedo();
     bool can_cut = mCEFLib->editCanCut();
     bool can_copy = mCEFLib->editCanCopy();
     bool can_paste = mCEFLib->editCanPaste();
+    bool can_delete = mCEFLib->editCanDelete();
+    bool can_select_all = mCEFLib->editCanSelectAll();
 
-    if ((can_cut != mCanCut) || (can_copy != mCanCopy) || (can_paste != mCanPaste))
+    if ((can_undo != mCanUndo) || (can_redo != mCanRedo) || (can_cut != mCanCut) || (can_copy != mCanCopy)
+        || (can_paste != mCanPaste) || (can_delete != mCanDelete) || (can_select_all != mCanSelectAll))
     {
         LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "edit_state");
+
+        if (can_undo != mCanUndo)
+        {
+            mCanUndo = can_undo;
+            message.setValueBoolean("undo", can_undo);
+        }
+
+        if (can_redo != mCanRedo)
+        {
+            mCanRedo = can_redo;
+            message.setValueBoolean("redo", can_redo);
+        }
 
         if (can_cut != mCanCut)
         {
@@ -1110,6 +1172,18 @@ void MediaPluginCEF::checkEditState()
         {
             mCanPaste = can_paste;
             message.setValueBoolean("paste", can_paste);
+        }
+
+        if (can_delete != mCanDelete)
+        {
+            mCanDelete = can_delete;
+            message.setValueBoolean("delete", can_delete);
+        }
+
+        if (can_select_all != mCanSelectAll)
+        {
+            mCanSelectAll = can_select_all;
+            message.setValueBoolean("select_all", can_select_all);
         }
 
         sendMessage(message);

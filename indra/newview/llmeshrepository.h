@@ -674,8 +674,25 @@ public:
     typedef std::vector<LLModelInstance> instance_list;
     instance_list   mInstanceList;
 
-    typedef std::map<LLPointer<LLModel>, instance_list> instance_map;
+    // Upload should happen in deterministic order, so sort instances by model name.
+    struct LLUploadModelInstanceLess
+    {
+        inline bool operator()(const LLPointer<LLModel>& a, const LLPointer<LLModel>& b) const
+        {
+            if (a.isNull() || b.isNull())
+            {
+                llassert(false); // We are uploading these models, they shouldn't be null.
+                return true;
+            }
+            // Note: probably can sort by mBaseModel->mSubmodelID here as well to avoid
+            // running over the list twice in wholeModelToLLSD.
+            return a->mLabel < b->mLabel;
+        }
+    };
+    typedef std::map<LLPointer<LLModel>, instance_list, LLUploadModelInstanceLess> instance_map;
     instance_map    mInstance;
+    typedef std::map<std::string, std::string> lod_sources_map_t;
+    lod_sources_map_t mLodSources;
 
     LLMutex*        mMutex;
     S32             mPendingUploads;
@@ -690,10 +707,14 @@ public:
     LLHost          mHost;
     std::string     mWholeModelFeeCapability;
     std::string     mWholeModelUploadURL;
+    LLUUID          mDestinationFolderId;
 
-    LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
+    LLMeshUploadThread(instance_list& data, const lod_sources_map_t& sources_list,
+                       LLVector3& scale, bool upload_textures,
                        bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                       const std::string & upload_url, bool do_upload = true,
+                       const std::string & upload_url,
+                       const LLUUID destination_folder_id = LLUUID::null,
+                       bool do_upload = true,
                        LLHandle<LLWholeModelFeeObserver> fee_observer = (LLHandle<LLWholeModelFeeObserver>()),
                        LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
     ~LLMeshUploadThread();
@@ -709,7 +730,7 @@ public:
     void doWholeModelUpload();
     void requestWholeModelFee();
 
-    void wholeModelToLLSD(LLSD& dest, bool include_textures);
+    void wholeModelToLLSD(LLSD& dest, std::vector<std::string>& texture_list_dest, bool include_textures);
 
     void decomposeMeshMatrix(LLMatrix4& transformation,
                              LLVector3& result_pos,
@@ -730,6 +751,7 @@ private:
 
     bool mDoUpload; // if false only model data will be requested, otherwise the model will be uploaded
     LLSD mModelData;
+    std::vector<std::string> mTextureFiles;
 
     // llcorehttp library interface objects.
     LLCore::HttpStatus                  mHttpStatus;
@@ -850,9 +872,12 @@ public:
     bool meshUploadEnabled();
     bool meshRezEnabled();
 
-    void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
+    void uploadModel(std::vector<LLModelInstance>& data, const std::map<std::string, std::string> &lod_sources,
+                     LLVector3& scale, bool upload_textures,
                      bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                     std::string upload_url, bool do_upload = true,
+                     std::string upload_url,
+                     const LLUUID& destination_folder_id = LLUUID::null,
+                     bool do_upload = true,
                      LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()),
                      LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 

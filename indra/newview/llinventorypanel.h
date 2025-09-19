@@ -225,6 +225,7 @@ public:
     void doCreate(const LLSD& userdata);
     bool beginIMSession();
     void fileUploadLocation(const LLSD& userdata);
+    bool isUploadLocationSelected(const LLSD& userdata);
     void openSingleViewInventory(LLUUID folder_id = LLUUID());
     void purgeSelectedItems();
     bool attachObject(const LLSD& userdata);
@@ -251,7 +252,8 @@ public:
                                                     bool reset_filter = false);
     static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
     void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
-    void removeItemID(const LLUUID& id);
+    virtual void removeItemID(const LLUUID& id);
+    virtual bool isInRootContent(const LLUUID& id, LLFolderViewItem* view_item) { return false; }
     LLFolderViewItem* getItemByID(const LLUUID& id);
     LLFolderViewFolder* getFolderByID(const LLUUID& id);
     void setSelectionByID(const LLUUID& obj_id, bool take_keyboard_focus);
@@ -334,6 +336,8 @@ public:
 protected:
     // Builds the UI.  Call this once the inventory is usable.
     void                initializeViews(F64 max_time);
+    virtual void        initRootContent();
+    virtual void        findAndInitRootContent(const LLUUID& root_id) {};
 
     // Specific inventory colors
     static bool                 sColorSetInitialized;
@@ -371,7 +375,7 @@ protected:
     virtual LLFolderViewItem*   createFolderViewItem(LLInvFVBridge * bridge);
 
     boost::function<void(const std::deque<LLFolderViewItem*>& items, bool user_action)> mSelectionCallback;
-private:
+
     // buildViewsTree does not include some checks and is meant
     // for recursive use, use buildNewViews() for first call
     LLFolderViewItem*           buildViewsTree(const LLUUID& id,
@@ -394,6 +398,8 @@ private:
     EViewsInitializationState   mViewsInitialized; // Whether views have been generated
     F64                         mBuildViewsEndTime; // Stop building views past this timestamp
     std::deque<LLUUID>          mBuildViewsQueue;
+    std::deque<LLUUID>          mBuildRootQueue;
+
 };
 
 

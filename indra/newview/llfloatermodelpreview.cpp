@@ -64,6 +64,7 @@
 #include "llcallbacklist.h"
 #include "llviewertexteditor.h"
 #include "llviewernetwork.h"
+#include "llmaterialeditor.h"
 
 
 //static
@@ -349,14 +350,14 @@ void LLFloaterModelPreview::initModelPreview()
 }
 
 //static
-bool LLFloaterModelPreview::showModelPreview()
+void LLFloaterModelPreview::showModelPreview(const LLUUID& dest_folder)
 {
     LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)LLFloaterReg::getInstance("upload_model");
     if (fmp && !fmp->isModelLoading())
     {
+        fmp->setUploadDestination(dest_folder);
         fmp->loadHighLodModel();
     }
-    return true;
 }
 
 void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
@@ -502,10 +503,13 @@ void LLFloaterModelPreview::onClickCalculateBtn()
     mUploadModelUrl.clear();
     mModelPhysicsFee.clear();
 
-    gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
+    lod_sources_map_t lod_sources;
+    fillLODSourceStatistics(lod_sources);
+
+    gMeshRepo.uploadModel(mModelPreview->mUploadData, lod_sources, mModelPreview->mPreviewScale,
                           childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
-                          mUploadModelUrl, false,
+                          mUploadModelUrl, mDestinationFolderId, false,
                           getWholeModelFeeObserverHandle());
 
     toggleCalculateButton(false);
@@ -619,11 +623,9 @@ void LLFloaterModelPreview::onJointListSelection()
     LLPanel *panel = mTabContainer->getPanelByName("rigging_panel");
     LLScrollListCtrl *joints_list = panel->getChild<LLScrollListCtrl>("joints_list");
     LLScrollListCtrl *joints_pos = panel->getChild<LLScrollListCtrl>("pos_overrides_list");
-    LLScrollListCtrl *joints_scale = panel->getChild<LLScrollListCtrl>("scale_overrides_list");
     LLTextBox *joint_pos_descr = panel->getChild<LLTextBox>("pos_overrides_descr");
 
     joints_pos->deleteAllItems();
-    joints_scale->deleteAllItems();
 
     LLScrollListItem *selected = joints_list->getFirstSelected();
     if (selected)
@@ -757,7 +759,7 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
         mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
         break;
     default:
-        LL_ERRS() << "Only supposed to be called to generate models, val: " << mode << LL_ENDL;
+        LL_ERRS() << "Only supposed to be called to generate models" << LL_ENDL;
         break;
     }
 
@@ -1088,9 +1090,7 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
     }
     else if (which_mode == cube_mode)
     {
-        std::string path = gDirUtilp->getAppRODataDir();
-        gDirUtilp->append(path, "cube.dae");
-        sInstance->loadModel(LLModel::LOD_PHYSICS, path);
+        sInstance->loadModel(LLModel::LOD_PHYSICS, getBoundingBoxCubePath());
     }
 
     LLModelPreview *model_preview = sInstance->mModelPreview;
@@ -1318,8 +1318,91 @@ void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float mi
         std::string label = (++ilabel == SMOOTH_VALUES_NUMBER) ? "10 (max)" : llformat("%.1d", ilabel);
         combo_box->add(label, value, ADD_BOTTOM, true);
     }
+}
 
+std::string get_source_file_format(const std::string& filename)
+{
+    const std::string extension = gDirUtilp->getExtension(filename);
+    if (extension == "gltf"
+        || extension == "glb")
+    {
+        return "gltf";
+    }
+    else if (extension == "dae")
+    {
+        return "dae";
+    }
+    else if (extension == "slm")
+    {
+        return "slm";
+    }
+    else
+    {
+        return "unknown file";
+    }
+}
 
+std::string LLFloaterModelPreview::getBoundingBoxCubePath()
+{
+    std::string path = gDirUtilp->getAppRODataDir();
+    gDirUtilp->append(path, "cube.dae");
+    return path;
+}
+
+void LLFloaterModelPreview::fillLODSourceStatistics(LLFloaterModelPreview::lod_sources_map_t& lod_sources) const
+{
+    lod_sources.clear();
+
+    // This doesn't nessesarily reflect the actual source of meshes, just user choices,
+    // some meshes could have been matched from different lods, but should be good
+    // enough for statistics.
+    for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
+    {
+        const std::string &lod_string = lod_name[lod];
+        if (mLODMode[lod] == LLModelPreview::USE_LOD_ABOVE)
+        {
+            lod_sources[lod_string] = "lod above";
+        }
+        else if (mLODMode[lod] == LLModelPreview::MESH_OPTIMIZER_AUTO
+            || mLODMode[lod] == LLModelPreview::MESH_OPTIMIZER_PRECISE
+            || mLODMode[lod] == LLModelPreview::MESH_OPTIMIZER_SLOPPY)
+        {
+            lod_sources[lod_string] = "generated";
+        }
+        else if (mLODMode[lod] == LLModelPreview::LOD_FROM_FILE)
+        {
+            const std::string& file = mModelPreview->mLODFile[lod];
+            lod_sources[lod_string] = get_source_file_format(file);
+        }
+        else
+        {
+            lod_sources[lod_string] = "unknown source";
+        }
+    }
+    if (mModelPreview->mLODFile[LLModel::LOD_PHYSICS].empty())
+    {
+        if (mModelPreview->mPhysicsSearchLOD >= 0 && mModelPreview->mPhysicsSearchLOD <= 3)
+        {
+            lod_sources["physics"] = lod_name[mModelPreview->mPhysicsSearchLOD];
+        }
+        else
+        {
+            lod_sources["physics"] = "none";
+        }
+    }
+    else
+    {
+        const std::string& file = mModelPreview->mLODFile[LLModel::LOD_PHYSICS];
+        const std::string cube = getBoundingBoxCubePath();
+        if (cube != file) // check for "cube.dae"
+        {
+            lod_sources["physics"] = get_source_file_format(file);
+        }
+        else
+        {
+            lod_sources["physics"] = "bounding box";
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1341,26 +1424,26 @@ void LLFloaterModelPreview::addStringToLog(const std::string& message, const LLS
     {
         std::string str;
         switch (lod)
-{
+        {
         case LLModel::LOD_IMPOSTOR: str = "LOD0 "; break;
         case LLModel::LOD_LOW:      str = "LOD1 "; break;
         case LLModel::LOD_MEDIUM:   str = "LOD2 "; break;
         case LLModel::LOD_PHYSICS:  str = "PHYS "; break;
         case LLModel::LOD_HIGH:     str = "LOD3 ";   break;
         default: break;
-}
+        }
 
         LLStringUtil::format_map_t args_msg;
         LLSD::map_const_iterator iter = args.beginMap();
         LLSD::map_const_iterator end = args.endMap();
         for (; iter != end; ++iter)
-{
+        {
             args_msg[iter->first] = iter->second.asString();
         }
         str += sInstance->getString(message, args_msg);
         sInstance->addStringToLogTab(str, flash);
     }
-    }
+}
 
 // static
 void LLFloaterModelPreview::addStringToLog(const std::string& str, bool flash)
@@ -1657,10 +1740,13 @@ void LLFloaterModelPreview::onUpload(void* user_data)
         mp->mModelPreview->saveUploadData(upload_skinweights, upload_joint_positions, lock_scale_if_joint_position);
     }
 
-    gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
+    lod_sources_map_t lod_sources;
+    mp->fillLODSourceStatistics(lod_sources);
+
+    gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, lod_sources, mp->mModelPreview->mPreviewScale,
                           mp->childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
-                          mp->mUploadModelUrl,
+                          mp->mUploadModelUrl, mp->mDestinationFolderId,
                           true, LLHandle<LLWholeModelFeeObserver>(), mp->getWholeModelUploadObserverHandle());
 }
 
@@ -1770,8 +1856,14 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
     if (index == LLModelPreview::MESH_OPTIMIZER_AUTO
         || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
         || index == LLModelPreview::MESH_OPTIMIZER_PRECISE)
-    { //rebuild LoD to update triangle counts
+    {
+        // rebuild LoD to update triangle counts
         onLODParamCommit(lod, true);
+    }
+    if (index == LLModelPreview::USE_LOD_ABOVE)
+    {
+        // refresh to pick triangle counts
+        mModelPreview->mDirty = true;
     }
 }
 

@@ -59,7 +59,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define XML_FILTER L"XML files (*.xml)\0*.xml\0"
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
-#define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
+#define MODEL_FILTER L"Model files (*.dae, *.gltf, *.glb)\0*.dae;*.gltf;*.glb\0"
 #define MATERIAL_FILTER L"GLTF Files (*.gltf; *.glb)\0*.gltf;*.glb\0"
 #define HDRI_FILTER L"HDRI Files (*.exr)\0*.exr\0"
 #define MATERIAL_TEXTURES_FILTER L"GLTF Import (*.gltf; *.glb; *.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.gltf;*.glb;*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
@@ -217,6 +217,8 @@ bool LLFilePicker::setupFilter(ELoadFilter filter)
         break;
     case FFLOAD_MODEL:
         mOFN.lpstrFilter = MODEL_FILTER \
+            COLLADA_FILTER \
+            MATERIAL_FILTER \
             L"\0";
         break;
     case FFLOAD_MATERIAL:
@@ -285,7 +287,7 @@ bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
     success = GetOpenFileName(&mOFN);
     if (success)
     {
-        std::string filename = utf16str_to_utf8str(llutf16string(mFilesW));
+        std::string filename = ll_convert<std::string>(std::wstring(mFilesW));
         mFiles.push_back(filename);
     }
 
@@ -351,7 +353,7 @@ bool LLFilePicker::getMultipleOpenFiles(ELoadFilter filter, bool blocking)
         // lengths.
         if( wcslen(mOFN.lpstrFile) > mOFN.nFileOffset ) /*Flawfinder: ignore*/
         {
-            std::string filename = utf16str_to_utf8str(llutf16string(mFilesW));
+            std::string filename = ll_convert<std::string>(std::wstring(mFilesW));
             mFiles.push_back(filename);
         }
         else
@@ -365,7 +367,7 @@ bool LLFilePicker::getMultipleOpenFiles(ELoadFilter filter, bool blocking)
                     break;
                 if (*tptrw == 0)
                     tptrw++; // shouldn't happen?
-                std::string filename = utf16str_to_utf8str(llutf16string(tptrw));
+                std::string filename = ll_convert<std::string>(std::wstring(tptrw));
                 if (dirname.empty())
                     dirname = filename + "\\";
                 else
@@ -411,7 +413,7 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
     mOFN.lpstrFile = mFilesW;
     if (!filename.empty())
     {
-        llutf16string tstring = utf8str_to_utf16str(filename);
+        std::wstring tstring = ll_convert<std::wstring>(filename);
         wcsncpy(mFilesW, tstring.c_str(), FILENAME_BUFFER_SIZE);    }   /*Flawfinder: ignore*/
     else
     {
@@ -593,7 +595,7 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
             success = GetSaveFileName(&mOFN);
             if (success)
             {
-                std::string filename = utf16str_to_utf8str(llutf16string(mFilesW));
+                std::string filename = ll_convert<std::string>(std::wstring(mFilesW));
                 mFiles.push_back(filename);
             }
         }
@@ -671,6 +673,8 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
         case FFLOAD_HDRI:
             allowedv->push_back("exr");
         case FFLOAD_MODEL:
+            allowedv->push_back("gltf");
+            allowedv->push_back("glb");
         case FFLOAD_COLLADA:
             allowedv->push_back("dae");
             break;

@@ -116,8 +116,8 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
         // needed for handling of any legacy bad data.
         if (!avatar->getJoint(skin->mJointNames[j]))
         {
-            LL_DEBUGS("Avatar") << avatar->getFullname() << " mesh rigged to invalid joint " << skin->mJointNames[j] << LL_ENDL;
-            LL_WARNS_ONCE("Avatar") << avatar->getFullname() << " mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
+            LL_DEBUGS("Avatar") << avatar->getDebugName() << " mesh rigged to invalid joint " << skin->mJointNames[j] << LL_ENDL;
+            LL_WARNS_ONCE("Avatar") << avatar->getDebugName() << " mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
             skin->mJointNames[j] = "mPelvis";
             skin->mJointNumsInitialized = false; // force update after names change.
         }
@@ -134,6 +134,12 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
+
+    if (skin->mInvBindMatrix.size() < count )
+    {
+        // faulty model? mInvBindMatrix.size() should have matched mJointNames.size()
+        return;
+    }
 
     LLMatrix4a world[LL_CHARACTER_MAX_ANIMATED_JOINTS];
 
@@ -354,7 +360,8 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                             {
                                 rig_info_tab[joint_num].setIsRiggedTo(true);
 
-                                const LLMatrix4a& mat = skin->mBindPoseMatrix[joint_index];
+                                size_t bind_poses_size = skin->mBindPoseMatrix.size();
+                                const LLMatrix4a& mat = bind_poses_size > joint_index ? skin->mBindPoseMatrix[joint_index] : LLMatrix4a::identity();
                                 LLVector4a pos_joint_space;
 
                                 mat.affineTransform(pos, pos_joint_space);

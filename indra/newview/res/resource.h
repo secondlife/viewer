@@ -30,6 +30,7 @@
 #define IDREMOVE                        3
 #define IDI_LL_ICON                     103
 #define IDC_GRABHAND                    104
+#define IDI_LL_ICON_SMALL               105
 #define IDC_CURSOR1                     134
 #define IDC_CURSOR2                     136
 #define IDC_CURSOR3                     147

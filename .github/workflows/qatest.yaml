@@ -43,14 +43,25 @@ jobs:
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
           - os: windows
-            runner: qa-dan-asus
+            runner: qa-windows-asus-dan
             artifact: Windows-installer
             install-path: 'C:\viewer-automation-main'
-          # Commented out until mac runner is available
-          # - os: mac
-          #   runner: qa-mac-atlas
-          #   artifact: Mac-installer
-          #   install-path: '$HOME/Documents/viewer-automation'
+          - os: windows
+            runner: qa-windows-kurt
+            artifact: Windows-installer
+            install-path: 'C:\viewer-automation-main'
+          - os: mac
+            runner: qa-mac-dan
+            artifact: macOS-installer
+            install-path: '$HOME/Documents/viewer-automation'
+          - os: mac
+            runner: qa-mac-atlas
+            artifact: macOS-installer
+            install-path: '$HOME/Documents/viewer-automation'
+          - os: mac
+            runner: qa-mac-caleb
+            artifact: macOS-installer
+            install-path: '$HOME/Documents/viewer-automation'
       fail-fast: false
 
     runs-on: [self-hosted, "${{ matrix.runner }}"]
@@ -498,11 +509,13 @@ jobs:
           mkdir -p "$MOUNT_POINT"
 
           # Mount the DMG
-          hdiutil attach "${{ env.INSTALLER_PATH }}" -mountpoint "$MOUNT_POINT" -nobrowse
+          hdiutil attach "$INSTALLER_PATH" -mountpoint "$MOUNT_POINT" -nobrowse
 
           echo "✅ DMG mounted at $MOUNT_POINT"
 
-          # Find the app in the mounted DMG
+          echo "Installing application to default location from DMG..."
+
+          # Find the .app bundle in the DMG
           APP_PATH=$(find "$MOUNT_POINT" -name "*.app" -type d | head -1)
 
           if [ -z "$APP_PATH" ]; then
@@ -510,18 +523,40 @@ jobs:
             exit 1
           fi
 
-          echo "Installing application to Applications folder..."
+          APP_NAME=$(basename "$APP_PATH")
+          DEST_PATH="/Applications/$APP_NAME"
 
-          # Copy the app to the Applications folder (or specified install path)
-          cp -R "$APP_PATH" "${{ matrix.install-path }}"
+          # Handle existing installation
+          if [ -d "$DEST_PATH" ]; then
+            echo "Found existing installation at: $DEST_PATH"
+            echo "Moving existing installation to trash..."
+
+            # Move to trash instead of force removing
+            TRASH_PATH="$HOME/.Trash/$(date +%Y%m%d_%H%M%S)_$APP_NAME"
+            mv "$DEST_PATH" "$TRASH_PATH" || {
+              echo "⚠️ Could not move to trash, trying direct removal..."
+              rm -rf "$DEST_PATH" || {
+                echo "❌ Could not remove existing installation"
+                echo "Please manually remove: $DEST_PATH"
+                exit 1
+              }
+            }
+
+            echo "✅ Existing installation handled successfully"
+          fi
+
+          # Copy the .app to /Applications
+          echo "Copying app from: $APP_PATH"
+          echo "To destination: /Applications/"
+          cp -R "$APP_PATH" /Applications/
 
           # Verify the app was copied successfully
-          if [ ! -d "${{ matrix.install-path }}/$(basename "$APP_PATH")" ]; then
-            echo "❌ Error: Failed to install application to ${{ matrix.install-path }}!"
+          if [ ! -d "$DEST_PATH" ]; then
+            echo "❌ Error: Failed to install application to /Applications!"
             exit 1
           fi
 
-          echo "✅ Application installed successfully to ${{ matrix.install-path }}"
+          echo "✅ Application installed successfully to /Applications"
 
           # Save mount point for cleanup
           echo "MOUNT_POINT=$MOUNT_POINT" >> $GITHUB_ENV

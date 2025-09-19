@@ -20,6 +20,7 @@ set(cmake_SOURCE_FILES
         Copy3rdPartyLibs.cmake
         DBusGlib.cmake
         DeploySharedLibs.cmake
+        Discord.cmake
         DragDrop.cmake
         EXPAT.cmake
         FindAutobuild.cmake
@@ -52,9 +53,11 @@ set(cmake_SOURCE_FILES
         Prebuilt.cmake
         PulseAudio.cmake
         Python.cmake
+        SSE2NEON.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
+        Tracy.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake

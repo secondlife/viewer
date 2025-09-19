@@ -338,6 +338,7 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_BGRA:                                   return 32;      // Used for QuickTime media textures on the Mac
     case GL_DEPTH_COMPONENT:                        return 24;
     case GL_DEPTH_COMPONENT24:                      return 24;
+    case GL_RGBA16:                                 return 64;
     case GL_R16F:                                   return 16;
     case GL_RG16F:                                  return 32;
     case GL_RGB16F:                                 return 48;
@@ -1870,8 +1871,17 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
         glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, (GLint*)&glbytes);
         if(!imageraw->allocateDataSize(width, height, ncomponents, glbytes))
         {
-            LL_WARNS() << "Memory allocation failed for reading back texture. Size is: " << glbytes << LL_ENDL ;
-            LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL ;
+            constexpr S64 MAX_GL_BYTES = 2048 * 2048;
+            if (glbytes > 0 && glbytes <= MAX_GL_BYTES)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Memory allocation failed for reading back texture. Data size: " << glbytes << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS() << "Memory allocation failed for reading back texture. Data size is: " << glbytes << LL_ENDL;
+                LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL;
+            }
             return false ;
         }
 
@@ -1882,8 +1892,18 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
     {
         if(!imageraw->allocateDataSize(width, height, ncomponents))
         {
-            LL_WARNS() << "Memory allocation failed for reading back texture." << LL_ENDL ;
-            LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL ;
+            constexpr F32 MAX_IMAGE_SIZE = 2048 * 2048;
+            F32 size = (F32)width * (F32)height * (F32)ncomponents;
+            if (size > 0 && size <= MAX_IMAGE_SIZE)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Memory allocation failed for reading back texture. Data size: " << size << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS() << "Memory allocation failed for reading back texture." << LL_ENDL;
+                LL_WARNS() << "width: " << width << "height: " << height << "components: " << ncomponents << LL_ENDL;
+            }
             return false ;
         }
 

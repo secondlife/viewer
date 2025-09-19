@@ -6,6 +6,9 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
+if (USE_DISCORD)
+  include(Discord)
+endif ()
 include(OPENAL)
 
 # When we copy our dependent libraries, we almost always want to copy them to
@@ -56,11 +59,6 @@ if(WINDOWS)
         openjp2.dll
         )
 
-    if(LLCOMMON_LINK_SHARED)
-        set(release_files ${release_files} libapr-1.dll)
-        set(release_files ${release_files} libaprutil-1.dll)
-    endif()
-
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
     if (USE_BUGSPLAT)
@@ -74,6 +72,10 @@ if(WINDOWS)
         set(release_files ${release_files} BsSndRpt64.exe)
       endif(ADDRESS_SIZE EQUAL 32)
     endif (USE_BUGSPLAT)
+
+    if (TARGET ll::discord_sdk)
+        list(APPEND release_files discord_partner_sdk.dll)
+    endif ()
 
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
@@ -171,14 +173,9 @@ elseif(DARWIN)
         libndofdev.dylib
        )
 
-    if(LLCOMMON_LINK_SHARED)
-        set(release_files ${release_files}
-            libapr-1.0.dylib
-            libapr-1.dylib
-            libaprutil-1.0.dylib
-            libaprutil-1.dylib
-            )
-    endif()
+    if (TARGET ll::discord_sdk)
+      list(APPEND release_files libdiscord_partner_sdk.dylib)
+    endif ()
 
     if (TARGET ll::openal)
       list(APPEND release_files libalut.dylib libopenal.dylib)
@@ -225,13 +222,6 @@ elseif(LINUX)
                  libgmodule-2.0.so
                  libgobject-2.0.so
                  )
-
-        if(LLCOMMON_LINK_SHARED)
-            set(release_files ${release_files}
-                libapr-1.so.0
-                libaprutil-1.so.0
-                )
-        endif()
      endif()
 
 else(WINDOWS)

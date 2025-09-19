@@ -62,20 +62,9 @@
      name="mute_when_minimized"
 	   top_delta="3"
      left_pad="5"
-     width="20" />
-     <!-- *HACK 
-     	After storm-1109 will be fixed: instead of using this text_box, word_wrap should be applied for "mute_when_minimized" check_box's label.-->
-     <text
-      follows="top|left"
-      height="15"
-      layout="topleft"
-      left_pad="0"
-      name="mute_chb_label"
-      top_delta="-1"
-      width="150"
-      wrap="true">
-      Mute when minimized
-     </text>
+     width="20"
+     label="Mute when minimized"
+     word_wrap="true"/>
 	<slider
 		control_name="AudioLevelUI"
 		disabled_control="MuteAudio"
@@ -321,66 +310,45 @@
 		left_pad="5"
 		name="enable_voice_check"
 		width="110"/>
-	<!-- -->
   <text
    type="string"
    length="1"
    follows="left|top"
    layout="topleft"
    left="23"
-   top_delta="22"
+   top_delta="25"
    name="Listen media from"
    height="15"
-   word_wrap="true"
-   width="112">
-      Hear media and sounds from:
+   width="165"
+   halign="right">
+      Hear media and sounds from
   </text>
-  <radio_group
+  <combo_box
    control_name="MediaSoundsEarLocation"
    follows="left|top"
-   top_delta="-6"
    layout="topleft"
-   left_pad="10"
-   width="360"
-   height="40"
-   name="media_ear_location">
-      <radio_item
-       height="19"
-       label="Camera position"
-       follows="left|top"
-       layout="topleft"
-       name="0"
-       width="200"/>
-      <radio_item
-       height="19"
-       follows="left|top"
-       label="Avatar position"
-       layout="topleft"
-       left_delta="0"
-       name="1"
-       top_delta ="18"
-       width="200" />
-  </radio_group>  
- 	<check_box
-    name="media_show_on_others_btn"
-    control_name="MediaShowOnOthers"
-    value="true"
-    follows="left|top"
-    layout="topleft" 
-    height="15"
-    top_pad="8"
-    tool_tip="Uncheck this to hide media attached to other avatars nearby"
-    label="Play media attached to other avatars"
-    left="20"
-    width="230"/>
+   left_pad="5"
+   width="130"
+   height="23"
+   top_delta="-4"
+   name="media_ear_location_combo">
+   <item
+      label="Camera position"
+      name="camera_position"
+      value="0" />
+   <item
+      label="Avatar position"
+      name="avatar_position"
+      value="1" />
+</combo_box>
   <text
    follows="left|top"
    layout="topleft"
    height="15"
    left="23"
-   top_pad="8"
-   width="120"
-   name="media_autoplay_label">
+   width="165"
+   name="media_autoplay_label"
+   halign="right">
     Auto-play media
   </text>
   <combo_box
@@ -389,10 +357,10 @@
         follows="left|top"
         layout="topleft"
         height="23"
-        left_pad="-15"
+        left_delta="170"
         top_delta="-4"
         name="media_auto_play_combo"
-        width="115">
+        width="130">
     <item
         label="Never"
         name="autoplay_disabled"
@@ -406,23 +374,106 @@
         name="autoplay_ask"
         value="2"/>
   </combo_box>
+    <text
+        follows="left|top"
+        layout="topleft"
+        height="15"
+        left="23"
+        width="165"
+        name="media_firstinteract_label"
+        halign="right">
+            Media first-interact
+    </text>
+    <combo_box
+    control_name="MediaFirstClickInteract"
+    enabled_control="AudioStreamingMedia"
+    follows="left|top"
+    layout="topleft"
+    height="23"
+    left_delta="170"
+    top_delta="-4"
+    width="130"
+    name="media_first_interact_combo"
+    tool_tip="This setting controls which media (once loaded) does not require a first click to focus before interaction can begin. This allows clicks to be passed directly to media bypassing the focus click requirement. Each option also inherits the previous ones.">
+        <item
+            label="Disabled"
+            name="media_first_click_none"
+            value="0"/>
+        <item
+            label="Worn HUDs only"
+            name="media_first_click_hud"
+            value="1"/>
+        <item
+            label="Owned objects"
+            name="media_first_click_own"
+            value="3"/>
+        <item
+            label="Friends' objects"
+            name="media_first_click_friend"
+            value="7"/>
+        <item
+            label="Group objects"
+            name="media_first_click_group"
+            value="15"/>
+        <item
+            label="Landowner objects"
+            name="media_first_click_land"
+            value="31"/>
+        <item
+            label="Anyone's objects"
+            name="media_first_interact_any"
+            value="32767"/>
+        <item
+            label="All MOAP"
+            name="media_first_click_all"
+            value="65535"/>
+    </combo_box>
+   <check_box
+    name="media_show_on_others_btn"
+    control_name="MediaShowOnOthers"
+    enabled_control="AudioStreamingMedia"
+    value="true"
+    follows="left|top"
+    tool_tip="Uncheck this to hide media attached to other avatars nearby"
+    label="Play media attached to other avatars"
+    left="23"
+    width="15"
+    top_delta="30"
+    height="15"/>
+  <check_box
+    name="media_huds_autoplay"
+    control_name="MediaAutoPlayHuds"
+    enabled_control="AudioStreamingMedia"
+    value="true"
+    follows="left|top"
+    layout="topleft"
+    tool_tip="Uncheck this to make HUDs follow the standard media auto-play setting"
+    label="Auto-play media attached to your HUD"
+    left="260"
+    top_pad="-15"
+    width="15"
+    height="15"/>
   <text
    layout="topleft"
+   follows="left"
    height="15"
-   left="260"
-   top_pad="-18"
-   width="100"
-   name="noise_suppression_label">
-     Noise Suppression
+   width="165"
+   name="noise_suppression_label"
+   left="23"
+   top_delta="22"
+   halign="right">
+     Microphone Noise Suppression
   </text>
   <combo_box
    control_name="VoiceNoiseSuppressionLevel"
+   enabled_control="EnableVoiceChat"
+   follows="left|top"
    layout="topleft"
+   left_delta="170"
+   top_delta="-6"
+   width="130"
    height="23"
-   left_pad="10"
-   top_pad="-20"
-   name="noise_suppression_combo"
-   width="80">
+   name="noise_suppression_combo">
     <item
      label="Off"
      name="noise_suppression_none"
@@ -452,48 +503,44 @@
    left="23"
    top_delta="30"
    name="Listen from"
-   width="112">
-     Hear voice from:
+   width="165"
+   height="15"
+   halign="right">
+     Hear voice from
   </text>
-  <radio_group
+  <combo_box
    enabled_control="EnableVoiceChat"
    control_name="VoiceEarLocation"
    follows="left|top"
    layout="topleft"
-   left_pad="10"
+   left_delta="170"
    top_delta="-6"
-   width="360"
-   height="40"
-   name="ear_location">
-   <radio_item
-    height="19"
-    label="Camera position"
-    follows="left|top"
-    layout="topleft"
-    name="0"
-    width="200"/>
-   <radio_item
-    height="19"
-    follows="left|top"
-    label="Avatar position"
-    layout="topleft"
-    left_delta="0"
-    name="1"
-    top_delta ="18" 
-    width="200" />
-  </radio_group>
+   width="130"
+   height="23"
+   name="ear_location_combo">
+   <item
+      label="Camera position"
+      name="camera_position"
+      value="0" />
+   <item
+      label="Avatar position"
+      name="avatar_position"
+      value="1" />
+</combo_box>
   <check_box
    control_name="LipSyncEnabled"
+   enabled_control="EnableVoiceChat"
    follows="left|top"
    height="15"
    label="Move avatar lips when speaking"
    layout="topleft"
    left="20"
    name="enable_lip_sync"
-   top_pad="10" 
+   top_pad="8"
    width="237"/>
   <check_box
    control_name="VoiceEchoCancellation"
+   enabled_control="EnableVoiceChat"
    height="15"
    tool_tip="Check to enable voice echo cancellation"
    label="Echo Cancellation"
@@ -516,6 +563,7 @@
    top_pad="5"/>
   <check_box
    control_name="VoiceAutomaticGainControl"
+   enabled_control="EnableVoiceChat"
    height="15"
    tool_tip="Check to enable automatic gain control"
    label="Automatic Gain Control"
@@ -537,6 +585,7 @@
    left="20"/>
   <check_box
    control_name="VoiceVisualizerEnabled"
+   enabled_control="EnableVoiceChat"
    height="15"
    tool_tip="Check to show voice dot indicator above avatars"
    label="Show voice dot above avatars"
@@ -547,6 +596,7 @@
    width="200"/>
   <button
    control_name="ShowDeviceSettings"
+   enabled_control="EnableVoiceChat"
    follows="left|top"
    height="23"
    is_toggle="true"

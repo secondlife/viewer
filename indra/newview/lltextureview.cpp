@@ -49,6 +49,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
+#include "llviewerthrottle.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llvovolume.h"
@@ -633,7 +634,7 @@ void LLGLTexMemBar::draw()
                                              LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, &x_right);
 
     F32Kilobits bandwidth(LLAppViewer::getTextureFetch()->getTextureBandwidth());
-    F32Kilobits max_bandwidth(gSavedSettings.getF32("ThrottleBandwidthKBPS"));
+    F32Kilobits max_bandwidth(LLViewerThrottle::getMaxBandwidthKbps());
     color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
     color[VALPHA] = text_color[VALPHA];
     text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());

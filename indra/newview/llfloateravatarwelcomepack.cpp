@@ -1,7 +1,7 @@
 /**
- * @file llfloateravatar.h
- * @author Leyla Farazha
- * @brief floater for the avatar changer
+ * @file llfloateravatarwelcomepack.cpp
+ * @author Callum Prentice (callum@lindenlab.com)
+ * @brief Floater container for the Avatar Welcome Pack we app
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,22 +25,34 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATER_AVATAR_H
-#define LL_FLOATER_AVATAR_H
+#include "llviewerprecompiledheaders.h"
 
-#include "llfloater.h"
-class LLMediaCtrl;
+#include "llfloateravatarwelcomepack.h"
+#include "lluictrlfactory.h"
+#include "llmediactrl.h"
 
-class LLFloaterAvatar:
-    public LLFloater
+LLFloaterAvatarWelcomePack::LLFloaterAvatarWelcomePack(const LLSD& key)
+    :   LLFloater(key)
 {
-    friend class LLFloaterReg;
-private:
-    LLFloaterAvatar(const LLSD& key);
-    ~LLFloaterAvatar();
-    bool postBuild() override;
+}
 
-    LLMediaCtrl* mAvatarPicker;
-};
+LLFloaterAvatarWelcomePack::~LLFloaterAvatarWelcomePack()
+{
+    if (mAvatarPicker)
+    {
+        mAvatarPicker->navigateStop();
+        mAvatarPicker->clearCache();          //images are reloading each time already
+        mAvatarPicker->unloadMediaSource();
+    }
+}
 
-#endif
+bool LLFloaterAvatarWelcomePack::postBuild()
+{
+    mAvatarPicker = findChild<LLMediaCtrl>("avatar_picker_contents");
+    if (mAvatarPicker)
+    {
+        mAvatarPicker->clearCache();
+    }
+
+    return true;
+}

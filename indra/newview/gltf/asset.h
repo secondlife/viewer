@@ -286,6 +286,7 @@ namespace LL
             void serialize(boost::json::object& dst) const;
         };
 
+        // Image is for images that we want to load for the given asset.  This acts as an interface into the viewer's texture pipe.
         class Image
         {
         public:
@@ -300,6 +301,8 @@ namespace LL
             S32 mComponent = -1;
             S32 mBits = -1;
             S32 mPixelType = -1;
+
+            bool mLoadIntoTexturePipe = false;
 
             LLPointer<LLViewerFetchedTexture> mTexture;
 
@@ -316,7 +319,7 @@ namespace LL
             // preserve only uri and name
             void clearData(Asset& asset);
 
-            bool prep(Asset& asset);
+            bool prep(Asset& asset, bool loadIntoVRAM);
         };
 
         // Render Batch -- vertex buffer and list of primitives to render using
@@ -391,6 +394,10 @@ namespace LL
 
             // UBO for storing material data
             U32 mMaterialsUBO = 0;
+            bool mLoadIntoVRAM = false;
+
+            std::vector<std::string> mUnsupportedExtensions;
+            std::vector<std::string> mIgnoredExtensions;
 
             // prepare for first time use
             bool prep();
@@ -428,12 +435,12 @@ namespace LL
             // accepts .gltf and .glb files
             // Any existing data will be lost
             // returns result of prep() on success
-            bool load(std::string_view filename);
+            bool load(std::string_view filename, bool loadIntoVRAM);
 
             // load .glb contents from memory
             // data - binary contents of .glb file
             // returns result of prep() on success
-            bool loadBinary(const std::string& data);
+            bool loadBinary(const std::string& data, bool loadIntoVRAM);
 
             const Asset& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;

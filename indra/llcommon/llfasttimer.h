@@ -30,9 +30,14 @@
 #include "llinstancetracker.h"
 #include "lltrace.h"
 #include "lltreeiterators.h"
+#include "llprocessor.h"
 
+#if LL_X86 || LL_X86_64
 #if LL_WINDOWS
 #include <intrin.h>
+#else
+#include <x86intrin.h>
+#endif
 #endif
 
 #define LL_FAST_TIMER_ON 1
@@ -68,35 +73,10 @@ public:
     //
     // Windows implementation of CPU clock
     //
-
-    //
-    // NOTE: put back in when we aren't using platform sdk anymore
-    //
-    // because MS has different signatures for these functions in winnt.h
-    // need to rename them to avoid conflicts
-    //#define _interlockedbittestandset _renamed_interlockedbittestandset
-    //#define _interlockedbittestandreset _renamed_interlockedbittestandreset
-    //#include <intrin.h>
-    //#undef _interlockedbittestandset
-    //#undef _interlockedbittestandreset
-
-    //inline U32 getCPUClockCount32()
-    //{
-    //  U64 time_stamp = __rdtsc();
-    //  return (U32)(time_stamp >> 8);
-    //}
-    //
-    //// return full timer value, *not* shifted by 8 bits
-    //inline U64 getCPUClockCount64()
-    //{
-    //  return __rdtsc();
-    //}
-
-
+#if LL_FASTTIMER_USE_RDTSC
 
     // shift off lower 8 bits for lower resolution but longer term timing
     // on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
-#if LL_FASTTIMER_USE_RDTSC
     static U32 getCPUClockCount32()
     {
         unsigned __int64 val = __rdtsc();
@@ -159,23 +139,37 @@ public:
 #endif // (LL_LINUX) && !(defined(__i386__) || defined(__amd64__))
 
 
-#if (LL_LINUX || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
+#if LL_DARWIN && LL_ARM64
     //
-    // Mac+Linux FAST x86 implementation of CPU clock
+    // Mac implementation of CPU clock - non-x86.
+    //
+    static U64 getCPUClockCount64()
+    {
+        return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+    }
+
     static U32 getCPUClockCount32()
     {
-        U32 low(0),high(0);
-        __asm__ volatile (".byte 0x0f, 0x31": "=a"(low), "=d"(high) );
-        return (low>>8) | (high<<24);
+        return (U32)(getCPUClockCount64() >> 8);
+    }
+#endif // LL_DARWIN && LL_ARM64
+
+#if (LL_LINUX || LL_DARWIN) && (LL_X86 || LL_X86_64)
+    //
+    // Mac+Linux FAST x86 implementation of CPU clock
+    //
+#if LL_FASTTIMER_USE_RDTSC
+    static U32 getCPUClockCount32()
+    {
+        U64 time_stamp = __rdtsc() >> 8U;
+        return static_cast<U32>(time_stamp);
     }
 
     static U64 getCPUClockCount64()
     {
-        U32 low(0),high(0);
-        __asm__ volatile (".byte 0x0f, 0x31": "=a"(low), "=d"(high) );
-        return (U64)low | ( ((U64)high) << 32);
+        return static_cast<U64>(__rdtsc());
     }
-
+#endif
 #endif
 
     static BlockTimerStatHandle& getRootTimeBlock();

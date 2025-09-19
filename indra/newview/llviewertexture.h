@@ -115,6 +115,8 @@ public:
     static void initClass();
     static void updateClass();
     static bool isSystemMemoryLow();
+    static bool isSystemMemoryCritical();
+    static F32 getSystemMemoryBudgetFactor();
 
     LLViewerTexture(bool usemipmaps = true);
     LLViewerTexture(const LLUUID& id, bool usemipmaps) ;
@@ -188,6 +190,8 @@ protected:
 private:
     friend class LLBumpImageList;
     friend class LLUIImageList;
+
+    static U32Megabytes getFreeSystemMemory();
 
 protected:
     friend class LLViewerTextureList;
@@ -444,6 +448,7 @@ protected:
     bool mKnownDrawSizeChanged ;
     std::string mUrl;
 
+    S32 mLastWorkerDiscardLevel;
     S32 mRequestedDiscardLevel;
     F32 mRequestedDownloadPriority;
     S32 mFetchState;

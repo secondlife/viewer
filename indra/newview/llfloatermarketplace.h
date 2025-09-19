@@ -1,7 +1,6 @@
 /**
- * @file llfloateravatar.h
- * @author Leyla Farazha
- * @brief floater for the avatar changer
+ * @file llfloatermarketplace.h
+ * @brief floater for the Marketplace web site
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,37 +24,17 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#pragma once
 
-#include "llfloateravatar.h"
-#include "lluictrlfactory.h"
-#include "llmediactrl.h"
+#include "llfloater.h"
 
-
-LLFloaterAvatar::LLFloaterAvatar(const LLSD& key)
-    :   LLFloater(key)
+class LLFloaterMarketplace:
+    public LLFloater
 {
-}
-
-LLFloaterAvatar::~LLFloaterAvatar()
-{
-    if (mAvatarPicker)
-    {
-        mAvatarPicker->navigateStop();
-        mAvatarPicker->clearCache();          //images are reloading each time already
-        mAvatarPicker->unloadMediaSource();
-    }
-}
-
-bool LLFloaterAvatar::postBuild()
-{
-    mAvatarPicker = findChild<LLMediaCtrl>("avatar_picker_contents");
-    if (mAvatarPicker)
-    {
-        mAvatarPicker->clearCache();
-    }
-    enableResizeCtrls(true, true, false);
-    return true;
-}
-
+    friend class LLFloaterReg;
+private:
+    LLFloaterMarketplace(const LLSD& key);
+    ~LLFloaterMarketplace();
+    bool postBuild() override;
+};
 
