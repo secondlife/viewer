@@ -149,6 +149,12 @@ public:
     std::string getWindowTitle() const; // The window display name.
 
     void forceDisconnect(const std::string& msg); // Force disconnection, with a message to the user.
+
+    // sendSimpleLogoutRequest does not create a marker file.
+    // Meant for lost network case, and for forced shutdowns,
+    // to at least attempt to remove the ghost from the world.
+    void sendSimpleLogoutRequest();
+
     void badNetworkHandler(); // Cause a crash state due to bad network packet.
 
     bool hasSavedFinalSnapshot() { return mSavedFinalSnapshot; }

@@ -118,11 +118,21 @@ const std::string LLConversation::createTimestamp(const U64Seconds& utc_time)
     LLSD substitution;
     substitution["datetime"] = (S32)utc_time.value();
 
-    timeStr = "["+LLTrans::getString ("TimeMonth")+"]/["
-                 +LLTrans::getString ("TimeDay")+"]/["
-                 +LLTrans::getString ("TimeYear")+"] ["
-                 +LLTrans::getString ("TimeHour")+"]:["
-                 +LLTrans::getString ("TimeMin")+"]";
+    static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+    timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
+        + LLTrans::getString("TimeDay") + "]/["
+        + LLTrans::getString("TimeYear") + "] [";
+    if (use_24h)
+    {
+        timeStr += LLTrans::getString("TimeHour") + "]:["
+            + LLTrans::getString("TimeMin") + "]";
+    }
+    else
+    {
+        timeStr += LLTrans::getString("TimeHour12") + "]:["
+            + LLTrans::getString("TimeMin") + "] ["
+            + LLTrans::getString("TimeAMPM") + "]";
+    }
 
 
     LLStringUtil::format (timeStr, substitution);

@@ -49,6 +49,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
+#include "llviewerthrottle.h"
 #include "llviewerassetstats.h"
 #include "llworld.h"
 #include "llsdparam.h"
@@ -2434,7 +2435,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool threaded, bool qa_mod
       mOriginFetchSource(LLTextureFetch::FROM_ALL),
       mTextureInfoMainThread(false)
 {
-    mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
+    mMaxBandwidth = LLViewerThrottle::getMaxBandwidthKbps();
     mTextureInfo.setLogging(true);
 
     LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
@@ -2953,11 +2954,10 @@ void LLTextureFetch::commonUpdate()
 size_t LLTextureFetch::update(F32 max_time_ms)
 {
     LL_PROFILE_ZONE_SCOPED;
-    static LLCachedControl<F32> band_width(gSavedSettings,"ThrottleBandwidthKBPS", 3000.0);
 
     {
         mNetworkQueueMutex.lock();                                      // +Mfnq
-        mMaxBandwidth = band_width();
+        mMaxBandwidth = LLViewerThrottle::getMaxBandwidthKbps();
 
         add(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED, mHTTPTextureBits);
         mHTTPTextureBits = (U32Bits)0;

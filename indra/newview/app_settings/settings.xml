@@ -13036,9 +13036,9 @@
     <key>Use24HourClock</key>
     <map>
         <key>Comment</key>
-        <string>12 vs 24. At the moment only for region restart schedule floater</string>
+        <string>12 vs 24. At the moment coverage is partial</string>
         <key>Persist</key>
-        <integer>0</integer>
+        <integer>1</integer>
         <key>Type</key>
         <string>Boolean</string>
         <key>Value</key>

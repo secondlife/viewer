@@ -1069,6 +1069,14 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
+    S32 text_length = (S32)getLength();
+    if (pos >= text_length || pos < 0)
+    {
+        return 0; // nothing to remove
+    }
+    // Clamp length to not go past the end of the text
+    length = std::min(length, text_length - pos);
+
     beforeValueChange();
     segment_set_t::iterator seg_iter = getSegIterContaining(pos);
     while(seg_iter != mSegments.end())
@@ -3757,7 +3765,7 @@ bool LLNormalTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& w
 {
     height = 0;
     width = 0;
-    if (num_chars > 0)
+    if (num_chars > 0 && (mStart + first_char >= 0))
     {
         height = mFontHeight;
         const LLWString &text = getWText();

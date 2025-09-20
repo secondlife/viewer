@@ -475,6 +475,8 @@ bool LLFloaterPreference::postBuild()
     getChild<LLUICtrl>("log_path_string")->setEnabled(false); // make it read-only but selectable
 
     getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
+    mTimeFormatCombobox = getChild<LLComboBox>("time_format_combobox");
+    mTimeFormatCombobox->setCommitCallback(boost::bind(&LLFloaterPreference::onTimeFormatChange, this));
 
     getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
     getChild<LLComboBox>("NonFriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NonFriendIMOptions"));
@@ -758,6 +760,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
     // Forget previous language changes.
     mLanguageChanged = false;
+    mLastQualityLevel = gSavedSettings.getU32("RenderQualityPerformance");
 
     // Display selected maturity icons.
     onChangeMaturity();
@@ -1102,6 +1105,13 @@ void LLFloaterPreference::onLanguageChange()
     }
 }
 
+void LLFloaterPreference::onTimeFormatChange()
+{
+    std::string val = mTimeFormatCombobox->getValue();
+    gSavedSettings.setBOOL("Use24HourClock", val == "1");
+    onLanguageChange();
+}
+
 void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
 {
     mNotificationOptions[OptionName] = getChild<LLComboBox>(OptionName)->getSelectedItemLabel();
@@ -1317,6 +1327,8 @@ void LLFloaterPreference::refresh()
         advanced->refresh();
     }
     updateClickActionViews();
+
+    mTimeFormatCombobox->selectByValue(gSavedSettings.getBOOL("Use24HourClock") ? "1" : "0");
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1327,6 +1339,33 @@ void LLFloaterPreference::onCommitWindowedMode()
 void LLFloaterPreference::onChangeQuality(const LLSD& data)
 {
     U32 level = (U32)(data.asReal());
+    constexpr U32 LVL_HIGH = 4;
+    if (level >= LVL_HIGH && mLastQualityLevel < level)
+    {
+        constexpr U32 LOW_MEM_THRESHOLD = 4097;
+        U32 total_mem = (U32Megabytes)LLMemory::getMaxMemKB();
+        if (total_mem < LOW_MEM_THRESHOLD)
+        {
+            LLSD args;
+            args["TOTAL_MEM"] = LLSD::Integer(total_mem);
+            LLNotificationsUtil::add("PreferenceQualityWithLowMemory", args, LLSD(), [this](const LLSD& notification, const LLSD& response)
+            {
+                S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+                // If cancel pressed
+                if (option == 1)
+                {
+                    constexpr U32 LVL_MED_PLUS = 3;
+                    gSavedSettings.setU32("RenderQualityPerformance", LVL_MED_PLUS);
+                    mLastQualityLevel = LVL_MED_PLUS;
+                    LLFeatureManager::getInstance()->setGraphicsLevel(LVL_MED_PLUS, true);
+                    refreshEnabledGraphics();
+                    refresh();
+                }
+            }
+            );
+        }
+    }
+    mLastQualityLevel = level;
     LLFeatureManager::getInstance()->setGraphicsLevel(level, true);
     refreshEnabledGraphics();
     refresh();
