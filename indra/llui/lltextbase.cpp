@@ -1448,6 +1448,8 @@ void LLTextBase::reshape(S32 width, S32 height, bool called_from_parent)
         // up-to-date mVisibleTextRect
         updateRects();
 
+        // Todo: This might be wrong. updateRects already sets needsReflow conditionaly.
+        // Reflow is expensive and doing it at any twith can be too much.
         needsReflow();
     }
 }
