@@ -249,6 +249,9 @@ public:
     // Accessor functions
     LLViewerRegion* getRegion() const               { return mRegionp; }
 
+    // Check if object is reachable from agent region by traversing loaded neighboring regions
+    bool isReachable();
+
     bool isSelected() const                         { return mUserSelected; }
     // Check whole linkset
     bool isAnySelected() const;
