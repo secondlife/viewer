@@ -169,10 +169,11 @@ public:
     bool subscribeScriptEditor(const LLHandle<LLPanel>& editor_handle, const std::string &script_id);
     void unsubscribeEditor(const std::string &script_id);
 
+    void notifyScript(const std::string& script_id, const std::string& method, const LLSD& message) const;
     void sendUnsubscribeScriptEditor(const std::string& script_id);
+    void sendCompileResults(const std::string& script_id, const LLSD& results) const;
 
-    LLHandle<LLPanel>                           findEditorForScript(const std::string& script_id) const;
-    std::shared_ptr<LLScriptEditorWSConnection> findConnectionForScript(const std::string& script_id);
+    LLHandle<LLPanel> findEditorForScript(const std::string& script_id) const;
 
     /**
      * @brief Get list of active script editing sessions

@@ -105,7 +105,9 @@ public:
     void            initMenu();
     void            processKeywords();
     void            processKeywords(bool luau_language);
-    LLKeywords&     getKeywords() { return mEditor->getKeywords(); }
+    LLScriptEditor* getEditor() const { return mEditor; }
+    LLKeywords&     getKeywords() const { return mEditor->getKeywords(); }
+    bool            isLuauLanguage() const { return mEditor->getIsLuauLanguage(); }
 
     void            draw() override;
     bool            postBuild() override;
@@ -160,7 +162,6 @@ public:
 
     void            enableSave(bool b) { mEnableSave = b; }
     bool            hasChanged() const;
-
 
   private:
     void        onBtnDynamicHelp();
@@ -223,6 +224,7 @@ public:
 
     void startWebsocketServer();
     void unsubscribeScript();
+    void sendCompileResults(LLSD&);
 
     LLScriptEdCore* getScriptEdCore() const { return mScriptEd; }
 

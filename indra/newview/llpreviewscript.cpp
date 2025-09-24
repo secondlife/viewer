@@ -1500,8 +1500,6 @@ void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
     mAssociatedExperience = experience_id;
 }
 
-
-
 void LLLiveLSLEditor::requestExperiences()
 {
     if (!getIsModifiable())
@@ -1719,6 +1717,15 @@ void LLScriptEdContainer::unsubscribeScript()
     }
 }
 
+void LLScriptEdContainer::sendCompileResults(LLSD& params)
+{
+    auto server = mWebSocketServer.lock();
+    if (server)
+    {
+        std::string script_id_hash_str(getUniqueHash());
+        server->sendCompileResults(script_id_hash_str, params);
+    }
+}
 
 /// ---------------------------------------------------------------------------
 /// LLPreviewLSL
@@ -1957,6 +1964,7 @@ void LLPreviewLSL::finishedLSLUpload(LLUUID itemId, LLSD response)
         {
             preview->callbackLSLCompileFailed(response["errors"]);
         }
+        preview->sendCompileResults(response);
     }
 }
 
@@ -1980,6 +1988,12 @@ bool LLPreviewLSL::failedLSLUpload(LLUUID itemId, LLUUID taskId, LLSD response, 
         LLSD errors;
         errors.append(LLTrans::getString("UploadFailed") + reason);
         preview->callbackLSLCompileFailed(errors);
+
+        LLSD message;
+        message["compiled"] = false;
+        message["errors"]   = errors;
+        preview->sendCompileResults(message);
+
         return true;
     }
 
@@ -2514,6 +2528,8 @@ void LLLiveLSLEditor::finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAs
         {
             preview->callbackLSLCompileFailed(response["errors"]);
         }
+        response["is_running"] = isRunning;
+        preview->sendCompileResults(response);
     }
 }
 

@@ -34,6 +34,7 @@
 #include "lluuid.h"
 #include "llversioninfo.h"
 #include "llagent.h"
+#include "llregex.h"
 
 //========================================================================
 LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only)
@@ -198,13 +199,6 @@ LLHandle<LLPanel> LLScriptEditorWSServer::findEditorForScript(const std::string&
     return LLHandle<LLPanel>();
 }
 
-std::shared_ptr<LLScriptEditorWSConnection> LLScriptEditorWSServer::findConnectionForScript(const std::string& script_id)
-{
-    // TODO: Implement logic to find connection handling a specific script
-    // This would require tracking which connection is responsible for which script
-    return nullptr;
-}
-
 std::set<std::string> LLScriptEditorWSServer::getActiveScripts() const
 {
     std::set<std::string> active_scripts;
@@ -300,22 +294,28 @@ LLSD LLScriptEditorWSServer::handleSyntaxRequest(const LLSD& params) const
     LLSD        response(LLSD::emptyMap());
     std::string category = params["kind"].asString();
 
-    response["id"] = mLastSyntaxId;
-
-    if (category == "types.luau")
+    if (category.empty())
     {
-        response["types"] = LLSyntaxLua::instance().getTypesXML();
+        response["error"] = "No syntax category specified";
+        response["success"] = false;
+        return response;
+    }
+
+    response["id"] = mLastSyntaxId;
+    if (category == "defs.lua")
+    {
+        response["defs"] = LLSyntaxLua::instance().getTypesXML();
+        response["success"] = true;
+    }
+    else if (category == "defs.lsl")
+    {
+        response["defs"] = LLSyntaxIdLSL::instance().getKeywordsXML();
+        response["success"] = true;
     }
     else
     {
-        LLSD syntax = LLSyntaxIdLSL::instance().getKeywordsXML();
-
-        // TODO: support language definitions and additional modules.
-
-        if (syntax.has(category))
-        {
-            response[category] = syntax[category];
-        }
+        response["error"] = "Unknown syntax category requested";
+        response["success"] = false;
     }
     return response;
 }
@@ -376,7 +376,7 @@ LLSD LLScriptEditorWSServer::handleScriptUnsubscribe(U32 connection_id, const LL
     return LLSD();
 }
 
-void LLScriptEditorWSServer::sendUnsubscribeScriptEditor(const std::string& script_id)
+void LLScriptEditorWSServer::notifyScript(const std::string& script_id, const std::string &method, const LLSD& message) const
 {
     auto it = mSubscriptions.find(script_id);
     if (it != mSubscriptions.end())
@@ -384,11 +384,107 @@ void LLScriptEditorWSServer::sendUnsubscribeScriptEditor(const std::string& scri
         auto connection = it->second.mConnection.lock();
         if (connection)
         {
-            LLSD params;
-            params["script_id"] = script_id;
-            connection->notify("script.unsubscribe", params);
+            connection->notify(method, message);
         }
     }
+}
+
+
+void LLScriptEditorWSServer::sendUnsubscribeScriptEditor(const std::string& script_id)
+{
+    LLSD params;
+    params["script_id"] = script_id;
+
+    notifyScript(script_id, "script.unsubscribe", params);
+}
+
+void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, const LLSD &results) const
+{
+    LLHandle<LLPanel> editor_handle = findEditorForScript(script_id);
+    if (editor_handle.isDead())
+    {
+        return;
+    }
+    LLScriptEdContainer* editor = dynamic_cast<LLScriptEdContainer*>(editor_handle.get());
+    if (!editor)
+    {
+        return;
+    }
+    LLScriptEdCore* core = editor->getScriptEdCore();
+    bool is_lua = core && (core->isLuauLanguage());
+
+    LLSD params;
+    params["scriptId"] = script_id;
+    params["success"]  = results["compiled"].asBoolean();
+    params["running"]  = results["is_running"].asBoolean();
+    if (results.has("errors"))
+    {
+        params["errors"] = LLSD::emptyArray();
+
+        if (is_lua)
+        {   // lua errors: ":line: message", line is 1-based
+            const static boost::regex lua_err_regex(R"(^[^:]*:(\d+): (.+)$)");
+
+            for (const auto& err : llsd::inArray(results["errors"]))
+            {
+                boost::smatch match;
+                LLSD err_entry;
+
+                err_entry["column"] = 0; // TODO: Lua compiler does not provide column info
+                err_entry["level"]  = "ERROR";
+
+                if (boost::regex_match(err.asString(), match, lua_err_regex))
+                {
+                    S32 line_number = std::stoi(match[1].str());
+                    std::string message = match[2].str();
+
+                    err_entry["row"] = line_number;
+                    err_entry["message"] = message;
+                }
+                else
+                {
+                    err_entry["row"] = 0;
+                    err_entry["message"] = err.asString();
+                }
+                params["errors"].append(err_entry);
+            }
+        }
+        else
+        {   // lsl errors: "(line, column) : SEVERITY : message", line and column are 0-based
+            static const boost::regex lsl_err_regex(R"(\((\d+), (\d+)\) : ([^:]+) : (.+))");
+
+            for (const auto& err : llsd::inArray(results["errors"]))
+            {
+                boost::smatch match;
+                LLSD err_entry;
+
+                if (boost::regex_match(err.asString(), match, lsl_err_regex))
+                {
+                    S32         line_number = std::stoi(match[1].str());
+                    S32         col_number = std::stoi(match[2].str());
+                    std::string severity = match[3].str();
+                    std::string message = match[4].str();
+
+                    err_entry["row"]     = line_number + 1;
+                    err_entry["column"]  = col_number + 1;
+                    err_entry["level"]   = severity;
+                    err_entry["message"] = message;
+                    err_entry["format"]  = "lsl";
+                }
+                else
+                {
+                    err_entry["row"]     = 0;
+                    err_entry["column"]  = 0;
+                    err_entry["level"]   = "ERROR";
+                    err_entry["message"] = err.asString();
+                    err_entry["format"]  = "lsl";
+                }
+                params["errors"].append(err_entry);
+            }
+        }
+    }
+
+    notifyScript(script_id, "script.compiled", params);
 }
 
 //========================================================================
@@ -414,13 +510,15 @@ void LLScriptEditorWSConnection::onOpen()
     handshake["viewer_version"]   = LLVersionInfo::instance().getVersion();
 
     handshake["agent_id"] = gAgent.getID();
+    handshake["agent_name"] = "todo";
 
     // handshake["challenge"] = ... TODO: simple challenge, write to a file and have the client echo it back?
 
     LLSD languages = LLSD::emptyArray();
     languages.append("lsl");
     languages.append("luau");
-    handshake["supported_languages"] = languages;
+    handshake["languages"] = languages;
+    handshake["syntax_id"] = LLSyntaxIdLSL::instance().getSyntaxID();
 
     // Features object
     LLSD features;
