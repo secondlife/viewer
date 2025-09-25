@@ -125,11 +125,13 @@ jobs:
         with:
           token: ${{ github.token }}
       
-      - name: Setup Xcode command line tools
+      - name: Debug xcode location 
         if: runner.os == 'macOS'
         run: |
-          sudo xcode-select --install || true
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          ls -la /Applications/Xcode*
+          which clang
+          which clang++
+          clang --version || echo "clang not found"
 
       - name: Build
         id: build
