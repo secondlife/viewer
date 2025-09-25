@@ -124,6 +124,12 @@ jobs:
         uses: secondlife/viewer-build-util/which-branch@v2
         with:
           token: ${{ github.token }}
+      
+      - name: Setup Xcode command line tools
+        if: runner.os == 'macOS'
+        run: |
+          sudo xcode-select --install || true
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Build
         id: build
