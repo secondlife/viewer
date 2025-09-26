@@ -209,9 +209,6 @@ void LLFloaterModeration::refreshList()
 
         mResidentList.push_back(elem);
 
-        // TODO: crash here
-        //delete elem;
-
         // Observe and issue a request for the age of the resident account
         LLAvatarPropertiesProcessor::getInstance()->addObserver(avatar_ids[i], this);
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_ids[i]);
