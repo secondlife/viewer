@@ -419,7 +419,9 @@ void LLViewerInventoryItem::updateServer(bool is_new) const
                          << LL_ENDL;
         return;
     }
-    if(gAgent.getID() != mPermissions.getOwner())
+    LLUUID owner = mPermissions.getOwner();
+    if(gAgent.getID() != owner
+        && owner.notNull()) // incomplete?
     {
         // *FIX: deal with this better.
         LL_WARNS(LOG_INV) << "LLViewerInventoryItem::updateServer() - for unowned item "
