@@ -125,4 +125,12 @@ class LLFloaterModeration :
 
         // virtual override for asynchronous avatar information callback
         void processProperties(void* data, EAvatarProcessorType type) override;
+
+        // apply an action to the selected residents
+        enum EResidentAction
+        {
+            MUTE = 0,
+            UNMUTE = 1
+        };
+        void applyActionSelectedResidents(EResidentAction action);
 };

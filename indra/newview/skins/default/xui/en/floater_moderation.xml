@@ -84,19 +84,19 @@
     </scroll_list>
     <button
       height="20"
-      label="Unmute Selected"
+      label="Mute Selected"
       layout="topright"
       bottom="-320"
       left="10"
-      name="unmute_residents_btn"
+      name="mute_residents_btn"
       width="120" />
     <button
       height="20"
-      label="Mute Selected"
+      label="Unmute Selected"
       layout="topright"
       bottom="-345"
       left="10"
-      name="mute_residents_btn"
+      name="unmute_residents_btn"
       width="120" />
     <button
       height="20"

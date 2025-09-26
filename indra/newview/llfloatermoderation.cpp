@@ -67,7 +67,7 @@ bool LLFloaterModeration::postBuild()
     mSelectNoneBtn->setCommitCallback([this](LLUICtrl*, void*)
     {
         // Thgere really ought to be a ::selectNone()...
-        mResidentListScroller->selectNthItem(std::numeric_limits<int>::max());
+        mResidentListScroller->deselect();
     }, nullptr);
 
     mShowProfileBtn = getChild<LLUICtrl>("show_resident_profile_btn");
@@ -217,9 +217,9 @@ void LLFloaterModeration::refreshList()
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_ids[i]);
     }
 
-    //addDummyResident("Snowshoe Cringifoot");
-    //addDummyResident("Applepie Kitterbul");
-    //addDummyResident("Wigglepod Bundersauce");
+    addDummyResident("Snowshoe Cringifoot");
+    addDummyResident("Applepie Kitterbul");
+    addDummyResident("Wigglepod Bundersauce");
 
     sortListByName();
 }
@@ -352,13 +352,7 @@ void LLFloaterModeration::onDoubleClickListItem(void* data)
 
 LLUUID LLFloaterModeration::getSelectedAvatarId()
 {
-    LLScrollListCtrl* list = getChild<LLScrollListCtrl>("moderation_resident_info_list");
-    if (! list)
-    {
-        return LLUUID::null;
-    }
-
-    LLScrollListItem* first_selected = list->getFirstSelected();
+    LLScrollListItem* first_selected = mResidentListScroller->getFirstSelected();
     if (! first_selected)
     {
         return LLUUID::null;
@@ -419,12 +413,41 @@ void LLFloaterModeration::trackResidentPosition()
     }
 }
 
+void LLFloaterModeration::applyActionSelectedResidents(EResidentAction action)
+{
+    std::vector<LLScrollListItem*> selected = mResidentListScroller->getAllSelected();
+    for (const LLScrollListItem* s : selected)
+    {
+        const LLScrollListCell* id_cell = s->getColumn(EListColumnNum::ID);
+        const LLScrollListCell* name_cell = s->getColumn(EListColumnNum::NAME);
+        if (id_cell && name_cell)
+        {
+            if (action == EResidentAction::MUTE)
+            {
+                LL_INFOS() << "    "
+                           << name_cell->getValue().asString()
+                           << " (" << id_cell->getValue().asString() << ")"
+                           << LL_ENDL;
+            }
+            else if (action == EResidentAction::UNMUTE)
+            {
+                LL_INFOS() << "    "
+                           << name_cell->getValue().asString()
+                           << " (" << id_cell->getValue().asString() << ")"
+                           << LL_ENDL;
+            }
+        }
+    }
+}
+
 void LLFloaterModeration::muteResidents()
 {
-    LL_INFOS() << "Muting " << mResidentListScroller->getNumSelected() << " selected residents" << LL_ENDL;
+    LL_INFOS() << "Muting " << mResidentListScroller->getNumSelected() << " selected residents:" << LL_ENDL;
+    applyActionSelectedResidents(EResidentAction::MUTE);
 }
 
 void LLFloaterModeration::unmuteResidents()
 {
     LL_INFOS() << "Unmuting " << mResidentListScroller->getNumSelected() << " selected residents" << LL_ENDL;
+    applyActionSelectedResidents(EResidentAction::UNMUTE);
 }
