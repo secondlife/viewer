@@ -118,7 +118,7 @@ static const GLenum sGLBlendFactor[] =
 
 LLTexUnit::LLTexUnit(S32 index)
     : mCurrTexType(TT_NONE),
-    mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
+    mCurrTexture(0),
     mHasMipMaps(false),
     mIndex(index)
 {
@@ -207,6 +207,12 @@ void LLTexUnit::bindFast(LLTexture* texture)
     }
     glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
     mHasMipMaps = gl_tex->mHasMipMaps;
+    if (gl_tex->mTexOptionsDirty)
+    {
+        gl_tex->mTexOptionsDirty = false;
+        setTextureAddressModeFast(gl_tex->mAddressMode);
+        setTextureFilteringOptionFast(gl_tex->mFilterOption);
+    }
 }
 
 bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
@@ -461,11 +467,16 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
     activate();
 
-    glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
-    glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
+    setTextureAddressModeFast(mode);
+}
+
+void LLTexUnit::setTextureAddressModeFast(eTextureAddressMode mode)
+{
+    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
+    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
     if (mCurrTexType == TT_CUBE_MAP)
     {
-        glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
     }
 }
 
@@ -475,6 +486,11 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 
     gGL.flush();
 
+    setTextureFilteringOptionFast(option);
+}
+
+void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option)
+{
     if (option == TFO_POINT)
     {
         glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -511,7 +527,7 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
         }
     }
 
-    if (gGLManager.mGLVersion >= 4.59f)
+    if (gGLManager.mHasAnisotropic)
     {
         if (LLImageGL::sGlobalUseAnisotropic && option == TFO_ANISOTROPIC)
         {
@@ -597,26 +613,6 @@ GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
         default:
             LL_WARNS() << "Unknown eTextureBlendSrc: " << src << ".  Using Source Color or Alpha instead." << LL_ENDL;
             return (isAlpha) ? GL_SRC_ALPHA: GL_SRC_COLOR;
-    }
-}
-
-void LLTexUnit::setColorScale(S32 scale)
-{
-    if (mCurrColorScale != scale || gGL.mDirty)
-    {
-        mCurrColorScale = scale;
-        gGL.flush();
-        glTexEnvi( GL_TEXTURE_ENV, GL_RGB_SCALE, scale );
-    }
-}
-
-void LLTexUnit::setAlphaScale(S32 scale)
-{
-    if (mCurrAlphaScale != scale || gGL.mDirty)
-    {
-        mCurrAlphaScale = scale;
-        gGL.flush();
-        glTexEnvi( GL_TEXTURE_ENV, GL_ALPHA_SCALE, scale );
     }
 }
 
@@ -1283,9 +1279,7 @@ void LLRender::translateUI(F32 x, F32 y, F32 z)
         LL_ERRS() << "Need to push a UI translation frame before offsetting" << LL_ENDL;
     }
 
-    mUIOffset.back().mV[0] += x;
-    mUIOffset.back().mV[1] += y;
-    mUIOffset.back().mV[2] += z;
+    mUIOffset.back().add(LLVector4a(x, y, z));
 }
 
 void LLRender::scaleUI(F32 x, F32 y, F32 z)
@@ -1295,14 +1289,14 @@ void LLRender::scaleUI(F32 x, F32 y, F32 z)
         LL_ERRS() << "Need to push a UI transformation frame before scaling." << LL_ENDL;
     }
 
-    mUIScale.back().scaleVec(LLVector3(x,y,z));
+    mUIScale.back().mul(LLVector4a(x, y, z));
 }
 
 void LLRender::pushUIMatrix()
 {
     if (mUIOffset.empty())
     {
-        mUIOffset.emplace_back(0.f,0.f,0.f);
+        mUIOffset.emplace_back(0.f);
     }
     else
     {
@@ -1311,7 +1305,7 @@ void LLRender::pushUIMatrix()
 
     if (mUIScale.empty())
     {
-        mUIScale.emplace_back(1.f,1.f,1.f);
+        mUIScale.emplace_back(1.f);
     }
     else
     {
@@ -1333,18 +1327,20 @@ LLVector3 LLRender::getUITranslation()
 {
     if (mUIOffset.empty())
     {
-        return LLVector3(0,0,0);
+        return LLVector3::zero;
     }
-    return mUIOffset.back();
+
+    return LLVector3(mUIOffset.back().getF32ptr());
 }
 
 LLVector3 LLRender::getUIScale()
 {
     if (mUIScale.empty())
     {
-        return LLVector3(1,1,1);
+        return LLVector3::all_one;
     }
-    return mUIScale.back();
+
+    return LLVector3(mUIScale.back().getF32ptr());
 }
 
 
@@ -1354,8 +1350,9 @@ void LLRender::loadUIIdentity()
     {
         LL_ERRS() << "Need to push UI translation frame before clearing offset." << LL_ENDL;
     }
-    mUIOffset.back().setVec(0,0,0);
-    mUIScale.back().setVec(1,1,1);
+
+    mUIOffset.back().clear();
+    mUIScale.back().splat(1);
 }
 
 void LLRender::setColorMask(bool writeColor, bool writeAlpha)
@@ -1783,8 +1780,10 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
     }
     else
     {
-        LLVector3 vert = (LLVector3(x,y,z)+mUIOffset.back()).scaledVec(mUIScale.back());
-        mVerticesp[mCount].set(vert.mV[VX], vert.mV[VY], vert.mV[VZ]);
+        LLVector4a vert(x, y, z);
+        vert.add(mUIOffset.back());
+        vert.mul(mUIScale.back());
+        mVerticesp[mCount] = vert;
     }
 
     mCount++;

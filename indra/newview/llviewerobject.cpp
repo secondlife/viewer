@@ -7717,6 +7717,51 @@ void LLViewerObject::clearTEWaterExclusion(const U8 te)
     }
 }
 
+bool LLViewerObject::isReachable()
+{
+    LLViewerRegion* agent_region = gAgent.getRegion();
+    LLViewerRegion* object_region = getRegion();
+
+    if (!agent_region || !object_region)
+    {
+        return false;
+    }
+    if (agent_region == object_region)
+    {
+        return true;
+    }
+
+    std::unordered_set<LLViewerRegion*> visited;
+    std::queue<LLViewerRegion*> pending;
+    visited.insert(agent_region);
+    pending.push(agent_region);
+
+    while (!pending.empty())
+    {
+        LLViewerRegion* current = pending.front();
+        pending.pop();
+
+        std::vector<LLViewerRegion*> neighbors;
+        current->getNeighboringRegions(neighbors);
+
+        for (LLViewerRegion* neighbor : neighbors)
+        {
+            if (!neighbor) continue;
+
+            if (neighbor == object_region)
+            {
+                return true;
+            }
+            // region's neighbors were not checked
+            if (visited.insert(neighbor).second)
+            {
+                pending.push(neighbor);
+            }
+        }
+    }
+    return false;
+}
+
 class ObjectPhysicsProperties : public LLHTTPNode
 {
 public:

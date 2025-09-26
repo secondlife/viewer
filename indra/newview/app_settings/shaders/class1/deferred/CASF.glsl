@@ -2545,12 +2545,31 @@ A_STATIC void CasSetup(
 #endif
 
 #ifdef A_GPU
+
+#ifdef LEGACY_GAMMA
+uniform float gamma;
+
+vec3 legacyGamma(vec3 color)
+{
+    vec3 c = 1. - clamp(color, vec3(0.), vec3(1.));
+    c = 1. - pow(c, vec3(gamma)); // s/b inverted already CPU-side
+
+    return c;
+}
+#endif
+
 void main()
 {
     vec4 diff = vec4(0.f);
     uvec2 point = uvec2(vary_fragcoord * out_screen_res.xy);
     CasFilter(diff.r, diff.g, diff.b, point, cas_param_0, cas_param_1, true);
     diff.a = texture(diffuseRect, vary_fragcoord).a;
+    diff.rgb = linear_to_srgb(diff.rgb);
+
+#ifdef LEGACY_GAMMA
+    diff.rgb = legacyGamma(diff.rgb);
+#endif
+
     frag_color = diff;
 }
 #endif

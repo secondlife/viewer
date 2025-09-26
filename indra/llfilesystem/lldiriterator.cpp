@@ -52,7 +52,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
     : mIsValid(false)
 {
 #ifdef LL_WINDOWS // or BOOST_WINDOWS_API
-    fs::path dir_path(utf8str_to_utf16str(dirname));
+    fs::path dir_path(ll_convert<std::wstring>(dirname));
 #else
     fs::path dir_path(dirname);
 #endif

@@ -173,16 +173,13 @@ namespace
                                     << '/' << loc.mV[2])));
             }
 
-            if (!LLAppViewer::instance()->isSecondInstance())
+            LLAppViewer* app = LLAppViewer::instance();
+            if (!app->isSecondInstance() && !app->errorMarkerExists())
             {
-                std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-                if (!LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
-                {
-                    // If marker doesn't exist, create a marker with 'other' code for next launch
-                    // otherwise don't override existing file
-                    // Any unmarked crashes will be considered as freezes
-                    LLAppViewer::instance()->createErrorMarker(LAST_EXEC_OTHER_CRASH);
-                }
+                // If marker doesn't exist, create a marker with 'other' code for next launch
+                // otherwise don't override existing file
+                // Any unmarked crashes will be considered as freezes
+                app->createErrorMarker(LAST_EXEC_OTHER_CRASH);
             }
         } // MDSCB_EXCEPTIONCODE
 
@@ -265,8 +262,8 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 
     NvAPI_UnicodeString profile_name;
     std::string app_name = LLTrans::getString("APP_NAME");
-    llutf16string w_app_name = utf8str_to_utf16str(app_name);
-    wsprintf(profile_name, L"%s", w_app_name.c_str());
+    std::wstring w_app_name = ll_convert<std::wstring>(app_name);
+    wsprintf(reinterpret_cast<wchar_t*>(profile_name), L"%s", w_app_name.c_str());
     NvDRSProfileHandle hProfile = 0;
     // (3) Check if we already have an application profile for the viewer
     status = NvAPI_DRS_FindProfileByName(hSession, profile_name, &hProfile);
@@ -283,7 +280,7 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
         NVDRS_PROFILE profileInfo;
         profileInfo.version = NVDRS_PROFILE_VER;
         profileInfo.isPredefined = 0;
-        wsprintf(profileInfo.profileName, L"%s", w_app_name.c_str());
+        wsprintf(reinterpret_cast<wchar_t*>(profileInfo.profileName), L"%s", w_app_name.c_str());
 
         status = NvAPI_DRS_CreateProfile(hSession, &profileInfo, &hProfile);
         if (status != NVAPI_OK)
@@ -298,9 +295,9 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
     NVDRS_APPLICATION profile_application;
     profile_application.version = NVDRS_APPLICATION_VER;
 
-    llutf16string w_exe_name = utf8str_to_utf16str(exe_name);
+    std::wstring w_exe_name = ll_convert<std::wstring>(exe_name);
     NvAPI_UnicodeString profile_app_name;
-    wsprintf(profile_app_name, L"%s", w_exe_name.c_str());
+    wsprintf(reinterpret_cast<wchar_t*>(profile_app_name), L"%s", w_exe_name.c_str());
 
     status = NvAPI_DRS_GetApplicationInfo(hSession, hProfile, profile_app_name, &profile_application);
     if (status != NVAPI_OK && status != NVAPI_EXECUTABLE_NOT_FOUND)
@@ -316,10 +313,10 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
         NVDRS_APPLICATION application;
         application.version = NVDRS_APPLICATION_VER;
         application.isPredefined = 0;
-        wsprintf(application.appName, L"%s", w_exe_name.c_str());
-        wsprintf(application.userFriendlyName, L"%s", w_exe_name.c_str());
-        wsprintf(application.launcher, L"%s", w_exe_name.c_str());
-        wsprintf(application.fileInFolder, L"%s", "");
+        wsprintf(reinterpret_cast<wchar_t*>(application.appName), L"%s", w_exe_name.c_str());
+        wsprintf(reinterpret_cast<wchar_t*>(application.userFriendlyName), L"%s", w_exe_name.c_str());
+        wsprintf(reinterpret_cast<wchar_t*>(application.launcher), L"%s", w_exe_name.c_str());
+        wsprintf(reinterpret_cast<wchar_t*>(application.fileInFolder), L"%s", "");
 
         status = NvAPI_DRS_CreateApplication(hSession, hProfile, &application);
         if (status != NVAPI_OK)
@@ -593,7 +590,7 @@ void LLAppViewerWin32::disableWinErrorReporting()
 {
     std::string executable_name = gDirUtilp->getExecutableFilename();
 
-    if( S_OK == WerAddExcludedApplication( utf8str_to_utf16str(executable_name).c_str(), FALSE ) )
+    if( S_OK == WerAddExcludedApplication(ll_convert<std::wstring>(executable_name).c_str(), FALSE ) )
     {
         LL_INFOS() << "WerAddExcludedApplication() succeeded for " << executable_name << LL_ENDL;
     }
