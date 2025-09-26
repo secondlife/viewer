@@ -73,6 +73,9 @@ public:
     // Returns true if available.
     bool getFullName(const LLUUID& id, std::string& full_name);
 
+    // Returns first name, last name
+    bool getFirstLastName(const LLUUID& id, std::string& first, std::string& last);
+
     // Reverse lookup of UUID from name
     bool getUUID(const std::string& first, const std::string& last, LLUUID& id);
     bool getUUID(const std::string& fullname, LLUUID& id);

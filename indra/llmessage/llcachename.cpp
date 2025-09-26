@@ -447,7 +447,10 @@ bool LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
     return res;
 }
 
-
+bool LLCacheName::getFirstLastName(const LLUUID& id, std::string& first, std::string& last)
+{
+    return impl.getName(id, first, last, mCacheName);
+}
 
 bool LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {

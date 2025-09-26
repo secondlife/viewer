@@ -418,7 +418,17 @@
          parameter="avatar_welcome_pack" />
       </menu_item_call>
       <menu_item_separator/>
-
+      <menu_item_call
+        enabled="true"
+        label="Moderation"
+        layout="topleft"
+        name="Moderation"
+        shortcut="control|alt|M">
+        <menu_item_call.on_click
+            function="Floater.ToggleOrBringToFront"
+            parameter="moderation" />
+      </menu_item_call>
+      <menu_item_separator/>
       <menu_item_call
          label="Sit / stand"
          layout="topleft"
