@@ -1997,6 +1997,14 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 }
             }
 
+            // If this face already has the target material ID, do nothing.
+            // This prevents re-sending the same ID on OK, which can cause the server
+            // to drop overrides when queueApply is invoked with the OLD id.
+            if (objectp->getRenderMaterialID(te) == asset_id)
+            {
+                return true;
+            }
+
             // Preserve existing texture transforms when switching to PBR material
             LLTextureEntry* tep = objectp->getTE(te);
             bool should_preserve_transforms = false;
@@ -2047,9 +2055,16 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                         preserved_override = new LLGLTFMaterial();
                         for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                         {
-                            preserved_override->mTextureTransform[i].mScale.set(existing_scale_s, existing_scale_t);
-                            preserved_override->mTextureTransform[i].mOffset.set(existing_offset_s, existing_offset_t);
-                            preserved_override->mTextureTransform[i].mRotation = existing_rotation;
+                            LLVector2 pbr_scale, pbr_offset;
+                            F32 pbr_rotation;
+                            LLGLTFMaterial::convertTextureTransformToPBR(
+                                existing_scale_s, existing_scale_t,
+                                existing_offset_s, existing_offset_t,
+                                existing_rotation,
+                                pbr_scale, pbr_offset, pbr_rotation);
+                            preserved_override->mTextureTransform[i].mScale = pbr_scale;
+                            preserved_override->mTextureTransform[i].mOffset = pbr_offset;
+                            preserved_override->mTextureTransform[i].mRotation = pbr_rotation;
                         }
                         should_preserve_transforms = true;
                     }
