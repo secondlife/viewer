@@ -118,18 +118,22 @@ void LLJSONRPCConnection::processMessage(const LLSD& message_obj)
         if (message_obj.has("method"))
         {
             // This is a request or notification
-            validateMessage(message_obj, true);
-            processRequest(message_obj);
+            if (validateMessage(message_obj, true))
+            {
+                processRequest(message_obj);
+            }
         }
         else if (message_obj.has("result") || message_obj.has("error"))
         {
             // This is a response
-            validateMessage(message_obj, false);
-            processResponse(message_obj);
+            if (validateMessage(message_obj, false))
+            {
+                processResponse(message_obj);
+            }
         }
         else
         {
-            throw InvalidRequest("Message must contain 'method' or 'result'/'error'");
+            LL_WARNS("JSONRPC") << "Message must contain 'method' or 'result'/'error'" << LL_ENDL;
         }
     }
     catch (const RPCError& e)
@@ -165,7 +169,6 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
         // Call the method handler with method name, ID, and parameters
         LLSD result = it->second(method, id, params);
 
-        // Send response (only for requests, not notifications)
         if (!is_notification)
         {
             sendResponse(id, result);
@@ -225,12 +228,13 @@ void LLJSONRPCConnection::processResponse(const LLSD& response)
     }
 }
 
-void LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
+bool LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
 {
     // Check JSON-RPC version
     if (!message.has("jsonrpc") || message["jsonrpc"].asString() != "2.0")
     {
-        throw InvalidRequest("Missing or invalid jsonrpc version");
+        LL_WARNS("JSONRPC") << "Missing or invalid jsonrpc version" << LL_ENDL;
+        return false;
     }
 
     if (is_request)
@@ -238,12 +242,14 @@ void LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
         // Request/notification validation
         if (!message.has("method"))
         {
-            throw InvalidRequest("Missing method field");
+            LL_WARNS("JSONRPC") << "Missing method field" << LL_ENDL;
+            return false;
         }
 
         if (!message["method"].isString())
         {
-            throw InvalidRequest("Method must be a string");
+            LL_WARNS("JSONRPC") << "Method must be a string" << LL_ENDL;
+            return false;
         }
 
         // Params are optional but must be array or object if present
@@ -251,7 +257,8 @@ void LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
         {
             if (!message["params"].isArray() && !message["params"].isMap())
             {
-                throw InvalidParams("Params must be array or object");
+                LL_WARNS("JSONRPC") << "Params must be array or object" << LL_ENDL;
+                return false;
             }
         }
     }
@@ -260,7 +267,8 @@ void LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
         // Response validation
         if (!message.has("id"))
         {
-            throw InvalidRequest("Response missing id field");
+            LL_WARNS("JSONRPC") << "Response missing id field" << LL_ENDL;
+            return false;
         }
 
         // Must have either result or error, but not both
@@ -269,12 +277,14 @@ void LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
 
         if (!has_result && !has_error)
         {
-            throw InvalidRequest("Response must have result or error");
+            LL_WARNS("JSONRPC") << "Response must have result or error" << LL_ENDL;
+            return false;
         }
 
         if (has_result && has_error)
         {
-            throw InvalidRequest("Response cannot have both result and error");
+            LL_WARNS("JSONRPC") << "Response cannot have both result and error" << LL_ENDL;
+            return false;
         }
 
         // Error must be an object with code and message
@@ -283,14 +293,15 @@ void LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
             LLSD error = message["error"];
             if (!error.isMap())
             {
-                throw InvalidRequest("Error must be an object");
+                LL_WARNS("JSONRPC") << "Error must be an object" << LL_ENDL;
             }
             if (!error.has("code") || !error.has("message"))
             {
-                throw InvalidRequest("Error must have code and message");
+                LL_WARNS("JSONRPC") << "Error must have code and message" << LL_ENDL;
             }
         }
     }
+    return true;
 }
 
 LLSD LLJSONRPCConnection::generateId()
@@ -307,13 +318,13 @@ LLSD LLJSONRPCConnection::generateId()
 void LLJSONRPCConnection::registerMethod(const std::string& method, MethodHandler handler)
 {
     mMethodHandlers[method] = handler;
-    LL_INFOS("JSONRPC") << "Registered method: " << method << LL_ENDL;
+    LL_DEBUGS("JSONRPC") << "Registered method: " << method << LL_ENDL;
 }
 
 void LLJSONRPCConnection::unregisterMethod(const std::string& method)
 {
     mMethodHandlers.erase(method);
-    LL_INFOS("JSONRPC") << "Unregistered method: " << method << LL_ENDL;
+    LL_DEBUGS("JSONRPC") << "Unregistered method: " << method << LL_ENDL;
 }
 
 LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, ResponseCallback callback)
@@ -344,14 +355,15 @@ LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, Re
         {
             mPendingRequests.erase(id.asString());
         }
-        throw InternalError("Failed to send request");
+        LL_WARNS("JSONRPC") << "Failed to send request" << LL_ENDL;
+        return LLSD();
     }
 
     LL_DEBUGS("JSONRPC") << "Sent request: " << method << " with id: " << id.asString() << LL_ENDL;
     return id;
 }
 
-void LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
+bool LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 {
     LLSD notification;
     notification["jsonrpc"] = "2.0";
@@ -366,13 +378,15 @@ void LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 
     if (!sendMessage(LlsdToJson(notification)))
     {
-        throw InternalError("Failed to send notification");
+        LL_WARNS("JSONRPC") << "Failed to send notification" << LL_ENDL;
+        return false;
     }
 
     LL_DEBUGS("JSONRPC") << "Sent notification: " << method << LL_ENDL;
+    return true;
 }
 
-void LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
+bool LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
 {
     LLSD response;
     response["jsonrpc"] = "2.0";
@@ -382,14 +396,13 @@ void LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
     if (!sendMessage(LlsdToJson(response)))
     {
         LL_WARNS("JSONRPC") << "Failed to send response for id: " << id.asString() << LL_ENDL;
+        return false;
     }
-    else
-    {
-        LL_DEBUGS("JSONRPC") << "Sent response for id: " << id.asString() << LL_ENDL;
-    }
+    LL_DEBUGS("JSONRPC") << "Sent response for id: " << id.asString() << LL_ENDL;
+    return true;
 }
 
-void LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
+bool LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
 {
     LLSD response;
     response["jsonrpc"] = "2.0";
@@ -409,18 +422,18 @@ void LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
     if (!sendMessage(LlsdToJson(response)))
     {
         LL_WARNS("JSONRPC") << "Failed to send error response" << LL_ENDL;
+        return false;
     }
-    else
-    {
-        LL_DEBUGS("JSONRPC") << "Sent error response: " << error.what() << LL_ENDL;
-    }
+    LL_DEBUGS("JSONRPC") << "Sent error response: " << error.what() << LL_ENDL;
+    return true;
 }
 
-void LLJSONRPCConnection::sendBatch(const LLSD& batch, ResponseCallback callback)
+bool LLJSONRPCConnection::sendBatch(const LLSD& batch, ResponseCallback callback)
 {
     if (!batch.isArray() || batch.size() == 0)
     {
-        throw InvalidRequest("Batch must be non-empty array");
+        LL_WARNS("JSONRPC") << "Batch must be non-empty array" << LL_ENDL;
+        return false;
     }
 
     // For batch requests with callbacks, we need to track multiple responses
@@ -433,10 +446,12 @@ void LLJSONRPCConnection::sendBatch(const LLSD& batch, ResponseCallback callback
 
     if (!sendMessage(LlsdToJson(batch)))
     {
-        throw InternalError("Failed to send batch");
+        LL_WARNS("JSONRPC") << "Failed to send batch" << LL_ENDL;
+        return false;
     }
 
     LL_DEBUGS("JSONRPC") << "Sent batch with " << batch.size() << " messages" << LL_ENDL;
+    return true;
 }
 
 //========================================================================

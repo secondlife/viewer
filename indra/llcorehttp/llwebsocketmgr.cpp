@@ -181,38 +181,8 @@ void LLWebsocketMgr::stopAllServers()
 }
 
 //------------------------------------------------------------------------
-/**
- * @struct Server_impl
- * @brief Internal implementation wrapper for websocketpp server functionality
- *
- * This structure serves as a PIMPL (Pointer to Implementation) wrapper around
- * the websocketpp::server template, providing a clean interface between the
- * high-level WSServer class and the low-level websocketpp library. It handles
- * all direct websocketpp interactions including server lifecycle management,
- * event handling, and connection management.
- *
- * The Server_impl follows Linden Lab conventions while maintaining compatibility
- * with the websocketpp library. It provides thread-safe operations where possible
- * and integrates with the existing logging infrastructure.
- *
- * @note This class uses the websocketpp::config::asio configuration which provides
- * ASIO-based networking without TLS/SSL support.
- */
 struct Server_impl
 {
-    /**
-     * @brief Constructor - Initializes the websocketpp server with configuration
-     * @param owner Pointer to the owning WSServer instance (must not be null)
-     * @param port The port number to bind the server to (1-65535)
-     * @param local_only If true, binds only to localhost; if false, binds to all interfaces
-     *
-     * Sets up the websocketpp server instance and registers lambda-based event handlers
-     * for connection open, close, and message events. The handlers delegate back to the
-     * owning WSServer instance for processing, maintaining the abstraction layer.
-     *
-     * @warning The owner pointer must remain valid for the lifetime of this object
-     * @pre port must be a valid port number (typically > 1024 for non-privileged access)
-     */
     Server_impl(LLWebsocketMgr::WSServer *owner, U16 port, bool local_only) :
         mOwner(owner),
         mPort(port),
@@ -234,10 +204,6 @@ struct Server_impl
      * on the specified port. The binding behavior depends on the mLocalOnly flag:
      * - If mLocalOnly is true: binds to "127.0.0.1" (localhost only)
      * - If mLocalOnly is false: binds to all available network interfaces
-     *
-     * @note This method must be called before attempting to start the server
-     * @pre The server must not already be initialized
-     * @post The server is ready to accept connections when start() is called
      */
     void init()
     {
@@ -257,16 +223,6 @@ struct Server_impl
     /**
      * @brief Start the websocket server and begin accepting connections
      * @return true if server started successfully, false on error
-     *
-     * Runs a controlled event loop that periodically checks the stop flag for clean shutdown.
-     * Instead of calling run() once and blocking indefinitely, this implementation uses
-     * run_for() with a timeout to process events in chunks, checking mOwner->mShouldStop between
-     * iterations to allow for responsive termination.
-     *
-     * @note This method blocks the calling thread until the server stops
-     * @pre init() must have been called successfully
-     * @post On success, the server is actively accepting connections
-     * @warning Any exceptions during startup are caught and logged as warnings
      */
     bool start()
     {
@@ -317,21 +273,6 @@ struct Server_impl
         }
     }
 
-    /**
-     * @brief Stop the websocket server and cease accepting new connections
-     *
-     * Gracefully shuts down the server by first stopping the listener to prevent
-     * new connections, then stopping the ASIO event loop. Existing connections
-     * may remain active briefly during the shutdown process.
-     *
-     * The method performs a safe shutdown by checking if the server is already
-     * stopped before attempting shutdown operations. Any exceptions during shutdown
-     * are caught and logged but do not propagate.
-     *
-     * @note This method is non-blocking and safe to call multiple times
-     * @post The server will no longer accept new connections
-     * @post Existing connections will be cleanly terminated
-     */
     void stop()
     {
         if (mServer.stopped())
@@ -356,10 +297,6 @@ struct Server_impl
      * Called automatically by the websocketpp library when a new client connection
      * is successfully established. This method serves as a bridge between the
      * low-level websocketpp callback and the high-level WSServer interface.
-     *
-     * @note This is an internal callback method called by websocketpp
-     * @pre mOwner must be valid (assertion will fail if null)
-     * @post The owning WSServer will be notified of the new connection
      */
     void onOpen(websocketpp::connection_hdl hdl) const
     {
@@ -371,14 +308,6 @@ struct Server_impl
     /**
      * @brief Handle connection closure event
      * @param hdl WebSocket connection handle from websocketpp
-     *
-     * Called automatically by the websocketpp library when a client connection
-     * is closed, either by the client, server, or due to a network error.
-     * This method delegates the event to the owning WSServer for processing.
-     *
-     * @note This is an internal callback method called by websocketpp
-     * @pre mOwner must be valid (assertion will fail if null)
-     * @post The owning WSServer will be notified of the connection closure
      */
     void onClose(websocketpp::connection_hdl hdl) const
     {
@@ -395,15 +324,7 @@ struct Server_impl
      * received from a client. This method validates the connection exists, extracts
      * the message payload, and forwards it to the appropriate connection handler.
      *
-     * Currently handles text messages only. Binary message support and message
-     * fragmentation handling are noted as TODO items for future implementation.
-     *
-     * @note This is an internal callback method called by websocketpp
-     * @pre mOwner must be valid (assertion will fail if null)
-     * @post If connection exists, the message is forwarded for processing
-     * @todo Add support for binary messages
-     * @todo Implement fragmented message handling
-     * @todo Process connection close codes for graceful closure
+     * Currently handles text messages only.
      */
     void onMessage(websocketpp::connection_hdl hdl, Server_t::message_ptr msg) const
     {
@@ -417,7 +338,6 @@ struct Server_impl
 
         // TODO: check the FIN bit and handle fragmented messages if needed
         // TODO: check terminal and close codes and handle connection closure if needed
-        // TODO: handle binary messages if needed
         mOwner->handleMessage(hdl, msg->get_payload());
     }
 
@@ -505,14 +425,12 @@ void LLWebsocketMgr::WSServer::stop()
 
         LL_INFOS("WebSocket") << "Stopping WebSocket server: " << mServerName << LL_ENDL;
 
-        // Signal the thread to stop
         mShouldStop = true;
 
         // Stop the websocket server (this will cause the controlled run loop to exit)
         mImpl->stop();
     } // Release the lock here
 
-    // Wait for the thread to finish (outside the lock to avoid deadlock)
     if (mServerThread.joinable())
     {
         mServerThread.join();

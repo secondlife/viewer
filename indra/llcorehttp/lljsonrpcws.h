@@ -230,6 +230,7 @@ public:
             : RPCError(INVALID_SESSION, details) {}
     };
 
+
     LLJSONRPCConnection(const LLWebsocketMgr::WSServer::ptr_t server,
                        const LLWebsocketMgr::connection_h& handle)
         : LLWebsocketMgr::WSConnection(server, handle) {}
@@ -269,28 +270,28 @@ public:
      * @param method The method name
      * @param params The parameters to pass
      */
-    void notify(const std::string& method, const LLSD& params = LLSD());
+    bool notify(const std::string& method, const LLSD& params = LLSD());
 
     /**
      * @brief Send a successful response to a request
      * @param id The request ID from the original request
      * @param result The result to return
      */
-    void sendResponse(const LLSD& id, const LLSD& result);
+    bool sendResponse(const LLSD& id, const LLSD& result);
 
     /**
      * @brief Send an error response to a request
      * @param id The request ID from the original request (can be null)
      * @param error The RPCError to send
      */
-    void sendError(const LLSD& id, const RPCError& error);
+    bool sendError(const LLSD& id, const RPCError& error);
 
     /**
      * @brief Send a batch of requests/notifications
      * @param batch Array of request/notification objects
      * @param callback Callback for batch response (optional)
      */
-    void sendBatch(const LLSD& batch, ResponseCallback callback = nullptr);
+    bool sendBatch(const LLSD& batch, ResponseCallback callback = nullptr);
 
 protected:
     /**
@@ -315,9 +316,8 @@ protected:
      * @brief Validate a JSON-RPC message structure
      * @param message The message to validate
      * @param is_request True if validating a request, false for response
-     * @throw InvalidRequest if validation fails
      */
-    void validateMessage(const LLSD& message, bool is_request = true);
+    bool validateMessage(const LLSD& message, bool is_request = true);
 
     /**
      * @brief Generate the next unique request ID
