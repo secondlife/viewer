@@ -75,7 +75,7 @@ public:
     LLWebRTCLogSink(LLWebRTCLogCallback* callback) : mCallback(callback) {}
 
     // Destructor: close the log file
-    ~LLWebRTCLogSink() override {}
+    ~LLWebRTCLogSink() override { mCallback = nullptr; }
 
     void OnLogMessage(const std::string& msg, webrtc::LoggingSeverity severity) override
     {

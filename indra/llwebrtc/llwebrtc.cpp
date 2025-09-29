@@ -342,8 +342,11 @@ void LLWebRTCImpl::init()
     mWorkerThread->PostTask(
         [this]()
         {
-            mDeviceModule->EnableBuiltInAEC(false);
-            updateDevices();
+            if (mDeviceModule)
+            {
+                mDeviceModule->EnableBuiltInAEC(false);
+                updateDevices();
+            }
         });
 
 }
@@ -449,6 +452,11 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
 // must be run in the worker thread.
 void LLWebRTCImpl::workerDeployDevices()
 {
+    if (!mDeviceModule)
+    {
+        return;
+    }
+
     int16_t recordingDevice = RECORD_DEVICE_DEFAULT;
     int16_t recording_device_start = 0;
 
@@ -571,6 +579,11 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
 // updateDevices needs to happen on the worker thread.
 void LLWebRTCImpl::updateDevices()
 {
+    if (!mDeviceModule)
+    {
+        return;
+    }
+
     int16_t renderDeviceCount  = mDeviceModule->PlayoutDevices();
 
     mPlayoutDeviceList.clear();
@@ -1491,6 +1504,7 @@ void terminate()
     if (gWebRTCImpl)
     {
         gWebRTCImpl->terminate();
+        delete gWebRTCImpl;
         gWebRTCImpl = nullptr;
     }
 }
