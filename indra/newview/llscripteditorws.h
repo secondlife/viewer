@@ -71,11 +71,6 @@ public:
     void onOpen() override;
     void onClose() override;
 
-    /**
-     * @brief Send session disconnect message to the external editor
-     * @param reason Numeric reason code for the disconnect (default 0 for normal closure)
-     * @param message Human-readable disconnect message (default "Goodbye")
-     */
     void sendDisconnect(S32 reason = 0, const std::string& message = "Goodbye");
 
 private:
@@ -85,6 +80,7 @@ private:
      * @param result The response data from the client containing client information
      */
     void handleHandshakeResponse(const LLSD& result);
+    std::string generateChallenge();
 
     LLScriptEdContainer*                    getEditor() const;
     std::shared_ptr<LLScriptEditorWSServer> getServer() const;
@@ -99,6 +95,8 @@ private:
     std::string  mScriptLanguage;  ///< Programming language of the script (lsl, luau, etc.)
     string_set_t mLanguages;       ///< Set of supported scripting languages
     string_set_t mFeatures;        ///< Active client features (live_sync, compilation, etc.)
+    LLUUID       mChallenge;
+    std::string  mChallengeFile;   ///< Temporary file used for challenge-response verification
 
     static U32   sNextConnectionID;
 };

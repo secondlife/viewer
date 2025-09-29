@@ -134,6 +134,18 @@ void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
     if (it != mSubscriptions.end())
     {
         mSubscriptions.erase(it);
+        S32 connection_id = it->second.mConnectionID;
+        ptrdiff_t count = std::count_if(mSubscriptions.begin(), mSubscriptions.end(), [connection_id](const auto& pair) {
+            return pair.second.mConnectionID == connection_id;
+        });
+        auto connection = it->second.mConnection.lock();
+        if (connection && !count)
+        { // We have removed the last subscription, close the connection
+            LL_DEBUGS("ScriptEditorWS") << "Closing connection ID " << it->second.mConnectionID <<
+                " as last subscription was removed" << LL_ENDL;
+            connection->sendDisconnect(LLScriptEditorWSConnection::REASON_EDITOR_CLOSED, "Editor closed");
+        }
+
     }
 }
 
@@ -512,7 +524,11 @@ void LLScriptEditorWSConnection::onOpen()
     handshake["agent_id"] = gAgent.getID();
     handshake["agent_name"] = "todo";
 
-    // handshake["challenge"] = ... TODO: simple challenge, write to a file and have the client echo it back?
+    std::string challenge_file = generateChallenge();
+    if (!challenge_file.empty())
+    {
+        handshake["challenge"] = challenge_file;
+    }
 
     LLSD languages = LLSD::emptyArray();
     languages.append("lsl");
@@ -564,6 +580,16 @@ void LLScriptEditorWSConnection::onClose()
     mFeatures.clear();
 }
 
+void LLScriptEditorWSConnection::sendDisconnect(S32 reason, const std::string& message)
+{
+    LL_INFOS("ScriptEditorWS") << "Sending disconnect to client: " << message << LL_ENDL;
+    LLSD params;
+    params["reason"]  = reason;
+    params["message"] = message;
+    notify("session.disconnect", params);
+    closeConnection(1000, message);
+}
+
 void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
 {
     LL_INFOS("ScriptEditorWS") << "Processing handshake response from client" << LL_ENDL;
@@ -573,7 +599,23 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
     mClientVersion = result["client_version"].asString();
     mProtocolVersion = result["protocol_version"].asString();
 
-    // TODO: Validate challenge_response if implemented
+    if (mChallenge.notNull())
+    {
+        // Validate challenge response
+        bool valid_response = (result.has("challenge_response") &&
+            (result["challenge_response"].asUUID() == mChallenge));
+
+        LLFile::remove(mChallengeFile);
+        mChallengeFile.clear();
+        mChallenge.setNull();
+        if (!valid_response)
+        {
+            LL_WARNS("ScriptEditorWS") << "Invalid or missing challenge response from client" << LL_ENDL;
+            sendDisconnect(REASON_PROTOCOL_ERROR, "Invalid challenge response");
+            return;
+        }
+    }
+    LLUUID challenge_response = result["challenge_response"].asUUID();
 
     // Validate protocol compatibility
     if (mProtocolVersion != "1.0")
@@ -603,7 +645,36 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
         }
     }
 
+    if (mChallenge.notNull())
+    {
+        // Remove temporary challenge file
+        LLFile::remove(mChallengeFile);
+        mChallenge.setNull();
+        mChallengeFile.clear();
+    }
+
     notify("session.ok");
 
     LL_INFOS("ScriptEditorWS") << "Handshake completed successfully." << LL_ENDL;
+}
+
+std::string LLScriptEditorWSConnection::generateChallenge()
+{
+    mChallenge.generate();
+
+    mChallengeFile = std::string(LLFile::tmpdir()) + "sl_script_challenge.tmp";
+
+    llofstream file(mChallengeFile.c_str());
+    if (!file.is_open())
+    {
+        LL_WARNS() << "Unable to open challenge file: " << mChallengeFile << LL_ENDL;
+        mChallenge.setNull();
+        mChallengeFile.clear();
+        return std::string();
+    }
+
+    file << mChallenge;
+    file.close();
+
+    return mChallengeFile;
 }
