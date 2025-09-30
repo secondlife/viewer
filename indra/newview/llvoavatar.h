@@ -95,6 +95,8 @@ class LLVOAvatar :
 public:
     friend class LLVOAvatarSelf;
     friend class LLAvatarCheckImpostorMode;
+    friend class LLAvatarCheckNearbyVoiceMuted;
+    friend class LLAvatarSetNearbyVoiceMuted;
 
 /********************************************************************************
  **                                                                            **
@@ -514,9 +516,21 @@ public:
     };
     void        setVisualMuteSettings(VisualMuteSettings set);
 
+    enum NearbyVoiceMuteSettings
+    {
+        AV_NEARBY_VOICE_MUTED = 0,
+        AV_NEARBY_VOICE_UNMUTED = 1,
+    };
+    void setNearbyVoiceMuteSettings(NearbyVoiceMuteSettings set);
+
+
 protected:
     // If you think you need to access this outside LLVOAvatar, you probably want getOverallAppearance()
     VisualMuteSettings  getVisualMuteSettings()                     { return mVisuallyMuteSetting;  };
+
+public:
+    // Avatar context menu - nearby voice muted for them or not
+    NearbyVoiceMuteSettings getNearbyVoiceMuteSettings() { return mNearbyVoiceMuteSetting; };
 
 public:
 
@@ -593,6 +607,8 @@ private:
     mutable F64         mCachedBuddyListUpdateTime = 0.0;
 
     VisualMuteSettings      mVisuallyMuteSetting;           // Always or never visually mute this AV
+
+    NearbyVoiceMuteSettings mNearbyVoiceMuteSetting;      // Whether this avatar is muted for nearby voice or not
 
     //--------------------------------------------------------------------
     // animated object status

@@ -33,6 +33,8 @@
 #include "lluictrlfactory.h"
 #include "lluuid.h"
 #include "llview.h"
+#include "llviewerobjectlist.h"
+#include "llvoavatar.h"
 #include "llwindow.h"
 #include "llworld.h"
 
@@ -44,6 +46,11 @@ LLFloaterModeration::LLFloaterModeration(const LLSD& key) : LLFloater(key)
 
 LLFloaterModeration::~LLFloaterModeration()
 {
+}
+
+void LLFloaterModeration::refresh()
+{
+    onRefreshList();
 }
 
 bool LLFloaterModeration::postBuild()
@@ -205,11 +212,17 @@ void LLFloaterModeration::refreshList()
         elem->is_linden = isLinden(avatar_ids[i]);
 
         // check if this user has their voice muted
-        elem->is_voice_muted = false;   // TODO: fix :)
+        elem->is_voice_muted = false;
+        LLVOAvatar* avatar = getAvatarFromId(avatar_ids[i]);
+        if (avatar)
+        {
+            elem->is_voice_muted = (avatar->getNearbyVoiceMuteSettings() == LLVOAvatar::AV_NEARBY_VOICE_MUTED);
+        }
 
         mResidentList.push_back(elem);
 
-        // Observe and issue a request for the age of the resident account
+        // Observe and issue a request for additional details about this resident
+        // e.g. name if not in cache, age and more.
         LLAvatarPropertiesProcessor::getInstance()->addObserver(avatar_ids[i], this);
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_ids[i]);
     }
@@ -232,7 +245,6 @@ void LLFloaterModeration::addDummyResident(const std::string name)
     elem->is_voice_muted = false;
     mResidentList.push_back(elem);
 }
-
 
 /**
  *  Virtual override for LLAvatarPropertiesObserver - used to collect avatar
@@ -410,6 +422,24 @@ void LLFloaterModeration::trackResidentPosition()
     }
 }
 
+LLVOAvatar* LLFloaterModeration::getAvatarFromId(const LLUUID& id)
+{
+    LLViewerObject *obj = gObjectList.findObject(id);
+    while (obj && obj->isAttachment())
+    {
+        obj = (LLViewerObject*)obj->getParent();
+    }
+
+    if (obj && obj->isAvatar())
+    {
+        return (LLVOAvatar*)obj;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
 void LLFloaterModeration::applyActionSelectedResidents(EResidentAction action)
 {
     std::vector<LLScrollListItem*> selected = mResidentListScroller->getAllSelected();
@@ -417,24 +447,37 @@ void LLFloaterModeration::applyActionSelectedResidents(EResidentAction action)
     {
         const LLScrollListCell* id_cell = s->getColumn(EListColumnNum::ID);
         const LLScrollListCell* name_cell = s->getColumn(EListColumnNum::NAME);
+
         if (id_cell && name_cell)
         {
-            if (action == EResidentAction::MUTE)
+            LLVOAvatar* avatar = getAvatarFromId(id_cell->getValue().asUUID());
+            if (avatar)
             {
-                LL_INFOS() << "    "
-                           << name_cell->getValue().asString()
-                           << " (" << id_cell->getValue().asString() << ")"
-                           << LL_ENDL;
-            }
-            else if (action == EResidentAction::UNMUTE)
-            {
-                LL_INFOS() << "    "
-                           << name_cell->getValue().asString()
-                           << " (" << id_cell->getValue().asString() << ")"
-                           << LL_ENDL;
+                if (action == EResidentAction::MUTE)
+                {
+                    LL_INFOS() << "    "
+                               << name_cell->getValue().asString()
+                               << " (" << id_cell->getValue().asString() << ")"
+                               << LL_ENDL;
+
+                    avatar->setNearbyVoiceMuteSettings(LLVOAvatar::AV_NEARBY_VOICE_MUTED);
+                }
+                else if (action == EResidentAction::UNMUTE)
+                {
+                    LL_INFOS() << "    "
+                               << name_cell->getValue().asString()
+                               << " (" << id_cell->getValue().asString() << ")"
+                               << LL_ENDL;
+
+                    avatar->setNearbyVoiceMuteSettings(LLVOAvatar::AV_NEARBY_VOICE_UNMUTED);
+                }
             }
         }
     }
+
+    // Update internal storage and then UI to reflect any modifications that we made
+    // TODO: only refresh if something changed but the overhead is so small that it may not be worth it.
+    onRefreshList();
 }
 
 void LLFloaterModeration::muteResidents()

@@ -676,6 +676,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mOverallAppearance(AOA_INVISIBLE),
     mVisualComplexityStale(true),
     mVisuallyMuteSetting(AV_RENDER_NORMALLY),
+    mNearbyVoiceMuteSetting(AV_NEARBY_VOICE_UNMUTED),
     mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
     mFirstFullyVisible(true),
     mWaitingForMeshes(false),
@@ -11438,6 +11439,10 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
 }
 
+void LLVOAvatar::setNearbyVoiceMuteSettings(NearbyVoiceMuteSettings set)
+{
+    mNearbyVoiceMuteSetting = set;
+}
 
 void LLVOAvatar::setOverallAppearanceNormal()
 {

@@ -39,6 +39,9 @@ class LLFloaterModeration :
     public LLFloater {
         friend class LLFloaterReg;
 
+    public:
+        virtual void refresh() override;
+
     private:
         LLFloaterModeration(const LLSD& key);
         ~LLFloaterModeration();
@@ -101,6 +104,9 @@ class LLFloaterModeration :
         // Mute and unmute the selected resident(s)
         void muteResidents();
         void unmuteResidents();
+
+        // Find an (VO)Avatar from a specified ID
+        LLVOAvatar* getAvatarFromId(const LLUUID& id);
 
         // Inelegant way to check if a user is a Linden but it's all we have
         bool isLinden(const LLUUID& av_id);
