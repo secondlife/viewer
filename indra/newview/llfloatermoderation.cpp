@@ -38,7 +38,7 @@
 #include "llwindow.h"
 #include "llworld.h"
 
-#include "LLFloaterModeration.h"
+#include "llfloatermoderation.h"
 
 LLFloaterModeration::LLFloaterModeration(const LLSD& key) : LLFloater(key)
 {
