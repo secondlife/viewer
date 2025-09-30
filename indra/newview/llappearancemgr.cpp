@@ -4218,37 +4218,54 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
     if (item->getType() != LLAssetType::AT_CLOTHING) return false;
     if (!gInventory.isObjectDescendentOf(item->getUUID(), getCOF())) return false;
 
+    S32 pos = gAgentWearables.getWearableIdxFromItem(item);
+    if (pos < 0) return false; // Not found
+
+    U32 count = gAgentWearables.getWearableCount(item->getWearableType());
+    if (count < 2) return false; // Nothing to swap with
+    if (closer_to_body)
+    {
+        if (pos == 0) return false; // already first
+    }
+    else
+    {
+        if (pos == count - 1)  return false; // already last
+    }
+
+    U32 old_pos = (U32)pos;
+    U32 swap_with = closer_to_body ? old_pos - 1 : old_pos + 1;
+    LLUUID swap_item_id = gAgentWearables.getWearableItemID(item->getWearableType(), swap_with);
+
+    // Find link item from item id.
     LLInventoryModel::cat_array_t cats;
     LLInventoryModel::item_array_t items;
     LLFindWearablesOfType filter_wearables_of_type(item->getWearableType());
     gInventory.collectDescendentsIf(getCOF(), cats, items, true, filter_wearables_of_type);
     if (items.empty()) return false;
 
-    // We assume that the items have valid descriptions.
-    std::sort(items.begin(), items.end(), WearablesOrderComparator(item->getWearableType()));
+    LLViewerInventoryItem* swap_item = nullptr;
+    for (auto iter : items)
+    {
+        if (iter->getLinkedUUID() == swap_item_id)
+        {
+            swap_item = iter.get();
+            break;
+        }
+    }
+    if (!swap_item)
+    {
+        return false;
+    }
 
-    if (closer_to_body && items.front() == item) return false;
-    if (!closer_to_body && items.back() == item) return false;
+    // Description is supposed to hold sort index, but user could have changed
+    // order rapidly and there might be a state mismatch between description
+    // and gAgentWearables, trust gAgentWearables over description.
+    // Generate new description.
+    std::string new_desc = build_order_string(item->getWearableType(), old_pos);
+    swap_item->setDescription(new_desc);
+    new_desc = build_order_string(item->getWearableType(), swap_with);
+    item->setDescription(new_desc);
 
-    LLInventoryModel::item_array_t::iterator it = std::find(items.begin(), items.end(), item);
-    if (items.end() == it) return false;
-
-
-    //swapping descriptions
-    closer_to_body ? --it : ++it;
-    LLViewerInventoryItem* swap_item = *it;
-    if (!swap_item) return false;
-    std::string tmp = swap_item->getActualDescription();
-    swap_item->setDescription(item->getActualDescription());
-    item->setDescription(tmp);
-
-    // LL_DEBUGS("Inventory") << "swap, item "
-    //                     << ll_pretty_print_sd(item->asLLSD())
-    //                     << " swap_item "
-    //                     << ll_pretty_print_sd(swap_item->asLLSD()) << LL_ENDL;
-
-    // FIXME switch to use AISv3 where supported.
-    //items need to be updated on a dataserver
     item->setComplete(true);
     item->updateServer(false);
     gInventory.updateItem(item);

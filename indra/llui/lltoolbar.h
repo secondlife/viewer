@@ -41,7 +41,7 @@ class LLIconCtrl;
 
 typedef boost::function<void (S32 x, S32 y, LLToolBarButton* button)> tool_startdrag_callback_t;
 typedef boost::function<bool (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
-typedef boost::function<bool (void* data, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
+typedef boost::function<bool (void* data, EDragAndDropType cargo_type, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
 
 class LLToolBarButton : public LLButton
 {

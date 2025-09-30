@@ -1295,10 +1295,19 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 else
                 {
                     mCanUseCapability = false;
-                    mRegionRetryAttempt++;
-                    mRegionRetryTimer.setTimerExpirySec(CAP_MISSING_EXPIRATION_DELAY);
-                    // ex: waiting for caps
-                    LL_INFOS_ONCE(LOG_TXT) << "Texture not available via HTTP: empty URL." << LL_ENDL;
+                    if (gDisconnected)
+                    {
+                        // We lost connection or are shutting down.
+                        mCanUseHTTP = false;
+                        return true; // abort
+                    }
+                    else
+                    {
+                        // Ex: waiting for caps
+                        mRegionRetryAttempt++;
+                        mRegionRetryTimer.setTimerExpirySec(CAP_MISSING_EXPIRATION_DELAY);
+                        LL_INFOS_ONCE(LOG_TXT) << "Texture not available via HTTP: empty URL." << LL_ENDL;
+                    }
                 }
             }
             else
