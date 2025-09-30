@@ -75,11 +75,16 @@
              dynamic_width="true"
              label="Linden"
              name="linden_column"
-             relative_width="0.15" />
+             relative_width="0.075" />
         <scroll_list.columns
              dynamic_width="true"
              label="Muted"
              name="voice_muted_column"
+             relative_width="0.075" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Loudness"
+             name="recent_loudness_column"
              relative_width="0.15" />
     </scroll_list>
     <button

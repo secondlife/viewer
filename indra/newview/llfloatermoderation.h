@@ -48,8 +48,8 @@ class LLFloaterModeration :
         bool postBuild() override;
         void draw() override;
 
-        // Sort the list of residents based on name (low to high)
-        void sortListByName();
+        // Sort the list of residents based on loudness (high to low)
+        void sortListByLoudness();
 
         // Trim the list of residents (in case we just want a subset of residents)
         void trimList(size_t final_size);
@@ -68,6 +68,7 @@ class LLFloaterModeration :
             bool is_linden;
             bool is_voice_muted;
             LLDate born_on;
+            int recent_loudness;
 
         } list_elem_t;
 
@@ -111,6 +112,11 @@ class LLFloaterModeration :
         // Inelegant way to check if a user is a Linden but it's all we have
         bool isLinden(const LLUUID& av_id);
 
+        // Determine how loud this person has been in the past
+        // (If we can figure it out, loudness score will appear in UI
+        // and can be sorted so moderators can find noisy, disruptive people
+        int getRecentLoudness(const LLUUID& av_id);
+
         // Column ids/values for the primary scrolling list
         enum EListColumnNum
         {
@@ -121,6 +127,7 @@ class LLFloaterModeration :
             DISTANCE = 4,
             LINDEN = 5,
             VOICE_MUTED = 6,
+            RECENT_LOUDNESS = 7,
         };
 
         // strings we use in several places

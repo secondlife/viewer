@@ -38,6 +38,8 @@
 #include "llwindow.h"
 #include "llworld.h"
 
+#include <random>
+
 #include "llfloatermoderation.h"
 
 LLFloaterModeration::LLFloaterModeration(const LLSD& key) : LLFloater(key)
@@ -143,17 +145,12 @@ void LLFloaterModeration::onRefreshList()
     refreshUI();
 }
 
-void LLFloaterModeration::sortListByName()
+void LLFloaterModeration::sortListByLoudness()
 {
     sort(mResidentList.begin(), mResidentList.end(),
          [ = ](list_elem_t*& a, list_elem_t*& b)
     {
-        if (b->id == gAgent.getID())
-        {
-            return true;
-        }
-
-        return a->name < b->name;
+        return a->recent_loudness > b->recent_loudness;
     });
 }
 
@@ -211,6 +208,9 @@ void LLFloaterModeration::refreshList()
         // Check if this user is a Linden
         elem->is_linden = isLinden(avatar_ids[i]);
 
+        // Collect how loud they have been recently
+        elem->recent_loudness = getRecentLoudness(avatar_ids[i]);
+
         // check if this user has their voice muted
         elem->is_voice_muted = false;
         LLVOAvatar* avatar = getAvatarFromId(avatar_ids[i]);
@@ -227,22 +227,24 @@ void LLFloaterModeration::refreshList()
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_ids[i]);
     }
 
-    addDummyResident("Snowshoe Cringifoot");
-    addDummyResident("Applepie Kitterbul");
-    addDummyResident("Wigglepod Bundersauce");
+    //addDummyResident("Snowshoe Cringifoot");
+    //addDummyResident("Applepie Kitterbul");
+    //addDummyResident("Wigglepod Bundersauce");
 
-    sortListByName();
+    // Initial state if sorted by loudness since this is likely whom you're looking to moderate
+    sortListByLoudness();
 }
 
 void LLFloaterModeration::addDummyResident(const std::string name)
 {
     list_element* elem = new list_element;
-    //elem->id = gAgent.getID();
+    elem->id = LLUUID::null;
     elem->name = name;
     elem->born_on = LLDate::now();
     elem->distance = 5.0;
     elem->is_linden = false;
     elem->is_voice_muted = false;
+    elem->recent_loudness = getRecentLoudness(LLUUID::null);
     mResidentList.push_back(elem);
 }
 
@@ -288,6 +290,7 @@ void LLFloaterModeration::refreshUI()
         std::string is_linden_str = (*iter)->is_linden ? "Y" : "N";
         std::string is_voice_muted_str = (*iter)->is_voice_muted ? "Y" : "N";
         std::string account_age_str = LLDateUtil::ageFromDate((*iter)->born_on, LLDate::now());
+        std::string recent_loudness_str = STRINGIZE((*iter)->recent_loudness);
 
         std::stringstream ss;
         ss << std::fixed << std::setprecision(1) << (*iter)->distance << "m";
@@ -336,6 +339,12 @@ void LLFloaterModeration::refreshUI()
         row["columns"][EListColumnNum::VOICE_MUTED]["value"] = is_voice_muted_str;
         row["columns"][EListColumnNum::VOICE_MUTED]["font"]["name"] = mScrollListFontFace;
 
+        // How "loud" the resident has been recently
+        row["columns"][EListColumnNum::RECENT_LOUDNESS]["column"] = "recent_loudness_column";
+        row["columns"][EListColumnNum::RECENT_LOUDNESS]["type"] = "text";
+        row["columns"][EListColumnNum::RECENT_LOUDNESS]["value"] = recent_loudness_str;
+        row["columns"][EListColumnNum::RECENT_LOUDNESS]["font"]["name"] = mScrollListFontFace;
+
         LLScrollListItem* item = mResidentListScroller->addElement(row);
 
         // Disable actions on self
@@ -343,12 +352,6 @@ void LLFloaterModeration::refreshUI()
         {
             item->setEnabled(false);
         }
-
-        //// Highlight the first entry - might not need this but just in case
-        //if (std::distance(std::begin(mResidentList), iter) == 0)
-        //{
-        // item->setSelected(true);
-        //}
     }
 }
 
@@ -411,6 +414,18 @@ bool LLFloaterModeration::isLinden(const LLUUID& av_id)
             last_name == LL_PRODUCTENGINE ||
             last_name == LL_SCOUT ||
             last_name == LL_TESTER);
+}
+
+int LLFloaterModeration::getRecentLoudness(const LLUUID& av_id)
+{
+    // random value 0 (church mouse) to 100 (death metal) for now
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0, 100);
+
+    int loudness = distr(gen);
+
+    return loudness;
 }
 
 void LLFloaterModeration::trackResidentPosition()
