@@ -66,7 +66,7 @@ class LLSearchHandler : public LLCommandHandler {
 LLSearchHandler gSearchHandler;
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key)
-    : LLFloater(key)
+    : LLFloaterWebContent(key)
 {
     mSearchType.insert("standard");
     mSearchType.insert("land");
@@ -86,6 +86,12 @@ LLFloaterSearch::~LLFloaterSearch()
 void LLFloaterSearch::onOpen(const LLSD& tokens)
 {
     initiateSearch(tokens);
+    mWebBrowser->setFocus(true);
+}
+
+// just to override LLFloaterWebContent
+void LLFloaterSearch::onClose(bool app_quitting)
+{
 }
 
 void LLFloaterSearch::initiateSearch(const LLSD& tokens)
@@ -161,7 +167,11 @@ void LLFloaterSearch::initiateSearch(const LLSD& tokens)
 
 bool LLFloaterSearch::postBuild()
 {
-    enableResizeCtrls(true, true, false);
+    LLFloaterWebContent::postBuild();
+    mWebBrowser = getChild<LLMediaCtrl>("search_contents");
+    mWebBrowser->addObserver(this);
+    getChildView("address")->setEnabled(false);
+    getChildView("popexternal")->setEnabled(false);
 
     // This call is actioned by the preload code in llViewerWindow
     // that creates the search floater during the login process
