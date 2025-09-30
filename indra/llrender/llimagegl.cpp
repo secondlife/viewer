@@ -1544,7 +1544,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
     if (discard_level < 0)
     {
         llassert(mCurrentDiscardLevel >= 0);
-        discard_level = mCurrentDiscardLevel;
+        discard_level = llmin(mCurrentDiscardLevel, MAX_DISCARD_LEVEL);
     }
 
     // Actual image width/height = raw image width/height * 2^discard_level
@@ -1644,6 +1644,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, bool data_
         discard_level = mCurrentDiscardLevel;
     }
     discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
+    discard_level = llmin(discard_level, MAX_DISCARD_LEVEL);
 
     if (main_thread // <--- always force creation of new_texname when not on main thread ...
         && !defer_copy // <--- ... or defer copy is set
