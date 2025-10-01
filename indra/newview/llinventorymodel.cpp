@@ -3104,8 +3104,12 @@ bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
             continue;
         }
 
-        rememberCachedCategoryVersion(cat->getUUID(), cat->getVersion());
-        cat->setVersion(NO_VERSION);
+        const S32 cached_version = cat->getVersion();
+        rememberCachedCategoryVersion(cat->getUUID(), cached_version);
+
+        const bool requires_refresh = (cached_version == NO_VERSION)
+            || (categories_to_update.find(cat->getUUID()) != categories_to_update.end());
+        cat->setVersion(requires_refresh ? NO_VERSION : cached_version);
         addCategory(cat);
         ++child_counts[cat->getParentUUID()];
         ++cached_category_count;

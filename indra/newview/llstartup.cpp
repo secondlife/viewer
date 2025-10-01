@@ -287,6 +287,7 @@ private:
     void evaluateChildren(const FetchRequest& request, bool force_changed_scan);
     void discoverEssentialFolders();
     void enqueueFetch(const LLUUID& category_id, bool is_library, bool essential, S32 cached_version);
+    bool isCategoryUpToDate(const LLViewerInventoryCategory* cat, S32 cached_version) const;
     AISAPI::ITEM_TYPE requestType(bool is_library) const;
     void markEssentialReady();
     void markComplete();
@@ -612,6 +613,7 @@ void LLAsyncInventorySkeletonLoader::evaluateChildren(const FetchRequest& reques
         const bool child_changed = child_version_unknown
             || (cached_child_version == LLViewerInventoryCategory::VERSION_UNKNOWN)
             || (current_child_version != cached_child_version);
+        const bool child_cache_valid = isCategoryUpToDate(child, cached_child_version);
 
         const bool child_is_library = request.mIsLibrary
             || (child->getOwnerID() == gInventory.getLibraryOwnerID());
@@ -631,15 +633,32 @@ void LLAsyncInventorySkeletonLoader::evaluateChildren(const FetchRequest& reques
             child_essential = true;
         }
 
+        bool should_fetch = child_changed || force_changed_scan;
         if (child_essential)
         {
-            mEssentialPending.insert(child_id);
+            if (!should_fetch && child_cache_valid)
+            {
+                mFetchedCategories.insert(child_id);
+                continue;
+            }
+
+            if (!child_cache_valid)
+            {
+                should_fetch = true;
+            }
         }
 
-        if ((child_changed || force_changed_scan || child_essential)
-            && mQueuedCategories.count(child_id) == 0)
+        if (should_fetch && mQueuedCategories.count(child_id) == 0)
         {
+            if (child_essential)
+            {
+                mEssentialPending.insert(child_id);
+            }
             enqueueFetch(child_id, child_is_library, child_essential, cached_child_version);
+        }
+        else if (child_essential && child_cache_valid)
+        {
+            mFetchedCategories.insert(child_id);
         }
     }
 }
@@ -675,9 +694,16 @@ void LLAsyncInventorySkeletonLoader::discoverEssentialFolders()
             is_library = (cat->getOwnerID() == gInventory.getLibraryOwnerID());
         }
 
+        const S32 cached_version = gInventory.getCachedCategoryVersion(cat_id);
+        if (cat && isCategoryUpToDate(cat, cached_version))
+        {
+            mFetchedCategories.insert(cat_id);
+            continue;
+        }
+
         if (mFetchedCategories.count(cat_id) == 0 && mQueuedCategories.count(cat_id) == 0 && mActiveFetches.count(cat_id) == 0)
         {
-            enqueueFetch(cat_id, is_library, true, gInventory.getCachedCategoryVersion(cat_id));
+            enqueueFetch(cat_id, is_library, true, cached_version);
             mEssentialPending.insert(cat_id);
         }
     }
@@ -689,8 +715,17 @@ void LLAsyncInventorySkeletonLoader::discoverEssentialFolders()
         && mActiveFetches.count(cof_id) == 0)
     {
         mSawCurrentOutfitFolder = true;
-        enqueueFetch(cof_id, false, true, gInventory.getCachedCategoryVersion(cof_id));
-        mEssentialPending.insert(cof_id);
+        LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
+        const S32 cached_version = gInventory.getCachedCategoryVersion(cof_id);
+        if (isCategoryUpToDate(cof, cached_version))
+        {
+            mFetchedCategories.insert(cof_id);
+        }
+        else
+        {
+            enqueueFetch(cof_id, false, true, cached_version);
+            mEssentialPending.insert(cof_id);
+        }
     }
 }
 
@@ -3259,6 +3294,31 @@ bool idle_startup()
     }
 
     return true;
+}
+
+bool LLAsyncInventorySkeletonLoader::isCategoryUpToDate(const LLViewerInventoryCategory* cat, S32 cached_version) const
+{
+    if (!cat)
+    {
+        return false;
+    }
+
+    if (cached_version == LLViewerInventoryCategory::VERSION_UNKNOWN)
+    {
+        return false;
+    }
+
+    if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+    {
+        return false;
+    }
+
+    if (cat->getDescendentCount() == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN)
+    {
+        return false;
+    }
+
+    return cat->getVersion() == cached_version;
 }
 
 //
