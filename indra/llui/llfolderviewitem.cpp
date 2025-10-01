@@ -2106,10 +2106,14 @@ void LLFolderViewFolder::setOpen(bool openitem)
     {
         // navigateToFolder can destroy this view
         // delay it in case setOpen was called from click or key processing
-        doOnIdleOneTime([this]()
-                        {
-                            getViewModelItem()->navigateToFolder();
-                        });
+        LLPointer<LLFolderViewModelItem> view_model_item = mViewModelItem;
+        doOnIdleOneTime([view_model_item]()
+        {
+            if (view_model_item.notNull())
+            {
+                view_model_item.get()->navigateToFolder();
+            }
+        });
     }
     else
     {
