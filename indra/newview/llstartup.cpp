@@ -35,6 +35,7 @@
 #   include <sys/stat.h>        // mkdir()
 #endif
 #include <memory>                   // std::unique_ptr
+#include <algorithm>
 
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
@@ -290,6 +291,7 @@ private:
     void markEssentialReady();
     void markComplete();
     void markFailed(const std::string& reason);
+    bool hasFetchedCurrentOutfit() const;
 
     Phase mPhase = Phase::Idle;
     bool mForceAsync = false;
@@ -302,6 +304,7 @@ private:
     std::set<LLUUID> mEssentialPending;
 
     U32 mMaxConcurrentFetches = 4;
+    bool mSawCurrentOutfitFolder = false;
 
     LLFrameTimer mCapsTimer;
     LLFrameTimer mFetchTimer;
@@ -334,6 +337,10 @@ void LLAsyncInventorySkeletonLoader::reset()
     mFetchTimer.stop();
     mTotalTimer.stop();
     mEssentialTimer.stop();
+
+    const U32 requested = gSavedSettings.getU32("AsyncInventoryMaxConcurrentFetches");
+    mMaxConcurrentFetches = std::clamp(requested, 1U, 8U);
+    mSawCurrentOutfitFolder = false;
 }
 
 bool LLAsyncInventorySkeletonLoader::isRunning() const
@@ -351,6 +358,9 @@ void LLAsyncInventorySkeletonLoader::start(bool force_async)
 
     ensureCapsCallback();
     ensureIdleCallback();
+
+    LL_DEBUGS("AppInit") << "Async skeleton loader concurrency limit set to "
+                         << mMaxConcurrentFetches << LL_ENDL;
 
     if (AISAPI::isAvailable())
     {
@@ -606,6 +616,11 @@ void LLAsyncInventorySkeletonLoader::evaluateChildren(const FetchRequest& reques
         const bool child_is_library = request.mIsLibrary
             || (child->getOwnerID() == gInventory.getLibraryOwnerID());
 
+        if (child->getPreferredType() == LLFolderType::FT_CURRENT_OUTFIT)
+        {
+            mSawCurrentOutfitFolder = true;
+        }
+
         bool child_essential = false;
         if (child->getUUID() == LLAppearanceMgr::instance().getCOF())
         {
@@ -648,6 +663,11 @@ void LLAsyncInventorySkeletonLoader::discoverEssentialFolders()
             continue;
         }
 
+        if (type == LLFolderType::FT_CURRENT_OUTFIT)
+        {
+            mSawCurrentOutfitFolder = true;
+        }
+
         LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
         bool is_library = false;
         if (cat)
@@ -668,6 +688,7 @@ void LLAsyncInventorySkeletonLoader::discoverEssentialFolders()
         && mQueuedCategories.count(cof_id) == 0
         && mActiveFetches.count(cof_id) == 0)
     {
+        mSawCurrentOutfitFolder = true;
         enqueueFetch(cof_id, false, true, gInventory.getCachedCategoryVersion(cof_id));
         mEssentialPending.insert(cof_id);
     }
@@ -742,6 +763,33 @@ void LLAsyncInventorySkeletonLoader::markFailed(const std::string& reason)
     LL_WARNS("AppInit") << "Async inventory skeleton loader failed: " << mFailureReason << LL_ENDL;
 }
 
+bool LLAsyncInventorySkeletonLoader::hasFetchedCurrentOutfit() const
+{
+    if (!mSawCurrentOutfitFolder)
+    {
+        return true;
+    }
+
+    LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+    if (cof_id.isNull())
+    {
+        return false;
+    }
+
+    if (mFetchedCategories.count(cof_id) == 0)
+    {
+        return false;
+    }
+
+    const LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
+    if (!cof)
+    {
+        return false;
+    }
+
+    return cof->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN;
+}
+
 void LLAsyncInventorySkeletonLoader::update()
 {
     if (mPhase == Phase::Idle || mPhase == Phase::Complete || mPhase == Phase::Failed)
@@ -766,7 +814,9 @@ void LLAsyncInventorySkeletonLoader::update()
 
     processQueue();
 
-    if (!mEssentialReady && mEssentialPending.empty())
+    const bool current_outfit_ready = hasFetchedCurrentOutfit();
+
+    if (!mEssentialReady && mEssentialPending.empty() && current_outfit_ready)
     {
         markEssentialReady();
     }
