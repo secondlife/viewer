@@ -34,6 +34,7 @@
 #include "lluuid.h"
 #include "llview.h"
 #include "llviewerobjectlist.h"
+#include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llwindow.h"
 #include "llworld.h"
@@ -350,7 +351,7 @@ void LLFloaterModeration::refreshUI()
         // Disable actions on self
         if (av_uuid == gAgent.getID())
         {
-            item->setEnabled(false);
+            //item->setEnabled(false);
         }
     }
 }
@@ -506,3 +507,70 @@ void LLFloaterModeration::unmuteResidents()
     LL_INFOS() << "Unmuting " << mResidentListScroller->getNumSelected() << " selected residents" << LL_ENDL;
     applyActionSelectedResidents(EResidentAction::UNMUTE);
 }
+
+void LLNearbyVoiceMuteHelper::requestMuteChange(LLVOAvatar* avatar, bool mute)
+{
+    if (avatar)
+    {
+        LLViewerRegion* region = avatar->getRegion();
+        if (! region || ! region->capabilitiesReceived())
+        {
+            // retry ?
+            LL_INFOS() << "Region or region capabilities unavailable" << LL_ENDL;
+            return;
+        }
+        LL_INFOS() << "Region name is " << region->getName() << LL_ENDL;
+
+        std::string url = region->getCapability("SpatialVoiceModerationRequest");
+        if (url.empty())
+        {
+            // retry ?
+            LL_INFOS() << "Capability URL is empty" << LL_ENDL;
+            return;
+        }
+        LL_INFOS() << "Capability URL is " << url << LL_ENDL;
+
+        const std::string agent_name = avatar->getFullname();
+        const LLUUID agent_id = avatar->getID();
+
+        const std::string operand = mute ? "mute" : "unmute";
+
+        LLSD body;
+        body["operand"] = operand;
+        body["agent_id"] = agent_id;
+        body["moderator_id"] = gAgent.getID(); // consider sending moderator ID too ??
+
+        LL_INFOS() << "Capability body is " << body << LL_ENDL;
+
+        LL_INFOS() <<
+        "Resident " <<
+                   agent_name <<
+        " (" <<
+                   agent_id <<
+        ")" <<
+        " applying " <<
+                   operand <<
+                   LL_ENDL;
+
+        std::string success_msg =
+            STRINGIZE("Resident " <<
+                      agent_name <<
+        " (" <<
+                      agent_id <<
+        ")" <<
+        " nearby voice was set to " <<
+                      operand);
+
+        std::string failure_msg =
+            STRINGIZE("Unable to change voice muting for resident " <<
+                      agent_name <<
+        " (" <<
+                      agent_id <<
+        ")");
+
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
+                success_msg,
+                failure_msg);
+    }
+}
+

@@ -3283,6 +3283,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("ProductInfoRequest");
     capabilityNames.append("ProvisionVoiceAccountRequest");
     capabilityNames.append("VoiceSignalingRequest");
+    capabilityNames.append("SpatialVoiceModerationRequest");
     capabilityNames.append("ReadOfflineMsgs"); // Requires to respond reliably: AcceptFriendship, AcceptGroupInvite, DeclineFriendship, DeclineGroupInvite
     capabilityNames.append("RegionObjects");
     capabilityNames.append("RegionSchedule");

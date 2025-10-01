@@ -111,6 +111,7 @@
 #include "llsdserialize.h"
 #include "llrendersphere.h"
 #include "llskinningutil.h"
+#include "llfloatermoderation.h"
 
 #include "llperfstats.h"
 
@@ -11442,6 +11443,10 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 void LLVOAvatar::setNearbyVoiceMuteSettings(NearbyVoiceMuteSettings set)
 {
     mNearbyVoiceMuteSetting = set;
+
+    bool val = set == AV_NEARBY_VOICE_MUTED ? true : false;
+
+    LLNearbyVoiceMuteHelper::getInstance()->requestMuteChange(this, val);
 }
 
 void LLVOAvatar::setOverallAppearanceNormal()
