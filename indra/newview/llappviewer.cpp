@@ -5553,7 +5553,10 @@ void LLAppViewer::idleNetwork()
     add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
     // Retransmit unacknowledged packets.
-    gXferManager->retransmitUnackedPackets();
+    if (gXferManager)
+    {
+        gXferManager->retransmitUnackedPackets();
+    }
     gAssetStorage->checkForTimeouts();
     gViewerThrottle.setBufferLoadRate(gMessageSystem->getBufferLoadRate());
     gViewerThrottle.updateDynamicThrottle();
