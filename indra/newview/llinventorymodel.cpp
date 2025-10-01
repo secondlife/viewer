@@ -489,6 +489,8 @@ void LLInventoryModel::cleanupInventory()
     mHttpRequestFG = NULL;
     delete mHttpRequestBG;
     mHttpRequestBG = NULL;
+
+    mCachedCategoryVersions.clear();
 }
 
 // This is a convenience function to check if one object has a parent
@@ -1435,8 +1437,13 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 
     if(!isInventoryUsable())
     {
-        LL_WARNS(LOG_INV) << "Inventory is broken." << LL_ENDL;
-        return mask;
+        if (!mAllowAsyncInventoryUpdates)
+        {
+            LL_WARNS(LOG_INV) << "Inventory is broken." << LL_ENDL;
+            return mask;
+        }
+
+        LL_DEBUGS(LOG_INV) << "Processing item update while inventory validation pending (async skeleton)." << LL_ENDL;
     }
 
     if (item->getType() == LLAssetType::AT_MESH ||
@@ -1660,8 +1667,13 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 
     if(!isInventoryUsable())
     {
-        LL_WARNS(LOG_INV) << "Inventory is broken." << LL_ENDL;
-        return;
+        if (!mAllowAsyncInventoryUpdates)
+        {
+            LL_WARNS(LOG_INV) << "Inventory is broken." << LL_ENDL;
+            return;
+        }
+
+        LL_DEBUGS(LOG_INV) << "Processing category update while inventory validation pending (async skeleton)." << LL_ENDL;
     }
 
     LLPointer<LLViewerInventoryCategory> old_cat = getCategory(cat->getUUID());
@@ -1698,6 +1710,10 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
             mask |= LLInventoryObserver::LABEL;
         }
         old_cat->copyViewerCategory(cat);
+        if (old_cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            rememberCachedCategoryVersion(old_cat->getUUID(), old_cat->getVersion());
+        }
         addChangedMask(mask, cat->getUUID());
     }
     else
@@ -1705,6 +1721,10 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
         // add this category
         LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat->getOwnerID());
         new_cat->copyViewerCategory(cat);
+        if (new_cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            rememberCachedCategoryVersion(new_cat->getUUID(), new_cat->getVersion());
+        }
         addCategory(new_cat);
 
         // make sure this category is correctly referenced by its parent.
@@ -2049,6 +2069,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
 
     LL_DEBUGS(LOG_INV) << "Deleting inventory object " << id << LL_ENDL;
     mLastItem = NULL;
+    forgetCachedCategoryVersion(id);
     LLUUID parent_id = obj->getParentUUID();
     mCategoryMap.erase(id);
     mItemMap.erase(id);
@@ -2685,10 +2706,23 @@ bool LLInventoryModel::isCategoryComplete(const LLUUID& cat_id) const
 
 bool LLInventoryModel::loadSkeleton(
     const LLSD& options,
-    const LLUUID& owner_id)
+    const LLUUID& owner_id,
+    bool allow_cache_only)
 {
     LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS(LOG_INV) << "importing inventory skeleton for " << owner_id << LL_ENDL;
+
+    if (options.isUndefined() || !options.isArray() || options.size() == 0)
+    {
+        if (allow_cache_only)
+        {
+            return loadSkeletonFromCacheOnly(owner_id);
+        }
+
+        LL_DEBUGS(LOG_INV) << "Skipping skeleton import for " << owner_id
+                           << " because no server payload was provided." << LL_ENDL;
+        return false;
+    }
 
     LLTimer timer;
     typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
@@ -2722,6 +2756,10 @@ bool LLInventoryModel::loadSkeleton(
             }
             cat->setPreferredType(preferred_type);
             cat->setVersion(version.asInteger());
+            if (cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+            {
+                rememberCachedCategoryVersion(cat->getUUID(), cat->getVersion());
+            }
             temp_cats.insert(cat);
         }
         else
@@ -2983,10 +3021,135 @@ bool LLInventoryModel::loadSkeleton(
     return rv;
 }
 
+bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LL_DEBUGS(LOG_INV) << "Hydrating inventory skeleton from cache for " << owner_id << LL_ENDL;
+
+    if (owner_id == gAgent.getID())
+    {
+        // Reset cached version tracking for the primary account cache so we can
+        // compare against fresh AIS data as it arrives.
+        mCachedCategoryVersions.clear();
+    }
+
+    cat_array_t categories;
+    item_array_t items;
+    changed_items_t categories_to_update;
+    bool is_cache_obsolete = false;
+    std::string inventory_filename = getInvCacheAddres(owner_id);
+    std::string gzip_filename(inventory_filename);
+    gzip_filename.append(".gz");
+    LLFILE* fp = LLFile::fopen(gzip_filename, "rb");
+    bool remove_inventory_file = false;
+
+    if (LLAppViewer::instance()->isSecondInstance())
+    {
+        inventory_filename = gDirUtilp->getTempFilename();
+        remove_inventory_file = true;
+    }
+
+    if (fp)
+    {
+        fclose(fp);
+        fp = NULL;
+        if (gunzip_file(gzip_filename, inventory_filename))
+        {
+            remove_inventory_file = true;
+        }
+        else
+        {
+            LL_INFOS(LOG_INV) << "Unable to gunzip " << gzip_filename << LL_ENDL;
+        }
+    }
+
+    if (!loadFromFile(inventory_filename, categories, items, categories_to_update, is_cache_obsolete))
+    {
+        if (remove_inventory_file)
+        {
+            LLFile::remove(inventory_filename);
+        }
+        if (is_cache_obsolete && !LLAppViewer::instance()->isSecondInstance())
+        {
+            LLFile::remove(gzip_filename);
+        }
+        LL_WARNS(LOG_INV) << "Failed to load cached inventory skeleton for " << owner_id << LL_ENDL;
+        return false;
+    }
+
+    update_map_t child_counts;
+    const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
+
+    size_t cached_category_count = 0;
+    for (auto& cat : categories)
+    {
+        if (!cat)
+        {
+            continue;
+        }
+
+        rememberCachedCategoryVersion(cat->getUUID(), cat->getVersion());
+        cat->setVersion(NO_VERSION);
+        addCategory(cat);
+        ++child_counts[cat->getParentUUID()];
+        ++cached_category_count;
+    }
+
+    cat_map_t::iterator unparented = mCategoryMap.end();
+    size_t cached_item_count = 0;
+    for (auto& item_ptr : items)
+    {
+        LLViewerInventoryItem* item = item_ptr.get();
+        if (!item)
+        {
+            continue;
+        }
+
+        const cat_map_t::iterator cit = mCategoryMap.find(item->getParentUUID());
+        if (cit != unparented)
+        {
+            addItem(item);
+            ++child_counts[item->getParentUUID()];
+            ++cached_item_count;
+        }
+    }
+
+    for (auto& entry : child_counts)
+    {
+        const cat_map_t::iterator cit = mCategoryMap.find(entry.first);
+        if (cit != mCategoryMap.end())
+        {
+            LLViewerInventoryCategory* cat = cit->second.get();
+            if (cat)
+            {
+                cat->setDescendentCount(entry.second.mValue);
+            }
+        }
+    }
+
+    if (remove_inventory_file)
+    {
+        LLFile::remove(inventory_filename);
+    }
+    if (is_cache_obsolete && !LLAppViewer::instance()->isSecondInstance())
+    {
+        LL_WARNS(LOG_INV) << "Inv cache out of date, removing" << LL_ENDL;
+        LLFile::remove(gzip_filename);
+    }
+
+    categories.clear();
+
+    LL_INFOS(LOG_INV) << "Loaded cache-only skeleton for " << owner_id
+                      << " with " << cached_category_count << " categories and "
+                      << cached_item_count << " items." << LL_ENDL;
+
+    return cached_category_count > 0;
+}
+
 // This is a brute force method to rebuild the entire parent-child
 // relations. The overall operation has O(NlogN) performance, which
 // should be sufficient for our needs.
-void LLInventoryModel::buildParentChildMap()
+void LLInventoryModel::buildParentChildMap(bool run_validation)
 {
     LL_INFOS(LOG_INV) << "LLInventoryModel::buildParentChildMap()" << LL_ENDL;
 
@@ -3188,61 +3351,109 @@ void LLInventoryModel::buildParentChildMap()
         }
     }
 
-    const LLUUID &agent_inv_root_id = gInventory.getRootFolderID();
-    if (agent_inv_root_id.notNull())
+    if (run_validation)
     {
-        cat_array_t* catsp = get_ptr_in_map(mParentChildCategoryTree, agent_inv_root_id);
-        if(catsp)
+        const LLUUID& agent_inv_root_id = gInventory.getRootFolderID();
+        if (agent_inv_root_id.notNull())
         {
-            // *HACK - fix root inventory folder
-            // some accounts has pbroken inventory root folders
-
-            std::string name = "My Inventory";
-            for (parent_cat_map_t::const_iterator it = mParentChildCategoryTree.begin(),
-                     it_end = mParentChildCategoryTree.end(); it != it_end; ++it)
+            cat_array_t* catsp = get_ptr_in_map(mParentChildCategoryTree, agent_inv_root_id);
+            if(catsp)
             {
-                cat_array_t* cat_array = it->second;
-                for (cat_array_t::const_iterator cat_it = cat_array->begin(),
-                         cat_it_end = cat_array->end(); cat_it != cat_it_end; ++cat_it)
-                    {
-                    LLPointer<LLViewerInventoryCategory> category = *cat_it;
+                // *HACK - fix root inventory folder
+                // some accounts has pbroken inventory root folders
 
-                    if(category && category->getPreferredType() != LLFolderType::FT_ROOT_INVENTORY)
-                        continue;
-                    if ( category && 0 == LLStringUtil::compareInsensitive(name, category->getName()) )
+                std::string name = "My Inventory";
+                for (parent_cat_map_t::const_iterator it = mParentChildCategoryTree.begin(),
+                         it_end = mParentChildCategoryTree.end(); it != it_end; ++it)
+                {
+                    cat_array_t* cat_array = it->second;
+                    for (cat_array_t::const_iterator cat_it = cat_array->begin(),
+                             cat_it_end = cat_array->end(); cat_it != cat_it_end; ++cat_it)
                     {
-                        if(category->getUUID()!=mRootFolderID)
+                        LLPointer<LLViewerInventoryCategory> category = *cat_it;
+
+                        if(category && category->getPreferredType() != LLFolderType::FT_ROOT_INVENTORY)
+                            continue;
+                        if ( category && 0 == LLStringUtil::compareInsensitive(name, category->getName()) )
                         {
-                            LLUUID& new_inv_root_folder_id = const_cast<LLUUID&>(mRootFolderID);
-                            new_inv_root_folder_id = category->getUUID();
+                            if(category->getUUID()!=mRootFolderID)
+                            {
+                                LLUUID& new_inv_root_folder_id = const_cast<LLUUID&>(mRootFolderID);
+                                new_inv_root_folder_id = category->getUUID();
+                            }
                         }
                     }
                 }
-            }
 
-            LLPointer<LLInventoryValidationInfo> validation_info = validate();
-            if (validation_info->mFatalErrorCount > 0)
-            {
-                // Fatal inventory error. Will not be able to engage in many inventory operations.
-                // This should be followed by an error dialog leading to logout.
-                LL_WARNS("Inventory") << "Fatal errors were found in validate(): unable to initialize inventory! "
-                                      << "Will not be able to do normal inventory operations in this session."
-                                      << LL_ENDL;
-                mIsAgentInvUsable = false;
-            }
-            else
-            {
-                mIsAgentInvUsable = true;
-            }
-            validation_info->mInitialized = true;
-            mValidationInfo = validation_info;
+                LLPointer<LLInventoryValidationInfo> validation_info = validate();
+                if (validation_info->mFatalErrorCount > 0)
+                {
+                    // Fatal inventory error. Will not be able to engage in many inventory operations.
+                    // This should be followed by an error dialog leading to logout.
+                    LL_WARNS("Inventory") << "Fatal errors were found in validate(): unable to initialize inventory! "
+                                          << "Will not be able to do normal inventory operations in this session."
+                                          << LL_ENDL;
+                    mIsAgentInvUsable = false;
+                }
+                else
+                {
+                    mIsAgentInvUsable = true;
+                }
+                validation_info->mInitialized = true;
+                mValidationInfo = validation_info;
 
-            // notifyObservers() has been moved to
-            // llstartup/idle_startup() after this func completes.
-            // Allows some system categories to be created before
-            // observers start firing.
+                // notifyObservers() has been moved to
+                // llstartup/idle_startup() after this func completes.
+                // Allows some system categories to be created before
+                // observers start firing.
+            }
         }
     }
+    else
+    {
+        LL_DEBUGS(LOG_INV) << "Skipping inventory validation while async skeleton load seeds cache" << LL_ENDL;
+    }
+}
+
+void LLInventoryModel::setAsyncInventoryLoading(bool in_progress)
+{
+    if (mAllowAsyncInventoryUpdates == in_progress)
+    {
+        return;
+    }
+
+    mAllowAsyncInventoryUpdates = in_progress;
+    LL_DEBUGS(LOG_INV) << "Async skeleton loading " << (in_progress ? "enabled" : "disabled") << LL_ENDL;
+}
+
+void LLInventoryModel::rememberCachedCategoryVersion(const LLUUID& id, S32 version)
+{
+    if (id.isNull())
+    {
+        return;
+    }
+
+    mCachedCategoryVersions[id] = version;
+}
+
+S32 LLInventoryModel::getCachedCategoryVersion(const LLUUID& id) const
+{
+    auto it = mCachedCategoryVersions.find(id);
+    if (it != mCachedCategoryVersions.end())
+    {
+        return it->second;
+    }
+    return LLViewerInventoryCategory::VERSION_UNKNOWN;
+}
+
+void LLInventoryModel::forgetCachedCategoryVersion(const LLUUID& id)
+{
+    if (id.isNull())
+    {
+        return;
+    }
+
+    mCachedCategoryVersions.erase(id);
 }
 
 // Would normally do this at construction but that's too early
@@ -5101,4 +5312,3 @@ void LLInventoryModel::FetchItemHttpHandler::processFailure(const char * const r
                       << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
     gInventory.notifyObservers();
 }
-

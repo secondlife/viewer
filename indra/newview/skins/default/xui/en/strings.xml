@@ -162,6 +162,7 @@ If you feel this is an error, please contact support@secondlife.com.</string>
 Please contact Second Life support for assistance at http://support.secondlife.com.</string>
 	<string name="LoginFailedTransformError">Data inconsistency found during login.
 Please contact support@secondlife.com.</string>
+	<string name="AsyncInventorySkeletonFailure">We couldn't finish loading your inventory. Please try logging in again.</string>
 	<string name="LoginFailedAccountMaintenance">Your account is undergoing minor maintenance.
 Your account is not accessible until
 [TIME].

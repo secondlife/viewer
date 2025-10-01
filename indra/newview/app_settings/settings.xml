@@ -3258,6 +3258,17 @@
       <key>Value</key>
       <integer>255</integer>
     </map>
+    <key>ForceAsyncInventorySkeleton</key>
+    <map>
+      <key>Comment</key>
+      <string>Force viewer to skip legacy login inventory skeleton and rely on async AIS fetching (QA only).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ForceLoginURL</key>
     <map>
       <key>Comment</key>
