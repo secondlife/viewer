@@ -432,6 +432,10 @@ LLInventoryModel gInventory;
 LLInventoryModel::LLInventoryModel()
 :   // These are now ordered, keep them that way.
     mBacklinkMMap(),
+    mAllowAsyncInventoryUpdates(false),
+    mAsyncNotifyPending(false),
+    mAsyncNotifyTimer(),
+    mAsyncNotifyIntervalSec(0.05f),
     mIsAgentInvUsable(false),
     mRootFolderID(),
     mLibraryRootFolderID(),
@@ -2209,6 +2213,18 @@ void LLInventoryModel::notifyObservers()
         return;
     }
 
+    if (mAllowAsyncInventoryUpdates)
+    {
+        if (mAsyncNotifyTimer.getElapsedTimeF32() < mAsyncNotifyIntervalSec)
+        {
+            mAsyncNotifyPending = true;
+            return;
+        }
+
+        mAsyncNotifyTimer.reset();
+        mAsyncNotifyPending = false;
+    }
+
     mIsNotifyObservers = true;
     for (observer_list_t::iterator iter = mObservers.begin();
          iter != mObservers.end(); )
@@ -3153,6 +3169,23 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
 {
     LL_INFOS(LOG_INV) << "LLInventoryModel::buildParentChildMap()" << LL_ENDL;
 
+    // Rebuild from scratch so we do not accumulate duplicate children
+    // across consecutive calls triggered during async skeleton hydration.
+    std::for_each(
+        mParentChildCategoryTree.begin(),
+        mParentChildCategoryTree.end(),
+        DeletePairedPointer());
+    mParentChildCategoryTree.clear();
+
+    std::for_each(
+        mParentChildItemTree.begin(),
+        mParentChildItemTree.end(),
+        DeletePairedPointer());
+    mParentChildItemTree.clear();
+
+    mCategoryLock.clear();
+    mItemLock.clear();
+
     // *NOTE: I am skipping the logic around folder version
     // synchronization here because it seems if a folder is lost, we
     // might actually want to invalidate it at that point - not
@@ -3423,6 +3456,21 @@ void LLInventoryModel::setAsyncInventoryLoading(bool in_progress)
     }
 
     mAllowAsyncInventoryUpdates = in_progress;
+    if (mAllowAsyncInventoryUpdates)
+    {
+        if (gSavedSettings.controlExists("AsyncInventoryNotifyMinInterval"))
+        {
+            mAsyncNotifyIntervalSec = std::clamp(gSavedSettings.getF32("AsyncInventoryNotifyMinInterval"), 0.0f, 0.5f);
+        }
+        mAsyncNotifyTimer.reset();
+        mAsyncNotifyTimer.setAge(mAsyncNotifyIntervalSec);
+        mAsyncNotifyPending = false;
+    }
+    else
+    {
+        mAsyncNotifyPending = false;
+    }
+
     LL_DEBUGS(LOG_INV) << "Async skeleton loading " << (in_progress ? "enabled" : "disabled") << LL_ENDL;
 }
 

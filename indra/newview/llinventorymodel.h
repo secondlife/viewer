@@ -225,6 +225,9 @@ private:
     typedef std::multimap<LLUUID, LLUUID> backlink_mmap_t;
     backlink_mmap_t mBacklinkMMap; // key = target_id: ID of item, values = link_ids: IDs of item or folder links referencing it.
     bool mAllowAsyncInventoryUpdates{false};
+    bool mAsyncNotifyPending{false};
+    LLFrameTimer mAsyncNotifyTimer;
+    F32 mAsyncNotifyIntervalSec{0.05f};
     std::map<LLUUID, S32> mCachedCategoryVersions;
     // For internal use only
     bool hasBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id) const;
