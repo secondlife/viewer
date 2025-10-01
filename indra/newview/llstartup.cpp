@@ -638,6 +638,13 @@ void LLAsyncInventorySkeletonLoader::evaluateChildren(const FetchRequest& reques
         {
             if (!should_fetch && child_cache_valid)
             {
+                LL_INFOS("AsyncInventory") << "Async skeleton loader trusting cached essential folder"
+                                  << " cat_id=" << child_id
+                                  << " name=\"" << child->getName() << "\""
+                                  << " cached_version=" << cached_child_version
+                                  << " current_version=" << current_child_version
+                                  << " descendents=" << child->getDescendentCount()
+                                  << LL_ENDL;
                 mFetchedCategories.insert(child_id);
                 continue;
             }
@@ -655,9 +662,23 @@ void LLAsyncInventorySkeletonLoader::evaluateChildren(const FetchRequest& reques
                 mEssentialPending.insert(child_id);
             }
             enqueueFetch(child_id, child_is_library, child_essential, cached_child_version);
+            LL_INFOS("AsyncInventory") << "Async skeleton loader enqueued fetch"
+                              << " cat_id=" << child_id
+                              << " name=\"" << child->getName() << "\""
+                              << " essential=" << (child_essential ? "true" : "false")
+                              << " cache_valid=" << (child_cache_valid ? "true" : "false")
+                              << " cached_version=" << cached_child_version
+                              << " current_version=" << current_child_version
+                              << LL_ENDL;
         }
         else if (child_essential && child_cache_valid)
         {
+            LL_INFOS("AsyncInventory") << "Async skeleton loader treating essential folder as fetched"
+                              << " cat_id=" << child_id
+                              << " name=\"" << child->getName() << "\""
+                              << " cached_version=" << cached_child_version
+                              << " current_version=" << current_child_version
+                              << LL_ENDL;
             mFetchedCategories.insert(child_id);
         }
     }
@@ -698,6 +719,13 @@ void LLAsyncInventorySkeletonLoader::discoverEssentialFolders()
         if (cat && isCategoryUpToDate(cat, cached_version))
         {
             mFetchedCategories.insert(cat_id);
+            LL_INFOS("AsyncInventory") << "Essential folder up to date from cache"
+                              << " cat_id=" << cat_id
+                              << " name=\"" << cat->getName() << "\""
+                              << " cached_version=" << cached_version
+                              << " current_version=" << cat->getVersion()
+                              << " descendents=" << cat->getDescendentCount()
+                              << LL_ENDL;
             continue;
         }
 
@@ -705,6 +733,11 @@ void LLAsyncInventorySkeletonLoader::discoverEssentialFolders()
         {
             enqueueFetch(cat_id, is_library, true, cached_version);
             mEssentialPending.insert(cat_id);
+            LL_INFOS("AsyncInventory") << "Essential folder queued for fetch"
+                              << " cat_id=" << cat_id
+                              << " cached_version=" << cached_version
+                              << " current_version=" << (cat ? cat->getVersion() : LLViewerInventoryCategory::VERSION_UNKNOWN)
+                              << LL_ENDL;
         }
     }
 
@@ -720,11 +753,21 @@ void LLAsyncInventorySkeletonLoader::discoverEssentialFolders()
         if (isCategoryUpToDate(cof, cached_version))
         {
             mFetchedCategories.insert(cof_id);
+            LL_INFOS("Inventory") << "COF up to date from cache"
+                              << " cat_id=" << cof_id
+                              << " name=\"" << (cof ? cof->getName() : std::string("<null>")) << "\""
+                              << " cached_version=" << cached_version
+                              << " current_version=" << (cof ? cof->getVersion() : LLViewerInventoryCategory::VERSION_UNKNOWN)
+                              << LL_ENDL;
         }
         else
         {
             enqueueFetch(cof_id, false, true, cached_version);
             mEssentialPending.insert(cof_id);
+            LL_INFOS("Inventory") << "COF queued for fetch"
+                              << " cached_version=" << cached_version
+                              << " current_version=" << (cof ? cof->getVersion() : LLViewerInventoryCategory::VERSION_UNKNOWN)
+                              << LL_ENDL;
         }
     }
 }

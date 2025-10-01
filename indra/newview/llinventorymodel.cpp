@@ -28,6 +28,7 @@
 
 #include <typeinfo>
 #include <random>
+#include <set>
 
 #include "llinventorymodel.h"
 
@@ -125,16 +126,27 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
     {
         // HACK: downcast
         LLViewerInventoryCategory* c = (LLViewerInventoryCategory*)cat;
-        if(c->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+
+        bool descendents_match = true;
+        if (c->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
         {
-            S32 descendents_server = c->getDescendentCount();
-            S32 descendents_actual = c->getViewerDescendentCount();
-            if(descendents_server == descendents_actual)
+            const S32 descendents_server = c->getDescendentCount();
+            const S32 descendents_actual = c->getViewerDescendentCount();
+            descendents_match = (descendents_server == descendents_actual);
+
+            if (!descendents_match)
             {
-                mCachedCatIDs.insert(c->getUUID());
-                rv = true;
+                LL_DEBUGS("AsyncInventory") << "Caching category with mismatched descendents"
+                                   << " cat_id=" << c->getUUID()
+                                   << " name=\"" << c->getName() << "\""
+                                   << " server_descendents=" << descendents_server
+                                   << " viewer_descendents=" << descendents_actual
+                                   << LL_ENDL;
             }
         }
+
+        mCachedCatIDs.insert(c->getUUID());
+        rv = true;
     }
     return rv;
 }
@@ -2411,6 +2423,68 @@ void LLInventoryModel::cache(
         items,
         INCLUDE_TRASH,
         can_cache);
+
+    std::set<LLUUID> cached_category_ids;
+    std::set<LLUUID> cached_item_ids;
+    for (auto& cat_ptr : categories)
+    {
+        if (cat_ptr.notNull())
+        {
+            cached_category_ids.insert(cat_ptr->getUUID());
+        }
+    }
+    for (auto& item_ptr : items)
+    {
+        if (item_ptr.notNull())
+        {
+            cached_item_ids.insert(item_ptr->getUUID());
+        }
+    }
+
+    // Fallback pass: ensure every known category/item under the root is persisted
+    // even if the parent/child map failed to enumerate it.
+    for (auto& entry : mCategoryMap)
+    {
+        LLViewerInventoryCategory* cat = entry.second;
+        if (!cat)
+        {
+            continue;
+        }
+        const LLUUID& cat_id = cat->getUUID();
+        if (cached_category_ids.count(cat_id) != 0)
+        {
+            continue;
+        }
+        if (!isObjectDescendentOf(cat_id, parent_folder_id))
+        {
+            continue;
+        }
+        if (can_cache(cat, NULL))
+        {
+            categories.push_back(cat);
+            cached_category_ids.insert(cat_id);
+        }
+    }
+
+    for (auto& entry : mItemMap)
+    {
+        LLViewerInventoryItem* item = entry.second;
+        if (!item)
+        {
+            continue;
+        }
+        const LLUUID& item_id = item->getUUID();
+        if (cached_item_ids.count(item_id) != 0)
+        {
+            continue;
+        }
+        if (!isObjectDescendentOf(item_id, parent_folder_id))
+        {
+            continue;
+        }
+        items.push_back(item);
+        cached_item_ids.insert(item_id);
+    }
     // Use temporary file to avoid potential conflicts with other
     // instances (even a 'read only' instance unzips into a file)
     std::string temp_file = gDirUtilp->getTempFilename();
@@ -3097,6 +3171,8 @@ bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
     const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
 
     size_t cached_category_count = 0;
+    size_t cached_category_unknown_version = 0;
+    size_t cached_category_marked_refresh = 0;
     for (auto& cat : categories)
     {
         if (!cat)
@@ -3110,6 +3186,14 @@ bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
         const bool requires_refresh = (cached_version == NO_VERSION)
             || (categories_to_update.find(cat->getUUID()) != categories_to_update.end());
         cat->setVersion(requires_refresh ? NO_VERSION : cached_version);
+        if (requires_refresh)
+        {
+            ++cached_category_marked_refresh;
+        }
+        if (cached_version == NO_VERSION)
+        {
+            ++cached_category_unknown_version;
+        }
         addCategory(cat);
         ++child_counts[cat->getParentUUID()];
         ++cached_category_count;
@@ -3117,6 +3201,7 @@ bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
 
     cat_map_t::iterator unparented = mCategoryMap.end();
     size_t cached_item_count = 0;
+    size_t items_missing_parent = 0;
     for (auto& item_ptr : items)
     {
         LLViewerInventoryItem* item = item_ptr.get();
@@ -3132,7 +3217,13 @@ bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
             ++child_counts[item->getParentUUID()];
             ++cached_item_count;
         }
+        else
+        {
+            ++items_missing_parent;
+        }
     }
+
+    const size_t category_map_size_post_load = mCategoryMap.size();
 
     for (auto& entry : child_counts)
     {
@@ -3159,9 +3250,14 @@ bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
 
     categories.clear();
 
-    LL_INFOS(LOG_INV) << "Loaded cache-only skeleton for " << owner_id
-                      << " with " << cached_category_count << " categories and "
-                      << cached_item_count << " items." << LL_ENDL;
+    LL_INFOS("AsyncInventory") << "Loaded cache-only skeleton for " << owner_id
+                      << " categories_from_cache=" << cached_category_count
+                      << " categories_unknown_version=" << cached_category_unknown_version
+                      << " categories_marked_refresh=" << cached_category_marked_refresh
+                      << " items_from_cache=" << cached_item_count
+                      << " items_missing_parent=" << items_missing_parent
+                      << " category_map_size_post_load=" << category_map_size_post_load
+                      << LL_ENDL;
 
     return cached_category_count > 0;
 }
@@ -3236,6 +3332,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
     S32 i;
     S32 lost = 0;
     cat_array_t lost_cats;
+    size_t tree_links_inserted = 0;
     for (auto& cat : cats)
     {
         catsp = getUnlockedCatArray(cat->getParentUUID());
@@ -3246,6 +3343,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
             cat->getPreferredType() == LLFolderType::FT_ROOT_INVENTORY ))
         {
             catsp->push_back(cat);
+            ++tree_links_inserted;
         }
         else
         {
@@ -3261,6 +3359,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
             lost_cats.push_back(cat);
         }
     }
+    const S32 lost_categories = lost;
     if(lost)
     {
         LL_WARNS(LOG_INV) << "Found  " << lost << " lost categories." << LL_ENDL;
@@ -3299,6 +3398,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         if(catsp)
         {
             catsp->push_back(cat);
+            ++tree_links_inserted;
         }
         else
         {
@@ -3314,6 +3414,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
     // have to do is iterate over the items and put them in the right
     // place.
     item_array_t items;
+    size_t item_links_inserted = 0;
     if(!mItemMap.empty())
     {
         LLPointer<LLViewerInventoryItem> item;
@@ -3331,6 +3432,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         if(itemsp)
         {
             itemsp->push_back(item);
+            ++item_links_inserted;
         }
         else
         {
@@ -3348,6 +3450,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
             if(itemsp)
             {
                 itemsp->push_back(item);
+                ++item_links_inserted;
             }
             else
             {
@@ -3388,6 +3491,21 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         }
     }
 
+    const size_t category_tree_nodes = mParentChildCategoryTree.size();
+    const size_t item_tree_nodes = mParentChildItemTree.size();
+    const S32 lost_items = lost;
+
+    LL_INFOS("AsyncInventory") << "ParentChildMap summary"
+                      << " category_map_size=" << mCategoryMap.size()
+                      << " category_tree_nodes=" << category_tree_nodes
+                      << " category_links=" << tree_links_inserted
+                      << " item_map_size=" << mItemMap.size()
+                      << " item_tree_nodes=" << item_tree_nodes
+                      << " item_links=" << item_links_inserted
+                      << " lost_categories=" << lost_categories
+                      << " lost_items=" << lost_items
+                      << LL_ENDL;
+
     if (run_validation)
     {
         const LLUUID& agent_inv_root_id = gInventory.getRootFolderID();
@@ -3427,7 +3545,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
                 {
                     // Fatal inventory error. Will not be able to engage in many inventory operations.
                     // This should be followed by an error dialog leading to logout.
-                    LL_WARNS("Inventory") << "Fatal errors were found in validate(): unable to initialize inventory! "
+                    LL_WARNS("AsyncInventory") << "Fatal errors were found in validate(): unable to initialize inventory! "
                                           << "Will not be able to do normal inventory operations in this session."
                                           << LL_ENDL;
                     mIsAgentInvUsable = false;
@@ -3783,14 +3901,24 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
         LLSD& cat_array = inventory["categories"];
 
         S32 cat_count = 0;
+        S32 cat_unknown_version_count = 0;
         for (auto& cat : categories)
         {
-            if (cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+            if (!cat)
             {
-                LLSD sd;
-                cat->exportLLSD(sd);
-                cat_array.append(sd);
-                cat_count++;
+                continue;
+            }
+
+            // Persist folders even when their version is unknown so warm-cache
+            // hydrations retain the complete hierarchy; those folders will be
+            // marked for refresh on the next login.
+            LLSD sd;
+            cat->exportLLSD(sd);
+            cat_array.append(sd);
+            ++cat_count;
+            if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+            {
+                ++cat_unknown_version_count;
             }
         }
 
@@ -3806,14 +3934,17 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
         fileSD << LLSDOStreamer<LLSDBinaryFormatter>(inventory) << std::endl;
         if (fileSD.fail())
         {
-            LL_WARNS(LOG_INV) << "Failed to write cache. Unable to save inventory to: " << filename << LL_ENDL;
+            LL_WARNS("AsyncInventory") << "Failed to write cache. Unable to save inventory to: " << filename << LL_ENDL;
             return false;
         }
         fileSD.flush();
 
         fileSD.close();
 
-        LL_INFOS(LOG_INV) << "Inventory saved: " << (S32)cat_count << " categories, " << (S32)it_count << " items." << LL_ENDL;
+        LL_INFOS("AsyncInventory") << "Inventory saved: categories=" << cat_count
+                          << " categories_unknown_version=" << cat_unknown_version_count
+                          << " items=" << (S32)it_count
+                          << LL_ENDL;
     }
     catch (...)
     {
