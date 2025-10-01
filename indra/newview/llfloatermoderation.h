@@ -151,7 +151,7 @@ class LLFloaterModeration :
 // Simple helper class to perform the mute/unmute actions - broken out
 // into a separate class even though it's accessed from the moderation
 // UI floater (should maybe be a "Simpleton" vs "Singleton" so that access
-// from other parts of the code is possible without polluting 
+// from other parts of the code is possible without polluting
 class LLNearbyVoiceMuteHelper : public LLSingleton < LLNearbyVoiceMuteHelper > {
         LLSINGLETON(LLNearbyVoiceMuteHelper) {};
         ~LLNearbyVoiceMuteHelper() {};
