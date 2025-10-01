@@ -44,6 +44,7 @@
 #include "llfloaterimcontainer.h"
 #include "llrootview.h"
 #include "lllayoutstack.h"
+#include "llscripteditorws.h"
 
 //add LLFloaterIMNearbyChatHandler to LLNotificationsUI namespace
 using namespace LLNotificationsUI;
@@ -335,6 +336,7 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
     {
         if (!gSavedSettings.getBOOL("ShowScriptErrors"))
             return;
+
         if (gSavedSettings.getS32("ShowScriptErrorsLocation") == 1)
             return;
     }
@@ -525,6 +527,15 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
         if (!gSavedSettings.getBOOL("ShowScriptErrors"))
             return;
+
+        if (gSavedSettings.getBOOL("ExternalWebsocketSyncEnable") && gSavedSettings.getBOOL("ExternalWebsocketForwardDebug"))
+        {
+            LLScriptEditorWSServer::ptr_t server = LLScriptEditorWSServer::getServer();
+            if (server)
+            {
+                server->forwardChatToIDE(chat_msg);
+            }
+        }
 
         // don't process debug messages from not owned objects, see EXT-7762
         if (gAgentID != chat_msg.mOwnerID)

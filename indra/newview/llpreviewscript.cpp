@@ -1671,27 +1671,26 @@ bool LLScriptEdContainer::handleKeyHere(KEY key, MASK mask)
 
 void LLScriptEdContainer::startWebsocketServer()
 {
-    // if the user has enabled websockets, create the server to talk to the external editor
+    if (gSavedSettings.getBOOL("ExternalWebsocketSyncEnable"))
     {
-        // TODO: Get the name, port, and locality from settings
-        std::string server_name(LLScriptEditorWSServer::DEFAULT_SERVER_NAME);
-        U16         server_port(LLScriptEditorWSServer::DEFAULT_SERVER_PORT);
-        bool        server_localhost(true);
-
         // Attempt to find an existing server
         LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
-        LLScriptEditorWSServer::ptr_t server = std::static_pointer_cast<LLScriptEditorWSServer>(wsmgr.findServerByName(server_name));
+        LLScriptEditorWSServer::ptr_t server =
+            std::static_pointer_cast<LLScriptEditorWSServer>(
+                wsmgr.findServerByName(LLScriptEditorWSServer::DEFAULT_SERVER_NAME));
 
         if (!server)
         {   // We couldn't find one, so create it
-            server = std::make_shared<LLScriptEditorWSServer>(server_name, server_port, server_localhost);
+            U16 server_port = static_cast<U16>(gSavedSettings.getS32("ExternalWebsocketSyncPort"));
+            bool server_localhost = gSavedSettings.getBOOL("ExternalWebsocketSyncLocal");
+            server = std::make_shared<LLScriptEditorWSServer>(LLScriptEditorWSServer::DEFAULT_SERVER_NAME, server_port, server_localhost);
             wsmgr.addServer(server);
         }
 
         bool is_running = server->isRunning();
         if (!is_running)
         {   // Server isn't running, so start it
-            is_running = wsmgr.startServer(server_name);
+            is_running = wsmgr.startServer(LLScriptEditorWSServer::DEFAULT_SERVER_NAME);
         }
 
         if (!is_running && !server->isRunning())
@@ -1701,7 +1700,7 @@ void LLScriptEdContainer::startWebsocketServer()
         }
 
         std::string script_id_hash_str(getUniqueHash());
-        server->subscribeScriptEditor(getHandle(), script_id_hash_str);
+        server->subscribeScriptEditor(mObjectUUID, mItemUUID, mScriptEd->mScriptName, getHandle(), script_id_hash_str);
         mWebSocketServer = server;
     }
 }

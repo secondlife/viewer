@@ -291,6 +291,7 @@ set(viewer_SOURCE_FILES
     llfloatersceneloadstats.cpp
     llfloaterscriptdebug.cpp
     llfloaterscriptedprefs.cpp
+    llfloaterscripting.cpp
     llfloaterscriptlimits.cpp
     llfloatersearch.cpp
     llfloatersellland.cpp
@@ -971,6 +972,7 @@ set(viewer_HEADER_FILES
     llfloatersceneloadstats.h
     llfloaterscriptdebug.h
     llfloaterscriptedprefs.h
+    llfloaterscripting.h
     llfloaterscriptlimits.h
     llfloatersearch.h
     llfloatersellland.h

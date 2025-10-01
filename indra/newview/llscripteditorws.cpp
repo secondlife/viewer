@@ -35,6 +35,9 @@
 #include "llversioninfo.h"
 #include "llagent.h"
 #include "llregex.h"
+#include "llviewerobject.h"
+#include "llviewerobjectlist.h"
+#include "llchat.h"
 
 //========================================================================
 LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only)
@@ -43,6 +46,18 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
     LL_INFOS("ScriptEditorWS") << "Created JSON-RPC script editor server: " << name
                                << " on port " << port << LL_ENDL;
 }
+
+LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::getServer()
+{
+    if (!LLWebsocketMgr::instanceExists())
+    {
+        return nullptr;
+    }
+    LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
+    return std::static_pointer_cast<LLScriptEditorWSServer>(
+            wsmgr.findServerByName(LLScriptEditorWSServer::DEFAULT_SERVER_NAME));
+}
+
 
 LLWebsocketMgr::WSConnection::ptr_t LLScriptEditorWSServer::connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
                                                                               LLWebsocketMgr::connection_h handle)
@@ -109,14 +124,16 @@ void LLScriptEditorWSServer::onConnectionClosed(const LLWebsocketMgr::WSConnecti
     }
 }
 
-bool LLScriptEditorWSServer::subscribeScriptEditor(const LLHandle<LLPanel>& editor_handle, const std::string &script_id)
+bool LLScriptEditorWSServer::subscribeScriptEditor(const LLUUID& object_id, const LLUUID& item_id, std::string_view script_name,
+    const LLHandle<LLPanel>& editor_handle, const std::string& script_id)
 {
     if (!editor_handle.isDead())
     {
         auto it = mSubscriptions.find(script_id);
         if (it == mSubscriptions.end())
-        {   // Don't readd if already subscribed
-            mSubscriptions.emplace(script_id, EditorSubscription{ editor_handle, LLScriptEditorWSConnection::wptr_t() });
+        {   // Don't re-add if already subscribed
+            mSubscriptions.emplace(script_id,
+                LLScriptEditorWSServer::EditorSubscription(object_id, item_id, script_name, editor_handle));
             return false;
         }
         else
@@ -369,8 +386,14 @@ LLSD LLScriptEditorWSServer::handleScriptSubscribe(U32 connection_id, const LLSD
 
     if (result == SUBSCRIPTION_SUCCESS)
     {
-        //TODO: Build an info block for the subscribed script.
-        //buildScriptSubscriptionInfo(result);
+        auto it = mSubscriptions.find(script_id);
+        if (it != mSubscriptions.end())
+        {
+            LLViewerObject* object  = gObjectList.findObject((*it).second.mObjectID);
+            response["object_id"] = (*it).second.mObjectID;
+            //response["object_name"] = object ? object->getName() : "Unknown";
+            response["item_id"] = (*it).second.mItemID;
+        }
     }
 
     return response;
@@ -499,6 +522,133 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
     notifyScript(script_id, "script.compiled", params);
 }
 
+void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
+{
+    auto it = std::find_if(mSubscriptions.begin(), mSubscriptions.end(),
+                           [&chat_msg](const auto& pair) { return (pair.second.mObjectID == chat_msg.mFromID); });
+
+    if (it == mSubscriptions.end())
+    { // Not a script we are tracking
+        return;
+    }
+
+    bool is_error = false;
+    std::string error_message;
+    std::string object_name;
+    std::string script_name;
+    S32         line_number = 0;
+    // We have at least one script from this object, we will forward the message to the IDE
+    // but first we need to see if it is a runtime error
+    std::vector<std::string> lines = LLStringUtil::getTokens(chat_msg.mText, "\n");
+    // If this is a runtime error, the first line will look like: "<Object Name> [script:<Script Name>] Script run-time error"
+    static const std::string runtime_error_marker = "Script run-time error";
+    if (!lines.empty() && std::equal(runtime_error_marker.rbegin(), runtime_error_marker.rend(), lines.front().rbegin()))
+    {
+        is_error = true;
+        std::string first_line = lines.front();
+
+        // Extract the object and script name from the first line
+        static const boost::regex RUNTIME_ERR_REGEX_FLEX(R"(^(.+?)\s+\[script:([^\]]+)\]\s+Script run-time error)");
+        boost::smatch m;
+
+        S32 remove_count = 0;
+        if (boost::regex_match(first_line, m, RUNTIME_ERR_REGEX_FLEX))
+        {
+            object_name = m[1].str();
+            script_name = m[2].str();
+            remove_count++;
+        }
+
+        // TODO: Build an actual error message to forward to the external editor
+        // Explaination:
+        // Well! Heck!
+        // As it turns out, the complete error message arrives as either two or three
+        // separate chat messages from the server.
+        // 2 if the script is LSL or if it is Lua but not owned by the editing agent
+        // 3 if the script is Lua and owned by the editing agent.
+        //
+        // Message 1: <Object Name> [script:<Script Name>] Script run-time error
+        // Message 2: <runtime error>
+        // Message 3: <script>:<line>: <actual error message>\n
+        //              <call stack>
+        //
+        // These need to be compositited into a single error message to send to the IDE.
+        //
+        //if (lines.size() > 1)
+        //{   // The second line is the actual error message
+        //    error_message = lines[1];
+        //    remove_count++;
+        //    if ((error_message == "runtime error") && (lines.size() > 2))
+        //    { // If the error message is just "runtime error", the next line might actually be the real message:
+        //        // "lua_script:7: attempt to perform arithmetic (sub) on nil"
+        //        static const boost::regex LUA_ERROR_REGEX(R"(^(.+?):(\d+):\s*(.+)$)");
+        //
+        //        if (boost::regex_match(first_line, m, RUNTIME_ERR_REGEX_FLEX))
+        //        {
+        //            line_number   = std::stoi(m[2].str());
+        //            error_message = m[3].str();
+        //            remove_count++;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        error_message = "Unknown script runtime error";
+        //    }
+        //}
+        //else
+        //{
+        //    error_message = "Unknown script runtime error";
+        //}
+        if (lines.size() > remove_count)
+        {   // The rest of the lines may contain a stack trace
+            lines.erase(lines.begin(), lines.begin() + remove_count);
+        }
+        else
+        {
+            lines.clear();
+        }
+
+        // We should also check that the script name matches one of our subscriptions
+        if (!script_name.empty() && (it->second.mScriptName != script_name))
+        {   // right object, wrong script
+            auto sit = std::find_if(mSubscriptions.begin(), mSubscriptions.end(),
+                [&chat_msg, &script_name](const auto& pair)
+                {
+                    return (pair.second.mScriptName == script_name) && (pair.second.mObjectID == chat_msg.mFromID);
+                });
+            if (sit != mSubscriptions.end())
+            {   // We have a better match
+                it = sit;
+            }
+        }
+    }
+    std::string script_id = it->first;
+    LLSD message;
+    message["scriptId"] = script_id;
+    message["objectId"] = chat_msg.mFromID;
+    message["objectName"] = chat_msg.mFromName;
+    message["message"]     = chat_msg.mText;
+
+    if (is_error)
+    {
+        message["error"] = error_message;
+        message["line"] = line_number;
+        if (!lines.empty())
+        {
+            message["stack"] = LLSD::emptyArray();
+            for (const auto& line : lines)
+            {
+                message["stack"].append(line);
+            }
+        }
+    }
+
+    if (!it->second.mConnection.expired())
+    {
+        it->second.mConnection.lock()->notify(is_error ? "runtime.error" : "runtime.debug", message);
+    }
+}
+
 //========================================================================
 U32 LLScriptEditorWSConnection::sNextConnectionID = 1;
 
@@ -522,7 +672,7 @@ void LLScriptEditorWSConnection::onOpen()
     handshake["viewer_version"]   = LLVersionInfo::instance().getVersion();
 
     handshake["agent_id"] = gAgent.getID();
-    handshake["agent_name"] = "todo";
+    handshake["agent_name"] = gAgentUsername;
 
     std::string challenge_file = generateChallenge();
     if (!challenge_file.empty())

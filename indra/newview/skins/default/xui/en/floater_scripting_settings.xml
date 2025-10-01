@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+  legacy_header_height="18"
+  height="265"
+  layout="topleft"
+  name="floater_scripting_settings"
+  help_topic="scripting_settings"
+  save_rect="true"
+  title="SCRIPT DEVELOPMENT SETTINGS"
+  width="485">
+  <check_box
+    control_name="ShowScriptErrors"
+    follows="left|top"
+    height="20"
+    label="Show script errors in:"
+    layout="topleft"
+    left="30"
+    top_pad="20"
+    name="show_script_errors"
+    width="256" />
+  <radio_group
+    enabled_control="ShowScriptErrors"
+    control_name="ShowScriptErrorsLocation"
+    follows="top|left"
+    height="16"
+    layout="topleft"
+    left_delta="50"
+    name="show_location"
+    top_pad="5"
+    width="364">
+      <radio_item
+        height="16"
+        label="Nearby chat"
+        layout="topleft"
+        left="3"
+        name="0"
+        top="0"
+        width="315" />
+      <radio_item
+        height="16"
+        label="Separate window"
+        layout="topleft"
+        left_delta="175"
+        name="1"
+        top_delta="0"
+        width="315" />
+  </radio_group>
+
+  <text
+    follows="top|left|right"
+    height="15"
+    layout="topleft"
+    left="30"
+    name="tip"
+    top_pad="20"
+    width="330"
+    wrap="true">
+    External Script Editor:
+  </text>
+  <line_editor
+    control_name="ExternalEditor"
+    follows="top|left"
+    height="20"
+    initial_value=""
+    layout="left"
+    left_pad="5"
+    name="external_editor"
+    top_delta="25"
+    value=""
+    width="360" />
+  <button
+    follows="left|top"
+    height="20"
+    label="Browse..."
+    layout="topleft"
+    left_pad="5"
+    name="browse_btn"
+    top_delta="0"
+    width="70">
+    <button.commit_callback
+	    function="ScriptingSettings.BROWSE" />
+  </button>
+
+  <check_box
+    control_name="ExternalWebsocketSyncEnable"
+    follows="top|left"
+    height="20"
+    label="Enable WebScocket Sync"
+    layout="topleft"
+    left="30"
+    name="websocket_sync_enable"
+    top_pad="20"
+    width="200" />
+
+  <text
+    enabled_control="ExternalWebsocketSyncEnable"
+    follows="top|left"
+    height="15"
+    layout="topleft"
+    left="50"
+    name="websocket_tip"
+    top_pad="10"
+    width="140"
+    wrap="false">
+    WebSocket Listen Port:
+  </text>
+  <line_editor
+    enabled_control="ExternalWebsocketSyncEnable"
+    control_name="ExternalWebsocketSyncPort"
+    follows="top|left"
+    height="20"
+    initial_value="9020"
+    layout="topleft"
+    left_pad="5"
+    name="websocket_port"
+    top_delta="-2"
+    value="9020"
+    width="120" />
+  <check_box
+    control_name="ExternalWebsocketForwardDebug"
+    enabled_control="ExternalWebsocketSyncEnable"
+    follows="top|left"
+    height="20"
+    label="Forward script errors and debug to WebSocket clients"
+    layout="topleft"
+    left="50"
+    name="websocket_forward_debug"
+    top_pad="5"
+    width="400" />
+
+  <button
+    follows="left|top"
+    height="23"
+    label="Close"
+    layout="topleft"
+    right="-10"
+    name="close_btn"
+    top="-30"
+    width="100">
+    <button.commit_callback
+	    function="ScriptingSettings.CLOSE" />
+  </button>
+</floater>

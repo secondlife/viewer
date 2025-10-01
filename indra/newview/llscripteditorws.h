@@ -41,6 +41,8 @@
 class LLLiveLSLEditor;
 class LLScriptEdContainer;
 class LLScriptEditorWSServer;
+class LLChat;
+class LLPanel;
 
 class LLScriptEditorWSConnection : public LLJSONRPCConnection, public std::enable_shared_from_this<LLScriptEditorWSConnection>
 {
@@ -159,12 +161,15 @@ public:
 
     virtual ~LLScriptEditorWSServer() = default;
 
+    static LLScriptEditorWSServer::ptr_t getServer();
+
     void onStarted() override;
     void onStopped() override;
     void onConnectionOpened(const LLWebsocketMgr::WSConnection::ptr_t& connection) override;
     void onConnectionClosed(const LLWebsocketMgr::WSConnection::ptr_t& connection) override;
 
-    bool subscribeScriptEditor(const LLHandle<LLPanel>& editor_handle, const std::string &script_id);
+    bool subscribeScriptEditor(const LLUUID& object_id, const LLUUID& item_id, std::string_view script_name,
+        const LLHandle<LLPanel>& editor_handle, const std::string &script_id);
     void unsubscribeEditor(const std::string &script_id);
 
     void notifyScript(const std::string& script_id, const std::string& method, const LLSD& message) const;
@@ -173,10 +178,8 @@ public:
 
     LLHandle<LLPanel> findEditorForScript(const std::string& script_id) const;
 
-    /**
-     * @brief Get list of active script editing sessions
-     * @return Set of script IDs currently being edited
-     */
+    void forwardChatToIDE(const LLChat& chat_msg) const;
+
     std::set<std::string> getActiveScripts() const;
 
 protected:
@@ -195,9 +198,18 @@ protected:
 private:
     struct EditorSubscription
     {
-        LLHandle<LLPanel> mEditorHandle;
-        LLScriptEditorWSConnection::wptr_t mConnection;
+        EditorSubscription(const LLUUID &object_id, const LLUUID &item_id, std::string_view script_name, LLHandle<LLPanel> editor_handle):
+            mObjectID(object_id),
+            mItemID(item_id),
+            mScriptName(script_name),
+            mEditorHandle(editor_handle)
+        {}
         U32 mConnectionID{ 0 };
+        LLUUID mObjectID;
+        LLUUID mItemID;
+        std::string mScriptName;
+        LLScriptEditorWSConnection::wptr_t mConnection;
+        LLHandle<LLPanel> mEditorHandle;
     };
     using subscriptions_t = std::unordered_map<std::string, EditorSubscription>;
 
