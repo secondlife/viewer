@@ -449,7 +449,7 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
     bool is_lua = core && (core->isLuauLanguage());
 
     LLSD params;
-    params["scriptId"] = script_id;
+    params["script_id"] = script_id;
     params["success"]  = results["compiled"].asBoolean();
     params["running"]  = results["is_running"].asBoolean();
     if (results.has("errors"))
@@ -624,9 +624,9 @@ void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
     }
     std::string script_id = it->first;
     LLSD message;
-    message["scriptId"] = script_id;
-    message["objectId"] = chat_msg.mFromID;
-    message["objectName"] = chat_msg.mFromName;
+    message["script_id"] = script_id;
+    message["object_id"] = chat_msg.mFromID;
+    message["object_name"] = chat_msg.mFromName;
     message["message"]     = chat_msg.mText;
 
     if (is_error)
