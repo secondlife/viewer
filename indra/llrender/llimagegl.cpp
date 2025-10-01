@@ -1097,6 +1097,8 @@ void sub_image_lines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 w
         // full width texture, do 32 lines at a time
         for (U32 y_pos = y_offset; y_pos < y_offset_end; y_pos += batch_size)
         {
+            // If this keeps crashing, pass down data_size, looks like it is using
+            // imageraw->getData(); for data, but goes way over allocated size limit
             glTexSubImage2D(target, miplevel, x_offset, y_pos, width, batch_size, pixformat, pixtype, src);
             src += line_width * batch_size;
         }
@@ -1106,6 +1108,8 @@ void sub_image_lines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 w
         // partial width or strange height
         for (U32 y_pos = y_offset; y_pos < y_offset_end; y_pos += 1)
         {
+            // If this keeps crashing, pass down data_size, looks like it is using
+            // imageraw->getData(); for data, but goes way over allocated size limit
             glTexSubImage2D(target, miplevel, x_offset, y_pos, width, 1, pixformat, pixtype, src);
             src += line_width;
         }
@@ -1544,8 +1548,9 @@ bool LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
     if (discard_level < 0)
     {
         llassert(mCurrentDiscardLevel >= 0);
-        discard_level = llmin(mCurrentDiscardLevel, MAX_DISCARD_LEVEL);
+        discard_level = mCurrentDiscardLevel;
     }
+    discard_level = llmin(discard_level, MAX_DISCARD_LEVEL);
 
     // Actual image width/height = raw image width/height * 2^discard_level
     S32 raw_w = imageraw->getWidth() ;
