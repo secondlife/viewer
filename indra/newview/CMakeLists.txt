@@ -59,7 +59,7 @@ if (NOT HAVOK_TPV)
    # which means we need to duct tape this togther ...
 
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
-   if (NOT "${LLPHYSICSEXTENSIONS_STUB_DIR}" EQUAL "")
+   if (NOT "${LLPHYSICSEXTENSIONS_STUB_DIR}" STREQUAL "")
       # for darwin universal builds we need both real llphysicsextensions and the stub for aarch64 fallback
       add_subdirectory(${LLPHYSICSEXTENSIONS_STUB_DIR} llphysicsextensionsstub)
    endif()
