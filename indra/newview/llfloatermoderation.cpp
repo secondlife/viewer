@@ -360,6 +360,7 @@ void LLFloaterModeration::refreshUI()
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["column"] = "recent_loudness_column";
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["type"] = "text";
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["value"] = recent_loudness_str;
+        row["columns"][EListColumnNum::RECENT_LOUDNESS]["halign"] = LLFontGL::HCENTER;
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["font"]["name"] = mScrollListFontFace;
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["font"]["style"] = font_style;
 
