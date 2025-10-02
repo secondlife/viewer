@@ -228,9 +228,11 @@ void LLFloaterModeration::refreshList()
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_ids[i]);
     }
 
-    //addDummyResident("Snowshoe Cringifoot");
-    //addDummyResident("Applepie Kitterbul");
-    //addDummyResident("Wigglepod Bundersauce");
+    addDummyResident("Snowshoe Cringifoot");
+    addDummyResident("Applepie Kitterbul");
+    addDummyResident("Wigglepod Bundersauce");
+    addDummyResident("Hufflesnuff Potterwhag");
+    addDummyResident("Joly Lotbinière");
 
     // Initial state if sorted by loudness since this is likely whom you're looking to moderate
     sortListByLoudness();
@@ -288,8 +290,8 @@ void LLFloaterModeration::refreshUI()
         LLUUID av_uuid = (*iter)->id;
         std::string row_num_str(STRINGIZE(1 + std::distance(std::begin(mResidentList), iter)));
         std::string agent_name = (*iter)->name;
-        std::string is_linden_str = (*iter)->is_linden ? "Y" : "N";
-        std::string is_voice_muted_str = (*iter)->is_voice_muted ? "Y" : "N";
+        std::string is_linden_icon = (*iter)->is_linden ? "Profile_Badge_Linden" : "";
+        std::string is_voice_muted_icon = (*iter)->is_voice_muted ? "VoiceMute_Off" : "VoicePTT_Lvl2";
         std::string account_age_str = LLDateUtil::ageFromDate((*iter)->born_on, LLDate::now());
         std::string recent_loudness_str = STRINGIZE((*iter)->recent_loudness);
 
@@ -297,47 +299,61 @@ void LLFloaterModeration::refreshUI()
         ss << std::fixed << std::setprecision(1) << (*iter)->distance << "m";
         std::string dist_str(ss.str());
 
+        // Disambiguate Lindens
+        std::string font_style = "NORMAL";
+        if (av_uuid == gAgent.getID())
+        {
+            font_style = "BOLD|ITALIC";
+        }
+
         LLSD row;
         // ID is hidden - used to retrieve other info later on
         row["columns"][EListColumnNum::ID]["column"] = "id_column";
         row["columns"][EListColumnNum::ID]["type"] = "text";
         row["columns"][EListColumnNum::ID]["value"] = STRINGIZE(av_uuid);
         row["columns"][EListColumnNum::ID]["font"]["name"] = mScrollListFontFace;
+        row["columns"][EListColumnNum::ID]["font"]["style"] = font_style;
 
         // Useful to have a visual count of the numnber of residents (maybe)
         row["columns"][EListColumnNum::ROWNUM]["column"] = "number_column";
         row["columns"][EListColumnNum::ROWNUM]["type"] = "text";
         row["columns"][EListColumnNum::ROWNUM]["value"] = row_num_str;
         row["columns"][EListColumnNum::ROWNUM]["font"]["name"] = mScrollListFontFace;
+        row["columns"][EListColumnNum::ROWNUM]["font"]["style"] = font_style;
 
         // The name of the resident
         row["columns"][EListColumnNum::NAME]["column"] = "name_column";
         row["columns"][EListColumnNum::NAME]["type"] = "text";
         row["columns"][EListColumnNum::NAME]["value"] = agent_name;
         row["columns"][EListColumnNum::NAME]["font"]["name"] = mScrollListFontFace;
+        row["columns"][EListColumnNum::NAME]["font"]["style"] = font_style;
 
         // The age of the resident
         row["columns"][EListColumnNum::ACCOUNT_AGE]["column"] = "account_age_column";
         row["columns"][EListColumnNum::ACCOUNT_AGE]["type"] = "text";
         row["columns"][EListColumnNum::ACCOUNT_AGE]["value"] = account_age_str;
         row["columns"][EListColumnNum::ACCOUNT_AGE]["font"]["name"] = mScrollListFontFace;
+        row["columns"][EListColumnNum::ACCOUNT_AGE]["font"]["style"] = font_style;
 
         // The distance of the resident from the person using the tool
         row["columns"][EListColumnNum::DISTANCE]["column"] = "distance_column";
         row["columns"][EListColumnNum::DISTANCE]["type"] = "text";
         row["columns"][EListColumnNum::DISTANCE]["value"] = dist_str;
         row["columns"][EListColumnNum::DISTANCE]["font"]["name"] = mScrollListFontFace;
+        row["columns"][EListColumnNum::DISTANCE]["font"]["style"] = font_style;
 
         // Whether or not the resident is a Linden (in case that determines the mute or not descision :) )
         row["columns"][EListColumnNum::LINDEN]["column"] = "linden_column";
-        row["columns"][EListColumnNum::LINDEN]["type"] = "text";
-        row["columns"][EListColumnNum::LINDEN]["value"] = is_linden_str;
+        row["columns"][EListColumnNum::LINDEN]["type"] = "icon";
+        row["columns"][EListColumnNum::LINDEN]["value"] = is_linden_icon;
+        row["columns"][EListColumnNum::LINDEN]["halign"] = LLFontGL::HCENTER;
         row["columns"][EListColumnNum::LINDEN]["font"]["name"] = mScrollListFontFace;
 
         // Whether or not the resident voice muted
         row["columns"][EListColumnNum::VOICE_MUTED]["column"] = "voice_muted_column";
-        row["columns"][EListColumnNum::VOICE_MUTED]["type"] = "text";
-        row["columns"][EListColumnNum::VOICE_MUTED]["value"] = is_voice_muted_str;
+        row["columns"][EListColumnNum::VOICE_MUTED]["type"] = "icon";
+        row["columns"][EListColumnNum::VOICE_MUTED]["value"] = is_voice_muted_icon;
+        row["columns"][EListColumnNum::VOICE_MUTED]["halign"] = LLFontGL::HCENTER;
         row["columns"][EListColumnNum::VOICE_MUTED]["font"]["name"] = mScrollListFontFace;
 
         // How "loud" the resident has been recently
@@ -345,14 +361,9 @@ void LLFloaterModeration::refreshUI()
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["type"] = "text";
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["value"] = recent_loudness_str;
         row["columns"][EListColumnNum::RECENT_LOUDNESS]["font"]["name"] = mScrollListFontFace;
+        row["columns"][EListColumnNum::RECENT_LOUDNESS]["font"]["style"] = font_style;
 
         LLScrollListItem* item = mResidentListScroller->addElement(row);
-
-        // Disable actions on self
-        if (av_uuid == gAgent.getID())
-        {
-            //item->setEnabled(false);
-        }
     }
 }
 

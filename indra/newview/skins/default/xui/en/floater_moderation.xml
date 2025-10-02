@@ -40,6 +40,7 @@
        draw_stripes="true"
        draw_heading="true"
        follows="all"
+       bg_stripe_color="0.25 0.25 0.45 0.25"
        layout="topleft"
        left="8"
        multi_select="true"
