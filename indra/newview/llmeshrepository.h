@@ -521,6 +521,9 @@ public:
     // list of completed Decomposition info requests
     std::list<LLModel::Decomposition*> mDecompositionQ;
 
+    // list of completed Physics Mesh info requests
+    std::list<LLModel::Decomposition*> mPhysicsQ;
+
     //queue of requested headers
     std::queue<HeaderRequest> mHeaderReqQ;
 
@@ -855,7 +858,7 @@ public:
     void notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 request_lod, S32 volume_lod);
     void notifySkinInfoReceived(LLMeshSkinInfo* info);
     void notifySkinInfoUnavailable(const LLUUID& info);
-    void notifyDecompositionReceived(LLModel::Decomposition* info);
+    void notifyDecompositionReceived(LLModel::Decomposition* info, bool physics_mesh);
 
     S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
     static S32 getActualMeshLOD(LLMeshHeader& header, S32 lod);
