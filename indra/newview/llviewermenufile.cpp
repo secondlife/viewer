@@ -912,7 +912,23 @@ class LLFileUploadModel : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        LLFloaterModelPreview::showModelPreview();
+        if (LLConvexDecomposition::isFunctional())
+        {
+            LLFloaterModelPreview::showModelPreview();
+        }
+        else
+        {
+            if (gGLManager.mIsApple)
+            {
+                LLNotificationsUtil::add("ModelUploaderMissingPhysicsApple");
+            }
+            else
+            {
+                // TPV?
+                LLNotificationsUtil::add("ModelUploaderMissingPhysics");
+                LLFloaterModelPreview::showModelPreview();
+            }
+        }
         return true;
     }
 };
