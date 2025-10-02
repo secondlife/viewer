@@ -74,9 +74,6 @@ if (NOT HAVOK_TPV)
       target_link_libraries(llphysicsextensions llrender )
       if (DARWIN)
         target_compile_options( llphysicsextensions  PRIVATE -Wno-unused-local-typedef)
-
-        # TODO - move this into llphysicsextensions/CMakeLists.txt once I've proved it works
-        set_target_properties(llphysicsextensions PROPERTIES OSX_ARCHITECTURES "x86_64")
       endif (DARWIN)
    endif()
 endif (NOT HAVOK_TPV)
