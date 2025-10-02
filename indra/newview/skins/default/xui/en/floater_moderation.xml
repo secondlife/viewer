@@ -2,14 +2,14 @@
 <floater
   legacy_header_height="18"
   can_resize="false"
-  height="400"
+  height="600"
   layout="topleft"
   min_height="175"
   min_width="100"
   name="floater_moderation"
   help_topic="contents"
   title="Moderation Controls"
-  width="600">
+  width="800">
     <button
         right="-10"
         top="24"
@@ -36,7 +36,7 @@
         tool_tip="Select All" />
     <scroll_list
        top="50"
-       height="240"
+       height="440"
        draw_stripes="true"
        draw_heading="true"
        follows="all"
@@ -47,15 +47,15 @@
        right="-8"
        tool_tip="Moderation Resident Info">
         <scroll_list.columns
-             dynamic_width="false"
+             dynamic_width="true"
              label="ID"
              name="id_column"
-             relative_width="0.0" />
+             relative_width="0.15" />
         <scroll_list.columns
              dynamic_width="false"
-             label="Number"
+             label="#"
              name="number_column"
-             relative_width="0.05" />
+             relative_width="0.03" />
         <scroll_list.columns
              dynamic_width="true"
              label="Name"
@@ -70,17 +70,17 @@
              dynamic_width="true"
              label="Distance (m)"
              name="distance_column"
-             relative_width="0.15" />
+             relative_width="0.1" />
         <scroll_list.columns
              dynamic_width="true"
              label="Linden"
              name="linden_column"
-             relative_width="0.075" />
+             relative_width="0.05" />
         <scroll_list.columns
              dynamic_width="true"
              label="Muted"
              name="voice_muted_column"
-             relative_width="0.075" />
+             relative_width="0.05" />
         <scroll_list.columns
              dynamic_width="true"
              label="Loudness"
@@ -91,7 +91,7 @@
       height="20"
       label="Mute Selected"
       layout="topright"
-      bottom="-320"
+      bottom="-520"
       left="10"
       name="mute_residents_btn"
       width="120" />
@@ -99,7 +99,7 @@
       height="20"
       label="Unmute Selected"
       layout="topright"
-      bottom="-345"
+      bottom="-545"
       left="10"
       name="unmute_residents_btn"
       width="120" />
@@ -107,7 +107,7 @@
       height="20"
       label="Profile"
       layout="topright"
-      bottom="-320"
+      bottom="-520"
       right="-10"
       name="show_resident_profile_btn"
       width="80" />
@@ -115,7 +115,7 @@
       height="20"
       label="Track"
       layout="topright"
-      bottom="-345"
+      bottom="-545"
       right="-10"
       name="track_resident_btn"
       width="80" />
@@ -123,7 +123,7 @@
       height="20"
       label="Close"
       layout="topright"
-      bottom="-390"
+      bottom="-590"
       right="-10"
       name="close_btn"
       width="80" />
