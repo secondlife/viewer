@@ -61,6 +61,7 @@ if (NOT HAVOK_TPV)
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
    if (NOT "${LLPHYSICSEXTENSIONS_STUB_DIR}" STREQUAL "")
       # for darwin universal builds we need both real llphysicsextensions and the stub for aarch64 fallback
+      # this will only be set when HAVOK is ON, otherwise the normal stub fallback will be in effect
       add_subdirectory(${LLPHYSICSEXTENSIONS_STUB_DIR} llphysicsextensionsstub)
    endif()
 
@@ -73,6 +74,9 @@ if (NOT HAVOK_TPV)
       target_link_libraries(llphysicsextensions llrender )
       if (DARWIN)
         target_compile_options( llphysicsextensions  PRIVATE -Wno-unused-local-typedef)
+
+        # TODO - move this into llphysicsextensions/CMakeLists.txt once I've proved it works
+        set_target_properties(llphysicsextensions PROPERTIES OSX_ARCHITECTURES "x86_64")
       endif (DARWIN)
    endif()
 endif (NOT HAVOK_TPV)
