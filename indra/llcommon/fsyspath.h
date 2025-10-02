@@ -12,7 +12,10 @@
 #if ! defined(LL_FSYSPATH_H)
 #define LL_FSYSPATH_H
 
+#include <boost/iterator/transform_iterator.hpp>
 #include <filesystem>
+#include <string>
+#include <string_view>
 
 // While std::filesystem::path can be directly constructed from std::string on
 // both Posix and Windows, that's not what we want on Windows. Per
@@ -33,37 +36,43 @@
 // char"), the "native narrow encoding" isn't UTF-8, so file paths containing
 // non-ASCII characters get mangled.
 //
-// Once we're building with C++20, we could pass a UTF-8 std::string through a
-// vector<char8_t> to engage std::filesystem::path's own UTF-8 conversion. But
-// sigh, as of 2024-04-03 we're not yet there.
-//
-// Anyway, encapsulating the important UTF-8 conversions in our own subclass
-// allows us to migrate forward to C++20 conventions without changing
-// referencing code.
+// Encapsulating the important UTF-8 conversions in our own subclass allows us
+// to migrate forward to C++20 conventions without changing referencing code.
 
 class fsyspath: public std::filesystem::path
 {
     using super = std::filesystem::path;
 
+    // In C++20 (__cpp_lib_char8_t), std::filesystem::u8path() is deprecated.
+    // std::filesystem::path(iter, iter) performs UTF-8 conversions when the
+    // value_type of the iterators is char8_t. While we could copy into a
+    // temporary std::u8string and from there into std::filesystem::path, to
+    // minimize string copying we'll define a transform_iterator that accepts
+    // a std::string_view::iterator and dereferences to char8_t.
+    struct u8ify
+    {
+        char8_t operator()(char c) const { return char8_t(c); }
+    };
+    using u8iter = boost::transform_iterator<u8ify, std::string_view::iterator>;
+
 public:
     // default
     fsyspath() {}
-    // construct from UTF-8 encoded std::string
-    fsyspath(const std::string& path): super(std::filesystem::u8path(path)) {}
-    // construct from UTF-8 encoded const char*
-    fsyspath(const char* path): super(std::filesystem::u8path(path)) {}
+    // construct from UTF-8 encoded string
+    fsyspath(const std::string& path): fsyspath(std::string_view(path)) {}
+    fsyspath(const char* path):        fsyspath(std::string_view(path)) {}
+    fsyspath(std::string_view path):
+        super(u8iter(path.begin(), u8ify()), u8iter(path.end(), u8ify()))
+    {}
     // construct from existing path
     fsyspath(const super& path): super(path) {}
 
-    fsyspath& operator=(const super& p) { super::operator=(p); return *this; }
-    fsyspath& operator=(const std::string& p)
+    fsyspath& operator=(const super& p)       { super::operator=(p); return *this; }
+    fsyspath& operator=(const std::string& p) { return (*this) = std::string_view(p); }
+    fsyspath& operator=(const char* p)        { return (*this) = std::string_view(p); }
+    fsyspath& operator=(std::string_view p)
     {
-        super::operator=(std::filesystem::u8path(p));
-        return *this;
-    }
-    fsyspath& operator=(const char* p)
-    {
-        super::operator=(std::filesystem::u8path(p));
+        assign(u8iter(p.begin(), u8ify()), u8iter(p.end(), u8ify()));
         return *this;
     }
 

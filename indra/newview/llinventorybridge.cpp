@@ -7805,6 +7805,15 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
     {
         items.push_back(std::string("Properties"));
         addDeleteContextMenuOptions(items, disabled_items);
+
+        if (isFavorite())
+        {
+            items.push_back(std::string("Remove from Favorites"));
+        }
+        else if (isAgentInventory())
+        {
+            items.push_back(std::string("Add to Favorites"));
+        }
     }
     addLinkReplaceMenuOption(items, disabled_items);
     hide_context_entries(menu, items, disabled_items);
@@ -8031,6 +8040,15 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
     {
         items.push_back(std::string("Find Original"));
         addDeleteContextMenuOptions(items, disabled_items);
+
+        if (isFavorite())
+        {
+            items.push_back(std::string("Remove from Favorites"));
+        }
+        else if (isAgentInventory())
+        {
+            items.push_back(std::string("Add to Favorites"));
+        }
     }
     hide_context_entries(menu, items, disabled_items);
 }

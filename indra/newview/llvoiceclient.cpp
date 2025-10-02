@@ -292,7 +292,14 @@ void LLVoiceClient::setHidden(bool hidden)
 
 void LLVoiceClient::terminate()
 {
-    if (mSpatialVoiceModule) mSpatialVoiceModule->terminate();
+    if (LLVivoxVoiceClient::instanceExists())
+    {
+        LLWebRTCVoiceClient::getInstance()->terminate();
+    }
+    if (LLVivoxVoiceClient::instanceExists())
+    {
+        LLVivoxVoiceClient::getInstance()->terminate();
+    }
     mSpatialVoiceModule = NULL;
     m_servicePump = NULL;
 

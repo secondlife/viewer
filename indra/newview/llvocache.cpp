@@ -486,14 +486,21 @@ void LLVOCacheEntry::updateDebugSettings()
     //min radius: all objects within this radius remain loaded in memory
     static LLCachedControl<F32> min_radius(gSavedSettings,"SceneLoadMinRadius");
     static const F32 MIN_RADIUS = 1.0f;
-    const F32 draw_radius = gAgentCamera.mDrawDistance;
+
+    F32 draw_radius = gAgentCamera.mDrawDistance;
+    if (LLViewerTexture::isSystemMemoryCritical())
+    {
+        // Factor is intended to go from 1.0 to 2.0
+        // For safety cap reduction at 50%, we don't want to go below half of draw distance
+        draw_radius = llmax(draw_radius / LLViewerTexture::getSystemMemoryBudgetFactor(), draw_radius / 2.f);
+    }
     const F32 clamped_min_radius = llclamp((F32) min_radius, MIN_RADIUS, draw_radius); // [1, mDrawDistance]
     sNearRadius = MIN_RADIUS + ((clamped_min_radius - MIN_RADIUS) * adjust_factor);
 
     // a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
     static LLCachedControl<F32> rear_max_radius_frac(gSavedSettings,"SceneLoadRearMaxRadiusFraction");
     const F32 min_radius_plus_one = sNearRadius + 1.f;
-    const F32 max_radius = rear_max_radius_frac * gAgentCamera.mDrawDistance;
+    const F32 max_radius = rear_max_radius_frac * draw_radius;
     const F32 clamped_max_radius = llclamp(max_radius, min_radius_plus_one, draw_radius); // [sNearRadius, mDrawDistance]
     sRearFarRadius = min_radius_plus_one + ((clamped_max_radius - min_radius_plus_one) * adjust_factor);
 

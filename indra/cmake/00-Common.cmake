@@ -34,7 +34,10 @@ add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 # Force enable SSE2 instructions in GLM per the manual
 # https://github.com/g-truc/glm/blob/master/manual.md#section2_10
-add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_FORCE_SSE2=1 GLM_ENABLE_EXPERIMENTAL=1)
+add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_ENABLE_EXPERIMENTAL=1)
+
+# SSE2NEON throws a pointless warning when compiler optimizations are enabled
+add_compile_definitions(SSE2NEON_SUPPRESS_WARNINGS=1)
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
@@ -78,6 +81,8 @@ if (WINDOWS)
       NOMINMAX
 #     DOM_DYNAMIC                     # For shared library colladadom
       _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
+      _CRT_NONSTDC_NO_DEPRECATE       # Allow use of sprintf etc
+      _CRT_OBSOLETE_NO_WARNINGS
       _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
       )
   add_compile_options(
@@ -160,46 +165,40 @@ if (LINUX)
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
 endif (LINUX)
 
-
 if (DARWIN)
+  # Use rpath loading on macos
+  set(CMAKE_MACOSX_RPATH TRUE)
+
   # Warnings should be fatal -- thanks, Nicky Perian, for spotting reversed default
   set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-Wno-unused-local-typedef -Wno-deprecated-declarations")
-  # Ensure that CMAKE_CXX_FLAGS has the correct -g debug information format --
-  # see Variables.cmake.
-  string(REPLACE "-gdwarf-2" "-g${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}"
-    CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
-  # NOTE: it's critical that the optimization flag is put in front.
-  # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
-## Really?? On developer machines too?
-##set(ENABLE_SIGNING TRUE)
-##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
 
-  # required for clang-15/xcode-15 since our boost package still uses deprecated std::unary_function/binary_function
-  # see https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#C++-Standard-Library
-  add_compile_definitions(_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
-endif (DARWIN)
+  # Ensure debug symbols are always generated
+  add_compile_options(-g --debug) # --debug is a clang synonym for -g that bypasses cmake behaviors
+
+  # Silence GL deprecation warnings
+  add_compile_definitions(GL_SILENCE_DEPRECATION=1)
+endif(DARWIN)
 
 if (LINUX OR DARWIN)
-  set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
+  add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable)
 
-  if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    list(APPEND GCC_WARNINGS -Werror)
-  endif (NOT GCC_DISABLE_FATAL_WARNINGS)
-
-  list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
-
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
-    list(APPEND GCC_WARNINGS -Wno-unused-but-set-variable -Wno-unused-variable )
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    # libstdc++ headers contain deprecated declarations that fail on clang
+    # macOS currently has many deprecated calls
+    add_compile_options(-Wno-unused-local-typedef)
   endif()
+
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-maybe-uninitialized)
+  endif()
+
+  if (NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLANG_DISABLE_FATAL_WARNINGS)
+    add_compile_options(-Werror)
+  endif ()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
-
-
 

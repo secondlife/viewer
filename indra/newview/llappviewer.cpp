@@ -993,6 +993,7 @@ bool LLAppViewer::init()
         return false;
     }
 
+#if defined(LL_X86) || defined(LL_X86_64)
     // Without SSE2 support we will crash almost immediately, warn here.
     if (!gSysCPU.hasSSE2())
     {
@@ -1004,6 +1005,7 @@ bool LLAppViewer::init()
         // quit immediately
         return false;
     }
+#endif
 
     // alert the user if they are using unsupported hardware
     if (!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))
@@ -1289,7 +1291,7 @@ void LLAppViewer::initMaxHeapSize()
     //------------------------------------------------------------------------------------------
     //currently SL is built under 32-bit setting, we set its max heap size no more than 1.6 GB.
 
- #ifndef LL_X86_64
+ #if !defined(LL_X86_64) && !defined(LL_ARM64)
     F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
 #else
     F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize64");
@@ -1352,6 +1354,7 @@ bool LLAppViewer::doFrame()
 #endif
 
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
+    LL_PROFILE_GPU_ZONE("Frame");
     {
     // and now adjust the visuals from previous frame.
     if(LLPerfStats::tunables.userAutoTuneEnabled && LLPerfStats::tunables.tuningFlag != LLPerfStats::Tunables::Nothing)
@@ -1441,24 +1444,26 @@ bool LLAppViewer::doFrame()
 
         if (!LLApp::isExiting())
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df JoystickKeyboard");
-            pingMainloopTimeout("Main:JoystickKeyboard");
-
-            // Scan keyboard for movement keys.  Command keys and typing
-            // are handled by windows callbacks.  Don't do this until we're
-            // done initializing.  JC
-            if (gViewerWindow
-                && (gHeadlessClient || gViewerWindow->getWindow()->getVisible())
-                && gViewerWindow->getActive()
-                && !gViewerWindow->getWindow()->getMinimized()
-                && LLStartUp::getStartupState() == STATE_STARTED
-                && (gHeadlessClient || !gViewerWindow->getShowProgress())
-                && !gFocusMgr.focusLocked())
             {
-                LLPerfStats::RecordSceneTime T (LLPerfStats::StatType_t::RENDER_IDLE);
-                joystick->scanJoystick();
-                gKeyboard->scanKeyboard();
-                gViewerInput.scanMouse();
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df JoystickKeyboard");
+                pingMainloopTimeout("Main:JoystickKeyboard");
+
+                // Scan keyboard for movement keys.  Command keys and typing
+                // are handled by windows callbacks.  Don't do this until we're
+                // done initializing.  JC
+                if (gViewerWindow
+                    && (gHeadlessClient || gViewerWindow->getWindow()->getVisible())
+                    && gViewerWindow->getActive()
+                    && !gViewerWindow->getWindow()->getMinimized()
+                    && LLStartUp::getStartupState() == STATE_STARTED
+                    && (gHeadlessClient || !gViewerWindow->getShowProgress())
+                    && !gFocusMgr.focusLocked())
+                {
+                    LLPerfStats::RecordSceneTime T(LLPerfStats::StatType_t::RENDER_IDLE);
+                    joystick->scanJoystick();
+                    gKeyboard->scanKeyboard();
+                    gViewerInput.scanMouse();
+                }
             }
 
             // Update state based on messages, user input, object idle.
@@ -3167,17 +3172,6 @@ bool LLAppViewer::initWindow()
 
     LLNotificationsUI::LLNotificationManager::getInstance();
 
-
-#ifdef LL_DARWIN
-    //Satisfy both MAINT-3135 (OSX 10.6 and earlier) MAINT-3288 (OSX 10.7 and later)
-    LLOSInfo& os_info = LLOSInfo::instance();
-    if (os_info.mMajorVer == 10 && os_info.mMinorVer < 7)
-    {
-        if ( os_info.mMinorVer == 6 && os_info.mBuild < 8 )
-            gViewerWindow->getWindow()->setOldResize(true);
-    }
-#endif
-
     if (gSavedSettings.getBOOL("WindowMaximized"))
     {
         gViewerWindow->getWindow()->maximize();
@@ -3292,6 +3286,11 @@ LLSD LLAppViewer::getViewerInfo() const
     info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
     info["CHANNEL"] = versionInfo.getChannel();
     info["ADDRESS_SIZE"] = ADDRESS_SIZE;
+#if LL_ARM64
+    info["ARCHITECTURE"] = "ARM";
+#else
+    info["ARCHITECTURE"] = "x86";
+#endif
     std::string build_config = versionInfo.getBuildConfig();
     if (build_config != "Release")
     {
@@ -3383,7 +3382,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["FONT_SIZE_ADJUSTMENT"] = gSavedSettings.getF32("FontScreenDPI");
     info["UI_SCALE"] = gSavedSettings.getF32("UIScaleFactor");
     info["DRAW_DISTANCE"] = gSavedSettings.getF32("RenderFarClip");
-    info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
+    info["NET_BANDWITH"] = LLViewerThrottle::getMaxBandwidthKbps();
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
     info["TEXTURE_MEMORY"] = LLSD::Integer(gGLManager.mVRAM);
@@ -4426,6 +4425,9 @@ bool LLAppViewer::initCache()
     const U32 CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS = 128;
     LLVOCache::getInstance()->initCache(LL_PATH_CACHE, CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS, getObjectCacheVersion());
 
+    // Remove old, stale CEF cache folders
+    purgeCefStaleCaches();
+
     return true;
 }
 
@@ -4450,18 +4452,27 @@ void LLAppViewer::loadKeyBindings()
     LLUrlRegistry::instance().setKeybindingHandler(&gViewerInput);
 }
 
+// As per GHI #4498, remove old, stale CEF cache folders from previous sessions
+void LLAppViewer::purgeCefStaleCaches()
+{
+    // TODO: we really shouldn't use a hard coded name for the cache folder here...
+    const std::string browser_parent_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
+    if (LLFile::isdir(browser_parent_cache))
+    {
+        // This is a sledgehammer approach - nukes the cef_cache dir entirely
+        // which is then recreated the first time a CEF instance creates an
+        // individual cache folder. If we ever decide to retain some folders
+        // e.g. Search UI cache - then we will need a more granular approach.
+        gDirUtilp->deleteDirAndContents(browser_parent_cache);
+    }
+}
+
 void LLAppViewer::purgeCache()
 {
     LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
     LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
     LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
     LLViewerShaderMgr::instance()->clearShaderCache();
-    std::string browser_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
-    if (LLFile::isdir(browser_cache))
-    {
-        // cef does not support clear_cache and clear_cookies, so clear what we can manually.
-        gDirUtilp->deleteDirAndContents(browser_cache);
-    }
     gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*");
 }
 
@@ -4530,6 +4541,7 @@ void LLAppViewer::forceDisconnect(const std::string& mesg)
     }
     else
     {
+        sendSimpleLogoutRequest();
         args["MESSAGE"] = big_reason;
         LLNotificationsUtil::add("YouHaveBeenLoggedOut", args, LLSD(), &finish_disconnect );
     }
@@ -5310,6 +5322,27 @@ void LLAppViewer::sendLogoutRequest()
     }
 }
 
+void LLAppViewer::sendSimpleLogoutRequest()
+{
+    if (!mLogoutRequestSent && gMessageSystem)
+    {
+        gLogoutInProgress = true;
+
+        LLMessageSystem* msg = gMessageSystem;
+        msg->newMessageFast(_PREHASH_LogoutRequest);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        gAgent.sendReliableMessage();
+
+        LL_INFOS("Agent") << "Logging out as agent: " << gAgent.getID() << " Session: " << gAgent.getSessionID() << LL_ENDL;
+
+        gLogoutTimer.reset();
+        gLogoutMaxTime = LOGOUT_REQUEST_TIME;
+        mLogoutRequestSent = true;
+    }
+}
+
 void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 {
     if (!regionp || !regionp->capabilitiesReceived())
@@ -5625,7 +5658,11 @@ void LLAppViewer::forceErrorBreakpoint()
 #ifdef LL_WINDOWS
     DebugBreak();
 #else
+#if defined(LL_X86) || defined(LL_X86_64)
     asm ("int $3");
+#else
+    __builtin_trap();
+#endif
 #endif
     return;
 }
@@ -5929,100 +5966,21 @@ void LLAppViewer::initDiscordSocial()
     gDiscordPartyMaxSize = 0;
     gDiscordTimestampsStart = time(nullptr);
     gDiscordClient = std::make_shared<discordpp::Client>();
-    gDiscordClient->SetStatusChangedCallback([](discordpp::Client::Status status, discordpp::Client::Error, int32_t) {
-        if (status == discordpp::Client::Status::Ready)
-        {
-            updateDiscordActivity();
-        }
-    });
-    if (gSavedSettings.getBOOL("EnableDiscord"))
-    {
-        auto credential = gSecAPIHandler->loadCredential("Discord");
-        if (credential.notNull())
-        {
-            gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
-                if (result.Successful())
-                    gDiscordClient->Connect();
-                else
-                    LL_WARNS("Discord") << result.Error() << LL_ENDL;
-            });
-        }
-        else
-        {
-            LL_WARNS("Discord") << "Integration was enabled, but no credentials. Disabling integration." << LL_ENDL;
-            gSavedSettings.setBOOL("EnableDiscord", false);
-        }
-    }
-}
-
-void LLAppViewer::toggleDiscordIntegration(const LLSD& value)
-{
-    static const uint64_t APPLICATION_ID = 1394782217405862001;
-    if (value.asBoolean())
-    {
-        discordpp::AuthorizationArgs args{};
-        args.SetClientId(APPLICATION_ID);
-        args.SetScopes(discordpp::Client::GetDefaultPresenceScopes());
-        auto codeVerifier = gDiscordClient->CreateAuthorizationCodeVerifier();
-        args.SetCodeChallenge(codeVerifier.Challenge());
-        gDiscordClient->Authorize(args, [codeVerifier](auto result, auto code, auto redirectUri) {
-            if (result.Successful())
-            {
-                gDiscordClient->GetToken(APPLICATION_ID, code, codeVerifier.Verifier(), redirectUri, [](discordpp::ClientResult result, std::string accessToken, std::string, discordpp::AuthorizationTokenType, int32_t, std::string) {
-                    if (result.Successful())
-                    {
-                        gDiscordClient->UpdateToken(discordpp::AuthorizationTokenType::Bearer, accessToken, [accessToken](discordpp::ClientResult result) {
-                            if (result.Successful())
-                            {
-                                LLSD authenticator = LLSD::emptyMap();
-                                authenticator["token"] = accessToken;
-                                gSecAPIHandler->saveCredential(gSecAPIHandler->createCredential("Discord", LLSD::emptyMap(), authenticator), true);
-                                gDiscordClient->Connect();
-                            }
-                            else
-                            {
-                                LL_WARNS("Discord") << result.Error() << LL_ENDL;
-                            }
-                        });
-                    }
-                    else
-                    {
-                        LL_WARNS("Discord") << result.Error() << LL_ENDL;
-                    }
-                });
-            }
-            else
-            {
-                LL_WARNS("Discord") << result.Error() << LL_ENDL;
-                gSavedSettings.setBOOL("EnableDiscord", false);
-            }
-        });
-    }
-    else
-    {
-        gDiscordClient->Disconnect();
-        auto credential = gSecAPIHandler->loadCredential("Discord");
-        if (credential.notNull())
-        {
-            gDiscordClient->RevokeToken(APPLICATION_ID, credential->getAuthenticator()["token"].asString(), [](discordpp::ClientResult result) {
-                if (result.Successful())
-                    LL_INFOS("Discord") << "Access token successfully revoked." << LL_ENDL;
-                else
-                    LL_WARNS("Discord") << "No access token to revoke." << LL_ENDL;
-            });
-            auto cred = new LLCredential("Discord");
-            gSecAPIHandler->deleteCredential(cred);
-        }
-        else
-        {
-            LL_WARNS("Discord") << "Credentials are already nonexistent." << LL_ENDL;
-        }
-    }
+    gDiscordClient->SetApplicationId(1394782217405862001);
+    updateDiscordActivity();
 }
 
 void LLAppViewer::updateDiscordActivity()
 {
     LL_PROFILE_ZONE_SCOPED;
+
+    static LLCachedControl<bool> integration_enabled(gSavedSettings, "EnableDiscord", true);
+    if (!integration_enabled)
+    {
+        gDiscordClient->ClearRichPresence();
+        return;
+    }
+
     discordpp::Activity activity;
     activity.SetType(discordpp::ActivityTypes::Playing);
     discordpp::ActivityTimestamps timestamps;
@@ -6050,37 +6008,39 @@ void LLAppViewer::updateDiscordActivity()
         activity.SetDetails(gDiscordActivityDetails);
     }
 
+    auto agent_pos_region = gAgent.getPositionAgent();
+    S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
+    S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
+    S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
+    F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
+    const F32 FLY_CUTOFF = 6.f;
+    const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
+    const F32 WALK_CUTOFF = 1.5f;
+    const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
+    if (velocity_mag_sq > FLY_CUTOFF_SQ)
+    {
+        pos_x -= pos_x % 4;
+        pos_y -= pos_y % 4;
+    }
+    else if (velocity_mag_sq > WALK_CUTOFF_SQ)
+    {
+        pos_x -= pos_x % 2;
+        pos_y -= pos_y % 2;
+    }
+
+    std::string location = "Hidden Region";
     static LLCachedControl<bool> show_state(gSavedSettings, "ShowDiscordActivityState", false);
     if (show_state)
     {
-        auto agent_pos_region = gAgent.getPositionAgent();
-        S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
-        S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
-        S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
-        F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
-        const F32 FLY_CUTOFF = 6.f;
-        const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
-        const F32 WALK_CUTOFF = 1.5f;
-        const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
-        if (velocity_mag_sq > FLY_CUTOFF_SQ)
-        {
-            pos_x -= pos_x % 4;
-            pos_y -= pos_y % 4;
-        }
-        else if (velocity_mag_sq > WALK_CUTOFF_SQ)
-        {
-            pos_x -= pos_x % 2;
-            pos_y -= pos_y % 2;
-        }
-        auto location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
-        activity.SetState(location);
-
-        discordpp::ActivityParty party;
-        party.SetId(location);
-        party.SetCurrentSize(gDiscordPartyCurrentSize);
-        party.SetMaxSize(gDiscordPartyMaxSize);
-        activity.SetParty(party);
+        location = llformat("%s (%d, %d, %d)", gAgent.getRegion()->getName().c_str(), pos_x, pos_y, pos_z);
     }
+    activity.SetState(location);
+
+    discordpp::ActivityParty party;
+    party.SetId(location);
+    party.SetCurrentSize(gDiscordPartyCurrentSize);
+    party.SetMaxSize(gDiscordPartyMaxSize);
+    activity.SetParty(party);
 
     gDiscordClient->UpdateRichPresence(activity, [](discordpp::ClientResult) {});
 }

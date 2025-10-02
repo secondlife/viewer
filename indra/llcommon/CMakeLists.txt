@@ -11,7 +11,7 @@ include(LLSharedLibs)
 include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(Tracy)
-
+include(SSE2NEON)
 
 set(llcommon_SOURCE_FILES
     apply.cpp
@@ -277,6 +277,7 @@ target_link_libraries(
         ll::boost
         ll::oslibraries
         ll::tracy
+        ll::sse2neon
     )
 
 target_include_directories(llcommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
