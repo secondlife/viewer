@@ -1,25 +1,25 @@
-/** 
+/**
  * @file macview_Prefix.h
  * @brief Prefix header for all source files of the 'newview' target in the 'newview' project.
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -77,11 +77,11 @@
 #include "lltalkview.h"
 #include "lltool.h"
 #include "lltoolfocus.h"
-#include "lltoolcomp.h"		// for gToolGun
+#include "lltoolcomp.h"     // for gToolGun
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
-#include "llui.h"			// for make_ui_sound
+#include "llui.h"           // for make_ui_sound
 #include "llviewercamera.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
@@ -206,7 +206,7 @@
 /////////////////// From llloginview.cpp
 #include "llloginview.h"
 
-#include "indra_constants.h"		// for key and mask constants
+#include "indra_constants.h"        // for key and mask constants
 #include "llfontgl.h"
 #include "v4color.h"
 #include "llwindow_impl.h"
@@ -220,8 +220,8 @@
 #include "llui.h"
 //#include "lluiconstants.h"
 #include "llviewerimagelist.h"
-#include "llviewermenu.h"			// for handle_preferences()
-#include "llviewerwindow.h"			// to link into child list
+#include "llviewermenu.h"           // for handle_preferences()
+#include "llviewerwindow.h"         // to link into child list
 #include "llfocusmgr.h"
 #include "llmd5.h"
 #include "llversion.h"

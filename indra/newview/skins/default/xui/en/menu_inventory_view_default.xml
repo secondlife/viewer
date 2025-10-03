@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu
  bottom="806"
  layout="topleft"
@@ -99,16 +99,5 @@
         <on_visible
          function="Inventory.GearDefault.Visible"
          parameter="single_folder_view" />
-    </menu_item_check>
-    <menu_item_separator/>
-    <menu_item_check
-     label="Inventory settings..."
-     name="inv_settings">
-        <menu_item_check.on_check
-         function="Floater.Visible"
-         parameter="inventory_settings" />
-        <menu_item_check.on_click
-         function="Floater.Toggle"
-         parameter="inventory_settings" />
     </menu_item_check>
 </toggleable_menu>

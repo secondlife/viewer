@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llsdutil.cpp
  * @author Phoenix
  * @date 2006-05-24
@@ -7,21 +7,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,12 +32,11 @@
 #include <sstream>
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>	// for htonl
+#   include "llwin32headers.h" // for htonl
 #elif LL_LINUX
-#	include <netinet/in.h>
+#   include <netinet/in.h>
 #elif LL_DARWIN
-#	include <arpa/inet.h>
+#   include <arpa/inet.h>
 #endif
 
 #include "llsdserialize.h"
@@ -51,152 +50,152 @@
 // U32
 LLSD ll_sd_from_U32(const U32 val)
 {
-	std::vector<U8> v;
-	U32 net_order = htonl(val);
+    LLSD::Binary v;
+    U32 net_order = htonl(val);
 
-	v.resize(4);
-	memcpy(&(v[0]), &net_order, 4);		/* Flawfinder: ignore */
+    v.resize(4);
+    memcpy(&(v[0]), &net_order, 4);     /* Flawfinder: ignore */
 
-	return LLSD(v);
+    return LLSD(v);
 }
 
 U32 ll_U32_from_sd(const LLSD& sd)
 {
-	U32 ret;
-	std::vector<U8> v = sd.asBinary();
-	if (v.size() < 4)
-	{
-		return 0;
-	}
-	memcpy(&ret, &(v[0]), 4);		/* Flawfinder: ignore */
-	ret = ntohl(ret);
-	return ret;
+    U32 ret;
+    const LLSD::Binary& v = sd.asBinary();
+    if (v.size() < 4)
+    {
+        return 0;
+    }
+    memcpy(&ret, &(v[0]), 4);       /* Flawfinder: ignore */
+    ret = ntohl(ret);
+    return ret;
 }
 
 //U64
 LLSD ll_sd_from_U64(const U64 val)
 {
-	std::vector<U8> v;
-	U32 high, low;
+    LLSD::Binary v;
+    U32 high, low;
 
-	high = (U32)(val >> 32);
-	low = (U32)val;
-	high = htonl(high);
-	low = htonl(low);
+    high = (U32)(val >> 32);
+    low = (U32)val;
+    high = htonl(high);
+    low = htonl(low);
 
-	v.resize(8);
-	memcpy(&(v[0]), &high, 4);		/* Flawfinder: ignore */
-	memcpy(&(v[4]), &low, 4);		/* Flawfinder: ignore */
+    v.resize(8);
+    memcpy(&(v[0]), &high, 4);      /* Flawfinder: ignore */
+    memcpy(&(v[4]), &low, 4);       /* Flawfinder: ignore */
 
-	return LLSD(v);
+    return LLSD(v);
 }
 
 U64 ll_U64_from_sd(const LLSD& sd)
 {
-	U32 high, low;
-	std::vector<U8> v = sd.asBinary();
+    U32 high, low;
+    const LLSD::Binary& v = sd.asBinary();
 
-	if (v.size() < 8)
-	{
-		return 0;
-	}
+    if (v.size() < 8)
+    {
+        return 0;
+    }
 
-	memcpy(&high, &(v[0]), 4);		/* Flawfinder: ignore */
-	memcpy(&low, &(v[4]), 4);		/* Flawfinder: ignore */
-	high = ntohl(high);
-	low = ntohl(low);
+    memcpy(&high, &(v[0]), 4);      /* Flawfinder: ignore */
+    memcpy(&low, &(v[4]), 4);       /* Flawfinder: ignore */
+    high = ntohl(high);
+    low = ntohl(low);
 
-	return ((U64)high) << 32 | low;
+    return ((U64)high) << 32 | low;
 }
 
 // IP Address (stored in net order in a U32, so don't need swizzling)
 LLSD ll_sd_from_ipaddr(const U32 val)
 {
-	std::vector<U8> v;
+    LLSD::Binary v;
 
-	v.resize(4);
-	memcpy(&(v[0]), &val, 4);		/* Flawfinder: ignore */
+    v.resize(4);
+    memcpy(&(v[0]), &val, 4);       /* Flawfinder: ignore */
 
-	return LLSD(v);
+    return LLSD(v);
 }
 
 U32 ll_ipaddr_from_sd(const LLSD& sd)
 {
-	U32 ret;
-	std::vector<U8> v = sd.asBinary();
-	if (v.size() < 4)
-	{
-		return 0;
-	}
-	memcpy(&ret, &(v[0]), 4);		/* Flawfinder: ignore */
-	return ret;
+    U32 ret;
+    const LLSD::Binary& v = sd.asBinary();
+    if (v.size() < 4)
+    {
+        return 0;
+    }
+    memcpy(&ret, &(v[0]), 4);       /* Flawfinder: ignore */
+    return ret;
 }
 
 // Converts an LLSD binary to an LLSD string
 LLSD ll_string_from_binary(const LLSD& sd)
 {
-	std::vector<U8> value = sd.asBinary();
-	std::string str;
-	str.resize(value.size());
-	memcpy(&str[0], &value[0], value.size());
-	return str;
+    const LLSD::Binary& value = sd.asBinary();
+    std::string str;
+    str.resize(value.size());
+    memcpy(&str[0], value.data(), value.size());
+    return str;
 }
 
 // Converts an LLSD string to an LLSD binary
 LLSD ll_binary_from_string(const LLSD& sd)
 {
-	std::vector<U8> binary_value;
+    LLSD::Binary binary_value;
 
-	std::string string_value = sd.asString();
-	for (const U8 c : string_value)
-	{
-		binary_value.push_back(c);
-	}
+    std::string string_value = sd.asString();
+    for (const U8 c : string_value)
+    {
+        binary_value.push_back(c);
+    }
 
-	binary_value.push_back('\0');
+    binary_value.push_back('\0');
 
-	return binary_value;
+    return binary_value;
 }
 
 char* ll_print_sd(const LLSD& sd)
 {
-	const U32 bufferSize = 10 * 1024;
-	static char buffer[bufferSize];
-	std::ostringstream stream;
-	//stream.rdbuf()->pubsetbuf(buffer, bufferSize);
-	stream << LLSDOStreamer<LLSDXMLFormatter>(sd);
-	stream << std::ends;
-	strncpy(buffer, stream.str().c_str(), bufferSize);
-	buffer[bufferSize - 1] = '\0';
-	return buffer;
+    const U32 bufferSize = 10 * 1024;
+    static char buffer[bufferSize];
+    std::ostringstream stream;
+    //stream.rdbuf()->pubsetbuf(buffer, bufferSize);
+    stream << LLSDOStreamer<LLSDXMLFormatter>(sd);
+    stream << std::ends;
+    strncpy(buffer, stream.str().c_str(), bufferSize);
+    buffer[bufferSize - 1] = '\0';
+    return buffer;
 }
 
 char* ll_pretty_print_sd_ptr(const LLSD* sd)
 {
-	if (sd)
-	{
-		return ll_pretty_print_sd(*sd);
-	}
-	return NULL;
+    if (sd)
+    {
+        return ll_pretty_print_sd(*sd);
+    }
+    return NULL;
 }
 
 char* ll_pretty_print_sd(const LLSD& sd)
 {
-	const U32 bufferSize = 100 * 1024;
-	static char buffer[bufferSize];
-	std::ostringstream stream;
-	//stream.rdbuf()->pubsetbuf(buffer, bufferSize);
-	stream << LLSDOStreamer<LLSDXMLFormatter>(sd, LLSDFormatter::OPTIONS_PRETTY);
-	stream << std::ends;
-	strncpy(buffer, stream.str().c_str(), bufferSize);
-	buffer[bufferSize - 1] = '\0';
-	return buffer;
+    const U32 bufferSize = 100 * 1024;
+    static char buffer[bufferSize];
+    std::ostringstream stream;
+    //stream.rdbuf()->pubsetbuf(buffer, bufferSize);
+    stream << LLSDOStreamer<LLSDXMLFormatter>(sd, LLSDFormatter::OPTIONS_PRETTY);
+    stream << std::ends;
+    strncpy(buffer, stream.str().c_str(), bufferSize);
+    buffer[bufferSize - 1] = '\0';
+    return buffer;
 }
 
 std::string ll_stream_notation_sd(const LLSD& sd)
 {
-	std::ostringstream stream;
-	stream << LLSDOStreamer<LLSDNotationFormatter>(sd);
+    std::ostringstream stream;
+    stream << LLSDOStreamer<LLSDNotationFormatter>(sd);
     return stream.str();
 }
 
@@ -209,122 +208,122 @@ std::string ll_stream_notation_sd(const LLSD& sd)
 //are not of the same type, false is returned or if the LLSDs are not
 //of the same value.  Ordering of arrays matters
 //Otherwise, returns true
-BOOL compare_llsd_with_template(
-	const LLSD& llsd_to_test,
-	const LLSD& template_llsd,
-	LLSD& resultant_llsd)
+bool compare_llsd_with_template(
+    const LLSD& llsd_to_test,
+    const LLSD& template_llsd,
+    LLSD& resultant_llsd)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
-	if (
-		llsd_to_test.isUndefined() &&
-		template_llsd.isDefined() )
-	{
-		resultant_llsd = template_llsd;
-		return TRUE;
-	}
-	else if ( llsd_to_test.type() != template_llsd.type() )
-	{
-		resultant_llsd = LLSD();
-		return FALSE;
-	}
+    if (
+        llsd_to_test.isUndefined() &&
+        template_llsd.isDefined() )
+    {
+        resultant_llsd = template_llsd;
+        return true;
+    }
+    else if ( llsd_to_test.type() != template_llsd.type() )
+    {
+        resultant_llsd = LLSD();
+        return false;
+    }
 
-	if ( llsd_to_test.isArray() )
-	{
-		//they are both arrays
-		//we loop over all the items in the template
-		//verifying that the to_test has a subset (in the same order)
-		//any shortcoming in the testing_llsd are just taken
-		//to be the rest of the template
-		LLSD data;
-		LLSD::array_const_iterator test_iter;
-		LLSD::array_const_iterator template_iter;
+    if ( llsd_to_test.isArray() )
+    {
+        //they are both arrays
+        //we loop over all the items in the template
+        //verifying that the to_test has a subset (in the same order)
+        //any shortcoming in the testing_llsd are just taken
+        //to be the rest of the template
+        LLSD data;
+        LLSD::array_const_iterator test_iter;
+        LLSD::array_const_iterator template_iter;
 
-		resultant_llsd = LLSD::emptyArray();
-		test_iter = llsd_to_test.beginArray();
+        resultant_llsd = LLSD::emptyArray();
+        test_iter = llsd_to_test.beginArray();
 
-		for (
-			template_iter = template_llsd.beginArray();
-			(template_iter != template_llsd.endArray() &&
-			 test_iter != llsd_to_test.endArray());
-			++template_iter)
-		{
-			if ( !compare_llsd_with_template(
-					 *test_iter,
-					 *template_iter,
-					 data) )
-			{
-				resultant_llsd = LLSD();
-				return FALSE;
-			}
-			else
-			{
-				resultant_llsd.append(data);
-			}
+        for (
+            template_iter = template_llsd.beginArray();
+            (template_iter != template_llsd.endArray() &&
+             test_iter != llsd_to_test.endArray());
+            ++template_iter)
+        {
+            if ( !compare_llsd_with_template(
+                     *test_iter,
+                     *template_iter,
+                     data) )
+            {
+                resultant_llsd = LLSD();
+                return false;
+            }
+            else
+            {
+                resultant_llsd.append(data);
+            }
 
-			++test_iter;
-		}
+            ++test_iter;
+        }
 
-		//so either the test or the template ended
-		//we do another loop now to the end of the template
-		//grabbing the default values
-		for (;
-			 template_iter != template_llsd.endArray();
-			 ++template_iter)
-		{
-			resultant_llsd.append(*template_iter);
-		}
-	}
-	else if ( llsd_to_test.isMap() )
-	{
-		//now we loop over the keys of the two maps
-		//any excess is taken from the template
-		//excess is ignored in the test
-		LLSD value;
-		LLSD::map_const_iterator template_iter;
+        //so either the test or the template ended
+        //we do another loop now to the end of the template
+        //grabbing the default values
+        for (;
+             template_iter != template_llsd.endArray();
+             ++template_iter)
+        {
+            resultant_llsd.append(*template_iter);
+        }
+    }
+    else if ( llsd_to_test.isMap() )
+    {
+        //now we loop over the keys of the two maps
+        //any excess is taken from the template
+        //excess is ignored in the test
+        LLSD value;
+        LLSD::map_const_iterator template_iter;
 
-		resultant_llsd = LLSD::emptyMap();
-		for (
-			template_iter = template_llsd.beginMap();
-			template_iter != template_llsd.endMap();
-			++template_iter)
-		{
-			if ( llsd_to_test.has(template_iter->first) )
-			{
-				//the test LLSD has the same key
-				if ( !compare_llsd_with_template(
-						 llsd_to_test[template_iter->first],
-						 template_iter->second,
-						 value) )
-				{
-					resultant_llsd = LLSD();
-					return FALSE;
-				}
-				else
-				{
-					resultant_llsd[template_iter->first] = value;
-				}
-			}
-			else
-			{
-				//test llsd doesn't have it...take the
-				//template as default value
-				resultant_llsd[template_iter->first] =
-					template_iter->second;
-			}
-		}
-	}
-	else
-	{
-		//of same type...take the test llsd's value
-		resultant_llsd = llsd_to_test;
-	}
+        resultant_llsd = LLSD::emptyMap();
+        for (
+            template_iter = template_llsd.beginMap();
+            template_iter != template_llsd.endMap();
+            ++template_iter)
+        {
+            if ( llsd_to_test.has(template_iter->first) )
+            {
+                //the test LLSD has the same key
+                if ( !compare_llsd_with_template(
+                         llsd_to_test[template_iter->first],
+                         template_iter->second,
+                         value) )
+                {
+                    resultant_llsd = LLSD();
+                    return false;
+                }
+                else
+                {
+                    resultant_llsd[template_iter->first] = value;
+                }
+            }
+            else
+            {
+                //test llsd doesn't have it...take the
+                //template as default value
+                resultant_llsd[template_iter->first] =
+                    template_iter->second;
+            }
+        }
+    }
+    else
+    {
+        //of same type...take the test llsd's value
+        resultant_llsd = llsd_to_test;
+    }
 
 
-	return TRUE;
+    return true;
 }
 
-// filter_llsd_with_template() is a direct clone (copy-n-paste) of 
+// filter_llsd_with_template() is a direct clone (copy-n-paste) of
 // compare_llsd_with_template with the following differences:
 // (1) bool vs BOOL return types
 // (2) A map with the key value "*" is a special value and maps any key in the
@@ -333,171 +332,171 @@ BOOL compare_llsd_with_template(
 //     for *all* the elements of the test array.  If the template array is of
 //     different size, compare_llsd_with_template() semantics apply.
 bool filter_llsd_with_template(
-	const LLSD & llsd_to_test,
-	const LLSD & template_llsd,
-	LLSD & resultant_llsd)
+    const LLSD & llsd_to_test,
+    const LLSD & template_llsd,
+    LLSD & resultant_llsd)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
-	if (llsd_to_test.isUndefined() && template_llsd.isDefined())
-	{
-		resultant_llsd = template_llsd;
-		return true;
-	}
-	else if (llsd_to_test.type() != template_llsd.type())
-	{
-		resultant_llsd = LLSD();
-		return false;
-	}
+    if (llsd_to_test.isUndefined() && template_llsd.isDefined())
+    {
+        resultant_llsd = template_llsd;
+        return true;
+    }
+    else if (llsd_to_test.type() != template_llsd.type())
+    {
+        resultant_llsd = LLSD();
+        return false;
+    }
 
-	if (llsd_to_test.isArray())
-	{
-		//they are both arrays
-		//we loop over all the items in the template
-		//verifying that the to_test has a subset (in the same order)
-		//any shortcoming in the testing_llsd are just taken
-		//to be the rest of the template
-		LLSD data;
-		LLSD::array_const_iterator test_iter;
-		LLSD::array_const_iterator template_iter;
+    if (llsd_to_test.isArray())
+    {
+        //they are both arrays
+        //we loop over all the items in the template
+        //verifying that the to_test has a subset (in the same order)
+        //any shortcoming in the testing_llsd are just taken
+        //to be the rest of the template
+        LLSD data;
+        LLSD::array_const_iterator test_iter;
+        LLSD::array_const_iterator template_iter;
 
-		resultant_llsd = LLSD::emptyArray();
-		test_iter = llsd_to_test.beginArray();
+        resultant_llsd = LLSD::emptyArray();
+        test_iter = llsd_to_test.beginArray();
 
-		if (1 == template_llsd.size())
-		{
-			// If the template has a single item, treat it as
-			// the template for *all* items in the test LLSD.
-			template_iter = template_llsd.beginArray();
+        if (1 == template_llsd.size())
+        {
+            // If the template has a single item, treat it as
+            // the template for *all* items in the test LLSD.
+            template_iter = template_llsd.beginArray();
 
-			for (; test_iter != llsd_to_test.endArray(); ++test_iter)
-			{
-				if (! filter_llsd_with_template(*test_iter, *template_iter, data))
-				{
-					resultant_llsd = LLSD();
-					return false;
-				}
-				else
-				{
-					resultant_llsd.append(data);
-				}
-			}
-		}
-		else
-		{
-			// Traditional compare_llsd_with_template matching
-			
-			for (template_iter = template_llsd.beginArray();
-				 template_iter != template_llsd.endArray() &&
-					 test_iter != llsd_to_test.endArray();
-				 ++template_iter, ++test_iter)
-			{
-				if (! filter_llsd_with_template(*test_iter, *template_iter, data))
-				{
-					resultant_llsd = LLSD();
-					return false;
-				}
-				else
-				{
-					resultant_llsd.append(data);
-				}
-			}
+            for (; test_iter != llsd_to_test.endArray(); ++test_iter)
+            {
+                if (! filter_llsd_with_template(*test_iter, *template_iter, data))
+                {
+                    resultant_llsd = LLSD();
+                    return false;
+                }
+                else
+                {
+                    resultant_llsd.append(data);
+                }
+            }
+        }
+        else
+        {
+            // Traditional compare_llsd_with_template matching
 
-			//so either the test or the template ended
-			//we do another loop now to the end of the template
-			//grabbing the default values
-			for (;
-				 template_iter != template_llsd.endArray();
-				 ++template_iter)
-			{
-				resultant_llsd.append(*template_iter);
-			}
-		}
-	}
-	else if (llsd_to_test.isMap())
-	{
-		resultant_llsd = LLSD::emptyMap();
-		
-		//now we loop over the keys of the two maps
-		//any excess is taken from the template
-		//excess is ignored in the test
+            for (template_iter = template_llsd.beginArray();
+                 template_iter != template_llsd.endArray() &&
+                     test_iter != llsd_to_test.endArray();
+                 ++template_iter, ++test_iter)
+            {
+                if (! filter_llsd_with_template(*test_iter, *template_iter, data))
+                {
+                    resultant_llsd = LLSD();
+                    return false;
+                }
+                else
+                {
+                    resultant_llsd.append(data);
+                }
+            }
 
-		// Special tag for wildcarded LLSD map key templates
-		const LLSD::String wildcard_tag("*");
+            //so either the test or the template ended
+            //we do another loop now to the end of the template
+            //grabbing the default values
+            for (;
+                 template_iter != template_llsd.endArray();
+                 ++template_iter)
+            {
+                resultant_llsd.append(*template_iter);
+            }
+        }
+    }
+    else if (llsd_to_test.isMap())
+    {
+        resultant_llsd = LLSD::emptyMap();
 
-		const bool template_has_wildcard = template_llsd.has(wildcard_tag);
-		LLSD wildcard_value;
-		LLSD value;
+        //now we loop over the keys of the two maps
+        //any excess is taken from the template
+        //excess is ignored in the test
 
-		const LLSD::map_const_iterator template_iter_end(template_llsd.endMap());
-		for (LLSD::map_const_iterator template_iter(template_llsd.beginMap());
-			 template_iter_end != template_iter;
-			 ++template_iter)
-		{
-			if (wildcard_tag == template_iter->first)
-			{
-				wildcard_value = template_iter->second;
-			}
-			else if (llsd_to_test.has(template_iter->first))
-			{
-				//the test LLSD has the same key
-				if (! filter_llsd_with_template(llsd_to_test[template_iter->first],
-												template_iter->second,
-												value))
-				{
-					resultant_llsd = LLSD();
-					return false;
-				}
-				else
-				{
-					resultant_llsd[template_iter->first] = value;
-				}
-			}
-			else if (! template_has_wildcard)
-			{
-				// test llsd doesn't have it...take the
-				// template as default value
-				resultant_llsd[template_iter->first] = template_iter->second;
-			}
-		}
-		if (template_has_wildcard)
-		{
-			LLSD sub_value;
-			LLSD::map_const_iterator test_iter;
-			
-			for (test_iter = llsd_to_test.beginMap();
-				 test_iter != llsd_to_test.endMap();
-				 ++test_iter)
-			{
-				if (resultant_llsd.has(test_iter->first))
-				{
-					// Final value has test key, assume more specific
-					// template matched and we shouldn't modify it again.
-					continue;
-				}
-				else if (! filter_llsd_with_template(test_iter->second,
-													 wildcard_value,
-													 sub_value))
-				{
-					// Test value doesn't match wildcarded template
-					resultant_llsd = LLSD();
-					return false;
-				}
-				else
-				{
-					// Test value matches template, add the actuals.
-					resultant_llsd[test_iter->first] = sub_value;
-				}
-			}
-		}
-	}
-	else
-	{
-		//of same type...take the test llsd's value
-		resultant_llsd = llsd_to_test;
-	}
+        // Special tag for wildcarded LLSD map key templates
+        const LLSD::String wildcard_tag("*");
 
-	return true;
+        const bool template_has_wildcard = template_llsd.has(wildcard_tag);
+        LLSD wildcard_value;
+        LLSD value;
+
+        const LLSD::map_const_iterator template_iter_end(template_llsd.endMap());
+        for (LLSD::map_const_iterator template_iter(template_llsd.beginMap());
+             template_iter_end != template_iter;
+             ++template_iter)
+        {
+            if (wildcard_tag == template_iter->first)
+            {
+                wildcard_value = template_iter->second;
+            }
+            else if (llsd_to_test.has(template_iter->first))
+            {
+                //the test LLSD has the same key
+                if (! filter_llsd_with_template(llsd_to_test[template_iter->first],
+                                                template_iter->second,
+                                                value))
+                {
+                    resultant_llsd = LLSD();
+                    return false;
+                }
+                else
+                {
+                    resultant_llsd[template_iter->first] = value;
+                }
+            }
+            else if (! template_has_wildcard)
+            {
+                // test llsd doesn't have it...take the
+                // template as default value
+                resultant_llsd[template_iter->first] = template_iter->second;
+            }
+        }
+        if (template_has_wildcard)
+        {
+            LLSD sub_value;
+            LLSD::map_const_iterator test_iter;
+
+            for (test_iter = llsd_to_test.beginMap();
+                 test_iter != llsd_to_test.endMap();
+                 ++test_iter)
+            {
+                if (resultant_llsd.has(test_iter->first))
+                {
+                    // Final value has test key, assume more specific
+                    // template matched and we shouldn't modify it again.
+                    continue;
+                }
+                else if (! filter_llsd_with_template(test_iter->second,
+                                                     wildcard_value,
+                                                     sub_value))
+                {
+                    // Test value doesn't match wildcarded template
+                    resultant_llsd = LLSD();
+                    return false;
+                }
+                else
+                {
+                    // Test value matches template, add the actuals.
+                    resultant_llsd[test_iter->first] = sub_value;
+                }
+            }
+        }
+    }
+    else
+    {
+        //of same type...take the test llsd's value
+        resultant_llsd = llsd_to_test;
+    }
+
+    return true;
 }
 
 /*****************************************************************************
@@ -533,7 +532,7 @@ class TypeLookup
 public:
     TypeLookup()
     {
-        LL_PROFILE_ZONE_SCOPED
+        LL_PROFILE_ZONE_SCOPED;
 
         for (const Data *di(boost::begin(typedata)), *dend(boost::end(typedata)); di != dend; ++di)
         {
@@ -543,7 +542,7 @@ public:
 
     std::string lookup(LLSD::Type type) const
     {
-        LL_PROFILE_ZONE_SCOPED
+        LL_PROFILE_ZONE_SCOPED;
 
         MapType::const_iterator found = mMap.find(type);
         if (found != mMap.end())
@@ -595,7 +594,7 @@ static std::string match_types(LLSD::Type expect, // prototype.type()
                                LLSD::Type actual,        // type we're checking
                                const std::string& pfx)   // as for llsd_matches
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
     // Trivial case: if the actual type is exactly what we expect, we're good.
     if (actual == expect)
@@ -634,7 +633,7 @@ static std::string match_types(LLSD::Type expect, // prototype.type()
 // see docstring in .h file
 std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::string& pfx)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
     // An undefined prototype means that any data is valid.
     // An undefined slot in an array or map prototype means that any data
@@ -768,7 +767,7 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
 
 bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
     // We're comparing strict equality of LLSD representation rather than
     // performing any conversions. So if the types aren't equal, the LLSD
@@ -878,7 +877,7 @@ namespace llsd
 
 LLSD& drill_ref(LLSD& blob, const LLSD& rawPath)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
     // Treat rawPath uniformly as an array. If it's not already an array,
     // store it as the only entry in one. (But let's say Undefined means an
@@ -905,7 +904,7 @@ LLSD& drill_ref(LLSD& blob, const LLSD& rawPath)
     // path entry that's bad.
     for (LLSD::Integer i = 0; i < path.size(); ++i)
     {
-        LL_PROFILE_ZONE_NUM( i )
+        LL_PROFILE_ZONE_NUM(i);
 
         const LLSD& key{path[i]};
         if (key.isString())
@@ -935,7 +934,7 @@ LLSD& drill_ref(LLSD& blob, const LLSD& rawPath)
 
 LLSD drill(const LLSD& blob, const LLSD& path)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
     // drill_ref() does exactly what we want. Temporarily cast away
     // const-ness and use that.
@@ -944,12 +943,12 @@ LLSD drill(const LLSD& blob, const LLSD& path)
 
 } // namespace llsd
 
-// Construct a deep partial clone of of an LLSD object. primitive types share 
+// Construct a deep partial clone of of an LLSD object. primitive types share
 // references, however maps, arrays and binary objects are duplicated. An optional
-// filter may be include to exclude/include keys in a map. 
+// filter may be include to exclude/include keys in a map.
 LLSD llsd_clone(LLSD value, LLSD filter)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
     LLSD clone;
     bool has_filter(filter.isMap());
@@ -990,8 +989,7 @@ LLSD llsd_clone(LLSD value, LLSD filter)
 
     case LLSD::TypeBinary:
     {
-        LLSD::Binary bin(value.asBinary().begin(), value.asBinary().end());
-        clone = LLSD::Binary(bin);
+        clone = LLSD::Binary(value.asBinary().begin(), value.asBinary().end());
         break;
     }
     default:

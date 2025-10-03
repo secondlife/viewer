@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lltoastpanel.cpp
  * @brief Creates a panel of a specific kind for a toast
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -44,110 +44,110 @@ const S32 LLToastPanel::MAX_TEXT_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB
 
 LLToastPanel::LLToastPanel(const LLNotificationPtr& notification)
 {
-	mNotification = notification;
+    mNotification = notification;
 }
 
-LLToastPanel::~LLToastPanel() 
+LLToastPanel::~LLToastPanel()
 {
 }
 
 //virtual
 std::string LLToastPanel::getTitle()
 {
-	// *TODO: create Title and localize it. If it will be required.
-	return mNotification->getMessage();
+    // *TODO: create Title and localize it. If it will be required.
+    return mNotification->getMessage();
 }
 
 //virtual
 const std::string& LLToastPanel::getNotificationName()
 {
-	return mNotification->getName();
+    return mNotification->getName();
 }
 
 //virtual
 const LLUUID& LLToastPanel::getID()
 {
-	return mNotification->id();
+    return mNotification->id();
 }
 
 S32 LLToastPanel::computeSnappedToMessageHeight(LLTextBase* message, S32 maxLineCount)
 {
-	S32 heightDelta = 0;
-	S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
+    S32 heightDelta = 0;
+    S32 maxTextHeight = message->getFont()->getLineHeight() * maxLineCount;
 
-	LLRect messageRect = message->getRect();
-	S32 oldTextHeight = messageRect.getHeight();
+    LLRect messageRect = message->getRect();
+    S32 oldTextHeight = messageRect.getHeight();
 
-	//Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
-	//Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
-	S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
-	S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
+    //Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
+    //Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
+    S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
+    S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
 
-	heightDelta = newTextHeight - oldTextHeight;
-	S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
+    heightDelta = newTextHeight - oldTextHeight;
+    S32 new_panel_height = llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT);
 
-	return new_panel_height;
+    return new_panel_height;
 }
 
 //snap to the message height if it is visible
 void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 {
-	if(!message)
-	{
-		return;
-	}
+    if(!message)
+    {
+        return;
+    }
 
-	//Add message height if it is visible
-	if (message->getVisible())
-	{
-		S32 new_panel_height = computeSnappedToMessageHeight(message, maxLineCount);
+    //Add message height if it is visible
+    if (message->getVisible())
+    {
+        S32 new_panel_height = computeSnappedToMessageHeight(message, maxLineCount);
 
-		//reshape the panel with new height
-		if (new_panel_height != getRect().getHeight())
-		{
-			reshape( getRect().getWidth(), new_panel_height);
-		}
-	}
+        //reshape the panel with new height
+        if (new_panel_height != getRect().getHeight())
+        {
+            reshape( getRect().getWidth(), new_panel_height);
+        }
+    }
 }
 
 // static
 LLToastPanel* LLToastPanel::buidPanelFromNotification(
-		const LLNotificationPtr& notification)
+        const LLNotificationPtr& notification)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     LLToastPanel* res = NULL;
 
-	//process tip toast panels
-	if ("notifytip" == notification->getType())
-	{
-		// if it is online/offline notification
-		if ("FriendOnlineOffline" == notification->getName())
-		{
-			res = new LLPanelOnlineStatus(notification);
-		}
-		// in all other case we use generic tip panel
-		else
-		{
-			res = new LLPanelGenericTip(notification);
-		}
-	}
-	else if("notify" == notification->getType())
-	{
-		if (notification->getPriority() == NOTIFICATION_PRIORITY_CRITICAL)
-		{
-			res = new LLToastScriptQuestion(notification);
-		}
-		else
-		{
-			res = new LLToastNotifyPanel(notification);
-		}
-	}
-	/*
-	 else if(...)
-	 create all other specific non-public toast panel
-	 */
+    //process tip toast panels
+    if ("notifytip" == notification->getType())
+    {
+        // if it is online/offline notification
+        if ("FriendOnlineOffline" == notification->getName())
+        {
+            res = new LLPanelOnlineStatus(notification);
+        }
+        // in all other case we use generic tip panel
+        else
+        {
+            res = new LLPanelGenericTip(notification);
+        }
+    }
+    else if("notify" == notification->getType())
+    {
+        if (notification->getPriority() == NOTIFICATION_PRIORITY_CRITICAL)
+        {
+            res = new LLToastScriptQuestion(notification);
+        }
+        else
+        {
+            res = new LLToastNotifyPanel(notification);
+        }
+    }
+    /*
+     else if(...)
+     create all other specific non-public toast panel
+     */
 
-	return res;
+    return res;
 }
 
 LLCheckBoxToastPanel::LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf)
@@ -164,7 +164,7 @@ void LLCheckBoxToastPanel::setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLV
 
     if (form->getIgnoreType() == LLNotificationForm::IGNORE_CHECKBOX_ONLY)
     {
-        // Normally text is only used to describe notification in preferences, 
+        // Normally text is only used to describe notification in preferences,
         // but this one is not displayed in preferences and works on case by case
         // basis.
         // Display text if present, display 'always chose' if not.
@@ -216,10 +216,10 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
     S32 dialog_width = max_msg_width + 2 * h_pad;
 
     S32 dialog_height = LLToastPanel::getRect().getHeight();
-    dialog_height += LINE_HEIGHT * lines.size();
+    dialog_height += LINE_HEIGHT * static_cast<S32>(lines.size());
     dialog_height += LINE_HEIGHT / 2;
 
-    LLToastPanel::reshape(dialog_width, dialog_height, FALSE);
+    LLToastPanel::reshape(dialog_width, dialog_height, false);
 
     S32 msg_x = (LLToastPanel::getRect().getWidth() - max_msg_width) / 2;
 
@@ -227,7 +227,7 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
     LLRect check_rect;
     // if we are part of the toast, we need to leave space for buttons
     S32 msg_y = v_pad + (parent_view ? 0 : (BTN_HEIGHT + LINE_HEIGHT / 2));
-    mCheck->setRect(check_rect.setOriginAndSize(msg_x, msg_y, max_msg_width, LINE_HEIGHT*lines.size()));
+    mCheck->setRect(check_rect.setOriginAndSize(msg_x, msg_y, max_msg_width, LINE_HEIGHT * static_cast<S32>(lines.size())));
     mCheck->setLabel(check_title);
     mCheck->setCommitCallback(cb);
 
@@ -246,7 +246,7 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
 
 void LLCheckBoxToastPanel::onCommitCheckbox(LLUICtrl* ctrl)
 {
-    BOOL check = ctrl->getValue().asBoolean();
+    bool check = ctrl->getValue().asBoolean();
     if (mNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
     {
         // question was "show again" so invert value to get "ignore"

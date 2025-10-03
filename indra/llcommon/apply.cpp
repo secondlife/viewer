@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2022-12-21
  * @brief  Implementation for apply.
- * 
+ *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Copyright (c) 2022, Linden Research, Inc.
  * $/LicenseInfo$

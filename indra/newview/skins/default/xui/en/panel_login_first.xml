@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
   follows="all"
   height="768"
@@ -111,7 +112,7 @@
             combo_editor.font="SansSerifLarge"
             max_chars="128"
             top="0"
-            combo_editor.prevalidate_callback="ascii"
+            combo_editor.prevalidator="ascii"
             tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
             name="username_combo"
             width="232">
@@ -178,7 +179,6 @@
             control_name="RememberPassword"
             follows="left|top"
             font="SansSerifLarge"
-            text_color="EmphasisColor"
             height="24"
             left="262"
             bottom_delta="0"

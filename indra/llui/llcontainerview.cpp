@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcontainerview.cpp
  * @brief Container for all statistics info
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -44,257 +44,257 @@ static ContainerViewRegistry::Register<LLStatView> r2("stat_view");
 static ContainerViewRegistry::Register<LLPanel> r3("panel", &LLPanel::fromXML);
 
 LLContainerView::LLContainerView(const LLContainerView::Params& p)
-:	LLView(p),
-	mShowLabel(p.show_label),
-	mLabel(p.label),
-	mDisplayChildren(p.display_children)
+:   LLView(p),
+    mShowLabel(p.show_label),
+    mLabel(utf8str_to_wstring(p.label)),
+    mDisplayChildren(p.display_children)
 {
-	mScrollContainer = NULL;
+    mScrollContainer = NULL;
 }
 
 LLContainerView::~LLContainerView()
 {
-	// Children all cleaned up by default view destructor.
+    // Children all cleaned up by default view destructor.
 }
 
-BOOL LLContainerView::postBuild()
+bool LLContainerView::postBuild()
 {
-	setDisplayChildren(mDisplayChildren);
-	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
-	return TRUE;
+    setDisplayChildren(mDisplayChildren);
+    reshape(getRect().getWidth(), getRect().getHeight(), false);
+    return true;
 }
 
 bool LLContainerView::addChild(LLView* child, S32 tab_group)
 {
-	bool res = LLView::addChild(child, tab_group);
-	if (res)
-	{
-		sendChildToBack(child);
-	}
-	return res;
+    bool res = LLView::addChild(child, tab_group);
+    if (res)
+    {
+        sendChildToBack(child);
+    }
+    return res;
 }
 
-BOOL LLContainerView::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLContainerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return handleMouseDown(x, y, mask);
+    return handleMouseDown(x, y, mask);
 }
 
-BOOL LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
-	if (mDisplayChildren)
-	{
-		handled = (LLView::childrenHandleMouseDown(x, y, mask) != NULL);
-	}
-	if (!handled)
-	{
-		if( mShowLabel && (y >= getRect().getHeight() - 10) )
-		{
-			setDisplayChildren(!mDisplayChildren);
-			reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
-			handled = TRUE;
-		}
-	}
-	return handled;
+    bool handled = false;
+    if (mDisplayChildren)
+    {
+        handled = (LLView::childrenHandleMouseDown(x, y, mask) != NULL);
+    }
+    if (!handled)
+    {
+        if( mShowLabel && (y >= getRect().getHeight() - 10) )
+        {
+            setDisplayChildren(!mDisplayChildren);
+            reshape(getRect().getWidth(), getRect().getHeight(), false);
+            handled = true;
+        }
+    }
+    return handled;
 }
 
-BOOL LLContainerView::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLContainerView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
-	if (mDisplayChildren)
-	{
-		handled = (LLView::childrenHandleMouseUp(x, y, mask) != NULL);
-	}
-	return handled;
+    bool handled = false;
+    if (mDisplayChildren)
+    {
+        handled = (LLView::childrenHandleMouseUp(x, y, mask) != NULL);
+    }
+    return handled;
 }
 
 
 void LLContainerView::draw()
 {
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    {
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
-	}
-		
-	// Draw the label
-	if (mShowLabel)
-	{
-		LLFontGL::getFontMonospace()->renderUTF8(
-			mLabel, 0, 2, getRect().getHeight() - 2, LLColor4(1,1,1,1), LLFontGL::LEFT, LLFontGL::TOP);
-	}
+        gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
+    }
 
-	LLView::draw();
+    // Draw the label
+    if (mShowLabel)
+    {
+        LLFontGL::getFontMonospace()->render(
+            mLabel, 0, 2.f, (F32)(getRect().getHeight() - 2), LLColor4(1,1,1,1), LLFontGL::LEFT, LLFontGL::TOP);
+    }
+
+    LLView::draw();
 }
 
 
-void LLContainerView::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLContainerView::reshape(S32 width, S32 height, bool called_from_parent)
 {
-	LLRect scroller_rect;
-	scroller_rect.setOriginAndSize(0, 0, width, height);
+    LLRect scroller_rect;
+    scroller_rect.setOriginAndSize(0, 0, width, height);
 
-	if (mScrollContainer)
-	{
-		scroller_rect = mScrollContainer->getContentWindowRect();
-	}
-	else
-	{
-		// if we're uncontained - make height as small as possible
-		scroller_rect.mTop = 0;
-	}
+    if (mScrollContainer)
+    {
+        scroller_rect = mScrollContainer->getContentWindowRect();
+    }
+    else
+    {
+        // if we're uncontained - make height as small as possible
+        scroller_rect.mTop = 0;
+    }
 
-	arrange(scroller_rect.getWidth(), scroller_rect.getHeight(), called_from_parent);
+    arrange(scroller_rect.getWidth(), scroller_rect.getHeight(), called_from_parent);
 
-	// sometimes, after layout, our container will change size (scrollbars popping in and out)
-	// if so, attempt another layout
-	if (mScrollContainer)
-	{
-		LLRect new_container_rect = mScrollContainer->getContentWindowRect();
+    // sometimes, after layout, our container will change size (scrollbars popping in and out)
+    // if so, attempt another layout
+    if (mScrollContainer)
+    {
+        LLRect new_container_rect = mScrollContainer->getContentWindowRect();
 
-		if ((new_container_rect.getWidth() != scroller_rect.getWidth()) ||
-			(new_container_rect.getHeight() != scroller_rect.getHeight()))  // the container size has changed, attempt to arrange again
-		{
-			arrange(new_container_rect.getWidth(), new_container_rect.getHeight(), called_from_parent);
-		}
-	}
+        if ((new_container_rect.getWidth() != scroller_rect.getWidth()) ||
+            (new_container_rect.getHeight() != scroller_rect.getHeight()))  // the container size has changed, attempt to arrange again
+        {
+            arrange(new_container_rect.getWidth(), new_container_rect.getHeight(), called_from_parent);
+        }
+    }
 }
 
-void LLContainerView::arrange(S32 width, S32 height, BOOL called_from_parent)
+void LLContainerView::arrange(S32 width, S32 height, bool called_from_parent)
 {
-	// Determine the sizes and locations of all contained views
-	S32 total_height = 0;
-	S32 top, left, right, bottom;
-	//LLView *childp;
+    // Determine the sizes and locations of all contained views
+    S32 total_height = 0;
+    S32 top, left, right, bottom;
+    //LLView *childp;
 
-	// These will be used for the children
-	left = 10;
-	top = getRect().getHeight() - 4;
-	right = width - 2;
-	bottom = top;
-	
-	// Leave some space for the top label/grab handle
-	if (mShowLabel)
-	{
-		total_height += 20;
-	}
+    // These will be used for the children
+    left = 10;
+    top = getRect().getHeight() - 4;
+    right = width - 2;
+    bottom = top;
 
-	if (mDisplayChildren)
-	{
-		// Determine total height
-		U32 child_height = 0;
-		for (child_list_const_iter_t child_iter = getChildList()->begin();
-			 child_iter != getChildList()->end(); ++child_iter)
-		{
-			LLView *childp = *child_iter;
-			if (!childp->getVisible())
-			{
-				LL_WARNS() << "Incorrect visibility!" << LL_ENDL;
-			}
-			LLRect child_rect = childp->getRequiredRect();
-			child_height += child_rect.getHeight();
-			child_height += 2;
-		}
-		total_height += child_height;
-	}
+    // Leave some space for the top label/grab handle
+    if (mShowLabel)
+    {
+        total_height += 20;
+    }
 
-	if (total_height < height)
-		total_height = height;
-	
-	LLRect my_rect = getRect();
-	if (followsTop())
-	{
-		my_rect.mBottom = my_rect.mTop - total_height;
-	}
-	else
-	{
-		my_rect.mTop = my_rect.mBottom + total_height;
-	}
+    if (mDisplayChildren)
+    {
+        // Determine total height
+        U32 child_height = 0;
+        for (child_list_const_iter_t child_iter = getChildList()->begin();
+             child_iter != getChildList()->end(); ++child_iter)
+        {
+            LLView *childp = *child_iter;
+            if (!childp->getVisible())
+            {
+                LL_WARNS() << "Incorrect visibility!" << LL_ENDL;
+            }
+            LLRect child_rect = childp->getRequiredRect();
+            child_height += child_rect.getHeight();
+            child_height += 2;
+        }
+        total_height += child_height;
+    }
 
-	my_rect.mRight = my_rect.mLeft + width;
-	setRect(my_rect);
+    if (total_height < height)
+        total_height = height;
 
-	top = total_height;
-	if (mShowLabel)
-	{
-		top -= 20;
-	}
-	
-	bottom = top;
+    LLRect my_rect = getRect();
+    if (followsTop())
+    {
+        my_rect.mBottom = my_rect.mTop - total_height;
+    }
+    else
+    {
+        my_rect.mTop = my_rect.mBottom + total_height;
+    }
 
-	if (mDisplayChildren)
-	{
-		// Iterate through all children, and put in container from top down.
-		for (child_list_const_iter_t child_iter = getChildList()->begin();
-			 child_iter != getChildList()->end(); ++child_iter)
-		{
-			LLView *childp = *child_iter;
-			LLRect child_rect = childp->getRequiredRect();
-			bottom -= child_rect.getHeight();
-			LLRect r(left, bottom + child_rect.getHeight(), right, bottom);
-			childp->setRect(r);
-			childp->reshape(right - left, top - bottom);
-			top = bottom - 2;
-			bottom = top;
-		}
-	}
-	
-	if (!called_from_parent)
-	{
-		if (getParent())
-		{
-			getParent()->reshape(getParent()->getRect().getWidth(), getParent()->getRect().getHeight(), FALSE);
-		}
-	}
+    my_rect.mRight = my_rect.mLeft + width;
+    setRect(my_rect);
+
+    top = total_height;
+    if (mShowLabel)
+    {
+        top -= 20;
+    }
+
+    bottom = top;
+
+    if (mDisplayChildren)
+    {
+        // Iterate through all children, and put in container from top down.
+        for (child_list_const_iter_t child_iter = getChildList()->begin();
+             child_iter != getChildList()->end(); ++child_iter)
+        {
+            LLView *childp = *child_iter;
+            LLRect child_rect = childp->getRequiredRect();
+            bottom -= child_rect.getHeight();
+            LLRect r(left, bottom + child_rect.getHeight(), right, bottom);
+            childp->setRect(r);
+            childp->reshape(right - left, top - bottom);
+            top = bottom - 2;
+            bottom = top;
+        }
+    }
+
+    if (!called_from_parent)
+    {
+        if (getParent())
+        {
+            getParent()->reshape(getParent()->getRect().getWidth(), getParent()->getRect().getHeight(), false);
+        }
+    }
 
 }
 
 LLRect LLContainerView::getRequiredRect()
 {
-	LLRect req_rect;
-	//LLView *childp;
-	U32 total_height = 0;
-	
-	// Determine the sizes and locations of all contained views
+    LLRect req_rect;
+    //LLView *childp;
+    U32 total_height = 0;
 
-	// Leave some space for the top label/grab handle
+    // Determine the sizes and locations of all contained views
 
-	if (mShowLabel)
-	{
-		total_height = 20;
-	}
-		
+    // Leave some space for the top label/grab handle
 
-	if (mDisplayChildren)
-	{
-		// Determine total height
-		U32 child_height = 0;
-		for (child_list_const_iter_t child_iter = getChildList()->begin();
-			 child_iter != getChildList()->end(); ++child_iter)
-		{
-			LLView *childp = *child_iter;
-			LLRect child_rect = childp->getRequiredRect();
-			child_height += child_rect.getHeight();
-			child_height += 2;
-		}
+    if (mShowLabel)
+    {
+        total_height = 20;
+    }
 
-		total_height += child_height;
-	}
-	req_rect.mTop = total_height;
-	return req_rect;
+
+    if (mDisplayChildren)
+    {
+        // Determine total height
+        U32 child_height = 0;
+        for (child_list_const_iter_t child_iter = getChildList()->begin();
+             child_iter != getChildList()->end(); ++child_iter)
+        {
+            LLView *childp = *child_iter;
+            LLRect child_rect = childp->getRequiredRect();
+            child_height += child_rect.getHeight();
+            child_height += 2;
+        }
+
+        total_height += child_height;
+    }
+    req_rect.mTop = total_height;
+    return req_rect;
 }
 
 void LLContainerView::setLabel(const std::string& label)
 {
-	mLabel = label;
+    mLabel = utf8str_to_wstring(label);
 }
 
-void LLContainerView::setDisplayChildren(const BOOL displayChildren)
+void LLContainerView::setDisplayChildren(bool displayChildren)
 {
-	mDisplayChildren = displayChildren;
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-		 child_iter != getChildList()->end(); ++child_iter)
-	{
-		LLView *childp = *child_iter;
-		childp->setVisible(mDisplayChildren);
-	}
+    mDisplayChildren = displayChildren;
+    for (child_list_const_iter_t child_iter = getChildList()->begin();
+         child_iter != getChildList()->end(); ++child_iter)
+    {
+        LLView *childp = *child_iter;
+        childp->setVisible(mDisplayChildren);
+    }
 }

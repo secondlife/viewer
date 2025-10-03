@@ -4,7 +4,7 @@
  * @date   2021-10-21
  * @brief  ThreadPool configures a WorkQueue along with a pool of threads to
  *         service it.
- * 
+ *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$
@@ -40,7 +40,7 @@ namespace LL
          * overrides this parameter.
          */
         ThreadPoolBase(const std::string& name, size_t threads,
-                       WorkQueueBase* queue);
+                       WorkQueueBase* queue, bool auto_shutdown = true);
         virtual ~ThreadPoolBase();
 
         /**
@@ -87,13 +87,14 @@ namespace LL
 
     protected:
         std::unique_ptr<WorkQueueBase> mQueue;
+        std::vector<std::pair<std::string, std::thread>> mThreads;
+        bool mAutomaticShutdown;
 
     private:
         void run(const std::string& name);
 
         std::string mName;
         size_t mThreadCount;
-        std::vector<std::pair<std::string, std::thread>> mThreads;
     };
 
     /**
@@ -117,8 +118,11 @@ namespace LL
          * Constraining the queue can cause a submitter to block. Do not
          * constrain any ThreadPool accepting work from the main thread.
          */
-        ThreadPoolUsing(const std::string& name, size_t threads=1, size_t capacity=1024*1024):
-            ThreadPoolBase(name, threads, new queue_t(name, capacity))
+        ThreadPoolUsing(const std::string& name,
+                        size_t threads=1,
+                        size_t capacity=1024*1024,
+                        bool auto_shutdown = true):
+            ThreadPoolBase(name, threads, new queue_t(name, capacity, false), auto_shutdown)
         {}
         ~ThreadPoolUsing() override {}
 

@@ -4,8 +4,8 @@
  * @brief Text editor widget which is used for user input
  *
  * Features:
- *			Optional line history so previous entries can be recalled by CTRL UP/DOWN
- *			Optional auto-resize behavior on input chat field
+ *          Optional line history so previous entries can be recalled by CTRL UP/DOWN
+ *          Optional auto-resize behavior on input chat field
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -38,69 +38,71 @@ class LLChatEntry : public LLTextEditor
 {
 public:
 
-	struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
-	{
-		Optional<bool>		has_history,
-							is_expandable;
+    struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
+    {
+        Optional<bool>      has_history,
+                            is_expandable;
 
-		Optional<int>		expand_lines_count;
+        Optional<int>       expand_lines_count;
 
-		Params();
-	};
+        Params();
+    };
 
-	virtual ~LLChatEntry();
+    virtual ~LLChatEntry();
 
 protected:
 
-	friend class LLUICtrlFactory;
-	LLChatEntry(const Params& p);
+    friend class LLUICtrlFactory;
+    LLChatEntry(const Params& p);
     /*virtual*/ void    beforeValueChange();
     /*virtual*/ void    onValueChange(S32 start, S32 end);
     /*virtual*/ bool    useLabel() const;
 
 public:
 
-	virtual void	draw();
-	virtual	void	onCommit();
-    /*virtual*/ void	onFocusReceived();
-    /*virtual*/ void	onFocusLost();
+    virtual void    draw();
+    virtual void    onCommit();
+    /*virtual*/ void    onFocusReceived();
+    /*virtual*/ void    onFocusLost();
 
-	void enableSingleLineMode(bool single_line_mode);
-	boost::signals2::connection setTextExpandedCallback(const commit_signal_t::slot_type& cb);
+    void enableSingleLineMode(bool single_line_mode);
+    boost::signals2::connection setTextExpandedCallback(const commit_signal_t::slot_type& cb);
 
 private:
 
-	/**
-	 * Implements auto-resize behavior.
-	 * When user's typing reaches the right edge of the chat field
-	 * the chat field expands vertically by one line. The bottom of
-	 * the chat field remains bottom-justified. The chat field does
-	 * not expand beyond mExpandLinesCount.
-	 */
-	void	expandText();
+    /**
+     * Implements auto-resize behavior.
+     * When user's typing reaches the right edge of the chat field
+     * the chat field expands vertically by one line. The bottom of
+     * the chat field remains bottom-justified. The chat field does
+     * not expand beyond mExpandLinesCount.
+     */
+    void    expandText();
 
-	/**
-	 * Implements line history so previous entries can be recalled by CTRL UP/DOWN
-	 */
-	void	updateHistory();
+    /**
+     * Implements line history so previous entries can be recalled by CTRL UP/DOWN
+     */
+    void    updateHistory();
 
-	BOOL	handleSpecialKey(const KEY key, const MASK mask);
+    bool    handleSpecialKey(const KEY key, const MASK mask);
 
 
-	// Fired when text height expanded to mExpandLinesCount
-	commit_signal_t*			mTextExpandedSignal;
+    // Fired when text height expanded to mExpandLinesCount
+    commit_signal_t*            mTextExpandedSignal;
 
-	// line history support:
-	typedef std::vector<std::string>	line_history_t;
-	line_history_t::iterator			mCurrentHistoryLine;	// currently browsed history line
-	line_history_t						mLineHistory;			// line history storage
-	bool								mHasHistory;			// flag for enabled/disabled line history
-	bool								mIsExpandable;
-	bool								mSingleLineMode;
+    // line history support:
+    typedef std::vector<std::string>    line_history_t;
+    line_history_t::iterator            mCurrentHistoryLine;    // currently browsed history line
+    line_history_t                      mLineHistory;           // line history storage
+    bool                                mHasHistory;            // flag for enabled/disabled line history
+    bool                                mIsExpandable;
+    bool                                mSingleLineMode;
 
-	S32									mExpandLinesCount;
-	S32									mPrevLinesCount;
-	S32									mPrevExpandedLineCount;
+    S32                                 mExpandLinesCount;
+    S32                                 mPrevLinesCount;
+    S32                                 mPrevExpandedLineCount;
+
+    std::string                         mCurrentInput;
 };
 
 #endif /* LLCHATENTRY_H_ */

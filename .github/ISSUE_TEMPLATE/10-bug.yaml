@@ -1,0 +1,36 @@
+name: Bug report
+description: Viewer bug report
+labels: [bug, triage]
+body:
+- type: markdown
+  attributes:
+    value: |
+      - Write a descriptive bug title above.
+      - Search [open](https://github.com/secondlife/viewer/issues?q=is%3Aopen+label%3Abug+is%3Aissue) bugs to ensure that the issue has not already been identified.
+
+- type: textarea
+  attributes:
+    label: Environment
+    description: "Please copy the info from the viewer's 'About Second Life' window and paste it here:"
+    placeholder: 'ex. Second Life Release 7.1.8.9375512768 (64bit) ...'
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Description
+    description: Explain the problem.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Reproduction steps
+    description: Steps to reproduce this bug
+    placeholder: |
+      1. First step
+      2. Second step
+      Expected: ...
+      Actual: ...
+  validations:
+    required: true

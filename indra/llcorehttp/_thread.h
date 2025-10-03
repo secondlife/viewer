@@ -1,4 +1,4 @@
-/** 
+/**
  * @file _thread.h
  * @brief thread type abstraction
  *
@@ -42,79 +42,79 @@ namespace LLCoreInt
 class HttpThread : public RefCounted
 {
 private:
-	HttpThread();							// Not defined
-	void operator=(const HttpThread &);		// Not defined
+    HttpThread();                           // Not defined
+    void operator=(const HttpThread &);     // Not defined
 
-	void at_exit()
-		{
-			// the thread function has exited so we need to release our reference
-			// to ourself so that we will be automagically cleaned up.
-			release();
-		}
+    void at_exit()
+        {
+            // the thread function has exited so we need to release our reference
+            // to ourself so that we will be automagically cleaned up.
+            release();
+        }
 
-	void run()
-		{ // THREAD CONTEXT
+    void run()
+        { // THREAD CONTEXT
 
-			// Take out additional reference for the at_exit handler
-			addRef();
-			boost::this_thread::at_thread_exit(boost::bind(&HttpThread::at_exit, this));
+            // Take out additional reference for the at_exit handler
+            addRef();
+            boost::this_thread::at_thread_exit(boost::bind(&HttpThread::at_exit, this));
 
-			// run the thread function
-			mThreadFunc(this);
+            // run the thread function
+            mThreadFunc(this);
 
-		} // THREAD CONTEXT
+        } // THREAD CONTEXT
 
 protected:
-	virtual ~HttpThread()
-		{
-			delete mThread;
-		}
+    virtual ~HttpThread()
+        {
+            delete mThread;
+        }
 
 public:
-	/// Constructs a thread object for concurrent execution but does
-	/// not start running.  Caller receives on refcount on the thread
-	/// instance.  If the thread is started, another will be taken
-	/// out for the exit handler.
-	explicit HttpThread(boost::function<void (HttpThread *)> threadFunc)
-		: RefCounted(true), // implicit reference
-		  mThreadFunc(threadFunc)
-		{
-			// this creates a boost thread that will call HttpThread::run on this instance
-			// and pass it the threadfunc callable...
-			boost::function<void()> f = boost::bind(&HttpThread::run, this);
+    /// Constructs a thread object for concurrent execution but does
+    /// not start running.  Caller receives on refcount on the thread
+    /// instance.  If the thread is started, another will be taken
+    /// out for the exit handler.
+    explicit HttpThread(boost::function<void (HttpThread *)> threadFunc)
+        : RefCounted(true), // implicit reference
+          mThreadFunc(threadFunc)
+        {
+            // this creates a boost thread that will call HttpThread::run on this instance
+            // and pass it the threadfunc callable...
+            boost::function<void()> f = boost::bind(&HttpThread::run, this);
 
-			mThread = new boost::thread(f);
-		}
+            mThread = new boost::thread(f);
+        }
 
-	inline void join()
-		{
-			mThread->join();
-		}
+    inline void join()
+        {
+            mThread->join();
+        }
 
-	inline bool timedJoin(S32 millis)
-		{
-			return mThread->timed_join(boost::posix_time::milliseconds(millis));
-		}
+    inline bool timedJoin(S32 millis)
+        {
+            return mThread->timed_join(boost::posix_time::milliseconds(millis));
+        }
 
-	inline bool joinable() const
-		{
-			return mThread->joinable();
-		}
+    inline bool joinable() const
+        {
+            return mThread->joinable();
+        }
 
-	// A very hostile method to force a thread to quit
-	inline void cancel()
-		{
-			boost::thread::native_handle_type thread(mThread->native_handle());
-#if		LL_WINDOWS
-			TerminateThread(thread, 0);
+    // A very hostile method to force a thread to quit
+    inline void cancel()
+        {
+            boost::thread::native_handle_type thread(mThread->native_handle());
+#if     LL_WINDOWS
+            TerminateThread(thread, 0);
 #else
-			pthread_cancel(thread);
+            pthread_cancel(thread);
 #endif
-		}
-	
+        }
+
 private:
-	boost::function<void(HttpThread *)> mThreadFunc;
-	boost::thread * mThread;
+    boost::function<void(HttpThread *)> mThreadFunc;
+    boost::thread * mThread;
 }; // end class HttpThread
 
 } // end namespace LLCoreInt

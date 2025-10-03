@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
@@ -14,6 +14,9 @@
  single_instance="true"
  title="WORLD MAP"
  width="650">
+  <string name="UnnamedParcel">
+    (Unnamed Parcel)
+  </string>
   <string
    name="collapse_icon"
    value="map_ui_collapse_icon.png"/>
@@ -34,7 +37,8 @@
    top="16"
    left="0"
    right="-1"
-   bottom="-1">
+   bottom="-1"
+   orientation="horizontal">
     <layout_panel
      name="map_lp"
      width="385"
@@ -241,7 +245,7 @@
      image_name="legend.tga"
      layout="topleft"
      mouse_opaque="true"
-     name="square2"
+     name="square2_auction"
      left="20"
      top_pad="2"
      width="16" />
@@ -264,7 +268,7 @@
      image_name="legend.tga"
      layout="topleft"
      mouse_opaque="true"
-     name="square2"
+     name="square2_owner"
      left="20"
      top_pad="-5"
      width="16" />
@@ -451,7 +455,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="330"
+	 height="235"
 	 top_pad="0"
 	 width="238"
 	 name="layout_panel_4">
@@ -528,9 +532,9 @@
      width="16" />
     <search_editor
      follows="top|right"
-  search_button_visible="false"
+     search_button_visible="false"
      height="22"
-  text_readonly_color="DkGray"
+     text_readonly_color="DkGray"
      label="Regions by Name"
      layout="topleft"
      top_delta="-2"
@@ -538,10 +542,7 @@
      name="location"
      select_on_focus="true"
      tool_tip="Type the name of a region"
-     width="152">
-               <search_editor.commit_callback
-                function="WMap.Location" />
-  </search_editor>
+     width="152"/>
    <button
      follows="top|right"
      height="23"
@@ -590,6 +591,13 @@
 		<scroll_list.commit_callback
 		function="WMap.SearchResult" />
     </scroll_list>
+    </panel>
+    <panel
+     follows="right|bottom"
+	 height="95"
+	 top_pad="0"
+	 width="238"
+	 name="layout_panel_7">
       <text
       type="string"
       length="1"

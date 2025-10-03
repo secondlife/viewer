@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <radio_item follows="left|top" font="SansSerif">
   <radio_item.label_text name="Radio Item label"/>
   <radio_item.check_button name="Radio control button"

@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2022-06-09
  * @brief  Test for llviewercontrollistener.
- * 
+ *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Copyright (c) 2022, Linden Research, Inc.
  * $/LicenseInfo$
@@ -40,7 +40,7 @@ namespace tut
         {
             Global.declareString("strvar", "woof", "string variable");
             // together we will stroll the boolvar, ma cherie
-            Global.declareBOOL("boolvar",  TRUE, "bool variable");
+            Global.declareBOOL("boolvar",  true, "bool variable");
         }
     };
     typedef test_group<llviewercontrollistener_data> llviewercontrollistener_group;
@@ -167,7 +167,7 @@ namespace tut
                 "boolvar",
                 llsd::map("name", "boolvar",
                           "type", "Boolean",
-                          "value", TRUE,
+                          "value", true,
                           "comment", "bool variable")));
     }
 } // namespace tut

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_minimize="false"
@@ -73,7 +73,9 @@
         name="scroll_vert"
         orientation="vertical"
         step_size="16"
+        doc_pos="0"
         doc_size="3000"
+        page_size="50"
           />
     </layout_panel>
     <layout_panel name="timers_panel"

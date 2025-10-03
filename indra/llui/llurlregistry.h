@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llurlregistry.h
  * @author Martin Reddy
  * @brief Contains a set of Url types that can be matched in a string
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,14 +34,13 @@
 #include "llstring.h"
 
 #include <string>
-#include <vector>
 
 class LLKeyBindingToStringHandler;
 
 /// This default callback for findUrl() simply ignores any label updates
 void LLUrlRegistryNullCallback(const std::string &url,
-							   const std::string &label,
-							   const std::string &icon);
+                               const std::string &label,
+                               const std::string &icon);
 
 ///
 /// LLUrlRegistry is a singleton that contains a set of Url types that
@@ -64,44 +63,47 @@ void LLUrlRegistryNullCallback(const std::string &url,
 ///
 class LLUrlRegistry : public LLSingleton<LLUrlRegistry>
 {
-	LLSINGLETON(LLUrlRegistry);
-	~LLUrlRegistry();
+    LLSINGLETON(LLUrlRegistry);
+    ~LLUrlRegistry();
 public:
-	/// add a new Url handler to the registry (will be freed on destruction)
-	/// optionally force it to the front of the list, making it take
-	/// priority over other regular expression matches for URLs
-	void registerUrl(LLUrlEntryBase *url, bool force_front = false);
+    /// add a new Url handler to the registry (will be freed on destruction)
+    /// optionally force it to the front of the list, making it take
+    /// priority over other regular expression matches for URLs
+    void registerUrl(LLUrlEntryBase *url, bool force_front = false);
 
-	/// get the next Url in an input string, starting at a given character offset
-	/// your callback is invoked if the matched Url's label changes in the future
-	bool findUrl(const std::string &text, LLUrlMatch &match,
-				 const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback,
-				 bool is_content_trusted = false);
+    /// get the next Url in an input string, starting at a given character offset
+    /// your callback is invoked if the matched Url's label changes in the future
+    bool findUrl(const std::string &text, LLUrlMatch &match,
+                 const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback,
+                 bool is_content_trusted = false, bool skip_non_mentions = false);
 
-	/// a slightly less efficient version of findUrl for wide strings
-	bool findUrl(const LLWString &text, LLUrlMatch &match,
-				 const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback);
+    /// a slightly less efficient version of findUrl for wide strings
+    bool findUrl(const LLWString &text, LLUrlMatch &match,
+                 const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback);
 
-	// return true if the given string contains a URL that findUrl would match
-	bool hasUrl(const std::string &text);
-	bool hasUrl(const LLWString &text);
+    // return true if the given string contains a URL that findUrl would match
+    bool hasUrl(const std::string &text);
+    bool hasUrl(const LLWString &text);
 
-	// return true if the given string is a URL that findUrl would match
-	bool isUrl(const std::string &text);
-	bool isUrl(const LLWString &text);
+    // return true if the given string is a URL that findUrl would match
+    bool isUrl(const std::string &text);
+    bool isUrl(const LLWString &text);
 
     // Set handler for url registry to be capable of parsing and populating keybindings
     void setKeybindingHandler(LLKeyBindingToStringHandler* handler);
 
+    bool containsAgentMention(const std::string& text);
+
 private:
-	std::vector<LLUrlEntryBase *> mUrlEntry;
-	LLUrlEntryBase*	mUrlEntryTrusted;
-	LLUrlEntryBase*	mUrlEntryIcon;
-	LLUrlEntryBase* mLLUrlEntryInvalidSLURL;
-	LLUrlEntryBase* mUrlEntryHTTPLabel;
-	LLUrlEntryBase* mUrlEntrySLLabel;
-	LLUrlEntryBase* mUrlEntryNoLink;
+    std::vector<LLUrlEntryBase *> mUrlEntry;
+    LLUrlEntryBase* mUrlEntryTrusted;
+    LLUrlEntryBase* mUrlEntryIcon;
+    LLUrlEntryBase* mLLUrlEntryInvalidSLURL;
+    LLUrlEntryBase* mUrlEntryHTTPLabel;
+    LLUrlEntryBase* mUrlEntrySLLabel;
+    LLUrlEntryBase* mUrlEntryNoLink;
     LLUrlEntryBase* mUrlEntryKeybinding;
+    LLUrlEntryBase* mUrlEntryAgentMention;
 };
 
 #endif

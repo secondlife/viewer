@@ -1,4 +1,4 @@
-name: Stale PRs 
+name: Stale PRs
 on:
   workflow_dispatch:
   schedule:
@@ -17,7 +17,8 @@ jobs:
         with:
           stale-pr-message: This pull request is stale because it has been open 30 days with no activity. Remove stale label or comment or it will be closed in 7 days
           days-before-stale: 30
-          days-before-close: 7 
+          days-before-close: 7
+          days-before-issue-close: -1
           exempt-pr-labels: blocked,must,should,keep
           stale-pr-label: stale
       - name: Print outputs

@@ -5,29 +5,29 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
 #include "llviewerprecompiledheaders.h"
 
 #if !defined LL_DARWIN
-	#error "Use only with Mac OS X"
+    #error "Use only with macOS"
 #endif
 
 #define LL_CARBON_CRASH_HANDLER 1
@@ -59,50 +59,50 @@
 #include "lldir.h"
 #include "lldiriterator.h"
 #include <signal.h>
-#include <CoreAudio/CoreAudio.h>	// for systemwide mute
-class LLMediaCtrl;		// for LLURLDispatcher
+#include <CoreAudio/CoreAudio.h>    // for systemwide mute
+class LLMediaCtrl;      // for LLURLDispatcher
 
-namespace 
+namespace
 {
-	// The command line args stored.
-	// They are not used immediately by the app.
-	int gArgC;
-	char** gArgV;
-	LLAppViewerMacOSX* gViewerAppPtr = NULL;
+    // The command line args stored.
+    // They are not used immediately by the app.
+    int gArgC;
+    char** gArgV;
+    LLAppViewerMacOSX* gViewerAppPtr = NULL;
     std::string gHandleSLURL;
 }
 
 void constructViewer()
 {
-	// Set the working dir to <bundle>/Contents/Resources
-	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
-	{
-		LL_WARNS("InitOSX") << "Could not change directory to "
-				<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
-				<< LL_ENDL;
-	}
+    // Set the working dir to <bundle>/Contents/Resources
+    if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
+    {
+        LL_WARNS("InitOSX") << "Could not change directory to "
+                << gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
+                << LL_ENDL;
+    }
 
-	gViewerAppPtr = new LLAppViewerMacOSX();
+    gViewerAppPtr = new LLAppViewerMacOSX();
 }
 
 bool initViewer()
 {
-	bool ok = gViewerAppPtr->init();
-	if(!ok)
-	{
-		LL_WARNS("InitOSX") << "Application init failed." << LL_ENDL;
-	}
-	else if (!gHandleSLURL.empty())
-	{
-		dispatchUrl(gHandleSLURL);
-		gHandleSLURL = "";
-	}
-	return ok;
+    bool ok = gViewerAppPtr->init();
+    if(!ok)
+    {
+        LL_WARNS("InitOSX") << "Application init failed." << LL_ENDL;
+    }
+    else if (!gHandleSLURL.empty())
+    {
+        dispatchUrl(gHandleSLURL);
+        gHandleSLURL = "";
+    }
+    return ok;
 }
 
 void handleQuit()
 {
-	LLAppViewer::instance()->userQuit();
+    LLAppViewer::instance()->userQuit();
 }
 
 // This function is called pumpMainLoop() rather than runMainLoop() because
@@ -112,27 +112,27 @@ void handleQuit()
 // (llappdelegate-objc.mm).
 bool pumpMainLoop()
 {
-	bool ret = LLApp::isQuitting();
-	if (!ret && gViewerAppPtr != NULL)
-	{
-		ret = gViewerAppPtr->frame();
-	} else {
-		ret = true;
-	}
-	
-	return ret;
+    bool ret = LLApp::isQuitting();
+    if (!ret && gViewerAppPtr != NULL)
+    {
+        ret = gViewerAppPtr->frame();
+    } else {
+        ret = true;
+    }
+
+    return ret;
 }
 
 void cleanupViewer()
 {
-	if(!LLApp::isError())
-	{
+    if(!LLApp::isError())
+    {
         if (gViewerAppPtr)
             gViewerAppPtr->cleanup();
-	}
-	
-	delete gViewerAppPtr;
-	gViewerAppPtr = NULL;
+    }
+
+    delete gViewerAppPtr;
+    gViewerAppPtr = NULL;
 }
 
 void clearDumpLogsDir()
@@ -172,6 +172,8 @@ CrashMetadataSingleton::CrashMetadataSingleton()
     // Note: we depend on being able to read the static_debug_info.log file
     // from the *previous* run before we overwrite it with the new one for
     // *this* run. LLAppViewer initialization must happen in the Right Order.
+
+    // Todo: consider converting static file into bugspalt attributes file
     staticDebugPathname = *gViewerAppPtr->getStaticDebugFile();
     std::ifstream static_file(staticDebugPathname);
     LLSD info;
@@ -197,7 +199,7 @@ CrashMetadataSingleton::CrashMetadataSingleton()
         LLStringUtil::replaceChar(agentFullname, '_', ' ');
         regionName           = get_metadata(info, "CurrentRegion");
         fatalMessage         = get_metadata(info, "FatalMessage");
-        
+
         if (gDirUtilp->fileExists(gDirUtilp->getDumpLogsDirPath()))
         {
             LLDirIterator file_iter(gDirUtilp->getDumpLogsDirPath(), "*.log");
@@ -215,7 +217,32 @@ CrashMetadataSingleton::CrashMetadataSingleton()
                 }
             }
         }
+
+        // Populate bugsplat attributes
+        LLXMLNodePtr out_node = new LLXMLNode("XmlCrashContext", false);
+
+        out_node->createChild("OS", false)->setValue(OSInfo);
+        out_node->createChild("AppState", false)->setValue(info["StartupState"].asString());
+        out_node->createChild("GraphicsCard", false)->setValue(info["GraphicsCard"].asString());
+        out_node->createChild("GLVersion", false)->setValue(info["GLInfo"]["GLVersion"].asString());
+        out_node->createChild("GLRenderer", false)->setValue(info["GLInfo"]["GLRenderer"].asString());
+        out_node->createChild("RAM", false)->setValue(info["RAMInfo"]["Physical"].asString());
+
+        if (!out_node->isNull())
+        {
+            attributesPathname = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "CrashContext.xml");
+            LLFILE* fp = LLFile::fopen(attributesPathname, "w");
+
+            if (fp != NULL)
+            {
+                LLXMLNode::writeHeaderToFile(fp);
+                out_node->writeToFile(fp);
+
+                fclose(fp);
+            }
+        }
     }
+    // else Todo: consider fillig at least some values, like OS
 }
 
 // Avoid having to compile all of our LLSingleton machinery in Objective-C++.
@@ -229,12 +256,12 @@ void infos(const std::string& message)
     LL_INFOS("InitOSX", "Bugsplat") << message << LL_ENDL;
 }
 
-int main( int argc, char **argv ) 
+int main( int argc, char **argv )
 {
-	// Store off the command line args for use later.
-	gArgC = argc;
-	gArgV = argv;
-	return createNSApp(argc, (const char**)argv);
+    // Store off the command line args for use later.
+    gArgC = argc;
+    gArgV = argv;
+    return createNSApp(argc, (const char**)argv);
 }
 
 LLAppViewerMacOSX::LLAppViewerMacOSX()
@@ -250,60 +277,65 @@ bool LLAppViewerMacOSX::init()
     return LLAppViewer::init();
 }
 
+void LLAppViewerMacOSX::forceErrorOSSpecificException()
+{
+    force_ns_sxeption();
+}
+
 // MacOSX may add and addition command line arguement for the process serial number.
 // The option takes a form like '-psn_0_12345'. The following method should be able to recognize
 // and either ignore or return a pair of values for the option.
 // look for this method to be added to the parser in parseAndStoreResults.
 std::pair<std::string, std::string> parse_psn(const std::string& s)
 {
-    if (s.find("-psn_") == 0) 
-	{
-		// *FIX:Mani Not sure that the value makes sense.
-		// fix it once the actual -psn_XXX syntax is known.
-		return std::make_pair("psn", s.substr(5));
+    if (s.find("-psn_") == 0)
+    {
+        // *FIX:Mani Not sure that the value makes sense.
+        // fix it once the actual -psn_XXX syntax is known.
+        return std::make_pair("psn", s.substr(5));
     }
-	else 
-	{
+    else
+    {
         return std::make_pair(std::string(), std::string());
     }
 }
 
 bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 {
-	// The next two lines add the support for parsing the mac -psn_XXX arg.
-	clp.addOptionDesc("psn", NULL, 1, "MacOSX process serial number");
-	clp.setCustomParser(parse_psn);
+    // The next two lines add the support for parsing the mac -psn_XXX arg.
+    clp.addOptionDesc("psn", NULL, 1, "MacOSX process serial number");
+    clp.setCustomParser(parse_psn);
 
-	// parse the user's command line
-	if(clp.parseCommandLine(gArgC, gArgV) == false)
-	{
-		return false;
-	}
+    // parse the user's command line
+    if(clp.parseCommandLine(gArgC, gArgV) == false)
+    {
+        return false;
+    }
 
-	// Get the user's preferred language string based on the Mac OS localization mechanism.
-	// To add a new localization:
-		// go to the "Resources" section of the project
-		// get info on "language.txt"
-		// in the "General" tab, click the "Add Localization" button
-		// create a new localization for the language you're adding
-		// set the contents of the new localization of the file to the string corresponding to our localization
-		//   (i.e. "en", "ja", etc.  Use the existing ones as a guide.)
-	CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("language"), CFSTR("txt"), NULL);
-	char path[MAX_PATH];
-	if(CFURLGetFileSystemRepresentation(url, false, (UInt8 *)path, sizeof(path)))
-	{
-		std::string lang;
-		if(_read_file_into_string(lang, path))		/* Flawfinder: ignore*/
-		{
+    // Get the user's preferred language string based on the Mac OS localization mechanism.
+    // To add a new localization:
+        // go to the "Resources" section of the project
+        // get info on "language.txt"
+        // in the "General" tab, click the "Add Localization" button
+        // create a new localization for the language you're adding
+        // set the contents of the new localization of the file to the string corresponding to our localization
+        //   (i.e. "en", "ja", etc.  Use the existing ones as a guide.)
+    CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("language"), CFSTR("txt"), NULL);
+    char path[MAX_PATH];
+    if(CFURLGetFileSystemRepresentation(url, false, (UInt8 *)path, sizeof(path)))
+    {
+        std::string lang;
+        if(_read_file_into_string(lang, path))      /* Flawfinder: ignore*/
+        {
             LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
             if(c)
             {
                 c->setValue(lang, false);
             }
-		}
-	}
-	CFRelease(url);
-	
+        }
+    }
+    CFRelease(url);
+
     return true;
 }
 
@@ -312,88 +344,88 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 extern void default_unix_signal_handler(int, siginfo_t *, void *);
 bool LLAppViewerMacOSX::restoreErrorTrap()
 {
-	// This method intends to reinstate signal handlers.
-	// *NOTE:Mani It was found that the first execution of a shader was overriding
-	// our initial signal handlers somehow.
-	// This method will be called (at least) once per mainloop execution.
-	// *NOTE:Mani The signals used below are copied over from the 
-	// setup_signals() func in LLApp.cpp
-	// LLApp could use some way of overriding that func, but for this viewer
-	// fix I opt to avoid affecting the server code.
-	
-	// Set up signal handlers that may result in program termination
-	//
-	struct sigaction act;
-	struct sigaction old_act;
-	act.sa_sigaction = default_unix_signal_handler;
-	sigemptyset( &act.sa_mask );
-	act.sa_flags = SA_SIGINFO;
-	
-	unsigned int reset_count = 0;
-	
+    // This method intends to reinstate signal handlers.
+    // *NOTE:Mani It was found that the first execution of a shader was overriding
+    // our initial signal handlers somehow.
+    // This method will be called (at least) once per mainloop execution.
+    // *NOTE:Mani The signals used below are copied over from the
+    // setup_signals() func in LLApp.cpp
+    // LLApp could use some way of overriding that func, but for this viewer
+    // fix I opt to avoid affecting the server code.
+
+    // Set up signal handlers that may result in program termination
+    //
+    struct sigaction act;
+    struct sigaction old_act;
+    act.sa_sigaction = default_unix_signal_handler;
+    sigemptyset( &act.sa_mask );
+    act.sa_flags = SA_SIGINFO;
+
+    unsigned int reset_count = 0;
+
 #define SET_SIG(SIGNAL) sigaction(SIGNAL, &act, &old_act); \
                         if(act.sa_sigaction != old_act.sa_sigaction) ++reset_count;
-	// Synchronous signals
+    // Synchronous signals
 #   ifndef LL_BUGSPLAT
-	SET_SIG(SIGABRT) // let bugsplat catch this
-#   endif        
-	SET_SIG(SIGALRM)
-	SET_SIG(SIGBUS)
-	SET_SIG(SIGFPE)
-	SET_SIG(SIGHUP) 
-	SET_SIG(SIGILL)
-	SET_SIG(SIGPIPE)
-	SET_SIG(SIGSEGV)
-	SET_SIG(SIGSYS)
-	
-	SET_SIG(LL_HEARTBEAT_SIGNAL)
-	SET_SIG(LL_SMACKDOWN_SIGNAL)
-	
-	// Asynchronous signals that are normally ignored
-	SET_SIG(SIGCHLD)
-	SET_SIG(SIGUSR2)
-	
-	// Asynchronous signals that result in attempted graceful exit
-	SET_SIG(SIGHUP)
-	SET_SIG(SIGTERM)
-	SET_SIG(SIGINT)
-	
-	// Asynchronous signals that result in core
-	SET_SIG(SIGQUIT)	
+    SET_SIG(SIGABRT) // let bugsplat catch this
+#   endif
+    SET_SIG(SIGALRM)
+    SET_SIG(SIGBUS)
+    SET_SIG(SIGFPE)
+    SET_SIG(SIGHUP)
+    SET_SIG(SIGILL)
+    SET_SIG(SIGPIPE)
+    SET_SIG(SIGSEGV)
+    SET_SIG(SIGSYS)
+
+    SET_SIG(LL_HEARTBEAT_SIGNAL)
+    SET_SIG(LL_SMACKDOWN_SIGNAL)
+
+    // Asynchronous signals that are normally ignored
+    SET_SIG(SIGCHLD)
+    SET_SIG(SIGUSR2)
+
+    // Asynchronous signals that result in attempted graceful exit
+    SET_SIG(SIGHUP)
+    SET_SIG(SIGTERM)
+    SET_SIG(SIGINT)
+
+    // Asynchronous signals that result in core
+    SET_SIG(SIGQUIT)
 #undef SET_SIG
-	
-	return reset_count == 0;
+
+    return reset_count == 0;
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()
 {
-	char serial_md5[MD5HEX_STR_SIZE];		// Flawfinder: ignore
-	serial_md5[0] = 0;
+    char serial_md5[MD5HEX_STR_SIZE];       // Flawfinder: ignore
+    serial_md5[0] = 0;
 
-	// JC: Sample code from http://developer.apple.com/technotes/tn/tn1103.html
-	CFStringRef serialNumber = NULL;
-	io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
-																 IOServiceMatching("IOPlatformExpertDevice"));
-	if (platformExpert)
+    // JC: Sample code from http://developer.apple.com/technotes/tn/tn1103.html
+    CFStringRef serialNumber = NULL;
+    io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
+                                                                 IOServiceMatching("IOPlatformExpertDevice"));
+    if (platformExpert)
     {
-		serialNumber = (CFStringRef) IORegistryEntryCreateCFProperty(platformExpert,
-																	 CFSTR(kIOPlatformSerialNumberKey),
-																	 kCFAllocatorDefault, 0);		
-		IOObjectRelease(platformExpert);
-	}
-	
-	if (serialNumber)
-	{
-		char buffer[MAX_STRING];		// Flawfinder: ignore
-		if (CFStringGetCString(serialNumber, buffer, MAX_STRING, kCFStringEncodingASCII))
-		{
-			LLMD5 md5( (unsigned char*)buffer );
-			md5.hex_digest(serial_md5);
-		}
-		CFRelease(serialNumber);
-	}
+        serialNumber = (CFStringRef) IORegistryEntryCreateCFProperty(platformExpert,
+                                                                     CFSTR(kIOPlatformSerialNumberKey),
+                                                                     kCFAllocatorDefault, 0);
+        IOObjectRelease(platformExpert);
+    }
 
-	return serial_md5;
+    if (serialNumber)
+    {
+        char buffer[MAX_STRING];        // Flawfinder: ignore
+        if (CFStringGetCString(serialNumber, buffer, MAX_STRING, kCFStringEncodingASCII))
+        {
+            LLMD5 md5( (unsigned char*)buffer );
+            md5.hex_digest(serial_md5);
+        }
+        CFRelease(serialNumber);
+    }
+
+    return serial_md5;
 }
 
 void handleUrl(const char* url_utf8)
@@ -421,7 +453,7 @@ void dispatchUrl(std::string url)
     {
         url.replace(0, prefix.length(), "secondlife:///app/");
     }
-    
+
     LLMediaCtrl* web = NULL;
     const bool trusted_browser = false;
     LLURLDispatcher::dispatch(url, "", web, trusted_browser);

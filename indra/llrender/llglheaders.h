@@ -46,7 +46,7 @@
 // LL_WINDOWS
 
 // windows gl headers depend on things like APIENTRY, so include windows.
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 
 //----------------------------------------------------------------------------
 #include <GL/gl.h>
@@ -855,7 +855,7 @@ extern void glGenerateMipmapEXT(GLenum target) AVAILABLE_MAC_OS_X_VERSION_10_4_A
 
 #ifndef GL_ARB_framebuffer_object
 #define glGenerateMipmap glGenerateMipmapEXT
-#define GL_MAX_SAMPLES	0x8D57
+#define GL_MAX_SAMPLES  0x8D57
 #endif
 
 #ifdef __cplusplus
@@ -937,7 +937,7 @@ extern "C" {
 #define GL_DYNAMIC_READ_ARB               0x88E9
 #define GL_DYNAMIC_COPY_ARB               0x88EA
 #endif
-	
+
 
 
 #ifndef GL_ARB_vertex_buffer_object
@@ -957,7 +957,7 @@ typedef GLboolean (* glIsBufferARBProcPtr) (GLuint buffer);
 typedef void (* glBufferDataARBProcPtr) (GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage);
 typedef void (* glBufferSubDataARBProcPtr) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data);
 typedef void (* glGetBufferSubDataARBProcPtr) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data);
-typedef GLvoid* (* glMapBufferARBProcPtr) (GLenum target, GLenum access);	/* Flawfinder: ignore */
+typedef GLvoid* (* glMapBufferARBProcPtr) (GLenum target, GLenum access);   /* Flawfinder: ignore */
 typedef GLboolean (* glUnmapBufferARBProcPtr) (GLenum target);
 typedef void (* glGetBufferParameterivARBProcPtr) (GLenum target, GLenum pname, GLint *params);
 typedef void (* glGetBufferPointervARBProcPtr) (GLenum target, GLenum pname, GLvoid* *params);
@@ -1045,11 +1045,11 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 //GL_NVX_gpu_memory_info constants
 #ifndef GL_NVX_gpu_memory_info
 #define GL_NVX_gpu_memory_info
-#define	GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
-#define	GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
-#define	GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
-#define	GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
-#define	GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+#define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+#define GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+#define GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+#define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+#define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
 #endif
 
 //GL_ATI_meminfo constants
@@ -1063,6 +1063,6 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #if defined(TRACY_ENABLE) && LL_PROFILER_ENABLE_TRACY_OPENGL
     #include <tracy/TracyOpenGL.hpp>
 #endif
-    
+
 
 #endif // LL_LLGLHEADERS_H

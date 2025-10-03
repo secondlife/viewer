@@ -40,25 +40,25 @@ LLFloaterModelUploadBase::LLFloaterModelUploadBase(const LLSD& key)
 
 void LLFloaterModelUploadBase::requestAgentUploadPermissions()
 {
-	std::string capability = "MeshUploadFlag";
-	std::string url = gAgent.getRegionCapability(capability);
+    std::string capability = "MeshUploadFlag";
+    std::string url = gAgent.getRegionCapability(capability);
 
-	if (!url.empty())
-	{
-		LL_INFOS()<< typeid(*this).name()
-				  << "::requestAgentUploadPermissions() requesting for upload model permissions from: "
-				  << url << LL_ENDL;
+    if (!url.empty())
+    {
+        LL_INFOS()<< typeid(*this).name()
+                  << "::requestAgentUploadPermissions() requesting for upload model permissions from: "
+                  << url << LL_ENDL;
         LLCoros::instance().launch("LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro",
             boost::bind(&LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro, this, url, getPermObserverHandle()));
-	}
-	else
-	{
-		LLSD args;
-		args["CAPABILITY"] = capability;
-		LLNotificationsUtil::add("RegionCapabilityRequestError", args);
-		// BAP HACK avoid being blocked by broken server side stuff
-		mHasUploadPerm = true;
-	}
+    }
+    else
+    {
+        LLSD args;
+        args["CAPABILITY"] = capability;
+        LLNotificationsUtil::add("RegionCapabilityRequestError", args);
+        // BAP HACK avoid being blocked by broken server side stuff
+        mHasUploadPerm = true;
+    }
 }
 
 void LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro(std::string url,
@@ -78,7 +78,7 @@ void LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro(std::string url
     LLUploadPermissionsObserver* observer = observerHandle.get();
 
     if (!observer)
-    { 
+    {
         LL_WARNS("MeshUploadFlag") << "Unable to get observer after call to '" << url << "' aborting." << LL_ENDL;
         return;
     }

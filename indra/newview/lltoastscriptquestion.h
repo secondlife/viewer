@@ -32,20 +32,20 @@
 
 class LLToastScriptQuestion : public LLToastPanel
 {
-	LOG_CLASS(LLToastScriptQuestion);
+    LOG_CLASS(LLToastScriptQuestion);
 
 public:
-	LLToastScriptQuestion(const LLNotificationPtr& notification);
-	virtual BOOL postBuild();
-	virtual ~LLToastScriptQuestion(){};
+    LLToastScriptQuestion(const LLNotificationPtr& notification);
+    bool postBuild() override;
+    virtual ~LLToastScriptQuestion(){};
 
-	/*virtual*/ void setFocus(BOOL b);
+    void setFocus(bool b) override;
 
 private:
-	void snapToMessageHeight();
+    void snapToMessageHeight();
 
-	void createButtons();
-	void onButtonClicked(std::string btn_name);
+    void createButtons();
+    void onButtonClicked(std::string btn_name);
 };
 
 #endif /* LLTOASTSCRIPTQUESTION_H_ */

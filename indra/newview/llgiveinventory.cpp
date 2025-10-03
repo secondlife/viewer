@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -56,241 +56,241 @@ const S32 MAX_ITEMS = 42;
 class LLGiveable : public LLInventoryCollectFunctor
 {
 public:
-	LLGiveable() : mCountLosing(0) {}
-	virtual ~LLGiveable() {}
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+    LLGiveable() : mCountLosing(0) {}
+    virtual ~LLGiveable() {}
+    virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 
-	S32 countNoCopy() const { return mCountLosing; }
+    S32 countNoCopy() const { return mCountLosing; }
 protected:
-	S32 mCountLosing;
+    S32 mCountLosing;
 };
 
 bool LLGiveable::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
-	// All categories can be given.
-	if (cat)
-		return true;
+    // All categories can be given.
+    if (cat)
+        return true;
 
-	bool allowed = false;
-	if (item)
-	{
-		allowed = itemTransferCommonlyAllowed(item);
-		if (allowed &&
-		   !item->getPermissions().allowOperationBy(PERM_TRANSFER,
-							    gAgent.getID()))
-		{
-			allowed = FALSE;
-		}
-		if (allowed &&
-		   !item->getPermissions().allowCopyBy(gAgent.getID()))
-		{
-			++mCountLosing;
-		}
-	}
-	return allowed;
+    bool allowed = false;
+    if (item)
+    {
+        allowed = itemTransferCommonlyAllowed(item);
+        if (allowed &&
+           !item->getPermissions().allowOperationBy(PERM_TRANSFER,
+                                gAgent.getID()))
+        {
+            allowed = false;
+        }
+        if (allowed &&
+           !item->getPermissions().allowCopyBy(gAgent.getID()))
+        {
+            ++mCountLosing;
+        }
+    }
+    return allowed;
 }
 
 class LLUncopyableItems : public LLInventoryCollectFunctor
 {
 public:
-	LLUncopyableItems() {}
-	virtual ~LLUncopyableItems() {}
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+    LLUncopyableItems() {}
+    virtual ~LLUncopyableItems() {}
+    virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 
 bool LLUncopyableItems::operator()(LLInventoryCategory* cat,
-								   LLInventoryItem* item)
+                                   LLInventoryItem* item)
 {
-	bool uncopyable = false;
-	if (item)
-	{
-		if (itemTransferCommonlyAllowed(item) &&
-			!item->getPermissions().allowCopyBy(gAgent.getID()))
-		{
-			uncopyable = true;
-		}
-	}
-	return uncopyable;
+    bool uncopyable = false;
+    if (item)
+    {
+        if (itemTransferCommonlyAllowed(item) &&
+            !item->getPermissions().allowCopyBy(gAgent.getID()))
+        {
+            uncopyable = true;
+        }
+    }
+    return uncopyable;
 }
 
 // static
 bool LLGiveInventory::isInventoryGiveAcceptable(const LLInventoryItem* item)
 {
-	if (!item) return false;
+    if (!item) return false;
 
-	if (!isAgentAvatarValid()) return false;
+    if (!isAgentAvatarValid()) return false;
 
-	if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID))
-	{
-		return false;
-	}
+    if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID))
+    {
+        return false;
+    }
 
-	bool acceptable = true;
-	switch(item->getType())
-	{
-	case LLAssetType::AT_OBJECT:
-	case LLAssetType::AT_BODYPART:
-	case LLAssetType::AT_CLOTHING:
-		{
-			if (get_is_item_worn(item->getUUID()))
-			{
-				acceptable = false;
-			}
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-	return acceptable;
+    bool acceptable = true;
+    switch(item->getType())
+    {
+    case LLAssetType::AT_OBJECT:
+    case LLAssetType::AT_BODYPART:
+    case LLAssetType::AT_CLOTHING:
+        {
+            if (get_is_item_worn(item->getUUID()))
+            {
+                acceptable = false;
+            }
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+    return acceptable;
 }
 
 // static
 bool LLGiveInventory::isInventoryGroupGiveAcceptable(const LLInventoryItem* item)
 {
-	if (!item) return false;
+    if (!item) return false;
 
-	if (!isAgentAvatarValid()) return false;
+    if (!isAgentAvatarValid()) return false;
 
-	// These permissions are double checked in the simulator in
-	// LLGroupNoticeInventoryItemFetch::result().
-	if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID))
-	{
-		return false;
-	}
-	if (!item->getPermissions().allowCopyBy(gAgent.getID()))
-	{
-		return false;
-	}
+    // These permissions are double checked in the simulator in
+    // LLGroupNoticeInventoryItemFetch::result().
+    if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID))
+    {
+        return false;
+    }
+    if (!item->getPermissions().allowCopyBy(gAgent.getID()))
+    {
+        return false;
+    }
 
 
-	bool acceptable = true;
-	switch(item->getType())
-	{
-	case LLAssetType::AT_OBJECT:
-		if (gAgentAvatarp->isWearingAttachment(item->getUUID()))
-		{
-			acceptable = false;
-		}
-		break;
-	default:
-		break;
-	}
-	return acceptable;
+    bool acceptable = true;
+    switch(item->getType())
+    {
+    case LLAssetType::AT_OBJECT:
+        if (gAgentAvatarp->isWearingAttachment(item->getUUID()))
+        {
+            acceptable = false;
+        }
+        break;
+    default:
+        break;
+    }
+    return acceptable;
 }
 
 // static
 bool LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
-									  const LLInventoryItem* item,
-									  const LLUUID& im_session_id/* = LLUUID::null*/)
+                                      const LLInventoryItem* item,
+                                      const LLUUID& im_session_id/* = LLUUID::null*/)
 
 {
-	bool res = true;
-	LL_INFOS() << "LLGiveInventory::giveInventory()" << LL_ENDL;
-	if (!isInventoryGiveAcceptable(item))
-	{
-		return false;
-	}
-	if (item->getPermissions().allowCopyBy(gAgentID))
-	{
-		// just give it away.
-		LLGiveInventory::commitGiveInventoryItem(to_agent, item, im_session_id);
-	}
-	else
-	{
-		// ask if the agent is sure.
-		LLSD substitutions;
-		substitutions["ITEMS"] = item->getName();
-		LLSD payload;
-		payload["agent_id"] = to_agent;
-		LLSD items = LLSD::emptyArray();
-		items.append(item->getUUID());
-		payload["items"] = items;
-		LLNotificationsUtil::add("CannotCopyWarning", substitutions, payload,
-			&LLGiveInventory::handleCopyProtectedItem);
-		res = false;
-	}
+    bool res = true;
+    LL_INFOS() << "LLGiveInventory::giveInventory()" << LL_ENDL;
+    if (!isInventoryGiveAcceptable(item))
+    {
+        return false;
+    }
+    if (item->getPermissions().allowCopyBy(gAgentID))
+    {
+        // just give it away.
+        LLGiveInventory::commitGiveInventoryItem(to_agent, item, im_session_id);
+    }
+    else
+    {
+        // ask if the agent is sure.
+        LLSD substitutions;
+        substitutions["ITEMS"] = item->getName();
+        LLSD payload;
+        payload["agent_id"] = to_agent;
+        LLSD items = LLSD::emptyArray();
+        items.append(item->getUUID());
+        payload["items"] = items;
+        LLNotificationsUtil::add("CannotCopyWarning", substitutions, payload,
+            &LLGiveInventory::handleCopyProtectedItem);
+        res = false;
+    }
 
-	return res;
+    return res;
 }
 
 bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
-											  const LLInventoryCategory* cat,
-											  const LLUUID& im_session_id,
-											  const std::string& notification_name)
+                                              const LLInventoryCategory* cat,
+                                              const LLUUID& im_session_id,
+                                              const std::string& notification_name)
 
 {
-	if (!cat)
-	{
-		return false;
-	}
-	LL_INFOS() << "LLGiveInventory::giveInventoryCategory() - "
-		<< cat->getUUID() << LL_ENDL;
+    if (!cat)
+    {
+        return false;
+    }
+    LL_INFOS() << "LLGiveInventory::giveInventoryCategory() - "
+        << cat->getUUID() << LL_ENDL;
 
-	if (!isAgentAvatarValid())
-	{
-		return false;
-	}
+    if (!isAgentAvatarValid())
+    {
+        return false;
+    }
 
-	bool give_successful = true;
-	// Test out how many items are being given.
-	LLViewerInventoryCategory::cat_array_t cats;
-	LLViewerInventoryItem::item_array_t items;
-	LLGiveable giveable;
-	gInventory.collectDescendentsIf (cat->getUUID(),
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		giveable);
-	S32 count = cats.size();
-	bool complete = true;
-	for(S32 i = 0; i < count; ++i)
-	{
-		if (!gInventory.isCategoryComplete(cats.at(i)->getUUID()))
-		{
-			complete = false;
-			break;
-		}
-	}
-	if (!complete)
-	{
-		LLNotificationsUtil::add("IncompleteInventory");
-		give_successful = false;
-	}
-	count = items.size() + cats.size();
-	if (count > MAX_ITEMS)
-	{
-		LLNotificationsUtil::add("TooManyItems");
-		give_successful = false;
-	}
-	else if (count == 0)
-	{
-		LLNotificationsUtil::add("NoItems");
-		give_successful = false;
-	}
-	else if (give_successful)
-	{
-		if (0 == giveable.countNoCopy())
-		{
-			give_successful = LLGiveInventory::commitGiveInventoryCategory(to_agent, cat, im_session_id);
-		}
-		else
-		{
-			LLSD args;
-			args["COUNT"] = llformat("%d",giveable.countNoCopy());
-			LLSD payload;
-			payload["agent_id"] = to_agent;
-			payload["folder_id"] = cat->getUUID();
-			if (!notification_name.empty())
-			{
-				payload["success_notification"] = notification_name;
-			}
-			LLNotificationsUtil::add("CannotCopyCountItems", args, payload, &LLGiveInventory::handleCopyProtectedCategory);
-			give_successful = false;
-		}
-	}
+    bool give_successful = true;
+    // Test out how many items are being given.
+    LLViewerInventoryCategory::cat_array_t cats;
+    LLViewerInventoryItem::item_array_t items;
+    LLGiveable giveable;
+    gInventory.collectDescendentsIf (cat->getUUID(),
+        cats,
+        items,
+        LLInventoryModel::EXCLUDE_TRASH,
+        giveable);
+    auto count = cats.size();
+    bool complete = true;
+    for(size_t i = 0; i < count; ++i)
+    {
+        if (!gInventory.isCategoryComplete(cats.at(i)->getUUID()))
+        {
+            complete = false;
+            break;
+        }
+    }
+    if (!complete)
+    {
+        LLNotificationsUtil::add("IncompleteInventory");
+        give_successful = false;
+    }
+    count = items.size() + cats.size();
+    if (count > MAX_ITEMS)
+    {
+        LLNotificationsUtil::add("TooManyItems");
+        give_successful = false;
+    }
+    else if (count == 0)
+    {
+        LLNotificationsUtil::add("NoItems");
+        give_successful = false;
+    }
+    else if (give_successful)
+    {
+        if (0 == giveable.countNoCopy())
+        {
+            give_successful = LLGiveInventory::commitGiveInventoryCategory(to_agent, cat, im_session_id);
+        }
+        else
+        {
+            LLSD args;
+            args["COUNT"] = llformat("%d",giveable.countNoCopy());
+            LLSD payload;
+            payload["agent_id"] = to_agent;
+            payload["folder_id"] = cat->getUUID();
+            if (!notification_name.empty())
+            {
+                payload["success_notification"] = notification_name;
+            }
+            LLNotificationsUtil::add("CannotCopyCountItems", args, payload, &LLGiveInventory::handleCopyProtectedCategory);
+            give_successful = false;
+        }
+    }
 
-	return give_successful;
+    return give_successful;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -300,286 +300,294 @@ bool LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
 //static
 void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im_session_id, const std::string& item_name, bool is_folder)
 {
-	// compute id of possible IM session with agent that has "to_agent" id
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, to_agent);
-	// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
-	LLSD args;
-	args["user_id"] = to_agent;
-	args["ITEM_NAME"] = item_name;
-	std::string message_name = is_folder ? "inventory_folder_offered" : "inventory_item_offered";
-	if (im_session_id.notNull())
-	{
-		gIMMgr->addSystemMessage(im_session_id, message_name, args);
-	}
-	// If this item was given by drag-and-drop on avatar while IM panel was open, log this action in the IM panel chat.
-	else if (LLIMModel::getInstance()->findIMSession(session_id))
-	{
-		gIMMgr->addSystemMessage(session_id, message_name, args);
-	}
-	// If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.
-	else
-	{
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(to_agent, &av_name))
-		{
-			// Build a new format username or firstname_lastname for legacy names
-			// to use it for a history log filename.
-			std::string full_name = LLCacheName::buildUsername(av_name.getUserName());
-			LLUIString message = LLTrans::getString(message_name + "-im");
-			message.setArgs(args);
-			LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, message.getString());
-		}
-	}
+    // compute id of possible IM session with agent that has "to_agent" id
+    LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, to_agent);
+    // If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
+    LLSD args;
+    args["user_id"] = to_agent;
+    args["ITEM_NAME"] = item_name;
+    std::string message_name = is_folder ? "inventory_folder_offered" : "inventory_item_offered";
+    if (im_session_id.notNull())
+    {
+        gIMMgr->addSystemMessage(im_session_id, message_name, args);
+    }
+    // If this item was given by drag-and-drop on avatar while IM panel was open, log this action in the IM panel chat.
+    else if (LLIMModel::getInstance()->findIMSession(session_id))
+    {
+        gIMMgr->addSystemMessage(session_id, message_name, args);
+    }
+    // If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.
+    else
+    {
+        LLAvatarName av_name;
+        if (LLAvatarNameCache::get(to_agent, &av_name))
+        {
+            // Build a new format username or firstname_lastname for legacy names
+            // to use it for a history log filename.
+            std::string full_name = LLCacheName::buildUsername(av_name.getUserName());
+            LLUIString message = LLTrans::getString(message_name + "-im");
+            message.setArgs(args);
+            LLIMModel::instance().logToFile(full_name, LLTrans::getString("SECOND_LIFE"), im_session_id, message.getString());
+        }
+    }
 }
 
 // static
 bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	LLSD itmes = notification["payload"]["items"];
-	LLInventoryItem* item = NULL;
-	bool give_successful = true;
-	switch(option)
-	{
-	case 0:  // "Yes"
-		for (LLSD::array_iterator it = itmes.beginArray(); it != itmes.endArray(); it++)
-		{
-			item = gInventory.getItem((*it).asUUID());
-			if (item)
-			{
-				LLGiveInventory::commitGiveInventoryItem(notification["payload"]["agent_id"].asUUID(),
-					item);
-				// delete it for now - it will be deleted on the server
-				// quickly enough.
-				gInventory.deleteObject(item->getUUID());
-				gInventory.notifyObservers();
-			}
-			else
-			{
-				LLNotificationsUtil::add("CannotGiveItem");
-				give_successful = false;
-			}
-		}
-		if (give_successful && notification["payload"]["success_notification"].isDefined())
-		{
-			LLNotificationsUtil::add(notification["payload"]["success_notification"].asString());
-		}
-		break;
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    LLSD itmes = notification["payload"]["items"];
+    LLInventoryItem* item = NULL;
+    bool give_successful = true;
+    switch(option)
+    {
+    case 0:  // "Yes"
+        for (LLSD::array_iterator it = itmes.beginArray(); it != itmes.endArray(); it++)
+        {
+            item = gInventory.getItem((*it).asUUID());
+            if (item)
+            {
+                LLGiveInventory::commitGiveInventoryItem(notification["payload"]["agent_id"].asUUID(),
+                    item);
+                // delete it for now - it will be deleted on the server
+                // quickly enough.
+                gInventory.deleteObject(item->getUUID());
+                gInventory.notifyObservers();
+            }
+            else
+            {
+                LLNotificationsUtil::add("CannotGiveItem");
+                give_successful = false;
+            }
+        }
+        if (give_successful && notification["payload"]["success_notification"].isDefined())
+        {
+            LLNotificationsUtil::add(notification["payload"]["success_notification"].asString());
+        }
+        break;
 
-	default: // no, cancel, whatever, who cares, not yes.
-		LLNotificationsUtil::add("TransactionCancelled");
-		give_successful = false;
-		break;
-	}
-	return give_successful;
+    default: // no, cancel, whatever, who cares, not yes.
+        LLNotificationsUtil::add("TransactionCancelled");
+        give_successful = false;
+        break;
+    }
+    return give_successful;
 }
 
 // static
 void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
-												const LLInventoryItem* item,
-												const LLUUID& im_session_id)
+                                                const LLInventoryItem* item,
+                                                const LLUUID& im_session_id)
 {
-	if (!item) return;
-	std::string name;
-	std::string item_name = item->getName();
-	LLAgentUI::buildFullname(name);
-	LLUUID transaction_id;
-	transaction_id.generate();
-	const S32 BUCKET_SIZE = sizeof(U8) + UUID_BYTES;
-	U8 bucket[BUCKET_SIZE];
-	bucket[0] = (U8)item->getType();
-	memcpy(&bucket[1], &(item->getUUID().mData), UUID_BYTES);		/* Flawfinder: ignore */
-	pack_instant_message(
-		gMessageSystem,
-		gAgentID,
-		FALSE,
-		gAgentSessionID,
-		to_agent,
-		name,
-		item_name,
-		IM_ONLINE,
-		IM_INVENTORY_OFFERED,
-		transaction_id,
-		0,
-		LLUUID::null,
-		gAgent.getPositionAgent(),
-		NO_TIMESTAMP,
-		bucket,
-		BUCKET_SIZE);
-	gAgent.sendReliableMessage();
+    if (!item) return;
+    std::string name;
+    std::string item_name = item->getName();
+    LLAgentUI::buildFullname(name);
+    LLUUID transaction_id;
+    transaction_id.generate();
+    const S32 BUCKET_SIZE = sizeof(U8) + UUID_BYTES;
+    U8 bucket[BUCKET_SIZE];
+    bucket[0] = (U8)item->getType();
+    memcpy(&bucket[1], &(item->getUUID().mData), UUID_BYTES);       /* Flawfinder: ignore */
+    pack_instant_message(
+        gMessageSystem,
+        gAgentID,
+        false,
+        gAgentSessionID,
+        to_agent,
+        name,
+        item_name,
+        IM_ONLINE,
+        IM_INVENTORY_OFFERED,
+        transaction_id,
+        0,
+        LLUUID::null,
+        gAgent.getPositionAgent(),
+        NO_TIMESTAMP,
+        bucket,
+        BUCKET_SIZE);
+    gAgent.sendReliableMessage();
 
-	// VEFFECT: giveInventory
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-	effectp->setSourceObject(gAgentAvatarp);
-	effectp->setTargetObject(gObjectList.findObject(to_agent));
-	effectp->setDuration(LL_HUD_DUR_SHORT);
-	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-	gFloaterTools->dirty();
+    // VEFFECT: giveInventory
+    LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, true);
+    effectp->setSourceObject(gAgentAvatarp);
+    effectp->setTargetObject(gObjectList.findObject(to_agent));
+    effectp->setDuration(LL_HUD_DUR_SHORT);
+    effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 
-	LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 
-	logInventoryOffer(to_agent, im_session_id, item_name);
+    LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
-	// add buddy to recent people list
-	LLRecentPeople::instance().add(to_agent);
+    logInventoryOffer(to_agent, im_session_id, item_name);
+
+    // add buddy to recent people list
+    LLRecentPeople::instance().add(to_agent);
 }
 
 // static
 bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	LLInventoryCategory* cat = NULL;
-	bool give_successful = true;
-	switch(option)
-	{
-	case 0:  // "Yes"
-		cat = gInventory.getCategory(notification["payload"]["folder_id"].asUUID());
-		if (cat)
-		{
-			give_successful = LLGiveInventory::commitGiveInventoryCategory(notification["payload"]["agent_id"].asUUID(),
-				cat);
-			LLViewerInventoryCategory::cat_array_t cats;
-			LLViewerInventoryItem::item_array_t items;
-			LLUncopyableItems remove;
-			gInventory.collectDescendentsIf (cat->getUUID(),
-				cats,
-				items,
-				LLInventoryModel::EXCLUDE_TRASH,
-				remove);
-			S32 count = items.size();
-			for(S32 i = 0; i < count; ++i)
-			{
-				gInventory.deleteObject(items.at(i)->getUUID());
-			}
-			gInventory.notifyObservers();
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    LLInventoryCategory* cat = NULL;
+    bool give_successful = true;
+    switch(option)
+    {
+    case 0:  // "Yes"
+        cat = gInventory.getCategory(notification["payload"]["folder_id"].asUUID());
+        if (cat)
+        {
+            give_successful = LLGiveInventory::commitGiveInventoryCategory(notification["payload"]["agent_id"].asUUID(),
+                cat);
+            LLViewerInventoryCategory::cat_array_t cats;
+            LLViewerInventoryItem::item_array_t items;
+            LLUncopyableItems remove;
+            gInventory.collectDescendentsIf (cat->getUUID(),
+                cats,
+                items,
+                LLInventoryModel::EXCLUDE_TRASH,
+                remove);
+            auto count = items.size();
+            for(size_t i = 0; i < count; ++i)
+            {
+                gInventory.deleteObject(items.at(i)->getUUID());
+            }
+            gInventory.notifyObservers();
 
-			if (give_successful && notification["payload"]["success_notification"].isDefined())
-			{
-				LLNotificationsUtil::add(notification["payload"]["success_notification"].asString());
-			}
-		}
-		else
-		{
-			LLNotificationsUtil::add("CannotGiveCategory");
-			give_successful = false;
-		}
-		break;
+            if (give_successful && notification["payload"]["success_notification"].isDefined())
+            {
+                LLNotificationsUtil::add(notification["payload"]["success_notification"].asString());
+            }
+        }
+        else
+        {
+            LLNotificationsUtil::add("CannotGiveCategory");
+            give_successful = false;
+        }
+        break;
 
-	default: // no, cancel, whatever, who cares, not yes.
-		LLNotificationsUtil::add("TransactionCancelled");
-		give_successful = false;
-		break;
-	}
-	return give_successful;
+    default: // no, cancel, whatever, who cares, not yes.
+        LLNotificationsUtil::add("TransactionCancelled");
+        give_successful = false;
+        break;
+    }
+    return give_successful;
 }
 
 // static
 bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
-													const LLInventoryCategory* cat,
-													const LLUUID& im_session_id)
+                                                    const LLInventoryCategory* cat,
+                                                    const LLUUID& im_session_id)
 
 {
-	if (!cat)
-	{
-		return false;
-	}
-	LL_INFOS() << "LLGiveInventory::commitGiveInventoryCategory() - "
-		<< cat->getUUID() << LL_ENDL;
+    if (!cat)
+    {
+        return false;
+    }
+    LL_INFOS() << "LLGiveInventory::commitGiveInventoryCategory() - "
+        << cat->getUUID() << LL_ENDL;
 
-	// add buddy to recent people list
-	LLRecentPeople::instance().add(to_agent);
+    // add buddy to recent people list
+    LLRecentPeople::instance().add(to_agent);
 
-	// Test out how many items are being given.
-	LLViewerInventoryCategory::cat_array_t cats;
-	LLViewerInventoryItem::item_array_t items;
-	LLGiveable giveable;
-	gInventory.collectDescendentsIf (cat->getUUID(),
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		giveable);
-	std::string cat_name = cat->getName();
-	bool give_successful = true;
-	// MAX ITEMS is based on (sizeof(uuid)+2) * count must be <
-	// MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
-	// 66. I've cut it down a bit from there to give some pad.
-	S32 count = items.size() + cats.size();
-	if (count > MAX_ITEMS)
-	{
-		LLNotificationsUtil::add("TooManyItems");
-		give_successful = false;
-	}
-	else if (count == 0)
-	{
-		LLNotificationsUtil::add("NoItems");
-		give_successful = false;
-	}
-	else
-	{
-		std::string name;
-		LLAgentUI::buildFullname(name);
-		LLUUID transaction_id;
-		transaction_id.generate();
-		S32 bucket_size = (sizeof(U8) + UUID_BYTES) * (count + 1);
-		U8* bucket = new U8[bucket_size];
-		U8* pos = bucket;
-		U8 type = (U8)cat->getType();
-		memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
-		pos += sizeof(U8);
-		memcpy(pos, &(cat->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
-		pos += UUID_BYTES;
-		S32 i;
-		count = cats.size();
-		for(i = 0; i < count; ++i)
-		{
-			memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
-			pos += sizeof(U8);
-			memcpy(pos, &(cats.at(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
-			pos += UUID_BYTES;
-		}
-		count = items.size();
-		for(i = 0; i < count; ++i)
-		{
-			type = (U8)items.at(i)->getType();
-			memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
-			pos += sizeof(U8);
-			memcpy(pos, &(items.at(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
-			pos += UUID_BYTES;
-		}
-		pack_instant_message(
-			gMessageSystem,
-			gAgent.getID(),
-			FALSE,
-			gAgent.getSessionID(),
-			to_agent,
-			name,
-			cat_name,
-			IM_ONLINE,
-			IM_INVENTORY_OFFERED,
-			transaction_id,
-			0,
-			LLUUID::null,
-			gAgent.getPositionAgent(),
-			NO_TIMESTAMP,
-			bucket,
-			bucket_size);
-		gAgent.sendReliableMessage();
-		delete[] bucket;
+    // Test out how many items are being given.
+    LLViewerInventoryCategory::cat_array_t cats;
+    LLViewerInventoryItem::item_array_t items;
+    LLGiveable giveable;
+    gInventory.collectDescendentsIf (cat->getUUID(),
+        cats,
+        items,
+        LLInventoryModel::EXCLUDE_TRASH,
+        giveable);
+    std::string cat_name = cat->getName();
+    bool give_successful = true;
+    // MAX ITEMS is based on (sizeof(uuid)+2) * count must be <
+    // MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
+    // 66. I've cut it down a bit from there to give some pad.
+    auto count = items.size() + cats.size();
+    if (count > MAX_ITEMS)
+    {
+        LLNotificationsUtil::add("TooManyItems");
+        give_successful = false;
+    }
+    else if (count == 0)
+    {
+        LLNotificationsUtil::add("NoItems");
+        give_successful = false;
+    }
+    else
+    {
+        std::string name;
+        LLAgentUI::buildFullname(name);
+        LLUUID transaction_id;
+        transaction_id.generate();
+        S32 bucket_size = (sizeof(U8) + UUID_BYTES) * (static_cast<S32>(count) + 1);
+        U8* bucket = new U8[bucket_size];
+        U8* pos = bucket;
+        U8 type = (U8)cat->getType();
+        memcpy(pos, &type, sizeof(U8));     /* Flawfinder: ignore */
+        pos += sizeof(U8);
+        memcpy(pos, &(cat->getUUID()), UUID_BYTES);     /* Flawfinder: ignore */
+        pos += UUID_BYTES;
+        S32 i;
+        count = cats.size();
+        for(i = 0; i < count; ++i)
+        {
+            memcpy(pos, &type, sizeof(U8));     /* Flawfinder: ignore */
+            pos += sizeof(U8);
+            memcpy(pos, &(cats.at(i)->getUUID()), UUID_BYTES);      /* Flawfinder: ignore */
+            pos += UUID_BYTES;
+        }
+        count = items.size();
+        for(i = 0; i < count; ++i)
+        {
+            type = (U8)items.at(i)->getType();
+            memcpy(pos, &type, sizeof(U8));     /* Flawfinder: ignore */
+            pos += sizeof(U8);
+            memcpy(pos, &(items.at(i)->getUUID()), UUID_BYTES);     /* Flawfinder: ignore */
+            pos += UUID_BYTES;
+        }
+        pack_instant_message(
+            gMessageSystem,
+            gAgent.getID(),
+            false,
+            gAgent.getSessionID(),
+            to_agent,
+            name,
+            cat_name,
+            IM_ONLINE,
+            IM_INVENTORY_OFFERED,
+            transaction_id,
+            0,
+            LLUUID::null,
+            gAgent.getPositionAgent(),
+            NO_TIMESTAMP,
+            bucket,
+            bucket_size);
+        gAgent.sendReliableMessage();
+        delete[] bucket;
 
-		// VEFFECT: giveInventoryCategory
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-		effectp->setSourceObject(gAgentAvatarp);
-		effectp->setTargetObject(gObjectList.findObject(to_agent));
-		effectp->setDuration(LL_HUD_DUR_SHORT);
-		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-		gFloaterTools->dirty();
+        // VEFFECT: giveInventoryCategory
+        LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, true);
+        effectp->setSourceObject(gAgentAvatarp);
+        effectp->setTargetObject(gObjectList.findObject(to_agent));
+        effectp->setDuration(LL_HUD_DUR_SHORT);
+        effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 
-		LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
 
-		logInventoryOffer(to_agent, im_session_id, cat_name, true);
-	}
+        LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
-	return give_successful;
+        logInventoryOffer(to_agent, im_session_id, cat_name, true);
+    }
+
+    return give_successful;
 }
 
 // EOF

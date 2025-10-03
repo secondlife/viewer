@@ -657,7 +657,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         };
         
         int string_length = [aString length];
-        unichar text[string_length];
+        unichar *text = new unichar[string_length];
         attributedStringInfo segments;
         // I used 'respondsToSelector:@selector(string)'
         // to judge aString is an attributed string or not.
@@ -685,6 +685,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
             // we must clear the marked text when aString is null.
             [self unmarkText];
         }
+
+        delete [] text;
     } else {
         if (mHasMarkedText)
         {
@@ -733,23 +735,52 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-	if (!mHasMarkedText)
+	// SL-19801 Special workaround for system emoji picker
+	if ([aString length] == 2)
 	{
-		for (NSInteger i = 0; i < [aString length]; i++)
-		{
-			callUnicodeCallback([aString characterAtIndex:i], mModifiers);
-		}
-	} else {
-        resetPreedit();
-		// We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
-		// But just in case...
-		
-		for (NSInteger i = 0; i < [aString length]; i++)
-		{
-			handleUnicodeCharacter([aString characterAtIndex:i]);
-		}
-		mHasMarkedText = FALSE;
+        @try
+        {
+            uint32_t b0 = [aString characterAtIndex:0];
+            uint32_t b1 = [aString characterAtIndex:1];
+            if (((b0 & 0xF000) == 0xD000) && ((b1 & 0xF000) == 0xD000))
+            {
+                uint32_t b = 0x10000 | ((b0 & 0x3F) << 10) | (b1 & 0x3FF);
+                callUnicodeCallback(b, 0);
+                return;
+            }
+        }
+        @catch(NSException * e)
+        {
+            // One of the characters is an attribute string?
+            NSLog(@"Encountered an unsupported attributed character. Exception: %@ String: %@", e.name, aString);
+            return;
+        }
 	}
+    
+    @try
+    {
+        if (!mHasMarkedText)
+        {
+            for (NSInteger i = 0; i < [aString length]; i++)
+            {
+                callUnicodeCallback([aString characterAtIndex:i], mModifiers);
+            }
+        } else {
+            resetPreedit();
+            // We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
+            // But just in case...
+            
+            for (NSInteger i = 0; i < [aString length]; i++)
+            {
+                handleUnicodeCharacter([aString characterAtIndex:i]);
+            }
+            mHasMarkedText = FALSE;
+        }
+    }
+    @catch(NSException * e)
+    {
+        NSLog(@"Failed to process an attributed string. Exception: %@ String: %@", e.name, aString);
+    }
 }
 
 - (void) insertNewline:(id)sender

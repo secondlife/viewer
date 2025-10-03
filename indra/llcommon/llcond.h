@@ -5,7 +5,7 @@
  * @brief  LLCond is a wrapper around condition_variable to encapsulate the
  *         obligatory condition_variable usage pattern. We also provide
  *         simplified versions LLScalarCond, LLBoolCond and LLOneShotCond.
- * 
+ *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Copyright (c) 2019, Linden Research, Inc.
  * $/LicenseInfo$

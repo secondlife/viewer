@@ -80,7 +80,7 @@ private:
 
     static void     onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback);
     static void     onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback);
-    
+
     static void     onAssetDownloadComplete(const LLUUID &asset_id, S32 status, LLExtStat ext_status, asset_download_fn callback);
 };
 
@@ -94,7 +94,7 @@ public:
 
     static ptr_t buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings, LLSD &messages);
     static ptr_t    buildDefaultSky();
-    virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
+    virtual ptr_t   buildClone() SETTINGS_OVERRIDE;
 
     static ptr_t buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages);
 
@@ -110,6 +110,7 @@ protected:
 
     virtual void    updateSettings() override;
 
+    virtual void    applyToUniforms(void*) override;
     virtual void    applySpecial(void *, bool) override;
 
     virtual parammapping_t getParameterMap() const override;
@@ -128,7 +129,7 @@ public:
 
     static ptr_t buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings, LLSD &messages);
     static ptr_t    buildDefaultWater();
-    virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
+    virtual ptr_t   buildClone() SETTINGS_OVERRIDE;
 
     static ptr_t buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages);
 
@@ -138,6 +139,7 @@ protected:
     LLSettingsVOWater();
 
     virtual void    updateSettings() override;
+    virtual void    applyToUniforms(void*) override;
     virtual void    applySpecial(void *, bool) override;
 
     virtual parammapping_t getParameterMap() const override;
@@ -167,11 +169,11 @@ public:
     static ptr_t    buildDefaultDayCycle();
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);
     static void     buildFromOtherSetting(LLSettingsBase::ptr_t settings, asset_built_fn cb);
-    virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
-    virtual ptr_t   buildDeepCloneAndUncompress() const SETTINGS_OVERRIDE;
+    virtual ptr_t   buildClone() SETTINGS_OVERRIDE;
+    virtual ptr_t   buildDeepCloneAndUncompress() SETTINGS_OVERRIDE;
 
     static LLSD     convertToLegacy(const ptr_t &);
-    
+
     virtual LLSettingsSkyPtr_t      getDefaultSky() const override;
     virtual LLSettingsWaterPtr_t    getDefaultWater() const override;
     virtual LLSettingsSkyPtr_t      buildSky(LLSD) const override;

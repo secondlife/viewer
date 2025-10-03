@@ -54,6 +54,7 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
+        const LLUUID &destFolderId = LLUUID::null,
         bool showInventory = true);
 
     virtual ~LLResourceUploadInfo()
@@ -90,8 +91,8 @@ public:
     LLUUID              getItemId() const { return mItemId; }
     LLAssetID           getAssetId() const { return mAssetId; }
 
-	static bool			findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type);
-	static bool			findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload = true);
+    static bool         findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type);
+    static bool         findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload = true);
 
 protected:
     LLResourceUploadInfo(
@@ -104,6 +105,7 @@ protected:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
+        const LLUUID& destFolderId = LLUUID::null,
         bool showInventory = true);
 
     LLResourceUploadInfo(
@@ -155,11 +157,14 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
+        const LLUUID &destFolderId = LLUUID::null,
         bool show_inventory = true);
 
     virtual LLSD        prepareUpload();
 
     std::string         getFileName() const { return mFileName; };
+
+    void setMaxImageSize(U32 maxUploadSize) { mMaxImageSize = maxUploadSize; }
 
 protected:
 
@@ -167,7 +172,7 @@ protected:
 
 private:
     std::string         mFileName;
-
+    S32                 mMaxImageSize;
 };
 
 //-------------------------------------------------------------------------
@@ -191,6 +196,7 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
+        const LLUUID& destFolderId, // use null for default
         bool show_inventory,
         uploadFinish_f finish,
         uploadFailure_f failure);
@@ -217,6 +223,7 @@ public:
     typedef std::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
     typedef std::function<bool(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)> uploadFailed_f;
 
+    // destFolderId is the folder to put the new item in, leave null for default
     LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);
     LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LLImageFormatted> image, invnUploadFinish_f finish);
     LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed);
@@ -256,7 +263,7 @@ public:
     };
 
     LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);
-    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType, 
+    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType,
             bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed);
 
     virtual LLSD        generatePostBody();

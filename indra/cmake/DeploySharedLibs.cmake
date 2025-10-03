@@ -5,7 +5,7 @@
 # This  script requires a few cmake variable to be set on the command line:
 # BIN_NAME= The full path the the binary to search for dependecies.
 # SEARCH_DIRS= The full paths to dirs to search for dependencies.
-# DST_PATH= The full path where the dependecies will be copied. 
+# DST_PATH= The full path where the dependecies will be copied.
 
 include(GetPrerequisites)
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
         border="true"
         follows="all"
@@ -248,29 +248,13 @@
                     
         </layout_panel>
         <layout_panel
-                name="moon_layout"
-                border="false"
+                border="true"
                 bevel_style="in"
+                name="moon_layout"
                 auto_resize="true"
                 user_resize="false"
                 visible="true"
                 height="400">
-            <layout_stack 
-                    name="moon_stack"
-                    left="5"
-                    top="5"
-                    right="-5"
-                    bottom="-5"
-                    follows="left|top|right|bottom"
-                    orientation="vertical">
-                <layout_panel
-                        border="true"
-                        bevel_style="in"
-                        auto_resize="true"
-                        user_resize="false"
-                        visible="true"
-                        name="moon_layout"
-                        height="220">
                     <text
                             name="moon_label"
                             follows="left|top"
@@ -423,9 +407,7 @@
                         name="moonbeacon" 
                         top_pad="5"
                         left_delta="-8"/>
-                            
-                </layout_panel>
-            </layout_stack>
+
         </layout_panel>
     </layout_stack>
 </panel>                

@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-08-12
  * @brief  Implementation for llfloaterreglistener.
- * 
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -94,22 +94,22 @@ void LLFloaterRegListener::getBuildMap(const LLSD& event) const
 
 void LLFloaterRegListener::showInstance(const LLSD& event) const
 {
-    LLFloaterReg::showInstance(event["name"], event["key"], event["focus"]);
+    LLFloaterReg::showInstance(event["name"].asString(), event["key"], event["focus"]);
 }
 
 void LLFloaterRegListener::hideInstance(const LLSD& event) const
 {
-    LLFloaterReg::hideInstance(event["name"], event["key"]);
+    LLFloaterReg::hideInstance(event["name"].asString(), event["key"]);
 }
 
 void LLFloaterRegListener::toggleInstance(const LLSD& event) const
 {
-    LLFloaterReg::toggleInstance(event["name"], event["key"]);
+    LLFloaterReg::toggleInstance(event["name"].asString(), event["key"]);
 }
 
 void LLFloaterRegListener::instanceVisible(const LLSD& event) const
 {
-    sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"], event["key"])),
+    sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"].asString(), event["key"])),
               event);
 }
 
@@ -119,7 +119,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     LLReqID reqID(event);
     LLSD reply(reqID.makeResponse());
 
-    LLFloater* floater = LLFloaterReg::findInstance(event["name"], event["key"]);
+    LLFloater* floater = LLFloaterReg::findInstance(event["name"].asString(), event["key"]);
     if (! LLFloater::isShown(floater))
     {
         reply["type"]  = "LLFloater";
@@ -131,7 +131,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     {
         // Here 'floater' points to an LLFloater instance with the specified
         // name and key which isShown().
-        LLButton* button = floater->findChild<LLButton>(event["button"]);
+        LLButton* button = floater->findChild<LLButton>(event["button"].asString());
         if (! LLButton::isAvailable(button))
         {
             reply["type"]  = "LLButton";

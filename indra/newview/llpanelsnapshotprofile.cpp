@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpanelsnapshotprofile.cpp
  * @brief Posts a snapshot to My Profile feed.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -42,60 +42,60 @@
  * Posts a snapshot to My Profile feed.
  */
 class LLPanelSnapshotProfile
-:	public LLPanelSnapshot
+:   public LLPanelSnapshot
 {
-	LOG_CLASS(LLPanelSnapshotProfile);
+    LOG_CLASS(LLPanelSnapshotProfile);
 
 public:
-	LLPanelSnapshotProfile();
+    LLPanelSnapshotProfile();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
 private:
-	/*virtual*/ std::string getWidthSpinnerName() const		{ return "profile_snapshot_width"; }
-	/*virtual*/ std::string getHeightSpinnerName() const	{ return "profile_snapshot_height"; }
-	/*virtual*/ std::string getAspectRatioCBName() const	{ return "profile_keep_aspect_check"; }
-	/*virtual*/ std::string getImageSizeComboName() const	{ return "profile_size_combo"; }
-	/*virtual*/ std::string getImageSizePanelName() const	{ return "profile_image_size_lp"; }
-	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_PNG; }
-	/*virtual*/ void updateControls(const LLSD& info);
+    std::string getWidthSpinnerName() const override   { return "profile_snapshot_width"; }
+    std::string getHeightSpinnerName() const override  { return "profile_snapshot_height"; }
+    std::string getAspectRatioCBName() const override  { return "profile_keep_aspect_check"; }
+    std::string getImageSizeComboName() const override { return "profile_size_combo"; }
+    std::string getImageSizePanelName() const override { return "profile_image_size_lp"; }
+    LLSnapshotModel::ESnapshotFormat getImageFormat() const override { return LLSnapshotModel::SNAPSHOT_FORMAT_PNG; }
+    void updateControls(const LLSD& info) override;
 
-	void onSend();
+    void onSend();
 };
 
 static LLPanelInjector<LLPanelSnapshotProfile> panel_class("llpanelsnapshotprofile");
 
 LLPanelSnapshotProfile::LLPanelSnapshotProfile()
 {
-	mCommitCallbackRegistrar.add("PostToProfile.Send",		boost::bind(&LLPanelSnapshotProfile::onSend,		this));
-	mCommitCallbackRegistrar.add("PostToProfile.Cancel",	boost::bind(&LLPanelSnapshotProfile::cancel,		this));
+    mCommitCallbackRegistrar.add("PostToProfile.Send",      boost::bind(&LLPanelSnapshotProfile::onSend,        this));
+    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    boost::bind(&LLPanelSnapshotProfile::cancel,        this));
 }
 
 // virtual
-BOOL LLPanelSnapshotProfile::postBuild()
+bool LLPanelSnapshotProfile::postBuild()
 {
-	return LLPanelSnapshot::postBuild();
+    return LLPanelSnapshot::postBuild();
 }
 
 // virtual
 void LLPanelSnapshotProfile::onOpen(const LLSD& key)
 {
-	LLPanelSnapshot::onOpen(key);
+    LLPanelSnapshot::onOpen(key);
 }
 
 // virtual
 void LLPanelSnapshotProfile::updateControls(const LLSD& info)
 {
-	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
-	getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot);
+    const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
+    getChild<LLUICtrl>("post_btn")->setEnabled(have_snapshot);
 }
 
 void LLPanelSnapshotProfile::onSend()
 {
-	std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
-	bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
+    std::string caption = getChild<LLUICtrl>("caption")->getValue().asString();
+    bool add_location = getChild<LLUICtrl>("add_location_cb")->getValue().asBoolean();
 
-	LLWebProfile::uploadImage(mSnapshotFloater->getImageData(), caption, add_location);
-	mSnapshotFloater->postSave();
+    LLWebProfile::uploadImage(mSnapshotFloater->getImageData(), caption, add_location);
+    mSnapshotFloater->postSave();
 }

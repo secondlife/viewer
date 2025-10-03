@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <inventory_panel
     label="LISTED"
     name="Active Items"
@@ -20,5 +20,5 @@
     border="false"
     bevel_style="none"
     show_item_link_overlays="true">
-    <item allow_wear="false"/>
+    <item marketplace_item="true"/>
 </inventory_panel>

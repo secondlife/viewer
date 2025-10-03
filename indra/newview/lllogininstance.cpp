@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lllogininstance.cpp
  * @brief Viewer's host for a login connection.
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,9 +32,6 @@
 #include "llevents.h"
 #include "stringize.h"
 #include "llsdserialize.h"
-
-// llmessage (!)
-#include "llfiltersd2xmlrpc.h" // for xml_escape_string()
 
 // login
 #include "lllogin.h"
@@ -60,7 +57,6 @@
 #include "llsdserialize.h"
 #include "lltrans.h"
 
-#include <boost/scoped_ptr.hpp>
 #include <boost/regex.hpp>
 #include <sstream>
 
@@ -71,7 +67,7 @@ const F32 LOGIN_DNS_TIMEOUT_FACTOR = 0.9; // make DNS wait shorter then retry ti
 
 class LLLoginInstance::Disposable {
 public:
-	virtual ~Disposable() {}
+    virtual ~Disposable() {}
 };
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
@@ -84,30 +80,30 @@ std::string construct_start_string();
 
 
 LLLoginInstance::LLLoginInstance() :
-	mLoginModule(new LLLogin()),
-	mNotifications(NULL),
-	mLoginState("offline"),
+    mLoginModule(new LLLogin()),
+    mNotifications(NULL),
+    mLoginState("offline"),
     mSaveMFA(true),
-	mAttemptComplete(false),
-	mTransferRate(0.0f),
-	mDispatcher("LLLoginInstance", "change")
+    mAttemptComplete(false),
+    mTransferRate(0.0f),
+    mDispatcher("LLLoginInstance", "change")
 {
-	mLoginModule->getEventPump().listen("lllogininstance", 
-		boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
-	// This internal use of LLEventDispatcher doesn't really need
-	// per-function descriptions.
-	mDispatcher.add("fail.login", "", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
-	mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
-	mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
-	mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
+    mLoginModule->getEventPump().listen("lllogininstance",
+        boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
+    // This internal use of LLEventDispatcher doesn't really need
+    // per-function descriptions.
+    mDispatcher.add("fail.login", "", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
+    mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
+    mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
+    mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
 }
 
 void LLLoginInstance::setPlatformInfo(const std::string platform,
-									  const std::string platform_version,
+                                      const std::string platform_version,
                                       const std::string platform_name)
 {
-	mPlatform = platform;
-	mPlatformVersion = platform_version;
+    mPlatform = platform;
+    mPlatformVersion = platform_version;
     mPlatformVersionName = platform_name;
 }
 
@@ -117,116 +113,117 @@ LLLoginInstance::~LLLoginInstance()
 
 void LLLoginInstance::connect(LLPointer<LLCredential> credentials)
 {
-	std::vector<std::string> uris;
-	LLGridManager::getInstance()->getLoginURIs(uris);
+    std::vector<std::string> uris;
+    LLGridManager::getInstance()->getLoginURIs(uris);
     if (uris.size() < 1)
     {
         LL_WARNS() << "Failed to get login URIs during connect. No connect for you!" << LL_ENDL;
         return;
     }
-	connect(uris.front(), credentials);
+    connect(uris.front(), credentials);
 }
 
 void LLLoginInstance::connect(const std::string& uri, LLPointer<LLCredential> credentials)
 {
-	mAttemptComplete = false; // Reset attempt complete at this point!
-	constructAuthParams(credentials);
-	mLoginModule->connect(uri, mRequestData);
+    mAttemptComplete = false; // Reset attempt complete at this point!
+    constructAuthParams(credentials);
+    mLoginModule->connect(uri, mRequestData);
 }
 
 void LLLoginInstance::reconnect()
 {
-	// Sort of like connect, only using the pre-existing
-	// request params.
-	std::vector<std::string> uris;
-	LLGridManager::getInstance()->getLoginURIs(uris);
-	mLoginModule->connect(uris.front(), mRequestData);
-	gViewerWindow->setShowProgress(true);
+    // Sort of like connect, only using the pre-existing
+    // request params.
+    std::vector<std::string> uris;
+    LLGridManager::getInstance()->getLoginURIs(uris);
+    mLoginModule->connect(uris.front(), mRequestData);
+    gViewerWindow->setShowProgress(true);
 }
 
 void LLLoginInstance::disconnect()
 {
-	mAttemptComplete = false; // Reset attempt complete at this point!
-	mRequestData.clear();
-	mLoginModule->disconnect();
+    mAttemptComplete = false; // Reset attempt complete at this point!
+    mRequestData.clear();
+    mLoginModule->disconnect();
 }
 
-LLSD LLLoginInstance::getResponse() 
+LLSD LLLoginInstance::getResponse()
 {
-	return mResponseData; 
+    return mResponseData;
 }
 
 void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credential)
 {
-	// Set up auth request options.
+    // Set up auth request options.
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
-	LLSD requested_options;
-	// *Note: this is where gUserAuth used to be created.
-	requested_options.append("inventory-root");
-	requested_options.append("inventory-skeleton");
-	//requested_options.append("inventory-meat");
-	//requested_options.append("inventory-skel-targets");
+    LLSD requested_options;
+    // *Note: this is where gUserAuth used to be created.
+    requested_options.append("inventory-root");
+    requested_options.append("inventory-skeleton");
+    //requested_options.append("inventory-meat");
+    //requested_options.append("inventory-skel-targets");
 #if (!defined LL_MINIMIAL_REQUESTED_OPTIONS)
 
     // Not requesting library will trigger mFatalNoLibraryRootFolder
-	requested_options.append("inventory-lib-root");
-	requested_options.append("inventory-lib-owner");
-	requested_options.append("inventory-skel-lib");
-	//	requested_options.append("inventory-meat-lib");
+    requested_options.append("inventory-lib-root");
+    requested_options.append("inventory-lib-owner");
+    requested_options.append("inventory-skel-lib");
+    //  requested_options.append("inventory-meat-lib");
 
-	requested_options.append("initial-outfit");
-	requested_options.append("gestures");
-	requested_options.append("display_names");
-	requested_options.append("event_categories");
-	requested_options.append("event_notifications");
-	requested_options.append("classified_categories");
-	requested_options.append("adult_compliant"); 
-	requested_options.append("buddy-list");
-	requested_options.append("newuser-config");
-	requested_options.append("ui-config");
+    requested_options.append("initial-outfit");
+    requested_options.append("gestures");
+    requested_options.append("display_names");
+    requested_options.append("event_categories");
+    requested_options.append("event_notifications");
+    requested_options.append("classified_categories");
+    requested_options.append("adult_compliant");
+    requested_options.append("buddy-list");
+    requested_options.append("newuser-config");
+    requested_options.append("ui-config");
 
-	//send this info to login.cgi for stats gathering 
-	//since viewerstats isn't reliable enough
-	requested_options.append("advanced-mode");
+    //send this info to login.cgi for stats gathering
+    //since viewerstats isn't reliable enough
+    requested_options.append("advanced-mode");
 
 #endif
-	requested_options.append("max-agent-groups");	
-	requested_options.append("map-server-url");	
-	requested_options.append("voice-config");
-	requested_options.append("tutorial_setting");
-	requested_options.append("login-flags");
-	requested_options.append("global-textures");
-	if(gSavedSettings.getBOOL("ConnectAsGod"))
-	{
-		gSavedSettings.setBOOL("UseDebugMenus", TRUE);
-		requested_options.append("god-connect");
-	}
-	
-	LLSD request_params;
+    requested_options.append("max-agent-groups");
+    requested_options.append("map-server-url");
+    requested_options.append("voice-config");
+    requested_options.append("tutorial_setting");
+    requested_options.append("login-flags");
+    requested_options.append("global-textures");
+    if(gSavedSettings.getBOOL("ConnectAsGod"))
+    {
+        gSavedSettings.setBOOL("UseDebugMenus", true);
+        requested_options.append("god-connect");
+    }
+
+    LLSD request_params;
 
     unsigned char hashed_unique_id_string[MD5HEX_STR_SIZE];
     if ( ! llHashedUniqueID(hashed_unique_id_string) )
     {
 
-		LL_WARNS("LLLogin") << "Not providing a unique id in request params" << LL_ENDL;
+        LL_WARNS("LLLogin") << "Not providing a unique id in request params" << LL_ENDL;
 
-	}
-	request_params["start"] = construct_start_string();
-	request_params["agree_to_tos"] = false; // Always false here. Set true in 
-	request_params["read_critical"] = false; // handleTOSResponse
-	request_params["last_exec_event"] = mLastExecEvent;
-	request_params["last_exec_duration"] = mLastExecDuration;
-	request_params["mac"] = (char*)hashed_unique_id_string;
-	request_params["version"] = LLVersionInfo::instance().getVersion();
-	request_params["channel"] = LLVersionInfo::instance().getChannel();
-	request_params["platform"] = mPlatform;
-	request_params["address_size"] = ADDRESS_SIZE;
-	request_params["platform_version"] = mPlatformVersion;
-	request_params["platform_string"] = mPlatformVersionName;
-	request_params["id0"] = mSerialNumber;
-	request_params["host_id"] = gSavedSettings.getString("HostID");
-	request_params["extended_errors"] = true; // request message_id and message_args
-	request_params["token"] = "";
+    }
+    request_params["start"] = construct_start_string();
+    request_params["agree_to_tos"] = false; // Always false here. Set true in
+    request_params["read_critical"] = false; // handleTOSResponse
+    request_params["last_exec_event"] = mLastExecEvent;
+    request_params["last_exec_duration"] = mLastExecDuration;
+    request_params["last_exec_session_id"] = mLastAgentSessionId.asString();
+    request_params["mac"] = (char*)hashed_unique_id_string;
+    request_params["version"] = LLVersionInfo::instance().getVersion();
+    request_params["channel"] = LLVersionInfo::instance().getChannel();
+    request_params["platform"] = mPlatform;
+    request_params["address_size"] = ADDRESS_SIZE;
+    request_params["platform_version"] = mPlatformVersion;
+    request_params["platform_string"] = mPlatformVersionName;
+    request_params["id0"] = mSerialNumber;
+    request_params["host_id"] = gSavedSettings.getString("HostID");
+    request_params["extended_errors"] = true; // request message_id and message_args
+    request_params["token"] = "";
 
     // log request_params _before_ adding the credentials or sensitive MFA hash data
     LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
@@ -268,18 +265,18 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 
     request_params["mfa_hash"] = mfa_hash;
 
-	// Specify desired timeout/retry options
-	LLSD http_params;
-	F32 srv_timeout = llclamp(gSavedSettings.getF32("LoginSRVTimeout"), LOGIN_SRV_TIMEOUT_MIN, LOGIN_SRV_TIMEOUT_MAX);
-	http_params["timeout"] = srv_timeout;
-	http_params["retries"] = LOGIN_MAX_RETRIES;
-	http_params["DNSCacheTimeout"] = srv_timeout * LOGIN_DNS_TIMEOUT_FACTOR; //Default: indefinite
+    // Specify desired timeout/retry options
+    LLSD http_params;
+    F32 srv_timeout = llclamp(gSavedSettings.getF32("LoginSRVTimeout"), LOGIN_SRV_TIMEOUT_MIN, LOGIN_SRV_TIMEOUT_MAX);
+    http_params["timeout"] = srv_timeout;
+    http_params["retries"] = LOGIN_MAX_RETRIES;
+    http_params["DNSCacheTimeout"] = srv_timeout * LOGIN_DNS_TIMEOUT_FACTOR; //Default: indefinite
 
-	mRequestData.clear();
-	mRequestData["method"] = "login_to_simulator";
-	mRequestData["params"] = request_params;
-	mRequestData["options"] = requested_options;
-	mRequestData["http_params"] = http_params;
+    mRequestData.clear();
+    mRequestData["method"] = "login_to_simulator";
+    mRequestData["params"] = request_params;
+    mRequestData["options"] = requested_options;
+    mRequestData["http_params"] = http_params;
 #if LL_RELEASE_FOR_DOWNLOAD
     mRequestData["wait_for_updater"] = LLAppViewer::instance()->waitForUpdater();
 #else
@@ -289,25 +286,25 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 {
-	LL_DEBUGS("LLLogin") << "LoginListener called!: \n" << event << LL_ENDL;
+    LL_DEBUGS("LLLogin") << "LoginListener called!: \n" << event << LL_ENDL;
 
-	if(!(event.has("state") && event.has("change") && event.has("progress")))
-	{
-		LL_ERRS("LLLogin") << "Unknown message from LLLogin: " << event << LL_ENDL;
-	}
+    if(!(event.has("state") && event.has("change") && event.has("progress")))
+    {
+        LL_ERRS("LLLogin") << "Unknown message from LLLogin: " << event << LL_ENDL;
+    }
 
-	mLoginState = event["state"].asString();
-	mResponseData = event["data"];
+    mLoginState = event["state"].asString();
+    mResponseData = event["data"];
 
-	if(event.has("transfer_rate"))
-	{
-		mTransferRate = event["transfer_rate"].asReal();
-	}
+    if(event.has("transfer_rate"))
+    {
+        mTransferRate = event["transfer_rate"].asReal();
+    }
 
-	// Call the method registered in constructor, if any, for more specific
-	// handling
-	mDispatcher.try_call(event);
-	return false;
+    // Call the method registered in constructor, if any, for more specific
+    // handling
+    mDispatcher.try_call(event);
+    return false;
 }
 
 void LLLoginInstance::handleLoginFailure(const LLSD& event)
@@ -316,7 +313,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     // here and in STATE_LOGIN_PROCESS_RESPONSE processing
     // consider uniting them.
 
-    // Login has failed. 
+    // Login has failed.
     // Figure out why and respond...
     LLSD response = event["data"];
     LLSD updater  = response["updater"];
@@ -332,10 +329,19 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     LL_DEBUGS("LLLogin") << "reason " << reason_response
                          << " message " << message_response
                          << LL_ENDL;
+
+    if (response.has("mfa_hash"))
+    {
+        mRequestData["params"]["mfa_hash"] = response["mfa_hash"];
+        mRequestData["params"]["token"] = "";
+
+        saveMFAHash(response);
+    }
+
     // For the cases of critical message or TOS agreement,
     // start the TOS dialog. The dialog response will be handled
     // by the LLLoginInstance::handleTOSResponse() callback.
-    // The callback intiates the login attempt next step, either 
+    // The callback intiates the login attempt next step, either
     // to reconnect or to end the attempt in failure.
     if(reason_response == "tos")
     {
@@ -345,11 +351,11 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         data["message"] = message_response;
         data["reply_pump"] = TOS_REPLY_PUMP;
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
         LLFloaterReg::showInstance("message_tos", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
             .listen(TOS_LISTENER_NAME,
-                    boost::bind(&LLLoginInstance::handleTOSResponse, 
+                    boost::bind(&LLLoginInstance::handleTOSResponse,
                                 this, _1, "agree_to_tos"));
     }
     else if(reason_response == "critical")
@@ -369,12 +375,12 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         }
 
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
 
         LLFloaterReg::showInstance("message_critical", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
             .listen(TOS_LISTENER_NAME,
-                    boost::bind(&LLLoginInstance::handleTOSResponse, 
+                    boost::bind(&LLLoginInstance::handleTOSResponse,
                                 this, _1, "read_critical"));
     }
     else if(reason_response == "update")
@@ -408,7 +414,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         }
 
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
 
         LLSD args;
         args["VERSION"] = login_version;
@@ -447,10 +453,10 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 
         if (gViewerWindow)
         {
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
         }
 
-        showMFAChallange(LLTrans::getString(response["message_id"]));
+        showMFAChallange(LLTrans::getString(response["message_id"].asString()));
     }
     else if(   reason_response == "key"
             || reason_response == "presence"
@@ -463,14 +469,14 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         attemptComplete();
     }
     else
-    {   
+    {
         LL_WARNS("LLLogin") << "Login failed for an unknown reason: " << LLSDOStreamer<LLSDNotationFormatter>(response) << LL_ENDL;
 
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
 
         LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
-    }   
+    }
 }
 
 void LLLoginInstance::syncWithUpdater(ResponsePtr resp, const LLSD& notification, const LLSD& response)
@@ -493,36 +499,36 @@ void LLLoginInstance::handleLoginDisallowed(const LLSD& notification, const LLSD
 
 void LLLoginInstance::handleLoginSuccess(const LLSD& event)
 {
-	LL_INFOS("LLLogin") << "LLLoginInstance::handleLoginSuccess" << LL_ENDL;
+    LL_INFOS("LLLogin") << "LLLoginInstance::handleLoginSuccess" << LL_ENDL;
 
-	attemptComplete();
-	mRequestData.clear();
+    attemptComplete();
+    mRequestData.clear();
 }
 
 void LLLoginInstance::handleDisconnect(const LLSD& event)
 {
     // placeholder
 
-	LL_INFOS("LLLogin") << "LLLoginInstance::handleDisconnect placeholder " << LL_ENDL;
+    LL_INFOS("LLLogin") << "LLLoginInstance::handleDisconnect placeholder " << LL_ENDL;
 }
 
 void LLLoginInstance::handleIndeterminate(const LLSD& event)
 {
-	// The indeterminate response means that the server
-	// gave the viewer a new url and params to try.
-	// The login module handles the retry, but it gives us the
-	// server response so that we may show
-	// the user some status.	
+    // The indeterminate response means that the server
+    // gave the viewer a new url and params to try.
+    // The login module handles the retry, but it gives us the
+    // server response so that we may show
+    // the user some status.
 
-	LLSD message = event.get("data").get("message");
-	if(message.isDefined())
-	{
-		LL_INFOS("LLLogin") << "LLLoginInstance::handleIndeterminate " << message.asString() << LL_ENDL;
+    LLSD message = event.get("data").get("message");
+    if(message.isDefined())
+    {
+        LL_INFOS("LLLogin") << "LLLoginInstance::handleIndeterminate " << message.asString() << LL_ENDL;
 
-		LLSD progress_update;
-		progress_update["desc"] = message;
-		LLEventPumps::getInstance()->obtain("LLProgressView").post(progress_update);
-	}
+        LLSD progress_update;
+        progress_update["desc"] = message;
+        LLEventPumps::getInstance()->obtain("LLProgressView").post(progress_update);
+    }
 }
 
 bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
@@ -596,35 +602,54 @@ bool LLLoginInstance::handleMFAChallenge(LLSD const & notif, LLSD const & respon
     return true;
 }
 
+void LLLoginInstance::saveMFAHash(LLSD const& response)
+{
+    std::string grid(LLGridManager::getInstance()->getGridId());
+    std::string user_id(LLStartUp::getUserId());
+
+    // Only save mfa_hash for future logins if the user wants their info remembered.
+    if (response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && LLLoginInstance::getInstance()->saveMFA())
+    {
+        gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, response["mfa_hash"]);
+    }
+    else if (!LLLoginInstance::getInstance()->saveMFA())
+    {
+        gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, user_id);
+    }
+    // TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
+    gSecAPIHandler->syncProtectedMap();
+}
+
 std::string construct_start_string()
 {
-	std::string start;
-	LLSLURL start_slurl = LLStartUp::getStartSLURL();
-	switch(start_slurl.getType())
-	{
-		case LLSLURL::LOCATION:
-		{
-			// a startup URL was specified
-			LLVector3 position = start_slurl.getPosition();
-			std::string unescaped_start = 
-			STRINGIZE(  "uri:" 
-					  << start_slurl.getRegion() << "&" 
-						<< position[VX] << "&" 
-						<< position[VY] << "&" 
-						<< position[VZ]);
-			start = xml_escape_string(unescaped_start);
-			break;
-		}
-		case LLSLURL::HOME_LOCATION:
-		{
-			start = "home";
-			break;
-		}
-		default:
-		{
-			start = "last";
-		}
-	}
-	return start;
+    std::string start;
+    LLSLURL start_slurl = LLStartUp::getStartSLURL();
+    switch(start_slurl.getType())
+    {
+        case LLSLURL::LOCATION:
+        {
+            // a startup URL was specified
+            LLVector3 position = start_slurl.getPosition();
+            // NOTE - do not xml escape here, will get escaped properly later by LLSD::asXMLRPCValue()
+            // see secondlife/viewer#2395
+            start =
+            STRINGIZE(  "uri:"
+                      << start_slurl.getRegion() << "&"
+                        << position[VX] << "&"
+                        << position[VY] << "&"
+                        << position[VZ]);
+            break;
+        }
+        case LLSLURL::HOME_LOCATION:
+        {
+            start = "home";
+            break;
+        }
+        default:
+        {
+            start = "last";
+        }
+    }
+    return start;
 }
 

@@ -31,40 +31,46 @@
 
 namespace ll
 {
-	namespace ui
-	{
-		class SearchableControl
-		{
-			mutable bool mIsHighlighed;
-		public:
-			SearchableControl()
-				: mIsHighlighed( false )
-			{ }
-			virtual ~SearchableControl()
-			{ }
+    namespace ui
+    {
+        class SearchableControl
+        {
+            mutable bool mIsHighlighed;
+        public:
+            SearchableControl()
+                : mIsHighlighed( false )
+            { }
+            virtual ~SearchableControl()
+            { }
 
-			LLColor4 getHighlightColor( ) const
-			{
-				static LLUIColor highlight_color = LLUIColorTable::instance().getColor("SearchableControlHighlightColor", LLColor4::red);
-				return highlight_color.get();
-			}
+            const LLColor4& getHighlightBgColor( ) const
+            {
+                static LLUIColor highlight_color = LLUIColorTable::instance().getColor("SearchableControlHighlightBgColor", LLColor4::red4);
+                return highlight_color.get();
+            }
 
-			void setHighlighted( bool aVal ) const
-			{
-				mIsHighlighed = aVal;
-				onSetHighlight( );
-			}
-			bool getHighlighted( ) const
-			{ return mIsHighlighed; }
+            const LLColor4& getHighlightFontColor() const
+            {
+                static LLUIColor highlight_color = LLUIColorTable::instance().getColor("SearchableControlHighlightFontColor", LLColor4::red4);
+                return highlight_color.get();
+            }
 
-			std::string getSearchText() const
-			{ return _getSearchText(); } 
-		protected:
-			virtual std::string _getSearchText() const = 0;
-			virtual void onSetHighlight( ) const
-			{ }
-		};
-	}
+            void setHighlighted( bool aVal ) const
+            {
+                mIsHighlighed = aVal;
+                onSetHighlight( );
+            }
+            bool getHighlighted( ) const
+            { return mIsHighlighed; }
+
+            std::string getSearchText() const
+            { return _getSearchText(); }
+        protected:
+            virtual std::string _getSearchText() const = 0;
+            virtual void onSetHighlight( ) const
+            { }
+        };
+    }
 }
 
 

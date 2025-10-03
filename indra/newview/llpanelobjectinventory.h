@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpanelobjectinventory.h
  * @brief LLPanelObjectInventory class definition
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -57,65 +57,69 @@ public:
         {}
     };
 
-	LLPanelObjectInventory(const Params&);
-	virtual ~LLPanelObjectInventory();
-	
-	virtual BOOL postBuild();
+    LLPanelObjectInventory(const Params&);
+    virtual ~LLPanelObjectInventory();
 
-	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
+    virtual bool postBuild();
 
-	void doToSelected(const LLSD& userdata);
-	
-	void refresh();
-	const LLUUID& getTaskUUID() { return mTaskUUID;}
-	void clearInventoryTask();
-	void removeSelectedItem();
-	void startRenamingSelectedItem();
+    LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
-	LLFolderView* getRootFolder() const { return mFolders; }
+    void doToSelected(const LLSD& userdata);
 
-	virtual void draw();
-	virtual void deleteAllChildren();
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
-	
-	/*virtual*/ void onFocusLost();
-	/*virtual*/ void onFocusReceived();
-	
-	static void idle(void* user_data);
+    void refresh();
+    const LLUUID& getTaskUUID() { return mTaskUUID;}
+    void clearInventoryTask();
+    void removeSelectedItem();
+    void startRenamingSelectedItem();
+
+    LLFolderView* getRootFolder() const { return mFolders; }
+    LLInventoryFilter& getFilter() { return mInventoryViewModel.getFilter(); }
+    const LLInventoryFilter& getFilter() const { return mInventoryViewModel.getFilter(); }
+
+    virtual void draw();
+    virtual void deleteAllChildren();
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
+
+    /*virtual*/ void onFocusLost();
+    /*virtual*/ void onFocusReceived();
+
+    static void idle(void* user_data);
+
+    bool hasInventory(){ return mHaveInventory; };
 
 protected:
-	void reset();
-	/*virtual*/ void inventoryChanged(LLViewerObject* object,
-								 LLInventoryObject::object_list_t* inventory,
-								 S32 serial_num,
-								 void* user_data);
-	void updateInventory();
-	void createFolderViews(LLInventoryObject* inventory_root, LLInventoryObject::object_list_t& contents);
-	void createViewsForCategory(LLInventoryObject::object_list_t* inventory,
-								LLInventoryObject* parent,
-								LLFolderViewFolder* folder);
-	void clearContents();
-	LLFolderViewItem* getItemByID(const LLUUID& id);
+    void reset();
+    /*virtual*/ void inventoryChanged(LLViewerObject* object,
+                                 LLInventoryObject::object_list_t* inventory,
+                                 S32 serial_num,
+                                 void* user_data);
+    void updateInventory();
+    void createFolderViews(LLInventoryObject* inventory_root, LLInventoryObject::object_list_t& contents);
+    void createViewsForCategory(LLInventoryObject::object_list_t* inventory,
+                                LLInventoryObject* parent,
+                                LLFolderViewFolder* folder);
+    void clearContents();
+    LLFolderViewItem* getItemByID(const LLUUID& id);
 
-	void addItemID( const LLUUID& id, LLFolderViewItem*   itemp );
-	void removeItemID(const LLUUID& id);
-	void clearItemIDs();
+    void addItemID( const LLUUID& id, LLFolderViewItem*   itemp );
+    void removeItemID(const LLUUID& id);
+    void clearItemIDs();
 
-	BOOL			handleKeyHere( KEY key, MASK mask );
-	BOOL			isSelectionRemovable();
+    bool            handleKeyHere( KEY key, MASK mask );
+    bool            isSelectionRemovable();
 
 private:
-	std::map<LLUUID, LLFolderViewItem*> mItemMap;
+    std::map<LLUUID, LLFolderViewItem*> mItemMap;
 
-	LLScrollContainer* mScroller;
-	LLFolderView* mFolders;
-	
-	LLUUID mTaskUUID;
-	LLUUID mAttachmentUUID;
-	BOOL mHaveInventory; // 'Loading' label and used for initial request
-	BOOL mIsInventoryEmpty; // 'Empty' label
-	BOOL mInventoryNeedsUpdate; // for idle, set on changed callback
-	LLFolderViewModelInventory	mInventoryViewModel;	
+    LLScrollContainer* mScroller;
+    LLFolderView* mFolders;
+
+    LLUUID mTaskUUID;
+    LLUUID mAttachmentUUID;
+    bool mHaveInventory; // 'Loading' label and used for initial request
+    bool mIsInventoryEmpty; // 'Empty' label
+    bool mInventoryNeedsUpdate; // for idle, set on changed callback
+    LLFolderViewModelInventory  mInventoryViewModel;
     bool mShowRootFolder;
 };
 

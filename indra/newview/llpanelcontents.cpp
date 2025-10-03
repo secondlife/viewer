@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -31,6 +31,7 @@
 
 // linden library includes
 #include "llerror.h"
+#include "llfiltereditor.h"
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llinventorydefines.h"
@@ -76,79 +77,144 @@ const char* LLPanelContents::PERMS_GROUP_CONTROL_KEY = "perms_group_control";
 const char* LLPanelContents::PERMS_ANYONE_INTERACT_KEY = "perms_anyone_interact";
 const char* LLPanelContents::PERMS_ANYONE_CONTROL_KEY = "perms_anyone_control";
 
-BOOL LLPanelContents::postBuild()
+bool LLPanelContents::postBuild()
 {
-	setMouseOpaque(FALSE);
+    setMouseOpaque(false);
 
-	childSetAction("button new script",&LLPanelContents::onClickNewScript, this);
-	childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
+    childSetAction("button new script",&LLPanelContents::onClickNewScript, this);
+    childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
 
-	mPanelInventoryObject = getChild<LLPanelObjectInventory>("contents_inventory");
+    mFilterEditor = getChild<LLFilterEditor>("contents_filter");
+    mFilterEditor->setCommitCallback([&](LLUICtrl*, const LLSD&) { onFilterEdit(); });
 
-	return TRUE;
+    mPanelInventoryObject = getChild<LLPanelObjectInventory>("contents_inventory");
+
+    // update permission filter once UI is fully initialized
+    mSavedFolderState.setApply(false);
+
+    return true;
 }
 
 LLPanelContents::LLPanelContents()
-	:	LLPanel(),
-		mPanelInventoryObject(NULL)
+    :   LLPanel(),
+        mPanelInventoryObject(NULL)
 {
 }
 
 
 LLPanelContents::~LLPanelContents()
 {
-	// Children all cleaned up by default view destructor.
+    // Children all cleaned up by default view destructor.
 }
 
 
 void LLPanelContents::getState(LLViewerObject *objectp )
 {
-	if( !objectp )
-	{
-		getChildView("button new script")->setEnabled(FALSE);
-		return;
-	}
+    if( !objectp )
+    {
+        getChildView("button new script")->setEnabled(false);
+        return;
+    }
 
-	LLUUID group_id;			// used for SL-23488
-	LLSelectMgr::getInstance()->selectGetGroup(group_id);  // sets group_id as a side effect SL-23488
+    LLUUID group_id;            // used for SL-23488
+    LLSelectMgr::getInstance()->selectGetGroup(group_id);  // sets group_id as a side effect SL-23488
 
-	// BUG? Check for all objects being editable?
-	bool editable = gAgent.isGodlike()
-					|| (objectp->permModify() && !objectp->isPermanentEnforced()
-					       && ( objectp->permYouOwner() || ( !group_id.isNull() && gAgent.isInGroup(group_id) )));  // solves SL-23488
-	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
+    // BUG? Check for all objects being editable?
+    bool editable = gAgent.isGodlike()
+                    || (objectp->permModify() && !objectp->isPermanentEnforced()
+                           && ( objectp->permYouOwner() || ( !group_id.isNull() && gAgent.isInGroup(group_id) )));  // solves SL-23488
+    bool all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 
-	// Edit script button - ok if object is editable and there's an unambiguous destination for the object.
-	getChildView("button new script")->setEnabled(
-		editable &&
-		all_volume &&
-		((LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1)
-			|| (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)));
+    // Edit script button - ok if object is editable and there's an unambiguous destination for the object.
+    getChildView("button new script")->setEnabled(
+        editable &&
+        all_volume &&
+        ((LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1)
+            || (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)));
 
-	getChildView("button permissions")->setEnabled(!objectp->isPermanentEnforced());
-	mPanelInventoryObject->setEnabled(!objectp->isPermanentEnforced());
+    getChildView("button permissions")->setEnabled(!objectp->isPermanentEnforced());
+    mPanelInventoryObject->setEnabled(!objectp->isPermanentEnforced());
+}
+
+void LLPanelContents::onFilterEdit()
+{
+    const std::string& filter_substring = mFilterEditor->getText();
+    if (!mPanelInventoryObject->hasInventory())
+    {
+        mDirtyFilter = true;
+    }
+    else
+    {
+        LLFolderView* root_folder = mPanelInventoryObject->getRootFolder();
+        if (filter_substring.empty())
+        {
+            if (mPanelInventoryObject->getFilter().getFilterSubString().empty())
+            {
+                // The current filter and the new filter are empty, nothing to do
+                return;
+            }
+
+            if (mDirtyFilter && !mSavedFolderState.hasOpenFolders())
+            {
+                if (root_folder)
+                {
+                    root_folder->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_DOWN);
+                }
+            }
+            else
+            {
+                mSavedFolderState.setApply(true);
+                if (root_folder)
+                {
+                    root_folder->applyFunctorRecursively(mSavedFolderState);
+                }
+            }
+            mDirtyFilter = false;
+
+            // Add a folder with the current item to the list of previously opened folders
+            if (root_folder)
+            {
+                LLOpenFoldersWithSelection opener;
+                root_folder->applyFunctorRecursively(opener);
+                root_folder->scrollToShowSelection();
+            }
+        }
+        else if (mPanelInventoryObject->getFilter().getFilterSubString().empty())
+        {
+            // The first letter in search term, save existing folder open state
+            if (!mPanelInventoryObject->getFilter().isNotDefault())
+            {
+                mSavedFolderState.setApply(false);
+                if (root_folder)
+                {
+                    root_folder->applyFunctorRecursively(mSavedFolderState);
+                }
+                mDirtyFilter = false;
+            }
+        }
+    }
+    mPanelInventoryObject->getFilter().setFilterSubString(filter_substring);
 }
 
 void LLPanelContents::refresh()
 {
-	const BOOL children_ok = TRUE;
-	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
+    const bool children_ok = true;
+    LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 
-	getState(object);
-	if (mPanelInventoryObject)
-	{
-		mPanelInventoryObject->refresh();
-	}	
+    getState(object);
+    if (mPanelInventoryObject)
+    {
+        mPanelInventoryObject->refresh();
+    }
 }
 
 void LLPanelContents::clearContents()
 {
-	if (mPanelInventoryObject)
-	{
-		mPanelInventoryObject->clearInventoryTask();
-	}
+    if (mPanelInventoryObject)
+    {
+        mPanelInventoryObject->clearInventoryTask();
+    }
 }
-
 
 //
 // Static functions
@@ -157,52 +223,51 @@ void LLPanelContents::clearContents()
 // static
 void LLPanelContents::onClickNewScript(void *userdata)
 {
-	const BOOL children_ok = TRUE;
-	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
-	if(object)
-	{
-		LLPermissions perm;
-		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+    const bool children_ok = true;
+    LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
+    if(object)
+    {
+        LLPermissions perm;
+        perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
 
-		// Parameters are base, owner, everyone, group, next
-		perm.initMasks(
-			PERM_ALL,
-			PERM_ALL,
-			LLFloaterPerms::getEveryonePerms("Scripts"),
-			LLFloaterPerms::getGroupPerms("Scripts"),
-			PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));
-		std::string desc;
-		LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
-		LLPointer<LLViewerInventoryItem> new_item =
-			new LLViewerInventoryItem(
-				LLUUID::null,
-				LLUUID::null,
-				perm,
-				LLUUID::null,
-				LLAssetType::AT_LSL_TEXT,
-				LLInventoryType::IT_LSL,
-				"New Script",
-				desc,
-				LLSaleInfo::DEFAULT,
-				LLInventoryItemFlags::II_FLAGS_NONE,
-				time_corrected());
-		object->saveScript(new_item, TRUE, true);
+        // Parameters are base, owner, everyone, group, next
+        perm.initMasks(
+            PERM_ALL,
+            PERM_ALL,
+            LLFloaterPerms::getEveryonePerms("Scripts"),
+            LLFloaterPerms::getGroupPerms("Scripts"),
+            PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));
+        std::string desc;
+        LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
+        LLPointer<LLViewerInventoryItem> new_item =
+            new LLViewerInventoryItem(
+                LLUUID::null,
+                LLUUID::null,
+                perm,
+                LLUUID::null,
+                LLAssetType::AT_LSL_TEXT,
+                LLInventoryType::IT_LSL,
+                "New Script",
+                desc,
+                LLSaleInfo::DEFAULT,
+                LLInventoryItemFlags::II_FLAGS_NONE,
+                time_corrected());
+        object->saveScript(new_item, true, true);
 
-		std::string name = new_item->getName();
+        std::string name = new_item->getName();
 
-		// *NOTE: In order to resolve SL-22177, we needed to create
-		// the script first, and then you have to click it in
-		// inventory to edit it.
-		// *TODO: The script creation should round-trip back to the
-		// viewer so the viewer can auto-open the script and start
-		// editing ASAP.
-	}
+        // *NOTE: In order to resolve SL-22177, we needed to create
+        // the script first, and then you have to click it in
+        // inventory to edit it.
+        // *TODO: The script creation should round-trip back to the
+        // viewer so the viewer can auto-open the script and start
+        // editing ASAP.
+    }
 }
-
 
 // static
 void LLPanelContents::onClickPermissions(void *userdata)
 {
-	LLPanelContents* self = (LLPanelContents*)userdata;
-	gFloaterView->getParentFloater(self)->addDependentFloater(LLFloaterReg::showInstance("bulk_perms"));
+    LLPanelContents* self = (LLPanelContents*)userdata;
+    gFloaterView->getParentFloater(self)->addDependentFloater(LLFloaterReg::showInstance("bulk_perms"));
 }

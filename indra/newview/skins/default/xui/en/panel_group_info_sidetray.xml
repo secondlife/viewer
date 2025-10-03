@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
 background_visible="true"
  follows="all"
@@ -22,10 +22,10 @@ background_visible="true"
      name="group_join_btn">
         Join (L$[AMOUNT])
     </panel.string>
-    <panel.string
-     name="group_join_free">
-        Free
-    </panel.string>
+    <panel.string name="group_join_free">No charge to join</panel.string>
+    <panel.string name="group_member">You are a member</panel.string>
+    <panel.string name="join_txt">Join group</panel.string>
+    <panel.string name="leave_txt">Leave</panel.string>
     <panel
       name="group_info_top"
       follows="top|left"

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llsetkeybinddialog.h
  * @brief LLSetKeyBindDialog class definition
  *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2019, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -59,7 +59,7 @@ public:
     LLSetKeyBindDialog(const LLSD& key);
     ~LLSetKeyBindDialog();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& data);
     /*virtual*/ void onClose(bool app_quiting);
     /*virtual*/ void draw();
@@ -68,9 +68,9 @@ public:
 
     // Wrapper around recordAndHandleKey
     // It does not record, it handles, but handleKey function is already in use
-    static bool recordKey(KEY key, MASK mask, BOOL down);
+    static bool recordKey(KEY key, MASK mask, bool down);
 
-    BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
+    bool handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down);
     static void onCancel(void* user_data);
     static void onBlank(void* user_data);
     static void onDefault(void* user_data);
@@ -81,7 +81,7 @@ public:
     class Updater;
 
 private:
-    bool recordAndHandleKey(KEY key, MASK mask, BOOL down);
+    bool recordAndHandleKey(KEY key, MASK mask, bool down);
     void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
     LLKeyBindResponderInterface *pParent;
     LLCheckBoxCtrl *pCheckBox;

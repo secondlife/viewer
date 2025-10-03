@@ -28,71 +28,71 @@
 #include "llui.h"
 
 LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
-:	LLEventTimer(period),
-	mCallback(cb),
-	mCurrentTickCount(0),
+:   LLEventTimer(period),
+    mCallback(cb),
+    mCurrentTickCount(0),
     mIsFlashingInProgress(false),
     mIsCurrentlyHighlighted(false),
     mUnset(false)
 {
-	mEventTimer.stop();
+    mEventTimer.stop();
 
-	// By default use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
-	// Due to Timer is implemented as derived class from EventTimer it is impossible to change period
-	// in runtime. So, both settings are made as required restart.
-	mFlashCount = 2 * ((count > 0) ? count : LLUI::getInstance()->mSettingGroups["config"]->getS32("FlashCount"));
-	if (mPeriod <= 0)
-	{
-		mPeriod = LLUI::getInstance()->mSettingGroups["config"]->getF32("FlashPeriod");
-	}
+    // By default use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
+    // Due to Timer is implemented as derived class from EventTimer it is impossible to change period
+    // in runtime. So, both settings are made as required restart.
+    mFlashCount = 2 * ((count > 0) ? count : LLUI::getInstance()->mSettingGroups["config"]->getS32("FlashCount"));
+    if (mPeriod <= 0)
+    {
+        mPeriod = LLUI::getInstance()->mSettingGroups["config"]->getF32("FlashPeriod");
+    }
 }
 
 void LLFlashTimer::unset()
 {
-	mUnset = true;
-	mCallback = NULL;
+    mUnset = true;
+    mCallback = NULL;
 }
 
-BOOL LLFlashTimer::tick()
+bool LLFlashTimer::tick()
 {
-	mIsCurrentlyHighlighted = !mIsCurrentlyHighlighted;
+    mIsCurrentlyHighlighted = !mIsCurrentlyHighlighted;
 
-	if (mCallback)
-	{
-		mCallback(mIsCurrentlyHighlighted);
-	}
+    if (mCallback)
+    {
+        mCallback(mIsCurrentlyHighlighted);
+    }
 
-	if (++mCurrentTickCount >= mFlashCount)
-	{
-		stopFlashing();
-	}
+    if (++mCurrentTickCount >= mFlashCount)
+    {
+        stopFlashing();
+    }
 
-	return mUnset;
+    return mUnset;
 }
 
 void LLFlashTimer::startFlashing()
 {
-	mIsFlashingInProgress = true;
-	mIsCurrentlyHighlighted = true;
-	mEventTimer.start();
+    mIsFlashingInProgress = true;
+    mIsCurrentlyHighlighted = true;
+    mEventTimer.start();
 }
 
 void LLFlashTimer::stopFlashing()
 {
-	mEventTimer.stop();
-	mIsFlashingInProgress = false;
-	mIsCurrentlyHighlighted = false;
-	mCurrentTickCount = 0;
+    mEventTimer.stop();
+    mIsFlashingInProgress = false;
+    mIsCurrentlyHighlighted = false;
+    mCurrentTickCount = 0;
 }
 
-bool LLFlashTimer::isFlashingInProgress()
+bool LLFlashTimer::isFlashingInProgress() const
 {
-	return mIsFlashingInProgress;
+    return mIsFlashingInProgress;
 }
 
-bool LLFlashTimer::isCurrentlyHighlighted()
+bool LLFlashTimer::isCurrentlyHighlighted() const
 {
-	return mIsCurrentlyHighlighted;
+    return mIsCurrentlyHighlighted;
 }
 
 

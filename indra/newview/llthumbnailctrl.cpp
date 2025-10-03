@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llthumbnailctrl.cpp
  * @brief LLThumbnailCtrl base class
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -51,7 +51,7 @@ LLThumbnailCtrl::Params::Params()
 {}
 
 LLThumbnailCtrl::LLThumbnailCtrl(const LLThumbnailCtrl::Params& p)
-:	LLUICtrl(p)
+:   LLUICtrl(p)
 ,   mBorderColor(p.border_color())
 ,   mBorderVisible(p.border_visible())
 ,   mFallbackImagep(p.fallback_image)
@@ -61,14 +61,14 @@ LLThumbnailCtrl::LLThumbnailCtrl(const LLThumbnailCtrl::Params& p)
 ,   mInitImmediately(true)
 {
     mLoadingPlaceholderString = LLTrans::getString("texture_loading");
-    
+
     LLRect border_rect = getLocalRect();
     LLViewBorder::Params vbparams(p.border);
     vbparams.name("border");
     vbparams.rect(border_rect);
     mBorder = LLUICtrlFactory::create<LLViewBorder> (vbparams);
     addChild(mBorder);
-    
+
     if (p.image_name.isProvided())
     {
         setValue(p.image_name());
@@ -77,7 +77,7 @@ LLThumbnailCtrl::LLThumbnailCtrl(const LLThumbnailCtrl::Params& p)
 
 LLThumbnailCtrl::~LLThumbnailCtrl()
 {
-	mTexturep = nullptr;
+    mTexturep = nullptr;
     mImagep = nullptr;
     mFallbackImagep = nullptr;
 }
@@ -90,12 +90,12 @@ void LLThumbnailCtrl::draw()
         initImage();
     }
     LLRect draw_rect = getLocalRect();
-    
+
     if (mBorderVisible)
     {
         mBorder->setKeyboardFocusHighlight(hasFocus());
-        
-        gl_rect_2d( draw_rect, mBorderColor.get(), FALSE );
+
+        gl_rect_2d( draw_rect, mBorderColor.get(), false );
         draw_rect.stretch( -1 );
     }
 
@@ -106,12 +106,14 @@ void LLThumbnailCtrl::draw()
         if( mTexturep->getComponents() == 4 )
         {
             const LLColor4 color(.098f, .098f, .098f);
-            gl_rect_2d( draw_rect, color, TRUE);
+            gl_rect_2d( draw_rect, color, true);
         }
-        
+
         gl_draw_scaled_image( draw_rect.mLeft, draw_rect.mBottom, draw_rect.getWidth(), draw_rect.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
-        
-        mTexturep->setKnownDrawSize(draw_rect.getWidth(), draw_rect.getHeight());
+
+        // Thumbnails are usually 256x256 or smaller, either report that or
+        // some high value to get image with higher priority
+        mTexturep->setKnownDrawSize(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
     }
     else if( mImagep.notNull() )
     {
@@ -142,7 +144,7 @@ void LLThumbnailCtrl::draw()
     }
     else
     {
-        gl_rect_2d( draw_rect, LLColor4::grey % alpha, TRUE );
+        gl_rect_2d( draw_rect, LLColor4::grey % alpha, true );
 
         // Draw X
         gl_draw_x( draw_rect, LLColor4::black );
@@ -164,8 +166,8 @@ void LLThumbnailCtrl::draw()
             font->renderUTF8(
                 mLoadingPlaceholderString,
                 0,
-                llfloor(draw_rect.mLeft+3),
-                llfloor(draw_rect.mTop-v_offset),
+                (draw_rect.mLeft+3),
+                (draw_rect.mTop-v_offset),
                 LLColor4::white,
                 LLFontGL::LEFT,
                 LLFontGL::BASELINE,
@@ -176,7 +178,7 @@ void LLThumbnailCtrl::draw()
     LLUICtrl::draw();
 }
 
-void LLThumbnailCtrl::setVisible(BOOL visible)
+void LLThumbnailCtrl::setVisible(bool visible)
 {
     if (!visible && mInited)
     {
@@ -195,15 +197,15 @@ void LLThumbnailCtrl::clearTexture()
 // value might be a string or a UUID
 void LLThumbnailCtrl::setValue(const LLSD& value)
 {
-	LLSD tvalue(value);
-	if (value.isString() && LLUUID::validate(value.asString()))
-	{
-		//RN: support UUIDs masquerading as strings
-		tvalue = LLSD(LLUUID(value.asString()));
-	}
-    
-	LLUICtrl::setValue(tvalue);
-    
+    LLSD tvalue(value);
+    if (value.isString() && LLUUID::validate(value.asString()))
+    {
+        //RN: support UUIDs masquerading as strings
+        tvalue = LLSD(LLUUID(value.asString()));
+    }
+
+    LLUICtrl::setValue(tvalue);
+
     unloadImage();
 
     if (mInitImmediately)
@@ -212,12 +214,12 @@ void LLThumbnailCtrl::setValue(const LLSD& value)
     }
 }
 
-BOOL LLThumbnailCtrl::handleHover(S32 x, S32 y, MASK mask)
+bool LLThumbnailCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
     if (mInteractable && getEnabled())
     {
         getWindow()->setCursor(UI_CURSOR_HAND);
-        return TRUE;
+        return true;
     }
     return LLUICtrl::handleHover(x, y, mask);
 }
@@ -238,12 +240,8 @@ void LLThumbnailCtrl::initImage()
         {
             // Should it support baked textures?
             mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_THUMBNAIL);
-
             mTexturep->forceToSaveRawImage(0);
-
-            S32 desired_draw_width = MAX_IMAGE_SIZE;
-            S32 desired_draw_height = MAX_IMAGE_SIZE;
-            mTexturep->setKnownDrawSize(desired_draw_width, desired_draw_height);
+            mTexturep->setKnownDrawSize(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
         }
     }
     else if (tvalue.isString())

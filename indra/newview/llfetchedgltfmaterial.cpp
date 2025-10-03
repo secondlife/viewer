@@ -34,18 +34,19 @@
 #include "llshadermgr.h"
 #include "pipeline.h"
 
+//static
+LLFetchedGLTFMaterial LLFetchedGLTFMaterial::sDefault;
+
 LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
     : LLGLTFMaterial()
     , mExpectedFlusTime(0.f)
-    , mActive(true)
-    , mFetching(false)
 {
 
 }
 
 LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
 {
-    
+
 }
 
 LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMaterial& rhs)
@@ -76,9 +77,7 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
     {
         if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
         {
-            // dividing the alpha cutoff by transparency here allows the shader to compare against
-            // the alpha value of the texture without needing the transparency value
-            min_alpha = mAlphaCutoff/mBaseColor.mV[3];
+            min_alpha = mAlphaCutoff;
         }
         shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
     }
@@ -143,7 +142,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
-
 }
 
 LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
@@ -151,8 +149,8 @@ LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
     LLViewerFetchedTexture* img = nullptr;
     if (id.notNull())
     {
-        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        img->addTextureStats(64.f * 64.f, TRUE);
+        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        img->addTextureStats(64.f * 64.f, true);
     }
     return img;
 };
@@ -201,6 +199,7 @@ bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const
     {
         mTrackingIdToLocalTexture.erase(tracking_id);
     }
+    updateLocalTexDataDigest();
 
     return res;
 }
@@ -242,10 +241,11 @@ void LLFetchedGLTFMaterial::onMaterialComplete(std::function<void()> material_co
     materialCompleteCallbacks.push_back(material_complete);
 }
 
-void LLFetchedGLTFMaterial::materialComplete()
+void LLFetchedGLTFMaterial::materialComplete(bool success)
 {
     llassert(mFetching);
     mFetching = false;
+    mFetchSuccess = success;
 
     for (std::function<void()> material_complete : materialCompleteCallbacks)
     {
@@ -253,56 +253,4 @@ void LLFetchedGLTFMaterial::materialComplete()
     }
     materialCompleteCallbacks.clear();
     materialCompleteCallbacks.shrink_to_fit();
-}
-
-LLPointer<LLViewerFetchedTexture> LLFetchedGLTFMaterial::getUITexture()
-{
-    if (mFetching)
-    {
-        return nullptr;
-    }
-
-    auto fetch_texture_for_ui = [](LLPointer<LLViewerFetchedTexture>& img, const LLUUID& id)
-    {
-        if (id.notNull())
-        {
-            if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
-            {
-                LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
-                if (obj)
-                {
-                    LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(id);
-                    img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
-                }
-
-            }
-            else
-            {
-                img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-            }
-        }
-        if (img)
-        {
-            img->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-            img->forceToSaveRawImage(0);
-        }
-    };
-
-    fetch_texture_for_ui(mBaseColorTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
-    fetch_texture_for_ui(mNormalTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
-    fetch_texture_for_ui(mMetallicRoughnessTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
-    fetch_texture_for_ui(mEmissiveTexture, mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
-
-    if ((mBaseColorTexture && (mBaseColorTexture->getRawImageLevel() != 0)) ||
-        (mNormalTexture && (mNormalTexture->getRawImageLevel() != 0)) ||
-        (mMetallicRoughnessTexture && (mMetallicRoughnessTexture->getRawImageLevel() != 0)) ||
-        (mEmissiveTexture && (mEmissiveTexture->getRawImageLevel() != 0)))
-    {
-        return nullptr;
-    }
-
-    // *HACK: Use one of the PBR texture components as the preview texture for now
-    mPreviewTexture = mBaseColorTexture;
-
-    return mPreviewTexture;
 }

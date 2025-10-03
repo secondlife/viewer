@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llpathfindingpathtool.cpp
 * @brief Implementation of llpathfindingpathtool
 * @author Stinson@lindenlab.com
@@ -35,9 +35,6 @@
 
 #include "llagent.h"
 #include "llpathfindingmanager.h"
-#include "llpathinglib.h"
-#include "llsingleton.h"
-#include "lltool.h"
 #include "llviewercamera.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -45,422 +42,422 @@
 #define PATH_TOOL_NAME "PathfindingPathTool"
 
 LLPathfindingPathTool::LLPathfindingPathTool()
-	: LLTool(PATH_TOOL_NAME),
-	mFinalPathData(),
-	mTempPathData(),
-	mPathResult(LLPathingLib::LLPL_NO_PATH),
-	mCharacterType(kCharacterTypeNone),
-	mPathEventSignal(),
-	mIsLeftMouseButtonHeld(false),
-	mIsMiddleMouseButtonHeld(false),
-	mIsRightMouseButtonHeld(false)
+    : LLTool(PATH_TOOL_NAME),
+    mFinalPathData(),
+    mTempPathData(),
+    mPathResult(LLPathingLib::LLPL_NO_PATH),
+    mCharacterType(kCharacterTypeNone),
+    mPathEventSignal(),
+    mIsLeftMouseButtonHeld(false),
+    mIsMiddleMouseButtonHeld(false),
+    mIsRightMouseButtonHeld(false)
 {
-	setCharacterWidth(1.0f);
-	setCharacterType(mCharacterType);
+    setCharacterWidth(1.0f);
+    setCharacterType(mCharacterType);
 }
 
 LLPathfindingPathTool::~LLPathfindingPathTool()
 {
 }
 
-BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	BOOL returnVal = FALSE;
+    bool returnVal = false;
 
-	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
-	{
-		if (isAnyPathToolModKeys(pMask))
-		{
-			gViewerWindow->setCursor(isPointAModKeys(pMask)
-				? UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD
-				: UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD);
-			computeFinalPoints(pX, pY, pMask);
-			mIsLeftMouseButtonHeld = true;
-			setMouseCapture(TRUE);
-			returnVal = TRUE;
-		}
-		else if (!isCameraModKeys(pMask))
-		{
-			gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
-			mIsLeftMouseButtonHeld = true;
-			setMouseCapture(TRUE);
-			returnVal = TRUE;
-		}
-	}
-	mIsLeftMouseButtonHeld = true;
+    if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
+    {
+        if (isAnyPathToolModKeys(pMask))
+        {
+            gViewerWindow->setCursor(isPointAModKeys(pMask)
+                ? UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD
+                : UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD);
+            computeFinalPoints(pX, pY, pMask);
+            mIsLeftMouseButtonHeld = true;
+            setMouseCapture(true);
+            returnVal = true;
+        }
+        else if (!isCameraModKeys(pMask))
+        {
+            gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
+            mIsLeftMouseButtonHeld = true;
+            setMouseCapture(true);
+            returnVal = true;
+        }
+    }
+    mIsLeftMouseButtonHeld = true;
 
-	return returnVal;
+    return returnVal;
 }
 
-BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
-	BOOL returnVal = FALSE;
+    bool returnVal = false;
 
-	if (mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
-	{
-		computeFinalPoints(pX, pY, pMask);
-		setMouseCapture(FALSE);
-		returnVal = TRUE;
-	}
-	mIsLeftMouseButtonHeld = false;
+    if (mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
+    {
+        computeFinalPoints(pX, pY, pMask);
+        setMouseCapture(false);
+        returnVal = true;
+    }
+    mIsLeftMouseButtonHeld = false;
 
-	return returnVal;
+    return returnVal;
 }
 
-BOOL LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(TRUE);
-	mIsMiddleMouseButtonHeld = true;
-	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
+    setMouseCapture(true);
+    mIsMiddleMouseButtonHeld = true;
+    gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
 
-	return TRUE;
+    return true;
 }
 
-BOOL LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
-	if (!mIsLeftMouseButtonHeld && mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
-	{
-		setMouseCapture(FALSE);
-	}
-	mIsMiddleMouseButtonHeld = false;
+    if (!mIsLeftMouseButtonHeld && mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
+    {
+        setMouseCapture(false);
+    }
+    mIsMiddleMouseButtonHeld = false;
 
-	return TRUE;
+    return true;
 }
 
-BOOL LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(TRUE);
-	mIsRightMouseButtonHeld = true;
-	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
+    setMouseCapture(true);
+    mIsRightMouseButtonHeld = true;
+    gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
 
-	return TRUE;
+    return true;
 }
 
-BOOL LLPathfindingPathTool::handleRightMouseUp(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleRightMouseUp(S32 pX, S32 pY, MASK pMask)
 {
-	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && mIsRightMouseButtonHeld)
-	{
-		setMouseCapture(FALSE);
-	}
-	mIsRightMouseButtonHeld = false;
+    if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && mIsRightMouseButtonHeld)
+    {
+        setMouseCapture(false);
+    }
+    mIsRightMouseButtonHeld = false;
 
-	return TRUE;
+    return true;
 }
 
-BOOL LLPathfindingPathTool::handleDoubleClick(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleDoubleClick(S32 pX, S32 pY, MASK pMask)
 {
-	return TRUE;
+    return true;
 }
 
-BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
+bool LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 {
-	BOOL returnVal = FALSE;
+    bool returnVal = false;
 
-	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && !isAnyPathToolModKeys(pMask))
-	{
-		gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING);
-	}
+    if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && !isAnyPathToolModKeys(pMask))
+    {
+        gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING);
+    }
 
-	if (!mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
-	{
-		gViewerWindow->setCursor(isPointAModKeys(pMask)
-			? (mIsLeftMouseButtonHeld ? UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD : UI_CURSOR_TOOLPATHFINDING_PATH_START)
-			: (mIsLeftMouseButtonHeld ? UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD : UI_CURSOR_TOOLPATHFINDING_PATH_END));
-		computeTempPoints(pX, pY, pMask);
-		returnVal = TRUE;
-	}
-	else
-	{
-		clearTemp();
-		computeFinalPath();
-	}
+    if (!mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
+    {
+        gViewerWindow->setCursor(isPointAModKeys(pMask)
+            ? (mIsLeftMouseButtonHeld ? UI_CURSOR_TOOLPATHFINDING_PATH_START_ADD : UI_CURSOR_TOOLPATHFINDING_PATH_START)
+            : (mIsLeftMouseButtonHeld ? UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD : UI_CURSOR_TOOLPATHFINDING_PATH_END));
+        computeTempPoints(pX, pY, pMask);
+        returnVal = true;
+    }
+    else
+    {
+        clearTemp();
+        computeFinalPath();
+    }
 
-	return returnVal;
+    return returnVal;
 }
 
-BOOL LLPathfindingPathTool::handleKey(KEY pKey, MASK pMask)
+bool LLPathfindingPathTool::handleKey(KEY pKey, MASK pMask)
 {
-	// Eat the escape key or else the camera tool will pick up and reset to default view.  This,
-	// in turn, will cause some other methods to get called.  And one of those methods will reset
-	// the current toolset back to the basic toolset.  This means that the pathfinding path toolset
-	// will no longer be active, but typically with pathfinding path elements on screen.
-	return (pKey == KEY_ESCAPE);
+    // Eat the escape key or else the camera tool will pick up and reset to default view.  This,
+    // in turn, will cause some other methods to get called.  And one of those methods will reset
+    // the current toolset back to the basic toolset.  This means that the pathfinding path toolset
+    // will no longer be active, but typically with pathfinding path elements on screen.
+    return (pKey == KEY_ESCAPE);
 }
 
 LLPathfindingPathTool::EPathStatus LLPathfindingPathTool::getPathStatus() const
 {
-	EPathStatus status = kPathStatusUnknown;
+    EPathStatus status = kPathStatusUnknown;
 
-	if (LLPathingLib::getInstance() == NULL)
-	{
-		status = kPathStatusNotImplemented;
-	}
-	else if ((gAgent.getRegion() != NULL) && !gAgent.getRegion()->capabilitiesReceived())
-	{
-		status = kPathStatusUnknown;
-	}
-	else if (!LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion())
-	{
-		status = kPathStatusNotEnabled;
-	}
-	else if (!hasFinalA() && !hasFinalB())
-	{
-		status = kPathStatusChooseStartAndEndPoints;
-	}
-	else if (!hasFinalA())
-	{
-		status = kPathStatusChooseStartPoint;
-	}
-	else if (!hasFinalB())
-	{
-		status = kPathStatusChooseEndPoint;
-	}
-	else if (mPathResult == LLPathingLib::LLPL_PATH_GENERATED_OK)
-	{
-		status = kPathStatusHasValidPath;
-	}
-	else if (mPathResult == LLPathingLib::LLPL_NO_PATH)
-	{
-		status = kPathStatusHasInvalidPath;
-	}
-	else
-	{
-		status = kPathStatusError;
-	}
+    if (LLPathingLib::getInstance() == NULL)
+    {
+        status = kPathStatusNotImplemented;
+    }
+    else if ((gAgent.getRegion() != NULL) && !gAgent.getRegion()->capabilitiesReceived())
+    {
+        status = kPathStatusUnknown;
+    }
+    else if (!LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion())
+    {
+        status = kPathStatusNotEnabled;
+    }
+    else if (!hasFinalA() && !hasFinalB())
+    {
+        status = kPathStatusChooseStartAndEndPoints;
+    }
+    else if (!hasFinalA())
+    {
+        status = kPathStatusChooseStartPoint;
+    }
+    else if (!hasFinalB())
+    {
+        status = kPathStatusChooseEndPoint;
+    }
+    else if (mPathResult == LLPathingLib::LLPL_PATH_GENERATED_OK)
+    {
+        status = kPathStatusHasValidPath;
+    }
+    else if (mPathResult == LLPathingLib::LLPL_NO_PATH)
+    {
+        status = kPathStatusHasInvalidPath;
+    }
+    else
+    {
+        status = kPathStatusError;
+    }
 
-	return status;
+    return status;
 }
 
 F32 LLPathfindingPathTool::getCharacterWidth() const
 {
-	return mFinalPathData.mCharacterWidth;
+    return mFinalPathData.mCharacterWidth;
 }
 
 void LLPathfindingPathTool::setCharacterWidth(F32 pCharacterWidth)
 {
-	mFinalPathData.mCharacterWidth = pCharacterWidth;
-	mTempPathData.mCharacterWidth = pCharacterWidth;
-	computeFinalPath();
+    mFinalPathData.mCharacterWidth = pCharacterWidth;
+    mTempPathData.mCharacterWidth = pCharacterWidth;
+    computeFinalPath();
 }
 
 LLPathfindingPathTool::ECharacterType LLPathfindingPathTool::getCharacterType() const
 {
-	return mCharacterType;
+    return mCharacterType;
 }
 
 void LLPathfindingPathTool::setCharacterType(ECharacterType pCharacterType)
 {
-	mCharacterType = pCharacterType;
+    mCharacterType = pCharacterType;
 
-	LLPathingLib::LLPLCharacterType characterType;
-	switch (pCharacterType)
-	{
-	case kCharacterTypeNone :
-		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
-		break;
-	case kCharacterTypeA :
-		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_A;
-		break;
-	case kCharacterTypeB :
-		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_B;
-		break;
-	case kCharacterTypeC :
-		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_C;
-		break;
-	case kCharacterTypeD :
-		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_D;
-		break;
-	default :
-		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
-		llassert(0);
-		break;
-	}
-	mFinalPathData.mCharacterType = characterType;
-	mTempPathData.mCharacterType = characterType;
-	computeFinalPath();
+    LLPathingLib::LLPLCharacterType characterType;
+    switch (pCharacterType)
+    {
+    case kCharacterTypeNone :
+        characterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
+        break;
+    case kCharacterTypeA :
+        characterType = LLPathingLib::LLPL_CHARACTER_TYPE_A;
+        break;
+    case kCharacterTypeB :
+        characterType = LLPathingLib::LLPL_CHARACTER_TYPE_B;
+        break;
+    case kCharacterTypeC :
+        characterType = LLPathingLib::LLPL_CHARACTER_TYPE_C;
+        break;
+    case kCharacterTypeD :
+        characterType = LLPathingLib::LLPL_CHARACTER_TYPE_D;
+        break;
+    default :
+        characterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
+        llassert(0);
+        break;
+    }
+    mFinalPathData.mCharacterType = characterType;
+    mTempPathData.mCharacterType = characterType;
+    computeFinalPath();
 }
 
 bool LLPathfindingPathTool::isRenderPath() const
 {
-	return (hasFinalA() || hasFinalB() || hasTempA() || hasTempB());
+    return (hasFinalA() || hasFinalB() || hasTempA() || hasTempB());
 }
 
 void LLPathfindingPathTool::clearPath()
 {
-	clearFinal();
-	clearTemp();
-	computeFinalPath();
+    clearFinal();
+    clearTemp();
+    computeFinalPath();
 }
 
 LLPathfindingPathTool::path_event_slot_t LLPathfindingPathTool::registerPathEventListener(path_event_callback_t pPathEventCallback)
 {
-	return mPathEventSignal.connect(pPathEventCallback);
+    return mPathEventSignal.connect(pPathEventCallback);
 }
 
 bool LLPathfindingPathTool::isAnyPathToolModKeys(MASK pMask) const
 {
-	return ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0);
+    return ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0);
 }
 
 bool LLPathfindingPathTool::isPointAModKeys(MASK pMask) const
 {
-	return ((pMask & MASK_CONTROL) != 0);
+    return ((pMask & MASK_CONTROL) != 0);
 }
 
 bool LLPathfindingPathTool::isPointBModKeys(MASK pMask) const
 {
-	return ((pMask & MASK_SHIFT) != 0);
+    return ((pMask & MASK_SHIFT) != 0);
 }
 
 bool LLPathfindingPathTool::isCameraModKeys(MASK pMask) const
 {
-	return ((pMask & MASK_ALT) != 0);
+    return ((pMask & MASK_ALT) != 0);
 }
 
 void LLPathfindingPathTool::getRayPoints(S32 pX, S32 pY, LLVector3 &pRayStart, LLVector3 &pRayEnd) const
 {
-	LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
-	LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
-	pRayStart = mousePos;
-	pRayEnd = mousePos + dv * 150;
+    LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
+    LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
+    pRayStart = mousePos;
+    pRayEnd = mousePos + dv * 150;
 }
 
 void LLPathfindingPathTool::computeFinalPoints(S32 pX, S32 pY, MASK pMask)
 {
-	LLVector3 rayStart, rayEnd;
-	getRayPoints(pX, pY, rayStart, rayEnd);
+    LLVector3 rayStart, rayEnd;
+    getRayPoints(pX, pY, rayStart, rayEnd);
 
-	if (isPointAModKeys(pMask))
-	{
-		setFinalA(rayStart, rayEnd);
-	}
-	else if (isPointBModKeys(pMask))
-	{
-		setFinalB(rayStart, rayEnd);
-	}
-	computeFinalPath();
+    if (isPointAModKeys(pMask))
+    {
+        setFinalA(rayStart, rayEnd);
+    }
+    else if (isPointBModKeys(pMask))
+    {
+        setFinalB(rayStart, rayEnd);
+    }
+    computeFinalPath();
 }
 
 void LLPathfindingPathTool::computeTempPoints(S32 pX, S32 pY, MASK pMask)
 {
-	LLVector3 rayStart, rayEnd;
-	getRayPoints(pX, pY, rayStart, rayEnd);
+    LLVector3 rayStart, rayEnd;
+    getRayPoints(pX, pY, rayStart, rayEnd);
 
-	if (isPointAModKeys(pMask))
-	{
-		setTempA(rayStart, rayEnd);
-		if (hasFinalB())
-		{
-			setTempB(getFinalBStart(), getFinalBEnd());
-		}
-	}
-	else if (isPointBModKeys(pMask))
-	{
-		if (hasFinalA())
-		{
-			setTempA(getFinalAStart(), getFinalAEnd());
-		}
-		setTempB(rayStart, rayEnd);
-	}
-	computeTempPath();
+    if (isPointAModKeys(pMask))
+    {
+        setTempA(rayStart, rayEnd);
+        if (hasFinalB())
+        {
+            setTempB(getFinalBStart(), getFinalBEnd());
+        }
+    }
+    else if (isPointBModKeys(pMask))
+    {
+        if (hasFinalA())
+        {
+            setTempA(getFinalAStart(), getFinalAEnd());
+        }
+        setTempB(rayStart, rayEnd);
+    }
+    computeTempPath();
 }
 
 void LLPathfindingPathTool::setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
 {
-	mFinalPathData.mStartPointA = pStartPoint;
-	mFinalPathData.mEndPointA = pEndPoint;
-	mFinalPathData.mHasPointA = true;
+    mFinalPathData.mStartPointA = pStartPoint;
+    mFinalPathData.mEndPointA = pEndPoint;
+    mFinalPathData.mHasPointA = true;
 }
 
 bool LLPathfindingPathTool::hasFinalA() const
 {
-	return mFinalPathData.mHasPointA;
+    return mFinalPathData.mHasPointA;
 }
 
 const LLVector3 &LLPathfindingPathTool::getFinalAStart() const
 {
-	return mFinalPathData.mStartPointA;
+    return mFinalPathData.mStartPointA;
 }
 
 const LLVector3 &LLPathfindingPathTool::getFinalAEnd() const
 {
-	return mFinalPathData.mEndPointA;
+    return mFinalPathData.mEndPointA;
 }
 
 void LLPathfindingPathTool::setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
 {
-	mTempPathData.mStartPointA = pStartPoint;
-	mTempPathData.mEndPointA = pEndPoint;
-	mTempPathData.mHasPointA = true;
+    mTempPathData.mStartPointA = pStartPoint;
+    mTempPathData.mEndPointA = pEndPoint;
+    mTempPathData.mHasPointA = true;
 }
 
 bool LLPathfindingPathTool::hasTempA() const
 {
-	return mTempPathData.mHasPointA;
+    return mTempPathData.mHasPointA;
 }
 
 void LLPathfindingPathTool::setFinalB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
 {
-	mFinalPathData.mStartPointB = pStartPoint;
-	mFinalPathData.mEndPointB = pEndPoint;
-	mFinalPathData.mHasPointB = true;
+    mFinalPathData.mStartPointB = pStartPoint;
+    mFinalPathData.mEndPointB = pEndPoint;
+    mFinalPathData.mHasPointB = true;
 }
 
 bool LLPathfindingPathTool::hasFinalB() const
 {
-	return mFinalPathData.mHasPointB;
+    return mFinalPathData.mHasPointB;
 }
 
 const LLVector3 &LLPathfindingPathTool::getFinalBStart() const
 {
-	return mFinalPathData.mStartPointB;
+    return mFinalPathData.mStartPointB;
 }
 
 const LLVector3 &LLPathfindingPathTool::getFinalBEnd() const
 {
-	return mFinalPathData.mEndPointB;
+    return mFinalPathData.mEndPointB;
 }
 
 void LLPathfindingPathTool::setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
 {
-	mTempPathData.mStartPointB = pStartPoint;
-	mTempPathData.mEndPointB = pEndPoint;
-	mTempPathData.mHasPointB = true;
+    mTempPathData.mStartPointB = pStartPoint;
+    mTempPathData.mEndPointB = pEndPoint;
+    mTempPathData.mHasPointB = true;
 }
 
 bool LLPathfindingPathTool::hasTempB() const
 {
-	return mTempPathData.mHasPointB;
+    return mTempPathData.mHasPointB;
 }
 
 void LLPathfindingPathTool::clearFinal()
 {
-	mFinalPathData.mHasPointA = false;
-	mFinalPathData.mHasPointB = false;
+    mFinalPathData.mHasPointA = false;
+    mFinalPathData.mHasPointB = false;
 }
 
 void LLPathfindingPathTool::clearTemp()
 {
-	mTempPathData.mHasPointA = false;
-	mTempPathData.mHasPointB = false;
+    mTempPathData.mHasPointA = false;
+    mTempPathData.mHasPointB = false;
 }
 
 void LLPathfindingPathTool::computeFinalPath()
 {
-	mPathResult = LLPathingLib::LLPL_NO_PATH;
-	if (LLPathingLib::getInstance() != NULL)
-	{
-		mPathResult = LLPathingLib::getInstance()->generatePath(mFinalPathData);
-	}
-	mPathEventSignal();
+    mPathResult = LLPathingLib::LLPL_NO_PATH;
+    if (LLPathingLib::getInstance() != NULL)
+    {
+        mPathResult = LLPathingLib::getInstance()->generatePath(mFinalPathData);
+    }
+    mPathEventSignal();
 }
 
 void LLPathfindingPathTool::computeTempPath()
 {
-	mPathResult = LLPathingLib::LLPL_NO_PATH;
-	if (LLPathingLib::getInstance() != NULL)
-	{
-		mPathResult = LLPathingLib::getInstance()->generatePath(mTempPathData);
-	}
-	mPathEventSignal();
+    mPathResult = LLPathingLib::LLPL_NO_PATH;
+    if (LLPathingLib::getInstance() != NULL)
+    {
+        mPathResult = LLPathingLib::getInstance()->generatePath(mTempPathData);
+    }
+    mPathEventSignal();
 }

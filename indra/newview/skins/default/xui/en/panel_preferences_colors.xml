@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  border="true"
  follows="left|top|right|bottom"
@@ -299,6 +299,107 @@
    width="95">
     URLs
   </text>
+  <color_swatch
+   can_apply_immediately="true"
+   color="EmphasisColor"
+   follows="left|top"
+   height="24"
+   label_height="0"
+   layout="topleft"
+   left="360"
+   name="mentions"
+   top_pad="-15"
+   width="44" >
+    <color_swatch.init_callback
+         function="Pref.getUIColor"
+         parameter="ChatMentionFont" />
+    <color_swatch.commit_callback
+         function="Pref.applyUIColor"
+         parameter="ChatMentionFont" />
+    </color_swatch>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_pad="5"
+   mouse_opaque="false"
+   name="text_mentions"
+   top_delta="5"
+   width="95">
+    Mentions
+  </text>
+  <text
+   follows="left|top"
+   layout="topleft"
+   left="30"
+   height="12"
+   name="mentions_colors"
+   top_pad="20"
+   width="170">
+    Chat mentions highlight colors:
+  </text>
+  <color_swatch
+   can_apply_immediately="true"
+   follows="left|top"
+   height="24"
+   label_height="0"
+   layout="topleft"
+   left="40"
+   name="mention_self"
+   top_pad="10"
+   width="44" >
+    <color_swatch.init_callback
+         function="Pref.getUIColor"
+         parameter="ChatSelfMentionHighlight" />
+    <color_swatch.commit_callback
+         function="Pref.applyUIColor"
+         parameter="ChatSelfMentionHighlight" />
+  </color_swatch>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_pad="5"
+   mouse_opaque="false"
+   name="text_mentions_self"
+   top_delta="5"
+   width="95">
+    Me
+  </text>
+  <color_swatch
+     can_apply_immediately="true"
+     follows="left|top"
+     height="24"
+     label_height="0"
+     layout="topleft"
+     left="190"
+     name="mention_others"
+     top_pad="-15"
+     width="44" >
+        <color_swatch.init_callback
+             function="Pref.getUIColor"
+             parameter="ChatMentionHighlight" />
+        <color_swatch.commit_callback
+             function="Pref.applyUIColor"
+             parameter="ChatMentionHighlight" />
+    </color_swatch>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="text_mentions_others"
+     top_delta="5"
+     width="95">
+        Others
+    </text>
   <text
    follows="left|top"
    layout="topleft"
@@ -313,7 +414,6 @@
   <color_swatch
    can_apply_immediately="true"
    color="0 0 0 1"
-   control_name="NameTagBackground"
    follows="left|top"
    height="24"
    label_height="0"

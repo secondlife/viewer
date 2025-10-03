@@ -12,9 +12,9 @@ endif()
 
 use_prebuilt_binary(zlib-ng)
 if (WINDOWS)
-  target_link_libraries( ll::zlib-ng INTERFACE zlib )
+  target_link_libraries( ll::zlib-ng INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/zlib.lib )
 else()
-  target_link_libraries( ll::zlib-ng INTERFACE z )
+  target_link_libraries( ll::zlib-ng INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/libz.a )
 endif (WINDOWS)
 
 if( NOT LINUX )

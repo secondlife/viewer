@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings
-     that are returned from one component and may appear in many places-->
 <strings>
 	<string name="SECOND_LIFE">
 		Second Life
@@ -42,7 +38,7 @@
 		Yapı Konfigürasyonu [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] konumundasınız
+		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; üzerinde bulunan [REGION] içerisinde [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] konumundasınız
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 (küresel koordinatlar [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
 [SERVER_VERSION]
@@ -69,7 +65,6 @@ UI Ölçeklendirme: [UI_SCALE]
 Bant genişliği: [NET_BANDWITH]kbit/s
 LOD faktörü: [LOD_FACTOR]
 İşleme kalitesi: [RENDER_QUALITY]
-Gelişmiş Aydınlatma Modeli: [GPU_SHADERS]
 Doku belleği: [TEXTURE_MEMORY]MB
 	</string>
 	<string name="AboutOSXHiDPI">
@@ -89,7 +84,7 @@ Ses Sunucusu Sürümü: [VOICE_VERSION]
 		[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
-		Sunucu sürümü notları URL&apos;si alınırken hata oluştu.
+		Sunucu sürümü notları URL'si alınırken hata oluştu.
 	</string>
 	<string name="BuildConfiguration">
 		Yapı Konfigürasyonu
@@ -206,7 +201,7 @@ Ses Sunucusu Sürümü: [VOICE_VERSION]
 		http://secondlife.com/download
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
-		Kullandığınız görüntüleyici ile artık Second Life&apos;a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
+		Kullandığınız görüntüleyici ile artık Second Life'a erişemezsiniz. Yeni bir görüntüleyiciyi karşıdan yüklemek için lütfen şu sayfayı ziyaret edin:
 http://secondlife.com/download
 
 Daha fazla bilgi edinmek için asağıdaki SSS sayfamızı ziyaret edin:
@@ -248,10 +243,10 @@ Güncelleştirmeler için www.secondlife.com/status adresini kontrol edin.
 	<string name="LoginFailedPremiumOnly">
 		Second Life üzerindeki aktif kullanıcıların olası en iyi deneyimi yaşamasını sağlamak için, oturum açılması geçici olarak kısıtlanmıştır.
 
-Second Life için ödeme yapmış olan kişilere öncelik tanımak amacıyla, ücretsiz hesaplara sahip kişiler bu süre içerisinde Second Life&apos;a erişemeyecekler.
+Second Life için ödeme yapmış olan kişilere öncelik tanımak amacıyla, ücretsiz hesaplara sahip kişiler bu süre içerisinde Second Life'a erişemeyecekler.
 	</string>
 	<string name="LoginFailedComputerProhibited">
-		Second Life&apos;a bu bilgisayardan erişemezsiniz.
+		Second Life'a bu bilgisayardan erişemezsiniz.
 Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun:
 support@secondlife.com.
 	</string>
@@ -287,7 +282,7 @@ Lütfen yeniden oturum açmayı denemeden önce bir dakika bekleyin.
 		Bir simülatöre bağlanılamadı.
 	</string>
 	<string name="LoginFailedRestrictedHours">
-		Hesabınız Second Life&apos;a sadece
+		Hesabınız Second Life'a sadece
 Pasifik Saati ile [START] ve [END] arasında erişebilir.
 Lütfen bu saatler arasında tekrar uğrayın.
 Bunun bir hata olduğunu düşünüyorsanız, lütfen şu adrese başvurun: support@secondlife.com
@@ -370,7 +365,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Facebook ile bağlantı kurulurken sorun oluştu
 	</string>
 	<string name="SocialFacebookErrorPosting">
-		Facebook&apos;ta yayınlarken sorun oluştu
+		Facebook'ta yayınlarken sorun oluştu
 	</string>
 	<string name="SocialFacebookErrorDisconnecting">
 		Facebook bağlantısı kesilirken sorun oluştu
@@ -388,7 +383,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Flickr bağlantısı kurulurken sorun çıktı
 	</string>
 	<string name="SocialFlickrErrorPosting">
-		Flickr&apos;da yayınlarken sorun çıktı
+		Flickr'da yayınlarken sorun çıktı
 	</string>
 	<string name="SocialFlickrErrorDisconnecting">
 		Flickr bağlantısı kesilirken sorun çıktı
@@ -406,7 +401,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Twitter bağlantısı kurulurken sorun çıktı
 	</string>
 	<string name="SocialTwitterErrorPosting">
-		Twitter&apos;da yayınlarken sorun çıktı
+		Twitter'da yayınlarken sorun çıktı
 	</string>
 	<string name="SocialTwitterErrorDisconnecting">
 		Twitter bağlantısı kesilirken sorun çıktı
@@ -415,7 +410,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Siyah Beyaz
 	</string>
 	<string name="Colors1970">
-		70&apos;lerin Renkleri
+		70'lerin Renkleri
 	</string>
 	<string name="Intense">
 		Yoğun
@@ -658,7 +653,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 not kartlarına eklenemez.
 	</string>
 	<string name="TooltipNotecardOwnerRestrictedDrop">
-		Sadece kısıtlamasız &apos;sonraki sahip&apos; 
+		Sadece kısıtlamasız 'sonraki sahip' 
 izinlerini içeren öğeler not 
 kartlarına eklenebilir.
 	</string>
@@ -1108,10 +1103,10 @@ http://secondlife.com/support adresini ziyaret edin.
 		Şimdi Yakındaki bir Sesli Sohbete yeniden bağlanılacaksınız.
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verildi: [PERMISSIONS].
+		'[OWNERNAME]' adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan '[OBJECTNAME]' nesnesine şunu yapma izni verildi: [PERMISSIONS].
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		&apos;[OWNERNAME]&apos; adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan &apos;[OBJECTNAME]&apos; nesnesine şunu yapma izni verilmedi: [PERMISSIONS].
+		'[OWNERNAME]' adlı kişiye ait, [REGIONPOS] üzerinde [REGIONNAME] içerisinde bulunan '[OBJECTNAME]' nesnesine şunu yapma izni verilmedi: [PERMISSIONS].
 	</string>
 	<string name="AdditionalPermissionsRequestHeader">
 		Eğer hesabınıza erişime izin verirseniz, bu nesneye aynı zamanda şunun için izin vermiş olacaksınız:
@@ -1487,7 +1482,7 @@ http://secondlife.com/support adresini ziyaret edin.
 		Yüksek
 	</string>
 	<string name="LeaveMouselook">
-		Dünya Görünümüne dönmek için ESC&apos;e basın
+		Dünya Görünümüne dönmek için ESC'e basın
 	</string>
 	<string name="InventoryNoMatchingItems">
 		Aradığınızı bulamadınız mı? [secondlife:///app/search/all/[SEARCH_TERM] Arama] ile bulmayı deneyin.
@@ -1546,7 +1541,7 @@ http://secondlife.com/support adresini ziyaret edin.
 	</string>
 	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
+		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için "Pazaryerine Gönder" üzerine tıklayın.
 	</string>
 	<string name="InventoryOutboxInitializingTitle">
 		Pazaryeri Başlatılıyor.
@@ -1816,7 +1811,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Satın Al
 	</string>
 	<string name="BuyforL$">
-		L$&apos;a Satın Al
+		L$'a Satın Al
 	</string>
 	<string name="Stone">
 		Taş
@@ -2002,19 +1997,19 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Hata: Nesne mevcut dış görünüme dahil ama eklenmemiş
 	</string>
 	<string name="YearsMonthsOld">
-		[AGEYEARS] [AGEMONTHS]&apos;lık
+		[AGEYEARS] [AGEMONTHS]'lık
 	</string>
 	<string name="YearsOld">
 		[AGEYEARS] yaşında
 	</string>
 	<string name="MonthsOld">
-		[AGEMONTHS]&apos;lık
+		[AGEMONTHS]'lık
 	</string>
 	<string name="WeeksOld">
-		[AGEWEEKS]&apos;lık
+		[AGEWEEKS]'lık
 	</string>
 	<string name="DaysOld">
-		[AGEDAYS]&apos;lük
+		[AGEDAYS]'lük
 	</string>
 	<string name="TodayOld">
 		Bugün katıldı
@@ -2035,7 +2030,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Çevrenizdeki kimse sizi işleyemeyebilir.
 	</string>
 	<string name="hud_description_total">
-		BÜG&apos;niz
+		BÜG'niz
 	</string>
 	<string name="hud_name_with_joint">
 		[OBJ_NAME] ([JNT_NAME] üzerinde)
@@ -2313,13 +2308,13 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Kullanılan bellek: [COUNT] kb
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		Parsel Komut Dosyası URL&apos;leri
+		Parsel Komut Dosyası URL'leri
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		Kullanılan URL&apos;ler: [COUNT] / [MAX] içerisinden; [AVAILABLE] serbest
+		Kullanılan URL'ler: [COUNT] / [MAX] içerisinden; [AVAILABLE] serbest
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		Kullanılan URL&apos;ler: [COUNT]
+		Kullanılan URL'ler: [COUNT]
 	</string>
 	<string name="ScriptLimitsRequestError">
 		Bilgi talep edilirken hata oluştu
@@ -2523,7 +2518,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Yeni Komut Dosyası
 	</string>
 	<string name="DoNotDisturbModeResponseDefault">
-		Bu sakin &quot;Rahatsız Etme&quot; seçeneğini devreye almış, mesajınızı sonra görecek.
+		Bu sakin "Rahatsız Etme" seçeneğini devreye almış, mesajınızı sonra görecek.
 	</string>
 	<string name="MuteByName">
 		(Adına göre)
@@ -2634,7 +2629,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		size verdi:
 	</string>
 	<string name="InvOfferDecline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; tarafından gönderilen [DESC]&apos;i reddettiniz.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; tarafından gönderilen [DESC]'i reddettiniz.
 	</string>
 	<string name="GroupMoneyTotal">
 		Toplam
@@ -2871,8 +2866,8 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	<string name=".">
 		.
 	</string>
-	<string name="&apos;">
-		&apos;
+	<string name="'">
+		'
 	</string>
 	<string name="---">
 		---
@@ -2987,7 +2982,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 
 Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
-	<string name="5 O&apos;Clock Shadow">
+	<string name="5 O'Clock Shadow">
 		Bir Günlük Sakal
 	</string>
 	<string name="All White">
@@ -4491,7 +4486,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Görüntüleyici başlatılamadı
 	</string>
 	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: [FROM_NAME]&apos;den öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
+		[APP_NAME]: [FROM_NAME]'den öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
 	</string>
 	<string name="ItemsComingInTooFast">
 		[APP_NAME]: Öğeler çok hızlı geliyor, [TIME] saniye boyunca otomatik ön izleme devre dışı bırakıldı
@@ -4527,7 +4522,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		(Kaydedildi [LONG_TIMESTAMP])
 	</string>
 	<string name="IM_unblock_only_groups_friends">
-		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
+		Bu mesajı görmek için Tercihler/Gizlilik'de 'Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin' seçeneğinin işaretini kaldırmalısınız.
 	</string>
 	<string name="OnlineStatus">
 		Çevrimiçi
@@ -4551,7 +4546,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Sesli aramaya katıldınız
 	</string>
 	<string name="you_auto_rejected_call-im">
-		&quot;Rahatsız Etme&quot; seçeneğini devredeyken sesli aramayı otomatik olarak reddettiniz.
+		"Rahatsız Etme" seçeneğini devredeyken sesli aramayı otomatik olarak reddettiniz.
 	</string>
 	<string name="name_started_call">
 		[NAME] bir sesli arama başlattı
@@ -4575,22 +4570,26 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		[AGENT_NAME] ile konferans
 	</string>
 	<string name="inventory_item_offered-im">
-		&quot;[ITEM_NAME]&quot; envanter öğesi sunuldu
+		"[ITEM_NAME]" envanter öğesi sunuldu
 	</string>
 	<string name="inventory_folder_offered-im">
-		&quot;[ITEM_NAME]&quot; envanter klasörü sunuldu
+		"[ITEM_NAME]" envanter klasörü sunuldu
+	</string>
+	<string name="bot_warning">
+		Bir bot ile sohbet ediyorsunuz, [NAME]. Kişisel bilgilerinizi paylaşmayın.
+Daha fazla bilgi için: https://second.life/scripted-agents.
 	</string>
 	<string name="share_alert">
 		Envanterinizden buraya öğeler sürükleyin
 	</string>
 	<string name="facebook_post_success">
-		Facebook&apos;ta yayınladınız.
+		Facebook'ta yayınladınız.
 	</string>
 	<string name="flickr_post_success">
-		Flickr&apos;da yayınladınız.
+		Flickr'da yayınladınız.
 	</string>
 	<string name="twitter_post_success">
-		Twitter&apos;da yayınladınız.
+		Twitter'da yayınladınız.
 	</string>
 	<string name="no_session_message">
 		(Aİ Oturumu Mevcut Değil)
@@ -4683,7 +4682,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		[NAME] size L$[AMOUNT] ödedi.
 	</string>
 	<string name="you_paid_ldollars">
-		[NAME]&apos;e [REASON] L$[AMOUNT]  ödediniz.
+		[NAME]'e [REASON] L$[AMOUNT]  ödediniz.
 	</string>
 	<string name="you_paid_ldollars_gift">
 		[NAME] adlı kullanıcıya [AMOUNT] L$ ödediniz. [REASON]
@@ -4692,13 +4691,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		L$[AMOUNT] ödediniz.
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödediniz.
+		[NAME]'e L$[AMOUNT] ödediniz.
 	</string>
 	<string name="you_paid_ldollars_no_name">
 		[REASON] L$[AMOUNT] ödediniz.
 	</string>
 	<string name="you_paid_failure_ldollars">
-		[REASON] [NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		[REASON] [NAME]'e L$[AMOUNT] ödeyemediniz.
 	</string>
 	<string name="you_paid_failure_ldollars_gift">
 		[NAME] adlı kullanıcıya [AMOUNT] L$ ödeyemediniz. [REASON]
@@ -4707,7 +4706,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		L$[AMOUNT] ödeyemediniz.
 	</string>
 	<string name="you_paid_failure_ldollars_no_reason">
-		[NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+		[NAME]'e L$[AMOUNT] ödeyemediniz.
 	</string>
 	<string name="you_paid_failure_ldollars_no_name">
 		[REASON] L$[AMOUNT] ödeyemediniz.
@@ -5139,7 +5138,7 @@ Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen h
 	<string name="ExternalEditorNotFound">
 		Belirttiğiniz harici düzenleyici bulunamadı.
 Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
-(örn. &quot;/yolum/duzenleyici&quot; &quot;%s&quot;)
+(örn. "/yolum/duzenleyici" "%s")
 	</string>
 	<string name="ExternalEditorCommandParseError">
 		Harici düzenleyici komutu ayrıştırılırken hata oluştu.
@@ -5628,10 +5627,10 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Ortamlarım
 	</string>
 	<string name="Command_Facebook_Tooltip">
-		Facebook&apos;ta Yayınla
+		Facebook'ta Yayınla
 	</string>
 	<string name="Command_Flickr_Tooltip">
-		Flickr&apos;a yükle
+		Flickr'a yükle
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Avatarınız için mimikler
@@ -5862,10 +5861,10 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Ortam
 	</string>
 	<string name="logging_calls_disabled_log_empty">
-		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında "Kaydet: Sadece günlük" veya "Kaydet: Günlük ve dökümler" seçimini yapın.
 	</string>
 	<string name="logging_calls_disabled_log_not_empty">
-		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında "Kaydet: Sadece günlük" veya "Kaydet: Günlük ve dökümler" seçimini yapın.
 	</string>
 	<string name="logging_calls_enabled_log_empty">
 		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
@@ -5911,7 +5910,7 @@ bölümüne gidin ve sorunu bildirin.
 	</string>
 	<string name="ssl_connect_error">
 		Çoğunlukla, bu durum, bilgisayarınızın saatinin yanlış ayarlandığı anlamına gelir. 
-Lütfen Denetim Masası&apos;na gidin ve tarih ve saat ayarlarının doğru yapıldığından emin olun. 
+Lütfen Denetim Masası'na gidin ve tarih ve saat ayarlarının doğru yapıldığından emin olun. 
 Ayrıca, ağınızın ve güvenlik duvarınızın doğru şekilde ayarlanıp ayarlanmadığını kontrol edin. 
 Bu hatayı almaya devam ederseniz, lütfen SecondLife.com web sitesinin Destek bölümüne 
 gidin ve sorunu bildirin. 

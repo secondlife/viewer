@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  name="group_list_item"
  top="0"
@@ -54,9 +54,22 @@
      use_ellipses="true"
     />
     <button
+     name="notices_btn"
+     tool_tip="Group Notices"
+     top_delta="-4"
+     left_pad="3"
+     right="-80"
+     height="20"
+     width="20"
+     follows="right"
+     image_pressed="Group_Notices"
+     image_unselected="Group_Notices"
+     tab_stop="false"
+     visible="false"/>
+    <button
      name="visibility_hide_btn"
      tool_tip="Hide group on my profile"
-     top_delta="-3"
+     top_delta="0"
      left_pad="3"
      right="-53"
      height="20"
@@ -71,7 +84,6 @@
      name="visibility_show_btn"
      tool_tip="Show group on my profile"
      top_delta="0"
-     right_delta="0"
      height="20"
      width="20"
      follows="right"

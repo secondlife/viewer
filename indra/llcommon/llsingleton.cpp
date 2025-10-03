@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llsingleton.cpp
  * @author Brad Kittenbrink
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,7 +32,6 @@
 #include "lldependencies.h"
 #include "llexception.h"
 #include "llcoros.h"
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -60,9 +59,8 @@ private:
     // it's safe to log -- which involves querying a different LLSingleton --
     // which requires accessing the master list.
     typedef std::recursive_mutex mutex_t;
-    typedef std::unique_lock<mutex_t> lock_t;
-
-    mutex_t mMutex;
+    LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton MasterList");
+    typedef std::unique_lock<decltype(mMutex)> lock_t;
 
 public:
     // Instantiate this to both obtain a reference to MasterList::instance()
@@ -364,7 +362,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     // should happen basically once: for deleteAll().
     typedef LLDependencies<LLSingletonBase*> SingletonDeps;
     SingletonDeps sdeps;
-    // Lock while traversing the master list 
+    // Lock while traversing the master list
     MasterList::LockedMaster master;
     for (LLSingletonBase* sp : master.get())
     {
@@ -411,7 +409,7 @@ void LLSingletonBase::cleanup_()
 void LLSingletonBase::deleteAll()
 {
     // It's essential to traverse these in dependency order.
-    BOOST_FOREACH(LLSingletonBase* sp, dep_sort())
+    for (LLSingletonBase* sp : dep_sort())
     {
         // Capture the class name first: in case of exception, don't count on
         // being able to extract it later.
@@ -456,7 +454,7 @@ std::ostream& operator<<(std::ostream& out, const LLSingletonBase::string_params
     return out;
 }
 
-} // anonymous namespace        
+} // anonymous namespace
 
 //static
 void LLSingletonBase::logwarns(const string_params& args)

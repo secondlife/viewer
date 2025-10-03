@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  follows="all"
  height="423"
@@ -219,6 +219,7 @@
        tab_height="30"
        tab_position="top"
        tab_min_width="100"
+       use_tab_offset="true"
        top="0">
         <inventory_panel
          bg_opaque_color="DkGray2"
@@ -268,6 +269,22 @@
          scroll.reserve_scroll_corner="false">
             <folder double_click_override="true"/>
         </inventory_panel>
+        <favorites_inventory_panel
+         bg_opaque_color="DkGray2"
+         bg_alpha_color="DkGray2"
+         background_visible="true"
+         border="false"
+         bevel_style="none"
+         follows="all"
+         label="FAVORITES"
+         help_topic="recent_inventory_tab"
+         layout="topleft"
+         name="Favorites"
+         show_item_link_overlays="true"
+         preinitialize_views="false"
+         scroll.reserve_scroll_corner="false">
+          <folder double_click_override="true"/>
+        </favorites_inventory_panel>
       </tab_container>
     </panel>
     <panel

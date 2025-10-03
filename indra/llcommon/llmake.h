@@ -9,7 +9,7 @@
  *         make an instance with arguments of arbitrary type. llmake()
  *         eliminates the need to declare a new helper function for every such
  *         class template.
- * 
+ *
  *         also relevant:
  *
  *         Template argument deduction for class templates (C++17)

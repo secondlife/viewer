@@ -40,7 +40,7 @@ LLFloaterProfile::LLFloaterProfile(const LLSD& key)
  mAvatarId(key["id"].asUUID()),
  mNameCallbackConnection()
 {
-	mDefaultRectForGroup = false;
+    mDefaultRectForGroup = false;
 }
 
 LLFloaterProfile::~LLFloaterProfile()
@@ -59,11 +59,11 @@ void LLFloaterProfile::onOpen(const LLSD& key)
     mNameCallbackConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLFloaterProfile::onAvatarNameCache, this, _1, _2));
 }
 
-BOOL LLFloaterProfile::postBuild()
+bool LLFloaterProfile::postBuild()
 {
     mPanelProfile = findChild<LLPanelProfile>(PANEL_PROFILE_VIEW);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterProfile::onClickCloseBtn(bool app_quitting)

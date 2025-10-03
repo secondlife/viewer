@@ -62,7 +62,7 @@ public:
     static const std::string SETTING_DOME_OFFSET;
     static const std::string SETTING_DOME_RADIUS;
     static const std::string SETTING_GAMMA;
-    static const std::string SETTING_GLOW;    
+    static const std::string SETTING_GLOW;
     static const std::string SETTING_LIGHT_NORMAL;
     static const std::string SETTING_MAX_Y;
     static const std::string SETTING_MOON_ROTATION;
@@ -92,7 +92,7 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR;
         static const std::string SETTING_DENSITY_PROFILE_LINEAR_TERM;
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
-        
+
     static const std::string SETTING_SKY_MOISTURE_LEVEL;
     static const std::string SETTING_SKY_DROPLET_RADIUS;
     static const std::string SETTING_SKY_ICE_LEVEL;
@@ -103,6 +103,7 @@ public:
 
     static const LLUUID DEFAULT_ASSET_ID;
 
+    static const F32 DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
     static F32 sAutoAdjustProbeAmbiance;
 
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
@@ -111,25 +112,29 @@ public:
     LLSettingsSky(const LLSD &data);
     virtual ~LLSettingsSky() { };
 
-    virtual ptr_t   buildClone() const = 0;
+    virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
     virtual std::string getSettingsType() const SETTINGS_OVERRIDE { return std::string("sky"); }
     virtual LLSettingsType::type_e getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_SKY; }
 
-    // Settings status 
-    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
+    // Settings status
+    virtual void blend(LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
+    virtual void replaceSettings(const LLSettingsBase::ptr_t& other_sky) override;
 
-    void replaceWithSky(LLSettingsSky::ptr_t pother);
+    void replaceWithSky(const LLSettingsSky::ptr_t& pother);
     static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
+
+    void loadValuesFromLLSD() override;
+    void saveValuesToLLSD() override;
 
     F32 getPlanetRadius() const;
     F32 getSkyBottomRadius() const;
     F32 getSkyTopRadius() const;
     F32 getSunArcRadians() const;
-    F32 getMieAnisotropy() const;   
+    F32 getMieAnisotropy() const;
 
     F32 getSkyMoistureLevel() const;
     F32 getSkyDropletRadius() const;
@@ -138,10 +143,6 @@ public:
     // get the probe ambiance setting as stored in the sky settings asset
     // auto_adjust - if true and canAutoAdjust() is true, return 1.0
     F32 getReflectionProbeAmbiance(bool auto_adjust = false) const;
-
-    // get the probe ambiance setting to use for rendering (adjusted by cloud shadow, aka cloud coverage)
-    // auto_adjust - if true and canAutoAdjust() is true, return 1.0
-    F32 getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool auto_adjust = false) const;
 
     // Return first (only) profile layer represented in LLSD
     LLSD getRayleighConfig() const;
@@ -200,7 +201,7 @@ public:
 
     F32 getCloudShadow() const;
     void setCloudShadow(F32 val);
-    
+
     F32 getCloudVariance() const;
     void setCloudVariance(F32 val);
 
@@ -208,6 +209,12 @@ public:
     F32 getDomeRadius() const;
 
     F32 getGamma() const;
+
+    F32 getHDRMin(bool auto_adjust = false) const;
+    F32 getHDRMax(bool auto_adjust = false) const;
+    F32 getHDROffset(bool auto_adjust = false) const;
+    F32 getTonemapMix(bool auto_adjust = false) const;
+    void setTonemapMix(F32 mix);
 
     void setGamma(F32 val);
 
@@ -299,7 +306,7 @@ public:
 
     // color based on brightness
     LLColor3  getMoonlightColor() const;
-    
+
     LLColor4  getMoonAmbient() const;
     LLColor3  getMoonDiffuse() const;
     LLColor4  getSunAmbient() const;
@@ -310,7 +317,7 @@ public:
     LLColor3 getSunlightColorClamped() const;
     LLColor3 getAmbientColorClamped() const;
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
 
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultSunTextureId();
@@ -340,7 +347,7 @@ public:
     virtual void        updateSettings() SETTINGS_OVERRIDE;
 
     // if true, this sky is a candidate for auto-adjustment
-    bool canAutoAdjust() const { return mCanAutoAdjust; }
+    bool canAutoAdjust() const;
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -352,6 +359,12 @@ protected:
     virtual stringset_t getSlerpKeys() const SETTINGS_OVERRIDE;
     virtual stringset_t getSkipInterpolateKeys() const SETTINGS_OVERRIDE;
 
+    LLUUID      mSunTextureId;
+    LLUUID      mMoonTextureId;
+    LLUUID      mCloudTextureId;
+    LLUUID      mBloomTextureId;
+    LLUUID      mRainbowTextureId;
+    LLUUID      mHaloTextureId;
     LLUUID      mNextSunTextureId;
     LLUUID      mNextMoonTextureId;
     LLUUID      mNextCloudTextureId;
@@ -359,17 +372,68 @@ protected:
     LLUUID      mNextRainbowTextureId;
     LLUUID      mNextHaloTextureId;
 
+    bool mCanAutoAdjust;
+    LLQuaternion mSunRotation;
+    LLQuaternion mMoonRotation;
+    LLColor3 mSunlightColor;
+    LLColor3 mGlow;
+    F32 mReflectionProbeAmbiance;
+    F32 mSunScale;
+    F32 mStarBrightness;
+    F32 mMoonBrightness;
+    F32 mMoonScale;
+    F32 mMaxY;
+    F32 mGamma;
+    F32 mCloudVariance;
+    F32 mCloudShadow;
+    F32 mCloudScale;
+    F32 mTonemapMix;
+    F32 mHDROffset;
+    F32 mHDRMax;
+    F32 mHDRMin;
+    LLVector2 mScrollRate;
+    LLColor3 mCloudPosDensity1;
+    LLColor3 mCloudPosDensity2;
+    LLColor3 mCloudColor;
+    LLSD mAbsorptionConfigs;
+    LLSD mMieConfigs;
+    LLSD mRayleighConfigs;
+    F32 mSunArcRadians;
+    F32 mSkyTopRadius;
+    F32 mSkyBottomRadius;
+    F32 mSkyMoistureLevel;
+    F32 mSkyDropletRadius;
+    F32 mSkyIceLevel;
+    F32 mPlanetRadius;
+
+    F32 mHazeHorizon;
+    F32 mHazeDensity;
+    F32 mDistanceMultiplier;
+    F32 mDensityMultiplier;
+    LLColor3 mBlueHorizon;
+    LLColor3 mBlueDensity;
+    LLColor3 mAmbientColor;
+
+    bool mHasLegacyHaze;
+    bool mLegacyHazeHorizon;
+    bool mLegacyHazeDensity;
+    bool mLegacyDistanceMultiplier;
+    bool mLegacyDensityMultiplier;
+    bool mLegacyBlueHorizon;
+    bool mLegacyBlueDensity;
+    bool mLegacyAmbientColor;
+
 private:
     static LLSD rayleighConfigDefault();
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();
 
-    LLColor3 getColor(const std::string& key, const LLColor3& default_value) const;
-    F32      getFloat(const std::string& key, F32 default_value) const;
+    LLColor3 getColor(const std::string& key, const LLColor3& default_value);
+    F32      getFloat(const std::string& key, F32 default_value);
 
     void        calculateHeavenlyBodyPositions() const;
     void        calculateLightSettings() const;
-    void        clampColor(LLColor3& color, F32 gamma, const F32 scale = 1.0f) const;
+    static void clampColor(LLColor3& color, F32 gamma, const F32 scale = 1.0f);
 
     mutable LLVector3   mSunDirection;
     mutable LLVector3   mMoonDirection;
@@ -384,9 +448,6 @@ private:
     mutable LLColor3    mSunDiffuse;
     mutable LLColor4    mTotalAmbient;
     mutable LLColor4    mHazeColor;
-
-    // if true, this sky is a candidate for auto adjustment
-    bool mCanAutoAdjust = true;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 

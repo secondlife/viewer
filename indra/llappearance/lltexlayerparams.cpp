@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lltexlayerparams.cpp
  * @brief Texture layer parameters
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,45 +41,45 @@
 // LLTexLayerParam
 //-----------------------------------------------------------------------------
 LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
-	: LLViewerVisualParam(),
-	mTexLayer(layer),
-	mAvatarAppearance(NULL)
+    : LLViewerVisualParam(),
+    mTexLayer(layer),
+    mAvatarAppearance(NULL)
 {
-	if (mTexLayer != NULL)
-	{
-		mAvatarAppearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
-	}
-	else
-	{
-		LL_ERRS() << "LLTexLayerParam constructor passed with NULL reference for layer!" << LL_ENDL;
-	}
+    if (mTexLayer != NULL)
+    {
+        mAvatarAppearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
+    }
+    else
+    {
+        LL_ERRS() << "LLTexLayerParam constructor passed with NULL reference for layer!" << LL_ENDL;
+    }
 }
 
 LLTexLayerParam::LLTexLayerParam(LLAvatarAppearance *appearance)
-	: LLViewerVisualParam(),
-	mTexLayer(NULL),
-	mAvatarAppearance(appearance)
+    : LLViewerVisualParam(),
+    mTexLayer(NULL),
+    mAvatarAppearance(appearance)
 {
 }
 
 LLTexLayerParam::LLTexLayerParam(const LLTexLayerParam& pOther)
-	: LLViewerVisualParam(pOther),
-	mTexLayer(pOther.mTexLayer),
-	mAvatarAppearance(pOther.mAvatarAppearance)
+    : LLViewerVisualParam(pOther),
+    mTexLayer(pOther.mTexLayer),
+    mAvatarAppearance(pOther.mAvatarAppearance)
 {
 }
 
-BOOL LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appearance)
+bool LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, bool add_to_appearance)
 {
-	LLViewerVisualParam::setInfo(info);
+    LLViewerVisualParam::setInfo(info);
 
-	if (add_to_appearance)
-	{
-		mAvatarAppearance->addVisualParam( this);
-		this->setParamLocation(mAvatarAppearance->isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
-	}
+    if (add_to_appearance)
+    {
+        mAvatarAppearance->addVisualParam( this);
+        this->setParamLocation(mAvatarAppearance->isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
+    }
 
-	return TRUE;
+    return true;
 }
 
 
@@ -87,350 +87,350 @@ BOOL LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appeara
 // LLTexLayerParamAlpha
 //-----------------------------------------------------------------------------
 
-// static 
+// static
 LLTexLayerParamAlpha::param_alpha_ptr_list_t LLTexLayerParamAlpha::sInstances;
 
-// static 
+// static
 void LLTexLayerParamAlpha::dumpCacheByteCount()
 {
-	S32 gl_bytes = 0;
-	getCacheByteCount( &gl_bytes);
-	LL_INFOS() << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << LL_ENDL;
+    S32 gl_bytes = 0;
+    getCacheByteCount( &gl_bytes);
+    LL_INFOS() << "Processed Alpha Texture Cache GL:" << (gl_bytes/1024) << "KB" << LL_ENDL;
 }
 
-// static 
+// static
 void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 {
-	*gl_bytes = 0;
+    *gl_bytes = 0;
 
-	for (LLTexLayerParamAlpha* instance : sInstances)
-	{
-		LLGLTexture* tex = instance->mCachedProcessedTexture;
-		if (tex)
-		{
-			S32 bytes = (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
+    for (LLTexLayerParamAlpha* instance : sInstances)
+    {
+        LLGLTexture* tex = instance->mCachedProcessedTexture;
+        if (tex)
+        {
+            S32 bytes = (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
 
-			if (tex->hasGLTexture())
-			{
-				*gl_bytes += bytes;
-			}
-		}
-	}
+            if (tex->hasGLTexture())
+            {
+                *gl_bytes += bytes;
+            }
+        }
+    }
 }
 
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
-	: LLTexLayerParam(layer),
-	mCachedProcessedTexture(NULL),
-	mStaticImageTGA(),
-	mStaticImageRaw(),
-	mNeedsCreateTexture(FALSE),
-	mStaticImageInvalid(FALSE),
-	mAvgDistortionVec(1.f, 1.f, 1.f),
-	mCachedEffectiveWeight(0.f)
+    : LLTexLayerParam(layer),
+    mCachedProcessedTexture(NULL),
+    mStaticImageTGA(),
+    mStaticImageRaw(),
+    mNeedsCreateTexture(false),
+    mStaticImageInvalid(false),
+    mAvgDistortionVec(1.f, 1.f, 1.f),
+    mCachedEffectiveWeight(0.f)
 {
-	sInstances.push_front(this);
+    sInstances.push_front(this);
 }
 
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance)
-	: LLTexLayerParam(appearance),
-	mCachedProcessedTexture(NULL),
-	mStaticImageTGA(),
-	mStaticImageRaw(),
-	mNeedsCreateTexture(FALSE),
-	mStaticImageInvalid(FALSE),
-	mAvgDistortionVec(1.f, 1.f, 1.f),
-	mCachedEffectiveWeight(0.f)
+    : LLTexLayerParam(appearance),
+    mCachedProcessedTexture(NULL),
+    mStaticImageTGA(),
+    mStaticImageRaw(),
+    mNeedsCreateTexture(false),
+    mStaticImageInvalid(false),
+    mAvgDistortionVec(1.f, 1.f, 1.f),
+    mCachedEffectiveWeight(0.f)
 {
-	sInstances.push_front(this);
+    sInstances.push_front(this);
 }
 
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(const LLTexLayerParamAlpha& pOther)
-	: LLTexLayerParam(pOther),
-	mCachedProcessedTexture(pOther.mCachedProcessedTexture),
-	mStaticImageTGA(pOther.mStaticImageTGA),
-	mStaticImageRaw(pOther.mStaticImageRaw),
-	mNeedsCreateTexture(pOther.mNeedsCreateTexture.load()),
-	mStaticImageInvalid(pOther.mStaticImageInvalid),
-	mAvgDistortionVec(pOther.mAvgDistortionVec),
-	mCachedEffectiveWeight(pOther.mCachedEffectiveWeight)
+    : LLTexLayerParam(pOther),
+    mCachedProcessedTexture(pOther.mCachedProcessedTexture),
+    mStaticImageTGA(pOther.mStaticImageTGA),
+    mStaticImageRaw(pOther.mStaticImageRaw),
+    mNeedsCreateTexture(pOther.mNeedsCreateTexture.load()),
+    mStaticImageInvalid(pOther.mStaticImageInvalid),
+    mAvgDistortionVec(pOther.mAvgDistortionVec),
+    mCachedEffectiveWeight(pOther.mCachedEffectiveWeight)
 {
-	sInstances.push_front(this);
+    sInstances.push_front(this);
 }
 
 LLTexLayerParamAlpha::~LLTexLayerParamAlpha()
 {
-	deleteCaches();
-	sInstances.remove(this);
+    deleteCaches();
+    sInstances.remove(this);
 }
 
 /*virtual*/ LLViewerVisualParam* LLTexLayerParamAlpha::cloneParam(LLWearable* wearable) const
 {
-	return new LLTexLayerParamAlpha(*this);
+    return new LLTexLayerParamAlpha(*this);
 }
 
 void LLTexLayerParamAlpha::deleteCaches()
 {
-	mStaticImageTGA = NULL; // deletes image
-	mCachedProcessedTexture = NULL;
-	mStaticImageRaw = NULL;
-	mNeedsCreateTexture = FALSE;
+    mStaticImageTGA = NULL; // deletes image
+    mCachedProcessedTexture = NULL;
+    mStaticImageRaw = NULL;
+    mNeedsCreateTexture = false;
 }
 
-BOOL LLTexLayerParamAlpha::getMultiplyBlend() const
+bool LLTexLayerParamAlpha::getMultiplyBlend() const
 {
-	return ((LLTexLayerParamAlphaInfo *)getInfo())->mMultiplyBlend; 	
+    return ((LLTexLayerParamAlphaInfo *)getInfo())->mMultiplyBlend;
 }
 
 void LLTexLayerParamAlpha::setWeight(F32 weight)
 {
-	if (mIsAnimating || mTexLayer == NULL)
-	{
-		return;
-	}
-	F32 min_weight = getMinWeight();
-	F32 max_weight = getMaxWeight();
-	F32 new_weight = llclamp(weight, min_weight, max_weight);
-	U8 cur_u8 = F32_to_U8(mCurWeight, min_weight, max_weight);
-	U8 new_u8 = F32_to_U8(new_weight, min_weight, max_weight);
-	if (cur_u8 != new_u8)
-	{
-		mCurWeight = new_weight;
+    if (mIsAnimating || mTexLayer == NULL)
+    {
+        return;
+    }
+    F32 min_weight = getMinWeight();
+    F32 max_weight = getMaxWeight();
+    F32 new_weight = llclamp(weight, min_weight, max_weight);
+    U8 cur_u8 = F32_to_U8(mCurWeight, min_weight, max_weight);
+    U8 new_u8 = F32_to_U8(new_weight, min_weight, max_weight);
+    if (cur_u8 != new_u8)
+    {
+        mCurWeight = new_weight;
 
-		if ((mAvatarAppearance->getSex() & getSex()) &&
-			(mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
-		{
-			mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
-			mTexLayer->invalidateMorphMasks();
-		}
-	}
+        if ((mAvatarAppearance->getSex() & getSex()) &&
+            (mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
+        {
+            mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
+            mTexLayer->invalidateMorphMasks();
+        }
+    }
 }
 
 void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value)
-{ 
-	// do not animate dummy parameters
-	if (mIsDummy)
-	{
-		setWeight(target_value);
-		return;
-	}
+{
+    // do not animate dummy parameters
+    if (mIsDummy)
+    {
+        setWeight(target_value);
+        return;
+    }
 
-	mTargetWeight = target_value; 
-	setWeight(target_value); 
-	mIsAnimating = TRUE;
-	if (mNext)
-	{
-		mNext->setAnimationTarget(target_value);
-	}
+    mTargetWeight = target_value;
+    setWeight(target_value);
+    mIsAnimating = true;
+    if (mNext)
+    {
+        mNext->setAnimationTarget(target_value);
+    }
 }
 
 void LLTexLayerParamAlpha::animate(F32 delta)
 {
-	if (mNext)
-	{
-		mNext->animate(delta);
-	}
+    if (mNext)
+    {
+        mNext->animate(delta);
+    }
 }
 
-BOOL LLTexLayerParamAlpha::getSkip() const
+bool LLTexLayerParamAlpha::getSkip() const
 {
-	if (!mTexLayer)
-	{
-		return TRUE;
-	}
+    if (!mTexLayer)
+    {
+        return true;
+    }
 
-	const LLAvatarAppearance *appearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
+    const LLAvatarAppearance *appearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
 
-	if (((LLTexLayerParamAlphaInfo *)getInfo())->mSkipIfZeroWeight)
-	{
-		F32 effective_weight = (appearance->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
-		if (is_approx_zero(effective_weight)) 
-		{
-			return TRUE;
-		}
-	}
+    if (((LLTexLayerParamAlphaInfo *)getInfo())->mSkipIfZeroWeight)
+    {
+        F32 effective_weight = (appearance->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
+        if (is_approx_zero(effective_weight))
+        {
+            return true;
+        }
+    }
 
-	LLWearableType::EType type = (LLWearableType::EType)getWearableType();
-	if ((type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type))
-	{
-		return TRUE;
-	}
+    LLWearableType::EType type = (LLWearableType::EType)getWearableType();
+    if ((type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type))
+    {
+        return true;
+    }
 
-	return FALSE;
+    return false;
 }
 
 
-BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
+bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 {
     LL_PROFILE_ZONE_SCOPED;
-	BOOL success = TRUE;
+    bool success = true;
 
-	if (!mTexLayer)
-	{
-		return success;
-	}
+    if (!mTexLayer)
+    {
+        return success;
+    }
 
-	F32 effective_weight = (mTexLayer->getTexLayerSet()->getAvatarAppearance()->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
-	BOOL weight_changed = effective_weight != mCachedEffectiveWeight;
-	if (getSkip())
-	{
-		return success;
-	}
+    F32 effective_weight = (mTexLayer->getTexLayerSet()->getAvatarAppearance()->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
+    bool weight_changed = effective_weight != mCachedEffectiveWeight;
+    if (getSkip())
+    {
+        return success;
+    }
 
-	LLTexLayerParamAlphaInfo *info = (LLTexLayerParamAlphaInfo *)getInfo();
-	gGL.flush();
-	if (info->mMultiplyBlend)
-	{
-		gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO); // Multiplication: approximates a min() function
-	}
-	else
-	{
-		gGL.setSceneBlendType(LLRender::BT_ADD);  // Addition: approximates a max() function
-	}
+    LLTexLayerParamAlphaInfo *info = (LLTexLayerParamAlphaInfo *)getInfo();
+    gGL.flush();
+    if (info->mMultiplyBlend)
+    {
+        gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO); // Multiplication: approximates a min() function
+    }
+    else
+    {
+        gGL.setSceneBlendType(LLRender::BT_ADD);  // Addition: approximates a max() function
+    }
 
-	if (!info->mStaticImageFileName.empty() && !mStaticImageInvalid)
-	{
-		if (mStaticImageTGA.isNull())
-		{
-			// Don't load the image file until we actually need it the first time.  Like now.
-			mStaticImageTGA = LLTexLayerStaticImageList::getInstance()->getImageTGA(info->mStaticImageFileName);  
-			// We now have something in one of our caches
-			LLTexLayerSet::sHasCaches |= mStaticImageTGA.notNull() ? TRUE : FALSE;
+    if (!info->mStaticImageFileName.empty() && !mStaticImageInvalid)
+    {
+        if (mStaticImageTGA.isNull())
+        {
+            // Don't load the image file until we actually need it the first time.  Like now.
+            mStaticImageTGA = LLTexLayerStaticImageList::getInstance()->getImageTGA(info->mStaticImageFileName);
+            // We now have something in one of our caches
+            LLTexLayerSet::sHasCaches |= mStaticImageTGA.notNull();
 
-			if (mStaticImageTGA.isNull())
-			{
-				LL_WARNS() << "Unable to load static file: " << info->mStaticImageFileName << LL_ENDL;
-				mStaticImageInvalid = TRUE; // don't try again.
-				return FALSE;
-			}
-		}
+            if (mStaticImageTGA.isNull())
+            {
+                LL_WARNS() << "Unable to load static file: " << info->mStaticImageFileName << LL_ENDL;
+                mStaticImageInvalid = true; // don't try again.
+                return false;
+            }
+        }
 
-		const S32 image_tga_width = mStaticImageTGA->getWidth();
-		const S32 image_tga_height = mStaticImageTGA->getHeight(); 
-		if (!mCachedProcessedTexture ||
-			(mCachedProcessedTexture->getWidth() != image_tga_width) ||
-			(mCachedProcessedTexture->getHeight() != image_tga_height) ||
-			(weight_changed))
-		{
-			mCachedEffectiveWeight = effective_weight;
+        const S32 image_tga_width = mStaticImageTGA->getWidth();
+        const S32 image_tga_height = mStaticImageTGA->getHeight();
+        if (!mCachedProcessedTexture ||
+            (mCachedProcessedTexture->getWidth() != image_tga_width) ||
+            (mCachedProcessedTexture->getHeight() != image_tga_height) ||
+            (weight_changed))
+        {
+            mCachedEffectiveWeight = effective_weight;
 
-			if (!mCachedProcessedTexture)
-			{
-				llassert(gTextureManagerBridgep);
-				mCachedProcessedTexture = gTextureManagerBridgep->getLocalTexture(image_tga_width, image_tga_height, 1, FALSE);
+            if (!mCachedProcessedTexture)
+            {
+                llassert(gTextureManagerBridgep);
+                mCachedProcessedTexture = gTextureManagerBridgep->getLocalTexture(image_tga_width, image_tga_height, 1, false);
 
-				// We now have something in one of our caches
-				LLTexLayerSet::sHasCaches |= mCachedProcessedTexture ? TRUE : FALSE;
+                // We now have something in one of our caches
+                LLTexLayerSet::sHasCaches |= mCachedProcessedTexture.notNull();
 
-				mCachedProcessedTexture->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
-			}
+                mCachedProcessedTexture->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
+            }
 
-			// Applies domain and effective weight to data as it is decoded. Also resizes the raw image if needed.
-			mStaticImageRaw = NULL;
-			mStaticImageRaw = new LLImageRaw;
-			mStaticImageTGA->decodeAndProcess(mStaticImageRaw, info->mDomain, effective_weight);
-			mNeedsCreateTexture = TRUE;			
-			LL_DEBUGS() << "Built Cached Alpha: " << info->mStaticImageFileName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << "Domain: " << info->mDomain << " Weight: " << effective_weight << LL_ENDL;
-		}
+            // Applies domain and effective weight to data as it is decoded. Also resizes the raw image if needed.
+            mStaticImageRaw = NULL;
+            mStaticImageRaw = new LLImageRaw;
+            mStaticImageTGA->decodeAndProcess(mStaticImageRaw, info->mDomain, effective_weight);
+            mNeedsCreateTexture = true;
+            LL_DEBUGS() << "Built Cached Alpha: " << info->mStaticImageFileName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << "Domain: " << info->mDomain << " Weight: " << effective_weight << LL_ENDL;
+        }
 
-		if (mCachedProcessedTexture)
-		{
-			{
-				// Create the GL texture, and then hang onto it for future use.
-				if (mNeedsCreateTexture)
-				{
-					mCachedProcessedTexture->createGLTexture(0, mStaticImageRaw);
-					mNeedsCreateTexture = FALSE;
-					gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
-					mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
-				}
+        if (mCachedProcessedTexture)
+        {
+            {
+                // Create the GL texture, and then hang onto it for future use.
+                if (mNeedsCreateTexture)
+                {
+                    mCachedProcessedTexture->createGLTexture(0, mStaticImageRaw);
+                    mNeedsCreateTexture = false;
+                    gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
+                    mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
+                }
 
-				gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
-				gl_rect_2d_simple_tex(width, height);
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-				stop_glerror();
-			}
-		}
+                gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
+                gl_rect_2d_simple_tex(width, height);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                stop_glerror();
+            }
+        }
 
-		// Don't keep the cache for other people's avatars
-		// (It's not really a "cache" in that case, but the logic is the same)
-		if (!mAvatarAppearance->isSelf())
-		{
-			mCachedProcessedTexture = NULL;
-		}
-	}
-	else
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4f(0.f, 0.f, 0.f, effective_weight);
-		gl_rect_2d_simple(width, height);
-	}
+        // Don't keep the cache for other people's avatars
+        // (It's not really a "cache" in that case, but the logic is the same)
+        if (!mAvatarAppearance->isSelf())
+        {
+            mCachedProcessedTexture = NULL;
+        }
+    }
+    else
+    {
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.color4f(0.f, 0.f, 0.f, effective_weight);
+        gl_rect_2d_simple(width, height);
+    }
 
-	return success;
+    return success;
 }
 
 //-----------------------------------------------------------------------------
 // LLTexLayerParamAlphaInfo
 //-----------------------------------------------------------------------------
 LLTexLayerParamAlphaInfo::LLTexLayerParamAlphaInfo() :
-	mMultiplyBlend(FALSE),
-	mSkipIfZeroWeight(FALSE),
-	mDomain(0.f)
+    mMultiplyBlend(false),
+    mSkipIfZeroWeight(false),
+    mDomain(0.f)
 {
 }
 
-BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 {
-	llassert(node->hasName("param") && node->getChildByName("param_alpha"));
+    llassert(node->hasName("param") && node->getChildByName("param_alpha"));
 
-	if (!LLViewerVisualParamInfo::parseXml(node))
-		return FALSE;
+    if (!LLViewerVisualParamInfo::parseXml(node))
+        return false;
 
-	LLXmlTreeNode* param_alpha_node = node->getChildByName("param_alpha");
-	if (!param_alpha_node)
-	{
-		return FALSE;
-	}
+    LLXmlTreeNode* param_alpha_node = node->getChildByName("param_alpha");
+    if (!param_alpha_node)
+    {
+        return false;
+    }
 
-	static LLStdStringHandle tga_file_string = LLXmlTree::addAttributeString("tga_file");
-	if (param_alpha_node->getFastAttributeString(tga_file_string, mStaticImageFileName))
-	{
-		// Don't load the image file until it's actually needed.
-	}
-//	else
-//	{
-//		LL_WARNS() << "<param_alpha> element is missing tga_file attribute." << LL_ENDL;
-//	}
-	
-	static LLStdStringHandle multiply_blend_string = LLXmlTree::addAttributeString("multiply_blend");
-	param_alpha_node->getFastAttributeBOOL(multiply_blend_string, mMultiplyBlend);
+    static LLStdStringHandle tga_file_string = LLXmlTree::addAttributeString("tga_file");
+    if (param_alpha_node->getFastAttributeString(tga_file_string, mStaticImageFileName))
+    {
+        // Don't load the image file until it's actually needed.
+    }
+//  else
+//  {
+//      LL_WARNS() << "<param_alpha> element is missing tga_file attribute." << LL_ENDL;
+//  }
 
-	static LLStdStringHandle skip_if_zero_string = LLXmlTree::addAttributeString("skip_if_zero");
-	param_alpha_node->getFastAttributeBOOL(skip_if_zero_string, mSkipIfZeroWeight);
+    static LLStdStringHandle multiply_blend_string = LLXmlTree::addAttributeString("multiply_blend");
+    param_alpha_node->getFastAttributeBOOL(multiply_blend_string, mMultiplyBlend);
 
-	static LLStdStringHandle domain_string = LLXmlTree::addAttributeString("domain");
-	param_alpha_node->getFastAttributeF32(domain_string, mDomain);
+    static LLStdStringHandle skip_if_zero_string = LLXmlTree::addAttributeString("skip_if_zero");
+    param_alpha_node->getFastAttributeBOOL(skip_if_zero_string, mSkipIfZeroWeight);
 
-	return TRUE;
+    static LLStdStringHandle domain_string = LLXmlTree::addAttributeString("domain");
+    param_alpha_node->getFastAttributeF32(domain_string, mDomain);
+
+    return true;
 }
 
 
 
 
 LLTexLayerParamColor::LLTexLayerParamColor(LLTexLayerInterface* layer)
-	: LLTexLayerParam(layer),
-	mAvgDistortionVec(1.f, 1.f, 1.f)
+    : LLTexLayerParam(layer),
+    mAvgDistortionVec(1.f, 1.f, 1.f)
 {
 }
 
 LLTexLayerParamColor::LLTexLayerParamColor(LLAvatarAppearance *appearance)
-	: LLTexLayerParam(appearance),
-	mAvgDistortionVec(1.f, 1.f, 1.f)
+    : LLTexLayerParam(appearance),
+    mAvgDistortionVec(1.f, 1.f, 1.f)
 {
 }
 
 LLTexLayerParamColor::LLTexLayerParamColor(const LLTexLayerParamColor& pOther)
-	: LLTexLayerParam(pOther),
-	mAvgDistortionVec(pOther.mAvgDistortionVec)
+    : LLTexLayerParam(pOther),
+    mAvgDistortionVec(pOther.mAvgDistortionVec)
 {
 }
 
@@ -440,155 +440,155 @@ LLTexLayerParamColor::~LLTexLayerParamColor()
 
 /*virtual*/ LLViewerVisualParam* LLTexLayerParamColor::cloneParam(LLWearable* wearable) const
 {
-	return new LLTexLayerParamColor(*this);
+    return new LLTexLayerParamColor(*this);
 }
 
 LLColor4 LLTexLayerParamColor::getNetColor() const
 {
-	const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
-	
-	llassert(info->mNumColors >= 1);
+    const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
 
-	F32 effective_weight = (mAvatarAppearance && (mAvatarAppearance->getSex() & getSex())) ? mCurWeight : getDefaultWeight();
+    llassert(info->mNumColors >= 1);
 
-	S32 index_last = info->mNumColors - 1;
-	F32 scaled_weight = effective_weight * index_last;
-	S32 index_start = (S32) scaled_weight;
-	S32 index_end = index_start + 1;
-	if (index_start == index_last)
-	{
-		return info->mColors[index_last];
-	}
-	else
-	{
-		F32 weight = scaled_weight - index_start;
-		const LLColor4 *start = &info->mColors[ index_start ];
-		const LLColor4 *end   = &info->mColors[ index_end ];
-		return LLColor4((1.f - weight) * start->mV[VX] + weight * end->mV[VX],
-						(1.f - weight) * start->mV[VY] + weight * end->mV[VY],
-						(1.f - weight) * start->mV[VZ] + weight * end->mV[VZ],
-						(1.f - weight) * start->mV[VW] + weight * end->mV[VW]);
-	}
+    F32 effective_weight = (mAvatarAppearance && (mAvatarAppearance->getSex() & getSex())) ? mCurWeight : getDefaultWeight();
+
+    S32 index_last = info->mNumColors - 1;
+    F32 scaled_weight = effective_weight * index_last;
+    S32 index_start = (S32) scaled_weight;
+    S32 index_end = index_start + 1;
+    if (index_start == index_last)
+    {
+        return info->mColors[index_last];
+    }
+    else
+    {
+        F32 weight = scaled_weight - index_start;
+        const LLColor4 *start = &info->mColors[ index_start ];
+        const LLColor4 *end   = &info->mColors[ index_end ];
+        return LLColor4((1.f - weight) * start->mV[VRED] + weight * end->mV[VRED],
+                        (1.f - weight) * start->mV[VGREEN] + weight * end->mV[VGREEN],
+                        (1.f - weight) * start->mV[VBLUE] + weight * end->mV[VBLUE],
+                        (1.f - weight) * start->mV[VALPHA] + weight * end->mV[VALPHA]);
+    }
 }
 
 
 void LLTexLayerParamColor::setWeight(F32 weight)
 {
-	if (mIsAnimating)
-	{
-		return;
-	}
+    if (mIsAnimating)
+    {
+        return;
+    }
 
-	F32 min_weight = getMinWeight();
-	F32 max_weight = getMaxWeight();
-	F32 new_weight = llclamp(weight, min_weight, max_weight);
-	U8 cur_u8 = F32_to_U8(mCurWeight, min_weight, max_weight);
-	U8 new_u8 = F32_to_U8(new_weight, min_weight, max_weight);
-	if (cur_u8 != new_u8)
-	{
-		mCurWeight = new_weight;
+    F32 min_weight = getMinWeight();
+    F32 max_weight = getMaxWeight();
+    F32 new_weight = llclamp(weight, min_weight, max_weight);
+    U8 cur_u8 = F32_to_U8(mCurWeight, min_weight, max_weight);
+    U8 new_u8 = F32_to_U8(new_weight, min_weight, max_weight);
+    if (cur_u8 != new_u8)
+    {
+        mCurWeight = new_weight;
 
                 const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
 
-		if (info->mNumColors <= 0)
-		{
-			// This will happen when we set the default weight the first time.
-			return;
-		}
+        if (info->mNumColors <= 0)
+        {
+            // This will happen when we set the default weight the first time.
+            return;
+        }
 
-		if ((mAvatarAppearance->getSex() & getSex()) && (mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
-		{
-			onGlobalColorChanged();
-			if (mTexLayer)
-			{
-				mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
-			}
-		}
+        if ((mAvatarAppearance->getSex() & getSex()) && (mAvatarAppearance->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
+        {
+            onGlobalColorChanged();
+            if (mTexLayer)
+            {
+                mAvatarAppearance->invalidateComposite(mTexLayer->getTexLayerSet());
+            }
+        }
 
-//		LL_INFOS() << "param " << mName << " = " << new_weight << LL_ENDL;
-	}
+//      LL_INFOS() << "param " << mName << " = " << new_weight << LL_ENDL;
+    }
 }
 
 void LLTexLayerParamColor::setAnimationTarget(F32 target_value)
-{ 
-	// set value first then set interpolating flag to ignore further updates
-	mTargetWeight = target_value; 
-	setWeight(target_value);
-	mIsAnimating = TRUE;
-	if (mNext)
-	{
-		mNext->setAnimationTarget(target_value);
-	}
+{
+    // set value first then set interpolating flag to ignore further updates
+    mTargetWeight = target_value;
+    setWeight(target_value);
+    mIsAnimating = true;
+    if (mNext)
+    {
+        mNext->setAnimationTarget(target_value);
+    }
 }
 
 void LLTexLayerParamColor::animate(F32 delta)
 {
-	if (mNext)
-	{
-		mNext->animate(delta);
-	}
+    if (mNext)
+    {
+        mNext->animate(delta);
+    }
 }
 
 //-----------------------------------------------------------------------------
 // LLTexLayerParamColorInfo
 //-----------------------------------------------------------------------------
 LLTexLayerParamColorInfo::LLTexLayerParamColorInfo() :
-	mOperation(LLTexLayerParamColor::OP_ADD),
-	mNumColors(0)
+    mOperation(LLTexLayerParamColor::OP_ADD),
+    mNumColors(0)
 {
 }
 
-BOOL LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
+bool LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
 {
-	llassert(node->hasName("param") && node->getChildByName("param_color"));
+    llassert(node->hasName("param") && node->getChildByName("param_color"));
 
-	if (!LLViewerVisualParamInfo::parseXml(node))
-		return FALSE;
+    if (!LLViewerVisualParamInfo::parseXml(node))
+        return false;
 
-	LLXmlTreeNode* param_color_node = node->getChildByName("param_color");
-	if (!param_color_node)
-	{
-		return FALSE;
-	}
+    LLXmlTreeNode* param_color_node = node->getChildByName("param_color");
+    if (!param_color_node)
+    {
+        return false;
+    }
 
-	std::string op_string;
-	static LLStdStringHandle operation_string = LLXmlTree::addAttributeString("operation");
-	if (param_color_node->getFastAttributeString(operation_string, op_string))
-	{
-		LLStringUtil::toLower(op_string);
-		if		(op_string == "add") 		mOperation = LLTexLayerParamColor::OP_ADD;
-		else if	(op_string == "multiply")	mOperation = LLTexLayerParamColor::OP_MULTIPLY;
-		else if	(op_string == "blend")	    mOperation = LLTexLayerParamColor::OP_BLEND;
-	}
+    std::string op_string;
+    static LLStdStringHandle operation_string = LLXmlTree::addAttributeString("operation");
+    if (param_color_node->getFastAttributeString(operation_string, op_string))
+    {
+        LLStringUtil::toLower(op_string);
+        if      (op_string == "add")        mOperation = LLTexLayerParamColor::OP_ADD;
+        else if (op_string == "multiply")   mOperation = LLTexLayerParamColor::OP_MULTIPLY;
+        else if (op_string == "blend")      mOperation = LLTexLayerParamColor::OP_BLEND;
+    }
 
-	mNumColors = 0;
+    mNumColors = 0;
 
-	LLColor4U color4u;
-	for (LLXmlTreeNode* child = param_color_node->getChildByName("value");
-		 child;
-		 child = param_color_node->getNextNamedChild())
-	{
-		if ((mNumColors < MAX_COLOR_VALUES))
-		{
-			static LLStdStringHandle color_string = LLXmlTree::addAttributeString("color");
-			if (child->getFastAttributeColor4U(color_string, color4u))
-			{
-				mColors[ mNumColors ].setVec(color4u);
-				mNumColors++;
-			}
-		}
-	}
-	if (!mNumColors)
-	{
-		LL_WARNS() << "<param_color> is missing <value> sub-elements" << LL_ENDL;
-		return FALSE;
-	}
+    LLColor4U color4u;
+    for (LLXmlTreeNode* child = param_color_node->getChildByName("value");
+         child;
+         child = param_color_node->getNextNamedChild())
+    {
+        if ((mNumColors < MAX_COLOR_VALUES))
+        {
+            static LLStdStringHandle color_string = LLXmlTree::addAttributeString("color");
+            if (child->getFastAttributeColor4U(color_string, color4u))
+            {
+                mColors[ mNumColors ].setVec(color4u);
+                mNumColors++;
+            }
+        }
+    }
+    if (!mNumColors)
+    {
+        LL_WARNS() << "<param_color> is missing <value> sub-elements" << LL_ENDL;
+        return false;
+    }
 
-	if ((mOperation == LLTexLayerParamColor::OP_BLEND) && (mNumColors != 1))
-	{
-		LL_WARNS() << "<param_color> with operation\"blend\" must have exactly one <value>" << LL_ENDL;
-		return FALSE;
-	}
-	
-	return TRUE;
+    if ((mOperation == LLTexLayerParamColor::OP_BLEND) && (mNumColors != 1))
+    {
+        LL_WARNS() << "<param_color> with operation\"blend\" must have exactly one <value>" << LL_ENDL;
+        return false;
+    }
+
+    return true;
 }

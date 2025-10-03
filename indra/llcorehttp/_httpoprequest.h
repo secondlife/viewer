@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_OPREQUEST_H_
-#define	_LLCORE_HTTP_OPREQUEST_H_
+#ifndef _LLCORE_HTTP_OPREQUEST_H_
+#define _LLCORE_HTTP_OPREQUEST_H_
 
 
-#include "linden_common.h"		// Modifies curl/curl.h interfaces
+#include "linden_common.h"      // Modifies curl/curl.h interfaces
 
 #include <string>
 #include <curl/curl.h>
@@ -66,67 +66,67 @@ class BufferArray;
 class HttpOpRequest : public HttpOperation
 {
 public:
-    typedef boost::shared_ptr<HttpOpRequest> ptr_t;
+    typedef std::shared_ptr<HttpOpRequest> ptr_t;
 
-	HttpOpRequest();
+    HttpOpRequest();
 
-	virtual ~HttpOpRequest();							// Use release()
+    virtual ~HttpOpRequest();                           // Use release()
 
 private:
-	HttpOpRequest(const HttpOpRequest &);				// Not defined
-	void operator=(const HttpOpRequest &);				// Not defined
+    HttpOpRequest(const HttpOpRequest &);               // Not defined
+    void operator=(const HttpOpRequest &);              // Not defined
 
 public:
-	enum EMethod
-	{
-		HOR_GET,
-		HOR_POST,
-		HOR_PUT,
+    enum EMethod
+    {
+        HOR_GET,
+        HOR_POST,
+        HOR_PUT,
         HOR_DELETE,
         HOR_PATCH,
         HOR_COPY,
         HOR_MOVE
-	};
+    };
     static std::string methodToString(const EMethod &);
 
-	virtual void stageFromRequest(HttpService *);
-	virtual void stageFromReady(HttpService *);
-	virtual void stageFromActive(HttpService *);
+    virtual void stageFromRequest(HttpService *);
+    virtual void stageFromReady(HttpService *);
+    virtual void stageFromActive(HttpService *);
 
-	virtual void visitNotifier(HttpRequest * request);
-			
+    virtual void visitNotifier(HttpRequest * request);
+
 public:
-	/// Setup Methods
-	///
-	/// Basically an RPC setup for each type of HTTP method
-	/// invocation with one per method type.  These are
-	/// generally invoked right after construction.
-	///
-	/// Threading:  called by application thread
-	///
-	HttpStatus setupGet(HttpRequest::policy_t policy_id,
-						const std::string & url,
-						const HttpOptions::ptr_t & options,
-						const HttpHeaders::ptr_t & headers);
-	
-	HttpStatus setupGetByteRange(HttpRequest::policy_t policy_id,
-								 const std::string & url,
-								 size_t offset,
-								 size_t len,
-                                 const HttpOptions::ptr_t & options,
-								 const HttpHeaders::ptr_t & headers);
-	
-	HttpStatus setupPost(HttpRequest::policy_t policy_id,
-						 const std::string & url,
-						 BufferArray * body,
-                         const HttpOptions::ptr_t & options,
-						 const HttpHeaders::ptr_t & headers);
-	
-	HttpStatus setupPut(HttpRequest::policy_t policy_id,
-						const std::string & url,
-						BufferArray * body,
+    /// Setup Methods
+    ///
+    /// Basically an RPC setup for each type of HTTP method
+    /// invocation with one per method type.  These are
+    /// generally invoked right after construction.
+    ///
+    /// Threading:  called by application thread
+    ///
+    HttpStatus setupGet(HttpRequest::policy_t policy_id,
+                        const std::string & url,
                         const HttpOptions::ptr_t & options,
-						const HttpHeaders::ptr_t & headers);
+                        const HttpHeaders::ptr_t & headers);
+
+    HttpStatus setupGetByteRange(HttpRequest::policy_t policy_id,
+                                 const std::string & url,
+                                 size_t offset,
+                                 size_t len,
+                                 const HttpOptions::ptr_t & options,
+                                 const HttpHeaders::ptr_t & headers);
+
+    HttpStatus setupPost(HttpRequest::policy_t policy_id,
+                         const std::string & url,
+                         BufferArray * body,
+                         const HttpOptions::ptr_t & options,
+                         const HttpHeaders::ptr_t & headers);
+
+    HttpStatus setupPut(HttpRequest::policy_t policy_id,
+                        const std::string & url,
+                        BufferArray * body,
+                        const HttpOptions::ptr_t & options,
+                        const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupDelete(HttpRequest::policy_t policy_id,
                         const std::string & url,
@@ -150,82 +150,82 @@ public:
                         const HttpHeaders::ptr_t & headers);
 
     // Internal method used to setup the libcurl options for a request.
-	// Does all the libcurl handle setup in one place.
-	//
-	// Threading:  called by worker thread
-	//
-	HttpStatus prepareRequest(HttpService * service);
-	
-	virtual HttpStatus cancel();
+    // Does all the libcurl handle setup in one place.
+    //
+    // Threading:  called by worker thread
+    //
+    HttpStatus prepareRequest(HttpService * service);
+
+    virtual HttpStatus cancel();
 
 protected:
-	// Common setup for all the request methods.
-	//
-	// Threading:  called by application thread
-	//
-	void setupCommon(HttpRequest::policy_t policy_id,
-					 const std::string & url,
-					 BufferArray * body,
+    // Common setup for all the request methods.
+    //
+    // Threading:  called by application thread
+    //
+    void setupCommon(HttpRequest::policy_t policy_id,
+                     const std::string & url,
+                     BufferArray * body,
                      const HttpOptions::ptr_t & options,
-					 const HttpHeaders::ptr_t & headers);
+                     const HttpHeaders::ptr_t & headers);
 
-	// libcurl operational callbacks
-	//
-	// Threading:  called by worker thread
-	//
-	static size_t writeCallback(void * data, size_t size, size_t nmemb, void * userdata);
-	static size_t readCallback(void * data, size_t size, size_t nmemb, void * userdata);
+    // libcurl operational callbacks
+    //
+    // Threading:  called by worker thread
+    //
+    static size_t writeCallback(void * data, size_t size, size_t nmemb, void * userdata);
+    static size_t readCallback(void * data, size_t size, size_t nmemb, void * userdata);
     static int seekCallback(void *data, curl_off_t offset, int origin);
-	static size_t headerCallback(void * data, size_t size, size_t nmemb, void * userdata);
-	static CURLcode curlSslCtxCallback(CURL *curl, void *ssl_ctx, void *userptr);
-	static int sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param);
+    static size_t headerCallback(void * data, size_t size, size_t nmemb, void * userdata);
+    static CURLcode curlSslCtxCallback(CURL *curl, void *ssl_ctx, void *userptr);
+    static int sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param);
 
-	static int debugCallback(CURL *, curl_infotype info, char * buffer, size_t len, void * userdata);
+    static int debugCallback(CURL *, curl_infotype info, char * buffer, size_t len, void * userdata);
 
 protected:
-	unsigned int		mProcFlags;
-	static const unsigned int	PF_SCAN_RANGE_HEADER = 0x00000001U;
-	static const unsigned int	PF_SAVE_HEADERS = 0x00000002U;
-	static const unsigned int	PF_USE_RETRY_AFTER = 0x00000004U;
+    unsigned int        mProcFlags;
+    static const unsigned int   PF_SCAN_RANGE_HEADER = 0x00000001U;
+    static const unsigned int   PF_SAVE_HEADERS = 0x00000002U;
+    static const unsigned int   PF_USE_RETRY_AFTER = 0x00000004U;
 
-	HttpRequest::policyCallback_t	mCallbackSSLVerify;
+    HttpRequest::policyCallback_t   mCallbackSSLVerify;
 
 public:
-	// Request data
-	EMethod				mReqMethod;
-	std::string			mReqURL;
-	BufferArray *		mReqBody;
-	off_t				mReqOffset;
-	size_t				mReqLength;
-	HttpHeaders::ptr_t	mReqHeaders;
+    // Request data
+    EMethod             mReqMethod;
+    std::string         mReqURL;
+    BufferArray *       mReqBody;
+    off_t               mReqOffset;
+    size_t              mReqLength;
+    HttpHeaders::ptr_t  mReqHeaders;
     HttpOptions::ptr_t  mReqOptions;
 
-	// Transport data
-	bool				mCurlActive;
-	CURL *				mCurlHandle;
-	HttpService *		mCurlService;
-	curl_slist *		mCurlHeaders;
-	size_t				mCurlBodyPos;
-	char *				mCurlTemp;				// Scratch buffer for header processing
-	size_t				mCurlTempLen;
-	
-	// Result data
-	HttpStatus			mStatus;
-	BufferArray *		mReplyBody;
-	off_t				mReplyOffset;
-	size_t				mReplyLength;
-	size_t				mReplyFullLength;
-	HttpHeaders::ptr_t	mReplyHeaders;
-	std::string			mReplyConType;
-	int					mReplyRetryAfter;
+    // Transport data
+    bool                mCurlActive;
+    CURL *              mCurlHandle;
+    HttpService *       mCurlService;
+    curl_slist *        mCurlHeaders;
+    size_t              mCurlBodyPos;
+    char *              mCurlTemp;              // Scratch buffer for header processing
+    size_t              mCurlTempLen;
 
-	// Policy data
-	int					mPolicyRetries;
-	int					mPolicy503Retries;
-	HttpTime			mPolicyRetryAt;
-	int					mPolicyRetryLimit;
-	HttpTime			mPolicyMinRetryBackoff; // initial delay between retries (mcs)
-	HttpTime			mPolicyMaxRetryBackoff;
+    // Result data
+    HttpStatus          mStatus;
+    BufferArray *       mReplyBody;
+    off_t               mReplyOffset;
+    size_t              mReplyLength;
+    size_t              mReplyFullLength;
+    HttpHeaders::ptr_t  mReplyHeaders;
+    std::string         mReplyConType;
+    int                 mReplyRetryAfter;
+
+    // Policy data
+    int                 mPolicyRetries;
+    int                 mPolicy503Retries;
+    HttpTime            mPolicyRetryAt;
+    int                 mPolicyRetryLimit;
+    HttpTime            mPolicyMinRetryBackoff; // initial delay between retries (mcs)
+    HttpTime            mPolicyMaxRetryBackoff;
 };  // end class HttpOpRequest
 
 
@@ -240,5 +240,5 @@ curl_slist * append_headers_to_slist(const HttpHeaders::ptr_t &, curl_slist * sl
 
 }   // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_OPREQUEST_H_
+#endif  // _LLCORE_HTTP_OPREQUEST_H_
 

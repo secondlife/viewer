@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llfloaterbuycontents.cpp
  * @author James Cook
  * @brief LLFloaterBuyContents class implementation
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,12 +36,12 @@
 
 #include "llcachename.h"
 
-#include "llagent.h"			// for agent id
+#include "llagent.h"            // for agent id
 #include "llcheckboxctrl.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
-#include "llinventorymodel.h"	// for gInventory
+#include "llinventorymodel.h"   // for gInventory
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
@@ -53,249 +53,249 @@
 #include "llviewerwindow.h"
 
 LLFloaterBuyContents::LLFloaterBuyContents(const LLSD& key)
-:	LLFloater(key)
+:   LLFloater(key)
 {
 }
 
-BOOL LLFloaterBuyContents::postBuild()
+bool LLFloaterBuyContents::postBuild()
 {
 
-	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickCancel, this));
-	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickBuy, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickCancel, this));
+    getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickBuy, this));
 
-	getChildView("item_list")->setEnabled(FALSE);
-	getChildView("buy_btn")->setEnabled(FALSE);
-	getChildView("wear_check")->setEnabled(FALSE);
+    getChildView("item_list")->setEnabled(false);
+    getChildView("buy_btn")->setEnabled(false);
+    getChildView("wear_check")->setEnabled(false);
 
-	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
+    setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
 
-	// Always center the dialog.  User can change the size,
-	// but purchases are important and should be center screen.
-	// This also avoids problems where the user resizes the application window
-	// mid-session and the saved rect is off-center.
-	center();
-	
-	return TRUE;
+    // Always center the dialog.  User can change the size,
+    // but purchases are important and should be center screen.
+    // This also avoids problems where the user resizes the application window
+    // mid-session and the saved rect is off-center.
+    center();
+
+    return true;
 }
 
 LLFloaterBuyContents::~LLFloaterBuyContents()
 {
-	removeVOInventoryListener();
+    removeVOInventoryListener();
 }
 
 
 // static
 void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 {
-	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 
-	if (selection->getRootObjectCount() != 1)
-	{
-		LLNotificationsUtil::add("BuyContentsOneOnly");
-		return;
-	}
-	
-	LLFloaterBuyContents* floater = LLFloaterReg::showTypedInstance<LLFloaterBuyContents>("buy_object_contents");
-	if (!floater)
-		return;
-	
-	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("item_list");
-	if (list)
-		list->deleteAllItems();
+    if (selection->getRootObjectCount() != 1)
+    {
+        LLNotificationsUtil::add("BuyContentsOneOnly");
+        return;
+    }
 
-	floater->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+    LLFloaterBuyContents* floater = LLFloaterReg::showTypedInstance<LLFloaterBuyContents>("buy_object_contents");
+    if (!floater)
+        return;
 
-	LLUUID owner_id;
-	std::string owner_name;
-	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
-	if (!owners_identical)
-	{
-		LLNotificationsUtil::add("BuyContentsOneOwner");
-		return;
-	}
+    LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("item_list");
+    if (list)
+        list->deleteAllItems();
 
-	floater->mSaleInfo = sale_info;
+    floater->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
-	// Update the display
-	LLSelectNode* node = selection->getFirstRootNode();
-	if (!node) return;
-	if(node->mPermissions->isGroupOwned())
-	{
-		gCacheName->getGroupName(owner_id, owner_name);
-	}
+    LLUUID owner_id;
+    std::string owner_name;
+    bool owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+    if (!owners_identical)
+    {
+        LLNotificationsUtil::add("BuyContentsOneOwner");
+        return;
+    }
 
-	floater->getChild<LLUICtrl>("contains_text")->setTextArg("[NAME]", node->mName);
-	floater->getChild<LLUICtrl>("buy_text")->setTextArg("[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
-	floater->getChild<LLUICtrl>("buy_text")->setTextArg("[NAME]", owner_name);
+    floater->mSaleInfo = sale_info;
 
-	// Must do this after the floater is created, because
-	// sometimes the inventory is already there and 
-	// the callback is called immediately.
-	LLViewerObject* obj = selection->getFirstRootObject();
-	floater->registerVOInventoryListener(obj,NULL);
-	floater->requestVOInventory();
+    // Update the display
+    LLSelectNode* node = selection->getFirstRootNode();
+    if (!node) return;
+    if(node->mPermissions->isGroupOwned())
+    {
+        gCacheName->getGroupName(owner_id, owner_name);
+    }
+
+    floater->getChild<LLUICtrl>("contains_text")->setTextArg("[NAME]", node->mName);
+    floater->getChild<LLUICtrl>("buy_text")->setTextArg("[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
+    floater->getChild<LLUICtrl>("buy_text")->setTextArg("[NAME]", owner_name);
+
+    // Must do this after the floater is created, because
+    // sometimes the inventory is already there and
+    // the callback is called immediately.
+    LLViewerObject* obj = selection->getFirstRootObject();
+    floater->registerVOInventoryListener(obj,NULL);
+    floater->requestVOInventory();
 }
 
 
 void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
-											LLInventoryObject::object_list_t* inv,
-								 S32 serial_num,
-								 void* data)
+                                            LLInventoryObject::object_list_t* inv,
+                                 S32 serial_num,
+                                 void* data)
 {
-	if (!obj)
-	{
-		LL_WARNS() << "No object in LLFloaterBuyContents::inventoryChanged" << LL_ENDL;
-		return;
-	}
+    if (!obj)
+    {
+        LL_WARNS() << "No object in LLFloaterBuyContents::inventoryChanged" << LL_ENDL;
+        return;
+    }
 
-	LLScrollListCtrl* item_list = getChild<LLScrollListCtrl>("item_list");
-	if (!item_list)
-	{
-		removeVOInventoryListener();
-		return;
-	}
+    LLScrollListCtrl* item_list = getChild<LLScrollListCtrl>("item_list");
+    if (!item_list)
+    {
+        removeVOInventoryListener();
+        return;
+    }
 
-	item_list->deleteAllItems();
-	
-	if (!inv)
-	{
-		LL_WARNS() << "No inventory in LLFloaterBuyContents::inventoryChanged"
-			<< LL_ENDL;
+    item_list->deleteAllItems();
 
-		return;
-	}
+    if (!inv)
+    {
+        LL_WARNS() << "No inventory in LLFloaterBuyContents::inventoryChanged"
+            << LL_ENDL;
 
-	// default to turning off the buy button.
-	LLView* buy_btn = getChildView("buy_btn");
-	buy_btn->setEnabled(FALSE);
+        return;
+    }
 
-	LLUUID owner_id;
-	BOOL is_group_owned;
-	LLAssetType::EType asset_type;
-	LLInventoryType::EType inv_type;
-	S32 wearable_count = 0;
-	
-	LLInventoryObject::object_list_t::const_iterator it = inv->begin();
-	LLInventoryObject::object_list_t::const_iterator end = inv->end();
+    // default to turning off the buy button.
+    LLView* buy_btn = getChildView("buy_btn");
+    buy_btn->setEnabled(false);
 
-	for ( ; it != end; ++it )
-	{
-		asset_type = (*it)->getType();
+    LLUUID owner_id;
+    bool is_group_owned;
+    LLAssetType::EType asset_type;
+    LLInventoryType::EType inv_type;
+    S32 wearable_count = 0;
 
-		// Skip folders, so we know we have inventory items only
-		if (asset_type == LLAssetType::AT_CATEGORY)
-			continue;
+    LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+    LLInventoryObject::object_list_t::const_iterator end = inv->end();
 
-		LLInventoryItem* inv_item = (LLInventoryItem*)((LLInventoryObject*)(*it));
-		inv_type = inv_item->getInventoryType();
+    for ( ; it != end; ++it )
+    {
+        asset_type = (*it)->getType();
 
-		// Count clothing items for later
-		if (LLInventoryType::IT_WEARABLE == inv_type)
-		{
-			wearable_count++;
-		}
+        // Skip folders, so we know we have inventory items only
+        if (asset_type == LLAssetType::AT_CATEGORY)
+            continue;
 
-		// Skip items the object's owner can't copy (and hence can't sell)
-		if (!inv_item->getPermissions().getOwnership(owner_id, is_group_owned))
-			continue;
+        LLInventoryItem* inv_item = (LLInventoryItem*)((LLInventoryObject*)(*it));
+        inv_type = inv_item->getInventoryType();
 
-		if (!inv_item->getPermissions().allowCopyBy(owner_id, owner_id))
-			continue;
+        // Count clothing items for later
+        if (LLInventoryType::IT_WEARABLE == inv_type)
+        {
+            wearable_count++;
+        }
 
-		// Skip items we can't transfer
-		if (!inv_item->getPermissions().allowTransferTo(gAgent.getID())) 
-			continue;
+        // Skip items the object's owner can't copy (and hence can't sell)
+        if (!inv_item->getPermissions().getOwnership(owner_id, is_group_owned))
+            continue;
 
-		// There will be at least one item shown in the display, so go
-		// ahead and enable the buy button.
-		buy_btn->setEnabled(TRUE);
+        if (!inv_item->getPermissions().allowCopyBy(owner_id, owner_id))
+            continue;
 
-		// Create the line in the list
-		LLSD row;
+        // Skip items we can't transfer
+        if (!inv_item->getPermissions().allowTransferTo(gAgent.getID()))
+            continue;
 
-		BOOL item_is_multi = FALSE;
-		if ((inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED
-			|| inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
+        // There will be at least one item shown in the display, so go
+        // ahead and enable the buy button.
+        buy_btn->setEnabled(true);
+
+        // Create the line in the list
+        LLSD row;
+
+        bool item_is_multi = false;
+        if ((inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED
+            || inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
             && !(inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK))
-		{
-			item_is_multi = TRUE;
-		}
+        {
+            item_is_multi = true;
+        }
 
-		std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(), 
-								 inv_item->getInventoryType(),
-								 inv_item->getFlags(),
-								 item_is_multi);
-		row["columns"][0]["column"] = "icon";
-		row["columns"][0]["type"] = "icon";
-		row["columns"][0]["value"] = icon_name;
-		
-		// Append the permissions that you will acquire (not the current
-		// permissions).
-		U32 next_owner_mask = inv_item->getPermissions().getMaskNextOwner();
-		std::string text = (*it)->getName();
+        std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(),
+                                 inv_item->getInventoryType(),
+                                 inv_item->getFlags(),
+                                 item_is_multi);
+        row["columns"][0]["column"] = "icon";
+        row["columns"][0]["type"] = "icon";
+        row["columns"][0]["value"] = icon_name;
 
-		if (!(next_owner_mask & PERM_COPY))
-		{
-			text.append(getString("no_copy_text"));
-		}
-		if (!(next_owner_mask & PERM_MODIFY))
-		{
-			text.append(getString("no_modify_text"));
-		}
-		if (!(next_owner_mask & PERM_TRANSFER))
-		{
-			text.append(getString("no_transfer_text"));
-		}
-		
-		row["columns"][1]["column"] = "text";
-		row["columns"][1]["value"] = text;
-		row["columns"][1]["font"] = "SANSSERIF";
+        // Append the permissions that you will acquire (not the current
+        // permissions).
+        U32 next_owner_mask = inv_item->getPermissions().getMaskNextOwner();
+        std::string text = (*it)->getName();
 
-		item_list->addElement(row);
-	}
+        if (!(next_owner_mask & PERM_COPY))
+        {
+            text.append(getString("no_copy_text"));
+        }
+        if (!(next_owner_mask & PERM_MODIFY))
+        {
+            text.append(getString("no_modify_text"));
+        }
+        if (!(next_owner_mask & PERM_TRANSFER))
+        {
+            text.append(getString("no_transfer_text"));
+        }
 
-	if (wearable_count > 0)
-	{
-		getChildView("wear_check")->setEnabled(TRUE);
-		getChild<LLUICtrl>("wear_check")->setValue(LLSD(false) );
-	}
+        row["columns"][1]["column"] = "text";
+        row["columns"][1]["value"] = text;
+        row["columns"][1]["font"] = "SANSSERIF";
+
+        item_list->addElement(row);
+    }
+
+    if (wearable_count > 0)
+    {
+        getChildView("wear_check")->setEnabled(true);
+        getChild<LLUICtrl>("wear_check")->setValue(LLSD(false) );
+    }
 }
 
 
 void LLFloaterBuyContents::onClickBuy()
 {
-	// Make sure this wasn't selected through other mechanisms 
-	// (ie, being the default button and pressing enter.
-	if(!getChildView("buy_btn")->getEnabled())
-	{
-		// We shouldn't be enabled.  Just close.
-		closeFloater();
-		return;
-	}
+    // Make sure this wasn't selected through other mechanisms
+    // (ie, being the default button and pressing enter.
+    if(!getChildView("buy_btn")->getEnabled())
+    {
+        // We shouldn't be enabled.  Just close.
+        closeFloater();
+        return;
+    }
 
-	// We may want to wear this item
-	if (getChild<LLUICtrl>("wear_check")->getValue())
-	{
-		LLInventoryState::sWearNewClothing = TRUE;
-	}
+    // We may want to wear this item
+    if (getChild<LLUICtrl>("wear_check")->getValue())
+    {
+        LLInventoryState::sWearNewClothing = true;
+    }
 
-	// Put the items where we put new folders.
-	LLUUID category_id;
-	category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ROOT_INVENTORY);
+    // Put the items where we put new folders.
+    LLUUID category_id;
+    category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ROOT_INVENTORY);
 
-	// *NOTE: doesn't work for multiple object buy, which UI does not
-	// currently support sale info is used for verification only, if
-	// it doesn't match region info then sale is canceled.
-	LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, mSaleInfo);
+    // *NOTE: doesn't work for multiple object buy, which UI does not
+    // currently support sale info is used for verification only, if
+    // it doesn't match region info then sale is canceled.
+    LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, mSaleInfo);
 
-	// NOTE: do this here instead of on receipt of object, since contents are transfered
-	// via a generic BulkUpdateInventory message with no way of distinguishing it from
-	// other inventory operations
-	LLFirstUse::newInventory();
-	closeFloater();
+    // NOTE: do this here instead of on receipt of object, since contents are transfered
+    // via a generic BulkUpdateInventory message with no way of distinguishing it from
+    // other inventory operations
+    LLFirstUse::newInventory();
+    closeFloater();
 }
 
 void LLFloaterBuyContents::onClickCancel()
 {
-	closeFloater();
+    closeFloater();
 }

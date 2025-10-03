@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  border="true"
  follows="left|top|right|bottom"
@@ -202,7 +202,7 @@
     follows="left|top"
     height="14"
     control_name="UpdaterWillingToTest"
-    label="Willing to update to release candidates"
+    label="Willing to update to Beta"
     left_delta="0"
     mouse_opaque="true"
     name="update_willing_to_test"

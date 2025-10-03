@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2020-01-03
  * @brief  Subclass of tut::callback used for chaining callbacks.
- * 
+ *
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Copyright (c) 2020, Linden Research, Inc.
  * $/LicenseInfo$

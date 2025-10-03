@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ name="emoji_complete"
+ single_instance="true"
+ layout="topleft"
+ bg_opaque_image="Window_NoTitle_Foreground"
+ bg_alpha_image="Window_NoTitle_Background"
+ can_close="false"
+ can_dock="false"
+ can_drag_on_left="false"
+ can_minimize="false"
+ can_resize="false"
+ can_tear_off="false"
+ header_height="0"
+ legacy_header_height="0"
+ show_title="false"
+ width="240"
+ height="40"
+ >
+	<emoji_complete
+	 name="emoji_complete_ctrl"
+	 follows="top|left"
+	 layout="topleft"
+	 autosize="true"
+	 vertical="true"
+	 max_visible="7"
+	 padding="4"
+	 width="230"
+	 height="30"
+	 left="5"
+	 top="5"
+	 >
+	</emoji_complete>
+</floater>

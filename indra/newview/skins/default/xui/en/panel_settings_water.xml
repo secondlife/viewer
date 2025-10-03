@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
         border="true"
         follows="all"
@@ -65,7 +65,7 @@
                 Density Exponent:
             </text>
             <slider
-                    decimal_digits="1"
+                    decimal_digits="2"
                     follows="left|top"
                     height="16"
                     increment="0.01"
@@ -247,7 +247,7 @@
                         Reflection Wavelet Scale
                     </text>
                     <slider
-                            decimal_digits="1"
+                            decimal_digits="2"
                             follows="left|top"
                             increment="0.01"
                             height="16"
@@ -261,7 +261,7 @@
                             width="150"
                             can_edit_text="true"/>
                     <slider
-                            decimal_digits="1"
+                            decimal_digits="2"
                             follows="left|top"
                             increment="0.01"
                             initial_value="0.7"
@@ -274,7 +274,7 @@
                             width="150"
                             can_edit_text="true"/>
                     <slider
-                            decimal_digits="1"
+                            decimal_digits="2"
                             follows="left|top"
                             increment="0.01"
                             initial_value="0.7"
@@ -378,7 +378,7 @@
                             initial_value="0"
                             layout="topleft"
                             left_delta="5"
-                            min_val="-0.5"
+                            min_val="0"
                             max_val="0.5"
                             name="water_blur_multip"
                             top_pad="5"

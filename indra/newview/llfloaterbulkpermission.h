@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llfloaterbulkpermissions.h
  * @brief Allow multiple task inventory properties to be set in one go.
  * @author Michelle2 Zenovka
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -38,82 +38,83 @@
 
 class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
 
-	BOOL postBuild();
+    bool postBuild() override;
+    void onClose(bool app_quitting) override;
 
 private:
-	
-	LLFloaterBulkPermission(const LLSD& seed);	
-	virtual ~LLFloaterBulkPermission() {}
 
-	BOOL start(); // returns TRUE if the queue has started, otherwise FALSE.
-	BOOL nextObject();
-	BOOL popNext();
+    LLFloaterBulkPermission(const LLSD& seed);
+    virtual ~LLFloaterBulkPermission() {}
 
-	// This is the callback method for the viewer object currently
-	// being worked on.
-	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
-								 LLInventoryObject::object_list_t* inv,
-								 S32 serial_num,
-								 void* queue);
-	
-	// This is called by inventoryChanged
-	void handleInventory(LLViewerObject* viewer_obj,
-								LLInventoryObject::object_list_t* inv);
+    bool start(); // returns true if the queue has started, otherwise false.
+    bool nextObject();
+    bool popNext();
+
+    // This is the callback method for the viewer object currently
+    // being worked on.
+    /*virtual*/ void inventoryChanged(LLViewerObject* obj,
+                                 LLInventoryObject::object_list_t* inv,
+                                 S32 serial_num,
+                                 void* queue) override;
+
+    // This is called by inventoryChanged
+    void handleInventory(LLViewerObject* viewer_obj,
+                                LLInventoryObject::object_list_t* inv);
 
 
-	void updateInventory(LLViewerObject* object,
-								LLViewerInventoryItem* item,
-								U8 key,
-								bool is_new);
+    void updateInventory(LLViewerObject* object,
+                                LLViewerInventoryItem* item,
+                                U8 key,
+                                bool is_new);
 
-	void onCloseBtn();
-	void onOkBtn();
-	void onApplyBtn();
-	void onCommitCopy();
-	void onCheckAll() { doCheckUncheckAll(TRUE); }
-	void onUncheckAll() { doCheckUncheckAll(FALSE); }
-	
-	// returns true if this is done
-	BOOL isDone() const { return (mCurrentObjectID.isNull() || (mObjectIDs.size() == 0)); }
+    void onCloseBtn();
+    void onOkBtn();
+    void onApplyBtn();
+    void onCommitCopy();
+    void onCheckAll() { doCheckUncheckAll(true); }
+    void onUncheckAll() { doCheckUncheckAll(false); }
 
-	//Read the settings and Apply the permissions
-	void doApply();
-	void doCheckUncheckAll(BOOL check);
+    // returns true if this is done
+    bool isDone() const { return (mCurrentObjectID.isNull() || (mObjectIDs.size() == 0)); }
+
+    //Read the settings and Apply the permissions
+    void doApply();
+    void doCheckUncheckAll(bool check);
 
 private:
-	// UI
-	LLScrollListCtrl* mMessages;
-	LLButton* mCloseBtn;
+    // UI
+    LLScrollListCtrl* mQueueOutputList = nullptr;
+    LLButton* mCloseBtn;
 
-	// Object Queue
-	std::vector<LLUUID> mObjectIDs;
-	LLUUID mCurrentObjectID;
-	BOOL mDone;
+    // Object Queue
+    std::vector<LLUUID> mObjectIDs;
+    LLUUID mCurrentObjectID;
+    bool mDone;
 
-	bool mBulkChangeIncludeAnimations;
-	bool mBulkChangeIncludeBodyParts;
-	bool mBulkChangeIncludeClothing;
-	bool mBulkChangeIncludeGestures;
-	bool mBulkChangeIncludeNotecards;
-	bool mBulkChangeIncludeObjects;
-	bool mBulkChangeIncludeScripts;
-	bool mBulkChangeIncludeSounds;
-	bool mBulkChangeIncludeTextures;
-	bool mBulkChangeIncludeSettings;
+    bool mBulkChangeIncludeAnimations;
+    bool mBulkChangeIncludeBodyParts;
+    bool mBulkChangeIncludeClothing;
+    bool mBulkChangeIncludeGestures;
+    bool mBulkChangeIncludeNotecards;
+    bool mBulkChangeIncludeObjects;
+    bool mBulkChangeIncludeScripts;
+    bool mBulkChangeIncludeSounds;
+    bool mBulkChangeIncludeTextures;
+    bool mBulkChangeIncludeSettings;
     bool mBulkChangeIncludeMaterials;
 
-	bool mBulkChangeShareWithGroup;
-	bool mBulkChangeEveryoneCopy;
-	bool mBulkChangeNextOwnerModify;
-	bool mBulkChangeNextOwnerCopy;
-	bool mBulkChangeNextOwnerTransfer;
+    bool mBulkChangeShareWithGroup;
+    bool mBulkChangeEveryoneCopy;
+    bool mBulkChangeNextOwnerModify;
+    bool mBulkChangeNextOwnerCopy;
+    bool mBulkChangeNextOwnerTransfer;
 
-	LLUUID mID;
+    LLUUID mID;
 
-	const char* mStartString;
+    const char* mStartString;
 };
 
 #endif

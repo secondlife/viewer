@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcombobox.cpp
  * @brief LLComboBox base class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -58,468 +58,537 @@ static LLDefaultChildRegistry::Register<LLComboBox> register_combo_box("combo_bo
 
 void LLComboBox::PreferredPositionValues::declareValues()
 {
-	declare("above", ABOVE);
-	declare("below", BELOW);
+    declare("above", ABOVE);
+    declare("below", BELOW);
 }
 
 LLComboBox::ItemParams::ItemParams()
-:	label("label")
+:   label("label")
 {
 }
 
 
 LLComboBox::Params::Params()
-:	allow_text_entry("allow_text_entry", false),
-	allow_new_values("allow_new_values", false),
-	show_text_as_tentative("show_text_as_tentative", true),
-	max_chars("max_chars", 20),
-	list_position("list_position", BELOW),
-	items("item"),
-	combo_button("combo_button"),
-	combo_list("combo_list"),
-	combo_editor("combo_editor"),
-	drop_down_button("drop_down_button")
+:   allow_text_entry("allow_text_entry", false),
+    allow_new_values("allow_new_values", false),
+    show_text_as_tentative("show_text_as_tentative", true),
+    max_chars("max_chars", 20),
+    list_position("list_position", BELOW),
+    items("item"),
+    combo_button("combo_button"),
+    combo_list("combo_list"),
+    combo_editor("combo_editor"),
+    drop_down_button("drop_down_button")
 {
-	addSynonym(items, "combo_item");
+    addSynonym(items, "combo_item");
 }
 
 
 LLComboBox::LLComboBox(const LLComboBox::Params& p)
-:	LLUICtrl(p),
-	mTextEntry(NULL),
-	mTextEntryTentative(p.show_text_as_tentative),
-	mHasAutocompletedText(false),
-	mAllowTextEntry(p.allow_text_entry),
-	mAllowNewValues(p.allow_new_values),
-	mMaxChars(p.max_chars),
-	mPrearrangeCallback(p.prearrange_callback()),
-	mTextEntryCallback(p.text_entry_callback()),
-	mTextChangedCallback(p.text_changed_callback()),
-	mListPosition(p.list_position),
-	mLastSelectedIndex(-1),
-	mLabel(p.label)
+:   LLUICtrl(p),
+    mTextEntry(NULL),
+    mTextEntryTentative(p.show_text_as_tentative),
+    mHasAutocompletedText(false),
+    mAllowTextEntry(p.allow_text_entry),
+    mAllowNewValues(p.allow_new_values),
+    mMaxChars(p.max_chars),
+    mPrearrangeCallback(p.prearrange_callback()),
+    mTextEntryCallback(p.text_entry_callback()),
+    mTextChangedCallback(p.text_changed_callback()),
+    mListPosition(p.list_position),
+    mLastSelectedIndex(-1),
+    mLabel(p.label)
 {
-	// Text label button
+    // Text label button
 
-	LLButton::Params button_params = (mAllowTextEntry ? p.combo_button : p.drop_down_button);
-	button_params.mouse_down_callback.function(
-		boost::bind(&LLComboBox::onButtonMouseDown, this));
-	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
-	button_params.rect(p.rect);
+    LLButton::Params button_params = (mAllowTextEntry ? p.combo_button : p.drop_down_button);
+    button_params.mouse_down_callback.function(
+        boost::bind(&LLComboBox::onButtonMouseDown, this));
+    button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
+    button_params.rect(p.rect);
 
-	if(mAllowTextEntry)
-	{
-		button_params.pad_right(2);
-	}
+    if (mAllowTextEntry)
+    {
+        button_params.pad_right(2);
+    }
 
-	mArrowImage = button_params.image_unselected;
+    mArrowImage = button_params.image_unselected;
     if (mArrowImage.notNull())
     {
         mImageLoadedConnection = mArrowImage->addLoadedCallback(boost::bind(&LLComboBox::imageLoaded, this));
     }
 
-	mButton = LLUICtrlFactory::create<LLButton>(button_params);
+    mButton = LLUICtrlFactory::create<LLButton>(button_params);
 
-	
-	if(mAllowTextEntry)
-	{
-		//redo to compensate for button hack that leaves space for a character
-		//unless it is a "minimal combobox"(drop down)
-		mButton->setRightHPad(2);
-	}
-	addChild(mButton);
 
-	LLScrollListCtrl::Params params = p.combo_list;
-	params.name("ComboBox");
-	params.commit_callback.function(boost::bind(&LLComboBox::onItemSelected, this, _2));
-	params.visible(false);
-	params.commit_on_keyboard_movement(false);
+    if (mAllowTextEntry)
+    {
+        //redo to compensate for button hack that leaves space for a character
+        //unless it is a "minimal combobox"(drop down)
+        mButton->setRightHPad(2);
+    }
+    addChild(mButton);
 
-	mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
-	addChild(mList);
+    LLScrollListCtrl::Params params = p.combo_list;
+    params.name("ComboBox");
+    params.commit_callback.function(boost::bind(&LLComboBox::onItemSelected, this, _2));
+    params.visible(false);
+    params.commit_on_keyboard_movement(false);
 
-	// Mouse-down on button will transfer mouse focus to the list
-	// Grab the mouse-up event and make sure the button state is correct
-	mList->setMouseUpCallback(boost::bind(&LLComboBox::onListMouseUp, this));
+    mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
+    addChild(mList);
 
-	for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items.begin();
-		it != p.items.end();
-		++it)
-	{
-		LLScrollListItem::Params item_params = *it;
-		if (it->label.isProvided())
-		{
-			item_params.columns.add().value(it->label());
-		}
+    // Mouse-down on button will transfer mouse focus to the list
+    // Grab the mouse-up event and make sure the button state is correct
+    mList->setMouseUpCallback(boost::bind(&LLComboBox::onListMouseUp, this));
 
-		mList->addRow(item_params);
-	}
+    for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items.begin();
+        it != p.items.end();
+        ++it)
+    {
+        LLScrollListItem::Params item_params = *it;
+        if (it->label.isProvided())
+        {
+            item_params.columns.add().value(it->label());
+        }
 
-	createLineEditor(p);
+        mList->addRow(item_params);
+    }
 
-	mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
+    createLineEditor(p);
+
+    mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
 }
 
 void LLComboBox::initFromParams(const LLComboBox::Params& p)
 {
-	LLUICtrl::initFromParams(p);
+    LLUICtrl::initFromParams(p);
 
-	if (!acceptsTextInput() && mLabel.empty())
-	{
-		selectFirstItem();
-	}
+    if (!acceptsTextInput() && mLabel.empty())
+    {
+        selectFirstItem();
+    }
 }
 
 // virtual
-BOOL LLComboBox::postBuild()
+bool LLComboBox::postBuild()
 {
-	if (mControlVariable)
-	{
-		setValue(mControlVariable->getValue()); // selects the appropriate item
-	}
-	return TRUE;
+    if (mControlVariable)
+    {
+        setValue(mControlVariable->getValue()); // selects the appropriate item
+    }
+    return true;
 }
 
 
 LLComboBox::~LLComboBox()
 {
-	// children automatically deleted, including mMenu, mButton
+    // children automatically deleted, including mMenu, mButton
 
-	// explicitly disconect this signal, since base class destructor might fire top lost
-	mTopLostSignalConnection.disconnect();
+    // explicitly disconect this signal, since base class destructor might fire top lost
+    mTopLostSignalConnection.disconnect();
     mImageLoadedConnection.disconnect();
+
+    LLUI::getInstance()->removePopup(this);
 }
 
 
 void LLComboBox::clear()
-{ 
-	if (mTextEntry)
-	{
-		mTextEntry->setText(LLStringUtil::null);
-	}
-	mButton->setLabelSelected(LLStringUtil::null);
-	mButton->setLabelUnselected(LLStringUtil::null);
-	mList->deselectAllItems();
-	mLastSelectedIndex = -1;
+{
+    if (mTextEntry)
+    {
+        mTextEntry->setText(LLStringUtil::null);
+    }
+    mButton->setLabelSelected(LLStringUtil::null);
+    mButton->setLabelUnselected(LLStringUtil::null);
+    mList->deselectAllItems();
+    mLastSelectedIndex = -1;
 }
 
 void LLComboBox::onCommit()
 {
-	if (mAllowTextEntry && getCurrentIndex() != -1)
-	{
-		// we have selected an existing item, blitz the manual text entry with
-		// the properly capitalized item
-		mTextEntry->setValue(getSimple());
-		mTextEntry->setTentative(FALSE);
-	}
-	setControlValue(getValue());
-	LLUICtrl::onCommit();
+    if (LLScrollListItem* item = mList->getFirstSelected())
+    {
+        if (mAllowTextEntry && mTextEntry)
+        {
+            // we have selected an existing item, blitz the manual text entry with
+            // the properly capitalized item
+            LLSD label = item->getColumn(0)->getValue();
+            mTextEntry->setValue(label);
+            mTextEntry->setTentative(false);
+        }
+        setControlValue(item->getValue());
+    }
+    else if (mAllowTextEntry)
+    {
+        setControlValue(mTextEntry->getValue());
+    }
+    else
+    {
+        setControlValue(LLSD());
+    }
+
+    LLUICtrl::onCommit();
 }
 
 // virtual
-BOOL LLComboBox::isDirty() const
+bool LLComboBox::isDirty() const
 {
-	BOOL grubby = FALSE;
-	if ( mList )
-	{
-		grubby = mList->isDirty();
-	}
-	return grubby;
+    bool grubby = false;
+    if ( mList )
+    {
+        grubby = mList->isDirty();
+    }
+    return grubby;
 }
 
 // virtual   Clear dirty state
-void	LLComboBox::resetDirty()
+void    LLComboBox::resetDirty()
 {
-	if ( mList )
-	{
-		mList->resetDirty();
-	}
+    if ( mList )
+    {
+        mList->resetDirty();
+    }
 }
 
 bool LLComboBox::itemExists(const std::string& name)
 {
-	return mList->getItemByLabel(name);
+    return mList->getItemByLabel(name);
 }
 
 // add item "name" to menu
-LLScrollListItem* LLComboBox::add(const std::string& name, EAddPosition pos, BOOL enabled)
+LLScrollListItem* LLComboBox::add(const std::string& name, EAddPosition pos, bool enabled)
 {
-	LLScrollListItem* item = mList->addSimpleElement(name, pos);
-	item->setEnabled(enabled);
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		if (mControlVariable)
-		{
-			setValue(mControlVariable->getValue()); // selects the appropriate item
-		}
-		else
-		{
-			selectFirstItem();
-		}
-	}
-	return item;
+    LLScrollListItem* item = mList->addSimpleElement(name, pos);
+    item->setEnabled(enabled);
+    if (!mAllowTextEntry && mLabel.empty())
+    {
+        if (mControlVariable)
+        {
+            setValue(mControlVariable->getValue()); // selects the appropriate item
+        }
+        else
+        {
+            selectFirstItem();
+        }
+    }
+    return item;
 }
 
 // add item "name" with a unique id to menu
-LLScrollListItem* LLComboBox::add(const std::string& name, const LLUUID& id, EAddPosition pos, BOOL enabled )
+LLScrollListItem* LLComboBox::add(const std::string& name, const LLUUID& id, EAddPosition pos, bool enabled )
 {
-	LLScrollListItem* item = mList->addSimpleElement(name, pos, id);
-	item->setEnabled(enabled);
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		if (mControlVariable)
-		{
-			setValue(mControlVariable->getValue()); // selects the appropriate item
-		}
-		else
-		{
-			selectFirstItem();
-		}
-	}
-	return item;
+    LLScrollListItem* item = mList->addSimpleElement(name, pos, id);
+    item->setEnabled(enabled);
+    if (!mAllowTextEntry && mLabel.empty())
+    {
+        if (mControlVariable)
+        {
+            setValue(mControlVariable->getValue()); // selects the appropriate item
+        }
+        else
+        {
+            selectFirstItem();
+        }
+    }
+    return item;
 }
 
 // add item "name" with attached userdata
-LLScrollListItem* LLComboBox::add(const std::string& name, void* userdata, EAddPosition pos, BOOL enabled )
+LLScrollListItem* LLComboBox::add(const std::string& name, void* userdata, EAddPosition pos, bool enabled )
 {
-	LLScrollListItem* item = mList->addSimpleElement(name, pos);
-	item->setEnabled(enabled);
-	item->setUserdata( userdata );
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		if (mControlVariable)
-		{
-			setValue(mControlVariable->getValue()); // selects the appropriate item
-		}
-		else
-		{
-			selectFirstItem();
-		}
-	}
-	return item;
+    LLScrollListItem* item = mList->addSimpleElement(name, pos);
+    item->setEnabled(enabled);
+    item->setUserdata( userdata );
+    if (!mAllowTextEntry && mLabel.empty())
+    {
+        if (mControlVariable)
+        {
+            setValue(mControlVariable->getValue()); // selects the appropriate item
+        }
+        else
+        {
+            selectFirstItem();
+        }
+    }
+    return item;
 }
 
 // add item "name" with attached generic data
-LLScrollListItem* LLComboBox::add(const std::string& name, LLSD value, EAddPosition pos, BOOL enabled )
+LLScrollListItem* LLComboBox::add(const std::string& name, LLSD value, EAddPosition pos, bool enabled )
 {
-	LLScrollListItem* item = mList->addSimpleElement(name, pos, value);
-	item->setEnabled(enabled);
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		if (mControlVariable)
-		{
-			setValue(mControlVariable->getValue()); // selects the appropriate item
-		}
-		else
-		{
-			selectFirstItem();
-		}
-	}
-	return item;
+    LLScrollListItem* item = mList->addSimpleElement(name, pos, value);
+    item->setEnabled(enabled);
+    if (!mAllowTextEntry && mLabel.empty())
+    {
+        if (mControlVariable)
+        {
+            setValue(mControlVariable->getValue()); // selects the appropriate item
+        }
+        else
+        {
+            selectFirstItem();
+        }
+    }
+    return item;
 }
 
 LLScrollListItem* LLComboBox::addSeparator(EAddPosition pos)
 {
-	return mList->addSeparator(pos);
+    return mList->addSeparator(pos);
 }
 
-void LLComboBox::sortByName(BOOL ascending)
+void LLComboBox::sortByName(bool ascending)
 {
-	mList->sortOnce(0, ascending);
+    mList->sortOnce(0, ascending);
 }
 
 
 // Choose an item with a given name in the menu.
-// Returns TRUE if the item was found.
-BOOL LLComboBox::setSimple(const LLStringExplicit& name)
+// Returns true if the item was found.
+bool LLComboBox::setSimple(const LLStringExplicit& name)
 {
-	BOOL found = mList->selectItemByLabel(name, FALSE);
+    bool found = mList->selectItemByLabel(name, false);
 
-	if (found)
-	{
-		setLabel(name);
-		mLastSelectedIndex = mList->getFirstSelectedIndex();
-	}
+    if (found)
+    {
+        setLabel(name);
+        mLastSelectedIndex = mList->getFirstSelectedIndex();
+    }
 
-	return found;
+    return found;
 }
 
 // virtual
 void LLComboBox::setValue(const LLSD& value)
 {
-	BOOL found = mList->selectByValue(value);
-	if (found)
-	{
-		LLScrollListItem* item = mList->getFirstSelected();
-		if (item)
-		{
-			updateLabel();
-		}
-		mLastSelectedIndex = mList->getFirstSelectedIndex();
-	}
-	else
-	{
-		mLastSelectedIndex = -1;
-	}
+    if (LLScrollListItem* item = mList->getFirstSelected())
+    {
+        LLSD item_value = item->getValue();
+        if (item_value.asString() == value.asString())
+            return;
+    }
+
+    bool found = mList->selectByValue(value);
+    if (found)
+    {
+        LLScrollListItem* item = mList->getFirstSelected();
+        if (item)
+        {
+            updateLabel();
+        }
+        mLastSelectedIndex = mList->getFirstSelectedIndex();
+    }
+    else
+    {
+        mLastSelectedIndex = -1;
+    }
 }
 
 const std::string LLComboBox::getSimple() const
 {
-	const std::string res = getSelectedItemLabel();
-	if (res.empty() && mAllowTextEntry)
-	{
-		return mTextEntry->getText();
-	}
-	else
-	{
-		return res;
-	}
+    const std::string res = getSelectedItemLabel();
+    if (res.empty() && mAllowTextEntry)
+    {
+        return mTextEntry->getText();
+    }
+
+    return res;
 }
 
 const std::string LLComboBox::getSelectedItemLabel(S32 column) const
 {
-	return mList->getSelectedItemLabel(column);
+    return mList->getSelectedItemLabel(column);
 }
 
 // virtual
 LLSD LLComboBox::getValue() const
 {
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return item->getValue();
-	}
-	else if (mAllowTextEntry)
-	{
-		return mTextEntry->getValue();
-	}
-	else
-	{
-		return LLSD();
-	}
+    if (LLScrollListItem* item = mList->getFirstSelected())
+    {
+        return item->getValue();
+    }
+
+    if (mAllowTextEntry)
+    {
+        return mTextEntry->getValue();
+    }
+
+    return LLSD();
 }
 
 void LLComboBox::setLabel(const LLStringExplicit& name)
 {
-	if ( mTextEntry )
-	{
-		mTextEntry->setText(name);
-		if (mList->selectItemByLabel(name, FALSE))
-		{
-			mTextEntry->setTentative(FALSE);
-			mLastSelectedIndex = mList->getFirstSelectedIndex();
-		}
-		else
-		{
-			mTextEntry->setTentative(mTextEntryTentative);
-		}
-	}
-	
-	if (!mAllowTextEntry)
-	{
-		mButton->setLabel(name);
-	}
+    if (mTextEntry)
+    {
+        mTextEntry->setText(name);
+        if (mList->selectItemByLabel(name, false))
+        {
+            mTextEntry->setTentative(false);
+            mLastSelectedIndex = mList->getFirstSelectedIndex();
+        }
+        else
+        {
+            mTextEntry->setTentative(mTextEntryTentative);
+        }
+    }
+
+    if (!mAllowTextEntry)
+    {
+        mButton->setLabel(name);
+    }
 }
 
 void LLComboBox::updateLabel()
 {
-	// Update the combo editor with the selected
-	// item label.
-	if (mTextEntry)
-	{
-		mTextEntry->setText(getSelectedItemLabel());
-		mTextEntry->setTentative(FALSE);
-	}
+    // Update the combo editor with the selected
+    // item label.
+    if (mTextEntry)
+    {
+        mTextEntry->setText(getSelectedItemLabel());
+        mTextEntry->setTentative(false);
+    }
 
-	// If combo box doesn't allow text entry update
-	// the combo button label.
-	if (!mAllowTextEntry)
-	{
-		mButton->setLabel(getSelectedItemLabel());
-	}
+    // If combo box doesn't allow text entry update
+    // the combo button label.
+    if (!mAllowTextEntry)
+    {
+        mButton->setLabel(getSelectedItemLabel());
+    }
 }
 
-BOOL LLComboBox::remove(const std::string& name)
+bool LLComboBox::remove(const std::string& name)
 {
-	BOOL found = mList->selectItemByLabel(name);
+    bool found = mList->selectItemByLabel(name);
 
-	if (found)
-	{
-		LLScrollListItem* item = mList->getFirstSelected();
-		if (item)
-		{
-			mList->deleteSingleItem(mList->getItemIndex(item));
-		}
-		mLastSelectedIndex = mList->getFirstSelectedIndex();
-	}
+    if (found)
+    {
+        LLScrollListItem* item = mList->getFirstSelected();
+        if (item)
+        {
+            mList->deleteSingleItem(mList->getItemIndex(item));
+        }
+        mLastSelectedIndex = mList->getFirstSelectedIndex();
+    }
 
-	return found;
+    return found;
 }
 
-BOOL LLComboBox::remove(S32 index)
+bool LLComboBox::remove(S32 index)
 {
-	if (index < mList->getItemCount())
-	{
-		mList->deleteSingleItem(index);
-		setLabel(getSelectedItemLabel());
-		return TRUE;
-	}
-	return FALSE;
+    if (index < mList->getItemCount())
+    {
+        mList->deleteSingleItem(index);
+        setLabel(getSelectedItemLabel());
+        return true;
+    }
+    return false;
 }
 
 // Keyboard focus lost.
 void LLComboBox::onFocusLost()
 {
-	hideList();
-	// if valid selection
-	if (mAllowTextEntry && getCurrentIndex() != -1)
-	{
-		mTextEntry->selectAll();
-	}
-	mButton->setForcePressedState(false);
-	LLUICtrl::onFocusLost();
+    hideList();
+    // if valid selection
+    if (mAllowTextEntry && getCurrentIndex() != -1)
+    {
+        mTextEntry->selectAll();
+    }
+    mButton->setForcePressedState(false);
+    LLUICtrl::onFocusLost();
 }
 
-void LLComboBox::setButtonVisible(BOOL visible)
+void LLComboBox::setButtonVisible(bool visible)
 {
-	static LLUICachedControl<S32> drop_shadow_button ("DropShadowButton", 0);
-
-	mButton->setVisible(visible);
-	if (mTextEntry)
-	{
-		LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-		if (visible)
-		{
-			S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
-			text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * drop_shadow_button;
-		}
-		//mTextEntry->setRect(text_entry_rect);
-		mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
-	}
+    mButton->setVisible(visible);
+    if (mTextEntry)
+    {
+        LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+        if (visible)
+        {
+            S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
+            text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * BTN_DROP_SHADOW;
+        }
+        //mTextEntry->setRect(text_entry_rect);
+        mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), true);
+    }
 }
 
-BOOL LLComboBox::setCurrentByIndex( S32 index )
+bool LLComboBox::setCurrentByIndex(S32 index)
 {
-	BOOL found = mList->selectNthItem( index );
-	if (found)
-	{
-		setLabel(getSelectedItemLabel());
-		mLastSelectedIndex = index;
-	}
-	return found;
+    if (LLScrollListItem* item = mList->getItemByIndex(index))
+    {
+        if (item->getEnabled())
+        {
+            mList->selectItem(item, -1, true);
+            LLSD::String label = item->getColumn(0)->getValue().asString();
+            if (mTextEntry)
+            {
+                mTextEntry->setText(label);
+                mTextEntry->setTentative(false);
+            }
+            if (!mAllowTextEntry)
+            {
+                mButton->setLabel(label);
+            }
+            mLastSelectedIndex = index;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 S32 LLComboBox::getCurrentIndex() const
 {
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return mList->getItemIndex( item );
-	}
-	return -1;
+    if (LLScrollListItem* item = mList->getFirstSelected())
+    {
+        return mList->getItemIndex(item);
+    }
+    return -1;
 }
 
-void LLComboBox::setEnabledByValue(const LLSD& value, BOOL enabled)
+bool LLComboBox::selectNextItem()
+{
+    S32 last_index = getItemCount() - 1;
+    if (last_index < 0)
+        return false;
+
+    S32 current_index = getCurrentIndex();
+    if (current_index >= last_index)
+        return false;
+
+    S32 new_index = llmax(current_index, -1);
+    while (++new_index <= last_index)
+    {
+        if (setCurrentByIndex(new_index))
+            return true;
+    }
+
+    return false;
+}
+
+bool LLComboBox::selectPrevItem()
+{
+    S32 last_index = getItemCount() - 1;
+    if (last_index < 0)
+        return false;
+
+    S32 current_index = getCurrentIndex();
+    if (!current_index)
+        return false;
+
+    S32 new_index = current_index > 0 ? current_index : last_index + 1;
+    while (--new_index >= 0)
+    {
+        if (setCurrentByIndex(new_index))
+            return true;
+    }
+
+    return false;
+}
+
+void LLComboBox::setEnabledByValue(const LLSD& value, bool enabled)
 {
     LLScrollListItem *found = mList->getItem(value);
     if (found)
@@ -530,232 +599,231 @@ void LLComboBox::setEnabledByValue(const LLSD& value, BOOL enabled)
 
 void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 {
-	static LLUICachedControl<S32> drop_shadow_button ("DropShadowButton", 0);
-	LLRect rect = getLocalRect();
-	if (mAllowTextEntry)
-	{
-		S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
-		S32 shadow_size = drop_shadow_button;
-		mButton->setRect(LLRect( getRect().getWidth() - llmax(8,arrow_width) - 2 * shadow_size,
-								rect.mTop, rect.mRight, rect.mBottom));
-		mButton->setTabStop(FALSE);
-		mButton->setHAlign(LLFontGL::HCENTER);
+    LLRect rect = getLocalRect();
+    if (mAllowTextEntry)
+    {
+        S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
+        S32 shadow_size = BTN_DROP_SHADOW;
+        mButton->setRect(LLRect( getRect().getWidth() - llmax(8,arrow_width) - 2 * shadow_size,
+                                rect.mTop, rect.mRight, rect.mBottom));
+        mButton->setTabStop(false);
+        mButton->setHAlign(LLFontGL::HCENTER);
 
-		LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-		text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * drop_shadow_button;
-		// clear label on button
-		std::string cur_label = mButton->getLabelSelected();
-		LLLineEditor::Params params = p.combo_editor;
-		params.rect(text_entry_rect);
-		params.default_text(LLStringUtil::null);
-		params.max_length.bytes(mMaxChars);
-		params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
-		params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
-		params.commit_on_focus_lost(false);
-		params.follows.flags(FOLLOWS_ALL);
-		params.label(mLabel);
-		mTextEntry = LLUICtrlFactory::create<LLLineEditor> (params);
-		mTextEntry->setText(cur_label);
-		mTextEntry->setIgnoreTab(TRUE);
-		addChild(mTextEntry);
+        LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+        text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * BTN_DROP_SHADOW;
+        // clear label on button
+        std::string cur_label = mButton->getLabelSelected();
+        LLLineEditor::Params params = p.combo_editor;
+        params.rect(text_entry_rect);
+        params.default_text(LLStringUtil::null);
+        params.max_length.bytes(mMaxChars);
+        params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
+        params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
+        params.commit_on_focus_lost(false);
+        params.follows.flags(FOLLOWS_ALL);
+        params.label(mLabel);
+        mTextEntry = LLUICtrlFactory::create<LLLineEditor> (params);
+        mTextEntry->setText(cur_label);
+        mTextEntry->setIgnoreTab(true);
+        addChild(mTextEntry);
 
-		// clear label on button
-		setLabel(LLStringUtil::null);
+        // clear label on button
+        setLabel(LLStringUtil::null);
 
-		mButton->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP | FOLLOWS_RIGHT);
-	}
-	else
-	{
-		mButton->setRect(rect);
-		mButton->setLabel(mLabel.getString());
-		
-		if (mTextEntry)
-		{
-			mTextEntry->setVisible(FALSE);
-		}
-	}
+        mButton->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP | FOLLOWS_RIGHT);
+    }
+    else
+    {
+        mButton->setRect(rect);
+        mButton->setLabel(mLabel.getString());
+
+        if (mTextEntry)
+        {
+            mTextEntry->setVisible(false);
+        }
+    }
 }
 
 void LLComboBox::setLeftTextPadding(S32 pad)
 {
-	S32 left_pad, right_pad;
-	mTextEntry->getTextPadding(&left_pad, &right_pad);
-	mTextEntry->setTextPadding(pad, right_pad);
+    S32 left_pad, right_pad;
+    mTextEntry->getTextPadding(&left_pad, &right_pad);
+    mTextEntry->setTextPadding(pad, right_pad);
 }
 
 void* LLComboBox::getCurrentUserdata()
 {
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return item->getUserdata();
-	}
-	return NULL;
+    LLScrollListItem* item = mList->getFirstSelected();
+    if( item )
+    {
+        return item->getUserdata();
+    }
+    return NULL;
 }
 
 
 void LLComboBox::showList()
 {
-	// Make sure we don't go off top of screen.
-	LLCoordWindow window_size;
-	getWindow()->getSize(&window_size);
-	//HACK: shouldn't have to know about scale here
-	mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::getScaleFactor().mV[VY]) - 50 );
+    // Make sure we don't go off top of screen.
+    LLCoordWindow window_size;
+    getWindow()->getSize(&window_size);
+    //HACK: shouldn't have to know about scale here
+    mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::getScaleFactor().mV[VY]) - 50 );
 
-	// Make sure that we can see the whole list
-	LLRect root_view_local;
-	LLView* root_view = getRootView();
-	root_view->localRectToOtherView(root_view->getLocalRect(), &root_view_local, this);
-	
-	LLRect rect = mList->getRect();
+    // Make sure that we can see the whole list
+    LLRect root_view_local;
+    LLView* root_view = getRootView();
+    root_view->localRectToOtherView(root_view->getLocalRect(), &root_view_local, this);
 
-	S32 min_width = getRect().getWidth();
-	S32 max_width = llmax(min_width, MAX_COMBO_WIDTH);
-	// make sure we have up to date content width metrics
-	S32 list_width = llclamp(mList->calcMaxContentWidth(), min_width, max_width);
+    LLRect rect = mList->getRect();
 
-	if (mListPosition == BELOW)
-	{
-		if (rect.getHeight() <= -root_view_local.mBottom)
-		{
-			// Move rect so it hangs off the bottom of this view
-			rect.setLeftTopAndSize(0, 0, list_width, rect.getHeight() );
-		}
-		else
-		{	
-			// stack on top or bottom, depending on which has more room
-			if (-root_view_local.mBottom > root_view_local.mTop - getRect().getHeight())
-			{
-				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
-			}
-			else
-			{
-				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
-			}
-		}
-	}
-	else // ABOVE
-	{
-		if (rect.getHeight() <= root_view_local.mTop - getRect().getHeight())
-		{
-			// move rect so it stacks on top of this view (clipped to size of screen)
-			rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
-		}
-		else
-		{
-			// stack on top or bottom, depending on which has more room
-			if (-root_view_local.mBottom > root_view_local.mTop - getRect().getHeight())
-			{
-				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
-			}
-			else
-			{
-				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
-			}
-		}
+    S32 min_width = getRect().getWidth();
+    S32 max_width = llmax(min_width, MAX_COMBO_WIDTH);
+    // make sure we have up to date content width metrics
+    S32 list_width = llclamp(mList->calcMaxContentWidth(), min_width, max_width);
 
-	}
-	mList->setOrigin(rect.mLeft, rect.mBottom);
-	mList->reshape(rect.getWidth(), rect.getHeight());
-	mList->translateIntoRect(root_view_local);
+    if (mListPosition == BELOW)
+    {
+        if (rect.getHeight() <= -root_view_local.mBottom)
+        {
+            // Move rect so it hangs off the bottom of this view
+            rect.setLeftTopAndSize(0, 0, list_width, rect.getHeight() );
+        }
+        else
+        {
+            // stack on top or bottom, depending on which has more room
+            if (-root_view_local.mBottom > root_view_local.mTop - getRect().getHeight())
+            {
+                // Move rect so it hangs off the bottom of this view
+                rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
+            }
+            else
+            {
+                // move rect so it stacks on top of this view (clipped to size of screen)
+                rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
+            }
+        }
+    }
+    else // ABOVE
+    {
+        if (rect.getHeight() <= root_view_local.mTop - getRect().getHeight())
+        {
+            // move rect so it stacks on top of this view (clipped to size of screen)
+            rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
+        }
+        else
+        {
+            // stack on top or bottom, depending on which has more room
+            if (-root_view_local.mBottom > root_view_local.mTop - getRect().getHeight())
+            {
+                // Move rect so it hangs off the bottom of this view
+                rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
+            }
+            else
+            {
+                // move rect so it stacks on top of this view (clipped to size of screen)
+                rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
+            }
+        }
 
-	// Make sure we didn't go off bottom of screen
-	S32 x, y;
-	mList->localPointToScreen(0, 0, &x, &y);
+    }
+    mList->setOrigin(rect.mLeft, rect.mBottom);
+    mList->reshape(rect.getWidth(), rect.getHeight());
+    mList->translateIntoRect(root_view_local);
 
-	if (y < 0)
-	{
-		mList->translate(0, -y);
-	}
+    // Make sure we didn't go off bottom of screen
+    S32 x, y;
+    mList->localPointToScreen(0, 0, &x, &y);
 
-	// NB: this call will trigger the focuslost callback which will hide the list, so do it first
-	// before finally showing the list
+    if (y < 0)
+    {
+        mList->translate(0, -y);
+    }
 
-	mList->setFocus(TRUE);
+    // NB: this call will trigger the focuslost callback which will hide the list, so do it first
+    // before finally showing the list
 
-	// Show the list and push the button down
-	mButton->setToggleState(TRUE);
-	mList->setVisible(TRUE);
-	
-	LLUI::getInstance()->addPopup(this);
+    mList->setFocus(true);
 
-	setUseBoundingRect(TRUE);
-//	updateBoundingRect();
+    // Show the list and push the button down
+    mButton->setToggleState(true);
+    mList->setVisible(true);
+
+    LLUI::getInstance()->addPopup(this);
+
+    setUseBoundingRect(true);
+//  updateBoundingRect();
 }
 
 void LLComboBox::hideList()
 {
-	if (mList->getVisible())
-	{
-		// assert selection in list
-		if(mAllowNewValues)
-		{
-			// mLastSelectedIndex = -1 means that we entered a new value, don't select
-			// any of existing items in this case.
-			if(mLastSelectedIndex >= 0)
-				mList->selectNthItem(mLastSelectedIndex);
-		}
-		else if(mLastSelectedIndex >= 0)
-			mList->selectNthItem(mLastSelectedIndex);
+    if (mList->getVisible())
+    {
+        // assert selection in list
+        if(mAllowNewValues)
+        {
+            // mLastSelectedIndex = -1 means that we entered a new value, don't select
+            // any of existing items in this case.
+            if(mLastSelectedIndex >= 0)
+                mList->selectNthItem(mLastSelectedIndex);
+        }
+        else if(mLastSelectedIndex >= 0)
+            mList->selectNthItem(mLastSelectedIndex);
 
-		mButton->setToggleState(FALSE);
-		mList->setVisible(FALSE);
-		mList->mouseOverHighlightNthItem(-1);
+        mButton->setToggleState(false);
+        mList->setVisible(false);
+        mList->mouseOverHighlightNthItem(-1);
 
-		setUseBoundingRect(FALSE);
-		LLUI::getInstance()->removePopup(this);
-//		updateBoundingRect();
-	}
+        setUseBoundingRect(false);
+        LLUI::getInstance()->removePopup(this);
+//      updateBoundingRect();
+    }
 }
 
 void LLComboBox::onButtonMouseDown()
 {
-	if (!mList->getVisible())
-	{
-		// this might change selection, so do it first
-		prearrangeList();
+    if (!mList->getVisible())
+    {
+        // this might change selection, so do it first
+        prearrangeList();
 
-		// highlight the last selected item from the original selection before potentially selecting a new item
-		// as visual cue to original value of combo box
-		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
-		if (last_selected_item)
-		{
-			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-		}
+        // highlight the last selected item from the original selection before potentially selecting a new item
+        // as visual cue to original value of combo box
+        LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
+        if (last_selected_item)
+        {
+            mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
+        }
 
-		if (mList->getItemCount() != 0)
-		{
-			showList();
-		}
+        if (mList->getItemCount() != 0)
+        {
+            showList();
+        }
 
-		setFocus( TRUE );
+        setFocus( true );
 
-		// pass mouse capture on to list if button is depressed
-		if (mButton->hasMouseCapture())
-		{
-			gFocusMgr.setMouseCapture(mList);
+        // pass mouse capture on to list if button is depressed
+        if (mButton->hasMouseCapture())
+        {
+            gFocusMgr.setMouseCapture(mList);
 
-			// But keep the "pressed" look, which buttons normally lose when they
-			// lose focus
-			mButton->setForcePressedState(true);
-		}
-	}
-	else
-	{
-		hideList();
-	} 
+            // But keep the "pressed" look, which buttons normally lose when they
+            // lose focus
+            mButton->setForcePressedState(true);
+        }
+    }
+    else
+    {
+        hideList();
+    }
 
 }
 
 void LLComboBox::onListMouseUp()
 {
-	// In some cases this is the termination of a mouse click that started on
-	// the button, so clear its pressed state
-	mButton->setForcePressedState(false);
+    // In some cases this is the termination of a mouse click that started on
+    // the button, so clear its pressed state
+    mButton->setForcePressedState(false);
 }
 
 //------------------------------------------------------------------
@@ -764,282 +832,327 @@ void LLComboBox::onListMouseUp()
 
 void LLComboBox::onItemSelected(const LLSD& data)
 {
-	mLastSelectedIndex = getCurrentIndex();
-	if (mLastSelectedIndex != -1)
-	{
-		updateLabel();
+    mLastSelectedIndex = getCurrentIndex();
+    if (mLastSelectedIndex != -1)
+    {
+        updateLabel();
 
-		if (mAllowTextEntry)
-		{
-			gFocusMgr.setKeyboardFocus(mTextEntry);
-			mTextEntry->selectAll();
-		}
-	}
-	// hiding the list reasserts the old value stored in the text editor/dropdown button
-	hideList();
+        if (mAllowTextEntry)
+        {
+            gFocusMgr.setKeyboardFocus(mTextEntry);
+            mTextEntry->selectAll();
+        }
+    }
+    // hiding the list reasserts the old value stored in the text editor/dropdown button
+    hideList();
 
-	// commit does the reverse, asserting the value in the list
-	onCommit();
+    // commit does the reverse, asserting the value in the list
+    onCommit();
 }
 
-BOOL LLComboBox::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLComboBox::handleToolTip(S32 x, S32 y, MASK mask)
 {
     std::string tool_tip;
 
-	if(LLUICtrl::handleToolTip(x, y, mask))
-	{
-		return TRUE;
-	}
-	
-	tool_tip = getToolTip();
-	if (tool_tip.empty())
-	{
-		tool_tip = getSelectedItemLabel();
-	}
-	
-	if( !tool_tip.empty() )
-	{
-		LLToolTipMgr::instance().show(LLToolTip::Params()
-			.message(tool_tip)
-			.sticky_rect(calcScreenRect()));
-	}
-	return TRUE;
+    if(LLUICtrl::handleToolTip(x, y, mask))
+    {
+        return true;
+    }
+
+    tool_tip = getToolTip();
+    if (tool_tip.empty())
+    {
+        tool_tip = getSelectedItemLabel();
+    }
+
+    if( !tool_tip.empty() )
+    {
+        LLToolTipMgr::instance().show(LLToolTip::Params()
+            .message(tool_tip)
+            .sticky_rect(calcScreenRect()));
+    }
+    return true;
 }
 
-BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
+bool LLComboBox::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL result = FALSE;
-	if (hasFocus())
-	{
-		if (mList->getVisible() 
-			&& key == KEY_ESCAPE && mask == MASK_NONE)
-		{
-			hideList();
-			return TRUE;
-		}
-		//give list a chance to pop up and handle key
-		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
-		if (last_selected_item)
-		{
-			// highlight the original selection before potentially selecting a new item
-			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-		}
-		result = mList->handleKeyHere(key, mask);
+    bool result = false;
+    if (hasFocus())
+    {
+        if (mList->getVisible()
+            && key == KEY_ESCAPE && mask == MASK_NONE)
+        {
+            hideList();
+            return true;
+        }
+        //give list a chance to pop up and handle key
+        LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
+        if (last_selected_item)
+        {
+            // highlight the original selection before potentially selecting a new item
+            mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
+        }
+        result = mList->handleKeyHere(key, mask);
 
-		// will only see return key if it is originating from line editor
-		// since the dropdown button eats the key
-		if (key == KEY_RETURN)
-		{
-			if (mask == MASK_NONE)
-			{
-				mOnReturnSignal(this, getValue());
-			}
+        // will only see return key if it is originating from line editor
+        // since the dropdown button eats the key
+        if (key == KEY_RETURN)
+        {
+            if (mask == MASK_NONE)
+            {
+                mOnReturnSignal(this, getValue());
+            }
 
-			// don't show list and don't eat key input when committing
-			// free-form text entry with RETURN since user already knows
+            // don't show list and don't eat key input when committing
+            // free-form text entry with RETURN since user already knows
             // what they are trying to select
-			return FALSE;
-		}
-		// if selection has changed, pop open list
-		else if (mList->getLastSelectedItem() != last_selected_item 
-					|| ((key == KEY_DOWN || key == KEY_UP)
-						&& mList->getCanSelect()
-						&& !mList->isEmpty()))
-		{
-			showList();
-		}
-	}
-	return result;
+            return false;
+        }
+        // if selection has changed, pop open list
+        else if (mList->getLastSelectedItem() != last_selected_item
+                    || ((key == KEY_DOWN || key == KEY_UP)
+                        && mList->getCanSelect()
+                        && !mList->isEmpty()))
+        {
+            showList();
+        }
+    }
+    return result;
 }
 
-BOOL LLComboBox::handleUnicodeCharHere(llwchar uni_char)
+bool LLComboBox::handleUnicodeCharHere(llwchar uni_char)
 {
-	BOOL result = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(this))
-	{
-		// space bar just shows the list
-		if (' ' != uni_char )
-		{
-			LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
-			if (last_selected_item)
-			{
-				// highlight the original selection before potentially selecting a new item
-				mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-			}
-			result = mList->handleUnicodeCharHere(uni_char);
-			if (mList->getLastSelectedItem() != last_selected_item)
-			{
-				showList();
-			}
-		}
-	}
-	return result;
+    bool result = false;
+    if (gFocusMgr.childHasKeyboardFocus(this))
+    {
+        // space bar just shows the list
+        if (' ' != uni_char )
+        {
+            LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
+            if (last_selected_item)
+            {
+                // highlight the original selection before potentially selecting a new item
+                mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
+            }
+            result = mList->handleUnicodeCharHere(uni_char);
+            if (mList->getLastSelectedItem() != last_selected_item)
+            {
+                showList();
+            }
+        }
+    }
+    return result;
+}
+
+// virtual
+bool LLComboBox::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+    if (mList->getVisible())
+    {
+        return mList->handleScrollWheel(x, y, clicks);
+    }
+
+    if (mAllowTextEntry) // We might be editable
+    {
+        if (!mList->getFirstSelected()) // We aren't in the list, don't kill their text
+        {
+            return false;
+        }
+    }
+
+    S32 current_index = getCurrentIndex();
+    if (clicks > 0)
+    {
+        for (S32 i = 0; i < clicks; ++i)
+        {
+            if (!selectNextItem())
+                break;
+        }
+    }
+    else
+    {
+        for (S32 i = 0; i < -clicks; ++i)
+        {
+            if (!selectPrevItem())
+                break;
+        }
+    }
+    S32 new_index = getCurrentIndex();
+
+    if (new_index != current_index)
+    {
+        prearrangeList();
+        onCommit();
+        return true;
+    }
+
+    return false;
 }
 
 void LLComboBox::setTextEntry(const LLStringExplicit& text)
 {
-	if (mTextEntry)
-	{
-		mTextEntry->setText(text);
-		mHasAutocompletedText = FALSE;
-		updateSelection();
-	}
+    if (mTextEntry)
+    {
+        mTextEntry->setText(text);
+        mHasAutocompletedText = false;
+        updateSelection();
+    }
 }
 
-void LLComboBox::setKeystrokeOnEsc(BOOL enable)
+void LLComboBox::setKeystrokeOnEsc(bool enable)
 {
-	if (mTextEntry)
-	{
-		mTextEntry->setKeystrokeOnEsc(enable);
-	}
+    if (mTextEntry)
+    {
+        mTextEntry->setKeystrokeOnEsc(enable);
+    }
 }
 
 void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 {
-	if (mTextEntryCallback != NULL)
-	{
-		(mTextEntryCallback)(line_editor, LLSD());
-	}
+    if (mTextEntryCallback != NULL)
+    {
+        (mTextEntryCallback)(line_editor, LLSD());
+    }
 
-	KEY key = gKeyboard->currentKey();
-	if (key == KEY_BACKSPACE || 
-		key == KEY_DELETE)
-	{
-		if (mList->selectItemByLabel(line_editor->getText(), FALSE))
-		{
-			line_editor->setTentative(FALSE);
-			mLastSelectedIndex = mList->getFirstSelectedIndex();
-		}
-		else
-		{
-			line_editor->setTentative(mTextEntryTentative);
-			mList->deselectAllItems();
-			mLastSelectedIndex = -1;
-		}
-		if (mTextChangedCallback != NULL)
-		{
-			(mTextChangedCallback)(line_editor, LLSD());
-		}
-		return;
-	}
+    KEY key = gKeyboard->currentKey();
+    if (key == KEY_BACKSPACE ||
+        key == KEY_DELETE)
+    {
+        if (mList->selectItemByLabel(line_editor->getText(), false))
+        {
+            line_editor->setTentative(false);
+            mLastSelectedIndex = mList->getFirstSelectedIndex();
+        }
+        else
+        {
+            line_editor->setTentative(mTextEntryTentative);
+            mList->deselectAllItems();
+            mLastSelectedIndex = -1;
+        }
+        if (mTextChangedCallback != NULL)
+        {
+            (mTextChangedCallback)(line_editor, LLSD());
+        }
+        return;
+    }
 
-	if (key == KEY_LEFT || 
-		key == KEY_RIGHT)
-	{
-		return;
-	}
+    if (key == KEY_LEFT ||
+        key == KEY_RIGHT)
+    {
+        return;
+    }
 
-	if (key == KEY_DOWN)
-	{
-		setCurrentByIndex(llmin(getItemCount() - 1, getCurrentIndex() + 1));
-		if (!mList->getVisible())
-		{
-			prearrangeList();
+    if (key == KEY_DOWN)
+    {
+        setCurrentByIndex(llmin(getItemCount() - 1, getCurrentIndex() + 1));
+        if (!mList->getVisible())
+        {
+            prearrangeList();
 
-			if (mList->getItemCount() != 0)
-			{
-				showList();
-			}
-		}
-		line_editor->selectAll();
-		line_editor->setTentative(FALSE);
-	}
-	else if (key == KEY_UP)
-	{
-		setCurrentByIndex(llmax(0, getCurrentIndex() - 1));
-		if (!mList->getVisible())
-		{
-			prearrangeList();
+            if (mList->getItemCount() != 0)
+            {
+                showList();
+            }
+        }
+        line_editor->selectAll();
+        line_editor->setTentative(false);
+    }
+    else if (key == KEY_UP)
+    {
+        setCurrentByIndex(llmax(0, getCurrentIndex() - 1));
+        if (!mList->getVisible())
+        {
+            prearrangeList();
 
-			if (mList->getItemCount() != 0)
-			{
-				showList();
-			}
-		}
-		line_editor->selectAll();
-		line_editor->setTentative(FALSE);
-	}
-	else
-	{
-		// RN: presumably text entry
-		updateSelection();
-	}
-	if (mTextChangedCallback != NULL)
-	{
-		(mTextChangedCallback)(line_editor, LLSD());
-	}
+            if (mList->getItemCount() != 0)
+            {
+                showList();
+            }
+        }
+        line_editor->selectAll();
+        line_editor->setTentative(false);
+    }
+    else
+    {
+        // RN: presumably text entry
+        updateSelection();
+    }
+    if (mTextChangedCallback != NULL)
+    {
+        (mTextChangedCallback)(line_editor, LLSD());
+    }
 }
 
 void LLComboBox::updateSelection()
 {
-	LLWString left_wstring = mTextEntry->getWText().substr(0, mTextEntry->getCursor());
-	// user-entered portion of string, based on assumption that any selected
+    LLWString left_wstring = mTextEntry->getWText().substr(0, mTextEntry->getCursor());
+    // user-entered portion of string, based on assumption that any selected
     // text was a result of auto-completion
-	LLWString user_wstring = mHasAutocompletedText ? left_wstring : mTextEntry->getWText();
-	std::string full_string = mTextEntry->getText();
+    LLWString user_wstring = mHasAutocompletedText ? left_wstring : mTextEntry->getWText();
+    std::string full_string = mTextEntry->getText();
 
-	// go ahead and arrange drop down list on first typed character, even
-	// though we aren't showing it... some code relies on prearrange
-	// callback to populate content
-	if( mTextEntry->getWText().size() == 1 )
-	{
-		prearrangeList(mTextEntry->getText());
-	}
+    // go ahead and arrange drop down list on first typed character, even
+    // though we aren't showing it... some code relies on prearrange
+    // callback to populate content
+    if( mTextEntry->getWText().size() == 1 )
+    {
+        prearrangeList(mTextEntry->getText());
+    }
 
-	if (mList->selectItemByLabel(full_string, FALSE))
-	{
-		mTextEntry->setTentative(FALSE);
-		mLastSelectedIndex = mList->getFirstSelectedIndex();
-	}
-	else if (mList->selectItemByPrefix(left_wstring, FALSE))
-	{
-		LLWString selected_item = utf8str_to_wstring(getSelectedItemLabel());
-		LLWString wtext = left_wstring + selected_item.substr(left_wstring.size(), selected_item.size());
-		mTextEntry->setText(wstring_to_utf8str(wtext));
-		mTextEntry->setSelection(left_wstring.size(), mTextEntry->getWText().size());
-		mTextEntry->endSelection();
-		mTextEntry->setTentative(FALSE);
-		mHasAutocompletedText = TRUE;
-		mLastSelectedIndex = mList->getFirstSelectedIndex();
-	}
-	else // no matching items found
-	{
-		mList->deselectAllItems();
-		mTextEntry->setText(wstring_to_utf8str(user_wstring)); // removes text added by autocompletion
-		mTextEntry->setTentative(mTextEntryTentative);
-		mHasAutocompletedText = FALSE;
-		mLastSelectedIndex = -1;
-	}
+    if (mList->selectItemByLabel(full_string, false))
+    {
+        mTextEntry->setTentative(false);
+        mLastSelectedIndex = mList->getFirstSelectedIndex();
+    }
+    else if (mList->selectItemByPrefix(left_wstring, false))
+    {
+        LLWString selected_item = utf8str_to_wstring(getSelectedItemLabel());
+        LLWString wtext = left_wstring + selected_item.substr(left_wstring.size(), selected_item.size());
+        mTextEntry->setText(wstring_to_utf8str(wtext));
+        mTextEntry->setSelection(static_cast<S32>(left_wstring.size()), static_cast<S32>(mTextEntry->getWText().size()));
+        mTextEntry->endSelection();
+        mTextEntry->setTentative(false);
+        mHasAutocompletedText = true;
+        mLastSelectedIndex = mList->getFirstSelectedIndex();
+    }
+    else // no matching items found
+    {
+        mList->deselectAllItems();
+        mTextEntry->setText(wstring_to_utf8str(user_wstring)); // removes text added by autocompletion
+        mTextEntry->setTentative(mTextEntryTentative);
+        mHasAutocompletedText = false;
+        mLastSelectedIndex = -1;
+    }
 }
 
 void LLComboBox::onTextCommit(const LLSD& data)
 {
-	std::string text = mTextEntry->getText();
-	setSimple(text);
-	onCommit();
-	mTextEntry->selectAll();
+    std::string text = mTextEntry->getText();
+    setSimple(text);
+    onCommit();
+    mTextEntry->selectAll();
 }
 
-void LLComboBox::setFocus(BOOL b)
+void LLComboBox::setFocus(bool b)
 {
-	LLUICtrl::setFocus(b);
+    LLUICtrl::setFocus(b);
 
-	if (b)
-	{
-		mList->clearSearchString();
-		if (mList->getVisible())
-		{
-			mList->setFocus(TRUE);
-		}
-	}
+    if (b)
+    {
+        mList->clearSearchString();
+        if (mList->getVisible())
+        {
+            mList->setFocus(true);
+        }
+    }
 }
 
 void LLComboBox::prearrangeList(std::string filter)
 {
-	if (mPrearrangeCallback)
-	{
-		mPrearrangeCallback(this, LLSD(filter));
-	}
+    if (mPrearrangeCallback)
+    {
+        mPrearrangeCallback(this, LLSD(filter));
+    }
 }
 
 
@@ -1081,13 +1194,11 @@ void LLComboBox::onSetHighlight() const
 
 void LLComboBox::imageLoaded()
 {
-    static LLUICachedControl<S32> drop_shadow_button("DropShadowButton", 0);
-
     if (mAllowTextEntry)
     {
         LLRect rect = getLocalRect();
         S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
-        S32 shadow_size = drop_shadow_button;
+        S32 shadow_size = BTN_DROP_SHADOW;
         mButton->setRect(LLRect(getRect().getWidth() - llmax(8, arrow_width) - 2 * shadow_size,
             rect.mTop, rect.mRight, rect.mBottom));
         if (mButton->getVisible())
@@ -1096,8 +1207,8 @@ void LLComboBox::imageLoaded()
             if (mTextEntry)
             {
                 LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-                text_entry_rect.mRight -= llmax(8, arrow_width) + 2 * drop_shadow_button;
-                mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
+                text_entry_rect.mRight -= llmax(8, arrow_width) + 2 * BTN_DROP_SHADOW;
+                mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), true);
             }
         }
     }
@@ -1108,127 +1219,127 @@ void LLComboBox::imageLoaded()
 
 S32 LLComboBox::getItemCount() const
 {
-	return mList->getItemCount();
+    return mList->getItemCount();
 }
 
 void LLComboBox::addColumn(const LLSD& column, EAddPosition pos)
 {
-	mList->clearColumns();
-	mList->addColumn(column, pos);
+    mList->clearColumns();
+    mList->addColumn(column, pos);
 }
 
 void LLComboBox::clearColumns()
 {
-	mList->clearColumns();
+    mList->clearColumns();
 }
 
 void LLComboBox::setColumnLabel(const std::string& column, const std::string& label)
 {
-	mList->setColumnLabel(column, label);
+    mList->setColumnLabel(column, label);
 }
 
 LLScrollListItem* LLComboBox::addElement(const LLSD& value, EAddPosition pos, void* userdata)
 {
-	return mList->addElement(value, pos, userdata);
+    return mList->addElement(value, pos, userdata);
 }
 
 LLScrollListItem* LLComboBox::addSimpleElement(const std::string& value, EAddPosition pos, const LLSD& id)
 {
-	return mList->addSimpleElement(value, pos, id);
+    return mList->addSimpleElement(value, pos, id);
 }
 
 void LLComboBox::clearRows()
 {
-	mList->clearRows();
+    mList->clearRows();
 }
 
-void LLComboBox::sortByColumn(const std::string& name, BOOL ascending)
+void LLComboBox::sortByColumn(const std::string& name, bool ascending)
 {
-	mList->sortByColumn(name, ascending);
+    mList->sortByColumn(name, ascending);
 }
 
 //============================================================================
 //LLCtrlSelectionInterface functions
 
-BOOL LLComboBox::setCurrentByID(const LLUUID& id)
+bool LLComboBox::setCurrentByID(const LLUUID& id)
 {
-	BOOL found = mList->selectByID( id );
+    bool found = mList->selectByID( id );
 
-	if (found)
-	{
-		setLabel(getSelectedItemLabel());
-		mLastSelectedIndex = mList->getFirstSelectedIndex();
-	}
+    if (found)
+    {
+        setLabel(getSelectedItemLabel());
+        mLastSelectedIndex = mList->getFirstSelectedIndex();
+    }
 
-	return found;
+    return found;
 }
 
 LLUUID LLComboBox::getCurrentID() const
 {
-	return mList->getStringUUIDSelectedItem();
+    return mList->getStringUUIDSelectedItem();
 }
-BOOL LLComboBox::setSelectedByValue(const LLSD& value, BOOL selected)
+bool LLComboBox::setSelectedByValue(const LLSD& value, bool selected)
 {
-	BOOL found = mList->setSelectedByValue(value, selected);
-	if (found)
-	{
-		setLabel(getSelectedItemLabel());
-	}
-	return found;
+    bool found = mList->setSelectedByValue(value, selected);
+    if (found)
+    {
+        setLabel(getSelectedItemLabel());
+    }
+    return found;
 }
 
 LLSD LLComboBox::getSelectedValue()
 {
-	return mList->getSelectedValue();
+    return mList->getSelectedValue();
 }
 
-BOOL LLComboBox::isSelected(const LLSD& value) const
+bool LLComboBox::isSelected(const LLSD& value) const
 {
-	return mList->isSelected(value);
+    return mList->isSelected(value);
 }
 
-BOOL LLComboBox::operateOnSelection(EOperation op)
+bool LLComboBox::operateOnSelection(EOperation op)
 {
-	if (op == OP_DELETE)
-	{
-		mList->deleteSelectedItems();
-		return TRUE;
-	}
-	return FALSE;
+    if (op == OP_DELETE)
+    {
+        mList->deleteSelectedItems();
+        return true;
+    }
+    return false;
 }
 
-BOOL LLComboBox::operateOnAll(EOperation op)
+bool LLComboBox::operateOnAll(EOperation op)
 {
-	if (op == OP_DELETE)
-	{
-		clearRows();
-		return TRUE;
-	}
-	return FALSE;
+    if (op == OP_DELETE)
+    {
+        clearRows();
+        return true;
+    }
+    return false;
 }
 
-BOOL LLComboBox::selectItemRange( S32 first, S32 last )
+bool LLComboBox::selectItemRange( S32 first, S32 last )
 {
-	return mList->selectItemRange(first, last);
+    return mList->selectItemRange(first, last);
 }
 
 
 static LLDefaultChildRegistry::Register<LLIconsComboBox> register_icons_combo_box("icons_combo_box");
 
 LLIconsComboBox::Params::Params()
-:	icon_column("icon_column", ICON_COLUMN),
-	label_column("label_column", LABEL_COLUMN)
+:   icon_column("icon_column", ICON_COLUMN),
+    label_column("label_column", LABEL_COLUMN)
 {}
 
 LLIconsComboBox::LLIconsComboBox(const LLIconsComboBox::Params& p)
-:	LLComboBox(p),
-	mIconColumnIndex(p.icon_column),
-	mLabelColumnIndex(p.label_column)
+:   LLComboBox(p),
+    mIconColumnIndex(p.icon_column),
+    mLabelColumnIndex(p.label_column)
 {}
 
 const std::string LLIconsComboBox::getSelectedItemLabel(S32 column) const
 {
-	mButton->setImageOverlay(LLComboBox::getSelectedItemLabel(mIconColumnIndex), mButton->getImageOverlayHAlign());
+    mButton->setImageOverlay(LLComboBox::getSelectedItemLabel(mIconColumnIndex), mButton->getImageOverlayHAlign());
 
-	return LLComboBox::getSelectedItemLabel(mLabelColumnIndex);
+    return LLComboBox::getSelectedItemLabel(mLabelColumnIndex);
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
@@ -211,22 +211,12 @@
               <button.commit_callback
                 function="MediaBrowser.OpenWebBrowser" />
             </button>
-            <check_box
-             control_name="UseExternalBrowser"
-             follows="bottom|left"
-             height="20"
-             label="Always open in my web browser"
-             layout="topleft"
-             left_pad="5"
-             name="open_always"
-             top_delta="0"
-             width="200" />
             <button
              follows="bottom|right"
              height="20"
              label="Close"
              layout="topleft"
-             left_pad="80"
+             left_pad="285"
              name="close"
              top_delta="0"
              width="70">

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  follows="all"
  height="240"
@@ -31,7 +31,7 @@
    image_overlay_alignment="left"
    image_top_pad="-1"
    imgoverlay_label_space="10"
-   label="Save to Inventory (L$[AMOUNT])"
+   label="Save to Inventory"
    layout="topleft"
    left_delta="0"
    name="save_to_inventory_btn"

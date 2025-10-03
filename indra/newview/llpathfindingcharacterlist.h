@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llpathfindingcharacterlist.h
 * @brief  Header file for llpathfindingcharacterlist
 * @author Stinson@lindenlab.com
@@ -34,14 +34,14 @@ class LLSD;
 class LLPathfindingCharacterList : public LLPathfindingObjectList
 {
 public:
-	LLPathfindingCharacterList();
-	LLPathfindingCharacterList(const LLSD& pCharacterListData);
-	virtual ~LLPathfindingCharacterList();
+    LLPathfindingCharacterList();
+    LLPathfindingCharacterList(const LLSD& pCharacterListData);
+    virtual ~LLPathfindingCharacterList();
 
 protected:
 
 private:
-	void parseCharacterListData(const LLSD& pCharacterListData);
+    void parseCharacterListData(const LLSD& pCharacterListData);
 };
 
 #endif // LL_LLPATHFINDINGCHARACTERLIST_H

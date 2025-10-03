@@ -12,7 +12,7 @@ terrain" name="terrain_raise_spin"/>
 	<spinner bottom_delta="-34" label="Limite d&apos;abaissement 
 du terrain" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-    Textures du terrain (fichiers .tga 1024 x 1024, 24 bit requis)
+    Textures du terrain
   </text>
 	<text name="height_text_lbl">
 		1 (Bas)

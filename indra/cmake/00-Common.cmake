@@ -32,6 +32,10 @@ add_compile_definitions( ADDRESS_SIZE=${ADDRESS_SIZE})
 # -- which we do. Without one or the other, we get a ton of Boost warnings.
 add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
+# Force enable SSE2 instructions in GLM per the manual
+# https://github.com/g-truc/glm/blob/master/manual.md#section2_10
+add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_FORCE_SSE2=1 GLM_ENABLE_EXPERIMENTAL=1)
+
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
 set(NON_RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in developer builds")
@@ -42,6 +46,11 @@ endif()
 
 if(NON_RELEASE_CRASH_REPORTING)
   add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
+endif()
+
+set(USE_LTO OFF CACHE BOOL "Enable Link Time Optimization")
+if(USE_LTO)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 endif()
 
 # Don't bother with a MinSizeRel or Debug builds.
@@ -60,15 +69,16 @@ if (WINDOWS)
   # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
   string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
-  # zlib has assembly-language object files incompatible with SAFESEH
   add_link_options(/LARGEADDRESSAWARE
-          /SAFESEH:NO
           /NODEFAULTLIB:LIBCMT
           /IGNORE:4099)
 
-  add_definitions(
-      -DNOMINMAX
-#      /DDOM_DYNAMIC            # For shared library colladadom
+  add_compile_definitions(
+      WIN32_LEAN_AND_MEAN
+      NOMINMAX
+#     DOM_DYNAMIC                     # For shared library colladadom
+      _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
+      _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
       )
   add_compile_options(
           /Zo
@@ -81,13 +91,14 @@ if (WINDOWS)
           /Oy-
           /fp:fast
           /MP
+          /permissive-
       )
 
   # Nicky: x64 implies SSE2
   if( ADDRESS_SIZE EQUAL 32 )
     add_compile_options( /arch:SSE2 )
   endif()
-     
+
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)
@@ -95,7 +106,7 @@ if (WINDOWS)
 
   #ND: When using something like buildcache (https://github.com/mbitsnbites/buildcache)
   # to make those wrappers work /Zi must be changed to /Z7, as /Zi due to it's nature is not compatible with caching
-  if( ${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
+  if(${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
     add_compile_options( /Z7 )
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
@@ -181,6 +192,10 @@ if (LINUX OR DARWIN)
   endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
+
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
+    list(APPEND GCC_WARNINGS -Wno-unused-but-set-variable -Wno-unused-variable )
+  endif()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})

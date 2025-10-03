@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llmediaentry.cpp
  * @brief This is a single instance of media data related to the face of a prim
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -157,9 +157,9 @@ void LLMediaEntry::asLLSD(LLSD& sd) const
 
     // "security" fields
     sd[WHITELIST_ENABLE_KEY] = mWhiteListEnable;
-	sd.erase(WHITELIST_KEY);
-    for (U32 i=0; i<mWhiteList.size(); i++) 
-	{
+    sd.erase(WHITELIST_KEY);
+    for (U32 i=0; i<mWhiteList.size(); i++)
+    {
         sd[WHITELIST_KEY].append(mWhiteList[i]);
     }
 
@@ -195,7 +195,7 @@ bool LLMediaEntry::fromLLSDInternal(const LLSD& sd, bool overwrite)
     // bit field.  We "or" into status and instead of returning
     // it, we return whether it finishes off as LSL_STATUS_OK or not.
     U32 status = LSL_STATUS_OK;
-    
+
     // "general" fields
     if ( overwrite || sd.has(ALT_IMAGE_ENABLE_KEY) )
     {
@@ -262,7 +262,7 @@ bool LLMediaEntry::fromLLSDInternal(const LLSD& sd, bool overwrite)
     {
         status |= setPermsControl( 0xff & (LLSD::Integer)sd[PERMS_CONTROL_KEY] );
     }
-    
+
     return LSL_STATUS_OK == status;
 }
 
@@ -321,7 +321,7 @@ bool LLMediaEntry::operator==(const LLMediaEntry &rhs) const
 
         );
 }
- 
+
 bool LLMediaEntry::operator!=(const LLMediaEntry &rhs) const
 {
     return (
@@ -344,8 +344,8 @@ bool LLMediaEntry::operator!=(const LLMediaEntry &rhs) const
 
         // "permissions" fields
         mPermsInteract != rhs.mPermsInteract ||
-        mPermsControl != rhs.mPermsControl 
-        
+        mPermsControl != rhs.mPermsControl
+
         );
 }
 
@@ -353,18 +353,18 @@ U32 LLMediaEntry::setWhiteList( const std::vector<std::string> &whitelist )
 {
     // *NOTE: This code is VERY similar to the setWhitelist below.
     // IF YOU CHANGE THIS IMPLEMENTATION, BE SURE TO CHANGE THE OTHER!
-    U32 size = 0;
+    size_t size = 0;
     U32 count = 0;
     // First count to make sure the size constraint is not violated
     std::vector<std::string>::const_iterator iter = whitelist.begin();
     std::vector<std::string>::const_iterator end = whitelist.end();
-    for ( ; iter < end; ++iter) 
+    for ( ; iter < end; ++iter)
     {
         const std::string &entry = (*iter);
         size += entry.length() + 1; // Include one for \0
         count ++;
-        if (size > MAX_WHITELIST_SIZE || count > MAX_WHITELIST_COUNT) 
-		{
+        if (size > MAX_WHITELIST_SIZE || count > MAX_WHITELIST_COUNT)
+        {
             return LSL_STATUS_BOUNDS_ERROR;
         }
     }
@@ -383,29 +383,29 @@ U32 LLMediaEntry::setWhiteList( const std::vector<std::string> &whitelist )
 U32 LLMediaEntry::setWhiteList( const LLSD &whitelist )
 {
     // If whitelist is undef, the whitelist is cleared
-    if (whitelist.isUndefined()) 
-	{
-		mWhiteList.clear();
-		return LSL_STATUS_OK;
-	}
+    if (whitelist.isUndefined())
+    {
+        mWhiteList.clear();
+        return LSL_STATUS_OK;
+    }
 
     // However, if the whitelist is an empty array, erase it.
-    if (whitelist.isArray()) 
+    if (whitelist.isArray())
     {
         // *NOTE: This code is VERY similar to the setWhitelist above.
         // IF YOU CHANGE THIS IMPLEMENTATION, BE SURE TO CHANGE THE OTHER!
-        U32 size = 0;
+        size_t size = 0;
         U32 count = 0;
         // First check to make sure the size and count constraints are not violated
         LLSD::array_const_iterator iter = whitelist.beginArray();
         LLSD::array_const_iterator end = whitelist.endArray();
-        for ( ; iter < end; ++iter) 
+        for ( ; iter < end; ++iter)
         {
             const std::string &entry = (*iter).asString();
             size += entry.length() + 1; // Include one for \0
             count ++;
-            if (size > MAX_WHITELIST_SIZE || count > MAX_WHITELIST_COUNT) 
-			{
+            if (size > MAX_WHITELIST_SIZE || count > MAX_WHITELIST_COUNT)
+            {
                 return LSL_STATUS_BOUNDS_ERROR;
             }
         }
@@ -420,8 +420,8 @@ U32 LLMediaEntry::setWhiteList( const LLSD &whitelist )
         }
         return LSL_STATUS_OK;
     }
-    else 
-	{
+    else
+    {
         return LSL_STATUS_MALFORMED_PARAMS;
     }
 }
@@ -444,15 +444,15 @@ static bool pattern_match(const std::string &candidate_str, const std::string &p
 {
     // If the pattern is empty, it matches
     if (pattern.empty()) return true;
-    
+
     // 'pattern' is a glob pattern, we only accept '*' chars
     // copy it
     std::string expression = pattern;
-    
+
     // Escape perl's regexp chars with a backslash, except all "*" chars
     prefix_with(expression, ".[{()\\+?|^$", "\\");
     prefix_with(expression, "*", ".");
-                    
+
     // case-insensitive matching:
     boost::regex regexp(expression, boost::regex::perl|boost::regex::icase);
     return ll_regex_match(candidate_str, regexp);
@@ -460,26 +460,26 @@ static bool pattern_match(const std::string &candidate_str, const std::string &p
 
 bool LLMediaEntry::checkCandidateUrl(const std::string& url) const
 {
-    if (getWhiteListEnable()) 
+    if (getWhiteListEnable())
     {
         return checkUrlAgainstWhitelist(url, getWhiteList());
     }
-    else 
-	{
+    else
+    {
         return true;
     }
 }
 
 // static
-bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url, 
+bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url,
                                             const std::vector<std::string> &whitelist)
 {
     bool passes = true;
     // *NOTE: no entries?  Don't check
-    if (whitelist.size() > 0) 
+    if (whitelist.size() > 0)
     {
         passes = false;
-            
+
         // Case insensitive: the reason why we toUpper both this and the
         // filter
         std::string candidate_url = url;
@@ -490,10 +490,10 @@ bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url,
         for ( ; iter < end; ++iter )
         {
             std::string filter = *iter;
-                
+
             LLURI filter_uri(filter);
             bool scheme_passes = pattern_match( candidate_uri.scheme(), filter_uri.scheme() );
-            if (filter_uri.scheme().empty()) 
+            if (filter_uri.scheme().empty())
             {
                 filter_uri = LLURI(DEFAULT_URL_PREFIX + filter);
             }
@@ -512,12 +512,12 @@ bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url,
 
 U32 LLMediaEntry::setStringFieldWithLimit( std::string &field, const std::string &value, U32 limit )
 {
-    if ( value.length() > limit ) 
-	{
+    if ( value.length() > limit )
+    {
         return LSL_STATUS_BOUNDS_ERROR;
     }
-    else 
-	{
+    else
+    {
         field = value;
         return LSL_STATUS_OK;
     }
@@ -553,12 +553,12 @@ U32 LLMediaEntry::setCurrentURL(const std::string& current_url)
 
 U32 LLMediaEntry::setCurrentURLInternal(const std::string& current_url, bool check_whitelist)
 {
-    if ( ! check_whitelist || checkCandidateUrl(current_url)) 
+    if ( ! check_whitelist || checkCandidateUrl(current_url))
     {
         return setStringFieldWithLimit( mCurrentURL, current_url, MAX_URL_LENGTH );
     }
-    else 
-	{
+    else
+    {
         return LSL_STATUS_WHITELIST_FAILED;
     }
 }
@@ -572,14 +572,14 @@ U32 LLMediaEntry::setWidthPixels(U16 width)
 {
     if (width > MAX_WIDTH_PIXELS) return LSL_STATUS_BOUNDS_ERROR;
     mWidthPixels = width;
-    return LSL_STATUS_OK; 
+    return LSL_STATUS_OK;
 }
 
 U32 LLMediaEntry::setHeightPixels(U16 height)
 {
     if (height > MAX_HEIGHT_PIXELS) return LSL_STATUS_BOUNDS_ERROR;
     mHeightPixels = height;
-    return LSL_STATUS_OK; 
+    return LSL_STATUS_OK;
 }
 
 const LLUUID &LLMediaEntry::getMediaID() const

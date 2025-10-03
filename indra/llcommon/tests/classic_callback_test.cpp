@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2021-09-22
  * @brief  Test ClassicCallback and HeapClassicCallback.
- * 
+ *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$

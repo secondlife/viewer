@@ -4,7 +4,7 @@
  * @date   2023-01-20
  * @brief  Extend boost::function_types to examine boost::function and
  *         std::function
- * 
+ *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Copyright (c) 2023, Linden Research, Inc.
  * $/LicenseInfo$

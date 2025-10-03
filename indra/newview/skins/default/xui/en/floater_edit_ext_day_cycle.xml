@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
         layout="topleft"
         name="env_edit_extdaycycle"
@@ -50,7 +50,7 @@
                     layout="topleft"
                     name="label"
                     left="15"
-                    top="5"
+                    top="8"
                     width="105">
                 Day Cycle Name:
             </text>
@@ -60,7 +60,7 @@
                     left_pad="10"
                     max_length_bytes="100"
                     name="day_cycle_name"
-                    prevalidate_callback="ascii"
+                    prevalidator="ascii"
                     top="5"
                     width="200"
                     height="21" />

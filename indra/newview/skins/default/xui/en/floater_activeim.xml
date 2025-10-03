@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
 	name="floater_activeim"
@@ -23,7 +23,7 @@
 		<scrolling_panel_list
 			follows="left|right"
 			layout="topleft"
-      left="1"      
+			left="1"
 			name="chiclet_row_panel_list"
 			width="318"/>
 	</scroll_container>

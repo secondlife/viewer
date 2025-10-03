@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llsettingspicker.h
  * @author Rider Linden
  * @brief LLSettingsPicker class header file including related functions
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2018&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2018, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -60,7 +60,7 @@ public:
 
     void                    setActive(bool active);
 
-    virtual BOOL            postBuild() override;
+    virtual bool            postBuild() override;
     virtual void            onClose(bool app_quitting) override;
     virtual void            draw() override;
 
@@ -79,7 +79,7 @@ public:
     virtual void            setValue(const LLSD& value) override;
     virtual LLSD            getValue() const override;
 
-    static LLUUID                findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false) 
+    static LLUUID                findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false)
     {
         LLInventoryItem *pitem = findItem(asset_id, copyable_only, ignore_library);
         if (pitem)
@@ -107,10 +107,11 @@ private:
     void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings);
     void                    onButtonCancel();
     void                    onButtonSelect();
-    virtual BOOL            handleDoubleClick(S32 x, S32 y, MASK mask) override;
-    BOOL                    handleKeyHere(KEY key, MASK mask) override;
+    virtual bool            handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    bool                    handleKeyHere(KEY key, MASK mask) override;
     void                    onFocusLost() override;
 
+    void applySelectedItemAndCloseFloater();
 
     LLHandle<LLView>        mOwnerHandle;
     LLUUID                  mSettingItemID;
@@ -125,9 +126,9 @@ private:
     PermissionMask          mImmediateFilterPermMask;
 
     bool                    mActive;
-    bool				    mNoCopySettingsSelected;
+    bool                    mNoCopySettingsSelected;
 
-    LLSaveFolderState	    mSavedFolderState;
+    LLSaveFolderState       mSavedFolderState;
 
 //     boost::signals2::signal<void(LLUUID id)>                mCommitSignal;
     boost::signals2::signal<void()>                         mCloseSignal;

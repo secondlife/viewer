@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lltexlayer.h
  * @brief Texture layer classes. Used for avatars.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -48,66 +48,66 @@ class LLViewerVisualParam;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLTexLayerInterface
 //
-// Interface class to generalize functionality shared by LLTexLayer 
+// Interface class to generalize functionality shared by LLTexLayer
 // and LLTexLayerTemplate.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLTexLayerInterface 
+class LLTexLayerInterface
 {
 public:
-	enum ERenderPass
-	{
-		RP_COLOR,
-		RP_BUMP,
-		RP_SHINE
-	};
+    enum ERenderPass
+    {
+        RP_COLOR,
+        RP_BUMP,
+        RP_SHINE
+    };
 
-	LLTexLayerInterface(LLTexLayerSet* const layer_set);
-	LLTexLayerInterface(const LLTexLayerInterface &layer, LLWearable *wearable);
-	virtual ~LLTexLayerInterface() {}
+    LLTexLayerInterface(LLTexLayerSet* const layer_set);
+    LLTexLayerInterface(const LLTexLayerInterface &layer, LLWearable *wearable);
+    virtual ~LLTexLayerInterface() {}
 
-	virtual BOOL			render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target) = 0;
-	virtual void			deleteCaches() = 0;
-	virtual BOOL			blendAlphaTexture(S32 x, S32 y, S32 width, S32 height) = 0;
-	virtual BOOL			isInvisibleAlphaMask() const = 0;
+    virtual bool            render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target) = 0;
+    virtual void            deleteCaches() = 0;
+    virtual bool            blendAlphaTexture(S32 x, S32 y, S32 width, S32 height) = 0;
+    virtual bool            isInvisibleAlphaMask() const = 0;
 
-	const LLTexLayerInfo* 	getInfo() const 			{ return mInfo; }
-	virtual BOOL			setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // sets mInfo, calls initialization functions
-	LLWearableType::EType	getWearableType() const;
-	LLAvatarAppearanceDefines::ETextureIndex	getLocalTextureIndex() const;
+    const LLTexLayerInfo*   getInfo() const             { return mInfo; }
+    virtual bool            setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // sets mInfo, calls initialization functions
+    LLWearableType::EType   getWearableType() const;
+    LLAvatarAppearanceDefines::ETextureIndex    getLocalTextureIndex() const;
 
-	const std::string&		getName() const;
-	const LLTexLayerSet* const getTexLayerSet() const 	{ return mTexLayerSet; }
-	LLTexLayerSet* const 	getTexLayerSet() 			{ return mTexLayerSet; }
+    const std::string&      getName() const;
+    const LLTexLayerSet* const getTexLayerSet() const   { return mTexLayerSet; }
+    LLTexLayerSet* const    getTexLayerSet()            { return mTexLayerSet; }
 
-	void					invalidateMorphMasks();
-	virtual void			setHasMorph(BOOL newval) 	{ mHasMorph = newval; }
-	BOOL					hasMorph() const			{ return mHasMorph; }
-	BOOL					isMorphValid() const		{ return mMorphMasksValid; }
+    void                    invalidateMorphMasks();
+    virtual void            setHasMorph(bool newval)    { mHasMorph = newval; }
+    bool                    hasMorph() const            { return mHasMorph; }
+    bool                    isMorphValid() const        { return mMorphMasksValid; }
 
-	void					requestUpdate();
-	virtual void			gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target) = 0;
-	BOOL					hasAlphaParams() const 		{ return !mParamAlphaList.empty(); }
+    void                    requestUpdate();
+    virtual void            gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target) = 0;
+    bool                    hasAlphaParams() const      { return !mParamAlphaList.empty(); }
 
-	ERenderPass				getRenderPass() const;
-	BOOL					isVisibilityMask() const;
+    ERenderPass             getRenderPass() const;
+    bool                    isVisibilityMask() const;
 
-	virtual void			asLLSD(LLSD& sd) const {}
-
-protected:
-	const std::string&		getGlobalColor() const;
-	LLViewerVisualParam*	getVisualParamPtr(S32 index) const;
+    virtual void            asLLSD(LLSD& sd) const {}
 
 protected:
-	LLTexLayerSet* const	mTexLayerSet;
-	const LLTexLayerInfo*	mInfo;
-	BOOL					mMorphMasksValid;
-	BOOL					mHasMorph;
+    const std::string&      getGlobalColor() const;
+    LLViewerVisualParam*    getVisualParamPtr(S32 index) const;
 
-	// Layers can have either mParamColorList, mGlobalColor, or mFixedColor.  They are looked for in that order.
-	param_color_list_t		mParamColorList;
-	param_alpha_list_t		mParamAlphaList;
-	// 						mGlobalColor name stored in mInfo
-	// 						mFixedColor value stored in mInfo
+protected:
+    LLTexLayerSet* const    mTexLayerSet;
+    const LLTexLayerInfo*   mInfo;
+    bool                    mMorphMasksValid;
+    bool                    mHasMorph;
+
+    // Layers can have either mParamColorList, mGlobalColor, or mFixedColor.  They are looked for in that order.
+    param_color_list_t      mParamColorList;
+    param_alpha_list_t      mParamAlphaList;
+    //                      mGlobalColor name stored in mInfo
+    //                      mFixedColor value stored in mInfo
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,24 +118,24 @@ protected:
 class LLTexLayerTemplate : public LLTexLayerInterface
 {
 public:
-	LLTexLayerTemplate(LLTexLayerSet* const layer_set, LLAvatarAppearance* const appearance);
-	LLTexLayerTemplate(const LLTexLayerTemplate &layer);
-	/*virtual*/ ~LLTexLayerTemplate();
-	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
-	/*virtual*/ BOOL		setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
-	/*virtual*/ BOOL		blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
-	/*virtual*/ void		setHasMorph(BOOL newval);
-	/*virtual*/ void		deleteCaches();
-	/*virtual*/ BOOL		isInvisibleAlphaMask() const;
+    LLTexLayerTemplate(LLTexLayerSet* const layer_set, LLAvatarAppearance* const appearance);
+    LLTexLayerTemplate(const LLTexLayerTemplate &layer);
+    /*virtual*/ ~LLTexLayerTemplate();
+    /*virtual*/ bool        render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
+    /*virtual*/ bool        setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
+    /*virtual*/ bool        blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
+    /*virtual*/ void        gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
+    /*virtual*/ void        setHasMorph(bool newval);
+    /*virtual*/ void        deleteCaches();
+    /*virtual*/ bool        isInvisibleAlphaMask() const;
 protected:
-	U32 					updateWearableCache() const;
-	LLTexLayer* 			getLayer(U32 i) const;
-	LLAvatarAppearance*		getAvatarAppearance()	const		{ return mAvatarAppearance; }
+    U32                     updateWearableCache() const;
+    LLTexLayer*             getLayer(U32 i) const;
+    LLAvatarAppearance*     getAvatarAppearance()   const       { return mAvatarAppearance; }
 private:
-	LLAvatarAppearance*	const	mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
-	typedef std::vector<LLWearable*> wearable_cache_t;
-	mutable wearable_cache_t mWearableCache; // mutable b/c most get- require updating this cache
+    LLAvatarAppearance* const   mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
+    typedef std::vector<LLWearable*> wearable_cache_t;
+    mutable wearable_cache_t mWearableCache; // mutable b/c most get- require updating this cache
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,35 +146,35 @@ private:
 class LLTexLayer : public LLTexLayerInterface
 {
 public:
-	LLTexLayer(LLTexLayerSet* const layer_set);
-	LLTexLayer(const LLTexLayer &layer, LLWearable *wearable);
-	LLTexLayer(const LLTexLayerTemplate &layer_template, LLLocalTextureObject *lto, LLWearable *wearable);
-	/*virtual*/ ~LLTexLayer();
+    LLTexLayer(LLTexLayerSet* const layer_set);
+    LLTexLayer(const LLTexLayer &layer, LLWearable *wearable);
+    LLTexLayer(const LLTexLayerTemplate &layer_template, LLLocalTextureObject *lto, LLWearable *wearable);
+    /*virtual*/ ~LLTexLayer();
 
-	/*virtual*/ BOOL		setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
-	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
+    /*virtual*/ bool        setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
+    /*virtual*/ bool        render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
 
-	/*virtual*/ void		deleteCaches();
-	const U8*				getAlphaData() const;
+    /*virtual*/ void        deleteCaches();
+    const U8*               getAlphaData() const;
 
-	BOOL					findNetColor(LLColor4* color) const;
-	/*virtual*/ BOOL		blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
-	void					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, LLRenderTarget* bound_target, bool force_render);
-	void					addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
-	/*virtual*/ BOOL		isInvisibleAlphaMask() const;
+    bool                    findNetColor(LLColor4* color) const;
+    /*virtual*/ bool        blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
+    /*virtual*/ void        gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
+    void                    renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, LLRenderTarget* bound_target, bool force_render);
+    void                    addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
+    /*virtual*/ bool        isInvisibleAlphaMask() const;
 
-	void					setLTO(LLLocalTextureObject *lto) 	{ mLocalTextureObject = lto; }
-	LLLocalTextureObject* 	getLTO() 							{ return mLocalTextureObject; }
+    void                    setLTO(LLLocalTextureObject *lto)   { mLocalTextureObject = lto; }
+    LLLocalTextureObject*   getLTO()                            { return mLocalTextureObject; }
 
-	/*virtual*/ void		asLLSD(LLSD& sd) const;
+    /*virtual*/ void        asLLSD(LLSD& sd) const;
 
-	static void 			calculateTexLayerColor(const param_color_list_t &param_list, LLColor4 &net_color);
+    static void             calculateTexLayerColor(const param_color_list_t &param_list, LLColor4 &net_color);
 protected:
-	LLUUID					getUUID() const;
-	typedef std::map<U32, U8*> alpha_cache_t;
-	alpha_cache_t			mAlphaCache;
-	LLLocalTextureObject* 	mLocalTextureObject;
+    LLUUID                  getUUID() const;
+    typedef std::map<U32, U8*> alpha_cache_t;
+    alpha_cache_t           mAlphaCache;
+    LLLocalTextureObject*   mLocalTextureObject;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,51 +185,51 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTexLayerSet
 {
-	friend class LLTexLayerSetBuffer;
+    friend class LLTexLayerSetBuffer;
 public:
-	LLTexLayerSet(LLAvatarAppearance* const appearance);
-	virtual ~LLTexLayerSet();
+    LLTexLayerSet(LLAvatarAppearance* const appearance);
+    virtual ~LLTexLayerSet();
 
-	LLTexLayerSetBuffer*		getComposite();
-	const LLTexLayerSetBuffer* 	getComposite() const; // Do not create one if it doesn't exist.
-	virtual void				createComposite() = 0;
-	void						destroyComposite();
-	void						gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height, LLRenderTarget* bound_target);
+    LLTexLayerSetBuffer*        getComposite();
+    const LLTexLayerSetBuffer*  getComposite() const; // Do not create one if it doesn't exist.
+    virtual void                createComposite() = 0;
+    void                        destroyComposite();
+    void                        gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height, LLRenderTarget* bound_target);
 
-	const LLTexLayerSetInfo* 	getInfo() const 			{ return mInfo; }
-	BOOL						setInfo(const LLTexLayerSetInfo *info); // This sets mInfo and calls initialization functions
+    const LLTexLayerSetInfo*    getInfo() const             { return mInfo; }
+    bool                        setInfo(const LLTexLayerSetInfo *info); // This sets mInfo and calls initialization functions
 
-	BOOL						render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target = nullptr);
-	void						renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target = nullptr, bool forceClear = false);
+    bool                        render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target = nullptr);
+    void                        renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target = nullptr, bool forceClear = false);
 
-	BOOL						isBodyRegion(const std::string& region) const;
-	void						applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components);
-	BOOL						isMorphValid() const;
-	virtual void				requestUpdate() = 0;
-	void						invalidateMorphMasks();
-	void						deleteCaches();
-	LLTexLayerInterface*		findLayerByName(const std::string& name);
-	void						cloneTemplates(LLLocalTextureObject *lto, LLAvatarAppearanceDefines::ETextureIndex tex_index, LLWearable* wearable);
-	
-	LLAvatarAppearance*			getAvatarAppearance()	const		{ return mAvatarAppearance; }
-	const std::string			getBodyRegionName() const;
-	BOOL						hasComposite() const 		{ return (mComposite.notNull()); }
-	LLAvatarAppearanceDefines::EBakedTextureIndex getBakedTexIndex() const { return mBakedTexIndex; }
-	void						setBakedTexIndex(LLAvatarAppearanceDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
-	BOOL						isVisible() const 			{ return mIsVisible; }
+    bool                        isBodyRegion(const std::string& region) const;
+    void                        applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components);
+    bool                        isMorphValid() const;
+    virtual void                requestUpdate() = 0;
+    void                        invalidateMorphMasks();
+    void                        deleteCaches();
+    LLTexLayerInterface*        findLayerByName(const std::string& name);
+    void                        cloneTemplates(LLLocalTextureObject *lto, LLAvatarAppearanceDefines::ETextureIndex tex_index, LLWearable* wearable);
 
-	static BOOL					sHasCaches;
+    LLAvatarAppearance*         getAvatarAppearance()   const       { return mAvatarAppearance; }
+    const std::string           getBodyRegionName() const;
+    bool                        hasComposite() const        { return (mComposite.notNull()); }
+    LLAvatarAppearanceDefines::EBakedTextureIndex getBakedTexIndex() const { return mBakedTexIndex; }
+    void                        setBakedTexIndex(LLAvatarAppearanceDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
+    bool                        isVisible() const           { return mIsVisible; }
+
+    static bool                 sHasCaches;
 
 protected:
-	typedef std::vector<LLTexLayerInterface *> layer_list_t;
-	layer_list_t				mLayerList;
-	layer_list_t				mMaskLayerList;
-	LLPointer<LLTexLayerSetBuffer>	mComposite;
-	LLAvatarAppearance*	const	mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
-	BOOL						mIsVisible;
+    typedef std::vector<LLTexLayerInterface *> layer_list_t;
+    layer_list_t                mLayerList;
+    layer_list_t                mMaskLayerList;
+    LLPointer<LLTexLayerSetBuffer>  mComposite;
+    LLAvatarAppearance* const   mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
+    bool                        mIsVisible;
 
-	LLAvatarAppearanceDefines::EBakedTextureIndex mBakedTexIndex;
-	const LLTexLayerSetInfo* 	mInfo;
+    LLAvatarAppearanceDefines::EBakedTextureIndex mBakedTexIndex;
+    const LLTexLayerSetInfo*    mInfo;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -239,22 +239,22 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTexLayerSetInfo
 {
-	friend class LLTexLayerSet;
+    friend class LLTexLayerSet;
 public:
-	LLTexLayerSetInfo();
-	~LLTexLayerSetInfo();
-	BOOL parseXml(LLXmlTreeNode* node);
-	void createVisualParams(LLAvatarAppearance *appearance);
-	S32 getWidth() const { return mWidth; }
-	S32 getHeight() const { return mHeight; }
+    LLTexLayerSetInfo();
+    ~LLTexLayerSetInfo();
+    bool parseXml(LLXmlTreeNode* node);
+    void createVisualParams(LLAvatarAppearance *appearance);
+    S32 getWidth() const { return mWidth; }
+    S32 getHeight() const { return mHeight; }
 protected:
-	std::string				mBodyRegion;
-	S32						mWidth;
-	S32						mHeight;
-	std::string				mStaticAlphaFileName;
-	BOOL					mClearAlpha; // Set alpha to 1 for this layerset (if there is no mStaticAlphaFileName)
-	typedef std::vector<LLTexLayerInfo*> layer_info_list_t;
-	layer_info_list_t		mLayerInfoList;
+    std::string             mBodyRegion;
+    S32                     mWidth;
+    S32                     mHeight;
+    std::string             mStaticAlphaFileName;
+    bool                    mClearAlpha; // Set alpha to 1 for this layerset (if there is no mStaticAlphaFileName)
+    typedef std::vector<LLTexLayerInfo*> layer_info_list_t;
+    layer_info_list_t       mLayerInfoList;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -264,25 +264,25 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTexLayerSetBuffer : public virtual LLRefCount
 {
-	LOG_CLASS(LLTexLayerSetBuffer);
+    LOG_CLASS(LLTexLayerSetBuffer);
 
 public:
-	LLTexLayerSetBuffer(LLTexLayerSet* const owner);
-	virtual ~LLTexLayerSetBuffer();
+    LLTexLayerSetBuffer(LLTexLayerSet* const owner);
+    virtual ~LLTexLayerSetBuffer();
 
 protected:
-	void					pushProjection() const;
-	void					popProjection() const;
-	virtual void			preRenderTexLayerSet();
-	virtual void			midRenderTexLayerSet(BOOL success) {}
-	virtual void			postRenderTexLayerSet(BOOL success);
-	virtual S32				getCompositeOriginX() const = 0;
-	virtual S32				getCompositeOriginY() const = 0;
-	virtual S32				getCompositeWidth() const = 0;
-	virtual S32				getCompositeHeight() const = 0;
-	BOOL					renderTexLayerSet(LLRenderTarget* bound_target);
+    void                    pushProjection() const;
+    void                    popProjection() const;
+    virtual void            preRenderTexLayerSet();
+    virtual void            midRenderTexLayerSet(bool success) {}
+    virtual void            postRenderTexLayerSet(bool success);
+    virtual S32             getCompositeOriginX() const = 0;
+    virtual S32             getCompositeOriginY() const = 0;
+    virtual S32             getCompositeWidth() const = 0;
+    virtual S32             getCompositeHeight() const = 0;
+    bool                    renderTexLayerSet(LLRenderTarget* bound_target);
 
-	LLTexLayerSet* const	mTexLayerSet;
+    LLTexLayerSet* const    mTexLayerSet;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -291,23 +291,23 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTexLayerStaticImageList : public LLSingleton<LLTexLayerStaticImageList>
 {
-	LLSINGLETON(LLTexLayerStaticImageList);
-	~LLTexLayerStaticImageList();
+    LLSINGLETON(LLTexLayerStaticImageList);
+    ~LLTexLayerStaticImageList();
 public:
-	LLGLTexture*		getTexture(const std::string& file_name, BOOL is_mask);
-	LLImageTGA*			getImageTGA(const std::string& file_name);
-	void				deleteCachedImages();
-	void				dumpByteCount() const;
+    LLGLTexture*        getTexture(const std::string& file_name, bool is_mask);
+    LLImageTGA*         getImageTGA(const std::string& file_name);
+    void                deleteCachedImages();
+    void                dumpByteCount() const;
 protected:
-	BOOL				loadImageRaw(const std::string& file_name, LLImageRaw* image_raw);
+    bool                loadImageRaw(const std::string& file_name, LLImageRaw* image_raw);
 private:
-	LLStringTable 		mImageNames;
-	typedef std::map<const char*, LLPointer<LLGLTexture> > texture_map_t;
-	texture_map_t 		mStaticImageList;
-	typedef std::map<const char*, LLPointer<LLImageTGA> > image_tga_map_t;
-	image_tga_map_t 	mStaticImageListTGA;
-	S32 				mGLBytes;
-	S32 				mTGABytes;
+    LLStringTable       mImageNames;
+    typedef std::map<const char*, LLPointer<LLGLTexture> > texture_map_t;
+    texture_map_t       mStaticImageList;
+    typedef std::map<const char*, LLPointer<LLImageTGA> > image_tga_map_t;
+    image_tga_map_t     mStaticImageListTGA;
+    S32                 mGLBytes;
+    S32                 mTGABytes;
 };
 
 #endif  // LL_LLTEXLAYER_H

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldrawpoolbump.h
  * @brief LLDrawPoolBump class definition
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -43,55 +43,55 @@ class LLViewerFetchedTexture;
 class LLDrawPoolBump : public LLRenderPass
 {
 protected :
-	LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = FALSE; }
+    LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = false; }
 public:
-	static U32 sVertexMask;
-	BOOL mShiny;
-	
-	virtual U32 getVertexDataMask() override { return sVertexMask; }
+    static U32 sVertexMask;
+    bool mShiny;
 
-	LLDrawPoolBump();
+    virtual U32 getVertexDataMask() override { return sVertexMask; }
 
-	/*virtual*/ void prerender() override;
+    LLDrawPoolBump();
 
-	void pushBumpBatches(U32 type);
-	void renderGroup(LLSpatialGroup* group, U32 type, bool texture) override;
-		
-	S32 numBumpPasses();
-	
-	void beginFullbrightShiny();
-	void renderFullbrightShiny();
-	void endFullbrightShiny();
+    /*virtual*/ void prerender() override;
 
-	void beginBump();
-	void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
-	void endBump(U32 pass = LLRenderPass::PASS_BUMP);
+    void pushBumpBatches(U32 type);
+    void renderGroup(LLSpatialGroup* group, U32 type, bool texture) override;
 
-	static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
-	static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
+    S32 numBumpPasses();
 
-	virtual S32 getNumDeferredPasses() override;
-	/*virtual*/ void renderDeferred(S32 pass) override;
+    void beginFullbrightShiny();
+    void renderFullbrightShiny();
+    void endFullbrightShiny();
+
+    void beginBump();
+    void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
+    void endBump(U32 pass = LLRenderPass::PASS_BUMP);
+
+    static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
+    static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
+
+    virtual S32 getNumDeferredPasses() override;
+    /*virtual*/ void renderDeferred(S32 pass) override;
 
     virtual S32 getNumPostDeferredPasses() override { return 1; }
-	/*virtual*/ void renderPostDeferred(S32 pass) override;
+    /*virtual*/ void renderPostDeferred(S32 pass) override;
 
-	static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
-	static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
+    static bool bindBumpMap(LLDrawInfo& params, S32 channel = -2);
+    static bool bindBumpMap(LLFace* face, S32 channel = -2);
 
 private:
-	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, S32 channel);
+    static bool bindBumpMap(U8 bump_code, LLViewerTexture* tex, S32 channel);
     bool mRigged = false; // if true, doing a rigged pass
 
 };
 
 enum EBumpEffect
 {
-	BE_NO_BUMP = 0,
-	BE_BRIGHTNESS = 1,
-	BE_DARKNESS = 2,
-	BE_STANDARD_0 = 3,  // Standard must always be the last one
-	BE_COUNT = 4
+    BE_NO_BUMP = 0,
+    BE_BRIGHTNESS = 1,
+    BE_DARKNESS = 2,
+    BE_STANDARD_0 = 3,  // Standard must always be the last one
+    BE_COUNT = 4
 };
 
 ////////////////////////////////////////////////////////////////
@@ -99,21 +99,21 @@ enum EBumpEffect
 
 class LLStandardBumpmap
 {
-public: 
-	LLStandardBumpmap() : mLabel() {} 
-	LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
-	
-	std::string	mLabel;
-	LLPointer<LLViewerFetchedTexture> mImage;
+public:
+    LLStandardBumpmap() : mLabel() {}
+    LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
 
-	static	U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]
+    std::string mLabel;
+    LLPointer<LLViewerFetchedTexture> mImage;
 
-	static void clear();
-	static void addstandard();
+    static  U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]
 
-	static void shutdown();
-	static void restoreGL();
-	static void destroyGL();
+    static void clear();
+    static void addstandard();
+
+    static void shutdown();
+    static void restoreGL();
+    static void destroyGL();
 };
 
 extern LLStandardBumpmap gStandardBumpmapList[TEM_BUMPMAP_COUNT];
@@ -126,33 +126,32 @@ struct LLBumpImageEntry;
 class LLBumpImageList
 {
 public:
-	LLBumpImageList() {}
-	~LLBumpImageList();
+    LLBumpImageList() {}
+    ~LLBumpImageList();
 
-	void		init();
-	void		shutdown();
-	void            clear();
-	void		destroyGL();
-	void		restoreGL();
-	void		updateImages();
+    void        init();
+    void        shutdown();
+    void            clear();
+    void        destroyGL();
+    void        restoreGL();
+    void        updateImages();
 
 
-	LLViewerTexture*	getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code);
-	void		addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
+    LLViewerTexture*    getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code);
+    void        addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
 
-	static void onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-	static void onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-	static void onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-	static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
+    static void onSourceStandardLoaded( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata );
+    static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
 
 
 private:
-	static void onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump );
+    // should be called whenever resolution of src_vi changes compared to the current entry
+    static void onSourceUpdated( LLViewerTexture *src_vi, EBumpEffect bump );
 
 private:
-	typedef std::unordered_map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;
-	bump_image_map_t mBrightnessEntries;
-	bump_image_map_t mDarknessEntries;
+    typedef std::unordered_map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;
+    bump_image_map_t mBrightnessEntries;
+    bump_image_map_t mDarknessEntries;
     static LL::WorkQueue::weak_t sMainQueue;
     static LL::WorkQueue::weak_t sTexUpdateQueue;
     static LLRenderTarget sRenderTarget;

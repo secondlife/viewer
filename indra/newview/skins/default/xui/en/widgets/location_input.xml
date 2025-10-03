@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!--
 *TODO: Replace hardcoded buttons width/height with getting this info from the button images.
        Currently that doesn't work because LLUIImage::getWidth/getHeight() return 1 for the images.

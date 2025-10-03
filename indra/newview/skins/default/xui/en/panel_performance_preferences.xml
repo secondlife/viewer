@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  bevel_style="none"
  follows="left|top"
@@ -156,7 +156,7 @@
    layout="topleft"
    left_pad="10"
    top_delta="1"
-   name="quality_lbl"
+   name="best_quality_lbl"
    width="70">
     Best quality
   </text>
@@ -325,7 +325,7 @@
     bevel_style="in"
     height="0"
     layout="topleft"
-    name="border3"
+    name="border31"
     top_pad="7"
     left="20"
     width="540"/>
@@ -416,7 +416,7 @@
    layout="topleft"
    top_delta="3"
    left_pad="10"
-   name="photo_desc"
+   name="photo_dist_det_desc"
    width="180">
       (Enter value between 0.0 and 4.0)
   </text>
@@ -427,6 +427,16 @@
    layout="topleft"
    top="80"
    left="213"
+   name="0_lbl"
+   width="7">
+    0
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="31"
    name="1_lbl"
    width="7">
     1
@@ -436,7 +446,7 @@
    font="SansSerifSmall"
    height="18"
    layout="topleft"
-   left_pad="31"
+   left_pad="30"
    name="2_lbl"
    width="7">
     2
@@ -479,16 +489,6 @@
    left_pad="30"
    name="6_lbl"
    width="7">
-      6
-  </text>
-  <text
-   follows="left|top"
-   font="SansSerifSmall"
-   height="18"
-   layout="topleft"
-   left_pad="30"
-   name="7_lbl"
-   width="7">
-    7
+    6
   </text>
 </panel>

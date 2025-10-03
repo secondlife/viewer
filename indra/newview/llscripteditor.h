@@ -33,38 +33,44 @@
 class LLScriptEditor : public LLTextEditor
 {
 public:
-	
-	struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
-	{
-		Optional<bool>		show_line_numbers;
-		
-		Params();
-	};
-	
-	virtual ~LLScriptEditor() {};
-	
-	// LLView override
-	virtual void	draw();
-	
-	void	initKeywords();
-	void	loadKeywords();
-	/* virtual */ void	clearSegments();
-	LLKeywords::keyword_iterator_t keywordsBegin()	{ return mKeywords.begin(); }
-	LLKeywords::keyword_iterator_t keywordsEnd()	{ return mKeywords.end(); }
-	
-protected:
-	friend class LLUICtrlFactory;
-	LLScriptEditor(const Params& p);
-	
+
+    struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
+    {
+        Optional<bool>      show_line_numbers;
+        Optional<bool> default_font_size;
+        Params();
+    };
+
+    virtual ~LLScriptEditor() {};
+
+    // LLView override
+    virtual void    draw();
+    bool postBuild();
+
+    void    initKeywords();
+    void    loadKeywords();
+    /* virtual */ void  clearSegments();
+    LLKeywords::keyword_iterator_t keywordsBegin()  { return mKeywords.begin(); }
+    LLKeywords::keyword_iterator_t keywordsEnd()    { return mKeywords.end(); }
+
+    static std::string getScriptFontSize();
+    LLFontGL* getScriptFont();
+    void onFontSizeChange();
+
+  protected:
+    friend class LLUICtrlFactory;
+    LLScriptEditor(const Params& p);
+
 private:
-	void	drawLineNumbers();
-	/* virtual */ void	updateSegments();
-	/* virtual */ void	drawSelectionBackground();
-	void	loadKeywords(const std::string& filename_keywords,
-						 const std::string& filename_colors);
-	
-	LLKeywords	mKeywords;
-	bool		mShowLineNumbers;
+    void    drawLineNumbers();
+    /* virtual */ void  updateSegments();
+    /* virtual */ void  drawSelectionBackground();
+    void    loadKeywords(const std::string& filename_keywords,
+                         const std::string& filename_colors);
+
+    LLKeywords  mKeywords;
+    bool        mShowLineNumbers;
+    bool mUseDefaultFontSize;
 };
 
 #endif // LL_SCRIPTEDITOR_H

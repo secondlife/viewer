@@ -35,6 +35,11 @@ in vec3 position;
 out vec3 vary_HazeColor;
 out float vary_LightNormPosDot;
 
+#ifdef HAS_HDRI
+out vec4 vary_position;
+out vec3 vary_rel_pos;
+#endif
+
 // Inputs
 uniform vec3 camPosLocal;
 
@@ -72,6 +77,11 @@ void main()
     // Get relative position
     vec3 rel_pos = position.xyz - camPosLocal.xyz + vec3(0, 50, 0);
 
+#ifdef HAS_HDRI
+    vary_rel_pos = rel_pos;
+    vary_position = pos;
+#endif
+
     // Adj position vector to clamp altitude
     if (rel_pos.y > 0.)
     {
@@ -92,13 +102,13 @@ void main()
 
     // Initialize temp variables
     vec3 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color * 0.7; //magic 0.7 to match legacy color
-    
+
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
 
     // Calculate relative weights
-    vec3 combined_haze = abs(blue_density) + vec3(abs(haze_density));
+    vec3 combined_haze = max(abs(blue_density) + vec3(abs(haze_density)), vec3(1e-6));
     vec3 blue_weight   = blue_density / combined_haze;
     vec3 haze_weight   = haze_density / combined_haze;
 
@@ -142,7 +152,7 @@ void main()
     sunlight *= max(0.0, (1. - cloud_shadow));
 
     // Haze color below cloud
-    vec3 add_below_cloud = (blue_horizon * blue_weight * (sunlight + ambient) 
+    vec3 add_below_cloud = (blue_horizon * blue_weight * (sunlight + ambient)
                          + (haze_horizon * haze_weight) * (sunlight * haze_glow + ambient));
 
     // Attenuate cloud color by atmosphere

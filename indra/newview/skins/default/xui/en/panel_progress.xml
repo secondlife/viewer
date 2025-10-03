@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  follows="left|bottom|right|top"
  height="768"
@@ -33,7 +33,7 @@
              layout="topleft"
              left="0"
              orientation="vertical" 
-             name="vertical_centering"
+             name="vertical_centering1"
              top="0"
              width="670">
                 <layout_panel
@@ -44,38 +44,30 @@
                  width="670" />
                 <layout_panel
                  auto_resize="false"
-                 height="275"
+                 height="220"
                  layout="topleft"
-                 min_height="275"
+                 min_height="220"
                  name="panel4"
                  width="670">
                     <icon
                      color="LoginProgressBoxCenterColor"
                      follows="left|right|bottom|top"
-                     height="275"
                      image_name="Rounded_Square"
                      layout="topleft"
                      left="0"
                      top="0"
+                     height="220"
                      width="670" />
                     <layout_stack
                      follows="left|right|top|bottom"
-                     height="275"
+                     height="220"
                      layout="topleft"
                      left="0"
                      orientation="vertical"
-                     name="vertical_centering"
+                     name="vertical_centering2"
                      animate="false"
                      top="0"
                      width="670">
-                      <layout_panel
-                       auto_resize="false"
-                       height="30"
-                       layout="topleft"
-                       min_height="30"
-                       name="panel_top_spacer"
-                       width="670">
-                      </layout_panel>
                       <layout_panel
                        auto_resize="false"
                        height="100"
@@ -121,9 +113,9 @@
                       </layout_panel>
                       <layout_panel
                        auto_resize="false"
-                       height="110"
+                       height="90"
                        layout="topleft"
-                       min_height="110"
+                       min_height="90"
                        name="panel_motd"
                        width="670">
                         <text
@@ -132,7 +124,7 @@
                          font_shadow="none"
                          halign="left"
                          valign="center"
-                         height="100"
+                         height="80"
                          layout="topleft"
                          left="45"
                          line_spacing.pixels="2"
@@ -141,30 +133,6 @@
                          top="7"
                          right="-90"
                          word_wrap="true"/>
-                      </layout_panel>
-                      <layout_panel
-                       auto_resize="false"
-                       height="40"
-                       layout="topleft"
-                       min_height="40"
-                       name="panel_icons"
-                       width="670">
-                        <!--Logos are tied to following label from code-->
-                        <text
-                         follows="left|right|top"
-                         layout="topleft"
-                         font="SansSerifLarge"
-                         font_shadow="none"
-                         halign="left"
-                         height="16"
-                         width="240"
-                         left="47"
-                         top="6"
-                         line_spacing.pixels="2"
-                         name="logos_lbl"
-                         text_color="LoginProgressBoxTextColor">
-                          Second Life uses
-                        </text>
                       </layout_panel>
                     </layout_stack>
                 </layout_panel>

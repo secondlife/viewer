@@ -53,7 +53,7 @@ public:
     struct Params
         : public LLInitParam::Block<Params, LLUICtrl::Params>
     {
-        Optional<LLViewBorder::Params>	    border;
+        Optional<LLViewBorder::Params>      border;
         Optional<LLUIImage*>                image_moon_back,
             image_moon_front,
             image_sphere,
@@ -78,20 +78,20 @@ public:
     };
 
 
-    virtual ~LLVirtualTrackball();
-    /*virtual*/ BOOL postBuild();
+    ~LLVirtualTrackball() override;
+    bool postBuild() override;
 
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleKeyHere(KEY key, MASK mask);
+    bool    handleHover(S32 x, S32 y, MASK mask) override;
+    bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool    handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    bool    handleKeyHere(KEY key, MASK mask) override;
 
-    virtual void    draw();
+    void    draw() override;
 
-    virtual void    setValue(const LLSD& value);
-    void            setValue(F32 x, F32 y, F32 z, F32 w);
-    virtual LLSD    getValue() const;
+    void    setValue(const LLSD& value) override;
+    void    setValue(F32 x, F32 y, F32 z, F32 w);
+    LLSD    getValue() const override;
 
     void            setRotation(const LLQuaternion &value);
     LLQuaternion    getRotation() const;
@@ -102,7 +102,6 @@ public:
 protected:
     friend class LLUICtrlFactory;
     LLVirtualTrackball(const Params&);
-    void onEditChange();
 
 protected:
     LLTextBox*          mNLabel;

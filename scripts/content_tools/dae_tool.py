@@ -58,7 +58,7 @@ def mesh_lock_offsets(tree, joints):
                         floats[11] += 0.0001
                         matrix_node.text = " ".join([str(f) for f in floats])
                         print(joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats)
-        
+
 
 def mesh_random_offsets(tree, joints):
     print("mesh_random_offsets",tree,joints)
@@ -80,7 +80,7 @@ def mesh_random_offsets(tree, joints):
                         floats[11] += random.uniform(-1.0,1.0)
                         matrix_node.text = " ".join([str(f) for f in floats])
                         print(joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats)
-        
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="process SL animations")
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     parser.add_argument("--summary", action="store_true", help="print summary info about input file")
     args = parser.parse_args()
 
-    mesh = None     
+    mesh = None
     tree = None
 
     if args.infilename:
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     if args.summary:
         print("summarizing",args.infilename)
         mesh_summary(mesh)
-        
+
     if args.lock_offsets:
         print("locking offsets for",args.lock_offsets)
         mesh_lock_offsets(tree, args.lock_offsets)
@@ -116,4 +116,4 @@ if __name__ == "__main__":
         print("writing",args.outfilename)
         f = open(args.outfilename,"w")
         print(etree.tostring(tree, pretty_print=True), file=f) #need update to get: , short_empty_elements=True)
-    
+

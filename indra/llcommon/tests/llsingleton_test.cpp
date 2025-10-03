@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llsingleton_test.cpp
  * @date 2011-08-11
  * @brief Unit test for the LLSingleton class
@@ -47,8 +47,8 @@ public:                                             \
         DEP_INIT  /* dependency in initSingleton */ \
     } sDepFlag;                                     \
                                                     \
-    void initSingleton();                           \
-    void cleanupSingleton();                        \
+    void initSingleton() override;                  \
+    void cleanupSingleton() override;               \
 };                                                  \
                                                     \
 CLS::dep_flag CLS::sDepFlag = DEP_NONE
@@ -300,7 +300,7 @@ namespace tut
     {
         LLSINGLETON_EMPTY_CTOR(CircularPInit);
     public:
-        virtual void initSingleton()
+        virtual void initSingleton() override
         {
             // never mind indirection, just go straight for the circularity
             CircularPInit *pt = getInstance();

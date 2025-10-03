@@ -10,7 +10,7 @@
 	<spinner label="Yüzey Yükslt. Limiti" name="terrain_raise_spin"/>
 	<spinner label="Yüzey Alçatma Limiti" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-    Yüzey Dokuları (1024x1024, 24 bit .tga dosyalar gerektirir)
+    Yüzey Dokuları
   </text>
 	<text name="height_text_lbl">
 		1 (Düşük)

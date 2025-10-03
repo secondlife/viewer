@@ -3,25 +3,25 @@
  * @author Brad Kittenbrink
  * @date   2009-07-08
  * @brief  Implementation for llnotificationslistener.
- * 
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,7 +32,6 @@
 #include "llnotificationtemplate.h"
 #include "llsd.h"
 #include "llui.h"
-#include <boost/foreach.hpp>
 
 LLNotificationsListener::LLNotificationsListener(LLNotifications & notifications) :
     LLEventAPI("LLNotifications",
@@ -88,39 +87,39 @@ LLNotificationsListener::~LLNotificationsListener()
 
 void LLNotificationsListener::requestAdd(const LLSD& event_data) const
 {
-	if(event_data.has("reply"))
-	{
-		LLSD payload(event_data["payload"]);
-		// copy reqid, if provided, to link response with request
-		payload["reqid"] = event_data["reqid"];
-		mNotifications.add(event_data["name"], 
-						   event_data["substitutions"], 
-						   payload,
-						   boost::bind(&LLNotificationsListener::NotificationResponder, 
-									   this, 
-									   event_data["reply"].asString(), 
-									   _1, _2
-									   )
-						   );
-	}
-	else
-	{
-		mNotifications.add(event_data["name"], 
-						   event_data["substitutions"], 
-						   event_data["payload"]);
-	}
+    if(event_data.has("reply"))
+    {
+        LLSD payload(event_data["payload"]);
+        // copy reqid, if provided, to link response with request
+        payload["reqid"] = event_data["reqid"];
+        mNotifications.add(event_data["name"],
+                           event_data["substitutions"],
+                           payload,
+                           boost::bind(&LLNotificationsListener::NotificationResponder,
+                                       this,
+                                       event_data["reply"].asString(),
+                                       _1, _2
+                                       )
+                           );
+    }
+    else
+    {
+        mNotifications.add(event_data["name"],
+                           event_data["substitutions"],
+                           event_data["payload"]);
+    }
 }
 
-void LLNotificationsListener::NotificationResponder(const std::string& reply_pump, 
-										const LLSD& notification, 
-										const LLSD& response) const
+void LLNotificationsListener::NotificationResponder(const std::string& reply_pump,
+                                        const LLSD& notification,
+                                        const LLSD& response) const
 {
-	LLSD response_event;
-	response_event["notification"] = notification;
-	response_event["response"] = response;
-	// surface reqid at top level of response for request/response protocol
-	response_event["reqid"] = notification["payload"]["reqid"];
-	LLEventPumps::getInstance()->obtain(reply_pump).post(response_event);
+    LLSD response_event;
+    response_event["notification"] = notification;
+    response_event["response"] = response;
+    // surface reqid at top level of response for request/response protocol
+    response_event["reqid"] = notification["payload"]["reqid"];
+    LLEventPumps::getInstance()->obtain(reply_pump).post(response_event);
 }
 
 void LLNotificationsListener::listChannels(const LLSD& params) const
@@ -149,11 +148,11 @@ void LLNotificationsListener::listChannelNotifications(const LLSD& params) const
     if (channel)
     {
         LLSD notifications(LLSD::emptyArray());
-        for (LLNotificationChannel::Iterator ni(channel->begin()), nend(channel->end());
-             ni != nend; ++ni)
-        {
-            notifications.append(asLLSD(*ni));
-        }
+        std::function<void(LLNotificationPtr)> func = [notifications](LLNotificationPtr ni) mutable
+            {
+                notifications.append(asLLSD(ni));
+            };
+        channel->forEachNotification(func);
         response["notifications"] = notifications;
     }
     LLEventPumps::instance().obtain(params["reply"]).post(response);
@@ -192,11 +191,11 @@ void LLNotificationsListener::ignore(const LLSD& params) const
     if (params["name"].isDefined())
     {
         // ["name"] was passed: ignore just that notification
-		LLNotificationTemplatePtr templatep = mNotifications.getTemplate(params["name"]);
-		if (templatep)
-		{
-			templatep->mForm->setIgnored(ignore);
-		}
+        LLNotificationTemplatePtr templatep = mNotifications.getTemplate(params["name"].asStringRef());
+        if (templatep)
+        {
+            templatep->mForm->setIgnored(ignore);
+        }
     }
     else
     {

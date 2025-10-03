@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpanelgroupgeneral.cpp
  * @brief General information about a group.
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -63,22 +63,22 @@ const S32 DECLINE_TO_STATE = 0;
 
 
 LLPanelGroupGeneral::LLPanelGroupGeneral()
-:	LLPanelGroupTab(),
-	mChanged(FALSE),
-	mFirstUse(TRUE),
-	mGroupNameEditor(NULL),
-	mFounderName(NULL),
-	mInsignia(NULL),
-	mEditCharter(NULL),
-	mCtrlShowInGroupList(NULL),
-	mComboMature(NULL),
-	mCtrlOpenEnrollment(NULL),
-	mCtrlEnrollmentFee(NULL),
-	mSpinEnrollmentFee(NULL),
-	mCtrlReceiveNotices(NULL),
-	mCtrlListGroup(NULL),
-	mActiveTitleLabel(NULL),
-	mComboActiveTitle(NULL)
+:   LLPanelGroupTab(),
+    mChanged(false),
+    mFirstUse(true),
+    mGroupNameEditor(NULL),
+    mFounderName(NULL),
+    mInsignia(NULL),
+    mEditCharter(NULL),
+    mCtrlShowInGroupList(NULL),
+    mComboMature(NULL),
+    mCtrlOpenEnrollment(NULL),
+    mCtrlEnrollmentFee(NULL),
+    mSpinEnrollmentFee(NULL),
+    mCtrlReceiveNotices(NULL),
+    mCtrlListGroup(NULL),
+    mActiveTitleLabel(NULL),
+    mComboActiveTitle(NULL)
 {
 
 }
@@ -87,660 +87,661 @@ LLPanelGroupGeneral::~LLPanelGroupGeneral()
 {
 }
 
-BOOL LLPanelGroupGeneral::postBuild()
+bool LLPanelGroupGeneral::postBuild()
 {
-	bool recurse = true;
+    constexpr bool recurse = true;
 
-	mEditCharter = getChild<LLTextEditor>("charter", recurse);
-	if(mEditCharter)
-	{
-		mEditCharter->setCommitCallback(onCommitAny, this);
-		mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
-		mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
+    mEditCharter = getChild<LLTextEditor>("charter", recurse);
+    if(mEditCharter)
+    {
+        mEditCharter->setCommitCallback(onCommitAny, this);
+        mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
+        mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
         mEditCharter->setContentTrusted(false);
-	}
+    }
 
-	// Options
-	mCtrlShowInGroupList = getChild<LLCheckBoxCtrl>("show_in_group_list", recurse);
-	if (mCtrlShowInGroupList)
-	{
-		mCtrlShowInGroupList->setCommitCallback(onCommitAny, this);
-	}
+    // Options
+    mCtrlShowInGroupList = getChild<LLCheckBoxCtrl>("show_in_group_list", recurse);
+    if (mCtrlShowInGroupList)
+    {
+        mCtrlShowInGroupList->setCommitCallback(onCommitAny, this);
+    }
 
-	mComboMature = getChild<LLComboBox>("group_mature_check", recurse);	
-	if(mComboMature)
-	{
-		mComboMature->setCurrentByIndex(0);
-		mComboMature->setCommitCallback(onCommitAny, this);
-		if (gAgent.isTeen())
-		{
-			// Teens don't get to set mature flag. JC
-			mComboMature->setVisible(FALSE);
-			mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
-		}
-	}
-	mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", recurse);
-	if (mCtrlOpenEnrollment)
-	{
-		mCtrlOpenEnrollment->setCommitCallback(onCommitAny, this);
-	}
+    mComboMature = getChild<LLComboBox>("group_mature_check", recurse);
+    if(mComboMature)
+    {
+        mComboMature->setCurrentByIndex(0);
+        mComboMature->setCommitCallback(onCommitAny, this);
+        if (gAgent.isTeen())
+        {
+            // Teens don't get to set mature flag. JC
+            mComboMature->setVisible(false);
+            mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
+        }
+    }
+    mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", recurse);
+    if (mCtrlOpenEnrollment)
+    {
+        mCtrlOpenEnrollment->setCommitCallback(onCommitAny, this);
+    }
 
-	mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", recurse);
-	if (mCtrlEnrollmentFee)
-	{
-		mCtrlEnrollmentFee->setCommitCallback(onCommitEnrollment, this);
-	}
+    mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", recurse);
+    if (mCtrlEnrollmentFee)
+    {
+        mCtrlEnrollmentFee->setCommitCallback(onCommitEnrollment, this);
+    }
 
-	mSpinEnrollmentFee = getChild<LLSpinCtrl>("spin_enrollment_fee", recurse);
-	if (mSpinEnrollmentFee)
-	{
-		mSpinEnrollmentFee->setCommitCallback(onCommitAny, this);
-		mSpinEnrollmentFee->setPrecision(0);
-		mSpinEnrollmentFee->resetDirty();
-	}
+    mSpinEnrollmentFee = getChild<LLSpinCtrl>("spin_enrollment_fee", recurse);
+    if (mSpinEnrollmentFee)
+    {
+        mSpinEnrollmentFee->setCommitCallback(onCommitAny, this);
+        mSpinEnrollmentFee->setPrecision(0);
+        mSpinEnrollmentFee->resetDirty();
+    }
 
-	BOOL accept_notices = FALSE;
-	BOOL list_in_profile = FALSE;
-	LLGroupData data;
-	if(gAgent.getGroupData(mGroupID,data))
-	{
-		accept_notices = data.mAcceptNotices;
-		list_in_profile = data.mListInProfile;
-	}
-	mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices", recurse);
-	if (mCtrlReceiveNotices)
-	{
-		mCtrlReceiveNotices->setCommitCallback(onCommitUserOnly, this);
-		mCtrlReceiveNotices->set(accept_notices);
-		mCtrlReceiveNotices->setEnabled(data.mID.notNull());
-	}
-	
-	mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile", recurse);
-	if (mCtrlListGroup)
-	{
-		mCtrlListGroup->setCommitCallback(onCommitUserOnly, this);
-		mCtrlListGroup->set(list_in_profile);
-		mCtrlListGroup->setEnabled(data.mID.notNull());
-		mCtrlListGroup->resetDirty();
-	}
+    bool accept_notices = false;
+    bool list_in_profile = false;
+    LLGroupData data;
+    if(gAgent.getGroupData(mGroupID,data))
+    {
+        accept_notices = data.mAcceptNotices;
+        list_in_profile = data.mListInProfile;
+    }
+    mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices", recurse);
+    if (mCtrlReceiveNotices)
+    {
+        mCtrlReceiveNotices->setCommitCallback(onCommitUserOnly, this);
+        mCtrlReceiveNotices->set(accept_notices);
+        mCtrlReceiveNotices->setEnabled(data.mID.notNull());
+    }
 
-	mActiveTitleLabel = getChild<LLTextBox>("active_title_label", recurse);
-	
-	mComboActiveTitle = getChild<LLComboBox>("active_title", recurse);
-	if (mComboActiveTitle)
-	{
-		mComboActiveTitle->setCommitCallback(onCommitAny, this);
-	}
+    mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile", recurse);
+    if (mCtrlListGroup)
+    {
+        mCtrlListGroup->setCommitCallback(onCommitUserOnly, this);
+        mCtrlListGroup->set(list_in_profile);
+        mCtrlListGroup->setEnabled(data.mID.notNull());
+        mCtrlListGroup->resetDirty();
+    }
 
-	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
+    mActiveTitleLabel = getChild<LLTextBox>("active_title_label", recurse);
 
-	// If the group_id is null, then we are creating a new group
-	if (mGroupID.isNull())
-	{
-		mEditCharter->setEnabled(TRUE);
+    mComboActiveTitle = getChild<LLComboBox>("active_title", recurse);
+    if (mComboActiveTitle)
+    {
+        mComboActiveTitle->setCommitCallback(onCommitAny, this);
+    }
 
-		mCtrlShowInGroupList->setEnabled(TRUE);
-		mComboMature->setEnabled(TRUE);
-		mCtrlOpenEnrollment->setEnabled(TRUE);
-		mCtrlEnrollmentFee->setEnabled(TRUE);
-		mSpinEnrollmentFee->setEnabled(TRUE);
+    mIncompleteMemberDataStr = getString("incomplete_member_data_str");
 
-	}
+    // If the group_id is null, then we are creating a new group
+    if (mGroupID.isNull())
+    {
+        mEditCharter->setEnabled(true);
 
-	return LLPanelGroupTab::postBuild();
+        mCtrlShowInGroupList->setEnabled(true);
+        mComboMature->setEnabled(true);
+        mCtrlOpenEnrollment->setEnabled(true);
+        mCtrlEnrollmentFee->setEnabled(true);
+        mSpinEnrollmentFee->setEnabled(true);
+
+    }
+
+    return LLPanelGroupTab::postBuild();
 }
 
 void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 {
-	mInsignia = getChild<LLTextureCtrl>("insignia");
-	if (mInsignia)
-	{
-		mInsignia->setCommitCallback(onCommitAny, this);
-		mInsignia->setAllowLocalTexture(FALSE);
-	}
-	mFounderName = getChild<LLTextBox>("founder_name");
+    mInsignia = getChild<LLTextureCtrl>("insignia");
+    if (mInsignia)
+    {
+        mInsignia->setCommitCallback(onCommitAny, this);
+        mInsignia->setAllowLocalTexture(false);
+        mInsignia->setBakeTextureEnabled(false);
+    }
+    mFounderName = getChild<LLTextBox>("founder_name");
 
 
-	mGroupNameEditor = panel_group->getChild<LLLineEditor>("group_name_editor");
-	mGroupNameEditor->setPrevalidate( LLTextValidate::validateASCIINoLeadingSpace );
-	
+    mGroupNameEditor = panel_group->getChild<LLLineEditor>("group_name_editor");
+    mGroupNameEditor->setPrevalidate( LLTextValidate::validateASCIINoLeadingSpace );
+
 
 }
 
 // static
 void LLPanelGroupGeneral::onFocusEdit(LLFocusableElement* ctrl, void* data)
 {
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	self->updateChanged();
-	self->notifyObservers();
+    LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
+    self->updateChanged();
+    self->notifyObservers();
 }
 
 // static
 void LLPanelGroupGeneral::onCommitAny(LLUICtrl* ctrl, void* data)
 {
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	self->updateChanged();
-	self->notifyObservers();
+    LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
+    self->updateChanged();
+    self->notifyObservers();
 }
 
 // static
 void LLPanelGroupGeneral::onCommitUserOnly(LLUICtrl* ctrl, void* data)
 {
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	self->mChanged = TRUE;
-	self->notifyObservers();
+    LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
+    self->mChanged = true;
+    self->notifyObservers();
 }
 
 
 // static
 void LLPanelGroupGeneral::onCommitEnrollment(LLUICtrl* ctrl, void* data)
 {
-	onCommitAny(ctrl, data);
+    onCommitAny(ctrl, data);
 
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	// Make sure both enrollment related widgets are there.
-	if (!self->mCtrlEnrollmentFee || !self->mSpinEnrollmentFee)
-	{
-		return;
-	}
+    LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
+    // Make sure both enrollment related widgets are there.
+    if (!self->mCtrlEnrollmentFee || !self->mSpinEnrollmentFee)
+    {
+        return;
+    }
 
-	// Make sure the agent can change enrollment info.
-	if (!gAgent.hasPowerInGroup(self->mGroupID,GP_MEMBER_OPTIONS)
-		|| !self->mAllowEdit)
-	{
-		return;
-	}
+    // Make sure the agent can change enrollment info.
+    if (!gAgent.hasPowerInGroup(self->mGroupID,GP_MEMBER_OPTIONS)
+        || !self->mAllowEdit)
+    {
+        return;
+    }
 
-	if (self->mCtrlEnrollmentFee->get())
-	{
-		self->mSpinEnrollmentFee->setEnabled(TRUE);
-	}
-	else
-	{
-		self->mSpinEnrollmentFee->setEnabled(FALSE);
-		self->mSpinEnrollmentFee->set(0);
-	}
+    if (self->mCtrlEnrollmentFee->get())
+    {
+        self->mSpinEnrollmentFee->setEnabled(true);
+    }
+    else
+    {
+        self->mSpinEnrollmentFee->setEnabled(false);
+        self->mSpinEnrollmentFee->set(0);
+    }
 }
 
 // static
 void LLPanelGroupGeneral::onClickInfo(void *userdata)
 {
-	LLPanelGroupGeneral *self = (LLPanelGroupGeneral *)userdata;
+    LLPanelGroupGeneral *self = (LLPanelGroupGeneral *)userdata;
 
-	if ( !self ) return;
+    if ( !self ) return;
 
-	LL_DEBUGS() << "open group info: " << self->mGroupID << LL_ENDL;
+    LL_DEBUGS() << "open group info: " << self->mGroupID << LL_ENDL;
 
-	LLGroupActions::show(self->mGroupID);
+    LLGroupActions::show(self->mGroupID);
 
 }
 
 bool LLPanelGroupGeneral::needsApply(std::string& mesg)
-{ 
-	updateChanged();
-	mesg = getString("group_info_unchanged");
-	return mChanged || mGroupID.isNull();
+{
+    updateChanged();
+    mesg = getString("group_info_unchanged");
+    return mChanged || mGroupID.isNull();
 }
 
 void LLPanelGroupGeneral::activate()
 {
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-	if (mGroupID.notNull()
-		&& (!gdatap || mFirstUse))
-	{
-		LLGroupMgr::getInstance()->sendGroupTitlesRequest(mGroupID);
-		LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mGroupID);
+    LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+    if (mGroupID.notNull()
+        && (!gdatap || mFirstUse))
+    {
+        LLGroupMgr::getInstance()->sendGroupTitlesRequest(mGroupID);
+        LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mGroupID);
 
-		mFirstUse = FALSE;
-	}
-	mChanged = FALSE;
-	
-	update(GC_ALL);
+        mFirstUse = false;
+    }
+    mChanged = false;
+
+    update(GC_ALL);
 }
 
 void LLPanelGroupGeneral::draw()
 {
-	LLPanelGroupTab::draw();
+    LLPanelGroupTab::draw();
 }
 
 bool LLPanelGroupGeneral::apply(std::string& mesg)
 {
-	if (mGroupID.isNull())
-	{
-		return false;
-	}
+    if (mGroupID.isNull())
+    {
+        return false;
+    }
 
-	if (!mGroupID.isNull() && mAllowEdit && mComboActiveTitle && mComboActiveTitle->isDirty())
-	{
-		LLGroupMgr::getInstance()->sendGroupTitleUpdate(mGroupID,mComboActiveTitle->getCurrentID());
-		update(GC_TITLES);
-		mComboActiveTitle->resetDirty();
-	}
+    if (!mGroupID.isNull() && mAllowEdit && mComboActiveTitle && mComboActiveTitle->isDirty())
+    {
+        LLGroupMgr::getInstance()->sendGroupTitleUpdate(mGroupID,mComboActiveTitle->getCurrentID());
+        update(GC_TITLES);
+        mComboActiveTitle->resetDirty();
+    }
 
-	BOOL has_power_in_group = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
+    bool has_power_in_group = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
 
-	if (has_power_in_group)
-	{
-		LL_INFOS() << "LLPanelGroupGeneral::apply" << LL_ENDL;
+    if (has_power_in_group)
+    {
+        LL_INFOS() << "LLPanelGroupGeneral::apply" << LL_ENDL;
 
-		// Check to make sure mature has been set
-		if(mComboMature &&
-		   mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
-		{
-			LLNotificationsUtil::add("SetGroupMature", LLSD(), LLSD(), 
-											boost::bind(&LLPanelGroupGeneral::confirmMatureApply, this, _1, _2));
-			return false;
-		}
+        // Check to make sure mature has been set
+        if(mComboMature &&
+           mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
+        {
+            LLNotificationsUtil::add("SetGroupMature", LLSD(), LLSD(),
+                                            boost::bind(&LLPanelGroupGeneral::confirmMatureApply, this, _1, _2));
+            return false;
+        }
 
-		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-		if (!gdatap)
-		{
-			mesg = LLTrans::getString("NoGroupDataFound");
-			mesg.append(mGroupID.asString());
-			return false;
-		}
-		bool can_change_ident = false;
-		bool can_change_member_opts = false;
-		can_change_ident = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
-		can_change_member_opts = gAgent.hasPowerInGroup(mGroupID,GP_MEMBER_OPTIONS);
+        LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+        if (!gdatap)
+        {
+            mesg = LLTrans::getString("NoGroupDataFound");
+            mesg.append(mGroupID.asString());
+            return false;
+        }
+        bool can_change_ident = false;
+        bool can_change_member_opts = false;
+        can_change_ident = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
+        can_change_member_opts = gAgent.hasPowerInGroup(mGroupID,GP_MEMBER_OPTIONS);
 
-		if (can_change_ident)
-		{
-			if (mEditCharter) gdatap->mCharter = mEditCharter->getText();
-			if (mInsignia) gdatap->mInsigniaID = mInsignia->getImageAssetID();
-			if (mComboMature)
-			{
-				if (!gAgent.isTeen())
-				{
-					gdatap->mMaturePublish = 
-						mComboMature->getCurrentIndex() == MATURE_CONTENT;
-				}
-				else
-				{
-					gdatap->mMaturePublish = FALSE;
-				}
-			}
-			if (mCtrlShowInGroupList) gdatap->mShowInList = mCtrlShowInGroupList->get();
-		}
+        if (can_change_ident)
+        {
+            if (mEditCharter) gdatap->mCharter = mEditCharter->getText();
+            if (mInsignia) gdatap->mInsigniaID = mInsignia->getImageAssetID();
+            if (mComboMature)
+            {
+                if (!gAgent.isTeen())
+                {
+                    gdatap->mMaturePublish =
+                        mComboMature->getCurrentIndex() == MATURE_CONTENT;
+                }
+                else
+                {
+                    gdatap->mMaturePublish = false;
+                }
+            }
+            if (mCtrlShowInGroupList) gdatap->mShowInList = mCtrlShowInGroupList->get();
+        }
 
-		if (can_change_member_opts)
-		{
-			if (mCtrlOpenEnrollment) gdatap->mOpenEnrollment = mCtrlOpenEnrollment->get();
-			if (mCtrlEnrollmentFee && mSpinEnrollmentFee)
-			{
-				gdatap->mMembershipFee = (mCtrlEnrollmentFee->get()) ? 
-					(S32) mSpinEnrollmentFee->get() : 0;
-				// Set to the used value, and reset initial value used for isdirty check
-				mSpinEnrollmentFee->set( (F32)gdatap->mMembershipFee );
-			}
-		}
+        if (can_change_member_opts)
+        {
+            if (mCtrlOpenEnrollment) gdatap->mOpenEnrollment = mCtrlOpenEnrollment->get();
+            if (mCtrlEnrollmentFee && mSpinEnrollmentFee)
+            {
+                gdatap->mMembershipFee = (mCtrlEnrollmentFee->get()) ?
+                    (S32) mSpinEnrollmentFee->get() : 0;
+                // Set to the used value, and reset initial value used for isdirty check
+                mSpinEnrollmentFee->set( (F32)gdatap->mMembershipFee );
+            }
+        }
 
-		if (can_change_ident || can_change_member_opts)
-		{
-			LLGroupMgr::getInstance()->sendUpdateGroupInfo(mGroupID);
-		}
-	}
+        if (can_change_ident || can_change_member_opts)
+        {
+            LLGroupMgr::getInstance()->sendUpdateGroupInfo(mGroupID);
+        }
+    }
 
-	BOOL receive_notices = false;
-	BOOL list_in_profile = false;
-	if (mCtrlReceiveNotices)
-		receive_notices = mCtrlReceiveNotices->get();
-	if (mCtrlListGroup) 
-		list_in_profile = mCtrlListGroup->get();
+    bool receive_notices = false;
+    bool list_in_profile = false;
+    if (mCtrlReceiveNotices)
+        receive_notices = mCtrlReceiveNotices->get();
+    if (mCtrlListGroup)
+        list_in_profile = mCtrlListGroup->get();
 
-	gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
+    gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
 
-	resetDirty();
+    resetDirty();
 
-	mChanged = FALSE;
+    mChanged = false;
 
-	return true;
+    return true;
 }
 
 void LLPanelGroupGeneral::cancel()
 {
-	mChanged = FALSE;
+    mChanged = false;
 
-	//cancel out all of the click changes to, although since we are
-	//shifting tabs or closing the floater, this need not be done...yet
-	notifyObservers();
+    //cancel out all of the click changes to, although since we are
+    //shifting tabs or closing the floater, this need not be done...yet
+    notifyObservers();
 }
 
 // invoked from callbackConfirmMature
 bool LLPanelGroupGeneral::confirmMatureApply(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	// 0 == Yes
-	// 1 == No
-	// 2 == Cancel
-	switch(option)
-	{
-	case 0:
-		mComboMature->setCurrentByIndex(MATURE_CONTENT);
-		break;
-	case 1:
-		mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
-		break;
-	default:
-		return false;
-	}
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    // 0 == Yes
+    // 1 == No
+    // 2 == Cancel
+    switch(option)
+    {
+    case 0:
+        mComboMature->setCurrentByIndex(MATURE_CONTENT);
+        break;
+    case 1:
+        mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
+        break;
+    default:
+        return false;
+    }
 
-	// If we got here it means they set a valid value
-	std::string mesg = "";
-	bool ret = apply(mesg);
-	if ( !mesg.empty() )
-	{
-		LLSD args;
-		args["MESSAGE"] = mesg;
-		LLNotificationsUtil::add("GenericAlert", args);
-	}
+    // If we got here it means they set a valid value
+    std::string mesg = "";
+    bool ret = apply(mesg);
+    if ( !mesg.empty() )
+    {
+        LLSD args;
+        args["MESSAGE"] = mesg;
+        LLNotificationsUtil::add("GenericAlert", args);
+    }
 
-	return ret;
+    return ret;
 }
 
 // virtual
 void LLPanelGroupGeneral::update(LLGroupChange gc)
 {
-	if (mGroupID.isNull()) return;
+    if (mGroupID.isNull()) return;
 
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+    LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
-	if (!gdatap) return;
+    if (!gdatap) return;
 
-	LLGroupData agent_gdatap;
-	bool is_member = false;
-	if (gAgent.getGroupData(mGroupID,agent_gdatap)) is_member = true;
+    LLGroupData agent_gdatap;
+    bool is_member = false;
+    if (gAgent.getGroupData(mGroupID,agent_gdatap)) is_member = true;
 
-	if (mComboActiveTitle)
-	{
-		mComboActiveTitle->setVisible(is_member);
-		mComboActiveTitle->setEnabled(mAllowEdit);
-		
-		if ( mActiveTitleLabel) mActiveTitleLabel->setVisible(is_member);
+    if (mComboActiveTitle)
+    {
+        mComboActiveTitle->setVisible(is_member);
+        mComboActiveTitle->setEnabled(mAllowEdit);
 
-		if (is_member)
-		{
-			LLUUID current_title_role;
+        if ( mActiveTitleLabel) mActiveTitleLabel->setVisible(is_member);
 
-			mComboActiveTitle->clear();
-			mComboActiveTitle->removeall();
-			bool has_selected_title = false;
+        if (is_member)
+        {
+            LLUUID current_title_role;
 
-			if (1 == gdatap->mTitles.size())
-			{
-				// Only the everyone title.  Don't bother letting them try changing this.
-				mComboActiveTitle->setEnabled(FALSE);
-			}
-			else
-			{
-				mComboActiveTitle->setEnabled(TRUE);
-			}
+            mComboActiveTitle->clear();
+            mComboActiveTitle->removeall();
+            bool has_selected_title = false;
 
-			std::vector<LLGroupTitle>::const_iterator citer = gdatap->mTitles.begin();
-			std::vector<LLGroupTitle>::const_iterator end = gdatap->mTitles.end();
-			
-			for ( ; citer != end; ++citer)
-			{
-				mComboActiveTitle->add(citer->mTitle,citer->mRoleID, (citer->mSelected ? ADD_TOP : ADD_BOTTOM));
-				if (citer->mSelected)
-				{
-					mComboActiveTitle->setCurrentByID(citer->mRoleID);
-					has_selected_title = true;
-				}
-			}
-			
-			if (!has_selected_title)
-			{
-				mComboActiveTitle->setCurrentByID(LLUUID::null);
-			}
-		}
+            if (1 == gdatap->mTitles.size())
+            {
+                // Only the everyone title.  Don't bother letting them try changing this.
+                mComboActiveTitle->setEnabled(false);
+            }
+            else
+            {
+                mComboActiveTitle->setEnabled(true);
+            }
 
-	}
+            std::vector<LLGroupTitle>::const_iterator citer = gdatap->mTitles.begin();
+            std::vector<LLGroupTitle>::const_iterator end = gdatap->mTitles.end();
 
-	// After role member data was changed in Roles->Members
-	// need to update role titles. See STORM-918.
-	if (gc == GC_ROLE_MEMBER_DATA)
-		LLGroupMgr::getInstance()->sendGroupTitlesRequest(mGroupID);
+            for ( ; citer != end; ++citer)
+            {
+                mComboActiveTitle->add(citer->mTitle,citer->mRoleID, (citer->mSelected ? ADD_TOP : ADD_BOTTOM));
+                if (citer->mSelected)
+                {
+                    mComboActiveTitle->setCurrentByID(citer->mRoleID);
+                    has_selected_title = true;
+                }
+            }
 
-	// If this was just a titles update, we are done.
-	if (gc == GC_TITLES) return;
+            if (!has_selected_title)
+            {
+                mComboActiveTitle->setCurrentByID(LLUUID::null);
+            }
+        }
 
-	bool can_change_ident = false;
-	bool can_change_member_opts = false;
-	can_change_ident = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
-	can_change_member_opts = gAgent.hasPowerInGroup(mGroupID,GP_MEMBER_OPTIONS);
+    }
 
-	if (mCtrlShowInGroupList) 
-	{
-		mCtrlShowInGroupList->set(gdatap->mShowInList);
-		mCtrlShowInGroupList->setEnabled(mAllowEdit && can_change_ident);
-	}
-	if (mComboMature)
-	{
-		if(gdatap->mMaturePublish)
-		{
-			mComboMature->setCurrentByIndex(MATURE_CONTENT);
-		}
-		else
-		{
-			mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
-		}
-		mComboMature->setEnabled(mAllowEdit && can_change_ident);
-		mComboMature->setVisible( !gAgent.isTeen() );
-	}
-	if (mCtrlOpenEnrollment) 
-	{
-		mCtrlOpenEnrollment->set(gdatap->mOpenEnrollment);
-		mCtrlOpenEnrollment->setEnabled(mAllowEdit && can_change_member_opts);
-	}
-	if (mCtrlEnrollmentFee) 
-	{	
-		mCtrlEnrollmentFee->set(gdatap->mMembershipFee > 0);
-		mCtrlEnrollmentFee->setEnabled(mAllowEdit && can_change_member_opts);
-	}
-	
-	if (mSpinEnrollmentFee)
-	{
-		S32 fee = gdatap->mMembershipFee;
-		mSpinEnrollmentFee->set((F32)fee);
-		mSpinEnrollmentFee->setEnabled( mAllowEdit &&
-						(fee > 0) &&
-						can_change_member_opts);
-	}
-	if (mCtrlReceiveNotices)
-	{
-		mCtrlReceiveNotices->setVisible(is_member);
-		if (is_member)
-		{
-			mCtrlReceiveNotices->setEnabled(mAllowEdit);
-		}
-	}
+    // After role member data was changed in Roles->Members
+    // need to update role titles. See STORM-918.
+    if (gc == GC_ROLE_MEMBER_DATA)
+        LLGroupMgr::getInstance()->sendGroupTitlesRequest(mGroupID);
+
+    // If this was just a titles update, we are done.
+    if (gc == GC_TITLES) return;
+
+    bool can_change_ident = false;
+    bool can_change_member_opts = false;
+    can_change_ident = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
+    can_change_member_opts = gAgent.hasPowerInGroup(mGroupID,GP_MEMBER_OPTIONS);
+
+    if (mCtrlShowInGroupList)
+    {
+        mCtrlShowInGroupList->set(gdatap->mShowInList);
+        mCtrlShowInGroupList->setEnabled(mAllowEdit && can_change_ident);
+    }
+    if (mComboMature)
+    {
+        if(gdatap->mMaturePublish)
+        {
+            mComboMature->setCurrentByIndex(MATURE_CONTENT);
+        }
+        else
+        {
+            mComboMature->setCurrentByIndex(NON_MATURE_CONTENT);
+        }
+        mComboMature->setEnabled(mAllowEdit && can_change_ident);
+        mComboMature->setVisible( !gAgent.isTeen() );
+    }
+    if (mCtrlOpenEnrollment)
+    {
+        mCtrlOpenEnrollment->set(gdatap->mOpenEnrollment);
+        mCtrlOpenEnrollment->setEnabled(mAllowEdit && can_change_member_opts);
+    }
+    if (mCtrlEnrollmentFee)
+    {
+        mCtrlEnrollmentFee->set(gdatap->mMembershipFee > 0);
+        mCtrlEnrollmentFee->setEnabled(mAllowEdit && can_change_member_opts);
+    }
+
+    if (mSpinEnrollmentFee)
+    {
+        S32 fee = gdatap->mMembershipFee;
+        mSpinEnrollmentFee->set((F32)fee);
+        mSpinEnrollmentFee->setEnabled( mAllowEdit &&
+                        (fee > 0) &&
+                        can_change_member_opts);
+    }
+    if (mCtrlReceiveNotices)
+    {
+        mCtrlReceiveNotices->setVisible(is_member);
+        if (is_member)
+        {
+            mCtrlReceiveNotices->setEnabled(mAllowEdit);
+        }
+    }
 
 
-	if (mInsignia) mInsignia->setEnabled(mAllowEdit && can_change_ident);
-	if (mEditCharter) mEditCharter->setEnabled(mAllowEdit && can_change_ident);
-	
-	if (mGroupNameEditor) mGroupNameEditor->setVisible(FALSE);
-	if (mFounderName) mFounderName->setText(LLSLURL("agent", gdatap->mFounderID, "inspect").getSLURLString());
-	if (mInsignia)
-	{
-		if (gdatap->mInsigniaID.notNull())
-		{
-			mInsignia->setImageAssetID(gdatap->mInsigniaID);
-		}
-		else
-		{
-			mInsignia->setImageAssetName(mInsignia->getDefaultImageName());
-		}
-	}
+    if (mInsignia) mInsignia->setEnabled(mAllowEdit && can_change_ident);
+    if (mEditCharter) mEditCharter->setEnabled(mAllowEdit && can_change_ident);
 
-	if (mEditCharter)
-	{
+    if (mGroupNameEditor) mGroupNameEditor->setVisible(false);
+    if (mFounderName) mFounderName->setText(LLSLURL("agent", gdatap->mFounderID, "inspect").getSLURLString());
+    if (mInsignia)
+    {
+        if (gdatap->mInsigniaID.notNull())
+        {
+            mInsignia->setImageAssetID(gdatap->mInsigniaID);
+        }
+        else
+        {
+            mInsignia->setImageAssetName(mInsignia->getDefaultImageName());
+        }
+    }
+
+    if (mEditCharter)
+    {
         mEditCharter->setParseURLs(!mAllowEdit || !can_change_ident);
         mEditCharter->setText(gdatap->mCharter);
-	}
-	
-	resetDirty();
+    }
+
+    resetDirty();
 }
 
 void LLPanelGroupGeneral::updateChanged()
 {
-	// List all the controls we want to check for changes...
-	LLUICtrl *check_list[] =
-	{
-		mGroupNameEditor,
-		mFounderName,
-		mInsignia,
-		mEditCharter,
-		mCtrlShowInGroupList,
-		mComboMature,
-		mCtrlOpenEnrollment,
-		mCtrlEnrollmentFee,
-		mSpinEnrollmentFee,
-		mCtrlReceiveNotices,
-		mCtrlListGroup,
-		mActiveTitleLabel,
-		mComboActiveTitle
-	};
+    // List all the controls we want to check for changes...
+    LLUICtrl *check_list[] =
+    {
+        mGroupNameEditor,
+        mFounderName,
+        mInsignia,
+        mEditCharter,
+        mCtrlShowInGroupList,
+        mComboMature,
+        mCtrlOpenEnrollment,
+        mCtrlEnrollmentFee,
+        mSpinEnrollmentFee,
+        mCtrlReceiveNotices,
+        mCtrlListGroup,
+        mActiveTitleLabel,
+        mComboActiveTitle
+    };
 
-	mChanged = FALSE;
+    mChanged = false;
 
-	for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
-	{
-		if( check_list[i] && check_list[i]->isDirty() )
-		{
-			mChanged = TRUE;
-			break;
-		}
-	}
+    for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
+    {
+        if( check_list[i] && check_list[i]->isDirty() )
+        {
+            mChanged = true;
+            break;
+        }
+    }
 }
 
 void LLPanelGroupGeneral::reset()
 {
-	mFounderName->setVisible(false);
-
-	
-	mCtrlReceiveNotices->set(false);
-	
-	
-	mCtrlListGroup->set(true);
-	
-	mCtrlReceiveNotices->setEnabled(false);
-	mCtrlReceiveNotices->setVisible(true);
-
-	mCtrlListGroup->setEnabled(false);
-
-	mGroupNameEditor->setEnabled(TRUE);
-	mEditCharter->setEnabled(TRUE);
-
-	mCtrlShowInGroupList->setEnabled(false);
-	mComboMature->setEnabled(TRUE);
-	
-	mCtrlOpenEnrollment->setEnabled(TRUE);
-	
-	mCtrlEnrollmentFee->setEnabled(TRUE);
-	
-	mSpinEnrollmentFee->setEnabled(TRUE);
-	mSpinEnrollmentFee->set((F32)0);
-
-	mGroupNameEditor->setVisible(true);
-
-	mComboActiveTitle->setVisible(false);
-
-	mInsignia->setImageAssetID(LLUUID::null);
-	
-	mInsignia->setEnabled(true);
-
-	mInsignia->setImageAssetName(mInsignia->getDefaultImageName());
-
-	{
-		std::string empty_str = "";
-		mEditCharter->setText(empty_str);
-		mGroupNameEditor->setText(empty_str);
-	}
-	
-	{
-		mComboMature->setEnabled(true);
-		mComboMature->setVisible( !gAgent.isTeen() );
-		mComboMature->selectFirstItem();
-	}
+    mFounderName->setVisible(false);
 
 
-	resetDirty();
+    mCtrlReceiveNotices->set(false);
+
+
+    mCtrlListGroup->set(true);
+
+    mCtrlReceiveNotices->setEnabled(false);
+    mCtrlReceiveNotices->setVisible(true);
+
+    mCtrlListGroup->setEnabled(false);
+
+    mGroupNameEditor->setEnabled(true);
+    mEditCharter->setEnabled(true);
+
+    mCtrlShowInGroupList->setEnabled(false);
+    mComboMature->setEnabled(true);
+
+    mCtrlOpenEnrollment->setEnabled(true);
+
+    mCtrlEnrollmentFee->setEnabled(true);
+
+    mSpinEnrollmentFee->setEnabled(true);
+    mSpinEnrollmentFee->set((F32)0);
+
+    mGroupNameEditor->setVisible(true);
+
+    mComboActiveTitle->setVisible(false);
+
+    mInsignia->setImageAssetID(LLUUID::null);
+
+    mInsignia->setEnabled(true);
+
+    mInsignia->setImageAssetName(mInsignia->getDefaultImageName());
+
+    {
+        std::string empty_str = "";
+        mEditCharter->setText(empty_str);
+        mGroupNameEditor->setText(empty_str);
+    }
+
+    {
+        mComboMature->setEnabled(true);
+        mComboMature->setVisible( !gAgent.isTeen() );
+        mComboMature->selectFirstItem();
+    }
+
+
+    resetDirty();
 }
 
-void	LLPanelGroupGeneral::resetDirty()
+void    LLPanelGroupGeneral::resetDirty()
 {
-	// List all the controls we want to check for changes...
-	LLUICtrl *check_list[] =
-	{
-		mGroupNameEditor,
-		mFounderName,
-		mInsignia,
-		mEditCharter,
-		mCtrlShowInGroupList,
-		mComboMature,
-		mCtrlOpenEnrollment,
-		mCtrlEnrollmentFee,
-		mSpinEnrollmentFee,
-		mCtrlReceiveNotices,
-		mCtrlListGroup,
-		mActiveTitleLabel,
-		mComboActiveTitle
-	};
+    // List all the controls we want to check for changes...
+    LLUICtrl *check_list[] =
+    {
+        mGroupNameEditor,
+        mFounderName,
+        mInsignia,
+        mEditCharter,
+        mCtrlShowInGroupList,
+        mComboMature,
+        mCtrlOpenEnrollment,
+        mCtrlEnrollmentFee,
+        mSpinEnrollmentFee,
+        mCtrlReceiveNotices,
+        mCtrlListGroup,
+        mActiveTitleLabel,
+        mComboActiveTitle
+    };
 
-	for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
-	{
-		if( check_list[i] )
-			check_list[i]->resetDirty() ;
-	}
+    for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
+    {
+        if( check_list[i] )
+            check_list[i]->resetDirty() ;
+    }
 
 
 }
 
 void LLPanelGroupGeneral::setGroupID(const LLUUID& id)
 {
-	LLPanelGroupTab::setGroupID(id);
+    LLPanelGroupTab::setGroupID(id);
 
-	if(id == LLUUID::null)
-	{
-		reset();
-		return;
-	}
+    if(id == LLUUID::null)
+    {
+        reset();
+        return;
+    }
 
-	BOOL accept_notices = FALSE;
-	BOOL list_in_profile = FALSE;
-	LLGroupData data;
-	if(gAgent.getGroupData(mGroupID,data))
-	{
-		accept_notices = data.mAcceptNotices;
-		list_in_profile = data.mListInProfile;
-	}
-	mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices");
-	if (mCtrlReceiveNotices)
-	{
-		mCtrlReceiveNotices->set(accept_notices);
-		mCtrlReceiveNotices->setEnabled(data.mID.notNull());
-	}
-	
-	mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile");
-	if (mCtrlListGroup)
-	{
-		mCtrlListGroup->set(list_in_profile);
-		mCtrlListGroup->setEnabled(data.mID.notNull());
-	}
+    bool accept_notices = false;
+    bool list_in_profile = false;
+    LLGroupData data;
+    if(gAgent.getGroupData(mGroupID,data))
+    {
+        accept_notices = data.mAcceptNotices;
+        list_in_profile = data.mListInProfile;
+    }
+    mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices");
+    if (mCtrlReceiveNotices)
+    {
+        mCtrlReceiveNotices->set(accept_notices);
+        mCtrlReceiveNotices->setEnabled(data.mID.notNull());
+    }
 
-	mCtrlShowInGroupList->setEnabled(data.mID.notNull());
+    mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile");
+    if (mCtrlListGroup)
+    {
+        mCtrlListGroup->set(list_in_profile);
+        mCtrlListGroup->setEnabled(data.mID.notNull());
+    }
 
-	mActiveTitleLabel = getChild<LLTextBox>("active_title_label");
-	
-	mComboActiveTitle = getChild<LLComboBox>("active_title");
+    mCtrlShowInGroupList->setEnabled(data.mID.notNull());
 
-	mFounderName->setVisible(true);
+    mActiveTitleLabel = getChild<LLTextBox>("active_title_label");
 
-	mInsignia->setImageAssetID(LLUUID::null);
+    mComboActiveTitle = getChild<LLComboBox>("active_title");
 
-	resetDirty();
+    mFounderName->setVisible(true);
 
-	activate();
+    mInsignia->setImageAssetID(LLUUID::null);
+
+    resetDirty();
+
+    activate();
 }

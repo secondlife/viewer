@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterfixedenvironment.cpp
  * @brief Floaters to create and edit fixed settings for sky and water.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -27,8 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterfixedenvironment.h"
-
-#include <boost/make_shared.hpp>
 
 // libs
 #include "llbutton.h"
@@ -94,12 +92,12 @@ LLFloaterFixedEnvironment::~LLFloaterFixedEnvironment()
     delete mFlyoutControl;
 }
 
-BOOL LLFloaterFixedEnvironment::postBuild()
+bool LLFloaterFixedEnvironment::postBuild()
 {
     mTab = getChild<LLTabContainer>(CONTROL_TAB_AREA);
     mTxtName = getChild<LLLineEditor>(FIELD_SETTINGS_NAME);
 
-    mTxtName->setCommitOnFocusLost(TRUE);
+    mTxtName->setCommitOnFocusLost(true);
     mTxtName->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNameChanged(mTxtName->getValue().asString()); });
 
     getChild<LLButton>(BUTTON_NAME_IMPORT)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonImport(); });
@@ -110,7 +108,7 @@ BOOL LLFloaterFixedEnvironment::postBuild()
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
     mFlyoutControl->setMenuItemVisible(ACTION_COMMIT, false);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterFixedEnvironment::onOpen(const LLSD& key)
@@ -184,9 +182,12 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 
     // teach user about HDR settings
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     if (mSettings
         && mSettings->getSettingsType() == "sky"
-        && ((LLSettingsSky*)mSettings.get())->canAutoAdjust())
+        && should_auto_adjust()
+        && ((LLSettingsSky*)mSettings.get())->canAutoAdjust()
+        && ((LLSettingsSky*)mSettings.get())->getReflectionProbeAmbiance(true) != 0.f)
     {
         LLNotificationsUtil::add("AutoAdjustHDRSky");
     }
@@ -366,7 +367,7 @@ void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inven
         }
     }
     clearDirtyFlag();
-    setFocus(TRUE);                 // Call back the focus...
+    setFocus(true);                 // Call back the focus...
     loadInventoryItem(inventory_id, can_trans);
 }
 
@@ -403,7 +404,7 @@ void LLFloaterFixedEnvironment::doSelectFromInventory()
 
     picker->setSettingsFilter(mSettings->getSettingsTypeValue());
     picker->openFloater();
-    picker->setFocus(TRUE);
+    picker->setFocus(true);
 }
 
 //=========================================================================
@@ -411,10 +412,10 @@ LLFloaterFixedEnvironmentWater::LLFloaterFixedEnvironmentWater(const LLSD &key):
     LLFloaterFixedEnvironment(key)
 {}
 
-BOOL LLFloaterFixedEnvironmentWater::postBuild()
+bool LLFloaterFixedEnvironmentWater::postBuild()
 {
     if (!LLFloaterFixedEnvironment::postBuild())
-        return FALSE;
+        return false;
 
     LLPanelSettingsWater * panel;
     panel = new LLPanelSettingsWaterMainTab;
@@ -423,12 +424,12 @@ BOOL LLFloaterFixedEnvironmentWater::postBuild()
     panel->setOnDirtyFlagChanged( [this] (LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterFixedEnvironmentWater::updateEditEnvironment(void)
 {
-    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, 
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT,
         std::static_pointer_cast<LLSettingsWater>(mSettings));
 }
 
@@ -436,7 +437,7 @@ void LLFloaterFixedEnvironmentWater::onOpen(const LLSD& key)
 {
     if (!mSettings)
     {
-        // Initialize the settings, take a snapshot of the current water. 
+        // Initialize the settings, take a snapshot of the current water.
         mSettings = LLEnvironment::instance().getEnvironmentFixedWater(LLEnvironment::ENV_CURRENT)->buildClone();
         mSettings->setName("Snapshot water (new)");
 
@@ -460,7 +461,7 @@ void LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile(const std::vector<
     LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename, messages);
 
     if (!legacywater)
-    {   
+    {
         LLNotificationsUtil::add("WLImportFail", messages);
         return;
     }
@@ -478,10 +479,10 @@ LLFloaterFixedEnvironmentSky::LLFloaterFixedEnvironmentSky(const LLSD &key) :
     LLFloaterFixedEnvironment(key)
 {}
 
-BOOL LLFloaterFixedEnvironmentSky::postBuild()
+bool LLFloaterFixedEnvironmentSky::postBuild()
 {
     if (!LLFloaterFixedEnvironment::postBuild())
-        return FALSE;
+        return false;
 
     LLPanelSettingsSky * panel;
     panel = new LLPanelSettingsSkyAtmosTab;
@@ -502,12 +503,12 @@ BOOL LLFloaterFixedEnvironmentSky::postBuild()
     panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterFixedEnvironmentSky::updateEditEnvironment(void)
 {
-    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, 
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT,
         std::static_pointer_cast<LLSettingsSky>(mSettings));
 }
 
@@ -515,7 +516,7 @@ void LLFloaterFixedEnvironmentSky::onOpen(const LLSD& key)
 {
     if (!mSettings)
     {
-        // Initialize the settings, take a snapshot of the current water. 
+        // Initialize the settings, take a snapshot of the current water.
         mSettings = LLEnvironment::instance().getEnvironmentFixedSky(LLEnvironment::ENV_CURRENT)->buildClone();
         mSettings->setName("Snapshot sky (new)");
         LLEnvironment::instance().saveBeaconsState();
@@ -547,7 +548,7 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
     LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename, messages);
 
     if (!legacysky)
-    {   
+    {
         LLNotificationsUtil::add("WLImportFail", messages);
 
         return;

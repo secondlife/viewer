@@ -1,24 +1,24 @@
-/** 
+/**
  * @file lllogin.cpp
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -27,13 +27,6 @@
 #include "linden_common.h"
 #include "llsd.h"
 #include "llsdutil.h"
-
-/*==========================================================================*|
-#ifdef LL_WINDOWS
-	// non-virtual destructor warning, boost::statechart does this intentionally.
-	#pragma warning (disable : 4265) 
-#endif
-|*==========================================================================*/
 
 #include "lllogin.h"
 
@@ -53,7 +46,7 @@ class LLLogin::Impl
 {
 public:
     Impl():
-		mPump("login", true) // Create the module's event pump with a tweaked (unique) name.
+        mPump("login", true) // Create the module's event pump with a tweaked (unique) name.
     {
         mValidAuthResponse["status"]        = LLSD();
         mValidAuthResponse["errorcode"]     = LLSD();
@@ -63,35 +56,46 @@ public:
 
     void connect(const std::string& uri, const LLSD& credentials);
     void disconnect();
-	LLEventPump& getEventPump() { return mPump; }
+    LLEventPump& getEventPump() { return mPump; }
 
 private:
-	LLSD getProgressEventLLSD(const std::string& state, const std::string& change,
-						   const LLSD& data = LLSD())
-	{
-		LLSD status_data;
-		status_data["state"] = state;
-		status_data["change"] = change;
-		status_data["progress"] = 0.0f;
+    LLSD hidePasswd(const LLSD& data)
+    {
+        LLSD result(data);
+        if (result.has("params") && result["params"].has("passwd"))
+        {
+            result["params"]["passwd"] = "*******";
+        }
+        return result;
+    }
 
-		if(mAuthResponse.has("transfer_rate"))
-		{
-			status_data["transfer_rate"] = mAuthResponse["transfer_rate"];
-		}
+    LLSD getProgressEventLLSD(const std::string& state, const std::string& change,
+                           const LLSD& data = LLSD())
+    {
+        LLSD status_data;
+        status_data["state"] = state;
+        status_data["change"] = change;
+        status_data["progress"] = 0.0f;
 
-		if(data.isDefined())
-		{
-			status_data["data"] = data;
-		}
-		return status_data;
-	}
+        if (mAuthResponse.has("transfer_rate"))
+        {
+            status_data["transfer_rate"] = mAuthResponse["transfer_rate"];
+        }
 
-	void sendProgressEvent(const std::string& state, const std::string& change,
-						   const LLSD& data = LLSD())
-	{
-		LLSD status_data = getProgressEventLLSD(state, change, data);
-		mPump.post(status_data);
-	}
+        if (data.isDefined())
+        {
+            status_data["data"] = data;
+        }
+
+        return status_data;
+    }
+
+    void sendProgressEvent(const std::string& state, const std::string& change,
+                           const LLSD& data = LLSD())
+    {
+        LLSD status_data = getProgressEventLLSD(state, change, data);
+        mPump.post(status_data);
+    }
 
     LLSD validateResponse(const std::string& pumpName, const LLSD& response)
     {
@@ -114,22 +118,23 @@ private:
     void loginCoro(std::string uri, LLSD credentials);
 
     LLEventStream mPump;
-	LLSD mAuthResponse, mValidAuthResponse;
+    LLSD mAuthResponse, mValidAuthResponse;
 };
 
 void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
 {
-    LL_DEBUGS("LLLogin") << " connect with  uri '" << uri << "', login_params " << login_params << LL_ENDL;
-	
+    LL_DEBUGS("LLLogin") << " connect with uri '" << uri << "', login_params " << login_params << LL_ENDL;
+
     // Launch a coroutine with our login_() method. Run the coroutine until
     // its first wait; at that point, return here.
-    std::string coroname = 
-        LLCoros::instance().launch("LLLogin::Impl::login_",
-                                   boost::bind(&Impl::loginCoro, this, uri, login_params));
-    LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;	
+    std::string coroname =
+        LLCoros::instance().launch("LLLogin::Impl::login_", [=, this]() { loginCoro(uri, login_params); });
+
+    LL_DEBUGS("LLLogin") << " connected with uri '" << uri << "', login_params " << login_params << LL_ENDL;
 }
 
-namespace {
+namespace
+{
 // Instantiate this rendezvous point at namespace scope so it's already
 // present no matter how early the updater might post to it.
 // Use an LLEventMailDrop, which has future-like semantics: regardless of the
@@ -140,12 +145,8 @@ static LLEventMailDrop sSyncPoint("LoginSync");
 
 void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
 {
-    LLSD printable_params = login_params;
-    if (printable_params.has("params") 
-        && printable_params["params"].has("passwd")) 
-    {
-        printable_params["params"]["passwd"] = "*******";
-    }
+    LLSD printable_params = hidePasswd(login_params);
+
     try
     {
         LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::getName()
@@ -171,12 +172,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
             ++attempts;
             LLSD progress_data;
             progress_data["attempt"] = attempts;
-            progress_data["request"] = request;
-            if (progress_data["request"].has("params")
-                && progress_data["request"]["params"].has("passwd"))
-            {
-                progress_data["request"]["params"]["passwd"] = "*******";
-            }
+            progress_data["request"] = hidePasswd(request);
             sendProgressEvent("offline", "authenticating", progress_data);
 
             // We expect zero or more "Downloading" status events, followed by
@@ -322,7 +318,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
         // Tell caller this didn't work out so well.
 
         // *NOTE: The response from LLXMLRPCListener's Poller::poll method returns an
-        // llsd with no "responses" node. To make the output from an incomplete login symmetrical 
+        // llsd with no "responses" node. To make the output from an incomplete login symmetrical
         // to success, add a data/message and data/reason fields.
         LLSD error_response(LLSDMap
                             ("reason",    mAuthResponse["status"])
@@ -349,7 +345,7 @@ void LLLogin::Impl::disconnect()
 //*********************
 // LLLogin
 LLLogin::LLLogin() :
-	mImpl(new LLLogin::Impl())
+    mImpl(new LLLogin::Impl())
 {
 }
 
@@ -359,21 +355,21 @@ LLLogin::~LLLogin()
 
 void LLLogin::connect(const std::string& uri, const LLSD& credentials)
 {
-	mImpl->connect(uri, credentials);
+    mImpl->connect(uri, credentials);
 }
 
 
 void LLLogin::disconnect()
 {
-	mImpl->disconnect();
+    mImpl->disconnect();
 }
 
 LLEventPump& LLLogin::getEventPump()
 {
-	return mImpl->getEventPump();
+    return mImpl->getEventPump();
 }
 
-// The following is the list of important functions that happen in the 
+// The following is the list of important functions that happen in the
 // current login process that we want to move to this login module.
 
 // The list associates to event with the original idle_startup() 'STATE'.
@@ -381,15 +377,15 @@ LLEventPump& LLLogin::getEventPump()
 // Setup login
 // State_LOGIN_AUTH_INIT
 
-// Authenticate 
+// Authenticate
 // STATE_LOGIN_AUTHENTICATE
-// Connect to the login server, presumably login.cgi, requesting the login 
+// Connect to the login server, presumably login.cgi, requesting the login
 // and a slew of related initial connection information.
 // This is an asynch action. The final response, whether success or error
 // is handled by STATE_LOGIN_PROCESS_REPONSE.
 // There is no immediate error or output from this call.
-// 
-// Input: 
+//
+// Input:
 //  URI
 //  Credentials (first, last, password)
 //  Start location
@@ -404,19 +400,19 @@ LLEventPump& LLLogin::getEventPump()
 
 //sAuthUriNum = llclamp(sAuthUriNum, 0, (S32)sAuthUris.size()-1);
 //LLUserAuth::getInstance()->authenticate(
-//	sAuthUris[sAuthUriNum],
-//	auth_method,
-//	firstname,
-//	lastname,			
-//	password, // web_login_key,
-//	start.str(),
-//	gSkipOptionalUpdate,
-//	gAcceptTOS,
-//	gAcceptCriticalMessage,
-//	gLastExecEvent,
-//	requested_options,
-//	hashed_mac_string,
-//	LLAppViewer::instance()->getSerialNumber());
+//  sAuthUris[sAuthUriNum],
+//  auth_method,
+//  firstname,
+//  lastname,
+//  password, // web_login_key,
+//  start.str(),
+//  gSkipOptionalUpdate,
+//  gAcceptTOS,
+//  gAcceptCriticalMessage,
+//  gLastExecEvent,
+//  requested_options,
+//  hashed_mac_string,
+//  LLAppViewer::instance()->getSerialNumber());
 
 //
 // Download the Response
@@ -427,22 +423,22 @@ LLEventPump& LLLogin::getEventPump()
 // that don't need to do so, but geez!
 // There are two states to do this one function just to update the login
 // status text from 'Logging In...' to 'Downloading...'
-// 
+//
 
 //
 // Handle Login Response
 // STATE_LOGIN_PROCESS_RESPONSE
-// 
+//
 // This state handle the result of the request to login. There is a metric ton of
 // code in this case. This state will transition to:
 // STATE_WORLD_INIT, on success.
 // STATE_AUTHENTICATE, on failure.
 // STATE_UPDATE_CHECK, to handle user during login interaction like TOS display.
 //
-// Much of the code in this case belongs on the viewer side of the fence and not in login. 
+// Much of the code in this case belongs on the viewer side of the fence and not in login.
 // Login should probably return with a couple of events, success and failure.
-// Failure conditions can be specified in the events data pacet to allow the viewer 
+// Failure conditions can be specified in the events data pacet to allow the viewer
 // to re-engauge login as is appropriate. (Or should there be multiple failure messages?)
-// Success is returned with the data requested from the login. According to OGP specs 
-// there may be intermediate steps before reaching this result in future login 
+// Success is returned with the data requested from the login. According to OGP specs
+// there may be intermediate steps before reaching this result in future login
 // implementations.

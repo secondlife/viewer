@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llpathfindingpathtool.h
 * @brief  Header file for llpathfindingpathtool
 * @author Stinson@lindenlab.com
@@ -36,103 +36,103 @@
 
 class LLPathfindingPathTool : public LLTool, public LLSingleton<LLPathfindingPathTool>
 {
-	LLSINGLETON(LLPathfindingPathTool);
-	virtual ~LLPathfindingPathTool();
+    LLSINGLETON(LLPathfindingPathTool);
+    virtual ~LLPathfindingPathTool();
 
 public:
-	typedef enum
-	{
-		kPathStatusUnknown,
-		kPathStatusChooseStartAndEndPoints,
-		kPathStatusChooseStartPoint,
-		kPathStatusChooseEndPoint,
-		kPathStatusHasValidPath,
-		kPathStatusHasInvalidPath,
-		kPathStatusNotEnabled,
-		kPathStatusNotImplemented,
-		kPathStatusError
-	} EPathStatus;
+    typedef enum
+    {
+        kPathStatusUnknown,
+        kPathStatusChooseStartAndEndPoints,
+        kPathStatusChooseStartPoint,
+        kPathStatusChooseEndPoint,
+        kPathStatusHasValidPath,
+        kPathStatusHasInvalidPath,
+        kPathStatusNotEnabled,
+        kPathStatusNotImplemented,
+        kPathStatusError
+    } EPathStatus;
 
-	typedef enum
-	{
-		kCharacterTypeNone,
-		kCharacterTypeA,
-		kCharacterTypeB,
-		kCharacterTypeC,
-		kCharacterTypeD
-	} ECharacterType;
+    typedef enum
+    {
+        kCharacterTypeNone,
+        kCharacterTypeA,
+        kCharacterTypeB,
+        kCharacterTypeC,
+        kCharacterTypeD
+    } ECharacterType;
 
-	typedef boost::function<void (void)>         path_event_callback_t;
-	typedef boost::signals2::signal<void (void)> path_event_signal_t;
-	typedef boost::signals2::connection          path_event_slot_t;
+    typedef boost::function<void (void)>         path_event_callback_t;
+    typedef boost::signals2::signal<void (void)> path_event_signal_t;
+    typedef boost::signals2::connection          path_event_slot_t;
 
-	virtual BOOL      handleMouseDown(S32 pX, S32 pY, MASK pMask);
-	virtual BOOL      handleMouseUp(S32 pX, S32 pY, MASK pMask);
-	virtual BOOL      handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask);
-	virtual BOOL      handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask);
-	virtual BOOL      handleRightMouseDown(S32 pX, S32 pY, MASK pMask);
-	virtual BOOL      handleRightMouseUp(S32 pX, S32 pY, MASK pMask);
-	virtual BOOL      handleDoubleClick(S32 x, S32 y, MASK mask);
+    virtual bool      handleMouseDown(S32 pX, S32 pY, MASK pMask) override;
+    virtual bool      handleMouseUp(S32 pX, S32 pY, MASK pMask) override;
+    virtual bool      handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask) override;
+    virtual bool      handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask) override;
+    virtual bool      handleRightMouseDown(S32 pX, S32 pY, MASK pMask) override;
+    virtual bool      handleRightMouseUp(S32 pX, S32 pY, MASK pMask) override;
+    virtual bool      handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
-	virtual BOOL      handleHover(S32 pX, S32 pY, MASK pMask);
+    virtual bool      handleHover(S32 pX, S32 pY, MASK pMask) override;
 
-	virtual BOOL      handleKey(KEY pKey, MASK pMask);
+    virtual bool      handleKey(KEY pKey, MASK pMask) override;
 
-	EPathStatus       getPathStatus() const;
+    EPathStatus       getPathStatus() const;
 
-	F32               getCharacterWidth() const;
-	void              setCharacterWidth(F32 pCharacterWidth);
+    F32               getCharacterWidth() const;
+    void              setCharacterWidth(F32 pCharacterWidth);
 
-	ECharacterType    getCharacterType() const;
-	void              setCharacterType(ECharacterType pCharacterType);
+    ECharacterType    getCharacterType() const;
+    void              setCharacterType(ECharacterType pCharacterType);
 
-	bool              isRenderPath() const;
-	void              clearPath();
+    bool              isRenderPath() const;
+    void              clearPath();
 
-	path_event_slot_t registerPathEventListener(path_event_callback_t pPathEventCallback);
+    path_event_slot_t registerPathEventListener(path_event_callback_t pPathEventCallback);
 
 protected:
 
 private:
-	bool              isAnyPathToolModKeys(MASK pMask) const;
-	bool              isPointAModKeys(MASK pMask) const;
-	bool              isPointBModKeys(MASK pMask) const;
-	bool              isCameraModKeys(MASK pMask) const;
+    bool              isAnyPathToolModKeys(MASK pMask) const;
+    bool              isPointAModKeys(MASK pMask) const;
+    bool              isPointBModKeys(MASK pMask) const;
+    bool              isCameraModKeys(MASK pMask) const;
 
-	void              getRayPoints(S32 pX, S32 pY, LLVector3 &pRayStart, LLVector3 &pRayEnd) const;
-	void              computeFinalPoints(S32 pX, S32 pY, MASK pMask);
-	void              computeTempPoints(S32 pX, S32 pY, MASK pMask);
+    void              getRayPoints(S32 pX, S32 pY, LLVector3 &pRayStart, LLVector3 &pRayEnd) const;
+    void              computeFinalPoints(S32 pX, S32 pY, MASK pMask);
+    void              computeTempPoints(S32 pX, S32 pY, MASK pMask);
 
-	void              setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
-	bool              hasFinalA() const;
-	const LLVector3   &getFinalAStart() const;
-	const LLVector3   &getFinalAEnd() const;
+    void              setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    bool              hasFinalA() const;
+    const LLVector3   &getFinalAStart() const;
+    const LLVector3   &getFinalAEnd() const;
 
-	void              setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
-	bool              hasTempA() const;
+    void              setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    bool              hasTempA() const;
 
-	void              setFinalB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
-	bool              hasFinalB() const;
-	const LLVector3   &getFinalBStart() const;
-	const LLVector3   &getFinalBEnd() const;
+    void              setFinalB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    bool              hasFinalB() const;
+    const LLVector3   &getFinalBStart() const;
+    const LLVector3   &getFinalBEnd() const;
 
-	void              setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
-	bool              hasTempB() const;
+    void              setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    bool              hasTempB() const;
 
-	void              clearFinal();
-	void              clearTemp();
+    void              clearFinal();
+    void              clearTemp();
 
-	void              computeFinalPath();
-	void              computeTempPath();
+    void              computeFinalPath();
+    void              computeTempPath();
 
-	LLPathingLib::PathingPacket mFinalPathData;
-	LLPathingLib::PathingPacket mTempPathData;
-	LLPathingLib::LLPLResult    mPathResult;
-	ECharacterType              mCharacterType;
-	path_event_signal_t         mPathEventSignal;
-	bool                        mIsLeftMouseButtonHeld;
-	bool                        mIsMiddleMouseButtonHeld;
-	bool                        mIsRightMouseButtonHeld;
+    LLPathingLib::PathingPacket mFinalPathData;
+    LLPathingLib::PathingPacket mTempPathData;
+    LLPathingLib::LLPLResult    mPathResult;
+    ECharacterType              mCharacterType;
+    path_event_signal_t         mPathEventSignal;
+    bool                        mIsLeftMouseButtonHeld;
+    bool                        mIsMiddleMouseButtonHeld;
+    bool                        mIsRightMouseButtonHeld;
 };
 
 #endif // LL_LLPATHFINDINGPATHTOOL_H

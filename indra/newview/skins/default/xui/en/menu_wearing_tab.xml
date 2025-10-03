@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu
  layout="topleft"
  name="Wearing">
@@ -30,6 +30,20 @@
         <on_click
          function="Wearing.Detach"
          parameter="detach"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Add to favorites"
+     layout="topleft"
+     name="favorites_add">
+       <on_click
+        function="Wearing.Favorite" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove from favorites"
+     layout="topleft"
+     name="favorites_remove">
+       <on_click
+        function="Wearing.Favorite" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft"

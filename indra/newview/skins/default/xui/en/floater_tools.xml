@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  positioning="cascading"
  legacy_header_height="18"
@@ -2410,7 +2410,6 @@ even though the user gets a free copy.
              name="object_horizontal"
              top_pad="10"
              width="278" />
-
             <check_box
              height="16"
              label="Light"
@@ -2550,7 +2549,7 @@ even though the user gets a free copy.
 			   follows="left|top"
 			   name="Probe Volume Type"
 			   tool_tip="Choose the probe influence volume"
-			   width="108">
+			   width="140">
             <combo_box.item
              label="Sphere"
              name="Sphere"
@@ -2560,16 +2559,56 @@ even though the user gets a free copy.
              name="Box"
              value="Box"/>
           </combo_box>
+
           <check_box
-             height="16"
-             label="Dynamic"
+           height="16"
+           label="Dynamic"
+           layout="topleft"
+           left="10"
+           name="Probe Dynamic"
+           tool_tip="When enabled, Avatars will appear in reflections within this probe's influence volume."
+           bottom_delta="19"
+           width="60" />
+          
+          <text
+            bottom_delta="-8"
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
              layout="topleft"
              left="10"
-             name="Probe Dynamic"
-             tool_tip="When enabled, Avatars will appear in reflections within this probe's influence volume."
-             bottom_delta="19"
-             width="60" />
-          <spinner bottom_delta="19"
+             name="Probe Update Label"
+             text_readonly_color="LabelDisabledColor"
+             width="100">
+            Probe Update
+          </text>
+          <combo_box
+			   height="19"
+			   top_delta="0"
+         left="144"
+			   follows="left|top"
+			   name="Probe Update Type"
+			   tool_tip="Determines how the probe updates.  Static updates the slowest and without avatars.  Dynamic updates more frequently, with avatars visible in the probes.  Mirror (Environment) turns this probe into a realtime planar projected probe that only reflects the environment, but does not calculate ambiance.  Mirror (Everything) is similar to Mirror (Environment), but it reflects particles and avatars."
+			   width="140">
+            <combo_box.item
+             label="Static"
+             name="Static"
+             value="Static" />
+            <combo_box.item
+             label="Dynamic"
+             name="Dynamic"
+             value="Dynamic"/>
+            <combo_box.item
+             label="Mirror (Environment)"
+             name="Mirror"
+             value="Mirror"/>
+            <combo_box.item
+             label="Mirror (Everything)"
+             name="Dynamic Mirror"
+             value="Dynamic Mirror"/>
+          </combo_box>
+          <spinner bottom_delta="17"
                    decimal_digits="3"
                    follows="left|top"
                    height="16"
@@ -2735,7 +2774,7 @@ even though the user gets a free copy.
              label="New Script"
              label_selected="New Script"
              layout="topleft"
-             left="10"
+             left="8"
              name="button new script"
              top="10"
              width="134" />
@@ -2747,16 +2786,28 @@ even though the user gets a free copy.
              left_pad="8"
              name="button permissions"
              width="134" />
-            <panel_inventory_object
+            <filter_editor
+             follows="left|top|right"
+             label="Enter filter text"
+             layout="topleft"
+             top="40"
+             left="10"
+             text_pad_left="10"
+             max_length_chars="300"
+             highlight_text_field="true"
+             name="contents_filter"
+             height="23"
+             width="275" />
+           <panel_inventory_object
              border="true"
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="387"
+             height="367"
              layout="topleft"
              left="10"
              name="contents_inventory"
-             top="50"
+             top="70"
              width="275" />
 		</panel>
         </tab_container>

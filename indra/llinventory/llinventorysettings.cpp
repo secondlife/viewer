@@ -62,10 +62,10 @@ class LLSettingsDictionary : public LLSingleton<LLSettingsDictionary>,
 {
     LLSINGLETON(LLSettingsDictionary);
 
-    void initSingleton();
+    void initSingleton() override;
 };
 
-LLSettingsDictionary::LLSettingsDictionary() 
+LLSettingsDictionary::LLSettingsDictionary()
 {
 }
 
@@ -98,7 +98,7 @@ LLSettingsType::type_e LLSettingsType::fromInventoryFlags(U32 flags)
 LLInventoryType::EIconName LLSettingsType::getIconName(LLSettingsType::type_e type)
 {
     const SettingsEntry *entry = LLSettingsDictionary::instance().lookup(type);
-    if (!entry) 
+    if (!entry)
         return getIconName(ST_INVALID);
     return entry->mIconName;
 }

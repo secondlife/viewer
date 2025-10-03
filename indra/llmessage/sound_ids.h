@@ -1,25 +1,25 @@
-/** 
+/**
  * @file sound_ids.h
  * @brief Temporary holder for sound IDs.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,13 +41,13 @@ extern const LLUUID SND_EXPLOSION;
 extern const LLUUID SND_BOING;
 extern const LLUUID SND_OBJECT_CREATE;
 
-//  Different bird sounds for different states 
-extern const LLUUID SND_CHIRP;				//  Flying random chirp
-extern const LLUUID SND_CHIRP2;			//  Spooked by user 
-extern const LLUUID SND_CHIRP3;			//  Spooked by object
-extern const LLUUID SND_CHIRP4;			//  Chasing other bird 
-extern const LLUUID SND_CHIRP5;			//  Hopping random chirp
-extern const LLUUID SND_CHIRPDEAD;			//  Hit by grenade - dead!
+//  Different bird sounds for different states
+extern const LLUUID SND_CHIRP;              //  Flying random chirp
+extern const LLUUID SND_CHIRP2;         //  Spooked by user
+extern const LLUUID SND_CHIRP3;         //  Spooked by object
+extern const LLUUID SND_CHIRP4;         //  Chasing other bird
+extern const LLUUID SND_CHIRP5;         //  Hopping random chirp
+extern const LLUUID SND_CHIRPDEAD;          //  Hit by grenade - dead!
 
 
 extern const LLUUID SND_MUNCH;

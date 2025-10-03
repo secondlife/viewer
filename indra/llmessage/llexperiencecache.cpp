@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llexperiencecache.cpp
  * @brief llexperiencecache and related class definitions
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2012, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -40,7 +40,7 @@
 //=========================================================================
 namespace LLExperienceCacheImpl
 {
-	void mapKeys(const LLSD& legacyKeys);
+    void mapKeys(const LLSD& legacyKeys);
     F64 getErrorRetryDeltaTime(S32 status, LLSD headers);
     bool maxAgeFromCacheControl(const std::string& cache_control, S32 *max_age);
 
@@ -57,32 +57,32 @@ namespace LLExperienceCacheImpl
 }
 
 //=========================================================================
-const std::string LLExperienceCache::PRIVATE_KEY	= "private_id";
-const std::string LLExperienceCache::MISSING       	= "DoesNotExist";
+const std::string LLExperienceCache::PRIVATE_KEY    = "private_id";
+const std::string LLExperienceCache::MISSING        = "DoesNotExist";
 
 const std::string LLExperienceCache::AGENT_ID      = "agent_id";
 const std::string LLExperienceCache::GROUP_ID      = "group_id";
-const std::string LLExperienceCache::EXPERIENCE_ID	= "public_id";
-const std::string LLExperienceCache::NAME			= "name";
-const std::string LLExperienceCache::PROPERTIES		= "properties";
-const std::string LLExperienceCache::EXPIRES		= "expiration";  
-const std::string LLExperienceCache::DESCRIPTION	= "description";
-const std::string LLExperienceCache::QUOTA         	= "quota";
+const std::string LLExperienceCache::EXPERIENCE_ID  = "public_id";
+const std::string LLExperienceCache::NAME           = "name";
+const std::string LLExperienceCache::PROPERTIES     = "properties";
+const std::string LLExperienceCache::EXPIRES        = "expiration";
+const std::string LLExperienceCache::DESCRIPTION    = "description";
+const std::string LLExperienceCache::QUOTA          = "quota";
 const std::string LLExperienceCache::MATURITY      = "maturity";
 const std::string LLExperienceCache::METADATA      = "extended_metadata";
-const std::string LLExperienceCache::SLURL         	= "slurl";
+const std::string LLExperienceCache::SLURL          = "slurl";
 
 // should be in sync with experience-api/experiences/models.py
-const int LLExperienceCache::PROPERTY_INVALID		= 1 << 0;
-const int LLExperienceCache::PROPERTY_PRIVILEGED	= 1 << 3;
-const int LLExperienceCache::PROPERTY_GRID			= 1 << 4;
-const int LLExperienceCache::PROPERTY_PRIVATE		= 1 << 5;
-const int LLExperienceCache::PROPERTY_DISABLED	= 1 << 6;  
-const int LLExperienceCache::PROPERTY_SUSPENDED	= 1 << 7;
+const int LLExperienceCache::PROPERTY_INVALID       = 1 << 0;
+const int LLExperienceCache::PROPERTY_PRIVILEGED    = 1 << 3;
+const int LLExperienceCache::PROPERTY_GRID          = 1 << 4;
+const int LLExperienceCache::PROPERTY_PRIVATE       = 1 << 5;
+const int LLExperienceCache::PROPERTY_DISABLED  = 1 << 6;
+const int LLExperienceCache::PROPERTY_SUSPENDED = 1 << 7;
 
 // default values
-const F64 LLExperienceCache::DEFAULT_EXPIRATION	= 600.0;
-const S32 LLExperienceCache::DEFAULT_QUOTA			= 128; // this is megabytes
+const F64 LLExperienceCache::DEFAULT_EXPIRATION = 600.0;
+const S32 LLExperienceCache::DEFAULT_QUOTA          = 128; // this is megabytes
 const int LLExperienceCache::SEARCH_PAGE_SIZE     = 30;
 
 bool LLExperienceCache::sShutdown = false;
@@ -94,6 +94,8 @@ LLExperienceCache::LLExperienceCache()
 
 LLExperienceCache::~LLExperienceCache()
 {
+    // can exit without cleanup()
+    sShutdown = true;
 }
 
 void LLExperienceCache::initSingleton()
@@ -170,7 +172,7 @@ void LLExperienceCache::exportFile(std::ostream& ostr) const
 // *TODO$: Rider: This method does not seem to be used... it may be useful in testing.
 void LLExperienceCache::bootstrap(const LLSD& legacyKeys, int initialExpiration)
 {
-	LLExperienceCacheImpl::mapKeys(legacyKeys);
+    LLExperienceCacheImpl::mapKeys(legacyKeys);
     LLSD::array_const_iterator it = legacyKeys.beginArray();
     for (/**/; it != legacyKeys.endArray(); ++it)
     {
@@ -215,33 +217,33 @@ void LLExperienceCache::processExperience(const LLUUID& public_key, const LLSD& 
 {
     LL_INFOS("ExperienceCache") << "Processing experience \"" << experience[NAME] << "\" with key " << public_key.asString() << LL_ENDL;
 
-	mCache[public_key]=experience;
-	LLSD & row = mCache[public_key];
+    mCache[public_key]=experience;
+    LLSD & row = mCache[public_key];
 
-	if(row.has(EXPIRES))
-	{
-		row[EXPIRES] = row[EXPIRES].asReal() + LLFrameTimer::getTotalSeconds();
-	}
+    if(row.has(EXPIRES))
+    {
+        row[EXPIRES] = row[EXPIRES].asReal() + LLFrameTimer::getTotalSeconds();
+    }
 
-	if(row.has(EXPERIENCE_ID))
-	{
-		mPendingQueue.erase(row[EXPERIENCE_ID].asUUID());
-	}
+    if(row.has(EXPERIENCE_ID))
+    {
+        mPendingQueue.erase(row[EXPERIENCE_ID].asUUID());
+    }
 
-	//signal
-	signal_map_t::iterator sig_it =	mSignalMap.find(public_key);
-	if (sig_it != mSignalMap.end())
-	{
-		signal_ptr signal = sig_it->second;
-		(*signal)(experience);
+    //signal
+    signal_map_t::iterator sig_it = mSignalMap.find(public_key);
+    if (sig_it != mSignalMap.end())
+    {
+        signal_ptr signal = sig_it->second;
+        (*signal)(experience);
 
-		mSignalMap.erase(public_key);
-	}
+        mSignalMap.erase(public_key);
+    }
 }
 
 const LLExperienceCache::cache_t& LLExperienceCache::getCached()
 {
-	return mCache;
+    return mCache;
 }
 
 void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, std::string url, RequestQueue_t requests)
@@ -251,7 +253,7 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
     //LL_INFOS("requestExperiencesCoro") << "url: " << url << LL_ENDL;
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
-        
+
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
@@ -282,8 +284,8 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
     }
 
     LLSD experiences = result["experience_keys"];
-    
-    for (LLSD::array_const_iterator it = experiences.beginArray(); 
+
+    for (LLSD::array_const_iterator it = experiences.beginArray();
         it != experiences.endArray(); ++it)
     {
         const LLSD& row = *it;
@@ -296,8 +298,8 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
     }
 
     LLSD error_ids = result["error_ids"];
-    
-    for (LLSD::array_const_iterator errIt = error_ids.beginArray(); 
+
+    for (LLSD::array_const_iterator errIt = error_ids.beginArray();
         errIt != error_ids.endArray(); ++errIt)
     {
         LLUUID id = errIt->asUUID();
@@ -337,7 +339,7 @@ void LLExperienceCache::requestExperiences()
     urlBase += "id/";
 
 
-	F64 now = LLFrameTimer::getTotalSeconds();
+    F64 now = LLFrameTimer::getTotalSeconds();
 
     const U32 EXP_URL_SEND_THRESHOLD = 3000;
     const U32 PAGE_SIZE1 = EXP_URL_SEND_THRESHOLD / UUID_STR_LENGTH;
@@ -355,7 +357,7 @@ void LLExperienceCache::requestExperiences()
 
         ostr << "&" << EXPERIENCE_ID << "=" << key.asString();
         mPendingQueue[key] = now;
-        
+
         if (mRequestQueue.empty() || (ostr.tellp() > EXP_URL_SEND_THRESHOLD))
         {   // request is placed in the coprocedure pool for the ExpCache cache.  Throttling is done by the pool itself.
             LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "RequestExperiences",
@@ -372,18 +374,18 @@ void LLExperienceCache::requestExperiences()
 
 bool LLExperienceCache::isRequestPending(const LLUUID& public_key)
 {
-	bool isPending = false;
-	const F64 PENDING_TIMEOUT_SECS = 5.0 * 60.0;
+    bool isPending = false;
+    const F64 PENDING_TIMEOUT_SECS = 5.0 * 60.0;
 
     PendingQueue_t::const_iterator it = mPendingQueue.find(public_key);
 
-	if(it != mPendingQueue.end())
-	{
-		F64 expire_time = LLFrameTimer::getTotalSeconds() - PENDING_TIMEOUT_SECS;
-		isPending = (it->second > expire_time);
-	}
+    if(it != mPendingQueue.end())
+    {
+        F64 expire_time = LLFrameTimer::getTotalSeconds() - PENDING_TIMEOUT_SECS;
+        isPending = (it->second > expire_time);
+    }
 
-	return isPending;
+    return isPending;
 }
 
 void LLExperienceCache::setCapabilityQuery(LLExperienceCache::CapabilityQuery_t queryfn)
@@ -398,7 +400,7 @@ void LLExperienceCache::idleCoro()
     const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds
 
     LL_INFOS("ExperienceCache") << "Launching Experience cache idle coro." << LL_ENDL;
-    do 
+    do
     {
         if (mEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
         {
@@ -420,116 +422,116 @@ void LLExperienceCache::idleCoro()
 
 void LLExperienceCache::erase(const LLUUID& key)
 {
-	cache_t::iterator it = mCache.find(key);
-				
-	if(it != mCache.end())
-	{
-		mCache.erase(it);
-	}
+    cache_t::iterator it = mCache.find(key);
+
+    if(it != mCache.end())
+    {
+        mCache.erase(it);
+    }
 }
 
 void LLExperienceCache::eraseExpired()
 {
-	F64 now = LLFrameTimer::getTotalSeconds();
-	cache_t::iterator it = mCache.begin();
-	while (it != mCache.end())
-	{
-		cache_t::iterator cur = it;
-		LLSD& exp = cur->second;
-		++it;
+    F64 now = LLFrameTimer::getTotalSeconds();
+    cache_t::iterator it = mCache.begin();
+    while (it != mCache.end())
+    {
+        cache_t::iterator cur = it;
+        LLSD& exp = cur->second;
+        ++it;
 
         //LL_INFOS("ExperienceCache") << "Testing experience \"" << exp[NAME] << "\" with exp time " << exp[EXPIRES].asReal() << "(now = " << now << ")" << LL_ENDL;
 
-		if(exp.has(EXPIRES) && exp[EXPIRES].asReal() < now)
-		{
+        if(exp.has(EXPIRES) && exp[EXPIRES].asReal() < now)
+        {
             if(!exp.has(EXPERIENCE_ID))
-			{
+            {
                 LL_WARNS("ExperienceCache") << "Removing experience with no id " << LL_ENDL ;
                 mCache.erase(cur);
-			}
+            }
             else
             {
                 LLUUID id = exp[EXPERIENCE_ID].asUUID();
                 LLUUID private_key = exp.has(LLExperienceCache::PRIVATE_KEY) ? exp[LLExperienceCache::PRIVATE_KEY].asUUID():LLUUID::null;
                 if(private_key.notNull() || !exp.has("DoesNotExist"))
-				{
-					fetch(id, true);
-				}
-				else
-				{
+                {
+                    fetch(id, true);
+                }
+                else
+                {
                     LL_WARNS("ExperienceCache") << "Removing invalid experience " << id << LL_ENDL ;
-					mCache.erase(cur);
-				}
-			}
-		}
-	}
+                    mCache.erase(cur);
+                }
+            }
+        }
+    }
 }
-	
+
 bool LLExperienceCache::fetch(const LLUUID& key, bool refresh/* = true*/)
 {
-	if(!key.isNull() && !isRequestPending(key) && (refresh || mCache.find(key)==mCache.end()))
-	{
-		LL_DEBUGS("ExperienceCache") << " queue request for " << EXPERIENCE_ID << " " << key << LL_ENDL;
+    if(!key.isNull() && !isRequestPending(key) && (refresh || mCache.find(key)==mCache.end()))
+    {
+        LL_DEBUGS("ExperienceCache") << " queue request for " << EXPERIENCE_ID << " " << key << LL_ENDL;
 
         mRequestQueue.insert(key);
-		return true;
-	}
-	return false;
+        return true;
+    }
+    return false;
 }
 
 void LLExperienceCache::insert(const LLSD& experience_data)
 {
-	if(experience_data.has(EXPERIENCE_ID))
-	{
+    if(experience_data.has(EXPERIENCE_ID))
+    {
         processExperience(experience_data[EXPERIENCE_ID].asUUID(), experience_data);
-	}
-	else
-	{
-		LL_WARNS("ExperienceCache") << ": Ignoring cache insert of experience which is missing " << EXPERIENCE_ID << LL_ENDL;
-	}
+    }
+    else
+    {
+        LL_WARNS("ExperienceCache") << ": Ignoring cache insert of experience which is missing " << EXPERIENCE_ID << LL_ENDL;
+    }
 }
 
 const LLSD& LLExperienceCache::get(const LLUUID& key)
 {
-	static const LLSD empty;
-	
-	if(key.isNull()) 
-		return empty;
-	cache_t::const_iterator it = mCache.find(key);
+    static const LLSD empty;
 
-	if (it != mCache.end())
-	{
-		return it->second;
-	}
-	fetch(key);
+    if(key.isNull())
+        return empty;
+    cache_t::const_iterator it = mCache.find(key);
 
-	return empty;
+    if (it != mCache.end())
+    {
+        return it->second;
+    }
+    fetch(key);
+
+    return empty;
 }
 
 void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::ExperienceGetFn_t slot)
 {
-	if(key.isNull()) 
-		return;
+    if(key.isNull())
+        return;
 
-	cache_t::const_iterator it = mCache.find(key);
-	if (it != mCache.end())
-	{
-		// ...name already exists in cache, fire callback now
-		callback_signal_t signal;
-		signal.connect(slot);
-			
-		signal(it->second);
-		return;
-	}
+    cache_t::const_iterator it = mCache.find(key);
+    if (it != mCache.end())
+    {
+        // ...name already exists in cache, fire callback now
+        callback_signal_t signal;
+        signal.connect(slot);
 
-	fetch(key);
+        signal(it->second);
+        return;
+    }
 
-	signal_ptr signal = signal_ptr(new callback_signal_t());
-	
-	std::pair<signal_map_t::iterator, bool> result = mSignalMap.insert(signal_map_t::value_type(key, signal));
-	if (!result.second)
-		signal = (*result.first).second;
-	signal->connect(slot);
+    fetch(key);
+
+    signal_ptr signal = signal_ptr(new callback_signal_t());
+
+    std::pair<signal_map_t::iterator, bool> result = mSignalMap.insert(signal_map_t::value_type(key, signal));
+    if (!result.second)
+        signal = (*result.first).second;
+    signal->connect(slot);
 }
 
 //=========================================================================
@@ -592,7 +594,7 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
             failure["error"] = (LLSD::Integer)status.getType();
             failure["message"] = status.getMessage();
         }
-        else 
+        else
         {
             failure["error"] = -1;
             failure["message"] = "no experience";
@@ -747,7 +749,7 @@ void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, Expe
     }
 
     std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
-    
+
     permissionInvoker_fn invoker(boost::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
@@ -903,15 +905,15 @@ void LLExperienceCache::updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapte
 //=========================================================================
 void LLExperienceCacheImpl::mapKeys(const LLSD& legacyKeys)
 {
-	LLSD::array_const_iterator exp = legacyKeys.beginArray();
-	for (/**/; exp != legacyKeys.endArray(); ++exp)
-	{
+    LLSD::array_const_iterator exp = legacyKeys.beginArray();
+    for (/**/; exp != legacyKeys.endArray(); ++exp)
+    {
         if (exp->has(LLExperienceCacheImpl::EXPERIENCE_ID) && exp->has(LLExperienceCacheImpl::PRIVATE_KEY))
-		{
-            LLExperienceCacheImpl::privateToPublicKeyMap[(*exp)[LLExperienceCacheImpl::PRIVATE_KEY].asUUID()] = 
+        {
+            LLExperienceCacheImpl::privateToPublicKeyMap[(*exp)[LLExperienceCacheImpl::PRIVATE_KEY].asUUID()] =
                 (*exp)[LLExperienceCacheImpl::EXPERIENCE_ID].asUUID();
-		}
-	}
+        }
+    }
 }
 
 // Return time to retry a request that generated an error, based on
@@ -972,56 +974,56 @@ F64 LLExperienceCacheImpl::getErrorRetryDeltaTime(S32 status, LLSD headers)
 
 bool LLExperienceCacheImpl::maxAgeFromCacheControl(const std::string& cache_control, S32 *max_age)
 {
-	// Split the string on "," to get a list of directives
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	tokenizer directives(cache_control, COMMA_SEPARATOR);
-	
-	tokenizer::iterator token_it = directives.begin();
-	for ( ; token_it != directives.end(); ++token_it)
-	{
-		// Tokens may have leading or trailing whitespace
-		std::string token = *token_it;
-		LLStringUtil::trim(token);
-		
-		if (token.compare(0, MAX_AGE.size(), MAX_AGE) == 0)
-		{
-			// ...this token starts with max-age, so let's chop it up by "="
-			tokenizer subtokens(token, EQUALS_SEPARATOR);
-			tokenizer::iterator subtoken_it = subtokens.begin();
-			
-			// Must have a token
-			if (subtoken_it == subtokens.end()) return false;
-			std::string subtoken = *subtoken_it;
-			
-			// Must exactly equal "max-age"
-			LLStringUtil::trim(subtoken);
-			if (subtoken != MAX_AGE) return false;
-			
-			// Must have another token
-			++subtoken_it;
-			if (subtoken_it == subtokens.end()) return false;
-			subtoken = *subtoken_it;
-			
-			// Must be a valid integer
-			// *NOTE: atoi() returns 0 for invalid values, so we have to
-			// check the string first.
-			// *TODO: Do servers ever send "0000" for zero?  We don't handle it
-			LLStringUtil::trim(subtoken);
-			if (subtoken == "0")
-			{
-				*max_age = 0;
-				return true;
-			}
-			S32 val = atoi( subtoken.c_str() );
-			if (val > 0 && val < S32_MAX)
-			{
-				*max_age = val;
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
+    // Split the string on "," to get a list of directives
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    tokenizer directives(cache_control, COMMA_SEPARATOR);
+
+    tokenizer::iterator token_it = directives.begin();
+    for ( ; token_it != directives.end(); ++token_it)
+    {
+        // Tokens may have leading or trailing whitespace
+        std::string token = *token_it;
+        LLStringUtil::trim(token);
+
+        if (token.compare(0, MAX_AGE.size(), MAX_AGE) == 0)
+        {
+            // ...this token starts with max-age, so let's chop it up by "="
+            tokenizer subtokens(token, EQUALS_SEPARATOR);
+            tokenizer::iterator subtoken_it = subtokens.begin();
+
+            // Must have a token
+            if (subtoken_it == subtokens.end()) return false;
+            std::string subtoken = *subtoken_it;
+
+            // Must exactly equal "max-age"
+            LLStringUtil::trim(subtoken);
+            if (subtoken != MAX_AGE) return false;
+
+            // Must have another token
+            ++subtoken_it;
+            if (subtoken_it == subtokens.end()) return false;
+            subtoken = *subtoken_it;
+
+            // Must be a valid integer
+            // *NOTE: atoi() returns 0 for invalid values, so we have to
+            // check the string first.
+            // *TODO: Do servers ever send "0000" for zero?  We don't handle it
+            LLStringUtil::trim(subtoken);
+            if (subtoken == "0")
+            {
+                *max_age = 0;
+                return true;
+            }
+            S32 val = atoi( subtoken.c_str() );
+            if (val > 0 && val < S32_MAX)
+            {
+                *max_age = val;
+                return true;
+            }
+            return false;
+        }
+    }
+    return false;
 }
 
 

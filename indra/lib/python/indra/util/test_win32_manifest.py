@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """\
 @file test_win32_manifest.py
-@brief Test an assembly binding version and uniqueness in a windows dll or exe.  
+@brief Test an assembly binding version and uniqueness in a windows dll or exe.
 
 $LicenseInfo:firstyear=2009&license=viewerlgpl$
 Second Life Viewer Source Code
@@ -50,12 +50,12 @@ def get_HKLM_registry_value(key_str, value_str):
     value = winreg.QueryValueEx(key, value_str)[0]
     #print 'Found: %s' % value
     return value
-        
+
 def find_vc_dir():
     supported_versions = (r'8.0', r'9.0')
     supported_products = (r'VisualStudio', r'VCExpress')
     value_str = (r'ProductDir')
-    
+
     for product in supported_products:
         for version in supported_versions:
             key_str = (r'SOFTWARE\Microsoft\%s\%s\Setup\VC' %
@@ -69,14 +69,14 @@ def find_vc_dir():
                     return get_HKLM_registry_value(x64_key_str, value_str)
                 except:
                     print("Didn't find MS %s version %s " % (product,version), file=sys.stderr)
-        
+
     raise
 
 def find_mt_path():
     vc_dir = find_vc_dir()
     mt_path = '\"%sbin\\mt.exe\"' % vc_dir
     return mt_path
-    
+
 def test_assembly_binding(src_filename, assembly_name, assembly_ver):
     print("checking %s dependency %s..." % (src_filename, assembly_name))
 
@@ -106,11 +106,11 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
     if len(versions) == 0:
         print("No matching assemblies found in %s" % src_filename)
         raise NoMatchingAssemblyException()
-        
+
     elif len(versions) > 1:
         print("Multiple bindings to %s found:" % assembly_name)
         print(versions)
-        print() 
+        print()
         raise MultipleBindingsException(versions)
 
     elif versions[0] != assembly_ver:
@@ -118,17 +118,17 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
         print("Wanted %s, found %s" % (assembly_ver, versions[0]))
         print()
         raise UnexpectedVersionException(assembly_ver, versions[0])
-            
+
     os.remove(tmp_file_name)
-    
+
     print("SUCCESS: %s OK!" % src_filename)
     print()
-  
+
 if __name__ == '__main__':
 
     print()
     print("Running test_win32_manifest.py...")
-    
+
     usage = 'test_win32_manfest <srcFileName> <assemblyName> <assemblyVersion>'
 
     try:
@@ -140,7 +140,7 @@ if __name__ == '__main__':
         print(usage)
         print()
         raise
-    
+
     test_assembly_binding(src_filename, assembly_name, assembly_ver)
 
-    
+

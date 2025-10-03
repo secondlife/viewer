@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater can_close="false" can_drag_on_left="false" can_minimize="false"
      can_resize="false" height="160" min_height="160" width="300" min_width="300"
      name="Import Collada" title="Import Scene">

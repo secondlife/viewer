@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  name="panel_pick_info"
  top="0"
@@ -138,11 +138,11 @@
     <layout_panel
      follows="all"
      layout="bottomleft"
-     name="save_changes_lp"
+     name="util_buttons_lp"
      auto_resize="false"
      height="25">
       <layout_stack
-       name="save_changes_stack"
+       name="util_buttons_stack"
        left="1"
        right="-1"
        top="0"
@@ -189,6 +189,26 @@
           <button
            name="teleport_btn"
            label="Teleport"
+           left="0"
+           top="0"
+           height="23"
+           width="100"
+           follows="left|top"
+           layout="topleft"
+          />
+        </layout_panel>
+
+        <layout_panel
+         follows="all"
+         layout="bottomleft"
+         left_pad="2"
+         name="set_to_curr_location_btn_lp"
+         auto_resize="false"
+         width="100">
+          <button
+           name="set_to_curr_location_btn"
+           label="Set Location"
+           tool_tip="Set to Current Location"
            left="0"
            top="0"
            height="23"

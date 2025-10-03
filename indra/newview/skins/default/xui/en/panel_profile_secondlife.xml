@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  name="panel_profile"
  label="Profile"
  top="0"
  left="0"
  height="480"
- width="420"
+ width="440"
  follows="all"
  layout="topleft"
 >
@@ -14,8 +14,11 @@
   so display it as an UTC+0
   -->
    <string 
-    name="date_format"
+    name="date_format_full"
     value="SL birthdate: [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]" />
+   <string 
+    name="date_format_short"
+    value="SL birthdate: [mth,datetime,utc] [day,datetime,utc]" />
    <string
     name="age_format"
     value="[AGE]" />
@@ -53,7 +56,7 @@ Account: [ACCTTYPE]
    top="8"
    left="6"
    bottom="-1"
-   width="160"
+   width="180"
    border_size="0"
    follows="left|top|bottom"
    layout="topleft"
@@ -68,9 +71,10 @@ Account: [ACCTTYPE]
      auto_resize="false"
      user_resize="false">
 
-      <thumbnail
+      <profile_image
        name="2nd_life_pic"
        image_name="Generic_Person_Large"
+       show_loading="false"
        layout="topleft"
        follows="all"
        interactable="true"
@@ -322,59 +326,19 @@ Account: [ACCTTYPE]
        visible="true"/>
     </layout_panel>
     <layout_panel
-     name="settings_panel"
-     follows="all"
-     layout="topleft"
-     height="50"
-     auto_resize="false"
-     user_resize="false">
-      <!-- only for self -->
-      <text
-       name="search_label"
-       value="Show my profile in search:"
-       top="1"
-       left="6"
-       right="-1"
-       height="16"
-       follows="left|top|right"
-       layout="topleft"/>
-      <combo_box
-       name="show_in_search"
-       tool_tip="Let people see you in search results"
-       left="1"
-       top="18"
-       height="23"
-       width="140"
-       follows="left|top"
-       layout="topleft"
-       visible="true"
-       enabled="false">
-        <combo_box.item
-           name="Hide"
-           label="Hide"
-           value="0" />
-        <combo_box.item
-           name="Show"
-           label="Show"
-           value="1" />
-      </combo_box>
-    </layout_panel>
-    
-    <layout_panel
      name="menu_panel"
      follows="all"
      layout="topleft"
      height="55"
      auto_resize="false"
-     user_resize="false"
-        >
+     user_resize="false">
       <menu_button
        layout="topleft"
        follows="left|top"
        left="1"
        top="25"
        height="25"
-       width="140"
+       width="176"
        label="Actions"
        halign="left"
        image_unselected="DropDown_Off"
@@ -382,14 +346,61 @@ Account: [ACCTTYPE]
        image_pressed="DropDown_Press"
        image_pressed_selected="DropDown_Press"
        image_disabled="DropDown_Disabled"
-       name="agent_actions_menu" />
+       name="agent_actions_menu"/>
+    </layout_panel>
+    <layout_panel
+     name="settings_panel"
+     follows="all"
+     layout="topleft"
+     height="70"
+     auto_resize="false"
+     user_resize="false">
+      <!-- only for self -->
+      <combo_box
+       name="show_in_search"
+       tool_tip="Let people see you in search results"
+       left="1"
+       top="5"
+       height="25"
+       width="176"
+       follows="left|top"
+       layout="topleft"
+       enabled="false">
+        <combo_box.item
+           name="Show"
+           label="Show me in search"
+           value="1" />
+        <combo_box.item
+           name="Hide"
+           label="Don't show me in search"
+           value="0" />
+      </combo_box>
+      <combo_box
+       name="hide_age"
+       tool_tip="Let people see your SL age"
+       left="1"
+       top="40"
+       height="25"
+       width="176"
+       follows="left|top"
+       layout="topleft"
+       enabled="false">
+        <combo_box.item
+           name="Show"
+           label="Show birthdate + SL age"
+           value="0"/>
+        <combo_box.item
+           name="Hide"
+           label="Show month + day only"
+           value="1"/>
+      </combo_box>
     </layout_panel>
   </layout_stack>
 
   <layout_stack
    name="main_stack"
    top="8"
-   left="168"
+   left="188"
    bottom="-1"
    right="-1"
    follows="all"

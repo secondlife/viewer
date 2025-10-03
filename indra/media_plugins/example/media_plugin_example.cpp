@@ -39,30 +39,30 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 class mediaPluginExample :
-	public MediaPluginBase
+    public MediaPluginBase
 {
 public:
-	mediaPluginExample(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data);
-	~mediaPluginExample();
+    mediaPluginExample(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data);
+    ~mediaPluginExample();
 
-	/*virtual*/ void receiveMessage(const char* message_string);
+    /*virtual*/ void receiveMessage(const char* message_string);
 
 private:
-	bool init();
-	void update(F64 milliseconds);
-	bool mFirstTime;
+    bool init();
+    void update(F64 milliseconds);
+    bool mFirstTime;
 
-	time_t mLastUpdateTime;
-	enum Constants { ENumObjects = 64 };
-	unsigned char* mBackgroundPixels;
-	int mColorR[ENumObjects];
-	int mColorG[ENumObjects];
-	int mColorB[ENumObjects];
-	int mXpos[ENumObjects];
-	int mYpos[ENumObjects];
-	int mXInc[ENumObjects];
-	int mYInc[ENumObjects];
-	int mBlockSize[ENumObjects];
+    time_t mLastUpdateTime;
+    enum Constants { ENumObjects = 64 };
+    unsigned char* mBackgroundPixels;
+    int mColorR[ENumObjects];
+    int mColorG[ENumObjects];
+    int mColorB[ENumObjects];
+    int mXpos[ENumObjects];
+    int mYpos[ENumObjects];
+    int mXInc[ENumObjects];
+    int mYInc[ENumObjects];
+    int mBlockSize[ENumObjects];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,15 +70,15 @@ private:
 mediaPluginExample::mediaPluginExample(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data) :
 MediaPluginBase(host_send_func, host_user_data)
 {
-	mFirstTime = true;
-	mTextureWidth = 0;
-	mTextureHeight = 0;
-	mWidth = 0;
-	mHeight = 0;
-	mDepth = 4;
-	mPixels = 0;
-	mLastUpdateTime = 0;
-	mBackgroundPixels = 0;
+    mFirstTime = true;
+    mTextureWidth = 0;
+    mTextureHeight = 0;
+    mWidth = 0;
+    mHeight = 0;
+    mDepth = 4;
+    mPixels = 0;
+    mLastUpdateTime = 0;
+    mBackgroundPixels = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,305 +91,305 @@ mediaPluginExample::~mediaPluginExample()
 //
 void mediaPluginExample::receiveMessage(const char* message_string)
 {
-	//  std::cerr << "MediaPluginWebKit::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
-	LLPluginMessage message_in;
+    //  std::cerr << "MediaPluginWebKit::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
+    LLPluginMessage message_in;
 
-	if (message_in.parse(message_string) >= 0)
-	{
-		std::string message_class = message_in.getClass();
-		std::string message_name = message_in.getName();
-		if (message_class == LLPLUGIN_MESSAGE_CLASS_BASE)
-		{
-			if (message_name == "init")
-			{
-				LLPluginMessage message("base", "init_response");
-				LLSD versions = LLSD::emptyMap();
-				versions[LLPLUGIN_MESSAGE_CLASS_BASE] = LLPLUGIN_MESSAGE_CLASS_BASE_VERSION;
-				versions[LLPLUGIN_MESSAGE_CLASS_MEDIA] = LLPLUGIN_MESSAGE_CLASS_MEDIA_VERSION;
-				versions[LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER] = LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER_VERSION;
-				message.setValueLLSD("versions", versions);
+    if (message_in.parse(message_string) >= 0)
+    {
+        std::string message_class = message_in.getClass();
+        std::string message_name = message_in.getName();
+        if (message_class == LLPLUGIN_MESSAGE_CLASS_BASE)
+        {
+            if (message_name == "init")
+            {
+                LLPluginMessage message("base", "init_response");
+                LLSD versions = LLSD::emptyMap();
+                versions[LLPLUGIN_MESSAGE_CLASS_BASE] = LLPLUGIN_MESSAGE_CLASS_BASE_VERSION;
+                versions[LLPLUGIN_MESSAGE_CLASS_MEDIA] = LLPLUGIN_MESSAGE_CLASS_MEDIA_VERSION;
+                versions[LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER] = LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER_VERSION;
+                message.setValueLLSD("versions", versions);
 
-				std::string plugin_version = "Example plugin 0.0.0";
-				message.setValue("plugin_version", plugin_version);
-				sendMessage(message);
-			}
-			else if (message_name == "idle")
-			{
-				// no response is necessary here.
-				F64 time = message_in.getValueReal("time");
+                std::string plugin_version = "Example plugin 0.0.0";
+                message.setValue("plugin_version", plugin_version);
+                sendMessage(message);
+            }
+            else if (message_name == "idle")
+            {
+                // no response is necessary here.
+                F64 time = message_in.getValueReal("time");
 
-				// Convert time to milliseconds for update()
-				update((int)(time * 1000.0f));
-			}
-			else if (message_name == "cleanup")
-			{
-				LLPluginMessage message("base", "goodbye");
-				sendMessage(message);
+                // Convert time to milliseconds for update()
+                update((int)(time * 1000.0f));
+            }
+            else if (message_name == "cleanup")
+            {
+                LLPluginMessage message("base", "goodbye");
+                sendMessage(message);
 
-				mDeleteMe = true;
-			}
-			else if (message_name == "force_exit")
-			{
-				mDeleteMe = true;
-			}
-			else if (message_name == "shm_added")
-			{
-				SharedSegmentInfo info;
-				info.mAddress = message_in.getValuePointer("address");
-				info.mSize = (size_t)message_in.getValueS32("size");
-				std::string name = message_in.getValue("name");
+                mDeleteMe = true;
+            }
+            else if (message_name == "force_exit")
+            {
+                mDeleteMe = true;
+            }
+            else if (message_name == "shm_added")
+            {
+                SharedSegmentInfo info;
+                info.mAddress = message_in.getValuePointer("address");
+                info.mSize = (size_t)message_in.getValueS32("size");
+                std::string name = message_in.getValue("name");
 
-				mSharedSegments.insert(SharedSegmentMap::value_type(name, info));
+                mSharedSegments.insert(SharedSegmentMap::value_type(name, info));
 
-			}
-			else if (message_name == "shm_remove")
-			{
-				std::string name = message_in.getValue("name");
+            }
+            else if (message_name == "shm_remove")
+            {
+                std::string name = message_in.getValue("name");
 
-				SharedSegmentMap::iterator iter = mSharedSegments.find(name);
-				if (iter != mSharedSegments.end())
-				{
-					if (mPixels == iter->second.mAddress)
-					{
-						// This is the currently active pixel buffer.  Make sure we stop drawing to it.
-						mPixels = NULL;
-						mTextureSegmentName.clear();
-					}
-					mSharedSegments.erase(iter);
-				}
-				else
-				{
-					//                  std::cerr << "MediaPluginWebKit::receiveMessage: unknown shared memory region!" << std::endl;
-				}
+                SharedSegmentMap::iterator iter = mSharedSegments.find(name);
+                if (iter != mSharedSegments.end())
+                {
+                    if (mPixels == iter->second.mAddress)
+                    {
+                        // This is the currently active pixel buffer.  Make sure we stop drawing to it.
+                        mPixels = NULL;
+                        mTextureSegmentName.clear();
+                    }
+                    mSharedSegments.erase(iter);
+                }
+                else
+                {
+                    //                  std::cerr << "MediaPluginWebKit::receiveMessage: unknown shared memory region!" << std::endl;
+                }
 
-				// Send the response so it can be cleaned up.
-				LLPluginMessage message("base", "shm_remove_response");
-				message.setValue("name", name);
-				sendMessage(message);
-			}
-			else
-			{
-				//              std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
-			}
-		}
-		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA)
-		{
-			if (message_name == "init")
-			{
-				// Plugin gets to decide the texture parameters to use.
-				mDepth = 4;
-				LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
-				message.setValueS32("default_width", 1024);
-				message.setValueS32("default_height", 1024);
-				message.setValueS32("depth", mDepth);
-				message.setValueU32("internalformat", GL_RGB);
-				message.setValueU32("format", GL_RGBA);
-				message.setValueU32("type", GL_UNSIGNED_BYTE);
-				message.setValueBoolean("coords_opengl", true);
-				sendMessage(message);
-			}
-			else if (message_name == "size_change")
-			{
-				std::string name = message_in.getValue("name");
-				S32 width = message_in.getValueS32("width");
-				S32 height = message_in.getValueS32("height");
-				S32 texture_width = message_in.getValueS32("texture_width");
-				S32 texture_height = message_in.getValueS32("texture_height");
+                // Send the response so it can be cleaned up.
+                LLPluginMessage message("base", "shm_remove_response");
+                message.setValue("name", name);
+                sendMessage(message);
+            }
+            else
+            {
+                //              std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
+            }
+        }
+        else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA)
+        {
+            if (message_name == "init")
+            {
+                // Plugin gets to decide the texture parameters to use.
+                mDepth = 4;
+                LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
+                message.setValueS32("default_width", 1024);
+                message.setValueS32("default_height", 1024);
+                message.setValueS32("depth", mDepth);
+                message.setValueU32("internalformat", GL_RGB);
+                message.setValueU32("format", GL_RGBA);
+                message.setValueU32("type", GL_UNSIGNED_BYTE);
+                message.setValueBoolean("coords_opengl", true);
+                sendMessage(message);
+            }
+            else if (message_name == "size_change")
+            {
+                std::string name = message_in.getValue("name");
+                S32 width = message_in.getValueS32("width");
+                S32 height = message_in.getValueS32("height");
+                S32 texture_width = message_in.getValueS32("texture_width");
+                S32 texture_height = message_in.getValueS32("texture_height");
 
-				if (!name.empty())
-				{
-					// Find the shared memory region with this name
-					SharedSegmentMap::iterator iter = mSharedSegments.find(name);
-					if (iter != mSharedSegments.end())
-					{
-						mPixels = (unsigned char*)iter->second.mAddress;
-						mWidth = width;
-						mHeight = height;
+                if (!name.empty())
+                {
+                    // Find the shared memory region with this name
+                    SharedSegmentMap::iterator iter = mSharedSegments.find(name);
+                    if (iter != mSharedSegments.end())
+                    {
+                        mPixels = (unsigned char*)iter->second.mAddress;
+                        mWidth = width;
+                        mHeight = height;
 
-						mTextureWidth = texture_width;
-						mTextureHeight = texture_height;
-					};
-				};
+                        mTextureWidth = texture_width;
+                        mTextureHeight = texture_height;
+                    };
+                };
 
-				LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "size_change_response");
-				message.setValue("name", name);
-				message.setValueS32("width", width);
-				message.setValueS32("height", height);
-				message.setValueS32("texture_width", texture_width);
-				message.setValueS32("texture_height", texture_height);
-				sendMessage(message);
+                LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "size_change_response");
+                message.setValue("name", name);
+                message.setValueS32("width", width);
+                message.setValueS32("height", height);
+                message.setValueS32("texture_width", texture_width);
+                message.setValueS32("texture_height", texture_height);
+                sendMessage(message);
 
-				mFirstTime = true;
-				mLastUpdateTime = 0;
+                mFirstTime = true;
+                mLastUpdateTime = 0;
 
-			}
-			else if (message_name == "load_uri")
-			{
-			}
-			else if (message_name == "mouse_event")
-			{
-				std::string event = message_in.getValue("event");
-				if (event == "down")
-				{
+            }
+            else if (message_name == "load_uri")
+            {
+            }
+            else if (message_name == "mouse_event")
+            {
+                std::string event = message_in.getValue("event");
+                if (event == "down")
+                {
 
-				}
-				else if (event == "up")
-				{
-				}
-				else if (event == "double_click")
-				{
-				}
-			}
-		}
-		else
-		{
-		};
-	}
+                }
+                else if (event == "up")
+                {
+                }
+                else if (event == "double_click")
+                {
+                }
+            }
+        }
+        else
+        {
+        };
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 void mediaPluginExample::update(F64 milliseconds)
 {
-	if (mWidth < 1 || mWidth > 2048 || mHeight < 1 || mHeight > 2048)
-		return;
+    if (mWidth < 1 || mWidth > 2048 || mHeight < 1 || mHeight > 2048)
+        return;
 
-	if (mPixels == 0)
-		return;
+    if (mPixels == 0)
+        return;
 
-	if (mFirstTime)
-	{
-		for (int n = 0; n < ENumObjects; ++n)
-		{
-			mXpos[n] = (mWidth / 2) + rand() % (mWidth / 16) - (mWidth / 32);
-			mYpos[n] = (mHeight / 2) + rand() % (mHeight / 16) - (mHeight / 32);
+    if (mFirstTime)
+    {
+        for (int n = 0; n < ENumObjects; ++n)
+        {
+            mXpos[n] = (mWidth / 2) + rand() % (mWidth / 16) - (mWidth / 32);
+            mYpos[n] = (mHeight / 2) + rand() % (mHeight / 16) - (mHeight / 32);
 
-			mColorR[n] = rand() % 0x60 + 0x60;
-			mColorG[n] = rand() % 0x60 + 0x60;
-			mColorB[n] = rand() % 0x60 + 0x60;
+            mColorR[n] = rand() % 0x60 + 0x60;
+            mColorG[n] = rand() % 0x60 + 0x60;
+            mColorB[n] = rand() % 0x60 + 0x60;
 
-			mXInc[n] = 0;
-			while (mXInc[n] == 0)
-				mXInc[n] = rand() % 7 - 3;
+            mXInc[n] = 0;
+            while (mXInc[n] == 0)
+                mXInc[n] = rand() % 7 - 3;
 
-			mYInc[n] = 0;
-			while (mYInc[n] == 0)
-				mYInc[n] = rand() % 9 - 4;
+            mYInc[n] = 0;
+            while (mYInc[n] == 0)
+                mYInc[n] = rand() % 9 - 4;
 
-			mBlockSize[n] = rand() % 0x30 + 0x10;
-		};
+            mBlockSize[n] = rand() % 0x30 + 0x10;
+        };
 
-		delete[] mBackgroundPixels;
+        delete[] mBackgroundPixels;
 
-		mBackgroundPixels = new unsigned char[mWidth * mHeight * mDepth];
+        mBackgroundPixels = new unsigned char[mWidth * mHeight * mDepth];
 
-		mFirstTime = false;
-	};
+        mFirstTime = false;
+    };
 
-	if (time(NULL) > mLastUpdateTime + 3)
-	{
-		const int num_squares = rand() % 20 + 4;
-		int sqr1_r = rand() % 0x80 + 0x20;
-		int sqr1_g = rand() % 0x80 + 0x20;
-		int sqr1_b = rand() % 0x80 + 0x20;
-		int sqr2_r = rand() % 0x80 + 0x20;
-		int sqr2_g = rand() % 0x80 + 0x20;
-		int sqr2_b = rand() % 0x80 + 0x20;
+    if (time(NULL) > mLastUpdateTime + 3)
+    {
+        const int num_squares = rand() % 20 + 4;
+        int sqr1_r = rand() % 0x80 + 0x20;
+        int sqr1_g = rand() % 0x80 + 0x20;
+        int sqr1_b = rand() % 0x80 + 0x20;
+        int sqr2_r = rand() % 0x80 + 0x20;
+        int sqr2_g = rand() % 0x80 + 0x20;
+        int sqr2_b = rand() % 0x80 + 0x20;
 
-		for (int y1 = 0; y1 < num_squares; ++y1)
-		{
-			for (int x1 = 0; x1 < num_squares; ++x1)
-			{
-				int px_start = mWidth * x1 / num_squares;
-				int px_end = (mWidth * (x1 + 1)) / num_squares;
-				int py_start = mHeight * y1 / num_squares;
-				int py_end = (mHeight * (y1 + 1)) / num_squares;
+        for (int y1 = 0; y1 < num_squares; ++y1)
+        {
+            for (int x1 = 0; x1 < num_squares; ++x1)
+            {
+                int px_start = mWidth * x1 / num_squares;
+                int px_end = (mWidth * (x1 + 1)) / num_squares;
+                int py_start = mHeight * y1 / num_squares;
+                int py_end = (mHeight * (y1 + 1)) / num_squares;
 
-				for (int y2 = py_start; y2 < py_end; ++y2)
-				{
-					for (int x2 = px_start; x2 < px_end; ++x2)
-					{
-						int rowspan = mWidth * mDepth;
+                for (int y2 = py_start; y2 < py_end; ++y2)
+                {
+                    for (int x2 = px_start; x2 < px_end; ++x2)
+                    {
+                        int rowspan = mWidth * mDepth;
 
-						if ((y1 % 2) ^ (x1 % 2))
-						{
-							mBackgroundPixels[y2 * rowspan + x2 * mDepth + 0] = sqr1_r;
-							mBackgroundPixels[y2 * rowspan + x2 * mDepth + 1] = sqr1_g;
-							mBackgroundPixels[y2 * rowspan + x2 * mDepth + 2] = sqr1_b;
-						}
-						else
-						{
-							mBackgroundPixels[y2 * rowspan + x2 * mDepth + 0] = sqr2_r;
-							mBackgroundPixels[y2 * rowspan + x2 * mDepth + 1] = sqr2_g;
-							mBackgroundPixels[y2 * rowspan + x2 * mDepth + 2] = sqr2_b;
-						};
-					};
-				};
-			};
-		};
+                        if ((y1 % 2) ^ (x1 % 2))
+                        {
+                            mBackgroundPixels[y2 * rowspan + x2 * mDepth + 0] = sqr1_r;
+                            mBackgroundPixels[y2 * rowspan + x2 * mDepth + 1] = sqr1_g;
+                            mBackgroundPixels[y2 * rowspan + x2 * mDepth + 2] = sqr1_b;
+                        }
+                        else
+                        {
+                            mBackgroundPixels[y2 * rowspan + x2 * mDepth + 0] = sqr2_r;
+                            mBackgroundPixels[y2 * rowspan + x2 * mDepth + 1] = sqr2_g;
+                            mBackgroundPixels[y2 * rowspan + x2 * mDepth + 2] = sqr2_b;
+                        };
+                    };
+                };
+            };
+        };
 
-		time(&mLastUpdateTime);
-	};
+        time(&mLastUpdateTime);
+    };
 
-	memcpy(mPixels, mBackgroundPixels, mWidth * mHeight * mDepth);
+    memcpy(mPixels, mBackgroundPixels, mWidth * mHeight * mDepth);
 
-	for (int n = 0; n < ENumObjects; ++n)
-	{
-		if (rand() % 50 == 0)
-		{
-			mXInc[n] = 0;
-			while (mXInc[n] == 0)
-				mXInc[n] = rand() % 7 - 3;
+    for (int n = 0; n < ENumObjects; ++n)
+    {
+        if (rand() % 50 == 0)
+        {
+            mXInc[n] = 0;
+            while (mXInc[n] == 0)
+                mXInc[n] = rand() % 7 - 3;
 
-			mYInc[n] = 0;
-			while (mYInc[n] == 0)
-				mYInc[n] = rand() % 9 - 4;
-		};
+            mYInc[n] = 0;
+            while (mYInc[n] == 0)
+                mYInc[n] = rand() % 9 - 4;
+        };
 
-		if (mXpos[n] + mXInc[n] < 0 || mXpos[n] + mXInc[n] >= mWidth - mBlockSize[n])
-			mXInc[n] = -mXInc[n];
+        if (mXpos[n] + mXInc[n] < 0 || mXpos[n] + mXInc[n] >= mWidth - mBlockSize[n])
+            mXInc[n] = -mXInc[n];
 
-		if (mYpos[n] + mYInc[n] < 0 || mYpos[n] + mYInc[n] >= mHeight - mBlockSize[n])
-			mYInc[n] = -mYInc[n];
+        if (mYpos[n] + mYInc[n] < 0 || mYpos[n] + mYInc[n] >= mHeight - mBlockSize[n])
+            mYInc[n] = -mYInc[n];
 
-		mXpos[n] += mXInc[n];
-		mYpos[n] += mYInc[n];
+        mXpos[n] += mXInc[n];
+        mYpos[n] += mYInc[n];
 
-		for (int y = 0; y < mBlockSize[n]; ++y)
-		{
-			for (int x = 0; x < mBlockSize[n]; ++x)
-			{
-				mPixels[(mXpos[n] + x) * mDepth + (mYpos[n] + y) * mDepth * mWidth + 0] = mColorR[n];
-				mPixels[(mXpos[n] + x) * mDepth + (mYpos[n] + y) * mDepth * mWidth + 1] = mColorG[n];
-				mPixels[(mXpos[n] + x) * mDepth + (mYpos[n] + y) * mDepth * mWidth + 2] = mColorB[n];
-			};
-		};
-	};
+        for (int y = 0; y < mBlockSize[n]; ++y)
+        {
+            for (int x = 0; x < mBlockSize[n]; ++x)
+            {
+                mPixels[(mXpos[n] + x) * mDepth + (mYpos[n] + y) * mDepth * mWidth + 0] = mColorR[n];
+                mPixels[(mXpos[n] + x) * mDepth + (mYpos[n] + y) * mDepth * mWidth + 1] = mColorG[n];
+                mPixels[(mXpos[n] + x) * mDepth + (mYpos[n] + y) * mDepth * mWidth + 2] = mColorB[n];
+            };
+        };
+    };
 
-	setDirty(0, 0, mWidth, mHeight);
+    setDirty(0, 0, mWidth, mHeight);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool mediaPluginExample::init()
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
-	message.setValue("name", "Example Plugin");
-	sendMessage(message);
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
+    message.setValue("name", "Example Plugin");
+    sendMessage(message);
 
-	return true;
+    return true;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func,
-	void* host_user_data,
-	LLPluginInstance::sendMessageFunction *plugin_send_func,
-	void **plugin_user_data)
+    void* host_user_data,
+    LLPluginInstance::sendMessageFunction *plugin_send_func,
+    void **plugin_user_data)
 {
-	mediaPluginExample* self = new mediaPluginExample(host_send_func, host_user_data);
-	*plugin_send_func = mediaPluginExample::staticReceiveMessage;
-	*plugin_user_data = (void*)self;
+    mediaPluginExample* self = new mediaPluginExample(host_send_func, host_user_data);
+    *plugin_send_func = mediaPluginExample::staticReceiveMessage;
+    *plugin_user_data = (void*)self;
 
-	return 0;
+    return 0;
 }

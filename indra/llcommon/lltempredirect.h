@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2019-10-31
  * @brief  RAII low-level file-descriptor redirection
- * 
+ *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Copyright (c) 2019, Linden Research, Inc.
  * $/LicenseInfo$

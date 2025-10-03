@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  background_visible="true"
  follows="all"
@@ -308,7 +308,7 @@
                  left="0"
                  max_length_bytes="63"
                  name="title_editor"
-                 prevalidate_callback="ascii"
+                 prevalidator="ascii"
                  text_readonly_color="white"
                  top_delta="1"
                  width="290"/>
@@ -332,7 +332,7 @@
                  read_only="true"
                  spellcheck="true"
                  text_readonly_color="white"
-                 text_type="ascii_with_newline"
+                 prevalidator="ascii_with_newline"
                  top_pad="5"
                  width="290"
                  wrap="true" />

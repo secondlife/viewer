@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-01-04
  * @brief  Definition of LLStreamQueue
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$
@@ -216,7 +216,7 @@ std::streamsize LLGenericStreamQueue<Ch>::skip(std::streamsize n)
 {
     typename BufferList::iterator bli(mBuffer.begin()), blend(mBuffer.end());
     std::streamsize toskip(n), skipped(0);
-    while (bli != blend && toskip >= bli->length())
+    while (bli != blend && (size_t)toskip >= bli->length())
     {
         std::streamsize chunk(bli->length());
         typename BufferList::iterator zap(bli++);

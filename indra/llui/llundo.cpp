@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llundo.cpp
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,24 +36,24 @@
 //-----------------------------------------------------------------------------
 LLUndoBuffer::LLUndoBuffer( LLUndoAction (*create_func()), S32 initial_count )
 {
-	mNextAction = 0;
-	mLastAction = 0;
-	mFirstAction = 0;
-	mOperationID = 0;
+    mNextAction = 0;
+    mLastAction = 0;
+    mFirstAction = 0;
+    mOperationID = 0;
 
-	mNumActions = initial_count;	
+    mNumActions = initial_count;
 
-	mActions = new LLUndoAction *[initial_count];
+    mActions = new LLUndoAction *[initial_count];
 
-	//initialize buffer with actions
-	for (S32 i = 0; i < initial_count; i++)
-	{
-		mActions[i] = create_func();
-		if (!mActions[i])
-		{
-			LL_ERRS() << "Unable to create action for undo buffer" << LL_ENDL;
-		}
-	}
+    //initialize buffer with actions
+    for (S32 i = 0; i < initial_count; i++)
+    {
+        mActions[i] = create_func();
+        if (!mActions[i])
+        {
+            LL_ERRS() << "Unable to create action for undo buffer" << LL_ENDL;
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -61,101 +61,101 @@ LLUndoBuffer::LLUndoBuffer( LLUndoAction (*create_func()), S32 initial_count )
 //-----------------------------------------------------------------------------
 LLUndoBuffer::~LLUndoBuffer()
 {
-	for (S32 i = 0; i < mNumActions; i++)
-	{
-		delete mActions[i];
-	}
+    for (S32 i = 0; i < mNumActions; i++)
+    {
+        delete mActions[i];
+    }
 
-	delete [] mActions;
+    delete [] mActions;
 }
 
 //-----------------------------------------------------------------------------
 // getNextAction()
 //-----------------------------------------------------------------------------
-LLUndoBuffer::LLUndoAction* LLUndoBuffer::getNextAction(BOOL setClusterBegin)
+LLUndoBuffer::LLUndoAction* LLUndoBuffer::getNextAction(bool setClusterBegin)
 {
-	LLUndoAction *nextAction = mActions[mNextAction];
+    LLUndoAction *nextAction = mActions[mNextAction];
 
-	if (setClusterBegin)
-	{
-		mOperationID++;
-	}
-	mActions[mNextAction]->mClusterID = mOperationID;
+    if (setClusterBegin)
+    {
+        mOperationID++;
+    }
+    mActions[mNextAction]->mClusterID = mOperationID;
 
-	mNextAction = (mNextAction + 1) % mNumActions;
-	mLastAction = mNextAction;
+    mNextAction = (mNextAction + 1) % mNumActions;
+    mLastAction = mNextAction;
 
-	if (mNextAction == mFirstAction)
-	{
-		mActions[mFirstAction]->cleanup();
-		mFirstAction = (mFirstAction + 1) % mNumActions;
-	}
+    if (mNextAction == mFirstAction)
+    {
+        mActions[mFirstAction]->cleanup();
+        mFirstAction = (mFirstAction + 1) % mNumActions;
+    }
 
-	return nextAction;
+    return nextAction;
 }
 
 //-----------------------------------------------------------------------------
 // undoAction()
 //-----------------------------------------------------------------------------
-BOOL LLUndoBuffer::undoAction()
+bool LLUndoBuffer::undoAction()
 {
-	if (!canUndo())
-	{
-		return FALSE;
-	}
+    if (!canUndo())
+    {
+        return false;
+    }
 
-	S32 prevAction = (mNextAction + mNumActions - 1) % mNumActions;
+    S32 prevAction = (mNextAction + mNumActions - 1) % mNumActions;
 
-	while(mActions[prevAction]->mClusterID == mOperationID)
-	{
-		// go ahead and decrement action index
-		mNextAction = prevAction;
+    while(mActions[prevAction]->mClusterID == mOperationID)
+    {
+        // go ahead and decrement action index
+        mNextAction = prevAction;
 
-		// undo this action
-		mActions[mNextAction]->undo();
+        // undo this action
+        mActions[mNextAction]->undo();
 
-		// we're at the first action, so we don't know if we've actually undid everything
-		if (mNextAction == mFirstAction)
-		{
-			mOperationID--;
-			return FALSE;
-		}
+        // we're at the first action, so we don't know if we've actually undid everything
+        if (mNextAction == mFirstAction)
+        {
+            mOperationID--;
+            return false;
+        }
 
-		// do wrap-around of index, but avoid negative numbers for modulo operator
-		prevAction = (mNextAction + mNumActions - 1) % mNumActions;
-	}
+        // do wrap-around of index, but avoid negative numbers for modulo operator
+        prevAction = (mNextAction + mNumActions - 1) % mNumActions;
+    }
 
-	mOperationID--;
+    mOperationID--;
 
-	return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // redoAction()
 //-----------------------------------------------------------------------------
-BOOL LLUndoBuffer::redoAction()
+bool LLUndoBuffer::redoAction()
 {
-	if (!canRedo())
-	{
-		return FALSE;
-	}
+    if (!canRedo())
+    {
+        return false;
+    }
 
-	mOperationID++;
+    mOperationID++;
 
-	while(mActions[mNextAction]->mClusterID == mOperationID)
-	{
-		if (mNextAction == mLastAction)
-		{
-			return FALSE;
-		}
+    while(mActions[mNextAction]->mClusterID == mOperationID)
+    {
+        if (mNextAction == mLastAction)
+        {
+            return false;
+        }
 
-		mActions[mNextAction]->redo();
+        mActions[mNextAction]->redo();
 
-		// do wrap-around of index
-		mNextAction = (mNextAction + 1) % mNumActions;
-	}
+        // do wrap-around of index
+        mNextAction = (mNextAction + 1) % mNumActions;
+    }
 
-	return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -163,12 +163,12 @@ BOOL LLUndoBuffer::redoAction()
 //-----------------------------------------------------------------------------
 void LLUndoBuffer::flushActions()
 {
-	for (S32 i = 0; i < mNumActions; i++)
-	{
-		mActions[i]->cleanup();
-	}
-	mNextAction = 0;
-	mLastAction = 0;
-	mFirstAction = 0;
-	mOperationID = 0;
+    for (S32 i = 0; i < mNumActions; i++)
+    {
+        mActions[i]->cleanup();
+    }
+    mNextAction = 0;
+    mLastAction = 0;
+    mFirstAction = 0;
+    mOperationID = 0;
 }

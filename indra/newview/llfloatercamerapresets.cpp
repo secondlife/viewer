@@ -1,24 +1,24 @@
-/** 
+/**
 * @file llfloatercamerapresets.cpp
 *
 * $LicenseInfo:firstyear=2019&license=viewerlgpl$
 * Second Life Viewer Source Code
 * Copyright (C) 2019, Linden Research, Inc.
-* 
+*
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation;
 * version 2.1 of the License only.
-* 
+*
 * This library is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-* 
+*
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
@@ -32,20 +32,20 @@
 #include "llviewercontrol.h"
 
 LLFloaterCameraPresets::LLFloaterCameraPresets(const LLSD& key)
-:	LLFloater(key)
+:   LLFloater(key)
 {}
 
 LLFloaterCameraPresets::~LLFloaterCameraPresets()
 {}
 
-BOOL LLFloaterCameraPresets::postBuild()
+bool LLFloaterCameraPresets::postBuild()
 {
     mPresetList = getChild<LLFlatListView>("preset_list");
     mPresetList->setCommitCallback(boost::bind(&LLFloaterCameraPresets::onSelectionChange, this));
     mPresetList->setCommitOnSelectionChange(true);
     LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(boost::bind(&LLFloaterCameraPresets::populateList, this));
 
-    return TRUE;
+    return true;
 }
 void LLFloaterCameraPresets::onOpen(const LLSD& key)
 {
@@ -59,7 +59,7 @@ void LLFloaterCameraPresets::populateList()
     LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
     std::list<std::string> preset_names;
 
-	presetsMgr->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_BOTTOM);
+    presetsMgr->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_BOTTOM);
     std::string active_preset = gSavedSettings.getString("PresetCameraActive");
 
     for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
@@ -99,7 +99,7 @@ LLCameraPresetFlatItem::~LLCameraPresetFlatItem()
 {
 }
 
-BOOL LLCameraPresetFlatItem::postBuild()
+bool LLCameraPresetFlatItem::postBuild()
 {
     mDeleteBtn = getChild<LLButton>("delete_btn");
     mDeleteBtn->setVisible(false);
@@ -149,7 +149,7 @@ void LLCameraPresetFlatItem::onDeleteBtnClick()
         args["NAME"] = mPresetName;
         LLNotificationsUtil::add("PresetNotDeleted", args);
     }
-	else if (gSavedSettings.getString("PresetCameraActive") == mPresetName)
+    else if (gSavedSettings.getString("PresetCameraActive") == mPresetName)
     {
         gSavedSettings.setString("PresetCameraActive", "");
     }

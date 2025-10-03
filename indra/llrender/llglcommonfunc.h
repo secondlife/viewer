@@ -26,5 +26,5 @@
 
 namespace LLGLCommonFunc
 {
-	void selected_stencil_test();
+    void selected_stencil_test();
 }

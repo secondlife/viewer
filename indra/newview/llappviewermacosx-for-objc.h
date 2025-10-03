@@ -13,7 +13,7 @@
  *         the full llappviewermacosx.h, we would almost surely run into
  *         trouble due to the discrepancy between Objective-C++'s BOOL versus
  *         classic Microsoft/Linden BOOL.
- * 
+ *
  * $LicenseInfo:firstyear=2018&license=viewerlgpl$
  * Copyright (c) 2018, Linden Research, Inc.
  * $/LicenseInfo$
@@ -41,6 +41,7 @@ void clearDumpLogsDir();
 struct CrashMetadata
 {
     std::string logFilePathname;
+    std::string attributesPathname;
     std::string userSettingsPathname;
     std::string accountSettingsPathname;
     std::string staticDebugPathname;

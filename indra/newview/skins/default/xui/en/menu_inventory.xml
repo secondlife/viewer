@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu
  bottom="825"
  layout="topleft"
@@ -144,6 +144,22 @@
          parameter="rename" />
     </menu_item_call>
     <menu_item_call
+     label="New Folder"
+     layout="topleft"
+     name="New Listing Folder">
+        <menu_item_call.on_click
+         function="Inventory.DoCreate"
+         parameter="category" />
+    </menu_item_call>
+    <menu_item_call
+     label="New Folder"
+     layout="topleft"
+     name="New Outfit Folder">
+        <menu_item_call.on_click
+         function="Inventory.DoCreate"
+         parameter="category" />
+    </menu_item_call>
+    <menu_item_call
      label="New Outfit"
      layout="topleft"
      name="New Outfit">
@@ -264,7 +280,7 @@
      layout="topleft"
      name="Folder Wearables Separator" />
     <menu_item_call
-     label="Replace Current Outfit"
+     label="Replace current outfit"
      layout="topleft"
      name="Replace Outfit">
         <menu_item_call.on_click
@@ -272,7 +288,7 @@
          parameter="replaceoutfit" />
     </menu_item_call>
     <menu_item_call
-     label="Add To Current Outfit"
+     label="Add folder items"
      layout="topleft"
      name="Add To Outfit">
         <menu_item_call.on_click
@@ -280,7 +296,7 @@
          parameter="addtooutfit" />
     </menu_item_call>
     <menu_item_call
-     label="Remove From Current Outfit"
+     label="Take off folder items"
      layout="topleft"
      name="Remove From Outfit">
         <menu_item_call.on_click
@@ -361,6 +377,14 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="copy_uuid" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy UUID"
+     layout="topleft"
+     name="Copy UUID">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="copy_folder_uuid" />
     </menu_item_call>
     <menu_item_call
      label="Show in Main Panel"
@@ -926,7 +950,7 @@
          function="Inventory.EnvironmentEnabled" />
       </menu_item_call>
     </menu>
-  </menu>  
+  </menu>
   <menu_item_call
    label="Create folder from selected"
    layout="topleft"
@@ -943,6 +967,99 @@
      function="Inventory.DoToSelected"
      parameter="ungroup_folder_items" />
   </menu_item_call>
+  <menu_item_call
+   label="Add to Favorites"
+   layout="topleft"
+   name="Add to Favorites">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="add_to_favorites" />
+  </menu_item_call>
+  <menu_item_call
+   label="Remove from Favorites"
+   layout="topleft"
+   name="Remove from Favorites">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="remove_from_favorites" />
+  </menu_item_call>
+  <menu
+   label="Upload to folder"
+   layout="topleft"
+   name="upload_options">
+    <menu_item_call
+     label="Image..."
+     layout="topleft"
+     name="Upload Image">
+       <menu_item_call.on_click
+        function="Inventory.FileUploadLocation"
+        parameter="upload_texture" />
+       <menu_item_call.on_enable
+        function="File.EnableUpload" />
+       <menu_item_call.on_visible
+        function="Upload.CalculateCosts"
+        parameter="Upload Image,texture" />
+    </menu_item_call>
+    <menu_item_call
+     label="Sound (L$[COST])..."
+     layout="topleft"
+     name="Upload Sound">
+       <menu_item_call.on_click
+        function="Inventory.FileUploadLocation"
+        parameter="upload_sound" />
+       <menu_item_call.on_enable
+        function="File.EnableUpload" />
+       <menu_item_call.on_visible
+        function="Upload.CalculateCosts"
+        parameter="Upload Sound,sound" />
+    </menu_item_call>
+    <menu_item_call
+     label="Animation (L$[COST])..."
+     layout="topleft"
+     name="Upload Animation">
+       <menu_item_call.on_click
+        function="Inventory.FileUploadLocation"
+        parameter="upload_animation" />
+       <menu_item_call.on_enable
+        function="File.EnableUpload" />
+       <menu_item_call.on_visible
+        function="Upload.CalculateCosts"
+        parameter="Upload Animation,animation" />
+    </menu_item_call>
+    <menu_item_call
+     label="Model..."
+     layout="topleft"
+     name="Upload Model">
+       <menu_item_call.on_click
+        function="Inventory.FileUploadLocation"
+        parameter="upload_model" />
+       <menu_item_call.on_enable
+        function="File.EnableUploadModel" />
+       <menu_item_call.on_visible
+        function="File.VisibleUploadModel"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Material..."
+     layout="topleft"
+     name="Upload Material">
+       <menu_item_call.on_click
+        function="Inventory.FileUploadLocation"
+        parameter="upload_pbr_material" />
+       <menu_item_call.on_enable
+        function="File.EnableUploadMaterial" />
+    </menu_item_call>
+    <menu_item_call
+     label="Bulk..."
+     layout="topleft"
+     name="Bulk Upload">
+       <menu_item_call.on_click
+        function="Inventory.FileUploadLocation"
+        parameter="upload_bulk" />
+       <menu_item_call.on_visible
+        function="Upload.CalculateCosts"
+        parameter="Bulk Upload,texture" />
+    </menu_item_call>
+  </menu>
   <menu
    label="Use as default for"
    layout="topleft"
@@ -953,39 +1070,39 @@
      name="Image uploads">
       <menu_item_call.on_click
        function="Inventory.FileUploadLocation"
-        parameter="texture" />
+       parameter="def_texture" />
     </menu_item_call>
     <menu_item_call
      label="Sound uploads"
      layout="topleft"
      name="Sound uploads">
-    <menu_item_call.on_click
-     function="Inventory.FileUploadLocation"
-     parameter="sound" />
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+       parameter="def_sound" />
     </menu_item_call>
     <menu_item_call
      label="Animation uploads"
      layout="topleft"
      name="Animation uploads">
-    <menu_item_call.on_click
-     function="Inventory.FileUploadLocation"
-     parameter="animation" />
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+       parameter="def_animation" />
     </menu_item_call>
     <menu_item_call
      label="Model uploads"
      layout="topleft"
      name="Model uploads">
-    <menu_item_call.on_click
-     function="Inventory.FileUploadLocation"
-     parameter="model" />
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+       parameter="def_model" />
     </menu_item_call>
     <menu_item_call
      label="PBR material uploads"
      layout="topleft"
      name="PBR uploads">
-        <menu_item_call.on_click
-         function="Inventory.FileUploadLocation"
-         parameter="pbr_material" />
+      <menu_item_call.on_click
+       function="Inventory.FileUploadLocation"
+       parameter="def_pbr_material" />
     </menu_item_call>
   </menu>
 	<menu_item_separator

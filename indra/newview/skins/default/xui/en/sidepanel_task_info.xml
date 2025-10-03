@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
 	 height="570"
 	 layout="topleft"
@@ -286,13 +286,13 @@
                  name="Zoom"
                  value="Zoom" />
                 <combo_box.item
-                 label="Ignore object"
-                 name="Ignoreobject"
-                 value="Ignore" />
-                <combo_box.item
                  label="None"
                  name="None"
                  value="None" />
+                <combo_box.item
+                 label="Ignore object"
+                 name="Ignoreobject"
+                 value="Ignore" />
             </combo_box>
 	 <panel
          border="false"

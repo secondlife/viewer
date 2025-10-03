@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  follows="top|right|left"
  height="24"
@@ -49,6 +49,18 @@
      value="Unknown"
      width="242" />
     <button
+     name="notices_btn"
+     tool_tip="Group Notices"
+     top_delta="-4"
+     left_pad="3"
+     right="-53"
+     height="20"
+     width="20"
+     follows="right"
+     image_pressed="Group_Notices"
+     image_unselected="Group_Notices"
+     tab_stop="false"/>
+    <button
      follows="right"
      height="16"
      image_pressed="Info_Press"
@@ -58,7 +70,7 @@
      name="info_btn"
      tool_tip="More info"
      tab_stop="false"
-     top_delta="-2"
+     top_delta="2"
      width="16" />
    <!--*TODO: Should only appear on rollover-->
     <button
@@ -71,6 +83,6 @@
      name="profile_btn"
      tab_stop="false"
      tool_tip="View profile"
-     top_delta="-2"
+     top_delta="0"
      width="20" />
 </panel>

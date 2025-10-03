@@ -4,7 +4,7 @@
  * @date   2022-06-16
  * @brief  Declaring a static module-scope LazyEventAPI registers a specific
  *         LLEventAPI for future on-demand instantiation.
- * 
+ *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Copyright (c) 2022, Linden Research, Inc.
  * $/LicenseInfo$

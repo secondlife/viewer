@@ -38,7 +38,7 @@ class LLMutex ;
 #if LL_WINDOWS && LL_DEBUG
 #define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
 #else
-#define LL_CHECK_MEMORY 
+#define LL_CHECK_MEMORY
 #endif
 
 
@@ -73,27 +73,27 @@ LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
 #include <xmmintrin.h>
 
-template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address) 
-{ 
-	return reinterpret_cast<T*>(
-		(uintptr_t(address) + 0xF) & ~0xF);
+template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address)
+{
+    return reinterpret_cast<T*>(
+        (uintptr_t(address) + 0xF) & ~0xF);
 }
 
-template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address) 
-{ 
-	return reinterpret_cast<T*>(
-		(uintptr_t(address) + 0x3F) & ~0x3F);
+template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
+{
+    return reinterpret_cast<T*>(
+        (uintptr_t(address) + 0x3F) & ~0x3F);
 }
 
 #if LL_LINUX || LL_DARWIN
 
-#define			LL_ALIGN_PREFIX(x)
-#define			LL_ALIGN_POSTFIX(x)		__attribute__((aligned(x)))
+#define         LL_ALIGN_PREFIX(x)
+#define         LL_ALIGN_POSTFIX(x)     __attribute__((aligned(x)))
 
 #elif LL_WINDOWS
 
-#define			LL_ALIGN_PREFIX(x)		__declspec(align(x))
-#define			LL_ALIGN_POSTFIX(x)
+#define         LL_ALIGN_PREFIX(x)      __declspec(align(x))
+#define         LL_ALIGN_POSTFIX(x)
 
 #else
 #error "LL_ALIGN_PREFIX and LL_ALIGN_POSTFIX undefined"
@@ -126,22 +126,22 @@ public:                                     \
 
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
-	// for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library
-	// change preprocessor code to: #if 1 && defined(LL_WINDOWS)
+    // for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library
+    // change preprocessor code to: #if 1 && defined(LL_WINDOWS)
 
 #if 0 && defined(LL_WINDOWS)
-	void* ll_aligned_malloc_fallback( size_t size, int align );
-	void ll_aligned_free_fallback( void* ptr );
+    void* ll_aligned_malloc_fallback( size_t size, int align );
+    void ll_aligned_free_fallback( void* ptr );
 //------------------------------------------------------------------------------------------------
 #else
-	inline void* ll_aligned_malloc_fallback( size_t size, int align )
-	{
+    inline void* ll_aligned_malloc_fallback( size_t size, size_t align )
+    {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
-	#if defined(LL_WINDOWS)
+    #if defined(LL_WINDOWS)
         void* ret = _aligned_malloc(size, align);
-	#else
+    #else
         char* aligned = NULL;
-		void* mem = malloc( size + (align - 1) + sizeof(void*) );
+        void* mem = malloc( size + (align - 1) + sizeof(void*) );
         if (mem)
         {
             aligned = ((char*)mem) + sizeof(void*);
@@ -149,25 +149,25 @@ public:                                     \
 
             ((void**)aligned)[-1] = mem;
         }
-		void* ret = aligned;
-	#endif
+        void* ret = aligned;
+    #endif
         LL_PROFILE_ALLOC(ret, size);
         return ret;
-	}
+    }
 
-	inline void ll_aligned_free_fallback( void* ptr )
-	{
+    inline void ll_aligned_free_fallback( void* ptr )
+    {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
         LL_PROFILE_FREE(ptr);
-	#if defined(LL_WINDOWS)
-		_aligned_free(ptr);
-	#else
-		if (ptr)
-		{
-			free( ((void**)ptr)[-1] );
-		}
-	#endif
-	}
+    #if defined(LL_WINDOWS)
+        _aligned_free(ptr);
+    #else
+        if (ptr)
+        {
+            free( ((void**)ptr)[-1] );
+        }
+    #endif
+    }
 #endif
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
@@ -176,11 +176,11 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if defined(LL_WINDOWS)
-	void* ret = _aligned_malloc(size, 16);
+    void* ret = _aligned_malloc(size, 16);
 #elif defined(LL_DARWIN)
-	void* ret = malloc(size); // default osx malloc is 16 byte aligned.
+    void* ret = malloc(size); // default osx malloc is 16 byte aligned.
 #else
-	void *ret;
+    void *ret;
     if (0 != posix_memalign(&ret, 16, size))
         return nullptr;
 #endif
@@ -193,11 +193,11 @@ inline void ll_aligned_free_16(void *p)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(p);
 #if defined(LL_WINDOWS)
-	_aligned_free(p);
+    _aligned_free(p);
 #elif defined(LL_DARWIN)
-	return free(p);
+    return free(p);
 #else
-	free(p); // posix_memalign() is compatible with heap deallocator
+    free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
 
@@ -206,23 +206,23 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(ptr);
 #if defined(LL_WINDOWS)
-	void* ret = _aligned_realloc(ptr, size, 16);
+    void* ret = _aligned_realloc(ptr, size, 16);
 #elif defined(LL_DARWIN)
-	void* ret = realloc(ptr,size); // default osx malloc is 16 byte aligned.
+    void* ret = realloc(ptr,size); // default osx malloc is 16 byte aligned.
 #else
-	//FIXME: memcpy is SLOW
-	void* ret = ll_aligned_malloc_16(size);
-	if (ptr)
-	{
-		if (ret)
-		{
-			// Only copy the size of the smallest memory block to avoid memory corruption.
-			memcpy(ret, ptr, llmin(old_size, size));
-		}
-		ll_aligned_free_16(ptr);
-	}
+    //FIXME: memcpy is SLOW
+    void* ret = ll_aligned_malloc_16(size);
+    if (ptr)
+    {
+        if (ret)
+        {
+            // Only copy the size of the smallest memory block to avoid memory corruption.
+            memcpy(ret, ptr, llmin(old_size, size));
+        }
+        ll_aligned_free_16(ptr);
+    }
 #endif
-    LL_PROFILE_ALLOC(ptr, size);
+    LL_PROFILE_ALLOC(ret, size);
     return ret;
 }
 
@@ -230,11 +230,11 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if defined(LL_WINDOWS)
-	void* ret = _aligned_malloc(size, 32);
+    void* ret = _aligned_malloc(size, 32);
 #elif defined(LL_DARWIN)
-	void* ret = ll_aligned_malloc_fallback( size, 32 );
+    void* ret = ll_aligned_malloc_fallback( size, 32 );
 #else
-	void *ret;
+    void *ret;
     if (0 != posix_memalign(&ret, 32, size))
         return nullptr;
 #endif
@@ -247,11 +247,11 @@ inline void ll_aligned_free_32(void *p)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(p);
 #if defined(LL_WINDOWS)
-	_aligned_free(p);
+    _aligned_free(p);
 #elif defined(LL_DARWIN)
-	ll_aligned_free_fallback( p );
+    ll_aligned_free_fallback( p );
 #else
-	free(p); // posix_memalign() is compatible with heap deallocator
+    free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
 
@@ -261,23 +261,23 @@ LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     void* ret;
-	if (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
-	{
-		ret = malloc(size);
+    if (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
+    {
+        ret = malloc(size);
         LL_PROFILE_ALLOC(ret, size);
-	}
-	else if (ALIGNMENT == 16)
-	{
-		ret = ll_aligned_malloc_16(size);
-	}
-	else if (ALIGNMENT == 32)
-	{
-		ret = ll_aligned_malloc_32(size);
-	}
-	else
-	{
-		ret = ll_aligned_malloc_fallback(size, ALIGNMENT);
-	}
+    }
+    else if (ALIGNMENT == 16)
+    {
+        ret = ll_aligned_malloc_16(size);
+    }
+    else if (ALIGNMENT == 32)
+    {
+        ret = ll_aligned_malloc_32(size);
+    }
+    else
+    {
+        ret = ll_aligned_malloc_fallback(size, ALIGNMENT);
+    }
     return ret;
 }
 
@@ -285,96 +285,96 @@ template<size_t ALIGNMENT>
 LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
-	if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
-	{
+    if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
+    {
         LL_PROFILE_FREE(ptr);
-		free(ptr);
-	}
-	else if (ALIGNMENT == 16)
-	{
-		ll_aligned_free_16(ptr);
-	}
-	else if (ALIGNMENT == 32)
-	{
-		return ll_aligned_free_32(ptr);
-	}
-	else
-	{
-		return ll_aligned_free_fallback(ptr);
-	}
+        free(ptr);
+    }
+    else if (ALIGNMENT == 16)
+    {
+        ll_aligned_free_16(ptr);
+    }
+    else if (ALIGNMENT == 32)
+    {
+        return ll_aligned_free_32(ptr);
+    }
+    else
+    {
+        return ll_aligned_free_fallback(ptr);
+    }
 }
 
-// Copy words 16-byte blocks from src to dst. Source and destination MUST NOT OVERLAP. 
+// Copy words 16-byte blocks from src to dst. Source and destination MUST NOT OVERLAP.
 // Source and dest must be 16-byte aligned and size must be multiple of 16.
 //
 inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __restrict src, size_t bytes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
-	assert(src != NULL);
-	assert(dst != NULL);
-	assert(bytes > 0);
-	assert((bytes % sizeof(F32))== 0); 
-	ll_assert_aligned(src,16);
-	ll_assert_aligned(dst,16);
+    assert(src != NULL);
+    assert(dst != NULL);
+    assert(bytes > 0);
+    assert((bytes % sizeof(F32))== 0);
+    ll_assert_aligned(src,16);
+    ll_assert_aligned(dst,16);
 
-	assert((src < dst) ? ((src + bytes) <= dst) : ((dst + bytes) <= src));
-	assert(bytes%16==0);
+    assert((src < dst) ? ((src + bytes) <= dst) : ((dst + bytes) <= src));
+    assert(bytes%16==0);
 
-	char* end = dst + bytes;
+    char* end = dst + bytes;
 
-	if (bytes > 64)
-	{
+    if (bytes > 64)
+    {
 
-		// Find start of 64b aligned area within block
-		//
-		void* begin_64 = LL_NEXT_ALIGNED_ADDRESS_64(dst);
-		
-		//at least 64 bytes before the end of the destination, switch to 16 byte copies
-		void* end_64 = end-64;
-	
-		// Prefetch the head of the 64b area now
-		//
-		_mm_prefetch((char*)begin_64, _MM_HINT_NTA);
-		_mm_prefetch((char*)begin_64 + 64, _MM_HINT_NTA);
-		_mm_prefetch((char*)begin_64 + 128, _MM_HINT_NTA);
-		_mm_prefetch((char*)begin_64 + 192, _MM_HINT_NTA);
-	
-		// Copy 16b chunks until we're 64b aligned
-		//
-		while (dst < begin_64)
-		{
+        // Find start of 64b aligned area within block
+        //
+        void* begin_64 = LL_NEXT_ALIGNED_ADDRESS_64(dst);
 
-			_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
-			dst += 16;
-			src += 16;
-		}
-	
-		// Copy 64b chunks up to your tail
-		//
-		// might be good to shmoo the 512b prefetch offset
-		// (characterize performance for various values)
-		//
-		while (dst < end_64)
-		{
-			_mm_prefetch((char*)src + 512, _MM_HINT_NTA);
-			_mm_prefetch((char*)dst + 512, _MM_HINT_NTA);
-			_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
-			_mm_store_ps((F32*)(dst + 16), _mm_load_ps((F32*)(src + 16)));
-			_mm_store_ps((F32*)(dst + 32), _mm_load_ps((F32*)(src + 32)));
-			_mm_store_ps((F32*)(dst + 48), _mm_load_ps((F32*)(src + 48)));
-			dst += 64;
-			src += 64;
-		}
-	}
+        //at least 64 bytes before the end of the destination, switch to 16 byte copies
+        void* end_64 = end-64;
 
-	// Copy remainder 16b tail chunks (or ALL 16b chunks for sub-64b copies)
-	//
-	while (dst < end)
-	{
-		_mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
-		dst += 16;
-		src += 16;
-	}
+        // Prefetch the head of the 64b area now
+        //
+        _mm_prefetch((char*)begin_64, _MM_HINT_NTA);
+        _mm_prefetch((char*)begin_64 + 64, _MM_HINT_NTA);
+        _mm_prefetch((char*)begin_64 + 128, _MM_HINT_NTA);
+        _mm_prefetch((char*)begin_64 + 192, _MM_HINT_NTA);
+
+        // Copy 16b chunks until we're 64b aligned
+        //
+        while (dst < begin_64)
+        {
+
+            _mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
+            dst += 16;
+            src += 16;
+        }
+
+        // Copy 64b chunks up to your tail
+        //
+        // might be good to shmoo the 512b prefetch offset
+        // (characterize performance for various values)
+        //
+        while (dst < end_64)
+        {
+            _mm_prefetch((char*)src + 512, _MM_HINT_NTA);
+            _mm_prefetch((char*)dst + 512, _MM_HINT_NTA);
+            _mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
+            _mm_store_ps((F32*)(dst + 16), _mm_load_ps((F32*)(src + 16)));
+            _mm_store_ps((F32*)(dst + 32), _mm_load_ps((F32*)(src + 32)));
+            _mm_store_ps((F32*)(dst + 48), _mm_load_ps((F32*)(src + 48)));
+            dst += 64;
+            src += 64;
+        }
+    }
+
+    // Copy remainder 16b tail chunks (or ALL 16b chunks for sub-64b copies)
+    //
+    while (dst < end)
+    {
+        _mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
+        dst += 16;
+        src += 16;
+    }
 }
 
 #ifndef __DEBUG_PRIVATE_MEM__
@@ -384,24 +384,24 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 class LL_COMMON_API LLMemory
 {
 public:
-	// Return the resident set size of the current process, in bytes.
-	// Return value is zero if not known.
-	static U64 getCurrentRSS();
-	static void* tryToAlloc(void* address, U32 size);
-	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size);
-	static void updateMemoryInfo() ;
-	static void logMemoryInfo(BOOL update = FALSE);
+    // Return the resident set size of the current process, in bytes.
+    // Return value is zero if not known.
+    static U64 getCurrentRSS();
+    static void* tryToAlloc(void* address, U32 size);
+    static void initMaxHeapSizeGB(F32Gigabytes max_heap_size);
+    static void updateMemoryInfo() ;
+    static void logMemoryInfo(bool update = false);
 
-	static U32Kilobytes getAvailableMemKB() ;
-	static U32Kilobytes getMaxMemKB() ;
-	static U32Kilobytes getAllocatedMemKB() ;
+    static U32Kilobytes getAvailableMemKB() ;
+    static U32Kilobytes getMaxMemKB() ;
+    static U32Kilobytes getAllocatedMemKB() ;
 private:
-	static U32Kilobytes sAvailPhysicalMemInKB ;
-	static U32Kilobytes sMaxPhysicalMemInKB ;
-	static U32Kilobytes sAllocatedMemInKB;
-	static U32Kilobytes sAllocatedPageSizeInKB ;
+    static U32Kilobytes sAvailPhysicalMemInKB ;
+    static U32Kilobytes sMaxPhysicalMemInKB ;
+    static U32Kilobytes sAllocatedMemInKB;
+    static U32Kilobytes sAllocatedPageSizeInKB ;
 
-	static U32Kilobytes sMaxHeapSizeInKB;
+    static U32Kilobytes sMaxHeapSizeInKB;
 };
 
 // LLRefCount moved to llrefcount.h

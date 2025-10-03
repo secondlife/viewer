@@ -12,7 +12,7 @@ if (LINUX)
     return()
   endif()
   use_prebuilt_binary(gtk-atk-pango-glib)
-  
+
   target_link_libraries( ll::uilibraries INTERFACE
           atk-1.0
           gdk-x11-2.0

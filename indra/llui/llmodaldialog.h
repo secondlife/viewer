@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llmodaldialog.h
  * @brief LLModalDialog base class
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -39,45 +39,45 @@ class LLModalDialog;
 class LLModalDialog : public LLFloater
 {
 public:
-	LLModalDialog( const LLSD& key, BOOL modal = true );
-	virtual		~LLModalDialog();
-	
-	/*virtual*/ BOOL 	postBuild();
-	
-	/*virtual*/ void	openFloater(const LLSD& key = LLSD());
-	/*virtual*/ void	onOpen(const LLSD& key);
-	
-	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
+    LLModalDialog( const LLSD& key, bool modal = true );
+    virtual     ~LLModalDialog();
 
-	/*virtual*/ void	setVisible(BOOL visible);
-	/*virtual*/ void	draw();
+    /*virtual*/ bool    postBuild();
 
-	BOOL 			isModal() const { return mModal; }
-	void			stopModal();
+    /*virtual*/ void    openFloater(const LLSD& key = LLSD());
+    /*virtual*/ void    onOpen(const LLSD& key);
 
-	static void		onAppFocusLost();
-	static void		onAppFocusGained();
+    /*virtual*/ void    reshape(S32 width, S32 height, bool called_from_parent = true);
 
-	static S32		activeCount() { return sModalStack.size(); }
-	static void		shutdownModals();
+    /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleScrollWheel(S32 x, S32 y, S32 clicks);
+    /*virtual*/ bool    handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleKeyHere(KEY key, MASK mask );
+
+    /*virtual*/ void    setVisible(bool visible);
+    /*virtual*/ void    draw();
+
+    bool            isModal() const { return mModal; }
+    void            stopModal();
+
+    static void     onAppFocusLost();
+    static void     onAppFocusGained();
+
+    static S32      activeCount() { return static_cast<S32>(sModalStack.size()); }
+    static void     shutdownModals();
 
 protected:
-	void			centerOnScreen();
+    void            centerOnScreen();
 
 private:
-	
-	LLFrameTimer 	mVisibleTime;
-	const BOOL		mModal;
 
-	static std::list<LLModalDialog*> sModalStack;  // Top of stack is currently being displayed
+    LLFrameTimer    mVisibleTime;
+    const bool      mModal;
+
+    static std::list<LLModalDialog*> sModalStack;  // Top of stack is currently being displayed
 };
 
 #endif  // LL_LLMODALDIALOG_H

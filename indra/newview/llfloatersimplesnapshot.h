@@ -44,7 +44,7 @@ public:
     LLFloaterSimpleSnapshot(const LLSD& key);
     ~LLFloaterSimpleSnapshot();
 
-    BOOL postBuild();
+    bool postBuild();
     void onOpen(const LLSD& key);
     void draw();
 
@@ -62,8 +62,17 @@ public:
     void setOwner(LLView *owner_view) { mOwner = owner_view; }
 
     void postSave();
-    static void uploadThumbnail(const std::string &file_path, const LLUUID &inventory_id, const LLUUID &task_id);
-    static void uploadThumbnail(LLPointer<LLImageRaw> raw_image, const LLUUID& inventory_id, const LLUUID& task_id);
+
+    typedef boost::function<void(const LLUUID& asset_id)> completion_t;
+    void setComplectionCallback(completion_t callback) { mUploadCompletionCallback = callback; }
+    static void uploadThumbnail(const std::string &file_path,
+                                const LLUUID &inventory_id,
+                                const LLUUID &task_id,
+                                completion_t callback = completion_t());
+    static void uploadThumbnail(LLPointer<LLImageRaw> raw_image,
+                                const LLUUID& inventory_id,
+                                const LLUUID& task_id,
+                                completion_t callback = completion_t());
 
     class Impl;
     friend class Impl;
@@ -76,13 +85,17 @@ private:
     void onCancel();
 
     // uploads upload-ready file
-    static void uploadImageUploadFile(const std::string &temp_file, const LLUUID &inventory_id, const LLUUID &task_id);
+    static void uploadImageUploadFile(const std::string &temp_file,
+                                      const LLUUID &inventory_id,
+                                      const LLUUID &task_id,
+                                      completion_t callback);
 
     LLUUID mInventoryId;
     LLUUID mTaskId;
 
     LLView* mOwner;
-    F32	 mContextConeOpacity;
+    F32  mContextConeOpacity;
+    completion_t mUploadCompletionCallback;
 };
 
 ///----------------------------------------------------------------------------

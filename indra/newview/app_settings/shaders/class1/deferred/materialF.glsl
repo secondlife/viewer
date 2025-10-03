@@ -39,12 +39,14 @@ void main()
 {
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
     frag_color = vec4(0.5, 0, 1, 0.5);
-#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
+#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
     frag_data[0] = vec4(0.5, 0, 1, 0);    // gbuffer is sRGB for legacy materials
     frag_data[1] = vec4(0); // XYZ = Specular color. W = Specular exponent.
     frag_data[2] = vec4(0); // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+#if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(0);
+#endif
 #endif
 }
 

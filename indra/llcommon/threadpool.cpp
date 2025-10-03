@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2021-10-21
  * @brief  Implementation for threadpool.
- * 
+ *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$
@@ -60,12 +60,15 @@ struct sleepy_robin: public boost::fibers::algo::round_robin
 /*****************************************************************************
 *   ThreadPoolBase
 *****************************************************************************/
-LL::ThreadPoolBase::ThreadPoolBase(const std::string& name, size_t threads,
-                                   WorkQueueBase* queue):
+LL::ThreadPoolBase::ThreadPoolBase(const std::string& name,
+                                   size_t threads,
+                                   WorkQueueBase* queue,
+                                   bool auto_shutdown):
     super(name),
     mName("ThreadPool:" + name),
     mThreadCount(getConfiguredWidth(name, threads)),
-    mQueue(queue)
+    mQueue(queue),
+    mAutomaticShutdown(auto_shutdown)
 {}
 
 void LL::ThreadPoolBase::start()
@@ -79,6 +82,14 @@ void LL::ThreadPoolBase::start()
                 run(tname);
             });
     }
+
+    if (!mAutomaticShutdown)
+    {
+        // Some threads, like main window's might need to run a bit longer
+        // to wait for a proper shutdown message
+        return;
+    }
+
     // Listen on "LLApp", and when the app is shutting down, close the queue
     // and join the workers.
     LLEventPumps::instance().obtain("LLApp").listen(
@@ -99,6 +110,10 @@ void LL::ThreadPoolBase::start()
 LL::ThreadPoolBase::~ThreadPoolBase()
 {
     close();
+    if (!LLEventPumps::wasDeleted())
+    {
+        LLEventPumps::instance().obtain("LLApp").stopListening(mName);
+    }
 }
 
 void LL::ThreadPoolBase::close()
@@ -109,8 +124,11 @@ void LL::ThreadPoolBase::close()
         mQueue->close();
         for (auto& pair: mThreads)
         {
-            LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
-            pair.second.join();
+            if (pair.second.joinable())
+            {
+                LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
+                pair.second.join();
+            }
         }
         LL_DEBUGS("ThreadPool") << mName << " shutdown complete" << LL_ENDL;
     }

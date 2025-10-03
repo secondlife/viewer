@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llmenuoptionpathfindingrebakenavmesh.h
 * @brief  Header file for llmenuoptionpathfindingrebakenavmesh
 * @author Prep@lindenlab.com
@@ -37,49 +37,49 @@ class LLPathfindingNavMeshStatus;
 
 class LLMenuOptionPathfindingRebakeNavmesh : public LLSingleton<LLMenuOptionPathfindingRebakeNavmesh>
 {
-	LLSINGLETON(LLMenuOptionPathfindingRebakeNavmesh);
-	virtual ~LLMenuOptionPathfindingRebakeNavmesh();
-	LOG_CLASS(LLMenuOptionPathfindingRebakeNavmesh);
+    LLSINGLETON(LLMenuOptionPathfindingRebakeNavmesh);
+    virtual ~LLMenuOptionPathfindingRebakeNavmesh();
+    LOG_CLASS(LLMenuOptionPathfindingRebakeNavmesh);
 
 public:
-	typedef enum
-	{
-		kRebakeNavMesh_Available,
-		kRebakeNavMesh_RequestSent,
-		kRebakeNavMesh_InProgress,
-		kRebakeNavMesh_NotAvailable,
-		kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
-	} ERebakeNavMeshMode;
+    typedef enum
+    {
+        kRebakeNavMesh_Available,
+        kRebakeNavMesh_RequestSent,
+        kRebakeNavMesh_InProgress,
+        kRebakeNavMesh_NotAvailable,
+        kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
+    } ERebakeNavMeshMode;
 
 
-	void               initialize();
-	void               quit();
+    void               initialize();
+    void               quit();
 
-	bool               canRebakeRegion() const;
-	ERebakeNavMeshMode getMode() const;
-	
-	void               sendRequestRebakeNavmesh();
+    bool               canRebakeRegion() const;
+    ERebakeNavMeshMode getMode() const;
+
+    void               sendRequestRebakeNavmesh();
 
 protected:
 
 private:
-	void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
+    void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
 
-	void handleAgentState(BOOL pCanRebakeRegion);
-	void handleRebakeNavMeshResponse(bool pResponseStatus);
-	void handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus);
-	void handleRegionBoundaryCrossed();
+    void handleAgentState(bool pCanRebakeRegion);
+    void handleRebakeNavMeshResponse(bool pResponseStatus);
+    void handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus);
+    void handleRegionBoundaryCrossed();
 
-	void createNavMeshStatusListenerForCurrentRegion();
+    void createNavMeshStatusListenerForCurrentRegion();
 
-	bool                                     mIsInitialized;
+    bool                                     mIsInitialized;
 
-	bool                                     mCanRebakeRegion;
-	ERebakeNavMeshMode                       mRebakeNavMeshMode;
-	
-	LLPathfindingNavMesh::navmesh_slot_t     mNavMeshSlot;
-	boost::signals2::connection              mRegionCrossingSlot;
-	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
+    bool                                     mCanRebakeRegion;
+    ERebakeNavMeshMode                       mRebakeNavMeshMode;
+
+    LLPathfindingNavMesh::navmesh_slot_t     mNavMeshSlot;
+    boost::signals2::connection              mRegionCrossingSlot;
+    LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 };
 
 #endif // LL_LLMENUOPTIONPATHFINDINGREBAKENAVMESH_H

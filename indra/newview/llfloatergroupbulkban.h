@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llfloatergroupbulkban.h
 * @brief  This floater is a wrapper for LLPanelGroupBulkBan, which
 * is used to ban Residents from a specific group.
@@ -34,15 +34,15 @@
 class LLFloaterGroupBulkBan : public LLFloater
 {
 public:
-	virtual ~LLFloaterGroupBulkBan();
+    virtual ~LLFloaterGroupBulkBan();
 
-	static void showForGroup(const LLUUID& group_id, uuid_vec_t* agent_ids = NULL);
+    static void showForGroup(const LLUUID& group_id, uuid_vec_t* agent_ids = NULL);
 
 protected:
-	LLFloaterGroupBulkBan(const LLUUID& group_id = LLUUID::null);
+    LLFloaterGroupBulkBan(const LLUUID& group_id = LLUUID::null);
 
-	class impl;
-	impl* mImpl;
+    class impl;
+    impl* mImpl;
 };
 
 #endif // LL_LLFLOATERGROUPBULKBAN_H

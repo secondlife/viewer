@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llsdutil.h
  * @author Phoenix
  * @date 2006-05-24
@@ -7,21 +7,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -72,12 +72,12 @@ LL_COMMON_API std::string ll_stream_notation_sd(const LLSD& sd);
 //Returns false if the test is of same type but values differ in type
 //Otherwise, returns true
 
-LL_COMMON_API BOOL compare_llsd_with_template(
-	const LLSD& llsd_to_test,
-	const LLSD& template_llsd,
-	LLSD& resultant_llsd);
+LL_COMMON_API bool compare_llsd_with_template(
+    const LLSD& llsd_to_test,
+    const LLSD& template_llsd,
+    LLSD& resultant_llsd);
 
-// filter_llsd_with_template() is a direct clone (copy-n-paste) of 
+// filter_llsd_with_template() is a direct clone (copy-n-paste) of
 // compare_llsd_with_template with the following differences:
 // (1) bool vs BOOL return types
 // (2) A map with the key value "*" is a special value and maps any key in the
@@ -86,9 +86,9 @@ LL_COMMON_API BOOL compare_llsd_with_template(
 //     for *all* the elements of the test array.  If the template array is of
 //     different size, compare_llsd_with_template() semantics apply.
 bool filter_llsd_with_template(
-	const LLSD & llsd_to_test,
-	const LLSD & template_llsd,
-	LLSD & resultant_llsd);
+    const LLSD & llsd_to_test,
+    const LLSD & template_llsd,
+    LLSD & resultant_llsd);
 
 /**
  * Recursively determine whether a given LLSD data block "matches" another
@@ -164,12 +164,12 @@ inline bool operator!=(const LLSD& lhs, const LLSD& rhs)
 // there is no need for casting.
 template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
 {
-	LLSD dest;
-	for (; iter != end; ++iter)
-	{
-		dest.append(*iter);
-	}
-	return dest;
+    LLSD dest;
+    for (; iter != end; ++iter)
+    {
+        dest.append(*iter);
+    }
+    return dest;
 }
 
 namespace llsd
@@ -478,9 +478,9 @@ namespace llsd
 {
 
 /*****************************************************************************
-*   BOOST_FOREACH() helpers for LLSD
+*   range-based for-loop helpers for LLSD
 *****************************************************************************/
-/// Usage: BOOST_FOREACH(LLSD item, inArray(someLLSDarray)) { ... }
+/// Usage: for (LLSD item : inArray(someLLSDarray)) { ... }
 class inArray
 {
 public:
@@ -503,7 +503,7 @@ private:
 /// MapEntry is what you get from dereferencing an LLSD::map_[const_]iterator.
 typedef std::map<LLSD::String, LLSD>::value_type MapEntry;
 
-/// Usage: BOOST_FOREACH([const] MapEntry& e, inMap(someLLSDmap)) { ... }
+/// Usage: for([const] MapEntry& e : inMap(someLLSDmap)) { ... }
 class inMap
 {
 public:
@@ -526,19 +526,19 @@ private:
 } // namespace llsd
 
 
-// Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects 
+// Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects
 // are duplicated, atomic primitives (Boolean, Integer, Real, etc) simply
-// use a shared reference. 
-// Optionally a filter may be specified to control what is duplicated. The 
+// use a shared reference.
+// Optionally a filter may be specified to control what is duplicated. The
 // map takes the form "keyname/boolean".
-// If the value is true the value will be duplicated otherwise it will be skipped 
+// If the value is true the value will be duplicated otherwise it will be skipped
 // when encountered in a map. A key name of "*" can be specified as a wild card
 // and will specify the default behavior.  If no wild card is given and the clone
 // encounters a name not in the filter, that value will be skipped.
 LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
 
-// Creates a shallow copy of a map or array.  If passed any other type of LLSD 
-// object it simply returns that value.  See llsd_clone for a description of 
+// Creates a shallow copy of a map or array.  If passed any other type of LLSD
+// object it simply returns that value.  See llsd_clone for a description of
 // the filter parameter.
 LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
 
@@ -553,6 +553,100 @@ LLSD shallow(LLSD value, LLSD filter=LLSD()) { return llsd_shallow(value, filter
 
 } // namespace llsd
 
+/*****************************************************************************
+*   LLSDParam<std::vector<T>>
+*****************************************************************************/
+// Given an LLSD array, return a const std::vector<T>&, where T is a type
+// supported by LLSDParam. Bonus: if the LLSD value is actually a scalar,
+// return a single-element vector containing the converted value.
+template <typename T>
+class LLSDParam<std::vector<T>>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& array)
+    {
+        // treat undefined "array" as empty vector
+        if (array.isDefined())
+        {
+            // what if it's a scalar?
+            if (! array.isArray())
+            {
+                v.push_back(LLSDParam<T>(array));
+            }
+            else                        // really is an array
+            {
+                // reserve space for the array entries
+                v.reserve(array.size());
+                for (const auto& item : llsd::inArray(array))
+                {
+                    v.push_back(LLSDParam<T>(item));
+                }
+            }
+        }
+    }
+
+    operator const std::vector<T>&() const { return v; }
+
+private:
+    std::vector<T> v;
+};
+
+
+/*****************************************************************************
+ *   toArray(), toMap()
+ *****************************************************************************/
+namespace llsd
+{
+
+// For some T convertible to LLSD, given std::vector<T> myVec,
+// toArray(myVec) returns an LLSD array whose entries correspond to the
+// items in myVec.
+// For some U convertible to LLSD, given function U xform(const T&),
+// toArray(myVec, xform) returns an LLSD array whose every entry is
+// xform(item) of the corresponding item in myVec.
+// toArray() actually works with any container<C> usable with range
+// 'for', not just std::vector.
+// (Once we get C++20 we can use std::identity instead of this default lambda.)
+template<typename C, typename FUNC>
+LLSD toArray(const C& container, FUNC&& func = [](const auto& arg) { return arg; })
+{
+    LLSD array;
+    for (const auto& item : container)
+    {
+        array.append(std::forward<FUNC>(func)(item));
+    }
+    return array;
+}
+
+// For some T convertible to LLSD, given std::map<std::string, T> myMap,
+// toMap(myMap) returns an LLSD map whose entries correspond to the
+// (key, value) pairs in myMap.
+// For some U convertible to LLSD, given function
+// std::pair<std::string, U> xform(const std::pair<std::string, T>&),
+// toMap(myMap, xform) returns an LLSD map whose every entry is
+// xform(pair) of the corresponding (key, value) pair in myMap.
+// toMap() actually works with any container usable with range 'for', not
+// just std::map. It need not even be an associative container, as long as
+// you pass an xform function that returns std::pair<std::string, U>.
+// (Once we get C++20 we can use std::identity instead of this default lambda.)
+template<typename C, typename FUNC>
+LLSD toMap(const C& container, FUNC&& func = [](const auto& arg) { return arg; })
+{
+    LLSD map;
+    for (const auto& pair : container)
+    {
+        const auto& [key, value] = std::forward<FUNC>(func)(pair);
+        map[key] = value;
+    }
+    return map;
+}
+
+} // namespace llsd
+
+/*****************************************************************************
+ *   boost::hash<LLSD>
+ *****************************************************************************/
+
 // Specialization for generating a hash value from an LLSD block.
 namespace boost
 {
@@ -561,7 +655,7 @@ struct hash<LLSD>
 {
     typedef LLSD argument_type;
     typedef std::size_t result_type;
-    result_type operator()(argument_type const& s) const 
+    result_type operator()(argument_type const& s) const
     {
         result_type seed(0);
 

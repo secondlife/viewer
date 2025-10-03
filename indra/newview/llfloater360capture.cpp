@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file llfloater360capture.cpp
  * @author Callum Prentice (callum@lindenlab.com)
  * @brief Floater code for the 360 Capture feature
@@ -33,6 +33,7 @@
 #include "llagentui.h"
 #include "llbase64.h"
 #include "llcallbacklist.h"
+#include "lldate.h"
 #include "llenvironment.h"
 #include "llimagejpeg.h"
 #include "llmediactrl.h"
@@ -67,7 +68,7 @@ LLFloater360Capture::LLFloater360Capture(const LLSD& key)
     mStartILMode = gAgent.getInterestListMode();
 
     // send everything to us for as long as this floater is open
-    gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
+    gAgent.changeInterestListMode(IL_MODE_360);
 }
 
 LLFloater360Capture::~LLFloater360Capture()
@@ -83,7 +84,7 @@ LLFloater360Capture::~LLFloater360Capture()
     // Normally LLFloater360Capture tells the Simulator send everything
     // and now reverts to the regular "keyhole" frustum of interest
     // list updates.
-    if (!LLApp::isExiting() && 
+    if (!LLApp::isExiting() &&
         gSavedSettings.getBOOL("360CaptureUseInterestListCap") &&
         mStartILMode != gAgent.getInterestListMode())
     {
@@ -91,7 +92,7 @@ LLFloater360Capture::~LLFloater360Capture()
     }
 }
 
-BOOL LLFloater360Capture::postBuild()
+bool LLFloater360Capture::postBuild()
 {
     mCaptureBtn = getChild<LLUICtrl>("capture_button");
     mCaptureBtn->setCommitCallback(boost::bind(&LLFloater360Capture::onCapture360ImagesBtn, this));
@@ -360,6 +361,8 @@ void LLFloater360Capture::encodeAndSave(LLPointer<LLImageRaw> raw_image, const s
     int jpeg_encode_quality = gSavedSettings.getU32("360CaptureJPEGEncodeQuality");
     LLPointer<LLImageJPEG> jpeg_image = new LLImageJPEG(jpeg_encode_quality);
 
+    LLImageDataSharedLock lock(raw_image);
+
     // Actually encode the JPEG image. This is where a lot of time
     // is spent now that the snapshot capture process has been
     // optimized.  The encode_time parameter doesn't appear to be
@@ -410,14 +413,16 @@ void LLFloater360Capture::suspendForAFrame()
 // Probably not needed anymore but saving here just in case.
 void LLFloater360Capture::mockSnapShot(LLImageRaw* raw)
 {
+    LLImageDataLock lock(raw);
+
     unsigned int width = raw->getWidth();
     unsigned int height = raw->getHeight();
     unsigned int depth = raw->getComponents();
     unsigned char* pixels = raw->getData();
 
-    for (int y = 0; y < height; y++)
+    for (unsigned int y = 0; y < height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (unsigned int x = 0; x < width; x++)
         {
             unsigned long offset = y * width * depth + x * depth;
             unsigned char red = x * 256 / width;
@@ -449,7 +454,7 @@ void LLFloater360Capture::capture360Images()
     if (gSavedSettings.getBOOL("360CaptureHideAvatars"))
     {
         // Turn off the avatar if UI tells us to hide it.
-        // Note: the original call to gAvatar.hide(FALSE) did *not* hide
+        // Note: the original call to gAvatar.hide(false) did *not* hide
         // attachments and so for most residents, there would be some debris
         // left behind in the snapshot.
         // Note: this toggles so if it set to on, this will turn it off and
@@ -458,7 +463,7 @@ void LLFloater360Capture::capture360Images()
         // was set to off - I think this is what we need
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_PARTICLES);
-        LLPipeline::sRenderAttachedLights = FALSE;
+        LLPipeline::sRenderAttachedLights = false;
     }
 
     // these are the 6 directions we will point the camera - essentially,
@@ -484,7 +489,7 @@ void LLFloater360Capture::capture360Images()
     // 'GPano:InitialViewHeadingDegrees' field.
     // We need to convert from the angle getYaw() gives us into something
     // the XMP data field wants (N=0, E=90, S=180, W= 270 etc.)
-    mInitialHeadingDeg  = (360 + 90 - (int)(camera->getYaw() * RAD_TO_DEG)) % 360;
+    mInitialHeadingDeg  = (float)((360 + 90 - (int)(camera->getYaw() * RAD_TO_DEG)) % 360);
     LL_INFOS("360Capture") << "Recording a heading of " << (int)(mInitialHeadingDeg)
         << " Image size: " << (S32)mSourceImageSize << LL_ENDL;
 
@@ -578,7 +583,7 @@ void LLFloater360Capture::capture360Images()
 
         LLViewerStats::instance().getRecording().resume();
         LLAppViewer::instance()->resumeMainloopTimeout();
-        
+
         // update main loop timeout state
         LLAppViewer::instance()->pingMainloopTimeout("LLFloater360Capture::capture360Images");
     }
@@ -688,7 +693,15 @@ void LLFloater360Capture::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
                                         );
 
                 // execute the command on the page
-                mWebBrowser->getMediaPlugin()->executeJavaScript(cmd);
+                LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
+                if (plugin)
+                {
+                    plugin->executeJavaScript(cmd);
+                }
+                else
+                {
+                    LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
+                }
             }
         }
         break;
@@ -769,7 +782,15 @@ void LLFloater360Capture::onSaveLocalBtn()
 
     // send it to the browser instance, triggering the equirectangular capture
     // process and complimentary offer to save the image
-    mWebBrowser->getMediaPlugin()->executeJavaScript(cmd);
+    LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
+    if (plugin)
+    {
+        plugin->executeJavaScript(cmd);
+    }
+    else
+    {
+        LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
+    }
 }
 
 // We capture all 6 images sequentially and if parts of the world are moving
@@ -789,12 +810,9 @@ void LLFloater360Capture::freezeWorld(bool enable)
         LLEnvironment::instance().pauseCloudScroll();
 
         // freeze all avatars
-        LLCharacter* avatarp;
-        for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-                iter != LLCharacter::sInstances.end(); ++iter)
+        for (LLCharacter* character : LLCharacter::sInstances)
         {
-            avatarp = *iter;
-            mAvatarPauseHandles.push_back(avatarp->requestPause());
+            mAvatarPauseHandles.push_back(character->requestPause());
         }
 
         // freeze everything else
@@ -807,7 +825,7 @@ void LLFloater360Capture::freezeWorld(bool enable)
     {
         // restart the clouds moving if they were not paused before
         // we starting using the 360 capture floater
-        if (clouds_scroll_paused == false)
+        if (!clouds_scroll_paused)
         {
             LLEnvironment::instance().resumeCloudScroll();
         }
@@ -862,15 +880,7 @@ const std::string LLFloater360Capture::generate_proposed_filename()
     filename << "_";
 
     // add in the current HH-MM-SS (with leading 0's) so users can easily save many shots in same folder
-    std::time_t cur_epoch = std::time(nullptr);
-    std::tm* tm_time = std::localtime(&cur_epoch);
-    filename << std::setfill('0') << std::setw(4) << (tm_time->tm_year + 1900);
-    filename << std::setfill('0') << std::setw(2) << (tm_time->tm_mon + 1);
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_mday;
-    filename << "_";
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_hour;
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_min;
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_sec;
+    filename << LLDate::now().toLocalDateString("%Y%m%d_%H%M%S");
 
     // the unusual way we save the output image (originates in the
     // embedded browser and not the C++ code) means that the system

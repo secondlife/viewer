@@ -15,7 +15,9 @@ set(llrender_SOURCE_FILES
     llcubemaparray.cpp
     llfontbitmapcache.cpp
     llfontfreetype.cpp
+    llfontfreetypesvg.cpp
     llfontgl.cpp
+    llfontvertexbuffer.cpp
     llfontregistry.cpp
     llgl.cpp
     llglslshader.cpp
@@ -42,7 +44,9 @@ set(llrender_HEADER_FILES
     llcubemap.h
     llcubemaparray.h
     llfontgl.h
+    llfontvertexbuffer.h
     llfontfreetype.h
+    llfontfreetypesvg.h
     llfontbitmapcache.h
     llfontregistry.h
     llgl.h

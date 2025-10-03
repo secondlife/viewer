@@ -7,12 +7,11 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
-include(GLH)
+include(GLM)
 include(TinyGLTF)
 
 set(llprimitive_SOURCE_FILES
     lldaeloader.cpp
-    llgltfloader.cpp
     llgltfmaterial.cpp
     llmaterialid.cpp
     llmaterial.cpp
@@ -32,7 +31,6 @@ set(llprimitive_SOURCE_FILES
 set(llprimitive_HEADER_FILES
     CMakeLists.txt
     lldaeloader.h
-    llgltfloader.h
     llgltfmaterial.h
     llgltfmaterial_templates.h
     legacy_object_types.h
@@ -69,8 +67,7 @@ target_link_libraries(llprimitive
         llrender
         llphysicsextensions_impl
         ll::colladadom
-        ll::pcre
-        ll::glh_linear
+        ll::glm
         )
 
 #add unit tests

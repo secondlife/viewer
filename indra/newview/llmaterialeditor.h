@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llmaterialeditor.h
  * @brief LLMaterialEditor class header file
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -55,7 +55,7 @@ public:
     LLFloaterComboOptions();
 
     virtual ~LLFloaterComboOptions();
-    /*virtual*/	BOOL	postBuild();
+    /*virtual*/ bool    postBuild();
 
     static LLFloaterComboOptions* showUI(
         combo_callback callback,
@@ -86,7 +86,7 @@ protected:
 
 class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 { public:
-	LLMaterialEditor(const LLSD& key);
+    LLMaterialEditor(const LLSD& key);
     ~LLMaterialEditor();
 
     bool setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures = false);
@@ -94,7 +94,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void setFromGltfMetaData(const std::string& filename, const  tinygltf::Model& model, S32 index);
 
     // open a file dialog and select a gltf/glb file for import
-    static void importMaterial();
+    static void importMaterial(const LLUUID dest_folder = LLUUID::null);
 
     // for live preview, apply current material to currently selected object
     void applyToSelection();
@@ -105,8 +105,11 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void loadAsset() override;
     // @index if -1 and file contains more than one material,
     // will promt to select specific one
-    static void uploadMaterialFromModel(const std::string& filename, tinygltf::Model& model, S32 index);
-    static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
+    static void uploadMaterialFromModel(const std::string& filename,
+                                        tinygltf::Model& model,
+                                        S32 index,
+                                        const LLUUID& dest_folder_id = LLUUID::null);
+    static void loadMaterialFromFile(const std::string& filename, S32 index = -1, const LLUUID& dest_folder = LLUUID::null);
 
     void onSelectionChanged(); // live overrides selection changes
 
@@ -133,8 +136,6 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void clearTextures();
 
     void onClickSave();
-
-    void getGLTFModel(tinygltf::Model& model);
 
     std::string getEncodedAsset();
 
@@ -163,8 +164,8 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void setObjectID(const LLUUID& object_id) override;
     void setAuxItem(const LLInventoryItem* item) override;
 
-	// llpanel
-	BOOL postBuild() override;
+    // llpanel
+    bool postBuild() override;
     void onClickCloseBtn(bool app_quitting = false) override;
 
     void onClose(bool app_quitting) override;
@@ -188,7 +189,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 
     F32 getAlphaCutoff();
     void setAlphaCutoff(F32 alpha_cutoff);
-    
+
     void setMaterialName(const std::string &name);
 
     LLUUID getMetallicRoughnessId();
@@ -239,7 +240,7 @@ private:
     static void saveObjectsMaterialAs(const LLGLTFMaterial *render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions, const LLUUID& object_id /* = LLUUID::null */, const LLUUID& item /* = LLUUID::null */);
 
     static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
-    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& permissions);
+    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& permissions, const LLUUID& upload_folder);
 
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();
@@ -249,6 +250,7 @@ private:
     friend class LLMaterialFilePicker;
 
     LLUUID mAssetID;
+    LLUUID mUploadFolder;
 
     LLTextureCtrl* mBaseColorTextureCtrl;
     LLTextureCtrl* mMetallicTextureCtrl;
@@ -288,6 +290,7 @@ private:
     // utility function for building a description of the imported material
     // based on what we know about it.
     const std::string buildMaterialDescription();
+    void refreshUploadCost();
 
     void resetUnsavedChanges();
     void markChangesUnsaved(U32 dirty_flag);

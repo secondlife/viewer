@@ -38,19 +38,19 @@ namespace LLTinyGLTFHelper
 {
     LLColor4 getColor(const std::vector<double>& in);
     const tinygltf::Image* getImageFromTextureIndex(const tinygltf::Model& model, S32 texture_index);
-    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, std::string& name);
-    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index);
-
-    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index);
+    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, std::string& name, bool flip = true);
+    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, bool flip = true);
 
     bool loadModel(const std::string& filename, tinygltf::Model& model_out);
+    bool saveModel(const std::string& filename, tinygltf::Model& model_in);
 
     bool getMaterialFromModel(
         const std::string& filename,
         const tinygltf::Model& model,
         S32 mat_index,
         LLFetchedGLTFMaterial* material,
-        std::string& material_name);
+        std::string& material_name,
+        bool flip = true);
 
     void initFetchedTextures(tinygltf::Material& material,
         LLPointer<LLImageRaw>& base_color_img,

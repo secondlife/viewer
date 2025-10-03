@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfontbitmapcache.cpp
  * @brief Storage for previously rendered glyphs.
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -30,14 +30,7 @@
 #include "llfontbitmapcache.h"
 
 LLFontBitmapCache::LLFontBitmapCache()
-:	mNumComponents(0),
-	mBitmapWidth(0),
-	mBitmapHeight(0),
-	mBitmapNum(-1),
-	mMaxCharWidth(0),
-	mMaxCharHeight(0),
-	mCurrentOffsetX(1),
-	mCurrentOffsetY(1)
+
 {
 }
 
@@ -45,121 +38,151 @@ LLFontBitmapCache::~LLFontBitmapCache()
 {
 }
 
-void LLFontBitmapCache::init(S32 num_components,
-							 S32 max_char_width,
-							 S32 max_char_height)
+void LLFontBitmapCache::init(S32 max_char_width,
+                             S32 max_char_height)
 {
-	reset();
-	
-	mNumComponents = num_components;
-	mMaxCharWidth = max_char_width;
-	mMaxCharHeight = max_char_height;
+    reset();
+
+    mMaxCharWidth = max_char_width;
+    mMaxCharHeight = max_char_height;
+
+    S32 image_width = mMaxCharWidth * 20;
+    S32 pow_iw = 2;
+    while (pow_iw < image_width)
+    {
+        pow_iw <<= 1;
+    }
+    image_width = pow_iw;
+    image_width = llmin(512, image_width); // Don't make bigger than 512x512, ever.
+
+    mBitmapWidth = image_width;
+    mBitmapHeight = image_width;
 }
 
-LLImageRaw *LLFontBitmapCache::getImageRaw(U32 bitmap_num) const
+LLImageRaw *LLFontBitmapCache::getImageRaw(EFontGlyphType bitmap_type, U32 bitmap_num) const
 {
-	if (bitmap_num >= mImageRawVec.size())
-		return NULL;
+    const U32 bitmap_idx = static_cast<U32>(bitmap_type);
+    if (bitmap_type >= EFontGlyphType::Count || bitmap_num >= mImageRawVec[bitmap_idx].size())
+        return nullptr;
 
-	return mImageRawVec[bitmap_num];
+    return mImageRawVec[bitmap_idx][bitmap_num];
 }
 
-LLImageGL *LLFontBitmapCache::getImageGL(U32 bitmap_num) const
+LLImageGL *LLFontBitmapCache::getImageGL(EFontGlyphType bitmap_type, U32 bitmap_num) const
 {
-	if (bitmap_num >= mImageGLVec.size())
-		return NULL;
+    const U32 bitmap_idx = static_cast<U32>(bitmap_type);
+    if (bitmap_type >= EFontGlyphType::Count || bitmap_num >= mImageGLVec[bitmap_idx].size())
+        return nullptr;
 
-	return mImageGLVec[bitmap_num];
+    return mImageGLVec[bitmap_idx][bitmap_num];
 }
 
 
-BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32 &pos_x, S32 &pos_y, S32& bitmap_num)
+bool LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyphType bitmap_type, U32& bitmap_num)
 {
-	if ((mBitmapNum<0) || (mCurrentOffsetX + width + 1) > mBitmapWidth)
-	{
-		if ((mBitmapNum<0) || (mCurrentOffsetY + 2*mMaxCharHeight + 2) > mBitmapHeight)
-		{
-			// We're out of space in the current image, or no image
-			// has been allocated yet.  Make a new one.
-			
-			mImageRawVec.push_back(new LLImageRaw);
-			mBitmapNum = mImageRawVec.size()-1;
-			LLImageRaw *image_raw = getImageRaw(mBitmapNum);
+    if (bitmap_type >= EFontGlyphType::Count)
+    {
+        return false;
+    }
 
-			// Make corresponding GL image.
-			mImageGLVec.push_back(new LLImageGL(FALSE));
-			LLImageGL *image_gl = getImageGL(mBitmapNum);
-			
-			S32 image_width = mMaxCharWidth * 20;
-			S32 pow_iw = 2;
-			while (pow_iw < image_width)
-			{
-				pow_iw *= 2;
-			}
-			image_width = pow_iw;
-			image_width = llmin(512, image_width); // Don't make bigger than 512x512, ever.
-			S32 image_height = image_width;
+    const U32 bitmap_idx = static_cast<U32>(bitmap_type);
+    if (mImageRawVec[bitmap_idx].empty() || (mCurrentOffsetX[bitmap_idx] + width + 1) > mBitmapWidth)
+    {
+        if ((mImageRawVec[bitmap_idx].empty()) || (mCurrentOffsetY[bitmap_idx] + 2*mMaxCharHeight + 2) > mBitmapHeight)
+        {
+            // We're out of space in the current image, or no image
+            // has been allocated yet.  Make a new one.
 
-			image_raw->resize(image_width, image_height, mNumComponents);
+            S32 image_width = mMaxCharWidth * 20;
+            S32 pow_iw = 2;
+            while (pow_iw < image_width)
+            {
+                pow_iw *= 2;
+            }
+            image_width = pow_iw;
+            image_width = llmin(512, image_width); // Don't make bigger than 512x512, ever.
+            S32 image_height = image_width;
 
-			mBitmapWidth = image_width;
-			mBitmapHeight = image_height;
+            mBitmapWidth = image_width;
+            mBitmapHeight = image_height;
 
-			switch (mNumComponents)
-			{
-				case 1:
-					image_raw->clear();
-				break;
-				case 2:
-					image_raw->clear(255, 0);
-				break;
-			}
+            S32 num_components = getNumComponents(bitmap_type);
+            mImageRawVec[bitmap_idx].emplace_back(new LLImageRaw(mBitmapWidth, mBitmapHeight, num_components));
+            bitmap_num = static_cast<U32>(mImageRawVec[bitmap_idx].size()) - 1;
 
-			// Start at beginning of the new image.
-			mCurrentOffsetX = 1;
-			mCurrentOffsetY = 1;
+            LLImageRaw* image_raw = getImageRaw(bitmap_type, bitmap_num);
+            if (EFontGlyphType::Grayscale == bitmap_type)
+            {
+                image_raw->clear(255, 0);
+            }
 
-			// Attach corresponding GL texture.
-			image_gl->createGLTexture(0, image_raw);
-			gGL.getTexUnit(0)->bind(image_gl);
-			image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(TRUE, TRUE);
-		}
-		else
-		{
-			// Move to next row in current image.
-			mCurrentOffsetX = 1;
-			mCurrentOffsetY += mMaxCharHeight + 1;
-		}
-	}
+            // Make corresponding GL image.
+            mImageGLVec[bitmap_idx].emplace_back(new LLImageGL(image_raw, false, false));
+            LLImageGL* image_gl = getImageGL(bitmap_type, bitmap_num);
 
-	pos_x = mCurrentOffsetX;
-	pos_y = mCurrentOffsetY;
-	bitmap_num = mBitmapNum;
+            // Start at beginning of the new image.
+            mCurrentOffsetX[bitmap_idx] = 1;
+            mCurrentOffsetY[bitmap_idx] = 1;
 
-	mCurrentOffsetX += width + 1;
+            // Attach corresponding GL texture. (*TODO: is this needed?)
+            gGL.getTexUnit(0)->bind(image_gl);
+            image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(true, true);
+        }
+        else
+        {
+            // Move to next row in current image.
+            mCurrentOffsetX[bitmap_idx] = 1;
+            mCurrentOffsetY[bitmap_idx] += mMaxCharHeight + 1;
+        }
+    }
 
-	return TRUE;
+    pos_x = mCurrentOffsetX[bitmap_idx];
+    pos_y = mCurrentOffsetY[bitmap_idx];
+    bitmap_num = getNumBitmaps(bitmap_type) - 1;
+
+    mCurrentOffsetX[bitmap_idx] += width + 1;
+    mGeneration++;
+
+    return true;
 }
 
 void LLFontBitmapCache::destroyGL()
 {
-	for (std::vector<LLPointer<LLImageGL> >::iterator it = mImageGLVec.begin();
-		 it != mImageGLVec.end(); ++it)
-	{
-		(*it)->destroyGLTexture();
-	}
+    for (U32 idx = 0, cnt = static_cast<U32>(EFontGlyphType::Count); idx < cnt; idx++)
+    {
+        for (LLImageGL* image_gl : mImageGLVec[idx])
+        {
+            image_gl->destroyGLTexture();
+        }
+    }
 }
 
 void LLFontBitmapCache::reset()
 {
-	mImageRawVec.clear();
+    for (U32 idx = 0, cnt = static_cast<U32>(EFontGlyphType::Count); idx < cnt; idx++)
+    {
+        mImageRawVec[idx].clear();
+        mImageGLVec[idx].clear();
+        mCurrentOffsetX[idx] = 1;
+        mCurrentOffsetY[idx] = 1;
+    }
 
-	mImageGLVec.clear();
-	
-	mBitmapWidth = 0;
-	mBitmapHeight = 0;
-	mBitmapNum = -1;
-	mCurrentOffsetX = 1;
-	mCurrentOffsetY = 1;
+    mBitmapWidth = 0;
+    mBitmapHeight = 0;
+    mGeneration++;
 }
 
+//static
+U32 LLFontBitmapCache::getNumComponents(EFontGlyphType bitmap_type)
+{
+    switch (bitmap_type)
+    {
+        case EFontGlyphType::Grayscale:
+            return 2;
+        case EFontGlyphType::Color:
+            return 4;
+        default:
+            llassert(false);
+            return 2;
+    }
+}

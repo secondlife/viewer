@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llmachineid.cpp
  * @brief retrieves unique machine ids
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -27,7 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "lluuid.h"
 #include "llmachineid.h"
-#if	LL_WINDOWS
+#if LL_WINDOWS
 #define _WIN32_DCOM
 #include <iostream>
 #include <comdef.h>
@@ -41,7 +41,7 @@ unsigned char static_legacy_id[] =  {0,0,0,0,0,0};
 bool static has_static_unique_id = false;
 bool static has_static_legacy_id = false;
 
-#if	LL_WINDOWS
+#if LL_WINDOWS
 
 class LLWMIMethods
 {
@@ -85,11 +85,11 @@ void LLWMIMethods::initCOMObjects()
     // Step 1: --------------------------------------------------
     // Initialize COM. ------------------------------------------
 
-    mHR = CoInitializeEx(0, COINIT_MULTITHREADED);
+    mHR = CoInitializeEx(0, COINIT_APARTMENTTHREADED);
     if (FAILED(mHR))
     {
+        // if result S_FALSE, it's already initialized
         LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << std::hex << mHR << LL_ENDL;
-        return;
     }
 
     // Step 2: --------------------------------------------------
@@ -104,10 +104,10 @@ void LLWMIMethods::initCOMObjects()
         -1,                          // COM authentication
         NULL,                        // Authentication services
         NULL,                        // Reserved
-        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
+        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication
+        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation
         NULL,                        // Authentication info
-        EOAC_NONE,                   // Additional capabilities 
+        EOAC_NONE,                   // Additional capabilities
         NULL                         // Reserved
     );
 
@@ -147,7 +147,7 @@ void LLWMIMethods::initCOMObjects()
         0,                       // Locale. NULL indicates current
         NULL,                    // Security flags.
         0,                       // Authority (e.g. Kerberos)
-        0,                       // Context object 
+        0,                       // Context object
         &pSvc                    // pointer to IWbemServices proxy
     );
 
@@ -168,11 +168,11 @@ void LLWMIMethods::initCOMObjects()
         pSvc,                        // Indicates the proxy to set
         RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
         RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-        NULL,                        // Server principal name 
-        RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
+        NULL,                        // Server principal name
+        RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
         RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
         NULL,                        // client identity
-        EOAC_NONE                    // proxy capabilities 
+        EOAC_NONE                    // proxy capabilities
     );
 
     if (FAILED(mHR))
@@ -293,7 +293,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
         if (validate_as_uuid)
         {
             std::wstring ws(serialNumber, serial_size);
-            std::string str(ws.begin(), ws.end());
+            std::string str = ll_convert_wide_to_string(ws);
 
             if (!LLUUID::validate(str))
             {
@@ -359,7 +359,7 @@ bool getSerialNumber(unsigned char *unique_id, size_t len)
                                                                      kCFAllocatorDefault, 0);
         IOObjectRelease(platformExpert);
     }
-    
+
     if (serial_cf_str)
     {
         char buffer[64] = {0};
@@ -370,7 +370,7 @@ bool getSerialNumber(unsigned char *unique_id, size_t len)
         }
 
         S32 serial_size = serial_str.size();
-        
+
         if(serial_str.size() > 0)
         {
             S32 j = 0;
@@ -401,7 +401,7 @@ S32 LLMachineID::init()
     size_t len = sizeof(static_unique_id);
     memset(static_unique_id, 0, len);
     S32 ret_code = 0;
-#if	LL_WINDOWS
+#if LL_WINDOWS
 
     LLWMIMethods comInit;
 

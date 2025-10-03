@@ -1,28 +1,28 @@
-/** 
+/**
  * @file class1\deferred\cloudsF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2005, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-/*[EXTRA_CODE_HERE]*/ 
+/*[EXTRA_CODE_HERE]*/
 
 out vec4 frag_data[4];
 
@@ -93,7 +93,7 @@ void main()
 
     // And smooth
     alpha1 = 1. - alpha1 * alpha1;
-    alpha1 = 1. - alpha1 * alpha1;  
+    alpha1 = 1. - alpha1 * alpha1;
 
     alpha1 *= altitude_blend_factor;
     alpha1 = clamp(alpha1, 0.0, 1.0);
@@ -105,7 +105,7 @@ void main()
 
     // And smooth
     alpha2 = 1. - alpha2;
-    alpha2 = 1. - alpha2 * alpha2;  
+    alpha2 = 1. - alpha2 * alpha2;
 
     // Combine
     vec3 color;
@@ -114,9 +114,15 @@ void main()
     color.rgb *= 2.0;
 
     /// Gamma correct for WL (soft clip effect).
-    frag_data[0] = vec4(0);
+
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
     frag_data[2] = vec4(0,0,0,GBUFFER_FLAG_SKIP_ATMOS);
+
+#if defined(HAS_EMISSIVE)
+    frag_data[0] = vec4(0);
     frag_data[3] = vec4(color.rgb, alpha1);
+#else
+    frag_data[0] = vec4(color.rgb, alpha1);
+#endif
 }
 

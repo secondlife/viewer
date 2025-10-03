@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2020, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -111,7 +111,7 @@ static const std::string lod_label_name[NUM_LOD + 1] =
     "I went off the end of the lod_label_name array.  Me so smart."
 };
 
-class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
+class LLModelPreview : public LLViewerDynamicTexture, public LLMutex, public LLHandleProvider<LLModelPreview>
 {
     LOG_CLASS(LLModelPreview);
 
@@ -147,7 +147,7 @@ public:
     void setTexture(U32 name) { mTextureName = name; }
 
     void setPhysicsFromLOD(S32 lod);
-    BOOL render();
+    bool render();
     void update();
     void genBuffers(S32 lod, bool skinned);
     void clearBuffers();
@@ -155,7 +155,7 @@ public:
     void rotate(F32 yaw_radians, F32 pitch_radians);
     void zoom(F32 zoom_amt);
     void pan(F32 right, F32 up);
-    virtual BOOL needsRender() { return mNeedsUpdate; }
+    virtual bool needsRender() { return mNeedsUpdate; }
     void setPreviewLOD(S32 lod);
     void clearModel(S32 lod);
     void getJointAliases(JointMap& joint_map);
@@ -190,7 +190,7 @@ public:
     U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
     void setLegacyRigFlags(U32 rigFlags) { mLegacyRigFlags = rigFlags; }
 
-    static void	textureLoadedCallback(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata);
+    static void textureLoadedCallback(bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, bool final, void* userdata);
     static bool lodQueryCallback();
 
     boost::signals2::connection setDetailsCallback(const details_signal_t::slot_type& cb){ return mDetailsSignal.connect(cb); }
@@ -200,32 +200,34 @@ public:
     void setLoadState(U32 state) { mLoadState = state; }
     U32 getLoadState() { return mLoadState; }
 
-    static bool 		sIgnoreLoadedCallback;
+    static bool         sIgnoreLoadedCallback;
     std::vector<S32> mLodsQuery;
     std::vector<S32> mLodsWithParsingError;
     bool mHasDegenerate;
+    bool areTexturesReady() { return !mNumOfFetchingTextures; }
 
 protected:
 
-    static void			loadedCallback(LLModelLoader::scene& scene, LLModelLoader::model_list& model_list, S32 lod, void* opaque);
-    static void			stateChangedCallback(U32 state, void* opaque);
+    static void         loadedCallback(LLModelLoader::scene& scene, LLModelLoader::model_list& model_list, S32 lod, void* opaque);
+    static void         stateChangedCallback(U32 state, void* opaque);
 
-    static LLJoint*	lookupJointByName(const std::string&, void* opaque);
-    static U32			loadTextures(LLImportMaterial& material, void* opaque);
+    static LLJoint* lookupJointByName(const std::string&, void* opaque);
+    static U32          loadTextures(LLImportMaterial& material, LLHandle<LLModelPreview> handle);
 
+    void warnTextureScaling();
     void lookupLODModelFiles(S32 lod);
 
 private:
     //Utility function for controller vertex compare
     bool verifyCount(int expected, int result);
     //Creates the dummy avatar for the preview window
-    void		createPreviewAvatar(void);
+    void        createPreviewAvatar(void);
     //Accessor for the dummy avatar
     LLVOAvatar* getPreviewAvatar(void) { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
     LLVector3   mGroundPlane[4];
-	void		renderGroundPlane(float z_offset = 0.0f);
+    void        renderGroundPlane(float z_offset = 0.0f);
     /// Indicates whether we should warn of high-lod meshes that do not have a corresponding physics mesh.
     /// Reset when resetting the modelpreview (i.e., when the uploader dialog is created or reset), and when
     /// about to process a physics file. Set to true immediately after the file is loaded (before rebuildUploadData()).
@@ -240,7 +242,10 @@ private:
     /// It is set only when the user chooses a physics shape file that contains a mesh with a name that matches DEFAULT_PHYSICS_MESH_NAME.
     /// It is reset when such a name is not found, and when resetting the modelpreview.
     /// Not read unless mWarnOfUnmatchedPhyicsMeshes is true.
-    LLModel* mDefaultPhysicsShapeP{};
+    LLPointer<LLModel> mDefaultPhysicsShapeP;
+
+    S32 mNumOfFetchingTextures;
+    bool mTexturesNeedScaling;
 
     typedef enum
     {
@@ -266,25 +271,25 @@ protected:
 
     LLFloater*  mFMP;
 
-    BOOL        mNeedsUpdate;
-    bool		mDirty;
-    bool		mGenLOD;
+    bool        mNeedsUpdate;
+    bool        mDirty;
+    bool        mGenLOD;
     U32         mTextureName;
-    F32			mCameraDistance;
-    F32			mCameraYaw;
-    F32			mCameraPitch;
-    F32			mCameraZoom;
-    LLVector3	mCameraOffset;
-    LLVector3	mPreviewTarget;
-    LLVector3	mPreviewScale;
-    S32			mPreviewLOD;
-    S32			mPhysicsSearchLOD;
+    F32         mCameraDistance;
+    F32         mCameraYaw;
+    F32         mCameraPitch;
+    F32         mCameraZoom;
+    LLVector3   mCameraOffset;
+    LLVector3   mPreviewTarget;
+    LLVector3   mPreviewScale;
+    S32         mPreviewLOD;
+    S32         mPhysicsSearchLOD;
     std::string mLODFile[LLModel::NUM_LODS];
-    bool		mLoading;
-    U32			mLoadState;
-    bool		mResetJoints;
-    bool		mModelNoErrors;
-    bool		mLookUpLodFiles;
+    bool        mLoading;
+    U32         mLoadState;
+    bool        mResetJoints;
+    bool        mModelNoErrors;
+    bool        mLookUpLodFiles;
 
     std::map<std::string, bool> mViewOption;
 
@@ -303,20 +308,20 @@ protected:
     LLModelLoader::model_list mModel[LLModel::NUM_LODS];
     LLModelLoader::model_list mBaseModel;
 
-    typedef std::vector<LLVolumeFace>		v_LLVolumeFace_t;
-    typedef std::vector<v_LLVolumeFace_t>	vv_LLVolumeFace_t;
+    typedef std::vector<LLVolumeFace>       v_LLVolumeFace_t;
+    typedef std::vector<v_LLVolumeFace_t>   vv_LLVolumeFace_t;
 
     vv_LLVolumeFace_t mModelFacesCopy[LLModel::NUM_LODS];
     vv_LLVolumeFace_t mBaseModelFacesCopy;
 
     U32 mGroup;
-    std::map<LLPointer<LLModel>, U32> mObject;
 
     // Amount of triangles in original(base) model
     U32 mMaxTriangleLimit;
 
     LLMeshUploadThread::instance_list mUploadData;
     std::set<LLViewerFetchedTexture * > mTextureSet;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
 
     //map of vertex buffers to models (one vertex buffer in vector per face in model
     std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS + 1];
@@ -325,22 +330,22 @@ protected:
     model_loaded_signal_t mModelLoadedSignal;
     model_updated_signal_t mModelUpdatedSignal;
 
-    LLVector3	mModelPivot;
-    bool		mHasPivot;
+    LLVector3   mModelPivot;
+    bool        mHasPivot;
 
-    float		mPelvisZOffset;
+    float       mPelvisZOffset;
 
-    bool		mRigValidJointUpload;
-    U32			mLegacyRigFlags;
+    bool        mRigValidJointUpload;
+    U32         mLegacyRigFlags;
 
-    bool		mLastJointUpdate;
-    bool		mFirstSkinUpdate;
+    bool        mLastJointUpdate;
+    bool        mFirstSkinUpdate;
 
-    JointNameSet		mJointsFromNode;
-    JointTransformMap	mJointTransformMap;
+    JointNameSet        mJointsFromNode;
+    JointTransformMap   mJointTransformMap;
 
-    LLPointer<LLVOAvatar>	mPreviewAvatar;
-    LLCachedControl<bool>	mImporterDebug;
+    LLPointer<LLVOAvatar>   mPreviewAvatar;
+    LLCachedControl<bool>   mImporterDebug;
 };
 
 #endif  // LL_LLMODELPREVIEW_H

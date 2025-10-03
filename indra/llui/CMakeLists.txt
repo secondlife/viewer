@@ -18,6 +18,7 @@ set(llui_SOURCE_FILES
     llbadgeowner.cpp
     llbutton.cpp
     llchatentry.cpp
+    llchatmentionhelper.cpp
     llcheckboxctrl.cpp
     llclipboard.cpp
     llcombobox.cpp
@@ -29,6 +30,8 @@ set(llui_SOURCE_FILES
     lldockcontrol.cpp
     lldraghandle.cpp
     lleditmenuhandler.cpp
+    llemojidictionary.cpp
+    llemojihelper.cpp
     llf32uictrl.cpp
     llfiltereditor.cpp
     llflashtimer.cpp
@@ -128,6 +131,7 @@ set(llui_HEADER_FILES
     llcallbackmap.h
     llchatentry.h
     llchat.h
+    llchatmentionhelper.h
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
@@ -139,6 +143,8 @@ set(llui_HEADER_FILES
     lldockablefloater.h
     lldockcontrol.h
     lleditmenuhandler.h
+    llemojidictionary.h
+    llemojihelper.h
     llf32uictrl.h
     llfiltereditor.h 
     llflashtimer.h

@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2022-12-09
  * @brief  Forward declarations for ThreadPool et al.
- * 
+ *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Copyright (c) 2022, Linden Research, Inc.
  * $/LicenseInfo$

@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -31,6 +31,7 @@
 #include "llpanel.h"
 
 // newview
+#include "llaccordionctrltab.h"
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llpanelappearancetab.h"
@@ -40,6 +41,7 @@
 class LLAccordionCtrlTab;
 class LLInventoryCategoriesObserver;
 class LLOutfitListGearMenuBase;
+class LLOutfitListSortMenuBase;
 class LLWearableItemsList;
 class LLListContextMenu;
 
@@ -51,13 +53,24 @@ class LLListContextMenu;
  */
 class LLOutfitTabNameComparator : public LLAccordionCtrl::LLTabComparator
 {
-	LOG_CLASS(LLOutfitTabNameComparator);
+    LOG_CLASS(LLOutfitTabNameComparator);
 
 public:
-	LLOutfitTabNameComparator() {};
-	virtual ~LLOutfitTabNameComparator() {};
+    LLOutfitTabNameComparator() {};
+    virtual ~LLOutfitTabNameComparator() {};
 
-	/*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
+    /*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
+};
+
+class LLOutfitTabFavComparator : public LLAccordionCtrl::LLTabComparator
+{
+    LOG_CLASS(LLOutfitTabFavComparator);
+
+public:
+    LLOutfitTabFavComparator() {};
+    virtual ~LLOutfitTabFavComparator() {};
+
+    /*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
 };
 
 class LLOutfitListBase : public LLPanelAppearanceTab
@@ -69,7 +82,7 @@ public:
     LLOutfitListBase();
     virtual ~LLOutfitListBase();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
 
     void refreshList(const LLUUID& category_id);
@@ -91,6 +104,7 @@ public:
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
     void outfitRightClickCallBack(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 
+    void onAction(const LLSD& userdata);
     virtual bool isActionEnabled(const LLSD& userdata);
     virtual void performAction(std::string action);
     virtual bool hasItemSelected() = 0;
@@ -108,7 +122,14 @@ public:
 
     virtual bool getHasExpandableFolders() = 0;
 
+    virtual void onChangeSortOrder(const LLSD& userdata) = 0;
+
+    virtual void updateMenuItemsVisibility();
+    virtual LLToggleableMenu* getGearMenu();
+    virtual bool getTrashMenuVisible() { return true; };
+
 protected:
+    void observerCallback(const LLUUID& category_id);
     virtual LLOutfitListGearMenuBase* createGearMenu() = 0;
     virtual void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id) = 0;
     virtual void onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid) = 0;
@@ -116,14 +137,30 @@ protected:
     void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
     virtual void onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id) = 0;
 
+    bool isOutfitFolder(LLViewerInventoryCategory* cat) const;
+
+    static void onIdle(void* userdata);
+    void onIdleRefreshList();
+
+    struct
+    {
+        LLUUID                      CategoryUUID;
+        uuid_vec_t                  Added;
+        uuid_vec_t                  Removed;
+        uuid_vec_t::const_iterator  AddedIterator;
+        uuid_vec_t::const_iterator  RemovedIterator;
+    } mRefreshListState;
+    std::set<LLUUID>                mChangedItems;
+
     bool                            mIsInitialized;
-    LLInventoryCategoriesObserver* 	mCategoriesObserver;    
-    LLUUID							mSelectedOutfitUUID;
+    LLInventoryCategoriesObserver*  mCategoriesObserver;
+    LLUUID                          mSelectedOutfitUUID;
     // id of currently highlited outfit
-    LLUUID							mHighlightedOutfitUUID;
-    selection_change_signal_t		mSelectionChangeSignal;
-    LLListContextMenu*				mOutfitMenu;
-    LLOutfitListGearMenuBase*		mGearMenu;
+    LLUUID                          mHighlightedOutfitUUID;
+    selection_change_signal_t       mSelectionChangeSignal;
+    LLListContextMenu*              mOutfitMenu;
+    LLOutfitListGearMenuBase*       mGearMenu;
+    boost::signals2::connection     mGearMenuConnection;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -140,15 +177,18 @@ protected:
     /* virtual */ LLContextMenu* createMenu();
 
     bool onEnable(LLSD::String param);
-
     bool onVisible(LLSD::String param);
 
     static void editOutfit();
 
     static void renameOutfit(const LLUUID& outfit_cat_id);
 
+    void onThumbnail(const LLUUID &outfit_cat_id);
+    void onFavorite(const LLUUID& outfit_cat_id);
+    void onSave(const LLUUID &outfit_cat_id);
+
 private:
-    LLOutfitListBase*	mOutfitList;
+    LLOutfitListBase*   mOutfitList;
 };
 
 class LLOutfitListGearMenuBase
@@ -156,7 +196,7 @@ class LLOutfitListGearMenuBase
 public:
     LLOutfitListGearMenuBase(LLOutfitListBase* olist);
     virtual ~LLOutfitListGearMenuBase();
-    
+
     void updateItemsVisibility();
 
     LLToggleableMenu* getMenu();
@@ -164,12 +204,13 @@ public:
 protected:
     virtual void onUpdateItemsVisibility();
     virtual void onThumbnail();
+    virtual void onFavorite();
     virtual void onChangeSortOrder();
 
     const LLUUID& getSelectedOutfitID();
 
-    LLOutfitListBase*		mOutfitList;
-    LLToggleableMenu*		mMenu;
+    LLOutfitListBase*       mOutfitList;
+    LLToggleableMenu*       mMenu;
 private:
 
     LLViewerInventoryCategory* getSelectedOutfit();
@@ -178,10 +219,28 @@ private:
     void onAdd();
     void onTakeOff();
     void onRename();
+    void onSave();
     void onCreate(const LLSD& data);
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
 };
+
+class LLOutfitListSortMenu
+{
+public:
+    LLOutfitListSortMenu(LLOutfitListBase* parent_panel);
+
+    LLToggleableMenu* getMenu();
+    void updateItemsVisibility();
+
+private:
+    void onUpdateItemsVisibility();
+    bool onEnable(LLSD::String param);
+
+    LLToggleableMenu* mMenu;
+    LLHandle<LLPanel> mPanelHandle;
+};
+
 
 class LLOutfitListGearMenu : public LLOutfitListGearMenuBase
 {
@@ -193,7 +252,40 @@ protected:
     /*virtual*/ void onUpdateItemsVisibility();
 };
 
-/**
+class LLOutfitAccordionCtrlTab : public LLAccordionCtrlTab
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLAccordionCtrlTab::Params>
+    {
+        Optional<LLUUID> cat_id;
+        Params() : cat_id("cat_id") {}
+    };
+
+    virtual void draw();
+    virtual bool handleToolTip(S32 x, S32 y, MASK mask);
+
+    void setFavorite(bool is_favorite);
+    bool getFavorite() const { return mIsFavorite; }
+    void setOutfitSelected(bool val);
+
+    static LLUIImage* sFavoriteIcon;
+    static LLUIColor sFgColor;
+
+ protected:
+    LLOutfitAccordionCtrlTab(const LLOutfitAccordionCtrlTab::Params &p)
+        : LLAccordionCtrlTab(p),
+          mFolderID(p.cat_id)
+    {}
+    friend class LLUICtrlFactory;
+
+    void updateTitleColor();
+    void drawFavoriteIcon();
+
+    LLUUID mFolderID;
+    bool mIsFavorite = false;
+    bool mIsSelected = false;
+};
+  /**
  * @class LLOutfitsList
  *
  * A list of agents's outfits from "My Outfits" inventory category
@@ -206,12 +298,13 @@ class LLOutfitsList : public LLOutfitListBase
 {
 public:
 
-	LLOutfitsList();
-	virtual ~LLOutfitsList();
+    LLOutfitsList();
+    virtual ~LLOutfitsList();
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
+    void initComparator();
 
-	/*virtual*/ void onOpen(const LLSD& info);
+    /*virtual*/ void onOpen(const LLSD& info);
 
 
     //virtual void refreshList(const LLUUID& category_id);
@@ -219,134 +312,137 @@ public:
     /*virtual*/ void updateAddedCategory(LLUUID cat_id);
     /*virtual*/ void updateRemovedCategory(LLUUID cat_id);
 
-	// highlits currently worn outfit tab text and unhighlights previously worn
+    // highlits currently worn outfit tab text and unhighlights previously worn
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
 
-	//void performAction(std::string action);
+    //void performAction(std::string action);
 
 
-	/*virtual*/ void setFilterSubString(const std::string& string);
+    /*virtual*/ void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string);
 
-	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
+    /*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
 
     // Collects selected items from all selected lists and wears them(if possible- adds, else replaces)
-	void wearSelectedItems();
+    void wearSelectedItems();
 
-	/**
-	 * Returns true if there is a selection inside currently selected outfit
-	 */
+    /**
+     * Returns true if there is a selection inside currently selected outfit
+     */
     /*virtual*/ bool hasItemSelected();
 
-	/**
-	Collapses all outfit accordions.
-	*/
-	/*virtual*/ void onCollapseAllFolders();
-	/**
-	Expands all outfit accordions.
-	*/
-	void onExpandAllFolders();
+    /**
+    Collapses all outfit accordions.
+    */
+    /*virtual*/ void onCollapseAllFolders();
+    /**
+    Expands all outfit accordions.
+    */
+    void onExpandAllFolders();
 
-    /*virtual*/ bool getHasExpandableFolders() { return TRUE; }
+    /*virtual*/ bool getHasExpandableFolders() { return true; }
+
+    /*virtual*/ void onChangeSortOrder(const LLSD& userdata);
+    virtual LLToggleableMenu* getSortMenu();
+    void updateMenuItemsVisibility();
 
 protected:
     LLOutfitListGearMenuBase* createGearMenu();
 
 private:
 
-	/**
-	 * Wrapper for LLCommonUtils::computeDifference. @see LLCommonUtils::computeDifference
-	 */
-	//void computeDifference(const LLInventoryModel::cat_array_t& vcats, uuid_vec_t& vadded, uuid_vec_t& vremoved);
+    /**
+     * Wrapper for LLCommonUtils::computeDifference. @see LLCommonUtils::computeDifference
+     */
+    //void computeDifference(const LLInventoryModel::cat_array_t& vcats, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
     void getCurrentCategories(uuid_vec_t& vcur);
 
-	/**
-	 * Updates tab displaying outfit identified by category_id.
-	 */
+    /**
+     * Updates tab displaying outfit identified by category_id.
+     */
     /*virtual*/ void updateChangedCategoryName(LLViewerInventoryCategory *cat, std::string name);
 
     /*virtual*/ void sortOutfits();
 
     /*virtual*/ void onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid);
 
-	/**
-	 * Resets previous selection and stores newly selected list and outfit id.
-	 */
+    /**
+     * Resets previous selection and stores newly selected list and outfit id.
+     */
     /*virtual*/ void onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
-	/**
-	 *Resets items selection inside outfit
-	 */
-	void resetItemSelection(LLWearableItemsList* list, const LLUUID& category_id);
+    /**
+     *Resets items selection inside outfit
+     */
+    void resetItemSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
-	/**
-	 * Removes the outfit from selection.
-	 */
-	/*virtual*/ void deselectOutfit(const LLUUID& category_id);
+    /**
+     * Removes the outfit from selection.
+     */
+    /*virtual*/ void deselectOutfit(const LLUUID& category_id);
 
-	/**
-	 * Try restoring selection for a temporary hidden tab.
-	 *
-	 * A tab may be hidden if it doesn't match current filter.
-	 */
-	void restoreOutfitSelection(LLAccordionCtrlTab* tab, const LLUUID& category_id);
+    /**
+     * Try restoring selection for a temporary hidden tab.
+     *
+     * A tab may be hidden if it doesn't match current filter.
+     */
+    void restoreOutfitSelection(LLAccordionCtrlTab* tab, const LLUUID& category_id);
 
-	/**
-	 * Called upon list refresh event to update tab visibility depending on
-	 * the results of applying filter to the title and list items of the tab.
-	 */
-	void onFilteredWearableItemsListRefresh(LLUICtrl* ctrl);
+    /**
+     * Called upon list refresh event to update tab visibility depending on
+     * the results of applying filter to the title and list items of the tab.
+     */
+    void onRefreshComplete(LLUICtrl* ctrl);
 
-	/**
-	 * Highlights filtered items and hides tabs which haven't passed filter.
-	 */
-	void applyFilter(const std::string& new_filter_substring);
+    /**
+     * Applies filter to the given tab
+     *
+     * @see applyFilter()
+     */
+    void applyFilterToTab(const LLUUID& category_id, LLAccordionCtrlTab* tab, const std::string& filter_substring);
 
-	/**
-	 * Applies filter to the given tab
-	 *
-	 * @see applyFilter()
-	 */
-	void applyFilterToTab(const LLUUID& category_id, LLAccordionCtrlTab* tab, const std::string& filter_substring);
+    /**
+     * Returns true if all selected items can be worn.
+     */
+    bool canWearSelected();
 
-	/**
-	 * Returns true if all selected items can be worn.
-	 */
-	bool canWearSelected();
+    void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+    void onCOFChanged();
 
-	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
-	void onCOFChanged();
-
-	void onListSelectionChange(LLUICtrl* ctrl);
+    void onListSelectionChange(LLUICtrl* ctrl);
 
     /*virtual*/ void onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 
-	static void onOutfitRename(const LLSD& notification, const LLSD& response);
+    static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
-	//LLInventoryCategoriesObserver* 	mCategoriesObserver;
+    void handleInvFavColorChange();
 
-	LLAccordionCtrl*				mAccordion;
-	LLPanel*						mListCommands;
+    //LLInventoryCategoriesObserver*    mCategoriesObserver;
 
-	typedef	std::map<LLUUID, LLWearableItemsList*>		wearables_lists_map_t;
-	typedef wearables_lists_map_t::value_type			wearables_lists_map_value_t;
-	wearables_lists_map_t			mSelectedListsMap;
+    LLAccordionCtrl*                mAccordion;
+    LLPanel*                        mListCommands;
 
-	typedef	std::map<LLUUID, LLAccordionCtrlTab*>		outfits_map_t;
-	typedef outfits_map_t::value_type					outfits_map_value_t;
-	outfits_map_t					mOutfitsMap;
+    typedef std::map<LLUUID, LLWearableItemsList*>      wearables_lists_map_t;
+    typedef wearables_lists_map_t::value_type           wearables_lists_map_value_t;
+    wearables_lists_map_t           mSelectedListsMap;
 
-	// IDs of original items which are worn and linked in COF.
-	// Used to monitor COF changes for updating items worn state. See EXT-8636.
-	uuid_vec_t						mCOFLinkedItems;
+    typedef std::map<LLUUID, LLAccordionCtrlTab*>       outfits_map_t;
+    typedef outfits_map_t::value_type                   outfits_map_value_t;
+    outfits_map_t                   mOutfitsMap;
 
-	//LLOutfitListGearMenu*			mGearMenu;
+    // IDs of original items which are worn and linked in COF.
+    // Used to monitor COF changes for updating items worn state. See EXT-8636.
+    uuid_vec_t                      mCOFLinkedItems;
 
-	//bool							mIsInitialized;
-	/**
-	 * True if there is a selection inside currently selected outfit
-	 */
-	bool							mItemSelected;
+    LLOutfitListSortMenu*         mSortMenu;
+
+    //bool                          mIsInitialized;
+    /**
+     * True if there is a selection inside currently selected outfit
+     */
+    bool                            mItemSelected;
+
+    boost::signals2::connection                   mSavedSettingInvFavColor;
 };
 
 #endif //LL_LLOUTFITSLIST_H

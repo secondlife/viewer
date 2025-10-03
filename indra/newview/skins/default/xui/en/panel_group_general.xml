@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  label="General"
  height="420"
@@ -65,7 +65,7 @@ Hover your mouse over the options for more help.
      width="168" />
     <text
     font="SansSerifMedium"
-    text_color="EmphasisColor"
+    text_color="white"
      type="string"
      follows="left|top"
      height="16"
@@ -75,14 +75,14 @@ Hover your mouse over the options for more help.
      top_pad="10"
      visible="true"
      width="190">
-      Free
+      No charge to join
     </text>
     <button
      follows="left|top"
      left_delta="0"
      top_pad="6"
      height="23"
-     label="JOIN NOW!"
+     label="Join group"
      name="btn_join"
      visible="true"
      width="120" />

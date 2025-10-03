@@ -63,6 +63,7 @@ with the same filename but different name
 
   <texture name="AudioMute_Off" file_name="icons/AudioMute_Off.png" preload="false" />
   <texture name="AudioMute_Over" file_name="icons/AudioMute_Over.png" preload="false" />
+  <texture name="VoiceMute_Off" file_name="icons/VoiceMute_Off.png" preload="false" />
 
   <texture name="Audio_Off" file_name="icons/Audio_Off.png" preload="false" />
   <texture name="Audio_Press" file_name="icons/Audio_Press.png" preload="false" />
@@ -206,6 +207,7 @@ with the same filename but different name
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
+  <texture name="Emoji_Picker_Icon" file_name="icons/emoji_picker_icon.png" preload="true" />
   <texture name="ExternalBrowser_Off" file_name="icons/ExternalBrowser_Off.png" preload="false" />
   <texture name="Edit_Wrench" file_name="icons/Edit_Wrench.png" preload="false" />
 
@@ -213,7 +215,7 @@ with the same filename but different name
 
   <texture name="Presets_Icon" file_name="icons/Presets_Icon.png" preload="true" />
   <texture name="Presets_Icon_Graphic" file_name="icons/Presets_Icon_Graphic.png" preload="true" />
- <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
+  <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
   <texture name="Favorite_Star_Press" file_name="navbar/Favorite_Star_Press.png" preload="false" />
   <texture name="Favorite_Star_Over" file_name="navbar/Favorite_Star_Over.png" preload="false" />
@@ -238,6 +240,8 @@ with the same filename but different name
   <texture name="Generic_Object_Small" file_name="icons/Generic_Object_Small.png" preload="false" />
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
   <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
+
+  <texture name="Group_Notices" file_name="icons/Group_Notices.png" preload="false" />
 
   <texture name="Hand" file_name="icons/hand.png" preload="false" />
   
@@ -302,6 +306,8 @@ with the same filename but different name
   <texture name="Inv_CallingCard" file_name="icons/Inv_CallingCard.png" preload="false" />
   <texture name="Inv_Clothing" file_name="icons/Inv_Clothing.png" preload="false" />
   <texture name="Inv_Eye" file_name="icons/Inv_Eye.png" preload="false" />
+  <texture name="Inv_Favorite_Star_Content" file_name="icons/Inv_Favorite_Star_Content.png" preload="false" />
+  <texture name="Inv_Favorite_Star_Full" file_name="icons/Inv_Favorite_Star_Full.png" preload="false" />
   <texture name="Inv_FolderClosed" file_name="icons/Inv_FolderClosed.png" preload="false" />
   <texture name="Inv_FolderOpen" file_name="icons/Inv_FolderOpen.png" preload="false" />
   <texture name="Inv_Gesture" file_name="icons/Inv_Gesture.png" preload="false" />
@@ -342,7 +348,7 @@ with the same filename but different name
   <texture name="Inv_Underpants" file_name="icons/Inv_Underpants.png" preload="false" />
   <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
   <texture name="Inv_Link" file_name="icons/Inv_Link.png" preload="false" />
-    <texture name="Inv_Settings" file_name="icons/Inv_Settings.png" preload="false" />
+  <texture name="Inv_Settings" file_name="icons/Inv_Settings.png" preload="false" />
   <texture name="Inv_SettingsSky" file_name="icons/Inv_SettingsSky.png" preload="false" />
   <texture name="Inv_SettingsWater" file_name="icons/Inv_SettingsWater.png" preload="false" />
   <texture name="Inv_SettingsDay" file_name="icons/Inv_SettingsDay.png" preload="false" />
@@ -901,4 +907,7 @@ with the same filename but different name
   <texture name="Single_Folder_Back" file_name="icons/single_folder_back.png" preload="true"/>
   <texture name="Single_Folder_Forward" file_name="icons/single_folder_forward.png" preload="true"/>
   <texture name="Single_Folder_Up" file_name="icons/single_folder_up.png" preload="true"/>
+  <texture name="Icon_Color_Palette" file_name="icons/Icon_Color_Palette.png" preload="false"/>
+  <texture name="Icon_Font_Size" file_name="icons/Icon_Font_Size.png" preload="false"/>
+  <texture name="Icon_Pointer" file_name="icons/Icon_Pointer.png" preload="false"/>
 </textures>

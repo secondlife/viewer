@@ -11,7 +11,7 @@ if (WINDOWS OR DARWIN )
   # Kludge for older cmake versions, 3.20+ is needed to use a genex in add_custom_command( OUTPUT <var> ... )
   # Using this will work okay-ish, as Debug is not supported anyway. But for property multi config and also
   # ninja support the genex version is preferred.
-  if(${CMAKE_VERSION} VERSION_LESS "3.20.0")  
+  if(${CMAKE_VERSION} VERSION_LESS "3.20.0")
     if(CMAKE_BUILD_TYPE MATCHES Release)
       set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/Release)
     elseif (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
@@ -19,6 +19,7 @@ if (WINDOWS OR DARWIN )
     endif()
   else()
     set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
+    set(SYMBOLS_STAGING_DIR ${CMAKE_BINARY_DIR}/symbols/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${VIEWER_CHANNEL})
   endif()
 
   if( DARWIN )
@@ -66,13 +67,11 @@ elseif (WINDOWS)
           legacy_stdio_definitions
           )
 else()
-  include(CMakeFindFrameworks)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
   find_library(CARBON_LIBRARY Carbon)
   find_library(COCOA_LIBRARY Cocoa)
   find_library(IOKIT_LIBRARY IOKit)
 
-  find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COREAUDIO_LIBRARY CoreAudio)
 
@@ -81,7 +80,6 @@ else()
           ${IOKIT_LIBRARY}
           ${COREFOUNDATION_LIBRARY}
           ${CARBON_LIBRARY}
-          ${AGL_LIBRARY}
           ${APPKIT_LIBRARY}
           ${COREAUDIO_LIBRARY}
           )

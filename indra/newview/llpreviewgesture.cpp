@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpreviewgesture.cpp
  * @brief Editing UI for inventory-based gestures.
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -64,963 +64,971 @@ void dialog_refresh_all();
 class LLInventoryGestureAvailable : public LLInventoryCompletionObserver
 {
 public:
-	LLInventoryGestureAvailable() {}
+    LLInventoryGestureAvailable() {}
 
 protected:
-	virtual void done();
+    virtual void done();
 };
 
 void LLInventoryGestureAvailable::done()
 {
-	for(uuid_vec_t::iterator it = mComplete.begin(); it != mComplete.end(); ++it)
-	{
-		LLPreviewGesture* preview = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", *it);
-		if(preview)
-		{
-			preview->refresh();
-		}
-	}
-	gInventory.removeObserver(this);
-	delete this;
+    for(uuid_vec_t::iterator it = mComplete.begin(); it != mComplete.end(); ++it)
+    {
+        LLPreviewGesture* preview = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", *it);
+        if(preview)
+        {
+            preview->refresh();
+        }
+    }
+    gInventory.removeObserver(this);
+    delete this;
 }
 
 // Used for sorting
 struct SortItemPtrsByName
 {
-	bool operator()(const LLInventoryItem* i1, const LLInventoryItem* i2)
-	{
-		return (LLStringUtil::compareDict(i1->getName(), i2->getName()) < 0);
-	}
+    bool operator()(const LLInventoryItem* i1, const LLInventoryItem* i2)
+    {
+        return (LLStringUtil::compareDict(i1->getName(), i2->getName()) < 0);
+    }
 };
 
 // static
 LLPreviewGesture* LLPreviewGesture::show(const LLUUID& item_id, const LLUUID& object_id)
 {
-	LLPreviewGesture* preview = LLFloaterReg::showTypedInstance<LLPreviewGesture>("preview_gesture", LLSD(item_id), TAKE_FOCUS_YES);
-	if (!preview)
-	{
-		return NULL;
-	}
-	
-	preview->setObjectID(object_id);
-	
-	// Start speculative download of sounds and animations
-	const LLUUID animation_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ANIMATION);
-	LLInventoryModelBackgroundFetch::instance().start(animation_folder_id);
+    LLPreviewGesture* preview = LLFloaterReg::showTypedInstance<LLPreviewGesture>("preview_gesture", LLSD(item_id), TAKE_FOCUS_YES);
+    if (!preview)
+    {
+        return NULL;
+    }
 
-	const LLUUID sound_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SOUND);
-	LLInventoryModelBackgroundFetch::instance().start(sound_folder_id);
+    preview->setObjectID(object_id);
 
-	// this will call refresh when we have everything.
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)preview->getItem();
-	if (item && !item->isFinished())
-	{
-		LLInventoryGestureAvailable* observer;
-		observer = new LLInventoryGestureAvailable();
-		observer->watchItem(item_id);
-		gInventory.addObserver(observer);
-		item->fetchFromServer();
-	}
-	else
-	{
-		// not sure this is necessary.
-		preview->refresh();
-	}
+    // Start speculative download of sounds and animations
+    const LLUUID animation_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ANIMATION);
+    LLInventoryModelBackgroundFetch::instance().start(animation_folder_id);
 
-	return preview;
+    const LLUUID sound_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SOUND);
+    LLInventoryModelBackgroundFetch::instance().start(sound_folder_id);
+
+    // this will call refresh when we have everything.
+    LLViewerInventoryItem* item = (LLViewerInventoryItem*)preview->getItem();
+    if (item && !item->isFinished())
+    {
+        LLInventoryGestureAvailable* observer;
+        observer = new LLInventoryGestureAvailable();
+        observer->watchItem(item_id);
+        gInventory.addObserver(observer);
+        item->fetchFromServer();
+    }
+    else
+    {
+        // not sure this is necessary.
+        preview->refresh();
+    }
+
+    return preview;
 }
 
 void LLPreviewGesture::draw()
 {
-	// Skip LLPreview::draw() to avoid description update
-	LLFloater::draw();
+    // Skip LLPreview::draw() to avoid description update
+    LLFloater::draw();
 }
 
 // virtual
-BOOL LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
+bool LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
 {
-	if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
-	{
-		saveIfNeeded();
-		return TRUE;
-	}
+    if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
+    {
+        saveIfNeeded();
+        return true;
+    }
 
-	return LLPreview::handleKeyHere(key, mask);
-}
-
-
-// virtual
-BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-										 EDragAndDropType cargo_type,
-										 void* cargo_data,
-										 EAcceptance* accept,
-										 std::string& tooltip_msg)
-{
-	BOOL handled = TRUE;
-	switch(cargo_type)
-	{
-	case DAD_ANIMATION:
-	case DAD_SOUND:
-		{
-			// TODO: Don't allow this if you can't transfer the sound/animation
-
-			// make a script step
-			LLInventoryItem* item = (LLInventoryItem*)cargo_data;
-			if (item
-				&& gInventory.getItem(item->getUUID()))
-			{
-				LLPermissions perm = item->getPermissions();
-				if (!((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED))
-				{
-					*accept = ACCEPT_NO;
-					if (tooltip_msg.empty())
-					{
-						tooltip_msg.assign("Only animations and sounds\n"
-											"with unrestricted permissions\n"
-											"can be added to a gesture.");
-					}
-					break;
-				}
-				else if (drop)
-				{
-					LLScrollListItem* line = NULL;
-					if (cargo_type == DAD_ANIMATION)
-					{
-						line = addStep( STEP_ANIMATION );
-						LLGestureStepAnimation* anim = (LLGestureStepAnimation*)line->getUserdata();
-						anim->mAnimAssetID = item->getAssetUUID();
-						anim->mAnimName = item->getName();
-					}
-					else if (cargo_type == DAD_SOUND)
-					{
-						line = addStep( STEP_SOUND );
-						LLGestureStepSound* sound = (LLGestureStepSound*)line->getUserdata();
-						sound->mSoundAssetID = item->getAssetUUID();
-						sound->mSoundName = item->getName();
-					}
-					updateLabel(line);
-					mDirty = TRUE;
-					refresh();
-				}
-				*accept = ACCEPT_YES_COPY_MULTI;
-			}
-			else
-			{
-				// Not in user's inventory means it was in object inventory
-				*accept = ACCEPT_NO;
-			}
-			break;
-		}
-	default:
-		*accept = ACCEPT_NO;
-		if (tooltip_msg.empty())
-		{
-			tooltip_msg.assign("Only animations and sounds\n"
-								"can be added to a gesture.");
-		}
-		break;
-	}
-	return handled;
+    return LLPreview::handleKeyHere(key, mask);
 }
 
 
 // virtual
-BOOL LLPreviewGesture::canClose()
+bool LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
+                                         EDragAndDropType cargo_type,
+                                         void* cargo_data,
+                                         EAcceptance* accept,
+                                         std::string& tooltip_msg)
+{
+    bool handled = true;
+    switch(cargo_type)
+    {
+    case DAD_ANIMATION:
+    case DAD_SOUND:
+        {
+            // TODO: Don't allow this if you can't transfer the sound/animation
+
+            // make a script step
+            LLInventoryItem* item = (LLInventoryItem*)cargo_data;
+            if (item
+                && gInventory.getItem(item->getUUID()))
+            {
+                LLPermissions perm = item->getPermissions();
+                if (!((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED))
+                {
+                    *accept = ACCEPT_NO;
+                    if (tooltip_msg.empty())
+                    {
+                        tooltip_msg.assign("Only animations and sounds\n"
+                                            "with unrestricted permissions\n"
+                                            "can be added to a gesture.");
+                    }
+                    break;
+                }
+                else if (drop)
+                {
+                    LLScrollListItem* line = NULL;
+                    if (cargo_type == DAD_ANIMATION)
+                    {
+                        line = addStep( STEP_ANIMATION );
+                        LLGestureStepAnimation* anim = (LLGestureStepAnimation*)line->getUserdata();
+                        anim->mAnimAssetID = item->getAssetUUID();
+                        anim->mAnimName = item->getName();
+                    }
+                    else if (cargo_type == DAD_SOUND)
+                    {
+                        line = addStep( STEP_SOUND );
+                        LLGestureStepSound* sound = (LLGestureStepSound*)line->getUserdata();
+                        sound->mSoundAssetID = item->getAssetUUID();
+                        sound->mSoundName = item->getName();
+                    }
+                    updateLabel(line);
+                    mDirty = true;
+                    refresh();
+                }
+                *accept = ACCEPT_YES_COPY_MULTI;
+            }
+            else
+            {
+                // Not in user's inventory means it was in object inventory
+                *accept = ACCEPT_NO;
+            }
+            break;
+        }
+    default:
+        *accept = ACCEPT_NO;
+        if (tooltip_msg.empty())
+        {
+            tooltip_msg.assign("Only animations and sounds\n"
+                                "can be added to a gesture.");
+        }
+        break;
+    }
+    return handled;
+}
+
+
+// virtual
+bool LLPreviewGesture::canClose()
 {
 
-	if(!mDirty || mForceClose)
-	{
-		return TRUE;
-	}
-	else
-	{
-		if(!mSaveDialogShown)
-		{
-			mSaveDialogShown = TRUE;
-			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-			LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
-					boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
-		}
-		return FALSE;
-	}
+    if(!mDirty || mForceClose)
+    {
+        return true;
+    }
+    else
+    {
+        if(!mSaveDialogShown)
+        {
+            mSaveDialogShown = true;
+            // Bring up view-modal dialog: Save changes? Yes, No, Cancel
+            LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
+                    boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
+        }
+        return false;
+    }
 }
 
 // virtual
 void LLPreviewGesture::onClose(bool app_quitting)
 {
-	LLGestureMgr::instance().stopGesture(mPreviewGesture);
+    LLGestureMgr::instance().stopGesture(mPreviewGesture);
 }
 
 // virtual
 void LLPreviewGesture::onUpdateSucceeded()
 {
-	refresh();
+    refresh();
 }
 
 void LLPreviewGesture::onVisibilityChanged ( const LLSD& new_visibility )
 {
-	if (new_visibility.asBoolean())
-	{
-		refresh();
-	}
+    if (new_visibility.asBoolean())
+    {
+        refresh();
+    }
 }
 
 
 bool LLPreviewGesture::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
-	mSaveDialogShown = FALSE;
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	switch(option)
-	{
-	case 0:  // "Yes"
-		LLGestureMgr::instance().stopGesture(mPreviewGesture);
-		mCloseAfterSave = TRUE;
-		onClickSave(this);
-		break;
+    mSaveDialogShown = false;
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    switch(option)
+    {
+    case 0:  // "Yes"
+        LLGestureMgr::instance().stopGesture(mPreviewGesture);
+        mCloseAfterSave = true;
+        onClickSave(this);
+        break;
 
-	case 1:  // "No"
-		LLGestureMgr::instance().stopGesture(mPreviewGesture);
-		mDirty = FALSE; // Force the dirty flag because user has clicked NO on confirm save dialog...
-		closeFloater();
-		break;
+    case 1:  // "No"
+        LLGestureMgr::instance().stopGesture(mPreviewGesture);
+        mDirty = false; // Force the dirty flag because user has clicked NO on confirm save dialog...
+        closeFloater();
+        break;
 
-	case 2: // "Cancel"
-	default:
-		// If we were quitting, we didn't really mean it.
-		LLAppViewer::instance()->abortQuit();
-		break;
-	}
-	return false;
+    case 2: // "Cancel"
+    default:
+        // If we were quitting, we didn't really mean it.
+        LLAppViewer::instance()->abortQuit();
+        break;
+    }
+    return false;
 }
 
 
 LLPreviewGesture::LLPreviewGesture(const LLSD& key)
-:	LLPreview(key),
-	mTriggerEditor(NULL),
-	mModifierCombo(NULL),
-	mKeyCombo(NULL),
-	mLibraryList(NULL),
-	mAddBtn(NULL),
-	mUpBtn(NULL),
-	mDownBtn(NULL),
-	mDeleteBtn(NULL),
-	mStepList(NULL),
-	mOptionsText(NULL),
-	mAnimationRadio(NULL),
-	mAnimationCombo(NULL),
-	mSoundCombo(NULL),
-	mChatEditor(NULL),
-	mSaveBtn(NULL),
-	mPreviewBtn(NULL),
-	mPreviewGesture(NULL),
-	mDirty(FALSE)
+:   LLPreview(key),
+    mTriggerEditor(NULL),
+    mModifierCombo(NULL),
+    mKeyCombo(NULL),
+    mLibraryList(NULL),
+    mAddBtn(NULL),
+    mUpBtn(NULL),
+    mDownBtn(NULL),
+    mDeleteBtn(NULL),
+    mStepList(NULL),
+    mOptionsText(NULL),
+    mAnimationRadio(NULL),
+    mAnimationCombo(NULL),
+    mSoundCombo(NULL),
+    mChatEditor(NULL),
+    mSaveBtn(NULL),
+    mPreviewBtn(NULL),
+    mPreviewGesture(NULL),
+    mDirty(false)
 {
-	NONE_LABEL =  LLTrans::getString("---");
-	SHIFT_LABEL = LLTrans::getString("KBShift");
-	CTRL_LABEL = LLTrans::getString("KBCtrl");
+    NONE_LABEL =  LLTrans::getString("---");
+    SHIFT_LABEL = LLTrans::getString("KBShift");
+    CTRL_LABEL = LLTrans::getString("KBCtrl");
 }
 
 
 LLPreviewGesture::~LLPreviewGesture()
 {
-	// Userdata for all steps is a LLGestureStep we need to clean up
-	std::vector<LLScrollListItem*> data_list = mStepList->getAllData();
-	std::vector<LLScrollListItem*>::iterator data_itor;
-	for (data_itor = data_list.begin(); data_itor != data_list.end(); ++data_itor)
-	{
-		LLScrollListItem* item = *data_itor;
-		LLGestureStep* step = (LLGestureStep*)item->getUserdata();
-		delete step;
-		step = NULL;
-	}
+    // Userdata for all steps is a LLGestureStep we need to clean up
+    std::vector<LLScrollListItem*> data_list = mStepList->getAllData();
+    std::vector<LLScrollListItem*>::iterator data_itor;
+    for (data_itor = data_list.begin(); data_itor != data_list.end(); ++data_itor)
+    {
+        LLScrollListItem* item = *data_itor;
+        LLGestureStep* step = (LLGestureStep*)item->getUserdata();
+        delete step;
+        step = NULL;
+    }
 }
 
 
-BOOL LLPreviewGesture::postBuild()
+bool LLPreviewGesture::postBuild()
 {
-	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
-	
-	LLLineEditor* edit;
-	LLComboBox* combo;
-	LLButton* btn;
-	LLScrollListCtrl* list;
-	LLTextBox* text;
-	LLCheckBoxCtrl* check;
+    setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
 
-	edit = getChild<LLLineEditor>("desc");
-	edit->setKeystrokeCallback(onKeystrokeCommit, this);
+    LLLineEditor* edit;
+    LLComboBox* combo;
+    LLButton* btn;
+    LLScrollListCtrl* list;
+    LLTextBox* text;
+    LLCheckBoxCtrl* check;
 
-	edit = getChild<LLLineEditor>("trigger_editor");
-	edit->setKeystrokeCallback(onKeystrokeCommit, this);
-	edit->setCommitCallback(onCommitSetDirty, this);
-	edit->setCommitOnFocusLost(TRUE);
-	edit->setIgnoreTab(TRUE);
-	mTriggerEditor = edit;
+    edit = getChild<LLLineEditor>("desc");
+    edit->setKeystrokeCallback(onKeystrokeCommit, this);
 
-	text = getChild<LLTextBox>("replace_text");
-	text->setEnabled(FALSE);
-	mReplaceText = text;
+    edit = getChild<LLLineEditor>("trigger_editor");
+    edit->setKeystrokeCallback(onKeystrokeCommit, this);
+    edit->setCommitCallback(onCommitSetDirty, this);
+    edit->setCommitOnFocusLost(true);
+    edit->setIgnoreTab(true);
+    mTriggerEditor = edit;
 
-	edit = getChild<LLLineEditor>("replace_editor");
-	edit->setEnabled(FALSE);
-	edit->setKeystrokeCallback(onKeystrokeCommit, this);
-	edit->setCommitCallback(onCommitSetDirty, this);
-	edit->setCommitOnFocusLost(TRUE);
-	edit->setIgnoreTab(TRUE);
-	mReplaceEditor = edit;
+    text = getChild<LLTextBox>("replace_text");
+    text->setEnabled(false);
+    mReplaceText = text;
 
-	combo = getChild<LLComboBox>( "modifier_combo");
-	combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
-	mModifierCombo = combo;
+    edit = getChild<LLLineEditor>("replace_editor");
+    edit->setEnabled(false);
+    edit->setKeystrokeCallback(onKeystrokeCommit, this);
+    edit->setCommitCallback(onCommitSetDirty, this);
+    edit->setCommitOnFocusLost(true);
+    edit->setIgnoreTab(true);
+    mReplaceEditor = edit;
 
-	combo = getChild<LLComboBox>( "key_combo");
-	combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
-	mKeyCombo = combo;
+    combo = getChild<LLComboBox>( "modifier_combo");
+    combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
+    mModifierCombo = combo;
 
-	list = getChild<LLScrollListCtrl>("library_list");
-	list->setCommitCallback(onCommitLibrary, this);
-	list->setDoubleClickCallback(onClickAdd, this);
-	mLibraryList = list;
+    combo = getChild<LLComboBox>( "key_combo");
+    combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
+    mKeyCombo = combo;
 
-	btn = getChild<LLButton>( "add_btn");
-	btn->setClickedCallback(onClickAdd, this);
-	btn->setEnabled(FALSE);
-	mAddBtn = btn;
+    list = getChild<LLScrollListCtrl>("library_list");
+    list->setCommitCallback(onCommitLibrary, this);
+    list->setDoubleClickCallback(onClickAdd, this);
+    mLibraryList = list;
 
-	btn = getChild<LLButton>( "up_btn");
-	btn->setClickedCallback(onClickUp, this);
-	btn->setEnabled(FALSE);
-	mUpBtn = btn;
+    btn = getChild<LLButton>( "add_btn");
+    btn->setClickedCallback(onClickAdd, this);
+    btn->setEnabled(false);
+    mAddBtn = btn;
 
-	btn = getChild<LLButton>( "down_btn");
-	btn->setClickedCallback(onClickDown, this);
-	btn->setEnabled(FALSE);
-	mDownBtn = btn;
+    btn = getChild<LLButton>( "up_btn");
+    btn->setClickedCallback(onClickUp, this);
+    btn->setEnabled(false);
+    mUpBtn = btn;
 
-	btn = getChild<LLButton>( "delete_btn");
-	btn->setClickedCallback(onClickDelete, this);
-	btn->setEnabled(FALSE);
-	mDeleteBtn = btn;
+    btn = getChild<LLButton>( "down_btn");
+    btn->setClickedCallback(onClickDown, this);
+    btn->setEnabled(false);
+    mDownBtn = btn;
 
-	list = getChild<LLScrollListCtrl>("step_list");
-	list->setCommitCallback(onCommitStep, this);
-	mStepList = list;
+    btn = getChild<LLButton>( "delete_btn");
+    btn->setClickedCallback(onClickDelete, this);
+    btn->setEnabled(false);
+    mDeleteBtn = btn;
 
-	// Options
-	mOptionsText = getChild<LLTextBox>("options_text");
+    list = getChild<LLScrollListCtrl>("step_list");
+    list->setCommitCallback(onCommitStep, this);
+    mStepList = list;
 
-	combo = getChild<LLComboBox>( "animation_list");
-	combo->setVisible(FALSE);
-	combo->setCommitCallback(onCommitAnimation, this);
-	mAnimationCombo = combo;
+    // Options
+    mOptionsText = getChild<LLTextBox>("options_text");
 
-	LLRadioGroup* group;
-	group = getChild<LLRadioGroup>("animation_trigger_type");
-	group->setVisible(FALSE);
-	group->setCommitCallback(onCommitAnimationTrigger, this);
-	mAnimationRadio = group;
+    combo = getChild<LLComboBox>( "animation_list");
+    combo->setVisible(false);
+    combo->setCommitCallback(onCommitAnimation, this);
+    mAnimationCombo = combo;
 
-	combo = getChild<LLComboBox>( "sound_list");
-	combo->setVisible(FALSE);
-	combo->setCommitCallback(onCommitSound, this);
-	mSoundCombo = combo;
+    LLRadioGroup* group;
+    group = getChild<LLRadioGroup>("animation_trigger_type");
+    group->setVisible(false);
+    group->setCommitCallback(onCommitAnimationTrigger, this);
+    mAnimationRadio = group;
 
-	edit = getChild<LLLineEditor>("chat_editor");
-	edit->setVisible(FALSE);
-	edit->setCommitCallback(onCommitChat, this);
-	//edit->setKeystrokeCallback(onKeystrokeCommit, this);
-	edit->setCommitOnFocusLost(TRUE);
-	edit->setIgnoreTab(TRUE);
-	mChatEditor = edit;
+    combo = getChild<LLComboBox>( "sound_list");
+    combo->setVisible(false);
+    combo->setCommitCallback(onCommitSound, this);
+    mSoundCombo = combo;
 
-	check = getChild<LLCheckBoxCtrl>( "wait_anim_check");
-	check->setVisible(FALSE);
-	check->setCommitCallback(onCommitWait, this);
-	mWaitAnimCheck = check;
+    edit = getChild<LLLineEditor>("chat_editor");
+    edit->setVisible(false);
+    edit->setCommitCallback(onCommitChat, this);
+    //edit->setKeystrokeCallback(onKeystrokeCommit, this);
+    edit->setCommitOnFocusLost(true);
+    edit->setIgnoreTab(true);
+    mChatEditor = edit;
 
-	check = getChild<LLCheckBoxCtrl>( "wait_time_check");
-	check->setVisible(FALSE);
-	check->setCommitCallback(onCommitWait, this);
-	mWaitTimeCheck = check;
+    check = getChild<LLCheckBoxCtrl>( "wait_key_release_check");
+    check->setVisible(false);
+    check->setCommitCallback(onCommitWait, this);
+    mWaitKeyReleaseCheck = check;
 
-	edit = getChild<LLLineEditor>("wait_time_editor");
-	edit->setEnabled(FALSE);
-	edit->setVisible(FALSE);
-	edit->setPrevalidate(LLTextValidate::validateFloat);
-//	edit->setKeystrokeCallback(onKeystrokeCommit, this);
-	edit->setCommitOnFocusLost(TRUE);
-	edit->setCommitCallback(onCommitWaitTime, this);
-	edit->setIgnoreTab(TRUE);
-	mWaitTimeEditor = edit;
+    check = getChild<LLCheckBoxCtrl>( "wait_anim_check");
+    check->setVisible(false);
+    check->setCommitCallback(onCommitWait, this);
+    mWaitAnimCheck = check;
 
-	// Buttons at the bottom
-	check = getChild<LLCheckBoxCtrl>( "active_check");
-	check->setCommitCallback(onCommitActive, this);
-	mActiveCheck = check;
+    check = getChild<LLCheckBoxCtrl>( "wait_time_check");
+    check->setVisible(false);
+    check->setCommitCallback(onCommitWait, this);
+    mWaitTimeCheck = check;
 
-	btn = getChild<LLButton>( "save_btn");
-	btn->setClickedCallback(onClickSave, this);
-	mSaveBtn = btn;
+    edit = getChild<LLLineEditor>("wait_time_editor");
+    edit->setEnabled(false);
+    edit->setVisible(false);
+    edit->setPrevalidate(LLTextValidate::validateFloat);
+//  edit->setKeystrokeCallback(onKeystrokeCommit, this);
+    edit->setCommitOnFocusLost(true);
+    edit->setCommitCallback(onCommitWaitTime, this);
+    edit->setIgnoreTab(true);
+    mWaitTimeEditor = edit;
 
-	btn = getChild<LLButton>( "preview_btn");
-	btn->setClickedCallback(onClickPreview, this);
-	mPreviewBtn = btn;
+    // Buttons at the bottom
+    check = getChild<LLCheckBoxCtrl>( "active_check");
+    check->setCommitCallback(onCommitActive, this);
+    mActiveCheck = check;
+
+    btn = getChild<LLButton>( "save_btn");
+    btn->setClickedCallback(onClickSave, this);
+    mSaveBtn = btn;
+
+    btn = getChild<LLButton>( "preview_btn");
+    btn->setClickedCallback(onClickPreview, this);
+    mPreviewBtn = btn;
 
 
-	// Populate the comboboxes
-	addModifiers();
-	addKeys();
-	addAnimations();
-	addSounds();
+    // Populate the comboboxes
+    addModifiers();
+    addKeys();
+    addAnimations();
+    addSounds();
 
-	const LLInventoryItem* item = getItem();
+    const LLInventoryItem* item = getItem();
 
-	if (item) 
-	{
-		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
-		getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
-	}
+    if (item)
+    {
+        getChild<LLUICtrl>("desc")->setValue(item->getDescription());
+        getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
+    }
 
-	return LLPreview::postBuild();
+    return LLPreview::postBuild();
 }
 
 
 void LLPreviewGesture::addModifiers()
 {
-	LLComboBox* combo = mModifierCombo;
+    LLComboBox* combo = mModifierCombo;
 
-	combo->add( NONE_LABEL,  ADD_BOTTOM );
-	combo->add( SHIFT_LABEL, ADD_BOTTOM );
-	combo->add( CTRL_LABEL,  ADD_BOTTOM );
-	combo->setCurrentByIndex(0);
+    combo->add( NONE_LABEL,  ADD_BOTTOM );
+    combo->add( SHIFT_LABEL, ADD_BOTTOM );
+    combo->add( CTRL_LABEL,  ADD_BOTTOM );
+    combo->setCurrentByIndex(0);
 }
 
 void LLPreviewGesture::addKeys()
 {
-	LLComboBox* combo = mKeyCombo;
+    LLComboBox* combo = mKeyCombo;
 
-	combo->add( NONE_LABEL );
-	for (KEY key = KEY_F2; key <= KEY_F12; key++)
-	{
-		combo->add( LLKeyboard::stringFromKey(key), ADD_BOTTOM );
-	}
-	combo->setCurrentByIndex(0);
+    combo->add( NONE_LABEL );
+    for (KEY key = KEY_F2; key <= KEY_F12; key++)
+    {
+        combo->add( LLKeyboard::stringFromKey(key), ADD_BOTTOM );
+    }
+    combo->setCurrentByIndex(0);
 }
 
 
 // TODO: Sort the legacy and non-legacy together?
 void LLPreviewGesture::addAnimations()
 {
-	LLComboBox* combo = mAnimationCombo;
+    LLComboBox* combo = mAnimationCombo;
+    LLUUID old_value = combo->getCurrentID();
 
-	combo->removeall();
-	
-	std::string none_text = getString("none_text");
+    combo->removeall();
 
-	combo->add(none_text, LLUUID::null);
+    std::string none_text = getString("none_text");
 
-	// Add all the default (legacy) animations
-	S32 i;
-	for (i = 0; i < gUserAnimStatesCount; ++i)
-	{
-		// Use the user-readable name
-		std::string label = LLAnimStateLabels::getStateLabel( gUserAnimStates[i].mName );
-		const LLUUID& id = gUserAnimStates[i].mID;
-		combo->add(label, id);
-	}
+    combo->add(none_text, LLUUID::null);
 
-	// Get all inventory items that are animations
-	LLViewerInventoryCategory::cat_array_t cats;
-	LLViewerInventoryItem::item_array_t items;
-	LLIsTypeWithPermissions is_copyable_animation(LLAssetType::AT_ANIMATION,
-													PERM_ITEM_UNRESTRICTED,
-													gAgent.getID(),
-													gAgent.getGroupID());
-	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-									cats,
-									items,
-									LLInventoryModel::EXCLUDE_TRASH,
-									is_copyable_animation);
+    // Add all the default (legacy) animations
+    S32 i;
+    for (i = 0; i < gUserAnimStatesCount; ++i)
+    {
+        // Use the user-readable name
+        std::string label = LLAnimStateLabels::getStateLabel( gUserAnimStates[i].mName );
+        const LLUUID& id = gUserAnimStates[i].mID;
+        combo->add(label, id);
+    }
 
-	// Copy into something we can sort
-	std::vector<LLInventoryItem*> animations;
+    // Get all inventory items that are animations
+    LLViewerInventoryCategory::cat_array_t cats;
+    LLViewerInventoryItem::item_array_t items;
+    LLIsTypeWithPermissions is_copyable_animation(LLAssetType::AT_ANIMATION,
+                                                    PERM_ITEM_UNRESTRICTED,
+                                                    gAgent.getID(),
+                                                    gAgent.getGroupID());
+    gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+                                    cats,
+                                    items,
+                                    LLInventoryModel::EXCLUDE_TRASH,
+                                    is_copyable_animation);
 
-	S32 count = items.size();
-	for(i = 0; i < count; ++i)
-	{
-		animations.push_back( items.at(i) );
-	}
+    // Copy into something we can sort
+    std::vector<LLInventoryItem*> animations;
+    for (auto& item : items)
+    {
+        animations.emplace_back(item);
+    }
 
-	// Do the sort
-	std::sort(animations.begin(), animations.end(), SortItemPtrsByName());
+    // Do the sort
+    std::sort(animations.begin(), animations.end(), SortItemPtrsByName());
 
-	// And load up the combobox
-	std::vector<LLInventoryItem*>::iterator it;
-	for (it = animations.begin(); it != animations.end(); ++it)
-	{
-		LLInventoryItem* item = *it;
+    // And load up the combobox
+    std::vector<LLInventoryItem*>::iterator it;
+    for (it = animations.begin(); it != animations.end(); ++it)
+    {
+        LLInventoryItem* item = *it;
 
-		combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
-	}
+        combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
+    }
+
+    combo->setCurrentByID(old_value);
 }
 
 
 void LLPreviewGesture::addSounds()
 {
-	LLComboBox* combo = mSoundCombo;
-	combo->removeall();
-	
-	std::string none_text = getString("none_text");
+    LLComboBox* combo = mSoundCombo;
+    combo->removeall();
 
-	combo->add(none_text, LLUUID::null);
+    std::string none_text = getString("none_text");
 
-	// Get all inventory items that are sounds
-	LLViewerInventoryCategory::cat_array_t cats;
-	LLViewerInventoryItem::item_array_t items;
-	LLIsTypeWithPermissions is_copyable_sound(LLAssetType::AT_SOUND,
-													PERM_ITEM_UNRESTRICTED,
-													gAgent.getID(),
-													gAgent.getGroupID());
-	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-									cats,
-									items,
-									LLInventoryModel::EXCLUDE_TRASH,
-									is_copyable_sound);
+    combo->add(none_text, LLUUID::null);
 
-	// Copy sounds into something we can sort
-	std::vector<LLInventoryItem*> sounds;
+    // Get all inventory items that are sounds
+    LLViewerInventoryCategory::cat_array_t cats;
+    LLViewerInventoryItem::item_array_t items;
+    LLIsTypeWithPermissions is_copyable_sound(LLAssetType::AT_SOUND,
+                                                    PERM_ITEM_UNRESTRICTED,
+                                                    gAgent.getID(),
+                                                    gAgent.getGroupID());
+    gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+                                    cats,
+                                    items,
+                                    LLInventoryModel::EXCLUDE_TRASH,
+                                    is_copyable_sound);
 
-	S32 i;
-	S32 count = items.size();
-	for(i = 0; i < count; ++i)
-	{
-		sounds.push_back( items.at(i) );
-	}
+    // Copy sounds into something we can sort
+    std::vector<LLInventoryItem*> sounds;
+    for (auto& item : items)
+    {
+        sounds.emplace_back(item);
+    }
 
-	// Do the sort
-	std::sort(sounds.begin(), sounds.end(), SortItemPtrsByName());
+    // Do the sort
+    std::sort(sounds.begin(), sounds.end(), SortItemPtrsByName());
 
-	// And load up the combobox
-	std::vector<LLInventoryItem*>::iterator it;
-	for (it = sounds.begin(); it != sounds.end(); ++it)
-	{
-		LLInventoryItem* item = *it;
+    // And load up the combobox
+    std::vector<LLInventoryItem*>::iterator it;
+    for (it = sounds.begin(); it != sounds.end(); ++it)
+    {
+        LLInventoryItem* item = *it;
 
-		combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
-	}
+        combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
+    }
 }
 
 
 void LLPreviewGesture::refresh()
 {
-	LLPreview::refresh();
-	// If previewing or item is incomplete, all controls are disabled
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
-	bool is_complete = (item && item->isFinished()) ? true : false;
-	if (mPreviewGesture || !is_complete)
-	{
-		
-		getChildView("desc")->setEnabled(FALSE);
-		//mDescEditor->setEnabled(FALSE);
-		mTriggerEditor->setEnabled(FALSE);
-		mReplaceText->setEnabled(FALSE);
-		mReplaceEditor->setEnabled(FALSE);
-		mModifierCombo->setEnabled(FALSE);
-		mKeyCombo->setEnabled(FALSE);
-		mLibraryList->setEnabled(FALSE);
-		mAddBtn->setEnabled(FALSE);
-		mUpBtn->setEnabled(FALSE);
-		mDownBtn->setEnabled(FALSE);
-		mDeleteBtn->setEnabled(FALSE);
-		mStepList->setEnabled(FALSE);
-		mOptionsText->setEnabled(FALSE);
-		mAnimationCombo->setEnabled(FALSE);
-		mAnimationRadio->setEnabled(FALSE);
-		mSoundCombo->setEnabled(FALSE);
-		mChatEditor->setEnabled(FALSE);
-		mWaitAnimCheck->setEnabled(FALSE);
-		mWaitTimeCheck->setEnabled(FALSE);
-		mWaitTimeEditor->setEnabled(FALSE);
-		mActiveCheck->setEnabled(FALSE);
-		mSaveBtn->setEnabled(FALSE);
+    LLPreview::refresh();
+    // If previewing or item is incomplete, all controls are disabled
+    LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
+    bool is_complete = item && item->isFinished();
+    if (mPreviewGesture || !is_complete)
+    {
 
-		// Make sure preview button is enabled, so we can stop it
-		mPreviewBtn->setEnabled(TRUE);
-		return;
-	}
+        getChildView("desc")->setEnabled(false);
+        //mDescEditor->setEnabled(false);
+        mTriggerEditor->setEnabled(false);
+        mReplaceText->setEnabled(false);
+        mReplaceEditor->setEnabled(false);
+        mModifierCombo->setEnabled(false);
+        mKeyCombo->setEnabled(false);
+        mLibraryList->setEnabled(false);
+        mAddBtn->setEnabled(false);
+        mUpBtn->setEnabled(false);
+        mDownBtn->setEnabled(false);
+        mDeleteBtn->setEnabled(false);
+        mStepList->setEnabled(false);
+        mOptionsText->setEnabled(false);
+        mAnimationCombo->setEnabled(false);
+        mAnimationRadio->setEnabled(false);
+        mSoundCombo->setEnabled(false);
+        mChatEditor->setEnabled(false);
+        mWaitKeyReleaseCheck->setEnabled(false);
+        mWaitAnimCheck->setEnabled(false);
+        mWaitTimeCheck->setEnabled(false);
+        mWaitTimeEditor->setEnabled(false);
+        mActiveCheck->setEnabled(false);
+        mSaveBtn->setEnabled(false);
 
-	BOOL modifiable = item->getPermissions().allowModifyBy(gAgent.getID());
+        // Make sure preview button is enabled, so we can stop it
+        mPreviewBtn->setEnabled(true);
+        return;
+    }
 
-	getChildView("desc")->setEnabled(modifiable);
-	mTriggerEditor->setEnabled(TRUE);
-	mLibraryList->setEnabled(modifiable);
-	mStepList->setEnabled(modifiable);
-	mOptionsText->setEnabled(modifiable);
-	mAnimationCombo->setEnabled(modifiable);
-	mAnimationRadio->setEnabled(modifiable);
-	mSoundCombo->setEnabled(modifiable);
-	mChatEditor->setEnabled(modifiable);
-	mWaitAnimCheck->setEnabled(modifiable);
-	mWaitTimeCheck->setEnabled(modifiable);
-	mWaitTimeEditor->setEnabled(modifiable);
-	mActiveCheck->setEnabled(TRUE);
+    bool modifiable = item->getPermissions().allowModifyBy(gAgent.getID());
 
-	const std::string& trigger = mTriggerEditor->getText();
-	BOOL have_trigger = !trigger.empty();
+    getChildView("desc")->setEnabled(modifiable);
+    mTriggerEditor->setEnabled(true);
+    mLibraryList->setEnabled(modifiable);
+    mStepList->setEnabled(modifiable);
+    mOptionsText->setEnabled(modifiable);
+    mAnimationCombo->setEnabled(modifiable);
+    mAnimationRadio->setEnabled(modifiable);
+    mSoundCombo->setEnabled(modifiable);
+    mChatEditor->setEnabled(modifiable);
+    mWaitKeyReleaseCheck->setEnabled(modifiable);
+    mWaitAnimCheck->setEnabled(modifiable);
+    mWaitTimeCheck->setEnabled(modifiable);
+    mWaitTimeEditor->setEnabled(modifiable);
+    mActiveCheck->setEnabled(true);
 
-	const std::string& replace = mReplaceEditor->getText();
-	BOOL have_replace = !replace.empty();
+    const std::string& trigger = mTriggerEditor->getText();
+    bool have_trigger = !trigger.empty();
 
-	LLScrollListItem* library_item = mLibraryList->getFirstSelected();
-	BOOL have_library = (library_item != NULL);
+    const std::string& replace = mReplaceEditor->getText();
+    bool have_replace = !replace.empty();
 
-	LLScrollListItem* step_item = mStepList->getFirstSelected();
-	S32 step_index = mStepList->getFirstSelectedIndex();
-	S32 step_count = mStepList->getItemCount();
-	BOOL have_step = (step_item != NULL);
+    LLScrollListItem* library_item = mLibraryList->getFirstSelected();
+    bool have_library = (library_item != NULL);
 
-	mReplaceText->setEnabled(have_trigger || have_replace);
-	mReplaceEditor->setEnabled(have_trigger || have_replace);
+    LLScrollListItem* step_item = mStepList->getFirstSelected();
+    S32 step_index = mStepList->getFirstSelectedIndex();
+    S32 step_count = mStepList->getItemCount();
+    bool have_step = (step_item != NULL);
 
-	mModifierCombo->setEnabled(TRUE);
-	mKeyCombo->setEnabled(TRUE);
+    mReplaceText->setEnabled(have_trigger || have_replace);
+    mReplaceEditor->setEnabled(have_trigger || have_replace);
 
-	mAddBtn->setEnabled(modifiable && have_library);
-	mUpBtn->setEnabled(modifiable && have_step && step_index > 0);
-	mDownBtn->setEnabled(modifiable && have_step && step_index < step_count-1);
-	mDeleteBtn->setEnabled(modifiable && have_step);
+    mModifierCombo->setEnabled(true);
+    mKeyCombo->setEnabled(true);
 
-	// Assume all not visible
-	mAnimationCombo->setVisible(FALSE);
-	mAnimationRadio->setVisible(FALSE);
-	mSoundCombo->setVisible(FALSE);
-	mChatEditor->setVisible(FALSE);
-	mWaitAnimCheck->setVisible(FALSE);
-	mWaitTimeCheck->setVisible(FALSE);
-	mWaitTimeEditor->setVisible(FALSE);
+    mAddBtn->setEnabled(modifiable && have_library);
+    mUpBtn->setEnabled(modifiable && have_step && step_index > 0);
+    mDownBtn->setEnabled(modifiable && have_step && step_index < step_count-1);
+    mDeleteBtn->setEnabled(modifiable && have_step);
 
-	std::string optionstext;
-	
-	if (have_step)
-	{
-		// figure out the type, show proper options, update text
-		LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
-		EStepType type = step->getType();
+    // Assume all not visible
+    mAnimationCombo->setVisible(false);
+    mAnimationRadio->setVisible(false);
+    mSoundCombo->setVisible(false);
+    mChatEditor->setVisible(false);
+    mWaitKeyReleaseCheck->setVisible(false);
+    mWaitAnimCheck->setVisible(false);
+    mWaitTimeCheck->setVisible(false);
+    mWaitTimeEditor->setVisible(false);
 
-		switch(type)
-		{
-		case STEP_ANIMATION:
-			{
-				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-				optionstext = getString("step_anim");
-				mAnimationCombo->setVisible(TRUE);
-				mAnimationRadio->setVisible(TRUE);
-				mAnimationRadio->setSelectedIndex((anim_step->mFlags & ANIM_FLAG_STOP) ? 1 : 0);
-				mAnimationCombo->setCurrentByID(anim_step->mAnimAssetID);
-				break;
-			}
-		case STEP_SOUND:
-			{
-				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-				optionstext = getString("step_sound");
-				mSoundCombo->setVisible(TRUE);
-				mSoundCombo->setCurrentByID(sound_step->mSoundAssetID);
-				break;
-			}
-		case STEP_CHAT:
-			{
-				LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
-				optionstext = getString("step_chat");
-				mChatEditor->setVisible(TRUE);
-				mChatEditor->setText(chat_step->mChatText);
-				break;
-			}
-		case STEP_WAIT:
-			{
-				LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-				optionstext = getString("step_wait");
-				mWaitAnimCheck->setVisible(TRUE);
-				mWaitAnimCheck->set(wait_step->mFlags & WAIT_FLAG_ALL_ANIM);
-				mWaitTimeCheck->setVisible(TRUE);
-				mWaitTimeCheck->set(wait_step->mFlags & WAIT_FLAG_TIME);
-				mWaitTimeEditor->setVisible(TRUE);
-				std::string buffer = llformat("%.1f", (double)wait_step->mWaitSeconds);
-				mWaitTimeEditor->setText(buffer);
-				break;
-			}
-		default:
-			break;
-		}
-	}
-	
-	mOptionsText->setText(optionstext);
+    std::string optionstext;
 
-	BOOL active = LLGestureMgr::instance().isGestureActive(mItemUUID);
-	mActiveCheck->set(active);
+    if (have_step)
+    {
+        // figure out the type, show proper options, update text
+        LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
+        EStepType type = step->getType();
 
-	// Can only preview if there are steps
-	mPreviewBtn->setEnabled(step_count > 0);
+        switch(type)
+        {
+        case STEP_ANIMATION:
+            {
+                LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+                optionstext = getString("step_anim");
+                mAnimationCombo->setVisible(true);
+                mAnimationRadio->setVisible(true);
+                mAnimationRadio->setSelectedIndex((anim_step->mFlags & ANIM_FLAG_STOP) ? 1 : 0);
+                mAnimationCombo->setCurrentByID(anim_step->mAnimAssetID);
+                break;
+            }
+        case STEP_SOUND:
+            {
+                LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+                optionstext = getString("step_sound");
+                mSoundCombo->setVisible(true);
+                mSoundCombo->setCurrentByID(sound_step->mSoundAssetID);
+                break;
+            }
+        case STEP_CHAT:
+            {
+                LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
+                optionstext = getString("step_chat");
+                mChatEditor->setVisible(true);
+                mChatEditor->setText(chat_step->mChatText);
+                break;
+            }
+        case STEP_WAIT:
+            {
+                LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
+                optionstext = getString("step_wait");
+                mWaitKeyReleaseCheck->setVisible(true);
+                mWaitKeyReleaseCheck->set(wait_step->mFlags & WAIT_FLAG_KEY_RELEASE);
+                mWaitAnimCheck->setVisible(true);
+                mWaitAnimCheck->set(wait_step->mFlags & WAIT_FLAG_ALL_ANIM);
+                mWaitTimeCheck->setVisible(true);
+                mWaitTimeCheck->set(wait_step->mFlags & WAIT_FLAG_TIME);
+                mWaitTimeEditor->setVisible(true);
+                std::string buffer = llformat("%.1f", (double)wait_step->mWaitSeconds);
+                mWaitTimeEditor->setText(buffer);
+                break;
+            }
+        default:
+            break;
+        }
+    }
 
-	// And can only save if changes have been made
-	mSaveBtn->setEnabled(mDirty);
-	addAnimations();
-	addSounds();
+    mOptionsText->setText(optionstext);
+
+    bool active = LLGestureMgr::instance().isGestureActive(mItemUUID);
+    mActiveCheck->set(active);
+
+    // Can only preview if there are steps
+    mPreviewBtn->setEnabled(step_count > 0);
+
+    // And can only save if changes have been made
+    mSaveBtn->setEnabled(mDirty);
+    addAnimations();
+    addSounds();
 }
 
 
 void LLPreviewGesture::initDefaultGesture()
 {
-	LLScrollListItem* item;
-	item = addStep( STEP_ANIMATION );
-	LLGestureStepAnimation* anim = (LLGestureStepAnimation*)item->getUserdata();
-	anim->mAnimAssetID = ANIM_AGENT_HELLO;
-	anim->mAnimName = LLTrans::getString("Wave");
-	updateLabel(item);
+    LLScrollListItem* item;
+    item = addStep( STEP_ANIMATION );
+    LLGestureStepAnimation* anim = (LLGestureStepAnimation*)item->getUserdata();
+    anim->mAnimAssetID = ANIM_AGENT_HELLO;
+    anim->mAnimName = LLTrans::getString("Wave");
+    updateLabel(item);
 
-	item = addStep( STEP_WAIT );
-	LLGestureStepWait* wait = (LLGestureStepWait*)item->getUserdata();
-	wait->mFlags = WAIT_FLAG_ALL_ANIM;
-	updateLabel(item);
+    item = addStep( STEP_WAIT );
+    LLGestureStepWait* wait = (LLGestureStepWait*)item->getUserdata();
+    wait->mFlags = WAIT_FLAG_ALL_ANIM;
+    updateLabel(item);
 
-	item = addStep( STEP_CHAT );
-	LLGestureStepChat* chat_step = (LLGestureStepChat*)item->getUserdata();
-	chat_step->mChatText =  LLTrans::getString("HelloAvatar");
-	updateLabel(item);
+    item = addStep( STEP_CHAT );
+    LLGestureStepChat* chat_step = (LLGestureStepChat*)item->getUserdata();
+    chat_step->mChatText =  LLTrans::getString("HelloAvatar");
+    updateLabel(item);
 
-	// Start with item list selected
-	mStepList->selectFirstItem();
+    // Start with item list selected
+    mStepList->selectFirstItem();
 
-	// this is *new* content, so we are dirty
-	mDirty = TRUE;
+    // this is *new* content, so we are dirty
+    mDirty = true;
 }
 
 
 void LLPreviewGesture::loadAsset()
 {
-	const LLInventoryItem* item = getItem();
-	if (!item) 
-	{
-		// Don't set asset status here; we may not have set the item id yet
-		// (e.g. when this gets called initially)
-		//mAssetStatus = PREVIEW_ASSET_ERROR;
-		return;
-	}
+    const LLInventoryItem* item = getItem();
+    if (!item)
+    {
+        // Don't set asset status here; we may not have set the item id yet
+        // (e.g. when this gets called initially)
+        //mAssetStatus = PREVIEW_ASSET_ERROR;
+        return;
+    }
 
-	LLUUID asset_id = item->getAssetUUID();
-	if (asset_id.isNull())
-	{
-		// Freshly created gesture, don't need to load asset.
-		// Blank gesture will be fine.
-		initDefaultGesture();
-		refresh();
-		mAssetStatus = PREVIEW_ASSET_LOADED;
-		return;
-	}
+    LLUUID asset_id = item->getAssetUUID();
+    if (asset_id.isNull())
+    {
+        // Freshly created gesture, don't need to load asset.
+        // Blank gesture will be fine.
+        initDefaultGesture();
+        refresh();
+        mAssetStatus = PREVIEW_ASSET_LOADED;
+        return;
+    }
 
-	// TODO: Based on item->getPermissions().allow*
-	// could enable/disable UI.
+    // TODO: Based on item->getPermissions().allow*
+    // could enable/disable UI.
 
-	// Copy the UUID, because the user might close the preview
-	// window if the download gets stalled.
-	LLUUID* item_idp = new LLUUID(mItemUUID);
+    // Copy the UUID, because the user might close the preview
+    // window if the download gets stalled.
+    LLUUID* item_idp = new LLUUID(mItemUUID);
 
-	const BOOL high_priority = TRUE;
-	gAssetStorage->getAssetData(asset_id,
-								LLAssetType::AT_GESTURE,
-								onLoadComplete,
-								(void**)item_idp,
-								high_priority);
-	mAssetStatus = PREVIEW_ASSET_LOADING;
+    const bool high_priority = true;
+    gAssetStorage->getAssetData(asset_id,
+                                LLAssetType::AT_GESTURE,
+                                onLoadComplete,
+                                (void**)item_idp,
+                                high_priority);
+    mAssetStatus = PREVIEW_ASSET_LOADING;
 }
 
 
 // static
 void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
-									  LLAssetType::EType type,
-									  void* user_data, S32 status, LLExtStat ext_status)
+                                      LLAssetType::EType type,
+                                      void* user_data, S32 status, LLExtStat ext_status)
 {
-	LLUUID* item_idp = (LLUUID*)user_data;
+    LLUUID* item_idp = (LLUUID*)user_data;
 
-	LLPreviewGesture* self = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", *item_idp);
-	if (self)
-	{
-		if (0 == status)
-		{
-			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
-			S32 size = file.getSize();
+    LLPreviewGesture* self = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", *item_idp);
+    if (self)
+    {
+        if (0 == status)
+        {
+            LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+            S32 size = file.getSize();
 
-			std::vector<char> buffer(size+1);
-			file.read((U8*)&buffer[0], size);
-			buffer[size] = '\0';
+            std::vector<char> buffer(size+1);
+            file.read((U8*)&buffer[0], size);
+            buffer[size] = '\0';
 
-			LLMultiGesture* gesture = new LLMultiGesture();
+            LLMultiGesture* gesture = new LLMultiGesture();
 
-			LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
-			BOOL ok = gesture->deserialize(dp);
+            LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
+            bool ok = gesture->deserialize(dp);
 
-			if (ok)
-			{
-				// Everything has been successful.  Load up the UI.
-				self->loadUIFromGesture(gesture);
+            if (ok)
+            {
+                // Everything has been successful.  Load up the UI.
+                self->loadUIFromGesture(gesture);
 
-				self->mStepList->selectFirstItem();
+                self->mStepList->selectFirstItem();
 
-				self->mDirty = FALSE;
-				self->refresh();
-				self->refreshFromItem(); // to update description and title
-			}
-			else
-			{
-				LL_WARNS() << "Unable to load gesture" << LL_ENDL;
-			}
+                self->mDirty = false;
+                self->refresh();
+                self->refreshFromItem(); // to update description and title
+            }
+            else
+            {
+                LL_WARNS() << "Unable to load gesture" << LL_ENDL;
+            }
 
-			delete gesture;
-			gesture = NULL;
+            delete gesture;
+            gesture = NULL;
 
-			self->mAssetStatus = PREVIEW_ASSET_LOADED;
-		}
-		else
-		{
-			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
-				LL_ERR_FILE_EMPTY == status)
-			{
-				LLDelayedGestureError::gestureMissing( *item_idp );
-			}
-			else
-			{
-				LLDelayedGestureError::gestureFailedToLoad( *item_idp );
-			}
+            self->mAssetStatus = PREVIEW_ASSET_LOADED;
+        }
+        else
+        {
+            if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
+                LL_ERR_FILE_EMPTY == status)
+            {
+                LLDelayedGestureError::gestureMissing( *item_idp );
+            }
+            else
+            {
+                LLDelayedGestureError::gestureFailedToLoad( *item_idp );
+            }
 
-			LL_WARNS() << "Problem loading gesture: " << status << LL_ENDL;
-			self->mAssetStatus = PREVIEW_ASSET_ERROR;
-		}
-	}
-	delete item_idp;
-	item_idp = NULL;
+            LL_WARNS() << "Problem loading gesture: " << status << LL_ENDL;
+            self->mAssetStatus = PREVIEW_ASSET_ERROR;
+        }
+    }
+    delete item_idp;
+    item_idp = NULL;
 }
 
 
 void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 {
-	/*LLInventoryItem* item = getItem();
+    /*LLInventoryItem* item = getItem();
 
 
-	
-	if (item)
-	{
-		LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
-		descEditor->setText(item->getDescription());
-	}*/
 
-	mTriggerEditor->setText(gesture->mTrigger);
+    if (item)
+    {
+        LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
+        descEditor->setText(item->getDescription());
+    }*/
 
-	mReplaceEditor->setText(gesture->mReplaceText);
+    mTriggerEditor->setText(gesture->mTrigger);
 
-	switch (gesture->mMask)
-	{
-	default:
-	  case MASK_NONE:
-		mModifierCombo->setSimple( NONE_LABEL );
-		break;
-	  case MASK_SHIFT:
-		mModifierCombo->setSimple( SHIFT_LABEL );
-		break;
-	  case MASK_CONTROL:
-		mModifierCombo->setSimple( CTRL_LABEL );
-		break;
-	}
+    mReplaceEditor->setText(gesture->mReplaceText);
 
-	mModifierCombo->setEnabledByValue(CTRL_LABEL, gesture->mKey != KEY_F10);
+    switch (gesture->mMask)
+    {
+    default:
+      case MASK_NONE:
+        mModifierCombo->setSimple( NONE_LABEL );
+        break;
+      case MASK_SHIFT:
+        mModifierCombo->setSimple( SHIFT_LABEL );
+        break;
+      case MASK_CONTROL:
+        mModifierCombo->setSimple( CTRL_LABEL );
+        break;
+    }
 
-	mKeyCombo->setCurrentByIndex(0);
-	if (gesture->mKey != KEY_NONE)
-	{
-		mKeyCombo->setSimple(LLKeyboard::stringFromKey(gesture->mKey));
-	}
+    mModifierCombo->setEnabledByValue(CTRL_LABEL, gesture->mKey != KEY_F10);
 
-	mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), gesture->mMask != MASK_CONTROL);
+    mKeyCombo->setCurrentByIndex(0);
+    if (gesture->mKey != KEY_NONE)
+    {
+        mKeyCombo->setSimple(LLKeyboard::stringFromKey(gesture->mKey));
+    }
 
-	// Make UI steps for each gesture step
-	S32 i;
-	S32 count = gesture->mSteps.size();
-	for (i = 0; i < count; ++i)
-	{
-		LLGestureStep* step = gesture->mSteps[i];
+    mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), gesture->mMask != MASK_CONTROL);
 
-		LLGestureStep* new_step = NULL;
-		
-		switch(step->getType())
-		{
-		case STEP_ANIMATION:
-			{
-				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-				LLGestureStepAnimation* new_anim_step =
-					new LLGestureStepAnimation(*anim_step);
-				new_step = new_anim_step;
-				break;
-			}
-		case STEP_SOUND:
-			{
-				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-				LLGestureStepSound* new_sound_step =
-					new LLGestureStepSound(*sound_step);
-				new_step = new_sound_step;
-				break;
-			}
-		case STEP_CHAT:
-			{
-				LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
-				LLGestureStepChat* new_chat_step =
-					new LLGestureStepChat(*chat_step);
-				new_step = new_chat_step;
-				break;
-			}
-		case STEP_WAIT:
-			{
-				LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-				LLGestureStepWait* new_wait_step =
-					new LLGestureStepWait(*wait_step);
-				new_step = new_wait_step;
-				break;
-			}
-		default:
-			{
-				break;
-			}
-		}
+    // Make UI steps for each gesture step
+    size_t i;
+    size_t count = gesture->mSteps.size();
+    for (i = 0; i < count; ++i)
+    {
+        LLGestureStep* step = gesture->mSteps[i];
 
-		if (!new_step) continue;
+        LLGestureStep* new_step = NULL;
 
-		// Create an enabled item with this step
-		LLSD row;
-		row["columns"][0]["value"] = getLabel( new_step->getLabel());
-		row["columns"][0]["font"] = "SANSSERIF_SMALL";
-		LLScrollListItem* item = mStepList->addElement(row);
-		item->setUserdata(new_step);
-	}
+        switch(step->getType())
+        {
+        case STEP_ANIMATION:
+            {
+                LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+                LLGestureStepAnimation* new_anim_step =
+                    new LLGestureStepAnimation(*anim_step);
+                new_step = new_anim_step;
+                break;
+            }
+        case STEP_SOUND:
+            {
+                LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+                LLGestureStepSound* new_sound_step =
+                    new LLGestureStepSound(*sound_step);
+                new_step = new_sound_step;
+                break;
+            }
+        case STEP_CHAT:
+            {
+                LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
+                LLGestureStepChat* new_chat_step =
+                    new LLGestureStepChat(*chat_step);
+                new_step = new_chat_step;
+                break;
+            }
+        case STEP_WAIT:
+            {
+                LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
+                LLGestureStepWait* new_wait_step =
+                    new LLGestureStepWait(*wait_step);
+                new_step = new_wait_step;
+                break;
+            }
+        default:
+            {
+                break;
+            }
+        }
+
+        if (!new_step) continue;
+
+        // Create an enabled item with this step
+        LLSD row;
+        row["columns"][0]["value"] = getLabel( new_step->getLabel());
+        row["columns"][0]["font"] = "SANSSERIF_SMALL";
+        LLScrollListItem* item = mStepList->addElement(row);
+        item->setUserdata(new_step);
+    }
 }
 
 // Helpful structure so we can look up the inventory item
 // after the save finishes.
 struct LLSaveInfo
 {
-	LLSaveInfo(const LLUUID& item_id, const LLUUID& object_id, const std::string& desc,
-				const LLTransactionID tid)
-		: mItemUUID(item_id), mObjectUUID(object_id), mDesc(desc), mTransactionID(tid)
-	{
-	}
+    LLSaveInfo(const LLUUID& item_id, const LLUUID& object_id, const std::string& desc,
+                const LLTransactionID tid)
+        : mItemUUID(item_id), mObjectUUID(object_id), mDesc(desc), mTransactionID(tid)
+    {
+    }
 
-	LLUUID mItemUUID;
-	LLUUID mObjectUUID;
-	std::string mDesc;
-	LLTransactionID mTransactionID;
+    LLUUID mItemUUID;
+    LLUUID mObjectUUID;
+    std::string mDesc;
+    LLTransactionID mTransactionID;
 };
 
 
 void LLPreviewGesture::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
 {
     // If this gesture is active, then we need to update the in-memory
-    // active map with the new pointer.				
+    // active map with the new pointer.
     if (LLGestureMgr::instance().isGestureActive(itemId))
     {
         // Active gesture edited from menu.
@@ -1039,16 +1047,16 @@ void LLPreviewGesture::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
 
 void LLPreviewGesture::saveIfNeeded()
 {
-	if (!gAssetStorage)
-	{
-		LL_WARNS() << "Can't save gesture, no asset storage system." << LL_ENDL;
-		return;
-	}
+    if (!gAssetStorage)
+    {
+        LL_WARNS() << "Can't save gesture, no asset storage system." << LL_ENDL;
+        return;
+    }
 
-	if (!mDirty)
-	{
-		return;
-	}
+    if (!mDirty)
+    {
+        return;
+    }
 
     // Copy the UI into a gesture
     LLMultiGesture* gesture = createGesture();
@@ -1143,7 +1151,7 @@ void LLPreviewGesture::saveIfNeeded()
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
             LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);
-            gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, FALSE);
+            gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, false);
         }
 
     }
@@ -1182,624 +1190,625 @@ void LLPreviewGesture::saveIfNeeded()
 // static
 void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
-	LLSaveInfo* info = (LLSaveInfo*)user_data;
-	if (info && (status == 0))
-	{
-		if(info->mObjectUUID.isNull())
-		{
-			// Saving into user inventory
-			LLViewerInventoryItem* item;
-			item = (LLViewerInventoryItem*)gInventory.getItem(info->mItemUUID);
-			if(item)
-			{
-				LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-				new_item->setDescription(info->mDesc);
-				new_item->setTransactionID(info->mTransactionID);
-				new_item->setAssetUUID(asset_uuid);
-				new_item->updateServer(FALSE);
-				gInventory.updateItem(new_item);
-				gInventory.notifyObservers();
-			}
-			else
-			{
-				LL_WARNS() << "Inventory item for gesture " << info->mItemUUID
-						<< " is no longer in agent inventory." << LL_ENDL;
-			}
-		}
-		else
-		{
-			// Saving into in-world object inventory
-			LLViewerObject* object = gObjectList.findObject(info->mObjectUUID);
-			LLViewerInventoryItem* item = NULL;
-			if(object)
-			{
-				item = (LLViewerInventoryItem*)object->getInventoryObject(info->mItemUUID);
-			}
-			if(object && item)
-			{
-				item->setDescription(info->mDesc);
-				item->setAssetUUID(asset_uuid);
-				item->setTransactionID(info->mTransactionID);
-				object->updateInventory(item, TASK_INVENTORY_ITEM_KEY, false);
-				dialog_refresh_all();
-			}
-			else
-			{
-				LLNotificationsUtil::add("GestureSaveFailedObjectNotFound");
-			}
-		}
+    LLSaveInfo* info = (LLSaveInfo*)user_data;
+    if (info && (status == 0))
+    {
+        if(info->mObjectUUID.isNull())
+        {
+            // Saving into user inventory
+            LLViewerInventoryItem* item;
+            item = (LLViewerInventoryItem*)gInventory.getItem(info->mItemUUID);
+            if(item)
+            {
+                LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+                new_item->setDescription(info->mDesc);
+                new_item->setTransactionID(info->mTransactionID);
+                new_item->setAssetUUID(asset_uuid);
+                new_item->updateServer(false);
+                gInventory.updateItem(new_item);
+                gInventory.notifyObservers();
+            }
+            else
+            {
+                LL_WARNS() << "Inventory item for gesture " << info->mItemUUID
+                        << " is no longer in agent inventory." << LL_ENDL;
+            }
+        }
+        else
+        {
+            // Saving into in-world object inventory
+            LLViewerObject* object = gObjectList.findObject(info->mObjectUUID);
+            LLViewerInventoryItem* item = NULL;
+            if(object)
+            {
+                item = (LLViewerInventoryItem*)object->getInventoryObject(info->mItemUUID);
+            }
+            if(object && item)
+            {
+                item->setDescription(info->mDesc);
+                item->setAssetUUID(asset_uuid);
+                item->setTransactionID(info->mTransactionID);
+                object->updateInventory(item, TASK_INVENTORY_ITEM_KEY, false);
+                dialog_refresh_all();
+            }
+            else
+            {
+                LLNotificationsUtil::add("GestureSaveFailedObjectNotFound");
+            }
+        }
 
-		// Find our window and close it if requested.
-		LLPreviewGesture* previewp = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", info->mItemUUID);
-		if (previewp && previewp->mCloseAfterSave)
-		{
-			previewp->closeFloater();
-		}
-	}
-	else
-	{
-		LL_WARNS() << "Problem saving gesture: " << status << LL_ENDL;
-		LLSD args;
-		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
-		LLNotificationsUtil::add("GestureSaveFailedReason", args);
-	}
-	delete info;
-	info = NULL;
+        // Find our window and close it if requested.
+        LLPreviewGesture* previewp = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", info->mItemUUID);
+        if (previewp && previewp->mCloseAfterSave)
+        {
+            previewp->closeFloater();
+        }
+    }
+    else
+    {
+        LL_WARNS() << "Problem saving gesture: " << status << LL_ENDL;
+        LLSD args;
+        args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
+        LLNotificationsUtil::add("GestureSaveFailedReason", args);
+    }
+    delete info;
+    info = NULL;
 }
 
 
 LLMultiGesture* LLPreviewGesture::createGesture()
 {
-	LLMultiGesture* gesture = new LLMultiGesture();
+    LLMultiGesture* gesture = new LLMultiGesture();
 
-	gesture->mTrigger = mTriggerEditor->getText();
-	gesture->mReplaceText = mReplaceEditor->getText();
+    gesture->mTrigger = mTriggerEditor->getText();
+    gesture->mReplaceText = mReplaceEditor->getText();
 
-	const std::string& modifier = mModifierCombo->getSimple();
-	if (modifier == CTRL_LABEL)
-	{
-		gesture->mMask = MASK_CONTROL;
-	}
-	else if (modifier == SHIFT_LABEL)
-	{
-		gesture->mMask = MASK_SHIFT;
-	}
-	else
-	{
-		gesture->mMask = MASK_NONE;
-	}
+    const std::string& modifier = mModifierCombo->getSimple();
+    if (modifier == CTRL_LABEL)
+    {
+        gesture->mMask = MASK_CONTROL;
+    }
+    else if (modifier == SHIFT_LABEL)
+    {
+        gesture->mMask = MASK_SHIFT;
+    }
+    else
+    {
+        gesture->mMask = MASK_NONE;
+    }
 
-	if (mKeyCombo->getCurrentIndex() == 0)
-	{
-		gesture->mKey = KEY_NONE;
-	}
-	else
-	{
-		const std::string& key_string = mKeyCombo->getSimple();
-		LLKeyboard::keyFromString(key_string, &(gesture->mKey));
-	}
+    if (mKeyCombo->getCurrentIndex() == 0)
+    {
+        gesture->mKey = KEY_NONE;
+    }
+    else
+    {
+        const std::string& key_string = mKeyCombo->getSimple();
+        LLKeyboard::keyFromString(key_string, &(gesture->mKey));
+    }
 
-	std::vector<LLScrollListItem*> data_list = mStepList->getAllData();
-	std::vector<LLScrollListItem*>::iterator data_itor;
-	for (data_itor = data_list.begin(); data_itor != data_list.end(); ++data_itor)
-	{
-		LLScrollListItem* item = *data_itor;
-		LLGestureStep* step = (LLGestureStep*)item->getUserdata();
+    std::vector<LLScrollListItem*> data_list = mStepList->getAllData();
+    std::vector<LLScrollListItem*>::iterator data_itor;
+    for (data_itor = data_list.begin(); data_itor != data_list.end(); ++data_itor)
+    {
+        LLScrollListItem* item = *data_itor;
+        LLGestureStep* step = (LLGestureStep*)item->getUserdata();
 
-		switch(step->getType())
-		{
-		case STEP_ANIMATION:
-			{
-				// Copy UI-generated step into actual gesture step
-				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-				LLGestureStepAnimation* new_anim_step =
-					new LLGestureStepAnimation(*anim_step);
-				gesture->mSteps.push_back(new_anim_step);
-				break;
-			}
-		case STEP_SOUND:
-			{
-				// Copy UI-generated step into actual gesture step
-				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-				LLGestureStepSound* new_sound_step =
-					new LLGestureStepSound(*sound_step);
-				gesture->mSteps.push_back(new_sound_step);
-				break;
-			}
-		case STEP_CHAT:
-			{
-				// Copy UI-generated step into actual gesture step
-				LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
-				LLGestureStepChat* new_chat_step =
-					new LLGestureStepChat(*chat_step);
-				gesture->mSteps.push_back(new_chat_step);
-				break;
-			}
-		case STEP_WAIT:
-			{
-				// Copy UI-generated step into actual gesture step
-				LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-				LLGestureStepWait* new_wait_step =
-					new LLGestureStepWait(*wait_step);
-				gesture->mSteps.push_back(new_wait_step);
-				break;
-			}
-		default:
-			{
-				break;
-			}
-		}
-	}
+        switch(step->getType())
+        {
+        case STEP_ANIMATION:
+            {
+                // Copy UI-generated step into actual gesture step
+                LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+                LLGestureStepAnimation* new_anim_step =
+                    new LLGestureStepAnimation(*anim_step);
+                gesture->mSteps.push_back(new_anim_step);
+                break;
+            }
+        case STEP_SOUND:
+            {
+                // Copy UI-generated step into actual gesture step
+                LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+                LLGestureStepSound* new_sound_step =
+                    new LLGestureStepSound(*sound_step);
+                gesture->mSteps.push_back(new_sound_step);
+                break;
+            }
+        case STEP_CHAT:
+            {
+                // Copy UI-generated step into actual gesture step
+                LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
+                LLGestureStepChat* new_chat_step =
+                    new LLGestureStepChat(*chat_step);
+                gesture->mSteps.push_back(new_chat_step);
+                break;
+            }
+        case STEP_WAIT:
+            {
+                // Copy UI-generated step into actual gesture step
+                LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
+                LLGestureStepWait* new_wait_step =
+                    new LLGestureStepWait(*wait_step);
+                gesture->mSteps.push_back(new_wait_step);
+                break;
+            }
+        default:
+            {
+                break;
+            }
+        }
+    }
 
-	return gesture;
+    return gesture;
 }
 
 
 void LLPreviewGesture::onCommitKeyorModifier()
 {
-	// SL-14139: ctrl-F10 is currently used to access top menu,
-	// so don't allow to bound gestures to this combination.
+    // SL-14139: ctrl-F10 is currently used to access top menu,
+    // so don't allow to bound gestures to this combination.
 
-	mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), mModifierCombo->getSimple() != CTRL_LABEL);
-	mModifierCombo->setEnabledByValue(CTRL_LABEL, mKeyCombo->getSimple() != LLKeyboard::stringFromKey(KEY_F10));
-	mDirty = TRUE;
-	refresh();
+    mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), mModifierCombo->getSimple() != CTRL_LABEL);
+    mModifierCombo->setEnabledByValue(CTRL_LABEL, mKeyCombo->getSimple() != LLKeyboard::stringFromKey(KEY_F10));
+    mDirty = true;
+    refresh();
 }
 
 // static
 void LLPreviewGesture::updateLabel(LLScrollListItem* item)
 {
-	LLGestureStep* step = (LLGestureStep*)item->getUserdata();
+    LLGestureStep* step = (LLGestureStep*)item->getUserdata();
 
-	LLScrollListCell* cell = item->getColumn(0);
-	LLScrollListText* text_cell = (LLScrollListText*)cell;
-	std::string label = getLabel( step->getLabel());
-	text_cell->setText(label);
+    LLScrollListCell* cell = item->getColumn(0);
+    LLScrollListText* text_cell = (LLScrollListText*)cell;
+    std::string label = getLabel( step->getLabel());
+    text_cell->setText(label);
 }
 
 // static
 void LLPreviewGesture::onCommitSetDirty(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
-	self->mDirty = TRUE;
-	self->refresh();
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
+    self->mDirty = true;
+    self->refresh();
 }
 
 // static
 void LLPreviewGesture::onCommitLibrary(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* library_item = self->mLibraryList->getFirstSelected();
-	if (library_item)
-	{
-		self->mStepList->deselectAllItems();
-		self->refresh();
-	}
+    LLScrollListItem* library_item = self->mLibraryList->getFirstSelected();
+    if (library_item)
+    {
+        self->mStepList->deselectAllItems();
+        self->refresh();
+    }
 }
 
 
 // static
 void LLPreviewGesture::onCommitStep(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* step_item = self->mStepList->getFirstSelected();
-	if (!step_item) return;
+    LLScrollListItem* step_item = self->mStepList->getFirstSelected();
+    if (!step_item) return;
 
-	self->mLibraryList->deselectAllItems();
-	self->refresh();
+    self->mLibraryList->deselectAllItems();
+    self->refresh();
 }
 
 
 // static
 void LLPreviewGesture::onCommitAnimation(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* step_item = self->mStepList->getFirstSelected();
-	if (step_item)
-	{
-		LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
-		if (step->getType() == STEP_ANIMATION)
-		{
-			// Assign the animation name
-			LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-			if (self->mAnimationCombo->getCurrentIndex() == 0)
-			{
-				anim_step->mAnimName.clear();
-				anim_step->mAnimAssetID.setNull();
-			}
-			else
-			{
-				anim_step->mAnimName = self->mAnimationCombo->getSimple();
-				anim_step->mAnimAssetID = self->mAnimationCombo->getCurrentID();
-			}
-			//anim_step->mFlags = 0x0;
+    LLScrollListItem* step_item = self->mStepList->getFirstSelected();
+    if (step_item)
+    {
+        LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
+        if (step->getType() == STEP_ANIMATION)
+        {
+            // Assign the animation name
+            LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+            if (self->mAnimationCombo->getCurrentIndex() <= 0)
+            {
+                anim_step->mAnimName.clear();
+                anim_step->mAnimAssetID.setNull();
+            }
+            else
+            {
+                anim_step->mAnimName = self->mAnimationCombo->getSimple();
+                anim_step->mAnimAssetID = self->mAnimationCombo->getCurrentID();
+            }
+            //anim_step->mFlags = 0x0;
 
-			// Update the UI label in the list
-			updateLabel(step_item);
+            // Update the UI label in the list
+            updateLabel(step_item);
 
-			self->mDirty = TRUE;
-			self->refresh();
-		}
-	}
+            self->mDirty = true;
+            self->refresh();
+        }
+    }
 }
 
 // static
 void LLPreviewGesture::onCommitAnimationTrigger(LLUICtrl* ctrl, void *data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* step_item = self->mStepList->getFirstSelected();
-	if (step_item)
-	{
-		LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
-		if (step->getType() == STEP_ANIMATION)
-		{
-			LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-			if (self->mAnimationRadio->getSelectedIndex() == 0)
-			{
-				// start
-				anim_step->mFlags &= ~ANIM_FLAG_STOP;
-			}
-			else
-			{
-				// stop
-				anim_step->mFlags |= ANIM_FLAG_STOP;
-			}
-			// Update the UI label in the list
-			updateLabel(step_item);
+    LLScrollListItem* step_item = self->mStepList->getFirstSelected();
+    if (step_item)
+    {
+        LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
+        if (step->getType() == STEP_ANIMATION)
+        {
+            LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+            if (self->mAnimationRadio->getSelectedIndex() == 0)
+            {
+                // start
+                anim_step->mFlags &= ~ANIM_FLAG_STOP;
+            }
+            else
+            {
+                // stop
+                anim_step->mFlags |= ANIM_FLAG_STOP;
+            }
+            // Update the UI label in the list
+            updateLabel(step_item);
 
-			self->mDirty = TRUE;
-			self->refresh();
-		}
-	}
+            self->mDirty = true;
+            self->refresh();
+        }
+    }
 }
 
 // static
 void LLPreviewGesture::onCommitSound(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* step_item = self->mStepList->getFirstSelected();
-	if (step_item)
-	{
-		LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
-		if (step->getType() == STEP_SOUND)
-		{
-			// Assign the sound name
-			LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-			sound_step->mSoundName = self->mSoundCombo->getSimple();
-			sound_step->mSoundAssetID = self->mSoundCombo->getCurrentID();
-			sound_step->mFlags = 0x0;
+    LLScrollListItem* step_item = self->mStepList->getFirstSelected();
+    if (step_item)
+    {
+        LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
+        if (step->getType() == STEP_SOUND)
+        {
+            // Assign the sound name
+            LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+            sound_step->mSoundName = self->mSoundCombo->getSimple();
+            sound_step->mSoundAssetID = self->mSoundCombo->getCurrentID();
+            sound_step->mFlags = 0x0;
 
-			// Update the UI label in the list
-			updateLabel(step_item);
+            // Update the UI label in the list
+            updateLabel(step_item);
 
-			self->mDirty = TRUE;
-			self->refresh();
-		}
-	}
+            self->mDirty = true;
+            self->refresh();
+        }
+    }
 }
 
 // static
 void LLPreviewGesture::onCommitChat(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* step_item = self->mStepList->getFirstSelected();
-	if (!step_item) return;
+    LLScrollListItem* step_item = self->mStepList->getFirstSelected();
+    if (!step_item) return;
 
-	LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
-	if (step->getType() != STEP_CHAT) return;
+    LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
+    if (step->getType() != STEP_CHAT) return;
 
-	LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
-	chat_step->mChatText = self->mChatEditor->getText();
-	chat_step->mFlags = 0x0;
+    LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
+    chat_step->mChatText = self->mChatEditor->getText();
+    chat_step->mFlags = 0x0;
 
-	// Update the UI label in the list
-	updateLabel(step_item);
+    // Update the UI label in the list
+    updateLabel(step_item);
 
-	self->mDirty = TRUE;
-	self->refresh();
+    self->mDirty = true;
+    self->refresh();
 }
 
 // static
 void LLPreviewGesture::onCommitWait(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* step_item = self->mStepList->getFirstSelected();
-	if (!step_item) return;
+    LLScrollListItem* step_item = self->mStepList->getFirstSelected();
+    if (!step_item) return;
 
-	LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
-	if (step->getType() != STEP_WAIT) return;
+    LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
+    if (step->getType() != STEP_WAIT) return;
 
-	LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-	U32 flags = 0x0;
-	if (self->mWaitAnimCheck->get()) flags |= WAIT_FLAG_ALL_ANIM;
-	if (self->mWaitTimeCheck->get()) flags |= WAIT_FLAG_TIME;
-	wait_step->mFlags = flags;
+    LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
+    U32 flags = 0x0;
+    if (self->mWaitKeyReleaseCheck->get()) flags |= WAIT_FLAG_KEY_RELEASE;
+    if (self->mWaitAnimCheck->get()) flags |= WAIT_FLAG_ALL_ANIM;
+    if (self->mWaitTimeCheck->get()) flags |= WAIT_FLAG_TIME;
+    wait_step->mFlags = flags;
 
-	{
-		LLLocale locale(LLLocale::USER_LOCALE);
+    {
+        LLLocale locale(LLLocale::USER_LOCALE);
 
-		F32 wait_seconds = (F32)atof(self->mWaitTimeEditor->getText().c_str());
-		if (wait_seconds < 0.f) wait_seconds = 0.f;
-		if (wait_seconds > 3600.f) wait_seconds = 3600.f;
-		wait_step->mWaitSeconds = wait_seconds;
-	}
+        F32 wait_seconds = (F32)atof(self->mWaitTimeEditor->getText().c_str());
+        if (wait_seconds < 0.f) wait_seconds = 0.f;
+        if (wait_seconds > 3600.f) wait_seconds = 3600.f;
+        wait_step->mWaitSeconds = wait_seconds;
+    }
 
-	// Enable the input area if necessary
-	self->mWaitTimeEditor->setEnabled(self->mWaitTimeCheck->get());
+    // Enable the input area if necessary
+    self->mWaitTimeEditor->setEnabled(self->mWaitTimeCheck->get());
 
-	// Update the UI label in the list
-	updateLabel(step_item);
+    // Update the UI label in the list
+    updateLabel(step_item);
 
-	self->mDirty = TRUE;
-	self->refresh();
+    self->mDirty = true;
+    self->refresh();
 }
 
 // static
 void LLPreviewGesture::onCommitWaitTime(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* step_item = self->mStepList->getFirstSelected();
-	if (!step_item) return;
+    LLScrollListItem* step_item = self->mStepList->getFirstSelected();
+    if (!step_item) return;
 
-	LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
-	if (step->getType() != STEP_WAIT) return;
+    LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
+    if (step->getType() != STEP_WAIT) return;
 
-	self->mWaitTimeCheck->set(TRUE);
-	onCommitWait(ctrl, data);
+    self->mWaitTimeCheck->set(true);
+    onCommitWait(ctrl, data);
 }
 
 
 // static
 void LLPreviewGesture::onKeystrokeCommit(LLLineEditor* caller,
-										 void* data)
+                                         void* data)
 {
-	// Just commit every keystroke
-	onCommitSetDirty(caller, data);
+    // Just commit every keystroke
+    onCommitSetDirty(caller, data);
 }
 
 // static
 void LLPreviewGesture::onClickAdd(void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* library_item = self->mLibraryList->getFirstSelected();
-	if (!library_item) return;
+    LLScrollListItem* library_item = self->mLibraryList->getFirstSelected();
+    if (!library_item) return;
 
-	S32 library_item_index = self->mLibraryList->getFirstSelectedIndex();
+    S32 library_item_index = self->mLibraryList->getFirstSelectedIndex();
 
-	const LLScrollListCell* library_cell = library_item->getColumn(0);
-	const std::string& library_text = library_cell->getValue().asString();
+    const LLScrollListCell* library_cell = library_item->getColumn(0);
+    const std::string& library_text = library_cell->getValue().asString();
 
-	if( library_item_index >= STEP_EOF )
-	{
-		LL_ERRS() << "Unknown step type: " << library_text << LL_ENDL;
-		return;
-	}
+    if( library_item_index >= STEP_EOF )
+    {
+        LL_ERRS() << "Unknown step type: " << library_text << LL_ENDL;
+        return;
+    }
 
-	self->addStep( (EStepType)library_item_index );
-	self->mDirty = TRUE;
-	self->refresh();
+    self->addStep( (EStepType)library_item_index );
+    self->mDirty = true;
+    self->refresh();
 }
 
 LLScrollListItem* LLPreviewGesture::addStep( const EStepType step_type )
 {
-	// Order of enum EStepType MUST match the library_list element in floater_preview_gesture.xml
+    // Order of enum EStepType MUST match the library_list element in floater_preview_gesture.xml
 
-	LLGestureStep* step = NULL;
-	switch( step_type)
-	{
-		case STEP_ANIMATION:
-			step = new LLGestureStepAnimation();
+    LLGestureStep* step = NULL;
+    switch( step_type)
+    {
+        case STEP_ANIMATION:
+            step = new LLGestureStepAnimation();
 
-			break;
-		case STEP_SOUND:
-			step = new LLGestureStepSound();
-			break;
-		case STEP_CHAT:
-			step = new LLGestureStepChat();	
-			break;
-		case STEP_WAIT:
-			step = new LLGestureStepWait();			
-			break;
-		default:
-			LL_ERRS() << "Unknown step type: " << (S32)step_type << LL_ENDL;
-			return NULL;
-	}
+            break;
+        case STEP_SOUND:
+            step = new LLGestureStepSound();
+            break;
+        case STEP_CHAT:
+            step = new LLGestureStepChat();
+            break;
+        case STEP_WAIT:
+            step = new LLGestureStepWait();
+            break;
+        default:
+            LL_ERRS() << "Unknown step type: " << (S32)step_type << LL_ENDL;
+            return NULL;
+    }
 
 
-	// Create an enabled item with this step
-	LLSD row;
-	row["columns"][0]["value"] = getLabel(step->getLabel());
-	row["columns"][0]["font"] = "SANSSERIF_SMALL";
-	LLScrollListItem* step_item = mStepList->addElement(row);
-	step_item->setUserdata(step);
+    // Create an enabled item with this step
+    LLSD row;
+    row["columns"][0]["value"] = getLabel(step->getLabel());
+    row["columns"][0]["font"] = "SANSSERIF_SMALL";
+    LLScrollListItem* step_item = mStepList->addElement(row);
+    step_item->setUserdata(step);
 
-	// And move selection to the list on the right
-	mLibraryList->deselectAllItems();
-	mStepList->deselectAllItems();
+    // And move selection to the list on the right
+    mLibraryList->deselectAllItems();
+    mStepList->deselectAllItems();
 
-	step_item->setSelected(TRUE);
+    step_item->setSelected(true);
 
-	return step_item;
+    return step_item;
 }
 
 // static
 std::string LLPreviewGesture::getLabel(std::vector<std::string> labels)
 {
-	std::vector<std::string> v_labels = labels ;
-	std::string result("");
-	
-	if( v_labels.size() != 2)
-	{
-		return result;
-	}
-	
-	if(v_labels[0]=="Chat")
-	{
-		result=LLTrans::getString("Chat Message");
-	}
-    else if(v_labels[0]=="Sound")	
-	{
-		result=LLTrans::getString("Sound");
-	}
-	else if(v_labels[0]=="Wait")
-	{
-		result=LLTrans::getString("Wait");
-	}
-	else if(v_labels[0]=="AnimFlagStop")
-	{
-		result=LLTrans::getString("AnimFlagStop");
-	}
-	else if(v_labels[0]=="AnimFlagStart")
-	{
-		result=LLTrans::getString("AnimFlagStart");
-	}
+    std::vector<std::string> v_labels = labels ;
+    std::string result("");
 
-	// lets localize action value
-	std::string action = v_labels[1];
-	if ("None" == action)
-	{
-		action = LLTrans::getString("GestureActionNone");
-	}
-	else if ("until animations are done" == action)
-	{
-		action = LLFloaterReg::getInstance("preview_gesture")->getChild<LLCheckBoxCtrl>("wait_anim_check")->getLabel();
-	}
-	result.append(action);
-	return result;
-	
+    if( v_labels.size() != 2)
+    {
+        return result;
+    }
+
+    if(v_labels[0]=="Chat")
+    {
+        result=LLTrans::getString("Chat Message");
+    }
+    else if(v_labels[0]=="Sound")
+    {
+        result=LLTrans::getString("Sound");
+    }
+    else if(v_labels[0]=="Wait")
+    {
+        result=LLTrans::getString("Wait");
+    }
+    else if(v_labels[0]=="AnimFlagStop")
+    {
+        result=LLTrans::getString("AnimFlagStop");
+    }
+    else if(v_labels[0]=="AnimFlagStart")
+    {
+        result=LLTrans::getString("AnimFlagStart");
+    }
+
+    // lets localize action value
+    std::string action = v_labels[1];
+    if ("None" == action)
+    {
+        action = LLTrans::getString("GestureActionNone");
+    }
+    else if ("until animations are done" == action)
+    {
+        action = LLFloaterReg::getInstance("preview_gesture")->getChild<LLCheckBoxCtrl>("wait_anim_check")->getLabel();
+    }
+    result.append(action);
+    return result;
+
 }
 // static
 void LLPreviewGesture::onClickUp(void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	S32 selected_index = self->mStepList->getFirstSelectedIndex();
-	if (selected_index > 0)
-	{
-		self->mStepList->swapWithPrevious(selected_index);
-		self->mDirty = TRUE;
-		self->refresh();
-	}
+    S32 selected_index = self->mStepList->getFirstSelectedIndex();
+    if (selected_index > 0)
+    {
+        self->mStepList->swapWithPrevious(selected_index);
+        self->mDirty = true;
+        self->refresh();
+    }
 }
 
 // static
 void LLPreviewGesture::onClickDown(void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	S32 selected_index = self->mStepList->getFirstSelectedIndex();
-	if (selected_index < 0) return;
+    S32 selected_index = self->mStepList->getFirstSelectedIndex();
+    if (selected_index < 0) return;
 
-	S32 count = self->mStepList->getItemCount();
-	if (selected_index < count-1)
-	{
-		self->mStepList->swapWithNext(selected_index);
-		self->mDirty = TRUE;
-		self->refresh();
-	}
+    S32 count = self->mStepList->getItemCount();
+    if (selected_index < count-1)
+    {
+        self->mStepList->swapWithNext(selected_index);
+        self->mDirty = true;
+        self->refresh();
+    }
 }
 
 // static
 void LLPreviewGesture::onClickDelete(void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	LLScrollListItem* item = self->mStepList->getFirstSelected();
-	S32 selected_index = self->mStepList->getFirstSelectedIndex();
-	if (item && selected_index >= 0)
-	{
-		LLGestureStep* step = (LLGestureStep*)item->getUserdata();
-		delete step;
-		step = NULL;
+    LLScrollListItem* item = self->mStepList->getFirstSelected();
+    S32 selected_index = self->mStepList->getFirstSelectedIndex();
+    if (item && selected_index >= 0)
+    {
+        LLGestureStep* step = (LLGestureStep*)item->getUserdata();
+        delete step;
+        step = NULL;
 
-		self->mStepList->deleteSingleItem(selected_index);
+        self->mStepList->deleteSingleItem(selected_index);
 
-		self->mDirty = TRUE;
-		self->refresh();
-	}
+        self->mDirty = true;
+        self->refresh();
+    }
 }
 
 // static
 void LLPreviewGesture::onCommitActive(LLUICtrl* ctrl, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
-	if (!LLGestureMgr::instance().isGestureActive(self->mItemUUID))
-	{
-		LLGestureMgr::instance().activateGesture(self->mItemUUID);
-	}
-	else
-	{
-		LLGestureMgr::instance().deactivateGesture(self->mItemUUID);
-	}
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
+    if (!LLGestureMgr::instance().isGestureActive(self->mItemUUID))
+    {
+        LLGestureMgr::instance().activateGesture(self->mItemUUID);
+    }
+    else
+    {
+        LLGestureMgr::instance().deactivateGesture(self->mItemUUID);
+    }
 
-	// Make sure the (active) label in the inventory gets updated.
-	LLViewerInventoryItem* item = gInventory.getItem(self->mItemUUID);
-	if (item)
-	{
-		gInventory.updateItem(item);
-		gInventory.notifyObservers();
-	}
+    // Make sure the (active) label in the inventory gets updated.
+    LLViewerInventoryItem* item = gInventory.getItem(self->mItemUUID);
+    if (item)
+    {
+        gInventory.updateItem(item);
+        gInventory.notifyObservers();
+    }
 
-	self->refresh();
+    self->refresh();
 }
 
 // static
 void LLPreviewGesture::onClickSave(void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
-	self->saveIfNeeded();
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
+    self->saveIfNeeded();
 }
 
 // static
 void LLPreviewGesture::onClickPreview(void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	if (!self->mPreviewGesture)
-	{
-		// make temporary gesture
-		self->mPreviewGesture = self->createGesture();
+    if (!self->mPreviewGesture)
+    {
+        // make temporary gesture
+        self->mPreviewGesture = self->createGesture();
 
-		// add a callback
-		self->mPreviewGesture->mDoneCallback = onDonePreview;
-		self->mPreviewGesture->mCallbackData = self;
+        // add a callback
+        self->mPreviewGesture->mDoneCallback = onDonePreview;
+        self->mPreviewGesture->mCallbackData = self;
 
-		// set the button title
-		self->mPreviewBtn->setLabel(self->getString("stop_txt"));
+        // set the button title
+        self->mPreviewBtn->setLabel(self->getString("stop_txt"));
 
-		// play it, and delete when done
-		LLGestureMgr::instance().playGesture(self->mPreviewGesture);
+        // play it, and delete when done
+        LLGestureMgr::instance().playGesture(self->mPreviewGesture);
 
-		self->refresh();
-	}
-	else
-	{
-		// Will call onDonePreview() below
-		LLGestureMgr::instance().stopGesture(self->mPreviewGesture);
+        self->refresh();
+    }
+    else
+    {
+        // Will call onDonePreview() below
+        LLGestureMgr::instance().stopGesture(self->mPreviewGesture);
 
-		self->refresh();
-	}
+        self->refresh();
+    }
 }
 
 
 // static
 void LLPreviewGesture::onDonePreview(LLMultiGesture* gesture, void* data)
 {
-	LLPreviewGesture* self = (LLPreviewGesture*)data;
+    LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	self->mPreviewBtn->setLabel(self->getString("preview_txt"));
+    self->mPreviewBtn->setLabel(self->getString("preview_txt"));
 
-	delete self->mPreviewGesture;
-	self->mPreviewGesture = NULL;
+    delete self->mPreviewGesture;
+    self->mPreviewGesture = NULL;
 
-	self->refresh();
+    self->refresh();
 }

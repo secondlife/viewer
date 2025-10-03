@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_OPTIONS_H_
-#define	_LLCORE_HTTP_OPTIONS_H_
+#ifndef _LLCORE_HTTP_OPTIONS_H_
+#define _LLCORE_HTTP_OPTIONS_H_
 
 
 #include "httpcommon.h"
@@ -58,118 +58,118 @@ namespace LLCore
 class HttpOptions : private boost::noncopyable
 {
 public:
-	HttpOptions();
+    HttpOptions();
 
-	typedef boost::shared_ptr<HttpOptions> ptr_t;
+    typedef std::shared_ptr<HttpOptions> ptr_t;
 
-    virtual ~HttpOptions();						// Use release()
+    virtual ~HttpOptions();                     // Use release()
 
 protected:
-	
-	HttpOptions(const HttpOptions &);			// Not defined
-	void operator=(const HttpOptions &);		// Not defined
+
+    HttpOptions(const HttpOptions &);           // Not defined
+    void operator=(const HttpOptions &);        // Not defined
 
 public:
 
-	// Default:   false
-	void				setWantHeaders(bool wanted);
-	bool				getWantHeaders() const
-	{
-		return mWantHeaders;
-	}
+    // Default:   false
+    void                setWantHeaders(bool wanted);
+    bool                getWantHeaders() const
+    {
+        return mWantHeaders;
+    }
 
-	// Default:  0
-	void				setTrace(int long);
-	int					getTrace() const
-	{
-		return mTracing;
-	}
+    // Default:  0
+    void                setTrace(int long);
+    int                 getTrace() const
+    {
+        return mTracing;
+    }
 
-	// Default:  30
-	void				setTimeout(unsigned int timeout);
-	unsigned int		getTimeout() const
-	{
-		return mTimeout;
-	}
+    // Default:  30
+    void                setTimeout(unsigned int timeout);
+    unsigned int        getTimeout() const
+    {
+        return mTimeout;
+    }
 
-	// Default:  0
-	void				setTransferTimeout(unsigned int timeout);
-	unsigned int		getTransferTimeout() const
-	{
-		return mTransferTimeout;
-	}
+    // Default:  0
+    void                setTransferTimeout(unsigned int timeout);
+    unsigned int        getTransferTimeout() const
+    {
+        return mTransferTimeout;
+    }
 
-    /// Sets the number of retries on an LLCore::HTTPRequest before the 
+    /// Sets the number of retries on an LLCore::HTTPRequest before the
     /// request fails.
-	// Default:  5
-	void				setRetries(unsigned int retries);
-	unsigned int		getRetries() const
-	{
-		return mRetries;
-	}
+    // Default:  5
+    void                setRetries(unsigned int retries);
+    unsigned int        getRetries() const
+    {
+        return mRetries;
+    }
 
-	/// Sets minimal delay before request retries. In microseconds.
-	/// HttpPolicy will increase delay from min to max with each retry
-	// Default: 1 000 000 mcs
-	void				setMinBackoff(HttpTime delay);
-	HttpTime			getMinBackoff() const
-	{
-		return mMinRetryBackoff;
-	}
+    /// Sets minimal delay before request retries. In microseconds.
+    /// HttpPolicy will increase delay from min to max with each retry
+    // Default: 1 000 000 mcs
+    void                setMinBackoff(HttpTime delay);
+    HttpTime            getMinBackoff() const
+    {
+        return mMinRetryBackoff;
+    }
 
-	/// Sets maximum delay before request retries. In microseconds.
-	/// HttpPolicy will increase delay from min to max with each retry
-	// Default:  5 000 000 mcs
-	void				setMaxBackoff(HttpTime delay);
-	HttpTime			getMaxBackoff() const
-	{
-		return mMaxRetryBackoff;
-	}
+    /// Sets maximum delay before request retries. In microseconds.
+    /// HttpPolicy will increase delay from min to max with each retry
+    // Default:  5 000 000 mcs
+    void                setMaxBackoff(HttpTime delay);
+    HttpTime            getMaxBackoff() const
+    {
+        return mMaxRetryBackoff;
+    }
 
-	// Default:  true
-	void				setUseRetryAfter(bool use_retry);
-	bool				getUseRetryAfter() const
-	{
-		return mUseRetryAfter;
-	}
+    // Default:  true
+    void                setUseRetryAfter(bool use_retry);
+    bool                getUseRetryAfter() const
+    {
+        return mUseRetryAfter;
+    }
 
-    /// Instructs the LLCore::HTTPRequest to follow redirects 
-	/// Default: false
-	void				setFollowRedirects(bool follow_redirect);
-	bool				getFollowRedirects() const
-	{
-		return mFollowRedirects;
-	}
+    /// Instructs the LLCore::HTTPRequest to follow redirects
+    /// Default: false
+    void                setFollowRedirects(bool follow_redirect);
+    bool                getFollowRedirects() const
+    {
+        return mFollowRedirects;
+    }
 
     /// Instructs the LLCore::HTTPRequest to verify that the exchanged security
-    /// certificate is authentic. 
+    /// certificate is authentic.
     /// Default: sDefaultVerifyPeer
-    void				setSSLVerifyPeer(bool verify);
-	bool				getSSLVerifyPeer() const
-	{
-		return mVerifyPeer;
-	}
+    void                setSSLVerifyPeer(bool verify);
+    bool                getSSLVerifyPeer() const
+    {
+        return mVerifyPeer;
+    }
 
-    /// Instructs the LLCore::HTTPRequest to verify that the name in the 
+    /// Instructs the LLCore::HTTPRequest to verify that the name in the
     /// security certificate matches the name of the host contacted.
     /// Default: false
-    void				setSSLVerifyHost(bool verify);
-	bool	        	getSSLVerifyHost() const
-	{
-		return mVerifyHost;
-	}
+    void                setSSLVerifyHost(bool verify);
+    bool                getSSLVerifyHost() const
+    {
+        return mVerifyHost;
+    }
 
     /// Sets the time for DNS name caching in seconds.  Setting this value
-    /// to 0 will disable name caching.  Setting this value to -1 causes the 
+    /// to 0 will disable name caching.  Setting this value to -1 causes the
     /// name cache to never time out.
     /// Default: -1
-	void				setDNSCacheTimeout(int timeout);
-	int					getDNSCacheTimeout() const
-	{
-		return mDNSCacheTimeout;
-	}
+    void                setDNSCacheTimeout(int timeout);
+    int                 getDNSCacheTimeout() const
+    {
+        return mDNSCacheTimeout;
+    }
 
-    /// Retrieve only the headers and status from the request. Setting this 
+    /// Retrieve only the headers and status from the request. Setting this
     /// to true implies setWantHeaders(true) as well.
     /// Default: false
     void                setHeadersOnly(bool nobody);
@@ -178,26 +178,26 @@ public:
         return mNoBody;
     }
 
-    /// Sets default behavior for verifying that the name in the 
+    /// Sets default behavior for verifying that the name in the
     /// security certificate matches the name of the host contacted.
     /// Defaults false if not set, but should be set according to
     /// viewer's initialization options and command argunments, see
     /// NoVerifySSLCert
     static void         setDefaultSSLVerifyPeer(bool verify);
-	
+
 protected:
-	bool				mWantHeaders;
-	int					mTracing;
-	unsigned int		mTimeout;
-	unsigned int		mTransferTimeout;
-	unsigned int		mRetries;
-	HttpTime			mMinRetryBackoff;
-	HttpTime			mMaxRetryBackoff;
-	bool				mUseRetryAfter;
-	bool				mFollowRedirects;
-	bool				mVerifyPeer;
-	bool        		mVerifyHost;
-	int					mDNSCacheTimeout;
+    bool                mWantHeaders;
+    int                 mTracing;
+    unsigned int        mTimeout;
+    unsigned int        mTransferTimeout;
+    unsigned int        mRetries;
+    HttpTime            mMinRetryBackoff;
+    HttpTime            mMaxRetryBackoff;
+    bool                mUseRetryAfter;
+    bool                mFollowRedirects;
+    bool                mVerifyPeer;
+    bool                mVerifyHost;
+    int                 mDNSCacheTimeout;
     bool                mNoBody;
 
     static bool         sDefaultVerifyPeer;
@@ -206,4 +206,4 @@ protected:
 
 }  // end namespace HttpOptions
 
-#endif	// _LLCORE_HTTP_OPTIONS_H_
+#endif  // _LLCORE_HTTP_OPTIONS_H_

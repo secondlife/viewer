@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldraghandle.cpp
  * @brief LLDragHandle base class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -50,338 +50,338 @@ const S32 LEFT_PAD = BORDER_PAD + TITLE_HPAD + LEADING_PAD;
 S32 LLDragHandle::sSnapMargin = 5;
 
 LLDragHandle::LLDragHandle(const LLDragHandle::Params& p)
-:	LLView(p),
-	mDragLastScreenX( 0 ),
-	mDragLastScreenY( 0 ),
-	mLastMouseScreenX( 0 ),
-	mLastMouseScreenY( 0 ),
-	mTitleBox( NULL ),
-	mMaxTitleWidth( 0 ),
-	mForeground( TRUE ),
-	mDragHighlightColor(p.drag_highlight_color()),
-	mDragShadowColor(p.drag_shadow_color())
+:   LLView(p),
+    mDragLastScreenX( 0 ),
+    mDragLastScreenY( 0 ),
+    mLastMouseScreenX( 0 ),
+    mLastMouseScreenY( 0 ),
+    mTitleBox( NULL ),
+    mMaxTitleWidth( 0 ),
+    mForeground( true ),
+    mDragHighlightColor(p.drag_highlight_color()),
+    mDragShadowColor(p.drag_shadow_color())
 
 {
-	static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);
-	sSnapMargin = snap_margin;
+    static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);
+    sSnapMargin = snap_margin;
 }
 
 LLDragHandle::~LLDragHandle()
 {
     gFocusMgr.removeKeyboardFocusWithoutCallback(this);
-	removeChild(mTitleBox);
-	delete mTitleBox;
+    removeChild(mTitleBox);
+    delete mTitleBox;
 }
 
 void LLDragHandle::initFromParams(const LLDragHandle::Params& p)
 {
-	LLView::initFromParams(p);
-	setTitle( p.label );
+    LLView::initFromParams(p);
+    setTitle( p.label );
 }
 
-void LLDragHandle::setTitleVisible(BOOL visible) 
-{ 
-	if(mTitleBox)
-	{
-		mTitleBox->setVisible(visible); 
-	}
+void LLDragHandle::setTitleVisible(bool visible)
+{
+    if(mTitleBox)
+    {
+        mTitleBox->setVisible(visible);
+    }
 }
 
 void LLDragHandleTop::setTitle(const std::string& title)
 {
-	std::string trimmed_title = title;
-	LLStringUtil::trim(trimmed_title);
+    std::string trimmed_title = title;
+    LLStringUtil::trim(trimmed_title);
 
-	if( mTitleBox )
-	{
-		mTitleBox->setText(trimmed_title);
-	}
-	else
-	{
-		const LLFontGL* font = LLFontGL::getFontSansSerif();
-		LLTextBox::Params params;
-		params.name("Drag Handle Title");
-		params.rect(getRect());
-		params.initial_value(trimmed_title);
-		params.font(font);
-		params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
-		params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
-		params.use_ellipses = true;
-		params.parse_urls = false; //cancel URL replacement in floater title
-		mTitleBox = LLUICtrlFactory::create<LLTextBox> (params);
-		addChild( mTitleBox );
-	}
-	
-	reshapeTitleBox();
+    if( mTitleBox )
+    {
+        mTitleBox->setText(trimmed_title);
+    }
+    else
+    {
+        const LLFontGL* font = LLFontGL::getFontSansSerif();
+        LLTextBox::Params params;
+        params.name("Drag Handle Title");
+        params.rect(getRect());
+        params.initial_value(trimmed_title);
+        params.font(font);
+        params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
+        params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
+        params.use_ellipses = true;
+        params.parse_urls = false; //cancel URL replacement in floater title
+        mTitleBox = LLUICtrlFactory::create<LLTextBox> (params);
+        addChild( mTitleBox );
+    }
+
+    reshapeTitleBox();
 }
 
 
 std::string LLDragHandleTop::getTitle() const
 {
-	return mTitleBox == NULL ? LLStringUtil::null : mTitleBox->getText();
+    return mTitleBox == NULL ? LLStringUtil::null : mTitleBox->getText();
 }
 
 
 void LLDragHandleLeft::setTitle(const std::string& )
 {
-	if( mTitleBox )
-	{
-		removeChild(mTitleBox);
-		delete mTitleBox;
-		mTitleBox = NULL;
-	}
-	/* no title on left edge */
+    if( mTitleBox )
+    {
+        removeChild(mTitleBox);
+        delete mTitleBox;
+        mTitleBox = NULL;
+    }
+    /* no title on left edge */
 }
 
 
 std::string LLDragHandleLeft::getTitle() const
 {
-	return LLStringUtil::null;
+    return LLStringUtil::null;
 }
 
 
 void LLDragHandleTop::draw()
 {
-	/* Disable lines.  Can drag anywhere in most windows.  JC
-	if( getVisible() && getEnabled() && mForeground) 
-	{
-		const S32 BORDER_PAD = 2;
-		const S32 HPAD = 2;
-		const S32 VPAD = 2;
-		S32 left = BORDER_PAD + HPAD;
-		S32 top = getRect().getHeight() - 2 * VPAD;
-		S32 right = getRect().getWidth() - HPAD;
-//		S32 bottom = VPAD;
+    /* Disable lines.  Can drag anywhere in most windows.  JC
+    if( getVisible() && getEnabled() && mForeground)
+    {
+        const S32 BORDER_PAD = 2;
+        const S32 HPAD = 2;
+        const S32 VPAD = 2;
+        S32 left = BORDER_PAD + HPAD;
+        S32 top = getRect().getHeight() - 2 * VPAD;
+        S32 right = getRect().getWidth() - HPAD;
+//      S32 bottom = VPAD;
 
-		// draw lines for drag areas
+        // draw lines for drag areas
 
-		const S32 LINE_SPACING = (DRAG_HANDLE_HEIGHT - 2 * VPAD) / 4;
-		S32 line = top - LINE_SPACING;
+        const S32 LINE_SPACING = (DRAG_HANDLE_HEIGHT - 2 * VPAD) / 4;
+        S32 line = top - LINE_SPACING;
 
-		LLRect title_rect = mTitleBox->getRect();
-		S32 title_right = title_rect.mLeft + mTitleWidth;
-		BOOL show_right_side = title_right < getRect().getWidth();
+        LLRect title_rect = mTitleBox->getRect();
+        S32 title_right = title_rect.mLeft + mTitleWidth;
+        bool show_right_side = title_right < getRect().getWidth();
 
-		for( S32 i=0; i<4; i++ )
-		{
-			gl_line_2d(left, line+1, title_rect.mLeft - LEADING_PAD, line+1, mDragHighlightColor);
-			if( show_right_side )
-			{
-				gl_line_2d(title_right, line+1, right, line+1, mDragHighlightColor);
-			}
+        for( S32 i=0; i<4; i++ )
+        {
+            gl_line_2d(left, line+1, title_rect.mLeft - LEADING_PAD, line+1, mDragHighlightColor);
+            if( show_right_side )
+            {
+                gl_line_2d(title_right, line+1, right, line+1, mDragHighlightColor);
+            }
 
-			gl_line_2d(left, line, title_rect.mLeft - LEADING_PAD, line, mDragShadowColor);
-			if( show_right_side )
-			{
-				gl_line_2d(title_right, line, right, line, mDragShadowColor);
-			}
-			line -= LINE_SPACING;
-		}
-	}
-	*/
+            gl_line_2d(left, line, title_rect.mLeft - LEADING_PAD, line, mDragShadowColor);
+            if( show_right_side )
+            {
+                gl_line_2d(title_right, line, right, line, mDragShadowColor);
+            }
+            line -= LINE_SPACING;
+        }
+    }
+    */
 
-	// Colorize the text to match the frontmost state
-	if (mTitleBox)
-	{
-		mTitleBox->setEnabled(getForeground());
-	}
+    // Colorize the text to match the frontmost state
+    if (mTitleBox)
+    {
+        mTitleBox->setEnabled(getForeground());
+    }
 
-	LLView::draw();
+    LLView::draw();
 }
 
 
 // assumes GL state is set for 2D
 void LLDragHandleLeft::draw()
 {
-	/* Disable lines.  Can drag anywhere in most windows. JC
-	if( getVisible() && getEnabled() && mForeground ) 
-	{
-		const S32 BORDER_PAD = 2;
-//		const S32 HPAD = 2;
-		const S32 VPAD = 2;
-		const S32 LINE_SPACING = 3;
+    /* Disable lines.  Can drag anywhere in most windows. JC
+    if( getVisible() && getEnabled() && mForeground )
+    {
+        const S32 BORDER_PAD = 2;
+//      const S32 HPAD = 2;
+        const S32 VPAD = 2;
+        const S32 LINE_SPACING = 3;
 
-		S32 left = BORDER_PAD + LINE_SPACING;
-		S32 top = getRect().getHeight() - 2 * VPAD;
-//		S32 right = getRect().getWidth() - HPAD;
-		S32 bottom = VPAD;
- 
-		// draw lines for drag areas
+        S32 left = BORDER_PAD + LINE_SPACING;
+        S32 top = getRect().getHeight() - 2 * VPAD;
+//      S32 right = getRect().getWidth() - HPAD;
+        S32 bottom = VPAD;
 
-		// no titles yet
-		//LLRect title_rect = mTitleBox->getRect();
-		//S32 title_right = title_rect.mLeft + mTitleWidth;
-		//BOOL show_right_side = title_right < getRect().getWidth();
+        // draw lines for drag areas
 
-		S32 line = left;
-		for( S32 i=0; i<4; i++ )
-		{
-			gl_line_2d(line, top, line, bottom, mDragHighlightColor);
+        // no titles yet
+        //LLRect title_rect = mTitleBox->getRect();
+        //S32 title_right = title_rect.mLeft + mTitleWidth;
+        //bool show_right_side = title_right < getRect().getWidth();
 
-			gl_line_2d(line+1, top, line+1, bottom, mDragShadowColor);
+        S32 line = left;
+        for( S32 i=0; i<4; i++ )
+        {
+            gl_line_2d(line, top, line, bottom, mDragHighlightColor);
 
-			line += LINE_SPACING;
-		}
-	}
-	*/
+            gl_line_2d(line+1, top, line+1, bottom, mDragShadowColor);
 
-	// Colorize the text to match the frontmost state
-	if (mTitleBox)
-	{
-		mTitleBox->setEnabled(getForeground());
-	}
+            line += LINE_SPACING;
+        }
+    }
+    */
 
-	LLView::draw();
+    // Colorize the text to match the frontmost state
+    if (mTitleBox)
+    {
+        mTitleBox->setEnabled(getForeground());
+    }
+
+    LLView::draw();
 }
 
 void LLDragHandleTop::reshapeTitleBox()
 {
-	static LLUICachedControl<S32> title_vpad("UIFloaterTitleVPad", 0);
-	if( ! mTitleBox)
-	{
-		return;
-	}
-	const LLFontGL* font = LLFontGL::getFontSansSerif();
-	S32 title_width = getRect().getWidth();
-	title_width -= LEFT_PAD + 2 * BORDER_PAD + getButtonsRect().getWidth();
-	S32 title_height = font->getLineHeight();
-	LLRect title_rect;
-	title_rect.setLeftTopAndSize( 
-		LEFT_PAD, 
-		getRect().getHeight() - title_vpad,
-		title_width,
-		title_height);
+    static LLUICachedControl<S32> title_vpad("UIFloaterTitleVPad", 0);
+    if( ! mTitleBox)
+    {
+        return;
+    }
+    const LLFontGL* font = LLFontGL::getFontSansSerif();
+    S32 title_width = getRect().getWidth();
+    title_width -= LEFT_PAD + 2 * BORDER_PAD + getButtonsRect().getWidth();
+    S32 title_height = font->getLineHeight();
+    LLRect title_rect;
+    title_rect.setLeftTopAndSize(
+        LEFT_PAD,
+        getRect().getHeight() - title_vpad,
+        title_width,
+        title_height);
 
-	// calls reshape on mTitleBox
-	mTitleBox->setShape( title_rect );
+    // calls reshape on mTitleBox
+    mTitleBox->setShape( title_rect );
 }
 
-void LLDragHandleTop::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLDragHandleTop::reshape(S32 width, S32 height, bool called_from_parent)
 {
-	LLView::reshape(width, height, called_from_parent);
-	reshapeTitleBox();
+    LLView::reshape(width, height, called_from_parent);
+    reshapeTitleBox();
 }
 
-void LLDragHandleLeft::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLDragHandleLeft::reshape(S32 width, S32 height, bool called_from_parent)
 {
-	LLView::reshape(width, height, called_from_parent);
+    LLView::reshape(width, height, called_from_parent);
 }
 
 //-------------------------------------------------------------
 // UI event handling
 //-------------------------------------------------------------
 
-BOOL LLDragHandle::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLDragHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	// Route future Mouse messages here preemptively.  (Release on mouse up.)
-	// No handler needed for focus lost since this clas has no state that depends on it.
-	gFocusMgr.setMouseCapture(this);
+    // Route future Mouse messages here preemptively.  (Release on mouse up.)
+    // No handler needed for focus lost since this clas has no state that depends on it.
+    gFocusMgr.setMouseCapture(this);
 
-	localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
-	mLastMouseScreenX = mDragLastScreenX;
-	mLastMouseScreenY = mDragLastScreenY;
+    localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
+    mLastMouseScreenX = mDragLastScreenX;
+    mLastMouseScreenY = mDragLastScreenY;
 
-	// Note: don't pass on to children
-	return TRUE;
+    // Note: don't pass on to children
+    return true;
 }
 
 
-BOOL LLDragHandle::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLDragHandle::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if( hasMouseCapture() )
-	{
-		// Release the mouse
-		gFocusMgr.setMouseCapture( NULL );
-	}
+    if( hasMouseCapture() )
+    {
+        // Release the mouse
+        gFocusMgr.setMouseCapture( NULL );
+    }
 
-	// Note: don't pass on to children
-	return TRUE;
+    // Note: don't pass on to children
+    return true;
 }
 
 
-BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
+bool LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+    bool    handled = false;
 
-	// We only handle the click if the click both started and ended within us
-	if( hasMouseCapture() )
-	{
-		S32 screen_x;
-		S32 screen_y;
-		localPointToScreen(x, y, &screen_x, &screen_y);
+    // We only handle the click if the click both started and ended within us
+    if( hasMouseCapture() )
+    {
+        S32 screen_x;
+        S32 screen_y;
+        localPointToScreen(x, y, &screen_x, &screen_y);
 
-		// Resize the parent
-		S32 delta_x = screen_x - mDragLastScreenX;
-		S32 delta_y = screen_y - mDragLastScreenY;
+        // Resize the parent
+        S32 delta_x = screen_x - mDragLastScreenX;
+        S32 delta_y = screen_y - mDragLastScreenY;
 
-		// if dragging a docked floater we want to undock
-		LLFloater * parent = dynamic_cast<LLFloater *>(getParent());
-		if (parent && parent->isDocked())
-		{
-			const S32 SLOP = 12;
+        // if dragging a docked floater we want to undock
+        LLFloater * parent = dynamic_cast<LLFloater *>(getParent());
+        if (parent && parent->isDocked())
+        {
+            const S32 SLOP = 12;
 
-			if (delta_y <= -SLOP || 
-				delta_y >= SLOP)
-			{
-				parent->setDocked(false, false);
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
-		}
+            if (delta_y <= -SLOP ||
+                delta_y >= SLOP)
+            {
+                parent->setDocked(false, false);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-		LLRect original_rect = getParent()->getRect();
-		LLRect translated_rect = getParent()->getRect();
-		translated_rect.translate(delta_x, delta_y);
-		// temporarily slam dragged window to new position
-		getParent()->setRect(translated_rect);
-		S32 pre_snap_x = getParent()->getRect().mLeft;
-		S32 pre_snap_y = getParent()->getRect().mBottom;
-		mDragLastScreenX = screen_x;
-		mDragLastScreenY = screen_y;
+        LLRect original_rect = getParent()->getRect();
+        LLRect translated_rect = getParent()->getRect();
+        translated_rect.translate(delta_x, delta_y);
+        // temporarily slam dragged window to new position
+        getParent()->setRect(translated_rect);
+        S32 pre_snap_x = getParent()->getRect().mLeft;
+        S32 pre_snap_y = getParent()->getRect().mBottom;
+        mDragLastScreenX = screen_x;
+        mDragLastScreenY = screen_y;
 
-		LLRect new_rect;
-		LLCoordGL mouse_dir;
-		// use hysteresis on mouse motion to preserve user intent when mouse stops moving
-		mouse_dir.mX = (screen_x == mLastMouseScreenX) ? mLastMouseDir.mX : screen_x - mLastMouseScreenX;
-		mouse_dir.mY = (screen_y == mLastMouseScreenY) ? mLastMouseDir.mY : screen_y - mLastMouseScreenY;
-		mLastMouseDir = mouse_dir;
-		mLastMouseScreenX = screen_x;
-		mLastMouseScreenY = screen_y;
+        LLRect new_rect;
+        LLCoordGL mouse_dir;
+        // use hysteresis on mouse motion to preserve user intent when mouse stops moving
+        mouse_dir.mX = (screen_x == mLastMouseScreenX) ? mLastMouseDir.mX : screen_x - mLastMouseScreenX;
+        mouse_dir.mY = (screen_y == mLastMouseScreenY) ? mLastMouseDir.mY : screen_y - mLastMouseScreenY;
+        mLastMouseDir = mouse_dir;
+        mLastMouseScreenX = screen_x;
+        mLastMouseScreenY = screen_y;
 
-		LLView* snap_view = getParent()->findSnapRect(new_rect, mouse_dir, SNAP_PARENT_AND_SIBLINGS, sSnapMargin);
+        LLView* snap_view = getParent()->findSnapRect(new_rect, mouse_dir, SNAP_PARENT_AND_SIBLINGS, sSnapMargin);
 
-		getParent()->setSnappedTo(snap_view);
-		delta_x = new_rect.mLeft - pre_snap_x;
-		delta_y = new_rect.mBottom - pre_snap_y;
-		translated_rect.translate(delta_x, delta_y);
+        getParent()->setSnappedTo(snap_view);
+        delta_x = new_rect.mLeft - pre_snap_x;
+        delta_y = new_rect.mBottom - pre_snap_y;
+        translated_rect.translate(delta_x, delta_y);
 
-		// restore original rect so delta are detected, then call user reshape method to handle snapped floaters, etc
-		getParent()->setRect(original_rect);
-		getParent()->setShape(translated_rect, true);
+        // restore original rect so delta are detected, then call user reshape method to handle snapped floaters, etc
+        getParent()->setRect(original_rect);
+        getParent()->setShape(translated_rect, true);
 
-		mDragLastScreenX += delta_x;
-		mDragLastScreenY += delta_y;
+        mDragLastScreenX += delta_x;
+        mDragLastScreenY += delta_y;
 
-		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" <<LL_ENDL;		
-		handled = TRUE;
-	}
-	else
-	{
-		getWindow()->setCursor(UI_CURSOR_ARROW);
-		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;		
-		handled = TRUE;
-	}
+        getWindow()->setCursor(UI_CURSOR_ARROW);
+        LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" <<LL_ENDL;
+        handled = true;
+    }
+    else
+    {
+        getWindow()->setCursor(UI_CURSOR_ARROW);
+        LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;
+        handled = true;
+    }
 
-	// Note: don't pass on to children
+    // Note: don't pass on to children
 
-	return handled;
+    return handled;
 }
 
 void LLDragHandle::setValue(const LLSD& value)
 {
-	setTitle(value.asString());
+    setTitle(value.asString());
 }

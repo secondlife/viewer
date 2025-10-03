@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    name="emojipicker"
+    title="CHOOSE EMOJI"
+    help_topic="emojipicker"
+    single_instance="true"
+    can_minimize="false"
+    can_tear_off="false"
+    can_resize="true"
+    auto_close="true"
+    layout="topleft"
+    min_width="250"
+    chrome="true"
+    height="350"
+    width="304">
+  <floater.string name="title_for_frequently_used" value="Frequently used"/>
+  <floater.string name="text_no_emoji_for_filter" value="No emoji found for '[FILTER]'"/>
+  <scroll_container
+      name="EmojiGridContainer"
+      layout="topleft"
+      follows="all"
+      ignore_arrow_keys="true"
+      top="25"
+      left="0"
+      height="275">
+    <scrolling_panel_list
+        name="EmojiGrid"
+        layout="topleft"
+        follows="top|left|right"
+        padding="4"
+        spacing="0"
+        top="0"
+        left="0"/>
+  </scroll_container>
+  <panel
+      name="Groups"
+      layout="topleft"
+      follows="top|left|right"
+      top="0"
+      left="0"
+      height="25">
+    <panel
+      name="Badge"
+      layout="bottomleft"
+      follows="bottom|left"
+      background_visible="true"
+      background_opaque="true"
+      bg_opaque_color="FrogGreen"
+      tab_stop="false"
+      bottom="0"
+      height="2"
+      width="20"
+      />
+  </panel>
+  <text
+      name="Dummy"
+      type="string"
+      layout="bottomleft"
+      follows="bottom|left|right"
+      halign="center"
+      valign="center"
+      bottom="14"
+      left="10"
+      height="25">No emoji selected</text>
+</floater>

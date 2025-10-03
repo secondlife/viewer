@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldebugview.cpp
  * @brief A view containing UI elements only visible in build mode.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -52,83 +52,79 @@ LLDebugView* gDebugView = NULL;
 static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
-:	LLView(p),
-	mFastTimerView(NULL),
-	mDebugConsolep(NULL),
-	mFloaterSnapRegion(NULL)
+:   LLView(p),
+    mFastTimerView(NULL),
+    mDebugConsolep(NULL),
+    mFloaterSnapRegion(NULL)
 {}
 
 LLDebugView::~LLDebugView()
 {
-	// These have already been deleted.  Fix the globals appropriately.
-	gDebugView = NULL;
-	gTextureView = NULL;
-	gSceneView = NULL;
-	gSceneMonitorView = NULL;
+    // These have already been deleted.  Fix the globals appropriately.
+    gDebugView = NULL;
+    gTextureView = NULL;
+    gSceneView = NULL;
+    gSceneMonitorView = NULL;
 }
 
 void LLDebugView::init()
 {
-	LLRect r;
-	LLRect rect = getLocalRect();
+    LLRect r;
+    LLRect rect = getLocalRect();
 
-	// Rectangle to draw debug data in (full height, 3/4 width)
-	r.set(10, rect.getHeight() - 100, ((rect.getWidth()*3)/4), 100);
-	LLConsole::Params cp;
-	cp.name("debug console");
-	cp.max_lines(20);
-	cp.rect(r);
-	cp.font(LLFontGL::getFontMonospace());
-	cp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
-	cp.visible(false);
-	mDebugConsolep = LLUICtrlFactory::create<LLConsole>(cp);
-	addChild(mDebugConsolep);
+    // Rectangle to draw debug data in (full height, 3/4 width)
+    r.set(10, rect.getHeight() - 100, ((rect.getWidth()*3)/4), 100);
+    LLConsole::Params cp;
+    cp.name("debug console");
+    cp.max_lines(20);
+    cp.rect(r);
+    cp.font(LLFontGL::getFontMonospace());
+    cp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
+    cp.visible(false);
+    mDebugConsolep = LLUICtrlFactory::create<LLConsole>(cp);
+    addChild(mDebugConsolep);
 
-	r.set(150 - 25, rect.getHeight() - 50, rect.getWidth()/2 - 25, rect.getHeight() - 450);
+    r.set(150 - 25, rect.getHeight() - 50, rect.getWidth()/2 - 25, rect.getHeight() - 450);
 
-	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
-  									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
-	
-	mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("block_timers"));
+    r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f),
+                                     (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 
-	gSceneView = new LLSceneView(r);
-	gSceneView->setFollowsTop();
-	gSceneView->setFollowsLeft();
-	gSceneView->setVisible(FALSE);
-	addChild(gSceneView);
-	gSceneView->setRect(rect);
-	
-	gSceneMonitorView = new LLSceneMonitorView(r);
-	gSceneMonitorView->setFollowsTop();
-	gSceneMonitorView->setFollowsLeft();
-	gSceneMonitorView->setVisible(FALSE);
-	addChild(gSceneMonitorView);
-	gSceneMonitorView->setRect(rect);
-	
-	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
-									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
+    mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("block_timers"));
 
-	r.set(150, rect.getHeight() - 50, 820, 100);
-	LLTextureView::Params tvp;
-	tvp.name("gTextureView");
-	tvp.rect(r);
-	tvp.follows.flags(FOLLOWS_TOP|FOLLOWS_LEFT);
-	tvp.visible(false);
-	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
-	addChild(gTextureView);
-	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
+    gSceneView = new LLSceneView(r);
+    gSceneView->setFollowsTop();
+    gSceneView->setFollowsLeft();
+    gSceneView->setVisible(false);
+    addChild(gSceneView);
+    gSceneView->setRect(rect);
+
+    gSceneMonitorView = new LLSceneMonitorView(r);
+    gSceneMonitorView->setFollowsTop();
+    gSceneMonitorView->setFollowsLeft();
+    gSceneMonitorView->setVisible(false);
+    addChild(gSceneMonitorView);
+    gSceneMonitorView->setRect(rect);
+
+    r.set(150, rect.getHeight() - 60, 820, 110);
+    LLTextureView::Params tvp;
+    tvp.name("gTextureView");
+    tvp.rect(r);
+    tvp.follows.flags(FOLLOWS_TOP|FOLLOWS_LEFT);
+    tvp.visible(false);
+    gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
+    addChild(gTextureView);
 }
 
 void LLDebugView::draw()
 {
-	if (mFloaterSnapRegion == NULL)
-	{
-		mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
-	}
+    if (mFloaterSnapRegion == NULL)
+    {
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
+    }
 
-	LLRect debug_rect;
-	mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &debug_rect, getParent());
+    LLRect debug_rect;
+    mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &debug_rect, getParent());
 
-	setShape(debug_rect);
-	LLView::draw();
+    setShape(debug_rect);
+    LLView::draw();
 }

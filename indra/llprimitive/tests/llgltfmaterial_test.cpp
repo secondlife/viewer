@@ -1,30 +1,32 @@
-/** 
+/**
  * @file llgltfmaterial_test.cpp
  *
- * $LicenseInfo:firstyear=2023&license=viewerlgpl$                               
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$                                                               
+ * $/LicenseInfo$
  */
 
 #include "linden_common.h"
 #include "lltut.h"
+
+#include <set>
 
 #include "../llgltfmaterial.h"
 #include "lluuid.cpp"
@@ -108,9 +110,9 @@ namespace tut
 
         material.setAlphaCutoff(test_fraction);
         // Because this is the default value, it should append to the extras field to mark it as an override
-        material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE);
+        material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
         // Because this is the default value, it should append to the extras field to mark it as an override
-        material.setDoubleSided(false);
+        material.setDoubleSided(false, true);
 
         return material;
     }
@@ -143,7 +145,7 @@ namespace tut
 #if LL_WINDOWS
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
-        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 216);
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 232);
 #endif
 #endif
         ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
@@ -365,5 +367,75 @@ namespace tut
             material.setDoubleSided(true, true);
             ensure_equals("LLGLTFMaterial: double sided override flag unset", material.mOverrideDoubleSided, false);
         }
+    }
+
+    template<typename T>
+    void ensure_material_hash_pre(LLGLTFMaterial& material, T& material_field, const T new_value, const std::string& field_name)
+    {
+        ensure("LLGLTFMaterial: Hash: Test field " + field_name + " is part of the test material object", (
+                    size_t(&material_field) >= size_t(&material) &&
+                    (size_t(&material_field) + sizeof(material_field)) <= (size_t(&material) + sizeof(material))
+                    ));
+        ensure("LLGLTFMaterial: Hash: " + field_name + " differs and will cause a perturbation worth hashing", material_field != new_value);
+    }
+
+    template<typename T>
+    void ensure_material_hash_not_changed(LLGLTFMaterial& material, T& material_field, const T new_value, const std::string& field_name)
+    {
+        ensure_material_hash_pre(material, material_field, new_value, field_name);
+
+        const LLGLTFMaterial old_material = material;
+        material_field = new_value;
+        // If this test fails, consult LLGLTFMaterial::getHash, and optionally consult http://www.catb.org/esr/structure-packing/ for guidance on optimal memory packing (effectiveness is platform-dependent)
+        ensure_equals(("LLGLTFMaterial: Hash: Perturbing " + field_name + " to new value does NOT change the hash").c_str(), material.getHash(), old_material.getHash());
+    }
+
+    template<typename T>
+    void ensure_material_hash_changed(LLGLTFMaterial& material, T& material_field, const T new_value, const std::string& field_name)
+    {
+        ensure_material_hash_pre(material, material_field, new_value, field_name);
+
+        const LLGLTFMaterial old_material = material;
+        material_field = new_value;
+        // If this test fails, consult LLGLTFMaterial::getHash, and optionally consult http://www.catb.org/esr/structure-packing/ for guidance on optimal memory packing (effectiveness is platform-dependent)
+        ensure_not_equals(("LLGLTFMaterial: Hash: Perturbing " + field_name + " to new value changes the hash").c_str(), material.getHash(), old_material.getHash());
+    }
+
+#define ENSURE_HASH_NOT_CHANGED(HASH_MAT, SOURCE_MAT, FIELD) ensure_material_hash_not_changed(HASH_MAT, HASH_MAT.FIELD, SOURCE_MAT.FIELD, #FIELD)
+#define ENSURE_HASH_CHANGED(HASH_MAT, SOURCE_MAT, FIELD) ensure_material_hash_changed(HASH_MAT, HASH_MAT.FIELD, SOURCE_MAT.FIELD, #FIELD)
+
+    // Test LLGLTFMaterial::getHash, which is very sensitive to the ordering of fields
+    template<> template<>
+    void llgltfmaterial_object_t::test<12>()
+    {
+        // *NOTE: Due to direct manipulation of the fields of materials
+        // throughout this test, the resulting modified materials may not be
+        // compliant or properly serializable.
+
+        // Ensure all fields of source_mat are set to values that differ from
+        // LLGLTFMaterial::sDefault, even if that would result in an invalid
+        // material object.
+        LLGLTFMaterial source_mat = create_test_material();
+        source_mat.mTrackingIdToLocalTexture[LLUUID::generateNewID()] = LLUUID::generateNewID();
+        source_mat.mLocalTexDataDigest = 1;
+        source_mat.mAlphaMode = LLGLTFMaterial::ALPHA_MODE_MASK;
+        source_mat.mDoubleSided = true;
+
+        LLGLTFMaterial hash_mat;
+
+        ENSURE_HASH_NOT_CHANGED(hash_mat, source_mat, mTrackingIdToLocalTexture);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mLocalTexDataDigest);
+
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mTextureId);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mTextureTransform);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mBaseColor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mEmissiveColor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mMetallicFactor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mRoughnessFactor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mAlphaCutoff);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mAlphaMode);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mDoubleSided);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mOverrideDoubleSided);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mOverrideAlphaMode);
     }
 }

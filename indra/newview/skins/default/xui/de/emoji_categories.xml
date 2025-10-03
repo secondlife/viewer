@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="llsd.xsd">
+  <array>
+    <map>
+      <key>Name</key>
+      <string>smileys and emotion</string>
+      <key>Category</key>
+      <string>Smileys &amp; Emotionen</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>people and body</string>
+      <key>Category</key>
+      <string>Menschen &amp; Körper</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>components</string>
+      <key>Category</key>
+      <string>Komponenten</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>animals and nature</string>
+      <key>Category</key>
+      <string>Tiere &amp; Natur</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>food and drink</string>
+      <key>Category</key>
+      <string>Essen &amp; Trinken</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>travel and places</string>
+      <key>Category</key>
+      <string>Reisen &amp; Orte</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>activities</string>
+      <key>Category</key>
+      <string>Aktivitäten</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>objects</string>
+      <key>Category</key>
+      <string>Gegenstände</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>symbols</string>
+      <key>Category</key>
+      <string>Symbole</string>
+    </map>
+  </array>
+</llsd>

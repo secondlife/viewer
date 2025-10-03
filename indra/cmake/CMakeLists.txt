@@ -20,17 +20,16 @@ set(cmake_SOURCE_FILES
         Copy3rdPartyLibs.cmake
         DBusGlib.cmake
         DeploySharedLibs.cmake
+        Discord.cmake
         DragDrop.cmake
         EXPAT.cmake
         FindAutobuild.cmake
-        FMODSTUDIO.cmake
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
-        GoogleMock.cmake
+        GLM.cmake
         Havok.cmake
         Hunspell.cmake
-        JsonCpp.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
         LLAudio.cmake
@@ -55,16 +54,17 @@ set(cmake_SOURCE_FILES
         PulseAudio.cmake
         Python.cmake
         TemplateCheck.cmake
+        TinyEXR.cmake
+        TinyGLTF.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake
-        URIPARSER.cmake
         Variables.cmake
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake
-        XmlRpcEpi.cmake
-    xxHash.cmake
+        WebRTC.cmake
+        xxHash.cmake
         ZLIBNG.cmake
         )
 

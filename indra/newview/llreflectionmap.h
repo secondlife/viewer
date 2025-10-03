@@ -36,29 +36,38 @@ class alignas(16) LLReflectionMap : public LLRefCount
 {
     LL_ALIGN_NEW
 public:
-    // allocate an environment map of the given resolution 
+
+    enum class ProbeType
+    {
+        ALL = 0,
+        RADIANCE,
+        IRRADIANCE,
+        REFLECTION
+    };
+
+    // allocate an environment map of the given resolution
     LLReflectionMap();
 
     ~LLReflectionMap();
 
     // update this environment map
     // resolution - size of cube map to generate
-    void update(U32 resolution, U32 face);
+    void update(U32 resolution, U32 face, bool force_dynamic = false, F32 near_clip = -1.f, bool useClipPlane = false, LLPlane clipPlane = LLPlane(LLVector3(0, 0, 0), LLVector3(0, 0, 1)));
 
     // for volume partition probes, try to place this probe in the best spot
     void autoAdjustOrigin();
 
     // return true if given Reflection Map's influence volume intersect's with this one's
-    bool intersects(LLReflectionMap* other);
+    bool intersects(LLReflectionMap* other) const;
 
     // Get the ambiance value to use for this probe
-    F32 getAmbiance();
+    F32 getAmbiance() const;
 
     // Get the near clip plane distance to use for this probe
-    F32 getNearClip();
+    F32 getNearClip() const;
 
     // Return true if this probe should include avatars in its reflection map
-    bool getIsDynamic();
+    bool getIsDynamic() const;
 
     // get the encoded bounding box of this probe's influence volume
     // will only return a box if this probe is associated with a VOVolume
@@ -67,17 +76,17 @@ public:
     bool getBox(LLMatrix4& box);
 
     // return true if this probe is active for rendering
-    bool isActive();
+    bool isActive() const;
 
     // perform occlusion query/readback
     void doOcclusion(const LLVector4a& eye);
 
     // return false if this probe isn't currently relevant (for example, disabled due to graphics preferences)
-    bool isRelevant();
+    bool isRelevant() const;
 
     // point at which environment map was last generated from (in agent space)
     LLVector4a mOrigin;
-    
+
     // distance from main viewer camera
     F32 mDistance = -1.f;
 
@@ -97,7 +106,7 @@ public:
     // cube map used to sample this environment map
     LLPointer<LLCubeMapArray> mCubeArray;
     S32 mCubeIndex = -1; // index into cube map array or -1 if not currently stored in cube map array
-    
+
     // probe has had at least one full update and is ready to render
     bool mComplete = false;
 
@@ -115,7 +124,7 @@ public:
     LLSpatialGroup* mGroup = nullptr;
 
     // viewer object this probe is tracking (if any)
-    LLViewerObject* mViewerObject = nullptr;
+    LLPointer<LLViewerObject> mViewerObject;
 
     // what priority should this probe have (higher is higher priority)
     // currently only 0 or 1
@@ -127,5 +136,7 @@ public:
     GLuint mOcclusionQuery = 0;
     bool mOccluded = false;
     U32 mOcclusionPendingFrames = 0;
+
+    ProbeType mType;
 };
 

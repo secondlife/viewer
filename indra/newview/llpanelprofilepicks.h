@@ -50,7 +50,7 @@ public:
     LLPanelProfilePicks();
     /*virtual*/ ~LLPanelProfilePicks();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     void onOpen(const LLSD& key) override;
 
@@ -58,7 +58,7 @@ public:
     void selectPick(const LLUUID& pick_id);
 
     void processProperties(void* data, EAvatarProcessorType type) override;
-    void processProperties(const LLAvatarPicks* avatar_picks);
+    void processProperties(const LLAvatarData* avatar_picks);
 
     void resetData() override;
 
@@ -76,8 +76,6 @@ public:
 
     bool hasUnsavedChanges() override;
     void commitUnsavedChanges() override;
-
-    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 private:
     void onClickNewBtn();
@@ -110,7 +108,7 @@ public:
 
     /*virtual*/ ~LLPanelProfilePick();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     void setAvatarId(const LLUUID& avatar_id) override;
 
@@ -119,6 +117,8 @@ public:
 
     virtual void setPickName(const std::string& name);
     const std::string getPickName();
+    virtual void setPickLocation(const LLUUID& parcel_id, const std::string& location);
+    std::string getPickLocation() { return mPickLocationStr; };
 
     void processProperties(void* data, EAvatarProcessorType type) override;
     void processProperties(const LLPickData* pick_data);
@@ -126,7 +126,7 @@ public:
     /**
      * Returns true if any of Pick properties was changed by user.
      */
-    BOOL isDirty() const override;
+    bool isDirty() const override;
 
     /**
      * Saves changes.
@@ -137,10 +137,13 @@ public:
 
     //This stuff we got from LLRemoteParcelObserver, in the last one we intentionally do nothing
     void processParcelInfo(const LLParcelData& parcel_data) override;
-    void setParcelID(const LLUUID& parcel_id) override { mParcelId = parcel_id; }
+    void setParcelID(const LLUUID& parcel_id) override;
+    LLUUID getParcelID() const { return mParcelId; }
     void setErrorStatus(S32 status, const std::string& reason) override {};
 
-protected:
+    void addLocationChangedCallbacks();
+
+  protected:
 
     /**
      * Sends remote parcel info request to resolve parcel name from its ID.
@@ -184,7 +187,7 @@ protected:
     /**
      * Enables/disables "Save" button
      */
-    void enableSaveButton(BOOL enable);
+    void enableSaveButton(bool enable);
 
     /**
      * Called when snapshot image changes.
@@ -237,10 +240,16 @@ protected:
     LLUUID mParcelId;
     LLUUID mPickId;
     LLUUID mRequestedId;
+    std::string mPickNameStr;
+    std::string mPickLocationStr;
+    LLTimer mLastRequestTimer;
+
+    boost::signals2::connection mRegionCallbackConnection;
+    boost::signals2::connection mParcelCallbackConnection;
 
     bool mLocationChanged;
     bool mNewPick;
-    bool                mIsEditing;
+    bool mIsEditing;
 
     void onDescriptionFocusReceived();
 };
