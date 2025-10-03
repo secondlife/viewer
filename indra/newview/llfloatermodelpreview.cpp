@@ -1090,9 +1090,7 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
     }
     else if (which_mode == cube_mode)
     {
-        std::string path = gDirUtilp->getAppRODataDir();
-        gDirUtilp->append(path, "cube.dae");
-        sInstance->loadModel(LLModel::LOD_PHYSICS, path);
+        sInstance->loadModel(LLModel::LOD_PHYSICS, getBoundingBoxCubePath());
     }
 
     LLModelPreview *model_preview = sInstance->mModelPreview;
@@ -1322,18 +1320,19 @@ void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float mi
     }
 }
 
-std::string get_source_file_extr(const std::string& filename)
+std::string get_source_file_format(const std::string& filename)
 {
-    if (std::string::npos != filename.rfind(".gltf")
-        || std::string::npos != filename.rfind(".glb"))
+    const std::string extension = gDirUtilp->getExtension(filename);
+    if (extension == "gltf"
+        || extension == "glb")
     {
         return "gltf";
     }
-    else if (std::string::npos != filename.rfind(".dae"))
+    else if (extension == "dae")
     {
         return "dae";
     }
-    else if (std::string::npos != filename.rfind(".slm"))
+    else if (extension == "slm")
     {
         return "slm";
     }
@@ -1341,6 +1340,13 @@ std::string get_source_file_extr(const std::string& filename)
     {
         return "unknown file";
     }
+}
+
+std::string LLFloaterModelPreview::getBoundingBoxCubePath()
+{
+    std::string path = gDirUtilp->getAppRODataDir();
+    gDirUtilp->append(path, "cube.dae");
+    return path;
 }
 
 void LLFloaterModelPreview::fillLODSourceStatistics(LLFloaterModelPreview::lod_sources_map_t& lod_sources) const
@@ -1366,7 +1372,7 @@ void LLFloaterModelPreview::fillLODSourceStatistics(LLFloaterModelPreview::lod_s
         else if (mLODMode[lod] == LLModelPreview::LOD_FROM_FILE)
         {
             const std::string& file = mModelPreview->mLODFile[lod];
-            lod_sources[lod_string] = get_source_file_extr(file);
+            lod_sources[lod_string] = get_source_file_format(file);
         }
         else
         {
@@ -1387,11 +1393,10 @@ void LLFloaterModelPreview::fillLODSourceStatistics(LLFloaterModelPreview::lod_s
     else
     {
         const std::string& file = mModelPreview->mLODFile[LLModel::LOD_PHYSICS];
-        if (std::string::npos == file.rfind("cube.dae"))
+        const std::string cube = getBoundingBoxCubePath();
+        if (cube != file) // check for "cube.dae"
         {
-            // There is a chance it will misfire if someone tries to upload a cube.dae mesh,
-            // but should be negligible enough.
-            lod_sources["physics"] = get_source_file_extr(file);
+            lod_sources["physics"] = get_source_file_format(file);
         }
         else
         {

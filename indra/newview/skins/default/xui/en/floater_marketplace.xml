@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+ positioning="cascading"
+ legacy_header_height="225"
+ can_minimize="true"
+ can_close="true"
+ can_resize="true"
+ min_height="800"
+ min_width="800"
+ height="800"
+ layout="topleft"
+ name="Marketplace"
+ single_instance="true"
+ help_topic="marketplace"
+ save_rect="true"
+ save_visibility="true"
+ title="MARKETPLACE"
+ width="800">
+    <web_browser
+      top="25"
+      height="775"
+      width="800"
+      follows="all"
+      name="marketplace_contents"
+      trusted_content="true"/>
+</floater>

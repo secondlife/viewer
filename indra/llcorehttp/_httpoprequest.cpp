@@ -538,6 +538,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
     long sslHostV(0L);
     long dnsCacheTimeout(-1L);
     long nobody(0L);
+    curl_off_t lastModified(0L);
 
     if (mReqOptions)
     {
@@ -546,6 +547,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
         sslHostV = mReqOptions->getSSLVerifyHost() ? 2L : 0L;
         dnsCacheTimeout = mReqOptions->getDNSCacheTimeout();
         nobody = mReqOptions->getHeadersOnly() ? 1L : 0L;
+        lastModified = (curl_off_t)mReqOptions->getLastModified();
     }
     check_curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, follow_redirect);
 
@@ -553,6 +555,17 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
     check_curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, sslHostV);
 
     check_curl_easy_setopt(mCurlHandle, CURLOPT_NOBODY, nobody);
+
+    if (lastModified)
+    {
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
+#if (LIBCURL_VERSION_NUM >= 0x073B00)
+        // requires curl 7.59.0
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_TIMEVALUE_LARGE, lastModified);
+#else
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_TIMEVALUE, (long)lastModified);
+#endif
+    }
 
     // The Linksys WRT54G V5 router has an issue with frequent
     // DNS lookups from LAN machines.  If they happen too often,

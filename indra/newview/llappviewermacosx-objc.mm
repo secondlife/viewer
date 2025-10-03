@@ -33,45 +33,6 @@
 
 #include "llappviewermacosx-objc.h"
 
-void launchApplication(const std::string* app_name, const std::vector<std::string>* args)
-{
-
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
-	if (app_name->empty()) return;
-
-	NSMutableString* app_name_ns = [NSMutableString stringWithString:[[NSBundle mainBundle] resourcePath]];	//Path to resource dir
-	[app_name_ns appendFormat:@"/%@", [NSString stringWithCString:app_name->c_str() 
-								encoding:[NSString defaultCStringEncoding]]];
-
-	NSMutableArray *args_ns = nil;
-	args_ns = [[NSMutableArray alloc] init];
-
-	for (int i=0; i < args->size(); ++i)
-	{
-        NSLog(@"Adding string %s", (*args)[i].c_str());
-		[args_ns addObject:
-			[NSString stringWithCString:(*args)[i].c_str()
-						encoding:[NSString defaultCStringEncoding]]];
-	}
-
-    NSTask *task = [[NSTask alloc] init];
-    NSBundle *bundle = [NSBundle bundleWithPath:[[NSWorkspace sharedWorkspace] fullPathForApplication:app_name_ns]];
-    [task setLaunchPath:[bundle executablePath]];
-    [task setArguments:args_ns];
-    [task launch];
-    
-//	NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
-//	NSURL *url = [NSURL fileURLWithPath:[workspace fullPathForApplication:app_name_ns]];
-//
-//	NSError *error = nil;
-//	[workspace launchApplicationAtURL:url options:0 configuration:[NSDictionary dictionaryWithObject:args_ns forKey:NSWorkspaceLaunchConfigurationArguments] error:&error];
-	//TODO Handle error
-    
-    [pool release];
-	return;
-}
-
 void force_ns_sxeption()
 {
     NSException *exception = [NSException exceptionWithName:@"Forced NSException" reason:nullptr userInfo:nullptr];

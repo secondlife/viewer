@@ -10,10 +10,6 @@ include(WebRTC)
 
 project(llwebrtc)
 
-if (LINUX)
-    add_compile_options(-Wno-deprecated-declarations) # webrtc::CreateAudioDeviceWithDataObserver is deprecated
-endif (LINUX)
-
 set(llwebrtc_SOURCE_FILES
     llwebrtc.cpp
     )
@@ -46,7 +42,7 @@ if (WINDOWS)
                                        iphlpapi
                                        libcmt)
     # as the webrtc libraries are release, build this binary as release as well.
-    target_compile_options(llwebrtc PRIVATE "/MT")
+    target_compile_options(llwebrtc PRIVATE "/MT" "/Zc:wchar_t")
     if (USE_BUGSPLAT)
         set_target_properties(llwebrtc PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}")
     endif (USE_BUGSPLAT)
@@ -65,6 +61,8 @@ target_include_directories( llwebrtc INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 if (WINDOWS)
     set_property(TARGET llwebrtc PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+else()
+    target_compile_options(llwebrtc PRIVATE -Wno-deprecated-declarations) # webrtc::CreateAudioDeviceWithDataObserver is deprecated
 endif (WINDOWS)
 
 ADD_CUSTOM_COMMAND(TARGET llwebrtc POST_BUILD
