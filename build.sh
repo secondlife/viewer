@@ -261,8 +261,8 @@ build()
         done
     fi
 
-    # *TODO: Make this a build extension.
-    package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+    # *TODO: Make this a build extension. disabled for now
+    # package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
     end_section "extensions $variant"
 
   else
