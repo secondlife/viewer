@@ -5713,6 +5713,8 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         {
             try
             {
+                // providing mIndices should help avoid unused vertices
+                // but those should have been filtered out on upload
                 vert_count = static_cast<S32>(meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count));
             }
             catch (std::bad_alloc&)
@@ -5722,10 +5724,16 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             }
         }
 
-        if (vert_count < 65535 && vert_count != 0)
+        // Probably should be using meshopt_remapVertexBuffer instead of remaping manually
+        if (vert_count < 65535 && vert_count > 0)
         {
             //copy results back into volume
             resizeVertices(vert_count);
+            if (mNumVertices == 0)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS("LLCoros") << "Failed to allocate memory for resizeVertices(" << vert_count << ")" << LL_ENDL;
+            }
 
             if (!data.w.empty())
             {
@@ -5738,12 +5746,26 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             {
                 U32 src_idx = i;
                 U32 dst_idx = remap[i];
-                if (dst_idx >= (U32)mNumVertices)
+                if (dst_idx == U32_MAX)
+                {
+                    // Unused indices? Probably need to resize mIndices
+                    dst_idx = mNumVertices - 1;
+                    llassert(false);
+                    LL_DEBUGS_ONCE("LLVOLUME") << "U32_MAX destination index, substituting" << LL_ENDL;
+                }
+                else if (dst_idx >= (U32)mNumVertices)
                 {
                     dst_idx = mNumVertices - 1;
                     // Shouldn't happen, figure out what gets returned in remap and why.
                     llassert(false);
                     LL_DEBUGS_ONCE("LLVOLUME") << "Invalid destination index, substituting" << LL_ENDL;
+                }
+                if (src_idx >= (U32)data.p.size())
+                {
+                    // data.p.size() is supposed to be equal to mNumIndices
+                    src_idx = (U32)(data.p.size() - 1);
+                    llassert(false);
+                    LL_DEBUGS_ONCE("LLVOLUME") << "Invalid source index, substituting" << LL_ENDL;
                 }
                 mIndices[i] = dst_idx;
 
@@ -5778,7 +5800,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         }
         else
         {
-            if (vert_count == 0)
+            if (vert_count <= 0)
             {
                 LL_WARNS_ONCE("LLVOLUME") << "meshopt_generateVertexRemapMulti failed to process a model or model was invalid" << LL_ENDL;
             }

@@ -291,9 +291,8 @@ void LLWebRTCVoiceClient::terminate()
     LL_INFOS("Voice") << "Terminating WebRTC" << LL_ENDL;
 
     mVoiceEnabled = false;
+    sShuttingDown = true; // so that coroutines won't post more work.
     llwebrtc::terminate();
-
-    sShuttingDown = true;
 }
 
 //---------------------------------------------------
@@ -691,7 +690,10 @@ LLVoiceDeviceList& LLWebRTCVoiceClient::getCaptureDevices()
 
 void LLWebRTCVoiceClient::setCaptureDevice(const std::string& name)
 {
-    mWebRTCDeviceInterface->setCaptureDevice(name);
+    if (mWebRTCDeviceInterface)
+    {
+        mWebRTCDeviceInterface->setCaptureDevice(name);
+    }
 }
 void LLWebRTCVoiceClient::setDevicesListUpdated(bool state)
 {
@@ -778,7 +780,10 @@ LLVoiceDeviceList& LLWebRTCVoiceClient::getRenderDevices()
 
 void LLWebRTCVoiceClient::setRenderDevice(const std::string& name)
 {
-    mWebRTCDeviceInterface->setRenderDevice(name);
+    if (mWebRTCDeviceInterface)
+    {
+        mWebRTCDeviceInterface->setRenderDevice(name);
+    }
 }
 
 void LLWebRTCVoiceClient::tuningStart()
@@ -2653,6 +2658,11 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connectio
 void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
+    if (LLWebRTCVoiceClient::isShuttingDown())
+    {
+        mOutstandingRequests--;
+        return;
+    }
 
     LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(mRegionID);
 
@@ -3259,6 +3269,12 @@ LLVoiceWebRTCAdHocConnection::~LLVoiceWebRTCAdHocConnection()
 void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
+
+    if (LLWebRTCVoiceClient::isShuttingDown())
+    {
+        mOutstandingRequests--;
+        return;
+    }
 
     LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(mRegionID);
 

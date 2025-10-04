@@ -2265,23 +2265,9 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
                     //blank override out
                     LLGLTFMaterialList::queueApply(objectp, te, asset_id);
                 }
-                if (old_asset_id != asset_id)
-                {
-                    // Restore overrides and base material
-                    // Note: might not work reliably if asset is already there, might
-                    // have a server sided problem where servers applies override
-                    // first then resets it by adding asset, in which case need
-                    // to create a server ticket and chain asset then override
-                    // application.
-                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, material);
-                }
                 else
                 {
-                    // Enqueue override update to server
-                    // Note: this is suboptimal, better to send asset id as well
-                    // but there seems to be a server problem with queueApply
-                    // that ignores override in some cases
-                    LLGLTFMaterialList::queueModify(objectp, te, material);
+                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, material);
                 }
             }
             return true;
