@@ -380,17 +380,6 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
         LLGLTFMaterial* material = new LLGLTFMaterial(*material_override);
         sApplyQueue.push_back({ obj->getID(), side, asset_id, material });
     }
-
-    if (sUpdates.size() >= MAX_TASK_UPDATES)
-    {
-        LLCoros::instance().launch("modifyMaterialCoro",
-            std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
-                gAgent.getRegionCapability("ModifyMaterialParams"),
-                sUpdates,
-                std::shared_ptr<CallbackHolder>(nullptr)));
-
-        sUpdates = LLSD::emptyArray();
-    }
 }
 
 void LLGLTFMaterialList::queueUpdate(const LLSD& data)

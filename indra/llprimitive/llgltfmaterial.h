@@ -214,6 +214,14 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
+
+    // Convert legacy TE transform values to PBR transform values.
+    static void convertTextureTransformToPBR(F32 tex_scale_s, F32 tex_scale_t,
+                                             F32 tex_offset_s, F32 tex_offset_t,
+                                             F32 tex_rotation,
+                                             LLVector2& pbr_scale,
+                                             LLVector2& pbr_offset,
+                                             F32& pbr_rotation);
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
