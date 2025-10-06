@@ -127,26 +127,30 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
         // HACK: downcast
         LLViewerInventoryCategory* c = (LLViewerInventoryCategory*)cat;
 
-        bool descendents_match = true;
+        // Cache the category if it has a valid version number.
+        // Categories with mismatched descendent counts are still cached so that
+        // we preserve the folder structure. During async skeleton loading, these
+        // categories will be marked for refresh (VERSION_UNKNOWN) if their counts
+        // don't match, ensuring they get fetched from the server.
         if (c->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
         {
             const S32 descendents_server = c->getDescendentCount();
             const S32 descendents_actual = c->getViewerDescendentCount();
-            descendents_match = (descendents_server == descendents_actual);
 
-            if (!descendents_match)
+            if (descendents_server != descendents_actual)
             {
                 LL_DEBUGS("AsyncInventory") << "Caching category with mismatched descendents"
                                    << " cat_id=" << c->getUUID()
                                    << " name=\"" << c->getName() << "\""
                                    << " server_descendents=" << descendents_server
                                    << " viewer_descendents=" << descendents_actual
+                                   << " (will be marked for refresh on next login)"
                                    << LL_ENDL;
             }
-        }
 
-        mCachedCatIDs.insert(c->getUUID());
-        rv = true;
+            mCachedCatIDs.insert(c->getUUID());
+            rv = true;
+        }
     }
     return rv;
 }
@@ -2192,6 +2196,20 @@ void LLInventoryModel::idleNotifyObservers()
     // *FIX:  Think I want this conditional or moved elsewhere...
     handleResponses(true);
 
+    // Check if we have a pending notification from async inventory throttling
+    if (mAllowAsyncInventoryUpdates && mAsyncNotifyPending)
+    {
+        if (mAsyncNotifyTimer.getElapsedTimeF32() >= mAsyncNotifyIntervalSec)
+        {
+            // Timer has expired, force notification
+            mAsyncNotifyPending = false;
+            if (mModifyMask != LLInventoryObserver::NONE || (mChangedItemIDs.size() != 0))
+            {
+                notifyObservers();
+            }
+        }
+    }
+
     if (mLinksRebuildList.size() > 0)
     {
         if (mModifyMask != LLInventoryObserver::NONE || (mChangedItemIDs.size() != 0))
@@ -2229,6 +2247,8 @@ void LLInventoryModel::notifyObservers()
     {
         if (mAsyncNotifyTimer.getElapsedTimeF32() < mAsyncNotifyIntervalSec)
         {
+            // Mark that we have a pending notification that will be delivered
+            // on the next idleNotifyObservers() call after the timer expires
             mAsyncNotifyPending = true;
             return;
         }
@@ -2424,6 +2444,13 @@ void LLInventoryModel::cache(
         INCLUDE_TRASH,
         can_cache);
 
+    // Fallback pass: catch any categories/items that collectDescendentsIf missed.
+    // This can happen when:
+    // 1. Categories have VERSION_UNKNOWN (e.g., during async loading)
+    // 2. Parent-child tree has broken links (orphaned folders)
+    // 3. Categories with mismatched descendent counts weren't added to mCachedCatIDs
+    // Without this pass, we'd lose 80k+ folders in deeply nested inventories.
+    // (I feel like this might be surfacing a bug somewhere...)
     std::set<LLUUID> cached_category_ids;
     std::set<LLUUID> cached_item_ids;
     for (auto& cat_ptr : categories)
@@ -2441,8 +2468,6 @@ void LLInventoryModel::cache(
         }
     }
 
-    // Fallback pass: ensure every known category/item under the root is persisted
-    // even if the parent/child map failed to enumerate it.
     for (auto& entry : mCategoryMap)
     {
         LLViewerInventoryCategory* cat = entry.second;
@@ -2482,9 +2507,13 @@ void LLInventoryModel::cache(
         {
             continue;
         }
-        items.push_back(item);
-        cached_item_ids.insert(item_id);
+        if (can_cache(NULL, item))
+        {
+            items.push_back(item);
+            cached_item_ids.insert(item_id);
+        }
     }
+
     // Use temporary file to avoid potential conflicts with other
     // instances (even a 'read only' instance unzips into a file)
     std::string temp_file = gDirUtilp->getTempFilename();
@@ -3269,19 +3298,26 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
 {
     LL_INFOS(LOG_INV) << "LLInventoryModel::buildParentChildMap()" << LL_ENDL;
 
-    // Rebuild from scratch so we do not accumulate duplicate children
-    // across consecutive calls triggered during async skeleton hydration.
-    std::for_each(
-        mParentChildCategoryTree.begin(),
-        mParentChildCategoryTree.end(),
-        DeletePairedPointer());
-    mParentChildCategoryTree.clear();
+    // Clear existing parent-child maps if they exist to avoid duplicate entries.
+    // This handles the case where buildParentChildMap is called multiple times
+    // during async skeleton loading (once without validation, once with).
+    if (!mParentChildCategoryTree.empty())
+    {
+        std::for_each(
+            mParentChildCategoryTree.begin(),
+            mParentChildCategoryTree.end(),
+            DeletePairedPointer());
+        mParentChildCategoryTree.clear();
+    }
 
-    std::for_each(
-        mParentChildItemTree.begin(),
-        mParentChildItemTree.end(),
-        DeletePairedPointer());
-    mParentChildItemTree.clear();
+    if (!mParentChildItemTree.empty())
+    {
+        std::for_each(
+            mParentChildItemTree.begin(),
+            mParentChildItemTree.end(),
+            DeletePairedPointer());
+        mParentChildItemTree.clear();
+    }
 
     mCategoryLock.clear();
     mItemLock.clear();
@@ -3332,7 +3368,6 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
     S32 i;
     S32 lost = 0;
     cat_array_t lost_cats;
-    size_t tree_links_inserted = 0;
     for (auto& cat : cats)
     {
         catsp = getUnlockedCatArray(cat->getParentUUID());
@@ -3343,7 +3378,6 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
             cat->getPreferredType() == LLFolderType::FT_ROOT_INVENTORY ))
         {
             catsp->push_back(cat);
-            ++tree_links_inserted;
         }
         else
         {
@@ -3398,7 +3432,6 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         if(catsp)
         {
             catsp->push_back(cat);
-            ++tree_links_inserted;
         }
         else
         {
@@ -3414,7 +3447,6 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
     // have to do is iterate over the items and put them in the right
     // place.
     item_array_t items;
-    size_t item_links_inserted = 0;
     if(!mItemMap.empty())
     {
         LLPointer<LLViewerInventoryItem> item;
@@ -3432,7 +3464,6 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         if(itemsp)
         {
             itemsp->push_back(item);
-            ++item_links_inserted;
         }
         else
         {
@@ -3450,7 +3481,6 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
             if(itemsp)
             {
                 itemsp->push_back(item);
-                ++item_links_inserted;
             }
             else
             {
@@ -3491,19 +3521,13 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         }
     }
 
-    const size_t category_tree_nodes = mParentChildCategoryTree.size();
-    const size_t item_tree_nodes = mParentChildItemTree.size();
-    const S32 lost_items = lost;
-
     LL_INFOS("AsyncInventory") << "ParentChildMap summary"
                       << " category_map_size=" << mCategoryMap.size()
-                      << " category_tree_nodes=" << category_tree_nodes
-                      << " category_links=" << tree_links_inserted
+                      << " category_tree_nodes=" << mParentChildCategoryTree.size()
                       << " item_map_size=" << mItemMap.size()
-                      << " item_tree_nodes=" << item_tree_nodes
-                      << " item_links=" << item_links_inserted
+                      << " item_tree_nodes=" << mParentChildItemTree.size()
                       << " lost_categories=" << lost_categories
-                      << " lost_items=" << lost_items
+                      << " lost_items=" << lost
                       << LL_ENDL;
 
     if (run_validation)

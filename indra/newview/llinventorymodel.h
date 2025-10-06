@@ -224,10 +224,18 @@ private:
     // category pointers here, because broken links are also supported.
     typedef std::multimap<LLUUID, LLUUID> backlink_mmap_t;
     backlink_mmap_t mBacklinkMMap; // key = target_id: ID of item, values = link_ids: IDs of item or folder links referencing it.
-    bool mAllowAsyncInventoryUpdates{false};
-    bool mAsyncNotifyPending{false};
-    LLFrameTimer mAsyncNotifyTimer;
-    F32 mAsyncNotifyIntervalSec{0.05f};
+
+    // Async inventory loading support
+    bool mAllowAsyncInventoryUpdates{false};  // True when async skeleton loading is active
+    bool mAsyncNotifyPending{false};          // True when observer notification is throttled
+    LLFrameTimer mAsyncNotifyTimer;           // Timer for throttling observer notifications
+    F32 mAsyncNotifyIntervalSec{0.05f};       // Minimum interval between notifications (seconds)
+
+    // Tracks category version numbers as they were when loaded from disk cache.
+    // Used during async skeleton loading to determine if a cached category is still
+    // up-to-date compared to the server version received via AIS.
+    // Key: category UUID, Value: version number from cache
+    // Cleared when async loading completes or when categories are deleted.
     std::map<LLUUID, S32> mCachedCategoryVersions;
     // For internal use only
     bool hasBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id) const;

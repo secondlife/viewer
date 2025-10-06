@@ -226,22 +226,6 @@
 
 namespace
 {
-bool isEssentialFolderType(LLFolderType::EType folder_type)
-{
-    if (folder_type == LLFolderType::FT_NONE)
-    {
-        return false;
-    }
-
-    if (folder_type == LLFolderType::FT_ROOT_INVENTORY)
-    {
-        return true;
-    }
-
-    return LLFolderType::lookupIsSingletonType(folder_type)
-        || LLFolderType::lookupIsEnsembleType(folder_type);
-}
-
 class LLAsyncInventorySkeletonLoader
 {
 public:
@@ -312,9 +296,9 @@ private:
     LLFrameTimer mTotalTimer;
     LLFrameTimer mEssentialTimer;
 
-    F32 mCapsTimeoutSec = 45.f;
-    F32 mFetchTimeoutSec = 180.f;
-    F32 mEssentialTimeoutSec = 90.f;
+    F32 mCapsTimeoutSec;
+    F32 mFetchTimeoutSec;
+    F32 mEssentialTimeoutSec;
 
     boost::signals2::connection mCapsConnection;
     bool mIdleRegistered = false;
@@ -341,6 +325,12 @@ void LLAsyncInventorySkeletonLoader::reset()
 
     const U32 requested = gSavedSettings.getU32("AsyncInventoryMaxConcurrentFetches");
     mMaxConcurrentFetches = std::clamp(requested, 1U, 8U);
+
+    // Load timeout settings
+    mCapsTimeoutSec = gSavedSettings.getF32("AsyncInventoryCapsTimeout");
+    mFetchTimeoutSec = gSavedSettings.getF32("AsyncInventoryFetchTimeout");
+    mEssentialTimeoutSec = gSavedSettings.getF32("AsyncInventoryEssentialTimeout");
+
     mSawCurrentOutfitFolder = false;
 }
 
@@ -628,7 +618,7 @@ void LLAsyncInventorySkeletonLoader::evaluateChildren(const FetchRequest& reques
         {
             child_essential = true;
         }
-        else if (isEssentialFolderType(child->getPreferredType()))
+        else if (LLFolderType::lookupIsEssentialType(child->getPreferredType()))
         {
             child_essential = true;
         }
@@ -2672,6 +2662,19 @@ bool idle_startup()
             std::string failure_reason = gAsyncInventorySkeletonLoader.failureReason();
             LL_WARNS("AppInit") << "Async inventory skeleton failed: " << failure_reason << LL_ENDL;
             login_instance->recordAsyncInventoryFailure();
+
+            // Invalidate the cache to prevent corrupt data from being loaded on next login
+            const LLUUID& agent_id = gAgent.getID();
+            if (agent_id.notNull())
+            {
+                std::string cache_filename = LLInventoryModel::getInvCacheAddres(agent_id);
+                cache_filename.append(".gz");
+                if (LLFile::isfile(cache_filename))
+                {
+                    LL_WARNS("AppInit") << "Removing potentially corrupt inventory cache: " << cache_filename << LL_ENDL;
+                    LLFile::remove(cache_filename);
+                }
+            }
 
             LLSD args;
             std::string localized_message = LLTrans::getString("AsyncInventorySkeletonFailure");
