@@ -228,11 +228,11 @@ void LLFloaterModeration::refreshList()
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_ids[i]);
     }
 
-    addDummyResident("Snowshoe Cringifoot");
-    addDummyResident("Applepie Kitterbul");
-    addDummyResident("Wigglepod Bundersauce");
-    addDummyResident("Hufflesnuff Potterwhag");
-    addDummyResident("Joly Lotbinière");
+    //addDummyResident("Snowshoe Cringifoot");
+    //addDummyResident("Applepie Kitterbul");
+    //addDummyResident("Wigglepod Bundersauce");
+    //addDummyResident("Hufflesnuff Potterwhag");
+    //addDummyResident("Joly Lotbinière");
 
     // Initial state if sorted by loudness since this is likely whom you're looking to moderate
     sortListByLoudness();
