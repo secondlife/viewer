@@ -170,7 +170,7 @@ private:
     void notifyUnsupportedExtension(bool unsupported);
 
     static size_t getSuffixPosition(const std::string& label);
-    static std::string getLodlessLabel(const LL::GLTF::Mesh& mesh);
+    static std::string getLodlessLabel(const LL::GLTF::Node& mesh);
 
     //    bool mPreprocessGLTF;
 
