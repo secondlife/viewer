@@ -589,6 +589,9 @@ private:
     LLView*     mParentView;
     child_list_t mChildList;
 
+    // Cache for fast child lookup by name - O(1) instead of O(n)
+    mutable std::unordered_map<std::string_view, LLView*> mChildNameCache;
+
     // location in pixels, relative to surrounding structure, bottom,left=0,0
     bool        mVisible;
     LLRect      mRect;

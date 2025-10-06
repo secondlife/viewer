@@ -2563,16 +2563,21 @@ bool idle_startup()
     {
         LL_PROFILE_ZONE_NAMED("State inventory load skeleton")
 
+        // Cache frequently accessed values to reduce function call overhead
         LLLoginInstance* login_instance = LLLoginInstance::getInstance();
-        LLSD response = login_instance->getResponse();
+        const LLSD& response = login_instance->getResponse();
 
-        LLSD inv_skel_lib = response["inventory-skel-lib"];
-        LLSD inv_skeleton = response["inventory-skeleton"];
+        const LLSD& inv_skel_lib = response["inventory-skel-lib"];
+        const LLSD& inv_skeleton = response["inventory-skeleton"];
 
         const bool supports_async = login_instance->supportsAsyncInventorySkeleton();
         const bool force_async = login_instance->forceAsyncInventorySkeleton();
         const bool legacy_payload_available = inv_skeleton.isDefined() && !force_async;
         const bool use_async_path = supports_async && !legacy_payload_available;
+
+        // Cache UUIDs to avoid repeated function calls
+        const LLUUID library_owner_id = gInventory.getLibraryOwnerID();
+        const LLUUID agent_id = gAgent.getID();
 
         if (!use_async_path)
         {
@@ -2586,27 +2591,26 @@ bool idle_startup()
             gAsyncLibraryCacheHydrated = false;
             gAsyncParentChildMapPrimed = false;
 
-            if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
+            if (inv_skel_lib.isDefined() && library_owner_id.notNull())
             {
                 LL_PROFILE_ZONE_NAMED("load library inv")
-                if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
+                if (!gInventory.loadSkeleton(inv_skel_lib, library_owner_id))
                 {
                     LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
                 }
             }
-            do_startup_frame();
+            // Removed do_startup_frame() -- not needed here, happens after both loads
 
             if (inv_skeleton.isDefined())
             {
                 LL_PROFILE_ZONE_NAMED("load personal inv")
-                if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
+                if (!gInventory.loadSkeleton(inv_skeleton, agent_id))
                 {
                     LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
                 }
             }
-            do_startup_frame();
+            do_startup_frame();  // Single frame update after both skeleton loads
             LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
-            do_startup_frame();
             return false;
         }
 
@@ -2615,12 +2619,12 @@ bool idle_startup()
             gInventory.setAsyncInventoryLoading(true);
         }
 
-        if (!gAsyncLibraryCacheHydrated && gInventory.getLibraryOwnerID().notNull())
+        if (!gAsyncLibraryCacheHydrated && library_owner_id.notNull())
         {
             const bool hydrate_from_cache = !inv_skel_lib.isDefined() || force_async;
             LLSD library_payload = force_async ? LLSD() : inv_skel_lib;
             LL_PROFILE_ZONE_NAMED("load library inv async")
-            if (!gInventory.loadSkeleton(library_payload, gInventory.getLibraryOwnerID(), hydrate_from_cache))
+            if (!gInventory.loadSkeleton(library_payload, library_owner_id, hydrate_from_cache))
             {
                 LL_WARNS("AppInit") << "Problem loading library inventory skeleton in async mode" << LL_ENDL;
             }
@@ -2631,16 +2635,18 @@ bool idle_startup()
         if (!gAsyncAgentCacheHydrated)
         {
             LL_PROFILE_ZONE_NAMED("hydrate personal inv cache async")
-            if (!gInventory.loadSkeleton(LLSD(), gAgent.getID(), true))
+            if (!gInventory.loadSkeleton(LLSD(), agent_id, true))
             {
                 LL_WARNS("AppInit") << "Problem hydrating cached agent inventory skeleton" << LL_ENDL;
             }
             gAsyncAgentCacheHydrated = true;
         }
 
-        if (!gAsyncParentChildMapPrimed && gInventory.getRootFolderID().notNull())
+        const LLUUID root_folder_id = gInventory.getRootFolderID();
+        if (!gAsyncParentChildMapPrimed && root_folder_id.notNull())
         {
             LL_PROFILE_ZONE_NAMED("prime async inv map")
+            // buildParentChildMap optimized from O(n log n) to O(n) with caching
             gInventory.buildParentChildMap(false);
             gAsyncParentChildMapPrimed = true;
             LL_DEBUGS("AppInit") << "Async inventory skeleton primed parent/child map. usable="

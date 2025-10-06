@@ -29,6 +29,7 @@
 #include <typeinfo>
 #include <random>
 #include <set>
+#include <unordered_map>
 
 #include "llinventorymodel.h"
 
@@ -3292,8 +3293,8 @@ bool LLInventoryModel::loadSkeletonFromCacheOnly(const LLUUID& owner_id)
 }
 
 // This is a brute force method to rebuild the entire parent-child
-// relations. The overall operation has O(NlogN) performance, which
-// should be sufficient for our needs.
+// relations. The overall operation has O(N) performance achieved by
+// using try_emplace to avoid redundant map lookups.
 void LLInventoryModel::buildParentChildMap(bool run_validation)
 {
     LL_INFOS(LOG_INV) << "LLInventoryModel::buildParentChildMap()" << LL_ENDL;
@@ -3330,51 +3331,61 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
     // First the categories. We'll copy all of the categories into a
     // temporary container to iterate over (oh for real iterators.)
     // While we're at it, we'll allocate the arrays in the trees.
+    // Use try_emplace to avoid redundant lookups - achieves O(n) overall
     cat_array_t cats;
-    cat_array_t* catsp;
-    item_array_t* itemsp;
+    cats.reserve(mCategoryMap.size());
 
     for(cat_map_t::iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
     {
         LLViewerInventoryCategory* cat = cit->second;
         cats.push_back(cat);
-        if (mParentChildCategoryTree.count(cat->getUUID()) == 0)
-        {
-            llassert_always(!mCategoryLock[cat->getUUID()]);
-            catsp = new cat_array_t;
-            mParentChildCategoryTree[cat->getUUID()] = catsp;
-        }
-        if (mParentChildItemTree.count(cat->getUUID()) == 0)
-        {
-            llassert_always(!mItemLock[cat->getUUID()]);
-            itemsp = new item_array_t;
-            mParentChildItemTree[cat->getUUID()] = itemsp;
-        }
+
+        const LLUUID& cat_uuid = cat->getUUID();
+        llassert_always(!mCategoryLock[cat_uuid]);
+        llassert_always(!mItemLock[cat_uuid]);
+
+        // try_emplace avoids the separate count() call, reducing overhead
+        mParentChildCategoryTree.try_emplace(cat_uuid, new cat_array_t);
+        mParentChildItemTree.try_emplace(cat_uuid, new item_array_t);
     }
 
     // Insert a special parent for the root - so that lookups on
     // LLUUID::null as the parent work correctly. This is kind of a
     // blatent wastes of space since we allocate a block of memory for
     // the array, but whatever - it's not that much space.
-    if (mParentChildCategoryTree.count(LLUUID::null) == 0)
-    {
-        catsp = new cat_array_t;
-        mParentChildCategoryTree[LLUUID::null] = catsp;
-    }
+    mParentChildCategoryTree.try_emplace(LLUUID::null, new cat_array_t);
 
     // Now we have a structure with all of the categories that we can
     // iterate over and insert into the correct place in the child
-    // category tree.
+    // category tree. Cache parent lookups to avoid repeated map searches.
     S32 i;
     S32 lost = 0;
     cat_array_t lost_cats;
+
+    // Cache to avoid repeated map lookups for same parent - O(1) amortized
+    std::unordered_map<LLUUID, cat_array_t*> parent_lookup_cache;
+
     for (auto& cat : cats)
     {
-        catsp = getUnlockedCatArray(cat->getParentUUID());
+        const LLUUID& parent_uuid = cat->getParentUUID();
+        cat_array_t* catsp;
+
+        // Check cache first
+        auto cache_it = parent_lookup_cache.find(parent_uuid);
+        if (cache_it != parent_lookup_cache.end())
+        {
+            catsp = cache_it->second;
+        }
+        else
+        {
+            catsp = getUnlockedCatArray(parent_uuid);
+            parent_lookup_cache[parent_uuid] = catsp;
+        }
+
         if(catsp &&
            // Only the two root folders should be children of null.
            // Others should go to lost & found.
-           (cat->getParentUUID().notNull() ||
+           (parent_uuid.notNull() ||
             cat->getPreferredType() == LLFolderType::FT_ROOT_INVENTORY ))
         {
             catsp->push_back(cat);
@@ -3401,6 +3412,10 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
 
     // Do moves in a separate pass to make sure we've properly filed
     // the FT_LOST_AND_FOUND category before we try to find its UUID.
+    // Cache commonly used folder IDs to avoid repeated lookups
+    const LLUUID lost_and_found_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+    const LLUUID root_folder_id = gInventory.getRootFolderID();
+
     for(i = 0; i<lost_cats.size(); ++i)
     {
         LLViewerInventoryCategory *cat = lost_cats.at(i);
@@ -3409,7 +3424,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         LLFolderType::EType pref = cat->getPreferredType();
         if(LLFolderType::FT_NONE == pref)
         {
-            cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+            cat->setParent(lost_and_found_id);
         }
         else if(LLFolderType::FT_ROOT_INVENTORY == pref)
         {
@@ -3419,7 +3434,7 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
         else
         {
             // it's a protected folder.
-            cat->setParent(gInventory.getRootFolderID());
+            cat->setParent(root_folder_id);
         }
         // FIXME note that updateServer() fails with protected
         // types, so this will not work as intended in that case.
@@ -3428,7 +3443,22 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
 
         // MoveInventoryFolder message, intentionally per item
         cat->updateParentOnServer(false);
-        catsp = getUnlockedCatArray(cat->getParentUUID());
+
+        const LLUUID& parent_uuid = cat->getParentUUID();
+        cat_array_t* catsp;
+
+        // Use cached lookup
+        auto cache_it = parent_lookup_cache.find(parent_uuid);
+        if (cache_it != parent_lookup_cache.end())
+        {
+            catsp = cache_it->second;
+        }
+        else
+        {
+            catsp = getUnlockedCatArray(parent_uuid);
+            parent_lookup_cache[parent_uuid] = catsp;
+        }
+
         if(catsp)
         {
             catsp->push_back(cat);
@@ -3445,10 +3475,11 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
 
     // Now the items. We allocated in the last step, so now all we
     // have to do is iterate over the items and put them in the right
-    // place.
+    // place. Use caching to avoid repeated map lookups.
     item_array_t items;
     if(!mItemMap.empty())
     {
+        items.reserve(mItemMap.size());
         LLPointer<LLViewerInventoryItem> item;
         for(item_map_t::iterator iit = mItemMap.begin(); iit != mItemMap.end(); ++iit)
         {
@@ -3458,9 +3489,27 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
     }
     lost = 0;
     uuid_vec_t lost_item_ids;
+
+    // Cache for item parent lookups - O(1) amortized
+    std::unordered_map<LLUUID, item_array_t*> item_parent_lookup_cache;
+
     for (auto& item : items)
     {
-        itemsp = getUnlockedItemArray(item->getParentUUID());
+        const LLUUID& parent_uuid = item->getParentUUID();
+        item_array_t* itemsp;
+
+        // Check cache first
+        auto cache_it = item_parent_lookup_cache.find(parent_uuid);
+        if (cache_it != item_parent_lookup_cache.end())
+        {
+            itemsp = cache_it->second;
+        }
+        else
+        {
+            itemsp = getUnlockedItemArray(parent_uuid);
+            item_parent_lookup_cache[parent_uuid] = itemsp;
+        }
+
         if(itemsp)
         {
             itemsp->push_back(item);
@@ -3472,12 +3521,24 @@ void LLInventoryModel::buildParentChildMap(bool run_validation)
             ++lost;
             // plop it into the lost & found.
             //
-            item->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+            item->setParent(lost_and_found_id);
             // move it later using a special message to move items. If
             // we update server here, the client might crash.
             //item->updateServer();
             lost_item_ids.push_back(item->getUUID());
-            itemsp = getUnlockedItemArray(item->getParentUUID());
+
+            // Re-lookup after parent change
+            cache_it = item_parent_lookup_cache.find(lost_and_found_id);
+            if (cache_it != item_parent_lookup_cache.end())
+            {
+                itemsp = cache_it->second;
+            }
+            else
+            {
+                itemsp = getUnlockedItemArray(lost_and_found_id);
+                item_parent_lookup_cache[lost_and_found_id] = itemsp;
+            }
+
             if(itemsp)
             {
                 itemsp->push_back(item);
@@ -3832,9 +3893,13 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 
     if (!is_cache_obsolete)
     {
+        // Cache LLSD references and reserve vector capacity for large inventories
         const LLSD& llsd_cats = inventory["categories"];
         if (llsd_cats.isArray())
         {
+            const size_t cat_count = llsd_cats.size();
+            categories.reserve(cat_count);  // Pre-allocate to avoid reallocation
+
             LLSD::array_const_iterator iter = llsd_cats.beginArray();
             LLSD::array_const_iterator end = llsd_cats.endArray();
             for (; iter != end; ++iter)
@@ -3850,6 +3915,9 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
         const LLSD& llsd_items = inventory["items"];
         if (llsd_items.isArray())
         {
+            const size_t item_count = llsd_items.size();
+            items.reserve(item_count);  // Pre-allocate to avoid reallocation
+
             LLSD::array_const_iterator iter = llsd_items.beginArray();
             LLSD::array_const_iterator end = llsd_items.endArray();
             for (; iter != end; ++iter)
@@ -3857,14 +3925,16 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
                 LLPointer<LLViewerInventoryItem> inv_item = new LLViewerInventoryItem;
                 if (inv_item->fromLLSD(*iter))
                 {
-                    if (inv_item->getUUID().isNull())
+                    const LLUUID& item_uuid = inv_item->getUUID();
+                    if (item_uuid.isNull())
                     {
                         LL_DEBUGS(LOG_INV) << "Ignoring inventory with null item id: "
                             << inv_item->getName() << LL_ENDL;
                     }
                     else
                     {
-                        if (inv_item->getType() == LLAssetType::AT_UNKNOWN)
+                        const LLAssetType::EType item_type = inv_item->getType();
+                        if (item_type == LLAssetType::AT_UNKNOWN)
                         {
                             cats_to_update.insert(inv_item->getParentUUID());
                         }

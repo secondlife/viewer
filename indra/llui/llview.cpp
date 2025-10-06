@@ -305,6 +305,12 @@ bool LLView::addChild(LLView* child, S32 tab_group)
     // add to front of child list, as normal
     mChildList.push_front(child);
 
+    // Add to name cache for fast lookup
+    if (!child->getName().empty())
+    {
+        mChildNameCache[child->getName()] = child;
+    }
+
     // add to tab order list
     if (tab_group != 0)
     {
@@ -344,6 +350,13 @@ void LLView::removeChild(LLView* child)
         // if we are removing an item we are currently iterating over, that would be bad
         llassert(!child->mInDraw);
         mChildList.remove( child );
+
+        // Remove from name cache
+        if (!child->getName().empty())
+        {
+            mChildNameCache.erase(child->getName());
+        }
+
         child->mParentView = NULL;
         child_tab_order_t::iterator found = mTabOrder.find(child);
         if (found != mTabOrder.end())
@@ -1649,15 +1662,25 @@ LLView* LLView::findChildView(std::string_view name, bool recurse) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
+    // Check cache first for direct children - O(1) lookup instead of O(n)
+    auto cache_it = mChildNameCache.find(name);
+    if (cache_it != mChildNameCache.end())
+    {
+        return cache_it->second;
+    }
+
     // Look for direct children *first*
     for (LLView* childp : mChildList)
     {
         llassert(childp);
         if (childp->getName() == name)
         {
+            // Cache the result for next lookup
+            mChildNameCache[name] = childp;
             return childp;
         }
     }
+
     if (recurse)
     {
         // Look inside each child as well.
