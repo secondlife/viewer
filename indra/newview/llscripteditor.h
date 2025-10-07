@@ -41,15 +41,15 @@ public:
         Params();
     };
 
-    virtual ~LLScriptEditor() {};
+    ~LLScriptEditor() override {};
 
     // LLView override
-    virtual void    draw();
-    bool postBuild();
+    void    draw() override;
+    bool    postBuild() override;
 
     void    initKeywords(bool luau_language = false);
     void    loadKeywords();
-    /* virtual */ void  clearSegments();
+    void    clearSegments();
     LLKeywords::keyword_iterator_t keywordsBegin();
     LLKeywords::keyword_iterator_t keywordsEnd();
     LLKeywords& getKeywords();
@@ -66,8 +66,8 @@ public:
 
 private:
     void    drawLineNumbers();
-    /* virtual */ void  updateSegments();
-    /* virtual */ void  drawSelectionBackground();
+    void  updateSegments() override;
+    void  drawSelectionBackground() override;
 
     LLKeywords  mKeywordsLua;
     LLKeywords  mKeywordsLSL;

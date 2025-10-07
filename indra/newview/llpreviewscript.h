@@ -62,12 +62,12 @@ public:
     typedef boost::function<bool(const std::string& filename)> change_callback_t;
 
     LLLiveLSLFile(std::string file_path, change_callback_t change_cb);
-    ~LLLiveLSLFile();
+    ~LLLiveLSLFile() override;
 
     void ignoreNextUpdate() { mIgnoreNextUpdate = true; }
 
 protected:
-    /*virtual*/ bool loadFile();
+    bool loadFile() override;
 
     change_callback_t   mOnChangeCallback;
     bool                mIgnoreNextUpdate;
@@ -143,7 +143,7 @@ public:
     static bool     enableSaveToFileMenu(void* userdata);
     static bool     enableLoadFromFileMenu(void* userdata);
 
-    virtual bool    hasAccelerators() const { return true; }
+    bool            hasAccelerators() const override { return true; }
     LLUUID          getAssociatedExperience()const;
     void            setAssociatedExperience( const LLUUID& experience_id );
 
@@ -154,11 +154,11 @@ public:
     void            setAssetID( const LLUUID& asset_id){ mAssetID = asset_id; };
     LLUUID          getAssetID() const { return mAssetID; }
 
-    bool isFontSizeChecked(const LLSD &userdata);
-    void onChangeFontSize(const LLSD &size_name);
+    bool            isFontSizeChecked(const LLSD &userdata);
+    void            onChangeFontSize(const LLSD &size_name);
 
-    virtual bool handleKeyHere(KEY key, MASK mask);
-    void selectAll() { mEditor->selectAll(); }
+    bool            handleKeyHere(KEY key, MASK mask) override;
+    void            selectAll() { mEditor->selectAll(); }
 
     void            enableSave(bool b) { mEnableSave = b; }
     bool            hasChanged() const;
@@ -218,9 +218,9 @@ class LLScriptEdContainer : public LLPreview
 
 public:
     LLScriptEdContainer(const LLSD& key);
-    virtual ~LLScriptEdContainer();
+    ~LLScriptEdContainer() override;
 
-    bool handleKeyHere(KEY key, MASK mask);
+    bool handleKeyHere(KEY key, MASK mask) override;
 
     void startWebsocketServer();
     void unsubscribeScript();
@@ -249,7 +249,7 @@ class LLPreviewLSL : public LLScriptEdContainer
 {
 public:
     LLPreviewLSL(const LLSD& key );
-    ~LLPreviewLSL();
+    ~LLPreviewLSL() override;
 
     LLUUID getScriptID() { return mItemUUID; }
 
@@ -258,15 +258,15 @@ public:
     virtual void callbackLSLCompileSucceeded();
     virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
-    /*virtual*/ bool postBuild();
+    bool postBuild() override;
 
 protected:
-    virtual void draw();
-    virtual bool canClose();
+    void draw() override;
+    bool canClose() override;
     void closeIfNeeded();
 
-    virtual void loadAsset();
-    /*virtual*/ void saveIfNeeded(bool sync = true);
+    void loadAsset() override;
+    void saveIfNeeded(bool sync = true) override;
     void onCompileTargetChanged();
 
     static void onSearchReplace(void* userdata);
@@ -304,7 +304,7 @@ public:
                                             bool is_script_running);
     virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
-    /*virtual*/ bool postBuild();
+    bool postBuild() override;
 
     void setIsNew() { mIsNew = true; }
 
@@ -323,12 +323,12 @@ public:
     bool getIsModifiable() const { return mIsModifiable; } // Evaluated on load assert
 
 private:
-    virtual bool canClose();
+    bool canClose() override;
     void closeIfNeeded();
-    virtual void draw();
+    void draw() override;
 
-    virtual void loadAsset();
-    /*virtual*/ void saveIfNeeded(bool sync = true);
+    void loadAsset() override;
+    void saveIfNeeded(bool sync = true) override;
 
     static void onSearchReplace(void* userdata);
     static void onLoad(void* userdata);
