@@ -293,7 +293,7 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
     }
 }
 
-void LLScriptEditorWSServer::broadcastLangugeChange()
+void LLScriptEditorWSServer::broadcastLanguageChange()
 {
     LLUUID syntax_id = LLSyntaxIdLSL::instance().getSyntaxID();
 
