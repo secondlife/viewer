@@ -188,7 +188,7 @@ protected:
 
     void setupConnectionMethods(LLJSONRPCConnection::ptr_t connection) override;
 
-    void broadcastLangugeChange();
+    void broadcastLanguageChange();
 
     LLSD handleLanguageIdRequest() const;
     LLSD handleSyntaxRequest(const LLSD &params) const;

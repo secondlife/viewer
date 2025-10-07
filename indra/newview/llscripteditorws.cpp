@@ -83,7 +83,7 @@ void LLScriptEditorWSServer::onStarted()
             auto server = that.lock();
             if (server && server->isRunning())
             {
-                server->broadcastLangugeChange();
+                server->broadcastLanguageChange();
             }
         });
 }
@@ -150,15 +150,15 @@ void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
     auto it = mSubscriptions.find(script_id);
     if (it != mSubscriptions.end())
     {
-        mSubscriptions.erase(it);
         S32 connection_id = it->second.mConnectionID;
+        auto connection = it->second.mConnection.lock();
+        mSubscriptions.erase(it);
         ptrdiff_t count = std::count_if(mSubscriptions.begin(), mSubscriptions.end(), [connection_id](const auto& pair) {
             return pair.second.mConnectionID == connection_id;
         });
-        auto connection = it->second.mConnection.lock();
         if (connection && !count)
         { // We have removed the last subscription, close the connection
-            LL_DEBUGS("ScriptEditorWS") << "Closing connection ID " << it->second.mConnectionID <<
+            LL_DEBUGS("ScriptEditorWS") << "Closing connection ID " << connection_id <<
                 " as last subscription was removed" << LL_ENDL;
             connection->sendDisconnect(LLScriptEditorWSConnection::REASON_EDITOR_CLOSED, "Editor closed");
         }

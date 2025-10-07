@@ -419,7 +419,7 @@
                 </map>
                 <map>
                   <key>name</key>
-                  <string>outher</string>
+                  <string>other</string>
                   <key>type</key>
                   <string>integer</string>
                 </map>
@@ -440,7 +440,7 @@
                 </map>
                 <map>
                   <key>name</key>
-                  <string>outher</string>
+                  <string>other</string>
                   <key>type</key>
                   <string>number</string>
                 </map>
@@ -464,7 +464,7 @@
                 </map>
                 <map>
                   <key>name</key>
-                  <string>outher</string>
+                  <string>other</string>
                   <key>type</key>
                   <string>integer</string>
                 </map>
@@ -485,7 +485,7 @@
                 </map>
                 <map>
                   <key>name</key>
-                  <string>outher</string>
+                  <string>other</string>
                   <key>type</key>
                   <string>number</string>
                 </map>
