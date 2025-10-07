@@ -1,9 +1,10 @@
 /**
- * @file postDeferredNoDoFF.glsl
+ * @file class3/deferred/screenSpaceReflTraceV.glsl
+ * @brief Vertex shader for SSR trace pass
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,19 +24,18 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+uniform mat4 projection_matrix;
 
-out vec4 frag_color;
+in vec3 position;
 
-uniform sampler2D diffuseRect;
-uniform float mipLevel;
-
-in vec2 vary_fragcoord;
+out vec2 vary_fragcoord;
 
 void main()
 {
-    vec4 diff = textureLod(diffuseRect, vary_fragcoord.xy, 10);
+    // Transform vertex
+    vec4 pos = vec4(position.xyz, 1.0);
+    gl_Position = pos;
 
-    frag_color = diff;
+    // Pass through screen coordinates
+    vary_fragcoord = pos.xy * 0.5 + 0.5;
 }
-

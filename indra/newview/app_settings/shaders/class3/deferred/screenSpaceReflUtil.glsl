@@ -117,17 +117,20 @@ float epsilon = 0.000001;
 
 /**
  * @brief Samples the scene depth texture and converts it to linear view space Z depth.
+ * Transforms depth to previous frame camera space to match ray marching coordinate system.
  * @param tc Texture coordinates (screen space, 0-1 range) at which to sample the depth.
- * @return float The linear depth value.
+ * @return float The linear depth value in previous frame camera space.
  */
 float getLinearDepth(vec2 tc)
 {
     // Sample the raw depth value from the depth texture.
     float depth = texture(sceneDepth, tc).r;
-    // Reconstruct the view space position using the sampled depth.
+    // Reconstruct the view space position using the sampled depth (current frame space).
     vec4 pos = getPositionWithDepth(tc, depth);
-    // Return the Z component of the view space position, which is the linear depth.
-    return -pos.z; // Negated as view space Z is typically negative.
+    // Transform to previous frame camera space to match ray marching coordinate system.
+    vec4 pos_transformed = inv_modelview_delta * pos;
+    // Return the Z component of the transformed view space position.
+    return -pos_transformed.z; // Negated as view space Z is typically negative.
 }
 
 /**

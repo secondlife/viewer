@@ -752,17 +752,37 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
 #if defined(SSR)
     if (cube_snapshot != 1)
     {
-        vec4 ssr = vec4(0);
+        // Sample pre-computed SSR from buffer with roughness-based mip sampling
+        // The SSR buffer contains traced reflections, and mipmaps provide blur for roughness
+        float roughness = 1.0 - glossiness;
+
+        // Calculate mip level based on roughness
+        // This provides the convolution blur that was previously done via multi-sampling
+        vec2 ssrRes = textureSize(sceneMap, 0);
+        float maxDim = max(ssrRes.x, ssrRes.y);
+        float maxMipLevel = floor(log2(maxDim));
+        float mipLevel = roughness * roughness * maxMipLevel;
+
+        // Four-tap sampling pattern for better quality
+        // Offset by half-pixel in a rotated grid pattern
+        vec2 texelSize = 1.0 / ssrRes;
+        vec2 offsets[4];
+        offsets[0] = vec2(-0.5, -0.5) * texelSize;
+        offsets[1] = vec2( 0.5, -0.5) * texelSize;
+        offsets[2] = vec2(-0.5,  0.5) * texelSize;
+        offsets[3] = vec2( 0.5,  0.5) * texelSize;
+
+        vec4 ssr = vec4(0.0);
+        for (int i = 0; i < 4; ++i)
+        {
+            ssr += textureLod(sceneMap, tc + offsets[i], 10);
+        }
+        ssr *= 0.25; // Average the four samples
+
         if (transparent)
         {
-            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, 1);
             ssr.a *= glossiness;
         }
-        else
-        {
-            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
-        }
-
 
         glossenv = mix(glossenv, ssr.rgb, ssr.a);
     }

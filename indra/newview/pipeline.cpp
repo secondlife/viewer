@@ -911,10 +911,18 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         if(RenderScreenSpaceReflections)
         {
             mSceneMap.allocate(resX, resY, screenFormat, true, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
+            // Allocate SSR buffer at quarter resolution with automatic mipmap generation
+            // RGBA format: RGB = reflection color, A = hit mask/edge fade
+            // Quarter resolution reduces memory and improves performance
+            // Round to nearest power of 2 for proper mipmap generation
+            U32 ssr_width = nhpo2(resX/4);
+            U32 ssr_height = nhpo2(resY/4);
+            mSSRBuffer.allocate(ssr_width, ssr_height, GL_RGBA16F, true, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
         }
         else
         {
             mSceneMap.release();
+            mSSRBuffer.release();
         }
 
         mPostPingMap.allocate(resX, resY, GL_RGBA);
@@ -7327,6 +7335,204 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
     }
 }
 
+void LLPipeline::renderSSRTrace(LLRenderTarget* dst)
+{
+    if (RenderScreenSpaceReflections && !gCubeSnapshot && gSSRTraceProgram.isComplete())
+    {
+        LL_PROFILE_GPU_ZONE("ssr trace");
+        LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+        dst->bindTarget();
+        dst->clear();
+
+        gSSRTraceProgram.bind();
+
+        // Bind G-buffer normal and depth for ray origin/direction
+        S32 channel = gSSRTraceProgram.enableTexture(LLShaderMgr::NORMAL_MAP);
+        if (channel > -1)
+        {
+            mRT->deferredScreen.bindTexture(2, channel, LLTexUnit::TFO_POINT);
+        }
+
+        channel = gSSRTraceProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH);
+        if (channel > -1)
+        {
+            gGL.getTexUnit(channel)->bind(&mRT->deferredScreen, true);
+        }
+
+        // Bind scene color and depth for ray marching
+        channel = gSSRTraceProgram.enableTexture(LLShaderMgr::SCENE_MAP);
+        if (channel > -1)
+        {
+            gGL.getTexUnit(channel)->bind(&mSceneMap);
+        }
+
+        channel = gSSRTraceProgram.enableTexture(LLShaderMgr::SCENE_DEPTH);
+        if (channel > -1)
+        {
+            gGL.getTexUnit(channel)->bind(&mSceneMap, true);
+        }
+
+        // Set SSR uniforms (same as reflection probe binding)
+        static LLCachedControl<LLVector3> traceIterations(gSavedSettings, "RenderScreenSpaceReflectionIterations");
+        static LLCachedControl<LLVector3> traceSteps(gSavedSettings, "RenderScreenSpaceReflectionRayStep");
+        static LLCachedControl<LLVector3> traceDistanceBias(gSavedSettings, "RenderScreenSpaceReflectionDistanceBias");
+        static LLCachedControl<LLVector3> traceRejectBias(gSavedSettings, "RenderScreenSpaceReflectionDepthRejectBias");
+        static LLCachedControl<LLVector3> traceStepMultiplier(gSavedSettings, "RenderScreenSpaceReflectionAdaptiveStepMultiplier");
+        static LLCachedControl<LLVector3> traceSplitStart(gSavedSettings, "RenderScreenSpaceReflectionSplitStart");
+        static LLCachedControl<LLVector3> traceSplitEnd(gSavedSettings, "RenderScreenSpaceReflectionSplitEnd");
+        static LLCachedControl<F32> traceMaxDepth(gSavedSettings, "RenderScreenSpaceReflectionMaxDepth");
+        static LLCachedControl<F32> traceMaxRoughness(gSavedSettings, "RenderScreenSpaceReflectionMaxRoughness");
+
+        // Set common uniforms needed for SSR tracing
+        gSSRTraceProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)mRT->screen.getWidth(), (GLfloat)mRT->screen.getHeight());
+
+        // Projection matrices
+        glm::mat4 proj = get_current_projection();
+        glm::mat4 inv_proj = glm::inverse(proj);
+        gSSRTraceProgram.uniformMatrix4fv(LLShaderMgr::PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(proj));
+        gSSRTraceProgram.uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(inv_proj));
+
+        // Modelview delta matrices
+        gSSRTraceProgram.uniformMatrix4fv(LLShaderMgr::MODELVIEW_DELTA_MATRIX, 1, GL_FALSE, glm::value_ptr(gGLDeltaModelView));
+        gSSRTraceProgram.uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_DELTA_MATRIX, 1, GL_FALSE, glm::value_ptr(gGLInverseDeltaModelView));
+
+        // Camera near/far
+        gSSRTraceProgram.uniform1f(LLShaderMgr::DEFERRED_NEAR_CLIP, LLViewerCamera::getInstance()->getNear());
+        static LLStaticHashedString zFar("zFar");
+        gSSRTraceProgram.uniform1f(zFar, LLViewerCamera::getInstance()->getFar());
+
+        // Set SSR-specific uniforms
+        gSSRTraceProgram.uniform3fv(LLShaderMgr::DEFERRED_SSR_ITR_COUNT, 1, traceIterations().mV);
+        gSSRTraceProgram.uniform3fv(LLShaderMgr::DEFERRED_SSR_DIST_BIAS, 1, traceDistanceBias().mV);
+        gSSRTraceProgram.uniform3fv(LLShaderMgr::DEFERRED_SSR_RAY_STEP, 1, traceSteps().mV);
+        gSSRTraceProgram.uniform3fv(sTraceDepthRejectBias, 1, traceRejectBias().mV);
+        gSSRTraceProgram.uniform3fv(LLShaderMgr::DEFERRED_SSR_ADAPTIVE_STEP_MULT, 1, traceStepMultiplier().mV);
+        gSSRTraceProgram.uniform3fv(LLShaderMgr::DEFERRED_SSR_SPLIT_START, 1, traceSplitStart().mV);
+        gSSRTraceProgram.uniform3fv(LLShaderMgr::DEFERRED_SSR_SPLIT_END, 1, traceSplitEnd().mV);
+        gSSRTraceProgram.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_Z, traceMaxDepth());
+        gSSRTraceProgram.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_ROUGHNESS, traceMaxRoughness());
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        gSSRTraceProgram.unbind();
+        dst->flush(); // TMG_AUTO will generate mipmaps automatically
+    }
+}
+
+void LLPipeline::renderSSRBlur(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    if (RenderScreenSpaceReflections && !gCubeSnapshot && gSSRBlurProgram.isComplete())
+    {
+        LL_PROFILE_GPU_ZONE("ssr blur");
+        LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+        dst->bindTarget();
+        dst->clear();
+
+        gSSRBlurProgram.bind();
+
+        // Bind SSR buffer with mipmaps
+        S32 channel = gSSRBlurProgram.getTextureChannel(LLShaderMgr::SCENE_MAP);
+        if (channel > -1)
+        {
+            gGL.getTexUnit(channel)->bind(src);
+        }
+
+        // Bind G-buffer for roughness
+        channel = gSSRBlurProgram.enableTexture(LLShaderMgr::DEFERRED_SPECULAR);
+        if (channel > -1)
+        {
+            gGL.getTexUnit(channel)->bind(&mRT->deferredScreen, true);
+        }
+
+        channel = gSSRBlurProgram.enableTexture(LLShaderMgr::NORMAL_MAP);
+        if (channel > -1)
+        {
+            mRT->deferredScreen.bindTexture(2, channel, LLTexUnit::TFO_POINT);
+        }
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        gSSRBlurProgram.unbind();
+        dst->flush();
+    }
+}
+
+// General purpose mipmap generation with proper filtering
+// Based on hero probe manager's mipmap generation
+void LLPipeline::generateMipmaps(LLRenderTarget* src, std::vector<LLRenderTarget>& mip_chain)
+{
+    if (!gReflectionMipProgram.isComplete() || mip_chain.empty())
+    {
+        return;
+    }
+
+    LL_PROFILE_GPU_ZONE("generate mipmaps");
+    LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+    LLGLDisable cull(GL_CULL_FACE);
+    LLGLDisable blend(GL_BLEND);
+
+    gReflectionMipProgram.bind();
+
+    S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+
+    static LLStaticHashedString resScale("resScale");
+    static LLStaticHashedString znear("znear");
+    static LLStaticHashedString zfar("zfar");
+
+    U32 width = src->getWidth();
+    U32 height = src->getHeight();
+
+    // resScale is CONSTANT for all mips (based on source resolution)
+    F32 max_dim = (F32)(width > height ? width : height);
+    gReflectionMipProgram.uniform1f(resScale, 1.f / max_dim);
+    gReflectionMipProgram.uniform1f(znear, 0.01f);
+    gReflectionMipProgram.uniform1f(zfar, 1024.f);
+
+    S32 mips = (S32)(log2(max_dim) + 0.5f);
+
+    for (int i = 0; i < mip_chain.size(); ++i)
+    {
+        mip_chain[i].bindTarget();
+
+        if (i == 0)
+        {
+            // First mip: downsample from source render target
+            gGL.getTexUnit(diffuseChannel)->bind(src);
+        }
+        else
+        {
+            // Subsequent mips: downsample from previous mip
+            gGL.getTexUnit(diffuseChannel)->bind(&(mip_chain[i - 1]));
+        }
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        // Halve dimensions BEFORE copy (like hero probe manager)
+        width /= 2;
+        height /= 2;
+
+        // Calculate which mip level this corresponds to in the final texture
+        GLint mip = i - (S32(mip_chain.size()) - mips);
+
+        if (mip >= 0)
+        {
+            // Copy this mip level to the final texture while framebuffer is still bound
+            glBindTexture(GL_TEXTURE_2D, src->getTexture());
+            glCopyTexSubImage2D(GL_TEXTURE_2D, mip, 0, 0, 0, 0, width, height);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        mip_chain[i].flush();
+    }
+
+    gReflectionMipProgram.unbind();
+}
+
 void LLPipeline::generateGlow(LLRenderTarget* src)
 {
     LL_PROFILE_GPU_ZONE("glow generate");
@@ -8021,6 +8227,17 @@ void LLPipeline::renderFinalize()
     {
         copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
 
+        // Render SSR using new two-pass approach
+        // 1. Trace rays to buffer (single ray, no multi-sampling)
+        // 2. Apply roughness-based blur via mip sampling
+        if (RenderScreenSpaceReflections)
+        {
+            renderSSRTrace(&mSSRBuffer);
+            // Mipmaps are generated automatically (TMG_AUTO)
+            // Note: Blur pass is now handled inline during reflection probe sampling
+            // by sampling mSSRBuffer with appropriate mip level based on roughness
+        }
+
         generateLuminance(&mRT->screen, &mLuminanceMap);
 
         generateExposure(&mLuminanceMap, &mExposureMap);
@@ -8103,6 +8320,14 @@ void LLPipeline::renderFinalize()
             if (RenderFSAAType == 2)
             {
                 visualizeBuffers(&mSMAABlendBuffer, sourceBuffer, 0);
+            }
+            break;
+        }
+        case 7:
+        {
+            if (RenderScreenSpaceReflections)
+            {
+                visualizeBuffers(&mSSRBuffer, sourceBuffer, 0);
             }
             break;
         }
@@ -9377,11 +9602,14 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 
     if (RenderScreenSpaceReflections)
     {
-        // reflection probe shaders generally sample the scene map as well for SSR
+        // Bind SSR buffer which contains pre-traced reflections with mipmaps for roughness-based blur
+        // This replaces the old inline SSR computation with a more efficient buffer-based approach
         channel = shader.enableTexture(LLShaderMgr::SCENE_MAP);
         if (channel > -1)
         {
-            gGL.getTexUnit(channel)->bind(&mSceneMap);
+            gGL.getTexUnit(channel)->bind(&mSSRBuffer);
+            // Enable trilinear filtering for smooth mip transitions
+            gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
         }
 
         static LLCachedControl<LLVector3> traceIterations(gSavedSettings, "RenderScreenSpaceReflectionIterations");

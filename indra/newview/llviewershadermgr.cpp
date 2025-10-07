@@ -137,6 +137,10 @@ LLGLSLShader            gGlowProgram;
 LLGLSLShader            gGlowExtractProgram;
 LLGLSLShader            gPostScreenSpaceReflectionProgram;
 
+// SSR Shaders
+LLGLSLShader            gSSRTraceProgram;
+LLGLSLShader            gSSRBlurProgram;
+
 // Deferred rendering shaders
 LLGLSLShader            gDeferredImpostorProgram;
 LLGLSLShader            gDeferredDiffuseProgram;
@@ -2995,6 +2999,28 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gPostScreenSpaceReflectionProgram.mFeatures.isDeferred                = true;
         gPostScreenSpaceReflectionProgram.mShaderLevel = 3;
         success = gPostScreenSpaceReflectionProgram.createShader();
+    }
+
+    if (success) {
+        gSSRTraceProgram.mName = "Screen Space Reflection Trace";
+        gSSRTraceProgram.mShaderFiles.clear();
+        gSSRTraceProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflTraceV.glsl", GL_VERTEX_SHADER));
+        gSSRTraceProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflTraceF.glsl", GL_FRAGMENT_SHADER));
+        gSSRTraceProgram.mFeatures.hasScreenSpaceReflections = true;
+        gSSRTraceProgram.mFeatures.isDeferred                = true;
+        gSSRTraceProgram.mShaderLevel = 3;
+        success = gSSRTraceProgram.createShader();
+    }
+
+    if (success) {
+        gSSRBlurProgram.mName = "Screen Space Reflection Blur";
+        gSSRBlurProgram.mShaderFiles.clear();
+        gSSRBlurProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflBlurV.glsl", GL_VERTEX_SHADER));
+        gSSRBlurProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflBlurF.glsl", GL_FRAGMENT_SHADER));
+        gSSRBlurProgram.mFeatures.hasScreenSpaceReflections = true;
+        gSSRBlurProgram.mFeatures.isDeferred                = true;
+        gSSRBlurProgram.mShaderLevel = 3;
+        success = gSSRBlurProgram.createShader();
     }
 
     if (success) {

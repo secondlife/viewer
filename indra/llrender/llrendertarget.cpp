@@ -231,7 +231,34 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 
     {
         clear_glerror();
-        LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
+
+        // Pre-allocate all mip levels if mipmaps are enabled (similar to LLCubeMapArray::allocate)
+        // This is required for glGenerateMipmap to work correctly on some drivers
+        // See llcubemaparray.cpp:189 - "latest AMD drivers do not appreciate this method of allocating mipmaps"
+        if (mGenerateMipMaps != LLTexUnit::TMG_NONE)
+        {
+            U32 mip = 0;
+            U32 mip_width = mResX;
+            U32 mip_height = mResY;
+
+            while (mip_width >= 1 && mip_height >= 1)
+            {
+                // Use GL_UNSIGNED_BYTE even for float formats when allocating with null data (matches LLCubeMapArray)
+                glTexImage2D(LLTexUnit::getInternalType(mUsage), mip, color_fmt, mip_width, mip_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                mip_width /= 2;
+                mip_height /= 2;
+                ++mip;
+            }
+
+            // Set mip level range
+            glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_BASE_LEVEL, 0);
+            glTexParameteri(LLTexUnit::getInternalType(mUsage), GL_TEXTURE_MAX_LEVEL, mip - 1);
+        }
+        else
+        {
+            LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, color_fmt, mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
+        }
+
         if (glGetError() != GL_NO_ERROR)
         {
             LL_WARNS() << "Could not allocate color buffer for render target." << LL_ENDL;
@@ -245,8 +272,16 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 
 
     if (offset == 0)
-    { //use bilinear filtering on single texture render targets that aren't multisampled
-        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+    {
+        // Use trilinear/anisotropic filtering for mipmapped textures, bilinear otherwise
+        if (mGenerateMipMaps != LLTexUnit::TMG_NONE)
+        {
+            gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+        }
+        else
+        {
+            gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+        }
         stop_glerror();
     }
     else
@@ -506,8 +541,26 @@ void LLRenderTarget::flush()
     if (mGenerateMipMaps == LLTexUnit::TMG_AUTO)
     {
         LL_PROFILE_GPU_ZONE("rt generate mipmaps");
+
+        // Unbind framebuffer before generating mipmaps
+        // Some drivers require the texture to not be attached to a bound FBO
+        GLint oldFBO = sCurFBO;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        sCurFBO = 0;
+
         bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
+
+        stop_glerror();
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        if (glGetError() != GL_NO_ERROR)
+        {
+            LL_WARNS() << "Failed to generate mipmaps for render target" << LL_ENDL;
+        }
+
+        // Restore framebuffer binding
+        glBindFramebuffer(GL_FRAMEBUFFER, oldFBO);
+        sCurFBO = oldFBO;
     }
 
     if (mPreviousRT)

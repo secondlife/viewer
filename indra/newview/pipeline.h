@@ -153,6 +153,9 @@ public:
     void bindScreenToTexture();
     void renderFinalize();
     void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
+    void renderSSRTrace(LLRenderTarget* dst);                  // Trace SSR rays to buffer
+    void renderSSRBlur(LLRenderTarget* src, LLRenderTarget* dst); // Apply roughness-based blur
+    void generateMipmaps(LLRenderTarget* src, std::vector<LLRenderTarget>& mip_chain); // Generate mipmaps with filtering
     void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
     void tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct);
@@ -723,6 +726,10 @@ public:
     // copy of the color/depth buffer just before gamma correction
     // for use by SSR
     LLRenderTarget          mSceneMap;
+
+    // SSR buffer for storing raw screen-space reflection results
+    // RGB = reflection color, A = hit mask/edge fade
+    LLRenderTarget          mSSRBuffer;
 
     // exposure map for getting average color in scene
     LLRenderTarget          mLuminanceMap;

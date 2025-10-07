@@ -214,6 +214,10 @@ extern LLGLSLShader         gImpostorProgram;
 // Post Process Shaders
 extern LLGLSLShader         gPostScreenSpaceReflectionProgram;
 
+// SSR Shaders
+extern LLGLSLShader         gSSRTraceProgram;         // Traces SSR to buffer
+extern LLGLSLShader         gSSRBlurProgram;          // Applies roughness-based blur
+
 // Deferred rendering shaders
 extern LLGLSLShader         gDeferredImpostorProgram;
 extern LLGLSLShader         gDeferredDiffuseProgram;
