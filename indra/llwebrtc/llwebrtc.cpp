@@ -641,6 +641,13 @@ void LLWebRTCImpl::OnDevicesUpdated()
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
     mTuningMode = enable;
+    if (!mTuningMode
+        && !mMute
+        && mPeerCustomProcessor
+        && mPeerCustomProcessor->getGain() != mGain)
+    {
+        mPeerCustomProcessor->setGain(mGain);
+    }
     mWorkerThread->PostTask(
         [this]
         {
