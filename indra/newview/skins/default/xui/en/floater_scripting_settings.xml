@@ -85,7 +85,7 @@
     control_name="ExternalWebsocketSyncEnable"
     follows="top|left"
     height="20"
-    label="Enable WebScocket Sync"
+    label="Enable WebSocket Sync"
     layout="topleft"
     left="30"
     name="websocket_sync_enable"
