@@ -364,7 +364,7 @@ void LLSyntaxLua::loadDefaultKeywordsIntoLLSD()
 
 void LLSyntaxLua::loadLuaTypesIntoLLSD()
 {
-    std::string fullFileSpec = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "types_lua_default.llsd");
+    std::string fullFileSpec = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "types_lua_default.xml");
     llifstream  file(fullFileSpec.c_str());
 
     if (file.good())

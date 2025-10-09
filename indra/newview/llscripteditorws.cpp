@@ -334,12 +334,12 @@ LLSD LLScriptEditorWSServer::handleSyntaxRequest(const LLSD& params) const
     if (category == "defs.lua")
     {
         response["defs"] = LLSyntaxLua::instance().getTypesXML();
-        response["success"] = true;
+        response["success"] = response["defs"].isDefined();
     }
     else if (category == "defs.lsl")
     {
         response["defs"] = LLSyntaxIdLSL::instance().getKeywordsXML();
-        response["success"] = true;
+        response["success"] = response["defs"].isDefined();
     }
     else
     {
