@@ -178,6 +178,8 @@ private:
     void banSelectedMember(const LLUUID& participant_uuid);
     void openNearbyChat();
     bool isParticipantListExpanded();
+    bool isNearbyChatSpeakerSelected();
+    bool isNearbyChatModerator();
 
     void idleUpdate(); // for convenience (self) from static idle
     void idleProcessEvents();

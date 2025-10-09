@@ -57,6 +57,8 @@
 #include "llsdserialize.h"
 #include "llviewermenu.h" // is_agent_mappable
 #include "llviewerobjectlist.h"
+#include "llvoavatar.h"
+#include "llnearbyvoicemoderation.h"
 
 
 const S32 EVENTS_PER_IDLE_LOOP_CURRENT_SESSION = 80;
@@ -502,12 +504,13 @@ void LLFloaterIMContainer::idleUpdate()
         const LLConversationItem *current_session = getCurSelectedViewModelItem();
         if (current_session)
         {
-            if (current_session->getType() == LLConversationItem::CONV_SESSION_GROUP)
+            bool is_nearby_chat = current_session->getType() == LLConversationItem::CONV_SESSION_NEARBY;
+            if (current_session->getType() == LLConversationItem::CONV_SESSION_GROUP || is_nearby_chat)
             {
                 // Update moderator options visibility
                 LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = current_session->getChildrenBegin();
                 LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = current_session->getChildrenEnd();
-                bool is_moderator = isGroupModerator();
+                bool is_moderator = isGroupModerator() || (is_nearby_chat && isNearbyChatModerator());
                 bool can_ban = haveAbilityToBan();
                 while (current_participant_model != end_participant_model)
                 {
@@ -1685,6 +1688,10 @@ bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
     {
         return isMuted(conversation_item->getUUID());
     }
+    else if ("can_allow_text_chat" == item)
+    {
+        return !isNearbyChatSpeakerSelected();
+    }
 
     return true;
 }
@@ -2009,9 +2016,27 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 
 bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& userdata, bool is_self)
 {
-    // only group moderators can perform actions related to this "enable callback"
-    if (!isGroupModerator())
+    if (isNearbyChatModerator() && isNearbyChatSpeakerSelected())
     {
+        // Determine here which actions are allowed
+        if ("can_moderate_voice" == userdata)
+        {
+            return true;
+        }
+        else if (("can_mute" == userdata))
+        {
+            return true;
+        }
+        else if ("can_unmute" == userdata)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    else if (!isGroupModerator())
+    {
+        // only group moderators can perform actions related to this "enable callback"
         return false;
     }
 
@@ -2144,7 +2169,37 @@ void LLFloaterIMContainer::banSelectedMember(const LLUUID& participant_uuid)
 
 void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUID& userID)
 {
-    if (!gAgent.getRegion()) return;
+    if (!gAgent.getRegion())
+    {
+        return;
+    }
+
+    if (isNearbyChatSpeakerSelected())
+    {
+        if ("selected" == command)
+        {
+            // Toggle the voice icon display
+            LLAvatarActions::toggleMuteVoice(userID);
+
+            // Request a mute/unmute using a capability request via the simulator
+            const bool mute_state = LLAvatarActions::isVoiceMuted(userID);
+            LLNearbyVoiceModeration::getInstance()->requestMuteChange(userID, mute_state);
+        }
+        else
+        if ("mute_all" == command)
+        {
+            // TODO: the SpatialVoiceModerationRequest has an mute_all/unmute_all
+            // verb but we do not have an equivalent of LLAvatarActions::toggleMuteVoice(userID);
+            // to visually mute all the speaker icons in the conversation floater
+        }
+        else
+        if ("unmute_all" == command)
+        {
+            // TODO: same idea as "mute_all" above
+        }
+
+        return;
+    }
 
     if (command.compare("selected"))
     {
@@ -2260,6 +2315,37 @@ LLSpeaker * LLFloaterIMContainer::getSpeakerOfSelectedParticipant(LLSpeakerMgr *
     }
 
     return speaker_managerp->findSpeaker(participant_itemp->getUUID());
+}
+
+bool LLFloaterIMContainer::isNearbyChatSpeakerSelected()
+{
+    LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
+    if (NULL == selectedItem)
+    {
+        LL_WARNS() << "Current selected item is null" << LL_ENDL;
+        return NULL;
+    }
+
+    conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
+    conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
+    const LLUUID * conversation_uuidp = NULL;
+    while(iter != end)
+    {
+        if (iter->second == selectedItem || iter->second == selectedItem->getParentFolder())
+        {
+            conversation_uuidp = &iter->first;
+            break;
+        }
+        ++iter;
+    }
+    // Nearby chat ID is LLUUID::null
+    return conversation_uuidp->isNull();
+}
+
+bool LLFloaterIMContainer::isNearbyChatModerator()
+{
+    // TODO: Need a better heurestic for determining if this person is a moderator :)
+    return true;
 }
 
 void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
