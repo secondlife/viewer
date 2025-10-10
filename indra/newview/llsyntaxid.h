@@ -41,11 +41,20 @@ class LLSyntaxIdLSL : public LLSingleton<LLSyntaxIdLSL>
     LLSINGLETON(LLSyntaxIdLSL);
     friend class fetchKeywordsFileResponder;
 
+public:
+    using syntax_id_changed_signal_t = boost::signals2::signal<void()>;
+    using syntax_id_changed_h = boost::signals2::connection;
+
+    void                        initialize();
+    bool                        keywordFetchInProgress();
+    LLSD                        getKeywordsXML() const { return mKeywordsXml; };
+    LLUUID                      getSyntaxID() const { return mSyntaxId; }
+    syntax_id_changed_h         addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb);
+
 private:
     std::set<std::string> mInflightFetches;
-    typedef boost::signals2::signal<void()> syntax_id_changed_signal_t;
     syntax_id_changed_signal_t mSyntaxIDChangedSignal;
-    boost::signals2::connection mRegionChangedCallback;
+    syntax_id_changed_h        mRegionChangedCallback;
 
     bool    syntaxIdChanged();
     bool    isSupportedVersion(const LLSD& content);
@@ -67,11 +76,6 @@ private:
     LLSD            mKeywordsXml;
     bool            mInitialized;
 
-public:
-    void initialize();
-    bool keywordFetchInProgress();
-    LLSD getKeywordsXML() const { return mKeywordsXml; };
-    boost::signals2::connection addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb);
 };
 
 
@@ -82,11 +86,13 @@ class LLSyntaxLua : public LLSingleton<LLSyntaxLua>
 public:
     void initialize();
     LLSD getKeywordsXML() const { return mKeywordsXml; }
+    LLSD getTypesXML() const { return mTypesXml; }
 
 private:
     void loadDefaultKeywordsIntoLLSD();
-
+    void loadLuaTypesIntoLLSD();
     LLSD mKeywordsXml;
+    LLSD mTypesXml;
     bool mInitialized;
 };
 

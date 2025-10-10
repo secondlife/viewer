@@ -2966,6 +2966,46 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>Discord Social SDK</string>
       </map>
+      <key>websocketpp</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9b02492bbc5effd8afca1bb7c95110d43a8f75da</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-websocketpp/releases/download/v0.8.2/websocketpp-0.8.2.17134644226-common-17134644226.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>websocketpp</string>
+        <key>license_file</key>
+        <string>LICENSES/websocketpp.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2014, Peter Thorson</string>
+        <key>version</key>
+        <string>0.8.2.17134644226</string>
+        <key>name</key>
+        <string>websocketpp</string>
+        <key>vcs_branch</key>
+        <string>refs/tags/v0.8.2</string>
+        <key>vcs_revision</key>
+        <string>bdcf1453101976fc4dc26a62c87bc98c12e9c6dc</string>
+        <key>vcs_url</key>
+        <string>git://github.com/secondlife/3p-websocketpp.git</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-websocketpp</string>
+        <key>description</key>
+        <string>WebSocket++ is a C++ header only library for interacting with WebSocket servers and clients.</string>
+      </map>
     </map>
     <key>package_description</key>
     <map>
