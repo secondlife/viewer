@@ -2239,6 +2239,25 @@ Couldn&apos;t open uploaded sound file for reading:
 
   <notification
    icon="alertmodal.tga"
+   name="ModelUploaderMissingPhysicsApple"
+   type="alertmodal">
+Model upload is not yet available on Apple Silicon, but will be supported in an upcoming release.
+   
+Workaround: Right-click the Second Life app in Finder, select
+"Get Info", then check "Open using Rosetta"
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ModelUploaderMissingPhysics"
+   type="alertmodal">
+Physics library is not present, some of the model uploader's functionality might not work or might not work correctly.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="SoundFileNotRIFF"
    type="alertmodal">
 File does not appear to be a RIFF WAVE file:
