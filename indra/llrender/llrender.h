@@ -209,14 +209,14 @@ public:
     // make sure you want to permanently change the address mode  for the bound texture.
     void setTextureAddressMode(eTextureAddressMode mode);
     // MUST already be active and bound
-    void setTextureAddressModeFast(eTextureAddressMode mode);
+    void setTextureAddressModeFast(eTextureAddressMode mode, eTextureType tex_type);
 
     // Sets the filtering options used to sample the texture
     // Warning: this stays set for the bound texture forever,
     // make sure you want to permanently change the filtering for the bound texture.
     void setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option);
     // MUST already be active and bound
-    void setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option);
+    void setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type);
 
     static U32 getInternalType(eTextureType type);
 
