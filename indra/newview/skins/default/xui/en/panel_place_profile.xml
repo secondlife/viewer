@@ -89,6 +89,10 @@
         Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
     </string>
     <string
+     name="acquired_date_ampm">
+        [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour12,datetime,local]:[min,datetime,local]:[second,datetime,local] [ampm,datetime,local] [year,datetime,local]
+    </string>
+    <string
      name="acquired_date">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
     </string>
