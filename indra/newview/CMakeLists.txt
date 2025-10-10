@@ -1653,7 +1653,8 @@ set_source_files_properties(${viewer_SHADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
-
+# note that the scripts which publish these files are sensitive to the file 
+# extensions. Be cautious about adding new file types here.
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
     app_settings/autoreplace.xml

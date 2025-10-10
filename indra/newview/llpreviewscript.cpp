@@ -1113,11 +1113,11 @@ void LLScriptEdCore::doSave( bool close_after_save )
 
 void LLScriptEdCore::openInExternalEditor()
 {
-    if (mContainer->mLiveFile)
-    {
-        // If already open in an external editor, just return
-        return;
-    }
+    //if (mContainer->mLiveFile)
+    //{
+    //    // If already open in an external editor, just return
+    //    return;
+    //}
 
     // Generate a suitable filename
     std::string script_name = mScriptName;
@@ -1141,9 +1141,17 @@ void LLScriptEdCore::openInExternalEditor()
         writeToFile(filename);
     }
 
+    if (mContainer->mLiveFile && mContainer->mLiveFile->filename() != filename)
+    { // The name may have changed if we changed the type of scipt being edited.
+        delete mContainer->mLiveFile;
+        mContainer->mLiveFile = NULL;
+    }
     // Start watching file changes.
-    mContainer->mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
-    mContainer->mLiveFile->addToEventTimer();
+    if (!mContainer->mLiveFile)
+    {
+        mContainer->mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
+        mContainer->mLiveFile->addToEventTimer();
+    }
     mContainer->startWebsocketServer();
 
     // Open it in external editor.
