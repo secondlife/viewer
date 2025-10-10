@@ -51,10 +51,6 @@ public:
     LLRectBase():   mLeft(0), mTop(0), mRight(0), mBottom(0)
     {}
 
-    LLRectBase(const LLRectBase &r):
-    mLeft(r.mLeft), mTop(r.mTop), mRight(r.mRight), mBottom(r.mBottom)
-    {}
-
     LLRectBase(Type left, Type top, Type right, Type bottom):
     mLeft(left), mTop(top), mRight(right), mBottom(bottom)
     {}
@@ -294,5 +290,9 @@ template <class Type> LLRectBase<Type> LLRectBase<Type>::null(0,0,0,0);
 
 typedef LLRectBase<S32> LLRect;
 typedef LLRectBase<F32> LLRectf;
+
+static_assert(std::is_trivially_copyable<LLRect>::value, "LLRect must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLRect>::value, "LLRect must be trivial move");
+static_assert(std::is_standard_layout<LLRect>::value, "LLRect must be a standard layout type");
 
 #endif

@@ -110,6 +110,8 @@ public:
     // maintain reflection probes
     void update();
 
+    void refreshSettings();
+
     // add a probe for the given spatial group
     LLReflectionMap* addProbe(LLSpatialGroup* group = nullptr);
 
@@ -247,6 +249,12 @@ private:
     U32 mReflectionProbeCount;
 
     U32 mDynamicProbeCount;
+
+    // cached settings from gSavedSettings
+    S32 mRenderReflectionProbeDetail = -1;
+    S32 mRenderReflectionProbeLevel = 3;
+    U32 mRenderReflectionProbeCount = 256U;
+    S32 mRenderReflectionProbeDynamicAllocation = -1;
 
     // resolution of reflection probes
     U32 mProbeResolution = 128;

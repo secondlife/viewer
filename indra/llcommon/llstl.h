@@ -35,6 +35,7 @@
 #include <list>
 #include <set>
 #include <typeinfo>
+#include <boost/iterator/filter_iterator.hpp>
 
 #ifdef LL_LINUX
 // <ND> For strcmp
@@ -709,5 +710,208 @@ struct ll_template_cast_impl<DEST, SOURCE>      \
     }                                           \
 }
 
+//-----------------------------------------------
+namespace LL
+{
+    /**
+     * @brief A range adapter that provides filtered iteration over a container.
+     *
+     * filter_range creates a filtered view of an iterator range using a predicate function.
+     * Only elements that satisfy the predicate will be accessible when iterating through
+     * the range. This is useful for processing subsets of containers without copying data.
+     *
+     * The class uses boost::filter_iterator internally to provide the filtering functionality.
+     *
+     * @tparam Predicate A callable object (function, functor, lambda) that takes an element
+     *                   from the iterator range and returns true if the element should be
+     *                   included in the filtered range.
+     * @tparam Iterator  The iterator type for the underlying container/range.
+     *
+     * Example usage:
+     * @code
+     * std::vector<int> numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+     *
+     * // Create a predicate to filter even numbers
+     * auto is_even = [](int n) { return n % 2 == 0; };
+     *
+     * // Create filtered range using make_filter helper
+     * auto even_range = LL::make_filter(is_even, numbers.begin(), numbers.end());
+     *
+     * // Iterate through only even numbers
+     * for (auto value : even_range) {
+     *     std::cout << value << " "; // Prints: 2 4 6 8 10
+     * }
+     *
+     * // Or manually construct the filter_range
+     * LL::filter_range<decltype(is_even), std::vector<int>::iterator>
+     *     manual_range(is_even, numbers.begin(), numbers.end());
+     * @endcode
+     *
+     * @note This class provides a lightweight view over the original data.
+     *       No copying of elements occurs, making it efficient for large containers.
+     * @note The predicate is applied during iteration, so complex predicates may
+     *       impact performance for frequently-accessed ranges.
+     * @note The underlying container must remain valid for the lifetime of the filter_range.
+     *
+     * @see make_filter() for a convenient factory function
+     * @see boost::filter_iterator for the underlying implementation details
+     */
+    template<typename Predicate, typename Iterator>
+    class filter_range
+    {
+    public:
+        /// The filtered iterator type - combines predicate with base iterator
+        using filter_iter = boost::filter_iterator<Predicate, Iterator>;
+
+        /// Value type of the filtered elements
+        using value_type = typename std::iterator_traits<Iterator>::value_type;
+
+        /// Iterator type for range-based for loops and STL algorithms
+        using iterator = filter_iter;
+        using const_iterator = filter_iter;
+
+        /**
+         * @brief Constructs a filter_range with the given predicate and iterator range.
+         *
+         * @param pred  The predicate function/functor to filter elements.
+         *              Must be callable with signature: bool(const value_type&)
+         * @param begin Iterator to the beginning of the range to filter
+         * @param end   Iterator to the end of the range to filter
+         *
+         * @pre begin and end must form a valid iterator range
+         * @pre pred must be a valid callable that can be invoked with elements from [begin, end)
+         */
+        filter_range(Predicate pred, Iterator begin, Iterator end)
+            : begin_(pred, begin, end), end_(pred, end, end) {}
+
+        /**
+         * @brief Returns an iterator to the first element that satisfies the predicate.
+         *
+         * @return filter_iter Iterator pointing to the first filtered element,
+         *                     or equal to end() if no elements satisfy the predicate.
+         */
+        filter_iter begin() const { return begin_; }
+
+        /**
+         * @brief Returns an iterator representing the end of the filtered range.
+         *
+         * @return filter_iter Past-the-end iterator for the filtered range.
+         */
+        filter_iter end() const { return end_; }
+
+        /**
+         * @brief Checks if the filtered range is empty.
+         *
+         * @return true if no elements in the range satisfy the predicate, false otherwise.
+         *
+         * @note This operation has O(1) complexity as it only compares iterators.
+         */
+        bool empty() const { return begin_ == end_; }
+
+    private:
+        filter_iter begin_;  ///< Iterator to first element satisfying predicate
+        filter_iter end_;    ///< Past-the-end iterator for the filtered range
+    };
+
+    /**
+     * @brief Factory function to create a filter_range with automatic template deduction.
+     *
+     * This convenience function eliminates the need to explicitly specify template parameters
+     * when creating a filter_range. The template parameters are automatically deduced from
+     * the function arguments.
+     *
+     * @tparam Predicate Automatically deduced predicate type
+     * @tparam Iterator  Automatically deduced iterator type
+     *
+     * @param pred  Predicate function/functor for filtering elements
+     * @param begin Iterator to the beginning of the range
+     * @param end   Iterator to the end of the range
+     *
+     * @return filter_range<Predicate, Iterator> A filter_range object configured with
+     *                                           the provided predicate and range
+     *
+     * Example usage:
+     * @code
+     * std::vector<std::string> words = {"hello", "world", "test", "example"};
+     *
+     * // Filter strings longer than 4 characters
+     * auto long_words = LL::make_filter(
+     *     [](const std::string& s) { return s.length() > 4; },
+     *     words.begin(),
+     *     words.end()
+     * );
+     *
+     * // Use with range-based for loop
+     * for (const auto& word : long_words) {
+     *     std::cout << word << std::endl; // Prints: hello, world, example
+     * }
+     *
+     * // Use with STL algorithms
+     * auto count = std::distance(long_words.begin(), long_words.end());
+     * std::cout << "Found " << count << " long words." << std::endl;
+     * @endcode
+     *
+     * @note This function is preferred over direct construction of filter_range
+     *       for most use cases due to automatic template parameter deduction.
+     */
+    template<typename Predicate, typename Iterator>
+    filter_range<Predicate, Iterator> make_filter(Predicate pred, Iterator begin, Iterator end)
+    {
+        return filter_range<Predicate, Iterator>(pred, begin, end);
+    }
+
+    /**
+     * @brief Create a filter_range over an entire container with automatic template deduction.
+     *
+     * This convenience function creates a filtered view over an entire container without
+     * requiring explicit begin() and end() calls. It automatically handles both const and
+     * non-const containers, preserving constness in the resulting iterator types.
+     *
+     * @tparam Predicate Automatically deduced predicate type
+     * @tparam Container Automatically deduced container type (const or non-const)
+     *
+     * @param pred      Predicate function/functor for filtering elements
+     * @param container The container to filter (can be const or non-const)
+     *
+     * @return filter_range with appropriate iterator type for the container
+     *
+     * Example usage:
+     * @code
+     * // Non-const container
+     * std::vector<int> numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+     * auto evens = LL::make_filter([](int n) { return n % 2 == 0; }, numbers);
+     *
+     * // Const container
+     * const std::list<std::string> words = {"cat", "elephant", "dog", "hippopotamus"};
+     * auto long_words = LL::make_filter([](const std::string& s) { return s.size() > 3; }, words);
+     *
+     * // Works with any container that supports begin()/end()
+     * std::set<double> values = {1.1, 2.2, 3.3, 4.4, 5.5};
+     * auto large_values = LL::make_filter([](double d) { return d > 3.0; }, values);
+     *
+     * // Use with range-based for loops
+     * for (const auto& word : long_words) {
+     *     std::cout << word << " "; // Prints: elephant hippopotamus
+     * }
+     *
+     * // Chain with STL algorithms
+     * auto even_count = std::distance(evens.begin(), evens.end());
+     * std::cout << "Found " << even_count << " even numbers." << std::endl;
+     * @endcode
+     *
+     * @note This overload automatically calls begin() and end() on the container,
+     *       making it more convenient than the iterator-based version.
+     * @note The container must remain valid for the lifetime of the returned filter_range.
+     * @note Constness of the container is preserved in the iterator type.
+     */
+    template<typename Predicate, typename Container>
+    filter_range<Predicate, decltype(std::begin(std::declval<Container>()))>
+    make_filter(Predicate pred, Container&& container)
+    {
+        return filter_range<Predicate, decltype(std::begin(std::declval<Container>()))>(
+            pred, std::begin(container), std::end(container));
+    }
+
+} // namespace LL
 
 #endif // LL_LLSTL_H

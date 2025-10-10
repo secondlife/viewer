@@ -53,6 +53,7 @@
 #include "llslider.h"
 #include "lltooldraganddrop.h"
 #include "llfilesystem.h"
+#include "lllogchat.h"
 
 #include "llagent.h"
 #include "llmenugl.h"
@@ -64,22 +65,12 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-#include "llkeyboard.h"
-#include "llscrollcontainer.h"
-#include "llcheckboxctrl.h"
 #include "llscripteditor.h"
-#include "llselectmgr.h"
-#include "lltooldraganddrop.h"
-#include "llscrolllistctrl.h"
 #include "lltextbox.h"
-#include "llslider.h"
-#include "lldir.h"
-#include "llcombobox.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "lluictrlfactory.h"
 #include "llmediactrl.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
@@ -90,20 +81,10 @@
 #include "lltoggleablemenu.h"
 #include "llmenubutton.h"
 #include "llinventoryfunctions.h"
+#include "llwebsocketmgr.h"
+#include "llscripteditorws.h"
+#include <regex>
 
-const std::string HELLO_LSL =
-    "default\n"
-    "{\n"
-    "   state_entry()\n"
-    "   {\n"
-    "       llSay(0, \"Hello, Avatar!\");\n"
-    "   }\n"
-    "\n"
-    "   touch_start(integer total_number)\n"
-    "   {\n"
-    "       llSay(0, \"Touched.\");\n"
-    "   }\n"
-    "}\n";
 const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
 
 const std::string DEFAULT_SCRIPT_NAME = "New Script"; // *TODO:Translate?
@@ -117,6 +98,42 @@ static bool have_script_upload_cap(LLUUID& object_id)
 {
     LLViewerObject* object = gObjectList.findObject(object_id);
     return object && (! object->getRegion()->getCapability("UpdateScriptTask").empty());
+}
+
+static bool have_lua_enabled(const LLUUID& object_id)
+{
+    LLViewerRegion* region = nullptr;
+    LLViewerObject* object = gObjectList.findObject(object_id);
+    if (object)
+    {
+        region = object->getRegion();
+    }
+    else
+    {
+        region = gAgent.getRegion();
+    }
+
+    if (region && region->simulatorFeaturesReceived())
+    {
+        LLSD simulatorFeatures;
+        region->getSimulatorFeatures(simulatorFeatures);
+        return simulatorFeatures["LuaScriptsEnabled"].asBoolean();
+    }
+
+    return false;
+}
+
+// TEMPORARY: Quick check to see if the code is Lua
+// since we don't have another way to determine the language yet
+static bool is_lua_script(const std::string& code)
+{
+    // Check for LSL's signature "default" state pattern
+    std::regex lsl_pattern("\\s*default\\s*\\{");
+    if (std::regex_search(code, lsl_pattern))
+        return false;
+
+    // "default" state not found, assuming it's Lua
+    return true;
 }
 
 /// ---------------------------------------------------------------------------
@@ -373,9 +390,9 @@ LLScriptEdCore::LLScriptEdCore(
     LLScriptEdContainer* container,
     const std::string& sample,
     const LLHandle<LLFloater>& floater_handle,
-    void (*load_callback)(void*),
-    void (*save_callback)(void*, bool),
-    void (*search_replace_callback) (void* userdata),
+    script_ed_callback_t load_callback,
+    save_callback_t save_callback,
+    script_ed_callback_t search_replace_callback,
     void* userdata,
     bool live,
     S32 bottom_pad)
@@ -391,7 +408,6 @@ LLScriptEdCore::LLScriptEdCore(
     mLastHelpToken(NULL),
     mLiveHelpHistorySize(0),
     mEnableSave(false),
-    mLiveFile(NULL),
     mLive(live),
     mContainer(container),
     mHasScriptData(false),
@@ -423,7 +439,6 @@ LLScriptEdCore::~LLScriptEdCore()
         }
     }
 
-    delete mLiveFile;
     if (mSyntaxIDConnection.connected())
     {
         mSyntaxIDConnection.disconnect();
@@ -441,42 +456,37 @@ void LLLiveLSLEditor::experienceChanged()
     }
 }
 
-void LLLiveLSLEditor::onViewProfile( LLUICtrl *ui, void* userdata )
+void LLLiveLSLEditor::onViewProfile()
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
-
-    LLUUID id;
-    if(self->mExperienceEnabled->get())
+    if (mExperienceEnabled->get())
     {
-        id=self->mScriptEd->getAssociatedExperience();
-        if(id.notNull())
+        LLUUID id = mScriptEd->getAssociatedExperience();
+        if (id.notNull())
         {
              LLFloaterReg::showInstance("experience_profile", id, true);
         }
     }
-
 }
 
-void LLLiveLSLEditor::onToggleExperience( LLUICtrl *ui, void* userdata )
+void LLLiveLSLEditor::onToggleExperience()
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
-
     LLUUID id;
-    if(self->mExperienceEnabled->get())
+    if (mExperienceEnabled->get())
     {
-        if(self->mScriptEd->getAssociatedExperience().isNull())
+        if (mScriptEd->getAssociatedExperience().isNull())
         {
-            id=self->mExperienceIds.beginArray()->asUUID();
+            id = mExperienceIds.beginArray()->asUUID();
         }
     }
 
-    if(id != self->mScriptEd->getAssociatedExperience())
+    if (id != mScriptEd->getAssociatedExperience())
     {
-        self->mScriptEd->enableSave(self->getIsModifiable());
+        mScriptEd->enableSave(getIsModifiable());
     }
-    self->mScriptEd->setAssociatedExperience(id);
 
-    self->updateExperiencePanel();
+    mScriptEd->setAssociatedExperience(id);
+
+    updateExperiencePanel();
 }
 
 bool LLScriptEdCore::postBuild()
@@ -501,6 +511,7 @@ bool LLScriptEdCore::postBuild()
 
     // Intialise keyword highlighting for the current simulator's version of LSL
     LLSyntaxIdLSL::getInstance()->initialize();
+    LLSyntaxLua::getInstance()->initialize();
     processKeywords();
 
     mCommitCallbackRegistrar.add("FontSize.Set", boost::bind(&LLScriptEdCore::onChangeFontSize, this, _2));
@@ -510,14 +521,31 @@ bool LLScriptEdCore::postBuild()
         "menu_lsl_font_size.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     getChild<LLMenuButton>("font_btn")->setMenu(context_menu, LLMenuButton::MP_BOTTOM_LEFT, true);
 
+
+    bool lua_scripts_enabled = have_lua_enabled(LLUUID::null);
+    mCompileTarget = getChild<LLComboBox>("compile_target");
+    if (LLScrollListItem* luau_item = mCompileTarget->findItemByValue("luau"))
+    {
+        luau_item->setEnabled(lua_scripts_enabled);
+    }
+    if (LLScrollListItem* lsl_luau_item = mCompileTarget->findItemByValue("lsl-luau"))
+    {
+        lsl_luau_item->setEnabled(lua_scripts_enabled);
+    }
+
     return true;
 }
 
 void LLScriptEdCore::processKeywords()
 {
+    processKeywords(mEditor->getIsLuauLanguage());
+}
+
+void LLScriptEdCore::processKeywords(bool luau_language)
+{
     LL_DEBUGS("SyntaxLSL") << "Processing keywords" << LL_ENDL;
     mEditor->clearSegments();
-    mEditor->initKeywords();
+    mEditor->initKeywords(luau_language);
     mEditor->loadKeywords();
 
     string_vec_t primary_keywords;
@@ -536,6 +564,8 @@ void LLScriptEdCore::processKeywords()
             secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
         }
     }
+
+    mFunctions->removeall();
     for (string_vec_t::const_iterator iter = primary_keywords.begin();
          iter!= primary_keywords.end(); ++iter)
     {
@@ -691,13 +721,13 @@ bool LLScriptEdCore::writeToFile(const std::string& filename)
 void LLScriptEdCore::sync()
 {
     // Sync with external editor.
-    if (mLiveFile)
+    if (mContainer->mLiveFile)
     {
-        std::string tmp_file = mLiveFile->filename();
+        std::string tmp_file = mContainer->mLiveFile->filename();
         llstat s;
         if (LLFile::stat(tmp_file, &s) == 0) // file exists
         {
-            mLiveFile->ignoreNextUpdate();
+            mContainer->mLiveFile->ignoreNextUpdate();
             writeToFile(tmp_file);
         }
     }
@@ -1083,15 +1113,21 @@ void LLScriptEdCore::doSave( bool close_after_save )
 
 void LLScriptEdCore::openInExternalEditor()
 {
-    delete mLiveFile; // deletes file
+    //if (mContainer->mLiveFile)
+    //{
+    //    // If already open in an external editor, just return
+    //    return;
+    //}
 
     // Generate a suitable filename
     std::string script_name = mScriptName;
-    std::string forbidden_chars = "<>:\"\\/|?*";
-    for (std::string::iterator c = forbidden_chars.begin(); c != forbidden_chars.end(); c++)
-    {
-        script_name.erase(std::remove(script_name.begin(), script_name.end(), *c), script_name.end());
-    }
+
+    static const std::set<char> forbidden_chars{ '<', '>', ':', '"', '\\', '/', '|', '?', '*' };
+    script_name.erase(
+        std::remove_if(script_name.begin(), script_name.end(), [](char c) {
+            return forbidden_chars.contains(c);
+        }), script_name.end());
+
     std::string filename = mContainer->getTmpFileName(script_name);
 
     // Save the script to a temporary file.
@@ -1105,9 +1141,18 @@ void LLScriptEdCore::openInExternalEditor()
         writeToFile(filename);
     }
 
+    if (mContainer->mLiveFile && mContainer->mLiveFile->filename() != filename)
+    { // The name may have changed if we changed the type of scipt being edited.
+        delete mContainer->mLiveFile;
+        mContainer->mLiveFile = NULL;
+    }
     // Start watching file changes.
-    mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
-    mLiveFile->addToEventTimer();
+    if (!mContainer->mLiveFile)
+    {
+        mContainer->mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
+        mContainer->mLiveFile->addToEventTimer();
+    }
+    mContainer->startWebsocketServer();
 
     // Open it in external editor.
     {
@@ -1376,15 +1421,15 @@ void LLLiveLSLEditor::updateExperiencePanel()
             mExperienceEnabled->setEnabled(false);
             mExperienceEnabled->setToolTip(getString("no_experiences"));
         }
-        getChild<LLButton>("view_profile")->setVisible(false);
+        mViewProfileButton->setVisible(false);
     }
     else
     {
         mExperienceEnabled->setToolTip(getString("experience_enabled"));
         mExperienceEnabled->setEnabled(getIsModifiable());
-        mExperiences->setVisible(true);
         mExperienceEnabled->set(true);
-        getChild<LLButton>("view_profile")->setToolTip(getString("show_experience_profile"));
+        mExperiences->setVisible(true);
+        mViewProfileButton->setToolTip(getString("show_experience_profile"));
         buildExperienceList();
     }
 }
@@ -1453,7 +1498,7 @@ void LLLiveLSLEditor::buildExperienceList()
         mExperiences->setEnabled(true);
         mExperiences->sortByName(true);
         mExperiences->setCurrentByIndex(mExperiences->getCurrentIndex());
-        getChild<LLButton>("view_profile")->setVisible(true);
+        mViewProfileButton->setVisible(true);
     }
 }
 
@@ -1462,8 +1507,6 @@ void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
 {
     mAssociatedExperience = experience_id;
 }
-
-
 
 void LLLiveLSLEditor::requestExperiences()
 {
@@ -1503,11 +1546,42 @@ void LLLiveLSLEditor::receiveExperienceIds(LLSD result, LLHandle<LLLiveLSLEditor
 
 LLScriptEdContainer::LLScriptEdContainer(const LLSD& key) :
     LLPreview(key)
-,   mScriptEd(NULL)
+,   mScriptEd(nullptr)
+,   mLiveFile(nullptr)
+,   mLiveLogFile(nullptr)
 {
 }
 
-std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name)
+LLScriptEdContainer::~LLScriptEdContainer()
+{
+    delete mLiveFile;
+    mLiveFile = nullptr;
+
+    delete mLiveLogFile;
+    mLiveLogFile = nullptr;
+
+    if (!mWebSocketServer.expired())
+    {
+        unsubscribeScript();
+    }
+}
+
+std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name) const
+{
+    std::string script_id_hash_str(getUniqueHash());
+    std::string script_extension = mScriptEd->mEditor->getIsLuauLanguage() ? ".luau" : ".lsl";
+
+    if (script_name.empty())
+    {
+        return std::string(LLFile::tmpdir()) + "sl_script_" + script_id_hash_str + script_extension;
+    }
+    else
+    {
+        return std::string(LLFile::tmpdir()) + "sl_script_" + script_name + "_" + script_id_hash_str + script_extension;
+    }
+}
+
+std::string LLScriptEdContainer::getUniqueHash() const
 {
     // Take script inventory item id (within the object inventory)
     // to consideration so that it's possible to edit multiple scripts
@@ -1515,18 +1589,65 @@ std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name)
     std::string script_id = mObjectUUID.asString() + "_" + mItemUUID.asString();
 
     // Use MD5 sum to make the file name shorter and not exceed maximum path length.
-    char script_id_hash_str[33];               /* Flawfinder: ignore */
-    LLMD5 script_id_hash((const U8 *)script_id.c_str());
+    char  script_id_hash_str[33]; /* Flawfinder: ignore */
+    LLMD5 script_id_hash((const U8*)script_id.c_str());
     script_id_hash.hex_digest(script_id_hash_str);
 
-    if (script_name.empty())
+    return std::string(script_id_hash_str);
+}
+
+std::string LLScriptEdContainer::getErrorLogFileName(const std::string& script_path)
+{
+    if (script_path.empty())
     {
-        return std::string(LLFile::tmpdir()) + "sl_script_" + script_id_hash_str + ".lsl";
+        return std::string();
     }
-    else
+
+    return script_path + ".log";
+}
+
+bool LLScriptEdContainer::logErrorsToFile(const LLSD& compile_errors)
+{
+    if (!isOpenInExternalEditor())
     {
-        return std::string(LLFile::tmpdir()) + "sl_script_" + script_name + "_" + script_id_hash_str + ".lsl";
+        return false;
     }
+
+    std::string script_path = getTmpFileName(mScriptEd->mScriptName);
+    std::string log_path = getErrorLogFileName(script_path);
+
+    llofstream file(log_path.c_str());
+    if (!file.is_open())
+    {
+        LL_WARNS() << "Unable to open error log file: " << log_path << LL_ENDL;
+        return false;
+    }
+
+    // Write timestamp
+    std::string timestamp = LLLogChat::timestamp2LogString(0, true);
+    file << "// " << timestamp << "\n\n";
+
+    // Write errors
+    for (LLSD::array_const_iterator line = compile_errors.beginArray();
+         line < compile_errors.endArray();
+         line++)
+    {
+        std::string error_message = line->asString();
+        LLStringUtil::stripNonprintable(error_message);
+        file << error_message << "\n";
+    }
+
+    file.close();
+
+    // Create a log file handler if we don't already have one,
+    // this is needed to delete the temporary log file properly
+    if (!mLiveLogFile && !log_path.empty())
+    {
+        // Empty callback since we don't need to react to file changes
+        mLiveLogFile = new LLLiveLSLFile(log_path, [](const std::string& filename) { return true; });
+    }
+
+    return true;
 }
 
 bool LLScriptEdContainer::onExternalChange(const std::string& filename)
@@ -1556,6 +1677,63 @@ bool LLScriptEdContainer::handleKeyHere(KEY key, MASK mask)
     return true;
 }
 
+void LLScriptEdContainer::startWebsocketServer()
+{
+    if (gSavedSettings.getBOOL("ExternalWebsocketSyncEnable"))
+    {
+        // Attempt to find an existing server
+        LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
+        LLScriptEditorWSServer::ptr_t server =
+            std::static_pointer_cast<LLScriptEditorWSServer>(
+                wsmgr.findServerByName(LLScriptEditorWSServer::DEFAULT_SERVER_NAME));
+
+        if (!server)
+        {   // We couldn't find one, so create it
+            U16 server_port = static_cast<U16>(gSavedSettings.getS32("ExternalWebsocketSyncPort"));
+            bool server_localhost = gSavedSettings.getBOOL("ExternalWebsocketSyncLocal");
+            server = std::make_shared<LLScriptEditorWSServer>(LLScriptEditorWSServer::DEFAULT_SERVER_NAME, server_port, server_localhost);
+            wsmgr.addServer(server);
+        }
+
+        bool is_running = server->isRunning();
+        if (!is_running)
+        {   // Server isn't running, so start it
+            is_running = wsmgr.startServer(LLScriptEditorWSServer::DEFAULT_SERVER_NAME);
+        }
+
+        if (!is_running && !server->isRunning())
+        {   // Failed to start the server
+            LL_WARNS() << "Failed to start script editor websocket server" << LL_ENDL;
+            return;
+        }
+
+        std::string script_id_hash_str(getUniqueHash());
+        server->subscribeScriptEditor(mObjectUUID, mItemUUID, mScriptEd->mScriptName, getHandle(), script_id_hash_str);
+        mWebSocketServer = server;
+    }
+}
+
+void LLScriptEdContainer::unsubscribeScript()
+{
+    auto server = mWebSocketServer.lock();
+    if (server)
+    {
+        std::string script_id_hash_str(getUniqueHash());
+        server->sendUnsubscribeScriptEditor(script_id_hash_str);
+        server->unsubscribeEditor(script_id_hash_str);
+    }
+}
+
+void LLScriptEdContainer::sendCompileResults(LLSD& params)
+{
+    auto server = mWebSocketServer.lock();
+    if (server)
+    {
+        std::string script_id_hash_str(getUniqueHash());
+        server->sendCompileResults(script_id_hash_str, params);
+    }
+}
+
 /// ---------------------------------------------------------------------------
 /// LLPreviewLSL
 /// ---------------------------------------------------------------------------
@@ -1580,7 +1758,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 
     self->mScriptEd =  new LLScriptEdCore(
                                    self,
-                                   HELLO_LSL,
+                                   std::string(),
                                    self->getHandle(),
                                    LLPreviewLSL::onLoad,
                                    LLPreviewLSL::onSave,
@@ -1624,6 +1802,9 @@ bool LLPreviewLSL::postBuild()
     childSetCommitCallback("desc", LLPreview::onText, this);
     getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 
+    mScriptEd->mCompileTarget = getChild<LLComboBox>("compile_target");
+    mScriptEd->mCompileTarget->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCompileTargetChanged(); });
+
     return LLPreview::postBuild();
 }
 
@@ -1649,6 +1830,15 @@ void LLPreviewLSL::callbackLSLCompileSucceeded()
     LL_INFOS() << "LSL Bytecode saved" << LL_ENDL;
     mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessful"));
     mScriptEd->mErrorList->setCommentText(LLTrans::getString("SaveComplete"));
+
+    if (isOpenInExternalEditor())
+    {
+        LLSD success_msg;
+        success_msg.append(LLTrans::getString("CompileSuccessful"));
+        success_msg.append(LLTrans::getString("SaveComplete"));
+        logErrorsToFile(success_msg);
+    }
+
     closeIfNeeded();
 }
 
@@ -1668,6 +1858,12 @@ void LLPreviewLSL::callbackLSLCompileFailed(const LLSD& compile_errors)
         row["columns"][0]["font"] = "OCRA";
         mScriptEd->mErrorList->addElement(row);
     }
+
+    if (isOpenInExternalEditor())
+    {
+        logErrorsToFile(compile_errors);
+    }
+
     mScriptEd->selectFirstError();
     closeIfNeeded();
 }
@@ -1717,12 +1913,6 @@ void LLPreviewLSL::loadAsset()
         }
         getChildView("lock")->setVisible( !is_modifiable);
         mScriptEd->getChildView("Insert...")->setEnabled(is_modifiable);
-    }
-    else
-    {
-        mScriptEd->setScriptText(std::string(HELLO_LSL), true);
-        mScriptEd->setEnableEditing(true);
-        mAssetStatus = PREVIEW_ASSET_LOADED;
     }
 }
 
@@ -1781,6 +1971,7 @@ void LLPreviewLSL::finishedLSLUpload(LLUUID itemId, LLSD response)
         {
             preview->callbackLSLCompileFailed(response["errors"]);
         }
+        preview->sendCompileResults(response);
     }
 }
 
@@ -1804,6 +1995,12 @@ bool LLPreviewLSL::failedLSLUpload(LLUUID itemId, LLUUID taskId, LLSD response, 
         LLSD errors;
         errors.append(LLTrans::getString("UploadFailed") + reason);
         preview->callbackLSLCompileFailed(errors);
+
+        LLSD message;
+        message["compiled"] = false;
+        message["errors"]   = errors;
+        preview->sendCompileResults(message);
+
         return true;
     }
 
@@ -1839,11 +2036,12 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
         mPendingUploads++;
         if (!url.empty())
         {
+            std::string compile_target(mScriptEd->mCompileTarget->getValue());
             std::string buffer(mScriptEd->mEditor->getText());
 
             LLUUID old_asset_id = inv_item->getAssetUUID().isNull() ? mScriptEd->getAssetID() : inv_item->getAssetUUID();
 
-            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(mItemUUID, buffer,
+            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(mItemUUID, compile_target, buffer,
                 [old_asset_id](LLUUID itemId, LLUUID, LLUUID, LLSD response) {
                     LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
                     LLPreviewLSL::finishedLSLUpload(itemId, response);
@@ -1853,6 +2051,11 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
         }
     }
+}
+
+void LLPreviewLSL::onCompileTargetChanged()
+{
+    mScriptEd->processKeywords(mScriptEd->mCompileTarget->getValue().asString() == "luau");
 }
 
 // static
@@ -1896,6 +2099,12 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
             preview->mScriptEd->setEnableEditing(is_modifiable);
             preview->mScriptEd->setAssetID(asset_uuid);
             preview->mAssetStatus = PREVIEW_ASSET_LOADED;
+
+            // Temporary hack to determine if the script is LSL or SLua when loaded from the inventory.
+            bool is_lua = is_lua_script(std::string(buffer.begin(), buffer.end()));
+            preview->mScriptEd->mEditor->setLuauLanguage(is_lua);
+            preview->mScriptEd->mCompileTarget->setValue(is_lua ? "luau" : "lsl-luau");
+            preview->mScriptEd->processKeywords(is_lua);
         }
         else
         {
@@ -1933,7 +2142,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 
     self->mScriptEd =  new LLScriptEdCore(
                                    self,
-                                   HELLO_LSL,
+                                   std::string(),
                                    self->getHandle(),
                                    &LLLiveLSLEditor::onLoad,
                                    &LLLiveLSLEditor::onSave,
@@ -1961,28 +2170,26 @@ LLLiveLSLEditor::LLLiveLSLEditor(const LLSD& key) :
 
 bool LLLiveLSLEditor::postBuild()
 {
-    childSetCommitCallback("running", LLLiveLSLEditor::onRunningCheckboxClicked, this);
-    getChildView("running")->setEnabled(false);
+    mResetButton = getChild<LLButton>("Reset");
+    mResetButton->setClickedCallback([&](LLUICtrl*, const LLSD&) { onReset(); });
 
-    childSetAction("Reset",&LLLiveLSLEditor::onReset,this);
-    getChildView("Reset")->setEnabled(true);
+    mRunningCheckbox = getChild<LLCheckBoxCtrl>("running");
+    mRunningCheckbox->setCommitCallback([&](LLUICtrl*, const LLSD&) { onRunningCheckboxClicked(); });
 
-    mMonoCheckbox = getChild<LLCheckBoxCtrl>("mono");
-    childSetCommitCallback("mono", &LLLiveLSLEditor::onMonoCheckboxClicked, this);
-    getChildView("mono")->setEnabled(true);
+    mExperiences = getChild<LLComboBox>("Experiences...");
+    mExperiences->setCommitCallback([&](LLUICtrl*, const LLSD&) { experienceChanged(); });
+
+    mExperienceEnabled = getChild<LLCheckBoxCtrl>("enable_xp");
+    mExperienceEnabled->setCommitCallback([&](LLUICtrl*, const LLSD&) { onToggleExperience(); });
+
+    mViewProfileButton = getChild<LLButton>("view_profile");
+    mViewProfileButton->setClickedCallback([&](LLUICtrl*, const LLSD&) { onViewProfile(); });
 
     mScriptEd->mEditor->makePristine();
     mScriptEd->mEditor->setFocus(true);
 
-
-    mExperiences = getChild<LLComboBox>("Experiences...");
-    mExperiences->setCommitCallback(boost::bind(&LLLiveLSLEditor::experienceChanged, this));
-
-    mExperienceEnabled = getChild<LLCheckBoxCtrl>("enable_xp");
-
-    childSetCommitCallback("enable_xp", onToggleExperience, this);
-    childSetCommitCallback("view_profile", onViewProfile, this);
-
+    mScriptEd->mCompileTarget = getChild<LLComboBox>("compile_target");
+    mScriptEd->mCompileTarget->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCompileTargetChanged(); });
 
     return LLPreview::postBuild();
 }
@@ -1995,7 +2202,16 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
     LL_DEBUGS() << "LSL Bytecode saved" << LL_ENDL;
     mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessful"));
     mScriptEd->mErrorList->setCommentText(LLTrans::getString("SaveComplete"));
-    getChild<LLCheckBoxCtrl>("running")->set(is_script_running);
+
+    if (isOpenInExternalEditor())
+    {
+        LLSD success_msg;
+        success_msg.append(LLTrans::getString("CompileSuccessful"));
+        success_msg.append(LLTrans::getString("SaveComplete"));
+        logErrorsToFile(success_msg);
+    }
+
+    mRunningCheckbox->set(is_script_running);
     mIsSaving = false;
     closeIfNeeded();
 }
@@ -2004,6 +2220,7 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 {
     LL_DEBUGS() << "Compile failed!" << LL_ENDL;
+
     for(LLSD::array_const_iterator line = compile_errors.beginArray();
         line < compile_errors.endArray();
         line++)
@@ -2016,6 +2233,12 @@ void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
         row["columns"][0]["font"] = "OCRA";
         mScriptEd->mErrorList->addElement(row);
     }
+
+    if (isOpenInExternalEditor())
+    {
+        logErrorsToFile(compile_errors);
+    }
+
     mScriptEd->selectFirstError();
     mIsSaving = false;
     closeIfNeeded();
@@ -2058,9 +2281,10 @@ void LLLiveLSLEditor::loadAsset()
                 {
                     mItem = new LLViewerInventoryItem(item);
                     // request the text from the object
-                LLSD* user_data = new LLSD();
-                user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
-                    gAssetStorage->getInvItemAsset(object->getRegion()->getHost(),
+                    LLSD* user_data = new LLSD();
+                    user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
+                    gAssetStorage->getInvItemAsset(
+                        object->getRegion()->getHost(),
                         gAgent.getID(),
                         gAgent.getSessionID(),
                         item->getPermissions().getOwner(),
@@ -2068,8 +2292,8 @@ void LLLiveLSLEditor::loadAsset()
                         item->getUUID(),
                         item->getAssetUUID(),
                         item->getType(),
-                        &LLLiveLSLEditor::onLoadComplete,
-                        (void*)user_data,
+                        LLLiveLSLEditor::onLoadComplete,
+                        user_data,
                         true);
                     LLMessageSystem* msg = gMessageSystem;
                     msg->newMessageFast(_PREHASH_GetScriptRunning);
@@ -2107,26 +2331,6 @@ void LLLiveLSLEditor::loadAsset()
             gMessageSystem->sendReliable(host);
             */
         }
-    }
-    else
-    {
-        mScriptEd->setScriptText(std::string(HELLO_LSL), true);
-        mScriptEd->enableSave(false);
-        LLPermissions perm;
-        perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, gAgent.getGroupID());
-        perm.initMasks(PERM_ALL, PERM_ALL, PERM_NONE, PERM_NONE, PERM_MOVE | PERM_TRANSFER);
-        mItem = new LLViewerInventoryItem(mItemUUID,
-                                          mObjectUUID,
-                                          perm,
-                                          LLUUID::null,
-                                          LLAssetType::AT_LSL_TEXT,
-                                          LLInventoryType::IT_LSL,
-                                          DEFAULT_SCRIPT_NAME,
-                                          DEFAULT_SCRIPT_DESC,
-                                          LLSaleInfo::DEFAULT,
-                                          LLInventoryItemFlags::II_FLAGS_NONE,
-                                          time_corrected());
-        mAssetStatus = PREVIEW_ASSET_LOADED;
     }
 
     requestExperiences();
@@ -2203,14 +2407,9 @@ void LLLiveLSLEditor::loadScriptText(const LLUUID &uuid, LLAssetType::EType type
 }
 
 
-void LLLiveLSLEditor::onRunningCheckboxClicked( LLUICtrl*, void* userdata )
+void LLLiveLSLEditor::onRunningCheckboxClicked()
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*) userdata;
-    LLViewerObject* object = gObjectList.findObject( self->mObjectUUID );
-    LLCheckBoxCtrl* runningCheckbox = self->getChild<LLCheckBoxCtrl>("running");
-    bool running =  runningCheckbox->get();
-    //self->mRunningCheckbox->get();
-    if( object )
+    if (LLViewerObject* object = gObjectList.findObject(mObjectUUID))
     {
         LLMessageSystem* msg = gMessageSystem;
         msg->newMessageFast(_PREHASH_SetScriptRunning);
@@ -2218,24 +2417,21 @@ void LLLiveLSLEditor::onRunningCheckboxClicked( LLUICtrl*, void* userdata )
         msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         msg->nextBlockFast(_PREHASH_Script);
-        msg->addUUIDFast(_PREHASH_ObjectID, self->mObjectUUID);
-        msg->addUUIDFast(_PREHASH_ItemID, self->mItemUUID);
-        msg->addBOOLFast(_PREHASH_Running, running);
+        msg->addUUIDFast(_PREHASH_ObjectID, mObjectUUID);
+        msg->addUUIDFast(_PREHASH_ItemID, mItemUUID);
+        msg->addBOOLFast(_PREHASH_Running, mRunningCheckbox->get());
         msg->sendReliable(object->getRegion()->getHost());
     }
     else
     {
-        runningCheckbox->set(!running);
+        mRunningCheckbox->set(!mRunningCheckbox->get());
         LLNotificationsUtil::add("CouldNotStartStopScript");
     }
 }
 
-void LLLiveLSLEditor::onReset(void *userdata)
+void LLLiveLSLEditor::onReset()
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*) userdata;
-
-    LLViewerObject* object = gObjectList.findObject( self->mObjectUUID );
-    if(object)
+    if (LLViewerObject* object = gObjectList.findObject(mObjectUUID))
     {
         LLMessageSystem* msg = gMessageSystem;
         msg->newMessageFast(_PREHASH_ScriptReset);
@@ -2243,8 +2439,8 @@ void LLLiveLSLEditor::onReset(void *userdata)
         msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         msg->nextBlockFast(_PREHASH_Script);
-        msg->addUUIDFast(_PREHASH_ObjectID, self->mObjectUUID);
-        msg->addUUIDFast(_PREHASH_ItemID, self->mItemUUID);
+        msg->addUUIDFast(_PREHASH_ObjectID, mObjectUUID);
+        msg->addUUIDFast(_PREHASH_ItemID, mItemUUID);
         msg->sendReliable(object->getRegion()->getHost());
     }
     else
@@ -2256,34 +2452,33 @@ void LLLiveLSLEditor::onReset(void *userdata)
 void LLLiveLSLEditor::draw()
 {
     LLViewerObject* object = gObjectList.findObject(mObjectUUID);
-    LLCheckBoxCtrl* runningCheckbox = getChild<LLCheckBoxCtrl>( "running");
-    if(object && mAskedForRunningInfo && mHaveRunningInfo)
+    if (object && mAskedForRunningInfo && mHaveRunningInfo)
     {
-        if(object->permAnyOwner())
+        if (object->permAnyOwner())
         {
-            runningCheckbox->setLabel(getString("script_running"));
-            runningCheckbox->setEnabled(!mIsSaving);
+            mRunningCheckbox->setLabel(getString("script_running"));
+            mRunningCheckbox->setEnabled(!mIsSaving);
         }
         else
         {
-            runningCheckbox->setLabel(getString("public_objects_can_not_run"));
-            runningCheckbox->setEnabled(false);
+            mRunningCheckbox->setLabel(getString("public_objects_can_not_run"));
+            mRunningCheckbox->setEnabled(false);
 
             // *FIX: Set it to false so that the ui is correct for
             // a box that is released to public. It could be
             // incorrect after a release/claim cycle, but will be
             // correct after clicking on it.
-            runningCheckbox->set(false);
-            mMonoCheckbox->set(false);
+            mRunningCheckbox->set(false);
+            mScriptEd->mCompileTarget->clear();
         }
     }
-    else if(!object)
+    else if (!object)
     {
         // HACK: Display this information in the title bar.
         // Really ought to put in main window.
         setTitle(LLTrans::getString("ObjectOutOfRange"));
-        runningCheckbox->setEnabled(false);
-        mMonoCheckbox->setEnabled(false);
+        mRunningCheckbox->setEnabled(false);
+        mScriptEd->mCompileTarget->setEnabled(false);
         // object may have fallen out of range.
         mHaveRunningInfo = false;
     }
@@ -2340,6 +2535,8 @@ void LLLiveLSLEditor::finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAs
         {
             preview->callbackLSLCompileFailed(response["errors"]);
         }
+        response["is_running"] = isRunning;
+        preview->sendCompileResults(response);
     }
 }
 
@@ -2390,7 +2587,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
         mScriptEd->sync();
     }
 
-    bool isRunning = getChild<LLCheckBoxCtrl>("running")->get();
+    bool is_running = mRunningCheckbox->get();
     getWindow()->incBusyCount();
     mPendingUploads++;
 
@@ -2398,17 +2595,18 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 
     if (!url.empty())
     {
+        std::string compile_target(mScriptEd->mCompileTarget->getValue());
         std::string buffer(mScriptEd->mEditor->getText());
         LLUUID old_asset_id = mScriptEd->getAssetID();
 
         LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(mObjectUUID, mItemUUID,
-                monoChecked() ? LLScriptAssetUpload::MONO : LLScriptAssetUpload::LSL2,
-                isRunning, mScriptEd->getAssociatedExperience(), buffer,
-                [isRunning, old_asset_id](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response) {
-                        LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
-                        LLLiveLSLEditor::finishLSLUpload(itemId, taskId, newAssetId, response, isRunning);
-                },
-                nullptr)); // needs failure handling?
+            compile_target, is_running, mScriptEd->getAssociatedExperience(), buffer,
+            [is_running, old_asset_id](LLUUID item_id, LLUUID task_id, LLUUID new_asset_id, LLSD response)
+            {
+                LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
+                LLLiveLSLEditor::finishLSLUpload(item_id, task_id, new_asset_id, response, is_running);
+            },
+            nullptr)); // needs failure handling?
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
     }
@@ -2461,28 +2659,60 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
     if (LLLiveLSLEditor* instance = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", floater_key))
     {
         instance->mHaveRunningInfo = true;
+
         bool running;
         msg->getBOOLFast(_PREHASH_Script, _PREHASH_Running, running);
-        LLCheckBoxCtrl* runningCheckbox = instance->getChild<LLCheckBoxCtrl>("running");
-        runningCheckbox->set(running);
-        bool mono;
-        msg->getBOOLFast(_PREHASH_Script, "Mono", mono);
-        LLCheckBoxCtrl* monoCheckbox = instance->getChild<LLCheckBoxCtrl>("mono");
-        monoCheckbox->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));
-        monoCheckbox->set(mono);
+        instance->mRunningCheckbox->set(running);
+
+        bool mono = false, luau = false, luau_language = false;
+        msg->getBOOLFast(_PREHASH_Script, _PREHASH_Mono, mono);
+        msg->getBOOLFast(_PREHASH_Script, _PREHASH_Luau, luau); // Luau compiler is enabled
+        msg->getBOOLFast(_PREHASH_Script, _PREHASH_LuauLanguage, luau_language);
+
+        std::string compile_target;
+        if (luau)
+        {
+            if (luau_language)
+            {
+                compile_target = "luau";
+            }
+            else
+            {
+                compile_target = "lsl-luau"; // Luau compiler running in LSL compatibility mode
+            }
+        }
+        else if (mono)
+        {
+            compile_target = "mono";
+        }
+        else
+        {
+            compile_target = "lsl2";
+        }
+
+        instance->mScriptEd->mCompileTarget->setValue(compile_target);
+        instance->mScriptEd->processKeywords(luau && luau_language); // Use Luau syntax highlighting for Luau scripts
+
+        bool lua_scripts_enabled = have_lua_enabled(object_id);
+        if (LLScrollListItem* luau_item = instance->mScriptEd->mCompileTarget->findItemByValue("luau"))
+        {
+            luau_item->setEnabled(lua_scripts_enabled);
+        }
+        if (LLScrollListItem* lsl_luau_item = instance->mScriptEd->mCompileTarget->findItemByValue("lsl-luau"))
+        {
+            lsl_luau_item->setEnabled(lua_scripts_enabled);
+        }
+
+        instance->mScriptEd->mCompileTarget->setEnabled(instance->getIsModifiable() && have_script_upload_cap(object_id));
     }
 }
 
-void LLLiveLSLEditor::onMonoCheckboxClicked(LLUICtrl*, void* userdata)
+void LLLiveLSLEditor::onCompileTargetChanged()
 {
-    LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
-    self->mMonoCheckbox->setEnabled(have_script_upload_cap(self->mObjectUUID));
-    self->mScriptEd->enableSave(self->getIsModifiable());
-}
+    mScriptEd->mCompileTarget->setEnabled(have_script_upload_cap(mObjectUUID));
+    mScriptEd->enableSave(getIsModifiable());
 
-bool LLLiveLSLEditor::monoChecked() const
-{
-    return mMonoCheckbox && mMonoCheckbox->getValue();
+    mScriptEd->processKeywords(mScriptEd->mCompileTarget->getValue().asString() == "luau");
 }
 
 void LLLiveLSLEditor::setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience )

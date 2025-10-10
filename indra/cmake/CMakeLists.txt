@@ -53,9 +53,11 @@ set(cmake_SOURCE_FILES
         Prebuilt.cmake
         PulseAudio.cmake
         Python.cmake
+        SSE2NEON.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
+        Tracy.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake
@@ -64,6 +66,7 @@ set(cmake_SOURCE_FILES
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake
         WebRTC.cmake
+        websocketpp.cmake
         xxHash.cmake
         ZLIBNG.cmake
         )

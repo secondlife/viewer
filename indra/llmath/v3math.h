@@ -164,6 +164,10 @@ class LLVector3
         static bool parseVector3(const std::string& buf, LLVector3* value);
 };
 
+static_assert(std::is_trivially_copyable<LLVector3>::value, "LLVector3 must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLVector3>::value, "LLVector3 must be trivial move");
+static_assert(std::is_standard_layout<LLVector3>::value, "LLVector3 must be a standard layout type");
+
 typedef LLVector3 LLSimLocalVec;
 
 // Non-member functions

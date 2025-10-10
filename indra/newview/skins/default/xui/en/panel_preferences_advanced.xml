@@ -169,43 +169,6 @@
    name="hud_scale_slider"
    top_pad="-14"
    width="250" />
-    <check_box
-     control_name="ShowScriptErrors"
-     follows="left|top"
-     height="20"
-     label="Show script errors in:"
-     layout="topleft"
-     left="30"
-     top_pad="10" 
-     name="show_script_errors"
-     width="256" />
-    <radio_group
-     enabled_control="ShowScriptErrors"
-     control_name="ShowScriptErrorsLocation"
-     follows="top|left"
-     height="16"
-     layout="topleft"
-     left_delta="50"
-     name="show_location"
-     top_pad="5"
-     width="364">
-        <radio_item
-         height="16"
-         label="Nearby chat"
-         layout="topleft"
-         left="3"
-         name="0"
-         top="0"
-         width="315" />
-        <radio_item
-         height="16"
-         label="Separate window"
-         layout="topleft"
-         left_delta="175"
-         name="1"
-         top_delta="0"
-         width="315" />
-    </radio_group>
 
     <check_box
      control_name="AllowMultipleViewers"
@@ -266,9 +229,21 @@
      name="default_creation_permissions"
      height="20"
      left="30"
-     top_pad="16"
+     top_pad="10"
      width="200">
     <button.commit_callback
      function="Pref.PermsDefault" />
+  </button>
+  <button
+    follows="top|left"
+    layout="topleft"
+    label="Script Development"
+    name="scripting_development"
+    height="20"
+    left="30"
+    top_pad="10"
+    width="200">
+    <button.commit_callback
+      function="Pref.Scripting" />
   </button>
 </panel>

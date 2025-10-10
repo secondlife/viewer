@@ -34,38 +34,6 @@
 #include "llmath.h"
 #include "llapr.h"
 
-//#if LL_DARWIN
-// MBW -- XXX -- Getting rid of SecondLifeVorbis for now
-#if 0
-#include "VorbisFramework.h"
-
-#define vorbis_analysis             mac_vorbis_analysis
-#define vorbis_analysis_headerout   mac_vorbis_analysis_headerout
-#define vorbis_analysis_init        mac_vorbis_analysis_init
-#define vorbis_encode_ctl           mac_vorbis_encode_ctl
-#define vorbis_encode_setup_init    mac_vorbis_encode_setup_init
-#define vorbis_encode_setup_managed mac_vorbis_encode_setup_managed
-
-#define vorbis_info_init            mac_vorbis_info_init
-#define vorbis_info_clear           mac_vorbis_info_clear
-#define vorbis_comment_init         mac_vorbis_comment_init
-#define vorbis_comment_clear        mac_vorbis_comment_clear
-#define vorbis_block_init           mac_vorbis_block_init
-#define vorbis_block_clear          mac_vorbis_block_clear
-#define vorbis_dsp_clear            mac_vorbis_dsp_clear
-#define vorbis_analysis_buffer      mac_vorbis_analysis_buffer
-#define vorbis_analysis_wrote       mac_vorbis_analysis_wrote
-#define vorbis_analysis_blockout    mac_vorbis_analysis_blockout
-
-#define ogg_stream_packetin         mac_ogg_stream_packetin
-#define ogg_stream_init             mac_ogg_stream_init
-#define ogg_stream_flush            mac_ogg_stream_flush
-#define ogg_stream_pageout          mac_ogg_stream_pageout
-#define ogg_page_eos                mac_ogg_page_eos
-#define ogg_stream_clear            mac_ogg_stream_clear
-
-#endif
-
 S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& error_msg)
 {
     U16 num_channels = 0;

@@ -220,7 +220,8 @@ void LLFloaterInspect::refresh()
         }
 
         time_t timestamp = (time_t) (obj->mCreationDate/1000000);
-        std::string timeStr = getString("timeStamp");
+        static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+        std::string timeStr = use_24h ? getString("timeStamp") : getString("timeStampAMPM");
         LLSD substitution;
         substitution["datetime"] = (S32) timestamp;
         LLStringUtil::format (timeStr, substitution);

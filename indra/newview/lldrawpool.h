@@ -204,7 +204,7 @@ public:
         NUM_RENDER_TYPES,
     };
 
-    #ifdef LL_PROFILER_ENABLE_RENDER_DOC
+    #if LL_PROFILER_ENABLE_RENDER_DOC
     static inline const char* lookupPassName(U32 pass)
     {
         switch (pass)
@@ -340,7 +340,7 @@ public:
         }
     }
     #else
-    static inline const char* lookupPass(U32 pass) { return ""; }
+    static inline const char* lookupPassName(U32 pass) { return ""; }
     #endif
 
     LLRenderPass(const U32 type);

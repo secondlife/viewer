@@ -63,8 +63,8 @@ set(llwindow_LINK_LIBRARIES
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
-  list(APPEND viewer_SOURCE_FILES 
-       llkeyboardsdl.cpp 
+  list(APPEND viewer_SOURCE_FILES
+       llkeyboardsdl.cpp
        llwindowsdl.cpp
        )
   list(APPEND viewer_HEADER_FILES
@@ -107,7 +107,7 @@ if (DARWIN)
       llkeyboardmacosx.cpp
       llwindowmacosx.cpp
       PROPERTIES
-      COMPILE_FLAGS "-Wno-deprecated-declarations -fpascal-strings"
+      COMPILE_FLAGS "-fpascal-strings"
       )
 endif (DARWIN)
 
@@ -180,8 +180,7 @@ endif (SDL_FOUND)
 
   target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
   target_include_directories(llwindow INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-  
+
 if (DARWIN)
-  find_library(CARBON_LIBRARY Carbon)
   target_link_libraries(llwindow ${CARBON_LIBRARY})
 endif (DARWIN)

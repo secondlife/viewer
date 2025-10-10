@@ -4354,13 +4354,6 @@ void set_god_level(U8 god_level)
 
     // changing god-level can affect which menus we see
     show_debug_menus();
-
-    // changing god-level can invalidate search results
-    LLFloaterSearch *search = dynamic_cast<LLFloaterSearch*>(LLFloaterReg::getInstance("search"));
-    if (search)
-    {
-        search->godLevelChanged(god_level);
-    }
 }
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
@@ -6517,13 +6510,13 @@ void handle_look_at_selection(const LLSD& param)
     }
 }
 
-void handle_zoom_to_object(const LLUUID& object_id)
+bool handle_zoom_to_object(const LLUUID& object_id)
 {
     const F32 PADDING_FACTOR = 2.f;
 
     LLViewerObject* object = gObjectList.findObject(object_id);
 
-    if (object)
+    if (object && object->isReachable())
     {
         gAgentCamera.setFocusOnAvatar(false, ANIMATE);
 
@@ -6535,12 +6528,14 @@ void handle_zoom_to_object(const LLUUID& object_id)
         obj_to_cam.normVec();
 
 
-            LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
+        LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
 
-            gAgentCamera.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance),
+        gAgentCamera.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance),
                                             object_center_global,
                                             object_id );
+        return true;
     }
+    return false;
 }
 
 class LLAvatarInviteToGroup : public view_listener_t
@@ -7861,13 +7856,13 @@ class LLToolsSelectedScriptAction : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         std::string action = userdata.asString();
-        bool mono = false;
+        std::string target = "lsl2";
         std::string msg, name;
         std::string title;
         if (action == "compile mono")
         {
             name = "compile_queue";
-            mono = true;
+            target = "mono";
             msg = "Recompile";
             title = LLTrans::getString("CompileQueueTitle");
         }
@@ -7900,7 +7895,7 @@ class LLToolsSelectedScriptAction : public view_listener_t
         LLFloaterScriptQueue* queue =LLFloaterReg::getTypedInstance<LLFloaterScriptQueue>(name, LLSD(id));
         if (queue)
         {
-            queue->setMono(mono);
+            queue->setCompileTarget(target);
             if (queue_actions(queue, msg))
             {
                 queue->setTitle(title);

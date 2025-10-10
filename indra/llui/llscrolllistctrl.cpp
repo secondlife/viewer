@@ -1281,6 +1281,19 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, boo
     return NULL;
 }
 
+LLScrollListItem* LLScrollListCtrl::getItemByValue(const std::string& value)
+{
+    for (LLScrollListItem* item : mItemList)
+    {
+        if (item->getValue().asString() == value)
+        {
+            return item;
+        }
+    }
+
+    return NULL;
+}
+
 LLScrollListItem* LLScrollListCtrl::getItemByIndex(S32 index)
 {
     if (index >= 0 && index < (S32)mItemList.size())

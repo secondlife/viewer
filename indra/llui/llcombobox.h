@@ -143,7 +143,10 @@ public:
     LLScrollListItem*   addSeparator(EAddPosition pos = ADD_BOTTOM);
     bool            remove( S32 index );    // remove item by index, return true if found and removed
     void            removeall() { clearRows(); }
-    bool            itemExists(const std::string& name);
+    bool            itemExists(const std::string& name) const;
+    bool            valueExists(const std::string& value) const;
+    LLScrollListItem* findItemByValue(const std::string& value) const;
+    std::vector<LLScrollListItem*> getAllData() const;
 
     void            sortByName(bool ascending = true); // Sort the entries in the combobox by name
 

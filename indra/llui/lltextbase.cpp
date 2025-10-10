@@ -185,6 +185,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
     mURLClickSignal(NULL),
     mIsFriendSignal(NULL),
     mIsObjectBlockedSignal(NULL),
+    mIsObjectReachableSignal(NULL),
     mMaxTextByteLength( p.max_text_length ),
     mFont(p.font),
     mFontShadow(p.font_shadow),
@@ -290,6 +291,7 @@ LLTextBase::~LLTextBase()
     delete mURLClickSignal;
     delete mIsFriendSignal;
     delete mIsObjectBlockedSignal;
+    delete mIsObjectReachableSignal;
 }
 
 void LLTextBase::initFromParams(const LLTextBase::Params& p)
@@ -1446,6 +1448,8 @@ void LLTextBase::reshape(S32 width, S32 height, bool called_from_parent)
         // up-to-date mVisibleTextRect
         updateRects();
 
+        // Todo: This might be wrong. updateRects already sets needsReflow conditionaly.
+        // Reflow is expensive and doing it at any twith can be too much.
         needsReflow();
     }
 }
@@ -2235,6 +2239,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     registrar.add("Url.RemoveFriend", boost::bind(&LLUrlAction::removeFriend, url));
     registrar.add("Url.ReportAbuse", boost::bind(&LLUrlAction::reportAbuse, url));
     registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
+    registrar.add("Url.ZoomInObject", boost::bind(&LLUrlAction::zoomInObject, url));
     registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
     registrar.add("Url.ShowParcelOnMap", boost::bind(&LLUrlAction::showParcelOnMap, url));
     registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
@@ -2278,6 +2283,15 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
             {
                 blockButton->setVisible(!is_blocked);
                 unblockButton->setVisible(is_blocked);
+            }
+        }
+
+        if (mIsObjectReachableSignal)
+        {
+            bool is_reachable = *(*mIsObjectReachableSignal)(LLUUID(LLUrlAction::getObjectId(url)));
+            if (LLView* zoom_btn = menu->getChild<LLView>("zoom_in"))
+            {
+                zoom_btn->setEnabled(is_reachable);
             }
         }
         menu->show(x, y);
@@ -3386,6 +3400,15 @@ boost::signals2::connection LLTextBase::setIsObjectBlockedCallback(const is_bloc
     return mIsObjectBlockedSignal->connect(cb);
 }
 
+boost::signals2::connection LLTextBase::setIsObjectReachableCallback(const is_obj_reachable_signal_t::slot_type& cb)
+{
+    if (!mIsObjectReachableSignal)
+    {
+        mIsObjectReachableSignal = new is_obj_reachable_signal_t();
+    }
+    return mIsObjectReachableSignal->connect(cb);
+}
+
 //
 // LLTextSegment
 //
@@ -3764,7 +3787,7 @@ bool LLNormalTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& w
 {
     height = 0;
     width = 0;
-    if (num_chars > 0)
+    if (num_chars > 0 && (mStart + first_char >= 0))
     {
         height = mFontHeight;
         const LLWString &text = getWText();

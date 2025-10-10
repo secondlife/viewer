@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
-  positioning="cascading"
-  legacy_header_height="18"
-  can_resize="true"
-  height="775"
-  layout="topleft"
-  min_height="400"
-  min_width="500"
-  name="floater_search"
-  help_topic="floater_search"
-  save_rect="true"
-  save_visibility="true"
-  title=""
-  initial_mime_type="text/html"
-  width="780"
-  tab_stop="true"
-  filename="floater_web_content.xml"/>
+ positioning="cascading"
+ legacy_header_height="225"
+ can_minimize="true"
+ can_close="true"
+ can_resize="true"
+ min_height="800"
+ min_width="800"
+ height="800"
+ layout="topleft"
+ name="Search"
+ single_instance="true"
+ help_topic="search"
+ save_rect="true"
+ save_visibility="true"
+ title="SEARCH"
+ width="800">
+    <web_browser
+      top="25"
+      height="775"
+      width="800"
+      follows="all"
+      name="search_contents"
+      trusted_content="true"/>
+</floater>

@@ -117,6 +117,7 @@ protected:
     void        onClickClearCache();            // Clear viewer texture cache, file cache on next startup
     void        onClickBrowserClearCache();     // Clear web history and caches as well as viewer caches above
     void        onLanguageChange();
+    void        onTimeFormatChange();
     void        onNotificationsChange(const std::string& OptionName);
     void        onNameTagOpacityChange(const LLSD& newvalue);
 
@@ -190,6 +191,7 @@ public:
     void onClickRenderExceptions();
     void onClickAutoAdjustments();
     void onClickAdvanced();
+    void onClickScriptingPerfs();
     void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
     void getUIColor(LLUICtrl* ctrl, const LLSD& param);
     void onLogChatHistorySaved();
@@ -218,6 +220,7 @@ private:
     bool mGotPersonalInfo;
     bool mLanguageChanged;
     bool mAvatarDataInitialized;
+    U32 mLastQualityLevel = 0;
     std::string mPriorInstantMessageLogPath;
 
     bool mOriginalHideOnlineStatus;
@@ -234,10 +237,11 @@ private:
     LLButton*       mDeleteTranscriptsBtn = nullptr;
     LLButton*       mEnablePopupBtn = nullptr;
     LLButton*       mDisablePopupBtn = nullptr;
+    LLComboBox*     mTimeFormatCombobox = nullptr;
     std::unique_ptr< ll::prefs::SearchData > mSearchData;
     bool mSearchDataDirty;
 
-    boost::signals2::connection	mImpostorsChangedSignal;
+    boost::signals2::connection mImpostorsChangedSignal;
     boost::signals2::connection mComplexityChangedSignal;
 
     void onUpdateFilterTerm( bool force = false );

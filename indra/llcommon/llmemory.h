@@ -71,7 +71,11 @@ LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 #define ll_assert_aligned(ptr,alignment)
 #endif
 
+#if LL_ARM64
+#include "sse2neon.h"
+#else
 #include <xmmintrin.h>
+#endif
 
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address)
 {
@@ -231,8 +235,6 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if defined(LL_WINDOWS)
     void* ret = _aligned_malloc(size, 32);
-#elif defined(LL_DARWIN)
-    void* ret = ll_aligned_malloc_fallback( size, 32 );
 #else
     void *ret;
     if (0 != posix_memalign(&ret, 32, size))
@@ -248,8 +250,31 @@ inline void ll_aligned_free_32(void *p)
     LL_PROFILE_FREE(p);
 #if defined(LL_WINDOWS)
     _aligned_free(p);
-#elif defined(LL_DARWIN)
-    ll_aligned_free_fallback( p );
+#else
+    free(p); // posix_memalign() is compatible with heap deallocator
+#endif
+}
+
+inline void* ll_aligned_malloc_64(size_t size) // returned hunk MUST be freed with ll_aligned_free_32().
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+#if defined(LL_WINDOWS)
+    void* ret = _aligned_malloc(size, 64);
+#else
+    void *ret;
+    if (0 != posix_memalign(&ret, 64, size))
+        return nullptr;
+#endif
+    LL_PROFILE_ALLOC(ret, size);
+    return ret;
+}
+
+inline void ll_aligned_free_64(void *p)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+    LL_PROFILE_FREE(p);
+#if defined(LL_WINDOWS)
+    _aligned_free(p);
 #else
     free(p); // posix_memalign() is compatible with heap deallocator
 #endif
@@ -261,18 +286,22 @@ LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     void* ret;
-    if (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
+    if constexpr (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
     {
         ret = malloc(size);
         LL_PROFILE_ALLOC(ret, size);
     }
-    else if (ALIGNMENT == 16)
+    else if constexpr (ALIGNMENT == 16)
     {
         ret = ll_aligned_malloc_16(size);
     }
-    else if (ALIGNMENT == 32)
+    else if constexpr (ALIGNMENT == 32)
     {
         ret = ll_aligned_malloc_32(size);
+    }
+    else if constexpr (ALIGNMENT == 64)
+    {
+        ret = ll_aligned_malloc_64(size);
     }
     else
     {
@@ -285,16 +314,20 @@ template<size_t ALIGNMENT>
 LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
-    if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
+    if constexpr (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
     {
         LL_PROFILE_FREE(ptr);
         free(ptr);
     }
-    else if (ALIGNMENT == 16)
+    else if constexpr (ALIGNMENT == 16)
     {
         ll_aligned_free_16(ptr);
     }
-    else if (ALIGNMENT == 32)
+    else if constexpr (ALIGNMENT == 32)
+    {
+        return ll_aligned_free_32(ptr);
+    }
+    else if constexpr (ALIGNMENT == 64)
     {
         return ll_aligned_free_32(ptr);
     }
@@ -310,6 +343,9 @@ LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __restrict src, size_t bytes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+#if defined(LL_ARM64)
+    memcpy(dst, src, bytes);
+#else
     assert(src != NULL);
     assert(dst != NULL);
     assert(bytes > 0);
@@ -375,6 +411,7 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
         dst += 16;
         src += 16;
     }
+#endif
 }
 
 #ifndef __DEBUG_PRIVATE_MEM__

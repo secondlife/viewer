@@ -38,20 +38,21 @@ class LLHUDEffectResetSkeleton final : public LLHUDEffect
 public:
     friend class LLHUDObject;
 
-    /*virtual*/ void markDead();
-    /*virtual*/ void setSourceObject(LLViewerObject* objectp);
+    /*virtual*/ void markDead() override;
+    /*virtual*/ void setSourceObject(LLViewerObject* objectp) override;
 
-    void setTargetObject(LLViewerObject *objp);
+    void setTargetObject(LLViewerObject *objp) override;
     void setResetAnimations(bool enable){ mResetAnimations = enable; };
 
 protected:
     LLHUDEffectResetSkeleton(const U8 type);
     ~LLHUDEffectResetSkeleton();
 
-    /*virtual*/ void packData(LLMessageSystem *mesgsys);
-    /*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
+    void render() override;
+    void packData(LLMessageSystem *mesgsys) override;
+    void unpackData(LLMessageSystem *mesgsys, S32 blocknum) override;
 
-    void update();
+    void update() override;
 private:
     bool                        mResetAnimations;
 };

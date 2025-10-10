@@ -114,7 +114,7 @@ if (LL_TESTS)
       # but the CMake $<TARGET_FILE_DIR> generator expression isn't evaluated by
       # CREATE_LINK, so fudge it.
       add_custom_command( TARGET lltest POST_BUILD
-              COMMAND cmake -E create_symlink ${SHARED_LIB_STAGING_DIR} ${CMAKE_BINARY_DIR}/test/Resources
+              COMMAND ${CMAKE_COMMAND} -E create_symlink ${SHARED_LIB_STAGING_DIR} ${CMAKE_BINARY_DIR}/test/Resources
               )
     endif()
 endif (LL_TESTS)

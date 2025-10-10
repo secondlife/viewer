@@ -43,8 +43,6 @@ vec3 legacyGamma(vec3 color)
     return c;
 }
 
-vec3 clampHDRRange(vec3 color);
-
 void main()
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
@@ -55,7 +53,7 @@ void main()
     diff.rgb = legacyGamma(diff.rgb);
 #endif
 
-    diff.rgb = clampHDRRange(diff.rgb);
+    diff.rgb = clamp(diff.rgb, vec3(0.0), vec3(1.0));
     frag_color = diff;
 }
 

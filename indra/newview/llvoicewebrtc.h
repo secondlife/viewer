@@ -444,10 +444,6 @@ public:
 
 private:
 
-    // helper function to retrieve the audio level
-    // Used in multiple places.
-    float getAudioLevel();
-
     // Coroutine support methods
     //---
     void voiceConnectionCoro();
@@ -458,7 +454,6 @@ private:
 
     LL::WorkQueue::weak_t mMainQueue;
 
-    bool mTuningMode;
     F32 mTuningMicGain;
     int mTuningSpeakerVolume;
     bool mDevicesListUpdated;            // set to true when the device list has been updated

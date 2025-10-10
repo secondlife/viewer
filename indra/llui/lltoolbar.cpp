@@ -1054,7 +1054,7 @@ bool LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
     // if drop is set, it's time to call the callback to get the operation done
     if (handled && drop)
     {
-        handled = mHandleDropCallback(cargo_data, x, y, this);
+        handled = mHandleDropCallback(cargo_data, cargo_type, x, y, this);
     }
 
     // We accept only single tool drop on toolbars
