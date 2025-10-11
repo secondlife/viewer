@@ -388,7 +388,7 @@ bool LLTaskInvFVBridge::removeItem()
             LLSD payload;
             payload["task_id"] = mPanel->getTaskUUID();
             payload["inventory_ids"].append(mUUID);
-            LLNotificationsUtil::add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
+            LLNotificationsUtil::add("CantModifyContentInNoModTask", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
             return false;
         }
     }
@@ -417,7 +417,7 @@ void LLTaskInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch)
         {
             payload["inventory_ids"].append(((LLTaskInvFVBridge*)item)->getUUID());
         }
-        LLNotificationsUtil::add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
+        LLNotificationsUtil::add("CantModifyContentInNoModTask", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
     }
     else
     {
