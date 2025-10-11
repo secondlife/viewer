@@ -27,13 +27,15 @@
 #pragma once
 
 #include "llfloater.h"
+#include "llfloaterwebcontent.h"
 
 class LLFloaterSearch:
-    public LLFloater {
+        public LLFloaterWebContent {
         friend class LLFloaterReg;
 
     public:
         void onOpen(const LLSD& key) override;
+        void onClose(bool app_quitting) override;
 
     private:
         LLFloaterSearch(const LLSD& key);

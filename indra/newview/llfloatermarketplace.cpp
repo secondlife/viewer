@@ -27,10 +27,11 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloatermarketplace.h"
+#include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 
 LLFloaterMarketplace::LLFloaterMarketplace(const LLSD& key)
-    :   LLFloater(key)
+    :   LLFloaterWebContent(key)
 {
 }
 
@@ -38,10 +39,25 @@ LLFloaterMarketplace::~LLFloaterMarketplace()
 {
 }
 
+// just to override LLFloaterWebContent
+void LLFloaterMarketplace::onClose(bool app_quitting)
+{
+}
+
 bool LLFloaterMarketplace::postBuild()
 {
-    enableResizeCtrls(true, true, false);
+    LLFloaterWebContent::postBuild();
+    mWebBrowser = getChild<LLMediaCtrl>("marketplace_contents");
+    mWebBrowser->addObserver(this);
+
     return true;
 }
 
-
+void LLFloaterMarketplace::openMarketplace()
+{
+    std::string url = gSavedSettings.getString("MarketplaceURL");
+    if (mCurrentURL != url)
+    {
+        mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+    }
+}
