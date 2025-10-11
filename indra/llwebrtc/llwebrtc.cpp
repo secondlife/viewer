@@ -641,6 +641,13 @@ void LLWebRTCImpl::OnDevicesUpdated()
 void LLWebRTCImpl::setTuningMode(bool enable)
 {
     mTuningMode = enable;
+    if (!mTuningMode
+        && !mMute
+        && mPeerCustomProcessor
+        && mPeerCustomProcessor->getGain() != mGain)
+    {
+        mPeerCustomProcessor->setGain(mGain);
+    }
     mWorkerThread->PostTask(
         [this]
         {
@@ -907,6 +914,13 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             config.set_max_port(60100);
 
             webrtc::PeerConnectionDependencies pc_dependencies(this);
+            if (mPeerConnectionFactory == nullptr)
+            {
+                RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection, factory doesn't exist";
+                // Too early?
+                mPendingJobs--;
+                return;
+            }
             auto error_or_peer_connection = mPeerConnectionFactory->CreatePeerConnectionOrError(config, std::move(pc_dependencies));
             if (error_or_peer_connection.ok())
             {

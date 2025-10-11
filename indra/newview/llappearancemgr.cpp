@@ -1500,6 +1500,27 @@ void wear_on_avatar_cb(const LLUUID& inv_item, bool do_replace = false)
     }
 }
 
+bool needs_to_replace(LLViewerInventoryItem* item_to_wear, bool & first_for_object, std::vector<bool>& first_for_type, bool replace)
+{
+    bool res = false;
+    LLAssetType::EType type = item_to_wear->getType();
+    if (type == LLAssetType::AT_OBJECT)
+    {
+        res = first_for_object && replace;
+        first_for_object = false;
+    }
+    else if (type == LLAssetType::AT_CLOTHING)
+    {
+        LLWearableType::EType wtype = item_to_wear->getWearableType();
+        if (wtype >= 0 && wtype < LLWearableType::WT_COUNT)
+        {
+            res = first_for_type[wtype] && replace;
+            first_for_type[wtype] = false;
+        }
+    }
+    return res;
+}
+
 void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
                                         bool do_update,
                                         bool replace,
@@ -1508,7 +1529,8 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
     LL_DEBUGS("UIUsage") << "wearItemsOnAvatar" << LL_ENDL;
     LLUIUsage::instance().logCommand("Avatar.WearItem");
 
-    bool first = true;
+    bool first_for_object = true;
+    std::vector<bool> first_for_type(LLWearableType::WT_COUNT, true);
 
     LLInventoryObject::const_object_list_t items_to_link;
 
@@ -1516,9 +1538,6 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
          it != item_ids_to_wear.end();
          ++it)
     {
-        replace = first && replace;
-        first = false;
-
         const LLUUID& item_id_to_wear = *it;
 
         if (item_id_to_wear.isNull())
@@ -1537,8 +1556,9 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
         if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.getLibraryRootFolderID()))
         {
             LL_DEBUGS("Avatar") << "inventory item in library, will copy and wear "
-                                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(wear_on_avatar_cb,_1,replace));
+                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
+            bool replace_item = needs_to_replace(item_to_wear, first_for_object, first_for_type, replace);
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(wear_on_avatar_cb, _1, replace_item));
             copy_inventory_item(gAgent.getID(), item_to_wear->getPermissions().getOwner(),
                                 item_to_wear->getUUID(), LLUUID::null, std::string(), cb);
             continue;
@@ -1576,7 +1596,8 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
                     }
                     LLWearableType::EType type = item_to_wear->getWearableType();
                     S32 wearable_count = gAgentWearables.getWearableCount(type);
-                    if ((replace && wearable_count != 0) || !gAgentWearables.canAddWearable(type))
+                    bool replace_item = needs_to_replace(item_to_wear, first_for_object, first_for_type, replace);
+                    if ((replace_item && wearable_count != 0) || !gAgentWearables.canAddWearable(type))
                     {
                         LLUUID item_id = gAgentWearables.getWearableItemID(item_to_wear->getWearableType(),
                                                                            wearable_count-1);
@@ -1605,7 +1626,13 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
 
             case LLAssetType::AT_OBJECT:
             {
-                rez_attachment(item_to_wear, NULL, replace);
+                // Note that this will replace only first attachment regardless of attachment point,
+                // so if user is wearing two items over other two on different attachment points,
+                // only one will be replaced.
+                // Unfortunately we have no way to determine attachment point from inventory item.
+                // We might want to forbid wearing multiple objects with replace option in future.
+                bool replace_item = needs_to_replace(item_to_wear, first_for_object, first_for_type, replace);
+                rez_attachment(item_to_wear, NULL, replace_item);
             }
             break;
 
