@@ -2398,7 +2398,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         if (gDirUtilp->fileExists(user_data_path_cef_log))
         {
             std::string user_data_path_cef_old = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.old");
-            LLFile::remove(user_data_path_cef_old, ENOENT);
             LLFile::rename(user_data_path_cef_log, user_data_path_cef_old);
         }
     }
@@ -3666,7 +3665,7 @@ void LLAppViewer::writeSystemInfo()
     // and can read this value from the debug_info.log.
     gDebugInfo["CrashNotHandled"] = LLSD::Boolean(true);
 #else // LL_BUGSPLAT
-    // "CrashNotHandled" is obsolete; it used (not very successsfully)
+    // "CrashNotHandled" is obsolete; it used (not very successfully)
     // to try to distinguish crashes from freezes - the intent here to to avoid calling it a freeze
     gDebugInfo["CrashNotHandled"] = LLSD::Boolean(false);
 #endif // ! LL_BUGSPLAT
@@ -4268,12 +4267,9 @@ void LLAppViewer::migrateCacheDirectory()
             gDirUtilp->setCacheDir(new_cache_dir);
 
 #if LL_DARWIN
-            // Clean up Mac files not deleted by removing *.*
+            // Clean up Mac files not deleted by renaming *.*
             std::string ds_store = old_cache_dir + "/.DS_Store";
-            if (gDirUtilp->fileExists(ds_store))
-            {
-                LLFile::remove(ds_store);
-            }
+            LLFile::remove(ds_store, ENOENT);
 #endif
             if (LLFile::rmdir(old_cache_dir) != 0)
             {
