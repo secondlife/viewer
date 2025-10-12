@@ -35,7 +35,6 @@
 
 #if LL_WINDOWS
 #include "llwin32headers.h"
-#include <stdlib.h>                 // Windows errno
 #include <vector>
 #else
 #include <errno.h>
@@ -49,6 +48,110 @@ static std::string empty;
 // variants of strerror() to report errors.
 
 #if LL_WINDOWS
+namespace
+{
+    struct errentry
+    {
+        unsigned long oserr; // OS return value
+        int errcode;         // System V error code
+    };
+}
+
+static errentry const errtable[]
+{
+    { ERROR_INVALID_FUNCTION,       EINVAL    },  //    1
+    { ERROR_FILE_NOT_FOUND,         ENOENT    },  //    2
+    { ERROR_PATH_NOT_FOUND,         ENOENT    },  //    3
+    { ERROR_TOO_MANY_OPEN_FILES,    EMFILE    },  //    4
+    { ERROR_ACCESS_DENIED,          EACCES    },  //    5
+    { ERROR_INVALID_HANDLE,         EBADF     },  //    6
+    { ERROR_ARENA_TRASHED,          ENOMEM    },  //    7
+    { ERROR_NOT_ENOUGH_MEMORY,      ENOMEM    },  //    8
+    { ERROR_INVALID_BLOCK,          ENOMEM    },  //    9
+    { ERROR_BAD_ENVIRONMENT,        E2BIG     },  //   10
+    { ERROR_BAD_FORMAT,             ENOEXEC   },  //   11
+    { ERROR_INVALID_ACCESS,         EINVAL    },  //   12
+    { ERROR_INVALID_DATA,           EINVAL    },  //   13
+    { ERROR_INVALID_DRIVE,          ENOENT    },  //   15
+    { ERROR_CURRENT_DIRECTORY,      EACCES    },  //   16
+    { ERROR_NOT_SAME_DEVICE,        EXDEV     },  //   17
+    { ERROR_NO_MORE_FILES,          ENOENT    },  //   18
+    { ERROR_LOCK_VIOLATION,         EACCES    },  //   33
+    { ERROR_BAD_NETPATH,            ENOENT    },  //   53
+    { ERROR_NETWORK_ACCESS_DENIED,  EACCES    },  //   65
+    { ERROR_BAD_NET_NAME,           ENOENT    },  //   67
+    { ERROR_FILE_EXISTS,            EEXIST    },  //   80
+    { ERROR_CANNOT_MAKE,            EACCES    },  //   82
+    { ERROR_FAIL_I24,               EACCES    },  //   83
+    { ERROR_INVALID_PARAMETER,      EINVAL    },  //   87
+    { ERROR_NO_PROC_SLOTS,          EAGAIN    },  //   89
+    { ERROR_DRIVE_LOCKED,           EACCES    },  //  108
+    { ERROR_BROKEN_PIPE,            EPIPE     },  //  109
+    { ERROR_DISK_FULL,              ENOSPC    },  //  112
+    { ERROR_INVALID_TARGET_HANDLE,  EBADF     },  //  114
+    { ERROR_WAIT_NO_CHILDREN,       ECHILD    },  //  128
+    { ERROR_CHILD_NOT_COMPLETE,     ECHILD    },  //  129
+    { ERROR_DIRECT_ACCESS_HANDLE,   EBADF     },  //  130
+    { ERROR_NEGATIVE_SEEK,          EINVAL    },  //  131
+    { ERROR_SEEK_ON_DEVICE,         EACCES    },  //  132
+    { ERROR_DIR_NOT_EMPTY,          ENOTEMPTY },  //  145
+    { ERROR_NOT_LOCKED,             EACCES    },  //  158
+    { ERROR_BAD_PATHNAME,           ENOENT    },  //  161
+    { ERROR_MAX_THRDS_REACHED,      EAGAIN    },  //  164
+    { ERROR_LOCK_FAILED,            EACCES    },  //  167
+    { ERROR_ALREADY_EXISTS,         EEXIST    },  //  183
+    { ERROR_FILENAME_EXCED_RANGE,   ENOENT    },  //  206
+    { ERROR_NESTING_NOT_ALLOWED,    EAGAIN    },  //  215
+    { ERROR_NO_UNICODE_TRANSLATION, EILSEQ    },  // 1113
+    { ERROR_NOT_ENOUGH_QUOTA,       ENOMEM    }   // 1816
+};
+
+// Number of elements in the error translation table
+#define ERRTABLECOUNT (sizeof(errtable) / sizeof(errtable[0]))
+
+// The following two constants must be the minimum and maximum
+// values in the (contiguous) range of Exec Failure errors.
+#define MIN_ENOEXEC_ERROR ERROR_INVALID_STARTING_CODESEG
+#define MAX_ENOEXEC_ERROR ERROR_INFLOOP_IN_RELOC_CHAIN
+
+// These are the low and high value in the range of errors that are
+// access violations
+#define MIN_EACCES_RANGE ERROR_WRITE_PROTECT
+#define MAX_EACCES_RANGE ERROR_SHARING_BUFFER_EXCEEDED
+
+static int set_errno_from_oserror(unsigned long oserr)
+{
+    if (!oserr)
+        return 0;
+
+    // Check the table for the OS error code
+    for (unsigned i{0}; i < ERRTABLECOUNT; ++i)
+    {
+        if (oserr == errtable[i].oserr)
+        {
+            _set_errno(errtable[i].errcode);
+            return -1;
+        }
+    }
+
+    // The error code wasn't in the table.  We check for a range of
+    // EACCES errors or exec failure errors (ENOEXEC).  Otherwise
+    // EINVAL is returned.
+    if (oserr >= MIN_EACCES_RANGE && oserr <= MAX_EACCES_RANGE)
+    {
+        _set_errno(EACCES);
+    }
+    else if (oserr >= MIN_ENOEXEC_ERROR && oserr <= MAX_ENOEXEC_ERROR)
+    {
+        _set_errno(ENOEXEC);
+    }
+    else
+    {
+        _set_errno(EINVAL);
+    }
+    return -1;
+}
+
 // On Windows, use strerror_s().
 std::string strerr(int errn)
 {
@@ -57,7 +160,56 @@ std::string strerr(int errn)
     return buffer;
 }
 
-typedef std::basic_ios<char,std::char_traits < char > > _Myios;
+inline bool is_slash(wchar_t const c)
+{
+    return c == L'\\' || c == L'/';
+}
+
+// By prepending "\\?\" to a wide path, Windows file APIs will not fail on long path names
+static std::wstring utf8path_to_wstring(const std::string& utf8path)
+{
+    std::wstring utf16path = L"\\\\?\\" + ll_convert<std::wstring>(utf8path);
+    // We need to make sure that the path does not contain forward slashes as above
+    // prefix does skip the path normalization that replaces slashes with backslashes
+    // before passing the path to kernel mode APIs
+    std::replace(utf16path.begin(), utf16path.end(), L'/', L'\\');
+    return utf16path;
+}
+
+static unsigned long get_fileattr(const std::wstring& utf16path, unsigned short& st_mode)
+{
+    unsigned long ret = NO_ERROR;
+    HANDLE file_handle = CreateFileW(utf16path.c_str(), FILE_READ_ATTRIBUTES,
+                                     FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                                     OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
+    if (file_handle == INVALID_HANDLE_VALUE)
+    {
+        return GetLastError();
+    }
+
+    FILE_ATTRIBUTE_TAG_INFO attribute_info;
+    if (GetFileInformationByHandleEx(file_handle, FileAttributeTagInfo, &attribute_info, sizeof(attribute_info)))
+    {
+        // A volume path alone (only drive letter) is not recognized as directory while it technically is
+        bool is_directory = (attribute_info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
+                            (iswalpha(utf16path[0]) && utf16path[1] == ':' &&
+                             (!utf16path[2] || (is_slash(utf16path[2]) && !utf16path[3])));
+        st_mode = is_directory ? S_IFDIR : S_IFREG;
+        st_mode |= (attribute_info.FileAttributes & FILE_ATTRIBUTE_READONLY) ? S_IREAD : S_IREAD | S_IWRITE;
+        // we do not try to guess executable flag
+
+        // propagate user bits to group/other fields:
+        st_mode |= (st_mode & 0700) >> 3;
+        st_mode |= (st_mode & 0700) >> 6;
+    }
+    else
+    {
+        // retrieve GetLastError() before calling CloseHandle()
+        ret = GetLastError();
+    }
+    CloseHandle(file_handle);
+    return ret;
+}
 
 #else
 // On Posix we want to call strerror_r(), but alarmingly, there are two
@@ -108,18 +260,13 @@ std::string strerr(int errn)
 }
 #endif  // ! LL_WINDOWS
 
-// On either system, shorthand call just infers global 'errno'.
-std::string strerr()
-{
-    return strerr(errno);
-}
-
-int warnif(const std::string& desc, const std::string& filename, int rc, int accept=0)
+int warnif(const std::string& desc, const std::string& filename, int rc, int accept = 0)
 {
     if (rc < 0)
     {
         // Capture errno before we start emitting output
         int errn = errno;
+
         // For certain operations, a particular errno value might be
         // acceptable -- e.g. stat() could permit ENOENT, mkdir() could permit
         // EEXIST. Don't warn if caller explicitly says this errno is okay.
@@ -176,59 +323,55 @@ int warnif(const std::string& desc, const std::string& filename, int rc, int acc
 // static
 int LLFile::mkdir(const std::string& dirname, int perms)
 {
-#if LL_WINDOWS
-    // permissions are ignored on Windows
-    std::wstring utf16dirname = ll_convert<std::wstring>(dirname);
-    int rc = _wmkdir(utf16dirname.c_str());
-#else
-    int rc = ::mkdir(dirname.c_str(), (mode_t)perms);
-#endif
     // We often use mkdir() to ensure the existence of a directory that might
     // already exist. There is no known case in which we want to call out as
     // an error the requested directory already existing.
+#if LL_WINDOWS
+    // permissions are ignored on Windows
+    int rc = 0;
+    std::wstring utf16dirname = utf8path_to_wstring(dirname);
+    if (!CreateDirectoryW(utf16dirname.c_str(), nullptr))
+    {
+        // Only treat other errors than an already existing file as a real error
+        unsigned long oserr = GetLastError();
+        if (oserr != ERROR_ALREADY_EXISTS)
+        {
+            rc = set_errno_from_oserror(oserr);
+        }
+    }
+#else
+    int rc = ::mkdir(dirname.c_str(), (mode_t)perms);
     if (rc < 0 && errno == EEXIST)
     {
         // this is not the error you want, move along
         return 0;
     }
+#endif
     // anything else might be a problem
-    return warnif("mkdir", dirname, rc, EEXIST);
+    return warnif("mkdir", dirname, rc);
 }
 
 // static
-int LLFile::rmdir(const std::string& dirname)
+int LLFile::rmdir(const std::string& dirname, int supress_error)
 {
 #if LL_WINDOWS
-    // permissions are ignored on Windows
-    std::wstring utf16dirname = ll_convert<std::wstring>(dirname);
+    std::wstring utf16dirname = utf8path_to_wstring(dirname);
     int rc = _wrmdir(utf16dirname.c_str());
 #else
     int rc = ::rmdir(dirname.c_str());
 #endif
-    return warnif("rmdir", dirname, rc);
+    return warnif("rmdir", dirname, rc, supress_error);
 }
 
 // static
 LLFILE* LLFile::fopen(const std::string& filename, const char* mode)    /* Flawfinder: ignore */
 {
 #if LL_WINDOWS
-    std::wstring utf16filename = ll_convert<std::wstring>(filename);
+    std::wstring utf16filename = utf8path_to_wstring(filename);
     std::wstring utf16mode = ll_convert<std::wstring>(std::string(mode));
-    return _wfopen(utf16filename.c_str(),utf16mode.c_str());
+    return _wfopen(utf16filename.c_str(), utf16mode.c_str());
 #else
     return ::fopen(filename.c_str(),mode);  /* Flawfinder: ignore */
-#endif
-}
-
-LLFILE* LLFile::_fsopen(const std::string& filename, const char* mode, int sharingFlag)
-{
-#if LL_WINDOWS
-    std::wstring utf16filename = ll_convert<std::wstring>(filename);
-    std::wstring utf16mode = ll_convert<std::wstring>(std::string(mode));
-    return _wfsopen(utf16filename.c_str(),utf16mode.c_str(),sharingFlag);
-#else
-    llassert(0);//No corresponding function on non-windows
-    return NULL;
 #endif
 }
 
@@ -264,8 +407,34 @@ std::string LLFile::getContents(const std::string& filename)
 int LLFile::remove(const std::string& filename, int supress_error)
 {
 #if LL_WINDOWS
-    std::wstring utf16filename = ll_convert<std::wstring>(filename);
-    int rc = _wremove(utf16filename.c_str());
+    // Posix remove() works on both files and directories although on Windows
+    // remove() and its wide char variant _wremove() only removes files just
+    // as its siblings unlink() and _wunlink().
+    // If we really only want to support files we should instead use
+    // unlink() in the non-Windows part below too
+    int rc = 0;
+    unsigned short st_mode;
+    std::wstring utf16filename = utf8path_to_wstring(filename);
+    unsigned long oserr = get_fileattr(utf16filename, st_mode);
+    if (!oserr)
+    {
+        if (S_ISDIR(st_mode))
+        {
+            rc = _wrmdir(utf16filename.c_str());
+        }
+        else if (S_ISREG(st_mode))
+        {
+            rc = _wunlink(utf16filename.c_str());
+        }
+        else
+        {
+            rc = set_errno_from_oserror(ERROR_INVALID_PARAMETER);
+        }
+    }
+    else
+    {
+        rc = set_errno_from_oserror(oserr);
+    }
 #else
     int rc = ::remove(filename.c_str());
 #endif
@@ -275,28 +444,38 @@ int LLFile::remove(const std::string& filename, int supress_error)
 int LLFile::rename(const std::string& filename, const std::string& newname, int supress_error)
 {
 #if LL_WINDOWS
-    std::wstring utf16filename = ll_convert<std::wstring>(filename);
-    std::wstring utf16newname = ll_convert<std::wstring>(newname);
-    int rc = _wrename(utf16filename.c_str(),utf16newname.c_str());
+    // Posix rename() will gladly overwrite a file at newname if it exists, the Windows
+    // rename(), respectively _wrename(), will bark on that. Instead call directly the Windows
+    // API MoveFileEx() and use its flags to specify that overwrite is allowed.
+    std::wstring utf16filename = utf8path_to_wstring(filename);
+    std::wstring utf16newname = utf8path_to_wstring(newname);
+    int rc = 0;
+    if (!MoveFileExW(utf16filename.c_str(), utf16newname.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED))
+    {
+        rc = set_errno_from_oserror(GetLastError());
+    }
 #else
     int rc = ::rename(filename.c_str(),newname.c_str());
 #endif
     return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, supress_error);
 }
 
+// Make this a define rather than using magic numbers multiple times in the code
+#define LLFILE_COPY_BUFFER_SIZE 16384
+
 bool LLFile::copy(const std::string& from, const std::string& to)
 {
     bool copied = false;
-    LLFILE* in = LLFile::fopen(from, "rb");     /* Flawfinder: ignore */
+    LLFILE* in = fopen(from, "rb");     /* Flawfinder: ignore */
     if (in)
     {
-        LLFILE* out = LLFile::fopen(to, "wb");      /* Flawfinder: ignore */
+        LLFILE* out = fopen(to, "wb");      /* Flawfinder: ignore */
         if (out)
         {
-            char buf[16384];        /* Flawfinder: ignore */
+            char buf[LLFILE_COPY_BUFFER_SIZE]; /* Flawfinder: ignore */
             size_t readbytes;
             bool write_ok = true;
-            while(write_ok && (readbytes = fread(buf, 1, 16384, in))) /* Flawfinder: ignore */
+            while (write_ok && (readbytes = fread(buf, 1, LLFILE_COPY_BUFFER_SIZE, in))) /* Flawfinder: ignore */
             {
                 if (fwrite(buf, 1, readbytes, out) != readbytes)
                 {
@@ -315,31 +494,52 @@ bool LLFile::copy(const std::string& from, const std::string& to)
     return copied;
 }
 
-int LLFile::stat(const std::string& filename, llstat* filestatus)
+int LLFile::stat(const std::string& filename, llstat* filestatus, int supress_error)
 {
 #if LL_WINDOWS
-    std::wstring utf16filename = ll_convert<std::wstring>(filename);
-    int rc = _wstat(utf16filename.c_str(),filestatus);
+    std::wstring utf16filename = utf8path_to_wstring(filename);
+    int rc = _wstat64(utf16filename.c_str(), filestatus);
 #else
-    int rc = ::stat(filename.c_str(),filestatus);
+    int rc = ::stat(filename.c_str(), filestatus);
 #endif
-    // We use stat() to determine existence (see isfile(), isdir()).
-    // Don't spam the log if the subject pathname doesn't exist.
-    return warnif("stat", filename, rc, ENOENT);
+    return warnif("stat", filename, rc, supress_error);
+}
+
+// _wstat() is a bit heavyweight on Windows, use a more lightweight API
+// to just get the attributes
+int LLFile::getattr(const std::string& filename, unsigned short& st_mode, int suppress_error)
+{
+#if LL_WINDOWS
+    int rc = 0;
+    std::wstring utf16filename = utf8path_to_wstring(filename);
+    unsigned long ret = get_fileattr(utf16filename, st_mode);
+    if (ret)
+    {
+        rc = set_errno_from_oserror(ret);
+    }
+#else
+    llstat filestatus;
+    int rc = ::stat(filename.c_str(), &filestatus);
+    if (rc == 0)
+    {
+        st_mode = filestatus.st_mode;
+    }
+#endif
+    return warnif("getattr", filename, rc, suppress_error);
 }
 
 bool LLFile::isdir(const std::string& filename)
 {
-    llstat st;
-
-    return stat(filename, &st) == 0 && S_ISDIR(st.st_mode);
+    unsigned short mode;
+    // Don't spam the log if the subject pathname doesn't exist.
+    return getattr(filename, mode, ENOENT) == 0 && S_ISDIR(mode);
 }
 
 bool LLFile::isfile(const std::string& filename)
 {
-    llstat st;
-
-    return stat(filename, &st) == 0 && S_ISREG(st.st_mode);
+    unsigned short mode;
+    // Don't spam the log if the subject pathname doesn't exist.
+    return getattr(filename, mode, ENOENT) == 0 && S_ISREG(mode);
 }
 
 const char *LLFile::tmpdir()
@@ -368,75 +568,8 @@ const char *LLFile::tmpdir()
     return utf8path.c_str();
 }
 
-
-/***************** Modified file stream created to overcome the incorrect behaviour of posix fopen in windows *******************/
-
 #if LL_WINDOWS
 
-LLFILE *    LLFile::_Fiopen(const std::string& filename,
-        std::ios::openmode mode)
-{   // open a file
-    static const char *mods[] =
-    {   // fopen mode strings corresponding to valid[i]
-    "r", "w", "w", "a", "rb", "wb", "wb", "ab",
-    "r+", "w+", "a+", "r+b", "w+b", "a+b",
-    0};
-    static const int valid[] =
-    {   // valid combinations of open flags
-        ios_base::in,
-        ios_base::out,
-        ios_base::out | ios_base::trunc,
-        ios_base::out | ios_base::app,
-        ios_base::in | ios_base::binary,
-        ios_base::out | ios_base::binary,
-        ios_base::out | ios_base::trunc | ios_base::binary,
-        ios_base::out | ios_base::app | ios_base::binary,
-        ios_base::in | ios_base::out,
-        ios_base::in | ios_base::out | ios_base::trunc,
-        ios_base::in | ios_base::out | ios_base::app,
-        ios_base::in | ios_base::out | ios_base::binary,
-        ios_base::in | ios_base::out | ios_base::trunc
-            | ios_base::binary,
-        ios_base::in | ios_base::out | ios_base::app
-            | ios_base::binary,
-    0};
-
-    LLFILE *fp = 0;
-    int n;
-    ios_base::openmode atendflag = mode & ios_base::ate;
-    ios_base::openmode norepflag = mode & ios_base::_Noreplace;
-
-    if (mode & ios_base::_Nocreate)
-        mode |= ios_base::in;   // file must exist
-    mode &= ~(ios_base::ate | ios_base::_Nocreate | ios_base::_Noreplace);
-    for (n = 0; valid[n] != 0 && valid[n] != mode; ++n)
-        ;   // look for a valid mode
-
-    if (valid[n] == 0)
-        return (0); // no valid mode
-    else if (norepflag && mode & (ios_base::out | ios_base::app)
-        && (fp = LLFile::fopen(filename, "r")) != 0)    /* Flawfinder: ignore */
-        {   // file must not exist, close and fail
-        fclose(fp);
-        return (0);
-        }
-    else if (fp != 0 && fclose(fp) != 0)
-        return (0); // can't close after test open
-// should open with protection here, if other than default
-    else if ((fp = LLFile::fopen(filename, mods[n])) == 0)  /* Flawfinder: ignore */
-        return (0); // open failed
-
-    if (!atendflag || fseek(fp, 0, SEEK_END) == 0)
-        return (fp);    // no need to seek to end, or seek succeeded
-
-    fclose(fp); // can't position at end
-    return (0);
-}
-
-#endif /* LL_WINDOWS */
-
-
-#if LL_WINDOWS
 /************** input file stream ********************************/
 
 llifstream::llifstream() {}
