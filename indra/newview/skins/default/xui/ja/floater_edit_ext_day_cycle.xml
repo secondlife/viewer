@@ -13,7 +13,7 @@
 		自分で作成したデイサイクルを編集するには、希望の設定に調節して、「保存」をクリックします。
 	</string>
 	<string name="time_label">
-		（[HH]：[MM]）
+		（[HH]:[MM]）
 	</string>
 	<string name="sky_track_label">
 		空[ALT]
@@ -42,9 +42,9 @@
 			<layout_stack name="content_stack">
 				<layout_panel name="timeline_track_selection">
 					<panel name="timeline_layers">
-						<button label="空４" name="sky4_track"/>
-						<button label="空３" name="sky3_track"/>
-						<button label="空２" name="sky2_track"/>
+						<button label="空4" name="sky4_track"/>
+						<button label="空3" name="sky3_track"/>
+						<button label="空2" name="sky2_track"/>
 						<button label="地面" name="sky1_track"/>
 						<button label="水面" name="water_track"/>
 					</panel>
