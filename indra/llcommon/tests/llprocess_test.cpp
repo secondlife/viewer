@@ -54,14 +54,29 @@ std::string apr_strerror_helper(apr_status_t rv)
 *****************************************************************************/
 
 #define ensure_equals_(left, right) \
-        ensure_equals(STRINGIZE(#left << " != " << #right), (left), (right))
+do { \
+    auto _left_val = (left); \
+    auto _right_val = (right); \
+    if (_left_val != _right_val) { \
+        std::string _msg = std::string(#left) + " != " + std::string(#right); \
+        tut::ensure_equals(_msg, _left_val, _right_val); \
+    } else { \
+        tut::ensure_equals("", _left_val, _right_val); \
+    } \
+} while(0)
 
 #define aprchk(expr) aprchk_(#expr, (expr))
 static void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR_SUCCESS)
 {
-    tut::ensure_equals(STRINGIZE(call << " => " << rv << ": " << apr_strerror_helper
-                                 (rv)),
-                       rv, expected);
+    if (rv != expected)
+    {
+        std::string msg = std::string(call) + " => " + std::to_string(rv) + ": " + apr_strerror_helper(rv);
+        tut::ensure_equals(msg, rv, expected);
+    }
+    else
+    {
+        tut::ensure_equals("", rv, expected);
+    }
 }
 
 /**
@@ -78,11 +93,14 @@ static std::string readfile(const std::string& pathname, const std::string& desc
     std::string use_desc(desc);
     if (use_desc.empty())
     {
-        use_desc = STRINGIZE("in " << pathname);
+        use_desc = "in " + pathname;
     }
     std::ifstream inf(pathname.c_str());
     std::string output;
-    tut::ensure(STRINGIZE("No output " << use_desc), bool(std::getline(inf, output)));
+    if (!std::getline(inf, output))
+    {
+        tut::ensure("No output " + use_desc, false);
+    }
     std::string more;
     while (std::getline(inf, more))
     {
@@ -108,8 +126,8 @@ void waitfor(LLProcess& proc, int timeout=60)
     {
         yield();
     }
-    tut::ensure(STRINGIZE("process took longer than " << timeout << " seconds to terminate"),
-                i < timeout);
+    std::string msg = "process took longer than " + std::to_string(timeout) + " seconds to terminate";
+    tut::ensure(msg, i < timeout);
 }
 
 void waitfor(LLProcess::handle h, const std::string& desc, int timeout=60)
@@ -119,8 +137,8 @@ void waitfor(LLProcess::handle h, const std::string& desc, int timeout=60)
     {
         yield();
     }
-    tut::ensure(STRINGIZE("process took longer than " << timeout << " seconds to terminate"),
-                i < timeout);
+    std::string msg = "process took longer than " + std::to_string(timeout) + " seconds to terminate";
+    tut::ensure(msg, i < timeout);
 }
 
 /**
@@ -153,7 +171,8 @@ struct PythonProcessLauncher
         try
         {
             mPy = LLProcess::create(mParams);
-            tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), bool(mPy));
+            std::string msg = "Couldn't launch " + mDesc + " script";
+            tut::ensure(msg, bool(mPy));
         }
         catch (const tut::failure&)
         {
@@ -214,7 +233,8 @@ struct PythonProcessLauncher
         mParams.args.add(out.getName());
         run();
         // assuming the script wrote to that file, read it
-        return readfile(out.getName(), STRINGIZE("from " << mDesc << " script"));
+        std::string desc = "from " + mDesc + " script";
+        return readfile(out.getName(), desc);
     }
 
     LLProcess::Params mParams;
