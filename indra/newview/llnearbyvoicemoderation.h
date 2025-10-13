@@ -37,5 +37,9 @@ class LLNearbyVoiceModeration :
 
     public:
         LLVOAvatar* getVOAvatarFromId(const LLUUID& id);
-        void requestMuteChange(const LLUUID& userID, bool mute);
+        void requestMuteIndividual(const LLUUID& userID, bool mute);
+        void requestMuteAll(bool mute);
+
+    private:
+        const std::string getCapUrlFromRegion(LLViewerRegion* region);
 };

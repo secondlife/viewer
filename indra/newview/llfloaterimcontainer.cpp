@@ -504,13 +504,12 @@ void LLFloaterIMContainer::idleUpdate()
         const LLConversationItem *current_session = getCurSelectedViewModelItem();
         if (current_session)
         {
-            bool is_nearby_chat = current_session->getType() == LLConversationItem::CONV_SESSION_NEARBY;
-            if (current_session->getType() == LLConversationItem::CONV_SESSION_GROUP || is_nearby_chat)
+            if (current_session->getType() == LLConversationItem::CONV_SESSION_GROUP)
             {
                 // Update moderator options visibility
                 LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = current_session->getChildrenBegin();
                 LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = current_session->getChildrenEnd();
-                bool is_moderator = isGroupModerator() || (is_nearby_chat && isNearbyChatModerator());
+                bool is_moderator = isGroupModerator();
                 bool can_ban = haveAbilityToBan();
                 while (current_participant_model != end_participant_model)
                 {
@@ -533,6 +532,23 @@ void LLFloaterIMContainer::idleUpdate()
                 mGeneralTitleInUse = !needs_override;
                 setTitle(needs_override ? conversation_floaterp->getTitle() : mGeneralTitle);
             }
+        const LLConversationItem* nearby_session = getSessionModel(LLUUID());
+        if (nearby_session)
+        {
+            LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = nearby_session->getChildrenBegin();
+            LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = nearby_session->getChildrenEnd();
+            while (current_participant_model != end_participant_model)
+            {
+                LLConversationItemParticipant* participant_model =
+                        dynamic_cast<LLConversationItemParticipant*>((*current_participant_model).get());
+                if (participant_model)
+                {
+                    participant_model->setModeratorOptionsVisible(isNearbyChatModerator());
+                }
+
+                current_participant_model++;
+            }
+        }
         }
 
         mParticipantRefreshTimer.setTimerExpirySec(1.0f);
@@ -2183,7 +2199,7 @@ void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUI
 
             // Request a mute/unmute using a capability request via the simulator
             const bool mute_state = LLAvatarActions::isVoiceMuted(userID);
-            LLNearbyVoiceModeration::getInstance()->requestMuteChange(userID, mute_state);
+            LLNearbyVoiceModeration::getInstance()->requestMuteIndividual(userID, mute_state);
         }
         else
         if ("mute_all" == command)
@@ -2191,11 +2207,29 @@ void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUI
             // TODO: the SpatialVoiceModerationRequest has an mute_all/unmute_all
             // verb but we do not have an equivalent of LLAvatarActions::toggleMuteVoice(userID);
             // to visually mute all the speaker icons in the conversation floater
+
+            // Mute visually too
+            conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
+            conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
+            const LLUUID * conversation_uuidp = NULL;
+            while(iter != end)
+            {
+                const LLUUID id = (*iter).first;
+                ++iter;
+            }
+
+            // Send the mute_all request to the server
+            const bool mute_state = true;
+            LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
         }
         else
         if ("unmute_all" == command)
         {
             // TODO: same idea as "mute_all" above
+
+            // Send the unmute_all request to the server
+            const bool mute_state = false;
+            LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
         }
 
         return;
