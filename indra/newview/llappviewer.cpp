@@ -180,7 +180,6 @@
 #include "lltracker.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
-#include "llpostprocess.h"
 
 #include "lldebugview.h"
 #include "llconsole.h"
@@ -1878,8 +1877,6 @@ bool LLAppViewer::cleanup()
     LLViewerObject::cleanupVOClasses();
 
     SUBSYSTEM_CLEANUP(LLAvatarAppearance);
-
-    SUBSYSTEM_CLEANUP(LLPostProcess);
 
     LLTracker::cleanupInstance();
 
