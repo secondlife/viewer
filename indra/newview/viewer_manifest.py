@@ -1137,11 +1137,11 @@ class LinuxManifest(ViewerManifest):
 
         with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
-            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
+            #self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin")
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
-            with self.prefix(src="../viewer_components/manager", dst=""):
-                self.path("*.py")
+            #with self.prefix(src="../viewer_components/manager", dst=""):
+            #    self.path("*.py")
 
         # recurses, packaged again
         self.path("res-sdl")
