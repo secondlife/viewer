@@ -35,6 +35,8 @@
 
 #include "stdtypes.h"
 
+#include <vector>
+
 #if LL_DARWIN
 #include <Carbon/Carbon.h>
 
@@ -43,7 +45,6 @@
 #undef check
 #undef require
 
-#include <vector>
 #include "llstring.h"
 
 #endif
@@ -54,19 +55,8 @@
 #include <commdlg.h>
 #endif
 
-extern "C" {
-// mostly for Linux, possible on others
-#if LL_GTK
-# include "gtk/gtk.h"
-#endif // LL_GTK
-}
-
 class LLFilePicker
 {
-#ifdef LL_GTK
-    friend class LLDirPicker;
-    friend void chooser_responder(GtkWidget *, gint, gpointer);
-#endif // LL_GTK
 public:
     // calling this before main() is undefined
     static LLFilePicker& instance( void ) { return sInstance; }
@@ -161,14 +151,14 @@ private:
     // is enabled and if not, tidy up and indicate we're not allowed to do this.
     bool check_local_file_access_enabled();
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_SDL_WINDOW
     OPENFILENAMEW mOFN;             // for open and save dialogs
     WCHAR mFilesW[FILENAME_BUFFER_SIZE];
 
     bool setupFilter(ELoadFilter filter);
 #endif
 
-#if LL_DARWIN
+#if LL_DARWIN && !LL_SDL_WINDOW
     S32 mPickOptions;
     std::vector<std::string> mFileVector;
 
@@ -184,27 +174,11 @@ private:
                                  void *userdata);
 #endif
 
-#if LL_GTK
-    static void add_to_selectedfiles(gpointer data, gpointer user_data);
-    static void chooser_responder(GtkWidget *widget, gint response, gpointer user_data);
-    // we remember the last path that was accessed for a particular usage
-    std::map <std::string, std::string> mContextToPathMap;
-    std::string mCurContextName;
-    // we also remember the extension of the last added file.
-    std::string mCurrentExtension;
-#endif
-
     std::vector<std::string> mFiles;
     S32 mCurrentFile;
     bool mLocked;
 
     static LLFilePicker sInstance;
-
-protected:
-#if LL_GTK
-        GtkWindow* buildFilePicker(bool is_save, bool is_folder,
-                   std::string context = "generic");
-#endif
 
 public:
     // don't call these directly please.
