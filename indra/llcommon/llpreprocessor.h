@@ -63,7 +63,17 @@
 
 
 // Figure out differences between compilers
-#if defined(__GNUC__)
+#if defined(__clang__)
+    #define GCC_VERSION (__GNUC__ * 10000 \
+                        + __GNUC_MINOR__ * 100 \
+                        + __GNUC_PATCHLEVEL__)
+    #ifndef LL_CLANG
+        #define LL_CLANG 1
+    #endif
+    #ifndef LL_GNUC
+        #define LL_GNUC 1
+    #endif
+#elif defined(__GNUC__)
     #define GCC_VERSION (__GNUC__ * 10000 \
                         + __GNUC_MINOR__ * 100 \
                         + __GNUC_PATCHLEVEL__)

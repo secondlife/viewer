@@ -1146,6 +1146,8 @@ class LinuxManifest(ViewerManifest):
         # recurses, packaged again
         self.path("res-sdl")
 
+        # We  copy ll_icon.BMP in CMakeLists.txt to newview/res-sdl and this will let the above self.path step take  care of copying
+        # the correct branded icon
         # Get the icons based on the channel type
         icon_path = self.icon_path()
         print("DEBUG: icon_path '%s'" % icon_path)
@@ -1153,6 +1155,9 @@ class LinuxManifest(ViewerManifest):
             self.path("secondlife_256.png","secondlife_icon.png")
             with self.prefix(dst="res-sdl") :
                 self.path("secondlife_256.BMP","ll_icon.BMP")
+
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir, "llwebrtc" ), dst="lib"):
+            self.path("libllwebrtc.so")
 
         # plugins
         with self.prefix(dst="bin/llplugin"):
@@ -1205,11 +1210,14 @@ class LinuxManifest(ViewerManifest):
         self.path("featuretable_linux.txt")
         self.path("cube.dae")
 
-        with self.prefix(src=pkgdir):
+        with self.prefix(src=pkgdir, dst="bin"):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
         installer_name = self.installer_base_name()
+
+        # When running as a GitHub Action job, RUNNER_TEMP is defined as the tmp dir
+        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
 
         self.strip_binaries()
 
@@ -1225,8 +1233,18 @@ class LinuxManifest(ViewerManifest):
         # temporarily move directory tree so that it has the right
         # name in the tarfile
         realname = self.get_dst_prefix()
-        tempname = self.build_path_of(installer_name)
-        self.run_command(["mv", realname, tempname])
+        versionedName = self.build_path_of(installer_name)
+
+        tarName = versionedName + ".tar.xz"
+
+        # If using a github runner we divert packaging a little. Considering this wil be a VM/docker image
+        # we can just pack the final installer into RUNNER_TEMP and not into the usual stop we'd pick when
+        # not building a GHA release
+        if RUNNER_TEMP:
+            tarName = os.path.join(RUNNER_TEMP, self.package_file)
+
+        self.run_command(["mv", realname, versionedName])
+
         try:
             # only create tarball if it's a release build.
             if self.args['buildtype'].lower() == 'release':
@@ -1234,12 +1252,13 @@ class LinuxManifest(ViewerManifest):
                 # security etc.
                 self.run_command(['tar', '-C', self.get_build_prefix(),
                                   '--numeric-owner', '-cJf',
-                                 tempname + '.tar.xz', installer_name])
+                                 tarName, installer_name])
+                self.set_github_output_path('viewer_app', tarName)
             else:
                 print("Skipping %s.tar.xz for non-Release build (%s)" % \
                       (installer_name, self.args['buildtype']))
         finally:
-            self.run_command(["mv", tempname, realname])
+            self.run_command(["mv", versionedName, realname])
 
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
