@@ -713,7 +713,7 @@ public:
     void add(const LLSD::String& name, const T& value,
              typename boost::enable_if<boost::is_integral<T> >::type* = 0)
     {
-        mStats[name] = LLSD::Integer(value);
+        mStats[name] = LLSD::Integer(llmin<T>(value, S32_MAX));
     }
 
     // Store every floating-point type as LLSD::Real.
@@ -1112,9 +1112,10 @@ LLSD LLMemoryInfo::loadStatsMap()
                 LLSD::String key(matched[1].first, matched[1].second);
                 LLSD::String value_str(matched[2].first, matched[2].second);
                 LLSD::Integer value(0);
+                S64 intval = 0;
                 try
                 {
-                    value = boost::lexical_cast<LLSD::Integer>(value_str);
+                    intval = llclamp(boost::lexical_cast<S64>(value_str), S32_MIN, S32_MAX);
                 }
                 catch (const boost::bad_lexical_cast&)
                 {
@@ -1123,6 +1124,7 @@ LLSD LLMemoryInfo::loadStatsMap()
                                              << line << LL_ENDL;
                     continue;
                 }
+                value = LLSD::Integer(intval);
                 // Store this statistic.
                 stats.add(key, value);
             }
