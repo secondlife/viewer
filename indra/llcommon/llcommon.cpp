@@ -33,7 +33,7 @@
 #include "lltracethreadrecorder.h"
 #include "llcleanup.h"
 
-#if LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY && TRACY_ENABLE
+#if LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY && TRACY_ENABLE && !LL_LINUX
 // Override new/delete for tracy memory profiling
 
 void* ll_tracy_new(size_t size)
@@ -54,7 +54,6 @@ void* ll_tracy_aligned_new(size_t size, size_t alignment)
     {
         throw std::bad_alloc();
     }
-    LL_PROFILE_ALLOC(ptr, size);
     return ptr;
 }
 
@@ -66,7 +65,6 @@ void ll_tracy_delete(void* ptr)
 
 void ll_tracy_aligned_delete(void* ptr)
 {
-    LL_PROFILE_FREE(ptr);
     ll_aligned_free_fallback(ptr);
 }
 
