@@ -377,6 +377,9 @@ void LLFloaterEmojiPicker::initialize()
     {
         if (!mHint.empty())
         {
+            // Hack: Trying to open floater, search for a match,
+            // and hide floater immediately if no match found,
+            // instead of checking prior to opening
             hideFloater();
             return;
         }
@@ -404,6 +407,12 @@ void LLFloaterEmojiPicker::initialize()
             showPreview(true);
         }
         return;
+    }
+
+    if (!mHint.empty() && getSoundFlags() == LLView::SILENT)
+    {
+        // Sounds were supressed
+        make_ui_sound("UISndWindowOpen");
     }
 
     mGroups->setVisible(true);
