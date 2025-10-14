@@ -2348,7 +2348,9 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             const LLSD::Binary& pos = mdl[i]["Position"].asBinary();
             const LLSD::Binary& norm = mdl[i]["Normal"].asBinary();
+#if 0 // keep this code for now in case we decide to add support for on-the-wire tangents
             const LLSD::Binary& tangent = mdl[i]["Tangent"].asBinary();
+#endif
             const LLSD::Binary& tc = mdl[i]["TexCoord0"].asBinary();
             const LLSD::Binary& idx = mdl[i]["TriangleList"].asBinary();
 
