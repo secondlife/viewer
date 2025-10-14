@@ -73,10 +73,9 @@ public:
     void    setVar(const std::string& name, const F32& value);
     void    clearVar(const std::string& name);
     void    clearAllVariables();
-//  void    updateVariables(LLSD& vars);
 
     bool    evalString(const std::string& expression, F32& result);
-    std::string::size_type  getLastErrorPos()   { return mLastErrorPos; }
+    std::string::size_type getLastErrorPos() const { return mLastErrorPos; }
 
     static LLCalc* getInstance();
     static void cleanUp();
@@ -88,10 +87,6 @@ private:
 
     calc_map_t  mConstants;
     calc_map_t  mVariables;
-
-    // *TODO: Add support for storing user defined variables, and stored functions.
-    //  Will need UI work, and a means to save them between sessions.
-//  calc_map_t mUserVariables;
 
     // "There shall be only one"
     static LLCalc*  sInstance;
