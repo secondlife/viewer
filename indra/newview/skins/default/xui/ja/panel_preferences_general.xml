@@ -45,7 +45,7 @@
 	<check_box label="ユーザー名" name="show_slids" tool_tip="bobsmith123 などユーザー名を表示"/>
 	<check_box label="グループタイトル" name="show_all_title_checkbox1" tool_tip="オフィサーまたはメンバーなど、グループタイトルを表示"/>
 	<check_box label="フレンドをハイライト表示" name="show_friends" tool_tip="フレンドの名前をハイライト表示"/>
-	<check_box label="表示名を表示" name="display_names_check" tool_tip="これを選択すると、チャット、ＩＭなどで表示名が表示されます。"/>
+	<check_box label="表示名を表示" name="display_names_check" tool_tip="これを選択すると、チャット、IMなどで表示名が表示されます。"/>
 	<text name="inworld_typing_rg_label">
 		特定キーを押したときの動作：
 	</text>
@@ -57,10 +57,10 @@
 		「離席」とするまでの時間：
 	</text>
 	<combo_box label="「離席」とするまでの時間：" name="afk">
-		<combo_box.item label="２分" name="item0"/>
-		<combo_box.item label="５分" name="item1"/>
-		<combo_box.item label="１０分" name="item2"/>
-		<combo_box.item label="３０分" name="item3"/>
+		<combo_box.item label="2分" name="item0"/>
+		<combo_box.item label="5分" name="item1"/>
+		<combo_box.item label="10分" name="item2"/>
+		<combo_box.item label="30分" name="item3"/>
 		<combo_box.item label="離席設定なし" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
