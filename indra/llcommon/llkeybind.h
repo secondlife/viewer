@@ -43,7 +43,6 @@ public:
     bool isEmpty() const;
     bool empty() const { return isEmpty(); };
     void reset();
-    LLKeyData& operator=(const LLKeyData& rhs);
     bool operator==(const LLKeyData& rhs);
     bool operator!=(const LLKeyData& rhs);
 
