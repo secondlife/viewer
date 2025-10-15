@@ -107,7 +107,7 @@ public:
     ///  if you don't want a warning in the log when the directory does not exist
     ///  @returns 0 on success and -1 on failure.
 
-    /// rename a file, 
+    /// rename a file
     static  int     rename(const std::string& filename, const std::string& newname, int supress_error = 0);
     ///< it will silently overwrite newname if it exists without returning an error
     ///  @returns 0 on success and -1 on failure.
