@@ -1042,7 +1042,6 @@ void LLGLManager::initWGL()
         GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
         GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
     }
-    mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 
     if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
     {
@@ -1203,16 +1202,29 @@ bool LLGLManager::initGL()
         {
             LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
         }
-    }
-    else if (mHasNVXGpuMemoryInfo)
+    } else
+#endif
+#if LL_WINDOWS || LL_LINUX
     {
-        GLint mem_kb = 0;
-        glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
-        mVRAM = mem_kb / 1024;
-
-        if (mVRAM != 0)
+        if (mHasNVXGpuMemoryInfo && mVRAM == 0)
         {
-            LL_WARNS("RenderInit") << "VRAM Detected (NVXGpuMemoryInfo):" << mVRAM << LL_ENDL;
+            GLint mem_kb = 0;
+            glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
+            mVRAM = mem_kb / 1024;
+
+            if (mVRAM != 0)
+            {
+                LL_WARNS("RenderInit") << "VRAM Detected (NVXGpuMemoryInfo):" << mVRAM << LL_ENDL;
+            }
+        }
+
+        if (mHasATIMemInfo && mVRAM == 0)
+        { //ask the gl how much vram is free at startup and attempt to use no more than half of that
+            S32 meminfo[4];
+            glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
+
+            mVRAM = meminfo[0] / 1024;
+            LL_INFOS("RenderInit") << "VRAM Detected (ATIMemInfo):" << mVRAM << LL_ENDL;
         }
     }
 #endif
@@ -1405,6 +1417,16 @@ void LLGLManager::initExtensions()
     {
         mHasAnisotropic = ExtensionExists("GL_EXT_texture_filter_anisotropic", gGLHExts.mSysExts);
     }
+
+#if LL_WINDOWS || LL_LINUX
+    if( gGLHExts.mSysExts )
+    {
+        mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+        mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
+    }
+    else
+        LL_WARNS() << "gGLHExts.mSysExts is not set.?" << LL_ENDL;
+#endif
 
     // Misc
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
