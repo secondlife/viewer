@@ -270,7 +270,6 @@ public:
 
     LLWindow*       getWindow()         const   { return mWindow; }
     void*           getPlatformWindow() const;
-    void*           getMediaWindow()    const;
     void            focusClient()       const;
 
     LLCoordGL       getLastMouse()      const   { return mLastMousePoint; }
