@@ -25,6 +25,8 @@
 * $/LicenseInfo$
 */
 
+#include "linden_common.h"
+
 #include "llsettingsbase.h"
 
 #include "llmath.h"
