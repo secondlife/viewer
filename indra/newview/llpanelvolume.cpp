@@ -582,13 +582,17 @@ void LLPanelVolume::getState( )
 
     bool enable_material = editable && single_volume && material_same;
     LLCachedControl<bool> edit_linked(gSavedSettings, "EditLinkedParts", false);
-    if (!enable_material && !edit_linked())
+    if (!enable_material)
     {
         LLViewerObject* root = selection->getPrimaryObject();
         while (root && !root->isAvatar() && root->getParent())
         {
             LLViewerObject* parent = (LLViewerObject*)root->getParent();
             if (parent->isAvatar())
+            {
+                break;
+            }
+            if (!parent->isSelected())
             {
                 break;
             }

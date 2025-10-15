@@ -28,7 +28,7 @@
 		サイズ：
 	</text>
 	<text name="X_label">
-		Ｘ
+		X
 	</text>
 	<spinner label="" name="height_pixels"/>
 </panel>
