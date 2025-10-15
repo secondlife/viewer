@@ -28,7 +28,7 @@ set(llappearance_SOURCE_FILES
     llviewervisualparam.cpp
     llavatarappearancedefines.cpp
     )
-    
+
 set(llappearance_HEADER_FILES
     CMakeLists.txt
 
@@ -77,6 +77,7 @@ if (BUILD_HEADLESS)
           llcharacter
           llinventory
           llimage
+          llrenderheadless
           llfilesystem
           llmath
           llxml
