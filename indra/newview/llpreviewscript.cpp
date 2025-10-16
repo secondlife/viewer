@@ -2084,6 +2084,7 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
             std::string script_name = DEFAULT_SCRIPT_NAME;
             LLInventoryItem* item = gInventory.getItem(*item_uuid);
             bool is_modifiable = false;
+            std::string compile_target;
             if (item)
             {
                 if (!item->getName().empty())
@@ -2094,16 +2095,16 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
                 {
                     is_modifiable = true;
                 }
+                compile_target = item->getTargetLanguage();
             }
             preview->mScriptEd->setScriptName(script_name);
             preview->mScriptEd->setEnableEditing(is_modifiable);
             preview->mScriptEd->setAssetID(asset_uuid);
             preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 
-            // Temporary hack to determine if the script is LSL or SLua when loaded from the inventory.
-            bool is_lua = is_lua_script(std::string(buffer.begin(), buffer.end()));
+            bool is_lua = (compile_target == "luau");
             preview->mScriptEd->mEditor->setLuauLanguage(is_lua);
-            preview->mScriptEd->mCompileTarget->setValue(is_lua ? "luau" : "lsl-luau");
+            preview->mScriptEd->mCompileTarget->setValue(compile_target.empty() ? "luau" : compile_target);
             preview->mScriptEd->processKeywords(is_lua);
         }
         else

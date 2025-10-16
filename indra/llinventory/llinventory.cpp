@@ -35,6 +35,7 @@
 #include "llsdserialize.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
+#include <unordered_set>
 
 #include "llsdutil.h"
 
@@ -47,6 +48,7 @@ static const std::string INV_FOLDER_ID_LABEL("cat_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
 static const std::string INV_THUMBNAIL_LABEL("thumbnail");
 static const std::string INV_FAVORITE_LABEL("favorite");
+static const std::string INV_LANGUAGE_LABEL("language");
 static const std::string INV_THUMBNAIL_ID_LABEL("thumbnail_id");
 static const std::string INV_ASSET_TYPE_LABEL("type");
 static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
@@ -61,6 +63,7 @@ static const std::string INV_SALE_INFO_LABEL("sale_info");
 static const std::string INV_FLAGS_LABEL("flags");
 static const std::string INV_CREATION_DATE_LABEL("created_at");
 static const std::string INV_TOGGLED_LABEL("toggled");
+static const std::string INV_TARGET_LABEL("target");
 
 // key used by agent-inventory-service
 static const std::string INV_ASSET_TYPE_LABEL_WS("type_default");
@@ -575,6 +578,18 @@ LLInventoryType::EType LLInventoryItem::getInventoryType() const
     return mInventoryType;
 }
 
+void LLInventoryItem::setTargetLanguage(std::string_view language)
+{
+    static const std::unordered_set<std::string_view> languages = { "lsl2", "mono", "lsl-luau", "luau" };
+
+    if (mInventoryType != LLInventoryType::IT_LSL ||
+        (!language.empty() && languages.find(language) == languages.end()))
+    { // This is either not a script or a language we don't support
+        return;
+    }
+    mTargetLanguage = language;
+}
+
 U32 LLInventoryItem::getFlags() const
 {
     return mFlags;
@@ -949,6 +964,11 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
         sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
     }
 
+    if (!mTargetLanguage.empty() && (mInventoryType == LLInventoryType::IT_LSL))
+    { // Target language is only really relevant for scripts
+        sd[INV_LANGUAGE_LABEL] = LLSD().with(INV_TARGET_LABEL, mTargetLanguage);
+    }
+
     U32 mask = mPermissions.getMaskBase();
     if(((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
         || (mAssetUUID.isNull()))
@@ -1048,6 +1068,16 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             if (favorite_map.has(w))
             {
                 mFavorite = favorite_map[w].asBoolean();
+            }
+            continue;
+        }
+
+        if ((i->first == INV_LANGUAGE_LABEL) && (mInventoryType == LLInventoryType::IT_LSL))
+        {
+            const LLSD& language_map = i->second;
+            if (language_map.has(INV_TARGET_LABEL))
+            {
+                mTargetLanguage = language_map[INV_TARGET_LABEL].asString();
             }
             continue;
         }

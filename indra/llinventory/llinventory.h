@@ -166,6 +166,7 @@ public:
     virtual const std::string& getActualDescription() const; // Does not follow links
     virtual const LLSaleInfo& getSaleInfo() const;
     virtual LLInventoryType::EType getInventoryType() const;
+    std::string getTargetLanguage() const { return mTargetLanguage; }
     virtual U32 getFlags() const;
     virtual time_t getCreationDate() const;
     virtual U32 getCRC32() const; // really more of a checksum.
@@ -182,6 +183,7 @@ public:
     void setSaleInfo(const LLSaleInfo& sale_info);
     void setPermissions(const LLPermissions& perm);
     void setInventoryType(LLInventoryType::EType inv_type);
+    void setTargetLanguage(std::string_view language);
     void setFlags(U32 flags);
     void setCreator(const LLUUID& creator); // only used for calling cards
 
@@ -220,6 +222,7 @@ protected:
     LLPermissions mPermissions;
     LLUUID mAssetUUID;
     std::string mDescription;
+    std::string mTargetLanguage; // only used for scripts
     LLSaleInfo mSaleInfo;
     LLInventoryType::EType mInventoryType;
     U32 mFlags;
