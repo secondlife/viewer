@@ -1,7 +1,7 @@
 #include "linden_common.h"
 
 #include "doctest.h"
-
+#include "ll_doctest_helpers.h"
 #include "../lllogin.h"
 
 #include "llevents.h"
@@ -167,7 +167,9 @@ TEST_SUITE("login")
             "online state",
             [&listener]() { return listener.lastEvent()["state"].asString() == "online"; });
 
-        CHECK(event["state"].asString() == "online");
+        LL_CHECK_MSG(
+            event["state"].asString() == "online",
+            "Successful login should report state 'online'");
     }
 
     TEST_CASE("failed login transitions offline")
@@ -190,7 +192,9 @@ TEST_SUITE("login")
         login.connect("login.bar.com", credentials);
         llcoro::suspend();
 
-        CHECK(listener.lastEvent()["change"].asString() == "authenticating");
+        LL_CHECK_MSG(
+            listener.lastEvent()["change"].asString() == "authenticating",
+            "Login must announce 'authenticating' before processing the response");
 
         size_t previous = listener.getCalls();
 
@@ -205,6 +209,49 @@ TEST_SUITE("login")
 
         listener.waitFor(previous, 11.0);
 
-        CHECK(listener.lastEvent()["state"].asString() == "offline");
+        LL_CHECK_MSG(
+            listener.lastEvent()["state"].asString() == "offline",
+            "Failed credentials should transition the client to 'offline'");
+    }
+
+    TEST_CASE("error response transitions offline")
+    {
+        LoginTestEnvironment env;
+        LLEventStream xmlrpcPump("LLXMLRPCTransaction");
+
+        LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc");
+        LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
+
+        LLLogin login;
+        LoginListener listener("test_ear");
+        LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
+
+        LLSD credentials;
+        credentials["first"] = "these";
+        credentials["last"] = "don't";
+        credentials["passwd"] = "matter";
+
+        login.connect("login.bar.com", credentials);
+        llcoro::suspend();
+
+        LL_CHECK_MSG(
+            listener.lastEvent()["change"].asString() == "authenticating",
+            "Login must announce 'authenticating' before processing the error response");
+
+        size_t previous = listener.getCalls();
+
+        LLSD data;
+        data["status"] = "OtherError";
+        data["errorcode"] = 0;
+        data["error"] = "dummy response";
+        data["transfer_rate"] = 0;
+        dummyXMLRPC.setResponse(data);
+        dummyXMLRPC.sendReply();
+
+        listener.waitFor(previous, 11.0);
+
+        LL_CHECK_MSG(
+            listener.lastEvent()["state"].asString() == "offline",
+            "Unexpected error responses should transition the client to 'offline'");
     }
 }
