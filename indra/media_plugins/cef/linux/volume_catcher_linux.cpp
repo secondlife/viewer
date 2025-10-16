@@ -1,6 +1,6 @@
 /**
- * @file volume_catcher.h
- * @brief Interface to a class with platform-specific implementations that allows control of the audio volume of all sources in the current process.
+ * @file volume_catcher.cpp
+ * @brief Linux volume catcher which will pick an implementation to use
  *
  * @cond
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
@@ -26,35 +26,53 @@
  * @endcond
  */
 
-#ifndef VOLUME_CATCHER_H
-#define VOLUME_CATCHER_H
+#include "volume_catcher_linux.h"
 
-#include "linden_common.h"
-
-class VolumeCatcherImpl;
-
-class VolumeCatcher
+VolumeCatcher::VolumeCatcher()
 {
-public:
-    VolumeCatcher();
-    ~VolumeCatcher();
+}
 
-    void setVolume(F32 volume); // 0.0 - 1.0
+void VolumeCatcher::onEnablePipeWireVolumeCatcher(bool enable)
+{
+    if (pimpl != nullptr)
+        return;
 
-    // Set the left-right pan of audio sources
-    // where -1.0 = left, 0 = center, and 1.0 = right
-    void setPan(F32 pan);
+    if (enable)
+    {
+        LL_DEBUGS() << "volume catcher using pipewire" << LL_ENDL;
+        pimpl = new VolumeCatcherPipeWire();
+    }
+    else
+    {
+        LL_DEBUGS() << "volume catcher using pulseaudio" << LL_ENDL;
+        pimpl = new VolumeCatcherPulseAudio();
+    }
+}
 
-    void pump(); // call this at least a few times a second if you can - it affects how quickly we can 'catch' a new audio source and adjust its volume
+VolumeCatcher::~VolumeCatcher()
+{
+    if (pimpl != nullptr)
+    {
+        delete pimpl;
+        pimpl = nullptr;
+    }
+}
 
-#if LL_LINUX
-    void onEnablePipeWireVolumeCatcher(bool enable);
-#endif
+void VolumeCatcher::setVolume(F32 volume)
+{
+    if (pimpl != nullptr) {
+        pimpl->setVolume(volume);
+    }
+}
 
-private:
-#if LL_LINUX || LL_WINDOWS
-    VolumeCatcherImpl *pimpl;
-#endif
-};
+void VolumeCatcher::setPan(F32 pan)
+{
+    if (pimpl != nullptr)
+        pimpl->setPan(pan);
+}
 
-#endif // VOLUME_CATCHER_H
+void VolumeCatcher::pump()
+{
+    if (pimpl != nullptr)
+        pimpl->pump();
+}

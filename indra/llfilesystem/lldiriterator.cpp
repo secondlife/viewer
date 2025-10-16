@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "lldiriterator.h"
 
 #include "fix_macros.h"
