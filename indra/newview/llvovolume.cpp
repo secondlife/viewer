@@ -5295,7 +5295,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         LL_WARNS_ONCE("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
     }
 
-    bool selected = facep->getViewerObject()->isSelected();
+    LLViewerObject* vobjp = facep->getViewerObject();
+    bool selected = vobjp->isSelected();
 
     if (selected && LLSelectMgr::getInstance()->mHideSelectedObjects)
     {
@@ -5372,10 +5373,9 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
     U8 index = facep->getTextureIndex();
 
+    bool has_pbr = false;
     LLMaterial* mat = nullptr;
-
     LLUUID mat_id;
-
     auto* gltf_mat = (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial();
     llassert(gltf_mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
     if (gltf_mat != nullptr)
@@ -5384,6 +5384,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         if (!facep->hasMedia() || (tex && tex->getType() != LLViewerTexture::MEDIA_TEXTURE))
         { // no media texture, face texture will be unused
             tex = nullptr;
+            has_pbr = true;
         }
     }
     else
@@ -5447,6 +5448,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         info->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
         info->mMaterialID == mat_id &&
+        info->mHasPBR == has_pbr &&
         info->mFullbright == fullbright &&
         info->mBump == bump &&
         (!mat || (info->mShiny == shiny)) && // need to break batches when a material is shared, but legacy settings are different
@@ -5463,6 +5465,12 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         {
             info->mTextureList.resize(index+1);
             info->mTextureList[index] = tex;
+        }
+        // Make sure the PBR flag usage is set on the root object when PBR is
+        // used on this face. HB
+        if (has_pbr && info->mRootObject.notNull())
+        {
+            info->mRootObject->setUsePBR();
         }
         info->validate();
     }
@@ -5501,7 +5509,12 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         draw_info->mShaderMask = shader_mask;
         draw_info->mAvatar = facep->mAvatar;
         draw_info->mSkinInfo = facep->mSkinInfo;
-
+        draw_info->mHasPBR = has_pbr;
+        draw_info->mRootObject = vobjp->getRootEdit();
+        if (has_pbr)
+        {
+            draw_info->mRootObject->setUsePBR();
+        }
         if (gltf_mat)
         {
             // just remember the material ID, render pools will reference the GLTF material
