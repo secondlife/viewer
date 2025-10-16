@@ -135,7 +135,7 @@ public:
     /// check if filename is an existing directory
     static  bool    isdir(const std::string& filename);
     ///< @returns true if the path is for an existing directory
- 
+
     /// check if filename is an existing file
     static  bool    isfile(const std::string& filename);
     ///< @returns true if the path is for an existing file
