@@ -26,6 +26,7 @@ debian/files
 debian/secondlife-appearance-utility*
 debian/secondlife-viewer*
 indra/.distcc
+indra/cmake/*
 indra/out/*
 
 indra/packages/*
@@ -91,5 +92,9 @@ web/secondlife.com.*
 
 .env
 .vscode
+.build-variables/
+
+# local-only (do not commit artifacts)
 .prepr/
 .build-variables/
+
