@@ -450,11 +450,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d44256458ff0ef4db4c91e8e8cc83e8f98b4f1b8</string>
+              <string>126e0fa4c16dfd433c9fb7d1d242da98f213d933</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.21.0-CEF_139.0.28/dullahan-1.21.0.202508272158_139.0.28_g55ab8a8_chromium-139.0.7258.139-darwin64-17279703032.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.24.0-CEF_139.0.40/dullahan-1.24.0.202510081737_139.0.40_g465474a_chromium-139.0.7258.139-darwin64-18353103947.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -478,11 +478,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9d5af766a87052808e4062978504e9af124fb558</string>
+              <string>20de62c9e57d9e6539c1e2437ec4b46c3ca237bc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.21.0-CEF_139.0.28/dullahan-1.21.0.202508272159_139.0.28_g55ab8a8_chromium-139.0.7258.139-windows64-17279703032.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.24.0-CEF_139.0.40/dullahan-1.24.0.202510081738_139.0.40_g465474a_chromium-139.0.7258.139-windows64-18353103947.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -495,7 +495,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2017, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.21.0.202508272158_139.0.28_g55ab8a8_chromium-139.0.7258.139</string>
+        <string>1.24.0.202510081737_139.0.40_g465474a_chromium-139.0.7258.139</string>
         <key>name</key>
         <string>dullahan</string>
         <key>description</key>
@@ -1432,53 +1432,21 @@
       <map>
         <key>platforms</key>
         <map>
-          <key>darwin64</key>
+          <key>common</key>
           <map>
             <key>archive</key>
             <map>
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>7facda95e2f00c260513f3d4db42588fa8ba703c</string>
+              <string>fff82c79edb900c547c40dca9a0e3ebac5a8c7da</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289774</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/299858950</string>
             </map>
             <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>01d08f13c7bc8d1b95b0330fa6833b7d8274e4d0</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289775</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>6d00345c7d3471bc5f7c1218e014dd0f1a2c069b</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289778</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
+            <string>common</string>
           </map>
         </map>
         <key>license</key>
