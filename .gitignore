@@ -91,3 +91,5 @@ web/secondlife.com.*
 
 .env
 .vscode
+.prepr/
+.build-variables/
