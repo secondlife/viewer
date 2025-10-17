@@ -1,6 +1,8 @@
 # -*- cmake -*-
 include(Prebuilt)
 include(Linking)
+include(PNG)
+include(ZLIBNG)
 
 include_guard()
 add_library( ll::freetype INTERFACE IMPORTED )
@@ -15,4 +17,4 @@ find_library(FREETYPE_LIBRARY
     libfreetype.a
     PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
-target_link_libraries(ll::freetype INTERFACE ${FREETYPE_LIBRARY})
+target_link_libraries(ll::freetype INTERFACE ${FREETYPE_LIBRARY} ll::libpng ll::zlib-ng)

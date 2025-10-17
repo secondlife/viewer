@@ -489,7 +489,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         }
         else
         {
-            setLoadState(ERROR_MODEL + pModel->getStatus());
+            setLoadState(static_cast<U32>(ERROR_MODEL) + static_cast<U32>(pModel->getStatus()));
             delete pModel;
             return;
         }
