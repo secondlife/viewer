@@ -1124,9 +1124,6 @@ class LinuxManifest(ViewerManifest):
 
         self.path("licenses-linux.txt","licenses.txt")
         with self.prefix("linux_tools"):
-            self.path("client-readme.txt","README-linux.txt")
-            self.path("client-readme-voice.txt","README-linux-voice.txt")
-            self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","secondlife")
             with self.prefix(dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
