@@ -287,6 +287,7 @@ add_dependencies(llcommon stage_third_party_libs)
 
 if (LL_TESTS)
   include(LLAddBuildTest)
+  include(Doctest)
   SET(llcommon_TEST_SOURCE_FILES
     # unit-testing llcommon is not possible right now as the test-harness *itself* depends upon llcommon, causing a circular dependency.  Add your 'unit' tests as integration tests for now.
     )
@@ -335,5 +336,7 @@ if (LL_TESTS)
 ## every build. It's to help a developer make implementation choices about
 ## throwing and catching exceptions.
 ##LL_ADD_INTEGRATION_TEST(llexception "" "${test_libs}")
+
+  add_subdirectory(tests_doctest)
 
 endif (LL_TESTS)
