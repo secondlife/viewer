@@ -273,6 +273,11 @@ void LLWebRTCVoiceClient::cleanupSingleton()
 void LLWebRTCVoiceClient::init(LLPumpIO* pump)
 {
     // constructor will set up LLVoiceClient::getInstance()
+    initWebRTC();
+}
+
+void LLWebRTCVoiceClient::initWebRTC()
+{
     llwebrtc::init(this);
 
     mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
@@ -293,6 +298,8 @@ void LLWebRTCVoiceClient::terminate()
     mVoiceEnabled = false;
     sShuttingDown = true; // so that coroutines won't post more work.
     llwebrtc::terminate();
+
+    mWebRTCDeviceInterface = nullptr;
 }
 
 //---------------------------------------------------
@@ -1801,6 +1808,15 @@ void LLWebRTCVoiceClient::onChangeDetailed(const LLMute& mute)
     {
         bool muted = ((mute.mFlags & LLMute::flagVoiceChat) == 0);
         sessionState::for_each(boost::bind(predSetUserMute, _1, mute.mID, muted));
+    }
+}
+
+void LLWebRTCVoiceClient::userAuthorized(const std::string& user_id, const LLUUID& agentID)
+{
+    if (sShuttingDown)
+    {
+        sShuttingDown = false; // was terminated, restart
+        initWebRTC();
     }
 }
 
