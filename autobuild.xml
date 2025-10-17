@@ -2556,11 +2556,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>efc5b176d878cfc16b8f82445d82ddb96815b6ab</string>
+              <string>8bbec000880db56d6e343f3d3f1d87d259375849</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.20-universal/webrtc-m137.7151.04.20-universal.17630578914-linux64-17630578914.tar.zst</string>
+              <string>https://github.com/RyeMutt/3p-webrtc-build/releases/download/m137.2/webrtc-m137.2.18541778686-linux64-18541778686.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
