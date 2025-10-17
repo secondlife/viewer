@@ -110,7 +110,8 @@ void LLExperienceCache::initSingleton()
         cache_stream >> (*this);
     }
 
-    LLCoprocedureManager::instance().initializePool("ExpCache");
+    constexpr size_t CORO_QUEUE_SIZE = 2048;
+    LLCoprocedureManager::instance().initializePool("ExpCache", CORO_QUEUE_SIZE);
 
     LLCoros::instance().launch("LLExperienceCache::idleCoro",
         boost::bind(&LLExperienceCache::idleCoro, this));

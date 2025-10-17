@@ -261,9 +261,6 @@ static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
 static const char KEY_MOUSELOOK = 'M';
 
-static LLCachedControl<std::string> sSnapshotBaseName(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot"));
-static LLCachedControl<std::string> sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
-
 LLTrace::SampleStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
 
 
@@ -784,8 +781,16 @@ public:
             addText(xpos, ypos, "Projection Matrix");
             ypos += y_inc;
 
+#if LL_DARWIN
+// For sprintf deprecation
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
             // View last column is always <0,0,0,1>
             MATRIX_ROW_F32_TO_STR(gGLModelView, 12,camera_lines[3]); addText(xpos, ypos, std::string(camera_lines[3])); ypos += y_inc;
+#if LL_DARWIN
+#pragma clang diagnostic pop
+#endif
             MATRIX_ROW_N32_TO_STR(gGLModelView,  8,camera_lines[2]); addText(xpos, ypos, std::string(camera_lines[2])); ypos += y_inc;
             MATRIX_ROW_N32_TO_STR(gGLModelView,  4,camera_lines[1]); addText(xpos, ypos, std::string(camera_lines[1])); ypos += y_inc; mBackRectCamera2.mTop = ypos + 2;
             MATRIX_ROW_N32_TO_STR(gGLModelView,  0,camera_lines[0]); addText(xpos, ypos, std::string(camera_lines[0])); ypos += y_inc;
@@ -2034,6 +2039,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 std::string LLViewerWindow::getLastSnapshotDir()
 {
+    static LLCachedControl<std::string> sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
     return sSnapshotDir;
 }
 
@@ -2308,6 +2314,18 @@ void LLViewerWindow::initWorldUI()
             std::string url = gSavedSettings.getString("AvatarWelcomePack");
             url = LLWeb::expandURLSubstitutions(url, LLSD());
             avatar_welcome_pack->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+        }
+        LLMediaCtrl* search = LLFloaterReg::getInstance("search")->findChild<LLMediaCtrl>("search_contents");
+        if (search)
+        {
+            search->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+        }
+        LLMediaCtrl* marketplace = LLFloaterReg::getInstance("marketplace")->getChild<LLMediaCtrl>("marketplace_contents");
+        if (marketplace)
+        {
+            marketplace->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+            std::string url = gSavedSettings.getString("MarketplaceURL");
+            marketplace->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
         }
     }
 }
@@ -4732,6 +4750,7 @@ void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
     // Get a base file location if needed.
     if (force_picker || !isSnapshotLocSet())
     {
+        static LLCachedControl<std::string> sSnapshotBaseName(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot"));
         std::string proposed_name(sSnapshotBaseName);
 
         // getSaveFile will append an appropriate extension to the proposed name, based on the ESaveFilter constant passed in.
@@ -4786,7 +4805,7 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
 
 // Check if there is enough free space to save snapshot
 #ifdef LL_WINDOWS
-    boost::filesystem::path b_path(utf8str_to_utf16str(lastSnapshotDir));
+    boost::filesystem::path b_path(ll_convert<std::wstring>(lastSnapshotDir));
 #else
     boost::filesystem::path b_path(lastSnapshotDir);
 #endif
@@ -4829,6 +4848,9 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
 
         // Shouldn't there be a return here?
     }
+
+    static LLCachedControl<std::string> sSnapshotBaseName(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot"));
+    static LLCachedControl<std::string> sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
 
     // Look for an unused file name
     auto is_snapshot_name_loc_set = isSnapshotLocSet();
@@ -4937,8 +4959,8 @@ void LLViewerWindow::playSnapshotAnimAndSound()
 
 bool LLViewerWindow::isSnapshotLocSet() const
 {
-    std::string snapshot_dir = sSnapshotDir;
-    return !snapshot_dir.empty();
+    static LLCachedControl<std::string> sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
+    return !sSnapshotDir().empty();
 }
 
 void LLViewerWindow::resetSnapshotLoc() const

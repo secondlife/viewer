@@ -994,8 +994,11 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
         LLUUID linked_id = item->getLinkedUUID();
         LLViewerInventoryItem* linked_item = gInventory.getItem(linked_id);
-        can_favorite |= !linked_item->getIsFavorite();
-        can_unfavorite |= linked_item->getIsFavorite();
+        if (linked_item)
+        {
+            can_favorite |= !linked_item->getIsFavorite();
+            can_unfavorite |= linked_item->getIsFavorite();
+        }
 
         if (is_worn)
         {

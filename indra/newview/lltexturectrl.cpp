@@ -186,6 +186,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
     mOnUpdateImageStatsCallback(NULL),
     mBakeTextureEnabled(false),
     mLocalTextureEnabled(false),
+    mNoCopyTextureSelected(false),
     mInventoryPickType(pick_type)
 {
     setTentative(tentative);
@@ -263,6 +264,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
 
             if (set_selection)
             {
+                // This is going to cause a callback
                 mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
             }
         }
@@ -597,7 +599,6 @@ bool LLFloaterTexturePicker::postBuild()
         refreshInventoryFilter();
 
         mInventoryPanel->setFilterPermMask(mImmediateFilterPermMask);
-        mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
         mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 
         // Disable auto selecting first filtered item because it takes away
@@ -616,8 +617,25 @@ bool LLFloaterTexturePicker::postBuild()
 
         if(!mImageAssetID.isNull() || mInventoryPickType == PICK_MATERIAL)
         {
-            mInventoryPanel->setSelection(findItemID(mImageAssetID, false), TAKE_FOCUS_NO);
+            LLViewerInventoryItem* itemp = findInvItem(mImageAssetID, false);
+            LLUUID item_id;
+            if (itemp)
+            {
+                item_id = itemp->getUUID();
+            }
+
+            mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
+
+            if (item_id.notNull() && itemp)
+            {
+                if (!itemp->getPermissions().allowCopyBy(gAgent.getID()))
+                {
+                    mNoCopyTextureSelected = true;
+                }
+            }
         }
+        // Don't call before setSelection, setSelection will mark view as dirty
+        mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
     }
 
     childSetAction("l_add_btn", LLFloaterTexturePicker::onBtnAdd, this);
@@ -809,12 +827,12 @@ void LLFloaterTexturePicker::draw()
     }
 }
 
-const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library)
+LLViewerInventoryItem* LLFloaterTexturePicker::findInvItem(const LLUUID& asset_id, bool copyable_only, bool ignore_library) const
 {
     if (asset_id.isNull())
     {
         // null asset id means, no material or texture assigned
-        return LLUUID::null;
+        return nullptr;
     }
 
     LLUUID loockup_id = asset_id;
@@ -854,28 +872,39 @@ const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, bool co
         // search for copyable version first
         for (S32 i = 0; i < items.size(); i++)
         {
-            LLInventoryItem* itemp = items[i];
+            LLViewerInventoryItem* itemp = items[i];
             LLPermissions item_permissions = itemp->getPermissions();
             if (item_permissions.allowCopyBy(gAgent.getID(), gAgent.getGroupID()))
             {
-                if(!ignore_library || !gInventory.isObjectDescendentOf(itemp->getUUID(),gInventory.getLibraryRootFolderID()))
+                if (!ignore_library || !gInventory.isObjectDescendentOf(itemp->getUUID(), gInventory.getLibraryRootFolderID()))
                 {
-                    return itemp->getUUID();
+                    return itemp;
                 }
             }
         }
         // otherwise just return first instance, unless copyable requested
         if (copyable_only)
         {
-            return LLUUID::null;
+            return nullptr;
         }
         else
         {
-            if(!ignore_library || !gInventory.isObjectDescendentOf(items[0]->getUUID(),gInventory.getLibraryRootFolderID()))
+            if (!ignore_library || !gInventory.isObjectDescendentOf(items[0]->getUUID(), gInventory.getLibraryRootFolderID()))
             {
-                return items[0]->getUUID();
+                return items[0];
             }
         }
+    }
+
+    return nullptr;
+}
+
+const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library) const
+{
+    LLViewerInventoryItem* itemp = findInvItem(asset_id, copyable_only, ignore_library);
+    if (itemp)
+    {
+        return itemp->getUUID();
     }
 
     return LLUUID::null;

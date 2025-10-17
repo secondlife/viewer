@@ -178,7 +178,7 @@
         width="22">
         <button.commit_callback
           function="WebContent.TestURL"
-          parameter="https://sl-viewer-media-system.s3.amazonaws.com/index.html"/>
+          parameter="https://sl-viewer-media-system.s3.amazonaws.com/bookmarks/index.html"/>
       </button>
     </layout_panel>
     <layout_panel

@@ -189,7 +189,14 @@ public:
             std::string url = "secondlife://" + mObjectData["slurl"].asString();
             LLUrlAction::teleportToLocation(url);
         }
-
+        else if (level == "obj_zoom_in")
+        {
+            LLUUID obj_id = mObjectData["object_id"];
+            if (obj_id.notNull())
+            {
+                handle_zoom_to_object(obj_id);
+            }
+        }
     }
 
     bool onObjectIconContextMenuItemVisible(const LLSD& userdata)
@@ -202,6 +209,15 @@ public:
         else if (level == "not_blocked")
         {
             return !LLMuteList::getInstance()->isMuted(getAvatarId(), mFrom, LLMute::flagTextChat);
+        }
+        else if (level == "obj_zoom_in")
+        {
+            LLUUID obj_id = mObjectData["object_id"];
+            if (obj_id.notNull())
+            {
+                return nullptr != gObjectList.findObject(mAvatarID);
+            }
+            return false;
         }
         return false;
     }

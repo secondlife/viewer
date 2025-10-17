@@ -50,7 +50,7 @@ static const U32 DEFAULT_POOL_SIZE = 5;
 // SL-14399: When we teleport to a brand-new simulator, the coprocedure queue
 // gets absolutely slammed with fetch requests. Make this queue effectively
 // unlimited.
-const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 1024*1024;
+const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 1024*512;
 
 //=========================================================================
 class LLCoprocedurePool: private boost::noncopyable
@@ -58,7 +58,7 @@ class LLCoprocedurePool: private boost::noncopyable
 public:
     typedef LLCoprocedureManager::CoProcedure_t CoProcedure_t;
 
-    LLCoprocedurePool(const std::string &name, size_t size);
+    LLCoprocedurePool(const std::string &name, size_t size, size_t queue_size);
     ~LLCoprocedurePool();
 
     /// Places the coprocedure on the queue for processing.
@@ -118,7 +118,7 @@ private:
     typedef std::shared_ptr<CoprocQueue_t> CoprocQueuePtr;
 
     std::string     mPoolName;
-    size_t          mPoolSize, mActiveCoprocsCount, mPending;
+    size_t          mPoolSize, mQueueSize, mActiveCoprocsCount, mPending;
     CoprocQueuePtr  mPendingCoprocs;
     LLTempBoundListener mStatusListener;
 
@@ -141,7 +141,7 @@ LLCoprocedureManager::~LLCoprocedureManager()
     close();
 }
 
-void LLCoprocedureManager::initializePool(const std::string &poolName)
+void LLCoprocedureManager::initializePool(const std::string &poolName, size_t queue_size)
 {
     poolMap_t::iterator it = mPoolMap.find(poolName);
 
@@ -180,7 +180,7 @@ void LLCoprocedureManager::initializePool(const std::string &poolName)
         LL_WARNS("CoProcMgr") << "LLCoprocedureManager: No setting for \"" << keyName << "\" setting pool size to default of " << size << LL_ENDL;
     }
 
-    poolPtr_t pool(new LLCoprocedurePool(poolName, size));
+    poolPtr_t pool(new LLCoprocedurePool(poolName, size, queue_size));
     LL_ERRS_IF(!pool, "CoprocedureManager") << "Unable to create pool named \"" << poolName << "\" FATAL!" << LL_ENDL;
 
     bool inserted = mPoolMap.emplace(poolName, pool).second;
@@ -212,7 +212,8 @@ void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpd
     mPropertyQueryFn = queryfn;
     mPropertyDefineFn = updatefn;
 
-    initializePool("Upload");
+    constexpr size_t UPLOAD_QUEUE_SIZE = 2048;
+    initializePool("Upload", UPLOAD_QUEUE_SIZE);
     initializePool("AIS"); // it might be better to have some kind of on-demand initialization for AIS
     // "ExpCache" pool gets initialized in LLExperienceCache
     // asset storage pool gets initialized in LLViewerAssetStorage
@@ -296,17 +297,19 @@ void LLCoprocedureManager::close(const std::string &pool)
 }
 
 //=========================================================================
-LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
+LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, size_t queue_size):
     mPoolName(poolName),
     mPoolSize(size),
+    mQueueSize(queue_size),
     mActiveCoprocsCount(0),
     mPending(0),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
 {
+    llassert_always(mQueueSize > mPoolSize); // queue should be able to fit pool
     try
     {
-        mPendingCoprocs = std::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE);
+        mPendingCoprocs = std::make_shared<CoprocQueue_t>(mQueueSize);
         // store in our LLTempBoundListener so that when the LLCoprocedurePool is
         // destroyed, we implicitly disconnect from this LLEventPump
         // Monitores application status
@@ -357,7 +360,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
         mCoroMapping.insert(CoroAdapterMap_t::value_type(pooledCoro, httpAdapter));
     }
 
-    LL_INFOS("CoProcMgr") << "Created coprocedure pool named \"" << mPoolName << "\" with " << size << " items, queue max " << LLCoprocedureManager::DEFAULT_QUEUE_SIZE << LL_ENDL;
+    LL_INFOS("CoProcMgr") << "Created coprocedure pool named \"" << mPoolName << "\" with " << size << " items, queue max " << mQueueSize << LL_ENDL;
 }
 
 LLCoprocedurePool::~LLCoprocedurePool()
@@ -376,7 +379,7 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
                                    << "\" at "
                               << mPending << LL_ENDL;
 
-        if (mPending >= (LLCoprocedureManager::DEFAULT_QUEUE_SIZE - 1))
+        if (mPending >= (mQueueSize - 1))
         {
             // If it's all used up (not supposed to happen,
             // fetched should cap it), we are going to crash

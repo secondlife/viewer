@@ -2235,6 +2235,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     registrar.add("Url.RemoveFriend", boost::bind(&LLUrlAction::removeFriend, url));
     registrar.add("Url.ReportAbuse", boost::bind(&LLUrlAction::reportAbuse, url));
     registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
+    registrar.add("Url.ZoomInObject", boost::bind(&LLUrlAction::zoomInObject, url));
     registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
     registrar.add("Url.ShowParcelOnMap", boost::bind(&LLUrlAction::showParcelOnMap, url));
     registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
@@ -3764,7 +3765,7 @@ bool LLNormalTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& w
 {
     height = 0;
     width = 0;
-    if (num_chars > 0)
+    if (num_chars > 0 && (mStart + first_char >= 0))
     {
         height = mFontHeight;
         const LLWString &text = getWText();
