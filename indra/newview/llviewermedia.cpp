@@ -1735,6 +1735,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
     }
     else
     {
+#if LL_LINUX
+        if(plugin_basename == "media_plugin_gstreamer10" && gSavedSettings.getBOOL("MediaPluginForceVLC"))
+        {
+            plugin_basename = "media_plugin_libvlc";
+        }
+#endif
+
         std::string launcher_name = gDirUtilp->getLLPluginLauncher();
         std::string plugin_name = gDirUtilp->getLLPluginFilename(plugin_basename);
 
