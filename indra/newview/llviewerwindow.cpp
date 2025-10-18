@@ -1466,16 +1466,41 @@ void LLViewerWindow::handleMouseLeave(LLWindow *window)
     LLToolTipMgr::instance().blockToolTips();
 }
 
-bool LLViewerWindow::handleCloseRequest(LLWindow *window)
+bool LLViewerWindow::handleCloseRequest(LLWindow *window, bool from_user)
 {
     if (!LLApp::isExiting() && !LLApp::isStopped())
     {
-        // User has indicated they want to close, but we may need to ask
-        // about modified documents.
-        LLAppViewer::instance()->userQuit();
-        // Don't quit immediately
+        if (from_user)
+        {
+            // User has indicated they want to close, but we may need to ask
+            // about modified documents.
+            LLAppViewer::instance()->userQuit();
+            // Don't quit immediately
+        }
+        else
+        {
+            // OS is asking us to quit, assume we have time and start cleanup
+            LLAppViewer::instance()->requestQuit();
+        }
     }
     return false;
+}
+
+bool LLViewerWindow::handleSessionExit(LLWindow* window)
+{
+    if (!LLApp::isExiting() && !LLApp::isStopped())
+    {
+        // Viewer received WM_ENDSESSION and app will be killed soon if it doesn't respond
+        LLAppViewer* app = LLAppViewer::instance();
+        app->sendSimpleLogoutRequest();
+        app->earlyExitNoNotify();
+
+        // Not viewer's fault, remove marker files so
+        // that statistics won't consider this to be a crash
+        app->removeMarkerFiles();
+        return false;
+    }
+    return true;
 }
 
 void LLViewerWindow::handleQuit(LLWindow *window)
@@ -1897,7 +1922,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         p.ignore_pixel_depth,
         0,
         max_core_count,
-        max_gl_version); //don't use window level anti-aliasing
+        max_gl_version); //don't use window level anti-aliasing, windows only
 
     if (NULL == mWindow)
     {
@@ -3315,7 +3340,31 @@ void LLViewerWindow::clearPopups()
 
 void LLViewerWindow::moveCursorToCenter()
 {
-    if (! gSavedSettings.getBOOL("DisableMouseWarp"))
+    bool mouse_warp = false;
+    LLCachedControl<S32> mouse_warp_mode(gSavedSettings, "MouseWarpMode", 1);
+
+    switch (mouse_warp_mode())
+    {
+    case 0:
+        // For Windows:
+        // Mouse usually uses 'delta' position since it isn't aware of own location, keep it centered.
+        // Touch screen reports absolute or virtual absolute position and warping a physical
+        // touch is pointless, so don't move it.
+        //
+        // MacOS
+        // If 'decoupled', CGAssociateMouseAndMouseCursorPosition can make mouse stay in
+        // one place and not move, do not move it (needs testing).
+        mouse_warp = mWindow->isWrapMouse();
+        break;
+    case 1:
+        mouse_warp = true;
+        break;
+    default:
+        mouse_warp = false;
+        break;
+    }
+
+    if (mouse_warp)
     {
         S32 x = getWorldViewWidthScaled() / 2;
         S32 y = getWorldViewHeightScaled() / 2;

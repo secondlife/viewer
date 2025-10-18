@@ -32,6 +32,7 @@
 #include "lltrans.h"
 #include "lluistring.h"
 #include "../llviewertexture.h"
+#include "../llviewercontrol.h"
 #include "../llworldmapmessage.h"
 // Class to test
 #include "../llworldmap.h"
@@ -70,6 +71,11 @@ std::string LLTrans::getString(std::string_view, const LLStringUtil::format_map_
 void LLUIString::updateResult() const { }
 void LLUIString::setArg(const std::string& , const std::string& ) { }
 void LLUIString::assign(const std::string& ) { }
+
+LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLControlGroup, std::string>(name) {}
+LLControlGroup::~LLControlGroup() {}
+bool LLControlGroup::getBOOL(std::string_view) { return true; }
+LLControlGroup gSavedSettings("test_settings");
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------

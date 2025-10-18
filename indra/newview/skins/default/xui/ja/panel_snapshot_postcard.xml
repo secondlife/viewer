@@ -10,7 +10,7 @@
 		送信中…
 	</string>
 	<text name="title">
-		Ｅメール
+		Eメール
 	</text>
 	<tab_container name="postcard_tabs">
 		<panel label="メッセージ" name="panel_postcard_message"/>

@@ -16,10 +16,10 @@
 	</radio_group>
 	<line_editor name="val_text"/>
 	<color_swatch label="色" name="val_color_swatch"/>
-	<spinner label="Ｘ" name="val_spinner_1"/>
-	<spinner label="Ｘ" name="val_spinner_2"/>
-	<spinner label="Ｘ" name="val_spinner_3"/>
-	<spinner label="Ｘ" name="val_spinner_4"/>
+	<spinner label="x" name="val_spinner_1"/>
+	<spinner label="x" name="val_spinner_2"/>
+	<spinner label="x" name="val_spinner_3"/>
+	<spinner label="x" name="val_spinner_4"/>
 	<button label="デフォルトにリセット" name="default_btn"/>
 	<check_box label="変更された設定のみ表示" name="hide_default"/>
 </floater>

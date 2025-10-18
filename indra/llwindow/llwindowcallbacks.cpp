@@ -68,7 +68,13 @@ void LLWindowCallbacks::handleMouseLeave(LLWindow *window)
     return;
 }
 
-bool LLWindowCallbacks::handleCloseRequest(LLWindow *window)
+bool LLWindowCallbacks::handleCloseRequest(LLWindow *window, bool from_user)
+{
+    //allow the window to close
+    return true;
+}
+
+bool LLWindowCallbacks::handleSessionExit(LLWindow* window)
 {
     //allow the window to close
     return true;

@@ -7,7 +7,7 @@
 	<text name="settings_title">
 		グラフィック設定
 	</text>
-	<button label="拡張設定を開く" name="advanced_btn"/>
+	<button label="詳細設定を開く" name="advanced_btn"/>
 	<button label="推奨設定にリセット" name="defaults_btn"/>
 	<view_border name="border0"/>
 	<text name="quality_lbl">
@@ -40,7 +40,7 @@
 	</text>
 	<slider name="draw_distance"/>
 	<text name="draw_distance_m">
-		ｍ
+		m
 	</text>
 	<text name="farther_lbl">
 		遠景
@@ -58,7 +58,7 @@
 	<check_box label="大気（周辺）シェーダー" name="atmospheric_shaders"/>
 	<check_box label="高度な光源モデル" name="advanced_lighting_model"/>
 	<text name="RenderShadowDetailText">
-		影：
+		影
 	</text>
 	<combo_box name="ShadowDetail">
 		<combo_box.item label="なし" name="0" value="0"/>

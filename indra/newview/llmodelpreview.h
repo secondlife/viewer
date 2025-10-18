@@ -319,7 +319,7 @@ protected:
     // Amount of triangles in original(base) model
     U32 mMaxTriangleLimit;
 
-    LLMeshUploadThread::instance_list mUploadData;
+    LLMeshUploadThread::instance_list_t mUploadData;
     std::set<LLViewerFetchedTexture * > mTextureSet;
     LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
 

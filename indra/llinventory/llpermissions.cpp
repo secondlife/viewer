@@ -774,6 +774,7 @@ void LLPermissions::importLLSD(const LLSD& sd_perm)
         }
     }
 
+    fixOwnership();
     fix();
 }
 

@@ -303,8 +303,11 @@ void LLAccordionCtrl::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top, S3
         return;
     LLRect panel_rect = panel->getRect();
     panel_rect.setLeftTopAndSize( left, top, width, height);
-    panel->reshape( width, height, 1);
-    panel->setRect(panel_rect);
+    if (panel->getRect() != panel_rect)
+    {
+        panel->reshape( width, height, 1);
+        panel->setRect(panel_rect);
+    }
 }
 
 void LLAccordionCtrl::ctrlShiftVertical(LLView* panel, S32 delta)
@@ -494,6 +497,7 @@ void LLAccordionCtrl::arrangeMultiple()
 
 void LLAccordionCtrl::arrange()
 {
+    LL_PROFILE_ZONE_SCOPED;
     updateNoTabsHelpTextVisibility();
 
     if (mAccordionTabs.empty())
