@@ -1954,12 +1954,11 @@ void LLLineEditor::draw()
             width = llmin(width, mTextRightEdge - ll_round(rendered_pixels_right));
             gl_rect_2d(ll_round(rendered_pixels_right), cursor_top, ll_round(rendered_pixels_right)+width, cursor_bottom, color);
 
-            LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
             rendered_text += mFontBufferSelection.render(
                 mGLFont,
                 mText, mScrollHPos + rendered_text,
                 rendered_pixels_right, text_bottom,
-                tmp_color,
+                LLColor4::black,
                 LLFontGL::LEFT, LLFontGL::BOTTOM,
                 0,
                 LLFontGL::NO_SHADOW,

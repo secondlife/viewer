@@ -603,7 +603,7 @@
    label="Voice Input/Output devices"
    layout="topleft"
    left="20"
-   top_pad="0"
+   top_pad="1"
    name="device_settings_btn"
    width="200">
   </button>
