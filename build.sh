@@ -70,7 +70,7 @@ installer_Darwin()
 {
   local package_name="$1"
   local package_dir="$(build_dir_Darwin)/newview/"
-  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_x86_64\\.dmg\$"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_universal\\.dmg\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
   # even if someone makes a qualified name that duplicates the last word of the base name
@@ -158,7 +158,6 @@ pre_build()
 
         if [[ "$arch" == "Darwin" ]]
         then
-            HAVOK=OFF
             SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                           "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
         fi
@@ -262,8 +261,8 @@ build()
         done
     fi
 
-    # *TODO: Make this a build extension.
-    package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+    # *TODO: Make this a build extension. disabled for now
+    # package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
     end_section "extensions $variant"
 
   else
