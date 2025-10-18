@@ -48,15 +48,18 @@ static std::string empty;
 // variants of strerror() to report errors.
 
 #if LL_WINDOWS
+// For the situations where we directly call into Windows API functions we need to translate
+// the Windows error codes into errno values
 namespace
 {
     struct errentry
     {
-        unsigned long oserr; // OS return value
+        unsigned long oserr; // Windows OS error value
         int errcode;         // System V error code
     };
 }
 
+// translation table between Windows OS error value and System V errno code
 static errentry const errtable[]
 {
     { ERROR_INVALID_FUNCTION,       EINVAL    },  //    1
@@ -106,20 +109,17 @@ static errentry const errtable[]
     { ERROR_NOT_ENOUGH_QUOTA,       ENOMEM    }   // 1816
 };
 
-// Number of elements in the error translation table
-#define ERRTABLECOUNT (sizeof(errtable) / sizeof(errtable[0]))
-
 static int set_errno_from_oserror(unsigned long oserr)
 {
     if (!oserr)
         return 0;
 
-    // Check the table for the OS error code
-    for (unsigned i{0}; i < ERRTABLECOUNT; ++i)
+    // Check the table for the Windows OS error code
+    for (const struct errentry &entry : errtable)
     {
-        if (oserr == errtable[i].oserr)
+        if (oserr == entry.oserr)
         {
-            _set_errno(errtable[i].errcode);
+            _set_errno(entry.errcode);
             return -1;
         }
     }
@@ -156,40 +156,46 @@ static std::wstring utf8path_to_wstring(const std::string& utf8path)
     return ll_convert<std::wstring>(utf8path);
 }
 
-static unsigned short get_fileattr(const std::wstring& utf16path)
+static unsigned short get_fileattr(const std::wstring& utf16path, bool dontFollowSymLink = false)
 {
-    unsigned short st_mode = 0;
+    unsigned long  flags = FILE_FLAG_BACKUP_SEMANTICS;
+    if (dontFollowSymLink)
+    {
+        flags |= FILE_FLAG_OPEN_REPARSE_POINT;
+    }
     HANDLE file_handle = CreateFileW(utf16path.c_str(), FILE_READ_ATTRIBUTES,
-                                     FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
-                                     OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
-    if (file_handle == INVALID_HANDLE_VALUE)
+                                     FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                     nullptr, OPEN_EXISTING, flags, nullptr);
+    if (file_handle != INVALID_HANDLE_VALUE)
     {
-        set_errno_from_oserror(GetLastError());
-        return 0;
-    }
+        FILE_ATTRIBUTE_TAG_INFO attribute_info;
+        if (GetFileInformationByHandleEx(file_handle, FileAttributeTagInfo, &attribute_info, sizeof(attribute_info)))
+        {
+            // A volume path alone (only drive letter) is not recognized as directory while it technically is
+            bool is_directory = (attribute_info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
+                                (iswalpha(utf16path[0]) && utf16path[1] == ':' &&
+                                 (!utf16path[2] || (is_slash(utf16path[2]) && !utf16path[3])));
+            unsigned short st_mode = is_directory ? S_IFDIR :
+                                     (attribute_info.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT ? S_IFLNK : S_IFREG);
+            st_mode |= (attribute_info.FileAttributes & FILE_ATTRIBUTE_READONLY) ? S_IREAD : S_IREAD | S_IWRITE;
+            // we do not try to guess executable flag
 
-    FILE_ATTRIBUTE_TAG_INFO attribute_info;
-    if (GetFileInformationByHandleEx(file_handle, FileAttributeTagInfo, &attribute_info, sizeof(attribute_info)))
-    {
-        // A volume path alone (only drive letter) is not recognized as directory while it technically is
-        bool is_directory = (attribute_info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
-                            (iswalpha(utf16path[0]) && utf16path[1] == ':' &&
-                             (!utf16path[2] || (is_slash(utf16path[2]) && !utf16path[3])));
-        st_mode |= is_directory ? S_IFDIR : S_IFREG;
-        st_mode |= (attribute_info.FileAttributes & FILE_ATTRIBUTE_READONLY) ? S_IREAD : S_IREAD | S_IWRITE;
-        // we do not try to guess executable flag
+            // propagate user bits to group/other fields:
+            st_mode |= (st_mode & 0700) >> 3;
+            st_mode |= (st_mode & 0700) >> 6;
 
-        // propagate user bits to group/other fields:
-        st_mode |= (st_mode & 0700) >> 3;
-        st_mode |= (st_mode & 0700) >> 6;
+            CloseHandle(file_handle);
+            return st_mode;
+        }
     }
-    else
+    // Retrieve last error and set errno before calling CloseHandle()
+    set_errno_from_oserror(GetLastError());
+
+    if (file_handle != INVALID_HANDLE_VALUE)
     {
-        // Retrieve last error before calling CloseHandle()
-        set_errno_from_oserror(GetLastError());
+        CloseHandle(file_handle);
     }
-    CloseHandle(file_handle);
-    return st_mode;
+    return 0;
 }
 
 #else
@@ -241,7 +247,7 @@ std::string strerr(int errn)
 }
 #endif  // ! LL_WINDOWS
 
-int warnif(const std::string& desc, const std::string& filename, int rc, int accept = 0)
+static int warnif(const std::string& desc, const std::string& filename, int rc, int accept = 0)
 {
     if (rc < 0)
     {
@@ -333,7 +339,7 @@ int LLFile::mkdir(const std::string& dirname, int perms)
 }
 
 // static
-int LLFile::rmdir(const std::string& dirname, int supress_error)
+int LLFile::rmdir(const std::string& dirname, int suppress_error)
 {
 #if LL_WINDOWS
     std::wstring utf16dirname = utf8path_to_wstring(dirname);
@@ -341,21 +347,22 @@ int LLFile::rmdir(const std::string& dirname, int supress_error)
 #else
     int rc = ::rmdir(dirname.c_str());
 #endif
-    return warnif("rmdir", dirname, rc, supress_error);
+    return warnif("rmdir", dirname, rc, suppress_error);
 }
 
 // static
-LLFILE* LLFile::fopen(const std::string& filename, const char* mode)    /* Flawfinder: ignore */
+LLFILE* LLFile::fopen(const std::string& filename, const char* mode)
 {
 #if LL_WINDOWS
     std::wstring utf16filename = utf8path_to_wstring(filename);
     std::wstring utf16mode = ll_convert<std::wstring>(std::string(mode));
     return _wfopen(utf16filename.c_str(), utf16mode.c_str());
 #else
-    return ::fopen(filename.c_str(),mode);  /* Flawfinder: ignore */
+    return ::fopen(filename.c_str(),mode);
 #endif
 }
 
+// static
 int LLFile::close(LLFILE * file)
 {
     int ret_value = 0;
@@ -366,9 +373,10 @@ int LLFile::close(LLFILE * file)
     return ret_value;
 }
 
+// static
 std::string LLFile::getContents(const std::string& filename)
 {
-    LLFILE* fp = fopen(filename, "rb"); /* Flawfinder: ignore */
+    LLFILE* fp = LLFile::fopen(filename, "rb");
     if (fp)
     {
         fseek(fp, 0, SEEK_END);
@@ -385,7 +393,8 @@ std::string LLFile::getContents(const std::string& filename)
     return LLStringUtil::null;
 }
 
-int LLFile::remove(const std::string& filename, int supress_error)
+// static
+int LLFile::remove(const std::string& filename, int suppress_error)
 {
 #if LL_WINDOWS
     // Posix remove() works on both files and directories although on Windows
@@ -393,8 +402,7 @@ int LLFile::remove(const std::string& filename, int supress_error)
     // as its siblings unlink() and _wunlink().
     // If we really only want to support files we should instead use
     // unlink() in the non-Windows part below too
-    int rc = 0;
-    ;
+    int rc = -1;
     std::wstring utf16filename = utf8path_to_wstring(filename);
     unsigned short st_mode = get_fileattr(utf16filename);
     if (S_ISDIR(st_mode))
@@ -405,17 +413,25 @@ int LLFile::remove(const std::string& filename, int supress_error)
     {
         rc = _wunlink(utf16filename.c_str());
     }
+    else if (st_mode)
+    {
+        // it is something else than a file or directory
+        // this should not really happen as long as we do not allow for symlink
+        // detection in the optional parameter to get_fileattr()
+        rc = set_errno_from_oserror(ERROR_INVALID_PARAMETER);
+    }
     else
     {
-        rc = set_errno_from_oserror(ERROR_INVALID_PARAMETER);
+        // get_filattr() failed and already set errno, preserve it for correct error reporting
     }
 #else
     int rc = ::remove(filename.c_str());
 #endif
-    return warnif("remove", filename, rc, supress_error);
+    return warnif("remove", filename, rc, suppress_error);
 }
 
-int LLFile::rename(const std::string& filename, const std::string& newname, int supress_error)
+// static
+int LLFile::rename(const std::string& filename, const std::string& newname, int suppress_error)
 {
 #if LL_WINDOWS
     // Posix rename() will gladly overwrite a file at newname if it exists, the Windows
@@ -431,25 +447,26 @@ int LLFile::rename(const std::string& filename, const std::string& newname, int 
 #else
     int rc = ::rename(filename.c_str(),newname.c_str());
 #endif
-    return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, supress_error);
+    return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, suppress_error);
 }
 
 // Make this a define rather than using magic numbers multiple times in the code
 #define LLFILE_COPY_BUFFER_SIZE 16384
 
+// static
 bool LLFile::copy(const std::string& from, const std::string& to)
 {
     bool copied = false;
-    LLFILE* in = fopen(from, "rb");     /* Flawfinder: ignore */
+    LLFILE* in = LLFile::fopen(from, "rb");
     if (in)
     {
-        LLFILE* out = fopen(to, "wb");      /* Flawfinder: ignore */
+        LLFILE* out = LLFile::fopen(to, "wb");
         if (out)
         {
-            char buf[LLFILE_COPY_BUFFER_SIZE]; /* Flawfinder: ignore */
+            char buf[LLFILE_COPY_BUFFER_SIZE];
             size_t readbytes;
             bool write_ok = true;
-            while (write_ok && (readbytes = fread(buf, 1, LLFILE_COPY_BUFFER_SIZE, in))) /* Flawfinder: ignore */
+            while (write_ok && (readbytes = fread(buf, 1, LLFILE_COPY_BUFFER_SIZE, in)))
             {
                 if (fwrite(buf, 1, readbytes, out) != readbytes)
                 {
@@ -468,7 +485,8 @@ bool LLFile::copy(const std::string& from, const std::string& to)
     return copied;
 }
 
-int LLFile::stat(const std::string& filename, llstat* filestatus, int supress_error)
+// static
+int LLFile::stat(const std::string& filename, llstat* filestatus, int suppress_error)
 {
 #if LL_WINDOWS
     std::wstring utf16filename = utf8path_to_wstring(filename);
@@ -476,24 +494,25 @@ int LLFile::stat(const std::string& filename, llstat* filestatus, int supress_er
 #else
     int rc = ::stat(filename.c_str(), filestatus);
 #endif
-    return warnif("stat", filename, rc, supress_error);
+    return warnif("stat", filename, rc, suppress_error);
 }
 
-// _wstat() is a bit heavyweight on Windows, use a more lightweight API
-// to just get the attributes
-unsigned short LLFile::getattr(const std::string& filename, int suppress_error)
+// static
+unsigned short LLFile::getattr(const std::string& filename, bool dontFollowSymLink, int suppress_error)
 {
 #if LL_WINDOWS
-    int rc = -1;
+    // _wstat64() is a bit heavyweight on Windows, use a more lightweight API
+    // to just get the attributes
+    int            rc            = -1;
     std::wstring utf16filename = utf8path_to_wstring(filename);
-    unsigned short st_mode = get_fileattr(utf16filename);
+    unsigned short st_mode = get_fileattr(utf16filename, dontFollowSymLink);
     if (st_mode)
     {
         return st_mode;
     }
 #else
     llstat filestatus;
-    int rc = ::stat(filename.c_str(), &filestatus);
+    int rc = dontFollowSymLink ? ::lstat(filename.c_str(), &filestatus) : ::stat(filename.c_str(), &filestatus);
     if (rc == 0)
     {
         return filestatus.st_mode;
@@ -503,18 +522,25 @@ unsigned short LLFile::getattr(const std::string& filename, int suppress_error)
     return 0;
 }
 
+// static
 bool LLFile::isdir(const std::string& filename)
 {
-    // Don't spam the log if the subject pathname doesn't exist.
-    return S_ISDIR(getattr(filename, ENOENT));
+    return S_ISDIR(getattr(filename));
 }
 
+// static
 bool LLFile::isfile(const std::string& filename)
 {
-    // Don't spam the log if the subject pathname doesn't exist.
-    return S_ISREG(getattr(filename, ENOENT));
+    return S_ISREG(getattr(filename));
 }
 
+// static
+bool LLFile::islink(const std::string& filename)
+{
+    return S_ISLNK(getattr(filename, true));
+}
+
+// static
 const char *LLFile::tmpdir()
 {
     static std::string utf8path;

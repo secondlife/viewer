@@ -41,8 +41,9 @@ typedef FILE    LLFILE;
 #include <sys/stat.h>
 
 #if LL_WINDOWS
-// windows version of stat function and stat data structure are called _statxx
-typedef struct _stat64    llstat;
+// The Windows version of stat function and stat data structure are called _stat64
+// We use _stat64 here to support 64-bit st_size and time_t values
+typedef struct _stat64  llstat;
 #else
 typedef struct stat     llstat;
 #include <sys/types.h>
@@ -54,6 +55,16 @@ typedef struct stat     llstat;
 
 #ifndef S_ISDIR
 # define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
+#endif
+
+// Windows C runtime library does not define this and does not support symlink detection in the
+// stat functions but we do in our getattr() function
+#ifndef S_IFLNK
+#define S_IFLNK 0xA000 /* symlink */
+#endif
+
+#ifndef S_ISLNK
+#define S_ISLNK(x) (((x) & S_IFMT) == S_IFLNK)
 #endif
 
 #include "llstring.h" // safe char* -> std::string conversion
@@ -96,39 +107,44 @@ public:
     ///  @returns 0 on success and -1 on failure.
 
     //// remove a directory
-    static  int     rmdir(const std::string& filename, int supress_error = 0);
-    ///< pass ENOENT in the optional 'supress_error' parameter
+    static  int     rmdir(const std::string& filename, int suppress_error = 0);
+    ///< pass ENOENT in the optional 'suppress_error' parameter
     ///  if you don't want a warning in the log when the directory does not exist
     ///  @returns 0 on success and -1 on failure.
 
     /// remove a file or directory
-    static  int     remove(const std::string& filename, int supress_error = 0);
-    ///< pass ENOENT in the optional 'supress_error' parameter
+    static  int     remove(const std::string& filename, int suppress_error = 0);
+    ///< pass ENOENT in the optional 'suppress_error' parameter
     ///  if you don't want a warning in the log when the directory does not exist
     ///  @returns 0 on success and -1 on failure.
 
     /// rename a file
-    static  int     rename(const std::string& filename, const std::string& newname, int supress_error = 0);
+    static  int     rename(const std::string& filename, const std::string& newname, int suppress_error = 0);
     ///< it will silently overwrite newname if it exists without returning an error
+    ///  Posix guarantees that if newname already exists, then there will be no moment
+    ///  in which for other processes newname does not exist. There is no such guarantee
+    ///  under Windows at this time. It may do it in the same way but the used Windows API
+    ///  does not make such guarantees.
     ///  @returns 0 on success and -1 on failure.
 
 
-    // copy the contents of file from 'from' to 'to' filename
+    /// copy the contents of file from 'from' to 'to' filename
     static  bool    copy(const std::string& from, const std::string& to);
     ///< @returns true on success and false on failure.
 
     /// return the file stat structure for filename
-    static  int     stat(const std::string& filename, llstat* file_status, int supress_error = ENOENT);
+    static  int     stat(const std::string& filename, llstat* file_status, int suppress_error = ENOENT);
     ///< for compatibility with existing uses of LL_File::stat() we use ENOENT as default in the
-    ///  optional 'supress_error' parameter to avoid spamming the log with warnings when the API
+    ///  optional 'suppress_error' parameter to avoid spamming the log with warnings when the API
     ///  is used to detect if a file exists
     ///  @returns 0 on success and -1 on failure.
 
     /// get the file or directory attributes for filename
-    static  unsigned short getattr(const std::string& filename, int supress_error = 0);
+    static  unsigned short getattr(const std::string& filename, bool dontFollowSymLink = false, int suppress_error = ENOENT);
     ///< a more lightweight function on Windows to stat, that just returns the file attribute flags
-    ///  pass ENOENT in the optional 'supress_error' parameter if you don't want a warning
-    ///  in the log when the file or directory does not exist
+    ///  dontFollowSymLinks set to true returns the attributes of the symlink if it is one, rather than resolving it
+    ///  we pass by default ENOENT in the optional 'suppress_error' parameter to not spam the log with
+    ///  warnings when the file or directory does not exist
     ///  @returns 0 on failure and a st_mode value with either S_IFDIR or S_IFREG set otherwise
     ///  together with the three access bits which under Windows only the write bit is relevant.
 
@@ -139,6 +155,10 @@ public:
     /// check if filename is an existing file
     static  bool    isfile(const std::string& filename);
     ///< @returns true if the path is for an existing file
+
+    /// check if filename is a symlink
+    static  bool    islink(const std::string& filename);
+    ///< @returns true if the path is pointing at a symlink
 
     /// return a path to the temporary directory on the system
     static  const char * tmpdir();
