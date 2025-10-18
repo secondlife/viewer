@@ -164,7 +164,6 @@
           parameter="avatar_render_settings" />
       </menu_item_call>
       </context_menu>
-
   <menu_item_call
      enabled="false"
      label="Block Particle Owner"
@@ -174,4 +173,20 @@
     <menu_item_call.on_visible
      function="EnableMuteParticle" />
   </menu_item_call>
+  <menu_item_separator layout="topleft" name="Moderator Options Separator"/>
+  <context_menu
+   label="Nearby Voice Moderation"
+   layout="topleft"
+   name="Moderation Options">
+      <menu_item_check
+        name="MuteResidentToggle"
+        label="Muted">
+          <menu_item_check.on_check
+            function="Avatar.CheckNearbyVoiceMuted"
+            parameter="0" />
+          <menu_item_check.on_click
+            function="Avatar.SetNearbyVoiceMuted"
+            parameter="0" />
+      </menu_item_check>
+  </context_menu>
 </context_menu>

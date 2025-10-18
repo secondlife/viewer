@@ -513,7 +513,19 @@
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
-				<!-- Server to client -->
+
+              <key>SpatialVoiceModerationRequest</key>
+              <map>
+                  <key>flavor</key>
+                  <string>llsd</string>
+                  <key>trusted-sender</key>
+                  <boolean>false</boolean>
+              </map>
+
+
+
+
+              <!-- Server to client -->
 				<key>RequiredVoiceVersion</key>
 				<map>
 					<key>flavor</key>
@@ -698,7 +710,10 @@
 
 			<key>VoiceSignalingRequest</key>
 			<boolean>false</boolean>
-			
+
+            <key>SpatialVoiceModerationRequest</key>
+            <boolean>false</boolean>
+
 			<key>RemoteParcelRequest</key>
 			<boolean>false</boolean>
 

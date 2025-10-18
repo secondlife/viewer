@@ -262,6 +262,7 @@ set(viewer_SOURCE_FILES
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
+    llfloatermoderation.cpp
     llfloatermodeluploadbase.cpp
     llfloatermyscripts.cpp
     llfloatermyenvironment.cpp
@@ -941,6 +942,7 @@ set(viewer_HEADER_FILES
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloatermodelpreview.h
+    llfloatermoderation.h
     llfloatermodeluploadbase.h
     llfloatermyscripts.h
     llfloatermyenvironment.h

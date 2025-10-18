@@ -68,6 +68,7 @@
 #include "llfloaterland.h"
 #include "llfloaterimnearbychat.h"
 #include "llfloaterlandholdings.h"
+#include "llfloatermoderation.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
@@ -201,6 +202,8 @@ LLContextMenu* gDetachScreenPieMenu = NULL;
 LLContextMenu* gDetachAttSelfMenu = NULL;
 LLContextMenu* gDetachHUDAttSelfMenu = NULL;
 LLContextMenu* gDetachBodyPartPieMenus[9];
+
+class LLFloaterModeration;
 
 //
 // Local prototypes
@@ -3590,6 +3593,83 @@ class LLAvatarSetImpostorMode : public view_listener_t
     }   // handleEvent()
 };
 
+
+class LLAvatarCheckNearbyVoiceMuted : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+        if (!object) return false;
+
+        LLVOAvatar* avatar = find_avatar_from_object(object);
+        if (!avatar) return false;
+
+        // 0 == individual mute mode - may expand later
+        U32 mode = userdata.asInteger();
+        switch (mode)
+        {
+            case 0:
+                if (avatar->getNearbyVoiceMuteSettings() == LLVOAvatar::AV_NEARBY_VOICE_UNMUTED)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+
+            default:
+                return false;
+        }
+    }
+};
+
+class LLAvatarSetNearbyVoiceMuted : public view_listener_t
+{
+    void notifyModerationFloater()
+    {
+        LLFloaterModeration* nearby_voice_moderation_floater = static_cast<LLFloaterModeration*>(LLFloaterReg::getInstance("moderation"));
+        if (nearby_voice_moderation_floater)
+        {
+            nearby_voice_moderation_floater->refresh();
+        }
+    }
+
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+        if (!object) return false;
+
+        LLVOAvatar* avatar = find_avatar_from_object(object);
+        if (!avatar) return false;
+
+        // 0 == individual mute mode - may expand later
+        U32 mode = userdata.asInteger();
+        switch (mode)
+        {
+            case 0:
+                if (avatar->getNearbyVoiceMuteSettings() == LLVOAvatar::AV_NEARBY_VOICE_UNMUTED)
+                {
+                    avatar->setNearbyVoiceMuteSettings(LLVOAvatar::AV_NEARBY_VOICE_MUTED);
+                    notifyModerationFloater();
+                    return true;
+                }
+                else
+                {
+                    avatar->setNearbyVoiceMuteSettings(LLVOAvatar::AV_NEARBY_VOICE_UNMUTED);
+                    notifyModerationFloater();
+                    return false;
+                }
+
+                break;
+
+            default:
+                return false;
+        }
+
+        return true;
+    }
+};
 
 class LLObjectMute : public view_listener_t
 {
@@ -10093,6 +10173,9 @@ void initialize_menus()
 
     view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
     enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
+
+    view_listener_t::addMenu(new LLAvatarCheckNearbyVoiceMuted(), "Avatar.CheckNearbyVoiceMuted");
+    view_listener_t::addMenu(new LLAvatarSetNearbyVoiceMuted(), "Avatar.SetNearbyVoiceMuted");
 
     // Object pie menu
     view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
