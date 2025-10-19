@@ -7,14 +7,14 @@ repos:
       - id: no-trigraphs
       - id: copyright
       - id: end-of-file
-        files: \.(cpp|c|h|py|glsl|cmake|txt)$
+        files: \.(cpp|c|m|mm|h|py|glsl|cmake|txt)$
         exclude: language.txt
       - id: indent-with-spaces
-        files: \.(cpp|c|h|inl|py|glsl|cmake)$
+        files: \.(cpp|c|m|mm|h|inl|py|glsl|cmake)$
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       - id: check-xml
       - id: mixed-line-ending
       - id: trailing-whitespace
-        files: \.(cpp|c|h|inl|py|glsl|cmake|yaml|sh)$
+        files: \.(cpp|c|m|mm|h|inl|py|glsl|cmake|yaml|sh)$

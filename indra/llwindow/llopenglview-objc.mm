@@ -114,7 +114,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (unsigned long)getVramSize
 {
     CGLRendererInfoObj info = 0;
-	GLint vram_megabytes = 0;
+    GLint vram_megabytes = 0;
     int num_renderers = 0;
     CGLError the_err = CGLQueryRendererInfo (CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &info, &num_renderers);
     if(0 == the_err)
@@ -132,29 +132,29 @@ attributedStringInfo getSegments(NSAttributedString *str)
         vram_megabytes = 256;
     }
 
-	return (unsigned long)vram_megabytes; // return value is in megabytes.
+    return (unsigned long)vram_megabytes; // return value is in megabytes.
 }
 
 - (void)viewDidMoveToWindow
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowResized:) name:NSWindowDidResizeNotification
-											   object:[self window]];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(windowResized:) name:NSWindowDidResizeNotification
+                                               object:[self window]];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowWillMiniaturize:) name:NSWindowWillMiniaturizeNotification
-											   object:[self window]];
+                                             selector:@selector(windowWillMiniaturize:) name:NSWindowWillMiniaturizeNotification
+                                               object:[self window]];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidDeminiaturize:) name:NSWindowDidDeminiaturizeNotification
-											   object:[self window]];
+                                             selector:@selector(windowDidDeminiaturize:) name:NSWindowDidDeminiaturizeNotification
+                                               object:[self window]];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification
-											   object:[self window]];
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeScreen:) name:NSWindowDidChangeScreenNotification
-											   object:[self window]];
+                                             selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification
+                                               object:[self window]];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(windowDidChangeScreen:) name:NSWindowDidChangeScreenNotification
+                                               object:[self window]];
 
 
     NSRect wnd_rect = [[self window] frame];
@@ -188,28 +188,28 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 -(void)windowDidChangeScreen:(NSNotification *)notification;
 {
-	callWindowDidChangeScreen();
+    callWindowDidChangeScreen();
 }
 
 - (void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[super dealloc];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [super dealloc];
 }
 
 - (id) init
 {
-	return [self initWithFrame:[self bounds] withSamples:2 andVsync:TRUE];
+    return [self initWithFrame:[self bounds] withSamples:2 andVsync:TRUE];
 }
 
 - (id) initWithSamples:(NSUInteger)samples
 {
-	return [self initWithFrame:[self bounds] withSamples:samples andVsync:TRUE];
+    return [self initWithFrame:[self bounds] withSamples:samples andVsync:TRUE];
 }
 
 - (id) initWithSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
-	return [self initWithFrame:[self bounds] withSamples:samples andVsync:vsync];
+    return [self initWithFrame:[self bounds] withSamples:samples andVsync:vsync];
 }
 
 #if LL_DARWIN
@@ -221,90 +221,90 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
     [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
-	[self initWithFrame:frame];
+    [self initWithFrame:frame];
 
-	// Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
-	// Any specialized pixel formats, i.e. a core profile pixel format, should be initialized through rebuildContextWithFormat.
-	// 10.7 and 10.8 don't really care if we're defining a profile or not.  If we don't explicitly request a core or legacy profile, it'll always assume a legacy profile (for compatibility reasons).
-	NSOpenGLPixelFormatAttribute attrs[] = {
+    // Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
+    // Any specialized pixel formats, i.e. a core profile pixel format, should be initialized through rebuildContextWithFormat.
+    // 10.7 and 10.8 don't really care if we're defining a profile or not.  If we don't explicitly request a core or legacy profile, it'll always assume a legacy profile (for compatibility reasons).
+    NSOpenGLPixelFormatAttribute attrs[] = {
         NSOpenGLPFANoRecovery,
-		NSOpenGLPFADoubleBuffer,
-		NSOpenGLPFAClosestPolicy,
-		NSOpenGLPFAAccelerated,
-		NSOpenGLPFASampleBuffers, 0,
-		NSOpenGLPFASamples, 0,
-		NSOpenGLPFAStencilSize, 8,
-		NSOpenGLPFADepthSize, 24,
-		NSOpenGLPFAAlphaSize, 8,
-		NSOpenGLPFAColorSize, 24,
-		NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion4_1Core,
-		0
+        NSOpenGLPFADoubleBuffer,
+        NSOpenGLPFAClosestPolicy,
+        NSOpenGLPFAAccelerated,
+        NSOpenGLPFASampleBuffers, 0,
+        NSOpenGLPFASamples, 0,
+        NSOpenGLPFAStencilSize, 8,
+        NSOpenGLPFADepthSize, 24,
+        NSOpenGLPFAAlphaSize, 8,
+        NSOpenGLPFAColorSize, 24,
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion4_1Core,
+        0
     };
 
-	NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:attrs] autorelease];
+    NSOpenGLPixelFormat *pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:attrs] autorelease];
 
-	if (pixelFormat == nil)
-	{
-		NSLog(@"Failed to create pixel format!", nil);
-		return nil;
-	}
+    if (pixelFormat == nil)
+    {
+        NSLog(@"Failed to create pixel format!", nil);
+        return nil;
+    }
 
-	NSOpenGLContext *glContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+    NSOpenGLContext *glContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
 
-	if (glContext == nil)
-	{
-		NSLog(@"Failed to create OpenGL context!", nil);
-		return nil;
-	}
+    if (glContext == nil)
+    {
+        NSLog(@"Failed to create OpenGL context!", nil);
+        return nil;
+    }
 
-	[self setPixelFormat:pixelFormat];
+    [self setPixelFormat:pixelFormat];
 
-	//for retina support
-	[self setWantsBestResolutionOpenGLSurface:gHiDPISupport];
+    //for retina support
+    [self setWantsBestResolutionOpenGLSurface:gHiDPISupport];
 
-	[self setOpenGLContext:glContext];
+    [self setOpenGLContext:glContext];
 
-	[glContext setView:self];
+    [glContext setView:self];
 
-	[glContext makeCurrentContext];
+    [glContext makeCurrentContext];
 
-	if (vsync)
-	{
-		GLint value = 1;
+    if (vsync)
+    {
+        GLint value = 1;
         [glContext setValues:&value forParameter:NSOpenGLContextParameterSwapInterval];
-	} else {
-		// supress this error after move to Xcode 7:
-		// error: null passed to a callee that requires a non-null argument [-Werror,-Wnonnull]
-		// Tried using ObjC 'nonnull' keyword as per SO article but didn't build
-		GLint swapInterval=0;
+    } else {
+        // supress this error after move to Xcode 7:
+        // error: null passed to a callee that requires a non-null argument [-Werror,-Wnonnull]
+        // Tried using ObjC 'nonnull' keyword as per SO article but didn't build
+        GLint swapInterval=0;
         [glContext setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
-	}
+    }
 
-	return self;
+    return self;
 }
 
 - (BOOL) rebuildContext
 {
-	return [self rebuildContextWithFormat:[self pixelFormat]];
+    return [self rebuildContextWithFormat:[self pixelFormat]];
 }
 
 - (BOOL) rebuildContextWithFormat:(NSOpenGLPixelFormat *)format
 {
-	NSOpenGLContext *ctx = [self openGLContext];
+    NSOpenGLContext *ctx = [self openGLContext];
 
-	[ctx clearDrawable];
-	[ctx initWithFormat:format shareContext:nil];
+    [ctx clearDrawable];
+    [ctx initWithFormat:format shareContext:nil];
 
-	if (ctx == nil)
-	{
-		NSLog(@"Failed to create OpenGL context!", nil);
-		return false;
-	}
+    if (ctx == nil)
+    {
+        NSLog(@"Failed to create OpenGL context!", nil);
+        return false;
+    }
 
-	[self setOpenGLContext:ctx];
-	[ctx setView:self];
-	[ctx makeCurrentContext];
-	return true;
+    [self setOpenGLContext:ctx];
+    [ctx setView:self];
+    [ctx makeCurrentContext];
+    return true;
 }
 
 #if LL_DARWIN
@@ -313,14 +313,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (CGLContextObj)getCGLContextObj
 {
-	NSOpenGLContext *ctx = [self openGLContext];
-	return (CGLContextObj)[ctx CGLContextObj];
+    NSOpenGLContext *ctx = [self openGLContext];
+    return (CGLContextObj)[ctx CGLContextObj];
 }
 
 - (CGLPixelFormatObj*)getCGLPixelFormatObj
 {
-	NSOpenGLPixelFormat *fmt = [self pixelFormat];
-	return (CGLPixelFormatObj*)[fmt	CGLPixelFormatObj];
+    NSOpenGLPixelFormat *fmt = [self pixelFormat];
+    return (CGLPixelFormatObj*)[fmt CGLPixelFormatObj];
 }
 
 // Various events can be intercepted by our view, thus not reaching our window.
@@ -365,29 +365,29 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-	callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+    callRightMouseDown(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
 {
-	callRightMouseUp(mMousePos, [theEvent modifierFlags]);
+    callRightMouseUp(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent
 {
     NSPoint dev_delta = [self convertPointToBacking:NSMakePoint([theEvent deltaX], [theEvent deltaY])];
 
-	float mouseDeltas[] = {
-		float(dev_delta.x),
-		float(dev_delta.y)
-	};
+    float mouseDeltas[] = {
+        float(dev_delta.x),
+        float(dev_delta.y)
+    };
 
-	callDeltaUpdate(mouseDeltas, 0);
+    callDeltaUpdate(mouseDeltas, 0);
 
     NSPoint mPoint = [self convertPointToBacking:[theEvent locationInWindow]];
-	mMousePos[0] = mPoint.x;
-	mMousePos[1] = mPoint.y;
-	callMouseMoved(mMousePos, 0);
+    mMousePos[0] = mPoint.x;
+    mMousePos[1] = mPoint.y;
+    callMouseMoved(mMousePos, 0);
 }
 
 // NSWindow doesn't trigger mouseMoved when the mouse is being clicked and dragged.
@@ -395,23 +395,23 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) mouseDragged:(NSEvent *)theEvent
 {
-	// Trust the deltas supplied by NSEvent.
-	// The old CoreGraphics APIs we previously relied on are now flagged as obsolete.
-	// NSEvent isn't obsolete, and provides us with the correct deltas.
+    // Trust the deltas supplied by NSEvent.
+    // The old CoreGraphics APIs we previously relied on are now flagged as obsolete.
+    // NSEvent isn't obsolete, and provides us with the correct deltas.
 
     NSPoint dev_delta = [self convertPointToBacking:NSMakePoint([theEvent deltaX], [theEvent deltaY])];
 
-	float mouseDeltas[] = {
-		float(dev_delta.x),
-		float(dev_delta.y)
-	};
+    float mouseDeltas[] = {
+        float(dev_delta.x),
+        float(dev_delta.y)
+    };
 
-	callDeltaUpdate(mouseDeltas, 0);
+    callDeltaUpdate(mouseDeltas, 0);
 
-	NSPoint mPoint = [self convertPointToBacking:[theEvent locationInWindow]];
-	mMousePos[0] = mPoint.x;
-	mMousePos[1] = mPoint.y;
-	callMouseDragged(mMousePos, 0);
+    NSPoint mPoint = [self convertPointToBacking:[theEvent locationInWindow]];
+    mMousePos[0] = mPoint.x;
+    mMousePos[1] = mPoint.y;
+    callMouseDragged(mMousePos, 0);
 }
 
 - (void) otherMouseDown:(NSEvent *)theEvent
@@ -426,29 +426,29 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) rightMouseDragged:(NSEvent *)theEvent
 {
-	[self mouseDragged:theEvent];
+    [self mouseDragged:theEvent];
 }
 
 - (void) otherMouseDragged:(NSEvent *)theEvent
 {
-	[self mouseDragged:theEvent];
+    [self mouseDragged:theEvent];
 }
 
 - (void) scrollWheel:(NSEvent *)theEvent
 {
-	callScrollMoved(-[theEvent deltaX], -[theEvent deltaY]);
+    callScrollMoved(-[theEvent deltaX], -[theEvent deltaY]);
 }
 
 - (void) mouseExited:(NSEvent *)theEvent
 {
-	callMouseExit();
+    callMouseExit();
 }
 
 - (void) keyUp:(NSEvent *)theEvent
 {
     NativeKeyEventData eventData = extractKeyDataFromKeyEvent(theEvent);
     eventData.mKeyEvent = NativeKeyEventData::KEYUP;
-	callKeyUp(&eventData, [theEvent keyCode], [theEvent modifierFlags]);
+    callKeyUp(&eventData, [theEvent keyCode], [theEvent modifierFlags]);
 }
 
 - (void) keyDown:(NSEvent *)theEvent
@@ -462,7 +462,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // Because flagsChange event handler misses event when other window is activated,
     // e.g. OS Window for upload something or Input Window...
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
-	mModifiers = [theEvent modifierFlags];
+    mModifiers = [theEvent modifierFlags];
     NSString *str_no_modifiers = [theEvent charactersIgnoringModifiers];
     unichar ch = 0;
     if (str_no_modifiers.length)
@@ -490,8 +490,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     NativeKeyEventData eventData = extractKeyDataFromModifierEvent(theEvent);
 
-	mModifiers = [theEvent modifierFlags];
-	callModifier([theEvent modifierFlags]);
+    mModifiers = [theEvent modifierFlags];
+    callModifier([theEvent modifierFlags]);
 
     NSInteger mask = 0;
     switch([theEvent keyCode])
@@ -532,69 +532,69 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (BOOL) acceptsFirstResponder
 {
-	return YES;
+    return YES;
 }
 
 - (NSDragOperation) draggingEntered:(id<NSDraggingInfo>)sender
 {
-	NSPasteboard *pboard;
+    NSPasteboard *pboard;
     NSDragOperation sourceDragMask;
 
-	sourceDragMask = [sender draggingSourceOperationMask];
+    sourceDragMask = [sender draggingSourceOperationMask];
 
-	pboard = [sender draggingPasteboard];
+    pboard = [sender draggingPasteboard];
 
     if ([[pboard types] containsObject:NSPasteboardTypeURL])
-	{
-		if (sourceDragMask & NSDragOperationLink) {
-			NSURL *fileUrl = [[pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]] objectAtIndex:0];
-			mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
+    {
+        if (sourceDragMask & NSDragOperationLink) {
+            NSURL *fileUrl = [[pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]] objectAtIndex:0];
+            mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
             return NSDragOperationLink;
         }
-	}
-	return NSDragOperationNone;
+    }
+    return NSDragOperationNone;
 }
 
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender
 {
-	callHandleDragUpdated(mLastDraggedUrl);
+    callHandleDragUpdated(mLastDraggedUrl);
 
-	return NSDragOperationLink;
+    return NSDragOperationLink;
 }
 
 - (void) draggingExited:(id<NSDraggingInfo>)sender
 {
-	callHandleDragExited(mLastDraggedUrl);
+    callHandleDragExited(mLastDraggedUrl);
 }
 
 - (BOOL)prepareForDragOperation:(id < NSDraggingInfo >)sender
 {
-	return YES;
+    return YES;
 }
 
 - (BOOL) performDragOperation:(id<NSDraggingInfo>)sender
 {
-	callHandleDragDropped(mLastDraggedUrl);
-	return true;
+    callHandleDragDropped(mLastDraggedUrl);
+    return true;
 }
 
 - (BOOL)hasMarkedText
 {
-	return mHasMarkedText;
+    return mHasMarkedText;
 }
 
 - (NSRange)markedRange
 {
-	int range[2];
-	getPreeditMarkedRange(&range[0], &range[1]);
-	return NSMakeRange(range[0], range[1]);
+    int range[2];
+    getPreeditMarkedRange(&range[0], &range[1]);
+    return NSMakeRange(range[0], range[1]);
 }
 
 - (NSRange)selectedRange
 {
-	int range[2];
-	getPreeditSelectionRange(&range[0], &range[1]);
-	return NSMakeRange(range[0], range[1]);
+    int range[2];
+    getPreeditSelectionRange(&range[0], &range[1]);
+    return NSMakeRange(range[0], range[1]);
 }
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
@@ -680,21 +680,21 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)unmarkText
 {
-	[[self inputContext] discardMarkedText];
-	resetPreedit();
-	mHasMarkedText = FALSE;
+    [[self inputContext] discardMarkedText];
+    resetPreedit();
+    mHasMarkedText = FALSE;
 }
 
 // We don't support attributed strings.
 - (NSArray *)validAttributesForMarkedText
 {
-	return [NSArray array];
+    return [NSArray array];
 }
 
 // See above.
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
 {
-	return nil;
+    return nil;
 }
 
 - (void)insertText:(id)insertString
@@ -707,9 +707,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-	// SL-19801 Special workaround for system emoji picker
-	if ([aString length] == 2)
-	{
+    // SL-19801 Special workaround for system emoji picker
+    if ([aString length] == 2)
+    {
         @try
         {
             uint32_t b0 = [aString characterAtIndex:0];
@@ -727,7 +727,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
             NSLog(@"Encountered an unsupported attributed character. Exception: %@ String: %@", e.name, aString);
             return;
         }
-	}
+    }
 
     @try
     {
@@ -760,36 +760,36 @@ attributedStringInfo getSegments(NSAttributedString *str)
     if (!(mModifiers & NSEventModifierFlagCommand) &&
         !(mModifiers & NSEventModifierFlagShift) &&
         !(mModifiers & NSEventModifierFlagOption))
-	{
-		callUnicodeCallback(13, 0);
-	} else {
-		callUnicodeCallback(13, mModifiers);
-	}
+    {
+        callUnicodeCallback(13, 0);
+    } else {
+        callUnicodeCallback(13, mModifiers);
+    }
 }
 
 - (NSUInteger)characterIndexForPoint:(NSPoint)aPoint
 {
-	return NSNotFound;
+    return NSNotFound;
 }
 
 - (NSRect)firstRectForCharacterRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
 {
-	float pos[4] = {0, 0, 0, 0};
-	getPreeditLocation(pos, mMarkedTextLength);
-	return NSMakeRect(pos[0], pos[1], pos[2], pos[3]);
+    float pos[4] = {0, 0, 0, 0};
+    getPreeditLocation(pos, mMarkedTextLength);
+    return NSMakeRect(pos[0], pos[1], pos[2], pos[3]);
 }
 
 - (void)doCommandBySelector:(SEL)aSelector
 {
-	if (aSelector == @selector(insertNewline:))
-	{
-		[self insertNewline:self];
-	}
+    if (aSelector == @selector(insertNewline:))
+    {
+        [self insertNewline:self];
+    }
 }
 
 - (BOOL)drawsVerticallyForCharacterAtIndex:(NSUInteger)charIndex
 {
-	return NO;
+    return NO;
 }
 
 - (void) allowMarkedTextInput:(bool)allowed
@@ -824,7 +824,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) setGLView:(LLOpenGLView *)view
 {
-	glview = view;
+    glview = view;
 }
 
 - (void)keyDown:(NSEvent *)theEvent
@@ -875,24 +875,24 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (id) init
 {
-	return self;
+    return self;
 }
 
 - (BOOL) becomeFirstResponder
 {
-	callFocus();
-	return true;
+    callFocus();
+    return true;
 }
 
 - (BOOL) resignFirstResponder
 {
-	callFocusLost();
-	return true;
+    callFocusLost();
+    return true;
 }
 
 - (void) close
 {
-	callQuitHandler();
+    callQuitHandler();
 }
 
 @end
