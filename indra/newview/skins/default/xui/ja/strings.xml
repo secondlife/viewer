@@ -31,7 +31,7 @@
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
 	<string name="AboutHeader">
-		[CHANNEL]　[VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]（[ADDRESS_SIZE]bit）
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]（[ADDRESS_SIZE]bit）
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -46,9 +46,9 @@ SLURL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 [SERVER_RELEASE_NOTES_URL]
 	</string>
 	<string name="AboutSystem">
-		ＣＰＵ：[CPU]
+		CPU：[CPU]
 メモリ：[MEMORY_MB]㎆
-ＯＳのバージョン：[OS_VERSION]
+OSのバージョン：[OS_VERSION]
 グラフィックカード製造元：[GRAPHICS_CARD_VENDOR]
 グラフィックカード:[GRAPHICS_CARD]
 	</string>
@@ -61,15 +61,15 @@ SLURL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	<string name="AboutSettings">
 		ウィンドウサイズ:[WINDOW_WIDTH]x[WINDOW_HEIGHT]
 フォントサイズ調整：[FONT_SIZE_ADJUSTMENT]pt
-ＵＩスケーリング：[UI_SCALE]
-描画距離：[DRAW_DISTANCE]ｍ
-帯域幅：[NET_BANDWITH]kbit／秒
-ＬＯＤ係数：[LOD_FACTOR]
+UIスケーリング：[UI_SCALE]
+描画距離：[DRAW_DISTANCE]m
+帯域幅：[NET_BANDWITH]kbit/s
+LOD係数：[LOD_FACTOR]
 描画の質：[RENDER_QUALITY]
 テクスチャメモリ：[TEXTURE_MEMORY]㎆
 	</string>
 	<string name="AboutOSXHiDPI">
-		高ＤＰＩ表示モード：[HIDPI]
+		高DPI表示モード：[HIDPI]
 	</string>
 	<string name="AboutLibs">
 		J2Cデコーダバージョン：[J2C_VERSION]
@@ -82,10 +82,10 @@ LibVLCバージョン：[LIBVLC_VERSION]
 		パケット損失：[PACKETS_LOST,number,0]／[PACKETS_IN,number,0]（[PACKETS_PCT,number,1]％）
 	</string>
 	<string name="AboutTime">
-		[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日　[hour, datetime, slt]：[min,datetime, slt]：[second,datetime,slt]
+		[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日 [hour, datetime, slt]:[min,datetime, slt]:[second,datetime,slt]
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
-		サーバーのリリースノートのＵＲＬ取得時にエラーが発生しました。
+		サーバーのリリースノートのURL取得時にエラーが発生しました。
 	</string>
 	<string name="BuildConfiguration">
 		ビルド構成
@@ -357,7 +357,7 @@ support@secondlife.com にお問い合わせください。
 		白黒
 	</string>
 	<string name="Colors1970">
-		１９７０年代のカラー
+		1970年代のカラー
 	</string>
 	<string name="Intense">
 		強調
@@ -540,7 +540,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="TooltipSLAPP">
 		クリックして secondlife:// コマンドを出します。
 	</string>
-	<string name="CurrentURL" value="現在のＵＲＬ：[CurrentURL]"/>
+	<string name="CurrentURL" value="現在のURL：[CurrentURL]"/>
 	<string name="TooltipEmail">
 		クリックして電子メールを作成します。
 	</string>
@@ -557,7 +557,7 @@ support@secondlife.com にお問い合わせください。
 		ミュート解除
 	</string>
 	<string name="SLappAgentIM">
-		ＩＭ
+		IM
 	</string>
 	<string name="SLappAgentPay">
 		支払い
@@ -821,28 +821,28 @@ support@secondlife.com にお問い合わせください。
 		泣く
 	</string>
 	<string name="anim_dance1">
-		ダンス１
+		ダンス1
 	</string>
 	<string name="anim_dance2">
-		ダンス２
+		ダンス2
 	</string>
 	<string name="anim_dance3">
-		ダンス３
+		ダンス3
 	</string>
 	<string name="anim_dance4">
-		ダンス４
+		ダンス4
 	</string>
 	<string name="anim_dance5">
-		ダンス５
+		ダンス5
 	</string>
 	<string name="anim_dance6">
-		ダンス６
+		ダンス6
 	</string>
 	<string name="anim_dance7">
-		ダンス７
+		ダンス7
 	</string>
 	<string name="anim_dance8">
-		ダンス８
+		ダンス8
 	</string>
 	<string name="anim_express_disdain">
 		侮蔑
@@ -1010,7 +1010,7 @@ support@secondlife.com にお問い合わせください。
 		オフライン
 	</string>
 	<string name="worldmap_item_tooltip_format">
-		[AREA]㎡　L$ [PRICE]（[SQMPRICE] L$／㎡）
+		[AREA]㎡ L$ [PRICE]（[SQMPRICE] L$／㎡）
 	</string>
 	<string name="worldmap_results_none_found">
 		何も見つかりませんでした。
@@ -1034,7 +1034,7 @@ support@secondlife.com にお問い合わせください。
 		のささやき：
 	</string>
 	<string name="shout">
-		のシャウト：
+		の叫び：
 	</string>
 	<string name="ringing">
 		インワールドボイスチャットに接続中…
@@ -1142,16 +1142,16 @@ support@secondlife.com にお問い合わせください。
 		（不明）
 	</string>
 	<string name="Estate / Full Region">
-		不動産／フルリージョン
+		不動産 / フルリージョン
 	</string>
 	<string name="Estate / Homestead">
-		不動産／入植地
+		不動産 / ホームステッド
 	</string>
 	<string name="Mainland / Homestead">
-		メインランド／入植地
+		メインランド / ホームステッド
 	</string>
 	<string name="Mainland / Full Region">
-		メインランド／フルリージョン
+		メインランド / フルリージョン
 	</string>
 	<string name="all_files">
 		全てのファイル
@@ -3225,7 +3225,7 @@ For AI Character: Get the closest navigable point to the point provided.
 		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]
 	</string>
 	<string name="Open landmarks">
-		オープン ランドマーク
+		ランドマーク一覧を開く
 	</string>
 	<string name="Unconstrained">
 		アンコンストレインド（制約なし）
@@ -3602,7 +3602,7 @@ For AI Character: Get the closest navigable point to the point provided.
 		あなたは、周囲の誰からも見えていない可能性があります。
 	</string>
 	<string name="hud_description_total">
-		利用中のＨＵＤ
+		利用中のHUD
 	</string>
 	<string name="hud_name_with_joint">
 		[OBJ_NAME]（[JNT_NAME]に装着中）
@@ -3695,7 +3695,7 @@ For AI Character: Get the closest navigable point to the point provided.
 		年齢未確認
 	</string>
 	<string name="Center 2">
-		中央２
+		中央2
 	</string>
 	<string name="Top Right">
 		右上
@@ -3874,19 +3874,19 @@ For AI Character: Get the closest navigable point to the point provided.
 		区画一覧：[PARCELS]個
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		使用されたメモリ：[MAX]㎅中[COUNT]㎅　[AVAILABLE]㎅利用可
+		使用されたメモリ：[MAX]㎅中[COUNT]㎅ [AVAILABLE]㎅利用可
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
 		使用されたメモリ：[COUNT]㎅
 	</string>
 	<string name="ScriptLimitsParcelScriptURLs">
-		区画のスクリプトＵＲＬ
+		区画のスクリプトURL
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		使用されたＵＲＬ：[MAX]件中[COUNT]件　[AVAILABLE]件利用可
+		使用されたURL：[MAX]件中[COUNT]件 [AVAILABLE]件利用可
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
-		使用されたＵＲＬ：[COUNT]件
+		使用されたURL：[COUNT]件
 	</string>
 	<string name="ScriptLimitsRequestError">
 		情報のリクエスト中にエラーが発生しました
@@ -3997,28 +3997,28 @@ For AI Character: Get the closest navigable point to the point provided.
 		右胸筋
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-		ＨＵＤ（中央 2）
+		HUD（中央 2）
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		ＨＵＤ（右上）
+		HUD（右上）
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
-		ＨＵＤ（上・中央）
+		HUD（上・中央）
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		ＨＵＤ（左上）
+		HUD（左上）
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
-		ＨＵＤ（中央 1）
+		HUD（中央 1）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_LEFT">
-		ＨＵＤ（左下）
+		HUD（左下）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM">
-		ＨＵＤ（下）
+		HUD（下）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
-		ＨＵＤ（右下）
+		HUD（右下）
 	</string>
 	<string name="ATTACH_NECK">
 		首
@@ -4078,10 +4078,10 @@ For AI Character: Get the closest navigable point to the point provided.
 		[COUNT]件見つかりました
 	</string>
 	<string name="PanelDirTimeStr">
-		[ampm,datetime,utc]　[hour12,datetime,utc]：[min,datetime,utc]
+		[ampm,datetime,utc] [hour12,datetime,utc]:[min,datetime,utc]
 	</string>
 	<string name="PanelDirEventsDateText">
-		[mthnum,datetime,slt]／[day,datetime,slt]
+		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsTooltip">
 		オブジェクトの中身
@@ -4545,10 +4545,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ピクセル形式が設定できません。
 	</string>
 	<string name="MBGLContextErr">
-		ＧＬレンダーコンテキストが作れません
+		GLレンダーコンテキストが作れません
 	</string>
 	<string name="MBGLContextActErr">
-		ＧＬレンダーコンテキストを有効化できません。
+		GLレンダーコンテキストを有効化できません。
 	</string>
 	<string name="MBVideoDrvErr">
 		お使いのコンピューターのビデオカードのドライバが正常にインストールされていないか、古いまたはサポート対象外のため、[APP_NAME]を実行することができませんでした。
@@ -6157,7 +6157,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		インベントリからここにアイテムをドラッグします。
 	</string>
 	<string name="no_session_message">
-		（ＩＭセッションが存在しません）
+		（IMセッションが存在しません）
 	</string>
 	<string name="only_user_message">
 		このセッションにいるユーザーはあなただけです。
@@ -6582,28 +6582,28 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		一時退席中
 	</string>
 	<string name="dance1">
-		ダンス１
+		ダンス1
 	</string>
 	<string name="dance2">
-		ダンス２
+		ダンス2
 	</string>
 	<string name="dance3">
-		ダンス３
+		ダンス3
 	</string>
 	<string name="dance4">
-		ダンス４
+		ダンス4
 	</string>
 	<string name="dance5">
-		ダンス５
+		ダンス5
 	</string>
 	<string name="dance6">
-		ダンス６
+		ダンス6
 	</string>
 	<string name="dance7">
-		ダンス７
+		ダンス7
 	</string>
 	<string name="dance8">
-		ダンス８
+		ダンス8
 	</string>
 	<string name="AvatarBirthDateFormat">
 		[year,datetime,slt]年[mthnum,datetime,slt]月[day,datetime,slt]日
@@ -6623,7 +6623,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="outfit_photo_verify_dimensions_error">
 		画像の寸法を確認できません。画像サイズがピッカーに表示されるまでお待ちください。
 	</string>
-	<string name="sentences_separator" value="　"/>
+	<string name="sentences_separator" value=" "/>
 	<string name="words_separator" value="、"/>
 	<string name="server_is_down">
 		大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、 https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。
@@ -6636,7 +6636,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		日:月:火:水:木:金:土
 	</string>
 	<string name="dateTimeMonthNames">
-		１月:２月:３月:４月:５月:６月:７月:８月:９月:１０月:１１月:１２月
+		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
 	</string>
 	<string name="dateTimeMonthShortNames">
 		㋀:㋁:㋂:㋃:㋄:㋅:㋆:㋇:㋈:㋉:㋊:㋋
@@ -7108,7 +7108,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		パーティクルを非表示
 	</string>
 	<string name="Command_360_Capture_Label">
-		３６０度Ｓショット
+		360度スナップショット
 	</string>
 	<string name="Command_AboutLand_Label">
 		土地情報
@@ -7198,7 +7198,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ボイス設定
 	</string>
 	<string name="Command_360_Capture_Tooltip">
-		３６０度の正距円筒図法のスナップショット画像を撮影します。
+		360度の正距円筒図法のスナップショット画像を撮影します。
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		訪問先に関する情報を表示します。
@@ -7483,7 +7483,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		物理形状に不正な確認データがあります。物理モデルを修正してください。
 	</string>
 	<string name="Mav_Details_MAV_BLOCK_MISSING">
-		データがありません。高ＬＯＤが存在し、有効であることを確認してください。設定されていない場合は、物理モデルを設定します。
+		データがありません。高LODが存在し、有効であることを確認してください。設定されていない場合は、物理モデルを設定します。
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		物理形状のバージョンが正しくありません。物理モデルに正しいバージョンを設定してください。
@@ -7494,7 +7494,7 @@ www.secondlife.com のウェブサイトに接続できるかご確認くださ�
 接続できても、このエラーが継続的に起こる場合は、サポートセクションから問題を報告してください。
 	</string>
 	<string name="ssl_peer_certificate">
-		ログインサーバーがＳＳＬ経由で確認できませんでした。
+		ログインサーバーがSSL経由で確認できませんでした。
 このエラーが継続的に起こる場合は、Secondlife.com のサポートセクションから問題を報告してください。
 	</string>
 	<string name="ssl_connect_error">

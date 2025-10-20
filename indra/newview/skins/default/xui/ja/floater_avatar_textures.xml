@@ -6,13 +6,13 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="label">
-				ベークド
+				ベイク済み
 テクスチャ
 			</text>
 			<text name="composite_label">
 				合成テクスチャ
 			</text>
-			<button label="ＩＤをコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
+			<button label="IDをコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
 			<panel name="scroll_content_panel2">
 				<texture_picker label="髪" name="hair-baked"/>
 				<texture_picker label="髪" name="hair_grain"/>
@@ -53,12 +53,12 @@
 				<texture_picker label="左腕のタトゥ" name="leftarm_tattoo"/>
 				<texture_picker label="左足" name="leftleg-baked"/>
 				<texture_picker label="左足のタトゥ" name="leftleg_tattoo"/>
-				<texture_picker label="予備１" name="aux1-baked"/>
-				<texture_picker label="予備１タトゥ" name="aux1_tattoo"/>
-				<texture_picker label="予備２" name="aux2-baked"/>
-				<texture_picker label="予備２タトゥ" name="aux2_tattoo"/>
-				<texture_picker label="予備３" name="aux3-baked"/>
-				<texture_picker label="予備３タトゥ" name="aux3_tattoo"/>
+				<texture_picker label="予備1" name="aux1-baked"/>
+				<texture_picker label="予備1タトゥ" name="aux1_tattoo"/>
+				<texture_picker label="予備2" name="aux2-baked"/>
+				<texture_picker label="予備2タトゥ" name="aux2_tattoo"/>
+				<texture_picker label="予備3" name="aux3-baked"/>
+				<texture_picker label="予備3タトゥ" name="aux3_tattoo"/>
 			</panel>
 		</panel>
 	</scroll_container>
