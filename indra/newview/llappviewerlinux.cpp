@@ -51,27 +51,6 @@
 #ifdef LL_GLIB
 #include <gio/gio.h>
 #endif
-#include <resolv.h>
-
-#if (__GLIBC__*1000 + __GLIBC_MINOR__) >= 2034
-extern "C"
-{
-  int __res_nquery(res_state statep,
-                   const char *dname, int qclass, int type,
-                   unsigned char *answer, int anslen)
-  {
-    return res_nquery( statep, dname, qclass, type, answer, anslen );
-  }
-
-  int __dn_expand(const unsigned char *msg,
-                  const unsigned char *eomorig,
-                  const unsigned char *comp_dn, char *exp_dn,
-                  int length)
-  {
-    return dn_expand( msg,eomorig,comp_dn,exp_dn,length);
-  }
-}
-#endif
 
 #define VIEWERAPI_SERVICE "com.secondlife.ViewerAppAPIService"
 #define VIEWERAPI_PATH "/com/secondlife/ViewerAppAPI"
@@ -299,12 +278,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 
 bool LLAppViewerLinux::init()
 {
-    // g_thread_init() must be called before *any* use of glib, *and*
-    // before any mutexes are held, *and* some of our third-party
-    // libraries likes to use glib functions; in short, do this here
-    // really early in app startup!
-    if (!g_thread_supported ()) g_thread_init (NULL);
-
     bool success = LLAppViewer::init();
 
 #if LL_SEND_CRASH_REPORTS
