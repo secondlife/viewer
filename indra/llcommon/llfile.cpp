@@ -422,7 +422,7 @@ int LLFile::remove(const std::string& filename, int suppress_error)
     }
     else
     {
-        // get_filattr() failed and already set errno, preserve it for correct error reporting
+        // get_fileattr() failed and already set errno, preserve it for correct error reporting
     }
 #else
     int rc = ::remove(filename.c_str());
@@ -503,7 +503,7 @@ unsigned short LLFile::getattr(const std::string& filename, bool dontFollowSymLi
 #if LL_WINDOWS
     // _wstat64() is a bit heavyweight on Windows, use a more lightweight API
     // to just get the attributes
-    int            rc            = -1;
+    int rc = -1;
     std::wstring utf16filename = utf8path_to_wstring(filename);
     unsigned short st_mode = get_fileattr(utf16filename, dontFollowSymLink);
     if (st_mode)
