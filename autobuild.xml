@@ -1460,36 +1460,6 @@
         <key>name</key>
         <string>llphysicsextensions_source</string>
       </map>
-      <key>llphysicsextensions_stub</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>common</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>bc41438b10ac6474cf5560465a3662a64f9e65a81342e4c33f18f6694581c7ee28c9ee6f091c36e80a0b1e10c68205be71eb5f8e40fef115d2c744fc2bbfcb43</string>
-              <key>hash_algorithm</key>
-              <string>blake2b</string>
-              <key>url</key>
-              <string>https://github.com/AlchemyViewer/llphysicsextensions_stub/releases/download/v1.0-cb4900e/llphysicsextensions_stub-1.0-common-17836965684.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>common</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>internal</string>
-        <key>license_file</key>
-        <string>LICENSES/llphysicsextensions.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
-        <key>version</key>
-        <string>1.0</string>
-        <key>name</key>
-        <string>llphysicsextensions_stub</string>
-      </map>
       <key>llphysicsextensions_tpv</key>
       <map>
         <key>platforms</key>
