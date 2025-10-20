@@ -53,13 +53,16 @@ set(cmake_SOURCE_FILES
         Prebuilt.cmake
         PulseAudio.cmake
         Python.cmake
+        SSE2NEON.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
+        Tracy.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake
         Variables.cmake
+        VHACD.cmake
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake

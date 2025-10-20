@@ -50,7 +50,7 @@ include(VulkanGltf)
 include(ZLIBNG)
 include(LLPrimitive)
 
-if (NOT HAVOK_TPV)
+if (HAVOK)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
 
    # Stub and probably havok lib itself is a hack, autobuild loads a 3p that really is a source tarball
@@ -59,6 +59,11 @@ if (NOT HAVOK_TPV)
    # which means we need to duct tape this togther ...
 
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
+   if (NOT "${LLPHYSICSEXTENSIONS_STUB_DIR}" STREQUAL "")
+      # for darwin universal builds we need both real llphysicsextensions and the stub for aarch64 fallback
+      # this will only be set when HAVOK is ON, otherwise the normal stub fallback will be in effect
+      add_subdirectory(${LLPHYSICSEXTENSIONS_STUB_DIR} llphysicsextensionsstub)
+   endif()
 
    # Another hack that works with newer cmake versions:
    cmake_policy( SET CMP0079 NEW)
@@ -71,7 +76,7 @@ if (NOT HAVOK_TPV)
         target_compile_options( llphysicsextensions  PRIVATE -Wno-unused-local-typedef)
       endif (DARWIN)
    endif()
-endif (NOT HAVOK_TPV)
+endif ()
 
 set(viewer_SOURCE_FILES
     gltfscenemanager.cpp
@@ -1466,7 +1471,7 @@ if (DARWIN)
   set(viewer_RESOURCE_FILES
     secondlife.icns
     Info-SecondLife.plist
-    SecondLife.xib/
+    SecondLife.xib
     # CMake doesn't seem to support Xcode language variants well just yet
     English.lproj/InfoPlist.strings
     English.lproj/language.txt
@@ -1709,10 +1714,6 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-if (HAVOK OR HAVOK_TPV)
-  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_HAVOK")
-endif (HAVOK OR HAVOK_TPV)
-
 if( DEFINED LLSTARTUP_COMPILE_FLAGS )
    # progress view disables/enables icons based on available packages
    set_source_files_properties(llprogressview.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
@@ -1763,7 +1764,7 @@ if (WINDOWS)
     # And of course it's straightforward to read a text file in Python.
 
     set(COPY_INPUT_DEPENDENCIES
-      # The following commented dependencies are determined at variably at build time. Can't do this here.
+      # The following commented dependencies are determined variably at build time. Can't do this here.
       app_settings/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
@@ -1949,8 +1950,32 @@ if (WINDOWS)
 elseif (DARWIN)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
+        RESOURCE SecondLife.xib
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip"
         )
+    if(HAVOK)
+      set_target_properties(${VIEWER_BINARY_NAME}
+          PROPERTIES
+          # arch specific flags for universal builds: https://stackoverflow.com/a/77942065
+          XCODE_ATTRIBUTE_OTHER_CFLAGS[arch=x86_64]  "$(inherited) -DLLPHYSICSEXTENSIONS_USE_FULL -DLL_HAVOK=1"
+          XCODE_ATTRIBUTE_OTHER_CFLAGS[arch=arm64]   "$(inherited) -DLLPHYSICSEXTENSIONS_USE_STUB"
+          # only generate the .MAP file for llphysicsextensions_tpv on x86_64
+          XCODE_ATTRIBUTE_OTHER_LDFLAGS[arch=x86_64] "$(inherited) -L${CMAKE_CURRENT_BINARY_DIR}/llphysicsextensions/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,${CMAKE_CFG_INTDIR}>/ -lllphysicsextensions  -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
+          XCODE_ATTRIBUTE_OTHER_LDFLAGS[arch=arm64]  "$(inherited) -L${CMAKE_BINARY_DIR}/llphysicsextensionsos/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,${CMAKE_CFG_INTDIR}>/ -lllphysicsextensionsos"
+          )
+    elseif(HAVOK_TPV)
+      set_target_properties(${VIEWER_BINARY_NAME}
+          PROPERTIES
+          # arch specific flags for universal builds: https://stackoverflow.com/a/77942065
+          XCODE_ATTRIBUTE_OTHER_CFLAGS[arch=x86_64]  "$(inherited) -DLLPHYSICSEXTENSIONS_USE_FULL -DLL_HAVOK=1"
+          XCODE_ATTRIBUTE_OTHER_CFLAGS[arch=arm64]   "$(inherited) -DLLPHYSICSEXTENSIONS_USE_STUB"
+          # only generate the .MAP file for llphysicsextensions_tpv on x86_64
+          XCODE_ATTRIBUTE_OTHER_LDFLAGS[arch=x86_64] "$(inherited) -L${ARCH_PREBUILT_DIRS}/ -lllphysicsextensions_tpv"
+          XCODE_ATTRIBUTE_OTHER_LDFLAGS[arch=arm64]  "$(inherited) -L${CMAKE_BINARY_DIR}/llphysicsextensionsos/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,${CMAKE_CFG_INTDIR}>/ -lllphysicsextensionsos"
+          )
+    else()
+      target_link_libraries(${VIEWER_BINARY_NAME} llphysicsextensionsos)
+    endif()
 else (WINDOWS)
         # Linux
     set_target_properties(${VIEWER_BINARY_NAME}
@@ -2005,12 +2030,12 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcommon
         llmeshoptimizer
         llwebrtc
-        ll::ndof
         lllogin
         llprimitive
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
+        ll::ndof
         ll::tracy
         ll::openxr
         )
@@ -2026,6 +2051,10 @@ endif()
 if( TARGET ll::nvapi )
    target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
 endif()
+
+if ( TARGET llconvexdecomposition )
+    target_link_libraries(${VIEWER_BINARY_NAME} llconvexdecomposition )
+endif ()
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")
@@ -2156,10 +2185,8 @@ if (DARWIN)
     PROPERTIES
     OUTPUT_NAME "${product}"
     # From Contents/MacOS/SecondLife, look in Contents/Frameworks
-    INSTALL_RPATH "@loader_path/../Frameworks"
-    # SIGH, as of 2018-05-24 (cmake 3.11.1) the INSTALL_RPATH property simply
-    # does not work. Try this:
-    LINK_FLAGS "-rpath @loader_path/../Frameworks"
+    BUILD_WITH_INSTALL_RPATH 1
+    INSTALL_RPATH "@executable_path/../Frameworks"
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${MACOSX_BUNDLE_GUI_IDENTIFIER}"
     )

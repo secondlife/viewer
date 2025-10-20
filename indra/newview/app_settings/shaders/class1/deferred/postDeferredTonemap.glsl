@@ -31,10 +31,24 @@ uniform sampler2D diffuseRect;
 
 in vec2 vary_fragcoord;
 
+#ifdef GAMMA_CORRECT
+uniform float gamma;
+#endif
+
 vec3 linear_to_srgb(vec3 cl);
 vec3 toneMap(vec3 color);
 
 vec3 clampHDRRange(vec3 color);
+
+#ifdef GAMMA_CORRECT
+vec3 legacyGamma(vec3 color)
+{
+    vec3 c = 1. - clamp(color, vec3(0.), vec3(1.));
+    c = 1. - pow(c, vec3(gamma)); // s/b inverted already CPU-side
+
+    return c;
+}
+#endif
 
 void main()
 {
@@ -47,8 +61,18 @@ void main()
     diff.rgb = clamp(diff.rgb, vec3(0.0), vec3(1.0));
 #endif
 
-    diff.rgb = clampHDRRange(diff.rgb);
+#ifdef GAMMA_CORRECT
+    diff.rgb = linear_to_srgb(diff.rgb);
+
+#ifdef LEGACY_GAMMA
+    diff.rgb = legacyGamma(diff.rgb);
+#endif
+
+#endif
+
+    diff.rgb = clamp(diff.rgb, vec3(0.0), vec3(1.0)); // We should always be 0-1 past this point
+
     //debugExposure(diff.rgb);
-    frag_color = max(diff, vec4(0));
+    frag_color = diff;
 }
 

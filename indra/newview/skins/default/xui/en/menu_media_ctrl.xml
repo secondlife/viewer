@@ -40,4 +40,12 @@
     <menu_item_call.on_click
      function="Open.WebInspector" />
   </menu_item_call>
+  <menu_item_call
+   label="Show Source"
+   layout="topleft"
+   name="show_page_source"
+   visible="false">
+    <menu_item_call.on_click
+     function="Open.ShowSource" />
+  </menu_item_call>
 </context_menu>

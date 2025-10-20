@@ -78,7 +78,7 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
     // Capable of detecting devices like Oculus Rift
     if (device_instance_ptr && pvRef)
     {
-        std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
+        std::string product_name = ll_convert<std::string>(std::wstring(device_instance_ptr->tszProductName));
         S32 size = sizeof(GUID);
         LLSD::Binary data; //just an std::vector
         data.resize(size);

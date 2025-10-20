@@ -51,7 +51,7 @@ public:
 
 private:
     void* mDirSearch_h{ nullptr };
-    llutf16string mCurrentDir;
+    std::wstring mCurrentDir;
 };
 
 #endif // LL_LLDIR_WIN32_H

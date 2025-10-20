@@ -28,8 +28,6 @@
 
 #include "_refcounted.h"
 
-// disable all of this because it's hanging win64 builds?
-#if ! (LL_WINDOWS && ADDRESS_SIZE == 64)
 using namespace LLCoreInt;
 
 namespace tut
@@ -122,5 +120,4 @@ namespace tut
         ensure(rc->getRefCount() == RefCounted::NOT_REF_COUNTED);
     }
 }
-#endif  // disabling on Win64
 #endif  // TEST_LLCOREINT_REF_COUNTED_H_

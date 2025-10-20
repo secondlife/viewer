@@ -1051,7 +1051,7 @@ void LLXferManager::retransmitUnackedPackets()
     // Re-build mOutgoingHosts data
     updateHostStatus();
 
-    F32 et;
+    F32 et = 0.f;
     iter = mSendList.begin();
     while (iter != mSendList.end())
     {

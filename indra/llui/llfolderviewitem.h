@@ -421,6 +421,7 @@ private:
 
     constexpr static S32 FAVORITE_ADDED = 1;
     constexpr static S32 FAVORITE_REMOVED = 2;
+    constexpr static S32 FAVORITE_CLEANUP = 4;
     S32 mFavoritesDirtyFlags { 0 };
 public:
 

@@ -95,6 +95,7 @@ public:
 #if LL_WINDOWS
     virtual bool getCursorDelta(LLCoordCommon* delta) = 0;
 #endif
+    virtual bool isWrapMouse() const = 0;
     virtual void showCursor() = 0;
     virtual void hideCursor() = 0;
     virtual bool isCursorHidden() = 0;
@@ -147,7 +148,6 @@ public:
     virtual void swapBuffers() = 0;
     virtual void bringToFront() = 0;
     virtual void focusClient() { };     // this may not have meaning or be required on other platforms, therefore, it's not abstract
-    virtual void setOldResize(bool oldresize) { };
     // handy coordinate space conversion routines
     // NB: screen to window and vice verse won't work on width/height coordinate pairs,
     // as the conversion must take into account left AND right border widths, etc.

@@ -1064,46 +1064,61 @@
    label="Use as default for"
    layout="topleft"
    name="upload_def">
-    <menu_item_call
+    <menu_item_check
      label="Image uploads"
      layout="topleft"
      name="Image uploads">
-      <menu_item_call.on_click
+      <on_click
        function="Inventory.FileUploadLocation"
        parameter="def_texture" />
-    </menu_item_call>
-    <menu_item_call
+      <on_check
+       function="Inventory.FileUploadLocation.Check"
+       parameter="def_texture" />
+    </menu_item_check>
+    <menu_item_check
      label="Sound uploads"
      layout="topleft"
      name="Sound uploads">
-      <menu_item_call.on_click
+      <on_click
        function="Inventory.FileUploadLocation"
        parameter="def_sound" />
-    </menu_item_call>
-    <menu_item_call
+      <on_check
+       function="Inventory.FileUploadLocation.Check"
+       parameter="def_sound" />
+    </menu_item_check>
+    <menu_item_check
      label="Animation uploads"
      layout="topleft"
      name="Animation uploads">
-      <menu_item_call.on_click
+      <on_click
        function="Inventory.FileUploadLocation"
        parameter="def_animation" />
-    </menu_item_call>
-    <menu_item_call
+      <on_check
+       function="Inventory.FileUploadLocation.Check"
+       parameter="def_animation" />
+    </menu_item_check>
+    <menu_item_check
      label="Model uploads"
      layout="topleft"
      name="Model uploads">
-      <menu_item_call.on_click
+      <on_click
        function="Inventory.FileUploadLocation"
        parameter="def_model" />
-    </menu_item_call>
-    <menu_item_call
+      <on_check
+       function="Inventory.FileUploadLocation.Check"
+       parameter="def_model" />
+    </menu_item_check>
+    <menu_item_check
      label="PBR material uploads"
      layout="topleft"
      name="PBR uploads">
-      <menu_item_call.on_click
+      <on_click
        function="Inventory.FileUploadLocation"
        parameter="def_pbr_material" />
-    </menu_item_call>
+      <on_check
+       function="Inventory.FileUploadLocation.Check"
+       parameter="def_pbr_material" />
+    </menu_item_check>
   </menu>
 	<menu_item_separator
 	 layout="topleft"

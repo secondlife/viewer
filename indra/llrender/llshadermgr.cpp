@@ -458,7 +458,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 // endsure work-around for missing GLSL funcs gets propogated to feature shader files (e.g. srgbF.glsl)
 #if LL_DARWIN
-    if (defines)
+    if (!gGLManager.mIsApple && defines)
     {
         (*defines)["OLD_SELECT"] = "1";
     }
@@ -1048,6 +1048,7 @@ void LLShaderMgr::clearShaderCache()
     LL_INFOS("ShaderMgr") << "Removing shader cache at " << shader_cache << LL_ENDL;
     const std::string mask = "*";
     gDirUtilp->deleteFilesInDir(shader_cache, mask);
+    LLFile::rmdir(shader_cache);
     mShaderBinaryCache.clear();
 }
 
