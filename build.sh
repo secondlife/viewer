@@ -45,7 +45,7 @@ build_dir_Darwin()
 
 build_dir_Linux()
 {
-  echo build-linux-i686
+  echo build-linux-x86_64
 }
 
 build_dir_CYGWIN()
@@ -163,6 +163,12 @@ pre_build()
             SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                           "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
         fi
+    fi
+
+    if [[ "$arch" == "Linux" ]]
+    then
+      # RELEASE_CRASH_REPORTING is tuned on unconditionaly, this is fine but not for Linux as of now (due to missing breakpad/crashpad support)
+      RELEASE_CRASH_REPORTING=OFF
     fi
 
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
@@ -396,12 +402,7 @@ do
                   python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml \
                       || fatal "Upload of autobuild metadata failed"
                   metadata+=("$build_dir/autobuild-package.xml")
-                  if [ "$arch" != "Linux" ]
-                  then
-                      record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
-                  else
-                      record_event "TBD - no dependency graph for linux (probable python version dependency)"
-                  fi
+                  record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
                   end_section "Autobuild metadata"
               else
                   record_event "no autobuild metadata at '$build_dir/autobuild-package.xml'"
