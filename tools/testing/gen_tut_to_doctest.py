@@ -1,14 +1,29 @@
 #!/usr/bin/env python3
 """
-Generate doctest stubs from legacy TUT test sources.
+@file gen_tut_to_doctest.py
+@date   2025-02-18
+@brief doctest: unit tests for TUT to doctest generator
 
-The goal of this tooling is to produce compilable doctest files that mirror the
-existing structure under indra/llcommon/tests.  The conversion deliberately
-keeps things simple for this phase: each discovered TUT test becomes a doctest
-case containing a TODO failure marker and the original body as a comment,
-providing a deterministic workflow for incremental migrations.
+$LicenseInfo:firstyear=2025&license=viewerlgpl$
+Second Life Viewer Source Code
+Copyright (C) 2025, Linden Research, Inc.
 
-The script is idempotent – running it multiple times yields identical output.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation;
+version 2.1 of the License only.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+$/LicenseInfo$
 """
 
 from __future__ import annotations
