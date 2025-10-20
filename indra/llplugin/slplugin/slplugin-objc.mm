@@ -7,21 +7,21 @@
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  *
@@ -38,51 +38,51 @@
 
 void LLCocoaPlugin::setupCocoa()
 {
-	static bool inited = false;
-	
-	if(!inited)
-	{
-		createAutoReleasePool();
-		
-		// The following prevents the Cocoa command line parser from trying to open 'unknown' arguements as documents.
-		// ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr' 
-		// when init'ing the Cocoa App window.		
-		[[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
-		
-		// This is a bit of voodoo taken from the Apple sample code "CarbonCocoa_PictureCursor":
-		//   http://developer.apple.com/samplecode/CarbonCocoa_PictureCursor/index.html
-		
-		//	Needed for Carbon based applications which call into Cocoa
-		NSApplicationLoad();
+    static bool inited = false;
 
-		//	Must first call [[[NSWindow alloc] init] release] to get the NSWindow machinery set up so that NSCursor can use a window to cache the cursor image
-		[[[NSWindow alloc] init] release];
-		
+    if(!inited)
+    {
+        createAutoReleasePool();
+
+        // The following prevents the Cocoa command line parser from trying to open 'unknown' arguements as documents.
+        // ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr'
+        // when init'ing the Cocoa App window.
+        [[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
+
+        // This is a bit of voodoo taken from the Apple sample code "CarbonCocoa_PictureCursor":
+        //   http://developer.apple.com/samplecode/CarbonCocoa_PictureCursor/index.html
+
+        //  Needed for Carbon based applications which call into Cocoa
+        NSApplicationLoad();
+
+        //  Must first call [[[NSWindow alloc] init] release] to get the NSWindow machinery set up so that NSCursor can use a window to cache the cursor image
+        [[[NSWindow alloc] init] release];
+
         mPluginWindow = [NSApp mainWindow];
-        
-		deleteAutoReleasePool();
-		
-		inited = true;
-	}
+
+        deleteAutoReleasePool();
+
+        inited = true;
+    }
 }
 
 static NSAutoreleasePool *sPool = NULL;
 
 void LLCocoaPlugin::createAutoReleasePool()
 {
-	if(!sPool)
-	{
-		sPool = [[NSAutoreleasePool alloc] init];
-	}
+    if(!sPool)
+    {
+        sPool = [[NSAutoreleasePool alloc] init];
+    }
 }
 
 void LLCocoaPlugin::deleteAutoReleasePool()
 {
-	if(sPool)
-	{
-		[sPool release];
-		sPool = NULL;
-	}
+    if(sPool)
+    {
+        [sPool release];
+        sPool = NULL;
+    }
 }
 
 LLCocoaPlugin::LLCocoaPlugin():mHackState(0)
@@ -110,12 +110,12 @@ void LLCocoaPlugin::setupGroup()
     //    {
     //        // Start out with a window layer that's way out in front (fixes the problem with the menubar not getting hidden on first switch to fullscreen youtube)
     //        SetWindowGroupName(layer_group, CFSTR("SLPlugin Layer"));
-    //        SetWindowGroupLevel(layer_group, kCGOverlayWindowLevel);		
+    //        SetWindowGroupLevel(layer_group, kCGOverlayWindowLevel);
     //    }
-    
+
 }
 
-void LLCocoaPlugin::updateWindows()  
+void LLCocoaPlugin::updateWindows()
 {
 //    NSArray* window_list = [NSApp orderedWindows];
 //    NSWindow* current_window = [window_list objectAtIndex:0];
@@ -123,38 +123,38 @@ void LLCocoaPlugin::updateWindows()
 //    bool this_is_front_process = false;
 //    bool parent_is_front_process = false;
 //
-//    
+//
 //    // Check for a change in this process's frontmost window.
 //    if ( current_window != mFrontWindow )
 //    {
 //        // and figure out whether this process or its parent are currently frontmost
 //        if ( current_window == parent_window ) parent_is_front_process = true;
 //        if ( current_window == mPluginWindow ) this_is_front_process = true;
-//    
+//
 //        if (current_window != NULL && mFrontWindow == NULL)
 //        {
 //            // Opening the first window
-//            
+//
 //            if(mHackState == 0)
 //            {
 //                // Next time through the event loop, lower the window group layer
 //                mHackState = 1;
 //            }
-//            
+//
 //            if(parent_is_front_process)
 //            {
 //                // Bring this process's windows to the front.
 //                [mPluginWindow makeKeyAndOrderFront:NSApp];
 //                [mPluginWindow setOrderedIndex:0];
 //            }
-//            
+//
 //            [NSApp activateIgnoringOtherApps:YES];
 //        }
-//        
+//
 //        else if (( current_window == NULL) && (mFrontWindow != NULL))
 //        {
 //            // Closing the last window
-//            
+//
 //            if(this_is_front_process)
 //            {
 //                // Try to bring this process's parent to the front
@@ -171,7 +171,7 @@ void LLCocoaPlugin::updateWindows()
 ////            }
 //            mHackState = 2;
 //        }
-//        
+//
 //        mFrontWindow = [window_list objectAtIndex:0];
 //    }
  }
