@@ -109,25 +109,27 @@ bool LLScriptFloater::toggle(const LLUUID& notification_id)
 LLScriptFloater* LLScriptFloater::show(const LLUUID& notification_id)
 {
     LLScriptFloater* floater = LLFloaterReg::getTypedInstance<LLScriptFloater>("script_floater", notification_id);
-    floater->setNotificationId(notification_id);
-    floater->createForm(notification_id);
-
-    //LLDialog(LLGiveInventory and LLLoadURL) should no longer steal focus (see EXT-5445)
-    floater->setAutoFocus(false);
-
-    if(LLScriptFloaterManager::OBJ_SCRIPT == LLScriptFloaterManager::getObjectType(notification_id))
+    if (floater)
     {
-        floater->setSavePosition(true);
-        floater->restorePosition();
-    }
-    else
-    {
-        floater->dockToChiclet(true);
-    }
+        floater->setNotificationId(notification_id);
+        floater->createForm(notification_id);
 
-    //LLDialog(LLGiveInventory and LLLoadURL) should no longer steal focus (see EXT-5445)
-    LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id, false);
+        //LLDialog(LLGiveInventory and LLLoadURL) should no longer steal focus (see EXT-5445)
+        floater->setAutoFocus(false);
 
+        if (LLScriptFloaterManager::OBJ_SCRIPT == LLScriptFloaterManager::getObjectType(notification_id))
+        {
+            floater->setSavePosition(true);
+            floater->restorePosition();
+        }
+        else
+        {
+            floater->dockToChiclet(true);
+        }
+
+        //LLDialog(LLGiveInventory and LLLoadURL) should no longer steal focus (see EXT-5445)
+        LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id, false);
+    }
     return floater;
 }
 

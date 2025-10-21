@@ -22,7 +22,6 @@
     <profile_image
      name="real_world_pic"
      image_name="Generic_Person_Large"
-     show_loading="false"
      follows="top|left"
      layout="topleft"
      top="10"

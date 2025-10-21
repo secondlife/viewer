@@ -70,7 +70,7 @@ def process_directory(directory, extensions, tab_stop):
 
 def main():
     parser = argparse.ArgumentParser(description='Convert tabs to spaces in files, considering tab stops.')
-    parser.add_argument('-e', '--extensions', type=str, default='c,cpp,h,hpp,inl,py,glsl,cmake', help='Comma-separated list of file extensions to process (default: "c,cpp,h,hpp,inl,py,glsl,cmake")')
+    parser.add_argument('-e', '--extensions', type=str, default='c,cpp,m,mm,h,hpp,inl,py,glsl,cmake', help='Comma-separated list of file extensions to process (default: "c,cpp,h,hpp,inl,py,glsl,cmake")')
     parser.add_argument('-t', '--tabstop', type=int, default=4, help='Tab stop size (default: 4)')
     parser.add_argument('-d', '--directory', type=str, required=True, help='Directory to process')
 

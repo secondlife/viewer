@@ -610,7 +610,7 @@ void callQuitHandler()
 {
     if (gWindowImplementation && gWindowImplementation->getCallbacks())
     {
-        if(gWindowImplementation->getCallbacks()->handleCloseRequest(gWindowImplementation))
+        if(gWindowImplementation->getCallbacks()->handleCloseRequest(gWindowImplementation, true))
         {
             gWindowImplementation->getCallbacks()->handleQuit(gWindowImplementation);
         }

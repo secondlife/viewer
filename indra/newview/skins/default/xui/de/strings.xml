@@ -5074,10 +5074,10 @@ Bitte überprüfen Sie http://status.secondlifegrid.net, um herauszufinden, ob e
 		[MDAY]
 	</string>
 	<string name="dateTimeAM">
-		Uhr
+		AM
 	</string>
 	<string name="dateTimePM">
-		Uhr
+		PM
 	</string>
 	<string name="LocalEstimateUSD">
 		[AMOUNT] US$

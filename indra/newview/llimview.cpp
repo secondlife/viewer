@@ -809,6 +809,10 @@ void LLIMModel::LLIMSession::initVoiceChannel(const LLSD& voiceChannelInfo)
 {
     if (mVoiceChannel)
     {
+        if (!voiceChannelInfo.isMap())
+        {
+            LL_WARNS() << "initVoiceChannel called without voiceChannelInfo" << LL_ENDL;
+        }
         if (mVoiceChannel->isThisVoiceChannel(voiceChannelInfo))
         {
             return;

@@ -40,6 +40,10 @@
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 
+bool LLInventoryItemsList::sListIdleRegistered = false;
+LLInventoryItemsList::all_list_t LLInventoryItemsList::sAllLists;
+LLInventoryItemsList::all_list_t::iterator LLInventoryItemsList::sAllListIter;
+
 LLInventoryItemsList::Params::Params()
 {}
 
@@ -55,13 +59,39 @@ LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p
 
     setNoFilteredItemsMsg(LLTrans::getString("InventoryNoMatchingItems"));
 
-    gIdleCallbacks.addFunction(idle, this);
+    sAllLists.push_back(this);
+    sAllListIter = sAllLists.begin();
+
+    if (!sListIdleRegistered)
+    {
+        sAllListIter = sAllLists.begin();
+        gIdleCallbacks.addFunction(idle, nullptr);
+
+        LLEventPumps::instance().obtain("LLApp").listen(
+            "LLInventoryItemsList",
+            [](const LLSD& stat)
+        {
+            std::string status(stat["status"]);
+            if (status != "running")
+            {
+                // viewer is starting shutdown
+                gIdleCallbacks.deleteFunction(idle, nullptr);
+            }
+            return false;
+        });
+        sListIdleRegistered = true;
+    }
 }
 
 // virtual
 LLInventoryItemsList::~LLInventoryItemsList()
 {
-    gIdleCallbacks.deleteFunction(idle, this);
+    auto it = std::find(sAllLists.begin(), sAllLists.end(), this);
+    if (it != sAllLists.end())
+    {
+        sAllLists.erase(it);
+        sAllListIter = sAllLists.begin();
+    }
 }
 
 void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item_array)
@@ -111,25 +141,55 @@ void LLInventoryItemsList::updateSelection()
     mSelectTheseIDs.clear();
 }
 
-void LLInventoryItemsList::doIdle()
+bool LLInventoryItemsList::doIdle()
 {
-    if (mRefreshState == REFRESH_COMPLETE) return;
+    if (mRefreshState == REFRESH_COMPLETE) return true; // done
 
     if (isInVisibleChain() || mForceRefresh || !getFilterSubString().empty())
     {
         refresh();
 
         mRefreshCompleteSignal(this, LLSD());
+        return false; // keep going
     }
+    return true; // done
 }
 
 //static
 void LLInventoryItemsList::idle(void* user_data)
 {
-    LLInventoryItemsList* self = static_cast<LLInventoryItemsList*>(user_data);
-    if ( self )
-    {   // Do the real idle
-        self->doIdle();
+    if (sAllLists.empty())
+        return;
+
+    LL_PROFILE_ZONE_SCOPED;
+
+    using namespace std::chrono;
+    auto start = steady_clock::now();
+    const milliseconds time_limit = milliseconds(3);
+    const auto end_time = start + time_limit;
+    S32 max_update_count = 50;
+
+    if (sAllListIter == sAllLists.end())
+    {
+        sAllListIter = sAllLists.begin();
+    }
+
+    S32 updated = 0;
+    while (steady_clock::now() < end_time
+           && updated < max_update_count
+           && sAllListIter != sAllLists.end())
+    {
+        LLInventoryItemsList* list = *sAllListIter;
+        // Refresh is split into multiple separate parts,
+        // so keep repeating it while there is time, until done.
+        // Todo: refresh() split is pointless now?
+        // Or still useful for large folders?
+        if (list->doIdle())
+        {
+            // Item is done
+            ++sAllListIter;
+            updated++;
+        }
     }
 }
 
@@ -141,6 +201,7 @@ void LLInventoryItemsList::refresh()
     {
     case REFRESH_ALL:
         {
+            LL_PROFILE_ZONE_NAMED("items_refresh_all");
             mAddedItems.clear();
             mRemovedItems.clear();
             computeDifference(getIDs(), mAddedItems, mRemovedItems);
@@ -163,6 +224,7 @@ void LLInventoryItemsList::refresh()
         }
     case REFRESH_LIST_ERASE:
         {
+            LL_PROFILE_ZONE_NAMED("items_refresh_erase");
             uuid_vec_t::const_iterator it = mRemovedItems.begin();
             for (; mRemovedItems.end() != it; ++it)
             {
@@ -175,6 +237,7 @@ void LLInventoryItemsList::refresh()
         }
     case REFRESH_LIST_APPEND:
         {
+            LL_PROFILE_ZONE_NAMED("items_refresh_append");
             static const unsigned ADD_LIMIT = 25; // Note: affects perfomance
 
             unsigned int nadded = 0;
@@ -239,6 +302,7 @@ void LLInventoryItemsList::refresh()
         }
     case REFRESH_LIST_SORT:
         {
+            LL_PROFILE_ZONE_NAMED("items_refresh_sort");
             // Filter, sort, rearrange and notify parent about shape changes
             filterItems(true, true);
 
@@ -255,7 +319,10 @@ void LLInventoryItemsList::refresh()
             break;
         }
     default:
-        break;
+        {
+            mRefreshState = REFRESH_COMPLETE;
+            break;
+        }
     }
 
     setForceRefresh(mRefreshState != REFRESH_COMPLETE);

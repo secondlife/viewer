@@ -859,7 +859,7 @@ void LLPanelProfileSecondLife::resetData()
     resetLoading();
 
     // Set default image and 1:1 dimensions for it
-    mSecondLifePic->setValue("Generic_Person_Large");
+    mSecondLifePic->setValue(LLUUID());
 
     LLRect imageRect = mSecondLifePicLayout->getRect();
     mSecondLifePicLayout->reshape(imageRect.getWidth(), imageRect.getWidth());

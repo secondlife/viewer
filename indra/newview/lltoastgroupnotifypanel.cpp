@@ -87,10 +87,21 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
     std::string timeStr = "[" + LLTrans::getString("TimeWeek") + "], ["
                               + LLTrans::getString("TimeMonth") + "]/["
                               + LLTrans::getString("TimeDay") + "]/["
-                              + LLTrans::getString("TimeYear") + "] ["
-                              + LLTrans::getString("TimeHour") + "]:["
-                              + LLTrans::getString("TimeMin") + "] ["
-                              + LLTrans::getString("TimeTimezone") + "]";
+                              + LLTrans::getString("TimeYear") + "] [";
+    static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+    if (use_24h)
+    {
+        timeStr += LLTrans::getString("TimeHour") + "]:["
+            + LLTrans::getString("TimeMin") + "] ["
+            + LLTrans::getString("TimeTimezone") + "]";
+    }
+    else
+    {
+        timeStr += LLTrans::getString("TimeHour12") + "]:["
+            + LLTrans::getString("TimeMin") + "] ["
+            + LLTrans::getString("TimeAMPM") + "] ["
+            + LLTrans::getString("TimeTimezone") + "]";
+    }
 
     const LLDate timeStamp = notification->getDate();
     LLDate notice_date = timeStamp.notNull() ? timeStamp : payload["received_time"].asDate();

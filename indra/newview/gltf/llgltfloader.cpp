@@ -412,17 +412,14 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
     // Process this node's mesh if it has one
     if (node.mMesh >= 0 && node.mMesh < mGLTFAsset.mMeshes.size())
     {
-        LLMatrix4    transformation;
-        material_map mats;
-
-        LLModel* pModel = new LLModel(volume_params, 0.f);
-        const LL::GLTF::Mesh& mesh = mGLTFAsset.mMeshes[node.mMesh];
-
-        // Get base mesh name and track usage
-        std::string base_name = getLodlessLabel(mesh);
+        // Get base node name and track usage
+        // Potentially multiple nodes can reuse the same mesh and Collada used
+        // node name instead of mesh name, so for consistency use node name if
+        // avaliable, node index otherwise.
+        std::string base_name = getLodlessLabel(node);
         if (base_name.empty())
         {
-            base_name = "mesh_" + std::to_string(node.mMesh);
+            base_name = "node_" + std::to_string(node_idx);
         }
 
         S32 instance_count = mesh_name_counts[base_name]++;
@@ -432,6 +429,12 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         {
             base_name = base_name + "_copy_" + std::to_string(instance_count);
         }
+
+        LLMatrix4    transformation;
+        material_map mats;
+
+        LLModel* pModel = new LLModel(volume_params, 0.f);
+        const LL::GLTF::Mesh& mesh = mGLTFAsset.mMeshes[node.mMesh];
 
         if (populateModelFromMesh(pModel, base_name, mesh, node, mats) &&
             (LLModel::NO_ERRORS == pModel->getStatus()) &&
@@ -650,6 +653,14 @@ std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& t
         if (pos != std::string::npos)
         {
             filename = filename.substr(pos + 1);
+        }
+
+        std::string dir = gDirUtilp->getDirName(mFilename);
+        std::string full_path = dir + gDirUtilp->getDirDelimiter() + filename;
+        if (!gDirUtilp->fileExists(full_path) && filename.find("data:") == std::string::npos)
+        {
+            // Uri might be escaped
+            filename = LLURI::unescape(filename);
         }
 
         LL_INFOS("GLTF_IMPORT") << "Found texture: " << filename << " for material: " << material_name << LL_ENDL;
@@ -1810,13 +1821,13 @@ size_t LLGLTFLoader::getSuffixPosition(const std::string &label)
     return -1;
 }
 
-std::string LLGLTFLoader::getLodlessLabel(const LL::GLTF::Mesh& mesh)
+std::string LLGLTFLoader::getLodlessLabel(const LL::GLTF::Node& node)
 {
-    size_t ext_pos = getSuffixPosition(mesh.mName);
+    size_t ext_pos = getSuffixPosition(node.mName);
     if (ext_pos != -1)
     {
-        return mesh.mName.substr(0, ext_pos);
+        return node.mName.substr(0, ext_pos);
     }
-    return mesh.mName;
+    return node.mName;
 }
 

@@ -74,7 +74,6 @@ Account: [ACCTTYPE]
       <profile_image
        name="2nd_life_pic"
        image_name="Generic_Person_Large"
-       show_loading="false"
        layout="topleft"
        follows="all"
        interactable="true"
@@ -191,7 +190,7 @@ Account: [ACCTTYPE]
      visible="false">
       <icon
        name="badge_icon"
-       image_name="Beta_Tester"
+       image_name="Profile_Badge_Beta"
        layout="topleft"
        follows="left|top"
        top="10"
