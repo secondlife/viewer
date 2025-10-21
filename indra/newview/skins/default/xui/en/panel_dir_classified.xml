@@ -1,0 +1,197 @@
+<panel
+ border="true"
+ top="30"
+ follows="left|top|right|bottom"
+ height="533"
+ label="Classifieds"
+ left="1"
+ left_delta="68"
+ mouse_opaque="false"
+ name="panel_dir_classified"
+ width="778">
+    <string name="searching_text">
+        Searching...
+    </string>
+    <string name="not_found_text">
+        None Found.
+    </string>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     top="8"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="5"
+     mouse_opaque="true"
+     name="find"
+     v_pad="0"
+     width="150">
+        Enter search terms:
+    </text>
+    <combo_box
+     allow_text_entry="false"
+     top_delta="0"
+     left="465"
+     layout="topleft"
+     follows="right|top"
+     height="18"
+     max_chars="20"
+     mouse_opaque="true"
+     name="Category"
+     width="128">
+        <combo_item name="AnyCategory" value="0">
+            Any Category
+        </combo_item>
+        <combo_item name="Shopping" value="1">
+            Shopping
+        </combo_item>
+        <combo_item name="LandRental" value="2">
+            Land Rental
+        </combo_item>
+        <combo_item name="PropertyRental" value="3">
+            Property Rental
+        </combo_item>
+        <combo_item name="SpecialAttraction" value="4">
+            Special Attraction
+        </combo_item>
+        <combo_item name="NewProducts" value="5">
+            New Products
+        </combo_item>
+        <combo_item name="Employment" value="6">
+            Employment
+        </combo_item>
+        <combo_item name="Wanted" value="7">
+            Wanted
+        </combo_item>
+        <combo_item name="Service" value="8">
+            Service
+        </combo_item>
+        <combo_item name="Personal" value="9">
+            Personal
+        </combo_item>
+    </combo_box>
+    <check_box
+     left_pad="20"
+     control_name="ShowPGClassifieds"
+     follows="right|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label="PG"
+     mouse_opaque="true"
+     name="incpg"
+     width="35" />
+    <check_box
+     left_pad="5"
+     layout="topleft"
+     control_name="ShowMatureClassifieds"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label="Mature"
+     mouse_opaque="true"
+     name="incmature"
+     width="56" />
+    <check_box
+     left_pad="5"
+     layout="topleft"
+     control_name="ShowAdultClassifieds"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="false"
+     label="Adult"
+     mouse_opaque="true"
+     name="incadult"
+     width="50" />
+    <line_editor
+     bevel_style="in"
+     border_style="line"
+     border_thickness="1"
+     top_pad="2"
+     follows="left|right|top"
+     layout="topleft"
+     font="SansSerif"
+     height="18"
+     left="5"
+     max_length="63"
+     mouse_opaque="true"
+     name="name"
+     width="660" />
+    <button
+     follows="right|top"
+     layout="topleft"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Search"
+     top_delta="0"
+     left_pad="5"
+     mouse_opaque="true"
+     name="Search"
+     width="95" />
+    <scroll_list
+     background_visible="true"
+     layout="topleft"
+     top_pad="3"
+     column_padding="0"
+     draw_border="true"
+     draw_heading="true"
+     follows="left|top|right|bottom"
+     height="450"
+     left="5"
+     mouse_opaque="true"
+     multi_select="false"
+     name="results"
+     search_column="2"
+     width="336">
+        <column label="" name="icon" width="24" />
+        <column label="" name="type" width="-1" />
+        <column label="Name" name="name" width="225" />
+        <column label="Price" name="price" width="55" />
+    </scroll_list>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     bottom_delta="-20"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="4"
+     mouse_opaque="true"
+     name="result_text"
+     v_pad="0"
+     width="80" />
+    <button
+     bottom="-533"
+     follows="right|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Next &gt;"
+     label_selected="Next &gt;"
+     mouse_opaque="true"
+     name="Next &gt;"
+     right="344"
+     width="80" />
+    <button
+     bottom_delta="0"
+     follows="right|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="&lt; Prev"
+     label_selected="&lt; Prev"
+     mouse_opaque="true"
+     name="&lt; Prev"
+     right="258"
+     width="80" />
+</panel>

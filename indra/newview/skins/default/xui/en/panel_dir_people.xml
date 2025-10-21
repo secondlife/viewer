@@ -1,0 +1,114 @@
+<panel
+ border="true"
+ top="30"
+ follows="left|top|right|bottom"
+ height="533"
+ label="People"
+ left="1"
+ mouse_opaque="false"
+ name="panel_dir_people"
+ width="778">
+    <string name="searching_text">
+        Searching...
+    </string>
+    <string name="not_found_text">
+        None Found.
+    </string>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     top="8"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="5"
+     mouse_opaque="true"
+     name="find"
+     width="150">
+        Enter search terms:
+    </text>
+    <line_editor
+     bevel_style="in"
+     border_style="line"
+     border_thickness="1"
+     top_pad="5"
+     follows="left|right|top"
+     font="SansSerif"
+     height="18"
+     left="5"
+     max_length="63"
+     mouse_opaque="true"
+     name="name"
+     width="660" />
+    <button
+     follows="right|top"
+     layout="topleft"
+     font="SansSerif"
+     top_delta="0"
+     left_pad="5"
+     height="20"
+     label="Search"
+     mouse_opaque="true"
+     name="Search"
+     width="95" />
+    <scroll_list
+     background_visible="true"
+     layout="topleft"
+     top_pad="3"
+     column_padding="0"
+     draw_border="true"
+     draw_heading="true"
+     follows="left|top|right|bottom"
+     height="450"
+     left="5"
+     mouse_opaque="true"
+     multi_select="false"
+     name="results"
+     search_column="2"
+     width="336">
+        <column label="" name="icon" width="24" />
+        <column label="" name="type" width="-1" />
+        <column label="Name" name="name" width="274" />
+    </scroll_list>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     bottom_delta="-20"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="4"
+     mouse_opaque="true"
+     name="result_text"
+     v_pad="0"
+     width="328" />
+    <button
+     bottom="-533"
+     follows="left|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Next &gt;"
+     label_selected="Next &gt;"
+     mouse_opaque="true"
+     name="Next &gt;"
+     right="330"
+     width="80" />
+    <button
+     bottom_delta="0"
+     follows="left|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="&lt; Prev"
+     label_selected="&lt; Prev"
+     mouse_opaque="true"
+     name="&lt; Prev"
+     right="244"
+     width="80" />
+</panel>

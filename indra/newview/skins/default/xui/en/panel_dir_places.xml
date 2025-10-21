@@ -1,0 +1,204 @@
+<panel
+ border="true"
+ top="30"
+ follows="left|top|right|bottom"
+ height="533"
+ label="Places"
+ left="1"
+ mouse_opaque="false"
+ name="panel_dir_places"
+ width="778">
+    <string name="searching_text">
+        Searching...
+    </string>
+    <string name="not_found_text">
+        None Found.
+    </string>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     top="8"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="5"
+     mouse_opaque="true"
+     name="find"
+     width="150">
+        Enter search terms:
+    </text>
+    <combo_box
+     allow_text_entry="false"
+     enabled="false"
+     follows="right|top"
+     layout="topleft"
+     height="18"
+     top_delta="0"
+     left="465"
+     max_chars="20"
+     mouse_opaque="true"
+     name="Category"
+     width="128"
+     visible="false">
+        <combo_item name="AnyCategory" value="any">
+            Any Category
+        </combo_item>
+        <combo_item name="LindenLocation" value="linden">
+            Linden Location
+        </combo_item>
+        <combo_item name="Arts&amp;Culture" value="arts">
+            Arts &amp; Culture
+        </combo_item>
+        <combo_item name="Business" value="store">
+            Business
+        </combo_item>
+        <combo_item name="Educational" value="educational">
+            Educational
+        </combo_item>
+        <combo_item name="Gaming" value="game">
+            Gaming
+        </combo_item>
+        <combo_item name="Hangout" value="gather">
+            Hangout
+        </combo_item>
+        <combo_item name="NewcomerFriendly" value="newcomer">
+            Newcomer Friendly
+        </combo_item>
+        <combo_item name="Parks&amp;Nature" value="park">
+            Parks &amp; Nature
+        </combo_item>
+        <combo_item name="Residential" value="home">
+            Residential
+        </combo_item>
+        <combo_item name="Shopping" value="shopping">
+            Shopping
+        </combo_item>
+        <combo_item name="Adult" value="adult">
+            Adult
+        </combo_item>
+        <combo_item name="Other" value="other">
+            Other
+        </combo_item>
+    </combo_box>
+    <check_box
+     left_pad="20"
+     control_name="ShowPGSims"
+     follows="right|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label="PG"
+     mouse_opaque="true"
+     name="incpg"
+     width="35" />
+    <check_box
+     left_pad="5"
+     layout="topleft"
+     control_name="ShowMatureSims"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label="Mature"
+     mouse_opaque="true"
+     name="incmature"
+     width="56" />
+    <check_box
+     left_pad="5"
+     layout="topleft"
+     control_name="ShowAdultSims"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="false"
+     label="Adult"
+     mouse_opaque="true"
+     name="incadult"
+     width="50" />
+    <line_editor
+     bevel_style="in"
+     border_style="line"
+     border_thickness="1"
+     top_pad="2"
+     follows="left|right|top"
+     layout="topleft"
+     font="SansSerif"
+     height="18"
+     left="5"
+     max_length="63"
+     mouse_opaque="true"
+     name="name"
+     width="660" />
+    <button
+     follows="right|top"
+     layout="topleft"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Search"
+     top_delta="0"
+     left_pad="5"
+     mouse_opaque="true"
+     name="Search"
+     width="95" />
+    <scroll_list
+     background_visible="true"
+     layout="topleft"
+     top_pad="3"
+     column_padding="0"
+     draw_border="true"
+     draw_heading="true"
+     follows="left|top|right|bottom"
+     height="450"
+     left="5"
+     mouse_opaque="true"
+     multi_select="false"
+     name="results"
+     search_column="2"
+     width="336">
+        <column label="" name="icon" width="24" />
+        <column label="" name="type" width="-1" />
+        <column dynamicwidth="true" label="Name" name="name" />
+        <column label="Traffic" name="dwell" width="75" />
+    </scroll_list>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     bottom_delta="-20"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="4"
+     mouse_opaque="true"
+     name="result_text"
+     v_pad="0"
+     width="328" />
+    <button
+     bottom="-533"
+     follows="left|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Next &gt;"
+     mouse_opaque="true"
+     name="Next &gt;"
+     right="344"
+     width="80" />
+    <button
+     bottom_delta="0"
+     follows="left|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="&lt; Prev"
+     mouse_opaque="true"
+     name="&lt; Prev"
+     right="258"
+     width="80" />
+</panel>

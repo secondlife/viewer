@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_close="true"
+ can_drag_on_left="false"
+ can_minimize="true"
+ can_resize="true"
+ height="570"
+ min_height="570"
+ width="780"
+ min_width="780"
+ name="directory"
+ title="Search">
+    <tab_container
+     top="0"
+     left="0"
+     follows="left|top|right|bottom"
+     height="550"
+     width="780"
+     mouse_opaque="false"
+     name="Directory Tabs"
+     tab_position="top">
+        <panel
+         border="false"
+         label="People"
+         filename="panel_dir_people.xml"
+         class="panel_dir_people"
+         name="panel_dir_people"
+         follows="left|top|right"
+         layout="topleft"
+         left="0"
+         top="0"
+         bottom="-1" />
+        <panel
+         border="false"
+         label="Groups"
+         filename="panel_dir_groups.xml"
+         class="panel_dir_groups"
+         name="panel_dir_groups"
+         follows="left|top|right"
+         layout="topleft"
+         left="0"
+         top="0"
+         bottom="-1" />
+        <panel
+         border="false"
+         label="Places"
+         filename="panel_dir_places.xml"
+         class="panel_dir_places"
+         name="panel_dir_places"
+         follows="left|top|right"
+         layout="topleft"
+         left="0"
+         top="0"
+         bottom="-1" />
+        <panel
+         border="false"
+         label="Land Sales"
+         filename="panel_dir_land.xml"
+         class="panel_dir_land"
+         name="panel_dir_land"
+         follows="left|top|right"
+         layout="topleft"
+         left="0"
+         top="0"
+         bottom="-1" />
+        <panel
+         border="false"
+         label="Events"
+         filename="panel_dir_events.xml"
+         class="panel_dir_events"
+         name="panel_dir_events"
+         follows="left|top|right"
+         layout="topleft"
+         left="0"
+         top="0"
+         bottom="-1" />
+        <panel
+         border="false"
+         label="Classifieds"
+         filename="panel_dir_classified.xml"
+         class="panel_dir_classified"
+         name="panel_dir_classified"
+         follows="left|top|right"
+         layout="topleft"
+         left="0"
+         top="0"
+         bottom="-1" />
+</tab_container>
+    <panel
+     top="65"
+     follows="right|top"
+     height="486"
+     left="345"
+     visible="false"
+     name="panel_profile_secondlife"
+     class="panel_profile_secondlife"
+     filename="panel_profile_secondlife.xml"
+     width="425" />
+    <panel
+     top="70"
+     follows="bottom|right|top"
+     height="480"
+     left="345"
+     visible="false"
+     name="panel_group_info_sidetray"
+     class="panel_group_info_sidetray"
+     filename="panel_group_info_sidetray.xml"
+     width="425" />
+    <panel
+     top="70"
+     follows="bottom|right|top"
+     height="480"
+     left="345"
+     visible="false"
+     name="panel_places"
+     class="panel_places"
+     filename="panel_places.xml"
+     width="425" />
+    <panel
+     top="70"
+     follows="bottom|right|top"
+     height="480"
+     left="345"
+     visible="false"
+     name="panel_classified_info"
+     class="panel_classified_info"
+     filename="panel_classified_info.xml"
+     width="425" />
+    <panel
+     top="70"
+     follows="bottom|right|top"
+     height="480"
+     left="345"
+     visible="false"
+     name="panel_event_info"
+     class="panel_event_info"
+     filename="panel_event_info.xml"
+     width="425" />
+</floater>
