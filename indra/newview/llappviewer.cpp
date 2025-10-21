@@ -2398,7 +2398,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         if (gDirUtilp->fileExists(user_data_path_cef_log))
         {
             std::string user_data_path_cef_old = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.old");
-            LLFile::remove(user_data_path_cef_old, ENOENT);
             LLFile::rename(user_data_path_cef_log, user_data_path_cef_old);
         }
     }

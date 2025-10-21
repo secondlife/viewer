@@ -283,6 +283,7 @@ bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         LLFILE* fp = LLFile::fopen(fileName, "rb");                     /*Flawfinder: ignore*/
         if (!fp)
         {
+                LLError::LLUserWarningMsg::showMissingFiles();
                 LL_ERRS() << "can't open: " << fileName << LL_ENDL;
                 return false;
         }
