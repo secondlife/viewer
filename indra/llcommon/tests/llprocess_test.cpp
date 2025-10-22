@@ -126,6 +126,8 @@ void waitfor(LLProcess& proc, int timeout=60)
     {
         yield();
     }
+    // Pump once more after the process exits to flush any final events such as EOF.
+    yield(0);
     std::string msg = "process took longer than " + std::to_string(timeout) + " seconds to terminate";
     tut::ensure(msg, i < timeout);
 }
@@ -137,6 +139,8 @@ void waitfor(LLProcess::handle h, const std::string& desc, int timeout=60)
     {
         yield();
     }
+    // Pump once more after the process exits to flush any final events such as EOF.
+    yield(0);
     std::string msg = "process took longer than " + std::to_string(timeout) + " seconds to terminate";
     tut::ensure(msg, i < timeout);
 }
