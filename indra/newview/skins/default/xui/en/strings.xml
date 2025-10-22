@@ -327,6 +327,7 @@ are allowed.
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>
 	<string name="NoneFound">None found.</string>
+    <string name="ServerUnavailable">Service not available.</string>
 
 	<!-- Indicates that an avatar name or other similar datum is being retrieved. General usage. -->
 	<string name="RetrievingData">Retrieving...</string>
