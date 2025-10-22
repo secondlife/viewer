@@ -35,7 +35,7 @@ jobs:
           echo NIGHTLY_DATE=${NIGHTLY_DATE} >> ${GITHUB_ENV}
           echo TAG_ID="$(echo ${{ github.sha }} | cut -c1-8)-${{ inputs.project || '${NIGHTLY_DATE}' }}" >> ${GITHUB_ENV}
       - name: Update Tag
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v8
         with:
           # use a real access token instead of GITHUB_TOKEN default.
           # required so that the results of this tag creation can trigger the build workflow
