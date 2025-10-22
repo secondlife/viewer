@@ -22,19 +22,13 @@
     </string>
     <text
      top="4"
-     layout="topleft"
-     follows="top|left"
-     font="SansSerif"
-     left="20"
-     name="event_name_label">
-        Name:
-    </text>
-    <text
-     top_delta="0"
      follows="top|left"
      layout="topleft"
-     font="SansSerif"
-     left="120"
+     font="SansSerifBig"
+     left="5"
+     width="417"
+     height="18"
+     use_ellipses="true"
      name="event_name">
         (none)
     </text>
@@ -135,7 +129,7 @@
      follows="top|left"
      layout="topleft"
      font="SansSerif"
-     left="120"
+     left="116"
      name="event_runby">
         (none)
     </text>
@@ -201,21 +195,21 @@
      label="Teleport"
      left="20"
      name="teleport_btn"
-     width="140" />
+     width="130" />
     <button
      bottom_delta="0"
      follows="left|top"
      height="20"
      label="Show on Map"
-     left="165"
+     left="155"
      name="map_btn"
-     width="140" />
+     width="130" />
     <button
-     bottom_delta="-20"
+     bottom_delta="0"
      follows="left|top"
      height="20"
      label="Notify"
-     left="20"
+     left="290"
      name="notify_btn"
-     width="140" />
+     width="130" />
 </panel>

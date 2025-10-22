@@ -27,25 +27,15 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpaneleventinfo.h"
-#include "message.h"
-#include "llui.h"
 
 #include "llagent.h"
-#include "llviewerwindow.h"
 #include "llbutton.h"
-#include "llcachename.h"
 #include "lleventflags.h"
-#include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
-#include "llinventorymodel.h"
 #include "lltextbox.h"
 #include "llviewertexteditor.h"
-#include "lluiconstants.h"
-#include "llviewercontrol.h"
-#include "llweb.h"
 #include "llworldmap.h"
-#include "lluictrlfactory.h"
 
 static LLPanelInjector<LLPanelEventInfo> t_panel_event_info("panel_event_info");
 
@@ -53,7 +43,6 @@ LLPanelEventInfo::LLPanelEventInfo()
     : LLPanel()
 {
 }
-
 
 LLPanelEventInfo::~LLPanelEventInfo()
 {
@@ -63,7 +52,6 @@ LLPanelEventInfo::~LLPanelEventInfo()
     }
 }
 
-
 bool LLPanelEventInfo::postBuild()
 {
     mTBName = getChild<LLTextBox>("event_name");
@@ -72,7 +60,7 @@ bool LLPanelEventInfo::postBuild()
     mTBDate = getChild<LLTextBox>("event_date");
     mTBDuration = getChild<LLTextBox>("event_duration");
     mTBDesc = getChild<LLTextEditor>("event_desc");
-    mTBDesc->setWordWrap(TRUE);
+    mTBDesc->setWordWrap(true);
 
     mTBRunBy = getChild<LLTextBox>("event_runby");
     mTBLocation = getChild<LLTextBox>("event_location");
@@ -121,9 +109,11 @@ bool LLPanelEventInfo::processEventInfoReply(LLEventInfo event)
         return false;
 
     mTBName->setText(event.mName);
+    mTBName->setToolTip(event.mName);
     mTBCategory->setText(event.mCategoryStr);
     mTBDate->setText(event.mTimeStr);
     mTBDesc->setText(event.mDesc);
+    mTBRunBy->setText(LLSLURL("agent", event.mRunByID, "inspect").getSLURLString());
 
     mTBDuration->setText(llformat("%d:%.2d", event.mDuration / 60, event.mDuration % 60));
 
@@ -136,15 +126,7 @@ bool LLPanelEventInfo::processEventInfoReply(LLEventInfo event)
         mTBCover->setText(llformat("%d", event.mCover));
     }
 
-    F32 global_x = (F32)event.mPosGlobal.mdV[VX];
-    F32 global_y = (F32)event.mPosGlobal.mdV[VY];
-
-    S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
-    S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
-    S32 region_z = (S32)llround((F32)event.mPosGlobal.mdV[VZ]);
-
-    std::string desc = event.mSimName + llformat(" (%d, %d, %d)", region_x, region_y, region_z);
-    mTBLocation->setText(desc);
+    mTBLocation->setText(LLSLURL(event.mSimName, event.mPosGlobal).getSLURLString());
 
     if (event.mEventFlags & EVENT_FLAG_MATURE)
     {

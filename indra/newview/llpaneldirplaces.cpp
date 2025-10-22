@@ -28,15 +28,11 @@
 
 #include "llpaneldirplaces.h"
 
-// linden library includes
-#include "llfontgl.h"
 #include "message.h"
-#include "lldir.h"
 #include "llparcel.h"
 #include "llregionflags.h"
 #include "llqueryflags.h"
 
-// viewer project includes
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -73,23 +69,12 @@ bool LLPanelDirPlaces::postBuild()
     childSetVisible("Category", true);
     childSetEnabled("Category", true);
 
-    // Don't prepopulate the places list, as it hurts the database as of 2006-12-04. JC
-    // initialQuery();
-
     return true;
 }
 
 LLPanelDirPlaces::~LLPanelDirPlaces()
 {
-    // MBW -- HACK!!!
-    // This looks like some sort of compiler bug.  We have a mysterious crash during initialization on powerpc boxes.
-    // The crash seems unrelated to this code, but the commit that introduced it was narrowed down to this file.
-    // Adding llinfos calls to both the constructor and destructor here makes the crash go away, even though they don't get called before the point of the crash.
-    // This is wrong on many levels and scares the hell out of me.
-    LL_INFOS() << "called" << LL_ENDL;
-    // Children all cleaned up by default view destructor.
 }
-
 
 // virtual
 void LLPanelDirPlaces::draw()

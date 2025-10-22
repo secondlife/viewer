@@ -85,6 +85,17 @@
          left="0"
          top="0"
          bottom="-1" />
+        <panel
+         border="false"
+         label="Web"
+         filename="panel_dir_web.xml"
+         class="panel_dir_web"
+         name="panel_dir_web"
+         follows="left|top|right"
+         layout="topleft"
+         left="0"
+         top="0"
+         bottom="-1" />
 </tab_container>
     <panel
      top="65"

@@ -35,6 +35,7 @@
 #include "llpaneldirgroups.h"
 #include "llpaneldirplaces.h"
 #include "llpaneldirclassified.h"
+#include "llpaneldirweb.h"
 #include "llscrollbar.h"
 #include "llviewercontrol.h"
 #include "llpanelavatar.h"
@@ -75,6 +76,7 @@ bool LLFloaterDirectory::postBuild()
             panel_tab->setFloaterDirectory(this);
         }
     }
+    findChild<LLPanelDirWeb>("panel_dir_web")->setFloaterDirectory(this);
 
     mPanelAvatarp = findChild<LLPanelProfileSecondLife>("panel_profile_secondlife");
     mPanelAvatarp->setAllowEdit(false);

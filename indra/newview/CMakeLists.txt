@@ -449,6 +449,7 @@ set(viewer_SOURCE_FILES
     llpaneldirland.cpp
     llpaneldirpeople.cpp
     llpaneldirplaces.cpp
+    llpaneldirweb.cpp
     llpaneleditsky.cpp
     llpaneleditwater.cpp
     llpaneleditwearable.cpp
@@ -1125,6 +1126,7 @@ set(viewer_HEADER_FILES
     llpaneldirland.h
     llpaneldirpeople.h
     llpaneldirplaces.h
+    llpaneldirweb.h
     llpaneleditsky.h
     llpaneleditwater.h
     llpaneleditwearable.h
