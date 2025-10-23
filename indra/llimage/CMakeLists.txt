@@ -63,6 +63,10 @@ target_link_libraries(llimage
         ll::libjpeg
     )
 
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llimage REUSE_FROM llprecompiled)
+endif ()
+
 # Add tests
 if (LL_TESTS)
   SET(llimage_TEST_SOURCE_FILES

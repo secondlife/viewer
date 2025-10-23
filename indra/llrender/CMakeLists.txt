@@ -86,6 +86,10 @@ if (BUILD_HEADLESS)
           ll::freetype
           OpenGL::GL
           )
+
+  if (USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(llrenderheadless REUSE_FROM llprecompiled)
+  endif()
 endif (BUILD_HEADLESS)
 
 add_library (llrender ${llrender_SOURCE_FILES})
@@ -104,3 +108,6 @@ target_link_libraries(llrender
         OpenGL::GL
         )
 
+if (USE_PRECOMPILED_HEADERS)
+ target_precompile_headers(llrender REUSE_FROM llprecompiled)
+endif ()

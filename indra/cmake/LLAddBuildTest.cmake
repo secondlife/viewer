@@ -100,6 +100,10 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
           )
     endif(DARWIN)
 
+    if (USE_PRECOMPILED_HEADERS)
+      target_precompile_headers(PROJECT_${project}_TEST_${name} REUSE_FROM llprecompiled)
+    endif ()
+
     #
     # Per-codefile additional / external project dep and lib dep property extraction
     #
@@ -122,7 +126,9 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     set_target_properties(PROJECT_${project}_TEST_${name}
             PROPERTIES
             COMPILE_FLAGS "${${name}_test_additional_CFLAGS}"
-            COMPILE_DEFINITIONS "LL_TEST=${name};LL_TEST_${name}")
+            COMPILE_DEFINITIONS "LL_TEST=${name};LL_TEST_${name}"
+            FOLDER "Tests"
+    )
     if(LL_TEST_VERBOSE)
       message("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_CFLAGS ${${name}_test_additional_CFLAGS}")
     endif()
@@ -217,6 +223,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
           PROPERTIES
           RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
           COMPILE_DEFINITIONS "LL_TEST=${testname};LL_TEST_${testname}"
+          FOLDER "Tests"
           )
 
   # The following was copied to llcorehttp/CMakeLists.txt's texture_load target.
@@ -245,6 +252,11 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   target_link_libraries(INTEGRATION_TEST_${testname} ${libraries})
   target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${LIBS_OPEN_DIR}/test )
+
+  if (USE_PRECOMPILED_HEADERS)
+    target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${LIBS_OPEN_DIR}/llmath )
+    target_precompile_headers(INTEGRATION_TEST_${testname} REUSE_FROM llprecompiled)
+  endif ()
 
   # Create the test running command
   set(test_command ${ARGN})

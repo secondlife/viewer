@@ -63,6 +63,10 @@ target_link_libraries(appearance-utility-bin
     llxml
     )
 
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(appearance-utility-bin REUSE_FROM llprecompiled)
+endif ()
+
 if (BUILD_HEADLESS)
   add_executable(appearance-utility-headless-bin ${appearance_utility_SOURCE_FILES})
   
@@ -74,5 +78,9 @@ if (BUILD_HEADLESS)
     llrenderheadless
     llxml
     )
+    
+  if (USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(appearance-utility-headless-bin REUSE_FROM llprecompiled)
+  endif ()
 endif (BUILD_HEADLESS)
 

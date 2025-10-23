@@ -58,6 +58,9 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 add_subdirectory(cmake)
 
+if (USE_PRECOMPILED_HEADERS)
+  add_subdirectory(${LIBS_OPEN_PREFIX}llprecompiled)
+endif ()
 add_subdirectory(${LIBS_OPEN_PREFIX}llaudio)
 add_subdirectory(${LIBS_OPEN_PREFIX}llappearance)
 add_subdirectory(${LIBS_OPEN_PREFIX}llcharacter)

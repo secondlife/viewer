@@ -69,6 +69,10 @@ target_link_libraries(llappearance
     )
 target_include_directories( llappearance  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llappearance REUSE_FROM llprecompiled)
+endif ()
+
 if (BUILD_HEADLESS)
   add_library (llappearanceheadless ${llappearance_SOURCE_FILES})
   target_include_directories( llappearanceheadless  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
@@ -85,4 +89,8 @@ if (BUILD_HEADLESS)
           llcorehttp
           llcommon
       )
+      
+  if (USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(llappearanceheadless REUSE_FROM llprecompiled)
+  endif ()
 endif (BUILD_HEADLESS)
