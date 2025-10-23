@@ -24,6 +24,7 @@
  */
 
 #pragma once
+
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 

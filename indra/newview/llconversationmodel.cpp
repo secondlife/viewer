@@ -188,14 +188,24 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 
         if ((getType() != CONV_SESSION_1_ON_1) && mDisplayModeratorOptions)
         {
-            items.push_back(std::string("Moderator Options Separator"));
-            items.push_back(std::string("Moderator Options"));
-            items.push_back(std::string("AllowTextChat"));
-            items.push_back(std::string("moderate_voice_separator"));
-            items.push_back(std::string("ModerateVoiceMuteSelected"));
-            items.push_back(std::string("ModerateVoiceUnMuteSelected"));
-            items.push_back(std::string("ModerateVoiceMute"));
-            items.push_back(std::string("ModerateVoiceUnmute"));
+            if (static_cast<LLConversationItem*>(mParent)->getType() == CONV_SESSION_NEARBY)
+            {
+                items.push_back(std::string("Moderator Options Separator"));
+                items.push_back(std::string("Moderator Options Nearby"));
+                items.push_back(std::string("ModerateVoiceNBMuteSelected"));
+                items.push_back(std::string("ModerateVoiceNBUnMuteSelected"));
+            }
+            else
+            {
+                items.push_back(std::string("Moderator Options Separator"));
+                items.push_back(std::string("Moderator Options"));
+                items.push_back(std::string("AllowTextChat"));
+                items.push_back(std::string("moderate_voice_separator"));
+                items.push_back(std::string("ModerateVoiceMuteSelected"));
+                items.push_back(std::string("ModerateVoiceUnMuteSelected"));
+                items.push_back(std::string("ModerateVoiceMute"));
+                items.push_back(std::string("ModerateVoiceUnmute"));
+            }
         }
 
         if ((getType() != CONV_SESSION_1_ON_1) && mDisplayGroupBanOptions)
