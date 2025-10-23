@@ -124,6 +124,7 @@ public:
 
     void setCaptureDevice(const std::string& name) override;
     void setRenderDevice(const std::string& name) override;
+    void setDevices(const std::string& capture_name, const std::string& render_name);
 
     LLVoiceDeviceList& getCaptureDevices() override;
     LLVoiceDeviceList& getRenderDevices() override;
@@ -204,7 +205,7 @@ public:
     //@}
 
     // authorize the user
-    void userAuthorized(const std::string &user_id, const LLUUID &agentID) override {};
+    void userAuthorized(const std::string &user_id, const LLUUID &agentID) override;
 
 
     void OnConnectionEstablished(const std::string& channelID, const LLUUID& regionID);
@@ -443,6 +444,8 @@ public:
     boost::signals2::connection mAvatarNameCacheConnection;
 
 private:
+    // init or restart the WebRTC device interface.
+    void initWebRTC();
 
     // Coroutine support methods
     //---

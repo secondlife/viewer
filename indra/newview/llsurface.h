@@ -29,14 +29,8 @@
 
 #include "v3math.h"
 #include "v3dmath.h"
-#include "v4math.h"
-#include "m3math.h"
-#include "m4math.h"
-#include "llquaternion.h"
 
-#include "v4coloru.h"
-#include "v4color.h"
-
+#include "lltimer.h"
 #include "llvowater.h"
 #include "llpatchvertexarray.h"
 #include "llviewertexture.h"
@@ -65,7 +59,7 @@ class LLGroupHeader;
 class LLSurface
 {
 public:
-    LLSurface(U32 type, LLViewerRegion *regionp = NULL);
+    LLSurface(U32 type, LLViewerRegion *regionp = nullptr);
     virtual ~LLSurface();
 
     static void initClasses(); // Do class initialization for LLSurface and its child classes.
@@ -169,14 +163,13 @@ public:
 
     F32 mDetailTextureScale;    //  Number of times to repeat detail texture across this surface
 
-protected:
+private:
     void createSTexture();
     void initTextures();
 
     void createPatchData();     // Allocates memory for patches.
     void destroyPatchData();    // Deallocates memory for patches.
 
-protected:
     LLVector3d  mOriginGlobal;      // In absolute frame
     LLSurfacePatch *mPatchList;     // Array of all patches
 
@@ -212,6 +205,7 @@ protected:
 private:
     LLViewerRegion *mRegionp; // Patch whose coordinate system this surface is using.
     static S32  sTextureSize;               // Size of the surface texture
+    LLTimer     mTimer; // timer to throttle initial requests until the mSTexture is fully fetched
 };
 
 extern template bool LLSurface::idleUpdate</*PBR=*/false>(F32 max_update_time);

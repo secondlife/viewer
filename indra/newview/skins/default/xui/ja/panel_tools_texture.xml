@@ -17,7 +17,7 @@
 	</combo_box>
 	<radio_group name="radio_material_type">
 		<radio_item label="テクスチャ (拡散)" name="Texture (diffuse)" value="0"/>
-		<radio_item label="凹凸 (標準)" name="Bumpiness (normal)" value="1"/>
+		<radio_item label="凹凸 (法線)" name="Bumpiness (normal)" value="1"/>
 		<radio_item label="輝き (反射)" name="Shininess (specular)" value="2"/>
 	</radio_group>
 	<check_box initial_value="false" label="繰り返しをロックする" name="checkbox_sync_settings" tool_tip="すべてのマップの繰り返しを調整する"/>
@@ -79,7 +79,7 @@
 	</text>
 	<color_swatch label="" name="shinycolorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 	<text name="media_info">
-		選択したメディアのＵＲＬがもしあれば、ここに入ります。
+		選択したメディアのURLがもしあれば、ここに入ります。
 	</text>
 	<button label="選択…" name="add_media" tool_tip="メディアを追加します"/>
 	<button label="削除" name="delete_media" tool_tip="このメディアテクスチャを削除します"/>

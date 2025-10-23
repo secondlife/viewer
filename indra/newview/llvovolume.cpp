@@ -5025,7 +5025,7 @@ void LLRiggedVolume::update(
     else
     {
         face_begin = face_index;
-        face_end = face_begin + 1;
+        face_end = llmin(face_begin + 1, volume->getNumVolumeFaces());
     }
     for (S32 i = face_begin; i < face_end; ++i)
     {
@@ -6765,7 +6765,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                 && te->getShiny()
                 && can_be_shiny)
             { //shiny
-                if (tex->getPrimaryFormat() == GL_ALPHA)
+                if (tex && tex->getPrimaryFormat() == GL_ALPHA)
                 { //invisiprim+shiny
                     if (!facep->getViewerObject()->isAttachment() && !facep->getViewerObject()->isRiggedMesh())
                     {
@@ -6805,7 +6805,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
             }
             else
             { //not alpha and not shiny
-                if (!is_alpha && tex->getPrimaryFormat() == GL_ALPHA)
+                if (!is_alpha && tex && tex->getPrimaryFormat() == GL_ALPHA)
                 { //invisiprim
                     if (!facep->getViewerObject()->isAttachment() && !facep->getViewerObject()->isRiggedMesh())
                     {

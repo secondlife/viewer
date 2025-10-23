@@ -4,10 +4,10 @@
 		中央のボタン
 	</panel.string>
 	<panel.string name="button4_mouse">
-		４ボタン
+		マウスボタン4
 	</panel.string>
 	<panel.string name="button5_mouse">
-		５ボタン
+		マウスボタン5
 	</panel.string>
 	<slider label="全体のボリューム" name="System Volume"/>
 	<button name="mute_audio"/>
