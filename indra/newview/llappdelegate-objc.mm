@@ -37,6 +37,8 @@
 #include "llappviewermacosx-for-objc.h"
 #include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's supported)
 
+#include "llversioninfovars.h"
+
 @implementation LLAppDelegate
 
 @synthesize window;
