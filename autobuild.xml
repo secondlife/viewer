@@ -270,11 +270,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d5fb3832a338bbe4891b823c64fdb4806706568e</string>
+              <string>e21e7755fe740d5ed30bd29441170449a57caa8b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-d7afe27/cubemaptoequirectangular-1.1.0-darwin64-d7afe27.tar.zst</string>
+              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-cb8785a/cubemaptoequirectangular-1.1.0-darwin64-cb8785a.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -284,11 +284,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>77c53daf558f51aec6e9f4bd9e930a103630ee7d</string>
+              <string>aea0bed0f953a9371b9091f09230b41597f891f7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-d7afe27/cubemaptoequirectangular-1.1.0-linux64-d7afe27.tar.zst</string>
+              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-cb8785a/cubemaptoequirectangular-1.1.0-linux64-cb8785a.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -298,11 +298,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6c51855bcf3a8628289881fdaea08c25cf7b1b90</string>
+              <string>eabc3b0c9d9084f49b8a4dc5d3834d77f668c27a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-d7afe27/cubemaptoequirectangular-1.1.0-windows64-d7afe27.tar.zst</string>
+              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-cb8785a/cubemaptoequirectangular-1.1.0-windows64-cb8785a.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -378,36 +378,6 @@
         <string>curl</string>
         <key>description</key>
         <string>Library for transferring data specified with URL syntax</string>
-      </map>
-      <key>dbus_glib</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7ee7b9aed3c0c8c09e7bf26bba7af8e1</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-dbus-glib/rev/314266/arch/Linux/installer/dbus_glib-0.76-linux64-314266.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>Academic Free License v. 2.1</string>
-        <key>license_file</key>
-        <string>LICENSES/dbus-glib.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) Red Hat Inc.</string>
-        <key>version</key>
-        <string>0.76</string>
-        <key>name</key>
-        <string>dbus_glib</string>
-        <key>description</key>
-        <string>D-Bus bindings for glib</string>
       </map>
       <key>dictionaries</key>
       <map>
@@ -595,36 +565,6 @@
         <key>description</key>
         <string>Expat is an XML parser library written in C</string>
       </map>
-      <key>fontconfig</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e2419d56960c160670051fbb055fb729</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-fontconfig/rev/314281/arch/Linux/installer/fontconfig-2.11.0-linux64-314281.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/fontconfig.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2000,2001,2002,2003,2004,2006,2007 Keith Packard, 2005 Patrick Lam, 2009 Roozbeh Pournader, 2008,2009 Red Hat, Inc., 2008 Danilo Šegan, 2012 Google, Inc.</string>
-        <key>version</key>
-        <string>2.11.0</string>
-        <key>name</key>
-        <string>fontconfig</string>
-        <key>description</key>
-        <string>Fontconfig is a library for configuring and customizing font access.</string>
-      </map>
       <key>freetype</key>
       <map>
         <key>platforms</key>
@@ -791,62 +731,6 @@
         <key>source_type</key>
         <string>git</string>
       </map>
-      <key>gstreamer</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7c9d7cc88add7831a6afeedc20cad2fe</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-gstreamer/rev/314267/arch/Linux/installer/gstreamer-0.10.6.314267-linux64-314267.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>LGPL</string>
-        <key>license_file</key>
-        <string>LICENSES/gstreamer.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</string>
-        <key>version</key>
-        <string>0.10.6.314267</string>
-        <key>name</key>
-        <string>gstreamer</string>
-      </map>
-      <key>gtk-atk-pango-glib</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>de7bba8fd2275a11b077b124413065d0</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-gtk-atk-pango-glib/rev/314220/arch/Linux/installer/gtk_atk_pango_glib-0.1-linux64-314220.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/gtk-atk-pango-glib.txt</string>
-        <key>copyright</key>
-        <string>Copyright (various, see sources)</string>
-        <key>version</key>
-        <string>0.1</string>
-        <key>name</key>
-        <string>gtk-atk-pango-glib</string>
-      </map>
       <key>havok-source</key>
       <map>
         <key>platforms</key>
@@ -858,11 +742,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>ae2c2a215b1bc2e3f37a67e301926dc405902d1a</string>
+              <string>1648aeb68395cba38f9326c671609d6730cbcc28</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136778143</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/196725921</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -871,10 +755,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
-              <string>00d0333936a67059a43a6ec8ac38d564</string>
+              <string>702ad28b6dbace2a68260d69f6d1768d163b5a6f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/748/1563/havok_source-2012.1-2-linux64-500739.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/196725902</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -886,11 +774,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>0393dd75c58f7046bed47e62a8884a78cb02a5c3</string>
+              <string>ea980f372981fe7685f91a111da2785825d473ed</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136778145</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/196725911</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1081,22 +969,6 @@
             <key>name</key>
             <string>windows64</string>
           </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>85e294becce8b2ac5d2e5e052b0e21ff865d1108</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/208381806</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
         </map>
         <key>license</key>
         <string>Kakadu</string>
@@ -1276,36 +1148,6 @@
         <string>libpng</string>
         <key>description</key>
         <string>PNG Reference library</string>
-      </map>
-      <key>libuuid</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>fb89f1281dd54d8b99b339fc5b712b27</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-libuuid/rev/314269/arch/Linux/installer/libuuid-1.6.2-linux64-314269.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>UUID</string>
-        <key>license_file</key>
-        <string>LICENSES/uuid.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2004-2008 The OSSP Project &lt;http://www.ossp.org/&gt;</string>
-        <key>version</key>
-        <string>1.6.2</string>
-        <key>name</key>
-        <string>libuuid</string>
-        <key>description</key>
-        <string>OSSP uuid is a ISO-C:1999 application programming interface (API) and corresponding command line interface (CLI) for the generation of DCE 1.1, ISO/IEC 11578:1996 and RFC 4122 compliant Universally Unique Identifier (UUID). </string>
       </map>
       <key>libxml2</key>
       <map>
@@ -1511,32 +1353,6 @@
         <string>1.0.561752</string>
         <key>name</key>
         <string>llphysicsextensions_tpv</string>
-      </map>
-      <key>mesa</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>22c50a5d362cad311b4f413cfcffbba2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/mesa_3p-update-mesa/rev/297294/arch/Linux/installer/mesa-7.11.1.297294-linux-297294.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>mesa</string>
-        <key>license_file</key>
-        <string>LICENSES/mesa.txt</string>
-        <key>version</key>
-        <string>7.11.1.297294</string>
-        <key>name</key>
-        <string>mesa</string>
       </map>
       <key>meshoptimizer</key>
       <map>
@@ -2542,7 +2358,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>Linden Lab Viewer Management Process suite.</string>
         <key>source</key>
-        <string>https://bitbucket.org/lindenlab/vmp-standalone</string>
+        <string>https://github.com/secondlife/viewer-manager</string>
         <key>source_type</key>
         <string>hg</string>
       </map>
@@ -2633,11 +2449,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>43c5f93517794aeade550e4266b959d1f0cfcb7f</string>
+              <string>a5e72a9d13b6c4646d1e02b5820f16560d204de7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.20-universal/webrtc-m137.7151.04.20-universal.17630578914-darwin64-17630578914.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.21/webrtc-m137.7151.04.21.18609120431-darwin64-18609120431.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2647,11 +2463,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>efc5b176d878cfc16b8f82445d82ddb96815b6ab</string>
+              <string>1030e5086f401d738463223da3ed99c225340f39</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.20-universal/webrtc-m137.7151.04.20-universal.17630578914-linux64-17630578914.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.21/webrtc-m137.7151.04.21.18609120431-linux64-18609120431.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2661,11 +2477,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1e36f100de32c7c71325497a672fb1659b3f206d</string>
+              <string>d1cae9bc8866ca01aa9f5e72b36d12ef608b1998</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.20-universal/webrtc-m137.7151.04.20-universal.17630578914-windows64-17630578914.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.21/webrtc-m137.7151.04.21.18609120431-windows64-18609120431.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2678,7 +2494,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
         <key>version</key>
-        <string>m137.7151.04.20-universal.17630578914</string>
+        <string>m137.7151.04.21.18609120431</string>
         <key>name</key>
         <string>webrtc</string>
         <key>vcs_branch</key>
@@ -2891,11 +2707,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>140d8fc952a10edb5f2d72ab405336019ef32cadfa64f0cfce76c9de4bc6268cbc87cc8cd89d3417fb78b531d441701afc8d016bafe4bd275df2707f7daf1387</string>
+              <string>49046b0b41310d2fb0d72853730b2faad35d3e36</string>
               <key>hash_algorithm</key>
-              <string>blake2b</string>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/AlchemyViewer/3p-vhacd/releases/download/v4.1.0-r2/vhacd-4.1.0-r2-common-18166921729.tar.zst</string>
+              <string>https://github.com/secondlife/3p-vhacd/releases/download/v4.1.0-r1/vhacd-4.1.0-r1-common-18475951995.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2908,7 +2724,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, Khaled Mamou</string>
         <key>version</key>
-        <string>4.1.0-r2</string>
+        <string>4.1.0-r1</string>
         <key>name</key>
         <string>vhacd</string>
         <key>description</key>
@@ -3143,15 +2959,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <map>
           <key>configurations</key>
           <map>
-            <key>Release</key>
+            <key>RelWithDebInfo</key>
             <map>
               <key>configure</key>
               <map>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Ninja</string>
-                  <string>-DLL_TESTS=Off</string>
+                  <string>Unix Makefiles</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3161,10 +2976,77 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>ninja</string>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
               </map>
               <key>default</key>
               <string>True</string>
+              <key>name</key>
+              <string>RelWithDebInfo</string>
+            </map>
+            <key>RelWithDebInfoOS</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Unix Makefiles</string>
+                </array>
+              </map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>RelWithDebInfoOS</string>
+            </map>
+            <key>Release</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Unix Makefiles</string>
+                </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+              </map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
+              </map>
               <key>name</key>
               <string>Release</string>
             </map>
@@ -3175,25 +3057,25 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Ninja</string>
-                  <string>-DLL_TESTS=Off</string>
+                  <string>Unix Makefiles</string>
                 </array>
               </map>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>ninja</string>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
-            </map>
-            <key>default</key>
-            <map>
-              <key>build</key>
-              <map>
-              </map>
-              <key>name</key>
-              <string>default</string>
             </map>
           </map>
           <key>build_directory</key>
@@ -3224,15 +3106,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>devenv</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>default</key>
@@ -3299,15 +3181,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>devenv</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>

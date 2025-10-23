@@ -263,10 +263,6 @@ using namespace LL;
 // define a self-registering event API object
 #include "llappviewerlistener.h"
 
-#if LL_LINUX && LL_GTK
-#include "glib.h"
-#endif // (LL_LINUX) && LL_GTK
-
 #ifdef LL_DISCORD
 #define DISCORDPP_IMPLEMENTATION
 #include <discordpp.h>
