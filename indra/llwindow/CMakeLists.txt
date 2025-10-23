@@ -101,6 +101,13 @@ if (DARWIN)
       PROPERTIES
       COMPILE_FLAGS "-fpascal-strings"
       )
+
+  set_source_files_properties(
+    llwindowmacosx-objc.mm
+    llopenglview-objc.mm
+    PROPERTIES
+    SKIP_PRECOMPILE_HEADERS TRUE
+  )
 endif (DARWIN)
 
 
@@ -170,6 +177,10 @@ if (BUILD_HEADLESS)
   dl
   )
   target_include_directories(llwindowheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+  
+  if (USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(llwindowheadless REUSE_FROM llprecompiled)
+  endif ()
 endif (BUILD_HEADLESS)
 
 if (llwindow_HEADER_FILES)
@@ -189,6 +200,10 @@ target_include_directories(llwindow INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 if (USE_SDL_WINDOW)
   target_compile_definitions( llwindow PUBLIC LL_SDL_WINDOW=1 )
 endif()
+
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llwindow REUSE_FROM llprecompiled)
+endif ()
 
 if (DARWIN)
   target_link_libraries(llwindow ${CARBON_LIBRARY})
