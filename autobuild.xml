@@ -7,33 +7,65 @@
     <string>autobuild</string>
     <key>installables</key>
     <map>
-      <key>SDL</key>
+      <key>SDL3</key>
       <map>
         <key>platforms</key>
         <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>121b209bbf8ffb2f7f668a74de0e654f4be7339f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-sdl3/releases/download/v3.2.24-r1/SDL3-3.2.24-r1-windows64-18539840462.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
           <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ea2df03bfc35c06acf23dd9e734adac</string>
+              <string>06226c54c57afd601707c0f5f7a2e0736ab1f326</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/1103/2554/SDL-1.2.15-linux64-501092.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-sdl3/releases/download/v3.2.24-r1/SDL3-3.2.24-r1-linux64-18539840462.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>aff68fb5655629c698e198af1581835267588f77</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-sdl3/releases/download/v3.2.24-r1/SDL3-3.2.24-r1-darwin64-18539840462.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
           </map>
         </map>
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
-        <string>LICENSES/SDL.txt</string>
+        <string>LICENSES/SDL3.txt</string>
         <key>copyright</key>
-        <string>Copyright (C) 1997-2012 Sam Lantinga</string>
+        <string>Copyright (C) 1997-2022 Sam Lantinga (slouken@libsdl.org)</string>
         <key>version</key>
-        <string>1.2.15</string>
+        <string>3.2.24-r1</string>
+        <key>use_scm_version</key>
+        <boolean>true</boolean>
         <key>name</key>
-        <string>SDL</string>
+        <string>SDL3</string>
         <key>description</key>
         <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
       </map>
@@ -1753,6 +1785,23 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>open-libndofdev</key>
       <map>
+        <key>platforms</key>
+        <map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>795d1e60f3e1e9092788214a6750e6506391cac5</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r6/open_libndofdev-0.14.18543500856-linux64-18543500856.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+        </map>
         <key>license</key>
         <string>BSD</string>
         <key>license_file</key>
@@ -1760,7 +1809,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
         <key>version</key>
-        <string>0.14.11968684513</string>
+        <string>0.14.18543500856</string>
         <key>name</key>
         <string>open-libndofdev</string>
         <key>description</key>

@@ -29,7 +29,7 @@
 
 #if LL_MESA_HEADLESS
 #include "llwindowmesaheadless.h"
-#elif LL_SDL
+#elif LL_SDL_WINDOW
 #include "llwindowsdl.h"
 #elif LL_WINDOWS
 #include "llwindowwin32.h"
@@ -39,6 +39,9 @@
 
 #include "llerror.h"
 #include "llkeyboard.h"
+#if LL_SDL_WINDOW && !defined(LL_MESA_HEADLESS)
+#include "llsdl.h"
+#endif
 #include "llwindowcallbacks.h"
 
 
@@ -74,14 +77,15 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
     LL_WARNS() << "OSMessageBox: " << text << LL_ENDL;
 #if LL_MESA_HEADLESS // !!! *FIX: (?)
     return OSBTN_OK;
+#elif LL_SDL_WINDOW
+    result = OSMessageBoxSDL(text, caption, type);
 #elif LL_WINDOWS
     result = OSMessageBoxWin32(text, caption, type);
 #elif LL_DARWIN
     result = OSMessageBoxMacOSX(text, caption, type);
-#elif LL_SDL
-    result = OSMessageBoxSDL(text, caption, type);
 #else
-#error("OSMessageBox not implemented for this platform!")
+    LL_WARNS() << "OSMessageBox not implemented for this platform!" << LL_ENDL;
+    return OSBTN_OK;
 #endif
 
     if (was_visible)
@@ -182,12 +186,6 @@ bool LLWindow::dialogColorPicker(F32 *r, F32 *g, F32 *b)
     return false;
 }
 
-void *LLWindow::getMediaWindow()
-{
-    // Default to returning the platform window.
-    return getPlatformWindow();
-}
-
 bool LLWindow::setSize(LLCoordScreen size)
 {
     if (!getMaximized())
@@ -258,12 +256,12 @@ bool LLWindow::copyTextToPrimary(const LLWString &src)
 // static
 std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 {
-#if LL_WINDOWS
+#if LL_SDL_WINDOW && !LL_MESA_HEADLESS
+    return LLWindowSDL::getDynamicFallbackFontList();
+#elif LL_WINDOWS
     return LLWindowWin32::getDynamicFallbackFontList();
 #elif LL_DARWIN
     return LLWindowMacOSX::getDynamicFallbackFontList();
-#elif LL_SDL
-    return LLWindowSDL::getDynamicFallbackFontList();
 #else
     return std::vector<std::string>();
 #endif
@@ -272,7 +270,9 @@ std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 // static
 std::vector<std::string> LLWindow::getDisplaysResolutionList()
 {
-#if LL_WINDOWS
+#if LL_SDL_WINDOW && !LL_MESA_HEADLESS
+    return LLWindowSDL::getDisplaysResolutionList();
+#elif LL_WINDOWS
     return LLWindowWin32::getDisplaysResolutionList();
 #elif LL_DARWIN
     return LLWindowMacOSX::getDisplaysResolutionList();
@@ -341,14 +341,17 @@ bool LLSplashScreen::isVisible()
 // static
 LLSplashScreen *LLSplashScreen::create()
 {
-#if LL_MESA_HEADLESS || LL_SDL  // !!! *FIX: (?)
-    return 0;
+#if LL_MESA_HEADLESS
+    return nullptr;
+#elif LL_SDL_WINDOW
+    return new LLSplashScreenSDL;
 #elif LL_WINDOWS
     return new LLSplashScreenWin32;
 #elif LL_DARWIN
     return new LLSplashScreenMacOSX;
 #else
-#error("LLSplashScreen not implemented on this platform!")
+    LL_WARNS() << ("LLSplashScreen not implemented on this platform!") << LL_ENDL;
+    return nullptr;
 #endif
 }
 
@@ -358,7 +361,9 @@ void LLSplashScreen::show()
 {
     if (!gSplashScreenp)
     {
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_SDL_WINDOW && !LL_MESA_HEADLESS
+        gSplashScreenp = new LLSplashScreenSDL;
+#elif LL_WINDOWS && !LL_MESA_HEADLESS
         gSplashScreenp = new LLSplashScreenWin32;
 #elif LL_DARWIN
         gSplashScreenp = new LLSplashScreenMacOSX;
@@ -412,15 +417,19 @@ LLWindow* LLWindowManager::createWindow(
 {
     LLWindow* new_window;
 
+#if LL_SDL_WINDOW && !defined(LL_MESA_HEADLESS)
+    init_sdl(name);
+#endif
+
     if (use_gl)
     {
 #if LL_MESA_HEADLESS
         new_window = new LLWindowMesaHeadless(callbacks,
             title, name, x, y, width, height, flags,
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth);
-#elif LL_SDL
+#elif LL_SDL_WINDOW
         new_window = new LLWindowSDL(callbacks,
-            title, x, y, width, height, flags,
+            title, name, x, y, width, height, flags,
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
 #elif LL_WINDOWS
         new_window = new LLWindowWin32(callbacks,
@@ -461,6 +470,9 @@ bool LLWindowManager::destroyWindow(LLWindow* window)
     window->close();
 
     sWindowList.erase(window);
+#if LL_SDL_WINDOW && !defined(LL_MESA_HEADLESS)
+    quit_sdl();
+#endif
 
     delete window;
 
