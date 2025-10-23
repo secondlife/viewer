@@ -72,6 +72,8 @@
 #include <fstream>
 #include <exception>
 
+#include "llversioninfovars.h"
+
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
 #include "BugSplat.h"
