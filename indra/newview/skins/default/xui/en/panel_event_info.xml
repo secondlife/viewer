@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="false"
- can_close="true"
- can_minimize="true"
- can_resize="false"
  follows="all"
  height="570"
  left="0"

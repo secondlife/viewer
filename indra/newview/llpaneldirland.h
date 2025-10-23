@@ -44,8 +44,6 @@ public:
     LLPanelDirLand();
     /*virtual*/ ~LLPanelDirLand();
 
-    /*virtual*/ void draw();
-
     bool postBuild();
 
     void performQuery();

@@ -105,9 +105,6 @@ public:
 
     std::string filterShortWords( const std::string source_string, int shortest_word_length, bool& was_filtered );
 
-    // Logic to control maturity checkboxes in Classified/Events/Places/'Land for Sale' tabs.
-    void updateMaturityCheckbox();
-
 protected:
     void updateResultCount();
 

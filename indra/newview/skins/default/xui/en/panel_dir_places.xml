@@ -32,7 +32,6 @@
     </text>
     <combo_box
      allow_text_entry="false"
-     enabled="false"
      follows="right|top"
      layout="topleft"
      height="18"
@@ -41,47 +40,20 @@
      max_chars="20"
      mouse_opaque="true"
      name="Category"
-     width="128"
-     visible="false">
-        <combo_item name="AnyCategory" value="any">
-            Any Category
-        </combo_item>
-        <combo_item name="LindenLocation" value="linden">
-            Linden Location
-        </combo_item>
-        <combo_item name="Arts&amp;Culture" value="arts">
-            Arts &amp; Culture
-        </combo_item>
-        <combo_item name="Business" value="store">
-            Business
-        </combo_item>
-        <combo_item name="Educational" value="educational">
-            Educational
-        </combo_item>
-        <combo_item name="Gaming" value="game">
-            Gaming
-        </combo_item>
-        <combo_item name="Hangout" value="gather">
-            Hangout
-        </combo_item>
-        <combo_item name="NewcomerFriendly" value="newcomer">
-            Newcomer Friendly
-        </combo_item>
-        <combo_item name="Parks&amp;Nature" value="park">
-            Parks &amp; Nature
-        </combo_item>
-        <combo_item name="Residential" value="home">
-            Residential
-        </combo_item>
-        <combo_item name="Shopping" value="shopping">
-            Shopping
-        </combo_item>
-        <combo_item name="Adult" value="adult">
-            Adult
-        </combo_item>
-        <combo_item name="Other" value="other">
-            Other
-        </combo_item>
+     width="128">
+        <combo_item name="AnyCategory" value="any" label="Any Category"/>
+        <combo_item name="LindenLocation" value="linden" label="Linden Location"/>
+        <combo_item name="Arts&amp;Culture" value="arts" label="Arts &amp; Culture"/>
+        <combo_item name="Business" value="store" label="Business"/>
+        <combo_item name="Educational" value="educational" label="Educational"/>
+        <combo_item name="Gaming" value="game" label="Gaming"/>
+        <combo_item name="Hangout" value="gather" label="Hangout"/>
+        <combo_item name="NewcomerFriendly" value="newcomer" label="Newcomer Friendly"/>
+        <combo_item name="Parks&amp;Nature" value="park" label="Parks &amp; Nature"/>
+        <combo_item name="Residential" value="home" label="Residential"/>
+        <combo_item name="Shopping" value="shopping" label="Shopping"/>
+        <combo_item name="Adult" value="adult" label="Adult"/>
+        <combo_item name="Other" value="other" label="Other"/>
     </combo_box>
     <check_box
      left_pad="20"

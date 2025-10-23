@@ -43,37 +43,17 @@
      mouse_opaque="true"
      name="Category"
      width="128">
-        <combo_item name="AnyCategory" value="0">
-            Any Category
-        </combo_item>
-        <combo_item name="Shopping" value="1">
-            Shopping
-        </combo_item>
-        <combo_item name="LandRental" value="2">
-            Land Rental
-        </combo_item>
-        <combo_item name="PropertyRental" value="3">
-            Property Rental
-        </combo_item>
-        <combo_item name="SpecialAttraction" value="4">
-            Special Attraction
-        </combo_item>
-        <combo_item name="NewProducts" value="5">
-            New Products
-        </combo_item>
-        <combo_item name="Employment" value="6">
-            Employment
-        </combo_item>
-        <combo_item name="Wanted" value="7">
-            Wanted
-        </combo_item>
-        <combo_item name="Service" value="8">
-            Service
-        </combo_item>
-        <combo_item name="Personal" value="9">
-            Personal
-        </combo_item>
-    </combo_box>
+        <combo_item name="AnyCategory" value="0" label="Any Category"/>
+        <combo_item name="Shopping" value="1" label="Shopping"/>
+        <combo_item name="LandRental" value="2" label="Land Rental"/>
+        <combo_item name="PropertyRental" value="3" label="Property Rental"/>
+        <combo_item name="SpecialAttraction" value="4" label="Special Attraction"/>
+        <combo_item name="NewProducts" value="5" label="New Products"/>
+        <combo_item name="Employment" value="6" label="Employment"/>
+        <combo_item name="Wanted" value="7" label="Wanted"/>
+        <combo_item name="Service" value="8" label="Service"/>
+        <combo_item name="Personal" value="9" label="Personal"/>
+     </combo_box>
     <check_box
      left_pad="20"
      control_name="ShowPGClassifieds"

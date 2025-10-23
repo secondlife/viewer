@@ -40,44 +40,21 @@
      height="18"
      max_chars="20"
      mouse_opaque="true"
-     name="category combo"
+     name="category_combo"
      width="128">
-        <combo_item name="All" value="0">
-            Any Category
-        </combo_item>
-        <combo_item name="Discussion" value="18">
-            Discussion
-        </combo_item>
-        <combo_item name="Sports" value="19">
-            Sports
-        </combo_item>
-        <combo_item name="LiveMusic" value="20">
-            Live Music
-        </combo_item>
-        <combo_item name="Commercial" value="22">
-            Commercial
-        </combo_item>
-        <combo_item name="Nightlife/Entertainment" value="23">
-            Nightlife/Entertainment
-        </combo_item>
-        <combo_item name="Games/Contests" value="24">
-            Games/Contests
-        </combo_item>
-        <combo_item name="Pageants" value="25">
-            Pageants
-        </combo_item>
-        <combo_item name="Education" value="26">
-            Education
-        </combo_item>
-        <combo_item name="ArtsandCulture" value="27">
-            Arts and Culture
-        </combo_item>
-        <combo_item name="Charity/SupportGroups" value="28">
-            Charity/Support Groups
-        </combo_item>
-        <combo_item name="Miscellaneous" value="29">
-            Miscellaneous
-        </combo_item>
+        <combo_item name="All" value="0" label="Any Category"/>
+        <combo_item name="Discussion" value="18" label="Discussion"/>
+        <combo_item name="Sports" value="19" label="Sports"/>
+        <combo_item name="LiveMusic" value="20" label="Live Music"/>
+        <combo_item name="LiveDJ" value="30" label="Live DJ"/>
+        <combo_item name="Commercial" value="22" label="Commercial"/>
+        <combo_item name="Nightlife/Entertainment" value="23" label="Nightlife/Entertainment"/>
+        <combo_item name="Games/Contests" value="24" label="Games/Contests"/>
+        <combo_item name="Pageants" value="25" label="Pageants"/>
+        <combo_item name="Education" value="26" label="Education"/>
+        <combo_item name="ArtsandCulture" value="27" label="Arts and Culture"/>
+        <combo_item name="Charity/SupportGroups" value="28" label="Charity/Support Groups"/>
+        <combo_item name="Miscellaneous" value="29" label="Miscellaneous"/>
     </combo_box>
     <check_box
      left_pad="20"
@@ -165,7 +142,6 @@
     </scroll_list>
     <text
      bg_visible="false"
-     border_drop_shadow_visible="false"
      border_visible="false"
      bottom_delta="-20"
      drop_shadow_visible="true"
@@ -212,6 +188,7 @@
      left="128"
      mouse_opaque="true"
      name="date_mode"
+     initial_value="current"
      width="200">
         <radio_item
          layout="topleft"
@@ -252,7 +229,6 @@
     <text
      top="8"
      bg_visible="false"
-     border_drop_shadow_visible="false"
      border_visible="false"
      left_pad="1"
      layout="topleft"

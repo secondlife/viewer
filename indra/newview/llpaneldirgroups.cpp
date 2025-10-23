@@ -32,7 +32,6 @@
 #include "llqueryflags.h"
 #include "llviewercontrol.h"
 #include "llsearcheditor.h"
-#include "message.h"
 
 static LLPanelInjector<LLPanelDirGroups> t_panel_dir_groups("panel_dir_groups");
 
@@ -58,7 +57,6 @@ bool LLPanelDirGroups::postBuild()
 
 LLPanelDirGroups::~LLPanelDirGroups()
 {
-    // Children all cleaned up by default view destructor.
 }
 
 // virtual

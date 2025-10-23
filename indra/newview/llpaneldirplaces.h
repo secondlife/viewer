@@ -37,11 +37,7 @@ public:
     LLPanelDirPlaces();
     virtual ~LLPanelDirPlaces();
 
-    /*virtual*/ void draw();
-
-    bool postBuild();
-
-    static void onClickSearch(void *userdata);
+    bool postBuild() override;
 
     void performQuery();
 

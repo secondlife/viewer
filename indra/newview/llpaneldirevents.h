@@ -38,15 +38,11 @@ public:
     LLPanelDirEvents();
     virtual ~LLPanelDirEvents();
 
-    /*virtual*/ void draw();
-
-    bool postBuild();
+    bool postBuild() override;
 
     /*virtual*/ void performQuery();
 
     void performQueryOrDelete(U32 event_id);
-
-    void refresh();
 
     // pass 0 for today, 1 for tomorrow
     void setDay(S32 day);
@@ -55,12 +51,9 @@ protected:
     static void onDateModeCallback(LLUICtrl* ctrl, void *data);
     static void onBackBtn(void* data);
     static void onForwardBtn(void* data);
-    static void onClickToday(void *userdata);
     static void onCommitMature(LLUICtrl* ctrl, void* data);
-    static void onClickSearch(void *data);
 
 protected:
-    bool mDoneQuery;
     S32 mDay; // 0 = today, 1 = tomorrow
 };
 

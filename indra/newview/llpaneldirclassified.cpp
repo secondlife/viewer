@@ -61,33 +61,7 @@ bool LLPanelDirClassified::postBuild()
 {
     LLPanelDirBrowser::postBuild();
 
-    // Teens don't get mature checkbox
-    if (gAgent.wantsPGOnly())
-    {
-        childSetValue("incmature", FALSE);
-        childSetValue("incadult", FALSE);
-        childSetVisible("incmature", false);
-        childSetVisible("incadult", false);
-        childSetValue("incpg", TRUE);
-        childDisable("incpg");
-    }
-
-    bool mature_enabled = gAgent.canAccessMature();
-    if (!mature_enabled)
-    {
-        childSetValue("incmature", FALSE);
-        childDisable("incmature");
-    }
-
-    bool adult_enabled = gAgent.canAccessAdult();
-    if (!adult_enabled)
-    {
-        childSetValue("incadult", FALSE);
-        childDisable("incadult");
-    }
-
     childSetAction("Search", onClickSearchCore, this);
-
     return true;
 }
 
@@ -95,23 +69,12 @@ LLPanelDirClassified::~LLPanelDirClassified()
 {
 }
 
-void LLPanelDirClassified::draw()
-{
-    refresh();
-
-    LLPanelDirBrowser::draw();
-}
-
-void LLPanelDirClassified::refresh()
-{
-    updateMaturityCheckbox();
-}
-
 void LLPanelDirClassified::performQuery()
 {
-    BOOL inc_pg = childGetValue("incpg").asBoolean();
-    BOOL inc_mature = childGetValue("incmature").asBoolean();
-    BOOL inc_adult = childGetValue("incadult").asBoolean();
+    static LLUICachedControl<bool> inc_pg("ShowPGClassifieds", true);
+    static LLUICachedControl<bool> inc_mature("ShowMatureClassifieds", false);
+    static LLUICachedControl<bool> inc_adult("ShowAdultClassifieds", false);
+
     if (!(inc_pg || inc_mature || inc_adult))
     {
         LLNotificationsUtil::add("NoContentToSearch");
@@ -129,9 +92,9 @@ void LLPanelDirClassified::performQuery()
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 
     bool filter_auto_renew = false;
-    U32 query_flags = pack_classified_flags_request(filter_auto_renew, inc_pg, inc_mature, inc_adult);
-    //if (gAgent.isTeen()) query_flags |= DFQ_PG_SIMS_ONLY;
-
+    U32 query_flags = pack_classified_flags_request(filter_auto_renew, inc_pg,
+                                                                       inc_mature && gAgent.canAccessMature(),
+                                                                       inc_adult && gAgent.canAccessAdult());
     U32 category = childGetValue("Category").asInteger();
 	
     msg->nextBlockFast(_PREHASH_QueryData);

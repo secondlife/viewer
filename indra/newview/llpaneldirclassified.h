@@ -42,11 +42,7 @@ public:
     LLPanelDirClassified();
     /*virtual*/ ~LLPanelDirClassified();
 
-    /*virtual*/ void draw();
-
     bool postBuild();
-
-    void refresh();
 
     // Request the classifieds from the database
     void performQuery();

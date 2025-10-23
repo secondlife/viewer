@@ -38,18 +38,10 @@
      mouse_opaque="true"
      name="type"
      width="128">
-        <combo_item name="AllTypes" value="All Types">
-            All Types
-        </combo_item>
-        <combo_item name="Auction" value="Auction">
-            Auction
-        </combo_item>
-        <combo_item name="MainlandSales" value="Mainland Sales">
-            For Sale - Mainland
-        </combo_item>
-        <combo_item name="EstateSales" value="Estate Sales">
-            For Sale - Estate
-        </combo_item>
+        <combo_item name="AllTypes" value="All Types" label="All Types"/>
+        <combo_item name="Auction" value="Auction" label="Auction"/>
+        <combo_item name="MainlandSales" value="Mainland Sales" label="For Sale - Mainland"/>
+        <combo_item name="EstateSales" value="Estate Sales" label="For Sale - Estate"/>
     </combo_box>
     <check_box
      left_pad="20"
@@ -115,7 +107,6 @@
      width="50" />
     <text
      bg_visible="false"
-     border_drop_shadow_visible="false"
      border_visible="false"
      follows="left|top"
      layout="topleft"
@@ -155,7 +146,6 @@
      width="50" />
     <text
      bg_visible="false"
-     border_drop_shadow_visible="false"
      border_visible="false"
      follows="left|top"
      layout="topleft"
@@ -203,14 +193,43 @@
         <column label="Area" name="area" width="50" />
         <column label="L$/m²" name="per_meter" width="65" />
     </scroll_list>
-    <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-         bottom_delta="-20" drop_shadow_visible="true" follows="left|bottom"
-         font="SansSerifSmall" h_pad="0" halign="left" height="16" left="4"
-         mouse_opaque="true" name="result_text" v_pad="0" width="328" />
-    <button bottom="-533" follows="right|bottom" font="SansSerif" halign="center"
-         height="20" label="Next &gt;" label_selected="Next &gt;"
-         mouse_opaque="true" name="Next &gt;" right="344" width="80" />
-    <button bottom_delta="0" follows="right|bottom" font="SansSerif" halign="center"
-         height="20" label="&lt; Prev" label_selected="&lt; Prev"
-         mouse_opaque="true" name="&lt; Prev" right="258" width="80" />
+    <text
+     bg_visible="false"
+     border_visible="false"
+     bottom_delta="-20"
+     drop_shadow_visible="true"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="4"
+     mouse_opaque="true"
+     name="result_text"
+     v_pad="0"
+     width="328" />
+    <button
+     bottom="-533"
+     follows="right|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Next &gt;"
+     label_selected="Next &gt;"
+     mouse_opaque="true"
+     name="Next &gt;"
+     right="344"
+     width="80" />
+    <button
+     bottom_delta="0"
+     follows="right|bottom"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="&lt; Prev"
+     label_selected="&lt; Prev"
+     mouse_opaque="true"
+     name="&lt; Prev"
+     right="258"
+     width="80" />
 </panel>

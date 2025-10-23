@@ -34,21 +34,14 @@
 
 #include "llpaneldirland.h"
 
-// linden library includes
-#include "llfontgl.h"
-#include "llparcel.h"
-#include "llqueryflags.h"
-#include "message.h"
-
-// viewer project includes
 #include "llagent.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
+#include "llqueryflags.h"
 #include "llscrolllistctrl.h"
 #include "llstatusbar.h"
-#include "lluiconstants.h"
 #include "lltextbox.h"
 #include "llviewercontrol.h"
 #include "llviewermessage.h"
@@ -124,14 +117,6 @@ LLPanelDirLand::~LLPanelDirLand()
     // Children all cleaned up by default view destructor.
 }
 
-// virtual
-void LLPanelDirLand::draw()
-{
-    updateMaturityCheckbox();
-
-    LLPanelDirBrowser::draw();
-}
-
 void LLPanelDirLand::onClickSort()
 {
     performQuery();
@@ -159,9 +144,9 @@ void LLPanelDirLand::onCommitArea(LLUICtrl* ctrl, void* data)
 
 void LLPanelDirLand::performQuery()
 {
-    BOOL inc_pg = childGetValue("incpg").asBoolean();
-    BOOL inc_mature = childGetValue("incmature").asBoolean();
-    BOOL inc_adult = childGetValue("incadult").asBoolean();
+    static LLUICachedControl<bool> inc_pg("ShowPGLand", true);
+    static LLUICachedControl<bool> inc_mature("ShowMatureLand", false);
+    static LLUICachedControl<bool> inc_adult("ShowAdultLand", false);
     if (!(inc_pg || inc_mature || inc_adult))
     {
         LLNotificationsUtil::add("NoContentToSearch");

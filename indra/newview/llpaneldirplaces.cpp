@@ -40,7 +40,6 @@
 #include "llfloaterdirectory.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
-#include "llviewerwindow.h"
 #include "llpaneldirbrowser.h"
 #include "llsearcheditor.h"
 #include "lltextbox.h"
@@ -66,22 +65,11 @@ bool LLPanelDirPlaces::postBuild()
     mCurrentSortColumn = "dwell";
     mCurrentSortAscending = FALSE;
 
-    childSetVisible("Category", true);
-    childSetEnabled("Category", true);
-
     return true;
 }
 
 LLPanelDirPlaces::~LLPanelDirPlaces()
 {
-}
-
-// virtual
-void LLPanelDirPlaces::draw()
-{
-    updateMaturityCheckbox();
-
-    LLPanelDirBrowser::draw();
 }
 
 // virtual
@@ -130,27 +118,25 @@ void LLPanelDirPlaces::performQuery()
     bool adult_enabled = gAgent.canAccessAdult();
     bool mature_enabled = gAgent.canAccessMature();
 
-    if( gSavedSettings.getBOOL("ShowPGSims"))
+    static LLUICachedControl<bool> inc_pg("ShowPGSims", true);
+    static LLUICachedControl<bool> inc_mature("ShowMatureSims", false);
+    static LLUICachedControl<bool> inc_adult("ShowAdultSims", false);
+
+    if (inc_pg)
     {
         flags |= DFQ_INC_PG;
     }
 
-    if( gSavedSettings.getBOOL("ShowMatureSims") && mature_enabled)
+    if (inc_mature && mature_enabled)
     {
         flags |= DFQ_INC_MATURE;
     }
 
-    if( gSavedSettings.getBOOL("ShowAdultSims") && adult_enabled)
+    if (inc_adult && adult_enabled)
     {
         flags |= DFQ_INC_ADULT;
     }
 
-    // Pack old query flag in case we are talking to an old server
-    if ( ((flags & DFQ_INC_PG) == DFQ_INC_PG) && !((flags & DFQ_INC_MATURE) == DFQ_INC_MATURE) )
-    {
-        flags |= DFQ_PG_PARCELS_ONLY;
-    }
- 
     if (0x0 == flags)
     {
         LLNotificationsUtil::add("NoContentToSearch");

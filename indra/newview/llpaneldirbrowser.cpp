@@ -249,52 +249,6 @@ std::string LLPanelDirBrowser::filterShortWords(const std::string source_string,
     return dest_string.str();
 }
 
-void LLPanelDirBrowser::updateMaturityCheckbox()
-{
-    BOOL godlike = gAgent.isGodlike();
-    // You only have a choice if your maturity is 'mature' or higher.
-    // Logic: if you're not at least mature, hide the mature and adult options
-    // After that, enable only the options you can legitimately choose.
-    // If you're PG only, show you the checkbox but don't let you change it.
-    // If you're God, you have everything.
-    bool mature_enabled = gAgent.canAccessMature() || godlike;
-    bool adult_enabled = gAgent.canAccessAdult() || godlike;
-
-    // TODO: fix maturity settings
-    // These check boxes can only be checked if you have the right access to use them
-    //std::string control_name_pg = getChild<LLCheckBoxCtrl>("incpg")->getControlName();
-    //std::string control_name_mature = getChild<LLCheckBoxCtrl>("incmature")->getControlName();
-    //std::string control_name_adult = getChild<LLCheckBoxCtrl>("incadult")->getControlName();
-
-    //childSetValue("incpg", gSavedSettings.getBOOL(control_name_pg));
-    //childSetValue("incmature", gSavedSettings.getBOOL(control_name_mature) && mature_enabled);
-    //childSetValue("incadult", gSavedSettings.getBOOL(control_name_adult) && adult_enabled);
-
-    childSetValue("incpg", true);
-    childSetValue("incmature", true);
-    childSetValue("incadult", true);
-
-    // Teens don't get mature/adult choices
-    if (gAgent.wantsPGOnly())
-    {
-        childSetVisible("incmature", false);
-        childSetVisible("incadult", false);
-        childSetValue("incpg", TRUE);
-        childDisable("incpg");
-    }
-
-    childSetEnabled("incmature", mature_enabled);		
-    childSetEnabled("incadult", adult_enabled);
-
-    if (mature_enabled)
-    {
-        childEnable("incpg");
-        childSetVisible("incpg", TRUE);
-        childSetVisible("incmature", TRUE);
-        childSetVisible("incadult", TRUE);
-    }
-}
-
 void LLPanelDirBrowser::selectByUUID(const LLUUID& id)
 {
     LLCtrlListInterface *list = childGetListInterface("results");
@@ -598,7 +552,7 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
         std::string buffer = llformat("%.0f", (F64)dwell);
         row["columns"][3]["column"] = "dwell";
         row["columns"][3]["value"] = buffer;
-        row["columns"][3]["font"] = "SANSSERIFSMALL";
+        row["columns"][3]["font"] = "SansSerifSmall";
 
         list->addElement(row);
         self->mResultsContents[parcel_id.asString()] = content;
@@ -736,11 +690,11 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
 
         row["columns"][2]["column"] = "date";
         row["columns"][2]["value"] = date;
-        row["columns"][2]["font"] = "SANSSERIFSMALL";
+        row["columns"][2]["font"] = "SansSerifSmall";
 
         row["columns"][3]["column"] = "time";
         row["columns"][3]["value"] = llformat("%u", unix_time);
-        row["columns"][3]["font"] = "SANSSERIFSMALL";
+        row["columns"][3]["font"] = "SansSerifSmall";
 
         list->addElement(row, ADD_TOP /*ADD_SORTED*/);
 
@@ -822,7 +776,7 @@ void LLPanelDirBrowser::processDirGroupsReply(LLMessageSystem* msg, void**)
 
         row["columns"][2]["column"] = "members";
         row["columns"][2]["value"] = members;
-        row["columns"][2]["font"] = "SANSSERIFSMALL";
+        row["columns"][2]["font"] = "SansSerifSmall";
 
         row["columns"][3]["column"] = "score";
         row["columns"][3]["value"] = search_order;
@@ -979,7 +933,6 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
         if ( msg->getSizeFast(_PREHASH_QueryReplies, i, _PREHASH_ProductSKU) > 0 )
         {
             msg->getStringFast(_PREHASH_QueryReplies, _PREHASH_ProductSKU, land_sku, i);
-            LL_INFOS() << "Land sku: " << land_sku << LL_ENDL;
             land_type = LLProductInfoRequestManager::instance().getDescriptionForSku(land_sku);
         }
         else
@@ -1011,12 +964,12 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
         }
         row["columns"][3]["column"] = "price";
         row["columns"][3]["value"] = buffer;
-        row["columns"][3]["font"] = "SANSSERIFSMALL";
+        row["columns"][3]["font"] = "SansSerifSmall";
 
         buffer = llformat("%d", actual_area);
         row["columns"][4]["column"] = "area";
         row["columns"][4]["value"] = buffer;
-        row["columns"][4]["font"] = "SANSSERIFSMALL";
+        row["columns"][4]["font"] = "SansSerifSmall";
 
         if (!auction)
         {
@@ -1033,19 +986,19 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
             buffer = llformat("%.1f", price_per_meter);
             row["columns"][5]["column"] = "per_meter";
             row["columns"][5]["value"] = buffer;
-            row["columns"][5]["font"] = "SANSSERIFSMALL";
+            row["columns"][5]["font"] = "SansSerifSmall";
         }
         else
         {
             // Auctions start at L$1 per meter
             row["columns"][5]["column"] = "per_meter";
             row["columns"][5]["value"] = "1.0";
-            row["columns"][5]["font"] = "SANSSERIFSMALL";
+            row["columns"][5]["font"] = "SansSerifSmall";
         }
 
         row["columns"][6]["column"] = "landtype";
         row["columns"][6]["value"] = land_type;
-        row["columns"][6]["font"] = "SANSSERIFSMALL";
+        row["columns"][6]["font"] = "SansSerifSmall";
 
         list->addElement(row);
         self->mResultsContents[parcel_id.asString()] = content;
@@ -1080,7 +1033,7 @@ void LLPanelDirBrowser::addClassified(LLCtrlListInterface *list, const LLUUID& p
 
     row["columns"][2]["column"] = "price";
     row["columns"][2]["value"] = price_for_listing;
-    row["columns"][2]["font"] = "SANSSERIFSMALL";
+    row["columns"][2]["font"] = "SansSerifSmall";
 
     list->addElement(row);
 }

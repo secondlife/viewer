@@ -47,7 +47,6 @@ static LLPanelInjector<LLPanelDirEvents> t_panel_dir_events("panel_dir_events");
 
 LLPanelDirEvents::LLPanelDirEvents()
     : LLPanelDirBrowser(),
-    mDoneQuery(FALSE),
     mDay(0)
 {
     // more results per page for this
@@ -62,8 +61,6 @@ bool LLPanelDirEvents::postBuild()
 
     childSetAction("<<", onBackBtn, this);
     childSetAction(">>", onForwardBtn, this);
-
-    childSetAction("Today", onClickToday, this);
 
     childSetCommitCallback("mature", onCommitMature, this);
 
@@ -82,20 +79,6 @@ bool LLPanelDirEvents::postBuild()
 LLPanelDirEvents::~LLPanelDirEvents()
 {
 }
-
-
-void LLPanelDirEvents::draw()
-{
-    refresh();
-
-    LLPanelDirBrowser::draw();
-}
-
-void LLPanelDirEvents::refresh()
-{
-    updateMaturityCheckbox();
-}
-
 
 void LLPanelDirEvents::setDay(S32 day)
 {
@@ -155,19 +138,14 @@ void LLPanelDirEvents::performQueryOrDelete(U32 event_id)
     // offset from this day.
     mDay = relative_day;
 
-    mDoneQuery = TRUE;
+    static LLUICachedControl<bool> incpg("ShowPGEvents", true);
+    static LLUICachedControl<bool> incmature("ShowMatureEvents", false);
+    static LLUICachedControl<bool> incadult("ShowAdultEvents", false);
 
     U32 scope = DFQ_DATE_EVENTS;
-    if ( gAgent.wantsPGOnly()) scope |= DFQ_PG_SIMS_ONLY;
-    if ( childGetValue("incpg").asBoolean() ) scope |= DFQ_INC_PG;
-    if ( childGetValue("incmature").asBoolean() ) scope |= DFQ_INC_MATURE;
-    if ( childGetValue("incadult").asBoolean() ) scope |= DFQ_INC_ADULT;
-
-    // Add old query flags in case we are talking to an old server
-    if ( childGetValue("incpg").asBoolean() && !childGetValue("incmature").asBoolean())
-    {
-        scope |= DFQ_PG_EVENTS_ONLY;
-    }
+    if (incpg) scope |= DFQ_INC_PG;
+    if (incmature && gAgent.canAccessMature()) scope |= DFQ_INC_MATURE;
+    if (incadult && gAgent.canAccessAdult()) scope |= DFQ_INC_ADULT;
 
     if ( !( scope & (DFQ_INC_PG | DFQ_INC_MATURE | DFQ_INC_ADULT )))
     {
@@ -191,7 +169,7 @@ void LLPanelDirEvents::performQueryOrDelete(U32 event_id)
 
     // Categories are stored in the database in table indra.event_category
     // XML must match.
-    U32 cat_id = childGetValue("category combo").asInteger();
+    U32 cat_id = childGetValue("category_combo").asInteger();
 
     params << cat_id << "|";
     params << childGetValue("event_search_text").asString();
@@ -230,27 +208,15 @@ void LLPanelDirEvents::onDateModeCallback(LLUICtrl* ctrl, void *data)
     LLPanelDirEvents* self = (LLPanelDirEvents*)data;
     if (self->childGetValue("date_mode").asString() == "date")
     {
-        self->childEnable("Today");
         self->childEnable(">>");
         self->childEnable("<<");
     }
     else
     {
-        self->childDisable("Today");
         self->childDisable(">>");
         self->childDisable("<<");
     }
 }
-
-// static
-void LLPanelDirEvents::onClickToday(void *userdata)
-{
-    LLPanelDirEvents *self = (LLPanelDirEvents *)userdata;
-    self->resetSearchStart();
-    self->setDay(0);
-    self->performQuery();
-}
-
 
 // static
 void LLPanelDirEvents::onBackBtn(void* data)
