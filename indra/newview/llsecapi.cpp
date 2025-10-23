@@ -161,9 +161,12 @@ void LLCredential::authenticatorType(std::string &idType)
     }
 }
 
-LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg)
+LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg, bool suppress_warning)
   : LLException(msg),
     mCertData(cert_data)
 {
-    LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
+    if (!suppress_warning)
+    {
+        LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
+    }
 }
