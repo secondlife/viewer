@@ -113,6 +113,10 @@ public:
     void            getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const;
     bool            calcAlignedPlanarTE(const LLFace* align_to, LLVector2* st_offset,
                                         LLVector2* st_scale, F32* st_rot, LLRender::eTexIndex map = LLRender::DIFFUSE_MAP) const;
+    bool            calcAlignedPlanarTE(const LLFace* align_to, LLVector2* st_offset,
+                                        LLVector2* st_scale, F32* st_rot,
+                                        F32 map_rot, F32 map_scaleS, F32 map_scaleT,
+                                        F32 map_offsS, F32 map_offsT) const;
 
     U32             getState()          const   { return mState; }
     void            setState(U32 state)         { mState |= state; }
