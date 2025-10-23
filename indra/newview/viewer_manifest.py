@@ -1152,21 +1152,52 @@ class LinuxManifest(ViewerManifest):
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
         # plugins
-        with self.prefix(src="../media_plugins", dst="bin/llplugin"):
-            self.path("gstreamer010/libmedia_plugin_gstreamer010.so",
-                      "libmedia_plugin_gstreamer.so")
-            self.path2basename("libvlc", "libmedia_plugin_libvlc.so")
+        with self.prefix(dst="bin/llplugin"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
+                with self.prefix(src='cef'):
+                    self.path("libmedia_plugin_cef.so")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
-            self.path( "plugins.dat" )
-            self.path( "*/*.so" )
+                # Media plugins - LibVLC
+                with self.prefix(src='libvlc'):
+                    self.path("libmedia_plugin_libvlc.so")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib' ), dst="lib"):
-            self.path( "libvlc*.so*" )
+                # GStreamer 1.0 Media Plugin
+                with self.prefix(src='gstreamer10'):
+                    self.path("libmedia_plugin_gstreamer10.so")
 
-        # llcommon
-        if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):
-            print("Skipping llcommon.so (assuming llcommon was linked statically)")
+                # Media plugins - Example (useful for debugging - not shipped with release viewer)
+                if self.channel_type() != 'release':
+                    with self.prefix(src='example'):
+                        self.path("libmedia_plugin_example.so")
+
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+            self.path( "libcef.so" )
+            self.path( "libEGL*" )
+            self.path( "libvulkan*" )
+            self.path( "libvk_swiftshader*" )
+            self.path( "libGLESv2*" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
+            self.path( "chrome-sandbox" )
+            self.path( "dullahan_host" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="bin"):
+            self.path( "v8_context_snapshot.bin" )
+            self.path( "vk_swiftshader_icd.json")
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+            self.path( "v8_context_snapshot.bin" )
+            self.path( "vk_swiftshader_icd.json")
+
+        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="lib"):
+            self.path( "chrome_100_percent.pak" )
+            self.path( "chrome_200_percent.pak" )
+            self.path( "resources.pak" )
+            self.path( "icudtl.dat" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
+            self.path("*.pak")
 
         self.path("featuretable_linux.txt")
         self.path("cube.dae")
@@ -1215,6 +1246,13 @@ class LinuxManifest(ViewerManifest):
                 ["find"] +
                 [os.path.join(self.get_dst_prefix(), dir) for dir in ('bin', 'lib')] +
                 ['-type', 'f', '!', '-name', '*.py',
+                 '!', '-name', '*.pak',
+                 '!', '-name', '*.bin',
+                 '!', '-name', '*.dat',
+                 '!', '-name', '*.crt',
+                 '!', '-name', '*.dll',
+                 '!', '-name', '*.lib',
+                 '!', '-name', '*.json',
                  '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
 
 class Linux_i686_Manifest(LinuxManifest):

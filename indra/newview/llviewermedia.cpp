@@ -1749,9 +1749,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         }
         else if(LLFile::stat(plugin_name, &s))
         {
-#if !LL_LINUX
             LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
-#endif
         }
         else
         {
@@ -1783,6 +1781,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
             media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
+#if LL_LINUX
+            bool media_plugin_pipewire_volume_catcher = gSavedSettings.getBOOL("MediaPluginPipeWireVolumeCatcher");
+            media_source->enablePipeWireVolumeCatcher( media_plugin_pipewire_volume_catcher );
+#endif
+
             // need to set agent string here before instance created
             media_source->setBrowserUserAgent(LLViewerMedia::getInstance()->getCurrentUserAgent());
 
@@ -1804,9 +1807,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             }
         }
     }
-#if !LL_LINUX
     LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
-#endif
 
     if(gAgent.isInitialized())
     {
