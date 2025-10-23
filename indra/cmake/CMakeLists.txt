@@ -28,6 +28,7 @@ set(cmake_SOURCE_FILES
         GLEXT.cmake
         GLH.cmake
         GLM.cmake
+        GStreamer10Plugin.cmake
         Havok.cmake
         Hunspell.cmake
         LLAddBuildTest.cmake
