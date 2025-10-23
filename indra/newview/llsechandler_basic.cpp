@@ -480,6 +480,7 @@ LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time)
 // class LLBasicCertificateVector
 // This class represents a list of certificates, implemented by a vector of certificate pointers.
 // it contains implementations of the virtual functions for iterators, search, add, remove, etc.
+// and also a function to load certificates from files
 LLBasicCertificateVector::LLBasicCertificateVector(const std::string& filename) :
     mLoaded(0),
     mRejected(0)
@@ -576,6 +577,7 @@ LLPointer<LLCertificate> LLBasicCertificateVector::erase(iterator _iter)
     return NULL;
 }
 
+// load a certificate from a file or directory and add all found certificates to the store if valid
 bool LLBasicCertificateVector::load_from(const std::string& filename, bool suppress_expire_warning)
 {
     bool success = false;
@@ -615,6 +617,8 @@ bool LLBasicCertificateVector::load_from(const std::string& filename, bool suppr
     return success;
 }
 
+// verify the certificate to be valid and not expired and add it to the store. If the certificate
+// already exists in the store (based on CERT_SUBJECT_KEY_IDENTFIER), it will be ignored
 bool LLBasicCertificateVector::verify_and_add(const unsigned char* cert_bytes, long length, bool suppress_expire_warning)
 {
     bool success = false;
@@ -627,6 +631,8 @@ bool LLBasicCertificateVector::verify_and_add(const unsigned char* cert_bytes, l
     return success;
 }
 
+// verify the certificate to be valid and not expired and add it to the store. If the certificate
+// already exists in the store (based on CERT_SUBJECT_KEY_IDENTFIER), it will be ignored
 bool LLBasicCertificateVector::verify_and_add(X509* cert_x509, bool suppress_expire_warning)
 {
     try
@@ -662,6 +668,8 @@ bool LLBasicCertificateVector::verify_and_add(X509* cert_x509, bool suppress_exp
     return false;
 }
 
+// constructor for the system certification store, which enumerates the certificates for the current
+// operating system
 LLSystemCertificateVector::LLSystemCertificateVector(const std::string& storename, bool suppress_expire_warning)
 {
     // Try to load the system store through the platform API
@@ -717,7 +725,7 @@ bool LLSystemCertificateVector::load_from_system(const std::string& storename, b
         kSecTrustSettingsDomainAdmin,
         kSecTrustSettingsDomainSystem,
     };
-    
+
     for (SecTrustSettingsDomain domain : domains)
     {
         CFArrayRef cfCerts;

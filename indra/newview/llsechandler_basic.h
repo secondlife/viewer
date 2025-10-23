@@ -168,7 +168,7 @@ private:
 
 // load certificates from the system store
 // by default suppress warnings about expired certificates since at least on Windows
-// the store contains usually also several expired certificates
+// and Mac the store contains usually also several expired certificates
 class LLSystemCertificateVector : public LLBasicCertificateVector
 {
 public:
