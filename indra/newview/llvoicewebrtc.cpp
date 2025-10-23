@@ -396,7 +396,7 @@ void LLWebRTCVoiceClient::updateSettings()
             config.mNoiseSuppressionLevel = noiseSuppressionLevel;
             audioConfigChanged            = true;
         }
-        if (audioConfigChanged)
+        if (audioConfigChanged && mWebRTCDeviceInterface)
         {
             mWebRTCDeviceInterface->setAudioConfig(config);
         }
@@ -699,6 +699,7 @@ void LLWebRTCVoiceClient::setCaptureDevice(const std::string& name)
 {
     if (mWebRTCDeviceInterface)
     {
+        LL_DEBUGS("Voice") << "new capture device is " << name << LL_ENDL;
         mWebRTCDeviceInterface->setCaptureDevice(name);
     }
 }
@@ -727,10 +728,15 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
         return;
     }
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
+
+    LL_DEBUGS("Voice") << "Reiniting " << LL_ENDL;
+
     std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 
     LL_DEBUGS("Voice") << "Setting devices to-input: '" << inputDevice << "' output: '" << outputDevice << "'" << LL_ENDL;
+    bool update_render = false;
+    bool update_capture = false;
 
     // only set the render device if the device list has changed.
     if (mRenderDevices.size() != render_devices.size() || !std::equal(mRenderDevices.begin(),
@@ -744,7 +750,7 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
         {
             addRenderDevice(LLVoiceDevice(device.mDisplayName, device.mID));
         }
-        setRenderDevice(outputDevice);
+        update_render = true;
     }
 
     // only set the capture device if the device list has changed.
@@ -761,6 +767,22 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
 
             addCaptureDevice(LLVoiceDevice(device.mDisplayName, device.mID));
         }
+        update_capture = true;
+    }
+
+    if (update_render && update_capture)
+    {
+        // Do both in one go to avoid multiple deployDevices calls.
+        // And to avoid situation where workerDeployDevices has an
+        // obsolete device id
+        setDevices(inputDevice, outputDevice);
+    }
+    else if (update_render)
+    {
+        setRenderDevice(outputDevice);
+    }
+    else if (update_capture)
+    {
         setCaptureDevice(inputDevice);
     }
 
@@ -789,7 +811,17 @@ void LLWebRTCVoiceClient::setRenderDevice(const std::string& name)
 {
     if (mWebRTCDeviceInterface)
     {
+        LL_DEBUGS("Voice") << "new render device is " << name << LL_ENDL;
         mWebRTCDeviceInterface->setRenderDevice(name);
+    }
+}
+
+void LLWebRTCVoiceClient::setDevices(const std::string& capture_name, const std::string& render_name)
+{
+    if (mWebRTCDeviceInterface)
+    {
+        LL_DEBUGS("Voice") << "new capture device: " << capture_name << " New render device: " << render_name << LL_ENDL;
+        mWebRTCDeviceInterface->setDevices(capture_name, render_name);
     }
 }
 
@@ -797,7 +829,10 @@ void LLWebRTCVoiceClient::tuningStart()
 {
     if (!mIsInTuningMode)
     {
-        mWebRTCDeviceInterface->setTuningMode(true);
+        if (mWebRTCDeviceInterface)
+        {
+            mWebRTCDeviceInterface->setTuningMode(true);
+        }
         mIsInTuningMode = true;
     }
 }
@@ -806,7 +841,10 @@ void LLWebRTCVoiceClient::tuningStop()
 {
     if (mIsInTuningMode)
     {
-        mWebRTCDeviceInterface->setTuningMode(false);
+        if (mWebRTCDeviceInterface)
+        {
+            mWebRTCDeviceInterface->setTuningMode(false);
+        }
         mIsInTuningMode = false;
     }
 }
@@ -839,6 +877,10 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
 
 float LLWebRTCVoiceClient::tuningGetEnergy(void)
 {
+    if (!mWebRTCDeviceInterface)
+    {
+        return 0.f;
+    }
     float rms = mWebRTCDeviceInterface->getTuningAudioLevel();
     return TUNING_LEVEL_START_POINT - TUNING_LEVEL_SCALE * rms;
 }
@@ -866,7 +908,10 @@ void LLWebRTCVoiceClient::refreshDeviceLists(bool clearCurrentList)
         clearCaptureDevices();
         clearRenderDevices();
     }
-    mWebRTCDeviceInterface->refreshDevices();
+    if (mWebRTCDeviceInterface)
+    {
+        mWebRTCDeviceInterface->refreshDevices();
+    }
 }
 
 
@@ -1174,7 +1219,7 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
 void LLWebRTCVoiceClient::updateOwnVolume()
 {
     F32 audio_level = 0.0f;
-    if (!mMuteMic)
+    if (!mMuteMic && mWebRTCDeviceInterface)
     {
         float rms = mWebRTCDeviceInterface->getPeerConnectionAudioLevel();
         audio_level = LEVEL_START_POINT - LEVEL_SCALE * rms;
