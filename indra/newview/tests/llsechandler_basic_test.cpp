@@ -128,7 +128,7 @@ S32 LLMachineID::getLegacyID(unsigned char *unique_id, size_t len)
 S32 LLMachineID::init() { return 1; }
 
 
-LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg)
+LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg, bool suppress_warning)
     : LLException(msg),
     mCertData(cert_data)
 {
