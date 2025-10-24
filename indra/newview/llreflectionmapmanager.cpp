@@ -998,11 +998,11 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                     mTexture->bind(channel);
                 }
             }
+
+            gIrradianceGenProgram.unbind();
         }
 
         mMipChain[0].flush();
-
-        gIrradianceGenProgram.unbind();
     }
 }
 
