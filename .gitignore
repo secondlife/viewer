@@ -17,11 +17,11 @@
 *~
 
 # Specific paths and/or names
+.venv
 CMakeCache.txt
 cmake_install.cmake
 LICENSES
-build-darwin-*
-build-linux-*
+build-*
 debian/files
 debian/secondlife-appearance-utility*
 debian/secondlife-viewer*

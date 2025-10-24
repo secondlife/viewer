@@ -1354,7 +1354,7 @@ void LLFloaterPreference::onChangeQuality(const LLSD& data)
     if (level >= LVL_HIGH && mLastQualityLevel < level)
     {
         constexpr U32 LOW_MEM_THRESHOLD = 4097;
-        U32 total_mem = (U32Megabytes)LLMemory::getMaxMemKB();
+        U32 total_mem = U32Megabytes(LLMemory::getMaxMemKB());
         if (total_mem < LOW_MEM_THRESHOLD)
         {
             LLSD args;

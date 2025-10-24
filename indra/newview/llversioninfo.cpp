@@ -32,6 +32,8 @@
 #include "llversioninfo.h"
 #include "stringize.h"
 
+#include "llversioninfovars.h"
+
 #if ! defined(LL_VIEWER_CHANNEL)       \
  || ! defined(LL_VIEWER_VERSION_MAJOR) \
  || ! defined(LL_VIEWER_VERSION_MINOR) \

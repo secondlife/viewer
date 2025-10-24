@@ -509,57 +509,46 @@ const S32 LLOSInfo::getOSBitness() const
     return mOSBitness;
 }
 
+namespace {
+
+    U32 readFromProcStat( std::string entryName )
+    {
+        U32 val{};
+#if LL_LINUX
+        constexpr U32 STATUS_SIZE  = 2048;
+
+        LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
+        if (status_filep)
+        {
+            char buff[STATUS_SIZE];     /* Flawfinder: ignore */
+
+            size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
+            buff[nbytes] = '\0';
+
+            // All these guys return numbers in KB
+            char *memp = strstr(buff, entryName.c_str());
+            if (memp)
+            {
+                (void) sscanf(memp, "%*s %u", &val);
+            }
+            fclose(status_filep);
+        }
+#endif
+        return val;
+    }
+
+}
+
 //static
 U32 LLOSInfo::getProcessVirtualSizeKB()
 {
-    U32 virtual_size = 0;
-#if LL_LINUX
-#   define STATUS_SIZE 2048
-    LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-    if (status_filep)
-    {
-        S32 numRead = 0;
-        char buff[STATUS_SIZE];     /* Flawfinder: ignore */
-
-        size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-        buff[nbytes] = '\0';
-
-        // All these guys return numbers in KB
-        char *memp = strstr(buff, "VmSize:");
-        if (memp)
-        {
-            numRead += sscanf(memp, "%*s %u", &virtual_size);
-        }
-        fclose(status_filep);
-    }
-#endif
-    return virtual_size;
+    return readFromProcStat( "VmSize:" );
 }
 
 //static
 U32 LLOSInfo::getProcessResidentSizeKB()
 {
-    U32 resident_size = 0;
-#if LL_LINUX
-    LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-    if (status_filep != NULL)
-    {
-        S32 numRead = 0;
-        char buff[STATUS_SIZE];     /* Flawfinder: ignore */
-
-        size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-        buff[nbytes] = '\0';
-
-        // All these guys return numbers in KB
-        char *memp = strstr(buff, "VmRSS:");
-        if (memp)
-        {
-            numRead += sscanf(memp, "%*s %u", &resident_size);
-        }
-        fclose(status_filep);
-    }
-#endif
-    return resident_size;
+    return readFromProcStat( "VmRSS:" );
 }
 
 //static
@@ -724,7 +713,7 @@ public:
     void add(const LLSD::String& name, const T& value,
              typename boost::enable_if<boost::is_integral<T> >::type* = 0)
     {
-        mStats[name] = LLSD::Integer(value);
+        mStats[name] = LLSD::Integer(llmin<T>(value, S32_MAX));
     }
 
     // Store every floating-point type as LLSD::Real.
@@ -1083,7 +1072,7 @@ LLSD LLMemoryInfo::loadStatsMap()
     }
 
 #elif LL_LINUX
-    std::ifstream meminfo(MEMINFO_FILE);
+    llifstream meminfo(MEMINFO_FILE);
     if (meminfo.is_open())
     {
         // MemTotal:        4108424 kB
@@ -1123,9 +1112,10 @@ LLSD LLMemoryInfo::loadStatsMap()
                 LLSD::String key(matched[1].first, matched[1].second);
                 LLSD::String value_str(matched[2].first, matched[2].second);
                 LLSD::Integer value(0);
+                S64 intval = 0;
                 try
                 {
-                    value = boost::lexical_cast<LLSD::Integer>(value_str);
+                    intval = llclamp(boost::lexical_cast<S64>(value_str), S32_MIN, S32_MAX);
                 }
                 catch (const boost::bad_lexical_cast&)
                 {
@@ -1134,6 +1124,7 @@ LLSD LLMemoryInfo::loadStatsMap()
                                              << line << LL_ENDL;
                     continue;
                 }
+                value = LLSD::Integer(intval);
                 // Store this statistic.
                 stats.add(key, value);
             }

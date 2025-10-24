@@ -138,11 +138,11 @@ std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 
 void LLFilePickerThread::getFile()
 {
-#if LL_WINDOWS
+#if LL_DARWIN || LL_SDL_WINDOW
+    runModeless();
+#elif LL_WINDOWS
     // Todo: get rid of LLFilePickerThread and make this modeless
     start();
-#elif LL_DARWIN
-    runModeless();
 #else
     run();
 #endif

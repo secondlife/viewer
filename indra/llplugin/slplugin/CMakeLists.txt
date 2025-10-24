@@ -18,6 +18,12 @@ if (DARWIN)
   list(APPEND SLPlugin_HEADER_FILES
     slplugin-objc.h
   )
+
+  set_source_files_properties(
+    slplugin-objc.mm
+    PROPERTIES
+    SKIP_PRECOMPILE_HEADERS TRUE
+  )
 endif (DARWIN)
 
 if (SLPlugin_HEADER_FILES)
@@ -36,6 +42,10 @@ target_link_libraries(SLPlugin
         llcommon
         ll::pluginlibraries
         )
+
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(SLPlugin REUSE_FROM llprecompiled)
+endif ()
 
 if (WINDOWS)
   set_target_properties(SLPlugin

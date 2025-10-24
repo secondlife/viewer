@@ -10,6 +10,27 @@ include(Tut)
 include(LLAddBuildTest)
 include(bugsplat)
 
+set(test_lib_SOURCE_FILES
+    lltut.cpp
+    test.cpp
+    )
+
+set(test_lib_HEADER_FILES
+    CMakeLists.txt
+    lltut.h
+    )
+
+list(APPEND test_lib_SOURCE_FILES ${test_lib_HEADER_FILES})
+
+add_library(lltut_runner_lib ${test_lib_SOURCE_FILES})
+
+target_link_libraries(lltut_runner_lib PRIVATE llcommon)
+
+set_target_properties(lltut_runner_lib
+        PROPERTIES
+        FOLDER "Tests"
+        )
+
 set(test_SOURCE_FILES
     io.cpp
     llapp_tut.cpp
@@ -31,9 +52,7 @@ set(test_SOURCE_FILES
     llservicebuilder_tut.cpp
     llstreamtools_tut.cpp
     lltemplatemessagebuilder_tut.cpp
-    lltut.cpp
     message_tut.cpp
-    test.cpp
     )
 
 set(test_HEADER_FILES
@@ -57,6 +76,7 @@ list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 add_executable(lltest ${test_SOURCE_FILES})
 
 target_link_libraries(lltest
+        lltut_runner_lib
         llinventory
         llmessage
         llmath
@@ -66,14 +86,27 @@ target_link_libraries(lltest
         llcorehttp
         )
 
+set_target_properties(lltest
+        PROPERTIES
+        FOLDER "Tests"
+        )
+
 if (WINDOWS)
   set_target_properties(lltest
-          PROPERTIES 
+          PROPERTIES
           LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
           RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
           )
 elseif (DARWIN)
+  set_target_properties(lltut_runner_lib
+          PROPERTIES
+          OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
+          )
+  set_target_properties(lltest
+          PROPERTIES
+          OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
+          )
   # Support our "@executable_path/../Resources" load path for our test
   # executable. This SHOULD properly be "$<TARGET_FILE_DIR:lltest>/Resources",
   # but the CMake $<TARGET_FILE_DIR> generator expression isn't evaluated by
@@ -82,32 +115,24 @@ elseif (DARWIN)
        SYMBOLIC)
 endif (WINDOWS)
 
-set(TEST_EXE $<TARGET_FILE:lltest>)
-
-SET_TEST_PATH(LD_LIBRARY_PATH)
-
-LL_TEST_COMMAND(command 
-  "${LD_LIBRARY_PATH}"
-  "${TEST_EXE}"
-  "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" 
-  "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
-
-ADD_CUSTOM_COMMAND(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
-  COMMAND ${command}
-  DEPENDS lltest
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMENT "C++ unit tests"
-  )
-
-set(test_results ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt)
-
-# This should cause the test executable to be built, but not 
+# This should cause the test executable to be built, but not
 # run if LL_TESTS is disabled. This will hopefully keep the
-# tests up to date with any code changes changes even if 
+# tests up to date with any code changes changes even if
 # developers choose to disable LL_TESTS.
-if (LL_TESTS)  
-    add_custom_target(tests_ok ALL DEPENDS ${test_results})
+if (LL_TESTS)
+    set(TEST_EXE $<TARGET_FILE:lltest>)
+
+    SET_TEST_PATH(LD_LIBRARY_PATH)
+
+    LL_TEST_COMMAND(command
+      "${LD_LIBRARY_PATH}"
+      "${TEST_EXE}"
+      "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt"
+      "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
+
+    add_test(NAME "C++ unit tests" COMMAND ${command} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+    add_dependencies(BUILD_TESTS lltest)
     if(DARWIN)
       # Support our "@executable_path/../Resources" load path for our test
       # executable. This SHOULD properly be "$<TARGET_FILE_DIR:lltest>/Resources",

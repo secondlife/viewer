@@ -45,7 +45,7 @@ build_dir_Darwin()
 
 build_dir_Linux()
 {
-  echo build-linux-i686
+  echo build-linux-x86_64
 }
 
 build_dir_CYGWIN()
@@ -119,11 +119,13 @@ EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
 metadata=()
 symbolfile=()
 physicstpv=()
+appearanceutility=()
 # and dump them to GITHUB_OUTPUT when done
 cleanup="$cleanup ; \
 arrayoutput metadata ; \
 arrayoutput symbolfile ; \
-arrayoutput physicstpv"
+arrayoutput physicstpv ; \
+arrayoutput appearanceutility"
 trap "$cleanup" EXIT
 
 arrayoutput()
@@ -161,6 +163,12 @@ pre_build()
             SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                           "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
         fi
+    fi
+
+    if [[ "$arch" == "Linux" ]]
+    then
+      # RELEASE_CRASH_REPORTING is tuned on unconditionaly, this is fine but not for Linux as of now (due to missing breakpad/crashpad support)
+      RELEASE_CRASH_REPORTING=OFF
     fi
 
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
@@ -246,6 +254,10 @@ build()
     "$autobuild" build --no-configure -c $variant \
          $eval_autobuild_build_parameters \
     || fatal "failed building $variant"
+
+    ctest -C Release --test-dir "${build_dir}" --output-on-failure -j $(nproc --all) \
+    || fatal "failed testing $variant"
+
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
 
@@ -394,12 +406,7 @@ do
                   python_cmd "$helpers/codeticket.py" addoutput "Autobuild Metadata" "$build_dir/autobuild-package.xml" --mimetype text/xml \
                       || fatal "Upload of autobuild metadata failed"
                   metadata+=("$build_dir/autobuild-package.xml")
-                  if [ "$arch" != "Linux" ]
-                  then
-                      record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
-                  else
-                      record_event "TBD - no dependency graph for linux (probable python version dependency)"
-                  fi
+                  record_dependencies_graph "$build_dir/autobuild-package.xml" # defined in buildscripts/hg/bin/build.sh
                   end_section "Autobuild metadata"
               else
                   record_event "no autobuild metadata at '$build_dir/autobuild-package.xml'"
@@ -535,6 +542,14 @@ then
         fi
         # Upload crash reporter file
         symbolfile+=("$symbol_file")
+    fi
+
+    # Upload our apperance utility packages for linux
+    if [ "$arch" == "Linux" ]
+    then
+        appearance_utility_dir="${build_dir}/llappearanceutility"
+        appearanceutility+=("${appearance_utility_dir}/appearance-utility-bin")
+        appearanceutility+=("${appearance_utility_dir}/appearance-utility-headless-bin")
     fi
 
     # Upload the llphysicsextensions_tpv package, if one was produced

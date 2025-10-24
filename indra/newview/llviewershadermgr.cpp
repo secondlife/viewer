@@ -582,6 +582,7 @@ void LLViewerShaderMgr::setShaders()
     unloadShaders();
 
     LLPipeline::sRenderGlow = gSavedSettings.getBOOL("RenderGlow");
+    LLPipeline::sRenderTransparentWater = gSavedSettings.getBOOL("RenderTransparentWater");
 
     if (gViewerWindow)
     {
@@ -1001,7 +1002,10 @@ bool LLViewerShaderMgr::loadShadersWater()
         return loadShadersWater();
     }
 
-    LLWorld::getInstance()->updateWaterObjects();
+    if (LLWorld::instanceExists())
+    {
+        LLWorld::getInstance()->updateWaterObjects();
+    }
 
     return true;
 }

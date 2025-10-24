@@ -1,6 +1,7 @@
 # -*- cmake -*-
 
 include(Prebuilt)
+include(Linking)
 
 include_guard()
 add_library( ll::zlib-ng INTERFACE IMPORTED )
