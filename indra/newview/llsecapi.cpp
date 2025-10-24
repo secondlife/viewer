@@ -169,4 +169,8 @@ LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg, 
     {
         LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
     }
+    else
+    {
+        LL_DEBUGS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
+    }
 }

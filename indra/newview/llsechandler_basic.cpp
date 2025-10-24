@@ -649,11 +649,8 @@ bool LLBasicCertificateVector::verify_and_add(X509* cert_x509, bool suppress_exp
     }
     catch (LLCertValidationExpirationException& cert_exception)
     {
-        if (!suppress_expire_warning)
-        {
-            LLSD cert_info(cert_exception.getCertData());
-            LL_DEBUGS("SECAPI_BADCERT", "SECAPI") << "invalid certificate (" << cert_exception.what() << "): " << cert_info << LL_ENDL;
-        }
+        LLSD cert_info(cert_exception.getCertData());
+        LL_DEBUGS("SECAPI_BADCERT", "SECAPI") << "invalid certificate (" << cert_exception.what() << "): " << cert_info << LL_ENDL;
     }
     catch (LLCertException& cert_exception)
     {
