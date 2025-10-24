@@ -2695,6 +2695,7 @@ bool idle_startup()
             gAsyncAgentCacheHydrated = false;
             gAsyncLibraryCacheHydrated = false;
             gAsyncParentChildMapPrimed = false;
+            gInventory.cleanupInventory();
             gInventory.setAsyncInventoryLoading(false);
 
             show_connect_box = true;
