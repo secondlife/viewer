@@ -254,6 +254,10 @@ build()
     "$autobuild" build --no-configure -c $variant \
          $eval_autobuild_build_parameters \
     || fatal "failed building $variant"
+
+    ctest -C Release --test-dir "${build_dir}" --output-on-failure -j $(nproc --all) \
+    || fatal "failed testing $variant"
+
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
 

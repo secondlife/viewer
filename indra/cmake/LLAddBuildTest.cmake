@@ -1,4 +1,11 @@
 # -*- cmake -*-
+
+include_guard()
+
+if( NOT LL_TESTS )
+  return()
+endif()
+
 include(00-Common)
 include(LLTestCommand)
 include(bugsplat)
@@ -26,8 +33,6 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   #project(UNITTEST_PROJECT_${project})
   # Setup includes, paths, etc
   set(alltest_SOURCE_FILES
-          ${CMAKE_SOURCE_DIR}/test/test.cpp
-          ${CMAKE_SOURCE_DIR}/test/lltut.cpp
           )
   set(alltest_DEP_TARGETS
           # needed by the test harness itself
@@ -35,6 +40,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
           )
 
   set(alltest_LIBRARIES
+          lltut_runner_lib
           llcommon
           )
   if(NOT "${project}" STREQUAL "llmath")
@@ -137,6 +143,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
       # test binaries always need to be signed for local development
       set_target_properties(PROJECT_${project}_TEST_${name}
           PROPERTIES
+              OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
               XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-")
     endif ()
 
@@ -159,24 +166,15 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     endif()
 
     # Add test
-    add_custom_command(
-            OUTPUT ${TEST_OUTPUT}
+    add_test(
+            NAME PROJECT_${project}_TEST_${name}
             COMMAND ${TEST_SCRIPT_CMD}
-            DEPENDS PROJECT_${project}_TEST_${name}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-    # Why not add custom target and add POST_BUILD command?
-    # Slightly less uncertain behavior
-    # (OUTPUT commands run non-deterministically AFAIK) + poppy 2009-04-19
-    # > I did not use a post build step as I could not make it notify of a
-    # > failure after the first time you build and fail a test. - daveh 2009-04-20
+
+    add_dependencies(BUILD_TESTS PROJECT_${project}_TEST_${name})
     list(APPEND ${project}_TEST_OUTPUT ${TEST_OUTPUT})
   endforeach (source)
-
-  # Add the test runner target per-project
-  # (replaces old _test_ok targets all over the place)
-  add_custom_target(${project}_tests ALL DEPENDS ${${project}_TEST_OUTPUT})
-  add_dependencies(${project} ${project}_tests)
 ENDMACRO(LL_ADD_PROJECT_UNIT_TESTS)
 
 #*****************************************************************************
@@ -204,12 +202,11 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   set(source_files
           tests/${testname}_test.cpp
-          ${CMAKE_SOURCE_DIR}/test/test.cpp
-          ${CMAKE_SOURCE_DIR}/test/lltut.cpp
           ${additional_source_files}
           )
 
   set(libraries
+          lltut_runner_lib
           ${library_dependencies}
           )
 
@@ -239,6 +236,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     # test binaries always need to be signed for local development
     set_target_properties(INTEGRATION_TEST_${testname}
             PROPERTIES
+            OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
             BUILD_WITH_INSTALL_RPATH 1
             INSTALL_RPATH "@executable_path/Resources"
@@ -286,14 +284,9 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     message(STATUS "TEST_SCRIPT_CMD: ${TEST_SCRIPT_CMD}")
   endif()
 
-  add_custom_command(
-          TARGET INTEGRATION_TEST_${testname}
-          POST_BUILD
-          COMMAND ${TEST_SCRIPT_CMD}
-  )
+  add_test(NAME INTEGRATION_TEST_RUNNER_${testname} COMMAND ${TEST_SCRIPT_CMD})
 
-  # Use CTEST? Not sure how to yet...
-  # ADD_TEST(INTEGRATION_TEST_RUNNER_${testname} ${TEST_SCRIPT_CMD})
+  add_dependencies(BUILD_TESTS INTEGRATION_TEST_${testname})
 
 ENDFUNCTION(LL_ADD_INTEGRATION_TEST)
 

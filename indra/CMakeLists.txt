@@ -56,6 +56,32 @@ if (NOT CMAKE_BUILD_TYPE)
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
+if (LL_TESTS)
+  set(CMAKE_SKIP_TEST_ALL_DEPENDENCY FALSE)
+  include(ProcessorCount)
+  ProcessorCount(NUM_CORES)
+
+  # Set parallel level to decrease test runtime
+  set(CMAKE_CTEST_ARGUMENTS -j${NUM_CORES} --output-on-failure)
+
+  # Set up our test targets
+  set(CTEST_TEST_TARGET_ALIAS BUILD_AND_RUN_TESTS)
+  include(CTest)
+
+  set_target_properties(BUILD_AND_RUN_TESTS
+        PROPERTIES
+        FOLDER "CMakePredefinedTargets"
+        )
+
+  add_custom_target(BUILD_TESTS)
+  add_dependencies(BUILD_AND_RUN_TESTS BUILD_TESTS)
+
+  set_target_properties(BUILD_TESTS
+        PROPERTIES
+        FOLDER "CMakePredefinedTargets"
+        )
+endif ()
+
 add_subdirectory(cmake)
 
 if (USE_PRECOMPILED_HEADERS)
