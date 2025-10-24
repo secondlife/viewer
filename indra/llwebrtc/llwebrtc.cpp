@@ -484,9 +484,9 @@ void LLWebRTCImpl::workerDeployDevices()
         }
     }
 
-    mDeviceModule->StopPlayout();
     mDeviceModule->ForceStopRecording();
 #if WEBRTC_WIN
+    mDeviceModule->StopPlayout();
     if (recordingDevice < 0)
     {
         mDeviceModule->SetRecordingDevice((webrtc::AudioDeviceModule::WindowsDeviceType)recordingDevice);
@@ -496,6 +496,8 @@ void LLWebRTCImpl::workerDeployDevices()
         mDeviceModule->SetRecordingDevice(recordingDevice);
     }
 #else
+    // Calls own StopPlayout from AudioDeviceMac::HandleDeviceChange()
+    // Don't call twice, StopPlayout's Finalize isn't thread safe
     mDeviceModule->SetRecordingDevice(recordingDevice);
 #endif
     mDeviceModule->InitMicrophone();
@@ -576,8 +578,22 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
     deployDevices();
 }
 
-void LLWebRTCImpl::setRenderDevice(const std::string &id)
+void LLWebRTCImpl::setRenderDevice(const std::string &id, bool stop_playout)
 {
+#if !WEBRTC_WIN
+    // Workaround for a macOS crash
+    // Due to insecure StopPlayout call, can't call StopPlayout from
+    // workerDeployDevices, nor can use ForceStopPlayout()
+    // For now only call StopPlayout when switching devices from preferences
+    if (stop_playout)
+    {
+        mWorkerThread->BlockingCall(
+            [this]
+        {
+            mDeviceModule->StopPlayout();
+        });
+    }
+#endif
     mPlayoutDevice = id;
     deployDevices();
 }
