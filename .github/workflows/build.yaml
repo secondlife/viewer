@@ -298,6 +298,16 @@ jobs:
           path: |
             ${{ steps.build.outputs.physicstpv }}
 
+      - name: Upload appearance utility package
+        uses: actions/upload-artifact@v4
+        if: steps.build.outputs.appearanceutility
+        with:
+          name: "${{ steps.build.outputs.artifact }}-appearanceutility"
+          # emitted by build.sh, zero or one lines
+          path: |
+            ${{ steps.build.outputs.appearanceutility }}
+
+
   sign-and-package-windows:
     env:
       AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}

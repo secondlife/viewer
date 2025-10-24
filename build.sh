@@ -119,11 +119,13 @@ EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
 metadata=()
 symbolfile=()
 physicstpv=()
+appearanceutility=()
 # and dump them to GITHUB_OUTPUT when done
 cleanup="$cleanup ; \
 arrayoutput metadata ; \
 arrayoutput symbolfile ; \
-arrayoutput physicstpv"
+arrayoutput physicstpv ; \
+arrayoutput appearanceutility"
 trap "$cleanup" EXIT
 
 arrayoutput()
@@ -535,6 +537,14 @@ then
         fi
         # Upload crash reporter file
         symbolfile+=("$symbol_file")
+    fi
+
+    # Upload our apperance utility packages for linux
+    if [ "$arch" == "Linux" ]
+    then
+        appearance_utility_dir="${build_dir}/llappearanceutility"
+        appearanceutility+=("${appearance_utility_dir}/appearance-utility-bin")
+        appearanceutility+=("${appearance_utility_dir}/appearance-utility-headless-bin")
     fi
 
     # Upload the llphysicsextensions_tpv package, if one was produced

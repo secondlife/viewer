@@ -34,7 +34,6 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include "GL/gl.h"
 #include "GL/glext.h"
-#include "GL/glu.h"
 
 // The __APPLE__ kludge is to make glh_extensions.h not symbol-clash horribly
 # define __APPLE__
@@ -55,7 +54,6 @@
 
 # include "GL/glx.h"
 # include "GL/glxext.h"
-
 
 #elif LL_WINDOWS
 //----------------------------------------------------------------------------

@@ -1241,36 +1241,6 @@
         <key>description</key>
         <string>Libxml2 is the XML C parser and toolkit developed for the Gnome project.</string>
       </map>
-      <key>llappearance_utility</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>fddd634dec5ec03924d62cc774f7f8ea</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/p64_viewer-llappearance-utility/rev/317266/arch/Linux/installer/llappearance_utility-0.0.1-linux-317266.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>Proprietary</string>
-        <key>license_file</key>
-        <string>LICENSES/llappearanceutility.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2000-2012, Linden Research, Inc.</string>
-        <key>version</key>
-        <string>0.0.1</string>
-        <key>name</key>
-        <string>llappearance_utility</string>
-        <key>description</key>
-        <string>Linden Lab appearance utility for server-side avatar baking services.</string>
-      </map>
       <key>llca</key>
       <map>
         <key>platforms</key>
