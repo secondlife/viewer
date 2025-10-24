@@ -59,6 +59,11 @@ public:
     LLSD getResponse(const std::string& key) { return getResponse()[key]; }
     LLSD getResponse();
 
+    bool supportsAsyncInventorySkeleton() const { return mSupportsAsyncSkeleton; }
+    bool forceAsyncInventorySkeleton() const { return mForceAsyncSkeleton; }
+    void recordAsyncInventoryFailure();
+    void recordAsyncInventorySuccess();
+
     // Only valid when authSuccess == true.
     const F64 getLastTransferRateBPS() { return mTransferRate; }
     void setSerialNumber(const std::string& sn) { mSerialNumber = sn; }
@@ -109,6 +114,10 @@ private:
     std::string mPlatformVersion;
     std::string mPlatformVersionName;
     LLEventDispatcher mDispatcher;
+
+    bool mAsyncSkeletonSuppressed;
+    bool mSupportsAsyncSkeleton;
+    bool mForceAsyncSkeleton;
 };
 
 #endif

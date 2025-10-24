@@ -86,7 +86,10 @@ LLLoginInstance::LLLoginInstance() :
     mSaveMFA(true),
     mAttemptComplete(false),
     mTransferRate(0.0f),
-    mDispatcher("LLLoginInstance", "change")
+    mDispatcher("LLLoginInstance", "change"),
+    mAsyncSkeletonSuppressed(false),
+    mSupportsAsyncSkeleton(false),
+    mForceAsyncSkeleton(false)
 {
     mLoginModule->getEventPump().listen("lllogininstance",
         boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
@@ -152,14 +155,60 @@ LLSD LLLoginInstance::getResponse()
     return mResponseData;
 }
 
+void LLLoginInstance::recordAsyncInventoryFailure()
+{
+    if (!mAsyncSkeletonSuppressed)
+    {
+        LL_WARNS("LLLogin") << "Async inventory skeleton failed; suppressing async option on next login attempt." << LL_ENDL;
+    }
+    mAsyncSkeletonSuppressed = true;
+}
+
+void LLLoginInstance::recordAsyncInventorySuccess()
+{
+    if (mAsyncSkeletonSuppressed)
+    {
+        LL_INFOS("LLLogin") << "Async inventory skeleton completed successfully; re-enabling async option." << LL_ENDL;
+    }
+    mAsyncSkeletonSuppressed = false;
+}
+
 void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credential)
 {
     // Set up auth request options.
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
     LLSD requested_options;
     // *Note: this is where gUserAuth used to be created.
+    mForceAsyncSkeleton = gSavedSettings.getBOOL("ForceAsyncInventorySkeleton");
+    if (mForceAsyncSkeleton)
+    {
+        mAsyncSkeletonSuppressed = false;
+    }
+    mSupportsAsyncSkeleton = !mAsyncSkeletonSuppressed || mForceAsyncSkeleton;
+
     requested_options.append("inventory-root");
-    requested_options.append("inventory-skeleton");
+    if (!mForceAsyncSkeleton)
+    {
+        requested_options.append("inventory-skeleton");
+    }
+    else
+    {
+        LL_DEBUGS("LLLogin") << "ForceAsyncInventorySkeleton enabled; skipping legacy inventory skeleton request" << LL_ENDL;
+    }
+    if (mSupportsAsyncSkeleton)
+    {
+        requested_options.append("inventory-skeleton-async");
+        LL_DEBUGS("LLLogin") << "Requesting async inventory skeleton support";
+        if (mForceAsyncSkeleton)
+        {
+            LL_CONT << " (forced by debug setting)";
+        }
+        LL_CONT << LL_ENDL;
+    }
+    else
+    {
+        LL_DEBUGS("LLLogin") << "Async inventory skeleton suppressed for this login attempt" << LL_ENDL;
+    }
     //requested_options.append("inventory-meat");
     //requested_options.append("inventory-skel-targets");
 #if (!defined LL_MINIMIAL_REQUESTED_OPTIONS)
@@ -167,7 +216,10 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
     // Not requesting library will trigger mFatalNoLibraryRootFolder
     requested_options.append("inventory-lib-root");
     requested_options.append("inventory-lib-owner");
-    requested_options.append("inventory-skel-lib");
+    if (!mForceAsyncSkeleton)
+    {
+        requested_options.append("inventory-skel-lib");
+    }
     //  requested_options.append("inventory-meat-lib");
 
     requested_options.append("initial-outfit");
@@ -652,4 +704,3 @@ std::string construct_start_string()
     }
     return start;
 }
-

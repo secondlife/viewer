@@ -109,6 +109,8 @@ public:
     static bool                 lookupIsAutomaticType(EType folder_type);
     static bool                 lookupIsSingletonType(EType folder_type);
     static bool                 lookupIsEnsembleType(EType folder_type);
+    // Returns true if this folder type should be fully loaded during async inventory startup
+    static bool                 lookupIsEssentialType(EType folder_type);
 
     static LLAssetType::EType   folderTypeToAssetType(LLFolderType::EType folder_type);
     static LLFolderType::EType  assetTypeToFolderType(LLAssetType::EType asset_type);
