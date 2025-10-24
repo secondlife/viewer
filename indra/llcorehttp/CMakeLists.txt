@@ -169,6 +169,13 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
                           )
   endif (WINDOWS)
 
+  if(DARWIN)
+    set_target_properties(http_texture_load
+                        PROPERTIES
+                        OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
+                        )
+  endif()
+
   target_link_libraries(http_texture_load ${example_libs})
 
 endif (LL_TESTS AND LLCOREHTTP_TESTS)
