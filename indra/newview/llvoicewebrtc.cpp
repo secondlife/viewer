@@ -779,7 +779,11 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
     }
     else if (update_render)
     {
-        setRenderDevice(outputDevice);
+        if (mWebRTCDeviceInterface)
+        {
+            LL_DEBUGS("Voice") << "new render device is " << outputDevice << LL_ENDL;
+            mWebRTCDeviceInterface->setRenderDevice(outputDevice, false);
+        }
     }
     else if (update_capture)
     {
@@ -812,7 +816,7 @@ void LLWebRTCVoiceClient::setRenderDevice(const std::string& name)
     if (mWebRTCDeviceInterface)
     {
         LL_DEBUGS("Voice") << "new render device is " << name << LL_ENDL;
-        mWebRTCDeviceInterface->setRenderDevice(name);
+        mWebRTCDeviceInterface->setRenderDevice(name, true);
     }
 }
 

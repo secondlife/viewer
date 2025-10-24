@@ -149,7 +149,7 @@ class LLWebRTCDeviceInterface
 
     // set the capture and render devices using the unique identifier for the device
     virtual void setCaptureDevice(const std::string& id) = 0;
-    virtual void setRenderDevice(const std::string& id) = 0;
+    virtual void setRenderDevice(const std::string& id, bool stop_playout) = 0;
     virtual void setDevices(const std::string& caprure_id, const std::string& render_id) = 0;
 
     // Device observers for device change callbacks.

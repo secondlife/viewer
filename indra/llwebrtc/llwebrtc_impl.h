@@ -442,7 +442,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     void unsetDevicesObserver(LLWebRTCDevicesObserver *observer) override;
 
     void setCaptureDevice(const std::string& id) override;
-    void setRenderDevice(const std::string& id) override;
+    void setRenderDevice(const std::string& id, bool stop_playout) override;
     void setDevices(const std::string& caprure_id, const std::string& render_id) override;
 
     void setTuningMode(bool enable) override;
