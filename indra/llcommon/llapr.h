@@ -183,19 +183,10 @@ private:
     static apr_status_t close(apr_file_t* file) ;
     static S32 seek(apr_file_t* file, apr_seek_where_t where, S32 offset);
 public:
-    // returns false if failure:
-    static bool remove(const std::string& filename, LLVolatileAPRPool* pool = NULL);
-    static bool rename(const std::string& filename, const std::string& newname, LLVolatileAPRPool* pool = NULL);
-    static bool isExist(const std::string& filename, LLVolatileAPRPool* pool = NULL, apr_int32_t flags = APR_READ);
-    static S32 size(const std::string& filename, LLVolatileAPRPool* pool = NULL);
-    static bool makeDir(const std::string& dirname, LLVolatileAPRPool* pool = NULL);
-    static bool removeDir(const std::string& dirname, LLVolatileAPRPool* pool = NULL);
-
     // Returns bytes read/written, 0 if read/write fails:
     static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);
     static S32 writeEx(const std::string& filename, const void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
 //*******************************************************************************************************************************
 };
-
 
 #endif // LL_LLAPR_H

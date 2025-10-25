@@ -148,6 +148,13 @@ public:
     ///  @returns 0 on failure and a st_mode value with either S_IFDIR or S_IFREG set otherwise
     ///  together with the three access bits which under Windows only the write bit is relevant.
 
+    /// get the size of a file in bytes
+    static  S64     size(const std::string& filename, int suppress_error = ENOENT);
+    ///> returns the size of a file in bytes
+    /// we pass by default ENOENT in the optional 'suppress_error' parameter to not spam the log with
+    /// warnings when the file does not exist
+    /// @returns the file size on success and 0 on failure.
+
     /// check if filename is an existing directory
     static  bool    isdir(const std::string& filename);
     ///< @returns true if the path is for an existing directory

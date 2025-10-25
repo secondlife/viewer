@@ -1370,7 +1370,7 @@ void LLVOCache::removeFromCache(HeaderEntryInfo* entry)
     std::string filename;
     getObjectCacheFilename(entry->mHandle, filename);
     LL_WARNS("GLTF", "VOCache") << "Removing object cache for handle " << entry->mHandle << "Filename: " << filename << LL_ENDL;
-    LLAPRFile::remove(filename, mLocalAPRFilePoolp);
+    LLFile::remove(filename);
 
     // Note: `removeFromCache` should take responsibility for cleaning up all cache artefacts specfic to the handle/entry.
     // as such this now includes the generic extras
@@ -1394,7 +1394,7 @@ void LLVOCache::readCacheHeader()
     clearCacheInMemory();
 
     bool success = true ;
-    if (LLAPRFile::isExist(mHeaderFileName, mLocalAPRFilePoolp))
+    if (LLFile::isfile(mHeaderFileName))
     {
         LLAPRFile apr_file(mHeaderFileName, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
 

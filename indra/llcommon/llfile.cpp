@@ -498,6 +498,45 @@ int LLFile::stat(const std::string& filename, llstat* filestatus, int suppress_e
 }
 
 // static
+S64 LLFile::size(const std::string& filename, int suppress_error)
+{
+#if LL_WINDOWS
+    std::wstring utf16filename = utf8path_to_wstring(filename);
+    HANDLE file_handle = CreateFileW(utf16filename.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (INVALID_HANDLE_VALUE != file_handle)
+    {
+        LARGE_INTEGER file_size;
+        if (GetFileSizeEx(file_handle, &file_size))
+        {
+            CloseHandle(file_handle);
+            return file_size.QuadPart;
+        }
+    }
+    // Get last error before calling the CloseHandle() function
+    int rc = set_errno_from_oserror(GetLastError());
+    if (INVALID_HANDLE_VALUE != file_handle)
+    {
+        CloseHandle(file_handle);
+    }
+#else
+    llstat filestatus;
+    int rc = ::stat(filename.c_str(), &filestatus);
+    if (rc == 0)
+    {
+        if (S_ISREG(filestatus.st_mode)
+        {
+            return filestatus.st_size;
+        }
+        // We got something else than a file
+        rc = -1;
+        errno = EACCES;
+    }
+#endif
+    warnif("size", filename, rc, suppress_error);
+    return 0;
+}
+
+// static
 unsigned short LLFile::getattr(const std::string& filename, bool dontFollowSymLink, int suppress_error)
 {
 #if LL_WINDOWS
