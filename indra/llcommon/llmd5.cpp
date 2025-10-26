@@ -262,6 +262,8 @@ void LLMD5::raw_digest(unsigned char* s) const
 
 void LLMD5::hex_digest(char* s) const
 {
+    if(!s) return;
+
     if (!finalized)
     {
         std::cerr << "LLMD5::hex_digest:  Can't get digest if you haven't "
