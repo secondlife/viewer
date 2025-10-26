@@ -110,13 +110,13 @@ private:
     typedef std::map<LLUUID, material_queue_t> get_queue_t;
     typedef std::pair<const LLUUID, LLMaterialID> pending_material_t;
     typedef std::map<const pending_material_t, F64> get_pending_map_t;
-    typedef std::map<LLMaterialID, get_callback_t*> get_callback_map_t;
+    typedef std::map<LLMaterialID, std::unique_ptr<get_callback_t>> get_callback_map_t;
 
 
-    typedef boost::unordered_map<TEMaterialPair, get_callback_te_t*> get_callback_te_map_t;
+    typedef boost::unordered_map<TEMaterialPair, std::unique_ptr<get_callback_te_t>> get_callback_te_map_t;
     typedef std::set<LLUUID> getall_queue_t;
     typedef std::map<LLUUID, F64> getall_pending_map_t;
-    typedef std::map<LLUUID, getall_callback_t*> getall_callback_map_t;
+    typedef std::map<LLUUID, std::unique_ptr<getall_callback_t>> getall_callback_map_t;
     typedef std::map<U8, LLMaterial> facematerial_map_t;
     typedef std::map<LLUUID, facematerial_map_t> put_queue_t;
 
