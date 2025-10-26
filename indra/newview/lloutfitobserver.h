@@ -75,7 +75,7 @@ protected:
     S32 mBaseOutfitLastVersion;
     std::string mLastBaseOutfitName;
 
-    bool mLastOutfitDirtiness;
+    bool mLastOutfitDirtiness = false;
 
     LLUUID mItemNameHash;
 

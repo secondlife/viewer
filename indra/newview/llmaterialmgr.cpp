@@ -549,11 +549,11 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
     {
         llassert(response_data.isArray());
         LL_DEBUGS("Materials") << "response has "<< response_data.size() << " materials" << LL_ENDL;
+#ifdef SHOW_ASSERT // same condition that controls llassert()
         for (LLSD::array_const_iterator faceIter = response_data.beginArray(); faceIter != response_data.endArray(); ++faceIter)
         {
-#           ifdef SHOW_ASSERT                  // same condition that controls llassert()
             const LLSD& face_data = *faceIter; // conditional to avoid unused variable warning
-#           endif
+
             llassert(face_data.isMap());
 
             llassert(face_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
@@ -570,6 +570,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 
             // *TODO: do we really still need to process this?
         }
+#endif
     }
 }
 
