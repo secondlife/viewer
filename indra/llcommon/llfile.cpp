@@ -155,12 +155,15 @@ static std::wstring utf8path_to_wstring(const std::string& utf8path)
     }
     return ll_convert<std::wstring>(utf8path);
 }
-
-static unsigned short get_fileattr(const std::wstring& utf16path, bool dontFollowSymLink = false)
+// This function retrieves the file attributes as they are used in Posix
+// Like the Posix file functions it returns 0 on success, on failure it returns -1 and sets the errno variable
+// if dontfollowSymlink is true it returns the attributes of the symlink itself if it is one
+static int get_fileattr(const std::wstring& utf16path, unsigned short& st_mode, bool dontFollowSymLink = false)
 {
-    unsigned long  flags = FILE_FLAG_BACKUP_SEMANTICS;
+    unsigned long flags = FILE_FLAG_BACKUP_SEMANTICS; // This allows CreateFile() to open a handle to a directory
     if (dontFollowSymLink)
     {
+        // This lets CreateFile() open a handle to a symlink rather than to the resolved target
         flags |= FILE_FLAG_OPEN_REPARSE_POINT;
     }
     HANDLE file_handle = CreateFileW(utf16path.c_str(), FILE_READ_ATTRIBUTES,
@@ -175,27 +178,27 @@ static unsigned short get_fileattr(const std::wstring& utf16path, bool dontFollo
             bool is_directory = (attribute_info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
                                 (iswalpha(utf16path[0]) && utf16path[1] == ':' &&
                                  (!utf16path[2] || (is_slash(utf16path[2]) && !utf16path[3])));
-            unsigned short st_mode = is_directory ? S_IFDIR :
-                                     (attribute_info.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT ? S_IFLNK : S_IFREG);
+            st_mode = is_directory ? S_IFDIR :
+                       (attribute_info.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT ? S_IFLNK : S_IFREG);
             st_mode |= (attribute_info.FileAttributes & FILE_ATTRIBUTE_READONLY) ? S_IREAD : S_IREAD | S_IWRITE;
-            // we do not try to guess executable flag
+            // we do not try to guess the executable flag
 
             // propagate user bits to group/other fields:
             st_mode |= (st_mode & 0700) >> 3;
             st_mode |= (st_mode & 0700) >> 6;
 
             CloseHandle(file_handle);
-            return st_mode;
+            return 0;
         }
     }
     // Retrieve last error and set errno before calling CloseHandle()
-    set_errno_from_oserror(GetLastError());
+    int rc = set_errno_from_oserror(GetLastError());
 
     if (file_handle != INVALID_HANDLE_VALUE)
     {
         CloseHandle(file_handle);
     }
-    return 0;
+    return rc;
 }
 
 #else
@@ -343,7 +346,11 @@ int LLFile::rmdir(const std::string& dirname, int suppress_error)
 {
 #if LL_WINDOWS
     std::wstring utf16dirname = utf8path_to_wstring(dirname);
-    int rc = _wrmdir(utf16dirname.c_str());
+    if (RemoveDirectoryW(utf16dirname.c_str()))
+    {
+        return 0;
+    }
+    int rc = set_errno_from_oserror(GetLastError());
 #else
     int rc = ::rmdir(dirname.c_str());
 #endif
@@ -402,27 +409,31 @@ int LLFile::remove(const std::string& filename, int suppress_error)
     // as its siblings unlink() and _wunlink().
     // If we really only want to support files we should instead use
     // unlink() in the non-Windows part below too
-    int rc = -1;
     std::wstring utf16filename = utf8path_to_wstring(filename);
-    unsigned short st_mode = get_fileattr(utf16filename);
-    if (S_ISDIR(st_mode))
+    unsigned short st_mode;
+    int rc = get_fileattr(utf16filename, st_mode);
+    if (rc == 0)
     {
-        rc = _wrmdir(utf16filename.c_str());
-    }
-    else if (S_ISREG(st_mode))
-    {
-        rc = _wunlink(utf16filename.c_str());
-    }
-    else if (st_mode)
-    {
-        // it is something else than a file or directory
-        // this should not really happen as long as we do not allow for symlink
-        // detection in the optional parameter to get_fileattr()
-        rc = set_errno_from_oserror(ERROR_INVALID_PARAMETER);
-    }
-    else
-    {
-        // get_fileattr() failed and already set errno, preserve it for correct error reporting
+        if (S_ISDIR(st_mode))
+        {
+            if (RemoveDirectoryW(utf16filename.c_str()))
+            {
+                return 0;
+            }
+        }
+        else if (S_ISREG(st_mode))
+        {
+            if (DeleteFileW(utf16filename.c_str()))
+            {
+                return 0;
+            }
+        }
+        else
+        {
+            SetLastError(ERROR_INVALID_PARAMETER);
+        }
+        // Deleting the file or directory failed
+        rc = set_errno_from_oserror(GetLastError());
     }
 #else
     int rc = ::remove(filename.c_str());
@@ -439,15 +450,89 @@ int LLFile::rename(const std::string& filename, const std::string& newname, int 
     // API MoveFileEx() and use its flags to specify that overwrite is allowed.
     std::wstring utf16filename = utf8path_to_wstring(filename);
     std::wstring utf16newname = utf8path_to_wstring(newname);
-    int rc = 0;
-    if (!MoveFileExW(utf16filename.c_str(), utf16newname.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED))
+    if (MoveFileExW(utf16filename.c_str(), utf16newname.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED))
     {
-        rc = set_errno_from_oserror(GetLastError());
+        return 0;
     }
+    int rc = set_errno_from_oserror(GetLastError());
 #else
     int rc = ::rename(filename.c_str(),newname.c_str());
 #endif
     return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, suppress_error);
+}
+
+// static
+U64 LLFile::read(const std::string& filename, void* buf, U64 offset, U64 nbytes)
+{
+    LLFILE* file_handle = LLFile::fopen(filename, "rb");
+    if (file_handle == nullptr)
+    {
+        warnif("read, opening file", filename, -1);
+        return 0;
+    }
+
+    if (offset > 0)
+    {
+#if LL_WINDOWS
+        // On Windows fseek() uses a long value as offset which is always 32-bit
+        int rc = _fseeki64(file_handle, (long long)offset, SEEK_SET);
+#else
+        // offset is of type long which is 64-bit in 64-bit GCC
+        int rc = fseek(file_handle, (long)offset, SEEK_SET);
+#endif
+        if (rc)
+        {
+            warnif("read, setting file offset", filename, rc);
+            fclose(file_handle);
+            return 0;
+        }
+    }
+
+    // element_count is of size_t which is 64-bit on all 64-bit systems
+    U64 bytes_read = fread(buf, 1, nbytes, file_handle);
+    if (bytes_read == 0)
+    {
+        warnif("read from file", filename, -1);
+    }
+    fclose(file_handle);
+    return bytes_read;
+}
+
+// static
+U64 LLFile::write(const std::string& filename, const void* buf, U64 offset, U64 nbytes)
+{
+    LLFILE* file_handle = LLFile::fopen(filename, "wb");
+    if (file_handle == nullptr)
+    {
+        warnif("write, opening file", filename, -1);
+        return 0;
+    }
+
+    if (offset > 0)
+    {
+#if LL_WINDOWS
+        // On Windows fseek() uses a long value as offset which is always 32-bit
+        int rc = _fseeki64(file_handle, (long long)offset, SEEK_SET);
+#else
+        // offset is of type long which is 64-bit in 64-bit GCC
+        int rc = fseek(file_handle, (long)offset, SEEK_SET);
+#endif
+        if (rc)
+        {
+            warnif("write, setting file offset", filename, rc);
+            fclose(file_handle);
+            return 0;
+        }
+    }
+
+    // element_count is of size_t which is 64-bit on all 64-bit systems
+    U64 bytes_written = fwrite(buf, 1, nbytes, file_handle);
+    if (bytes_written == 0)
+    {
+        warnif("write to file", filename, -1);
+    }
+    fclose(file_handle);
+    return bytes_written;
 }
 
 // Make this a define rather than using magic numbers multiple times in the code
@@ -523,7 +608,7 @@ S64 LLFile::size(const std::string& filename, int suppress_error)
     int rc = ::stat(filename.c_str(), &filestatus);
     if (rc == 0)
     {
-        if (S_ISREG(filestatus.st_mode)
+        if (S_ISREG(filestatus.st_mode))
         {
             return filestatus.st_size;
         }
@@ -542,10 +627,10 @@ unsigned short LLFile::getattr(const std::string& filename, bool dontFollowSymLi
 #if LL_WINDOWS
     // _wstat64() is a bit heavyweight on Windows, use a more lightweight API
     // to just get the attributes
-    int rc = -1;
     std::wstring utf16filename = utf8path_to_wstring(filename);
-    unsigned short st_mode = get_fileattr(utf16filename, dontFollowSymLink);
-    if (st_mode)
+    unsigned short st_mode;
+    int rc = get_fileattr(utf16filename, st_mode, dontFollowSymLink);
+    if (rc == 0)
     {
         return st_mode;
     }

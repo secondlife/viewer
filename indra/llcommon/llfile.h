@@ -45,8 +45,8 @@ typedef FILE    LLFILE;
 // We use _stat64 here to support 64-bit st_size and time_t values
 typedef struct _stat64  llstat;
 #else
-typedef struct stat     llstat;
 #include <sys/types.h>
+typedef struct stat llstat;
 #endif
 
 #ifndef S_ISREG
@@ -74,8 +74,11 @@ typedef struct stat     llstat;
 class LL_COMMON_API LLFile
 {
 public:
+//----------------------------------------------------------------------------------------
+// Static member functions
+//----------------------------------------------------------------------------------------
     /// open a file with the specified access mode
-    static  LLFILE* fopen(const std::string& filename, const char* accessmode);  /* Flawfinder: ignore */
+    static  LLFILE* fopen(const std::string& filename, const char* accessmode);
     ///< 'accessmode' follows the rules of the Posix fopen() mode parameter
     /// "r" open the file for reading only and positions the stream at the beginning
     /// "r+" open the file for reading and writing and positions the stream at the beginning
@@ -91,13 +94,12 @@ public:
     /// This means that it is always a good idea to append "b" specifically for binary file access to
     /// avoid corruption of the binary consistency of the data stream when reading or writing
     /// Other characters in 'accessmode' will usually cause an error as fopen will verify this parameter
-    /// @returns a valid LLFILE* pointer on success or NULL on failure
+    /// @returns a valid LLFILE* pointer on success that can be passed to the fread() and fwrite() functions
+    /// and some other f<something> functions in the Standard C library that accept a FILE* as parameter
+    /// or NULL on failure
 
+    /// Close a file handle opened with fopen() above
     static  int     close(LLFILE * file);
-
-    /// retrieve the content of a file into a string
-    static std::string getContents(const std::string& filename);
-    ///< @returns the content of the file or an empty string on failure
 
     /// create a directory
     static  int     mkdir(const std::string& filename, int perms = 0700);
@@ -127,10 +129,21 @@ public:
     ///  does not make such guarantees.
     ///  @returns 0 on success and -1 on failure.
 
-
-    /// copy the contents of file from 'from' to 'to' filename
+    /// copy the contents of the file from 'from' to 'to' filename
     static  bool    copy(const std::string& from, const std::string& to);
     ///< @returns true on success and false on failure.
+
+    /// retrieve the content of a file into a string
+    static std::string getContents(const std::string& filename);
+    ///< @returns the content of the file or an empty string on failure
+
+    /// read nBytes from the file into the buffer, starting at offset in the file
+    static  U64     read(const std::string& filename, void* buf, U64 offset, U64 nbytes);
+    ///< @returns bytes read on success, 0 on failure
+
+    /// write nBytes from the buffer into the file, starting at offset in the file
+    static  U64     write(const std::string& filename, const void* buf, U64 offset, U64 nbytes);
+    ///< @returns bytes written on success, 0 on failure
 
     /// return the file stat structure for filename
     static  int     stat(const std::string& filename, llstat* file_status, int suppress_error = ENOENT);
@@ -145,7 +158,7 @@ public:
     ///  dontFollowSymLinks set to true returns the attributes of the symlink if it is one, rather than resolving it
     ///  we pass by default ENOENT in the optional 'suppress_error' parameter to not spam the log with
     ///  warnings when the file or directory does not exist
-    ///  @returns 0 on failure and a st_mode value with either S_IFDIR or S_IFREG set otherwise
+    ///  @returns 0 on failure and a st_mode value with either S_IFDIR, S_IFREG or S_IFLNK set,
     ///  together with the three access bits which under Windows only the write bit is relevant.
 
     /// get the size of a file in bytes
