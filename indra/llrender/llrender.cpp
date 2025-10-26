@@ -1089,7 +1089,7 @@ void LLRender::syncMatrices()
                 S32 loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
                 if (loc > -1)
                 {
-                    if (cached_mvp_mdv_hash != mMatHash[MM_PROJECTION] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+                    if (cached_mvp_mdv_hash != mMatHash[MM_MODELVIEW] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
                     {
                         U32 mdv = MM_MODELVIEW;
                         cached_mvp = mat;
