@@ -143,14 +143,39 @@ if (LINUX)
           LL_IGNORE_SIGCHLD
   )
 
-  if(ENABLE_ASAN)
-    add_compile_options(-U_FORTIFY_SOURCE
-      -fsanitize=address
-      --param asan-stack=0
+  option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
+  option(ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+  option(ENABLE_THREADSAN "Enable Thread Sanitizer" OFF)
+  if(ENABLE_ASAN OR ENABLE_UBSAN OR ENABLE_THREADSAN)
+    set(GCC_DISABLE_FATAL_WARNINGS ON) # Disable warnings as errors during sanitizer builds due to false positives
+
+    add_compile_options(
+      -U_FORTIFY_SOURCE
+      -fno-omit-frame-pointer
+      -fno-common
+      -fsanitize-recover=all
     )
-    add_link_options(-fsanitize=address)
+
+    # libwebrtc is incompatible with sanitizers
+    set(DISABLE_WEBRTC ON)
+    add_compile_definitions(DISABLE_WEBRTC=1)
+
+    if(ENABLE_ASAN)
+      add_compile_options(-fsanitize=address)
+      add_link_options(-fsanitize=address)
+    endif()
+
+    if(ENABLE_UBSAN)
+      add_compile_options(-fsanitize=undefined)
+      add_link_options(-fsanitize=undefined)
+    endif()
+
+    if(ENABLE_THREADSAN)
+      add_compile_options(-fsanitize=thread)
+      add_link_options(-fsanitize=thread)
+    endif()
   else()
-   add_compile_definitions($<$<CONFIG:Release>:_FORTIFY_SOURCE=2>)
+    add_compile_definitions($<$<CONFIG:Release>:_FORTIFY_SOURCE=2>)
   endif()
 
   add_compile_options(

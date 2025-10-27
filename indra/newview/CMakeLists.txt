@@ -718,7 +718,6 @@ set(viewer_SOURCE_FILES
     llvoiceclient.cpp
     llvoicevisualizer.cpp
     llvoicevivox.cpp
-    llvoicewebrtc.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -1386,7 +1385,6 @@ set(viewer_HEADER_FILES
     llvoiceclient.h
     llvoicevisualizer.h
     llvoicevivox.h
-    llvoicewebrtc.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1423,6 +1421,11 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 # the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
            "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
+
+if (NOT DISABLE_WEBRTC)
+  LIST(APPEND viewer_SOURCE_FILES llvoicewebrtc.cpp)
+  LIST(APPEND viewer_HEADER_FILES llvoicewebrtc.h)
+endif()
 
 if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
@@ -2014,7 +2017,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcorehttp
         llcommon
         llmeshoptimizer
-        llwebrtc
         lllogin
         llprimitive
         llappearance
@@ -2025,16 +2027,20 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::openxr
         )
 
+if (NOT DISABLE_WEBRTC)
+    target_link_libraries(${VIEWER_BINARY_NAME} llwebrtc )
+endif()
+
 if (USE_DISCORD)
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
 endif ()
 
 if( TARGET ll::intel_memops )
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
 endif()
 
 if( TARGET ll::nvapi )
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
 endif()
 
 if ( TARGET llconvexdecomposition )
