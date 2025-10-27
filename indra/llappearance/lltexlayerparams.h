@@ -63,7 +63,6 @@ protected:
 // LLTexLayerParamAlpha
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-LL_ALIGN_PREFIX(16)
 class alignas(16) LLTexLayerParamAlpha : public LLTexLayerParam
 {
     LL_ALIGN_NEW
@@ -103,7 +102,7 @@ private:
     LLPointer<LLImageRaw>   mStaticImageRaw;
     std::atomic<bool>       mNeedsCreateTexture;
     bool                    mStaticImageInvalid;
-    LL_ALIGN_16(LLVector4a              mAvgDistortionVec);
+    LLVector4a              mAvgDistortionVec;
     F32                     mCachedEffectiveWeight;
 
 public:
@@ -113,7 +112,7 @@ public:
 
     typedef std::list< LLTexLayerParamAlpha* > param_alpha_ptr_list_t;
     static param_alpha_ptr_list_t sInstances;
-} LL_ALIGN_POSTFIX(16);
+};
 class LLTexLayerParamAlphaInfo : public LLViewerVisualParamInfo
 {
     friend class LLTexLayerParamAlpha;

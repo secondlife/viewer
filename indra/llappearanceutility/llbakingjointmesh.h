@@ -30,8 +30,9 @@
 #include "llavatarjointmesh.h"
 #include "llbakingjoint.h"
 
-class LLBakingJointMesh : public LLAvatarJointMesh, public LLBakingJoint
+class alignas(16) LLBakingJointMesh : public LLAvatarJointMesh, public LLBakingJoint
 {
+    LL_ALIGN_NEW
 public:
     LLBakingJointMesh();
     LLBakingJointMesh(S32 joint_num);

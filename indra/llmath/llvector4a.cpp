@@ -101,7 +101,7 @@ void LLVector4a::quantize8( const LLVector4a& low, const LLVector4a& high )
         // 8-bit quantization means we can do with just 12 bits of reciprocal accuracy
         const LLVector4a oneOverDelta = _mm_rcp_ps(delta.mQ);
 //      {
-//          static LL_ALIGN_16( const F32 F_TWO_4A[4] ) = { 2.f, 2.f, 2.f, 2.f };
+//          alignas(16) static const F32 F_TWO_4A[4] = { 2.f, 2.f, 2.f, 2.f };
 //          LLVector4a two; two.load4a( F_TWO_4A );
 //
 //          // Here we use _mm_rcp_ps plus one round of newton-raphson
@@ -146,7 +146,7 @@ void LLVector4a::quantize16( const LLVector4a& low, const LLVector4a& high )
         // 16-bit quantization means we need a round of Newton-Raphson
         LLVector4a oneOverDelta;
         {
-            static LL_ALIGN_16( const F32 F_TWO_4A[4] ) = { 2.f, 2.f, 2.f, 2.f };
+            alignas(16) static const F32 F_TWO_4A[4] = { 2.f, 2.f, 2.f, 2.f };
             ll_assert_aligned(F_TWO_4A,16);
 
             LLVector4a two; two.load4a( F_TWO_4A );

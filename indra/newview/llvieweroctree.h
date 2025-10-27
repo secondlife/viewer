@@ -70,8 +70,7 @@ S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVect
 S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &radius_squared);
 
 //defines data needed for octree of an entry
-//LL_ALIGN_PREFIX(16)
-class LLViewerOctreeEntry : public LLRefCount
+class alignas(16) LLViewerOctreeEntry : public LLRefCount
 {
     LL_ALIGN_NEW
     friend class LLViewerOctreeEntryData;
@@ -115,16 +114,15 @@ private:
     LLViewerOctreeGroup*        mGroup;
 
     //aligned members
-    LL_ALIGN_16(LLVector4a      mExtents[2]);
-    LL_ALIGN_16(LLVector4a      mPositionGroup);
+    LLVector4a      mExtents[2];
+    LLVector4a      mPositionGroup;
     F32                         mBinRadius;
     mutable S32                 mBinIndex;
     mutable U32                 mVisible;
 
-} ;//LL_ALIGN_POSTFIX(16);
+};
 
 //defines an abstract class for entry data
-//LL_ALIGN_PREFIX(16)
 class LLViewerOctreeEntryData : public LLRefCount
 {
 protected:
@@ -173,11 +171,10 @@ protected:
     LLPointer<LLViewerOctreeEntry>        mEntry;
     LLViewerOctreeEntry::eEntryDataType_t mDataType;
     static  U32                           sCurVisible; // Counter for what value of mVisible means currently visible
-};//LL_ALIGN_POSTFIX(16);
+};
 
 
 //defines an octree group for an octree node, which contains multiple entries.
-//LL_ALIGN_PREFIX(16)
 class LLViewerOctreeGroup
 :   public OctreeListener
 {
@@ -259,18 +256,17 @@ protected:
     U32         mState;
     OctreeNode* mOctreeNode;
 
-    LL_ALIGN_16(LLVector4a mBounds[2]);        // bounding box (center, size) of this node and all its children (tight fit to objects)
-    LL_ALIGN_16(LLVector4a mObjectBounds[2]);  // bounding box (center, size) of objects in this node
-    LL_ALIGN_16(LLVector4a mExtents[2]);       // extents (min, max) of this node and all its children
-    LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node
+    LLVector4a mBounds[2];        // bounding box (center, size) of this node and all its children (tight fit to objects)
+    LLVector4a mObjectBounds[2];  // bounding box (center, size) of objects in this node
+    LLVector4a mExtents[2];       // extents (min, max) of this node and all its children
+    LLVector4a mObjectExtents[2]; // extents (min, max) of objects in this node
 
     S32         mAnyVisible; //latest visible to any camera
     S32         mVisible[LLViewerCamera::NUM_CAMERAS];
 
-};//LL_ALIGN_POSTFIX(16);
+};
 
 //octree group which has capability to support occlusion culling
-//LL_ALIGN_PREFIX(16)
 class LLOcclusionCullingGroup : public LLViewerOctreeGroup
 {
 public:
@@ -340,7 +336,7 @@ protected:
 
 public:
     static std::set<U32> sPendingQueries;
-};//LL_ALIGN_POSTFIX(16);
+};
 
 class LLViewerOctreePartition
 {
