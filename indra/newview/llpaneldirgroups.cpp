@@ -79,7 +79,7 @@ void LLPanelDirGroups::performQuery()
     }
 
     mCurrentSortColumn = "score";
-    mCurrentSortAscending = FALSE;
+    mCurrentSortAscending = false;
 
     // send the message
     sendDirFindQuery(

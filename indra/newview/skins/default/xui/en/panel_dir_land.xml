@@ -7,10 +7,6 @@
     <string name="not_found_text">
         None Found.
     </string>
-    <string name="land_help_text">
-        Land can be bought direct for Linden Dollars (L$) or at auction for either L$ or US$.
-        To buy direct, visit the land and click on the place name in the title bar.
-    </string>
     <text
      bg_visible="false"
      border_visible="false"
@@ -33,7 +29,7 @@
      layout="topleft"
      height="18"
      top_delta="0"
-     left="465"
+     left="525"
      max_chars="20"
      mouse_opaque="true"
      name="type"
@@ -44,43 +40,75 @@
         <combo_item name="EstateSales" value="Estate Sales" label="For Sale - Estate"/>
     </combo_box>
     <check_box
-     left_pad="20"
+     left_pad="5"
      control_name="ShowPGLand"
      follows="right|top"
      layout="topleft"
      font="SansSerifSmall"
      height="16"
      initial_value="true"
-     label="PG"
+     label=""
      mouse_opaque="true"
      name="incpg"
-     width="35" />
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_PG_Dark"
+     tool_tip="General"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_general"
+     width="16"/>
     <check_box
-     left_pad="5"
+     left_pad="4"
+     top_delta="1"
      layout="topleft"
      control_name="ShowMatureLand"
      follows="right|top"
      font="SansSerifSmall"
      height="16"
      initial_value="true"
-     label="Mature"
+     label=""
      mouse_opaque="true"
      name="incmature"
-     width="56" />
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_M_Dark"
+     tool_tip="Moderate"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_moderate"
+     width="16"/>
     <check_box
-     left_pad="5"
+     left_pad="4"
+     top_delta="1"
      layout="topleft"
      control_name="ShowAdultLand"
      follows="right|top"
      font="SansSerifSmall"
      height="16"
      initial_value="false"
-     label="Adult"
+     label=""
      mouse_opaque="true"
      name="incadult"
-     width="50" />
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_R_Dark"
+     tool_tip="Adult"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_adult"
+     width="16"/>
     <check_box
-     top_pad="2"
+     top_pad="3"
      layout="topleft"
      control_name="FindLandPrice"
      follows="left|top"
@@ -166,10 +194,10 @@
      height="20"
      label="Search"
      top_delta="0"
-     left_pad="15"
+     left="660"
      mouse_opaque="true"
      name="Search"
-     width="95" />
+     width="105" />
     <scroll_list
      background_visible="true"
      layout="topleft"
@@ -186,7 +214,6 @@
      search_column="2"
      width="336">
         <column label="" name="icon" width="24" />
-        <column label="" name="type" width="-1" />
         <column dynamicwidth="true" label="Name" name="name" />
         <column label="Type" name="landtype" width="50" />
         <column label="L$ Price" name="price" width="65" />
@@ -209,27 +236,33 @@
      v_pad="0"
      width="328" />
     <button
+     image_overlay="Arrow_Left_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     hover_glow_amount="0.15"
+     tool_tip="Previous page"
+     follows="right|bottom"
+     height="22"
+     right="305"
      bottom="-533"
-     follows="right|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="Next &gt;"
-     label_selected="Next &gt;"
-     mouse_opaque="true"
-     name="Next &gt;"
-     right="344"
-     width="80" />
+     name="prev_btn"
+     width="32" />
     <button
-     bottom_delta="0"
+     image_overlay="Arrow_Right_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     tool_tip="Next page"
      follows="right|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="&lt; Prev"
-     label_selected="&lt; Prev"
-     mouse_opaque="true"
-     name="&lt; Prev"
-     right="258"
-     width="80" />
+     height="22"
+     layout="topleft"
+     left_pad="5"
+     name="next_btn"
+     top_delta="0"
+     width="32"/>
 </panel>

@@ -63,7 +63,7 @@ bool LLPanelDirPlaces::postBuild()
     //childDisable("Search");
 
     mCurrentSortColumn = "dwell";
-    mCurrentSortAscending = FALSE;
+    mCurrentSortAscending = false;
 
     return true;
 }

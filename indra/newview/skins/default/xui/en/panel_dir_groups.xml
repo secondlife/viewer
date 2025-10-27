@@ -9,28 +9,35 @@
  name="panel_dir_groups"
  width="778">
     <button
+     image_overlay="Arrow_Left_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     hover_glow_amount="0.15"
+     tool_tip="Previous page"
+     follows="right|bottom"
+     height="22"
+     right="305"
      bottom="-533"
-     follows="left|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="Next &gt;"
-     label_selected="Next &gt;"
-     right="344"
-     mouse_opaque="true"
-     name="Next &gt;"
-     width="80" />
+     name="prev_btn"
+     width="32" />
     <button
-     bottom_delta="0"
-     follows="left|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="&lt; Prev"
-     right="258"
-     mouse_opaque="true"
-     name="&lt; Prev"
-     width="80" />
+     image_overlay="Arrow_Right_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     tool_tip="Next page"
+     follows="right|bottom"
+     height="22"
+     layout="topleft"
+     left_pad="5"
+     name="next_btn"
+     top_delta="0"
+     width="32"/>
     <text
      bg_visible="false"
      border_visible="false"
@@ -51,13 +58,13 @@
     <check_box
      top_delta="0"
      control_name="ShowMatureGroups"
-     follows="left|top"
+     follows="right|top"
      layout="topleft"
      font="SansSerifSmall"
      height="16"
      initial_value="false"
      label="Include Mature groups"
-     left="465"
+     left="510"
      mouse_opaque="true"
      name="incmature"
      width="100" />
@@ -73,7 +80,7 @@
      max_length="63"
      mouse_opaque="true"
      name="name"
-     width="660" />
+     width="650" />
     <button
      follows="right|top"
      layout="topleft"
@@ -85,7 +92,7 @@
      left_pad="5"
      mouse_opaque="true"
      name="Search"
-     width="95" />
+     width="105" />
     <scroll_list
      background_visible="true"
      layout="topleft"

@@ -47,7 +47,7 @@ public:
     // Use to get periodic updates.
     virtual void draw();
 
-    virtual void onVisibilityChange(BOOL curVisibilityIn);
+    virtual void onVisibilityChange(bool curVisibilityIn);
 
     // Redo your search for the prev/next page of results
     virtual void prevPage();
@@ -90,10 +90,6 @@ public:
 
     void showEvent(const U32 event_id);
 
-    // Prev/Next page buttons
-    static void onClickNext(void* data);
-    static void onClickPrev(void* data);
-
     static void onCommitList(LLUICtrl* ctrl, void* data);
 
     static void processDirPeopleReply(LLMessageSystem* msg, void**);
@@ -109,7 +105,7 @@ protected:
     void updateResultCount();
 
     void addClassified(LLCtrlListInterface *list, const LLUUID& classified_id, const std::string& name, const U32 creation_date, const S32 price_for_listing);
-    LLSD createLandSale(const LLUUID& parcel_id, BOOL is_auction, BOOL is_for_sale, const std::string& name, S32 *type);
+    LLSD createLandSale(const LLUUID& parcel_id, bool is_auction, bool is_for_sale, const std::string& name, S32 *type);
 
     static void onKeystrokeName(LLLineEditor* line, void* data);
 
@@ -139,6 +135,8 @@ protected:
     LLFrameTimer mLastResultTimer;
 
     LLFloaterDirectory* mFloaterDirectory;
+    LLButton* mPrevPageBtn;
+    LLButton* mNextPageBtn;
 };
 
 // Codes used for sorting by type.

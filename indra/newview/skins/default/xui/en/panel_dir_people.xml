@@ -42,7 +42,7 @@
      max_length="63"
      mouse_opaque="true"
      name="name"
-     width="660" />
+     width="650" />
     <button
      follows="right|top"
      layout="topleft"
@@ -53,7 +53,7 @@
      label="Search"
      mouse_opaque="true"
      name="Search"
-     width="95" />
+     width="105" />
     <scroll_list
      background_visible="true"
      layout="topleft"
@@ -88,27 +88,33 @@
      v_pad="0"
      width="328" />
     <button
+     image_overlay="Arrow_Left_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     hover_glow_amount="0.15"
+     tool_tip="Previous page"
+     follows="right|bottom"
+     height="22"
+     right="305"
      bottom="-533"
-     follows="left|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="Next &gt;"
-     label_selected="Next &gt;"
-     mouse_opaque="true"
-     name="Next &gt;"
-     right="330"
-     width="80" />
+     name="prev_btn"
+     width="32" />
     <button
-     bottom_delta="0"
-     follows="left|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="&lt; Prev"
-     label_selected="&lt; Prev"
-     mouse_opaque="true"
-     name="&lt; Prev"
-     right="244"
-     width="80" />
+     image_overlay="Arrow_Right_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     tool_tip="Next page"
+     follows="right|bottom"
+     height="22"
+     layout="topleft"
+     left_pad="5"
+     name="next_btn"
+     top_delta="0"
+     width="32"/>
 </panel>

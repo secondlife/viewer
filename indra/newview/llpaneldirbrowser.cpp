@@ -85,11 +85,14 @@ bool LLPanelDirBrowser::postBuild()
 {
     childSetCommitCallback("results", onCommitList, this);
 
-    childSetAction("< Prev", onClickPrev, this);
-    childSetVisible("< Prev", false);
+    mPrevPageBtn = getChild<LLButton>("prev_btn");
+    mNextPageBtn = getChild<LLButton>("next_btn");
 
-    childSetAction("Next >", onClickNext, this);
-    childSetVisible("Next >", false);
+    mPrevPageBtn->setClickedCallback([this](LLUICtrl*, const LLSD&){ prevPage(); });
+    mPrevPageBtn->setVisible(false);
+
+    mNextPageBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { nextPage(); });
+    mNextPageBtn->setVisible(false);
 
     return true;
 }
@@ -118,13 +121,13 @@ void LLPanelDirBrowser::draw()
                 if (list->getCanSelect())
                 {
                     list->selectFirstItem(); // select first item by default
-                    childSetFocus("results", TRUE);
+                    childSetFocus("results", true);
                 }
                 // Request specific data from the server
                 onCommitList(NULL, this);
             }
         }
-        mDidAutoSelect = TRUE;
+        mDidAutoSelect = true;
     }
 
     LLPanel::draw();
@@ -135,7 +138,7 @@ void LLPanelDirBrowser::draw()
 void LLPanelDirBrowser::nextPage()
 {
     mSearchStart += mResultsPerPage;
-    childSetVisible("< Prev", true);
+    mPrevPageBtn->setVisible(true);
 
     performQuery();
 }
@@ -145,7 +148,7 @@ void LLPanelDirBrowser::nextPage()
 void LLPanelDirBrowser::prevPage()
 {
     mSearchStart -= mResultsPerPage;
-    childSetVisible("< Prev", mSearchStart > 0);
+    mPrevPageBtn->setVisible(mSearchStart > 0);
 
     performQuery();
 }
@@ -154,8 +157,8 @@ void LLPanelDirBrowser::prevPage()
 void LLPanelDirBrowser::resetSearchStart()
 {
     mSearchStart = 0;
-    childSetVisible("Next >", false);
-    childSetVisible("< Prev", false);
+    mNextPageBtn->setVisible(false);
+    mPrevPageBtn->setVisible(false);
 }
 
 // protected
@@ -168,8 +171,7 @@ void LLPanelDirBrowser::updateResultCount()
 
     if (!mHaveSearchResults) result_count = 0;
 
-    LLView* viewp = getChild<LLView>("Next >");
-    if (viewp && viewp->getVisible()) 
+    if (mNextPageBtn && mNextPageBtn->getVisible()) 
     {
         // Item count be off by a few if bogus items sent from database
         // Just use the number of results per page. JC
@@ -195,21 +197,6 @@ void LLPanelDirBrowser::updateResultCount()
     {
         childEnable("results");
     }
-}
-
-// static
-void LLPanelDirBrowser::onClickPrev(void* data)
-{
-    LLPanelDirBrowser* self = (LLPanelDirBrowser*)data;
-    self->prevPage();
-}
-
-
-// static
-void LLPanelDirBrowser::onClickNext(void* data)
-{
-    LLPanelDirBrowser* self = (LLPanelDirBrowser*)data;
-    self->nextPage();
 }
 
 // static
@@ -253,7 +240,7 @@ void LLPanelDirBrowser::selectByUUID(const LLUUID& id)
 {
     LLCtrlListInterface *list = childGetListInterface("results");
     if (!list) return;
-    BOOL found = list->setCurrentByID(id);
+    bool found = list->setCurrentByID(id);
     if (found)
     {
         // we got it, don't wait for network
@@ -478,7 +465,7 @@ void LLPanelDirBrowser::processDirPeopleReply(LLMessageSystem *msg, void**)
 
     // Poke the result received timer
     self->mLastResultTimer.reset();
-    self->mDidAutoSelect = FALSE;
+    self->mDidAutoSelect = false;
 }
 
 
@@ -550,9 +537,9 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
         content["name"] = name;
 
         std::string buffer = llformat("%.0f", (F64)dwell);
-        row["columns"][3]["column"] = "dwell";
-        row["columns"][3]["value"] = buffer;
-        row["columns"][3]["font"] = "SansSerifSmall";
+        row["columns"][2]["column"] = "dwell";
+        row["columns"][2]["value"] = buffer;
+        row["columns"][2]["font"] = "SansSerifSmall";
 
         list->addElement(row);
         self->mResultsContents[parcel_id.asString()] = content;
@@ -563,7 +550,7 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
 
     // Poke the result received timer
     self->mLastResultTimer.reset();
-    self->mDidAutoSelect = FALSE;
+    self->mDidAutoSelect = false;
 }
 
 
@@ -707,7 +694,7 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
 
     // Poke the result received timer
     self->mLastResultTimer.reset();
-    self->mDidAutoSelect = FALSE;
+    self->mDidAutoSelect = false;
 }
 
 
@@ -789,7 +776,7 @@ void LLPanelDirBrowser::processDirGroupsReply(LLMessageSystem* msg, void**)
 
     // Poke the result received timer
     self->mLastResultTimer.reset();
-    self->mDidAutoSelect = FALSE;
+    self->mDidAutoSelect = false;
 }
 
 
@@ -870,7 +857,7 @@ void LLPanelDirBrowser::processDirClassifiedReply(LLMessageSystem* msg, void**)
 
     // Poke the result received timer
     self->mLastResultTimer.reset();
-    self->mDidAutoSelect = FALSE;
+    self->mDidAutoSelect = false;
 }
 
 void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
@@ -910,10 +897,10 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
         self->mResultsContents = LLSD();
     }
 
-    BOOL use_price = gSavedSettings.getBOOL("FindLandPrice");
+    bool use_price = gSavedSettings.getBOOL("FindLandPrice");
     S32 limit_price = self->childGetValue("priceedit").asInteger();
 
-    BOOL use_area = gSavedSettings.getBOOL("FindLandArea");
+    bool use_area = gSavedSettings.getBOOL("FindLandArea");
     S32 limit_area = self->childGetValue("areaedit").asInteger();
 
     S32 i;
@@ -962,14 +949,14 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
             buffer = llformat("%d", sale_price);
             non_auction_count++;
         }
-        row["columns"][3]["column"] = "price";
-        row["columns"][3]["value"] = buffer;
-        row["columns"][3]["font"] = "SansSerifSmall";
+        row["columns"][2]["column"] = "price";
+        row["columns"][2]["value"] = buffer;
+        row["columns"][2]["font"] = "SansSerifSmall";
 
         buffer = llformat("%d", actual_area);
-        row["columns"][4]["column"] = "area";
-        row["columns"][4]["value"] = buffer;
-        row["columns"][4]["font"] = "SansSerifSmall";
+        row["columns"][3]["column"] = "area";
+        row["columns"][3]["value"] = buffer;
+        row["columns"][3]["font"] = "SansSerifSmall";
 
         if (!auction)
         {
@@ -984,21 +971,21 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
             }
             // Prices are usually L$1 - L$10 / meter
             buffer = llformat("%.1f", price_per_meter);
-            row["columns"][5]["column"] = "per_meter";
-            row["columns"][5]["value"] = buffer;
-            row["columns"][5]["font"] = "SansSerifSmall";
+            row["columns"][4]["column"] = "per_meter";
+            row["columns"][4]["value"] = buffer;
+            row["columns"][4]["font"] = "SansSerifSmall";
         }
         else
         {
             // Auctions start at L$1 per meter
-            row["columns"][5]["column"] = "per_meter";
-            row["columns"][5]["value"] = "1.0";
-            row["columns"][5]["font"] = "SansSerifSmall";
+            row["columns"][4]["column"] = "per_meter";
+            row["columns"][4]["value"] = "1.0";
+            row["columns"][4]["font"] = "SansSerifSmall";
         }
 
-        row["columns"][6]["column"] = "landtype";
-        row["columns"][6]["value"] = land_type;
-        row["columns"][6]["font"] = "SansSerifSmall";
+        row["columns"][5]["column"] = "landtype";
+        row["columns"][5]["value"] = land_type;
+        row["columns"][5]["font"] = "SansSerifSmall";
 
         list->addElement(row);
         self->mResultsContents[parcel_id.asString()] = content;
@@ -1013,7 +1000,7 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
 
     // Poke the result received timer
     self->mLastResultTimer.reset();
-    self->mDidAutoSelect = FALSE;
+    self->mDidAutoSelect = false;
 }
 
 void LLPanelDirBrowser::addClassified(LLCtrlListInterface *list, const LLUUID& pick_id, const std::string& name, const U32 creation_date, const S32 price_for_listing)
@@ -1038,7 +1025,7 @@ void LLPanelDirBrowser::addClassified(LLCtrlListInterface *list, const LLUUID& p
     list->addElement(row);
 }
 
-LLSD LLPanelDirBrowser::createLandSale(const LLUUID& parcel_id, BOOL is_auction, BOOL is_for_sale,  const std::string& name, S32 *type)
+LLSD LLPanelDirBrowser::createLandSale(const LLUUID& parcel_id, bool is_auction, bool is_for_sale,  const std::string& name, S32 *type)
 {
     LLSD row;
     row["id"] = parcel_id;
@@ -1070,9 +1057,9 @@ LLSD LLPanelDirBrowser::createLandSale(const LLUUID& parcel_id, BOOL is_auction,
         *type = PLACE_CODE;
     }
 
-    row["columns"][2]["column"] = "name";
-    row["columns"][2]["value"] = name;
-    row["columns"][2]["font"] = "SANSSERIF";
+    row["columns"][1]["column"] = "name";
+    row["columns"][1]["value"] = name;
+    row["columns"][1]["font"] = "SANSSERIF";
 
     return row;
 }
@@ -1089,8 +1076,8 @@ void LLPanelDirBrowser::setupNewSearch()
 
     // ready the list for results
     list->operateOnAll(LLCtrlListInterface::OP_DELETE);
-    list->setCommentText(std::string("Searching...")); // *TODO: Translate
-    childDisable("results");
+    list->setCommentText(LLTrans::getString("Searching"));
+    list->setEnabled(false);
 
     mResultsReceived = 0;
     mHaveSearchResults = FALSE;
@@ -1151,7 +1138,7 @@ void LLPanelDirBrowser::onKeystrokeName(LLLineEditor* line, void* data)
 }
 
 // setup results when shown
-void LLPanelDirBrowser::onVisibilityChange(BOOL new_visibility)
+void LLPanelDirBrowser::onVisibilityChange(bool new_visibility)
 {
     if (new_visibility)
     {
@@ -1168,7 +1155,7 @@ S32 LLPanelDirBrowser::showNextButton(S32 rows)
     {
         // HACK: The (mResultsPerPage)+1th entry indicates there are 'more'
         bool show_next = (mResultsReceived > mResultsPerPage);
-        childSetVisible("Next >", show_next);
+        mNextPageBtn->setVisible(show_next);
         if (show_next)
         {
             rows -= (mResultsReceived - mResultsPerPage);
@@ -1177,8 +1164,8 @@ S32 LLPanelDirBrowser::showNextButton(S32 rows)
     else
     {
         // Hide page buttons
-        childSetVisible("Next >", false);
-        childSetVisible("< Prev", false);
+        mNextPageBtn->setVisible(false);
+        mPrevPageBtn->setVisible(false);
     }
     return rows;
 }

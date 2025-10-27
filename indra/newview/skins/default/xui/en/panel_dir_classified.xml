@@ -35,7 +35,7 @@
     <combo_box
      allow_text_entry="false"
      top_delta="0"
-     left="465"
+     left="525"
      layout="topleft"
      follows="right|top"
      height="18"
@@ -55,46 +55,78 @@
         <combo_item name="Personal" value="9" label="Personal"/>
      </combo_box>
     <check_box
-     left_pad="20"
+     left_pad="5"
      control_name="ShowPGClassifieds"
      follows="right|top"
      layout="topleft"
      font="SansSerifSmall"
      height="16"
      initial_value="true"
-     label="PG"
+     label=""
      mouse_opaque="true"
      name="incpg"
-     width="35" />
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_PG_Dark"
+     tool_tip="General"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_general"
+     width="16"/>
     <check_box
-     left_pad="5"
+     left_pad="4"
+     top_delta="1"
      layout="topleft"
      control_name="ShowMatureClassifieds"
      follows="right|top"
      font="SansSerifSmall"
      height="16"
      initial_value="true"
-     label="Mature"
+     label=""
      mouse_opaque="true"
      name="incmature"
-     width="56" />
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_M_Dark"
+     tool_tip="Moderate"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_moderate"
+     width="16"/>
     <check_box
-     left_pad="5"
+     left_pad="4"
+     top_delta="1"
      layout="topleft"
      control_name="ShowAdultClassifieds"
      follows="right|top"
      font="SansSerifSmall"
      height="16"
      initial_value="false"
-     label="Adult"
+     label=""
      mouse_opaque="true"
      name="incadult"
-     width="50" />
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_R_Dark"
+     tool_tip="Adult"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_adult"
+     width="16"/>
     <line_editor
      bevel_style="in"
      border_style="line"
      border_thickness="1"
-     top_pad="2"
+     top_pad="3"
      follows="left|right|top"
      layout="topleft"
      font="SansSerif"
@@ -103,7 +135,7 @@
      max_length="63"
      mouse_opaque="true"
      name="name"
-     width="660" />
+     width="650" />
     <button
      follows="right|top"
      layout="topleft"
@@ -115,7 +147,7 @@
      left_pad="5"
      mouse_opaque="true"
      name="Search"
-     width="95" />
+     width="105" />
     <scroll_list
      background_visible="true"
      layout="topleft"
@@ -151,27 +183,33 @@
      v_pad="0"
      width="80" />
     <button
+     image_overlay="Arrow_Left_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     hover_glow_amount="0.15"
+     tool_tip="Previous page"
+     follows="right|bottom"
+     height="22"
+     right="305"
      bottom="-533"
-     follows="right|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="Next &gt;"
-     label_selected="Next &gt;"
-     mouse_opaque="true"
-     name="Next &gt;"
-     right="344"
-     width="80" />
+     name="prev_btn"
+     width="32" />
     <button
-     bottom_delta="0"
+     image_overlay="Arrow_Right_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     tool_tip="Next page"
      follows="right|bottom"
-     font="SansSerif"
-     halign="center"
-     height="20"
-     label="&lt; Prev"
-     label_selected="&lt; Prev"
-     mouse_opaque="true"
-     name="&lt; Prev"
-     right="258"
-     width="80" />
+     height="22"
+     layout="topleft"
+     left_pad="5"
+     name="next_btn"
+     top_delta="0"
+     width="32"/>
 </panel>
