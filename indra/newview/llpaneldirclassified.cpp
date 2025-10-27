@@ -62,6 +62,7 @@ bool LLPanelDirClassified::postBuild()
     LLPanelDirBrowser::postBuild();
 
     childSetAction("Search", onClickSearchCore, this);
+    setDefaultBtn("Search");
     return true;
 }
 

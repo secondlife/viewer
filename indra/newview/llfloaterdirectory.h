@@ -73,7 +73,6 @@ public:
     LLPanelClassifiedInfo* mPanelClassifiedp;
 
 private:
-    bool mMinimizing; // HACK: see reshape() for details
     static LLFloaterDirectory *sInstance;
 };
 

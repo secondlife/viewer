@@ -41,10 +41,10 @@ public:
     ~LLPanelDirWeb();
 
     bool postBuild() override;
-    void onVisibilityChange(bool new_visibility);
-    void draw();
+    void onVisibilityChange(bool new_visibility) override;
+    void draw() override;
 
-    void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+    void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
     void navigateToDefaultPage();
 

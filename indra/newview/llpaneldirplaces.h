@@ -39,7 +39,7 @@ public:
 
     bool postBuild() override;
 
-    void performQuery();
+    void performQuery() override;
 
     // Initially fill in some data for the panel.
     void initialQuery();

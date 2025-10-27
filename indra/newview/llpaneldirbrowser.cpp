@@ -70,7 +70,7 @@ LLPanelDirBrowser::LLPanelDirBrowser()
     mCurrentSortColumn("name"),
     mCurrentSortAscending(true),
     mSearchStart(0),
-    mResultsPerPage(100),
+    mResultsPerPage(RESULTS_PER_PAGE_DEFAULT),
     mResultsReceived(0),
     mMinSearchChars(1),
     mResultsContents(),

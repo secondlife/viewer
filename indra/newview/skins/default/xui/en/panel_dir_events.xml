@@ -261,7 +261,7 @@
      label_selected="&lt;&lt;"
      left_delta="54"
      mouse_opaque="true"
-     name="&lt;&lt;"
+     name="back_btn"
      tool_tip="Go back a day"
      width="20" />
     <text
@@ -294,7 +294,7 @@
      label_selected="&gt;&gt;"
      left_delta="50"
      mouse_opaque="true"
-     name="&gt;&gt;"
+     name="forward_btn"
      tool_tip="Go forward a day"
      width="20" />
 </panel>

@@ -232,7 +232,8 @@ public:
                 "upload_model",
                 "upload_script",
                 "upload_sound",
-                "bulk_upload"
+                "bulk_upload",
+                "legacy_search"
             };
             return std::find(blacklist_clicked.begin(), blacklist_clicked.end(), fl_name) == blacklist_clicked.end();
         }
@@ -284,7 +285,8 @@ public:
                 "upload_script",
                 "upload_sound",
                 "bulk_upload",
-                "slapp_test"
+                "slapp_test",
+                "legacy_search"
             };
             return std::find(blacklist_untrusted.begin(), blacklist_untrusted.end(), fl_name) == blacklist_untrusted.end();
         }

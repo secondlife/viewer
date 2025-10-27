@@ -45,12 +45,14 @@
 
 static LLPanelInjector<LLPanelDirEvents> t_panel_dir_events("panel_dir_events");
 
+constexpr S32 DAY_TO_SEC = 24 * 60 * 60;
+
 LLPanelDirEvents::LLPanelDirEvents()
     : LLPanelDirBrowser(),
     mDay(0)
 {
     // more results per page for this
-    mResultsPerPage = 200;
+    mResultsPerPage = RESULTS_PER_PAGE_EVENTS;
 }
 
 bool LLPanelDirEvents::postBuild()
@@ -59,8 +61,8 @@ bool LLPanelDirEvents::postBuild()
 
     childSetCommitCallback("date_mode", onDateModeCallback, this);
 
-    childSetAction("<<", onBackBtn, this);
-    childSetAction(">>", onForwardBtn, this);
+    childSetAction("back_btn", onBackBtn, this);
+    childSetAction("forward_btn", onForwardBtn, this);
 
     childSetCommitCallback("mature", onCommitMature, this);
 
@@ -88,7 +90,7 @@ void LLPanelDirEvents::setDay(S32 day)
     time_t utc_time = time_corrected();
 
     // Correct for offset
-    utc_time += day * 24 * 60 * 60;
+    utc_time += day * DAY_TO_SEC;
 
     // There's only one internal tm buffer.
     struct tm* internal_time;
@@ -120,7 +122,7 @@ void LLPanelDirEvents::performQueryOrDelete(U32 event_id)
     time_t utc_time = time_corrected();
 
     // Correct for offset
-    utc_time += relative_day * 24 * 60 * 60;
+    utc_time += relative_day * DAY_TO_SEC;
 
     // There's only one internal tm buffer.
     struct tm* internal_time;
@@ -208,13 +210,13 @@ void LLPanelDirEvents::onDateModeCallback(LLUICtrl* ctrl, void *data)
     LLPanelDirEvents* self = (LLPanelDirEvents*)data;
     if (self->childGetValue("date_mode").asString() == "date")
     {
-        self->childEnable(">>");
-        self->childEnable("<<");
+        self->childEnable("forward_btn");
+        self->childEnable("back_btn");
     }
     else
     {
-        self->childDisable(">>");
-        self->childDisable("<<");
+        self->childDisable("forward_btn");
+        self->childDisable("back_btn");
     }
 }
 

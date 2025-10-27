@@ -46,7 +46,6 @@
 
 LLFloaterDirectory::LLFloaterDirectory(const std::string& name)
 :   LLFloater(name),
-    mMinimizing(false),
     mPanelAvatarp(nullptr),
     mPanelGroupp(nullptr),
     mPanelPlacep(nullptr),

@@ -40,7 +40,7 @@ public:
 
     bool postBuild() override;
 
-    /*virtual*/ void performQuery();
+    /*virtual*/ void performQuery() override;
 
     void performQueryOrDelete(U32 event_id);
 

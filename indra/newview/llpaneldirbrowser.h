@@ -45,9 +45,9 @@ public:
     void setFloaterDirectory(LLFloaterDirectory* floater) { mFloaterDirectory = floater; }
 
     // Use to get periodic updates.
-    virtual void draw();
+    void draw() override;
 
-    virtual void onVisibilityChange(bool curVisibilityIn);
+    void onVisibilityChange(bool curVisibilityIn) override;
 
     // Redo your search for the prev/next page of results
     virtual void prevPage();
@@ -138,6 +138,9 @@ protected:
     LLButton* mPrevPageBtn;
     LLButton* mNextPageBtn;
 };
+
+constexpr S32 RESULTS_PER_PAGE_DEFAULT = 100;
+constexpr S32 RESULTS_PER_PAGE_EVENTS = 200;
 
 // Codes used for sorting by type.
 const S32 INVALID_CODE = -1;
