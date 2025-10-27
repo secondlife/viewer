@@ -2,15 +2,11 @@
 
 ## Here are some configuration options for Linux Client Users.
 
-## - Avoids using any FMOD STUDIO audio driver.
-#export LL_BAD_FMODSTUDIO_DRIVER=x
 ## - Avoids using any OpenAL audio driver.
 #export LL_BAD_OPENAL_DRIVER=x
 
-## - Avoids using the FMOD Studio PulseAudio audio driver.
-#export LL_BAD_FMOD_PULSEAUDIO=x
-## - Avoids using the FMOD Studio ALSA audio driver.
-#export LL_BAD_FMOD_ALSA=x
+## GL Driver Options
+export mesa_glthread=true
 
 ## Everything below this line is just for advanced troubleshooters.
 ##-------------------------------------------------------------------
@@ -65,23 +61,4 @@ LL_RUN_ERR=$?
 if [ $LL_RUN_ERR -ne 0 ]; then
 	# generic error running the binary
 	echo '*** Bad shutdown ($LL_RUN_ERR). ***'
-	if [ "$(uname -m)" = "x86_64" ]; then
-		echo
-		cat << EOFMARKER
-You are running the Second Life Viewer on a x86_64 platform.  The
-most common problems when launching the Viewer (particularly
-'bin/do-not-directly-run-secondlife-bin: not found' and 'error while
-loading shared libraries') may be solved by installing your Linux
-distribution's 32-bit compatibility packages.
-For example, on Ubuntu and other Debian-based Linuxes you might run:
-$ sudo apt-get install ia32-libs ia32-libs-gtk ia32-libs-kde ia32-libs-sdl
-EOFMARKER
-	fi
 fi
-
-echo
-echo '*******************************************************'
-echo 'This is a BETA release of the Second Life linux client.'
-echo 'Thank you for testing!'
-echo 'Please see README-linux.txt before reporting problems.'
-echo
