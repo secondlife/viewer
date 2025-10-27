@@ -288,7 +288,7 @@ extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;
 extern bool gDebugGL;
 
-#if LL_DARWIN
+#if LL_DARWIN || LL_SDL_WINDOW
 extern bool gHiDPISupport;
 #endif
 
@@ -571,6 +571,9 @@ static void settings_to_globals()
 
 #if LL_DARWIN
     LLWindowMacOSX::sUseMultGL = gSavedSettings.getBOOL("RenderAppleUseMultGL");
+#endif
+
+#if LL_DARWIN || LL_SDL_WINDOW
     gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
 #endif
 }
@@ -3380,7 +3383,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
     info["TEXTURE_MEMORY"] = LLSD::Integer(gGLManager.mVRAM);
 
-#if LL_DARWIN
+#if LL_DARWIN || LL_SDL_WINDOW
     info["HIDPI"] = gHiDPISupport;
 #endif
 

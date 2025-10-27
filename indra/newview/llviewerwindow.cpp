@@ -5646,11 +5646,6 @@ void* LLViewerWindow::getPlatformWindow() const
     return mWindow->getPlatformWindow();
 }
 
-void* LLViewerWindow::getMediaWindow()  const
-{
-    return mWindow->getMediaWindow();
-}
-
 void LLViewerWindow::focusClient()      const
 {
     return mWindow->focusClient();

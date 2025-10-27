@@ -1116,6 +1116,9 @@ class LinuxManifest(ViewerManifest):
         super(LinuxManifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        if "package_dir" in self.args:
+            pkgdir = self.args['package_dir']
+
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
@@ -1240,7 +1243,7 @@ class LinuxManifest(ViewerManifest):
 
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
-            print("* Going strip-crazy on the packaged binaries, since this is a RELEASE build")
+            print("* Going strip-crazy on the packaged binaries, since this is a Release build")
             # makes some small assumptions about our packaged dir structure
             self.run_command(
                 ["find"] +
@@ -1255,58 +1258,27 @@ class LinuxManifest(ViewerManifest):
                  '!', '-name', '*.json',
                  '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
 
-class Linux_i686_Manifest(LinuxManifest):
-    address_size = 32
+class Linux_x86_64_Manifest(LinuxManifest):
+    address_size = 64
 
     def construct(self):
-        super(Linux_i686_Manifest, self).construct()
+        super(Linux_x86_64_Manifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        if "package_dir" in self.args:
+            pkgdir = self.args['package_dir']
+
         relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        #debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libdb*.so")
-            self.path("libuuid.so*")
-            self.path("libSDL-1.2.so.*")
-            self.path("libdirectfb-1.*.so.*")
-            self.path("libfusion-1.*.so.*")
-            self.path("libdirect-1.*.so.*")
-            self.path("libopenjp2.so*")
-            self.path("libdirectfb-1.4.so.5")
-            self.path("libfusion-1.4.so.5")
-            self.path("libdirect-1.4.so.5*")
+            self.path("libSDL*.so.*")
+
             self.path("libalut.so*")
             self.path("libopenal.so*")
-            self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
-            # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
-            # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
-            # and libfontconfig.so. Before we added support for library-file
-            # wildcards, though, this self.path() call specifically named
-            # libfontconfig.so.1.4.4 WITHOUT also copying the symlinks. When I
-            # (nat) changed the call to self.path("libfontconfig.so.*"), we
-            # ended up with the libfontconfig.so.1 symlink in the target
-            # directory as well. But guess what! At least on Ubuntu 10.04,
-            # certain viewer fonts look terrible with libfontconfig.so.1
-            # present in the target directory. Removing that symlink suffices
-            # to improve them. I suspect that means we actually do better when
-            # the viewer fails to find our packaged libfontconfig.so*, falling
-            # back on the system one instead -- but diagnosing and fixing that
-            # is a bit out of scope for the present project. Meanwhile, this
-            # particular wildcard specification gets us exactly what the
-            # previous call did, without having to explicitly state the
-            # version number.
-            self.path("libfontconfig.so.*.*")
 
-            # Include libfreetype.so. but have it work as libfontconfig does.
-            self.path("libfreetype.so.*.*")
-
-            try:
-                self.path("libtcmalloc.so*") #formerly called google perf tools
-                pass
-            except:
-                print("tcmalloc files not found, skipping")
-                pass
+            if self.args['discord'] == 'ON':
+                self.path("libdiscord_partner_sdk.so*")
 
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
@@ -1318,17 +1290,6 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libvivoxsdk.so")
 
         self.strip_binaries()
-
-
-class Linux_x86_64_Manifest(LinuxManifest):
-    address_size = 64
-
-    def construct(self):
-        super(Linux_x86_64_Manifest, self).construct()
-
-        # support file for valgrind debug tool
-        self.path("secondlife-i686.supp")
-
 ################################################################
 
 if __name__ == "__main__":

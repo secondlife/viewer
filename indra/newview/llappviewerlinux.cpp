@@ -36,8 +36,18 @@
 #include "llviewercontrol.h"
 #include "llmd5.h"
 #include "llfindlocale.h"
+#include "llversioninfo.h"
 
 #include <exception>
+
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
+
+#include "SDL3/SDL.h"
+
+#include "llsdl.h"
+#include "llwindowsdl.h"
+
 #ifdef LL_GLIB
 #include <gio/gio.h>
 #endif
@@ -86,9 +96,101 @@ namespace
 {
     int gArgC = 0;
     char **gArgV = NULL;
+    LLAppViewerLinux* gViewerAppPtr = NULL;
     void (*gOldTerminateHandler)() = NULL;
 }
 
+void check_vm_bloat()
+{
+#if LL_LINUX
+    // watch our own VM and RSS sizes, warn if we bloated rapidly
+    static const std::string STATS_FILE = "/proc/self/stat";
+    FILE *fp = fopen(STATS_FILE.c_str(), "r");
+    if (fp)
+    {
+        static long long last_vm_size = 0;
+        static long long last_rss_size = 0;
+        const long long significant_vm_difference = 250 * 1024*1024;
+        const long long significant_rss_difference = 50 * 1024*1024;
+        long long this_vm_size = 0;
+        long long this_rss_size = 0;
+
+        ssize_t res;
+        size_t dummy;
+        char *ptr = nullptr;
+        for (int i=0; i<22; ++i) // parse past the values we don't want
+        {
+            res = getdelim(&ptr, &dummy, ' ', fp);
+            if (-1 == res)
+            {
+                LL_WARNS() << "Unable to parse " << STATS_FILE << LL_ENDL;
+                goto finally;
+            }
+            free(ptr);
+            ptr = nullptr;
+        }
+        // 23rd space-delimited entry is vsize
+        res = getdelim(&ptr, &dummy, ' ', fp);
+        llassert(ptr);
+        if (-1 == res)
+        {
+            LL_WARNS() << "Unable to parse " << STATS_FILE << LL_ENDL;
+            goto finally;
+        }
+        this_vm_size = atoll(ptr);
+        free(ptr);
+        ptr = nullptr;
+        // 24th space-delimited entry is RSS
+        res = getdelim(&ptr, &dummy, ' ', fp);
+        llassert(ptr);
+        if (-1 == res)
+        {
+            LL_WARNS() << "Unable to parse " << STATS_FILE << LL_ENDL;
+            goto finally;
+        }
+        this_rss_size = getpagesize() * atoll(ptr);
+        free(ptr);
+        ptr = nullptr;
+
+        LL_INFOS() << "VM SIZE IS NOW " << (this_vm_size/(1024*1024)) << " MB, RSS SIZE IS NOW " << (this_rss_size/(1024*1024)) << " MB" << LL_ENDL;
+
+        if (llabs(last_vm_size - this_vm_size) > significant_vm_difference)
+        {
+            if (this_vm_size > last_vm_size)
+            {
+                LL_WARNS() << "VM size grew by " << (this_vm_size - last_vm_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "VM size shrank by " << (last_vm_size - this_vm_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+        }
+
+        if (llabs(last_rss_size - this_rss_size) > significant_rss_difference)
+        {
+            if (this_rss_size > last_rss_size)
+            {
+                LL_WARNS() << "RSS size grew by " << (this_rss_size - last_rss_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "RSS size shrank by " << (last_rss_size - this_rss_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+        }
+
+        last_rss_size = this_rss_size;
+        last_vm_size = this_vm_size;
+
+finally:
+        if (ptr)
+        {
+            free(ptr);
+            ptr = nullptr;
+        }
+        fclose(fp);
+    }
+#endif // LL_LINUX
+}
 
 static void exceptionTerminateHandler()
 {
@@ -102,34 +204,85 @@ static void exceptionTerminateHandler()
     gOldTerminateHandler(); // call old terminate() handler
 }
 
-int main( int argc, char **argv )
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
     // Call Tracy first thing to have it allocate memory
     // https://github.com/wolfpld/tracy/issues/196
     LL_PROFILER_FRAME_END;
     LL_PROFILER_SET_THREAD_NAME("App");
 
+    gSDLMainHandled = true;
+
     gArgC = argc;
     gArgV = argv;
 
-    LLAppViewer* viewer_app_ptr = new LLAppViewerLinux();
+    gViewerAppPtr = new LLAppViewerLinux();
 
     // install unexpected exception handler
     gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
     unsetenv( "LD_PRELOAD" ); // <FS:ND/> Get rid of any preloading, we do not want this to happen during startup of plugins.
 
-    bool ok = viewer_app_ptr->init();
+    // This needs to be set as early as possible
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, LLVersionInfo::getInstance()->getChannel().c_str());
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, LLVersionInfo::getInstance()->getVersion().c_str());
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, "com.secondlife.indra.viewer");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, "Linden Research Inc");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, "Copyright (c) Linden Research, Inc. 2025");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://www.secondlife.com");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, "game");
+
+    bool ok = gViewerAppPtr->init();
     if(!ok)
     {
         LL_WARNS() << "Application init failed." << LL_ENDL;
-        return -1;
+        return SDL_APP_FAILURE;
     }
 
-    // Run the application main loop
-    while (! viewer_app_ptr->frame())
-    {}
+    return SDL_APP_CONTINUE;
+}
 
+SDL_AppResult SDL_AppIterate(void *appstate)
+{
+    // Run the application main loop
+    if (!gViewerAppPtr->frame())
+    {
+#if LL_GLIB
+        // Pump until we've nothing left to do or passed 1/15th of a
+        // second pumping for this frame.
+        static LLTimer pump_timer;
+        pump_timer.reset();
+        pump_timer.setTimerExpirySec(1.0f / 15.0f);
+        do
+        {
+            g_main_context_iteration(g_main_context_default(), false);
+        } while( g_main_context_pending(g_main_context_default()) && !pump_timer.hasExpired());
+#endif
+
+        // hack - doesn't belong here - but this is just for debugging
+        if (getenv("LL_DEBUG_BLOAT"))
+        {
+            check_vm_bloat();
+        }
+
+        return SDL_APP_CONTINUE;
+    }
+
+    if(LLApp::isError())
+    {
+        return SDL_APP_FAILURE;
+    }
+
+    return SDL_APP_SUCCESS;
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+    return LLWindowSDL::handleEvents(*event);
+}
+
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
     if (!LLApp::isError())
     {
         //
@@ -137,19 +290,11 @@ int main( int argc, char **argv )
         // the assumption is that the error handler is responsible for doing
         // app cleanup if there was a problem.
         //
-        viewer_app_ptr->cleanup();
+        gViewerAppPtr->cleanup();
     }
-    delete viewer_app_ptr;
-    viewer_app_ptr = NULL;
-    return 0;
-}
 
-LLAppViewerLinux::LLAppViewerLinux()
-{
-}
-
-LLAppViewerLinux::~LLAppViewerLinux()
-{
+    delete gViewerAppPtr;
+    gViewerAppPtr = nullptr;
 }
 
 bool LLAppViewerLinux::init()
@@ -333,63 +478,6 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 
 void LLAppViewerLinux::initCrashReporting(bool reportFreeze)
 {
-    std::string cmd =gDirUtilp->getExecutableDir();
-    cmd += gDirUtilp->getDirDelimiter();
-#if LL_LINUX
-    cmd += "linux-crash-logger.bin";
-#else
-# error Unknown platform
-#endif
-
-    std::stringstream pid_str;
-    pid_str <<  LLApp::getPid();
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-    std::string appname = gDirUtilp->getExecutableFilename();
-    std::string grid{ LLGridManager::getInstance()->getGridId() };
-    std::string title{ LLAppViewer::instance()->getSecondLifeTitle() };
-    std::string pidstr{ pid_str.str() };
-    // launch the actual crash logger
-    const char * cmdargv[] =
-        {cmd.c_str(),
-         "-user",
-         grid.c_str(),
-         "-name",
-         title.c_str(),
-         "-pid",
-         pidstr.c_str(),
-         "-dumpdir",
-         logdir.c_str(),
-         "-procname",
-         appname.c_str(),
-         NULL};
-    fflush(NULL);
-
-    pid_t pid = fork();
-    if (pid == 0)
-    { // child
-        execv(cmd.c_str(), (char* const*) cmdargv);     /* Flawfinder: ignore */
-        LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
-        _exit(1); // avoid atexit()
-    }
-    else
-    {
-        if (pid > 0)
-        {
-            // DO NOT wait for child proc to die; we want
-            // the logger to outlive us while we quit to
-            // free up the screen/keyboard/etc.
-            ////int childExitStatus;
-            ////waitpid(pid, &childExitStatus, 0);
-        }
-        else
-        {
-            LL_WARNS() << "fork failure." << LL_ENDL;
-        }
-    }
-    // Sometimes signals don't seem to quit the viewer.  Also, we may
-    // have been called explicitly instead of from a signal handler.
-    // Make sure we exit so as to not totally confuse the user.
-    //_exit(1); // avoid atexit(), else we may re-crash in dtors.
 }
 
 bool LLAppViewerLinux::beingDebugged()
@@ -420,7 +508,7 @@ bool LLAppViewerLinux::beingDebugged()
                     base += 1;
                 }
 
-                if (strcmp(base, "gdb") == 0)
+                if (strcmp(base, "gdb") == 0 || strcmp(base, "lldb") == 0)
                 {
                     debugged = yes;
                 }
@@ -430,18 +518,6 @@ bool LLAppViewerLinux::beingDebugged()
     }
 
     return debugged == yes;
-}
-
-void LLAppViewerLinux::initLoggingAndGetLastDuration()
-{
-    // Remove the last stack trace, if any
-    // This file is no longer created, since the move to Google Breakpad
-    // The code is left here to clean out any old state in the log dir
-    std::string old_stack_file =
-        gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
-    LLFile::remove(old_stack_file);
-
-    LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)
