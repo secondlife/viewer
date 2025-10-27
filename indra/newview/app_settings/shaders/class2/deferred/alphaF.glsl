@@ -250,8 +250,8 @@ void main()
     vec3 amblit_linear = amblit;
 
     vec3 irradiance = amblit;
-    vec3 glossenv;
-    vec3 legacyenv;
+    vec3 glossenv = vec3(0.0);
+    vec3 legacyenv = vec3(0.0);
     sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, frag, pos.xyz, norm.xyz, 0.0, 0.0, true, amblit_linear);
 
 
