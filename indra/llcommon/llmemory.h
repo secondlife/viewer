@@ -48,6 +48,9 @@ class LLMutex ;
 #define LL_ALIGN_OF __align_of__
 #endif
 
+#if defined(LL_X86_64) || defined(LL_ARM64)
+#define LL_DEFAULT_HEAP_ALIGN 16
+#else
 #if LL_WINDOWS
 #define LL_DEFAULT_HEAP_ALIGN 8
 #elif LL_DARWIN
@@ -55,7 +58,7 @@ class LLMutex ;
 #elif LL_LINUX
 #define LL_DEFAULT_HEAP_ALIGN 8
 #endif
-
+#endif
 
 LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
@@ -127,7 +130,6 @@ public:                                     \
         ll_aligned_free_16(ptr);            \
     }
 
-
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
     // for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library
@@ -143,6 +145,10 @@ public:                                     \
         LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     #if defined(LL_WINDOWS)
         void* ret = _aligned_malloc(size, align);
+    #elif defined(LL_LINUX)
+        void *ret;
+        if (0 != posix_memalign(&ret, align, size))
+            return nullptr;
     #else
         char* aligned = NULL;
         void* mem = malloc( size + (align - 1) + sizeof(void*) );
@@ -165,6 +171,8 @@ public:                                     \
         LL_PROFILE_FREE(ptr);
     #if defined(LL_WINDOWS)
         _aligned_free(ptr);
+    #elif defined(LL_LINUX)
+        free(ptr);
     #else
         if (ptr)
         {
@@ -179,10 +187,10 @@ public:                                     \
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
-#if defined(LL_WINDOWS)
+#if LL_DEFAULT_HEAP_ALIGN == 16
+    void* ret = malloc(size); // default osx and 64-bit malloc is 16 byte aligned.
+#elif defined(LL_WINDOWS)
     void* ret = _aligned_malloc(size, 16);
-#elif defined(LL_DARWIN)
-    void* ret = malloc(size); // default osx malloc is 16 byte aligned.
 #else
     void *ret;
     if (0 != posix_memalign(&ret, 16, size))
@@ -196,10 +204,10 @@ inline void ll_aligned_free_16(void *p)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(p);
-#if defined(LL_WINDOWS)
+#if LL_DEFAULT_HEAP_ALIGN == 16
+    free(p);
+#elif defined(LL_WINDOWS)
     _aligned_free(p);
-#elif defined(LL_DARWIN)
-    return free(p);
 #else
     free(p); // posix_memalign() is compatible with heap deallocator
 #endif
@@ -209,10 +217,10 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(ptr);
-#if defined(LL_WINDOWS)
+#if LL_DEFAULT_HEAP_ALIGN == 16
+    void* ret = realloc(ptr,size); // default osx and 64bit malloc is 16 byte aligned.
+#elif defined(LL_WINDOWS)
     void* ret = _aligned_realloc(ptr, size, 16);
-#elif defined(LL_DARWIN)
-    void* ret = realloc(ptr,size); // default osx malloc is 16 byte aligned.
 #else
     //FIXME: memcpy is SLOW
     void* ret = ll_aligned_malloc_16(size);
