@@ -107,7 +107,6 @@ void LLPanelDirWeb::navigateToDefaultPage()
         maturity = "gm";
     }
     subs["MATURITY"] = maturity;
-    
     url = LLWeb::expandURLSubstitutions(url, subs);
     mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
 }

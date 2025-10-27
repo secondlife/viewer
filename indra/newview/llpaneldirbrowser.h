@@ -148,10 +148,10 @@ const S32 PLACE_CODE = 1;
 //const S32 OFFLINE_CODE = 3;
 const S32 AVATAR_CODE = 3;
 const S32 GROUP_CODE = 4;
-const S32 CLASSIFIED_CODE = 5;	
-const S32 FOR_SALE_CODE = 6;	// for sale place
-const S32 AUCTION_CODE = 7;		// for auction place
-const S32 POPULAR_CODE = 8;		// popular by dwell
+const S32 CLASSIFIED_CODE = 5;
+const S32 FOR_SALE_CODE = 6;    // for sale place
+const S32 AUCTION_CODE = 7;     // for auction place
+const S32 POPULAR_CODE = 8;     // popular by dwell
 
 // mask values for search flags
 const S32 SEARCH_NONE = 0;	// should try not to send this to the search engine

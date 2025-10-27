@@ -171,13 +171,13 @@ void LLPanelDirBrowser::updateResultCount()
 
     if (!mHaveSearchResults) result_count = 0;
 
-    if (mNextPageBtn && mNextPageBtn->getVisible()) 
+    if (mNextPageBtn && mNextPageBtn->getVisible())
     {
         // Item count be off by a few if bogus items sent from database
         // Just use the number of results per page. JC
         result_text = llformat(">%d found", mResultsPerPage);
     }
-    else 
+    else
     {
         result_text = llformat("%d found", result_count);
     }
@@ -203,17 +203,17 @@ void LLPanelDirBrowser::updateResultCount()
 std::string LLPanelDirBrowser::filterShortWords(const std::string source_string, int shortest_word_length, bool& was_filtered)
 {
     // degenerate case
-    if ( source_string.length() < 1 ) 
+    if ( source_string.length() < 1 )
         return "";
 
     std::stringstream codec( source_string );
     std::string each_word;
     std::vector< std::string > all_words;
-    
+
     while( codec >> each_word )
         all_words.push_back( each_word );
 
-    std::ostringstream dest_string( "" ); 
+    std::ostringstream dest_string( "" );
 
     was_filtered = false;
 
@@ -319,7 +319,6 @@ void LLPanelDirBrowser::onCommitList(LLUICtrl* ctrl, void* data)
 
 void LLPanelDirBrowser::showDetailPanel(S32 type, LLSD id)
 {
-    
     switch(type)
     {
     case AVATAR_CODE:
@@ -371,7 +370,6 @@ void LLPanelDirBrowser::showDetailPanel(S32 type, LLSD id)
         }
         break;
     }
- 
 }
 
 
@@ -399,7 +397,7 @@ void LLPanelDirBrowser::processDirPeopleReply(LLMessageSystem *msg, void**)
     msg->getUUIDFast(_PREHASH_QueryData,_PREHASH_QueryID, query_id);
 
     LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
-    if (!self) 
+    if (!self)
     {
         // data from an old query
         return;
@@ -493,7 +491,7 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
     }
 
     LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
-    if (!self) 
+    if (!self)
     {
         // data from an old query
         return;
@@ -877,7 +875,7 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
     msg->getUUID("QueryData", "QueryID", query_id );
 
     LLPanelDirBrowser* browser = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
-    if (!browser) 
+    if (!browser)
     {
         // data from an old query
         return;
@@ -1149,7 +1147,7 @@ void LLPanelDirBrowser::onVisibilityChange(bool new_visibility)
 
 S32 LLPanelDirBrowser::showNextButton(S32 rows)
 {
-    // HACK: This hack doesn't work for llpaneldirfind (ALL) 
+    // HACK: This hack doesn't work for llpaneldirfind (ALL)
     // because other data is being returned as well.
     if ( getName() != "find_all_old_panel")
     {

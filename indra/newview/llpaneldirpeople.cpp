@@ -72,9 +72,9 @@ void LLPanelDirPeople::performQuery()
     // The shortest username is 2 characters long.
     const S32 SHORTEST_WORD_LEN = 2;
     bool query_was_filtered = false;
-    std::string query_string = LLPanelDirBrowser::filterShortWords( 
-            childGetValue("name").asString(), 
-            SHORTEST_WORD_LEN, 
+    std::string query_string = LLPanelDirBrowser::filterShortWords(
+            childGetValue("name").asString(),
+            SHORTEST_WORD_LEN,
             query_was_filtered );
 
     // possible we threw away all the short words in the query so check length

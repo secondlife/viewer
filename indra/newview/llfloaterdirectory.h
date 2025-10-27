@@ -57,7 +57,7 @@ class LLPanelClassifiedInfo;
 // Floater to find people, places, things
 class LLFloaterDirectory : public LLFloater
 {
-public: 
+public:
     LLFloaterDirectory(const std::string& name);
     /*virtual*/ ~LLFloaterDirectory();
 

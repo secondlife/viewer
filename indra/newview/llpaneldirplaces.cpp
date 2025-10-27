@@ -140,9 +140,9 @@ void LLPanelDirPlaces::performQuery()
     if (0x0 == flags)
     {
         LLNotificationsUtil::add("NoContentToSearch");
-        return; 
+        return;
     }
-	
+
     queryCore(query_string, category, flags);
 }
 

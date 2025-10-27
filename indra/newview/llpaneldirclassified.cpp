@@ -96,7 +96,7 @@ void LLPanelDirClassified::performQuery()
                                                                        inc_mature && gAgent.canAccessMature(),
                                                                        inc_adult && gAgent.canAccessAdult());
     U32 category = childGetValue("Category").asInteger();
-	
+
     msg->nextBlockFast(_PREHASH_QueryData);
     msg->addUUIDFast(_PREHASH_QueryID, mSearchID );
     msg->addStringFast(_PREHASH_QueryText, childGetValue("name").asString());
