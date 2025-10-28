@@ -237,8 +237,6 @@ protected:
     bool                mHasMipMaps;
 
     void debugTextureUnit(void);
-    GLint getTextureSource(eTextureBlendSrc src);
-    GLint getTextureSourceType(eTextureBlendSrc src, bool isAlpha = false);
 };
 
 class LLLightState
