@@ -49,6 +49,13 @@ bool LLFloaterMarketplace::postBuild()
     LLFloaterWebContent::postBuild();
     mWebBrowser = getChild<LLMediaCtrl>("marketplace_contents");
     mWebBrowser->addObserver(this);
+    mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+    std::string url = gSavedSettings.getString("MarketplaceURL");
+    mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+
+    // If cookie is there, will set it now, Otherwise will have to wait for login completion
+    // which will also update marketplace instance if it already exists.
+    LLViewerMedia::getInstance()->getOpenIDCookie(mWebBrowser);
 
     return true;
 }
