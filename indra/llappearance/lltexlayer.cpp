@@ -1890,7 +1890,10 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
 
                 image_raw->copyUnscaledAlphaMask(alpha_image_raw, LLColor4U::black);
             }
-            tex->createGLTexture(0, image_raw, 0, true, LLGLTexture::LOCAL);
+            if (!tex->createGLTexture(0, image_raw, 0, true, LLGLTexture::LOCAL))
+            {
+                LL_WARNS() << "Failed to create GL texture for image: " << file_name << LL_ENDL;
+            }
 
             gGL.getTexUnit(0)->bind(tex);
             tex->setAddressMode(LLTexUnit::TAM_CLAMP);
