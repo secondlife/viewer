@@ -928,7 +928,7 @@ bool Asset::save(const std::string& filename)
     object obj;
     serialize(obj);
     std::string buffer = boost::json::serialize(obj, {});
-    std::ofstream file(filename, std::ios::binary);
+    llofstream file(filename, std::ios::binary);
     file.write(buffer.c_str(), buffer.size());
 
     return true;
@@ -1090,7 +1090,7 @@ bool Image::save(Asset& asset, const std::string& folder)
         // set URI to non-j2c file for now, but later we'll want to reference the j2c hash
         mUri = name + extension;
 
-        std::ofstream file(filename, std::ios::binary);
+        llofstream file(filename, std::ios::binary);
         file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
     }
     else if (mTexture.notNull())
