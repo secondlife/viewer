@@ -2145,7 +2145,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
     case GL_SRGB_ALPHA:
         mAlphaStride = 4;
         break;
-    case GL_BGRA_EXT:
+    case GL_BGRA:
         mAlphaStride = 4;
         break;
     default:
@@ -2182,7 +2182,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 
     if( mAlphaStride < 1 || //unsupported format
         mAlphaOffset < 0 || //unsupported type
-        (mFormatPrimary == GL_BGRA_EXT && mFormatType != GL_UNSIGNED_BYTE)) //unknown situation
+        (mFormatPrimary == GL_BGRA && mFormatType != GL_UNSIGNED_BYTE)) //unknown situation
     {
         LL_WARNS() << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << LL_ENDL;
 
