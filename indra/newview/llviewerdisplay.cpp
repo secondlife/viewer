@@ -1070,7 +1070,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         LLGLSLShader::finishProfile(stats);
 
         auto report_name = getProfileStatsFilename();
-        std::ofstream outf(report_name);
+        llofstream outf(report_name);
         if (! outf)
         {
             LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;

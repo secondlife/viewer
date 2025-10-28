@@ -329,7 +329,7 @@ public:
 
     void run()
     {
-        std::ofstream os(mFile.c_str());
+        llofstream os(mFile.c_str());
 
         while (!sAllDone)
         {
