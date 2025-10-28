@@ -489,6 +489,7 @@ public:
 public:
     static U32 sUICalls;
     static U32 sUIVerts;
+    static F32 sAnisotropicFilteringLevel;
     static bool sGLCoreProfile;
     static bool sNsightDebugSupport;
     static LLVector2 sUIGLScaleFactor;
