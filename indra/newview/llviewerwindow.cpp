@@ -2322,36 +2322,23 @@ void LLViewerWindow::initWorldUI()
         gToolBarView->setVisible(true);
     }
 
-    if (!gNonInteractive)
+    // Don't preload cef instances on low end hardware
+    const F32Gigabytes MIN_PHYSICAL_MEMORY(8);
+    F32Gigabytes physical_mem = LLMemory::getMaxMemKB();
+    if (physical_mem <= 0)
     {
-        LLMediaCtrl* destinations = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-        if (destinations)
-        {
-            destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-            std::string url = gSavedSettings.getString("DestinationGuideURL");
-            url = LLWeb::expandURLSubstitutions(url, LLSD());
-            destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
-        }
-        LLMediaCtrl* avatar_welcome_pack = LLFloaterReg::getInstance("avatar_welcome_pack")->findChild<LLMediaCtrl>("avatar_picker_contents");
-        if (avatar_welcome_pack)
-        {
-            avatar_welcome_pack->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-            std::string url = gSavedSettings.getString("AvatarWelcomePack");
-            url = LLWeb::expandURLSubstitutions(url, LLSD());
-            avatar_welcome_pack->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
-        }
-        LLMediaCtrl* search = LLFloaterReg::getInstance("search")->findChild<LLMediaCtrl>("search_contents");
-        if (search)
-        {
-            search->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-        }
-        LLMediaCtrl* marketplace = LLFloaterReg::getInstance("marketplace")->getChild<LLMediaCtrl>("marketplace_contents");
-        if (marketplace)
-        {
-            marketplace->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-            std::string url = gSavedSettings.getString("MarketplaceURL");
-            marketplace->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
-        }
+        LLMemory::updateMemoryInfo();
+        physical_mem = LLMemory::getMaxMemKB();
+    }
+
+    if (!gNonInteractive && physical_mem > MIN_PHYSICAL_MEMORY)
+    {
+        LL_INFOS() << "Preloading cef instances" << LL_ENDL;
+
+        LLFloaterReg::getInstance("destinations");
+        LLFloaterReg::getInstance("avatar_welcome_pack");
+        LLFloaterReg::getInstance("search");
+        LLFloaterReg::getInstance("marketplace");
     }
 }
 
