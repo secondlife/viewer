@@ -2491,12 +2491,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
 
             llassert(LLGLSLShader::sCurBoundShader != 0);
             LLVertexBuffer::unbind();
-            glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 
             gGL.diffuseColor4fv(color.mV);
-
             gGL.syncMatrices();
-            glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+
+            LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, nullptr, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
         }
         else
         {
