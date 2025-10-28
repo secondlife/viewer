@@ -204,6 +204,7 @@ HKL     LLWindowWin32::sWinInputLocale = 0;
 DWORD   LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD   LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
+HMODULE LLWindowWin32::sGLDLLHandle = nullptr;
 
 static HWND sWindowHandleForMessageBox = NULL;
 
@@ -458,7 +459,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     mWindowThread = new LLWindowWin32Thread();
 
     //MAINT-516 -- force a load of opengl32.dll just in case windows went sideways
-    LoadLibrary(L"opengl32.dll");
+    sGLDLLHandle = LoadLibrary(L"opengl32.dll");
 
 
     if (mMaxCores != 0)
@@ -1689,6 +1690,8 @@ const   S32   max_format  = (S32)num_formats - 1;
         close();
         return false;
     }
+
+    gGLManager.initWGL(); // Reinit WGL functions once we have our full context
 
     if (!gGLManager.initGL())
     {
@@ -4657,6 +4660,18 @@ F32 LLWindowWin32::getSystemUISize()
 
     ReleaseDC(hWnd, hdc);
     return scale_value;
+}
+
+//static
+PROC WINAPI LLWindowWin32::getProcAddress(const char* func)
+{
+    PROC ret_func = wglGetProcAddress(func);
+    if (!ret_func && sGLDLLHandle)
+    {
+        // Try to fallback to OpenGL32.dll
+        ret_func = GetProcAddress(sGLDLLHandle, func);
+    }
+    return ret_func;
 }
 
 //static
