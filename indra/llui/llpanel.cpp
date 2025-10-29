@@ -489,10 +489,9 @@ bool LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
         LL_RECORD_BLOCK_TIME(FTM_PANEL_SETUP);
 
         LLXMLNodePtr referenced_xml;
-        const std::string& xml_filename = mXMLFilename;
 
         // if the panel didn't provide a filename, check the node
-        if (xml_filename.empty())
+        if (mXMLFilename.empty())
         {
             std::string temp_filename;
             node->getAttributeString("filename", temp_filename);
