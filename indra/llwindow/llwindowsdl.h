@@ -31,6 +31,7 @@
 
 #include "llwindow.h"
 #include "lltimer.h"
+#include "llmutex.h"
 
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_endian.h"
@@ -224,6 +225,10 @@ private:
     LLTimer mFlashTimer;
     U32 mKeyVirtualKey = 0;
     U32 mKeyModifiers = SDL_KMOD_NONE;
+
+    LLMutex mOSRMutex;
+    std::unordered_map<SDL_GLContext, SDL_Window*> mOSRContexts;
+    std::list<SDL_Window*> mDeadOSRWindows;
 
     void tryFindFullscreenSize(int &aWidth, int &aHeight);
 
