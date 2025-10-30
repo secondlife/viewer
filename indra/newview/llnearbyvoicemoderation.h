@@ -27,19 +27,29 @@
 
 class LLVOAvatar;
 
-class LLNearbyVoiceModeration :
-    public LLSingleton <LLNearbyVoiceModeration> {
-        LLSINGLETON(LLNearbyVoiceModeration) {
-        };
-
-        ~LLNearbyVoiceModeration() {
-        };
+class LLNearbyVoiceModeration : public LLSingleton <LLNearbyVoiceModeration> {
+        LLSINGLETON(LLNearbyVoiceModeration);
+        ~LLNearbyVoiceModeration();
 
     public:
-        LLVOAvatar* getVOAvatarFromId(const LLUUID& id);
         void requestMuteIndividual(const LLUUID& userID, bool mute);
         void requestMuteAll(bool mute);
 
+        void setMutedInfo(const std::string& channelID, bool mute);
+        void showMutedNotification(bool is_muted);
+        void showNotificationIfNeeded();
+
+        void updateModeratorStatus();
+        static void getModeratorStatusCoro(std::string cap_url);
+
+        bool isNearbyChatModerator() { return mIsNearbyChatModerator; };
+        void setNearbyChatModerator(bool moderator) { mIsNearbyChatModerator = moderator; }
+
     private:
+        LLVOAvatar* getVOAvatarFromId(const LLUUID& id);
         const std::string getCapUrlFromRegion(LLViewerRegion* region);
+
+        boost::signals2::connection mParcelCallbackConnection;
+        std::map<std::string, bool> mChannelMuteMap;
+        bool mIsNearbyChatModerator;
 };

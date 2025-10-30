@@ -92,6 +92,7 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 
     mAutoResize = false;
     LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
+    LLNearbyVoiceModeration::getInstance();
 }
 
 LLFloaterIMContainer::~LLFloaterIMContainer()
@@ -543,7 +544,7 @@ void LLFloaterIMContainer::idleUpdate()
                         dynamic_cast<LLConversationItemParticipant*>((*current_participant_model).get());
                 if (participant_model)
                 {
-                    participant_model->setModeratorOptionsVisible(isNearbyChatModerator());
+                    participant_model->setModeratorOptionsVisible(LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator());
                 }
 
                 current_participant_model++;
@@ -2037,7 +2038,7 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 
 bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& userdata, bool is_self)
 {
-    if (isNearbyChatModerator() && isNearbyChatSpeakerSelected())
+    if (LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator() && isNearbyChatSpeakerSelected())
     {
         // Determine here which actions are allowed
         if ("can_moderate_voice" == userdata)
@@ -2046,7 +2047,7 @@ bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& user
         }
         else if (("can_mute" == userdata))
         {
-            return true;
+            return !is_self;
         }
         else if ("can_unmute" == userdata)
         {
@@ -2199,30 +2200,12 @@ void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUI
     {
         if ("selected" == command)
         {
-            // Toggle the voice icon display
-            LLAvatarActions::toggleMuteVoice(userID);
-
             // Request a mute/unmute using a capability request via the simulator
-            const bool mute_state = LLAvatarActions::isVoiceMuted(userID);
-            LLNearbyVoiceModeration::getInstance()->requestMuteIndividual(userID, mute_state);
+            LLNearbyVoiceModeration::getInstance()->requestMuteIndividual(userID, !isMuted(userID));
         }
         else
         if ("mute_all" == command)
         {
-            // TODO: the SpatialVoiceModerationRequest has an mute_all/unmute_all
-            // verb but we do not have an equivalent of LLAvatarActions::toggleMuteVoice(userID);
-            // to visually mute all the speaker icons in the conversation floater
-
-            // Mute visually too
-            conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
-            conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
-            const LLUUID * conversation_uuidp = NULL;
-            while(iter != end)
-            {
-                const LLUUID id = (*iter).first;
-                ++iter;
-            }
-
             // Send the mute_all request to the server
             const bool mute_state = true;
             LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
@@ -2230,8 +2213,6 @@ void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUI
         else
         if ("unmute_all" == command)
         {
-            // TODO: same idea as "mute_all" above
-
             // Send the unmute_all request to the server
             const bool mute_state = false;
             LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
@@ -2379,12 +2360,6 @@ bool LLFloaterIMContainer::isNearbyChatSpeakerSelected()
     }
     // Nearby chat ID is LLUUID::null
     return conversation_uuidp->isNull();
-}
-
-bool LLFloaterIMContainer::isNearbyChatModerator()
-{
-    // TODO: Need a better heurestic for determining if this person is a moderator :)
-    return true;
 }
 
 void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)

@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "lltrans.h"
 #include "lluiusage.h"
+#include "llnearbyvoicemoderation.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -712,6 +713,9 @@ bool LLVoiceClient::getPTTIsToggle()
 
 void LLVoiceClient::inputUserControlState(bool down)
 {
+    if (down && !getUserPTTState())
+        LLNearbyVoiceModeration::getInstance()->showNotificationIfNeeded();
+
     if(mPTTIsToggle)
     {
         if(down) // toggle open-mic state on 'down'

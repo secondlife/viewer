@@ -3300,6 +3300,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("SetDisplayName");
     capabilityNames.append("SimConsoleAsync");
     capabilityNames.append("SimulatorFeatures");
+    capabilityNames.append("SpatialVoiceModerationRequest");
     capabilityNames.append("StartGroupProposal");
     capabilityNames.append("TerrainNavMeshProperties");
     capabilityNames.append("TextureStats");

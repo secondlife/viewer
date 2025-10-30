@@ -65,6 +65,7 @@
 
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
+#include "llnearbyvoicemoderation.h"
 
 #include "llcorehttputil.h"
 #include "lleventfilter.h"
@@ -3194,14 +3195,19 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                         participant->mIsSpeaking = participant_obj["v"].as_bool();
                     }
 
+                    // Currently, viewer doesn't receive this info when the user is muted in Nearby chat,
+                    // but it *does* receive it when muted in Group chat. A server-side change is required.
                     if (participant_obj.contains("m") && participant_obj["m"].is_bool())
                     {
                         participant->mIsModeratorMuted = participant_obj["m"].as_bool();
+                        if (isSpatial() && (gAgentID == agent_id))
+                        {
+                            LLNearbyVoiceModeration::getInstance()->setMutedInfo(mChannelID, participant->mIsModeratorMuted);
+                        }
                     }
                 }
             }
         }
-
         // tell the simulator to set the mute and volume data for this
         // participant, if there are any updates.
         boost::json::object root;
