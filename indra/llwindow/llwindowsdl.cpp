@@ -231,25 +231,22 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilBits);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    SDL_GLContextFlag context_flags{};
     if(LLRender::sGLCoreProfile)
     {
-#if LL_DARWIN
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-#endif
-
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#if LL_DARWIN
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+        context_flags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
+#endif
     }
 
-    SDL_GLContextFlag context_flags{};
     if (gDebugGL)
     {
         context_flags |= SDL_GL_CONTEXT_DEBUG_FLAG;
     }
 
-#if LL_DARWIN
-    context_flags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
-#endif
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, context_flags);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 
@@ -275,6 +272,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         LL_WARNS() << "Window creation failure. SDL: " << SDL_GetError() << LL_ENDL;
         setupFailure("Window creation error", "Error", OSMB_OK);
+        SDL_DestroyProperties(props);
         return false;
     }
     SDL_DestroyProperties(props); // Free properties once window is created
@@ -431,29 +429,65 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
 void* LLWindowSDL::createSharedContext()
 {
-    SDL_GLContext pContext = SDL_GL_CreateContext(mWindow);
-    if (pContext)
+    SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, "Second Life OSR Utility");
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, 1);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, 1);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, false);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIDDEN_BOOLEAN, true);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_FOCUSABLE_BOOLEAN, false);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_UTILITY_BOOLEAN, true);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, gHiDPISupport);
+
+    auto osr_window = SDL_CreateWindowWithProperties(props);
+    if (osr_window == nullptr)
     {
-        // HACK to ensure windows GL context is set correctly when threaded - Rye
-        SDL_GL_MakeCurrent(mWindow, pContext);
-        SDL_GL_MakeCurrent(mWindow, mContext);
-        LL_DEBUGS() << "Creating shared OpenGL context successful!" << LL_ENDL;
-        return (void*)pContext;
+        SDL_DestroyProperties(props);
+        return nullptr;
+    }
+    SDL_DestroyProperties(props); // Free properties once window is created
+    SDL_GLContext pContext = SDL_GL_CreateContext(osr_window);
+
+    // Hack to ensure main window context is bound
+    SDL_GL_MakeCurrent(mWindow, mContext);
+
+    if (!pContext)
+    {
+        LL_WARNS() << "Creating shared OpenGL context failed!" << LL_ENDL;
+        SDL_DestroyWindow(osr_window);
+        return nullptr;
     }
 
-    LL_WARNS() << "Creating shared OpenGL context failed!" << LL_ENDL;
-    return nullptr;
+    {
+        LLMutexLock osr_lock(&mOSRMutex);
+        mOSRContexts.emplace(pContext, osr_window);
+    }
+
+    LL_DEBUGS() << "Creating shared OpenGL context successful!" << LL_ENDL;
+    return (void*)pContext;
 }
 
 void LLWindowSDL::makeContextCurrent(void* contextPtr)
 {
-    SDL_GL_MakeCurrent(mWindow, (SDL_GLContext)contextPtr);
+    LLMutexLock osr_lock(&mOSRMutex);
+    auto it = mOSRContexts.find((SDL_GLContext)contextPtr);
+    if(it != mOSRContexts.end())
+    {
+        SDL_GL_MakeCurrent((SDL_Window*)it->second, (SDL_GLContext)it->first);
+    }
     LL_PROFILER_GPU_CONTEXT;
 }
 
 void LLWindowSDL::destroySharedContext(void* contextPtr)
 {
-    SDL_GL_DestroyContext((SDL_GLContext)contextPtr);
+    LLMutexLock osr_lock(&mOSRMutex);
+    auto it = mOSRContexts.find((SDL_GLContext)contextPtr);
+    if(it != mOSRContexts.end())
+    {
+        SDL_GL_DestroyContext((SDL_GLContext)it->first);
+        mDeadOSRWindows.push_back((SDL_Window*)it->second);
+    }
 }
 
 void LLWindowSDL::toggleVSync(bool enable_vsync)
@@ -501,6 +535,15 @@ bool LLWindowSDL::switchContext(bool fullscreen, const LLCoordScreen &size, bool
 void LLWindowSDL::destroyContext()
 {
     LL_INFOS() << "destroyContext begins" << LL_ENDL;
+
+    {
+        LLMutexLock osr_lock(&mOSRMutex);
+        for(SDL_Window* pWindow : mDeadOSRWindows)
+        {
+            SDL_DestroyWindow(pWindow);
+        }
+        mDeadOSRWindows.clear();
+    }
 
     // Stop unicode input
     SDL_StopTextInput(mWindow);
@@ -1167,6 +1210,14 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(U32 keysym, bool gain)
 // virtual
 void LLWindowSDL::processMiscNativeEvents()
 {
+    {
+        LLMutexLock osr_lock(&mOSRMutex);
+        for(SDL_Window* pWindow : mDeadOSRWindows)
+        {
+            SDL_DestroyWindow(pWindow);
+        }
+        mDeadOSRWindows.clear();
+    }
 }
 
 void LLWindowSDL::gatherInput()
