@@ -64,10 +64,12 @@ void sdl_logger(void *userdata, int category, SDL_LogPriority priority, const ch
 
 void init_sdl(const std::string& app_name)
 {
+#ifndef LL_SDL_APP
     if (!gSDLMainHandled)
     {
         SDL_SetMainReady();
     }
+#endif
 
     SDL_SetLogOutputFunction(&sdl_logger, nullptr);
 

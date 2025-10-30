@@ -40,11 +40,11 @@
 #include "llpreeditor.h"
 #include "llsdl.h"
 
+#if LL_LINUX
 #ifdef LL_GLIB
 #include <glib.h>
 #endif
 
-#if LL_LINUX
 extern "C" {
 # include "fontconfig/fontconfig.h"
 }
@@ -55,6 +55,13 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdio.h>
+
+#if LL_X11
+LLWindowSDL::X11_DATA LLWindowSDL::sX11Data = {};
+#endif
+#if LL_WAYLAND
+LLWindowSDL::WAYLAND_DATA LLWindowSDL::sWaylandData = {};
+#endif
 #endif // LL_LINUX
 
 #if LL_DARWIN
@@ -248,7 +255,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     if(mFullscreen)
     {
-        tryFindFullscreenSize( width, height );
+        tryFindFullscreenSize(width, height);
     }
 
     SDL_PropertiesID props = SDL_CreateProperties();
@@ -321,6 +328,52 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         mRefreshRate = DEFAULT_REFRESH_RATE;
     }
+
+    /* Grab the window manager specific information */
+#if LL_LINUX
+    if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0)
+    {
+        LL_INFOS() << "Running under X11" << LL_ENDL;
+        mServerProtocol = X11;
+
+        gGLManager.mIsX11 = true;
+
+#if LL_X11
+        sX11Data.xdisplay = (Display *)SDL_GetPointerProperty(SDL_GetWindowProperties(mWindow), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+        sX11Data.xwindow = (Window)SDL_GetNumberProperty(SDL_GetWindowProperties(mWindow), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+        sX11Data.xscreen = (int)SDL_GetNumberProperty(SDL_GetWindowProperties(mWindow), SDL_PROP_WINDOW_X11_SCREEN_NUMBER, -1);
+        if (sX11Data.xdisplay && sX11Data.xwindow)
+        {
+
+        }
+#endif
+
+        gGLManager.initGLX();
+    }
+    else if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "wayland") == 0)
+    {
+        LL_INFOS() << "Running under Wayland" << LL_ENDL;
+        mServerProtocol = Wayland;
+
+        gGLManager.mIsWayland = true;
+
+#if LL_WAYLAND
+        sWaylandData.display = (struct wl_display *)SDL_GetPointerProperty(SDL_GetWindowProperties(mWindow), SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr);
+        sWaylandData.surface = (struct wl_surface *)SDL_GetPointerProperty(SDL_GetWindowProperties(mWindow), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr);
+        if (sWaylandData.display && sWaylandData.surface)
+        {
+        }
+#endif
+
+        gGLManager.initEGL();
+
+        // If set (XWayland) remove DISPLAY, this will prompt dullahan to also use Wayland
+        if(getenv("DISPLAY"))
+        {
+            unsetenv("DISPLAY");
+        }
+    }
+#endif
 
     SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
     SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenBits);
