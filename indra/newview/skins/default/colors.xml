@@ -4,13 +4,13 @@
 	<!-- Named Colors -->
 	<color
 	 name="EmphasisColor"
-	 value="0.38 0.694 0.573 1" />
+	 value="0.3 0.82 1 1" />
 	<color
 	 name="EmphasisColor_13"
-	 value="0.38 0.694 0.573 0.13" />
+	 value="0.3 0.82 1 0.13" />
 	<color
 	 name="EmphasisColor_35"
-	 value="0.38 0.694 0.573 0.35" />
+	 value="0.3 0.82 1 0.35" />
 	<color
 	 name="BeaconColor"
     value="0.749 0.298 0 1" />	 
@@ -338,7 +338,7 @@
      reference="EmphasisColor" />
     <color
      name="ConversationFriendColor"
-     value="0.42 0.85 0.71 1" />
+     reference="EmphasisColor" />
     <color
      name="DefaultHighlightDark"
      reference="White_10" />
@@ -359,7 +359,7 @@
      reference="Black" />
     <color
      name="FilterTextColor"
-     value="0.38 0.69 0.57 1" />
+     reference="EmphasisColor" />
      <color
      name="FloaterButtonImageColor"
      reference="LtGray" />
@@ -377,7 +377,7 @@
      reference="Black_50" />
     <color
      name="FocusColor"
-     reference="EmphasisColor" />
+     reference="white" />
     <color
      name="FolderViewLoadingMessageTextColor"
      value="0.3344 0.5456 0.5159 1" />
@@ -453,9 +453,6 @@
     <color
      name="InventoryBackgroundColor"
      reference="DkGray2" />
-    <color
-     name="InventoryFavoriteColor"
-     reference="Yellow" />
     <color
      name="InventoryFocusOutlineColor"
      reference="White_25" />
@@ -595,7 +592,7 @@
      reference="White" />
     <color
      name="NameTagFriend"
-     value="0.447 0.784 0.663 1" />
+     reference="EmphasisColor" />
     <color
      name="NameTagLegacy"
      reference="White" />
@@ -762,6 +759,9 @@
      name="SelectedOutfitTextColor"
      reference="EmphasisColor" />
     <color
+     name="WornOutfitTextColor"
+     value="0.54 0.73 0.87 1" />
+    <color
      name="SearchableControlHighlightFontColor"
      value="1 0 0 1" />
     <color
@@ -863,18 +863,24 @@
     name="ColorSwatchBorderColor"
     value="0.45098 0.517647 0.607843 1"/>
     <color
+    name="ColorSwatchBorderColorGray"
+    value="0.329 0.329 0.329 1"/>
+    <color
      name="ChatTeleportSeparatorColor"
      reference="Black" />
     <color
      name="ChatTimestampColor"
      reference="White" />
     <color
+      name="MenuBarStreamingBgColor"
+      reference="DkGray" />
+    <color
       name="MenuBarBetaBgColor"
       reference="DkBlue" />
-  <color
-     name="MenuBarProjectBgColor"
-     reference="MdBlue" />
-  <color
+    <color
+      name="MenuBarProjectBgColor"
+      reference="MdBlue" />
+    <color
       name="MenuBarTestBgColor"
       reference="DkRed" />
     <color
@@ -984,7 +990,7 @@
     value="1 0.14 0 1" />
   <color
     name="OutfitGalleryItemSelected"
-    value="0.22 0.45 0.35 1" />
+    value="0.26 0.36 0.47 1"/>
   <color
     name="OutfitGalleryItemWorn"
     value="0.33 0.58 0.47 1" />
