@@ -52,10 +52,11 @@
 #include <glm/gtc/matrix_access.hpp>
 #include "glm/gtc/type_ptr.hpp"
 
-#if LL_MESA
+#if LL_MESA_HEADLESS
 #  include "GL/osmesa.h"
 #  define LL_GET_PROC_ADDRESS(func) OSMesaGetProcAddress(func)
 #elif LL_SDL_WINDOW
+#  include "llwindowsdl.h"
 #  include "SDL3/SDL.h"
 #  define LL_GET_PROC_ADDRESS(func) SDL_GL_GetProcAddress(func)
 #elif LL_WINDOWS
@@ -245,6 +246,19 @@ PFNWGLBLITCONTEXTFRAMEBUFFERAMDPROC             wglBlitContextFramebufferAMD = n
 // WGL_EXT_swap_control
 PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT = nullptr;
 PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = nullptr;
+#endif
+
+#if LL_LINUX && LL_X11 && !LL_MESA_HEADLESS
+// GLX_MESA_query_renderer
+PFNGLXQUERYCURRENTRENDERERINTEGERMESAPROC glXQueryCurrentRendererIntegerMESA = nullptr;
+PFNGLXQUERYCURRENTRENDERERSTRINGMESAPROC glXQueryCurrentRendererStringMESA = nullptr;
+PFNGLXQUERYRENDERERINTEGERMESAPROC glXQueryRendererIntegerMESA = nullptr;
+PFNGLXQUERYRENDERERSTRINGMESAPROC glXQueryRendererStringMESA = nullptr;
+#endif
+
+#if LL_LINUX && LL_WAYLAND &&!LL_MESA_HEADLESS
+// EGL_VERSION_1_0
+PFNEGLQUERYSTRINGPROC eglQueryString = nullptr;
 #endif
 
 // GL_VERSION_1_0
@@ -1039,6 +1053,42 @@ void LLGLManager::initWGL()
 #endif
 }
 
+void LLGLManager::initGLX()
+{
+#if LL_LINUX && LL_X11 && !LL_MESA_HEADLESS
+    if (!mIsX11)
+        return;
+
+    reloadExtensionsString();
+
+    mHasGLXMESAQueryRenderer = mGLExtensions.contains("GLX_MESA_query_renderer");
+    if (mHasGLXMESAQueryRenderer)
+    {
+        glXQueryCurrentRendererIntegerMESA = (PFNGLXQUERYCURRENTRENDERERINTEGERMESAPROC)LL_GET_PROC_ADDRESS("glXQueryCurrentRendererIntegerMESA");
+        glXQueryCurrentRendererStringMESA = (PFNGLXQUERYCURRENTRENDERERSTRINGMESAPROC)LL_GET_PROC_ADDRESS("glXQueryCurrentRendererStringMESA");
+        glXQueryRendererIntegerMESA = (PFNGLXQUERYRENDERERINTEGERMESAPROC)LL_GET_PROC_ADDRESS("glXQueryRendererIntegerMESA");
+        glXQueryRendererStringMESA = (PFNGLXQUERYRENDERERSTRINGMESAPROC)LL_GET_PROC_ADDRESS("glXQueryRendererStringMESA");
+    }
+#endif
+}
+
+void LLGLManager::initEGL()
+{
+#if LL_LINUX && LL_WAYLAND && !LL_MESA_HEADLESS
+    if (!mIsWayland)
+        return;
+
+    reloadExtensionsString();
+
+    // EGL_VERSION_1_0
+    eglQueryString = (PFNEGLQUERYSTRINGPROC)LL_GET_PROC_ADDRESS("eglQueryString");
+
+    LL_INFOS("RenderInit") << "EGL_VENDOR     " << ll_safe_string((const char *)eglQueryString(SDL_EGL_GetCurrentDisplay(), EGL_VENDOR)) << LL_ENDL;
+    LL_INFOS("RenderInit") << "EGL_VERSION    " << ll_safe_string((const char *)eglQueryString(SDL_EGL_GetCurrentDisplay(), EGL_VERSION)) << LL_ENDL;
+#endif
+}
+
+
 // return false if unable (or unwilling due to old drivers) to init GL
 bool LLGLManager::initGL()
 {
@@ -1221,6 +1271,23 @@ bool LLGLManager::initGL()
         }
     } else
 #endif
+
+#if LL_LINUX && LL_X11 && !LL_MESA_HEADLESS
+    if(mHasGLXMESAQueryRenderer && mVRAM == 0)
+    {
+        unsigned int vram_val = 0;
+        if(glXQueryCurrentRendererIntegerMESA(GLX_RENDERER_VIDEO_MEMORY_MESA, &vram_val))
+        {
+            gGLManager.mVRAM = vram_val;
+
+            if (mVRAM != 0)
+            {
+                LL_WARNS("RenderInit") << "VRAM Detected (GLXMesaQueryRenderer):" << mVRAM << LL_ENDL;
+            }
+        }
+    }
+#endif
+
 #if LL_WINDOWS || LL_LINUX
     {
         if (mHasNVXGpuMemoryInfo && mVRAM == 0)
@@ -1452,18 +1519,59 @@ void LLGLManager::reloadExtensionsString()
     }
 #endif
 
-
 #if LL_WINDOWS
     {
         PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)LL_GET_PROC_ADDRESS("wglGetExtensionsStringARB");
         if (wglGetExtensionsStringARB)
         {
-            std::string wgl_exts = ll_safe_string((const char*)wglGetExtensionsStringARB(wglGetCurrentDC()));;
+            std::string wgl_exts = ll_safe_string((const char*)wglGetExtensionsStringARB(wglGetCurrentDC()));
             boost::char_separator<char> sep(" ");
             boost::tokenizer<boost::char_separator<char> > tok(wgl_exts, sep);
             for (boost::tokenizer<boost::char_separator<char> >::iterator i = tok.begin(); i != tok.end(); ++i)
             {
                 mGLExtensions.insert(*i);
+            }
+        }
+    }
+#endif
+
+#if LL_SDL_WINDOW && LL_LINUX && LL_X11 && !LL_MESA_HEADLESS
+    if (mIsX11)
+    {
+        if (LLWindowSDL::sX11Data.xdisplay && LLWindowSDL::sX11Data.xwindow)
+        {
+            typedef const char *(*PFNEGLXQUERYEXTENSIONSSTRINGPROC) (Display *dpy, int screen );
+            PFNEGLXQUERYEXTENSIONSSTRINGPROC llglXQueryExtensionsString = (PFNEGLXQUERYEXTENSIONSSTRINGPROC)LL_GET_PROC_ADDRESS("glXQueryExtensionsString");
+            if (llglXQueryExtensionsString)
+            {
+                std::string glx_exts = ll_safe_string((const char*)llglXQueryExtensionsString(LLWindowSDL::sX11Data.xdisplay, LLWindowSDL::sX11Data.xscreen));
+                boost::char_separator<char> sep(" ");
+                boost::tokenizer<boost::char_separator<char> > tok(glx_exts, sep);
+                for (boost::tokenizer<boost::char_separator<char> >::iterator i = tok.begin(); i != tok.end(); ++i)
+                {
+                    mGLExtensions.insert(*i);
+                }
+            }
+        }
+    }
+#endif
+
+#if LL_SDL_WINDOW && LL_LINUX && LL_WAYLAND && !LL_MESA_HEADLESS
+    if (mIsWayland)
+    {
+        SDL_EGLDisplay egl_display = SDL_EGL_GetCurrentDisplay();
+        if (egl_display)
+        {
+            PFNEGLQUERYSTRINGPROC lleglQueryString = (PFNEGLQUERYSTRINGPROC)LL_GET_PROC_ADDRESS("eglQueryString");
+            if (lleglQueryString)
+            {
+                std::string egl_exts = ll_safe_string((const char*)lleglQueryString((EGLDisplay)egl_display, EGL_EXTENSIONS));
+                boost::char_separator<char> sep(" ");
+                boost::tokenizer<boost::char_separator<char> > tok(egl_exts, sep);
+                for (boost::tokenizer<boost::char_separator<char> >::iterator i = tok.begin(); i != tok.end(); ++i)
+                {
+                    mGLExtensions.insert(*i);
+                }
             }
         }
     }

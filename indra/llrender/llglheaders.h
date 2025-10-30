@@ -27,11 +27,11 @@
 #ifndef LL_LLGLHEADERS_H
 #define LL_LLGLHEADERS_H
 
-#if LL_WINDOWS || LL_MESA || LL_SDL_WINDOW || LL_LINUX
+#if LL_WINDOWS || LL_MESA_HEADLESS || LL_SDL_WINDOW || LL_LINUX
  //----------------------------------------------------------------------------
- // LL_WINDOWS || LL_MESA || LL_SDL_WINDOW || LL_LINUX
+ // LL_WINDOWS || LL_MESA_HEADLESS || LL_SDL_WINDOW || LL_LINUX
 
-#if LL_MESA
+#if LL_MESA_HEADLESS
 #define GL_GLEXT_PROTOTYPES 1
 #else
 #define LL_GL_FUNC_POINTER 1
@@ -43,14 +43,20 @@
 // quotes so we get libraries/.../GL/ version
 #include "GL/glcorearb.h"
 
-#if LL_WINDOWS && !LL_MESA
+#if LL_WINDOWS && !LL_MESA_HEADLESS
 #include "GL/wglext.h"
 #endif
 
-#if LL_LINUX && !LL_MESA
+#if LL_LINUX && LL_X11 && !LL_MESA_HEADLESS
+#define GLX_GLXEXT_LEGACY
 #define __gl_h_ 1
 #include "GL/glx.h"
 #include "GL/glxext.h"
+#endif
+
+#if LL_LINUX && LL_WAYLAND && !LL_MESA_HEADLESS
+#define EGL_EGL_PROTOTYPES 0
+#include "EGL/egl.h"
 #endif
 
 #elif LL_DARWIN
@@ -64,7 +70,7 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include "GL/glext.h"
 
-#endif // LL_MESA / LL_SDL_WINDOW // LL_LINUX / LL_WINDOWS / LL_DARWIN
+#endif // LL_MESA_HEADLESS / LL_SDL_WINDOW // LL_LINUX / LL_WINDOWS / LL_DARWIN
 
 //GL_NVX_gpu_memory_info constants
 #ifndef GL_NVX_gpu_memory_info
@@ -144,6 +150,18 @@ extern PFNWGLGETPIXELFORMATATTRIBFVARBPROC wglGetPixelFormatAttribfvARB;
 extern PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
 
 #endif // LL_WINDOWS
+
+#if LL_LINUX && LL_X11 && !LL_MESA_HEADLESS
+// GLX_MESA_query_renderer
+extern PFNGLXQUERYCURRENTRENDERERINTEGERMESAPROC glXQueryCurrentRendererIntegerMESA;
+extern PFNGLXQUERYCURRENTRENDERERSTRINGMESAPROC glXQueryCurrentRendererStringMESA;
+extern PFNGLXQUERYRENDERERINTEGERMESAPROC glXQueryRendererIntegerMESA;
+extern PFNGLXQUERYRENDERERSTRINGMESAPROC glXQueryRendererStringMESA;
+#endif
+
+#if LL_LINUX && LL_WAYLAND &&!LL_MESA_HEADLESS
+extern PFNEGLQUERYSTRINGPROC eglQueryString;
+#endif
 
 // We get all functions via getProcAddress when using SDL
 // GL_VERSION_1_0

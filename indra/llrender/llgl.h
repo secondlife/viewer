@@ -70,7 +70,9 @@ public:
     bool initGL();
     void shutdownGL();
 
-    void initWGL(); // Initializes stupid WGL extensions
+    void initWGL(); // Initializes WGL extensions
+    void initGLX(); // Initializes GLX extensions
+    void initEGL(); // Initializes EGL extensions
 
     std::string getRawGLString(); // For sending to simulator
 
@@ -103,6 +105,7 @@ public:
     bool mHasAMDAssociations = false;
     bool mHasNVXGpuMemoryInfo = false;
     bool mHasATIMemInfo = false;
+    bool mHasGLXMESAQueryRenderer = false;
 
     bool mIsAMD;
     bool mIsNVIDIA;
@@ -146,6 +149,11 @@ public:
 
     // GL Extension String
     std::set<std::string> mGLExtensions;
+
+#if LL_LINUX
+    bool mIsX11 = false;
+    bool mIsWayland = false;
+#endif
 
 private:
     void reloadExtensionsString();

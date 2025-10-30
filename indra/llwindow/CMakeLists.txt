@@ -160,7 +160,7 @@ if (BUILD_HEADLESS)
     ${llwindowheadless_HEADER_FILES}
     )
 
-  target_compile_definitions( llwindowheadless PUBLIC LL_MESA=1 LL_MESA_HEADLESS=1 )
+  target_compile_definitions( llwindowheadless PUBLIC LL_MESA_HEADLESS=1 )
 
   target_link_libraries (llwindowheadless
   llcommon
