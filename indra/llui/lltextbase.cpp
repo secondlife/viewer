@@ -1038,8 +1038,37 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     {
         LLStyleSP emoji_style;
         LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
+        LLTextSegment* segmentp = nullptr;
+        segment_vec_t::iterator seg_iter;
+        if (segments && segments->size() > 0)
+        {
+            seg_iter = segments->begin();
+            segmentp = *seg_iter;
+        }
         for (S32 text_kitty = 0, text_len = static_cast<S32>(wstr.size()); text_kitty < text_len; text_kitty++)
         {
+            if (segmentp)
+            {
+                if (segmentp->getEnd() <= pos + text_kitty)
+                {
+                    seg_iter++;
+                    if (seg_iter != segments->end())
+                    {
+                        segmentp = *seg_iter;
+                    }
+                    else
+                    {
+                        segmentp = nullptr;
+                    }
+                }
+                if (segmentp && !segmentp->getPermitsEmoji())
+                {
+                    // Some segments, like LLInlineViewSegment do not permit splitting
+                    // and should not be interrupted by emoji segments
+                    continue;
+                }
+            }
+
             llwchar code = wstr[text_kitty];
             bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
             if (isEmoji)
@@ -3448,6 +3477,7 @@ S32 LLTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offs
 void LLTextSegment::updateLayout(const LLTextBase& editor) {}
 F32 LLTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect) { return draw_rect.mLeft; }
 bool LLTextSegment::canEdit() const { return false; }
+bool LLTextSegment::getPermitsEmoji() const { return true; }
 void LLTextSegment::unlinkFromDocument(LLTextBase*) {}
 void LLTextSegment::linkToDocument(LLTextBase*) {}
 const LLUIColor& LLTextSegment::getColor() const { static const LLUIColor white = LLUIColorTable::instance().getColor("White", LLColor4::white); return white; }
