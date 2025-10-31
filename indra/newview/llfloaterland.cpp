@@ -108,18 +108,6 @@ public:
     virtual void changed() { LLFloaterLand::refreshAll(); }
 };
 
-// class needed to get full access to textbox inside checkbox, because LLCheckBoxCtrl::setLabel() has string as its argument.
-// It was introduced while implementing EXT-4706
-class LLCheckBoxWithTBAcess : public LLCheckBoxCtrl
-{
-public:
-    LLTextBox* getTextBox()
-    {
-        return mLabel;
-    }
-};
-
-
 class LLPanelLandExperiences
     :   public LLPanel
 {
@@ -2176,12 +2164,11 @@ void LLPanelLandOptions::refresh()
             mMatureCtrl->setVisible(true);
             LLStyle::Params style;
             style.image(LLUI::getUIImage(gFloaterView->getParentFloater(this)->getString("maturity_icon_moderate")));
-            LLCheckBoxWithTBAcess* fullaccess_mature_ctrl = (LLCheckBoxWithTBAcess*)mMatureCtrl;
-            fullaccess_mature_ctrl->getTextBox()->setText(LLStringExplicit(""));
-            fullaccess_mature_ctrl->getTextBox()->appendImageSegment(style);
-            fullaccess_mature_ctrl->getTextBox()->appendText(getString("mature_check_mature"), false);
-            fullaccess_mature_ctrl->setToolTip(getString("mature_check_mature_tooltip"));
-            fullaccess_mature_ctrl->reshape(fullaccess_mature_ctrl->getRect().getWidth(), fullaccess_mature_ctrl->getRect().getHeight(), false);
+            mMatureCtrl->getTextBox()->setText(LLStringExplicit(""));
+            mMatureCtrl->getTextBox()->appendImageSegment(style);
+            mMatureCtrl->getTextBox()->appendText(getString("mature_check_mature"), false);
+            mMatureCtrl->setToolTip(getString("mature_check_mature_tooltip"));
+            mMatureCtrl->reshape(mMatureCtrl->getRect().getWidth(), mMatureCtrl->getRect().getHeight(), false);
 
             // they can see the checkbox, but its disposition depends on the
             // state of the region

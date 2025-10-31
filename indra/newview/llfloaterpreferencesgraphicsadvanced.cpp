@@ -81,7 +81,7 @@ bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
         }
     }
 
-#if !LL_DARWIN
+#if !LL_DARWIN && !LL_SDL_WINDOW
     LLCheckBoxCtrl *use_HiDPI = getChild<LLCheckBoxCtrl>("use HiDPI");
     use_HiDPI->setVisible(false);
 #endif

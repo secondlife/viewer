@@ -46,7 +46,9 @@
 #include <boost/align/aligned_allocator.hpp>
 
 #include <array>
+#include <chrono>
 #include <list>
+#include <vector>
 
 class LLVertexBuffer;
 class LLCubeMap;
@@ -529,6 +531,15 @@ private:
 
     std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 16> > mUIOffset;
     std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 16> > mUIScale;
+
+    struct LLVBCache
+    {
+        LLPointer<LLVertexBuffer> vb;
+        std::chrono::steady_clock::time_point touched;
+    };
+
+    std::unordered_map<U64, LLVBCache> mVBCache;
+    std::list<LLVertexBufferData>* mBufferDataList = nullptr;
 };
 
 extern F32 gGLModelView[16];

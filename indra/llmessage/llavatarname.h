@@ -32,7 +32,7 @@
 
 class LLSD;
 
-class LL_COMMON_API LLAvatarName
+class LLAvatarName
 {
 public:
     LLAvatarName();

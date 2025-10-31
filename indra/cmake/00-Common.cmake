@@ -11,13 +11,20 @@
 #
 #   Also realize that CMAKE_CXX_FLAGS may already be partially populated on
 #   entry to this file.
+#
+#   Additionally CMAKE_C_FLAGS is prepended to CMAKE_CXX_FLAGS_RELEASE and
+#   CMAKE_CXX_FLAGS_RELWITHDEBINFO which risks having flags overriden by cmake
+#   inserting additional options that are part of the build config type.
 #*****************************************************************************
 include_guard()
 
 include(Variables)
+include(Linking)
 
 # We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} $ENV{LL_BUILD_RELEASE}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} $ENV{LL_BUILD_RELWITHDEBINFO}")
+
 # Given that, all the flags you see added below are flags NOT present in
 # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables.
 # Before adding new ones here, it's important to ask: can this flag really be
@@ -25,7 +32,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
 # as well?
 
 # Portable compilation flags.
-add_compile_definitions( ADDRESS_SIZE=${ADDRESS_SIZE})
+add_compile_definitions(ADDRESS_SIZE=${ADDRESS_SIZE})
 # Because older versions of Boost.Bind dumped placeholders _1, _2 et al. into
 # the global namespace, Boost now requires either BOOST_BIND_NO_PLACEHOLDERS
 # to avoid that or BOOST_BIND_GLOBAL_PLACEHOLDERS to state that we require it
@@ -111,7 +118,7 @@ if (WINDOWS)
 
   #ND: When using something like buildcache (https://github.com/mbitsnbites/buildcache)
   # to make those wrappers work /Zi must be changed to /Z7, as /Zi due to it's nature is not compatible with caching
-  if(${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
+  if (${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
     add_compile_options( /Z7 )
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
@@ -125,9 +132,6 @@ endif (WINDOWS)
 if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
 
-   # EXTERNAL_TOS
-   # force this platform to accept TOS via external browser
-
    # LL_IGNORE_SIGCHLD
    # don't catch SIGCHLD in our base application class for the viewer - some of
    # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
@@ -135,42 +139,70 @@ if (LINUX)
 
   add_compile_definitions(
           _REENTRANT
-          _FORTIFY_SOURCE=2
-          EXTERNAL_TOS
           APPID=secondlife
           LL_IGNORE_SIGCHLD
   )
+
+  option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
+  option(ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+  option(ENABLE_THREADSAN "Enable Thread Sanitizer" OFF)
+  if(ENABLE_ASAN OR ENABLE_UBSAN OR ENABLE_THREADSAN)
+    set(GCC_DISABLE_FATAL_WARNINGS ON) # Disable warnings as errors during sanitizer builds due to false positives
+
+    add_compile_options(
+      -U_FORTIFY_SOURCE
+      -fno-omit-frame-pointer
+      -fno-common
+      -fsanitize-recover=all
+    )
+
+    # libwebrtc is incompatible with sanitizers
+    set(DISABLE_WEBRTC ON)
+    add_compile_definitions(DISABLE_WEBRTC=1)
+
+    if(ENABLE_ASAN)
+      add_compile_options(-fsanitize=address)
+      add_link_options(-fsanitize=address)
+    endif()
+
+    if(ENABLE_UBSAN)
+      add_compile_options(-fsanitize=undefined)
+      add_link_options(-fsanitize=undefined)
+    endif()
+
+    if(ENABLE_THREADSAN)
+      add_compile_options(-fsanitize=thread)
+      add_link_options(-fsanitize=thread)
+    endif()
+  else()
+    add_compile_definitions($<$<CONFIG:Release>:_FORTIFY_SOURCE=2>)
+  endif()
+
   add_compile_options(
+          $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-fstack-protector>
           -fexceptions
           -fno-math-errno
           -fno-strict-aliasing
           -fsigned-char
+          -g
           -msse2
-          -mfpmath=sse
           -pthread
-          -Wno-parentheses
-          -Wno-deprecated
           -fvisibility=hidden
   )
 
-  if (ADDRESS_SIZE EQUAL 32)
-    add_compile_options(-march=pentium4)
-  endif (ADDRESS_SIZE EQUAL 32)
-
-  # this stops us requiring a really recent glibc at runtime
-  add_compile_options(-fno-stack-protector)
-  # linking can be very memory-hungry, especially the final viewer link
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
-
-  set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
+  add_link_options(
+          "LINKER:-z,relro"
+          "LINKER:-z,now"
+          "LINKER:--build-id"
+          "LINKER:--as-needed"
+          "LINKER:--no-undefined"
+  )
 endif (LINUX)
 
 if (DARWIN)
   # Use rpath loading on macos
   set(CMAKE_MACOSX_RPATH TRUE)
 
-  # Warnings should be fatal -- thanks, Nicky Perian, for spotting reversed default
-  set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
 
@@ -185,20 +217,17 @@ if (LINUX OR DARWIN)
   add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable)
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    # libstdc++ headers contain deprecated declarations that fail on clang
-    # macOS currently has many deprecated calls
     add_compile_options(-Wno-unused-local-typedef)
   endif()
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-maybe-uninitialized)
-  endif()
+    add_compile_options(-Wno-stringop-truncation -Wno-stringop-overflow -Wno-parentheses -Wno-maybe-uninitialized -Wno-unused-local-typedefs)
+  endif ()
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLANG_DISABLE_FATAL_WARNINGS)
     add_compile_options(-Werror)
   endif ()
 
-  add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
 

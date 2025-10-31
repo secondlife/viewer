@@ -99,10 +99,14 @@ set(llmath_HEADER_FILES
 
 list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
-add_library (llmath ${llmath_SOURCE_FILES})
+add_library(llmath ${llmath_SOURCE_FILES})
 
 target_link_libraries(llmath llcommon llmeshoptimizer ll::sse2neon)
-target_include_directories( llmath  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(llmath  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llmath REUSE_FROM llprecompiled)
+endif ()
 
 # Add tests
 if (LL_TESTS)

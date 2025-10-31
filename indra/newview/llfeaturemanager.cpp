@@ -464,10 +464,9 @@ bool LLFeatureManager::loadGPUClass()
             mGPUClass = GPU_CLASS_5;
         }
 
-    #if LL_WINDOWS
-        const F32Gigabytes MIN_PHYSICAL_MEMORY(2);
-
         LLMemory::updateMemoryInfo();
+    #if LL_WINDOWS || LL_LINUX
+        const F32Gigabytes MIN_PHYSICAL_MEMORY(2);
         F32Gigabytes physical_mem = LLMemory::getMaxMemKB();
         if (MIN_PHYSICAL_MEMORY > physical_mem && mGPUClass > GPU_CLASS_1)
         {

@@ -59,8 +59,7 @@ class LLViewerTexture;
 const U32 SILHOUETTE_HIGHLIGHT = 0;
 
 // All data for new renderer goes into this class.
-LL_ALIGN_PREFIX(16)
-class LLDrawable
+class alignas(16) LLDrawable
     : public LLViewerOctreeEntryData
 {
     LL_ALIGN_NEW;
@@ -313,7 +312,7 @@ private:
 
     static U32 sNumZombieDrawables;
     static std::vector<LLPointer<LLDrawable> > sDeadList;
-} LL_ALIGN_POSTFIX(16);
+};
 
 
 inline LLFace* LLDrawable::getFace(const S32 i) const

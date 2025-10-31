@@ -25,6 +25,8 @@
 * $/LicenseInfo$
 */
 
+#include "linden_common.h"
+
 #include "llsettingssky.h"
 #include "indra_constants.h"
 #include <algorithm>

@@ -41,8 +41,9 @@ class LLViewerTexLayerSet;
 //-----------------------------------------------------------------------------
 // class LLViewerJointMesh
 //-----------------------------------------------------------------------------
-class LLViewerJointMesh : public LLAvatarJointMesh, public LLViewerJoint
+class alignas(16) LLViewerJointMesh : public LLAvatarJointMesh, public LLViewerJoint
 {
+    LL_ALIGN_NEW
 public:
     // Constructor
     LLViewerJointMesh();

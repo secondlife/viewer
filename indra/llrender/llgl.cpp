@@ -215,8 +215,6 @@ LLMatrix4 gGLObliqueProjectionInverse;
 
 std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
-#if (LL_WINDOWS || LL_LINUX)  && !LL_MESA_HEADLESS
-
 #if LL_WINDOWS
 // WGL_ARB_create_context
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
@@ -235,8 +233,6 @@ PFNWGLBLITCONTEXTFRAMEBUFFERAMDPROC             wglBlitContextFramebufferAMD = n
 // WGL_EXT_swap_control
 PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT = nullptr;
 PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = nullptr;
-
-#endif
 
 // GL_VERSION_1_2
 //PFNGLDRAWRANGEELEMENTSPROC  glDrawRangeElements = nullptr;
@@ -1042,7 +1038,6 @@ void LLGLManager::initWGL()
         GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
         GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
     }
-    mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 
     if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
     {
@@ -1137,7 +1132,11 @@ bool LLGLManager::initGL()
     // Trailing space necessary to keep "nVidia Corpor_ati_on" cards
     // from being recognized as ATI.
     // NOTE: AMD has been pretty good about not breaking this check, do not rename without good reason
-    if (mGLVendor.substr(0,4) == "ATI ")
+    if (mGLVendor.substr(0,4) == "ATI "
+#if LL_LINUX
+         || mGLVendor.find("AMD") != std::string::npos
+#endif //LL_LINUX
+         )
     {
         mGLVendorShort = "AMD";
         // *TODO: Fix this?
@@ -1203,16 +1202,29 @@ bool LLGLManager::initGL()
         {
             LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
         }
-    }
-    else if (mHasNVXGpuMemoryInfo)
+    } else
+#endif
+#if LL_WINDOWS || LL_LINUX
     {
-        GLint mem_kb = 0;
-        glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
-        mVRAM = mem_kb / 1024;
-
-        if (mVRAM != 0)
+        if (mHasNVXGpuMemoryInfo && mVRAM == 0)
         {
-            LL_WARNS("RenderInit") << "VRAM Detected (NVXGpuMemoryInfo):" << mVRAM << LL_ENDL;
+            GLint mem_kb = 0;
+            glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
+            mVRAM = mem_kb / 1024;
+
+            if (mVRAM != 0)
+            {
+                LL_WARNS("RenderInit") << "VRAM Detected (NVXGpuMemoryInfo):" << mVRAM << LL_ENDL;
+            }
+        }
+
+        if (mHasATIMemInfo && mVRAM == 0)
+        { //ask the gl how much vram is free at startup and attempt to use no more than half of that
+            S32 meminfo[4];
+            glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
+
+            mVRAM = meminfo[0] / 1024;
+            LL_INFOS("RenderInit") << "VRAM Detected (ATIMemInfo):" << mVRAM << LL_ENDL;
         }
     }
 #endif
@@ -1378,6 +1390,9 @@ void LLGLManager::shutdownGL()
 
 void LLGLManager::initExtensions()
 {
+#if LL_LINUX
+    glh_init_extensions("");
+#endif
 #if LL_DARWIN
     GLint num_extensions = 0;
     std::string all_extensions{""};
@@ -1406,6 +1421,16 @@ void LLGLManager::initExtensions()
         mHasAnisotropic = ExtensionExists("GL_EXT_texture_filter_anisotropic", gGLHExts.mSysExts);
     }
 
+#if LL_WINDOWS || LL_LINUX
+    if( gGLHExts.mSysExts )
+    {
+        mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+        mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
+    }
+    else
+        LL_WARNS() << "gGLHExts.mSysExts is not set.?" << LL_ENDL;
+#endif
+
     // Misc
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
     glGetIntegerv(GL_MAX_ELEMENTS_INDICES, (GLint*) &mGLMaxIndexRange);
@@ -1413,10 +1438,9 @@ void LLGLManager::initExtensions()
 
     mInited = true;
 
-#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+#if LL_WINDOWS
     LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
 
-#if LL_WINDOWS
     // WGL_AMD_gpu_association
     wglGetGPUIDsAMD = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
     wglGetGPUInfoAMD = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
@@ -1434,8 +1458,6 @@ void LLGLManager::initExtensions()
 
     // WGL_ARB_create_context
     wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
-#endif
-
 
     // Load entire OpenGL API through GetProcAddress, leaving sections beyond mGLVersion unloaded
 
@@ -2267,6 +2289,35 @@ void flush_glerror()
     glGetError();
 }
 
+const std::string getGLErrorString(GLenum error)
+{
+    switch(error)
+    {
+    case GL_NO_ERROR:
+        return "No Error";
+    case GL_INVALID_ENUM:
+        return "Invalid Enum";
+    case GL_INVALID_VALUE:
+        return "Invalid Value";
+    case GL_INVALID_OPERATION:
+        return "Invalid Operation";
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        return "Invalid Framebuffer Operation";
+    case GL_OUT_OF_MEMORY:
+        return "Out of Memory";
+    case GL_STACK_UNDERFLOW:
+        return "Stack Underflow";
+    case GL_STACK_OVERFLOW:
+        return "Stack Overflow";
+#ifdef GL_TABLE_TOO_LARGE
+    case GL_TABLE_TOO_LARGE:
+        return "Table too large";
+#endif
+    default:
+        return "UNKNOWN ERROR";
+    }
+}
+
 //this function outputs gl error to the log file, does not crash the code.
 void log_glerror()
 {
@@ -2279,17 +2330,8 @@ void log_glerror()
     error = glGetError();
     while (LL_UNLIKELY(error))
     {
-        GLubyte const * gl_error_msg = gluErrorString(error);
-        if (NULL != gl_error_msg)
-        {
-            LL_WARNS() << "GL Error: " << error << " GL Error String: " << gl_error_msg << LL_ENDL ;
-        }
-        else
-        {
-            // gluErrorString returns NULL for some extensions' error codes.
-            // you'll probably have to grep for the number in glext.h.
-            LL_WARNS() << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << LL_ENDL;
-        }
+        std::string gl_error_msg = getGLErrorString(error);
+        LL_WARNS() << "GL Error: 0x" << std::hex << error << std::dec << " GL Error String: " << gl_error_msg << LL_ENDL;
         error = glGetError();
     }
 }
@@ -2303,27 +2345,12 @@ void do_assert_glerror()
     if (LL_UNLIKELY(error))
     {
         quit = true;
-        GLubyte const * gl_error_msg = gluErrorString(error);
-        if (NULL != gl_error_msg)
+        std::string gl_error_msg = getGLErrorString(error);
+        LL_WARNS("RenderState") << "GL Error: 0x" << std::hex << error << std::dec << LL_ENDL;
+        LL_WARNS("RenderState") << "GL Error String: " << gl_error_msg << LL_ENDL;
+        if (gDebugSession)
         {
-            LL_WARNS("RenderState") << "GL Error:" << error<< LL_ENDL;
-            LL_WARNS("RenderState") << "GL Error String:" << gl_error_msg << LL_ENDL;
-
-            if (gDebugSession)
-            {
-                gFailLog << "GL Error:" << gl_error_msg << std::endl;
-            }
-        }
-        else
-        {
-            // gluErrorString returns NULL for some extensions' error codes.
-            // you'll probably have to grep for the number in glext.h.
-            LL_WARNS("RenderState") << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << LL_ENDL;
-
-            if (gDebugSession)
-            {
-                gFailLog << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << std::endl;
-            }
+            gFailLog << "GL Error: 0x" << std::hex << error << std::dec << " GL Error String: " << gl_error_msg << std::endl;
         }
     }
 
@@ -2566,6 +2593,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
     {
         return;
     }
+    LL_INFOS() << "GL: "  << version << LL_ENDL;
 
     version_string->assign(version);
 

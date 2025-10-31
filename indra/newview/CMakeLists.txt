@@ -13,7 +13,6 @@ include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
-include(DBusGlib)
 include(DragDrop)
 if (USE_DISCORD)
   include(Discord)
@@ -77,6 +76,8 @@ if (HAVOK)
       endif (DARWIN)
    endif()
 endif ()
+
+configure_file(llversioninfovars.h.in llversioninfovars.h @ONLY)
 
 set(viewer_SOURCE_FILES
     gltfscenemanager.cpp
@@ -279,7 +280,6 @@ set(viewer_SOURCE_FILES
     llfloaterpay.cpp
     llfloaterperformance.cpp
     llfloaterperms.cpp
-    llfloaterpostprocess.cpp
     llfloaterprofile.cpp
     llfloaterpreference.cpp
     llfloaterpreferencesgraphicsadvanced.cpp
@@ -525,6 +525,7 @@ set(viewer_SOURCE_FILES
     llpathfindingobjectlist.cpp
     llpathfindingpathtool.cpp
     llpbrterrainfeatures.cpp
+    llperfstats.cpp
     llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
@@ -717,7 +718,6 @@ set(viewer_SOURCE_FILES
     llvoiceclient.cpp
     llvoicevisualizer.cpp
     llvoicevivox.cpp
-    llvoicewebrtc.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -958,7 +958,6 @@ set(viewer_HEADER_FILES
     llfloaterpay.h
     llfloaterperformance.h
     llfloaterperms.h
-    llfloaterpostprocess.h
     llfloaterprofile.h
     llfloaterpreference.h
     llfloaterpreferencesgraphicsadvanced.h
@@ -1187,6 +1186,7 @@ set(viewer_HEADER_FILES
     llpathfindingobject.h
     llpathfindingobjectlist.h
     llpathfindingpathtool.h
+    llperfstats.h
     llpbrterrainfeatures.h
     llpersistentnotificationstorage.h
     llphysicsmotion.h
@@ -1385,7 +1385,6 @@ set(viewer_HEADER_FILES
     llvoiceclient.h
     llvoicevisualizer.h
     llvoicevivox.h
-    llvoicewebrtc.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1416,9 +1415,6 @@ set(viewer_HEADER_FILES
     VorbisFramework.h
     )
 
-  list(APPEND viewer_SOURCE_FILES llperfstats.cpp)
-  list(APPEND viewer_HEADER_FILES llperfstats.h)
-
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
 #build_data.json creation moved to viewer_manifest.py MAINT-6413
@@ -1426,11 +1422,10 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
            "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
 
-set_source_files_properties(
-   llversioninfo.cpp tests/llversioninfo_test.cpp
-   PROPERTIES
-   COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
-   )
+if (NOT DISABLE_WEBRTC)
+  LIST(APPEND viewer_SOURCE_FILES llvoicewebrtc.cpp)
+  LIST(APPEND viewer_HEADER_FILES llvoicewebrtc.h)
+endif()
 
 if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
@@ -1457,7 +1452,6 @@ if (DARWIN)
     llappdelegate-objc.mm
     PROPERTIES
     SKIP_PRECOMPILE_HEADERS TRUE
-    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
     # BugsplatMac is a module, imported with @import. That language feature
     # demands these -f switches.
     # Xcode 10.2 requires that Objective-C++ headers declare nullability of
@@ -1486,14 +1480,6 @@ endif (DARWIN)
 
 if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
-    set_source_files_properties(
-      llappviewerlinux.cpp
-      PROPERTIES
-      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
-      )
-    LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
-
 endif (LINUX)
 
 if (WINDOWS)
@@ -1502,11 +1488,6 @@ if (WINDOWS)
          llappviewerwin32.cpp
          llwindebug.cpp
          )
-    set_source_files_properties(
-      llappviewerwin32.cpp
-      PROPERTIES
-      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
-      )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
@@ -1680,6 +1661,7 @@ set(viewer_APPSETTINGS_FILES
     packages-info.txt
     featuretable.txt
     featuretable_mac.txt
+    featuretable_linux.txt
     )
 
 source_group("App Settings" FILES ${viewer_APPSETTINGS_FILES})
@@ -1703,6 +1685,15 @@ set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
 
+set(viewer_MISC_FILES
+    viewer_manifest.py
+    )
+
+set_source_files_properties(${viewer_MISC_FILES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+list(APPEND viewer_SOURCE_FILES ${viewer_MISC_FILES})
+
 if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)
 
@@ -1714,13 +1705,6 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-if( DEFINED LLSTARTUP_COMPILE_FLAGS )
-   # progress view disables/enables icons based on available packages
-   set_source_files_properties(llprogressview.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
-
-   set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
-endif()
-
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
 add_executable(${VIEWER_BINARY_NAME}
@@ -1728,6 +1712,8 @@ add_executable(${VIEWER_BINARY_NAME}
     MACOSX_BUNDLE
     ${viewer_SOURCE_FILES}
     )
+
+target_include_directories(${VIEWER_BINARY_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
@@ -1977,11 +1963,13 @@ elseif (DARWIN)
       target_link_libraries(${VIEWER_BINARY_NAME} llphysicsextensionsos)
     endif()
 else (WINDOWS)
-        # Linux
-    set_target_properties(${VIEWER_BINARY_NAME}
-        PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
-        )
+    if (HAVOK OR HAVOK_TPV)
+    	# Linux
+    	set_target_properties(${VIEWER_BINARY_NAME}
+        	PROPERTIES
+        	LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -no-pie -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
+        	)
+    endif ()
 endif (WINDOWS)
 
 # *NOTE: - this list is very sensitive to ordering, test carefully on all
@@ -2029,7 +2017,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcorehttp
         llcommon
         llmeshoptimizer
-        llwebrtc
         lllogin
         llprimitive
         llappearance
@@ -2040,16 +2027,20 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::openxr
         )
 
+if (NOT DISABLE_WEBRTC)
+    target_link_libraries(${VIEWER_BINARY_NAME} llwebrtc )
+endif()
+
 if (USE_DISCORD)
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
 endif ()
 
 if( TARGET ll::intel_memops )
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
 endif()
 
 if( TARGET ll::nvapi )
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
 endif()
 
 if ( TARGET llconvexdecomposition )
@@ -2088,8 +2079,11 @@ if (LINUX)
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     SLPlugin
-    #media_plugin_gstreamer010
-    llcommon
+    media_plugin_cef
+    media_plugin_gstreamer10
+    media_plugin_libvlc
+    media_plugin_example
+    llwebrtc
     )
 
   #if (NOT USE_BUGSPLAT)

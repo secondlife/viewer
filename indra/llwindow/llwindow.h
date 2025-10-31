@@ -92,7 +92,7 @@ public:
 
     virtual bool setCursorPosition(LLCoordWindow position) = 0;
     virtual bool getCursorPosition(LLCoordWindow *position) = 0;
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_SDL_WINDOW
     virtual bool getCursorDelta(LLCoordCommon* delta) = 0;
 #endif
     virtual bool isWrapMouse() const = 0;
@@ -173,9 +173,6 @@ public:
 
 // return a platform-specific window reference (HWND on Windows, WindowRef on the Mac, Gtk window on Linux)
     virtual void *getPlatformWindow() = 0;
-
-// return the platform-specific window reference we use to initialize llmozlib (HWND on Windows, WindowRef on the Mac, Gtk window on Linux)
-    virtual void *getMediaWindow();
 
     // control platform's Language Text Input mechanisms.
     virtual void allowLanguageTextInput(LLPreeditor *preeditor, bool b) {}

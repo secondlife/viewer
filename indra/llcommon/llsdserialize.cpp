@@ -2397,6 +2397,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
         {
         case Z_NEED_DICT:
             ret = Z_DATA_ERROR;
+            [[fallthrough]];
         case Z_DATA_ERROR:
         case Z_MEM_ERROR:
             inflateEnd(&strm);

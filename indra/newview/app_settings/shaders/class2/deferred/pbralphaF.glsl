@@ -188,8 +188,8 @@ void main()
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
 
-    vec3 diffuseColor;
-    vec3 specularColor;
+    vec3 diffuseColor = vec3(0.0);
+    vec3 specularColor = vec3(0.0);
     calcDiffuseSpecular(col.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);

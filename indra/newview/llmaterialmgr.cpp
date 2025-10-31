@@ -234,7 +234,7 @@ boost::signals2::connection LLMaterialMgr::get(const LLUUID& region_id, const LL
         get_callback_map_t::iterator itCallback = mGetCallbacks.find(material_id);
         if (itCallback == mGetCallbacks.end())
         {
-            std::pair<get_callback_map_t::iterator, bool> ret = mGetCallbacks.insert(std::pair<LLMaterialID, get_callback_t*>(material_id, new get_callback_t()));
+            std::pair<get_callback_map_t::iterator, bool> ret = mGetCallbacks.emplace(material_id, std::make_unique<get_callback_t>());
             itCallback = ret.first;
         }
         connection = itCallback->second->connect(cb);;
@@ -279,7 +279,7 @@ boost::signals2::connection LLMaterialMgr::getTE(const LLUUID& region_id, const 
         get_callback_te_map_t::iterator itCallback = mGetTECallbacks.find(te_mat_pair);
         if (itCallback == mGetTECallbacks.end())
         {
-            std::pair<get_callback_te_map_t::iterator, bool> ret = mGetTECallbacks.insert(std::pair<TEMaterialPair, get_callback_te_t*>(te_mat_pair, new get_callback_te_t()));
+            std::pair<get_callback_te_map_t::iterator, bool> ret = mGetTECallbacks.emplace(te_mat_pair, std::make_unique<get_callback_te_t>());
             itCallback = ret.first;
         }
         connection = itCallback->second->connect(cb);
@@ -317,7 +317,7 @@ boost::signals2::connection LLMaterialMgr::getAll(const LLUUID& region_id, LLMat
     getall_callback_map_t::iterator itCallback = mGetAllCallbacks.find(region_id);
     if (mGetAllCallbacks.end() == itCallback)
     {
-        std::pair<getall_callback_map_t::iterator, bool> ret = mGetAllCallbacks.insert(std::pair<LLUUID, getall_callback_t*>(region_id, new getall_callback_t()));
+        std::pair<getall_callback_map_t::iterator, bool> ret = mGetAllCallbacks.emplace(region_id, std::make_unique<getall_callback_t>());
         itCallback = ret.first;
     }
     return itCallback->second->connect(cb);;
@@ -329,8 +329,8 @@ void LLMaterialMgr::put(const LLUUID& object_id, const U8 te, const LLMaterial& 
     if (mPutQueue.end() == itQueue)
     {
         LL_DEBUGS("Materials") << "mPutQueue insert object " << object_id << LL_ENDL;
-        mPutQueue.insert(std::pair<LLUUID, facematerial_map_t>(object_id, facematerial_map_t()));
-        itQueue = mPutQueue.find(object_id);
+        auto ret = mPutQueue.emplace(object_id, facematerial_map_t());
+        itQueue = ret.first;
     }
 
     facematerial_map_t::iterator itFace = itQueue->second.find(te);
@@ -361,7 +361,7 @@ void LLMaterialMgr::setLocalMaterial(const LLUUID& region_id, LLMaterialPtr mate
     }
 
     LL_DEBUGS("Materials") << "region " << region_id << "new local material id " << material_id << LL_ENDL;
-    mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(material_id, material_ptr));
+    mMaterials.emplace(material_id, material_ptr);
 
     setMaterialCallbacks(material_id, material_ptr);
 
@@ -376,7 +376,7 @@ const LLMaterialPtr LLMaterialMgr::setMaterial(const LLUUID& region_id, const LL
     {
         LL_DEBUGS("Materials") << "new material" << LL_ENDL;
         LLMaterialPtr newMaterial(new LLMaterial(material_data));
-        std::pair<material_map_t::const_iterator, bool> ret = mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(material_id, newMaterial));
+        std::pair<material_map_t::const_iterator, bool> ret = mMaterials.emplace(material_id, newMaterial);
         itMaterial = ret.first;
     }
 
@@ -400,7 +400,6 @@ void LLMaterialMgr::setMaterialCallbacks(const LLMaterialID& material_id, const 
         if (itCallbackTE != mGetTECallbacks.end())
         {
             (*itCallbackTE->second)(material_id, material_ptr, te_mat_pair.te);
-            delete itCallbackTE->second;
             mGetTECallbacks.erase(itCallbackTE);
         }
     }
@@ -410,7 +409,6 @@ void LLMaterialMgr::setMaterialCallbacks(const LLMaterialID& material_id, const 
     {
         (*itCallback->second)(material_id, material_ptr);
 
-        delete itCallback->second;
         mGetCallbacks.erase(itCallback);
     }
 }
@@ -509,7 +507,6 @@ void LLMaterialMgr::onGetAllResponse(bool success, const LLSD& content, const LL
     {
         (*itCallback->second)(region_id, materials);
 
-        delete itCallback->second;
         mGetAllCallbacks.erase(itCallback);
     }
 
@@ -549,11 +546,11 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
     {
         llassert(response_data.isArray());
         LL_DEBUGS("Materials") << "response has "<< response_data.size() << " materials" << LL_ENDL;
+#ifdef SHOW_ASSERT // same condition that controls llassert()
         for (LLSD::array_const_iterator faceIter = response_data.beginArray(); faceIter != response_data.endArray(); ++faceIter)
         {
-#           ifdef SHOW_ASSERT                  // same condition that controls llassert()
             const LLSD& face_data = *faceIter; // conditional to avoid unused variable warning
-#           endif
+
             llassert(face_data.isMap());
 
             llassert(face_data.has(MATERIALS_CAP_OBJECT_ID_FIELD));
@@ -570,6 +567,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 
             // *TODO: do we really still need to process this?
         }
+#endif
     }
 }
 

@@ -3074,7 +3074,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 
     if (isImpostor() && !mNeedsImpostorUpdate)
     {
-        LL_ALIGN_16(LLVector4a ext[2]);
+        LLVector4a ext[2];
         F32 distance;
         LLVector3 angle;
 

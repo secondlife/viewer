@@ -196,7 +196,7 @@ inline void LLVector4a::setDiv(const LLVector4a& a, const LLVector4a& b)
 // Set this to the element-wise absolute value of src
 inline void LLVector4a::setAbs(const LLVector4a& src)
 {
-    static const LL_ALIGN_16(U32 F_ABS_MASK_4A[4]) = { 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF };
+    alignas(16) static const U32 F_ABS_MASK_4A[4] = { 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF };
     mQ = _mm_and_ps(src.mQ, *reinterpret_cast<const LLQuad*>(F_ABS_MASK_4A));
 }
 
@@ -448,7 +448,7 @@ inline void LLVector4a::normalize3fast_checked(LLVector4a* d)
 // Return true if this vector is normalized with respect to x,y,z up to tolerance
 inline LLBool32 LLVector4a::isNormalized3( F32 tolerance ) const
 {
-    static LL_ALIGN_16(const U32 ones[4]) = { 0x3f800000, 0x3f800000, 0x3f800000, 0x3f800000 };
+    alignas(16) static const U32 ones[4] = { 0x3f800000, 0x3f800000, 0x3f800000, 0x3f800000 };
     LLSimdScalar tol = _mm_load_ss( &tolerance );
     tol = _mm_mul_ss( tol, tol );
     LLVector4a lenSquared; lenSquared.setAllDot3( *this, *this );
@@ -460,7 +460,7 @@ inline LLBool32 LLVector4a::isNormalized3( F32 tolerance ) const
 // Return true if this vector is normalized with respect to all components up to tolerance
 inline LLBool32 LLVector4a::isNormalized4( F32 tolerance ) const
 {
-    static LL_ALIGN_16(const U32 ones[4]) = { 0x3f800000, 0x3f800000, 0x3f800000, 0x3f800000 };
+    alignas(16) static const U32 ones[4] = { 0x3f800000, 0x3f800000, 0x3f800000, 0x3f800000 };
     LLSimdScalar tol = _mm_load_ss( &tolerance );
     tol = _mm_mul_ss( tol, tol );
     LLVector4a lenSquared; lenSquared.setAllDot4( *this, *this );
@@ -507,7 +507,7 @@ inline void LLVector4a::setLerp(const LLVector4a& lhs, const LLVector4a& rhs, F3
 
 inline LLBool32 LLVector4a::isFinite3() const
 {
-    static LL_ALIGN_16(const U32 nanOrInfMask[4]) = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
+    alignas(16) static const U32 nanOrInfMask[4] = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
     ll_assert_aligned(nanOrInfMask,16);
     const __m128i nanOrInfMaskV = *reinterpret_cast<const __m128i*> (nanOrInfMask);
     const __m128i maskResult = _mm_and_si128( _mm_castps_si128(mQ), nanOrInfMaskV );
@@ -517,7 +517,7 @@ inline LLBool32 LLVector4a::isFinite3() const
 
 inline LLBool32 LLVector4a::isFinite4() const
 {
-    static LL_ALIGN_16(const U32 nanOrInfMask[4]) = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
+    alignas(16) static const U32 nanOrInfMask[4] = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
     const __m128i nanOrInfMaskV = *reinterpret_cast<const __m128i*> (nanOrInfMask);
     const __m128i maskResult = _mm_and_si128( _mm_castps_si128(mQ), nanOrInfMaskV );
     const LLVector4Logical equalityCheck = _mm_castsi128_ps(_mm_cmpeq_epi32( maskResult, nanOrInfMaskV ));
