@@ -153,8 +153,10 @@ void LLPanelClassifiedInfo::reshape(S32 width, S32 height, bool called_from_pare
 
 void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 {
+    bool from_search = key.has("from_search") ? key["from_search"].asBoolean() : false;
+
     LLUUID avatar_id = key["classified_creator_id"];
-    if(avatar_id.isNull())
+    if(avatar_id.isNull() && !from_search)
     {
         return;
     }

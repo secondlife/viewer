@@ -651,7 +651,7 @@ void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_fi
 void LLPanelPlaces::onTabSelected()
 {
     mActivePanel = dynamic_cast<LLPanelPlacesTab*>(mTabContainer->getCurrentPanel());
-    if (!mActivePanel)
+    if (!mActivePanel || !mTabsCreated)
         return;
 
     onFilterEdit(mActivePanel->getFilterSubString(), true);
@@ -1333,6 +1333,13 @@ LLPanelPlaceInfo* LLPanelPlaces::getCurrentInfoPanel()
     }
 
     return NULL;
+}
+
+void LLPanelPlaces::hideBackBtn()
+{
+    mPlaceProfileBackBtn->setVisible(false);
+    setBackgroundVisible(false);
+    mPlaceProfile->setBackgroundVisible(false);
 }
 
 static bool is_agent_in_selected_parcel(LLParcel* parcel)
