@@ -666,11 +666,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7cc58b3acb230a7e65ea5f0ff800be393eb4aa1b</string>
+              <string>90eade4785ee8acf18837125208b717f7e857d06</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-glext/releases/download/v69/glext-68-common-685b36e.tar.zst</string>
+              <string>https://github.com/secondlife/3p-glext/releases/download/v2025.10.27-r1/glext-2025.10.27-common-18888617188.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -683,43 +683,11 @@
         <key>copyright</key>
         <string>Copyright (c) 2007-2010 The Khronos Group Inc.</string>
         <key>version</key>
-        <string>68</string>
+        <string>2025.10.27</string>
         <key>name</key>
         <string>glext</string>
         <key>description</key>
         <string>glext headers define function prototypes and constants for OpenGL extensions</string>
-      </map>
-      <key>glh_linear</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>common</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>066625e7aa7f697a4b6cd461aad960c57181011f</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-glh_linear/releases/download/v1.0.1-dev4-984c397/glh_linear-1.0.1-dev4-common-984c397.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>common</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/glh-linear.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2000 Cass Everitt</string>
-        <key>version</key>
-        <string>1.0.1-dev4</string>
-        <key>name</key>
-        <string>glh_linear</string>
-        <key>description</key>
-        <string>glh - is a platform-indepenedent C++ OpenGL helper library</string>
       </map>
       <key>glm</key>
       <map>

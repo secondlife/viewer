@@ -71,6 +71,7 @@ S32 gGLViewport[4];
 U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 U32 LLTexUnit::sWhiteTexture = 0;
+F32 LLRender::sAnisotropicFilteringLevel = 0.f;
 bool LLRender::sGLCoreProfile = false;
 bool LLRender::sNsightDebugSupport = false;
 LLVector2 LLRender::sUIGLScaleFactor = LLVector2(1.f, 1.f);
@@ -524,90 +525,16 @@ void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions o
 
     if (gGLManager.mHasAnisotropic)
     {
-        if (LLImageGL::sGlobalUseAnisotropic && option == TFO_ANISOTROPIC)
+        if (option == TFO_ANISOTROPIC && LLRender::sAnisotropicFilteringLevel > 1.f)
         {
-            glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, gGLManager.mMaxAnisotropy);
+            F32 aniso_level = llclamp(LLRender::sAnisotropicFilteringLevel, 1.f, gGLManager.mMaxAnisotropy);
+            glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, aniso_level);
+
         }
         else
         {
             glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, 1.f);
         }
-    }
-}
-
-GLint LLTexUnit::getTextureSource(eTextureBlendSrc src)
-{
-    switch(src)
-    {
-        // All four cases should return the same value.
-        case TBS_PREV_COLOR:
-        case TBS_PREV_ALPHA:
-        case TBS_ONE_MINUS_PREV_COLOR:
-        case TBS_ONE_MINUS_PREV_ALPHA:
-            return GL_PREVIOUS;
-
-        // All four cases should return the same value.
-        case TBS_TEX_COLOR:
-        case TBS_TEX_ALPHA:
-        case TBS_ONE_MINUS_TEX_COLOR:
-        case TBS_ONE_MINUS_TEX_ALPHA:
-            return GL_TEXTURE;
-
-        // All four cases should return the same value.
-        case TBS_VERT_COLOR:
-        case TBS_VERT_ALPHA:
-        case TBS_ONE_MINUS_VERT_COLOR:
-        case TBS_ONE_MINUS_VERT_ALPHA:
-            return GL_PRIMARY_COLOR;
-
-        // All four cases should return the same value.
-        case TBS_CONST_COLOR:
-        case TBS_CONST_ALPHA:
-        case TBS_ONE_MINUS_CONST_COLOR:
-        case TBS_ONE_MINUS_CONST_ALPHA:
-            return GL_CONSTANT;
-
-        default:
-            LL_WARNS() << "Unknown eTextureBlendSrc: " << src << ".  Using Vertex Color instead." << LL_ENDL;
-            return GL_PRIMARY_COLOR;
-    }
-}
-
-GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
-{
-    switch(src)
-    {
-        // All four cases should return the same value.
-        case TBS_PREV_COLOR:
-        case TBS_TEX_COLOR:
-        case TBS_VERT_COLOR:
-        case TBS_CONST_COLOR:
-            return (isAlpha) ? GL_SRC_ALPHA: GL_SRC_COLOR;
-
-        // All four cases should return the same value.
-        case TBS_PREV_ALPHA:
-        case TBS_TEX_ALPHA:
-        case TBS_VERT_ALPHA:
-        case TBS_CONST_ALPHA:
-            return GL_SRC_ALPHA;
-
-        // All four cases should return the same value.
-        case TBS_ONE_MINUS_PREV_COLOR:
-        case TBS_ONE_MINUS_TEX_COLOR:
-        case TBS_ONE_MINUS_VERT_COLOR:
-        case TBS_ONE_MINUS_CONST_COLOR:
-            return (isAlpha) ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE_MINUS_SRC_COLOR;
-
-        // All four cases should return the same value.
-        case TBS_ONE_MINUS_PREV_ALPHA:
-        case TBS_ONE_MINUS_TEX_ALPHA:
-        case TBS_ONE_MINUS_VERT_ALPHA:
-        case TBS_ONE_MINUS_CONST_ALPHA:
-            return GL_ONE_MINUS_SRC_ALPHA;
-
-        default:
-            LL_WARNS() << "Unknown eTextureBlendSrc: " << src << ".  Using Source Color or Alpha instead." << LL_ENDL;
-            return (isAlpha) ? GL_SRC_ALPHA: GL_SRC_COLOR;
     }
 }
 
@@ -1999,6 +1926,24 @@ void LLRender::diffuseColor4ub(U8 r, U8 g, U8 b, U8 a)
     }
 }
 
+void LLRender::setLineWidth(F32 width)
+{
+    gGL.flush();
+
+    if(sGLCoreProfile)
+    {
+        width = 1.f;
+    }
+    else
+    {
+        width = llclamp(width, gGLManager.mMinSmoothLineWidth, gGLManager.mMaxSmoothLineWidth);
+    }
+    if(mLineWidth != width)
+    {
+        mLineWidth = width;
+        glLineWidth(width);
+    }
+}
 
 void LLRender::debugTexUnits(void)
 {

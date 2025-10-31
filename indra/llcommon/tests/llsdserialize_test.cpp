@@ -2117,7 +2117,7 @@ namespace tut
                "        f.write(lenformat.pack(len(serialized)))\n"
                "        f.write(serialized)\n";});
 
-        std::ifstream inf(file.getName().c_str());
+        llifstream inf(file.getName().c_str());
         LLSD item;
         try
         {

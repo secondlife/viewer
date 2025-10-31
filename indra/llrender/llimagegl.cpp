@@ -138,7 +138,6 @@ U32 LLImageGL::sUniqueCount             = 0;
 U32 LLImageGL::sBindCount               = 0;
 S32 LLImageGL::sCount                   = 0;
 
-bool LLImageGL::sGlobalUseAnisotropic   = false;
 F32 LLImageGL::sLastFrameTime           = 0.f;
 LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
 bool LLImageGL::sCompressTextures = false;
@@ -837,14 +836,6 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 
                     mMipLevels = wpo2(llmax(w, h));
 
-                    //use legacy mipmap generation mode (note: making this condional can cause rendering issues)
-                    // -- but making it not conditional triggers deprecation warnings when core profile is enabled
-                    //      (some rendering issues while core profile is enabled are acceptable at this point in time)
-                    if (!LLRender::sGLCoreProfile)
-                    {
-                        glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
-                    }
-
                     LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
                                  w, h,
                                  mFormatPrimary, mFormatType,
@@ -860,7 +851,6 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                         stop_glerror();
                     }
 
-                    if (LLRender::sGLCoreProfile)
                     {
                         LL_PROFILE_GPU_ZONE("generate mip map");
                         glGenerateMipmap(mTarget);
@@ -2010,7 +2000,7 @@ bool LLImageGL::getIsResident(bool test_now)
     {
         if (mTexName != 0)
         {
-            glAreTexturesResident(1, (GLuint*)&mTexName, &mIsResident);
+            mIsResident = true;
         }
         else
         {
@@ -2145,7 +2135,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
     case GL_SRGB_ALPHA:
         mAlphaStride = 4;
         break;
-    case GL_BGRA_EXT:
+    case GL_BGRA:
         mAlphaStride = 4;
         break;
     default:
@@ -2182,7 +2172,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 
     if( mAlphaStride < 1 || //unsupported format
         mAlphaOffset < 0 || //unsupported type
-        (mFormatPrimary == GL_BGRA_EXT && mFormatType != GL_UNSIGNED_BYTE)) //unknown situation
+        (mFormatPrimary == GL_BGRA && mFormatType != GL_UNSIGNED_BYTE)) //unknown situation
     {
         LL_WARNS() << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << LL_ENDL;
 

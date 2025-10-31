@@ -113,10 +113,6 @@ endif (WINDOWS AND EXISTS ${LIBS_CLOSED_DIR}copy_win_scripts)
 
 add_custom_target(viewer)
 
-if (NOT USE_BUGSPLAT)
-add_subdirectory(${LIBS_OPEN_PREFIX}llcrashlogger)
-endif (NOT USE_BUGSPLAT)
-
 add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
 add_subdirectory(${LIBS_OPEN_PREFIX}llui)
 add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)

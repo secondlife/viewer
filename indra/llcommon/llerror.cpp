@@ -133,6 +133,7 @@ namespace {
         RecordToFile(const std::string& filename):
             mName(filename)
         {
+            showMultiline(true);
             mFile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
             if (!mFile)
             {

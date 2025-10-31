@@ -3067,7 +3067,7 @@ bool LLViewerWindow::handleKey(KEY key, MASK mask)
     {
         if ((focusedFloaterName == "nearby_chat") || (focusedFloaterName == "im_container") || (focusedFloaterName == "impanel"))
         {
-            LLCachedControl<bool> key_move(gSavedSettings, "ArrowKeysAlwaysMove");
+            static LLCachedControl<bool> key_move(gSavedSettings, "ArrowKeysAlwaysMove");
             if (key_move())
             {
                 // let Control-Up and Control-Down through for chat line history,
@@ -3340,7 +3340,7 @@ void LLViewerWindow::clearPopups()
 void LLViewerWindow::moveCursorToCenter()
 {
     bool mouse_warp = false;
-    LLCachedControl<S32> mouse_warp_mode(gSavedSettings, "MouseWarpMode", 1);
+    static LLCachedControl<S32> mouse_warp_mode(gSavedSettings, "MouseWarpMode", 1);
 
     switch (mouse_warp_mode())
     {

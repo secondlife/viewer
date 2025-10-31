@@ -52,7 +52,7 @@ namespace
 
     // This is called so early that we can't count on static objects being
     // properly constructed yet, so declare a pointer instead of an instance.
-    std::ofstream* prelogf = nullptr;
+    llofstream* prelogf = nullptr;
 
     void prelog(const std::string& message)
     {
@@ -208,7 +208,7 @@ LLDir_Win32::LLDir_Win32()
         {
             // successfully created logdir, plunk a log file there
             std::string logfilename(add(mOSUserDir, "lldir.log"));
-            std::ofstream logfile(logfilename.c_str());
+            llofstream logfile(logfilename.c_str());
             if (! logfile.is_open())
             {
                 report(std::cerr);
