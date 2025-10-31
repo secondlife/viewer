@@ -214,7 +214,7 @@
    left_pad="10"
    top_delta="-6"
    name="mouse_warp_combo"
-   tooltip="Controls warping of the mouse to the center of the screen during alt-zoom and mouse look."
+   tool_tip="Controls warping of the mouse to the center of the screen during alt-zoom and mouse look."
    width="200">
     <combo_box.item
      label="Automatic"

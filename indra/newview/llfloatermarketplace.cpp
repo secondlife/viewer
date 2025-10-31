@@ -46,9 +46,9 @@ void LLFloaterMarketplace::onClose(bool app_quitting)
 
 bool LLFloaterMarketplace::postBuild()
 {
-    LLFloaterWebContent::postBuild();
-    mWebBrowser = getChild<LLMediaCtrl>("marketplace_contents");
-    mWebBrowser->addObserver(this);
+    if (!LLFloaterWebContent::postBuild())
+        return false;
+
     mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
     std::string url = gSavedSettings.getString("MarketplaceURL");
     mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
