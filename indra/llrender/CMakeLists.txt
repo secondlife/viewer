@@ -74,7 +74,7 @@ if (BUILD_HEADLESS)
   add_library (llrenderheadless
     ${llrender_SOURCE_FILES}
     )
-  target_include_directories( llrenderheadless  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+  target_include_directories(llrenderheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
   target_link_libraries(llrenderheadless
           llcommon
@@ -93,7 +93,7 @@ if (BUILD_HEADLESS)
 endif (BUILD_HEADLESS)
 
 add_library (llrender ${llrender_SOURCE_FILES})
-target_include_directories( llrender  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(llrender INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
@@ -105,8 +105,14 @@ target_link_libraries(llrender
         llxml
         llwindow
         ll::freetype
+        )
+
+if (NOT USE_SDL_WINDOW)
+target_link_libraries(llrender
         OpenGL::GL
         )
+
+endif()
 
 if (USE_PRECOMPILED_HEADERS)
  target_precompile_headers(llrender REUSE_FROM llprecompiled)
