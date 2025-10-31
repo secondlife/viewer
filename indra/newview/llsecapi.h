@@ -115,10 +115,6 @@
                                VALIDATION_POLICY_CA_KU)
 
 
-
-
-
-
 struct LLProtectedDataException: public LLException
 {
     LLProtectedDataException(const std::string& msg):
@@ -217,10 +213,10 @@ public:
     // return the number of certs in the store
     virtual int size() const = 0;
 
-    // append the cert to the store.  if a copy of the cert already exists in the store, it is removed first
+    // append the cert to the store. If the certificate already exists in the store, nothing is done.
     virtual void  add(LLPointer<LLCertificate> cert)=0;
 
-    // insert the cert to the store.  if a copy of the cert already exists in the store, it is removed first
+    // insert the cert to the store. If the certificate already exists in the store, nothing is done.
     virtual void  insert(iterator location, LLPointer<LLCertificate> cert)=0;
 
     // remove a certificate from the store
@@ -338,7 +334,7 @@ std::ostream& operator <<(std::ostream& s, const LLCredential& cred);
 class LLCertException: public LLException
 {
 public:
-    LLCertException(const LLSD& cert_data, const std::string& msg);
+    LLCertException(const LLSD& cert_data, const std::string& msg, bool suppress_warning = false);
     virtual ~LLCertException() throw() {}
     LLSD getCertData() const { return mCertData; }
 protected:
@@ -392,8 +388,8 @@ protected:
 class LLCertValidationExpirationException : public LLCertException
 {
 public:
-    LLCertValidationExpirationException(const LLSD& cert_data,
-                                        LLDate current_time) : LLCertException(cert_data, "CertExpired")
+    LLCertValidationExpirationException(const LLSD& cert_data, LLDate current_time, bool suppress_warning = false) :
+        LLCertException(cert_data, "CertExpired", suppress_warning)
     {
         mTime = current_time;
     }
