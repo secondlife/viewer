@@ -806,9 +806,11 @@ private:
 // Functor that aligns a face to mCenterFace
 struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
 {
-    LLPanelFaceSetAlignedTEFunctor(LLPanelFace* panel, LLFace* center_face) :
+    LLPanelFaceSetAlignedTEFunctor(LLPanelFace* panel, LLFace* center_face, bool use_pbr, LLGLTFMaterial::TextureInfo pbr_channel) :
         mPanel(panel),
-        mCenterFace(center_face) {}
+        mCenterFace(center_face),
+        mUsePBR(use_pbr),
+        mPBRChannel(pbr_channel) {}
 
     virtual bool apply(LLViewerObject* object, S32 te)
     {
@@ -832,7 +834,45 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
         {
             LLVector2 uv_offset, uv_scale;
             F32 uv_rot;
-            set_aligned = facep->calcAlignedPlanarTE(mCenterFace, &uv_offset, &uv_scale, &uv_rot);
+
+            // For PBR materials, use transform values from the material override
+            if (mUsePBR && mCenterFace)
+            {
+                LLViewerObject* center_obj = mCenterFace->getViewerObject();
+                S32 center_te = mCenterFace->getTEOffset();
+                const LLTextureEntry* center_tep = center_obj->getTE(center_te);
+                const LLGLTFMaterial* center_mat = center_tep ? center_tep->getGLTFMaterialOverride() : nullptr;
+
+                if (center_mat)
+                {
+                    // The All channel should read base color values
+                    U32 channel_idx = (mPBRChannel == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT) ?
+                                     LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR : mPBRChannel;
+
+                    // Get PBR transform values
+                    F32 pbr_rot = center_mat->mTextureTransform[channel_idx].mRotation;
+                    F32 pbr_scale_u = center_mat->mTextureTransform[channel_idx].mScale.mV[VX];
+                    F32 pbr_scale_v = center_mat->mTextureTransform[channel_idx].mScale.mV[VY];
+                    F32 pbr_offset_u = center_mat->mTextureTransform[channel_idx].mOffset.mV[VX];
+                    F32 pbr_offset_v = center_mat->mTextureTransform[channel_idx].mOffset.mV[VY];
+
+                    // Calculate alignment using PBR transform parameters
+                    set_aligned = facep->calcAlignedPlanarTE(mCenterFace, &uv_offset, &uv_scale, &uv_rot,
+                                                            pbr_rot, pbr_scale_u, pbr_scale_v,
+                                                            pbr_offset_u, pbr_offset_v);
+                }
+                else
+                {
+                    // No PBR material, fall back to standard calculation
+                    set_aligned = facep->calcAlignedPlanarTE(mCenterFace, &uv_offset, &uv_scale, &uv_rot);
+                }
+            }
+            else
+            {
+                // For Blinn-Phong materials, use standard calculation
+                set_aligned = facep->calcAlignedPlanarTE(mCenterFace, &uv_offset, &uv_scale, &uv_rot);
+            }
+
             if (set_aligned)
             {
                 object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
@@ -851,18 +891,61 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
                 LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
                 LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
                 LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+
+                // Also handle PBR materials if selected
+                if (mUsePBR)
+                {
+                    LLGLTFMaterial new_override;
+                    const LLTextureEntry* tep = object->getTE(te);
+                    if (tep && tep->getGLTFMaterialOverride())
+                    {
+                        new_override = *tep->getGLTFMaterialOverride();
+                    }
+
+                    // If channel is COUNT (4), it means "Complete material" is selected - align ALL channels
+                    if (mPBRChannel == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT)
+                    {
+                        // Align all 4 PBR texture channels
+                        for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                        {
+                            new_override.mTextureTransform[i].mScale.mV[VX] = uv_scale.mV[VX];
+                            new_override.mTextureTransform[i].mScale.mV[VY] = uv_scale.mV[VY];
+                            new_override.mTextureTransform[i].mRotation = uv_rot;
+                            new_override.mTextureTransform[i].mOffset.mV[VX] = uv_offset.mV[VX];
+                            new_override.mTextureTransform[i].mOffset.mV[VY] = uv_offset.mV[VY];
+                        }
+                    }
+                    else
+                    {
+                        // Align only the selected channel
+                        new_override.mTextureTransform[mPBRChannel].mScale.mV[VX] = uv_scale.mV[VX];
+                        new_override.mTextureTransform[mPBRChannel].mScale.mV[VY] = uv_scale.mV[VY];
+                        new_override.mTextureTransform[mPBRChannel].mRotation = uv_rot;
+                        new_override.mTextureTransform[mPBRChannel].mOffset.mV[VX] = uv_offset.mV[VX];
+                        new_override.mTextureTransform[mPBRChannel].mOffset.mV[VY] = uv_offset.mV[VY];
+                    }
+
+                    LLGLTFMaterialList::queueModify(object, te, &new_override);
+                }
             }
         }
         if (!set_aligned)
         {
-            LLPanelFaceSetTEFunctor setfunc(mPanel);
-            setfunc.apply(object, te);
+            // For center face or non-alignable faces, apply current panel settings
+            // But DON'T overwrite PBR center face with Blinn-Phong values
+            if (!(mUsePBR && facep == mCenterFace))
+            {
+                LLPanelFaceSetTEFunctor setfunc(mPanel);
+                setfunc.apply(object, te);
+            }
         }
         return true;
     }
 private:
     LLPanelFace* mPanel;
     LLFace* mCenterFace;
+    bool mUsePBR;
+    LLGLTFMaterial::TextureInfo mPBRChannel;
 };
 
 struct LLPanelFaceSetAlignedConcreteTEFunctor : public LLSelectedTEFunctor
@@ -998,12 +1081,23 @@ struct LLPanelFaceSendFunctor : public LLSelectedObjectFunctor
 
 void LLPanelFace::sendTextureInfo()
 {
-    if (mPlanarAlign->getValue().asBoolean())
+    bool planar_align = mPlanarAlign->getValue().asBoolean();
+    bool pbr_selected = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR;
+
+    if (planar_align)
     {
         LLFace* last_face = NULL;
-        bool identical_face =false;
+        bool identical_face = false;
         LLSelectedTE::getFace(last_face, identical_face);
-        LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
+
+        // Get PBR texture info if PBR is selected
+        LLGLTFMaterial::TextureInfo pbr_channel = LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
+        if (pbr_selected)
+        {
+            pbr_channel = getPBRTextureInfo();
+        }
+
+        LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face, pbr_selected, pbr_channel);
         LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
     }
     else
@@ -1022,8 +1116,22 @@ void LLPanelFace::alignTextureLayer()
     bool identical_face = false;
     LLSelectedTE::getFace(last_face, identical_face);
 
-    LLPanelFaceSetAlignedConcreteTEFunctor setfunc(this, last_face, static_cast<LLRender::eTexIndex>(mRadioMaterialType->getSelectedIndex()));
-    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+    bool pbr_selected = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR;
+
+    if (pbr_selected)
+    {
+        // Use unified functor with PBR support
+        LLGLTFMaterial::TextureInfo texture_info = getPBRTextureInfo();
+        LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face, true, texture_info);
+        LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+    }
+    else
+    {
+        // Use existing concrete functor for Blinn-Phong specific alignment
+        S32 material_type = mRadioMaterialType->getSelectedIndex();
+        LLPanelFaceSetAlignedConcreteTEFunctor setfunc(this, last_face, static_cast<LLRender::eTexIndex>(material_type));
+        LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+    }
 }
 
 void LLPanelFace::getState()
@@ -3616,7 +3724,7 @@ void LLPanelFace::onCommitMaterialBumpyRot()
             LLFace* last_face = NULL;
             bool identical_face = false;
             LLSelectedTE::getFace(last_face, identical_face);
-            LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
+            LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face, false, LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT);
             LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
         }
         else
@@ -3640,7 +3748,7 @@ void LLPanelFace::onCommitMaterialShinyRot()
             LLFace* last_face = NULL;
             bool identical_face = false;
             LLSelectedTE::getFace(last_face, identical_face);
-            LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
+            LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face, false, LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT);
             LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
         }
         else
