@@ -40,7 +40,7 @@
   <string name="simplifying">Simplifying...</string>
   <string name="tbd">TBD</string>
   <string name="ModelTextureScaling">One or more textures in this model were scaled to be within the allowed limits.</string>
-  
+
   <!-- Warnings and info from model loader-->
   <string name="TooManyJoint">Skinning disabled due to too many joints: [JOINTS], maximum: [MAX]</string>
   <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
@@ -807,7 +807,7 @@
           help_topic="upload_model_physics"
           label="Physics"
           name="physics_panel">
-            
+
             <!-- ==== STEP 1: Level of Detail ==== -->
             <view_border
               bevel_style="none"
@@ -873,7 +873,7 @@
                     <!-- <check_box name="physics_optimize" follows="left|top" width="130" left="10" top_pad="5" height="20" label="Optimize"/>
                     <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/> -->
                 </panel>
-            
+
             <!-- ==== STEP 2: Analyze ==== -->
             <view_border
               bevel_style="none"
@@ -890,9 +890,9 @@
                   height="65"
                   follows="top|left"
                   left="18"
-                  name="physics analysis"
+                  name="physics analysis havok"
                   top_pad="10"
-                  visible="true"
+                  visible="false"
                   width="589">
                     <text
                       follows="left|top"
@@ -980,7 +980,131 @@
                       visible="false"
                       width="90"/>
                 </panel>
-            
+                <panel
+                  bg_alpha_color="0 0 0 0"
+                  bg_opaque_color="0 0 0 0.3"
+                  height="65"
+                  follows="top|left"
+                  left="18"
+                  name="physics analysis vhacd"
+                  top_delta="0"
+                  visible="false"
+                  width="589">
+                    <text
+                      follows="left|top"
+                      font="SansSerif"
+                      height="20"
+                      layout="topleft"
+                      left="0"
+                      name="method_label"
+                      text_color="White"
+                      top_pad="0">
+                      Step 2: Convert to hulls (optional)
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      layout="topleft"
+                      name="analysis_method_label"
+                      top_pad="10"
+                      width="100">
+                      Fill Mode:
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      name="quality_label"
+                      layout="topleft"
+                      left_pad="5"
+                      width="85">
+                      Resolution:
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      name="quality_label"
+                      layout="topleft"
+                      left_pad="25"
+                      width="95">
+                      Hulls per Mesh:
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      name="smooth_method_label"
+                      layout="topleft"
+                      left_pad="5"
+                      width="95">
+                      Vertices per hull:
+                    </text>
+                    <text
+                      follows="top|left"
+                      height="15"
+                      name="tolerance_label"
+                      layout="topleft"
+                      left_pad="5"
+                      width="100">
+                      Error tolerance:
+                    </text>
+                    <combo_box
+                      follows="top|left"
+                      layout="topleft"
+                      left="0"
+                      name="Fill Mode"
+                      top_pad="0"
+                      height="20"
+                      width="100"/>
+                    <combo_box
+                      follows="top|left"
+                      layout="topleft"
+                      left_pad="5"
+                      name="Voxel Resolution"
+                      height="20"
+                      width="100"/>
+                    <spinner
+                      follows="top|left"
+                      name="Num Hulls"
+                      height="20"
+                      left_pad="10"
+                      width="60"
+                      decimal_digits="0"
+                      allow_digits_only="true"/>
+                    <spinner
+                      follows="top|left"
+                      name="Num Vertices"
+                      height="20"
+                      left_pad="40"
+                      width="60"
+                      decimal_digits="0"
+                      allow_digits_only="true"/>
+                    <spinner
+                      follows="top|left"
+                      name="Error Tolerance"
+                      height="20"
+                      left_pad="40"
+                      width="60"
+                      decimal_digits="4"
+                      allow_digits_only="true"/>
+                    <button
+                      bottom="1"
+                      follows="top|right"
+                      height="20"
+                      label="Analyze"
+                      layout="bottomleft"
+                      name="Analyze"
+                      right="-1"
+                      width="90"/>
+                    <button
+                      follows="top|left"
+                      height="20"
+                      label="Cancel"
+                      layout="topleft"
+                      left_delta="0"
+                      name="analyze_cancel"
+                      visible="false"
+                      width="90"/>
+                </panel>
+
             <!-- ==== STEP 3: Simplify ==== -->
             <view_border
               bevel_style="none"
@@ -999,7 +1123,8 @@
                   left="18"
                   name="physics simplification"
                   top_pad="10"
-                  width="589">
+                  width="589"
+                  visible="false">
                     <text
                       text_color="White"
                       follows="left|top"
@@ -1088,7 +1213,7 @@
                       name="simplify_cancel"
                       width="90"/>
                 </panel>
-            
+
             <!-- ==== Results ==== -->
             <view_border
               bevel_style="none"
@@ -1186,7 +1311,7 @@
        name="modifiers_panel"
        help_topic="upload_model_modifiers">
          <view_border
-          bevel_style="none"  
+          bevel_style="none"
           follows="top|left"
           height="306"
           layout="topleft"
@@ -1593,7 +1718,7 @@ Model:
 [MODEL]
         </text>
       </panel>
-       <!-- 
+       <!--
        Streaming breakdown numbers are available but not fully understood
        uncommenting the following sections will display the numbers for debugging purposes
        <text
@@ -1695,7 +1820,7 @@ Analysed:
          width="462"
          visible="true">
          You don't have rights to upload mesh models. [[VURL] Find out how] to get certified.
-       </text> 
+       </text>
        <text
          text_color="Yellow"
          layout="topleft"
@@ -1706,7 +1831,7 @@ Analysed:
        </text>
     </panel>
   </panel>
-  
+
   <text
    follows="left|top"
    layout="topleft"

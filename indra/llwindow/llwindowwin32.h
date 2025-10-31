@@ -70,6 +70,7 @@ public:
     /*virtual*/ bool setCursorPosition(LLCoordWindow position);
     /*virtual*/ bool getCursorPosition(LLCoordWindow *position);
     /*virtual*/ bool getCursorDelta(LLCoordCommon* delta);
+    /*virtual*/ bool isWrapMouse() const override { return !mAbsoluteCursorPosition; };
     /*virtual*/ void showCursor();
     /*virtual*/ void hideCursor();
     /*virtual*/ void showCursorFromMouseMove();
@@ -195,6 +196,7 @@ protected:
 
     HCURSOR     mCursor[ UI_CURSOR_COUNT ];  // Array of all mouse cursors
     LLCoordWindow mCursorPosition;  // mouse cursor position, should only be mutated on main thread
+    bool        mAbsoluteCursorPosition; // true if last position was received in absolute coordinates.
     LLMutex mRawMouseMutex;
     RAWINPUTDEVICE mRawMouse;
     LLCoordWindow mLastCursorPosition; // mouse cursor position from previous frame

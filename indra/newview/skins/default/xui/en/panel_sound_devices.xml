@@ -20,6 +20,10 @@
      name="name_default_system_device">
         Default System Device
     </string>
+    <string
+     name="device_not_loaded">
+        Device not loaded
+    </string>
     <icon
      follows="left|top"
      height="18"

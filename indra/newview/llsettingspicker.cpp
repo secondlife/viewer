@@ -152,7 +152,11 @@ void LLFloaterSettingsPicker::onClose(bool app_quitting)
         owner->setFocus(true);
     }
     mSettingItemID.setNull();
-    mInventoryPanel->getRootFolder()->clearSelection();
+    mInventoryPanel->clearSelection();
+    if (mInventoryPanel->getRootFolder())
+    {
+        mInventoryPanel->getRootFolder()->clearSelection();
+    }
 }
 
 void LLFloaterSettingsPicker::setValue(const LLSD& value)

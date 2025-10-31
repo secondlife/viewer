@@ -28,9 +28,6 @@
 
 #include "llsurface.h"
 
-#include "llrender.h"
-
-#include "llviewertexturelist.h"
 #include "llpatchvertexarray.h"
 #include "patch_dct.h"
 #include "patch_code.h"
@@ -39,28 +36,25 @@
 #include "llregionhandle.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llappviewer.h"
 #include "llworld.h"
 #include "llviewercontrol.h"
 #include "llviewertexture.h"
 #include "llsurfacepatch.h"
-#include "llvosurfacepatch.h"
 #include "llvowater.h"
 #include "pipeline.h"
 #include "llviewerregion.h"
-#include "llvlcomposition.h"
-#include "noise.h"
-#include "llviewercamera.h"
-#include "llglheaders.h"
 #include "lldrawpoolterrain.h"
-#include "lldrawable.h"
 #include "llworldmipmap.h"
 
 extern LLPipeline gPipeline;
 extern bool gShiftFrame;
 
-LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
+namespace
+{
+    static constexpr float MIN_TEXTURE_REQUEST_INTERVAL = 5.0f;
+}
 
+LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
 
 S32 LLSurface::sTextureSize = 256;
 
@@ -74,18 +68,18 @@ LLSurface::LLSurface(U32 type, LLViewerRegion *regionp) :
     mType(type),
     mDetailTextureScale(0.f),
     mOriginGlobal(0.0, 0.0, 0.0),
-    mSTexturep(NULL),
+    mSTexturep(nullptr),
     mGridsPerPatchEdge(0),
     mMetersPerGrid(1.0f),
     mMetersPerEdge(1.0f),
     mRegionp(regionp)
 {
     // Surface data
-    mSurfaceZ = NULL;
-    mNorm = NULL;
+    mSurfaceZ = nullptr;
+    mNorm = nullptr;
 
     // Patch data
-    mPatchList = NULL;
+    mPatchList = nullptr;
 
     // One of each for each camera
     mVisiblePatchCount = 0;
@@ -95,14 +89,14 @@ LLSurface::LLSurface(U32 type, LLViewerRegion *regionp) :
     mMinZ = 10000.f;
     mMaxZ = -10000.f;
 
-    mWaterObjp = NULL;
+    mWaterObjp = nullptr;
 
     // In here temporarily.
     mSurfacePatchUpdateCount = 0;
 
     for (S32 i = 0; i < 8; i++)
     {
-        mNeighbors[i] = NULL;
+        mNeighbors[i] = nullptr;
     }
 }
 
@@ -110,7 +104,7 @@ LLSurface::LLSurface(U32 type, LLViewerRegion *regionp) :
 LLSurface::~LLSurface()
 {
     delete [] mSurfaceZ;
-    mSurfaceZ = NULL;
+    mSurfaceZ = nullptr;
 
     delete [] mNorm;
 
@@ -129,7 +123,7 @@ LLSurface::~LLSurface()
     {
         gPipeline.removePool(poolp);
         // Don't enable this until we blitz the draw pool for it as well.  -- djs
-        mSTexturep = NULL;
+        mSTexturep = nullptr;
     }
     else
     {
@@ -144,7 +138,7 @@ void LLSurface::initClasses()
 void LLSurface::setRegion(LLViewerRegion *regionp)
 {
     mRegionp = regionp;
-    mWaterObjp = NULL; // depends on regionp, needs recreating
+    mWaterObjp = nullptr; // depends on regionp, needs recreating
 }
 
 // Assumes that arguments are powers of 2, and that
@@ -211,16 +205,29 @@ LLViewerTexture* LLSurface::getSTexture()
 
 void LLSurface::createSTexture()
 {
-    if (!mSTexturep)
+    if (mSTexturep.isNull())
     {
-        U64 handle = mRegionp->getHandle();
-
-        U32 grid_x, grid_y;
-
-        grid_from_region_handle(handle, &grid_x, &grid_y);
-
-        mSTexturep = LLWorldMipmap::loadObjectsTile(grid_x, grid_y, 1);
+        mTimer.setTimerExpirySec(MIN_TEXTURE_REQUEST_INTERVAL);
     }
+    else if (mSTexturep->hasGLTexture())
+    {
+        // Unexpected: createSTexture() called when a valid texture already exists.
+        // This may indicate a logic error in the caller, as textures should not be recreated unnecessarily.
+        LL_WARNS() << "Called LLSurface::createSTexture() while we already have a valid texture!" << LL_ENDL;
+        return;
+    }
+    else if (!mTimer.checkExpirationAndReset(MIN_TEXTURE_REQUEST_INTERVAL))
+    {
+        // We haven't gotten a valid texture yet, but throttle the number of requests to avoid server flooding
+        return;
+    }
+
+    U64 handle = mRegionp->getHandle();
+    U32 grid_x, grid_y;
+
+    grid_from_region_handle(handle, &grid_x, &grid_y);
+
+    mSTexturep = LLWorldMipmap::loadObjectsTile(grid_x, grid_y, 1);
 }
 
 void LLSurface::initTextures()
@@ -285,7 +292,7 @@ void LLSurface::getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegio
     S32 i;
     for (i = 0; i < 8; i++)
     {
-        if ( mNeighbors[i] != NULL )
+        if (mNeighbors[i] != nullptr)
         {
             uniqueRegions.push_back( mNeighbors[i]->getRegion() );
         }
@@ -298,7 +305,7 @@ void LLSurface::getNeighboringRegionsStatus( std::vector<S32>& regions )
     S32 i;
     for (i = 0; i < 8; i++)
     {
-        if ( mNeighbors[i] != NULL )
+        if (mNeighbors[i] != nullptr)
         {
             regions.push_back( i );
         }
@@ -498,7 +505,7 @@ void LLSurface::disconnectNeighbor(LLSurface *surfacep)
     {
         if (surfacep == mNeighbors[i])
         {
-            mNeighbors[i] = NULL;
+            mNeighbors[i] = nullptr;
         }
     }
 
@@ -518,7 +525,7 @@ void LLSurface::disconnectAllNeighbors()
         if (mNeighbors[i])
         {
             mNeighbors[i]->disconnectNeighbor(this);
-            mNeighbors[i] = NULL;
+            mNeighbors[i] = nullptr;
         }
     }
 }
@@ -910,7 +917,7 @@ LLSurfacePatch *LLSurface::resolvePatchRegion(const F32 x, const F32 y) const
         if(0 == mNumberOfPatches)
         {
             LL_WARNS() << "No patches for current region!" << LL_ENDL;
-            return NULL;
+            return nullptr;
         }
         S32 old_index = index;
         index = llclamp(old_index, 0, (mNumberOfPatches - 1));
@@ -996,7 +1003,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(EAST, NULL);
+                patchp->setNeighborPatch(EAST, nullptr);
             }
 
             if (j < mPatchesPerEdge-1)
@@ -1005,7 +1012,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(NORTH, NULL);
+                patchp->setNeighborPatch(NORTH, nullptr);
             }
 
             if (i > 0)
@@ -1014,7 +1021,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(WEST, NULL);
+                patchp->setNeighborPatch(WEST, nullptr);
             }
 
             if (j > 0)
@@ -1023,7 +1030,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(SOUTH, NULL);
+                patchp->setNeighborPatch(SOUTH, nullptr);
             }
 
             if (i < (mPatchesPerEdge-1)  &&  j < (mPatchesPerEdge-1))
@@ -1032,7 +1039,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(NORTHEAST, NULL);
+                patchp->setNeighborPatch(NORTHEAST, nullptr);
             }
 
             if (i > 0  &&  j < (mPatchesPerEdge-1))
@@ -1041,7 +1048,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(NORTHWEST, NULL);
+                patchp->setNeighborPatch(NORTHWEST, nullptr);
             }
 
             if (i > 0  &&  j > 0)
@@ -1050,7 +1057,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(SOUTHWEST, NULL);
+                patchp->setNeighborPatch(SOUTHWEST, nullptr);
             }
 
             if (i < (mPatchesPerEdge-1)  &&  j > 0)
@@ -1059,7 +1066,7 @@ void LLSurface::createPatchData()
             }
             else
             {
-                patchp->setNeighborPatch(SOUTHEAST, NULL);
+                patchp->setNeighborPatch(SOUTHEAST, nullptr);
             }
 
             LLVector3d origin_global;
@@ -1077,7 +1084,7 @@ void LLSurface::destroyPatchData()
     // Delete all of the cached patch data for these patches.
 
     delete [] mPatchList;
-    mPatchList = NULL;
+    mPatchList = nullptr;
     mVisiblePatchCount = 0;
 }
 
@@ -1105,12 +1112,12 @@ LLSurfacePatch *LLSurface::getPatch(const S32 x, const S32 y) const
     if ((x < 0) || (x >= mPatchesPerEdge))
     {
         LL_ERRS() << "Asking for patch out of bounds" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
     if ((y < 0) || (y >= mPatchesPerEdge))
     {
         LL_ERRS() << "Asking for patch out of bounds" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     return mPatchList + x + y*mPatchesPerEdge;

@@ -91,6 +91,37 @@
          name="Traditional Chinese"
          value="zh" />
     </combo_box>
+   <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="255"
+     name="time_format_textbox"
+     top="10"
+     width="200">
+        Time Format:
+    </text>
+    <combo_box
+     follows="left|top"
+     height="23"
+     layout="topleft"
+     left="255"
+     max_chars="135"
+     name="time_format_combobox"
+     width="70">
+        <combo_box.item
+         enabled="true"
+         label="1:00 AM"
+         name="12H"
+         value="0" />
+        <combo_box.item
+         enabled="true"
+         label="13:00"
+         name="24H"
+         value="1" />
+    </combo_box>
     <text
  font="SansSerifSmall"
      type="string"

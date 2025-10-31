@@ -39,7 +39,7 @@
 		</panel>
 		<panel name="nearby_subpanel">
 			<text name="avatars_nearby_lbl">
-				近隣のアバター
+				近くのアバター
 			</text>
 			<text name="avatars_nearby_desc">
 				近くにいるアバターのうち、どのタイプのアバターを完全に表示するかを管理します。
@@ -51,16 +51,16 @@
 				アバターの複雑度
 			</text>
 			<text name="complexity_info">
-				ＦＰＳが出ない場合は、アバターの複雑度を減らしてください。
+				FPSが出ない場合は、アバターの複雑度を減らしてください。
 			</text>
 			<icon name="icon_arrow4"/>
 		</panel>
 		<panel name="huds_subpanel">
 			<text name="huds_lbl">
-				アクティブなＨＵＤ
+				アクティブなHUD
 			</text>
 			<text name="huds_desc">
-				使用していないＨＵＤを外すと、速度が向上する可能性があります。
+				使用していないHUDを外すと、速度が向上する可能性があります。
 			</text>
 			<icon name="icon_arrow4"/>
 		</panel>

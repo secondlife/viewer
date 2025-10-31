@@ -1070,7 +1070,7 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
 
     if (diff.empty())
     {
-        LL_INFOS() << "No outstanding object IDs to request. Pending count: " << mPendingObjectCost.size() << LL_ENDL;
+        LL_DEBUGS() << "No outstanding object IDs to request. Pending count: " << mPendingObjectCost.size() << LL_ENDL;
         return;
     }
 
@@ -1205,7 +1205,7 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
 
     if (idList.size() < 1)
     {
-        LL_INFOS() << "No outstanding object physics flags to request." << LL_ENDL;
+        LL_DEBUGS() << "No outstanding object physics flags to request." << LL_ENDL;
         return;
     }
 

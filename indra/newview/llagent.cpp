@@ -167,7 +167,7 @@ std::map<S32, std::string> LLTeleportRequest::sTeleportStatusName = { { kPending
 class LLTeleportRequestViaLandmark : public LLTeleportRequest
 {
 public:
-    LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId);
+    LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId, bool log = true);
     virtual ~LLTeleportRequestViaLandmark();
 
     virtual void toOstream(std::ostream& os) const;
@@ -179,6 +179,7 @@ public:
 
 protected:
     inline const LLUUID &getLandmarkId() const {return mLandmarkId;};
+    bool mLogOnDestruction = true;
 
 private:
     LLUUID mLandmarkId;
@@ -5008,16 +5009,25 @@ void LLTeleportRequest::toOstream(std::ostream& os) const
 //-----------------------------------------------------------------------------
 // LLTeleportRequestViaLandmark
 //-----------------------------------------------------------------------------
-LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId)
-    : LLTeleportRequest(),
-    mLandmarkId(pLandmarkId)
+LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId, bool log)
+    : LLTeleportRequest()
+    , mLandmarkId(pLandmarkId)
+    , mLogOnDestruction(true)
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark created, " << *this << LL_ENDL;
+    if (log)
+    {
+        // Workaround to not log twice for LLTeleportRequestViaLure, besides this wouldn't have logged fully.
+        LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark created, " << *this << LL_ENDL;
+    }
 }
 
 LLTeleportRequestViaLandmark::~LLTeleportRequestViaLandmark()
 {
-    LL_INFOS("Teleport") << "~LLTeleportRequestViaLandmark, " << *this << LL_ENDL;
+    if (mLogOnDestruction)
+    {
+        // Workaround to not crash on toOstream for derived classes and to not log twice.
+        LL_INFOS("Teleport") << "~LLTeleportRequestViaLandmark, " << *this << LL_ENDL;
+    }
 }
 
 void LLTeleportRequestViaLandmark::toOstream(std::ostream& os) const
@@ -5047,16 +5057,20 @@ void LLTeleportRequestViaLandmark::restartTeleport()
 // LLTeleportRequestViaLure
 //-----------------------------------------------------------------------------
 
-LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, bool pIsLureGodLike)
-    : LLTeleportRequestViaLandmark(pLureId),
+LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID& pLureId, bool pIsLureGodLike)
+    : LLTeleportRequestViaLandmark(pLureId, false),
     mIsLureGodLike(pIsLureGodLike)
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLure created" << LL_ENDL;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLure created: " << *this << LL_ENDL;
 }
 
 LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
 {
-    LL_INFOS("Teleport") << "~LLTeleportRequestViaLure" << LL_ENDL;
+    if (mLogOnDestruction)
+    {
+        LL_INFOS("Teleport") << "~LLTeleportRequestViaLure: " << *this << LL_ENDL;
+        mLogOnDestruction = false;
+    }
 }
 
 void LLTeleportRequestViaLure::toOstream(std::ostream& os) const

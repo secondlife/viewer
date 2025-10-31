@@ -982,14 +982,18 @@ void LLPluginProcessParent::poll(F64 timeout)
         }
     }
 
-    // Remove instances in the done state from the sInstances map.
-    mapInstances_t::iterator itClean = sInstances.begin();
-    while (itClean != sInstances.end())
+    if (sInstancesMutex)
     {
-        if ((*itClean).second->isDone())
-            itClean = sInstances.erase(itClean);
-        else
-            ++itClean;
+        // Remove instances in the done state from the sInstances map.
+        LLCoros::LockType lock(*sInstancesMutex);
+        mapInstances_t::iterator itClean = sInstances.begin();
+        while (itClean != sInstances.end())
+        {
+            if ((*itClean).second->isDone())
+                itClean = sInstances.erase(itClean);
+            else
+                ++itClean;
+        }
     }
 }
 

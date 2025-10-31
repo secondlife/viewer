@@ -465,7 +465,7 @@ bool LLFeatureManager::loadGPUClass()
         }
 
     #if LL_WINDOWS
-        const F32Gigabytes MIN_PHYSICAL_MEMORY(2);
+        const F32Gigabytes MIN_PHYSICAL_MEMORY(8);
 
         LLMemory::updateMemoryInfo();
         F32Gigabytes physical_mem = LLMemory::getMaxMemKB();

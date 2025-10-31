@@ -818,6 +818,7 @@ void LLOutfitGallery::getCurrentCategories(uuid_vec_t& vcur)
 
 void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
     if (!cat) return;
 

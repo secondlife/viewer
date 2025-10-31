@@ -406,7 +406,10 @@ void LLViewerTextureManager::init()
             }
         }
     }
-    imagep->createGLTexture(0, image_raw);
+    if (!imagep->createGLTexture(0, image_raw))
+    {
+        LL_WARNS() << "Failed to create default texture " << IMG_DEFAULT << LL_ENDL;
+    }
     image_raw = NULL;
 #else
     LLViewerFetchedTexture::sDefaultImagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, true, LLGLTexture::BOOST_UI);
@@ -2153,7 +2156,7 @@ bool LLViewerFetchedTexture::updateFetch()
         }
 
         const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
-        if (override_tex_discard_level != 0)
+        if (override_tex_discard_level != 0 && override_tex_discard_level <= MAX_DISCARD_LEVEL)
         {
             desired_discard = override_tex_discard_level;
         }

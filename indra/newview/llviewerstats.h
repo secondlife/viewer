@@ -229,6 +229,9 @@ extern LLTrace::EventStatHandle<F64Seconds >    AVATAR_EDIT_TIME,
 
 extern LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE;
 
+extern LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION;
+extern LLTrace::SampleStatHandle<F64> NORMALIZED_FRAMTIME_JITTER_PERIOD;
+
 }
 
 class LLViewerStats : public LLSingleton<LLViewerStats>

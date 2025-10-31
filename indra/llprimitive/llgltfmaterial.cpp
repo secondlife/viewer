@@ -923,3 +923,34 @@ void LLGLTFMaterial::updateTextureTracking()
     // setTEGLTFMaterialOverride is responsible for tracking
     // for material overrides editor will set it
 }
+
+void LLGLTFMaterial::convertTextureTransformToPBR(
+    F32 tex_scale_s,
+    F32 tex_scale_t,
+    F32 tex_offset_s,
+    F32 tex_offset_t,
+    F32 tex_rotation,
+    LLVector2& pbr_scale,
+    LLVector2& pbr_offset,
+    F32& pbr_rotation)
+{
+    pbr_scale.set(tex_scale_s, tex_scale_t);
+    pbr_rotation = -(tex_rotation) / 2.f;
+    const F32 adjusted_offset_s = tex_offset_s;
+    const F32 adjusted_offset_t = -tex_offset_t;
+    F32 center_adjust_s = 0.5f * (1.0f - tex_scale_s);
+    F32 center_adjust_t = 0.5f * (1.0f - tex_scale_t);
+
+    if (pbr_rotation != 0.0f)
+    {
+        const F32 c = cosf(pbr_rotation);
+        const F32 s = sinf(pbr_rotation);
+        const F32 tmp_s = center_adjust_s * c - center_adjust_t * s;
+        const F32 tmp_t = center_adjust_s * s + center_adjust_t * c;
+        center_adjust_s = tmp_s;
+        center_adjust_t = tmp_t;
+    }
+
+    pbr_offset.set(adjusted_offset_s + center_adjust_s,
+                   adjusted_offset_t + center_adjust_t);
+}

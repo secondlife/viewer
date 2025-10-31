@@ -802,7 +802,10 @@ void LLBumpImageList::onSourceStandardLoaded( bool success, LLViewerFetchedTextu
         }
         src_vi->setExplicitFormat(GL_RGBA, GL_RGBA);
         {
-            src_vi->createGLTexture(src_vi->getDiscardLevel(), nrm_image);
+            if (!src_vi->createGLTexture(src_vi->getDiscardLevel(), nrm_image))
+            {
+                LL_WARNS() << "Failed to create bump image texture for image " << src_vi->getID() << LL_ENDL;
+            }
         }
     }
 }
@@ -896,7 +899,10 @@ void LLBumpImageList::onSourceUpdated(LLViewerTexture* src, EBumpEffect bump_cod
 
         LLImageGL* src_img = src->getGLTexture();
         LLImageGL* dst_img = bump->getGLTexture();
-        dst_img->setSize(src->getWidth(), src->getHeight(), 4, 0);
+        if (!dst_img->setSize(src->getWidth(), src->getHeight(), 4, 0))
+        {
+            LL_WARNS() << "Failed to setSize for image " << bump->getID() << LL_ENDL;
+        }
         dst_img->setUseMipMaps(true);
         dst_img->setDiscardLevel(0);
         dst_img->createGLTexture();

@@ -215,7 +215,8 @@ public:
             LLUUID obj_id = mObjectData["object_id"];
             if (obj_id.notNull())
             {
-                return nullptr != gObjectList.findObject(mAvatarID);
+                LLViewerObject* object = gObjectList.findObject(obj_id);
+                return object && object->isReachable();
             }
             return false;
         }
@@ -441,6 +442,7 @@ public:
                 time_t current_time = time_corrected();
                 time_t message_time = (time_t)(current_time - LLFrameTimer::getElapsedSeconds() + mTime);
 
+                // Report abuse shouldn't use AM/PM, use 24-hour time
                 time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
                     + LLTrans::getString("TimeDay") + "]/["
                     + LLTrans::getString("TimeYear") + "] ["
@@ -1117,7 +1119,11 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
     mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
     mEditor->setIsFriendCallback(LLAvatarActions::isFriend);
     mEditor->setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
-
+    mEditor->setIsObjectReachableCallback([](const LLUUID& obj_id)
+        {
+            LLViewerObject* object = gObjectList.findObject(obj_id);
+            return object && object->isReachable();
+        });
 }
 
 LLSD LLChatHistory::getValue() const

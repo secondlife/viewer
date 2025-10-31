@@ -170,6 +170,12 @@ bool LLFloaterSearch::postBuild()
     LLFloaterWebContent::postBuild();
     mWebBrowser = getChild<LLMediaCtrl>("search_contents");
     mWebBrowser->addObserver(this);
+    mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+
+    // If cookie is there, will set it now, Otherwise will have to wait for login completion
+    // which will also update search instance if it already exists.
+    LLViewerMedia::getInstance()->getOpenIDCookie(mWebBrowser);
+
     getChildView("address")->setEnabled(false);
     getChildView("popexternal")->setEnabled(false);
 

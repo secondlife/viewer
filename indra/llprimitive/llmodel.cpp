@@ -1296,10 +1296,10 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 }
 
 void LLModel::setConvexHullDecomposition(
-    const LLModel::convex_hull_decomposition& decomp)
+    const LLModel::convex_hull_decomposition& decomp, const std::vector<LLModel::PhysicsMesh>& decomp_mesh)
 {
     mPhysics.mHull = decomp;
-    mPhysics.mMesh.clear();
+    mPhysics.mMesh = decomp_mesh;
     updateHullCenters();
 }
 
