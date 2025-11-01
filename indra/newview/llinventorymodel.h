@@ -188,15 +188,23 @@ private:
 public:
     // Methods to load up inventory skeleton & meat. These are used
     // during authentication. Returns true if everything parsed.
-    bool loadSkeleton(const LLSD& options, const LLUUID& owner_id);
-    void buildParentChildMap(); // brute force method to rebuild the entire parent-child relations
+    bool loadSkeleton(const LLSD& options, const LLUUID& owner_id, bool allow_cache_only = false);
+    void buildParentChildMap(bool run_validation = true); // brute force method to rebuild the entire parent-child relations
     void createCommonSystemCategories();
+
+    void setAsyncInventoryLoading(bool in_progress);
+    bool isAsyncInventoryLoading() const { return mAllowAsyncInventoryUpdates; }
+
+    void rememberCachedCategoryVersion(const LLUUID& id, S32 version);
+    S32 getCachedCategoryVersion(const LLUUID& id) const;
+    void forgetCachedCategoryVersion(const LLUUID& id);
 
     static std::string getInvCacheAddres(const LLUUID& owner_id);
 
     // Call on logout to save a terse representation.
     void cache(const LLUUID& parent_folder_id, const LLUUID& agent_id);
 private:
+    bool loadSkeletonFromCacheOnly(const LLUUID& owner_id);
     // Information for tracking the actual inventory. We index this
     // information in a lot of different ways so we can access
     // the inventory using several different identifiers.
@@ -216,6 +224,19 @@ private:
     // category pointers here, because broken links are also supported.
     typedef std::multimap<LLUUID, LLUUID> backlink_mmap_t;
     backlink_mmap_t mBacklinkMMap; // key = target_id: ID of item, values = link_ids: IDs of item or folder links referencing it.
+
+    // Async inventory loading support
+    bool mAllowAsyncInventoryUpdates{false};  // True when async skeleton loading is active
+    bool mAsyncNotifyPending{false};          // True when observer notification is throttled
+    LLFrameTimer mAsyncNotifyTimer;           // Timer for throttling observer notifications
+    F32 mAsyncNotifyIntervalSec{0.05f};       // Minimum interval between notifications (seconds)
+
+    // Tracks category version numbers as they were when loaded from disk cache.
+    // Used during async skeleton loading to determine if a cached category is still
+    // up-to-date compared to the server version received via AIS.
+    // Key: category UUID, Value: version number from cache
+    // Cleared when async loading completes or when categories are deleted.
+    std::map<LLUUID, S32> mCachedCategoryVersions;
     // For internal use only
     bool hasBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id) const;
     void addBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id);
@@ -721,4 +742,3 @@ public:
 extern LLInventoryModel gInventory;
 
 #endif // LL_LLINVENTORYMODEL_H
-
