@@ -416,6 +416,9 @@ public:
     void fitFaceTexture(const U8 face);
     void sendTEUpdate() const;          // Sends packed representation of all texture entry information
 
+    inline void setUsePBR()         { mUsePBR = true; }
+    inline bool getUsePBR() const   { return mUsePBR; }
+
     virtual void setScale(const LLVector3 &scale, bool damped = false);
 
     S32 getAnimatedObjectMaxTris() const;
@@ -982,6 +985,8 @@ private:
     LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
     EObjectUpdateType   mLastUpdateType;
     bool    mLastUpdateCached;
+
+    bool mUsePBR;
 
 public:
     // reflection probe state

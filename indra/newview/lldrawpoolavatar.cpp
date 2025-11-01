@@ -238,6 +238,20 @@ void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 
     sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 
+    // Gamma correction factor for alpha faces without PBR material. HB
+    static LLCachedControl<bool> use_gamma(gSavedSettings,
+                                           "RenderLegacyAlphaGammaEnable");
+    static LLCachedControl<F32> legacy_gamma(gSavedSettings,
+                                             "RenderLegacyAlphaGamma");
+    F32 alpha_gamma = use_gamma ? llclamp((F32)legacy_gamma, 1.f, 2.f) : 1.f;
+    // *HACK: we apply the _inverted_ correction because for the avatar's
+    // eyelashes (which is the only part still playing a role in today's
+    // avatars, the only other alpha-sensitive part being legacy hair,
+    // which are nowadays always "bald" (100% alpha) to let mesh hair or
+    // head replace them), the gamma is too strong (too much transparency)
+    // in PBR rendering mode. HB
+    sVertexProgram->uniform1f(LLShaderMgr::ALPHA_GAMMA, 1.f / alpha_gamma);
+
     sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 }
 
