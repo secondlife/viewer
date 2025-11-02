@@ -695,10 +695,9 @@ void LLFloaterIMSessionTab::updateUsedEmojis(LLWStringView text)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BUILD_CONVERSATION_VIEW_PARTICIPANT("Build Conversation View");
 void LLFloaterIMSessionTab::buildConversationViewParticipant()
 {
-    LL_RECORD_BLOCK_TIME(FTM_BUILD_CONVERSATION_VIEW_PARTICIPANT);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     // Clear the widget list since we are rebuilding afresh from the model
     conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
     while (widget_it != mConversationsWidgets.end())

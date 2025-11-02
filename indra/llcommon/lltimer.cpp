@@ -334,6 +334,7 @@ LLTimer::~LLTimer()
 // static
 void LLTimer::initClass()
 {
+    get_clock_count(); // good place to calculate clock frequency
     if (!sTimer) sTimer = new LLTimer;
 }
 

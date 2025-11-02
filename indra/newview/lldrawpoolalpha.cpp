@@ -31,7 +31,6 @@
 #include "llglheaders.h"
 #include "llviewercontrol.h"
 #include "llcriticaldamp.h"
-#include "llfasttimer.h"
 #include "llrender.h"
 
 #include "llcubemap.h"

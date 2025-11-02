@@ -609,15 +609,6 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_VOLUME("Update/Volume");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT("Media Sort");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT2("Media Sort 2");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_MISC("Misc");
-
-
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMedia::onIdle(void *dummy_arg)
 {
@@ -627,7 +618,7 @@ void LLViewerMedia::onIdle(void *dummy_arg)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMedia::updateMedia(void *dummy_arg)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
 
     llassert(!gCubeSnapshot);
 
@@ -653,7 +644,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     impl_list::iterator end = sViewerMediaImplList.end();
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media update interest"); //LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE_INTEREST);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media update interest");
         for(; iter != end;)
         {
             LLViewerMediaImpl* pimpl = *iter++;
@@ -665,12 +656,12 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     // Let the spare media source actually launch
     if(mSpareBrowserMediaSource)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media spare idle"); //LL_RECORD_BLOCK_TIME(FTM_MEDIA_SPARE_IDLE);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media spare idle");
         mSpareBrowserMediaSource->idle();
     }
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media sort"); //LL_RECORD_BLOCK_TIME(FTM_MEDIA_SORT);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media sort");
         // Sort the static instance list using our interest criteria
         sViewerMediaImplList.sort(priorityComparitor);
     }
@@ -702,7 +693,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     // If max_normal + max_low is less than max_instances, things will tend to get unloaded instead of being set to slideshow.
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media misc"); //LL_RECORD_BLOCK_TIME(FTM_MEDIA_MISC);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media misc");
         for(; iter != end; iter++)
         {
             LLViewerMediaImpl* pimpl = *iter;
@@ -889,7 +880,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     }
     else
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media sort2"); // LL_RECORD_BLOCK_TIME(FTM_MEDIA_SORT2);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media sort2");
         // Use a distance-based sort for proximity values.
         std::stable_sort(proximity_order.begin(), proximity_order.end(), proximity_comparitor);
     }
@@ -2105,7 +2096,7 @@ void LLViewerMediaImpl::setMute(bool mute)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::updateVolume()
 {
-    LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE_VOLUME);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     if(mMediaSource)
     {
         // always scale the volume by the global media volume
@@ -2816,14 +2807,9 @@ bool LLViewerMediaImpl::canNavigateBack()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_DO_UPDATE("Do Update");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_GET_DATA("Get Data");
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
-
-
 void LLViewerMediaImpl::update()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     if(mMediaSource == NULL)
     {
         if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
@@ -3666,11 +3652,9 @@ bool LLViewerMediaImpl::isUpdated()
     return mIsUpdated ;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_MEDIA_CALCULATE_INTEREST("Calculate Interest");
-
 void LLViewerMediaImpl::calculateInterest()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_CALCULATE_INTEREST);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     LLViewerMediaTexture* texture = LLViewerTextureManager::findMediaTexture( mTextureId );
 
     llassert(!gCubeSnapshot);

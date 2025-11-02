@@ -174,16 +174,6 @@ namespace LLTrace
         // ensure that buffers are exclusively owned by this recording
         void makeUnique() { mBuffers.makeUnique(); }
 
-        // Timer accessors
-        bool hasValue(const StatType<TimeBlockAccumulator>& stat);
-        F64Seconds getSum(const StatType<TimeBlockAccumulator>& stat);
-        F64Seconds getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat);
-        S32 getSum(const StatType<TimeBlockAccumulator::CallCountFacet>& stat);
-
-        F64Seconds getPerSec(const StatType<TimeBlockAccumulator>& stat);
-        F64Seconds getPerSec(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat);
-        F32 getPerSec(const StatType<TimeBlockAccumulator::CallCountFacet>& stat);
-
         // CountStatHandle accessors
         bool hasValue(const StatType<CountAccumulator>& stat);
         F64 getSum(const StatType<CountAccumulator>& stat);

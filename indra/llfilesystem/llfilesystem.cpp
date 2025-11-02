@@ -31,7 +31,6 @@
 
 #include "lldir.h"
 #include "llfilesystem.h"
-#include "llfasttimer.h"
 #include "lldiskcache.h"
 
 #include "boost/filesystem.hpp"
@@ -40,8 +39,6 @@ constexpr S32 LLFileSystem::READ        = 0x00000001;
 constexpr S32 LLFileSystem::WRITE       = 0x00000002;
 constexpr S32 LLFileSystem::READ_WRITE  = 0x00000003;  // LLFileSystem::READ & LLFileSystem::WRITE
 constexpr S32 LLFileSystem::APPEND      = 0x00000006;  // 0x00000004 & LLFileSystem::WRITE
-
-static LLTrace::BlockTimerStatHandle FTM_VFILE_WAIT("VFile Wait");
 
 LLFileSystem::LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_type, S32 mode)
 {

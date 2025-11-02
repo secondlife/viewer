@@ -489,7 +489,7 @@ void LLHeroProbeManager::updateUniforms()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    LL_PROFILE_GPU_ZONE("hpmu - uniforms")
+    LL_PROFILE_GPU_ZONE("hpmu - uniforms");
 
     LLMatrix4a modelview;
     modelview.loadu(gGLModelView);

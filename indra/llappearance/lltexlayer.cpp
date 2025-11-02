@@ -41,7 +41,6 @@
 #include "llwearabledata.h"
 #include "llvertexbuffer.h"
 #include "llviewervisualparam.h"
-#include "llfasttimer.h"
 
 //#include "../tools/imdebug/imdebug.h"
 

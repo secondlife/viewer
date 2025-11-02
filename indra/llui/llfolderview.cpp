@@ -1717,14 +1717,12 @@ void LLFolderView::setShowSingleSelection(bool show)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_INVENTORY("Inventory");
-
 // Main idle routine
 void LLFolderView::update()
 {
     // If this is associated with the user's inventory, don't do anything
     // until that inventory is loaded up.
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(FTM_INVENTORY);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     // If there's no model, the view is in suspended state (being deleted) and shouldn't be updated
     if (getFolderViewModel() == NULL)

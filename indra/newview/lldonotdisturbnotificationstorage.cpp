@@ -130,11 +130,9 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
     resetDirty();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_LOAD_DND_NOTIFICATIONS("Load DND Notifications");
-
 void LLDoNotDisturbNotificationStorage::loadNotifications()
 {
-    LL_RECORD_BLOCK_TIME(FTM_LOAD_DND_NOTIFICATIONS);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     LL_INFOS("LLDoNotDisturbNotificationStorage") << "start loading notifications" << LL_ENDL;
 

@@ -256,12 +256,10 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
     return hud_objectp;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_HUD_UPDATE("Update Hud");
-
 // static
 void LLHUDObject::updateAll()
 {
-    LL_RECORD_BLOCK_TIME(FTM_HUD_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     LLHUDText::updateAll();
     LLHUDIcon::updateAll();
     LLHUDNameTag::updateAll();

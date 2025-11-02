@@ -66,11 +66,9 @@ bool LLBakingTexLayerSetBuffer::render()
     return result;
 }
 
-static LLFastTimer::DeclareTimer FTM_MID_RENDER("midRenderTexLayerSet");
-static LLFastTimer::DeclareTimer FTM_CREATE_J2C("Encode J2C image.");
 void LLBakingTexLayerSetBuffer::midRenderTexLayerSet(bool success)
 {
-    LL_RECORD_BLOCK_TIME(FTM_MID_RENDER);
+    LL_PROFILE_ZONE_SCOPED;
     if (!mTexLayerSet->isVisible())
     {
         // Should have used IMG_INVISIBLE during hash id generation?
@@ -124,7 +122,7 @@ void LLBakingTexLayerSetBuffer::midRenderTexLayerSet(bool success)
     }
 
     {
-        LL_RECORD_BLOCK_TIME(FTM_CREATE_J2C);
+        LL_PROFILE_ZONE_NAMED("Baking - Encode J2C");
         LL_DEBUGS() << "Creating J2C..." << LL_ENDL;
         mCompressedImage = new LLImageJ2C;
         const char* comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // writes into baked_color_data. 5 channels (rgb, heightfield/alpha, mask)

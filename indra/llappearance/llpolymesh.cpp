@@ -29,7 +29,6 @@
 //-----------------------------------------------------------------------------
 #include "linden_common.h"
 #include "llpolymesh.h"
-#include "llfasttimer.h"
 #include "llmemory.h"
 
 //#include "llviewercontrol.h"

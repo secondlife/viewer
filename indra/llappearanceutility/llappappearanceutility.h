@@ -98,9 +98,6 @@ private:
     LLUUID mAgentID;
     S32 mBakeTextureSize;
     bool mDebugMode;
-    LLTrace::Recording mRecording;
-    S32 mTreeMapThreshold;
-    std::string mTreeMapFilename;
 };
 
 

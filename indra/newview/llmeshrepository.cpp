@@ -70,7 +70,6 @@
 #include "lluploadfloaterobservers.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
-#include "llfasttimer.h"
 #include "llcorehttputil.h"
 #include "lltrans.h"
 #include "llstatusbar.h"
@@ -317,8 +316,6 @@
 // With this instrumentation enabled, a stall will appear
 // under the 'Mesh Fetch' timer which will be either top-level
 // or under 'Render' time.
-
-static LLFastTimer::DeclareTimer FTM_MESH_FETCH("Mesh Fetch");
 
 // Random failure testing for development/QA.
 //
@@ -1031,7 +1028,7 @@ void LLMeshRepoThread::run()
         // On the other hand, this may actually be an effective and efficient scheme...
 
         mSignal->wait();
-        LL_PROFILE_ZONE_NAMED("mesh_thread_loop")
+        LL_PROFILE_ZONE_NAMED("mesh_thread_loop");
 
         if (LLApp::isExiting())
         {
@@ -4296,7 +4293,7 @@ void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 new_lod, S32 last_lod)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
     // Manage time-to-load metrics for mesh download operations.
     metricsProgress(1);
@@ -4384,7 +4381,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 
 void LLMeshRepository::notifyLoadedMeshes()
 { //called from main thread
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
     // GetMesh2 operation with keepalives, etc.  With pipelining,
     // we'll increase this.  See llappcorehttp and llcorehttp for
@@ -4830,7 +4827,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOV
 
 void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
     if (mesh_id.notNull())
     {
@@ -4858,7 +4855,7 @@ void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 
 LLModel::Decomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh_id)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
     LLModel::Decomposition* ret = NULL;
 

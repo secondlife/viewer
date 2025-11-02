@@ -40,4 +40,3 @@ S32  LLTexture::getWidth(S32 discard_level) const { llassert(false); return 0; }
 S32  LLTexture::getHeight(S32 discard_level) const { llassert(false); return 0; }
 bool LLTexture::isActiveFetching() { llassert(false); return false; }
 LLImageGL* LLTexture::getGLTexture() const { llassert(false); return nullptr; }
-void LLTexture::updateBindStatsForTester() { }

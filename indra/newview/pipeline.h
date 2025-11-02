@@ -65,31 +65,6 @@ bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& 
 bool setup_hud_matrices(); // use whole screen to render hud
 bool setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
 
-
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_INVISIBLE;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_SHINY;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_TREES;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_WATER;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_WL_SKY;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_CHARACTERS;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_BUMP;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_FULLBRIGHT;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW;
-extern LLTrace::BlockTimerStatHandle FTM_STATESORT;
-extern LLTrace::BlockTimerStatHandle FTM_PIPELINE;
-extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
-
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_HUD;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_3D;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_2D;
-
 class LLPipeline
 {
 public:

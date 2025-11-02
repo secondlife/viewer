@@ -106,7 +106,7 @@ S32 LLDrawPoolWater::getNumPostDeferredPasses()
 
 void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
 {
-    LL_PROFILE_GPU_ZONE("water beginPostDeferredPass")
+    LL_PROFILE_GPU_ZONE("water beginPostDeferredPass");
     gGL.setColorMask(true, true);
 
     if (LLPipeline::sRenderTransparentWater)

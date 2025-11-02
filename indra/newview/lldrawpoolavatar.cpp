@@ -662,7 +662,7 @@ void LLDrawPoolAvatar::endDeferredSkinned()
 
 void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR; //LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     if (pass == -1)
     {
@@ -824,8 +824,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         avatarp->renderSkinned();
     }
 }
-
-static LLTrace::BlockTimerStatHandle FTM_RIGGED_VBO("Rigged VBO");
 
 //-----------------------------------------------------------------------------
 // getDebugTexture()

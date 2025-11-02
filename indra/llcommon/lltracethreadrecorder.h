@@ -57,8 +57,6 @@ namespace LLTrace
         void pullFromChildren();
         void pushToParent();
 
-        TimeBlockTreeNode* getTimeBlockTreeNode(size_t index);
-
     protected:
         void init();
 
@@ -74,16 +72,11 @@ namespace LLTrace
         };
 
         AccumulatorBufferGroup          mThreadRecordingBuffers;
-
-        BlockTimerStackRecord           mBlockTimerStackRecord;
         active_recording_list_t         mActiveRecordings;
 
-        class BlockTimer*               mRootTimer;
-        TimeBlockTreeNode*              mTimeBlockTreeNodes;
-        size_t                          mNumTimeBlockTreeNodes;
         typedef std::list<class ThreadRecorder*> child_thread_recorder_list_t;
-
         child_thread_recorder_list_t    mChildThreadRecorders;  // list of child thread recorders associated with this master
+
         LLMutex                         mChildListMutex;        // protects access to child list
         LLMutex                         mSharedRecordingMutex;
         AccumulatorBufferGroup          mSharedRecordingBuffers;

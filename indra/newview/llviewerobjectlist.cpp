@@ -29,7 +29,6 @@
 #include "llviewerobjectlist.h"
 
 #include "message.h"
-#include "llfasttimer.h"
 #include "llrender.h"
 #include "llwindow.h"       // decBusyCount()
 
@@ -294,8 +293,6 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_OBJECTS("Process Objects");
-
 LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
@@ -395,7 +392,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
                                              const EObjectUpdateType update_type,
                                              bool compressed)
 {
-    LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
+    LL_PROFILE_ZONE_SCOPED;
 
     LLViewerObject *objectp;
     S32         num_objects;

@@ -141,7 +141,7 @@ void LLFloaterLagMeter::draw()
 
 void LLFloaterLagMeter::determineClient()
 {
-    F32Milliseconds client_frame_time = LLTrace::get_frame_recording().getPeriodMean(LLStatViewer::FRAME_STACKTIME);
+    F32Milliseconds client_frame_time = LLTrace::get_frame_recording().getPeriodMean(LLStatViewer::FRAMETIME);
     bool find_cause = false;
 
     if (!gFocusMgr.getAppHasFocus())
@@ -198,7 +198,7 @@ void LLFloaterLagMeter::determineNetwork()
     // particular if the frame rate is low, because a low frame
     // rate is a sure recipe for bad ping times right now until
     // the network handlers are de-synched from the rendering.
-    F32Milliseconds client_frame_time = frame_recording.getPeriodMean(LLStatViewer::FRAME_STACKTIME);
+    F32Milliseconds client_frame_time = frame_recording.getPeriodMean(LLStatViewer::FRAMETIME);
 
     // Todo: account for LLPacketRing dropped packets? viewer drops those when it can't keep up
     if(packet_loss >= mNetworkPacketLossCritical)

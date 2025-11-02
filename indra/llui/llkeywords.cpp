@@ -475,13 +475,11 @@ bool LLKeywords::WStringMapIndex::operator<(const LLKeywords::WStringMapIndex &o
     return result;
 }
 
-LLTrace::BlockTimerStatHandle FTM_SYNTAX_COLORING("Syntax Coloring");
-
 // Walk through a string, applying the rules specified by the keyword token list and
 // create a list of color segments.
 void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLWString& wtext, LLTextEditor& editor, LLStyleConstSP style)
 {
-    LL_RECORD_BLOCK_TIME(FTM_SYNTAX_COLORING);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     seg_list->clear();
 
     if( wtext.empty() )

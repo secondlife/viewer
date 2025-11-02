@@ -49,7 +49,6 @@ class LLImageDecodeThread;
 class LLHost;
 class LLViewerAssetStats;
 class LLTextureCache;
-class LLTextureFetchTester;
 
 // Interface class
 
@@ -405,8 +404,6 @@ public:
         INVALID_SOURCE
     };
 
-    static LLTextureFetchTester* sTesterp;
-
 private:
     e_tex_source mFetchSource;
     e_tex_source mOriginFetchSource;
@@ -420,27 +417,5 @@ public:
     bool canLoadFromCache() { return mFetchSource != FROM_HTTP_ONLY;}
 };
 
-//debug use
-class LLViewerFetchedTexture;
-
-class LLTextureFetchTester : public LLMetricPerformanceTesterBasic
-{
-public:
-    LLTextureFetchTester();
-    ~LLTextureFetchTester();
-
-    void updateStats(const std::map<S32, F32> states_timers, const F32 fetch_time, const F32 other_states_time, const S32 file_size);
-
-protected:
-    /*virtual*/ void outputTestRecord(LLSD* sd);
-
-private:
-
-    F32 mTextureFetchTime;
-    F32 mSkippedStatesTime;
-    S32 mFileSize;
-
-    std::map<S32, F32> mStateTimersMap;
-};
 #endif // LL_LLTEXTUREFETCH_H
 

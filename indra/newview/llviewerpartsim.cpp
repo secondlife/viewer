@@ -656,10 +656,9 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SIMULATE_PARTICLES("Simulate Particles");
-
 void LLViewerPartSim::updateSimulation()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
     static LLFrameTimer update_timer;
 
     const F32 dt = llmin(update_timer.getElapsedTimeAndResetF32(), 0.1f);
@@ -668,8 +667,6 @@ void LLViewerPartSim::updateSimulation()
     {
         return;
     }
-
-    LL_RECORD_BLOCK_TIME(FTM_SIMULATE_PARTICLES);
 
     // Start at a random particle system so the same
     // particle system doesn't always get first pick at the

@@ -1,7 +1,8 @@
 # -*- cmake -*-
-include(Prebuilt)
-
 include_guard()
+include(Prebuilt)
+include(Variables)
+
 add_library( ll::tracy INTERFACE IMPORTED )
 
 # default Tracy profiling on for test builds, but off for all others
@@ -9,7 +10,7 @@ string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
 if(channel_lower MATCHES "^second life test")
   option(USE_TRACY "Use Tracy profiler." ON)
 else()
-    option(USE_TRACY "Use Tracy profiler." OFF)
+  option(USE_TRACY "Use Tracy profiler." OFF)
 endif()
 
 if (USE_TRACY)
@@ -37,6 +38,6 @@ if (USE_TRACY)
   endif ()
 
   # See: indra/llcommon/llprofiler.h
-  add_compile_definitions(LL_PROFILER_CONFIGURATION=3)
+  add_compile_definitions(LL_PROFILER_CONFIGURATION=1)
 endif (USE_TRACY)
 

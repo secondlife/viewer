@@ -37,11 +37,6 @@
 
 LLSceneView* gSceneView = NULL;
 
-//borrow this helper function from llfasttimerview.cpp
-template <class VEC_TYPE>
-void removeOutliers(std::vector<VEC_TYPE>& data, F32 k);
-
-
 LLSceneView::LLSceneView(const LLRect& rect)
     :   LLFloater(LLSD())
 {

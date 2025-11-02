@@ -42,7 +42,7 @@ LLDrawPoolWaterExclusion::LLDrawPoolWaterExclusion() : LLRenderPass(LLDrawPool::
 
 void LLDrawPoolWaterExclusion::render(S32 pass)
 {                                             // render invisiprims
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; // LL_RECORD_BLOCK_TIME(FTM_RENDER_INVISIBLE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
     if (gPipeline.shadersLoaded())
     {

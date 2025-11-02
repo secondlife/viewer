@@ -29,7 +29,6 @@
 #include "llxuiparser.h"
 
 #include "llxmlnode.h"
-#include "llfasttimer.h"
 #ifdef LL_USESYSTEMLIBS
 #include <expat.h>
 #else
@@ -675,12 +674,11 @@ LLXUIParser::LLXUIParser()
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PARSE_XUI("XUI Parsing");
 const LLXMLNodePtr DUMMY_NODE = new LLXMLNode();
 
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename, bool silent)
 {
-    LL_RECORD_BLOCK_TIME(FTM_PARSE_XUI);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     mNameStack.clear();
     mRootNodeName = node->getName()->mString;
     mCurFileName = filename;
@@ -1384,7 +1382,7 @@ LLSimpleXUIParser::~LLSimpleXUIParser()
 
 bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBlock& block, bool silent)
 {
-    LL_RECORD_BLOCK_TIME(FTM_PARSE_XUI);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     mParser = XML_ParserCreate(NULL);
     XML_SetUserData(mParser, this);

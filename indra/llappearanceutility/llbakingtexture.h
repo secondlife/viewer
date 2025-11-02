@@ -51,7 +51,6 @@ public:
     void setKnownDrawSize(S32 width, S32 height) override;
     bool bindDefaultImage(const S32 stage = 0) override ;
     void forceImmediateUpdate() override;
-    void updateBindStatsForTester() override ;
     bool bindDebugImage(const S32 stage = 0) override { return false; }
     bool isActiveFetching() override { return false; }
 

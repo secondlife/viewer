@@ -54,11 +54,9 @@ LLHUDManager::~LLHUDManager()
 {
 }
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_HUD_EFFECTS("Update Hud Effects");
-
 void LLHUDManager::updateEffects()
 {
-    LL_RECORD_BLOCK_TIME(FTM_UPDATE_HUD_EFFECTS);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     S32 i;
     for (i = 0; i < mHUDEffects.size(); i++)
     {

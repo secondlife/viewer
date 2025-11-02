@@ -35,7 +35,6 @@
 #include "lltexturemanagerbridge.h"
 #include "../llui/llui.h"
 #include "llwearable.h"
-#include "llfasttimer.h"
 
 //-----------------------------------------------------------------------------
 // LLTexLayerParam

@@ -312,7 +312,7 @@ namespace LLPerfStats
         StatsRecord stat;
 
         RecordTime( const LLUUID& av, const LLUUID& id, StatType_t type, bool isRiggedAtt=false, bool isHUDAtt=false):
-                    start{LLTrace::BlockTimer::getCPUClockCount64()},
+                    start{LLFastTimer::getCPUClockCount64()},
                     stat{type, ObjTypeDiscriminator, std::move(av), std::move(id), 0, isRiggedAtt, isHUDAtt}
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
@@ -332,7 +332,7 @@ namespace LLPerfStats
                 return;
             }
 
-            stat.time = LLTrace::BlockTimer::getCPUClockCount64() - start;
+            stat.time = LLFastTimer::getCPUClockCount64() - start;
             StatsRecorder::send(std::move(stat));
         };
     };

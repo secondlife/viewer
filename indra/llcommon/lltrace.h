@@ -94,29 +94,6 @@ protected:
     const size_t        mAccumulatorIndex;
 };
 
-
-template<>
-class StatType<TimeBlockAccumulator::CallCountFacet>
-:   public StatType<TimeBlockAccumulator>
-{
-public:
-
-    StatType(const char* name, const char* description = "")
-    :   StatType<TimeBlockAccumulator>(name, description)
-    {}
-};
-
-template<>
-class StatType<TimeBlockAccumulator::SelfTimeFacet>
-    :   public StatType<TimeBlockAccumulator>
-{
-public:
-
-    StatType(const char* name, const char* description = "")
-        :   StatType<TimeBlockAccumulator>(name, description)
-    {}
-};
-
 template <typename T = F64>
 class EventStatHandle
 :   public StatType<EventAccumulator>
@@ -192,92 +169,6 @@ void add(CountStatHandle<T>& count, VALUE_T value)
     count.getCurrentAccumulator().add(storage_value(converted_value));
 #endif
 }
-
-// measures effective memory footprint of specified type
-// specialize to cover different types
-template<typename T, typename IS_MEM_TRACKABLE = void, typename IS_UNITS = void>
-struct MeasureMem
-{
-    static size_t measureFootprint(const T& value)
-    {
-        return sizeof(T);
-    }
-};
-
-template<typename T, typename IS_BYTES>
-struct MeasureMem<T, typename T::mem_trackable_tag_t, IS_BYTES>
-{
-    static size_t measureFootprint(const T& value)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-        return sizeof(T) + value.getMemFootprint();
-    }
-};
-
-template<typename T, typename IS_MEM_TRACKABLE>
-struct MeasureMem<T, IS_MEM_TRACKABLE, typename T::is_unit_t>
-{
-    static size_t measureFootprint(const T& value)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-        return U32Bytes(value).value();
-    }
-};
-
-template<typename T, typename IS_MEM_TRACKABLE, typename IS_BYTES>
-struct MeasureMem<T*, IS_MEM_TRACKABLE, IS_BYTES>
-{
-    static size_t measureFootprint(const T* value)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-        if (!value)
-        {
-            return 0;
-        }
-        return MeasureMem<T>::measureFootprint(*value);
-    }
-};
-
-template<typename T, typename IS_MEM_TRACKABLE, typename IS_BYTES>
-struct MeasureMem<LLPointer<T>, IS_MEM_TRACKABLE, IS_BYTES>
-{
-    static size_t measureFootprint(const LLPointer<T> value)
-    {
-        if (value.isNull())
-        {
-            return 0;
-        }
-        return MeasureMem<T>::measureFootprint(*value);
-    }
-};
-
-template<typename IS_MEM_TRACKABLE, typename IS_BYTES>
-struct MeasureMem<S32, IS_MEM_TRACKABLE, IS_BYTES>
-{
-    static size_t measureFootprint(S32 value)
-    {
-        return value;
-    }
-};
-
-template<typename IS_MEM_TRACKABLE, typename IS_BYTES>
-struct MeasureMem<U32, IS_MEM_TRACKABLE, IS_BYTES>
-{
-    static size_t measureFootprint(U32 value)
-    {
-        return value;
-    }
-};
-
-template<typename T, typename IS_MEM_TRACKABLE, typename IS_BYTES>
-struct MeasureMem<std::basic_string<T>, IS_MEM_TRACKABLE, IS_BYTES>
-{
-    static size_t measureFootprint(const std::basic_string<T>& value)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-        return value.capacity() * sizeof(T);
-    }
-};
 
 }
 

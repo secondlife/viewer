@@ -33,7 +33,6 @@
 #include "llavatarjoint.h"
 #include "llpolymorph.h"
 #include "llwearable.h"
-#include "llfasttimer.h"
 
 #include "llpolyskeletaldistortion.h"
 

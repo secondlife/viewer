@@ -29,7 +29,6 @@
 #include "llfontgl.h"
 
 // Linden library includes
-#include "llfasttimer.h"
 #include "llfontfreetype.h"
 #include "llfontbitmapcache.h"
 #include "llfontregistry.h"

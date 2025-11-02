@@ -150,7 +150,7 @@ namespace LLPerfStats
     {
         // create a queue
         tunables.initialiseFromSettings();
-        LLPerfStats::cpu_hertz = (F64)LLTrace::BlockTimer::countsPerSecond();
+        LLPerfStats::cpu_hertz = (F64)LLFastTimer::countsPerSecond();
         LLPerfStats::vsync_max_fps = gViewerWindow->getWindow()->getRefreshRate();
     }
 

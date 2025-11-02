@@ -33,8 +33,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#include "lltrace.h"
-#include "llfasttimer.h"
 #include "v3colorutil.h"
 
 #include "llglslshader.h"

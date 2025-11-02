@@ -32,7 +32,6 @@
 #include "llapr.h"
 
 #include "llbuffer.h"
-#include "llfasttimer.h"
 #include "llhost.h"
 #include "llpumpio.h"
 

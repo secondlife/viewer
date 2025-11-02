@@ -27,7 +27,6 @@
 #ifndef LLUICTRLFACTORY_H
 #define LLUICTRLFACTORY_H
 
-#include "llfasttimer.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llxuiparser.h"

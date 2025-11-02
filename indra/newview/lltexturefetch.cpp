@@ -73,9 +73,6 @@ LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sTexDecodeLatency("texture
 LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sCacheWriteLatency("texture_write_latency");
 LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sTexFetchLatency("texture_fetch_latency");
 
-LLTextureFetchTester* LLTextureFetch::sTesterp = NULL ;
-const std::string sTesterName("TextureFetchTester");
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // Introduction
@@ -2474,17 +2471,6 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool threaded, bool qa_mod
     mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
     mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
     mHttpSemaphore = 0;
-
-    // If that test log has ben requested but not yet created, create it
-    if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
-    {
-        sTesterp = new LLTextureFetchTester() ;
-        if (!sTesterp->isValid())
-        {
-            delete sTesterp;
-            sTesterp = NULL;
-        }
-    }
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -2833,12 +2819,6 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S3
             if (fetch_time > min_time_to_log)
             {
                 //LL_INFOS() << "fetch_time: " << fetch_time << " cache_read_time: " << cache_read_time << " decode_time: " << decode_time << " cache_write_time: " << cache_write_time << LL_ENDL;
-
-                LLTextureFetchTester* tester = (LLTextureFetchTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
-                if (tester)
-                {
-                    tester->updateStats(logged_state_timers, fetch_time, skipped_states_time, file_size) ;
-                }
             }
         }
         else
@@ -3694,41 +3674,3 @@ truncate_viewer_metrics(int max_regions, LLSD & metrics)
 }
 
 } // end of anonymous namespace
-
-LLTextureFetchTester::LLTextureFetchTester() : LLMetricPerformanceTesterBasic(sTesterName)
-{
-    mTextureFetchTime = 0;
-    mSkippedStatesTime = 0;
-    mFileSize = 0;
-}
-
-LLTextureFetchTester::~LLTextureFetchTester()
-{
-    outputTestResults();
-    LLTextureFetch::sTesterp = NULL;
-}
-
-//virtual
-void LLTextureFetchTester::outputTestRecord(LLSD *sd)
-{
-    std::string currentLabel = getCurrentLabelName();
-
-    (*sd)[currentLabel]["Texture Fetch Time"]   = (LLSD::Real)mTextureFetchTime;
-    (*sd)[currentLabel]["File Size"]            = (LLSD::Integer)mFileSize;
-    (*sd)[currentLabel]["Skipped States Time"]  = (LLSD::String)llformat("%.6f", mSkippedStatesTime);
-
-    for(auto i : LOGGED_STATES)
-    {
-        (*sd)[currentLabel][sStateDescs[i]] = mStateTimersMap[i];
-    }
-}
-
-void LLTextureFetchTester::updateStats(const std::map<S32, F32> state_timers, const F32 fetch_time, const F32 skipped_states_time, const S32 file_size)
-{
-    mTextureFetchTime = fetch_time;
-    mStateTimersMap = state_timers;
-    mFileSize = file_size;
-    mSkippedStatesTime = skipped_states_time;
-    outputTestResults();
-}
-

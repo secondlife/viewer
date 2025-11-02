@@ -112,7 +112,7 @@ void operator delete[](void* ptr, std::align_val_t align) noexcept
 
 #endif
 
-#endif // TRACY_ENABLE && !LL_PROFILER_ENABLE_TRACY_OPENGL
+#endif // TRACY_ENABLE
 
 //static
 bool LLCommon::sAprInitialized = false;

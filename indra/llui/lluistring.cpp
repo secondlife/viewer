@@ -27,12 +27,8 @@
 #include "linden_common.h"
 #include "lluistring.h"
 
-#include "llfasttimer.h"
 #include "llsd.h"
 #include "lltrans.h"
-
-LLTrace::BlockTimerStatHandle FTM_UI_STRING("UI String");
-
 
 LLUIString::LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args)
 :   mOrig(instring),
@@ -62,7 +58,7 @@ void LLUIString::setArgList(const LLStringUtil::format_map_t& args)
 
 void LLUIString::setArgs(const LLSD& sd)
 {
-    LL_RECORD_BLOCK_TIME(FTM_UI_STRING);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     if (!sd.isMap()) return;
     for(LLSD::map_const_iterator sd_it = sd.beginMap();
@@ -123,9 +119,9 @@ void LLUIString::dirty()
 
 void LLUIString::updateResult() const
 {
-    mNeedsResult = false;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
-    LL_RECORD_BLOCK_TIME(FTM_UI_STRING);
+    mNeedsResult = false;
 
     // optimize for empty strings (don't attempt string replacement)
     if (mOrig.empty())

@@ -229,8 +229,6 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
     adjustParticipant(avatar_id);
 }
 
-static LLFastTimer::DeclareTimer FTM_FOLDERVIEW_TEST("add test avatar agents");
-
 void LLParticipantList::adjustParticipant(const LLUUID& speaker_id)
 {
     LLPointer<LLSpeaker> speakerp = mSpeakerMgr->findSpeaker(speaker_id);

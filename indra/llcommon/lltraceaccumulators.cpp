@@ -44,8 +44,7 @@ AccumulatorBufferGroup::AccumulatorBufferGroup()
 AccumulatorBufferGroup::AccumulatorBufferGroup(const AccumulatorBufferGroup& other)
 :   mCounts(other.mCounts),
     mSamples(other.mSamples),
-    mEvents(other.mEvents),
-    mStackTimers(other.mStackTimers)
+    mEvents(other.mEvents)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 }
@@ -61,7 +60,6 @@ void AccumulatorBufferGroup::handOffTo(AccumulatorBufferGroup& other)
     other.mCounts.reset(&mCounts);
     other.mSamples.reset(&mSamples);
     other.mEvents.reset(&mEvents);
-    other.mStackTimers.reset(&mStackTimers);
 }
 
 void AccumulatorBufferGroup::makeCurrent()
@@ -70,19 +68,6 @@ void AccumulatorBufferGroup::makeCurrent()
     mCounts.makeCurrent();
     mSamples.makeCurrent();
     mEvents.makeCurrent();
-    mStackTimers.makeCurrent();
-
-    ThreadRecorder* thread_recorder = get_thread_recorder();
-    AccumulatorBuffer<TimeBlockAccumulator>& timer_accumulator_buffer = mStackTimers;
-    // update stacktimer parent pointers
-    for (size_t i = 0, end_i = mStackTimers.size(); i < end_i; i++)
-    {
-        TimeBlockTreeNode* tree_node = thread_recorder->getTimeBlockTreeNode(narrow<size_t>(i));
-        if (tree_node)
-        {
-            timer_accumulator_buffer[i].mParent = tree_node->mParent;
-        }
-    }
 }
 
 //static
@@ -92,7 +77,6 @@ void AccumulatorBufferGroup::clearCurrent()
     AccumulatorBuffer<CountAccumulator>::clearCurrent();
     AccumulatorBuffer<SampleAccumulator>::clearCurrent();
     AccumulatorBuffer<EventAccumulator>::clearCurrent();
-    AccumulatorBuffer<TimeBlockAccumulator>::clearCurrent();
 }
 
 bool AccumulatorBufferGroup::isCurrent() const
@@ -106,7 +90,6 @@ void AccumulatorBufferGroup::append(const AccumulatorBufferGroup& other)
     mCounts.addSamples(other.mCounts, SEQUENTIAL);
     mSamples.addSamples(other.mSamples, SEQUENTIAL);
     mEvents.addSamples(other.mEvents, SEQUENTIAL);
-    mStackTimers.addSamples(other.mStackTimers, SEQUENTIAL);
 }
 
 void AccumulatorBufferGroup::merge(const AccumulatorBufferGroup& other)
@@ -125,7 +108,6 @@ void AccumulatorBufferGroup::reset(AccumulatorBufferGroup* other)
     mCounts.reset(other ? &other->mCounts : NULL);
     mSamples.reset(other ? &other->mSamples : NULL);
     mEvents.reset(other ? &other->mEvents : NULL);
-    mStackTimers.reset(other ? &other->mStackTimers : NULL);
 }
 
 void AccumulatorBufferGroup::sync()

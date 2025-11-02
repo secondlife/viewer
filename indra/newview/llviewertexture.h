@@ -34,7 +34,6 @@
 #include "llhost.h"
 #include "llgltypes.h"
 #include "llrender.h"
-#include "llmetricperformancetester.h"
 #include "httpcommon.h"
 #include "workqueue.h"
 #include "gltf/common.h"
@@ -49,8 +48,6 @@ class LLViewerObject;
 class LLViewerTexture;
 class LLViewerFetchedTexture ;
 class LLViewerMediaTexture ;
-class LLTexturePipelineTester ;
-
 
 typedef void    (*loaded_callback_func)( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, bool final, void* userdata );
 
@@ -170,8 +167,6 @@ public:
     void setParcelMedia(LLViewerMediaTexture* media) {mParcelMedia = media;}
     bool hasParcelMedia() const { return mParcelMedia != NULL;}
     LLViewerMediaTexture* getParcelMedia() const { return mParcelMedia;}
-
-    /*virtual*/ void updateBindStatsForTester() ;
 
     struct MaterialEntry
     {
@@ -623,9 +618,6 @@ private:
     LLViewerTextureManager(){}
 
 public:
-    //texture pipeline tester
-    static LLTexturePipelineTester* sTesterp ;
-
     //returns NULL if tex is not a LLViewerFetchedTexture nor derived from LLViewerFetchedTexture.
     static LLViewerFetchedTexture*    staticCastToFetchedTexture(LLTexture* tex, bool report_error = false) ;
 
@@ -694,98 +686,4 @@ public:
     static void init() ;
     static void cleanup() ;
 };
-//
-//this class is used for test/debug only
-//it tracks the activities of the texture pipeline
-//records them, and outputs them to log files
-//
-class LLTexturePipelineTester : public LLMetricPerformanceTesterWithSession
-{
-    enum
-    {
-        MIN_LARGE_IMAGE_AREA = 262144  //512 * 512
-    };
-public:
-    LLTexturePipelineTester() ;
-    ~LLTexturePipelineTester() ;
-
-    void update();
-    void updateTextureBindingStats(const LLViewerTexture* imagep) ;
-    void updateTextureLoadingStats(const LLViewerFetchedTexture* imagep, const LLImageRaw* raw_imagep, bool from_cache) ;
-    void updateGrayTextureBinding() ;
-    void setStablizingTime() ;
-
-private:
-    void reset() ;
-    void updateStablizingTime() ;
-
-    /*virtual*/ void outputTestRecord(LLSD* sd) ;
-
-private:
-    bool mPause ;
-private:
-    bool mUsingDefaultTexture;            //if set, some textures are still gray.
-
-    U32Bytes mTotalBytesUsed ;                     //total bytes of textures bound/used for the current frame.
-    U32Bytes mTotalBytesUsedForLargeImage ;        //total bytes of textures bound/used for the current frame for images larger than 256 * 256.
-    U32Bytes mLastTotalBytesUsed ;                 //total bytes of textures bound/used for the previous frame.
-    U32Bytes mLastTotalBytesUsedForLargeImage ;    //total bytes of textures bound/used for the previous frame for images larger than 256 * 256.
-
-    //
-    //data size
-    //
-    U32Bytes mTotalBytesLoaded ;               //total bytes fetched by texture pipeline
-    U32Bytes mTotalBytesLoadedFromCache ;      //total bytes fetched by texture pipeline from local cache
-    U32Bytes mTotalBytesLoadedForLargeImage ;  //total bytes fetched by texture pipeline for images larger than 256 * 256.
-    U32Bytes mTotalBytesLoadedForSculpties ;   //total bytes fetched by texture pipeline for sculpties
-
-    //
-    //time
-    //NOTE: the error tolerances of the following timers is one frame time.
-    //
-    F32 mStartFetchingTime ;
-    F32 mTotalGrayTime ;                  //total loading time when no gray textures.
-    F32 mTotalStablizingTime ;            //total stablizing time when texture memory overflows
-    F32 mStartTimeLoadingSculpties ;      //the start moment of loading sculpty images.
-    F32 mEndTimeLoadingSculpties ;        //the end moment of loading sculpty images.
-    F32 mStartStablizingTime ;
-    F32 mEndStablizingTime ;
-
-private:
-    //
-    //The following members are used for performance analyzing
-    //
-    class LLTextureTestSession : public LLTestSession
-    {
-    public:
-        LLTextureTestSession() ;
-        /*virtual*/ ~LLTextureTestSession() ;
-
-        void reset() ;
-
-        F32 mTotalGrayTime ;
-        F32 mTotalStablizingTime ;
-        F32 mStartTimeLoadingSculpties ;
-        F32 mTotalTimeLoadingSculpties ;
-
-        S32 mTotalBytesLoaded ;
-        S32 mTotalBytesLoadedFromCache ;
-        S32 mTotalBytesLoadedForLargeImage ;
-        S32 mTotalBytesLoadedForSculpties ;
-
-        typedef struct _texture_instant_preformance_t
-        {
-            S32 mAverageBytesUsedPerSecond ;
-            S32 mAverageBytesUsedForLargeImagePerSecond ;
-            F32 mAveragePercentageBytesUsedPerSecond ;
-            F32 mTime ;
-        }texture_instant_preformance_t ;
-        std::vector<texture_instant_preformance_t> mInstantPerformanceList ;
-        S32 mInstantPerformanceListCounter ;
-    };
-
-    /*virtual*/ LLMetricPerformanceTesterWithSession::LLTestSession* loadTestSession(LLSD* log) ;
-    /*virtual*/ void compareTestSessions(llofstream* os) ;
-};
-
 #endif

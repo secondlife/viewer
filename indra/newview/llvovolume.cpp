@@ -1370,11 +1370,6 @@ void LLVOVolume::sculpt()
             sculpt_width = 0;
             sculpt_height = 0;
             sculpt_data = NULL ;
-
-            if(LLViewerTextureManager::sTesterp)
-            {
-                LLViewerTextureManager::sTesterp->updateGrayTextureBinding();
-            }
         }
         else
         {
@@ -1385,11 +1380,6 @@ void LLVOVolume::sculpt()
             sculpt_components = raw_image->getComponents();
 
             sculpt_data = raw_image->getData();
-
-            if(LLViewerTextureManager::sTesterp)
-            {
-                mSculptTexture->updateBindStatsForTester() ;
-            }
         }
 
         getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level, mSculptTexture->isMissingAsset());

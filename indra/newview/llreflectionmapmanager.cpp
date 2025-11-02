@@ -1078,7 +1078,7 @@ void LLReflectionMapManager::updateUniforms()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    LL_PROFILE_GPU_ZONE("rmmu - uniforms")
+    LL_PROFILE_GPU_ZONE("rmmu - uniforms");
 
 
     mReflectionMaps.resize(mReflectionProbeCount);

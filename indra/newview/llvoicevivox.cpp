@@ -7187,8 +7187,6 @@ LLVivoxProtocolParser::~LLVivoxProtocolParser()
         XML_ParserFree(parser);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_VIVOX_PROCESS("Vivox Process");
-
 // virtual
 LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
                                                       const LLChannelDescriptors& channels,
@@ -7197,7 +7195,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
                                                       LLSD& context,
                                                       LLPumpIO* pump)
 {
-    LL_RECORD_BLOCK_TIME(FTM_VIVOX_PROCESS);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
     LLBufferStream istr(channels, buffer.get());
     std::ostringstream ostr;
     while (istr.good())

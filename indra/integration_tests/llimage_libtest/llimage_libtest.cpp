@@ -43,8 +43,6 @@
 #include "v4coloru.h"
 #include "llsdserialize.h"
 #include "llcleanup.h"
-#include "lltrace.h"
-#include "llfasttimer.h"
 
 // system libraries
 #include <iostream>
@@ -91,18 +89,9 @@ static const char USAGE[] = "\n"
 "        Only valid for output j2c images.\n"
 " -f, --filter <file>\n"
 "        Apply the filter <file> to the input images.\n"
-" -log, --logmetrics <metric>\n"
-"        Log performance data for <metric>. Results in <metric>.slp\n"
-"        Note: so far, only ImageCompressionTester has been tested.\n"
-" -a, --analyzeperformance\n"
-"        Create a report comparing <metric>_baseline.slp with current <metric>.slp\n"
-"        Results in <metric>_report.csv\n"
 " -s, --image-stats\n"
 "        Output stats for each input and output image.\n"
 "\n";
-
-// true when all image loading is done. Used by metric logging thread to know when to stop the thread.
-static bool sAllDone = false;
 
 // Create an empty formatted image instance of the correct type from the filename
 LLPointer<LLImageFormatted> create_image(const std::string &filename)
@@ -315,34 +304,6 @@ void store_output_file(std::list<std::string> &output_filenames, std::list<std::
     }
 }
 
-// Holds the metric gathering output in a thread safe way
-class LogThread : public LLThread
-{
-public:
-    std::string mFile;
-
-    LogThread(std::string& test_name) : LLThread("llimage_libtest log")
-    {
-        std::string file_name = test_name + std::string(".slp");
-        mFile = file_name;
-    }
-
-    void run()
-    {
-        llofstream os(mFile.c_str());
-
-        while (!sAllDone)
-        {
-            LLFastTimer::writeLog(os);
-            os.flush();
-            ms_sleep(32);
-        }
-        LLFastTimer::writeLog(os);
-        os.flush();
-        os.close();
-    }
-};
-
 int main(int argc, char** argv)
 {
     // Call Tracy first thing to have it allocate memory
@@ -354,7 +315,6 @@ int main(int argc, char** argv)
     std::list<std::string> input_filenames;
     std::list<std::string> output_filenames;
     // Other optional parsed arguments
-    bool analyze_performance = false;
     bool image_stats = false;
     int* region = NULL;
     int discard_level = -1;
@@ -368,7 +328,6 @@ int main(int argc, char** argv)
     // Init whatever is necessary
     ll_init_apr();
     LLImage::initClass();
-    LogThread* fast_timer_log_thread = NULL;    // For performance and metric gathering
 
     // Analyze command line arguments
     for (int arg = 1; arg < argc; ++arg)
@@ -514,29 +473,6 @@ int main(int argc, char** argv)
         {
             reversible = true;
         }
-        else if (!strcmp(argv[arg], "--logmetrics") || !strcmp(argv[arg], "-log"))
-        {
-            // '--logmetrics' needs to be specified with a named test metric argument
-            // Note: for the moment, only ImageCompressionTester has been tested
-            std::string test_name;
-            if ((arg + 1) < argc)
-            {
-                test_name = argv[arg+1];
-            }
-            if (((arg + 1) >= argc) || (test_name[0] == '-'))
-            {
-                // We don't have an argument left in the arg list or the next argument is another option
-                std::cout << "No --logmetrics argument given, no perf data will be gathered" << std::endl;
-            }
-            else
-            {
-                LLFastTimer::sMetricLog = TRUE;
-                LLFastTimer::sLogName = test_name;
-                arg += 1;                   // Skip that arg now we know it's a valid test name
-                if ((arg + 1) == argc)      // Break out of the loop if we reach the end of the arg list
-                    break;
-            }
-        }
         else if (!strcmp(argv[arg], "--filter") || !strcmp(argv[arg], "-f"))
         {
             // '--filter' needs to be specified with a named filter argument
@@ -556,10 +492,6 @@ int main(int argc, char** argv)
                     break;
             }
         }
-        else if (!strcmp(argv[arg], "--analyzeperformance") || !strcmp(argv[arg], "-a"))
-        {
-            analyze_performance = true;
-        }
         else if (!strcmp(argv[arg], "--image-stats") || !strcmp(argv[arg], "-s"))
         {
             image_stats = true;
@@ -571,20 +503,6 @@ int main(int argc, char** argv)
     {
         std::cout << "No input file, nothing to do -> exit" << std::endl;
         return 0;
-    }
-    if (analyze_performance && !LLFastTimer::sMetricLog)
-    {
-        std::cout << "Cannot create perf report if no perf gathered (i.e. use argument -log <perf> with -a) -> exit" << std::endl;
-        return 0;
-    }
-
-
-    // Create the logging thread if required
-    if (LLTrace::BlockTimer::sMetricLog)
-    {
-        LLTrace::BlockTimer::setLogLock(new LLMutex());
-        fast_timer_log_thread = new LogThread(LLTrace::BlockTimer::sLogName);
-        fast_timer_log_thread->start();
     }
 
     // Load the filter once and for all
@@ -622,31 +540,8 @@ int main(int argc, char** argv)
         }
     }
 
-    // Output perf data if requested by user
-    if (analyze_performance)
-    {
-        std::string baseline_name = LLTrace::BlockTimer::sLogName + "_baseline.slp";
-        std::string current_name  = LLTrace::BlockTimer::sLogName + ".slp";
-        std::string report_name   = LLTrace::BlockTimer::sLogName + "_report.csv";
-
-        std::cout << "Analyzing performance, check report in : " << report_name << std::endl;
-
-        LLMetricPerformanceTesterBasic::doAnalysisMetrics(baseline_name, current_name, report_name);
-    }
-
-    // Stop the perf gathering system if needed
-    if (LLTrace::BlockTimer::sMetricLog)
-    {
-        LLMetricPerformanceTesterBasic::deleteTester(LLTrace::BlockTimer::sLogName);
-        sAllDone = true;
-    }
-
     // Cleanup and exit
     SUBSYSTEM_CLEANUP(LLImage);
-    if (fast_timer_log_thread)
-    {
-        fast_timer_log_thread->shutdown();
-    }
 
     return 0;
 }

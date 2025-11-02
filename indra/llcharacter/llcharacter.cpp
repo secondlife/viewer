@@ -32,7 +32,6 @@
 
 #include "llcharacter.h"
 #include "llstring.h"
-#include "llfasttimer.h"
 
 #define SKEL_HEADER "Linden Skeleton 1.0"
 

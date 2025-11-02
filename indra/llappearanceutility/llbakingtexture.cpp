@@ -73,9 +73,3 @@ void LLBakingTexture::forceImmediateUpdate()
 {
     LL_ERRS() << "Not implemented." << LL_ENDL;
 }
-
-void LLBakingTexture::updateBindStatsForTester()
-{
-    LL_ERRS() << "Not implemented." << LL_ENDL;
-}
-

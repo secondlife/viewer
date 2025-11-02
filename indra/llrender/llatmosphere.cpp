@@ -27,7 +27,6 @@
 #include "linden_common.h"
 
 #include "llatmosphere.h"
-#include "llfasttimer.h"
 #include "llsys.h"
 #include "llglheaders.h"
 #include "llrender.h"

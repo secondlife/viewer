@@ -28,7 +28,6 @@
 #include "lltrace.h"
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
-#include "llfasttimer.h"
 
 namespace LLTrace
 {
@@ -48,38 +47,6 @@ StatBase::StatBase( const char* name, const char* description )
 const char* StatBase::getUnitLabel() const
 {
     return "";
-}
-
-TimeBlockTreeNode::TimeBlockTreeNode()
-:   mBlock(NULL),
-    mParent(NULL),
-    mNeedsSorting(false),
-    mCollapsed(true)
-{}
-
-void TimeBlockTreeNode::setParent( BlockTimerStatHandle* parent )
-{
-    LL_PROFILE_ZONE_SCOPED;
-    llassert_always(parent != mBlock);
-    llassert_always(parent != NULL);
-
-    TimeBlockTreeNode* parent_tree_node = get_thread_recorder()->getTimeBlockTreeNode(narrow<size_t>(parent->getIndex()));
-    if (!parent_tree_node) return;
-
-    if (mParent)
-    {
-        std::vector<BlockTimerStatHandle*>& children = mParent->getChildren();
-        std::vector<BlockTimerStatHandle*>::iterator found_it = std::find(children.begin(), children.end(), mBlock);
-        if (found_it != children.end())
-        {
-            children.erase(found_it);
-        }
-    }
-
-    mParent = parent;
-    mBlock->getCurrentAccumulator().mParent = parent;
-    parent_tree_node->mChildren.push_back(mBlock);
-    parent_tree_node->mNeedsSorting = true;
 }
 
 }

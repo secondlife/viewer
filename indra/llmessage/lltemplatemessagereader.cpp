@@ -27,7 +27,6 @@
 #include "linden_common.h"
 #include "lltemplatemessagereader.h"
 
-#include "llfasttimer.h"
 #include "llmessagebuilder.h"
 #include "llmessagetemplate.h"
 #include "llmath.h"
@@ -531,12 +530,10 @@ void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host, const S3
     gMessageSystem->callExceptionFunc(MX_RAN_OFF_END_OF_PACKET);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_MESSAGES("Process Messages");
-
 // decode a given message
 bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender )
 {
-    LL_RECORD_BLOCK_TIME(FTM_PROCESS_MESSAGES);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
     llassert( mReceiveSize >= 0 );
     llassert( mCurrentRMessageTemplate);

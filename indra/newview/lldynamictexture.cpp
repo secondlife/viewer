@@ -184,6 +184,7 @@ void LLViewerDynamicTexture::postRender(bool success)
 bool LLViewerDynamicTexture::updateAllInstances()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+    LL_PROFILE_GPU_ZONE("llvdt - updateall");
 
     sNumRenders = 0;
     if (gGLManager.mIsDisabled)

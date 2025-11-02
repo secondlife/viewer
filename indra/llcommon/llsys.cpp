@@ -54,7 +54,6 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_float.hpp>
-#include "llfasttimer.h"
 
 using namespace llsd;
 

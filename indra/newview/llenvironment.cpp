@@ -35,8 +35,6 @@
 #include "llviewerregion.h"
 #include "llwlhandlers.h"
 #include "lltrans.h"
-#include "lltrace.h"
-#include "llfasttimer.h"
 #include "llviewercamera.h"
 #include "pipeline.h"
 #include "llsky.h"
@@ -102,8 +100,6 @@ namespace
     const std::string LOCAL_ENV_STORAGE_FILE("local_environment_data.bin");
 
     //---------------------------------------------------------------------
-    LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
-
     LLSettingsBase::Seconds         DEFAULT_UPDATE_THRESHOLD(10.0);
     const LLSettingsBase::Seconds   MINIMUM_SPANLENGTH(0.01f);
 
@@ -1669,7 +1665,7 @@ extern bool gCubeSnapshot;
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT; //LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     //F32Seconds now(LLDate::now().secondsSinceEpoch());
     if (!gCubeSnapshot)
     {

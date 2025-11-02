@@ -176,7 +176,6 @@
 #include "llxfermanager.h"
 #include "pipeline.h"
 #include "llappviewer.h"
-#include "llfasttimerview.h"
 #include "llfloatermap.h"
 #include "llweb.h"
 #include "llvoiceclient.h"
@@ -1804,7 +1803,7 @@ bool idle_startup()
     //---------------------------------------------------------------------
     if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
     {
-        LL_PROFILE_ZONE_NAMED("State inventory send")
+        LL_PROFILE_ZONE_NAMED("State inventory send");
         do_startup_frame();
 
         // request mute list
@@ -1855,14 +1854,14 @@ bool idle_startup()
 
     if (STATE_INVENTORY_SKEL == LLStartUp::getStartupState())
     {
-        LL_PROFILE_ZONE_NAMED("State inventory load skeleton")
+        LL_PROFILE_ZONE_NAMED("State inventory load skeleton");
 
         LLSD response = LLLoginInstance::getInstance()->getResponse();
 
         LLSD inv_skel_lib = response["inventory-skel-lib"];
         if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
         {
-            LL_PROFILE_ZONE_NAMED("load library inv")
+            LL_PROFILE_ZONE_NAMED("load library inv");
             if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
             {
                 LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
@@ -1873,7 +1872,7 @@ bool idle_startup()
         LLSD inv_skeleton = response["inventory-skeleton"];
         if (inv_skeleton.isDefined())
         {
-            LL_PROFILE_ZONE_NAMED("load personal inv")
+            LL_PROFILE_ZONE_NAMED("load personal inv");
             if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
             {
                 LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
@@ -1887,7 +1886,7 @@ bool idle_startup()
 
     if (STATE_INVENTORY_SEND2 == LLStartUp::getStartupState())
     {
-        LL_PROFILE_ZONE_NAMED("State inventory send2")
+        LL_PROFILE_ZONE_NAMED("State inventory send2");
 
         LLSD response = LLLoginInstance::getInstance()->getResponse();
 

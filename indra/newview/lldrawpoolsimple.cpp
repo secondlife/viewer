@@ -38,10 +38,6 @@
 #include "llrender.h"
 #include "gltfscenemanager.h"
 
-static LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE_DEFERRED("Deferred Simple");
-static LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
-
-
 void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -75,8 +71,6 @@ LLDrawPoolSimple::LLDrawPoolSimple() :
 {
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK("Alpha Mask");
-
 LLDrawPoolAlphaMask::LLDrawPoolAlphaMask() :
     LLRenderPass(POOL_ALPHA_MASK)
 {
@@ -98,7 +92,7 @@ S32 LLDrawPoolSimple::getNumDeferredPasses()
 
 void LLDrawPoolSimple::renderDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SIMPLE_DEFERRED);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLGLDisable blend(GL_BLEND);
 
     //render static
@@ -110,12 +104,9 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
     pushRiggedBatches(LLRenderPass::PASS_SIMPLE_RIGGED, true, true);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK_DEFERRED("Deferred Alpha Mask");
-
-
 void LLDrawPoolAlphaMask::renderDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK_DEFERRED);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLGLSLShader* shader = &gDeferredDiffuseAlphaMaskProgram;
 
     //render static
@@ -155,7 +146,7 @@ LLDrawPoolFullbright::LLDrawPoolFullbright() :
 
 void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_FULLBRIGHT);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
     LLGLSLShader* shader = nullptr;
     if (LLPipeline::sRenderingHUDs)
@@ -183,7 +174,7 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
 
 void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_FULLBRIGHT);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
     // render unrigged unlit GLTF
     LL::GLTFSceneManager::instance().render(true, false, true);

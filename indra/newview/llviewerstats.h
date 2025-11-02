@@ -215,8 +215,21 @@ extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SN
 
 extern LLTrace::EventStatHandle<>   LOADING_WEARABLES_LONG_DELAY;
 
+extern LLTrace::SampleStatHandle<F64Milliseconds> FRAMETIME_JITTER,
+    FRAMETIME,
+    FRAMETIME_JITTER_99TH,
+    FRAMETIME_JITTER_95TH,
+    FRAMETIME_99TH,
+    FRAMETIME_95TH,
+    FRAMETIME_JITTER_CUMULATIVE,
+    FRAMETIME_JITTER_STDDEV,
+    FRAMETIME_STDDEV;
+
+extern LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS,
+    FRAMETIME_JITTER_EVENTS_PER_MINUTE,
+    FRAMETIME_JITTER_EVENTS_LAST_MINUTE;
+
 extern LLTrace::EventStatHandle<F64Milliseconds >   REGION_CROSSING_TIME,
-                                                        FRAME_STACKTIME,
                                                         UPDATE_STACKTIME,
                                                         NETWORK_STACKTIME,
                                                         IMAGE_STACKTIME,

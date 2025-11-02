@@ -58,7 +58,6 @@
 #include "lldefs.h"
 #include "lldepthstack.h"
 #include "llerror.h"
-#include "llfasttimer.h"
 #include "llframetimer.h"
 #include "llinstancetracker.h"
 #include "llpointer.h"

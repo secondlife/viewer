@@ -50,7 +50,6 @@
 #include "llversioninfo.h"
 #include "llfloatertools.h"
 #include "lldebugview.h"
-#include "llfasttimerview.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -242,7 +241,6 @@ LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("age
 LLTrace::EventStatHandle<>  LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay", "Wearables took too long to load");
 
 LLTrace::EventStatHandle<F64Milliseconds >  REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
-                                                                FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
                                                                 UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
                                                                 NETWORK_STACKTIME("networkstacktime", "NETWORK_SECS"),
                                                                 IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
@@ -474,10 +472,6 @@ void update_statistics()
     sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
     sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
     sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
-
-    typedef LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t stat_type_t;
-
-    record(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Frame")));
 
     if (gAgent.getRegion() && isAgentAvatarValid())
     {

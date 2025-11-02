@@ -42,7 +42,6 @@
 #include "lldrawpoolwater.h"
 #include "lldynamictexture.h"
 #include "llenvironment.h"
-#include "llfasttimer.h"
 #include "llfeaturemanager.h"
 #include "llfloatertools.h"
 #include "llfocusmgr.h"
@@ -141,6 +140,8 @@ std::string getProfileStatsFilename();
 
 void display_startup()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("display_startup");
     if (   !gViewerWindow
         || !gViewerWindow->getActive()
         || !gViewerWindow->getWindow()->getVisible()
@@ -150,14 +151,18 @@ void display_startup()
         return;
     }
 
-    gPipeline.updateGL();
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("ds - updateGL");
+        LL_PROFILE_GPU_ZONE("ds - updateGL");
+        gPipeline.updateGL();
+    }
 
     // Written as branch to appease GCC which doesn't like different
     // pointer types across ternary ops
     //
     if (!LLViewerFetchedTexture::sWhiteImagep.isNull())
     {
-    LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
+        LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
     }
 
     LLGLSDefault gls_default;
@@ -183,9 +188,10 @@ void display_startup()
     gPipeline.disableLights();
 
     if (gViewerWindow)
-    gViewerWindow->setup2DRender();
-    if (gViewerWindow)
-    gViewerWindow->draw();
+    {
+        gViewerWindow->setup2DRender();
+        gViewerWindow->draw();
+    }
     gGL.flush();
 
     LLVertexBuffer::unbind();
@@ -193,7 +199,9 @@ void display_startup()
     LLGLState::checkStates();
 
     if (gViewerWindow && gViewerWindow->getWindow())
-    gViewerWindow->getWindow()->swapBuffers();
+    {
+        gViewerWindow->getWindow()->swapBuffers();
+    }
 
     glClear(GL_DEPTH_BUFFER_BIT);
 }
@@ -714,7 +722,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         if (gPipeline.RenderMirrors && !gSnapshot)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
-            LL_PROFILE_GPU_ZONE("hero manager")
+            LL_PROFILE_GPU_ZONE("hero manager");
             gPipeline.mHeroProbeManager.update();
             gPipeline.mHeroProbeManager.renderProbes();
         }
@@ -790,7 +798,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
 
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 2")
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 2");
             if (gResizeScreenTexture)
             {
                 gPipeline.resizeScreenTexture();
@@ -881,7 +889,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         //
         LLAppViewer::instance()->pingMainloopTimeout("Display:StateSort");
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 4")
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 4");
             LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
             gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
             stop_glerror();
@@ -906,7 +914,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
         {
             LLAppViewer::instance()->pingMainloopTimeout("Display:Sky");
-            LL_PROFILE_ZONE_NAMED_CATEGORY_ENVIRONMENT("update sky"); //LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKY);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_ENVIRONMENT("update sky");
             gSky.updateSky();
         }
 
@@ -982,7 +990,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
                 && !gRestoreGL)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 5")
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 5");
             LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
             static LLCachedControl<bool> render_depth_pre_pass(gSavedSettings, "RenderDepthPrePass", false);
@@ -1466,7 +1474,7 @@ bool setup_hud_matrices(const LLRect& screen_region)
 void render_ui(F32 zoom_factor, int subfield)
 {
     LLPerfStats::RecordSceneTime T ( LLPerfStats::StatType_t::RENDER_UI ); // render time capture - Primary UI stat can have HUD time overlap (TODO)
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LL_PROFILE_GPU_ZONE("ui");
     LLGLState::checkStates();
 
@@ -1513,7 +1521,7 @@ void render_ui(F32 zoom_factor, int subfield)
         {
             if (!gDisconnected)
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
+                LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D");
                 LLGLState::checkStates();
                 render_ui_3d();
                 LLGLState::checkStates();
@@ -1531,7 +1539,7 @@ void render_ui(F32 zoom_factor, int subfield)
 
         if (render_ui)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 2D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_2D);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 2D");
             LLHUDObject::renderAll();
             render_ui_2d();
         }

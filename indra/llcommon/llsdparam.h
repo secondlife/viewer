@@ -30,7 +30,6 @@
 
 #include "llinitparam.h"
 #include "boost/function.hpp"
-#include "llfasttimer.h"
 
 struct LL_COMMON_API LLParamSDParserUtilities
 {

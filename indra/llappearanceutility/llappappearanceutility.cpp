@@ -206,7 +206,6 @@ LLAppAppearanceUtility::LLAppAppearanceUtility(int argc, char** argv) :
     mOutput(nullptr),
     mAppName(argv[0]),
     mDebugMode(false),
-    mTreeMapThreshold(1),
     mBakeTextureSize(512)
 {
 }
@@ -298,12 +297,6 @@ void LLAppAppearanceUtility::parseArguments()
         //  break;
         case 'd':
             mDebugMode = true;
-            break;
-        case 'm':
-            mTreeMapFilename.assign(opt_arg);
-            break;
-        case 's':
-            mTreeMapThreshold = atoi(opt_arg);
             break;
         default:
             usage(std::cerr);
@@ -457,7 +450,6 @@ bool LLAppAppearanceUtility::init()
     LLError::initForApplication(".", ".", true);
     if (mDebugMode)
     {
-        mRecording.start();
         LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
     }
     else
@@ -490,162 +482,11 @@ bool LLAppAppearanceUtility::init()
     return true;
 }
 
-
-void add_cluster(LLTrace::Recording& recording, std::ostream& tree, LLTrace::BlockTimerStatHandle& node, std::vector < S32 > & clusters, F64Milliseconds threshold)
-{
-    LLMD5 hash;
-    hash.update((const unsigned char*)node.getName().c_str(), node.getName().size());
-    hash.finalize();
-    char buf[33];
-    hash.hex_digest(buf);
-    buf[6] = 0;
-    LLColor3 color(buf);
-    if (color.brightness() < 0.25f)
-    {
-        color.normalize();
-    }
-    std::ostringstream color_str;
-    color_str << "#" << std::hex << std::setfill('0') << std::setw(2)
-              << (S32) F32_to_U8(color.mV[0], 0.0f, 1.0f)
-              << (S32) F32_to_U8(color.mV[1], 0.0f, 1.0f)
-              << (S32) F32_to_U8(color.mV[2], 0.0f, 1.0f);
-
-    std::vector<S32>::iterator iter = clusters.begin();
-    std::vector<S32>::iterator end  = clusters.end();
-    std::ostringstream padding;
-    for(; iter != end; ++iter)
-    {
-        padding << "  ";
-    }
-
-    std::ostringstream node_id;
-    bool first = true;
-    iter = clusters.begin();
-    for(; iter != end; ++iter)
-    {
-        if (!first)
-        {
-            node_id << "_";
-        }
-        first = false;
-        node_id << (*iter);
-    }
-
-    if (node.getChildren().size() == 0)
-    {
-        F64Milliseconds leaf_time_ms(recording.getSum(node));
-        if (leaf_time_ms > threshold)
-        {
-            tree << padding.str() << "n" << node_id.str() << " ["
-                 << "label=\"" << node.getName() << " (" << leaf_time_ms.value() << ")\" "
-                 << "fillcolor=\"" << color_str.str() << "\" "
-                 << "area=" << leaf_time_ms.value() / 10 << "]" << std::endl;
-        }
-    }
-    else
-    {
-        if (clusters.size())
-        {
-            tree << padding.str() << "subgraph cluster" << node_id.str();
-            tree << " {" << std::endl;
-        }
-
-        S32Milliseconds node_area(recording.getSum(node));
-        std::vector<LLTrace::BlockTimerStatHandle*>::iterator child_iter = node.getChildren().begin();
-        for (S32 num=0; child_iter != node.getChildren().end(); ++child_iter, ++num)
-        {
-            clusters.push_back(num);
-            add_cluster(recording, tree, *(*child_iter), clusters, threshold);
-            clusters.pop_back();
-            node_area -= recording.getSum(*(*child_iter));
-        }
-
-        S32Milliseconds node_time_ms(node_area);
-        if (node_time_ms > threshold)
-        {
-            tree << padding.str() << "n" << node_id.str() << " ["
-                 << "label=\"" << node.getName() << " (" << node_time_ms.value() << ")\" "
-                 << "fillcolor=\"" << color_str.str() << "\" "
-                 << "area=" << node_time_ms.value() / 10 << "]" << std::endl;
-        }
-        if (clusters.size())
-        {
-            tree << padding.str() << "}" << std::endl;;
-        }
-    }
-}
-
 bool LLAppAppearanceUtility::cleanup()
 {
     if (mProcess)
     {
         mProcess->cleanup();
-    }
-
-    // Spam fast timer information in debug mode.
-    if (mDebugMode)
-    {
-        mRecording.stop();
-        LLTrace::BlockTimer::processTimes();
-
-        S32Milliseconds max_time_ms(0);
-        for (LLTrace::block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(LLTrace::BlockTimer::getRootTimeBlock());
-            it != LLTrace::end_block_timer_tree_df();
-            ++it)
-        {
-            LLTrace::BlockTimerStatHandle* idp = (*it);
-            // Skip near-zero time leafs.
-            S32Milliseconds leaf_time_ms(mRecording.getSum(*idp));
-            if (leaf_time_ms > max_time_ms) max_time_ms = leaf_time_ms;
-            if ((S32Milliseconds)0 == leaf_time_ms) continue;
-
-            std::vector< LLTrace::BlockTimerStatHandle*  > parents;
-            LLTrace::BlockTimerStatHandle* parentp = idp->getParent();
-            while (parentp)
-            {
-                parents.push_back(parentp);
-                if (parentp->getParent() == parentp) break;
-                parentp = parentp->getParent();
-            }
-
-            std::ostringstream fullname;
-            bool is_first = true;
-            for ( std::vector< LLTrace::BlockTimerStatHandle*  >::reverse_iterator iter = parents.rbegin();
-                  iter != parents.rend(); ++iter)
-            {
-                // Skip root
-                if (is_first)
-                {
-                    is_first = false;
-                    continue;
-                }
-                LLTrace::BlockTimerStatHandle* parent_idp = (*iter);
-                U32Milliseconds time_ms(mRecording.getSum(parent_idp->selfTime()));
-                fullname << parent_idp->getName() << " ";
-                fullname << "(";
-                if (time_ms > (U32Milliseconds)0)
-                {
-                    fullname << time_ms.value() << " ms, ";
-                }
-                fullname << mRecording.getSum(parent_idp->callCount()) << " call)-> ";
-            }
-            LL_DEBUGS() << fullname.str() << LL_ENDL;
-        }
-        if (!mTreeMapFilename.empty())
-        {
-            std::ofstream tree(mTreeMapFilename.c_str());
-            tree << "graph G {" << std::endl;
-            tree << "  node[style=filled]" << std::endl;
-
-            LLTrace::BlockTimerStatHandle& root = LLTrace::BlockTimer::getRootTimeBlock();
-            std::vector<S32> clusters;
-            add_cluster(mRecording, tree, root, clusters, (((F32) mTreeMapThreshold / 100.f) * max_time_ms) );
-
-            tree << "}" << std::endl;
-
-            LL_DEBUGS() << "To generate a treemap of LLFrameTimer results, run:" << LL_ENDL;
-            LL_DEBUGS() << "patchwork " << mTreeMapFilename << " -Tpng > rendered.png" << LL_ENDL;
-        }
     }
 
     LLAvatarAppearance::cleanupClass();

@@ -65,7 +65,6 @@ set(llcommon_SOURCE_FILES
     llmemory.cpp
     llmemorystream.cpp
     llmetrics.cpp
-    llmetricperformancetester.cpp
     llmortician.cpp
     llmutex.cpp
     llptrto.cpp
@@ -85,7 +84,6 @@ set(llcommon_SOURCE_FILES
     llsdutil.cpp
     llsingleton.cpp
     llstacktrace.cpp
-    llstreamqueue.cpp
     llstreamtools.cpp
     llstring.cpp
     llstringtable.cpp
@@ -185,7 +183,6 @@ set(llcommon_HEADER_FILES
     llmemory.h
     llmemorystream.h
     llmetrics.h
-    llmetricperformancetester.h
     llmortician.h
     llmutex.h
     llnametable.h
@@ -217,7 +214,6 @@ set(llcommon_HEADER_FILES
     llsingleton.h
     llstacktrace.h
     llstl.h
-    llstreamqueue.h
     llstreamtools.h
     llstrider.h
     llstring.h
@@ -249,7 +245,6 @@ set(llcommon_HEADER_FILES
     threadpool.h
     threadpool_fwd.h
     threadsafeschedule.h
-    timer.h
     tuple.h
     u64.h
     workqueue.h
@@ -338,7 +333,6 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltrace "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")

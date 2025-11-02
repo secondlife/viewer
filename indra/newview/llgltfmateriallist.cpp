@@ -623,7 +623,7 @@ LLFetchedGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
     uuid_mat_map_t::iterator iter = mList.find(id);
     if (iter == mList.end())
     {
-        LL_PROFILE_ZONE_NAMED("gltf fetch")
+        LL_PROFILE_ZONE_NAMED("gltf fetch");
         LLFetchedGLTFMaterial* mat = new LLFetchedGLTFMaterial();
         mList[id] = mat;
 

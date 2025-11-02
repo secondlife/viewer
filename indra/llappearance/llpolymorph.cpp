@@ -35,7 +35,6 @@
 #include "llxmltree.h"
 #include "llendianswizzle.h"
 #include "llpolymesh.h"
-#include "llfasttimer.h"
 
 //#include "../tools/imdebug/imdebug.h"
 

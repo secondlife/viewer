@@ -29,13 +29,11 @@
 
 #include "llimage.h"
 #include "llassettype.h"
-#include "llmetricperformancetester.h"
 
 // JPEG2000 : compression rate used in j2c conversion.
 const F32 DEFAULT_COMPRESSION_RATE = 1.f/8.f;
 
 class LLImageJ2CImpl;
-class LLImageCompressionTester ;
 
 class LLImageJ2C : public LLImageFormatted
 {
@@ -96,9 +94,6 @@ protected:
     bool mReversible;
     std::unique_ptr<LLImageJ2CImpl> mImpl;
     std::string mLastError;
-
-    // Image compression/decompression tester
-    static LLImageCompressionTester* sTesterp;
 };
 
 // Derive from this class to implement JPEG2000 decoding
@@ -130,43 +125,5 @@ protected:
 };
 
 #define LINDEN_J2C_COMMENT_PREFIX "LL_" // Used by LLAppearanceUtility
-
-//
-// This class is used for performance data gathering only.
-// Tracks the image compression / decompression data,
-// records and outputs them to the log file.
-//
-class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
-{
-    public:
-        LLImageCompressionTester();
-        ~LLImageCompressionTester();
-
-        void updateDecompressionStats(const F32 deltaTime) ;
-        void updateDecompressionStats(const S32 bytesIn, const S32 bytesOut) ;
-        void updateCompressionStats(const F32 deltaTime) ;
-        void updateCompressionStats(const S32 bytesIn, const S32 bytesOut) ;
-
-    protected:
-        /*virtual*/ void outputTestRecord(LLSD* sd);
-
-    private:
-        //
-        // Data size
-        //
-        U32 mTotalBytesInDecompression;     // Total bytes fed to decompressor
-        U32 mTotalBytesOutDecompression;    // Total bytes produced by decompressor
-        U32 mTotalBytesInCompression;       // Total bytes fed to compressor
-        U32 mTotalBytesOutCompression;      // Total bytes produced by compressor
-        U32 mRunBytesInDecompression;       // Bytes fed to decompressor in this run
-        U32 mRunBytesOutDecompression;      // Bytes produced by the decompressor in this run
-        U32 mRunBytesInCompression;         // Bytes fed to compressor in this run
-        //
-        // Time
-        //
-        F32 mTotalTimeDecompression;        // Total time spent in computing decompression
-        F32 mTotalTimeCompression;          // Total time spent in computing compression
-        F32 mRunTimeDecompression;          // Time in this run (we output every 5 sec in decompress)
-    };
 
 #endif

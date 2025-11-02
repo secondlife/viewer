@@ -28,7 +28,6 @@
 #include "lltracerecording.h"
 
 #include "lltrace.h"
-#include "llfasttimer.h"
 #include "lltracethreadrecorder.h"
 #include "llthread.h"
 
@@ -164,67 +163,6 @@ void Recording::appendRecording( Recording& other )
     mBuffers.write()->append(*other.mBuffers);
     mElapsedSeconds += other.mElapsedSeconds;
 #endif
-}
-
-bool Recording::hasValue(const StatType<TimeBlockAccumulator>& stat)
-{
-    update();
-    const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return accumulator.hasValue() || (active_accumulator && active_accumulator->hasValue());
-}
-
-F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator>& stat)
-{
-    update();
-    const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return F64Seconds((F64)(accumulator.mTotalTimeCounter) + (F64)(active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
-                / (F64)LLTrace::BlockTimer::countsPerSecond();
-}
-
-F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat)
-{
-    update();
-    const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return F64Seconds(((F64)(accumulator.mSelfTimeCounter) + (F64)(active_accumulator ? active_accumulator->mSelfTimeCounter : 0)) / (F64)LLTrace::BlockTimer::countsPerSecond());
-}
-
-S32 Recording::getSum(const StatType<TimeBlockAccumulator::CallCountFacet>& stat)
-{
-    update();
-    const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return accumulator.mCalls + (active_accumulator ? active_accumulator->mCalls : 0);
-}
-
-F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator>& stat)
-{
-    update();
-    const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-
-    return F64Seconds((F64)(accumulator.mTotalTimeCounter + (active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
-                / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds.value()));
-}
-
-F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat)
-{
-    update();
-    const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-
-    return F64Seconds((F64)(accumulator.mSelfTimeCounter + (active_accumulator ? active_accumulator->mSelfTimeCounter : 0))
-            / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds.value()));
-}
-
-F32 Recording::getPerSec(const StatType<TimeBlockAccumulator::CallCountFacet>& stat)
-{
-    update();
-    const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return (F32)(accumulator.mCalls + (active_accumulator ? active_accumulator->mCalls : 0)) / (F32)mElapsedSeconds.value();
 }
 
 bool Recording::hasValue(const StatType<CountAccumulator>& stat)

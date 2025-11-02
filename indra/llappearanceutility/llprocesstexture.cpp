@@ -68,12 +68,11 @@ void LLProcessTexture::cleanup()
     delete mWindow;
 }
 
-static LLFastTimer::DeclareTimer FTM_CREATE_TEXTURE_FROM_STREAM("Create texture from stream.");
 static LLPointer<LLImageRaw> create_texture_from_stream(std::istream& input,
                                                              S32 texture_size,
                                                              const LLUUID& id)
 {
-    LL_RECORD_BLOCK_TIME(FTM_CREATE_TEXTURE_FROM_STREAM);
+    LL_PROFILE_ZONE_SCOPED;
     // Read compressed j2c texture data from the input stream.
     U8* buffer = (U8*) ll_aligned_malloc_16(texture_size);
     input.read((char*) buffer, texture_size);

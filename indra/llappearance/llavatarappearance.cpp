@@ -884,7 +884,7 @@ void LLAvatarAppearance::buildCharacter()
 
 bool LLAvatarAppearance::loadAvatar()
 {
-//  LL_RECORD_BLOCK_TIME(FTM_LOAD_AVATAR);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     // avatar_skeleton.xml
     if( !buildSkeleton(sAvatarSkeletonInfo) )

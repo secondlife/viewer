@@ -26,7 +26,6 @@
 
 #include "linden_common.h"
 
-#include "llfasttimer.h"
 #include "llsys.h"
 #include "llvertexbuffer.h"
 // #include "llrender.h"

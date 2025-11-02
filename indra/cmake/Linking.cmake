@@ -65,7 +65,6 @@ elseif (WINDOWS)
           ole32
           dbghelp
           rpcrt4.lib
-          legacy_stdio_definitions
           )
 else()
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)

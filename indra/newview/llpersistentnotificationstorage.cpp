@@ -90,7 +90,7 @@ void LLPersistentNotificationStorage::saveNotifications()
 
 void LLPersistentNotificationStorage::loadNotifications()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
 

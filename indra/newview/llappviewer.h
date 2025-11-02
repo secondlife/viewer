@@ -64,8 +64,6 @@ class LLViewerJoystick;
 class LLPurgeDiskCacheThread;
 class LLViewerRegion;
 
-extern LLTrace::BlockTimerStatHandle FTM_FRAME;
-
 typedef enum
 {
     LAST_EXEC_NORMAL = 0,
@@ -361,9 +359,6 @@ private:
     struct SettingsFiles* mSettingsLocationList;
 
     LLWatchdogTimeout* mMainloopTimeout;
-
-    // For performance and metric gathering
-    class LLThread* mFastTimerLogThread;
 
     // for tracking viewer<->region circuit death
     bool mAgentRegionLastAlive;

@@ -30,7 +30,6 @@
 
 #include "lldrawpoolalpha.h"
 
-#include "llfasttimer.h"
 #include "message.h"
 #include "v2math.h"
 

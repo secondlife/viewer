@@ -92,11 +92,9 @@ void LLFilteredWearableListManager::populateIfNeeded()
     }
 }
 
-LLTrace::BlockTimerStatHandle FTM_MANAGER_LIST_POPULATION("Manager List Population");
-
 void LLFilteredWearableListManager::populateList()
 {
-    LL_RECORD_BLOCK_TIME(FTM_MANAGER_LIST_POPULATION);
+    LL_PROFILE_ZONE_SCOPED;
 
     LLInventoryModel::cat_array_t cat_array;
     LLInventoryModel::item_array_t item_array;

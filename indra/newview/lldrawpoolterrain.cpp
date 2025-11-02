@@ -28,8 +28,6 @@
 
 #include "lldrawpoolterrain.h"
 
-#include "llfasttimer.h"
-
 #include "llagent.h"
 #include "llviewercontrol.h"
 #include "lldrawable.h"
@@ -58,8 +56,6 @@ S32 LLDrawPoolTerrain::sPBRDetailMode = 0;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
 F32 LLDrawPoolTerrain::sPBRDetailScale = DETAIL_SCALE;
 static LLGLSLShader* sShader = NULL;
-static LLTrace::BlockTimerStatHandle FTM_SHADOW_TERRAIN("Terrain Shadow");
-
 
 LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
     LLFacePool(POOL_TERRAIN),
@@ -121,20 +117,20 @@ void LLDrawPoolTerrain::boostTerrainDetailTextures()
 
 void LLDrawPoolTerrain::beginDeferredPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLFacePool::beginRenderPass(pass);
 }
 
 void LLDrawPoolTerrain::endDeferredPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLFacePool::endRenderPass(pass);
     sShader->unbind();
 }
 
 void LLDrawPoolTerrain::renderDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     if (mDrawFace.empty())
     {
         return;
@@ -154,7 +150,7 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 
 void LLDrawPoolTerrain::beginShadowPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLFacePool::beginRenderPass(pass);
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     gDeferredShadowProgram.bind();
@@ -165,14 +161,14 @@ void LLDrawPoolTerrain::beginShadowPass(S32 pass)
 
 void LLDrawPoolTerrain::endShadowPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLFacePool::endRenderPass(pass);
     gDeferredShadowProgram.unbind();
 }
 
 void LLDrawPoolTerrain::renderShadow(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     if (mDrawFace.empty())
     {
         return;

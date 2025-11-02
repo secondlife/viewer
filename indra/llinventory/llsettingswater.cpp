@@ -28,8 +28,6 @@
 
 #include "llsettingswater.h"
 #include <algorithm>
-#include "lltrace.h"
-#include "llfasttimer.h"
 #include "v3colorutil.h"
 #include "indra_constants.h"
 #include <boost/bind.hpp>

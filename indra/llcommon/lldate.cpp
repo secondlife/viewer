@@ -39,7 +39,6 @@
 
 #include "lltimer.h"
 #include "llstring.h"
-#include "llfasttimer.h"
 
 static const F64 LL_APR_USEC_PER_SEC = 1000000.0;
     // should be APR_USEC_PER_SEC, but that relies on INT64_C which

@@ -735,11 +735,9 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID& request_i
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BULK_FETCH("Bulk Fetch");
-
 void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
 {
-    LL_RECORD_BLOCK_TIME(FTM_BULK_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_INVENTORY;
     //Background fetch is called from gIdleCallbacks in a loop until background fetch is stopped.
     if (gDisconnected)
     {
@@ -1055,7 +1053,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
 // Bundle up a bunch of requests to send all at once.
 void LLInventoryModelBackgroundFetch::bulkFetch()
 {
-    LL_RECORD_BLOCK_TIME(FTM_BULK_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_INVENTORY;
     //Background fetch is called from gIdleCallbacks in a loop until background fetch is stopped.
     //If there are items in mFetchQueue, we want to check the time since the last bulkFetch was
     //sent.  If it exceeds our retry time, go ahead and fire off another batch.

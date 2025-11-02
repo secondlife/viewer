@@ -1240,8 +1240,6 @@ void LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_ARRANGE("Arrange");
-
 // Make everything right and in the right place ready for drawing (CHUI-849)
 // * Sort everything correctly if necessary
 // * Turn widgets visible/invisible according to their model filtering state
@@ -1251,14 +1249,14 @@ static LLTrace::BlockTimerStatHandle FTM_ARRANGE("Arrange");
 // * Makes sure that this view and its children are the right size
 S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
     // Sort before laying out contents
     // Note that we sort from the root (CHUI-849)
     if (mAreChildrenInited)
     {
         getRoot()->getFolderViewModel()->sort(this);
     }
-
-    LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
 
     // evaluate mHasVisibleChildren
     mHasVisibleChildren = false;
@@ -1292,8 +1290,6 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
     {
         mIsFolderComplete = getFolderViewModel()->isFolderComplete(this);
     }
-
-
 
     // calculate height as a single item (without any children), and reshapes rectangle to match
     LLFolderViewItem::arrange( width, height );
