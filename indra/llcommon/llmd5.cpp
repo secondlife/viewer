@@ -255,7 +255,7 @@ void LLMD5::raw_digest(unsigned char* s) const
     memcpy(s, digest, 16); /* Flawfinder: ignore */
 }
 
-#if LL_DARWIN
+#if LL_CLANG
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -280,7 +280,7 @@ void LLMD5::hex_digest(char* s) const
     s[32] = '\0';
 }
 
-#if LL_DARWIN
+#if LL_CLANG
 #pragma clang diagnostic pop
 #endif
 

@@ -122,16 +122,27 @@
 #include "SMAAAreaTex.h"
 #include "SMAASearchTex.h"
 #include "llerror.h"
-#ifndef LL_WINDOWS
-#define A_GCC 1
+
+#if LL_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#elif LL_GNUC
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#if LL_LINUX
 #pragma GCC diagnostic ignored "-Wrestrict"
 #endif
+#ifndef LL_WINDOWS
+#define A_GCC 1
 #endif
 #define A_CPU 1
 #include "app_settings/shaders/class1/deferred/CASF.glsl" // This is also C++
+#if LL_CLANG
+#pragma clang diagnostic pop
+#elif LL_GNUC
+#pragma GCC diagnostic pop
+#endif
 
 extern bool gSnapshot;
 bool gShiftFrame = false;

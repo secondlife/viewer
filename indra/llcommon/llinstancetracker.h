@@ -246,9 +246,7 @@ public:
     }
 
 protected:
-#if LL_CLANG || LL_GNUC
-    __attribute__((no_sanitize("vptr")))
-#endif
+    LL_UBSAN_SUPRESS_VPTR
     LLInstanceTracker(const KEY& key)
     {
         // We do not intend to manage the lifespan of this object with
@@ -487,9 +485,7 @@ public:
     using key_snapshot_of = instance_snapshot_of<SUBCLASS>;
 
 protected:
-#if LL_CLANG || LL_GNUC
-    __attribute__((no_sanitize("vptr")))
-#endif
+    LL_UBSAN_SUPRESS_VPTR
     LLInstanceTracker()
     {
         // Since we do not intend for this shared_ptr to manage lifespan, give

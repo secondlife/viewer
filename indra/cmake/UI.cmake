@@ -15,6 +15,7 @@ if (LINUX)
   pkg_check_modules(WAYLAND_CLIENT wayland-client)
 
   if(WAYLAND_CLIENT_FOUND)
+      target_include_directories(ll::uilibraries INTERFACE ${WAYLAND_CLIENT_INCLUDE_DIRS})
       target_compile_definitions(ll::uilibraries INTERFACE LL_WAYLAND=1)
   else()
       message("pkgconfig could not find wayland client, compiling without full wayland support")

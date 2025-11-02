@@ -58,12 +58,6 @@
 #include "llmeshrepository.h"
 #include "llskinningutil.h"
 
-#if LL_LINUX
-// Work-around spurious used before init warning on Vector4a
-//
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#endif
-
 #define LL_MAX_INDICES_COUNT 1000000
 
 static LLStaticHashedString sTextureIndexIn("texture_index_in");
