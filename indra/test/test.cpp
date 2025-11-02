@@ -505,6 +505,11 @@ static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 
 int main(int argc, char **argv)
 {
+    // Call Tracy first thing to have it allocate memory
+    // https://github.com/wolfpld/tracy/issues/196
+    LL_PROFILER_FRAME_END;
+    LL_PROFILER_SET_THREAD_NAME("App");
+
     ll_init_apr();
     apr_getopt_t* os = NULL;
     if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
