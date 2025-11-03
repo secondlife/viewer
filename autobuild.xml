@@ -1730,11 +1730,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>795d1e60f3e1e9092788214a6750e6506391cac5</string>
+              <string>612bfcb7cf0e6afaf7ce7f1db6feccd81137eb99</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r6/open_libndofdev-0.14.18543500856-linux64-18543500856.tar.zst</string>
+              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r7/open_libndofdev-0.14.19022717849-linux64-19022717849.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1747,7 +1747,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
         <key>version</key>
-        <string>0.14.18543500856</string>
+        <string>0.14.19022717849</string>
         <key>name</key>
         <string>open-libndofdev</string>
         <key>description</key>
