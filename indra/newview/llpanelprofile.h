@@ -111,6 +111,8 @@ public:
 
     void processProperties(void* data, EAvatarProcessorType type) override;
 
+    void setAllowEdit(bool allow_edit) { mAllowEdit = allow_edit; }
+
 protected:
     /**
      * Process profile related data received from server.
@@ -207,6 +209,7 @@ private:
     bool                mWaitingForImageUpload;
     bool                mAllowPublish;
     bool                mHideAge;
+    bool                mAllowEdit;
     std::string         mDescriptionText;
     boost::signals2::connection mAvatarNameCacheConnection;
 };

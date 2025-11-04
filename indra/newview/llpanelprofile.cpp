@@ -693,6 +693,7 @@ LLPanelProfileSecondLife::LLPanelProfileSecondLife()
     , mWaitingForImageUpload(false)
     , mAllowPublish(false)
     , mHideAge(false)
+    , mAllowEdit(true)
 {
 }
 
@@ -757,14 +758,15 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     LLUUID avatar_id = getAvatarId();
 
     bool own_profile = getSelfProfile();
+    bool allow_edit = own_profile && mAllowEdit;
 
     mGroupList->setShowNone(!own_profile);
 
-    childSetVisible("notes_panel", !own_profile);
-    childSetVisible("settings_panel", own_profile);
-    childSetVisible("about_buttons_panel", own_profile);
+    childSetVisible("notes_panel", !allow_edit);
+    childSetVisible("settings_panel", allow_edit);
+    childSetVisible("about_buttons_panel", allow_edit);
 
-    if (own_profile)
+    if (allow_edit)
     {
         // Group list control cannot toggle ForAgent loading
         // Less than ideal, but viewing own profile via search is edge case
@@ -789,7 +791,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
         mAgentActionMenuButton->setMenu("menu_profile_other.xml", LLMenuButton::MP_BOTTOM_RIGHT);
     }
 
-    mDescriptionEdit->setParseHTML(!own_profile);
+    mDescriptionEdit->setParseHTML(!allow_edit);
 
     if (!own_profile)
     {
@@ -1280,7 +1282,7 @@ void LLPanelProfileSecondLife::setLoaded()
         {
             mHideAgeCombo->setEnabled(true);
         }
-        mDescriptionEdit->setEnabled(true);
+        mDescriptionEdit->setEnabled(mAllowEdit);
     }
 }
 
