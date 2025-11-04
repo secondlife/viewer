@@ -75,7 +75,7 @@ bool LLPanelDirEvents::postBuild()
 
     setDay(0); // for today
 
-    return TRUE;
+    return true;
 }
 
 LLPanelDirEvents::~LLPanelDirEvents()
