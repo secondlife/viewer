@@ -161,15 +161,14 @@ void LLFloaterSearch::initiateSearch(const LLSD& tokens)
 
     // Naviation to the calculated URL - we know it's HTML so we can
     // tell the media system not to bother with the MIME type check.
-    LLMediaCtrl* search_browser = findChild<LLMediaCtrl>("search_contents");
-    search_browser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+    mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
 }
 
 bool LLFloaterSearch::postBuild()
 {
-    LLFloaterWebContent::postBuild();
-    mWebBrowser = getChild<LLMediaCtrl>("search_contents");
-    mWebBrowser->addObserver(this);
+    if (!LLFloaterWebContent::postBuild())
+        return false;
+
     mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
 
     // If cookie is there, will set it now, Otherwise will have to wait for login completion

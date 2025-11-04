@@ -170,7 +170,7 @@
         layout="topleft"
         left="0"
         trusted_content="true"
-        name="search_contents"
+        name="webbrowser"
         top="0"/>
     </layout_panel>
     <layout_panel name="status_bar" 
