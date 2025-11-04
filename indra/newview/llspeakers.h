@@ -80,6 +80,9 @@ public:
     bool            mIsModerator;
     bool            mModeratorMutedVoice;
     bool            mModeratorMutedText;
+
+private:
+    boost::signals2::scoped_connection mAvatarNameCacheConnection;
 };
 
 class LLSpeakerUpdateSpeakerEvent : public LLOldEvents::LLEvent
