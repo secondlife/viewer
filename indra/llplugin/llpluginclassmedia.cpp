@@ -34,7 +34,7 @@
 #include "llcontrol.h"
 
 extern LLControlGroup gSavedSettings;
-#if LL_DARWIN
+#if LL_DARWIN || LL_LINUX
 extern bool gHiDPISupport;
 #endif
 
@@ -372,7 +372,7 @@ void LLPluginClassMedia::setSizeInternal(void)
         mRequestedMediaHeight = nextPowerOf2(mRequestedMediaHeight);
     }
 
-#if LL_DARWIN
+#if LL_DARWIN || LL_LINUX
     if (!gHiDPISupport)
 #endif
     {

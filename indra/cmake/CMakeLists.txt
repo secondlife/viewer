@@ -26,7 +26,6 @@ set(cmake_SOURCE_FILES
         FindPipeWire.cmake
         FreeType.cmake
         GLEXT.cmake
-        GLH.cmake
         GLIB.cmake
         GLM.cmake
         GStreamer10Plugin.cmake

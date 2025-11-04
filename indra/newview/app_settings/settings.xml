@@ -7241,13 +7241,24 @@
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
-      <string>Render textures using anisotropic filtering</string>
+      <string>[OBSOLETE] Render textures using anisotropic filtering</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderAnisotropicLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Anisotropic filtering strength(0(Disable), 2x, 4x, 8x, 16x</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>0</real>
     </map>
     <key>RenderAppleUseMultGL</key>
     <map>
@@ -7465,7 +7476,7 @@
    <key>RenderHiDPI</key>
   <map>
     <key>Comment</key>
-    <string>Enable support for HiDPI displays, like Retina (macOS ONLY, requires restart)</string>
+    <string>Enable support for HiDPI displays, like Retina (macOS and Linux ONLY, requires restart)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

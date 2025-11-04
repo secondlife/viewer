@@ -48,10 +48,8 @@ public:
     virtual ~LLBufferStreamBuf();
 
 protected:
-#if( LL_WINDOWS || __GNUC__ > 2 )
     typedef std::streambuf::pos_type pos_type;
     typedef std::streambuf::off_type off_type;
-#endif
 
     /* @name streambuf vrtual implementations
      */
@@ -87,17 +85,10 @@ protected:
      * or both masked together.
      * @return Returns the new position or an invalid position on failure.
      */
-#if( LL_WINDOWS || __GNUC__ > 2)
     virtual pos_type seekoff(
         off_type off,
         std::ios::seekdir way,
         std::ios::openmode which);
-#else
-    virtual streampos seekoff(
-        streamoff off,
-        std::ios::seekdir way,
-        std::ios::openmode which);
-#endif
 
     /*
      * @brief Get s sequence of characters from the input

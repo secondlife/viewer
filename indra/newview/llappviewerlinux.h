@@ -43,7 +43,7 @@ public:
     // Main application logic
     //
     bool init() override;            // Override to do application initialization
-    std::string generateSerialNumber();
+    std::string generateSerialNumber() override;
     bool setupSLURLHandler();
 
 protected:

@@ -253,7 +253,6 @@ void LLProcessTexture::process(std::ostream& output)
 
     // Prepare gl for avatar baking
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    LLGLEnable color_mat(GL_COLOR_MATERIAL);
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
     EBakedTextureIndex bake_type = LLAvatarAppearance::getDictionary()->findBakedByImageName(mInputData["slot_id"].asString());

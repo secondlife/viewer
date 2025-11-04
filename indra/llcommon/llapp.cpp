@@ -58,14 +58,6 @@
 void setup_signals();
 void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 
-#if LL_LINUX
-#else
-// Called by breakpad exception handler after the minidump has been generated.
-bool unix_post_minidump_callback(const char *dump_dir,
-                      const char *minidump_id,
-                      void *context, bool succeeded);
-#endif
-
 # if LL_DARWIN
 /* OSX doesn't support SIGRT* */
 S32 LL_SMACKDOWN_SIGNAL = SIGUSR1;
@@ -720,47 +712,4 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
     }
 }
 
-bool unix_post_minidump_callback(const char *dump_dir,
-                      const char *minidump_id,
-                      void *context, bool succeeded)
-{
-    // Copy minidump file path into fixed buffer in the app instance to avoid
-    // heap allocations in a crash handler.
-
-    // path format: <dump_dir>/<minidump_id>.dmp
-    auto dirPathLength = strlen(dump_dir);
-    auto idLength = strlen(minidump_id);
-
-    // The path must not be truncated.
-    llassert((dirPathLength + idLength + 5) <= LLApp::MAX_MINDUMP_PATH_LENGTH);
-
-    char * path = LLApp::instance()->getMiniDumpFilename();
-    auto remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
-    strncpy(path, dump_dir, remaining);
-    remaining -= dirPathLength;
-    path += dirPathLength;
-    if (remaining > 0 && dirPathLength > 0 && path[-1] != '/')
-    {
-        *path++ = '/';
-        --remaining;
-    }
-    if (remaining > 0)
-    {
-        strncpy(path, minidump_id, remaining);
-        remaining -= idLength;
-        path += idLength;
-        strncpy(path, ".dmp", remaining);
-    }
-
-    LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
-    LLApp::runErrorHandler();
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-    clear_signals();
-    return false;
-#else
-    return true;
-#endif
-}
 #endif // !WINDOWS
-

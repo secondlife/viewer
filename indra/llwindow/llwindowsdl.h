@@ -31,9 +31,19 @@
 
 #include "llwindow.h"
 #include "lltimer.h"
+#include "llmutex.h"
 
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_endian.h"
+
+#ifdef LL_WAYLAND
+#include <wayland-client-protocol.h>
+#endif
+
+#if LL_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#endif
 
 class LLPreeditor;
 
@@ -216,7 +226,35 @@ private:
     U32 mKeyVirtualKey = 0;
     U32 mKeyModifiers = SDL_KMOD_NONE;
 
+    LLMutex mOSRMutex;
+    std::unordered_map<SDL_GLContext, SDL_Window*> mOSRContexts;
+    std::list<SDL_Window*> mDeadOSRWindows;
+
     void tryFindFullscreenSize(int &aWidth, int &aHeight);
+
+    enum EServerProtocol{ X11, Wayland, Unknown };
+    EServerProtocol mServerProtocol = Unknown;
+public:
+#if LL_X11
+    // X11
+    struct X11_DATA
+    {
+        Display* xdisplay = nullptr;
+        Window xwindow = 0;
+        int xscreen = -1;
+    };
+    static X11_DATA sX11Data;
+#endif
+
+#if LL_WAYLAND
+    // Wayland
+    struct WAYLAND_DATA
+    {
+        struct wl_display* display = nullptr;
+        struct wl_surface* surface = nullptr;
+    };
+    static WAYLAND_DATA sWaylandData;
+#endif
 };
 
 class LLSplashScreenSDL : public LLSplashScreen

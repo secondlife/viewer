@@ -841,7 +841,7 @@ private:
         // Nicky: We just look into cpu0. In theory we could iterate over all cores
         // "/sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq"
         // But those should not fluctuate that much?
-        std::ifstream fIn { "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" };
+        llifstream fIn{ "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" };
 
         if( !fIn.is_open() )
             return 0.0;

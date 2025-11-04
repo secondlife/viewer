@@ -59,7 +59,7 @@ static const char* FieldName[] =
 
 namespace
 {
-#ifdef __clang__
+#if defined(LL_CLANG)
 #   pragma clang diagnostic ignored "-Wunused-function"
 #elif defined(LL_GNUC)
 #   pragma GCC diagnostic ignored "-Wunused-function"

@@ -33,6 +33,8 @@
 #include <boost/unordered_map.hpp>
 #include <list>
 
+#include "llglheaders.h"
+
 #include "llerror.h"
 #include "v4color.h"
 #include "llstring.h"
@@ -42,7 +44,6 @@
 #include "llgltypes.h"
 #include "llinstancetracker.h"
 
-#include "llglheaders.h"
 #include "glm/mat4x4.hpp"
 
 extern bool gDebugGL;
@@ -69,7 +70,9 @@ public:
     bool initGL();
     void shutdownGL();
 
-    void initWGL(); // Initializes stupid WGL extensions
+    void initWGL(); // Initializes WGL extensions
+    void initGLX(); // Initializes GLX extensions
+    void initEGL(); // Initializes EGL extensions
 
     std::string getRawGLString(); // For sending to simulator
 
@@ -89,6 +92,8 @@ public:
     F32 mMaxAnisotropy = 0.f;
     S32 mMaxUniformBlockSize = 0;
     S32 mMaxVaryingVectors = 0;
+    F32 mMinSmoothLineWidth = 1.f;
+    F32 mMaxSmoothLineWidth = 1.f;
 
     // GL 4.x capabilities
     bool mHasCubeMapArray = false;
@@ -100,6 +105,7 @@ public:
     bool mHasAMDAssociations = false;
     bool mHasNVXGpuMemoryInfo = false;
     bool mHasATIMemInfo = false;
+    bool mHasGLXMESAQueryRenderer = false;
 
     bool mIsAMD;
     bool mIsNVIDIA;
@@ -141,7 +147,16 @@ public:
     // In ALL CAPS
     std::string mGLRenderer;
 
+    // GL Extension String
+    std::set<std::string> mGLExtensions;
+
+#if LL_LINUX
+    bool mIsX11 = false;
+    bool mIsWayland = false;
+#endif
+
 private:
+    void reloadExtensionsString();
     void initExtensions();
     void initGLStates();
 };
@@ -261,19 +276,6 @@ protected:
     LLGLenum mState;
     bool mWasEnabled;
     bool mIsEnabled;
-};
-
-// New LLGLState class wrappers that don't depend on actual GL flags.
-class LLGLEnableBlending : public LLGLState
-{
-public:
-    LLGLEnableBlending(bool enable);
-};
-
-class LLGLEnableAlphaReject : public LLGLState
-{
-public:
-    LLGLEnableAlphaReject(bool enable);
 };
 
 // Enable with functor
@@ -419,68 +421,5 @@ extern bool gClothRipple;
 extern bool gHeadlessClient;
 extern bool gNonInteractive;
 extern bool gGLActive;
-
-// Deal with changing glext.h definitions for newer SDK versions, specifically
-// with MAC OSX 10.5 -> 10.6
-
-
-#ifndef GL_DEPTH_ATTACHMENT
-#define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_EXT
-#endif
-
-#ifndef GL_STENCIL_ATTACHMENT
-#define GL_STENCIL_ATTACHMENT GL_STENCIL_ATTACHMENT_EXT
-#endif
-
-#ifndef GL_FRAMEBUFFER
-#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
-#define GL_DRAW_FRAMEBUFFER GL_DRAW_FRAMEBUFFER_EXT
-#define GL_READ_FRAMEBUFFER GL_READ_FRAMEBUFFER_EXT
-#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
-#define GL_FRAMEBUFFER_UNSUPPORTED GL_FRAMEBUFFER_UNSUPPORTED_EXT
-#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT
-#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT
-#define glGenFramebuffers glGenFramebuffersEXT
-#define glBindFramebuffer glBindFramebufferEXT
-#define glCheckFramebufferStatus glCheckFramebufferStatusEXT
-#define glBlitFramebuffer glBlitFramebufferEXT
-#define glDeleteFramebuffers glDeleteFramebuffersEXT
-#define glFramebufferRenderbuffer glFramebufferRenderbufferEXT
-#define glFramebufferTexture2D glFramebufferTexture2DEXT
-#endif
-
-#ifndef GL_RENDERBUFFER
-#define GL_RENDERBUFFER GL_RENDERBUFFER_EXT
-#define glGenRenderbuffers glGenRenderbuffersEXT
-#define glBindRenderbuffer glBindRenderbufferEXT
-#define glRenderbufferStorage glRenderbufferStorageEXT
-#define glRenderbufferStorageMultisample glRenderbufferStorageMultisampleEXT
-#define glDeleteRenderbuffers glDeleteRenderbuffersEXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT
-#define GL_COLOR_ATTACHMENT GL_COLOR_ATTACHMENT_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT0
-#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT1
-#define GL_COLOR_ATTACHMENT1 GL_COLOR_ATTACHMENT1_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT2
-#define GL_COLOR_ATTACHMENT2 GL_COLOR_ATTACHMENT2_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT3
-#define GL_COLOR_ATTACHMENT3 GL_COLOR_ATTACHMENT3_EXT
-#endif
-
-
-#ifndef GL_DEPTH24_STENCIL8
-#define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_EXT
-#endif
 
 #endif // LL_LLGL_H

@@ -154,8 +154,8 @@ void LLBakingShaderMgr::setShaders()
         loaded = true;
         for (U32 i = 0; i < shaders.size(); i++)
         {
-            // Note usage of GL_VERTEX_SHADER_ARB
-            if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB) == 0)
+            // Note usage of GL_VERTEX_SHADER
+            if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER) == 0)
             {
                 LL_WARNS("Shader") << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
                 loaded = false;
@@ -171,7 +171,7 @@ void LLBakingShaderMgr::setShaders()
         for (U32 i = 0; i < shaders.size(); i++)
         {
             // Note usage of GL_FRAGMENT_SHADER
-            if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB) == 0)
+            if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER) == 0)
             {
                 LL_WARNS("Shader") << "Failed to load fragment shader " << shaders[i].first << LL_ENDL;
                 loaded = false;
@@ -217,8 +217,8 @@ bool LLBakingShaderMgr::loadShadersInterface()
 {
     gAlphaMaskProgram.mName = "Alpha Mask Shader";
     gAlphaMaskProgram.mShaderFiles.clear();
-    gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskV.glsl", GL_VERTEX_SHADER_ARB));
-    gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskF.glsl", GL_FRAGMENT_SHADER_ARB));
+    gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskV.glsl", GL_VERTEX_SHADER));
+    gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskF.glsl", GL_FRAGMENT_SHADER));
     gAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 
     if( !gAlphaMaskProgram.createShader() )

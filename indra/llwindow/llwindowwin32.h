@@ -125,6 +125,7 @@ public:
 
     LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 
+    static PROC WINAPI getProcAddress(const char* func);
     static std::vector<std::string> getDisplaysResolutionList();
     static std::vector<std::string> getDynamicFallbackFontList();
     static void setDPIAwareness();
@@ -243,6 +244,8 @@ protected:
     U32             mRawLParam;
 
     bool            mMouseVanish;
+
+    static HMODULE sGLDLLHandle;
 
     // Cached values of GetWindowRect and GetClientRect to be used by app thread
     void updateWindowRect();

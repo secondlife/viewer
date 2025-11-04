@@ -45,7 +45,6 @@ include(UI)
 include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
-include(VulkanGltf)
 include(ZLIBNG)
 include(LLPrimitive)
 
@@ -2085,10 +2084,6 @@ if (LINUX)
     media_plugin_example
     llwebrtc
     )
-
-  #if (NOT USE_BUGSPLAT)
-  #    LIST(APPEND COPY_INPUT_DEPENDENCIES linux-crash-logger)
-  #endif (NOT USE_BUGSPLAT)
 
   add_custom_command(
       OUTPUT ${product}.tar.xz

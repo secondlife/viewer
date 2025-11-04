@@ -230,11 +230,11 @@ bool LLVolatileAPRPool::isFull()
 bool _ll_apr_warn_status(apr_status_t status, const char* file, int line)
 {
     if(APR_SUCCESS == status) return false;
-#if !LL_LINUX
+
     char buf[MAX_STRING];   /* Flawfinder: ignore */
     apr_strerror(status, buf, sizeof(buf));
     LL_WARNS("APR") << "APR: " << file << ":" << line << " " << buf << LL_ENDL;
-#endif
+
     return true;
 }
 
