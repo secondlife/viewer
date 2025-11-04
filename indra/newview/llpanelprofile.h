@@ -212,6 +212,7 @@ private:
     bool                mAllowEdit;
     std::string         mDescriptionText;
     boost::signals2::connection mAvatarNameCacheConnection;
+    boost::signals2::connection mMenuNameCacheConnection;
 };
 
 
