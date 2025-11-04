@@ -295,7 +295,7 @@ void LLPanelDirBrowser::onCommitList(LLUICtrl* ctrl, void* data)
         self->mFloaterDirectory->hideAllDetailPanels();
     }
 
-    if (FALSE == list->getCanSelect())
+    if (!list->getCanSelect())
     {
         return;
     }
@@ -403,7 +403,7 @@ void LLPanelDirBrowser::processDirPeopleReply(LLMessageSystem *msg, void**)
         return;
     }
 
-    self->mHaveSearchResults = TRUE;
+    self->mHaveSearchResults = true;
 
     LLCtrlListInterface *list = self->childGetListInterface("results");
     if (!list) return;
@@ -497,7 +497,7 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
         return;
     }
 
-    self->mHaveSearchResults = TRUE;
+    self->mHaveSearchResults = true;
 
     LLCtrlListInterface *list = self->childGetListInterface("results");
     if (!list) return;
@@ -582,7 +582,7 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
         }
     }
 
-    self->mHaveSearchResults = TRUE;
+    self->mHaveSearchResults = true;
 
     LLCtrlListInterface *list = self->childGetListInterface("results");
     if (!list) return;
@@ -715,7 +715,7 @@ void LLPanelDirBrowser::processDirGroupsReply(LLMessageSystem* msg, void**)
         return;
     }
 
-    self->mHaveSearchResults = TRUE;
+    self->mHaveSearchResults = true;
 
     LLCtrlListInterface *list = self->childGetListInterface("results");
     if (!list) return;
@@ -812,7 +812,7 @@ void LLPanelDirBrowser::processDirClassifiedReply(LLMessageSystem* msg, void**)
         }
     }
 
-    self->mHaveSearchResults = TRUE;
+    self->mHaveSearchResults = true;
 
     LLCtrlListInterface *list = self->childGetListInterface("results");
     if (!list) return;
@@ -884,7 +884,7 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
     // Only handled by LLPanelDirLand
     LLPanelDirLand* self = (LLPanelDirLand*)browser;
 
-    self->mHaveSearchResults = TRUE;
+    self->mHaveSearchResults = true;
 
     LLCtrlListInterface *list = self->childGetListInterface("results");
     if (!list) return;
@@ -1078,7 +1078,7 @@ void LLPanelDirBrowser::setupNewSearch()
     list->setEnabled(false);
 
     mResultsReceived = 0;
-    mHaveSearchResults = FALSE;
+    mHaveSearchResults = false;
 
     // Set all panels to be invisible
     mFloaterDirectory->hideAllDetailPanels();

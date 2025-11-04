@@ -67,12 +67,12 @@ bool LLPanelDirLand::postBuild()
     childSetVisible("incpg", true);
     if (!mature_enabled)
     {
-        childSetValue("incmature", FALSE);
+        childSetValue("incmature", false);
         childDisable("incmature");
     }
     if (!adult_enabled)
     {
-        childSetValue("incadult", FALSE);
+        childSetValue("incadult", false);
         childDisable("incadult");
     }
 
@@ -103,7 +103,7 @@ bool LLPanelDirLand::postBuild()
         results->sortByColumn(mCurrentSortColumn,mCurrentSortAscending);
     }
 
-    return TRUE;
+    return true;
 }
 
 LLPanelDirLand::~LLPanelDirLand()
