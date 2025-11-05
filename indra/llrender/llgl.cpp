@@ -52,10 +52,7 @@
 #include <glm/gtc/matrix_access.hpp>
 #include "glm/gtc/type_ptr.hpp"
 
-#if LL_MESA_HEADLESS
-#  include "GL/osmesa.h"
-#  define LL_GET_PROC_ADDRESS(func) OSMesaGetProcAddress(func)
-#elif LL_SDL_WINDOW
+#if LL_SDL_WINDOW
 #  include "llwindowsdl.h"
 #  include "SDL3/SDL.h"
 #  define LL_GET_PROC_ADDRESS(func) SDL_GL_GetProcAddress(func)

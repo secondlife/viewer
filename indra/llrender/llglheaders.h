@@ -72,7 +72,7 @@
 
 #endif // LL_MESA_HEADLESS / LL_SDL_WINDOW // LL_LINUX / LL_WINDOWS / LL_DARWIN
 
-//GL_NVX_gpu_memory_info constants
+// GL_NVX_gpu_memory_info constants
 #ifndef GL_NVX_gpu_memory_info
 #define GL_NVX_gpu_memory_info
 #define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
@@ -82,7 +82,7 @@
 #define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
 #endif
 
-//GL_ATI_meminfo constants
+// GL_ATI_meminfo constants
 #ifndef GL_ATI_meminfo
 #define GL_ATI_meminfo
 #define GL_VBO_FREE_MEMORY_ATI                     0x87FB
@@ -90,7 +90,7 @@
 #define GL_RENDERBUFFER_FREE_MEMORY_ATI            0x87FD
 #endif
 
-//GL_EXT_texture_sRGB constants
+// GL_EXT_texture_sRGB constants
 #ifndef GL_EXT_texture_sRGB
 #define GL_EXT_texture_sRGB 1
 #define GL_SRGB_EXT                       0x8C40
@@ -110,6 +110,20 @@
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT 0x8C4E
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT 0x8C4F
 #endif /* GL_EXT_texture_sRGB */
+
+// GL_ARB_vertex_buffer_object constants
+#ifndef GL_ARB_vertex_buffer_object
+#define GL_ARB_vertex_buffer_object 1
+#define GL_STREAM_DRAW_ARB  0x88E0
+#define GL_STREAM_READ_ARB  0x88E1
+#define GL_STREAM_COPY_ARB  0x88E2
+#define GL_STATIC_DRAW_ARB  0x88E4
+#define GL_STATIC_READ_ARB  0x88E5
+#define GL_STATIC_COPY_ARB  0x88E6
+#define GL_DYNAMIC_DRAW_ARB 0x88E8
+#define GL_DYNAMIC_READ_ARB 0x88E9
+#define GL_DYNAMIC_COPY_ARB 0x88EA
+#endif
 
 // Deprecated OpenGL defines we still use
 #define GL_COLOR_INDEX                    0x1900
