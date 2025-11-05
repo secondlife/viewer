@@ -1930,14 +1930,7 @@ void LLRender::setLineWidth(F32 width)
 {
     gGL.flush();
 
-    if(sGLCoreProfile)
-    {
-        width = 1.f;
-    }
-    else
-    {
-        width = llclamp(width, gGLManager.mMinSmoothLineWidth, gGLManager.mMaxSmoothLineWidth);
-    }
+    width = llclamp(width, gGLManager.mAliasedLineRange[0], gGLManager.mAliasedLineRange[1]);
     if(mLineWidth != width)
     {
         mLineWidth = width;

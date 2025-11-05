@@ -92,8 +92,7 @@ public:
     F32 mMaxAnisotropy = 0.f;
     S32 mMaxUniformBlockSize = 0;
     S32 mMaxVaryingVectors = 0;
-    F32 mMinSmoothLineWidth = 1.f;
-    F32 mMaxSmoothLineWidth = 1.f;
+    LLVector2 mAliasedLineRange = LLVector2(1.f, 1.f);
 
     // GL 4.x capabilities
     bool mHasCubeMapArray = false;

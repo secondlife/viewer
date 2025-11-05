@@ -1329,11 +1329,7 @@ bool LLGLManager::initGL()
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &mMaxUniformBlockSize);
 
     // If outside the allowed range, glLineWidth fails with "invalid value".
-    // On Darwin, the range is [1, 1].
-    GLfloat line_width_range[2]{0.f};
-    glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, line_width_range);
-    mMinSmoothLineWidth = line_width_range[0];
-    mMaxSmoothLineWidth = line_width_range[1];
+    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mAliasedLineRange.mV);
 
     // sanity clamp max uniform block size to 64k just in case
     // there's some implementation that reports a crazy value
