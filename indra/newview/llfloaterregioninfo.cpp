@@ -270,10 +270,12 @@ bool LLFloaterRegionInfo::postBuild()
     static LLCachedControl<bool> feature_pbr_terrain_transforms_enabled(gSavedSettings, "RenderTerrainPBRTransformsEnabled", false);
     if (!feature_pbr_terrain_transforms_enabled() || !feature_pbr_terrain_enabled())
     {
+        LL_INFOS("Terrain") << "Building region terrain panel from panel_region_terrain.xml" << LL_ENDL;
         panel->buildFromFile("panel_region_terrain.xml");
     }
     else
     {
+        LL_INFOS("Terrain") << "Building region terrain panel from panel_region_terrain_texture_transform.xml" << LL_ENDL;
         panel->buildFromFile("panel_region_terrain_texture_transform.xml");
     }
     mTab->addTabPanel(panel);
@@ -1999,18 +2001,7 @@ void LLPanelRegionTerrainInfo::initMaterialCtrl(LLTextureCtrl*& ctrl, const std:
     ctrl->setCommitCallback(
         [this, index](LLUICtrl* ctrl, const LLSD& param)
     {
-        if (!mMaterialScaleUCtrl[index]
-            || !mMaterialScaleVCtrl[index]
-            || !mMaterialRotationCtrl[index]
-            || !mMaterialOffsetUCtrl[index]
-            || !mMaterialOffsetVCtrl[index]) return;
-
-        mMaterialScaleUCtrl[index]->setValue(1.f);
-        mMaterialScaleVCtrl[index]->setValue(1.f);
-        mMaterialRotationCtrl[index]->setValue(0.f);
-        mMaterialOffsetUCtrl[index]->setValue(0.f);
-        mMaterialOffsetVCtrl[index]->setValue(0.f);
-        onChangeAnything();
+        callbackMaterialCommit(index);
     });
 }
 
@@ -2096,6 +2087,25 @@ bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, con
     sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
 
     return false;
+}
+
+void LLPanelRegionTerrainInfo::callbackMaterialCommit(S32 index)
+{
+    // These can be null if 'transforms' panel was not inited
+    if (mMaterialScaleUCtrl[index]
+        && mMaterialScaleVCtrl[index]
+        && mMaterialRotationCtrl[index]
+        && mMaterialOffsetUCtrl[index]
+        && mMaterialOffsetVCtrl[index])
+    {
+        mMaterialScaleUCtrl[index]->setValue(1.f);
+        mMaterialScaleVCtrl[index]->setValue(1.f);
+        mMaterialRotationCtrl[index]->setValue(0.f);
+        mMaterialOffsetUCtrl[index]->setValue(0.f);
+        mMaterialOffsetVCtrl[index]->setValue(0.f);
+    }
+
+    onChangeAnything();
 }
 
 /////////////////////////////////////////////////////////////////////////////
