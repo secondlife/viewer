@@ -1492,6 +1492,11 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
         const LLUUID& material_asset_id = material_ctrl->getImageAssetID();
         llassert(material_asset_id.notNull());
         if (material_asset_id.isNull()) { return false; }
+        if (material_asset_id == BLANK_MATERIAL_ASSET_ID)
+        {
+            // Default/Blank material is valid by default
+            continue;
+        }
         const LLFetchedGLTFMaterial* material = gGLTFMaterialList.getMaterial(material_asset_id);
         if (!material->isLoaded())
         {
