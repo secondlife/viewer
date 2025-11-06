@@ -443,7 +443,6 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     void setCaptureDevice(const std::string& id) override;
     void setRenderDevice(const std::string& id) override;
-    void setDevices(const std::string& caprure_id, const std::string& render_id) override;
 
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;

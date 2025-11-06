@@ -487,13 +487,13 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
                         names_requested.push_back(owner_id);
                         if (is_group_owned)
                         {
-                            gCacheName->getGroup(owner_id,
+                            mGroupNameCacheConnection = gCacheName->getGroup(owner_id,
                                 boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
                                     this, _1, _2));
                         }
                         else
                         {
-                            LLAvatarNameCache::get(owner_id,
+                            mAvatarNameCacheConnection = LLAvatarNameCache::get(owner_id,
                                 boost::bind(&LLPanelScriptLimitsRegionMemory::onAvatarNameCache,
                                     this, _1, _2));
                         }

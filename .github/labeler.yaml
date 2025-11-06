@@ -1,81 +1,109 @@
 llappearance:
-  - indra/llappearance/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llappearance/**
 
 llaudio:
-  - indra/llaudio/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llaudio/**
 
 llcharacter:
-  - indra/llcharacter/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llcharacter/**
 
 llcommon:
-  - indra/llcommon/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llcommon/**
 
 llcorehttp:
-  - indra/llcorehttp/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llcorehttp/**
 
 llcrashlogger:
-  - indra/llcrashlogger/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llcrashlogger/**
 
 llfilesystem:
-  - indra/llfilesystem/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llfilesystem/**
 
 llimage:
-  - indra/llimage/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llimage/**
 
 llimagej2coj:
-  - indra/llimagej2coj/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llimagej2coj/**
 
 llinventory:
-  - indra/llinventory/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llinventory/**
 
 llkdu:
-  - indra/llkdu/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llkdu/**
 
 llmath:
-  - indra/llmath/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llmath/**
 
 llmeshoptimizer:
-  - indra/llmeshoptimizer/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llmeshoptimizer/**
 
 llmessage:
-  - indra/llmessage/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llmessage/**
 
 llplugin:
-  - indra/llplugin/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llplugin/**
 
 llprimitive:
-  - indra/llprimitive/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llprimitive/**
 
 llrender:
-  - indra/llrender/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llrender/**
 
 llui:
-  - indra/llui/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llui/**
 
 llwindow:
-  - indra/llwindow/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llwindow/**
 
 llxml:
-  - indra/llxml/**/*
+- changed-files:
+  - any-glob-to-any-file: indra/llxml/**
 
 cmake:
-  - '**/*.cmake'
-  - '**/*/cmake/*'
-  - '**/CMakeLists.txt'
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.cmake'
+    - '**/*/cmake/*'
+    - '**/CMakeLists.txt'
 
 python:
-  - '**/*.py'
+- changed-files:
+  - any-glob-to-any-file: '**/*.py'
 
 c/cpp:
-  - '**/*.c'
-  - '**/*.cpp'
-  - '**/*.cxx'
-  - '**/*.h'
-  - '**/*.hpp'
-  - '**/*.hxx'
-  - '**/*.i'
-  - '**/*.inl'
-  - '**/*.y'
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.c'
+    - '**/*.cpp'
+    - '**/*.cxx'
+    - '**/*.h'
+    - '**/*.hpp'
+    - '**/*.hxx'
+    - '**/*.i'
+    - '**/*.inl'
+    - '**/*.y'
 
-'team:viewer':
-  - '*'
+objc:
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.m'
+    - '**/*.mm'
