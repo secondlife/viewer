@@ -16,7 +16,6 @@
 #include <map>
 #include <string>
 #include <boost/function.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
 
 /// Listener class implementing LLLeap query/control operations.
 /// See https://jira.lindenlab.com/jira/browse/DEV-31978.

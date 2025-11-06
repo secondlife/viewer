@@ -31,7 +31,6 @@
 #include "llsdparam.h"
 #include "llexception.h"
 #include "apr_thread_proc.h"
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/optional.hpp>
 #include <boost/noncopyable.hpp>
 #include <iosfwd>                   // std::ostream
@@ -564,7 +563,7 @@ private:
     bool mAutokill, mAttached;
     Status mStatus;
     // explicitly want this ptr_vector to be able to store NULLs
-    typedef boost::ptr_vector< boost::nullable<BasePipe> > PipeVector;
+    typedef std::vector<std::unique_ptr<BasePipe>> PipeVector;
     PipeVector mPipes;
     apr_pool_t* mPool;
 };
