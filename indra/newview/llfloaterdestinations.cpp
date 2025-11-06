@@ -28,7 +28,10 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterdestinations.h"
+#include "llmediactrl.h"
 #include "lluictrlfactory.h"
+#include "llviewercontrol.h"
+#include "llweb.h"
 
 
 LLFloaterDestinations::LLFloaterDestinations(const LLSD& key)
@@ -43,6 +46,15 @@ LLFloaterDestinations::~LLFloaterDestinations()
 bool LLFloaterDestinations::postBuild()
 {
     enableResizeCtrls(true, true, false);
+    LLMediaCtrl* destinations = getChild<LLMediaCtrl>("destination_guide_contents");
+    destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+    std::string url = gSavedSettings.getString("DestinationGuideURL");
+    url = LLWeb::expandURLSubstitutions(url, LLSD());
+    destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+
+    // If cookie is there, will set it now. Otherwise will have to wait for login completion
+    // which will also update destinations instance if it already exists.
+    LLViewerMedia::getInstance()->getOpenIDCookie(destinations);
     return true;
 }
 

@@ -338,7 +338,10 @@ bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
                 // Create the GL texture, and then hang onto it for future use.
                 if (mNeedsCreateTexture)
                 {
-                    mCachedProcessedTexture->createGLTexture(0, mStaticImageRaw);
+                    if (!mCachedProcessedTexture->createGLTexture(0, mStaticImageRaw))
+                    {
+                        LL_WARNS() << "Failed to create GL texture for image: " << mCachedProcessedTexture->getID() << LL_ENDL;
+                    }
                     mNeedsCreateTexture = false;
                     gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
                     mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);

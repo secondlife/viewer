@@ -28,8 +28,10 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloateravatarwelcomepack.h"
-#include "lluictrlfactory.h"
 #include "llmediactrl.h"
+#include "lluictrlfactory.h"
+#include "llviewercontrol.h"
+#include "llweb.h"
 
 LLFloaterAvatarWelcomePack::LLFloaterAvatarWelcomePack(const LLSD& key)
     :   LLFloater(key)
@@ -52,6 +54,10 @@ bool LLFloaterAvatarWelcomePack::postBuild()
     if (mAvatarPicker)
     {
         mAvatarPicker->clearCache();
+        mAvatarPicker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+        std::string url = gSavedSettings.getString("AvatarWelcomePack");
+        url = LLWeb::expandURLSubstitutions(url, LLSD());
+        mAvatarPicker->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
     }
 
     return true;
