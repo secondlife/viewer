@@ -31,22 +31,17 @@
 #include "llvoavatar.h"
 #include "llvoiceclient.h"
 #include "llviewerobjectlist.h"
+#include "llviewerparcelmgr.h"
+#include "roles_constants.h"
 
 #include "llnearbyvoicemoderation.h"
 
 LLNearbyVoiceModeration::LLNearbyVoiceModeration()
 {
-    // TODO: default to false, when appropriate info cap is added
-    mIsNearbyChatModerator = true;
-    mParcelCallbackConnection = gAgent.addParcelChangedCallback([this]() { updateModeratorStatus(); });
 }
 
 LLNearbyVoiceModeration::~LLNearbyVoiceModeration()
 {
-    if (mParcelCallbackConnection.connected())
-    {
-        mParcelCallbackConnection.disconnect();
-    }
 }
 
 LLVOAvatar* LLNearbyVoiceModeration::getVOAvatarFromId(const LLUUID& agent_id)
@@ -192,51 +187,8 @@ void LLNearbyVoiceModeration::showMutedNotification(bool is_muted)
     }
 }
 
-void LLNearbyVoiceModeration::updateModeratorStatus()
+bool LLNearbyVoiceModeration::isNearbyChatModerator()
 {
-    LL_WARNS() << "Request moderator status info" << LL_ENDL;
-    // TODO: Uncomment and set correct capability name, when appropriate info cap is added
-    /*
-    if (LLViewerRegion* region = gAgent.getRegion())
-    {
-
-        std::string url = region->getCapability("SpatialVoiceModerationInfoRequest");
-        if (!url.empty())
-        {
-            LLCoros::instance().launch("getModeratorStatusCoro", [url]() { getModeratorStatusCoro(url); });
-        }
-    }
-    */
-}
-
-void LLNearbyVoiceModeration::getModeratorStatusCoro(std::string cap_url)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getModeratorStatusCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
-    LLCore::HttpHeaders::ptr_t httpHeaders;
-
-    httpOpts->setFollowRedirects(true);
-
-    LLSD result = httpAdapter->getAndSuspend(httpRequest, cap_url, httpOpts, httpHeaders);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        LL_WARNS() << "Failed to get nearby voice moderator info" << LL_ENDL;
-        return;
-    }
-    else if (!result["success"].asBoolean())
-    {
-        LL_WARNS() << "Failed to get nearby voice moderator info: " << result["message"] << LL_ENDL;
-        return;
-    }
-
-    // TODO: update the field, when appropriate info cap is added
-    bool is_moderator = result["moderator"].asBoolean();
-    LLNearbyVoiceModeration::getInstance()->setNearbyChatModerator(is_moderator);
+    return gAgent.canManageEstate() || LLViewerParcelMgr::getInstance()->allowVoiceModeration();
 }
 

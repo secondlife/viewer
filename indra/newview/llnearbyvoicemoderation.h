@@ -39,11 +39,7 @@ class LLNearbyVoiceModeration : public LLSingleton <LLNearbyVoiceModeration> {
         void showMutedNotification(bool is_muted);
         void showNotificationIfNeeded();
 
-        void updateModeratorStatus();
-        static void getModeratorStatusCoro(std::string cap_url);
-
-        bool isNearbyChatModerator() { return mIsNearbyChatModerator; };
-        void setNearbyChatModerator(bool moderator) { mIsNearbyChatModerator = moderator; }
+        bool isNearbyChatModerator();
 
     private:
         LLVOAvatar* getVOAvatarFromId(const LLUUID& id);
@@ -51,5 +47,4 @@ class LLNearbyVoiceModeration : public LLSingleton <LLNearbyVoiceModeration> {
 
         boost::signals2::connection mParcelCallbackConnection;
         std::map<std::string, bool> mChannelMuteMap;
-        bool mIsNearbyChatModerator;
 };
