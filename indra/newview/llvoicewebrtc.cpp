@@ -736,8 +736,6 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 
     LL_DEBUGS("Voice") << "Setting devices to-input: '" << inputDevice << "' output: '" << outputDevice << "'" << LL_ENDL;
-    bool update_render = false;
-    bool update_capture = false;
 
     // only set the render device if the device list has changed.
     if (mRenderDevices.size() != render_devices.size() || !std::equal(mRenderDevices.begin(),
@@ -751,7 +749,7 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
         {
             addRenderDevice(LLVoiceDevice(device.mDisplayName, device.mID));
         }
-        update_render = true;
+        setRenderDevice(outputDevice);
     }
 
     // only set the capture device if the device list has changed.
@@ -768,22 +766,6 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
 
             addCaptureDevice(LLVoiceDevice(device.mDisplayName, device.mID));
         }
-        update_capture = true;
-    }
-
-    if (update_render && update_capture)
-    {
-        // Do both in one go to avoid multiple deployDevices calls.
-        // And to avoid situation where workerDeployDevices has an
-        // obsolete device id
-        setDevices(inputDevice, outputDevice);
-    }
-    else if (update_render)
-    {
-        setRenderDevice(outputDevice);
-    }
-    else if (update_capture)
-    {
         setCaptureDevice(inputDevice);
     }
 
@@ -814,15 +796,6 @@ void LLWebRTCVoiceClient::setRenderDevice(const std::string& name)
     {
         LL_DEBUGS("Voice") << "new render device is " << name << LL_ENDL;
         mWebRTCDeviceInterface->setRenderDevice(name);
-    }
-}
-
-void LLWebRTCVoiceClient::setDevices(const std::string& capture_name, const std::string& render_name)
-{
-    if (mWebRTCDeviceInterface)
-    {
-        LL_DEBUGS("Voice") << "new capture device: " << capture_name << " New render device: " << render_name << LL_ENDL;
-        mWebRTCDeviceInterface->setDevices(capture_name, render_name);
     }
 }
 

@@ -125,7 +125,6 @@
       </menu_item_call>
 
       <menu_item_separator/>
-
       <menu_item_call
          label="Preferences..."
          name="Preferences"
@@ -688,6 +687,13 @@
             <menu_item_check.on_click
              function="Avatar.ToggleSearch"/>
             </menu_item_check>
+        <menu_item_call
+         label="Legacy Search..."
+         name="LegacySearch">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="legacy_search" />
+        </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
          label="Teleport home"

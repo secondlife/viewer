@@ -124,7 +124,6 @@ public:
 
     void setCaptureDevice(const std::string& name) override;
     void setRenderDevice(const std::string& name) override;
-    void setDevices(const std::string& capture_name, const std::string& render_name);
 
     LLVoiceDeviceList& getCaptureDevices() override;
     LLVoiceDeviceList& getRenderDevices() override;
