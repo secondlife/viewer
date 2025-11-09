@@ -32,7 +32,7 @@ LL_GRAB_SYM(G, false, gst_registry_fork_set_enabled, void, gboolean enabled)
 LL_GRAB_SYM(G, false, gst_segtrap_set_enabled, void, gboolean enabled)
 LL_GRAB_SYM(G, false, gst_message_parse_buffering, void, GstMessage *message, gint *percent)
 LL_GRAB_SYM(G, false, gst_message_parse_info, void, GstMessage *message, GError **gerror, gchar **debug)
-LL_GRAB_SYM(G, false, gst_element_query_position, gboolean, GstElement *element, GstFormat *format, gint64 *cur)
+LL_GRAB_SYM(G, false, gst_element_query_position, gboolean, GstElement *element, GstFormat format, gint64 *cur)
 LL_GRAB_SYM(G, false, gst_version, void, guint *major, guint *minor, guint *micro, guint *nano)
 
 LL_GRAB_SYM(G, true, gst_message_parse_tag, void, GstMessage *, GstTagList **)

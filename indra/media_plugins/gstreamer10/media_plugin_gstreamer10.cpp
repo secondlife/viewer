@@ -506,7 +506,7 @@ bool MediaPluginGStreamer10::getTimePos(double &sec_out)
         got_position =
             llgst_element_query_position &&
             llgst_element_query_position(mPlaybin,
-                             &timefmt,
+                             timefmt,
                              &pos);
         got_position = got_position
             && (timefmt == GST_FORMAT_TIME);
