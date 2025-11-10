@@ -27,14 +27,20 @@
 #pragma once
 
 #include "llfloater.h"
+#include "llfloaterwebcontent.h"
 
 class LLFloaterMarketplace:
-    public LLFloater
+    public LLFloaterWebContent
 {
     friend class LLFloaterReg;
+
+public:
+    void openMarketplace();
+
 private:
     LLFloaterMarketplace(const LLSD& key);
     ~LLFloaterMarketplace();
     bool postBuild() override;
+    void onClose(bool app_quitting) override;
 };
 

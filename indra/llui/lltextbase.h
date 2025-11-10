@@ -61,13 +61,15 @@ class LLTextSegment
 public:
     LLTextSegment(S32 start, S32 end)
     :   mStart(start),
-        mEnd(end)
+        mEnd(end),
+        mPermitsEmoji(true)
     {}
     virtual ~LLTextSegment();
     virtual LLTextSegmentPtr clone(LLTextBase& terget) const { return new LLTextSegment(mStart, mEnd); }
     static LLStyleSP cloneStyle(LLTextBase& target, const LLStyle* source);
 
     bool                        getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+    bool                        getPermitsEmoji() const { return mPermitsEmoji; };
 
     virtual bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     virtual S32                 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
@@ -125,6 +127,8 @@ public:
 protected:
     S32             mStart;
     S32             mEnd;
+
+    bool            mPermitsEmoji;
 };
 
 class LLNormalTextSegment : public LLTextSegment
@@ -325,6 +329,7 @@ public:
 
     typedef boost::signals2::signal<bool (const LLUUID& user_id)> is_friend_signal_t;
     typedef boost::signals2::signal<bool (const LLUUID& blocked_id, const std::string from)> is_blocked_signal_t;
+    typedef boost::signals2::signal<bool (const LLUUID& obj_id)> is_obj_reachable_signal_t;
 
     struct LineSpacingParams : public LLInitParam::ChoiceBlock<LineSpacingParams>
     {
@@ -535,6 +540,7 @@ public:
     boost::signals2::connection setURLClickedCallback(const commit_signal_t::slot_type& cb);
     boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
     boost::signals2::connection setIsObjectBlockedCallback(const is_blocked_signal_t::slot_type& cb);
+    boost::signals2::connection setIsObjectReachableCallback(const is_obj_reachable_signal_t::slot_type& cb);
 
     void                    setWordWrap(bool wrap);
     LLScrollContainer*      getScrollContainer() const { return mScroller; }
@@ -783,6 +789,7 @@ protected:
     // Used to check if user with given ID is avatar's friend
     is_friend_signal_t*         mIsFriendSignal;
     is_blocked_signal_t*        mIsObjectBlockedSignal;
+    is_obj_reachable_signal_t*  mIsObjectReachableSignal;
 
     LLUIString                  mLabel; // text label that is visible when no user text provided
 };

@@ -63,6 +63,7 @@ public:
 #if LL_WINDOWS
     /*virtual*/ bool getCursorDelta(LLCoordCommon* delta) override { return false; }
 #endif
+    /*virtual*/ bool isWrapMouse() const override { return true; }
     /*virtual*/ void showCursor() override {}
     /*virtual*/ void hideCursor() override {}
     /*virtual*/ void showCursorFromMouseMove() override {}

@@ -138,7 +138,22 @@ LLCoprocedureManager::LLCoprocedureManager()
 
 LLCoprocedureManager::~LLCoprocedureManager()
 {
-    close();
+    try
+    {
+        close();
+    }
+    catch (const boost::fibers::fiber_error&)
+    {
+        LL_WARNS() << "Fiber error during ~LLCoprocedureManager()" << LL_ENDL;
+    }
+    catch (const std::exception& e)
+    {
+        // Shutting down, just log it
+        LL_WARNS() << "Exception during ~LLCoprocedureManager(): " << e.what() << LL_ENDL;
+    }
+    mPropertyQueryFn.clear();
+    mPropertyDefineFn.clear();
+    mPoolMap.clear();
 }
 
 void LLCoprocedureManager::initializePool(const std::string &poolName, size_t queue_size)
@@ -365,6 +380,22 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, s
 
 LLCoprocedurePool::~LLCoprocedurePool()
 {
+    try
+    {
+        close(); // should have been closed already, but shouldn't hurt
+        mStatusListener.disconnect();
+        mPendingCoprocs.reset();
+        mCoroMapping.clear();
+    }
+    catch (const boost::fibers::fiber_error&)
+    {
+        LL_WARNS() << "Fiber error during ~LLCoprocedurePool() " << mPoolName << LL_ENDL;
+    }
+    catch (const std::exception& e)
+    {
+        // Shutting down, just log it
+        LL_WARNS() << "Exception " << e.what() << " during ~LLCoprocedurePool() in " << mPoolName << LL_ENDL;
+    }
 }
 
 //-------------------------------------------------------------------------
