@@ -75,7 +75,7 @@ public:
     LLWebRTCLogSink(LLWebRTCLogCallback* callback) : mCallback(callback) {}
 
     // Destructor: close the log file
-    ~LLWebRTCLogSink() override {}
+    ~LLWebRTCLogSink() override { mCallback = nullptr; }
 
     void OnLogMessage(const std::string& msg, webrtc::LoggingSeverity severity) override
     {
@@ -422,6 +422,9 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     ~LLWebRTCImpl()
     {
         delete mLogSink;
+
+        // Explicit cleanup for the sake of debugging and crash stacks
+        mPeerCustomProcessor = nullptr;
     }
 
     void init();
@@ -669,6 +672,8 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     // data
     std::vector<LLWebRTCDataObserver *> mDataObserverList;
     webrtc::scoped_refptr<webrtc::DataChannelInterface> mDataChannel;
+
+    std::atomic<int> mPendingJobs;
 };
 
 }

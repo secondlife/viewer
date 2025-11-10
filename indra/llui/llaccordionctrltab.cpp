@@ -248,10 +248,22 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::reshape(S32 width, S32 height, bool called_from_parent /* = true */)
 {
     S32 header_height = mHeaderTextbox->getTextPixelHeight();
+    LLRect old_header_rect = mHeaderTextbox->getRect();
 
     LLRect textboxRect(HEADER_TEXT_LEFT_OFFSET, (height + header_height) / 2, width, (height - header_height) / 2);
-    mHeaderTextbox->reshape(textboxRect.getWidth(), textboxRect.getHeight());
-    mHeaderTextbox->setRect(textboxRect);
+    if (old_header_rect.getHeight() != textboxRect.getHeight()
+        || old_header_rect.mLeft != textboxRect.mLeft
+        || old_header_rect.mTop != textboxRect.mTop
+        || old_header_rect.getWidth() > textboxRect.getWidth() // reducing header's width
+        || (old_header_rect.getWidth() < textboxRect.getWidth() && old_header_rect.getWidth() < mHeaderTextbox->getTextPixelWidth()))
+    {
+        // Expensive text reflow
+        // Update if position or height changes
+        // Update if width reduces
+        // But do not update if text already fits and width increases (arguably LLTextBox::reshape should be smarter, not Accordion)
+        mHeaderTextbox->reshape(textboxRect.getWidth(), textboxRect.getHeight());
+        mHeaderTextbox->setRect(textboxRect);
+    }
 
     if (mHeaderTextbox->getTextPixelWidth() > mHeaderTextbox->getRect().getWidth())
     {
@@ -416,8 +428,11 @@ void LLAccordionCtrlTab::reshape(S32 width, S32 height, bool called_from_parent 
     LLRect headerRect;
 
     headerRect.setLeftTopAndSize(0, height, width, HEADER_HEIGHT);
-    mHeader->setRect(headerRect);
-    mHeader->reshape(headerRect.getWidth(), headerRect.getHeight());
+    if (mHeader->getRect() != headerRect)
+    {
+        mHeader->setRect(headerRect);
+        mHeader->reshape(headerRect.getWidth(), headerRect.getHeight());
+    }
 
     if (!mDisplayChildren)
         return;
@@ -932,7 +947,7 @@ void LLAccordionCtrlTab::adjustContainerPanel(const LLRect& child_rect)
         show_hide_scrollbar(child_rect);
         updateLayout(child_rect);
     }
-    else
+    else if (mContainerPanel->getRect() != child_rect)
     {
         mContainerPanel->reshape(child_rect.getWidth(), child_rect.getHeight());
         mContainerPanel->setRect(child_rect);

@@ -87,6 +87,7 @@ public:
     virtual void                updateLayout(const class LLTextBase& editor);
     virtual F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     virtual bool                canEdit() const;
+    virtual bool                getPermitsEmoji() const;
     virtual void                unlinkFromDocument(class LLTextBase* editor);
     virtual void                linkToDocument(class LLTextBase* editor);
 
@@ -141,6 +142,7 @@ public:
     /*virtual*/ void                updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool                canEdit() const { return mCanEdit; }
+    /*virtual*/ bool                getPermitsEmoji() const { return false; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
     /*virtual*/ LLStyleConstSP      getStyle() const                    { return mStyle; }
     /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
@@ -255,6 +257,7 @@ public:
     /*virtual*/ void        updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32         draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool        canEdit() const { return false; }
+    /*virtual*/ bool        getPermitsEmoji() const { return false; }
     /*virtual*/ void        unlinkFromDocument(class LLTextBase* editor);
     /*virtual*/ void        linkToDocument(class LLTextBase* editor);
 
@@ -325,6 +328,7 @@ public:
 
     typedef boost::signals2::signal<bool (const LLUUID& user_id)> is_friend_signal_t;
     typedef boost::signals2::signal<bool (const LLUUID& blocked_id, const std::string from)> is_blocked_signal_t;
+    typedef boost::signals2::signal<bool (const LLUUID& obj_id)> is_obj_reachable_signal_t;
 
     struct LineSpacingParams : public LLInitParam::ChoiceBlock<LineSpacingParams>
     {
@@ -535,6 +539,7 @@ public:
     boost::signals2::connection setURLClickedCallback(const commit_signal_t::slot_type& cb);
     boost::signals2::connection setIsFriendCallback(const is_friend_signal_t::slot_type& cb);
     boost::signals2::connection setIsObjectBlockedCallback(const is_blocked_signal_t::slot_type& cb);
+    boost::signals2::connection setIsObjectReachableCallback(const is_obj_reachable_signal_t::slot_type& cb);
 
     void                    setWordWrap(bool wrap);
     LLScrollContainer*      getScrollContainer() const { return mScroller; }
@@ -783,6 +788,7 @@ protected:
     // Used to check if user with given ID is avatar's friend
     is_friend_signal_t*         mIsFriendSignal;
     is_blocked_signal_t*        mIsObjectBlockedSignal;
+    is_obj_reachable_signal_t*  mIsObjectReachableSignal;
 
     LLUIString                  mLabel; // text label that is visible when no user text provided
 };

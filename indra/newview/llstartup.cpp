@@ -122,6 +122,7 @@
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llpaneldirbrowser.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
 #include "llparcel.h"
@@ -439,7 +440,26 @@ bool idle_startup()
     system = osString.substr (begIdx, endIdx - begIdx);
     system += "Locale";
 
-    LLStringUtil::setLocale (LLTrans::getString(system));
+    std::string locale = LLTrans::getString(system);
+    if (locale != LLStringUtil::getLocale()) // is there a reason to do this on repeat?
+    {
+        LLStringUtil::setLocale(locale);
+
+        // Not all locales have AMPM, test it
+        if (LLStringOps::sAM.empty()) // Might already be overriden from LLAppViewer::init()
+        {
+            LLDate datetime(0.0);
+            std::string val = datetime.toHTTPDateString("%p");
+            if (val.empty())
+            {
+                LL_DEBUGS("InitInfo") << "Current locale \"" << locale << "\" "
+                    << "doesn't support AM/PM time format" << LL_ENDL;
+                // fallback to declarations in strings.xml
+                LLStringOps::sAM = LLTrans::getString("dateTimeAM");
+                LLStringOps::sPM = LLTrans::getString("dateTimePM");
+            }
+        }
+    }
 
     //note: Removing this line will cause incorrect button size in the login screen. -- bao.
     gTextureList.updateImages(0.01f) ;
@@ -2851,6 +2871,13 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFunc("GroupNoticesListReply", LLPanelGroupNotices::processGroupNoticesListReply);
 
     msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
+
+    msg->setHandlerFunc("DirPlacesReply", LLPanelDirBrowser::processDirPlacesReply);
+    msg->setHandlerFunc("DirPeopleReply", LLPanelDirBrowser::processDirPeopleReply);
+    msg->setHandlerFunc("DirEventsReply", LLPanelDirBrowser::processDirEventsReply);
+    msg->setHandlerFunc("DirGroupsReply", LLPanelDirBrowser::processDirGroupsReply);
+    msg->setHandlerFunc("DirClassifiedReply", LLPanelDirBrowser::processDirClassifiedReply);
+    msg->setHandlerFunc("DirLandReply", LLPanelDirBrowser::processDirLandReply);
 
     msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
     msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);

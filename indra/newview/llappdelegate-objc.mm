@@ -57,42 +57,42 @@
 
 - (void) applicationDidFinishLaunching:(NSNotification *)notification
 {
-	// Call constructViewer() first so our logging subsystem is in place. This
-	// risks missing crashes in the LLAppViewerMacOSX constructor, but for
-	// present purposes it's more important to get the startup sequence
-	// properly logged.
-	// Someday I would like to modify the logging system so that calls before
-	// it's initialized are cached in a std::ostringstream and then, once it's
-	// initialized, "played back" into whatever handlers have been set up.
-	constructViewer();
+    // Call constructViewer() first so our logging subsystem is in place. This
+    // risks missing crashes in the LLAppViewerMacOSX constructor, but for
+    // present purposes it's more important to get the startup sequence
+    // properly logged.
+    // Someday I would like to modify the logging system so that calls before
+    // it's initialized are cached in a std::ostringstream and then, once it's
+    // initialized, "played back" into whatever handlers have been set up.
+    constructViewer();
 
 #if defined(LL_BUGSPLAT)
     infos("bugsplat setup");
-	// Engage BugsplatStartupManager *before* calling initViewer() to handle
-	// any crashes during initialization.
-	// https://www.bugsplat.com/docs/platforms/os-x#initialization
-	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
-	[BugsplatStartupManager sharedManager].askUserDetails = NO;
-	[BugsplatStartupManager sharedManager].delegate = self;
-	[[BugsplatStartupManager sharedManager] start];
+    // Engage BugsplatStartupManager *before* calling initViewer() to handle
+    // any crashes during initialization.
+    // https://www.bugsplat.com/docs/platforms/os-x#initialization
+    [BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
+    [BugsplatStartupManager sharedManager].askUserDetails = NO;
+    [BugsplatStartupManager sharedManager].delegate = self;
+    [[BugsplatStartupManager sharedManager] start];
 #endif
     infos("post-bugsplat setup");
 
-	frameTimer = nil;
+    frameTimer = nil;
 
-	[self languageUpdated];
+    [self languageUpdated];
 
-	if (initViewer())
-	{
-		// Set up recurring calls to oneFrame (repeating timer with timeout 0)
-		// until applicationShouldTerminate.
-		frameTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self
-							  selector:@selector(oneFrame) userInfo:nil repeats:YES];
-	} else {
-		exit(0);
-	}
+    if (initViewer())
+    {
+        // Set up recurring calls to oneFrame (repeating timer with timeout 0)
+        // until applicationShouldTerminate.
+        frameTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self
+                              selector:@selector(oneFrame) userInfo:nil repeats:YES];
+    } else {
+        exit(0);
+    }
 
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(languageUpdated) name:@"NSTextInputContextKeyboardSelectionDidChangeNotification" object:nil];
 
  //   [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self andSelector:@selector(handleGetURLEvent:withReplyEvent:) forEventClass:kInternetEventClass andEventID:kAEGetURL];
 }
@@ -110,74 +110,74 @@
 
 - (void) applicationDidBecomeActive:(NSNotification *)notification
 {
-	callWindowFocus();
+    callWindowFocus();
 }
 
 - (void) applicationDidResignActive:(NSNotification *)notification
 {
-	callWindowUnfocus();
+    callWindowUnfocus();
 }
 
 - (void) applicationDidHide:(NSNotification *)notification
 {
-	callWindowHide();
+    callWindowHide();
 }
 
 - (void) applicationDidUnhide:(NSNotification *)notification
 {
-	callWindowUnhide();
+    callWindowUnhide();
 }
 
 - (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender
 {
-	// run one frame to assess state
-	if (!pumpMainLoop())
-	{
-		// pumpMainLoop() returns true when done, false if it wants to be
-		// called again. Since it returned false, do not yet cancel
-		// frameTimer.
-		handleQuit();
-		[[NSApplication sharedApplication] stopModal];
-		return NSTerminateCancel;
-	} else {
-		// pumpMainLoop() returned true: it's done. Okay, done with frameTimer.
-		[frameTimer release];
-		cleanupViewer();
-		return NSTerminateNow;
-	}
+    // run one frame to assess state
+    if (!pumpMainLoop())
+    {
+        // pumpMainLoop() returns true when done, false if it wants to be
+        // called again. Since it returned false, do not yet cancel
+        // frameTimer.
+        handleQuit();
+        [[NSApplication sharedApplication] stopModal];
+        return NSTerminateCancel;
+    } else {
+        // pumpMainLoop() returned true: it's done. Okay, done with frameTimer.
+        [frameTimer release];
+        cleanupViewer();
+        return NSTerminateNow;
+    }
 }
 
 - (void) oneFrame
 {
-	bool appExiting = pumpMainLoop();
-	if (appExiting)
-	{
-		// Once pumpMainLoop() reports that we're done, cancel frameTimer:
-		// stop the repetitive calls.
-		[frameTimer release];
-		[[NSApplication sharedApplication] terminate:self];
-	}
+    bool appExiting = pumpMainLoop();
+    if (appExiting)
+    {
+        // Once pumpMainLoop() reports that we're done, cancel frameTimer:
+        // stop the repetitive calls.
+        [frameTimer release];
+        [[NSApplication sharedApplication] terminate:self];
+    }
 }
 
 - (void) showInputWindow:(bool)show withEvent:(NSEvent*)textEvent
 {
-	if (![self romanScript])
-	{
-		if (show)
-		{
-			NSLog(@"Showing input window.");
-			[inputWindow makeKeyAndOrderFront:inputWindow];
+    if (![self romanScript])
+    {
+        if (show)
+        {
+            NSLog(@"Showing input window.");
+            [inputWindow makeKeyAndOrderFront:inputWindow];
             if (textEvent != nil)
             {
                 [[inputView inputContext] discardMarkedText];
                 [[inputView inputContext] handleEvent:textEvent];
             }
-		} else {
-			NSLog(@"Hiding input window.");
-			[inputWindow orderOut:inputWindow];
-			[window makeKeyAndOrderFront:window];
-		}
-	}
+        } else {
+            NSLog(@"Hiding input window.");
+            [inputWindow orderOut:inputWindow];
+            [window makeKeyAndOrderFront:window];
+        }
+    }
 }
 
 // This will get called multiple times by NSNotificationCenter.
@@ -187,15 +187,15 @@
 
 - (void) languageUpdated
 {
-	TISInputSourceRef currentInput = TISCopyCurrentKeyboardInputSource();
-	CFArrayRef languages = (CFArrayRef)TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages);
-	
+    TISInputSourceRef currentInput = TISCopyCurrentKeyboardInputSource();
+    CFArrayRef languages = (CFArrayRef)TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages);
+
 #if 0 // In the event of ever needing to add new language sources, change this to 1 and watch the terminal for "languages:"
-	NSLog(@"languages: %@", TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages));
+    NSLog(@"languages: %@", TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages));
 #endif
-	
-	// Typically the language we want is going to be the very first result in the array.
-	currentInputLanguage = (NSString*)CFArrayGetValueAtIndex(languages, 0);
+
+    // Typically the language we want is going to be the very first result in the array.
+    currentInputLanguage = (NSString*)CFArrayGetValueAtIndex(languages, 0);
 }
 
 - (bool) romanScript
@@ -209,7 +209,7 @@
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -313,11 +313,11 @@ struct AttachmentInfo
 
     // We "happen to know" that info[0].basename is "SecondLife.old" -- due to
     // the fact that BugsplatMac only notices a crash during the viewer run
-    // following the crash. 
+    // following the crash.
     // The Bugsplat service doesn't respect the MIME type above when returning
     // the log data to a browser, so take this opportunity to rename the file
     // from <base>.old to <base>_log.txt
-    info[0].basename = 
+    info[0].basename =
         boost::filesystem::path(info[0].pathname).stem().string() + "_log.txt";
     infos("attachmentsForBugsplatStartupManager attaching log " + info[0].basename);
 
@@ -373,7 +373,7 @@ struct AttachmentInfo
 {
     [super sendEvent:event];
     if ([event type] == NSEventTypeKeyUp && ([event modifierFlags] & NSEventModifierFlagCommand))
-    {   
+    {
         [[self keyWindow] sendEvent:event];
     }
 }

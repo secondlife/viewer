@@ -103,9 +103,6 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
     const std::string old_filename = LLDiskCache::metaDataToFilepath(old_file_id, old_file_type);
     const std::string new_filename = LLDiskCache::metaDataToFilepath(new_file_id, new_file_type);
 
-    // Rename needs the new file to not exist.
-    LLFileSystem::removeFile(new_file_id, new_file_type, ENOENT);
-
     if (LLFile::rename(old_filename, new_filename) != 0)
     {
         // We would like to return false here indicating the operation

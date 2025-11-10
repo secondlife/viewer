@@ -511,7 +511,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         {   //search from the current gpu class down to class 1 to find the most relevant shader
             std::stringstream fname;
             fname << getShaderDirPrefix();
-            fname << gpu_class << "/" << filename;
+            fname << gpu_class << gDirUtilp->getDirDelimiter() << filename;
 
             open_file_name = fname.str();
 
@@ -540,7 +540,14 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
     if (file == NULL)
     {
-        LL_WARNS("ShaderLoading") << "GLSL Shader file not found: " << open_file_name << LL_ENDL;
+        if (gDirUtilp->fileExists(open_file_name))
+        {
+            LL_WARNS("ShaderLoading") << "GLSL Shader file failed to open: " << open_file_name << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("ShaderLoading") << "GLSL Shader file not found: " << open_file_name << LL_ENDL;
+        }
         return 0;
     }
 
@@ -857,6 +864,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     //load source
     if (ret)
     {
+        LL_DEBUGS("ShaderLoading") << "glCreateShader done" << LL_ENDL;
         glShaderSource(ret, shader_code_count, (const GLchar**)shader_code_text, NULL);
 
         error = glGetError();
@@ -871,6 +879,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     //compile source
     if (ret)
     {
+        LL_DEBUGS("ShaderLoading") << "glShaderSource done" << U32(ret) << LL_ENDL;
         glCompileShader(ret);
 
         error = glGetError();
@@ -885,6 +894,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     if (error == GL_NO_ERROR)
     {
         //check for errors
+        LL_DEBUGS("ShaderLoading") << "glCompileShader done" << U32(ret) << LL_ENDL;
         GLint success = GL_TRUE;
         glGetShaderiv(ret, GL_COMPILE_STATUS, &success);
 
@@ -901,6 +911,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     }
     else
     {
+        LL_DEBUGS("ShaderLoading") << "loadShaderFile() completed, ret: " << U32(ret) << LL_ENDL;
         ret = 0;
     }
     stop_glerror();
@@ -1048,6 +1059,7 @@ void LLShaderMgr::clearShaderCache()
     LL_INFOS("ShaderMgr") << "Removing shader cache at " << shader_cache << LL_ENDL;
     const std::string mask = "*";
     gDirUtilp->deleteFilesInDir(shader_cache, mask);
+    LLFile::rmdir(shader_cache);
     mShaderBinaryCache.clear();
 }
 

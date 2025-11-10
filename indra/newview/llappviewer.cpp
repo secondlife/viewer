@@ -2398,7 +2398,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         if (gDirUtilp->fileExists(user_data_path_cef_log))
         {
             std::string user_data_path_cef_old = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.old");
-            LLFile::remove(user_data_path_cef_old, ENOENT);
             LLFile::rename(user_data_path_cef_log, user_data_path_cef_old);
         }
     }
@@ -3383,7 +3382,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["FONT_SIZE_ADJUSTMENT"] = gSavedSettings.getF32("FontScreenDPI");
     info["UI_SCALE"] = gSavedSettings.getF32("UIScaleFactor");
     info["DRAW_DISTANCE"] = gSavedSettings.getF32("RenderFarClip");
-    info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
+    info["NET_BANDWITH"] = LLViewerThrottle::getMaxBandwidthKbps();
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
     info["TEXTURE_MEMORY"] = LLSD::Integer(gGLManager.mVRAM);
@@ -4481,6 +4480,7 @@ void LLAppViewer::purgeCache()
     LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
     LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
     LLViewerShaderMgr::instance()->clearShaderCache();
+    purgeCefStaleCaches();
     gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*");
 }
 
@@ -5552,7 +5552,10 @@ void LLAppViewer::idleNetwork()
     add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
     // Retransmit unacknowledged packets.
-    gXferManager->retransmitUnackedPackets();
+    if (gXferManager)
+    {
+        gXferManager->retransmitUnackedPackets();
+    }
     gAssetStorage->checkForTimeouts();
     gViewerThrottle.setBufferLoadRate(gMessageSystem->getBufferLoadRate());
     gViewerThrottle.updateDynamicThrottle();

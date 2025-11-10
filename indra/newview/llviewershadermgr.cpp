@@ -3569,7 +3569,7 @@ bool LLViewerShaderMgr::loadShadersInterface()
 
 std::string LLViewerShaderMgr::getShaderDirPrefix(void)
 {
-    return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/class");
+    return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders", "class");
 }
 
 void LLViewerShaderMgr::updateShaderUniforms(LLGLSLShader * shader)

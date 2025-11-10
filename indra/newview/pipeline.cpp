@@ -866,7 +866,7 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 
     GLuint screenFormat = hdr ? GL_RGBA16F : GL_RGBA;
 
-    if (!mRT->screen.allocate(resX, resY, screenFormat)) return false;
+    if (!mRT->screen.allocate(resX, resY, GL_RGBA16F)) return false;
 
     mRT->deferredScreen.shareDepthBuffer(mRT->screen);
 
@@ -4343,7 +4343,7 @@ void LLPipeline::renderPhysicsDisplay()
     gGL.flush();
     gDebugProgram.bind();
 
-    LLGLEnable(GL_POLYGON_OFFSET_LINE);
+    LLGLEnable polygon_offset_line(GL_POLYGON_OFFSET_LINE);
     glPolygonOffset(3.f, 3.f);
     glLineWidth(3.f);
     LLGLEnable blend(GL_BLEND);
@@ -11543,21 +11543,24 @@ public:
     }
 };
 
-
+// Called from LLViewHighlightTransparent when "Highlight Transparent" is toggled
 void LLPipeline::rebuildDrawInfo()
 {
-    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-        iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+    const U32 types_to_traverse[] =
     {
-        LLViewerRegion* region = *iter;
+        LLViewerRegion::PARTITION_VOLUME,
+        LLViewerRegion::PARTITION_BRIDGE,
+        LLViewerRegion::PARTITION_AVATAR
+    };
 
-        LLOctreeDirty dirty;
-
-        LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
-        dirty.traverse(part->mOctree);
-
-        part = region->getSpatialPartition(LLViewerRegion::PARTITION_BRIDGE);
-        dirty.traverse(part->mOctree);
+    LLOctreeDirty dirty;
+    for (LLViewerRegion* region : LLWorld::getInstance()->getRegionList())
+    {
+        for (U32 type : types_to_traverse)
+        {
+            LLSpatialPartition* part = region->getSpatialPartition(type);
+            dirty.traverse(part->mOctree);
+        }
     }
 }
 

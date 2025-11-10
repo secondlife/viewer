@@ -98,6 +98,7 @@ const LLSD LLScrollListCell::getAltValue() const
 LLScrollListIcon::LLScrollListIcon(const LLScrollListCell::Params& p)
 :   LLScrollListCell(p),
     mIcon(LLUI::getUIImage(p.value().asString())),
+    mIconSize(0),
     mColor(p.color),
     mAlignment(p.font_halign)
 {}
@@ -140,20 +141,32 @@ void LLScrollListIcon::setValue(const LLSD& value)
     }
 }
 
-
 void LLScrollListIcon::setColor(const LLColor4& color)
 {
     mColor = color;
 }
 
+void LLScrollListIcon::setIconSize(S32 size)
+{
+    mIconSize = size;
+}
+
 S32 LLScrollListIcon::getWidth() const
 {
     // if no specified fix width, use width of icon
-    if (LLScrollListCell::getWidth() == 0 && mIcon.notNull())
+    if (LLScrollListCell::getWidth() != 0)
+    {
+        return LLScrollListCell::getWidth();
+    }
+    if (mIconSize != 0)
+    {
+        return mIconSize;
+    }
+    if (mIcon.notNull())
     {
         return mIcon->getWidth();
     }
-    return LLScrollListCell::getWidth();
+    return 0;
 }
 
 
@@ -161,16 +174,23 @@ void LLScrollListIcon::draw(const LLColor4& color, const LLColor4& highlight_col
 {
     if (mIcon)
     {
+        S32 draw_width = mIcon->getWidth();
+        S32 draw_height = mIcon->getHeight();
+        if (mIconSize != 0)
+        {
+            draw_width = mIconSize;
+            draw_height = mIconSize;
+        } // else will draw full icon even if cell is smaller
         switch(mAlignment)
         {
         case LLFontGL::LEFT:
-            mIcon->draw(0, 0, mColor);
+            mIcon->draw(0, 0, draw_width, draw_height, mColor);
             break;
         case LLFontGL::RIGHT:
-            mIcon->draw(getWidth() - mIcon->getWidth(), 0, mColor);
+            mIcon->draw(getWidth() - draw_width, 0, draw_width, draw_height, mColor);
             break;
         case LLFontGL::HCENTER:
-            mIcon->draw((getWidth() - mIcon->getWidth()) / 2, 0, mColor);
+            mIcon->draw((getWidth() - draw_width) / 2, 0, draw_width, draw_height, mColor);
             break;
         default:
             break;

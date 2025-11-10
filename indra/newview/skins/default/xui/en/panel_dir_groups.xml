@@ -1,0 +1,129 @@
+<panel
+ border="true"
+ top="30"
+ follows="left|top|right|bottom"
+ height="533"
+ label="Groups"
+ left="1"
+ mouse_opaque="false"
+ name="panel_dir_groups"
+ width="778">
+    <button
+     image_overlay="Arrow_Left_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     hover_glow_amount="0.15"
+     tool_tip="Previous page"
+     follows="right|bottom"
+     height="22"
+     right="305"
+     bottom="-533"
+     name="prev_btn"
+     width="32" />
+    <button
+     image_overlay="Arrow_Right_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     tool_tip="Next page"
+     follows="right|bottom"
+     height="22"
+     layout="topleft"
+     left_pad="5"
+     name="next_btn"
+     top_delta="0"
+     width="32"/>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     top="8"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="5"
+     mouse_opaque="true"
+     name="find"
+     v_pad="0"
+     width="150">
+        Enter search terms:
+    </text>
+    <check_box
+     top_delta="0"
+     control_name="ShowMatureGroups"
+     follows="right|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="false"
+     label="Include Mature groups"
+     left="510"
+     mouse_opaque="true"
+     name="incmature"
+     width="100" />
+    <line_editor
+     bevel_style="in"
+     border_style="line"
+     border_thickness="1"
+     top_pad="5"
+     follows="left|right|top"
+     font="SansSerif"
+     height="18"
+     left="5"
+     max_length="63"
+     mouse_opaque="true"
+     name="name"
+     width="650" />
+    <button
+     follows="right|top"
+     layout="topleft"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Search"
+     top_delta="0"
+     left_pad="5"
+     mouse_opaque="true"
+     name="Search"
+     width="105" />
+    <scroll_list
+     background_visible="true"
+     layout="topleft"
+     top_pad="3"
+     column_padding="0"
+     draw_border="true"
+     draw_heading="true"
+     follows="left|top|right|bottom"
+     height="450"
+     left="5"
+     mouse_opaque="true"
+     multi_select="false"
+     name="results"
+     search_column="2"
+     width="336">
+        <column label="" name="icon" width="24" sort="score" sort_ascending="false" />
+        <column label="" name="type" width="-1" />
+        <column label="Name" name="name" dynamicwidth="true" />
+        <column label="Members" name="members" width="100" halign="left" sort_ascending="false" />
+        <column label="" name="score" width="-1"/>
+    </scroll_list>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     bottom_delta="-20"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     h_pad="0" halign="left"
+     height="16" left="4"
+     mouse_opaque="true"
+     name="result_text"
+     v_pad="0"
+     width="328" />
+</panel>
