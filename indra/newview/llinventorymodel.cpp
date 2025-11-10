@@ -1107,9 +1107,9 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("createNewCategoryCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("createNewCategoryCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
 
 
     httpOpts->setWantHeaders(true);
@@ -3257,11 +3257,11 @@ void LLInventoryModel::initHttpRequest()
 
         mHttpRequestFG = new LLCore::HttpRequest;
         mHttpRequestBG = new LLCore::HttpRequest;
-        mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+        mHttpOptions = std::make_shared<LLCore::HttpOptions>();
         mHttpOptions->setTransferTimeout(300);
         mHttpOptions->setUseRetryAfter(true);
         // mHttpOptions->setTrace(2);       // Do tracing of requests
-        mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
+        mHttpHeaders = std::make_shared<LLCore::HttpHeaders>();
         mHttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
         mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
         mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_INVENTORY);

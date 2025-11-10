@@ -3908,7 +3908,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         LL_DEBUGS("Avatar") << "Will send request for cof_version " << cofVersion << LL_ENDL;
 
         bRetry = false;
-        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+        LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
         if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
         {
@@ -4379,8 +4379,8 @@ LLAppearanceMgr::LLAppearanceMgr():
     outfit_observer.addCOFSavedCallback(boost::bind(
             &LLAppearanceMgr::setOutfitLocked, this, false));
 
-    mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer((F32)gSavedSettings.getS32(
-            "OutfitOperationsTimeout")));
+    mUnlockOutfitTimer = std::make_unique<LLOutfitUnLockTimer>((F32)gSavedSettings.getS32(
+            "OutfitOperationsTimeout"));
 
     gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
     gIdleCallbacks.addFunction(&LLAppearanceMgr::onIdle, NULL); //sheduling appearance update requests

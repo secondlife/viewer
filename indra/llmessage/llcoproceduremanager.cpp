@@ -195,7 +195,7 @@ void LLCoprocedureManager::initializePool(const std::string &poolName, size_t qu
         LL_WARNS("CoProcMgr") << "LLCoprocedureManager: No setting for \"" << keyName << "\" setting pool size to default of " << size << LL_ENDL;
     }
 
-    poolPtr_t pool(new LLCoprocedurePool(poolName, size, queue_size));
+    poolPtr_t pool = std::make_shared<LLCoprocedurePool>(poolName, size, queue_size);
     LL_ERRS_IF(!pool, "CoprocedureManager") << "Unable to create pool named \"" << poolName << "\" FATAL!" << LL_ENDL;
 
     bool inserted = mPoolMap.emplace(poolName, pool).second;
@@ -365,7 +365,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, s
 
     for (size_t count = 0; count < mPoolSize; ++count)
     {
-        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter( mPoolName + "Adapter", mHTTPPolicy));
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>(mPoolName + "Adapter", mHTTPPolicy);
 
         std::string pooledCoro = LLCoros::instance().launch(
             "LLCoprocedurePool("+mPoolName+")::coprocedureInvokerCoro",

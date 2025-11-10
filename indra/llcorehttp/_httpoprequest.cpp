@@ -272,7 +272,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
         response->setContentType(mReplyConType);
         response->setRetries(mPolicyRetries, mPolicy503Retries);
 
-        HttpResponse::TransferStats::ptr_t stats = HttpResponse::TransferStats::ptr_t(new HttpResponse::TransferStats);
+        HttpResponse::TransferStats::ptr_t stats = std::make_shared<HttpResponse::TransferStats>();
 
         curl_easy_getinfo(mCurlHandle, CURLINFO_SIZE_DOWNLOAD, &stats->mSizeDownload);
         curl_easy_getinfo(mCurlHandle, CURLINFO_TOTAL_TIME, &stats->mTotalTime);
@@ -964,7 +964,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
         // Save headers in response
         if (! op->mReplyHeaders)
         {
-            op->mReplyHeaders = HttpHeaders::ptr_t(new HttpHeaders);
+            op->mReplyHeaders = std::make_shared<HttpHeaders>();
         }
         op->mReplyHeaders->append(name, value ? value : "");
     }

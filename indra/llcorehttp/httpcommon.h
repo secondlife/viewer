@@ -297,25 +297,25 @@ struct HttpStatus
 
     HttpStatus()
     {
-        mDetails = std::shared_ptr<Details>(new Details(LLCORE, HE_SUCCESS));
+        mDetails = std::make_shared<Details>(LLCORE, HE_SUCCESS);
     }
 
     HttpStatus(type_enum_t type, short status)
     {
-        mDetails = std::shared_ptr<Details>(new Details(type, status));
+        mDetails = std::make_shared<Details>(type, status);
     }
 
     HttpStatus(int http_status)
     {
-        mDetails = std::shared_ptr<Details>(new Details(http_status,
-            (http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+        mDetails = std::make_shared<Details>(http_status,
+            (http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);
         llassert(http_status >= 100 && http_status <= 999);
     }
 
     HttpStatus(int http_status, const std::string &message)
     {
-        mDetails = std::shared_ptr<Details>(new Details(http_status,
-            (http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+        mDetails = std::make_shared<Details>(http_status,
+            (http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);
         llassert(http_status >= 100 && http_status <= 999);
         mDetails->mMessage = message;
     }
@@ -337,7 +337,7 @@ struct HttpStatus
 
     HttpStatus & clone(const HttpStatus &rhs)
     {
-        mDetails = std::shared_ptr<Details>(new Details(*rhs.mDetails));
+        mDetails = std::make_shared<Details>(*rhs.mDetails);
         return *this;
     }
 

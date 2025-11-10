@@ -465,7 +465,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
         // to the target LLView*. But put it on the heap since "path" is
         // optional. Nonetheless, manage it with a boost::scoped_ptr so it
         // will be destroyed when we leave.
-        tempfunc.reset(new LLView::TemporaryDrilldownFunc(llview::TargetEvent(target)));
+        tempfunc = std::make_unique<LLView::TemporaryDrilldownFunc>(llview::TargetEvent(target));
     }
 
     // The question of whether the requested LLView actually handled the

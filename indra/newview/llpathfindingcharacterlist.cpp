@@ -65,7 +65,7 @@ void LLPathfindingCharacterList::parseCharacterListData(const LLSD& pCharacterLi
             continue;
         const std::string& uuid(characterDataIter->first);
         const LLSD& characterData = characterDataIter->second;
-        LLPathfindingObjectPtr character(new LLPathfindingCharacter(uuid, characterData));
+        LLPathfindingObjectPtr character = std::make_shared<LLPathfindingCharacter>(uuid, characterData);
         objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, character));
     }
 }

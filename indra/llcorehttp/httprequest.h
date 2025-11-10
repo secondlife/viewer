@@ -104,9 +104,9 @@ public:
 
     /// Represents a default, catch-all policy class that guarantees
     /// eventual service for any HTTP request.
-    static const policy_t DEFAULT_POLICY_ID = 0;
-    static const policy_t INVALID_POLICY_ID = 0xFFFFFFFFU;
-    static const policy_t GLOBAL_POLICY_ID = 0xFFFFFFFEU;
+    static constexpr policy_t DEFAULT_POLICY_ID = 0;
+    static constexpr policy_t INVALID_POLICY_ID = 0xFFFFFFFFU;
+    static constexpr policy_t GLOBAL_POLICY_ID = 0xFFFFFFFEU;
 
     /// Create a new policy class into which requests can be made.
     ///

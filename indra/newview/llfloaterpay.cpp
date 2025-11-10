@@ -154,7 +154,7 @@ bool LLFloaterPay::postBuild()
 {
     S32 i = 0;
 
-    give_money_ptr info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_0));
+    give_money_ptr info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_0);
     mCallbackData.push_back(info);
 
     childSetAction("fastpay 1", boost::bind(LLFloaterPay::onGive, info));
@@ -164,7 +164,7 @@ bool LLFloaterPay::postBuild()
     mQuickPayInfo[i] = info;
     ++i;
 
-    info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_1));
+    info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_1);
     mCallbackData.push_back(info);
 
     childSetAction("fastpay 5", boost::bind(LLFloaterPay::onGive, info));
@@ -174,7 +174,7 @@ bool LLFloaterPay::postBuild()
     mQuickPayInfo[i] = info;
     ++i;
 
-    info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_2));
+    info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_2);
     mCallbackData.push_back(info);
 
     childSetAction("fastpay 10", boost::bind(LLFloaterPay::onGive, info));
@@ -184,7 +184,7 @@ bool LLFloaterPay::postBuild()
     mQuickPayInfo[i] = info;
     ++i;
 
-    info = give_money_ptr(new LLGiveMoneyInfo(this, PAY_BUTTON_DEFAULT_3));
+    info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_3);
     mCallbackData.push_back(info);
 
     childSetAction("fastpay 20", boost::bind(LLFloaterPay::onGive, info));
