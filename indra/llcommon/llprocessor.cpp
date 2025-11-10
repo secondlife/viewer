@@ -739,32 +739,6 @@ private:
             }
         }
 
-        // *NOTE:Mani - I didn't find any docs that assure me that machdep.cpu.feature_bits will always be
-        // The feature bits I think it is. Here's a test:
-#if !defined(LL_RELEASE_FOR_DOWNLOAD) && !defined(LL_ARM64)
-    #if defined(__i386__) && defined(__PIC__)
-            /* %ebx may be the PIC register.  */
-        #define __cpuid(level, a, b, c, d)          \
-        __asm__ ("xchgl\t%%ebx, %1\n\t"         \
-                "cpuid\n\t"                 \
-                "xchgl\t%%ebx, %1\n\t"          \
-                : "=a" (a), "=r" (b), "=c" (c), "=d" (d)    \
-                : "0" (level))
-    #else
-        #define __cpuid(level, a, b, c, d)          \
-        __asm__ ("cpuid\n\t"                    \
-                 : "=a" (a), "=b" (b), "=c" (c), "=d" (d)   \
-                 : "0" (level))
-    #endif
-
-        unsigned int eax, ebx, ecx, edx;
-        __cpuid(0x1, eax, ebx, ecx, edx);
-        if(feature_infos[0] != (S32)edx)
-        {
-            LL_WARNS() << "machdep.cpu.feature_bits doesn't match expected cpuid result!" << LL_ENDL;
-        }
-#endif // LL_RELEASE_FOR_DOWNLOAD
-
         // @TODO: Audit our usage of machdep.cpu.feature_bits.
 
         uint64_t ext_feature_info = getSysctlInt64("machdep.cpu.extfeature_bits");
