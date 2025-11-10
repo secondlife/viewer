@@ -29,6 +29,9 @@
 #include <iostream>
 #include "llfilepicker_mac.h"
 
+// For setAllowedFileTypes deprecation
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 NSOpenPanel *init_panel(const std::vector<std::string>* allowed_types, unsigned int flags)
 {
     int i;
