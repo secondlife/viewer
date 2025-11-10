@@ -54,7 +54,6 @@ LLVersionInfo::LLVersionInfo():
     // macro expands to the string name of the channel, but without quotes. We
     // need to turn it into a quoted string. LL_TO_STRING() does that.
     mWorkingChannelName(LL_TO_STRING(LL_VIEWER_CHANNEL)),
-    build_configuration(LLBUILD_CONFIG), // set in indra/cmake/BuildVersion.cmake
     // instantiate an LLEventMailDrop with canonical name to listen for news
     // from SLVersionChecker
     mPump{new LLEventMailDrop("relnotes")},
@@ -170,7 +169,15 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity() const
 
 std::string LLVersionInfo::getBuildConfig() const
 {
-    return build_configuration;
+#if LL_DEBUG
+    return "Debug";
+#elif LL_RELEASE_WITH_DEBUG_INFO
+    return "RelWithDebInfo";
+#elif LL_RELEASE_FOR_DOWNLOAD
+    return "Release";
+#else
+    return "Unknown";
+#endif
 }
 
 std::string LLVersionInfo::getReleaseNotes() const
