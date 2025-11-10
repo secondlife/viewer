@@ -142,6 +142,18 @@ bool get_can_copy_texture(LLUUID asset_id)
     return get_is_predefined_texture(asset_id) || get_copy_free_item_by_asset_id(asset_id).notNull();
 }
 
+LLViewerFetchedTexture* fetch_preview_texture(const LLUUID& id)
+{
+    LLViewerFetchedTexture* img = nullptr;
+    if (id.notNull())
+    {
+        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        img->addTextureStats(MAX_IMAGE_AREA, true);
+    }
+
+    return img;
+};
+
 S32 LLFloaterTexturePicker::sLastPickerMode = 0;
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(
@@ -319,29 +331,14 @@ bool LLFloaterTexturePicker::updateImageStats()
 
         bool has_texture = false;
 
-        if (mGLTFMaterial->mBaseColorTexture)
+        for (S32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
         {
-            width = llmax(width, mGLTFMaterial->mBaseColorTexture->getFullWidth());
-            height = llmax(height, mGLTFMaterial->mBaseColorTexture->getFullHeight());
-            has_texture = true;
-        }
-        if (mGLTFMaterial->mNormalTexture)
-        {
-            width = llmax(width, mGLTFMaterial->mNormalTexture->getFullWidth());
-            height = llmax(height, mGLTFMaterial->mNormalTexture->getFullHeight());
-            has_texture = true;
-        }
-        if (mGLTFMaterial->mMetallicRoughnessTexture)
-        {
-            width = llmax(width, mGLTFMaterial->mMetallicRoughnessTexture->getFullWidth());
-            height = llmax(height, mGLTFMaterial->mMetallicRoughnessTexture->getFullHeight());
-            has_texture = true;
-        }
-        if (mGLTFMaterial->mEmissiveTexture)
-        {
-            width = llmax(width, mGLTFMaterial->mEmissiveTexture->getFullWidth());
-            height = llmax(height, mGLTFMaterial->mEmissiveTexture->getFullHeight());
-            has_texture = true;
+            if (mGLTFTextures[i])
+            {
+                width = llmax(width, mGLTFTextures[i]->getFullWidth());
+                height = llmax(height, mGLTFTextures[i]->getFullHeight());
+                has_texture = true;
+            }
         }
 
         if (width > 0 && height > 0)
@@ -547,6 +544,7 @@ void LLFloaterTexturePicker::onClose(bool app_quitting)
     sLastPickerMode = mModeSelector->getValue().asInteger();
     // *NOTE: Vertex buffer for sphere preview is still cached
     mGLTFPreview = nullptr;
+    mGLTFTextures.fill(nullptr);
 }
 
 // virtual
@@ -691,6 +689,7 @@ void LLFloaterTexturePicker::draw()
         {
             if (mInventoryPickType == PICK_MATERIAL)
             {
+                mGLTFTextures.fill(nullptr);
                 mGLTFMaterial = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mImageAssetID);
                 llassert(mGLTFMaterial == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(gGLTFMaterialList.getMaterial(mImageAssetID)) != nullptr);
                 if (mGLTFPreview.isNull() || mGLTFMaterial.isNull() || (old_material.notNull() && (old_material.get() != mGLTFMaterial.get())))
@@ -705,6 +704,14 @@ void LLFloaterTexturePicker::draw()
                         mGLTFPreview = gGLTFMaterialPreviewMgr.getPreview(mGLTFMaterial);
                     }
                 }
+                if (mGLTFMaterial)
+                {
+                    for (S32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                    {
+                        // finds the texture and pumps stats
+                        mGLTFTextures[i] = fetch_preview_texture(mGLTFMaterial->mTextureId[i]);
+                    }
+                }
                 if (mGLTFPreview)
                 {
                     mGLTFPreview->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
@@ -714,6 +721,7 @@ void LLFloaterTexturePicker::draw()
             {
                 LLPointer<LLViewerFetchedTexture> texture = NULL;
                 mGLTFPreview = nullptr;
+                mGLTFTextures.fill(nullptr);
 
                 if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
                 {
@@ -1814,6 +1822,7 @@ void LLTextureCtrl::onVisibilityChange(bool new_visibility)
     {
         // *NOTE: Vertex buffer for sphere preview is still cached
         mGLTFPreview = nullptr;
+        //mGLTFTextures.fill(nullptr);
     }
     else
     {

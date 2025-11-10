@@ -123,6 +123,7 @@ namespace
         }
         if (img)
         {
+            img->addTextureStats(MAX_IMAGE_AREA, true);
             img->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
             img->forceToSaveRawImage(0);
         }

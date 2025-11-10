@@ -401,6 +401,7 @@ protected:
 
     LLPointer<LLViewerTexture> mTexturep;
     LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
+    std::array<LLPointer<LLViewerFetchedTexture>, LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT> mGLTFTextures;
     LLPointer<LLViewerTexture> mGLTFPreview;
     LLView*             mOwner;
 
