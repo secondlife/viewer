@@ -61,13 +61,15 @@ class LLTextSegment
 public:
     LLTextSegment(S32 start, S32 end)
     :   mStart(start),
-        mEnd(end)
+        mEnd(end),
+        mPermitsEmoji(true)
     {}
     virtual ~LLTextSegment();
     virtual LLTextSegmentPtr clone(LLTextBase& terget) const { return new LLTextSegment(mStart, mEnd); }
     static LLStyleSP cloneStyle(LLTextBase& target, const LLStyle* source);
 
     bool                        getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+    bool                        getPermitsEmoji() const { return mPermitsEmoji; };
 
     virtual bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     virtual S32                 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
@@ -87,7 +89,6 @@ public:
     virtual void                updateLayout(const class LLTextBase& editor);
     virtual F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     virtual bool                canEdit() const;
-    virtual bool                getPermitsEmoji() const;
     virtual void                unlinkFromDocument(class LLTextBase* editor);
     virtual void                linkToDocument(class LLTextBase* editor);
 
@@ -126,6 +127,8 @@ public:
 protected:
     S32             mStart;
     S32             mEnd;
+
+    bool            mPermitsEmoji;
 };
 
 class LLNormalTextSegment : public LLTextSegment
@@ -142,7 +145,6 @@ public:
     /*virtual*/ void                updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool                canEdit() const { return mCanEdit; }
-    /*virtual*/ bool                getPermitsEmoji() const { return false; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
     /*virtual*/ LLStyleConstSP      getStyle() const                    { return mStyle; }
     /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
@@ -257,7 +259,6 @@ public:
     /*virtual*/ void        updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32         draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool        canEdit() const { return false; }
-    /*virtual*/ bool        getPermitsEmoji() const { return false; }
     /*virtual*/ void        unlinkFromDocument(class LLTextBase* editor);
     /*virtual*/ void        linkToDocument(class LLTextBase* editor);
 
