@@ -211,6 +211,7 @@ namespace
             break;
         case LLFilePicker::FFLOAD_MODEL:
             filter_vec.push_back({ "Model files (*.dae)", "dae" });
+            filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
             break;
         case LLFilePicker::FFLOAD_MATERIAL:
             filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
