@@ -738,7 +738,7 @@ private:
                 setExtension(cpu_feature_names[index]);
             }
         }
-        
+
         // @TODO: Audit our usage of machdep.cpu.feature_bits.
 
         uint64_t ext_feature_info = getSysctlInt64("machdep.cpu.extfeature_bits");
