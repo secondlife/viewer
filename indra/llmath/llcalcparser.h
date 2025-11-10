@@ -27,6 +27,13 @@
 #ifndef LL_CALCPARSER_H
 #define LL_CALCPARSER_H
 
+#include "llpreprocessor.h"
+
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
+
 #include <boost/spirit/include/classic_attribute.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_error_handling.hpp>
@@ -34,6 +41,10 @@
 #include <boost/spirit/include/phoenix1_binders.hpp>
 #include <boost/spirit/include/classic_symbols.hpp>
 using namespace boost::spirit::classic;
+
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic pop
+#endif
 
 #include "llcalc.h"
 #include "llmath.h"
@@ -131,14 +142,14 @@ struct LLCalcParser : grammar<LLCalcParser>
 
             power =
                 unary_expr[power.value = arg1] >>
-                *('^' >> assert_syntax(unary_expr[power.value = phoenix::bind(&powf)(power.value, arg1)]))
+                *('^' >> assert_syntax(unary_expr[power.value = phoenix::bind(&LLCalcParser::_pow)(self, power.value, arg1)]))
             ;
 
             term =
                 power[term.value = arg1] >>
                 *(('*' >> assert_syntax(power[term.value *= arg1])) |
                   ('/' >> assert_syntax(power[term.value /= arg1])) |
-                  ('%' >> assert_syntax(power[term.value = phoenix::bind(&fmodf)(term.value, arg1)]))
+                  ('%' >> assert_syntax(power[term.value = phoenix::bind(&LLCalcParser::_fmod)(self, term.value, arg1)]))
                 )
             ;
 
@@ -177,10 +188,11 @@ private:
     F32 _floor(const F32& a) const { return (F32)llfloor(a); }
     F32 _ceil(const F32& a) const { return (F32)llceil(a); }
     F32 _atan2(const F32& a,const F32& b) const { return atan2(a,b); }
+    F32 _pow(const F32& a, const F32& b) const { return powf(a, b); }
+    F32 _fmod(const F32&a, const F32& b) const { return fmodf(a, b); }
 
     LLCalc::calc_map_t* mConstants;
     LLCalc::calc_map_t* mVariables;
-//  LLCalc::calc_map_t* mUserVariables;
 
     F32&        mResult;
 };

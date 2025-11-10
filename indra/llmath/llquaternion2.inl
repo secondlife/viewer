@@ -57,7 +57,7 @@ inline LLVector4a& LLQuaternion2::getVector4aRw()
 // Set this quaternion to the conjugate of src
 inline void LLQuaternion2::setConjugate(const LLQuaternion2& src)
 {
-    static LL_ALIGN_16( const U32 F_QUAT_INV_MASK_4A[4] ) = { 0x80000000, 0x80000000, 0x80000000, 0x00000000 };
+    alignas(16) static const U32 F_QUAT_INV_MASK_4A[4] = { 0x80000000, 0x80000000, 0x80000000, 0x00000000 };
     mQ = _mm_xor_ps(src.mQ, *reinterpret_cast<const LLQuad*>(&F_QUAT_INV_MASK_4A));
 }
 

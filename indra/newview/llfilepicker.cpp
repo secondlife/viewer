@@ -36,7 +36,7 @@
 #include "llviewercontrol.h"
 #include "llwindow.h"   // beforeDialog()
 
-#if LL_SDL
+#if LL_SDL_WINDOW
 #include "llwindowsdl.h" // for some X/GTK utils to help with filepickers
 #endif // LL_SDL
 
@@ -50,7 +50,7 @@
 
 LLFilePicker LLFilePicker::sInstance;
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_SDL_WINDOW
 #define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
@@ -82,7 +82,7 @@ LLFilePicker::LLFilePicker()
 {
     reset();
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_SDL_WINDOW
     mOFN.lStructSize = sizeof(OPENFILENAMEW);
     mOFN.hwndOwner = NULL;  // Set later
     mOFN.hInstance = NULL;
@@ -102,7 +102,7 @@ LLFilePicker::LLFilePicker()
     mOFN.lpfnHook = NULL;
     mOFN.lpTemplateName = NULL;
     mFilesW[0] = '\0';
-#elif LL_DARWIN
+#elif LL_DARWIN && !LL_SDL_WINDOW
     mPickOptions = 0;
 #endif
 
@@ -167,7 +167,452 @@ void LLFilePicker::reset()
     mCurrentFile = 0;
 }
 
-#if LL_WINDOWS
+#if LL_SDL_WINDOW
+
+namespace
+{
+    std::vector<SDL_DialogFileFilter> setupLoadFilter(LLFilePicker::ELoadFilter filter)
+    {
+        std::vector<SDL_DialogFileFilter> filter_vec;
+
+        switch (filter)
+        {
+        case LLFilePicker::FFLOAD_ALL:
+        case LLFilePicker::FFLOAD_EXE:
+            filter_vec.push_back({ "All Files (*.*)", "*" });
+            filter_vec.push_back({ "Sounds (*.wav)", "wav" });
+            filter_vec.push_back({ "Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)", "tga;bmp;jpg;jpeg;png" });
+            filter_vec.push_back({ "Animations (*.bvh; *.anim)", "bvh;anim" });
+            filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
+            break;
+        case LLFilePicker::FFLOAD_WAV:
+            filter_vec.push_back({ "Sounds (*.wav)", "wav" });
+            break;
+        case LLFilePicker::FFLOAD_IMAGE:
+            filter_vec.push_back({ "Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)", "tga;bmp;jpg;jpeg;png" });
+            break;
+        case LLFilePicker::FFLOAD_ANIM:
+            filter_vec.push_back({ "Animations (*.bvh; *.anim)", "bvh;anim" });
+            break;
+        case LLFilePicker::FFLOAD_GLTF:
+            filter_vec.push_back({ "glTF (*.gltf; *.glb)", "gltf;glb" });
+            break;
+        case LLFilePicker::FFLOAD_COLLADA:
+            filter_vec.push_back({ "Scene (*.dae)", "dae" });
+            break;
+        case LLFilePicker::FFLOAD_XML:
+            filter_vec.push_back({ "XML files (*.xml)", "xml" });
+            break;
+        case LLFilePicker::FFLOAD_SLOBJECT:
+            filter_vec.push_back({ "Objects (*.slobject)", "slobject" });
+            break;
+        case LLFilePicker::FFLOAD_RAW:
+            filter_vec.push_back({ "RAW files (*.raw)", "raw" });
+            break;
+        case LLFilePicker::FFLOAD_MODEL:
+            filter_vec.push_back({ "Model files (*.dae)", "dae" });
+            filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
+            break;
+        case LLFilePicker::FFLOAD_MATERIAL:
+            filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
+            break;
+        case LLFilePicker::FFLOAD_MATERIAL_TEXTURE:
+            filter_vec.push_back({ "GLTF Import (*.gltf; *.glb; *.tga; *.bmp; *.jpg; *.jpeg; *.png)", "gltf;glb;tga;bmp;jpg;jpeg;png" });
+            filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
+            filter_vec.push_back({ "Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)", "tga;bmp;jpg;jpeg;png" });
+            break;
+        case LLFilePicker::FFLOAD_HDRI:
+            filter_vec.push_back({ "HDRI Files (*.exr)", "exr" });
+            break;
+        case LLFilePicker::FFLOAD_SCRIPT:
+            filter_vec.push_back({ "Script files (*.lsl)", "lsl" });
+            break;
+        case LLFilePicker::FFLOAD_DICTIONARY:
+            filter_vec.push_back({ "Dictionary files (*.dic; *.xcu)", "dic;xcu" });
+            break;
+        default:
+            break;
+        }
+        return filter_vec;
+    }
+}
+
+bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
+{
+    LL_ERRS() << "NOT IMPLEMENTED" << LL_ENDL;
+    return false;
+}
+
+bool LLFilePicker::getOpenFileModeless(ELoadFilter filter,
+    void (*callback)(bool, std::vector<std::string>&, void*),
+    void* userdata)
+{
+    if (mLocked)
+    {
+        return false;
+    }
+
+    // if local file browsing is turned off, return without opening dialog
+    if (!check_local_file_access_enabled())
+    {
+        return false;
+    }
+
+    auto file_filters = setupLoadFilter(filter);
+
+    reset();
+
+    {
+        struct LLSDLFileUserdata
+        {
+            LLSDLFileUserdata(void (*callback_func)(bool, std::vector<std::string>&, void*), void* callback_userdata)
+                : mCallback(callback_func), mUserdata(callback_userdata)
+            {
+            }
+            void (*mCallback)(bool, std::vector<std::string>&, void*);
+            void* mUserdata;
+        };
+
+        auto sdl_callback = [](void* userdata, const char* const* filelist, int filter)
+            {
+                LLSDLFileUserdata* callback_struct = (LLSDLFileUserdata*)userdata;
+
+                auto* callback_func = callback_struct->mCallback;
+                auto* callback_data = callback_struct->mUserdata;
+                delete callback_struct; // delete callback container
+
+                std::vector<std::string> rtn;
+
+                if (!filelist)
+                {
+                    LL_WARNS() << "Error during SDL file picking: " << SDL_GetError() << LL_ENDL;
+                    callback_func(false, rtn, callback_data);
+                    return;
+                }
+                else if (!*filelist)
+                {
+                    LL_INFOS() << "User did not select any file. Dialog likely cancelled." << LL_ENDL;
+                    callback_func(false, rtn, callback_data);
+                    return;
+                }
+
+                while (*filelist)
+                {
+                    rtn.push_back(std::string(*filelist));
+                    filelist++;
+                }
+
+                callback_func(true, rtn, callback_data);
+
+            };
+
+        LLSDLFileUserdata* llfilecallback = new LLSDLFileUserdata(callback, userdata);
+
+        SDL_PropertiesID props = SDL_CreateProperties();
+        SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_FILTERS_POINTER, file_filters.data());
+        SDL_SetNumberProperty(props, SDL_PROP_FILE_DIALOG_NFILTERS_NUMBER, file_filters.size());
+        SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_WINDOW_POINTER, SDL_GL_GetCurrentWindow());
+        SDL_SetBooleanProperty(props, SDL_PROP_FILE_DIALOG_MANY_BOOLEAN, false);
+
+        SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_OPENFILE, sdl_callback, llfilecallback, props);
+
+        SDL_DestroyProperties(props);
+    }
+    return true;
+}
+
+bool LLFilePicker::getMultipleOpenFiles(ELoadFilter filter, bool blocking)
+{
+    LL_ERRS() << "NOT IMPLEMENTED" << LL_ENDL;
+    return false;
+}
+
+bool LLFilePicker::getMultipleOpenFilesModeless(ELoadFilter filter,
+    void (*callback)(bool, std::vector<std::string>&, void*),
+    void* userdata)
+{
+    if (mLocked)
+    {
+        return false;
+    }
+
+    // if local file browsing is turned off, return without opening dialog
+    if (!check_local_file_access_enabled())
+    {
+        return false;
+    }
+
+    auto file_filters = setupLoadFilter(filter);
+
+    reset();
+
+    {
+        struct LLSDLFileUserdata
+        {
+            LLSDLFileUserdata(void (*callback_func)(bool, std::vector<std::string>&, void*), void* callback_userdata)
+                : mCallback(callback_func), mUserdata(callback_userdata)
+            {
+            }
+            void (*mCallback)(bool, std::vector<std::string>&, void*);
+            void* mUserdata;
+        };
+
+        auto sdl_callback = [](void* userdata, const char* const* filelist, int filter)
+            {
+                LLSDLFileUserdata* callback_struct = (LLSDLFileUserdata*)userdata;
+
+                auto* callback_func = callback_struct->mCallback;
+                auto* callback_data = callback_struct->mUserdata;
+                delete callback_struct; // delete callback container
+
+                std::vector<std::string> rtn;
+
+                if (!filelist)
+                {
+                    LL_WARNS() << "Error during SDL file picking: " << SDL_GetError() << LL_ENDL;
+                    callback_func(false, rtn, callback_data);
+                    return;
+                }
+                else if (!*filelist)
+                {
+                    LL_INFOS() << "User did not select any file. Dialog likely cancelled." << LL_ENDL;
+                    callback_func(false, rtn, callback_data);
+                    return;
+                }
+
+                while (*filelist)
+                {
+                    rtn.push_back(std::string(*filelist));
+                    filelist++;
+                }
+
+                callback_func(true, rtn, callback_data);
+
+            };
+
+        LLSDLFileUserdata* llfilecallback = new LLSDLFileUserdata(callback, userdata);
+
+        SDL_PropertiesID props = SDL_CreateProperties();
+        SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_FILTERS_POINTER, file_filters.data());
+        SDL_SetNumberProperty(props, SDL_PROP_FILE_DIALOG_NFILTERS_NUMBER, file_filters.size());
+        SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_WINDOW_POINTER, SDL_GL_GetCurrentWindow());
+        SDL_SetBooleanProperty(props, SDL_PROP_FILE_DIALOG_MANY_BOOLEAN, true);
+
+        SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_OPENFILE, sdl_callback, llfilecallback, props);
+
+        SDL_DestroyProperties(props);
+    }
+
+    return true;
+}
+
+bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, bool blocking)
+{
+    LL_ERRS() << "NOT IMPLEMENTED" << LL_ENDL;
+    return false;
+}
+
+bool LLFilePicker::getSaveFileModeless(ESaveFilter filter,
+    const std::string& filename,
+    void (*callback)(bool, std::string&, void*),
+    void* userdata)
+{
+    if (mLocked)
+    {
+        return false;
+    }
+
+    // if local file browsing is turned off, return without opening dialog
+    if (!check_local_file_access_enabled())
+    {
+        return false;
+    }
+
+    std::string default_filename;
+    if (!filename.empty())
+    {
+        default_filename = filename;
+    }
+
+    std::vector<SDL_DialogFileFilter> file_filters;
+
+    switch (filter)
+    {
+    case FFSAVE_ALL:
+        file_filters.push_back({ "All Files (*.*)", "*" });
+        file_filters.push_back({ "WAV Sounds (*.wav)", "wav" });
+        file_filters.push_back({ "Targa, Bitmap Images (*.tga; *.bmp)", "tga;bmp" });
+        break;
+    case FFSAVE_WAV:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.wav";
+        }
+        file_filters.push_back({ "WAV Sounds (*.wav)", "wav" });
+        break;
+    case FFSAVE_TGA:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.tga";
+        }
+        file_filters.push_back({ "Targa Images (*.tga)", "tga" });
+        break;
+    case FFSAVE_BMP:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.bmp";
+        }
+        file_filters.push_back({ "Bitmap Images (*.bmp)", "bmp" });
+        break;
+    case FFSAVE_PNG:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.png";
+        }
+        file_filters.push_back({ "PNG Images (*.png)", "png" });
+        break;
+    case FFSAVE_TGAPNG:
+        if (default_filename.empty())
+        {
+            //PNG by default
+            default_filename = "untitled.png";
+        }
+        file_filters.push_back({ "PNG Images (*.png)", "png" });
+        file_filters.push_back({ "Targa Images (*.tga)", "tga" });
+        break;
+
+    case FFSAVE_JPEG:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.jpeg";
+        }
+        file_filters.push_back({ "JPEG Images (*.jpg *.jpeg)", "jpg;jpeg" });
+        break;
+    case FFSAVE_AVI:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.avi";
+        }
+        file_filters.push_back({ "AVI Movie File (*.avi)", "avi" });
+        break;
+    case FFSAVE_ANIM:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.xaf";
+        }
+        file_filters.push_back({ "XAF Anim File (*.xaf)", "xaf" });
+        break;
+    case FFSAVE_GLTF:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.gltf";
+        }
+        file_filters.push_back({ "glTF Asset File (*.gltf)", "gltf" });
+        break;
+    case FFSAVE_XML:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.xml";
+        }
+        file_filters.push_back({ "XML File (*.xml)", "xml" });
+        break;
+    case FFSAVE_COLLADA:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.collada";
+        }
+        file_filters.push_back({ "COLLADA File (*.collada)", "collada" });
+        break;
+    case FFSAVE_RAW:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.raw";
+        }
+        file_filters.push_back({ "RAW files (*.raw)", "raw" });
+        break;
+    case FFSAVE_J2C:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.j2c";
+        }
+        file_filters.push_back({ "Compressed Images (*.j2c)", "j2c" });
+        break;
+    case FFSAVE_SCRIPT:
+        if (default_filename.empty())
+        {
+            default_filename = "untitled.lsl";
+        }
+        file_filters.push_back({ "LSL Files (*.lsl)", "lsl" });
+        break;
+    default:
+        return false;
+    }
+
+    reset();
+
+    {
+        struct LLSDLFileUserdata
+        {
+            LLSDLFileUserdata(void (*callback_func)(bool, std::string&, void*), void* callback_userdata)
+                : mCallback(callback_func), mUserdata(callback_userdata)
+            {
+            }
+            void (*mCallback)(bool, std::string&, void*);
+            void* mUserdata;
+        };
+
+        auto sdl_callback = [](void* userdata, const char* const* filelist, int filter)
+            {
+                LLSDLFileUserdata* callback_struct = (LLSDLFileUserdata*)userdata;
+
+                auto* callback_func = callback_struct->mCallback;
+                auto* callback_data = callback_struct->mUserdata;
+                delete callback_struct; // delete callback container
+
+                std::string rtn;
+                if (!filelist)
+                {
+                    LL_WARNS() << "Error during SDL file picking: " << SDL_GetError() << LL_ENDL;
+                    callback_func(false, rtn, callback_data);
+                    return;
+                }
+                else if (!*filelist)
+                {
+                    LL_INFOS() << "User did not select any file. Dialog likely cancelled." << LL_ENDL;
+                    callback_func(false, rtn, callback_data);
+                    return;
+                }
+
+                while (*filelist) {
+                    rtn = std::string(*filelist);
+                    break;
+                }
+                callback_func(true, rtn, callback_data);
+
+            };
+
+        LLSDLFileUserdata* llfilecallback = new LLSDLFileUserdata(callback, userdata);
+
+        SDL_PropertiesID props = SDL_CreateProperties();
+        SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_FILTERS_POINTER, file_filters.data());
+        SDL_SetNumberProperty(props, SDL_PROP_FILE_DIALOG_NFILTERS_NUMBER, file_filters.size());
+        SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_WINDOW_POINTER, SDL_GL_GetCurrentWindow());
+
+        // Disabled default file name functionality currently due to inconsistency between various SDL3 backends
+        // if(!default_filename.empty())
+        // {
+        //     SDL_SetStringProperty(props, SDL_PROP_FILE_DIALOG_LOCATION_STRING, default_filename.c_str());
+        // }
+        SDL_SetBooleanProperty(props, SDL_PROP_FILE_DIALOG_MANY_BOOLEAN, false);
+
+        SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_SAVEFILE, sdl_callback, llfilecallback, props);
+
+        SDL_DestroyProperties(props);
+    }
+
+    return true;
+}
+#elif LL_WINDOWS
 
 bool LLFilePicker::setupFilter(ELoadFilter filter)
 {
@@ -1107,488 +1552,6 @@ bool LLFilePicker::getSaveFileModeless(ESaveFilter filter,
 
 #elif LL_LINUX
 
-# if LL_GTK
-
-// static
-void LLFilePicker::add_to_selectedfiles(gpointer data, gpointer user_data)
-{
-    // We need to run g_filename_to_utf8 in the user's locale
-    std::string saved_locale(setlocale(LC_ALL, NULL));
-    setlocale(LC_ALL, "");
-
-    LLFilePicker* picker = (LLFilePicker*) user_data;
-    GError *error = NULL;
-    gchar* filename_utf8 = g_filename_to_utf8((gchar*)data,
-                          -1, NULL, NULL, &error);
-    if (error)
-    {
-        // *FIXME.
-        // This condition should really be notified to the user, e.g.
-        // through a message box.  Just logging it is inappropriate.
-
-        // g_filename_display_name is ideal, but >= glib 2.6, so:
-        // a hand-rolled hacky makeASCII which disallows control chars
-        std::string display_name;
-        for (const gchar *str = (const gchar *)data; *str; str++)
-        {
-            display_name += (char)((*str >= 0x20 && *str <= 0x7E) ? *str : '?');
-        }
-        LL_WARNS() << "g_filename_to_utf8 failed on \"" << display_name << "\": " << error->message << LL_ENDL;
-    }
-
-    if (filename_utf8)
-    {
-        picker->mFiles.push_back(std::string(filename_utf8));
-        LL_DEBUGS() << "ADDED FILE " << filename_utf8 << LL_ENDL;
-        g_free(filename_utf8);
-    }
-
-    setlocale(LC_ALL, saved_locale.c_str());
-}
-
-// static
-void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer user_data)
-{
-    LLFilePicker* picker = (LLFilePicker*)user_data;
-
-    LL_DEBUGS() << "GTK DIALOG RESPONSE " << response << LL_ENDL;
-
-    if (response == GTK_RESPONSE_ACCEPT)
-    {
-        GSList *file_list = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(widget));
-        g_slist_foreach(file_list, (GFunc)add_to_selectedfiles, user_data);
-        g_slist_foreach(file_list, (GFunc)g_free, NULL);
-        g_slist_free (file_list);
-    }
-
-    // let's save the extension of the last added file(considering current filter)
-    GtkFileFilter *gfilter = gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(widget));
-    if(gfilter)
-    {
-        std::string filter = gtk_file_filter_get_name(gfilter);
-
-        if(filter == LLTrans::getString("png_image_files"))
-        {
-            picker->mCurrentExtension = ".png";
-        }
-        else if(filter == LLTrans::getString("targa_image_files"))
-        {
-            picker->mCurrentExtension = ".tga";
-        }
-    }
-
-    // set the default path for this usage context.
-    const char* cur_folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
-    if (cur_folder != NULL)
-    {
-        picker->mContextToPathMap[picker->mCurContextName] = cur_folder;
-    }
-
-    gtk_widget_destroy(widget);
-    gtk_main_quit();
-}
-
-
-GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::string context)
-{
-#ifndef LL_MESA_HEADLESS
-    if (LLWindowSDL::ll_try_gtk_init())
-    {
-        GtkWidget *win = NULL;
-        GtkFileChooserAction pickertype =
-            is_save?
-            (is_folder?
-             GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER :
-             GTK_FILE_CHOOSER_ACTION_SAVE) :
-            (is_folder?
-             GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER :
-             GTK_FILE_CHOOSER_ACTION_OPEN);
-
-        win = gtk_file_chooser_dialog_new(NULL, NULL,
-                          pickertype,
-                          GTK_STOCK_CANCEL,
-                           GTK_RESPONSE_CANCEL,
-                          is_folder ?
-                          GTK_STOCK_APPLY :
-                          (is_save ?
-                           GTK_STOCK_SAVE :
-                           GTK_STOCK_OPEN),
-                           GTK_RESPONSE_ACCEPT,
-                          (gchar *)NULL);
-        mCurContextName = context;
-
-        // get the default path for this usage context if it's been
-        // seen before.
-        std::map<std::string,std::string>::iterator
-            this_path = mContextToPathMap.find(context);
-        if (this_path != mContextToPathMap.end())
-        {
-            gtk_file_chooser_set_current_folder
-                (GTK_FILE_CHOOSER(win),
-                 this_path->second.c_str());
-        }
-
-#  if LL_X11
-        // Make GTK tell the window manager to associate this
-        // dialog with our non-GTK raw X11 window, which should try
-        // to keep it on top etc.
-        Window XWindowID = LLWindowSDL::get_SDL_XWindowID();
-        if (None != XWindowID)
-        {
-            gtk_widget_realize(GTK_WIDGET(win)); // so we can get its gdkwin
-            GdkWindow *gdkwin = gdk_window_foreign_new(XWindowID);
-            gdk_window_set_transient_for(GTK_WIDGET(win)->window,
-                             gdkwin);
-        }
-        else
-        {
-            LL_WARNS() << "Hmm, couldn't get xwid to use for transient." << LL_ENDL;
-        }
-#  endif //LL_X11
-
-        g_signal_connect (GTK_FILE_CHOOSER(win),
-                  "response",
-                  G_CALLBACK(LLFilePicker::chooser_responder),
-                  this);
-
-        gtk_window_set_modal(GTK_WINDOW(win), TRUE);
-
-        /* GTK 2.6: if (is_folder)
-            gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(win),
-            TRUE); */
-
-        return GTK_WINDOW(win);
-    }
-    else
-    {
-        return NULL;
-    }
-#else
-    return NULL;
-#endif //LL_MESA_HEADLESS
-}
-
-static void add_common_filters_to_gtkchooser(GtkFileFilter *gfilter,
-                         GtkWindow *picker,
-                         std::string filtername)
-{
-    gtk_file_filter_set_name(gfilter, filtername.c_str());
-    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
-                    gfilter);
-    GtkFileFilter *allfilter = gtk_file_filter_new();
-    gtk_file_filter_add_pattern(allfilter, "*");
-    gtk_file_filter_set_name(allfilter, LLTrans::getString("all_files").c_str());
-    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker), allfilter);
-    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(picker), gfilter);
-}
-
-static std::string add_simple_pattern_filter_to_gtkchooser(GtkWindow *picker,
-                               std::string pattern,
-                               std::string filtername)
-{
-    GtkFileFilter *gfilter = gtk_file_filter_new();
-    gtk_file_filter_add_pattern(gfilter, pattern.c_str());
-    add_common_filters_to_gtkchooser(gfilter, picker, filtername);
-    return filtername;
-}
-
-static std::string add_simple_mime_filter_to_gtkchooser(GtkWindow *picker,
-                            std::string mime,
-                            std::string filtername)
-{
-    GtkFileFilter *gfilter = gtk_file_filter_new();
-    gtk_file_filter_add_mime_type(gfilter, mime.c_str());
-    add_common_filters_to_gtkchooser(gfilter, picker, filtername);
-    return filtername;
-}
-
-static std::string add_wav_filter_to_gtkchooser(GtkWindow *picker)
-{
-    return add_simple_mime_filter_to_gtkchooser(picker,  "audio/x-wav",
-                            LLTrans::getString("sound_files") + " (*.wav)");
-}
-
-static std::string add_anim_filter_to_gtkchooser(GtkWindow *picker)
-{
-    GtkFileFilter *gfilter = gtk_file_filter_new();
-    gtk_file_filter_add_pattern(gfilter, "*.bvh");
-    gtk_file_filter_add_pattern(gfilter, "*.anim");
-    std::string filtername = LLTrans::getString("animation_files") + " (*.bvh; *.anim)";
-    add_common_filters_to_gtkchooser(gfilter, picker, filtername);
-    return filtername;
-}
-
-static std::string add_xml_filter_to_gtkchooser(GtkWindow *picker)
-{
-    return add_simple_pattern_filter_to_gtkchooser(picker,  "*.xml",
-                                                   LLTrans::getString("xml_files") + " (*.xml)");
-}
-
-static std::string add_collada_filter_to_gtkchooser(GtkWindow *picker)
-{
-    return add_simple_pattern_filter_to_gtkchooser(picker,  "*.dae",
-                               LLTrans::getString("scene_files") + " (*.dae)");
-}
-
-static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
-{
-    GtkFileFilter *gfilter = gtk_file_filter_new();
-    gtk_file_filter_add_pattern(gfilter, "*.tga");
-    gtk_file_filter_add_mime_type(gfilter, HTTP_CONTENT_IMAGE_JPEG.c_str());
-    gtk_file_filter_add_mime_type(gfilter, HTTP_CONTENT_IMAGE_PNG.c_str());
-    gtk_file_filter_add_mime_type(gfilter, HTTP_CONTENT_IMAGE_BMP.c_str());
-    std::string filtername = LLTrans::getString("image_files") + " (*.tga; *.bmp; *.jpg; *.png)";
-    add_common_filters_to_gtkchooser(gfilter, picker, filtername);
-    return filtername;
-}
-
-static std::string add_script_filter_to_gtkchooser(GtkWindow *picker)
-{
-    return add_simple_mime_filter_to_gtkchooser(picker,  HTTP_CONTENT_TEXT_PLAIN,
-                            LLTrans::getString("script_files") + " (*.lsl)");
-}
-
-static std::string add_dictionary_filter_to_gtkchooser(GtkWindow *picker)
-{
-    return add_simple_mime_filter_to_gtkchooser(picker, HTTP_CONTENT_TEXT_PLAIN,
-                            LLTrans::getString("dictionary_files") + " (*.dic; *.xcu)");
-}
-
-static std::string add_save_texture_filter_to_gtkchooser(GtkWindow *picker)
-{
-    GtkFileFilter *gfilter_tga = gtk_file_filter_new();
-    GtkFileFilter *gfilter_png = gtk_file_filter_new();
-
-    gtk_file_filter_add_pattern(gfilter_tga, "*.tga");
-    gtk_file_filter_add_mime_type(gfilter_png, "image/png");
-    std::string caption = LLTrans::getString("save_texture_image_files") + " (*.tga; *.png)";
-    gtk_file_filter_set_name(gfilter_tga, LLTrans::getString("targa_image_files").c_str());
-    gtk_file_filter_set_name(gfilter_png, LLTrans::getString("png_image_files").c_str());
-
-    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
-                    gfilter_png);
-    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
-                    gfilter_tga);
-    return caption;
-}
-
-bool LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename, bool blocking )
-{
-    bool rtn = false;
-
-    // if local file browsing is turned off, return without opening dialog
-    if (!check_local_file_access_enabled())
-    {
-        return false;
-    }
-
-    gViewerWindow->getWindow()->beforeDialog();
-
-    reset();
-
-    GtkWindow* picker = buildFilePicker(true, false, "savefile");
-
-    if (picker)
-    {
-        std::string suggest_name = "untitled";
-        std::string suggest_ext = "";
-        std::string caption = LLTrans::getString("save_file_verb") + " ";
-        switch (filter)
-        {
-        case FFSAVE_WAV:
-            caption += add_wav_filter_to_gtkchooser(picker);
-            suggest_ext = ".wav";
-            break;
-        case FFSAVE_TGA:
-            caption += add_simple_pattern_filter_to_gtkchooser
-                (picker, "*.tga", LLTrans::getString("targa_image_files") + " (*.tga)");
-            suggest_ext = ".tga";
-            break;
-        case FFSAVE_BMP:
-            caption += add_simple_mime_filter_to_gtkchooser
-                (picker, HTTP_CONTENT_IMAGE_BMP, LLTrans::getString("bitmap_image_files") + " (*.bmp)");
-            suggest_ext = ".bmp";
-            break;
-        case FFSAVE_PNG:
-            caption += add_simple_mime_filter_to_gtkchooser
-                (picker, "image/png", LLTrans::getString("png_image_files") + " (*.png)");
-            suggest_ext = ".png";
-            break;
-        case FFSAVE_TGAPNG:
-            caption += add_save_texture_filter_to_gtkchooser(picker);
-            suggest_ext = ".png";
-            break;
-        case FFSAVE_AVI:
-            caption += add_simple_mime_filter_to_gtkchooser
-                (picker, "video/x-msvideo",
-                 LLTrans::getString("avi_movie_file") + " (*.avi)");
-            suggest_ext = ".avi";
-            break;
-        case FFSAVE_ANIM:
-            caption += add_simple_pattern_filter_to_gtkchooser
-                (picker, "*.xaf", LLTrans::getString("xaf_animation_file") + " (*.xaf)");
-            suggest_ext = ".xaf";
-            break;
-        case FFSAVE_XML:
-            caption += add_simple_pattern_filter_to_gtkchooser
-                (picker, "*.xml", LLTrans::getString("xml_file") + " (*.xml)");
-            suggest_ext = ".xml";
-            break;
-        case FFSAVE_RAW:
-            caption += add_simple_pattern_filter_to_gtkchooser
-                (picker, "*.raw", LLTrans::getString("raw_file") + " (*.raw)");
-            suggest_ext = ".raw";
-            break;
-        case FFSAVE_J2C:
-            // *TODO: Should this be 'image/j2c' ?
-            caption += add_simple_mime_filter_to_gtkchooser
-                (picker, "images/jp2",
-                 LLTrans::getString("compressed_image_files") + " (*.j2c)");
-            suggest_ext = ".j2c";
-            break;
-        case FFSAVE_SCRIPT:
-            caption += add_script_filter_to_gtkchooser(picker);
-            suggest_ext = ".lsl";
-            break;
-        default:;
-            break;
-        }
-
-        gtk_window_set_title(GTK_WINDOW(picker), caption.c_str());
-
-        if (filename.empty())
-        {
-            suggest_name += suggest_ext;
-
-            gtk_file_chooser_set_current_name
-                (GTK_FILE_CHOOSER(picker),
-                 suggest_name.c_str());
-        }
-        else
-        {
-            gtk_file_chooser_set_current_name
-                (GTK_FILE_CHOOSER(picker), filename.c_str());
-        }
-
-        gtk_widget_show_all(GTK_WIDGET(picker));
-
-        gtk_main();
-
-        rtn = (getFileCount() == 1);
-
-        if(rtn && filter == FFSAVE_TGAPNG)
-        {
-            std::string selected_file = mFiles.back();
-            mFiles.pop_back();
-            mFiles.push_back(selected_file + mCurrentExtension);
-        }
-    }
-
-    gViewerWindow->getWindow()->afterDialog();
-
-    return rtn;
-}
-
-bool LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
-{
-    bool rtn = false;
-
-    // if local file browsing is turned off, return without opening dialog
-    if (!check_local_file_access_enabled())
-    {
-        return false;
-    }
-
-    gViewerWindow->getWindow()->beforeDialog();
-
-    reset();
-
-    GtkWindow* picker = buildFilePicker(false, false, "openfile");
-
-    if (picker)
-    {
-        std::string caption = LLTrans::getString("load_file_verb") + " ";
-        std::string filtername = "";
-        switch (filter)
-        {
-        case FFLOAD_WAV:
-            filtername = add_wav_filter_to_gtkchooser(picker);
-            break;
-        case FFLOAD_ANIM:
-            filtername = add_anim_filter_to_gtkchooser(picker);
-            break;
-        case FFLOAD_XML:
-            filtername = add_xml_filter_to_gtkchooser(picker);
-            break;
-        case FFLOAD_GLTF:
-            filtername = dead_code_should_blow_up_here(picker);
-            break;
-        case FFLOAD_COLLADA:
-            filtername = add_collada_filter_to_gtkchooser(picker);
-            break;
-        case FFLOAD_IMAGE:
-            filtername = add_imageload_filter_to_gtkchooser(picker);
-            break;
-        case FFLOAD_SCRIPT:
-            filtername = add_script_filter_to_gtkchooser(picker);
-            break;
-        case FFLOAD_DICTIONARY:
-            filtername = add_dictionary_filter_to_gtkchooser(picker);
-            break;
-        default:;
-            break;
-        }
-
-        caption += filtername;
-
-        gtk_window_set_title(GTK_WINDOW(picker), caption.c_str());
-
-        gtk_widget_show_all(GTK_WIDGET(picker));
-        gtk_main();
-
-        rtn = (getFileCount() == 1);
-    }
-
-    gViewerWindow->getWindow()->afterDialog();
-
-    return rtn;
-}
-
-bool LLFilePicker::getMultipleOpenFiles( ELoadFilter filter, bool blocking)
-{
-    bool rtn = false;
-
-    // if local file browsing is turned off, return without opening dialog
-    if (!check_local_file_access_enabled())
-    {
-        return false;
-    }
-
-    gViewerWindow->getWindow()->beforeDialog();
-
-    reset();
-
-    GtkWindow* picker = buildFilePicker(false, false, "openfile");
-
-    if (picker)
-    {
-        gtk_file_chooser_set_select_multiple (GTK_FILE_CHOOSER(picker),
-                              TRUE);
-
-        gtk_window_set_title(GTK_WINDOW(picker), LLTrans::getString("load_files").c_str());
-
-        gtk_widget_show_all(GTK_WIDGET(picker));
-        gtk_main();
-        rtn = !mFiles.empty();
-    }
-
-    gViewerWindow->getWindow()->afterDialog();
-
-    return rtn;
-}
-
-# else // LL_GTK
-
 // Hacky stubs designed to facilitate fake getSaveFile and getOpenFile with
 // static results, when we don't have a real filepicker.
 
@@ -1675,8 +1638,6 @@ bool LLFilePicker::getMultipleOpenFilesModeless(ELoadFilter filter,
     LL_ERRS() << "NOT IMPLEMENTED" << LL_ENDL;
     return false;
 }
-
-#endif // LL_GTK
 
 #else // not implemented
 

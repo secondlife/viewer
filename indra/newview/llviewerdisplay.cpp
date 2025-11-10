@@ -55,7 +55,6 @@
 #include "llmemory.h"
 #include "llparcel.h"
 #include "llperfstats.h"
-#include "llpostprocess.h"
 #include "llrender.h"
 #include "llscenemonitor.h"
 #include "llsdjson.h"
@@ -1071,7 +1070,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         LLGLSLShader::finishProfile(stats);
 
         auto report_name = getProfileStatsFilename();
-        std::ofstream outf(report_name);
+        llofstream outf(report_name);
         if (! outf)
         {
             LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;

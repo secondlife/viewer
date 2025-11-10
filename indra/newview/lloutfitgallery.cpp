@@ -988,6 +988,8 @@ LLOutfitGalleryItem::LLOutfitGalleryItem(const Params& p)
     mSelected(false),
     mWorn(false),
     mDefaultImage(true),
+    mHidden(false),
+    mFavorite(false),
     mOutfitName(""),
     mUUID(LLUUID())
 {

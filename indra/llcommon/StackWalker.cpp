@@ -785,6 +785,8 @@ private:
           case 8: //SymVirtual:
             szSymType = "Virtual";
             break;
+          case NumSymTypes:
+            break;
         }
       }
       LPCSTR pdbName = Module.LoadedImageName;

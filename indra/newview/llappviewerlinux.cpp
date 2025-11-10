@@ -34,30 +34,142 @@
 #include "llurldispatcher.h"        // SLURL from other app instance
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
-#include "llwindowsdl.h"
 #include "llmd5.h"
 #include "llfindlocale.h"
+#include "llversioninfo.h"
 
 #include <exception>
 
-#if LL_DBUS_ENABLED
-# include "llappviewerlinux_api_dbus.h"
+#define SDL_MAIN_USE_CALLBACKS
+#include <SDL3/SDL_main.h>
 
-// regrettable hacks to give us better runtime compatibility with older systems inside llappviewerlinux_api.h:
-#define llg_return_if_fail(COND) do{if (!(COND)) return;}while(0)
-#undef g_return_if_fail
-#define g_return_if_fail(COND) llg_return_if_fail(COND)
-// The generated API
-# include "llappviewerlinux_api.h"
+#include "SDL3/SDL.h"
+
+#include "llsdl.h"
+#include "llwindowsdl.h"
+
+#ifdef LL_GLIB
+#include <gio/gio.h>
 #endif
+
+#define VIEWERAPI_SERVICE "com.secondlife.ViewerAppAPIService"
+#define VIEWERAPI_PATH "/com/secondlife/ViewerAppAPI"
+#define VIEWERAPI_INTERFACE "com.secondlife.ViewerAppAPI"
+
+static const char * DBUS_SERVER = "<node name=\"/com/secondlife/ViewerAppAPI\">\n"
+                                  "  <interface name=\"com.secondlife.ViewerAppAPI\">\n"
+                                  "    <annotation name=\"org.freedesktop.DBus.GLib.CSymbol\" value=\"viewer_app_api\"/>\n"
+                                  "    <method name=\"GoSLURL\">\n"
+                                  "      <annotation name=\"org.freedesktop.DBus.GLib.CSymbol\" value=\"dispatchSLURL\"/>\n"
+                                  "      <arg type=\"s\" name=\"slurl\" direction=\"in\" />\n"
+                                  "    </method>\n"
+                                  "  </interface>\n"
+                                  "</node>";
+
+typedef struct
+{
+    GObject parent;
+} ViewerAppAPI;
 
 namespace
 {
     int gArgC = 0;
     char **gArgV = NULL;
+    LLAppViewerLinux* gViewerAppPtr = NULL;
     void (*gOldTerminateHandler)() = NULL;
 }
 
+void check_vm_bloat()
+{
+#if LL_LINUX
+    // watch our own VM and RSS sizes, warn if we bloated rapidly
+    static const std::string STATS_FILE = "/proc/self/stat";
+    FILE *fp = fopen(STATS_FILE.c_str(), "r");
+    if (fp)
+    {
+        static long long last_vm_size = 0;
+        static long long last_rss_size = 0;
+        const long long significant_vm_difference = 250 * 1024*1024;
+        const long long significant_rss_difference = 50 * 1024*1024;
+        long long this_vm_size = 0;
+        long long this_rss_size = 0;
+
+        ssize_t res;
+        size_t dummy;
+        char *ptr = nullptr;
+        for (int i=0; i<22; ++i) // parse past the values we don't want
+        {
+            res = getdelim(&ptr, &dummy, ' ', fp);
+            if (-1 == res)
+            {
+                LL_WARNS() << "Unable to parse " << STATS_FILE << LL_ENDL;
+                goto finally;
+            }
+            free(ptr);
+            ptr = nullptr;
+        }
+        // 23rd space-delimited entry is vsize
+        res = getdelim(&ptr, &dummy, ' ', fp);
+        llassert(ptr);
+        if (-1 == res)
+        {
+            LL_WARNS() << "Unable to parse " << STATS_FILE << LL_ENDL;
+            goto finally;
+        }
+        this_vm_size = atoll(ptr);
+        free(ptr);
+        ptr = nullptr;
+        // 24th space-delimited entry is RSS
+        res = getdelim(&ptr, &dummy, ' ', fp);
+        llassert(ptr);
+        if (-1 == res)
+        {
+            LL_WARNS() << "Unable to parse " << STATS_FILE << LL_ENDL;
+            goto finally;
+        }
+        this_rss_size = getpagesize() * atoll(ptr);
+        free(ptr);
+        ptr = nullptr;
+
+        LL_INFOS() << "VM SIZE IS NOW " << (this_vm_size/(1024*1024)) << " MB, RSS SIZE IS NOW " << (this_rss_size/(1024*1024)) << " MB" << LL_ENDL;
+
+        if (llabs(last_vm_size - this_vm_size) > significant_vm_difference)
+        {
+            if (this_vm_size > last_vm_size)
+            {
+                LL_WARNS() << "VM size grew by " << (this_vm_size - last_vm_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "VM size shrank by " << (last_vm_size - this_vm_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+        }
+
+        if (llabs(last_rss_size - this_rss_size) > significant_rss_difference)
+        {
+            if (this_rss_size > last_rss_size)
+            {
+                LL_WARNS() << "RSS size grew by " << (this_rss_size - last_rss_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "RSS size shrank by " << (last_rss_size - this_rss_size)/(1024*1024) << " MB in last frame" << LL_ENDL;
+            }
+        }
+
+        last_rss_size = this_rss_size;
+        last_vm_size = this_vm_size;
+
+finally:
+        if (ptr)
+        {
+            free(ptr);
+            ptr = nullptr;
+        }
+        fclose(fp);
+    }
+#endif // LL_LINUX
+}
 
 static void exceptionTerminateHandler()
 {
@@ -71,32 +183,85 @@ static void exceptionTerminateHandler()
     gOldTerminateHandler(); // call old terminate() handler
 }
 
-int main( int argc, char **argv )
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
     // Call Tracy first thing to have it allocate memory
     // https://github.com/wolfpld/tracy/issues/196
     LL_PROFILER_FRAME_END;
     LL_PROFILER_SET_THREAD_NAME("App");
 
+    gSDLMainHandled = true;
+
     gArgC = argc;
     gArgV = argv;
 
-    LLAppViewer* viewer_app_ptr = new LLAppViewerLinux();
+    gViewerAppPtr = new LLAppViewerLinux();
 
     // install unexpected exception handler
     gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
-    bool ok = viewer_app_ptr->init();
+    unsetenv( "LD_PRELOAD" ); // <FS:ND/> Get rid of any preloading, we do not want this to happen during startup of plugins.
+
+    // This needs to be set as early as possible
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, LLVersionInfo::getInstance()->getChannel().c_str());
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, LLVersionInfo::getInstance()->getVersion().c_str());
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, "com.secondlife.indra.viewer");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, "Linden Research Inc");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, "Copyright (c) Linden Research, Inc. 2025");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, "https://www.secondlife.com");
+    SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, "game");
+
+    bool ok = gViewerAppPtr->init();
     if(!ok)
     {
         LL_WARNS() << "Application init failed." << LL_ENDL;
-        return -1;
+        return SDL_APP_FAILURE;
     }
 
-        // Run the application main loop
-    while (! viewer_app_ptr->frame())
-    {}
+    return SDL_APP_CONTINUE;
+}
 
+SDL_AppResult SDL_AppIterate(void *appstate)
+{
+    // Run the application main loop
+    if (!gViewerAppPtr->frame())
+    {
+#if LL_GLIB
+        // Pump until we've nothing left to do or passed 1/15th of a
+        // second pumping for this frame.
+        static LLTimer pump_timer;
+        pump_timer.reset();
+        pump_timer.setTimerExpirySec(1.0f / 15.0f);
+        do
+        {
+            g_main_context_iteration(g_main_context_default(), false);
+        } while( g_main_context_pending(g_main_context_default()) && !pump_timer.hasExpired());
+#endif
+
+        // hack - doesn't belong here - but this is just for debugging
+        if (getenv("LL_DEBUG_BLOAT"))
+        {
+            check_vm_bloat();
+        }
+
+        return SDL_APP_CONTINUE;
+    }
+
+    if(LLApp::isError())
+    {
+        return SDL_APP_FAILURE;
+    }
+
+    return SDL_APP_SUCCESS;
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+    return LLWindowSDL::handleEvents(*event);
+}
+
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
     if (!LLApp::isError())
     {
         //
@@ -104,29 +269,15 @@ int main( int argc, char **argv )
         // the assumption is that the error handler is responsible for doing
         // app cleanup if there was a problem.
         //
-        viewer_app_ptr->cleanup();
+        gViewerAppPtr->cleanup();
     }
-    delete viewer_app_ptr;
-    viewer_app_ptr = NULL;
-    return 0;
-}
 
-LLAppViewerLinux::LLAppViewerLinux()
-{
-}
-
-LLAppViewerLinux::~LLAppViewerLinux()
-{
+    delete gViewerAppPtr;
+    gViewerAppPtr = nullptr;
 }
 
 bool LLAppViewerLinux::init()
 {
-    // g_thread_init() must be called before *any* use of glib, *and*
-    // before any mutexes are held, *and* some of our third-party
-    // libraries likes to use glib functions; in short, do this here
-    // really early in app startup!
-    if (!g_thread_supported ()) g_thread_init (NULL);
-
     bool success = LLAppViewer::init();
 
 #if LL_SEND_CRASH_REPORTS
@@ -148,7 +299,7 @@ bool LLAppViewerLinux::restoreErrorTrap()
 }
 
 /////////////////////////////////////////
-#if LL_DBUS_ENABLED
+#if LL_GLIB
 
 typedef struct
 {
@@ -158,101 +309,77 @@ typedef struct
 static void viewerappapi_init(ViewerAppAPI *server);
 static void viewerappapi_class_init(ViewerAppAPIClass *klass);
 
-///
-
-// regrettable hacks to give us better runtime compatibility with older systems in general
-static GType llg_type_register_static_simple_ONCE(GType parent_type,
-                          const gchar *type_name,
-                          guint class_size,
-                          GClassInitFunc class_init,
-                          guint instance_size,
-                          GInstanceInitFunc instance_init,
-                          GTypeFlags flags)
-{
-    static GTypeInfo type_info;
-    memset(&type_info, 0, sizeof(type_info));
-
-    type_info.class_size = class_size;
-    type_info.class_init = class_init;
-    type_info.instance_size = instance_size;
-    type_info.instance_init = instance_init;
-
-    return g_type_register_static(parent_type, type_name, &type_info, flags);
-}
-#define llg_intern_static_string(S) (S)
-#define g_intern_static_string(S) llg_intern_static_string(S)
-#define g_type_register_static_simple(parent_type, type_name, class_size, class_init, instance_size, instance_init, flags) llg_type_register_static_simple_ONCE(parent_type, type_name, class_size, class_init, instance_size, instance_init, flags)
-
 G_DEFINE_TYPE(ViewerAppAPI, viewerappapi, G_TYPE_OBJECT);
 
 void viewerappapi_class_init(ViewerAppAPIClass *klass)
 {
 }
 
-static bool dbus_server_init = false;
-
-void viewerappapi_init(ViewerAppAPI *server)
+static void dispatchSLURL(gchar const *slurl)
 {
-    // Connect to the default DBUS, register our service/API.
-
-    if (!dbus_server_init)
-    {
-        GError *error = NULL;
-
-        server->connection = lldbus_g_bus_get(DBUS_BUS_SESSION, &error);
-        if (server->connection)
-        {
-            lldbus_g_object_type_install_info(viewerappapi_get_type(), &dbus_glib_viewerapp_object_info);
-
-            lldbus_g_connection_register_g_object(server->connection, VIEWERAPI_PATH, G_OBJECT(server));
-
-            DBusGProxy *serverproxy = lldbus_g_proxy_new_for_name(server->connection, DBUS_SERVICE_DBUS, DBUS_PATH_DBUS, DBUS_INTERFACE_DBUS);
-
-            guint request_name_ret_unused;
-            // akin to org_freedesktop_DBus_request_name
-            if (lldbus_g_proxy_call(serverproxy, "RequestName", &error, G_TYPE_STRING, VIEWERAPI_SERVICE, G_TYPE_UINT, 0, G_TYPE_INVALID, G_TYPE_UINT, &request_name_ret_unused, G_TYPE_INVALID))
-            {
-                // total success.
-                dbus_server_init = true;
-            }
-            else
-            {
-                LL_WARNS() << "Unable to register service name: " << error->message << LL_ENDL;
-            }
-
-            g_object_unref(serverproxy);
-        }
-        else
-        {
-            g_warning("Unable to connect to dbus: %s", error->message);
-        }
-
-        if (error)
-            g_error_free(error);
-    }
-}
-
-gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **success_rtn, GError **error)
-{
-    bool success = false;
-
     LL_INFOS() << "Was asked to go to slurl: " << slurl << LL_ENDL;
 
     std::string url = slurl;
     LLMediaCtrl* web = NULL;
     const bool trusted_browser = false;
-    if (LLURLDispatcher::dispatch(url, "", web, trusted_browser))
-    {
-        // bring window to foreground, as it has just been "launched" from a URL
-        // todo: hmm, how to get there from here?
-        //xxx->mWindow->bringToFront();
-        success = true;
-    }
+    LLURLDispatcher::dispatch(url, "", web, trusted_browser);
+}
 
-    *success_rtn = g_new (gboolean, 1);
-    (*success_rtn)[0] = (gboolean)success;
+static void DoMethodeCall (GDBusConnection       *connection,
+                                const gchar           *sender,
+                                const gchar           *object_path,
+                                const gchar           *interface_name,
+                                const gchar           *method_name,
+                                GVariant              *parameters,
+                                GDBusMethodInvocation *invocation,
+                                gpointer               user_data)
+{
+    LL_INFOS() << "DBUS message " << method_name << "  from: " << sender << " interface: " << interface_name << LL_ENDL;
+    const gchar *slurl;
 
-    return TRUE; // the invokation succeeded, even if the actual dispatch didn't.
+    g_variant_get (parameters, "(&s)", &slurl);
+    dispatchSLURL(slurl);
+}
+
+GDBusNodeInfo *gBusNodeInfo = nullptr;
+static const GDBusInterfaceVTable interface_vtable =
+        {
+                DoMethodeCall
+        };
+static void busAcquired(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+    auto id = g_dbus_connection_register_object(connection,
+                                                VIEWERAPI_PATH,
+                                                gBusNodeInfo->interfaces[0],
+                                                &interface_vtable,
+                                                NULL,  /* user_data */
+                                                             NULL,  /* user_data_free_func */
+                                                             NULL); /* GError** */
+    g_assert (id > 0);
+}
+
+static void nameAcquired(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+}
+
+static void nameLost(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+
+}
+void viewerappapi_init(ViewerAppAPI *server)
+{
+    gBusNodeInfo = g_dbus_node_info_new_for_xml (DBUS_SERVER, NULL);
+    g_assert (gBusNodeInfo != NULL);
+
+    g_bus_own_name(G_BUS_TYPE_SESSION,
+                   VIEWERAPI_SERVICE,
+                   G_BUS_NAME_OWNER_FLAGS_NONE,
+                   busAcquired,
+                   nameAcquired,
+                   nameLost,
+                   NULL,
+                   NULL);
+
 }
 
 ///
@@ -260,13 +387,6 @@ gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **succ
 //virtual
 bool LLAppViewerLinux::initSLURLHandler()
 {
-    if (!grab_dbus_syms(DBUSGLIB_DYLIB_DEFAULT_NAME))
-    {
-        return false; // failed
-    }
-
-    g_type_init();
-
     //ViewerAppAPI *api_server = (ViewerAppAPI*)
     g_object_new(viewerappapi_get_type(), NULL);
 
@@ -276,49 +396,49 @@ bool LLAppViewerLinux::initSLURLHandler()
 //virtual
 bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 {
-    if (!grab_dbus_syms(DBUSGLIB_DYLIB_DEFAULT_NAME))
+    auto *pBus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, nullptr);
+
+    if( !pBus )
     {
-        return false; // failed
+        LL_WARNS() << "Getting dbus failed." << LL_ENDL;
+        return false;
     }
 
-    bool success = false;
-    DBusGConnection *bus;
-    GError *error = NULL;
+    auto pProxy = g_dbus_proxy_new_sync(pBus, G_DBUS_PROXY_FLAGS_NONE, nullptr,
+                                        VIEWERAPI_SERVICE, VIEWERAPI_PATH,
+                                        VIEWERAPI_INTERFACE, nullptr, nullptr);
 
-    g_type_init();
-
-    bus = lldbus_g_bus_get (DBUS_BUS_SESSION, &error);
-    if (bus)
+    if( !pProxy )
     {
-        gboolean rtn = FALSE;
-        DBusGProxy *remote_object =
-            lldbus_g_proxy_new_for_name(bus, VIEWERAPI_SERVICE, VIEWERAPI_PATH, VIEWERAPI_INTERFACE);
-
-        if (lldbus_g_proxy_call(remote_object, "GoSLURL", &error,
-                    G_TYPE_STRING, url.c_str(), G_TYPE_INVALID,
-                       G_TYPE_BOOLEAN, &rtn, G_TYPE_INVALID))
-        {
-            success = rtn;
-        }
-        else
-        {
-            LL_INFOS() << "Call-out to other instance failed (perhaps not running): " << error->message << LL_ENDL;
-        }
-
-        g_object_unref(G_OBJECT(remote_object));
-    }
-    else
-    {
-        LL_WARNS() << "Couldn't connect to session bus: " << error->message << LL_ENDL;
+        LL_WARNS() << "Cannot create new dbus proxy." << LL_ENDL;
+        g_object_unref( pBus );
+        return false;
     }
 
-    if (error)
-        g_error_free(error);
+    auto *pArgs = g_variant_new( "(s)", url.c_str() );
+    if( !pArgs )
+    {
+        LL_WARNS() << "Cannot create new variant." << LL_ENDL;
+        g_object_unref( pBus );
+        return false;
+    }
 
-    return success;
+    auto pRes  = g_dbus_proxy_call_sync(pProxy,
+                                        "GoSLURL",
+                                        pArgs,
+                                        G_DBUS_CALL_FLAGS_NONE,
+                                        -1, nullptr, nullptr);
+
+
+
+    if( pRes )
+        g_variant_unref( pRes );
+    g_object_unref( pProxy );
+    g_object_unref( pBus );
+    return true;
 }
 
-#else // LL_DBUS_ENABLED
+#else // LL_GLIB
 bool LLAppViewerLinux::initSLURLHandler()
 {
     return false; // not implemented without dbus
@@ -327,64 +447,10 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 {
     return false; // not implemented without dbus
 }
-#endif // LL_DBUS_ENABLED
+#endif // LL_GLIB
 
 void LLAppViewerLinux::initCrashReporting(bool reportFreeze)
 {
-    std::string cmd =gDirUtilp->getExecutableDir();
-    cmd += gDirUtilp->getDirDelimiter();
-#if LL_LINUX
-    cmd += "linux-crash-logger.bin";
-#else
-# error Unknown platform
-#endif
-
-    std::stringstream pid_str;
-    pid_str <<  LLApp::getPid();
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-    std::string appname = gDirUtilp->getExecutableFilename();
-    // launch the actual crash logger
-    const char * cmdargv[] =
-        {cmd.c_str(),
-         "-user",
-         (char*)LLGridManager::getInstance()->getGridId().c_str(),
-         "-name",
-         LLAppViewer::instance()->getSecondLifeTitle().c_str(),
-         "-pid",
-         pid_str.str().c_str(),
-         "-dumpdir",
-         logdir.c_str(),
-         "-procname",
-         appname.c_str(),
-         NULL};
-    fflush(NULL);
-
-    pid_t pid = fork();
-    if (pid == 0)
-    { // child
-        execv(cmd.c_str(), (char* const*) cmdargv);     /* Flawfinder: ignore */
-        LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
-        _exit(1); // avoid atexit()
-    }
-    else
-    {
-        if (pid > 0)
-        {
-            // DO NOT wait for child proc to die; we want
-            // the logger to outlive us while we quit to
-            // free up the screen/keyboard/etc.
-            ////int childExitStatus;
-            ////waitpid(pid, &childExitStatus, 0);
-        }
-        else
-        {
-            LL_WARNS() << "fork failure." << LL_ENDL;
-        }
-    }
-    // Sometimes signals don't seem to quit the viewer.  Also, we may
-    // have been called explicitly instead of from a signal handler.
-    // Make sure we exit so as to not totally confuse the user.
-    //_exit(1); // avoid atexit(), else we may re-crash in dtors.
 }
 
 bool LLAppViewerLinux::beingDebugged()
@@ -415,7 +481,7 @@ bool LLAppViewerLinux::beingDebugged()
                     base += 1;
                 }
 
-                if (strcmp(base, "gdb") == 0)
+                if (strcmp(base, "gdb") == 0 || strcmp(base, "lldb") == 0)
                 {
                     debugged = yes;
                 }
@@ -425,18 +491,6 @@ bool LLAppViewerLinux::beingDebugged()
     }
 
     return debugged == yes;
-}
-
-void LLAppViewerLinux::initLoggingAndGetLastDuration()
-{
-    // Remove the last stack trace, if any
-    // This file is no longer created, since the move to Google Breakpad
-    // The code is left here to clean out any old state in the log dir
-    std::string old_stack_file =
-        gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
-    LLFile::remove(old_stack_file);
-
-    LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)

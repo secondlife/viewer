@@ -943,8 +943,6 @@ const char* fast_cache_filename = "FastCache.cache";
 
 void LLTextureCache::setDirNames(ELLPath location)
 {
-    std::string delem = gDirUtilp->getDirDelimiter();
-
     mHeaderEntriesFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, entries_filename);
     mHeaderDataFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, cache_filename);
     mTexturesDirName = gDirUtilp->getExpandedFilename(location, textures_dirname);
@@ -1345,21 +1343,26 @@ U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
         }
         aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
     }
-    for (U32 idx=0; idx<num_entries; idx++)
+
+    U32 idx = 0;
+    try
     {
-        try
+        entries.resize(num_entries);
+        S32 total_entries_size = sizeof(Entry) * num_entries;
+        S32 bytes_read = aprfile->read((void*)entries.data(), total_entries_size);
+        if (bytes_read != total_entries_size)
         {
-            Entry entry;
-            S32 bytes_read = aprfile->read((void*)(&entry), (S32)sizeof(Entry));
-            if (bytes_read < sizeof(Entry))
-            {
-                LL_WARNS() << "Corrupted header entries, failed at " << idx << " / " << num_entries << LL_ENDL;
-                closeHeaderEntriesFile();
-                return 0;
-            }
-            entries.push_back(entry);
-            //      LL_INFOS() << "ENTRY: " << entry.mTime << " TEX: " << entry.mID << " IDX: " << idx << " Size: " << entry.mImageSize << LL_ENDL;
-            if (entry.mImageSize > entry.mBodySize)
+            LL_WARNS() << "Corrupted header entries, expected " << total_entries_size << " bytes but got " << bytes_read << " bytes" << LL_ENDL;
+            closeHeaderEntriesFile();
+            purgeAllTextures(false);
+            return 0;
+        }
+
+        for (; idx < num_entries; idx++)
+        {
+            const Entry& entry = entries[idx];
+//          LL_INFOS() << "ENTRY: " << entry.mTime << " TEX: " << entry.mID << " IDX: " << idx << " Size: " << entry.mImageSize << LL_ENDL;
+            if(entry.mImageSize > entry.mBodySize)
             {
                 mHeaderIDMap[entry.mID] = idx;
                 mTexturesSizeMap[entry.mID] = entry.mBodySize;
@@ -1370,17 +1373,17 @@ U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
                 mFreeList.insert(idx);
             }
         }
-        catch (std::bad_alloc&)
-        {
-            // Too little ram yet very large cache?
-            // Should this actually crash viewer?
-            entries.clear();
-            LL_WARNS() << "Bad alloc trying to read texture entries from cache, mFreeList: " << (S32)mFreeList.size()
-                << ", added entries: " << idx << ", total entries: " << num_entries << LL_ENDL;
-            closeHeaderEntriesFile();
-            purgeAllTextures(false);
-            return 0;
-        }
+    }
+    catch (const std::bad_alloc&)
+    {
+        // Too little ram yet very large cache?
+        // Should this actually crash viewer?
+        entries.clear();
+        LL_WARNS() << "Bad alloc trying to read texture entries from cache, mFreeList: " << (S32)mFreeList.size()
+            << ", added entries: " << idx << ", total entries: " << num_entries << LL_ENDL;
+        closeHeaderEntriesFile();
+        purgeAllTextures(false);
+        return 0;
     }
     closeHeaderEntriesFile();
     return num_entries;

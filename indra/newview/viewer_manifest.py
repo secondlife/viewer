@@ -1116,33 +1116,33 @@ class LinuxManifest(ViewerManifest):
         super(LinuxManifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        if "package_dir" in self.args:
+            pkgdir = self.args['package_dir']
+
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         self.path("licenses-linux.txt","licenses.txt")
         with self.prefix("linux_tools"):
-            self.path("client-readme.txt","README-linux.txt")
-            self.path("client-readme-voice.txt","README-linux-voice.txt")
-            self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","secondlife")
             with self.prefix(dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
                 self.path("refresh_desktop_app_entry.sh")
-                self.path("launch_url.sh")
             self.path("install.sh")
 
         with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
-            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin")
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
-            with self.prefix(src="../viewer_components/manager", dst=""):
-                self.path("*.py")
+            #with self.prefix(src="../viewer_components/manager", dst=""):
+            #    self.path("*.py")
 
         # recurses, packaged again
         self.path("res-sdl")
 
+        # We  copy ll_icon.BMP in CMakeLists.txt to newview/res-sdl and this will let the above self.path step take  care of copying
+        # the correct branded icon
         # Get the icons based on the channel type
         icon_path = self.icon_path()
         print("DEBUG: icon_path '%s'" % icon_path)
@@ -1151,31 +1151,68 @@ class LinuxManifest(ViewerManifest):
             with self.prefix(dst="res-sdl") :
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir, "llwebrtc" ), dst="lib"):
+            self.path("libllwebrtc.so")
+
         # plugins
-        with self.prefix(src="../media_plugins", dst="bin/llplugin"):
-            self.path("gstreamer010/libmedia_plugin_gstreamer010.so",
-                      "libmedia_plugin_gstreamer.so")
-            self.path2basename("libvlc", "libmedia_plugin_libvlc.so")
+        with self.prefix(dst="bin/llplugin"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
+                with self.prefix(src='cef'):
+                    self.path("libmedia_plugin_cef.so")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
-            self.path( "plugins.dat" )
-            self.path( "*/*.so" )
+                # Media plugins - LibVLC
+                with self.prefix(src='libvlc'):
+                    self.path("libmedia_plugin_libvlc.so")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib' ), dst="lib"):
-            self.path( "libvlc*.so*" )
+                # GStreamer 1.0 Media Plugin
+                with self.prefix(src='gstreamer10'):
+                    self.path("libmedia_plugin_gstreamer10.so")
 
-        # llcommon
-        if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):
-            print("Skipping llcommon.so (assuming llcommon was linked statically)")
+                # Media plugins - Example (useful for debugging - not shipped with release viewer)
+                if self.channel_type() != 'release':
+                    with self.prefix(src='example'):
+                        self.path("libmedia_plugin_example.so")
+
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+            self.path( "libcef.so" )
+            self.path( "libEGL*" )
+            self.path( "libvulkan*" )
+            self.path( "libvk_swiftshader*" )
+            self.path( "libGLESv2*" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
+            self.path( "chrome-sandbox" )
+            self.path( "dullahan_host" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="bin"):
+            self.path( "v8_context_snapshot.bin" )
+            self.path( "vk_swiftshader_icd.json")
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+            self.path( "v8_context_snapshot.bin" )
+            self.path( "vk_swiftshader_icd.json")
+
+        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="lib"):
+            self.path( "chrome_100_percent.pak" )
+            self.path( "chrome_200_percent.pak" )
+            self.path( "resources.pak" )
+            self.path( "icudtl.dat" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
+            self.path("*.pak")
 
         self.path("featuretable_linux.txt")
         self.path("cube.dae")
 
-        with self.prefix(src=pkgdir):
+        with self.prefix(src=pkgdir, dst="bin"):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
         installer_name = self.installer_base_name()
+
+        # When running as a GitHub Action job, RUNNER_TEMP is defined as the tmp dir
+        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
 
         self.strip_binaries()
 
@@ -1191,8 +1228,18 @@ class LinuxManifest(ViewerManifest):
         # temporarily move directory tree so that it has the right
         # name in the tarfile
         realname = self.get_dst_prefix()
-        tempname = self.build_path_of(installer_name)
-        self.run_command(["mv", realname, tempname])
+        versionedName = self.build_path_of(installer_name)
+
+        tarName = versionedName + ".tar.xz"
+
+        # If using a github runner we divert packaging a little. Considering this wil be a VM/docker image
+        # we can just pack the final installer into RUNNER_TEMP and not into the usual stop we'd pick when
+        # not building a GHA release
+        if RUNNER_TEMP:
+            tarName = os.path.join(RUNNER_TEMP, self.package_file)
+
+        self.run_command(["mv", realname, versionedName])
+
         try:
             # only create tarball if it's a release build.
             if self.args['buildtype'].lower() == 'release':
@@ -1200,75 +1247,52 @@ class LinuxManifest(ViewerManifest):
                 # security etc.
                 self.run_command(['tar', '-C', self.get_build_prefix(),
                                   '--numeric-owner', '-cJf',
-                                 tempname + '.tar.xz', installer_name])
+                                 tarName, installer_name])
+                self.set_github_output_path('viewer_app', tarName)
             else:
                 print("Skipping %s.tar.xz for non-Release build (%s)" % \
                       (installer_name, self.args['buildtype']))
         finally:
-            self.run_command(["mv", tempname, realname])
+            self.run_command(["mv", versionedName, realname])
 
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
-            print("* Going strip-crazy on the packaged binaries, since this is a RELEASE build")
+            print("* Going strip-crazy on the packaged binaries, since this is a Release build")
             # makes some small assumptions about our packaged dir structure
             self.run_command(
                 ["find"] +
                 [os.path.join(self.get_dst_prefix(), dir) for dir in ('bin', 'lib')] +
                 ['-type', 'f', '!', '-name', '*.py',
+                 '!', '-name', '*.pak',
+                 '!', '-name', '*.bin',
+                 '!', '-name', '*.dat',
+                 '!', '-name', '*.crt',
+                 '!', '-name', '*.dll',
+                 '!', '-name', '*.lib',
+                 '!', '-name', '*.json',
                  '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
 
-class Linux_i686_Manifest(LinuxManifest):
-    address_size = 32
+class Linux_x86_64_Manifest(LinuxManifest):
+    address_size = 64
 
     def construct(self):
-        super(Linux_i686_Manifest, self).construct()
+        super(Linux_x86_64_Manifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        if "package_dir" in self.args:
+            pkgdir = self.args['package_dir']
+
         relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        #debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libdb*.so")
-            self.path("libuuid.so*")
-            self.path("libSDL-1.2.so.*")
-            self.path("libdirectfb-1.*.so.*")
-            self.path("libfusion-1.*.so.*")
-            self.path("libdirect-1.*.so.*")
-            self.path("libopenjp2.so*")
-            self.path("libdirectfb-1.4.so.5")
-            self.path("libfusion-1.4.so.5")
-            self.path("libdirect-1.4.so.5*")
+            self.path("libSDL*.so.*")
+
             self.path("libalut.so*")
             self.path("libopenal.so*")
-            self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
-            # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
-            # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
-            # and libfontconfig.so. Before we added support for library-file
-            # wildcards, though, this self.path() call specifically named
-            # libfontconfig.so.1.4.4 WITHOUT also copying the symlinks. When I
-            # (nat) changed the call to self.path("libfontconfig.so.*"), we
-            # ended up with the libfontconfig.so.1 symlink in the target
-            # directory as well. But guess what! At least on Ubuntu 10.04,
-            # certain viewer fonts look terrible with libfontconfig.so.1
-            # present in the target directory. Removing that symlink suffices
-            # to improve them. I suspect that means we actually do better when
-            # the viewer fails to find our packaged libfontconfig.so*, falling
-            # back on the system one instead -- but diagnosing and fixing that
-            # is a bit out of scope for the present project. Meanwhile, this
-            # particular wildcard specification gets us exactly what the
-            # previous call did, without having to explicitly state the
-            # version number.
-            self.path("libfontconfig.so.*.*")
 
-            # Include libfreetype.so. but have it work as libfontconfig does.
-            self.path("libfreetype.so.*.*")
-
-            try:
-                self.path("libtcmalloc.so*") #formerly called google perf tools
-                pass
-            except:
-                print("tcmalloc files not found, skipping")
-                pass
+            if self.args['discord'] == 'ON':
+                self.path("libdiscord_partner_sdk.so*")
 
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
@@ -1280,17 +1304,6 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libvivoxsdk.so")
 
         self.strip_binaries()
-
-
-class Linux_x86_64_Manifest(LinuxManifest):
-    address_size = 64
-
-    def construct(self):
-        super(Linux_x86_64_Manifest, self).construct()
-
-        # support file for valgrind debug tool
-        self.path("secondlife-i686.supp")
-
 ################################################################
 
 if __name__ == "__main__":

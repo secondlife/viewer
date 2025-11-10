@@ -233,19 +233,7 @@ namespace tut
 
         StringList keys(make<StringList>(list_of("The")("brown")("dog.")("fox")("jumps")("lazy")("over")("quick")("the")("yellow")));
         ensure_equals(instance_from_range<StringList>(deps.get_key_range()), keys);
-#if (! defined(__GNUC__)) || (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-        // This is the succinct way, works on modern compilers
         ensure_equals(instance_from_range<StringList>(make_transform_range(deps.get_range(), extract_key)), keys);
-#else   // gcc 3.3
-        StringDeps::range got_range(deps.get_range());
-        StringDeps::iterator kni = got_range.begin(), knend = got_range.end();
-        StringList::iterator ki = keys.begin(), kend = keys.end();
-        for ( ; kni != knend && ki != kend; ++kni, ++ki)
-        {
-            ensure_equals(kni->first, *ki);
-        }
-        ensure("get_range() returns proper length", kni == knend && ki == kend);
-#endif  // gcc 3.3
         // blow off get_node_range() because they're all LLDependenciesEmpty instances
     }
 

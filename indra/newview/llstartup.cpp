@@ -183,7 +183,6 @@
 #include "llnamelistctrl.h"
 #include "llnamebox.h"
 #include "llnameeditor.h"
-#include "llpostprocess.h"
 #include "llagentlanguage.h"
 #include "llwearable.h"
 #include "llinventorybridge.h"
@@ -1346,10 +1345,6 @@ bool idle_startup()
         do_startup_frame();
 
         LLDrawable::initClass();
-        do_startup_frame();
-
-        // init the shader managers
-        LLPostProcess::initClass();
         do_startup_frame();
 
         LLAvatarAppearance::initClass("avatar_lad.xml","avatar_skeleton.xml");

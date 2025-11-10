@@ -283,11 +283,10 @@ void HttpService::shutdown()
 // requested to stop.
 void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 {
+    set_thread_name("HttpService");
     LL_PROFILER_SET_THREAD_NAME("HttpService");
 
     boost::this_thread::disable_interruption di;
-
-    LLThread::registerThreadID();
 
     ELoopSpeed loop(REQUEST_SLEEP);
     while (! mExitRequested)

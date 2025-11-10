@@ -76,7 +76,16 @@
 
 #if defined(LL_PROFILER_CONFIGURATION) && (LL_PROFILER_CONFIGURATION > LL_PROFILER_CONFIG_NONE)
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
+    #include "llpreprocessor.h"
+
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wnonnull"
+#endif
         #include "tracy/Tracy.hpp"
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic push
+#endif
 
         // Enable RenderDoc labeling
         //#define LL_PROFILER_ENABLE_RENDER_DOC 0

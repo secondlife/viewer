@@ -23,7 +23,6 @@ set(llrender_SOURCE_FILES
     llglslshader.cpp
     llgltexture.cpp
     llimagegl.cpp
-    llpostprocess.cpp
     llrender.cpp
     llrender2dutils.cpp
     llrendernavprim.cpp
@@ -56,7 +55,6 @@ set(llrender_HEADER_FILES
     llgltexture.h
     llgltypes.h
     llimagegl.h
-    llpostprocess.h
     llrender.h
     llrender2dutils.h
     llrendernavprim.h
@@ -76,23 +74,26 @@ if (BUILD_HEADLESS)
   add_library (llrenderheadless
     ${llrender_SOURCE_FILES}
     )
-
-  set_property(TARGET llrenderheadless
-    PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
-      )
+  target_include_directories(llrenderheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
   target_link_libraries(llrenderheadless
           llcommon
           llimage
           llmath
-          llrender
           llxml
           llfilesystem
+          llwindowheadless
+          ll::freetype
+          OpenGL::GL
           )
+
+  if (USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(llrenderheadless REUSE_FROM llprecompiled)
+  endif()
 endif (BUILD_HEADLESS)
 
 add_library (llrender ${llrender_SOURCE_FILES})
-target_include_directories( llrender  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(llrender INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
@@ -104,7 +105,15 @@ target_link_libraries(llrender
         llxml
         llwindow
         ll::freetype
-        OpenGL::GL
-        OpenGL::GLU
         )
 
+if (NOT USE_SDL_WINDOW)
+target_link_libraries(llrender
+        OpenGL::GL
+        )
+
+endif()
+
+if (USE_PRECOMPILED_HEADERS)
+ target_precompile_headers(llrender REUSE_FROM llprecompiled)
+endif ()

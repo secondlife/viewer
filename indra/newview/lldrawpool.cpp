@@ -369,7 +369,7 @@ void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4& color)
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4U& color)
 {
-    glColor4ubv(color.mV);
+    gGL.diffuseColor4ubv(color.mV);
 }
 
 void LLFacePool::LLOverrideFaceColor::setColor(F32 r, F32 g, F32 b, F32 a)

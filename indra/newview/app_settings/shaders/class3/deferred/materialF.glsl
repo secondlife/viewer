@@ -337,8 +337,8 @@ void main()
     vec3 amblit_linear = amblit;
 
     vec3 ambenv = amblit;
-    vec3 glossenv;
-    vec3 legacyenv;
+    vec3 glossenv = vec3(0.0);
+    vec3 legacyenv = vec3(0.0);
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env, true, amblit_linear);
 
     color = ambenv;

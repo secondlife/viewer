@@ -38,7 +38,11 @@
 #include "hbxxh.h"
 #include "glm/gtc/type_ptr.hpp"
 
-#if LL_WINDOWS
+#if GL_ARB_debug_output
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
 extern void APIENTRY gl_debug_callback(GLenum source,
                                 GLenum type,
                                 GLuint id,
@@ -67,19 +71,11 @@ S32 gGLViewport[4];
 U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 U32 LLTexUnit::sWhiteTexture = 0;
+F32 LLRender::sAnisotropicFilteringLevel = 0.f;
 bool LLRender::sGLCoreProfile = false;
 bool LLRender::sNsightDebugSupport = false;
 LLVector2 LLRender::sUIGLScaleFactor = LLVector2(1.f, 1.f);
 bool LLRender::sClassicMode = false;
-
-struct LLVBCache
-{
-    LLPointer<LLVertexBuffer> vb;
-    std::chrono::steady_clock::time_point touched;
-};
-
-static std::unordered_map<U64, LLVBCache> sVBCache;
-static thread_local std::list<LLVertexBufferData> *sBufferDataList = nullptr;
 
 static const GLenum sGLTextureType[] =
 {
@@ -529,90 +525,16 @@ void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions o
 
     if (gGLManager.mHasAnisotropic)
     {
-        if (LLImageGL::sGlobalUseAnisotropic && option == TFO_ANISOTROPIC)
+        if (option == TFO_ANISOTROPIC && LLRender::sAnisotropicFilteringLevel > 1.f)
         {
-            glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, gGLManager.mMaxAnisotropy);
+            F32 aniso_level = llclamp(LLRender::sAnisotropicFilteringLevel, 1.f, gGLManager.mMaxAnisotropy);
+            glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, aniso_level);
+
         }
         else
         {
             glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, 1.f);
         }
-    }
-}
-
-GLint LLTexUnit::getTextureSource(eTextureBlendSrc src)
-{
-    switch(src)
-    {
-        // All four cases should return the same value.
-        case TBS_PREV_COLOR:
-        case TBS_PREV_ALPHA:
-        case TBS_ONE_MINUS_PREV_COLOR:
-        case TBS_ONE_MINUS_PREV_ALPHA:
-            return GL_PREVIOUS;
-
-        // All four cases should return the same value.
-        case TBS_TEX_COLOR:
-        case TBS_TEX_ALPHA:
-        case TBS_ONE_MINUS_TEX_COLOR:
-        case TBS_ONE_MINUS_TEX_ALPHA:
-            return GL_TEXTURE;
-
-        // All four cases should return the same value.
-        case TBS_VERT_COLOR:
-        case TBS_VERT_ALPHA:
-        case TBS_ONE_MINUS_VERT_COLOR:
-        case TBS_ONE_MINUS_VERT_ALPHA:
-            return GL_PRIMARY_COLOR;
-
-        // All four cases should return the same value.
-        case TBS_CONST_COLOR:
-        case TBS_CONST_ALPHA:
-        case TBS_ONE_MINUS_CONST_COLOR:
-        case TBS_ONE_MINUS_CONST_ALPHA:
-            return GL_CONSTANT;
-
-        default:
-            LL_WARNS() << "Unknown eTextureBlendSrc: " << src << ".  Using Vertex Color instead." << LL_ENDL;
-            return GL_PRIMARY_COLOR;
-    }
-}
-
-GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
-{
-    switch(src)
-    {
-        // All four cases should return the same value.
-        case TBS_PREV_COLOR:
-        case TBS_TEX_COLOR:
-        case TBS_VERT_COLOR:
-        case TBS_CONST_COLOR:
-            return (isAlpha) ? GL_SRC_ALPHA: GL_SRC_COLOR;
-
-        // All four cases should return the same value.
-        case TBS_PREV_ALPHA:
-        case TBS_TEX_ALPHA:
-        case TBS_VERT_ALPHA:
-        case TBS_CONST_ALPHA:
-            return GL_SRC_ALPHA;
-
-        // All four cases should return the same value.
-        case TBS_ONE_MINUS_PREV_COLOR:
-        case TBS_ONE_MINUS_TEX_COLOR:
-        case TBS_ONE_MINUS_VERT_COLOR:
-        case TBS_ONE_MINUS_CONST_COLOR:
-            return (isAlpha) ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE_MINUS_SRC_COLOR;
-
-        // All four cases should return the same value.
-        case TBS_ONE_MINUS_PREV_ALPHA:
-        case TBS_ONE_MINUS_TEX_ALPHA:
-        case TBS_ONE_MINUS_VERT_ALPHA:
-        case TBS_ONE_MINUS_CONST_ALPHA:
-            return GL_ONE_MINUS_SRC_ALPHA;
-
-        default:
-            LL_WARNS() << "Unknown eTextureBlendSrc: " << src << ".  Using Source Color or Alpha instead." << LL_ENDL;
-            return (isAlpha) ? GL_SRC_ALPHA: GL_SRC_COLOR;
     }
 }
 
@@ -845,7 +767,7 @@ LLRender::~LLRender()
 
 bool LLRender::init(bool needs_vertex_buffer)
 {
-#if LL_WINDOWS
+#if GL_ARB_debug_output && !LL_DARWIN
     if (gGLManager.mHasDebugOutput && gDebugGL)
     { //setup debug output callback
         //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
@@ -899,7 +821,9 @@ void LLRender::initVertexBuffer()
 
 void LLRender::resetVertexBuffer()
 {
-    mBuffer = NULL;
+    mBuffer = nullptr;
+    mBufferDataList = nullptr;
+    mVBCache.clear();
 }
 
 void LLRender::shutdown()
@@ -1096,7 +1020,7 @@ void LLRender::syncMatrices()
                 S32 loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
                 if (loc > -1)
                 {
-                    if (cached_mvp_mdv_hash != mMatHash[MM_PROJECTION] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+                    if (cached_mvp_mdv_hash != mMatHash[MM_MODELVIEW] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
                     {
                         U32 mdv = MM_MODELVIEW;
                         cached_mvp = mat;
@@ -1506,21 +1430,21 @@ void LLRender::clearErrors()
 
 void LLRender::beginList(std::list<LLVertexBufferData> *list)
 {
-    if (sBufferDataList)
+    if (mBufferDataList)
     {
         LL_ERRS() << "beginList called while another list is open." << LL_ENDL;
     }
     llassert(LLGLSLShader::sCurBoundShaderPtr == &gUIProgram);
     flush();
-    sBufferDataList = list;
+    mBufferDataList = list;
 }
 
 void LLRender::endList()
 {
-    if (sBufferDataList)
+    if (mBufferDataList)
     {
         flush();
-        sBufferDataList = nullptr;
+        mBufferDataList = nullptr;
     }
     else
     {
@@ -1608,10 +1532,10 @@ void LLRender::flush()
 
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
-            if (sBufferDataList)
+            if (mBufferDataList)
             {
                 vb = genBuffer(attribute_mask, count);
-                sBufferDataList->emplace_back(
+                mBufferDataList->emplace_back(
                     vb,
                     mMode,
                     count,
@@ -1671,9 +1595,9 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
     // To leverage this, we maintain a running hash of the vertex stream being
     // built up before a flush, and then check that hash against a VB
     // cache just before creating a vertex buffer in VRAM
-    std::unordered_map<U64, LLVBCache>::iterator cache = sVBCache.find(vhash);
+    std::unordered_map<U64, LLVBCache>::iterator cache = mVBCache.find(vhash);
 
-    if (cache != sVBCache.end())
+    if (cache != mVBCache.end())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hit");
         // cache hit, just use the cached buffer
@@ -1685,7 +1609,7 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
         vb = genBuffer(attribute_mask, count);
 
-        sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
+        mVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
 
         static U32 miss_count = 0;
         miss_count++;
@@ -1697,11 +1621,11 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
 
             using namespace std::chrono_literals;
             // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
-            for (std::unordered_map<U64, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
+            for (std::unordered_map<U64, LLVBCache>::iterator iter = mVBCache.begin(); iter != mVBCache.end(); )
             {
                 if (now - iter->second.touched > 1s)
                 {
-                    iter = sVBCache.erase(iter);
+                    iter = mVBCache.erase(iter);
                 }
                 else
                 {
@@ -2002,6 +1926,17 @@ void LLRender::diffuseColor4ub(U8 r, U8 g, U8 b, U8 a)
     }
 }
 
+void LLRender::setLineWidth(F32 width)
+{
+    gGL.flush();
+
+    width = llclamp(width, gGLManager.mAliasedLineRange[0], gGLManager.mAliasedLineRange[1]);
+    if(mLineWidth != width)
+    {
+        mLineWidth = width;
+        glLineWidth(width);
+    }
+}
 
 void LLRender::debugTexUnits(void)
 {

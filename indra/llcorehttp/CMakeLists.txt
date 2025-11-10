@@ -81,6 +81,7 @@ list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
 add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
 target_link_libraries(
         llcorehttp
+        llmath
         llcommon
         ll::libcurl
         ll::openssl
@@ -91,6 +92,10 @@ target_include_directories( llcorehttp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 # Cannot/Should not use target_link_libraries here to add llmessage to the dependencies, as that would
 # lead to circular dependencies (or in case of cmake, the first project declaring it's dependencies wins)
 target_include_directories( llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage)
+
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llcorehttp REUSE_FROM llprecompiled)
+endif ()
 
 # tests
 set(LLCOREHTTP_TESTS ON CACHE BOOL
@@ -131,7 +136,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
                           ${PYTHON_EXECUTABLE}
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
- 
+
   #
   # Example Programs
   #
@@ -151,6 +156,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
   set_target_properties(http_texture_load
                         PROPERTIES
                         RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
+                        FOLDER "Tests"
                         )
 
   if (WINDOWS)
@@ -162,6 +168,13 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
                           LINK_FLAGS_RELEASE ""
                           )
   endif (WINDOWS)
+
+  if(DARWIN)
+    set_target_properties(http_texture_load
+                        PROPERTIES
+                        OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
+                        )
+  endif()
 
   target_link_libraries(http_texture_load ${example_libs})
 

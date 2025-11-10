@@ -28,6 +28,8 @@
 #ifndef LL_LLINSTANCETRACKER_H
 #define LL_LLINSTANCETRACKER_H
 
+#include "llpreprocessor.h"
+
 #include <map>
 #include <set>
 #include <vector>
@@ -244,6 +246,7 @@ public:
     }
 
 protected:
+    LL_UBSAN_SUPRESS_VPTR
     LLInstanceTracker(const KEY& key)
     {
         // We do not intend to manage the lifespan of this object with
@@ -482,6 +485,7 @@ public:
     using key_snapshot_of = instance_snapshot_of<SUBCLASS>;
 
 protected:
+    LL_UBSAN_SUPRESS_VPTR
     LLInstanceTracker()
     {
         // Since we do not intend for this shared_ptr to manage lifespan, give

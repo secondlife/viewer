@@ -81,7 +81,7 @@ bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
         }
     }
 
-#if !LL_DARWIN
+#if !LL_DARWIN && !LL_SDL_WINDOW
     LLCheckBoxCtrl *use_HiDPI = getChild<LLCheckBoxCtrl>("use HiDPI");
     use_HiDPI->setVisible(false);
 #endif
@@ -340,6 +340,12 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     tonemapMix->setEnabled(is_not_vintage);
     exposureSlider->setEnabled(is_not_vintage);
     cas_slider->setEnabled(is_not_vintage);
+
+    LLComboBox* ctrl_anisotropic = getChild<LLComboBox>("anisotropic_filter");
+    if (!LLFeatureManager::instance().isFeatureAvailable("RenderAnisotropicLevel"))
+    {
+        ctrl_anisotropic->setEnabled(false);
+    }
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
@@ -383,6 +389,20 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     }
 
     getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
+
+    LLComboBox* af_combo = getChild<LLComboBox>("anisotropic_filter");
+    if (2.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("2x");
+    }
+    if (4.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("4x");
+    }
+    if (8.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("8x");
+    }
+    if (16.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("16x");
+    }
 
     // now turn off any features that are unavailable
     disableUnavailableSettings();

@@ -56,12 +56,6 @@
 #include "llmatrix4a.h"
 #include "llperfstats.h"
 
-#if !LL_DARWIN && !LL_LINUX
-extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
-extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
-extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
-#endif
-
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // LLViewerJointMesh
@@ -241,8 +235,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
         gGL.diffuseColor4fv(mColor.mV);
 
     stop_glerror();
-
-    LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), 0.f);
 
     //----------------------------------------------------------------
     // setup current texture

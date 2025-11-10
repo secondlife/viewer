@@ -65,8 +65,7 @@ protected:
 // VIRTUAL CLASS
 // a viewer side interface class for a generalized parametric modification of the avatar mesh
 //-----------------------------------------------------------------------------
-LL_ALIGN_PREFIX(16)
-class LLViewerVisualParam : public LLVisualParam
+class alignas(16) LLViewerVisualParam : public LLVisualParam
 {
 public:
     LLViewerVisualParam();
@@ -107,6 +106,6 @@ public:
 
 protected:
     LLViewerVisualParam(const LLViewerVisualParam& pOther);
-} LL_ALIGN_POSTFIX(16);
+};
 
 #endif // LL_LLViewerVisualParam_H
