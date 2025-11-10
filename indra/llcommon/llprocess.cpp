@@ -457,7 +457,8 @@ public:
                        ("slot", LLSD::Integer(mIndex))
                        ("name", whichfile(mIndex))
                        ("desc", mDesc)
-                       ("eof", state == CLOSED));
+                       ("eof", state == CLOSED)
+                       ("exhst", state == EXHAUSTED));
         }
 
         return false;
