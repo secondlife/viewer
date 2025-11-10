@@ -99,6 +99,7 @@ void init_sdl(const std::string& app_name)
                     {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
                     {SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH,"1"},
                     {SDL_HINT_MOUSE_EMULATE_WARP_WITH_RELATIVE,"0"},
+                    {SDL_HINT_MOUSE_RELATIVE_WARP_MOTION,"1"},
                     {SDL_HINT_KEYCODE_OPTIONS,"french_numbers,latin_letters"}
             };
 
