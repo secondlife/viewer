@@ -3168,8 +3168,6 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                         participant->mIsSpeaking = participant_obj["v"].as_bool();
                     }
 
-                    // Currently, viewer doesn't receive this info when the user is muted in Nearby chat,
-                    // but it *does* receive it when muted in Group chat. A server-side change is required.
                     if (participant_obj.contains("m") && participant_obj["m"].is_bool())
                     {
                         participant->mIsModeratorMuted = participant_obj["m"].as_bool();

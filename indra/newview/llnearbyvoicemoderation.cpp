@@ -189,6 +189,7 @@ void LLNearbyVoiceModeration::showMutedNotification(bool is_muted)
 
 bool LLNearbyVoiceModeration::isNearbyChatModerator()
 {
-    return gAgent.canManageEstate() || LLViewerParcelMgr::getInstance()->allowVoiceModeration();
+    return gAgent.getRegion() && gAgent.getRegion()->isRegionWebRTCEnabled() &&
+           (gAgent.canManageEstate() || LLViewerParcelMgr::getInstance()->allowVoiceModeration());
 }
 

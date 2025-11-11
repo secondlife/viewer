@@ -3798,6 +3798,16 @@ std::string LLViewerRegion::getSimHostName()
     return std::string("...");
 }
 
+
+bool LLViewerRegion::isRegionWebRTCEnabled()
+{
+    if (mSimulatorFeaturesReceived && mSimulatorFeatures.has("VoiceServerType"))
+    {
+        return mSimulatorFeatures["VoiceServerType"].asString() == "webrtc";
+    }
+    return false;
+}
+
 void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
