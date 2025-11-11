@@ -368,7 +368,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         avatar_data.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
     }
 
-    LLAppViewer::instance()->postToMainCoro(
+    LLAppViewer::instance()->postToAppWorkGroup(
         [avatar_id, avatar_data, type]()
         {
             LLAvatarPropertiesProcessor::instance().notifyObservers(avatar_id, (void*) &avatar_data, type);

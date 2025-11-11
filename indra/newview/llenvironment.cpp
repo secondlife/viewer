@@ -2057,7 +2057,7 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
         LLSD environment = result[KEY_ENVIRONMENT];
         if (environment.isDefined() && apply)
         {
-            LLAppViewer::instance()->postToMainCoro([=]()
+            LLAppViewer::instance()->postToAppWorkGroup([=]()
                 {
                     EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
                     apply(parcel_id, envinfo);

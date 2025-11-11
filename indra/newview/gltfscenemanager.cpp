@@ -381,7 +381,7 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 //static
 void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
 {
-    LLAppViewer::instance()->postToMainCoro([=]()
+    LLAppViewer::instance()->postToAppWorkGroup([=]()
         {
             LLViewerObject* obj = (LLViewerObject*)user_data;
             llassert(asset_type == LLAssetType::AT_GLTF_BIN);
@@ -514,7 +514,7 @@ void GLTFSceneManager::update()
 
             LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, buffer](LLUUID assetId, LLSD response)
             {
-                LLAppViewer::instance()->postToMainCoro(
+                LLAppViewer::instance()->postToAppWorkGroup(
                     [=, this]()
                     {
                         if (mUploadingAsset)

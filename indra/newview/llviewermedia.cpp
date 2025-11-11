@@ -1257,7 +1257,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
 
     if (url.length())
     {
-        LLAppViewer::instance()->postToMainCoro([=]()
+        LLAppViewer::instance()->postToAppWorkGroup([=]()
             {
                 std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
                 std::string cookie_name = "";
@@ -2690,7 +2690,7 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
             if (initializeMedia(mimeType))
             {
                 ref();
-                LLAppViewer::instance()->postToMainCoro([this]()
+                LLAppViewer::instance()->postToAppWorkGroup([this]()
                     {
                         loadURI();
                         unref();

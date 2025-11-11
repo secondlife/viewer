@@ -104,7 +104,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
         std::string filename_in = filename;
         LLUUID uuid_in = uuid;
 
-        LLAppViewer::instance()->postToMainCoro([=]()
+        LLAppViewer::instance()->postToAppWorkGroup([=]()
             {
                 processGetAssetReply(filename_in.c_str(), uuid_in, userdata, status, ext_status);
             });

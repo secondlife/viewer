@@ -2519,7 +2519,7 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
         };
 
 
-    LLAppViewer::instance()->postToMainCoro(work);
+    LLAppViewer::instance()->postToAppWorkGroup(work);
 }
 
 //this is called when the parent is not cacheable.

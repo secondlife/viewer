@@ -189,7 +189,7 @@ void LLPBRTerrainFeatures::modifyRegionCoro(std::string cap_url, LLSD updates, v
 
     if (done_callback)
     {
-        LLAppViewer::instance()->postToMainCoro([=]()
+        LLAppViewer::instance()->postToAppWorkGroup([=]()
         {
             done_callback(success);
         });

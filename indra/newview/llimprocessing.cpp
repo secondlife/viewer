@@ -1666,7 +1666,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             session_id = message_data["asset_id"].asUUID();
         }
 
-        LLAppViewer::instance()->postToMainCoro([=]()
+        LLAppViewer::instance()->postToAppWorkGroup([=]()
             {
                 std::vector<U8> local_bin_bucket = bin_bucket;
                 LLHost local_sender = sender;

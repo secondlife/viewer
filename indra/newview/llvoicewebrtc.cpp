@@ -469,7 +469,7 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 
         if (voice_status)
         {
-            LLAppViewer::instance()->postToMainCoro([=]() { LLFirstUse::speak(true); });
+            LLAppViewer::instance()->postToAppWorkGroup([=]() { LLFirstUse::speak(true); });
         }
     }
 }
