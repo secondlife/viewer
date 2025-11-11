@@ -895,6 +895,17 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
                 // Also handle PBR materials if selected
                 if (mUsePBR)
                 {
+                    LLVector2 pbr_scale, pbr_offset;
+                    F32 pbr_rotation;
+
+                    LLGLTFMaterial::convertTextureTransformToPBR(
+                        uv_scale.mV[VX], uv_scale.mV[VY],
+                        uv_offset.mV[VX], uv_offset.mV[VY],
+                        uv_rot,
+                        pbr_scale,
+                        pbr_offset,
+                        pbr_rotation);
+
                     LLGLTFMaterial new_override;
                     const LLTextureEntry* tep = object->getTE(te);
                     if (tep && tep->getGLTFMaterialOverride())
@@ -908,21 +919,17 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
                         // Align all 4 PBR texture channels
                         for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                         {
-                            new_override.mTextureTransform[i].mScale.mV[VX] = uv_scale.mV[VX];
-                            new_override.mTextureTransform[i].mScale.mV[VY] = uv_scale.mV[VY];
-                            new_override.mTextureTransform[i].mRotation = uv_rot;
-                            new_override.mTextureTransform[i].mOffset.mV[VX] = uv_offset.mV[VX];
-                            new_override.mTextureTransform[i].mOffset.mV[VY] = uv_offset.mV[VY];
+                            new_override.mTextureTransform[i].mScale = pbr_scale;
+                            new_override.mTextureTransform[i].mRotation = pbr_rotation;
+                            new_override.mTextureTransform[i].mOffset = pbr_offset;
                         }
                     }
                     else
                     {
                         // Align only the selected channel
-                        new_override.mTextureTransform[mPBRChannel].mScale.mV[VX] = uv_scale.mV[VX];
-                        new_override.mTextureTransform[mPBRChannel].mScale.mV[VY] = uv_scale.mV[VY];
-                        new_override.mTextureTransform[mPBRChannel].mRotation = uv_rot;
-                        new_override.mTextureTransform[mPBRChannel].mOffset.mV[VX] = uv_offset.mV[VX];
-                        new_override.mTextureTransform[mPBRChannel].mOffset.mV[VY] = uv_offset.mV[VY];
+                        new_override.mTextureTransform[mPBRChannel].mScale = pbr_scale;
+                        new_override.mTextureTransform[mPBRChannel].mRotation = pbr_rotation;
+                        new_override.mTextureTransform[mPBRChannel].mOffset = pbr_offset;
                     }
 
                     LLGLTFMaterialList::queueModify(object, te, &new_override);
@@ -973,7 +980,10 @@ struct LLPanelFaceSetAlignedConcreteTEFunctor : public LLSelectedTEFunctor
         {
             LLVector2 uv_offset, uv_scale;
             F32 uv_rot;
-            if (facep->calcAlignedPlanarTE(mChefFace, &uv_offset, &uv_scale, &uv_rot, mMap))
+
+            LLRender::eTexIndex calc_map = (mMap == LLRender::NUM_TEXTURE_CHANNELS) ? LLRender::DIFFUSE_MAP : mMap;
+
+            if (facep->calcAlignedPlanarTE(mChefFace, &uv_offset, &uv_scale, &uv_rot, calc_map))
             {
                 switch (mMap)
                 {
@@ -995,6 +1005,43 @@ struct LLPanelFaceSetAlignedConcreteTEFunctor : public LLSelectedTEFunctor
                         LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
                         LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
                         LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+                    break;
+                // convert Blinn-Phong coords to PBR coords
+                case LLRender::NUM_TEXTURE_CHANNELS:
+                    {
+                        LLVector2 pbr_scale, pbr_offset;
+                        F32 pbr_rotation;
+
+                        LLGLTFMaterial::convertTextureTransformToPBR(
+                            uv_scale.mV[VX], uv_scale.mV[VY],
+                            uv_offset.mV[VX], uv_offset.mV[VY],
+                            uv_rot,
+                            pbr_scale,
+                            pbr_offset,
+                            pbr_rotation);
+
+                        const LLTextureEntry* tep = object->getTE(te);
+                        if (!tep)
+                        {
+                            break;
+                        }
+
+                        LLGLTFMaterial new_override;
+                        const LLGLTFMaterial* existing_override = tep->getGLTFMaterialOverride();
+                        if (existing_override)
+                        {
+                            new_override = *existing_override;
+                        }
+
+                        for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
+                        {
+                            new_override.mTextureTransform[i].mOffset = pbr_offset;
+                            new_override.mTextureTransform[i].mScale = pbr_scale;
+                            new_override.mTextureTransform[i].mRotation = pbr_rotation;
+                        }
+
+                        LLGLTFMaterialList::queueModify(object, te, &new_override);
+                    }
                     break;
                 default: /*make compiler happy*/
                     break;
@@ -1124,6 +1171,11 @@ void LLPanelFace::alignTextureLayer()
         LLGLTFMaterial::TextureInfo texture_info = getPBRTextureInfo();
         LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face, true, texture_info);
         LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
+
+        LLGLTFMaterialList::flushUpdates();
+
+        LLPanelFaceSendFunctor sendfunc;
+        LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
     }
     else
     {
