@@ -997,6 +997,7 @@ bool LLAppViewer::init()
         return false;
     }
 
+#if defined(LL_X86) || defined(LL_X86_64)
     // Without SSE2 support we will crash almost immediately, warn here.
     if (!gSysCPU.hasSSE2())
     {
@@ -1008,6 +1009,7 @@ bool LLAppViewer::init()
         // quit immediately
         return false;
     }
+#endif
 
     // alert the user if they are using unsupported hardware
     if (!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))
@@ -1270,6 +1272,7 @@ bool LLAppViewer::init()
     gWorkService->start();
 
     gWorkService->addWorkContractGroup(&mMainAppGroup);
+    gSavedSettings.setU32("DebugQualityPerformance", gSavedSettings.getU32("RenderQualityPerformance"));
 
 #if LL_WINDOWS
     if (!mSecondInstance)
@@ -1296,7 +1299,7 @@ void LLAppViewer::initMaxHeapSize()
     //------------------------------------------------------------------------------------------
     //currently SL is built under 32-bit setting, we set its max heap size no more than 1.6 GB.
 
- #ifndef LL_X86_64
+ #if !defined(LL_X86_64) && !defined(LL_ARM64)
     F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
 #else
     F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize64");
@@ -1366,6 +1369,7 @@ bool LLAppViewer::doFrame()
     }
 
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
+    LL_PROFILE_GPU_ZONE("Frame");
     {
     // and now adjust the visuals from previous frame.
     if(LLPerfStats::tunables.userAutoTuneEnabled && LLPerfStats::tunables.tuningFlag != LLPerfStats::Tunables::Nothing)
@@ -1455,24 +1459,26 @@ bool LLAppViewer::doFrame()
 
         if (!LLApp::isExiting())
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df JoystickKeyboard");
-            pingMainloopTimeout("Main:JoystickKeyboard");
-
-            // Scan keyboard for movement keys.  Command keys and typing
-            // are handled by windows callbacks.  Don't do this until we're
-            // done initializing.  JC
-            if (gViewerWindow
-                && (gHeadlessClient || gViewerWindow->getWindow()->getVisible())
-                && gViewerWindow->getActive()
-                && !gViewerWindow->getWindow()->getMinimized()
-                && LLStartUp::getStartupState() == STATE_STARTED
-                && (gHeadlessClient || !gViewerWindow->getShowProgress())
-                && !gFocusMgr.focusLocked())
             {
-                LLPerfStats::RecordSceneTime T (LLPerfStats::StatType_t::RENDER_IDLE);
-                joystick->scanJoystick();
-                gKeyboard->scanKeyboard();
-                gViewerInput.scanMouse();
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df JoystickKeyboard");
+                pingMainloopTimeout("Main:JoystickKeyboard");
+
+                // Scan keyboard for movement keys.  Command keys and typing
+                // are handled by windows callbacks.  Don't do this until we're
+                // done initializing.  JC
+                if (gViewerWindow
+                    && (gHeadlessClient || gViewerWindow->getWindow()->getVisible())
+                    && gViewerWindow->getActive()
+                    && !gViewerWindow->getWindow()->getMinimized()
+                    && LLStartUp::getStartupState() == STATE_STARTED
+                    && (gHeadlessClient || !gViewerWindow->getShowProgress())
+                    && !gFocusMgr.focusLocked())
+                {
+                    LLPerfStats::RecordSceneTime T(LLPerfStats::StatType_t::RENDER_IDLE);
+                    joystick->scanJoystick();
+                    gKeyboard->scanKeyboard();
+                    gViewerInput.scanMouse();
+                }
             }
 
             // Update state based on messages, user input, object idle.
@@ -2406,7 +2412,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         if (gDirUtilp->fileExists(user_data_path_cef_log))
         {
             std::string user_data_path_cef_old = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.old");
-            LLFile::remove(user_data_path_cef_old, ENOENT);
             LLFile::rename(user_data_path_cef_log, user_data_path_cef_old);
         }
     }
@@ -3181,17 +3186,6 @@ bool LLAppViewer::initWindow()
 
     LLNotificationsUI::LLNotificationManager::getInstance();
 
-
-#ifdef LL_DARWIN
-    //Satisfy both MAINT-3135 (OSX 10.6 and earlier) MAINT-3288 (OSX 10.7 and later)
-    LLOSInfo& os_info = LLOSInfo::instance();
-    if (os_info.mMajorVer == 10 && os_info.mMinorVer < 7)
-    {
-        if ( os_info.mMinorVer == 6 && os_info.mBuild < 8 )
-            gViewerWindow->getWindow()->setOldResize(true);
-    }
-#endif
-
     if (gSavedSettings.getBOOL("WindowMaximized"))
     {
         gViewerWindow->getWindow()->maximize();
@@ -3306,6 +3300,11 @@ LLSD LLAppViewer::getViewerInfo() const
     info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
     info["CHANNEL"] = versionInfo.getChannel();
     info["ADDRESS_SIZE"] = ADDRESS_SIZE;
+#if LL_ARM64
+    info["ARCHITECTURE"] = "ARM";
+#else
+    info["ARCHITECTURE"] = "x86";
+#endif
     std::string build_config = versionInfo.getBuildConfig();
     if (build_config != "Release")
     {
@@ -3397,7 +3396,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["FONT_SIZE_ADJUSTMENT"] = gSavedSettings.getF32("FontScreenDPI");
     info["UI_SCALE"] = gSavedSettings.getF32("UIScaleFactor");
     info["DRAW_DISTANCE"] = gSavedSettings.getF32("RenderFarClip");
-    info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
+    info["NET_BANDWITH"] = LLViewerThrottle::getMaxBandwidthKbps();
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
     info["TEXTURE_MEMORY"] = LLSD::Integer(gGLManager.mVRAM);
@@ -3959,8 +3958,15 @@ void LLAppViewer::processMarkerFiles()
         else if (marker_is_same_version)
         {
             // the file existed, is ours, and matched our version, so we can report on what it says
-            LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed" << LL_ENDL;
+            LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed or froze" << LL_ENDL;
+#if LL_WINDOWS && LL_BUGSPLAT
+            // bugsplat will set correct state in bugsplatSendLog
+            // Might be more accurate to rename this one into 'unknown'
+            gLastExecEvent = LAST_EXEC_FROZE;
+#else
             gLastExecEvent = LAST_EXEC_OTHER_CRASH;
+#endif // LL_WINDOWS
+
         }
         else
         {
@@ -4209,7 +4215,7 @@ void LLAppViewer::earlyExit(const std::string& name, const LLSD& substitutions)
 // case where we need the viewer to exit without any need for notifications
 void LLAppViewer::earlyExitNoNotify()
 {
-    LL_WARNS() << "app_early_exit with no notification: " << LL_ENDL;
+    LL_WARNS() << "app_early_exit with no notification." << LL_ENDL;
     gDoDisconnect = true;
     finish_early_exit( LLSD(), LLSD() );
 }
@@ -4440,6 +4446,9 @@ bool LLAppViewer::initCache()
     const U32 CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS = 128;
     LLVOCache::getInstance()->initCache(LL_PATH_CACHE, CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS, getObjectCacheVersion());
 
+    // Remove old, stale CEF cache folders
+    purgeCefStaleCaches();
+
     return true;
 }
 
@@ -4464,18 +4473,28 @@ void LLAppViewer::loadKeyBindings()
     LLUrlRegistry::instance().setKeybindingHandler(&gViewerInput);
 }
 
+// As per GHI #4498, remove old, stale CEF cache folders from previous sessions
+void LLAppViewer::purgeCefStaleCaches()
+{
+    // TODO: we really shouldn't use a hard coded name for the cache folder here...
+    const std::string browser_parent_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
+    if (LLFile::isdir(browser_parent_cache))
+    {
+        // This is a sledgehammer approach - nukes the cef_cache dir entirely
+        // which is then recreated the first time a CEF instance creates an
+        // individual cache folder. If we ever decide to retain some folders
+        // e.g. Search UI cache - then we will need a more granular approach.
+        gDirUtilp->deleteDirAndContents(browser_parent_cache);
+    }
+}
+
 void LLAppViewer::purgeCache()
 {
     LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
     LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
     LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
     LLViewerShaderMgr::instance()->clearShaderCache();
-    std::string browser_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
-    if (LLFile::isdir(browser_cache))
-    {
-        // cef does not support clear_cache and clear_cookies, so clear what we can manually.
-        gDirUtilp->deleteDirAndContents(browser_cache);
-    }
+    purgeCefStaleCaches();
     gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*");
 }
 
@@ -5418,6 +5437,12 @@ void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
     }
 }
 
+bool LLAppViewer::errorMarkerExists() const
+{
+    std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+    return LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB);
+}
+
 void LLAppViewer::outOfMemorySoftQuit()
 {
     if (!mQuitRequested)
@@ -5549,7 +5574,10 @@ void LLAppViewer::idleNetwork()
     add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
     // Retransmit unacknowledged packets.
-    gXferManager->retransmitUnackedPackets();
+    if (gXferManager)
+    {
+        gXferManager->retransmitUnackedPackets();
+    }
     gAssetStorage->checkForTimeouts();
     gViewerThrottle.setBufferLoadRate(gMessageSystem->getBufferLoadRate());
     gViewerThrottle.updateDynamicThrottle();
@@ -5669,7 +5697,11 @@ void LLAppViewer::forceErrorBreakpoint()
 #ifdef LL_WINDOWS
     DebugBreak();
 #else
+#if defined(LL_X86) || defined(LL_X86_64)
     asm ("int $3");
+#else
+    __builtin_trap();
+#endif
 #endif
     return;
 }

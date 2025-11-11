@@ -255,6 +255,11 @@ void LLMD5::raw_digest(unsigned char* s) const
     memcpy(s, digest, 16); /* Flawfinder: ignore */
 }
 
+#if LL_DARWIN
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 void LLMD5::hex_digest(char* s) const
 {
     if (!finalized)
@@ -272,6 +277,10 @@ void LLMD5::hex_digest(char* s) const
 
     s[32] = '\0';
 }
+
+#if LL_DARWIN
+#pragma clang diagnostic pop
+#endif
 
 std::ostream& operator<<(std::ostream& stream, const LLMD5& context)
 {

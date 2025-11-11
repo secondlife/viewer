@@ -36,7 +36,6 @@
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
 #include "llviewermenu.h"
-#include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -144,7 +143,7 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
     // Capable of detecting devices like Oculus Rift
     if (device_instance_ptr)
     {
-        std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
+        std::string product_name = ll_convert<std::string>(std::wstring(device_instance_ptr->tszProductName));
 
         LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
 
@@ -211,7 +210,7 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
 // This is GUID2 so teoretically it can be memcpy copied into LLUUID
 void guid_from_string(GUID &guid, const std::string &input)
 {
-    CLSIDFromString(utf8str_to_utf16str(input).c_str(), &guid);
+    CLSIDFromString(ll_convert<std::wstring>(input).c_str(), &guid);
 }
 
 std::string string_from_guid(const GUID &guid)
@@ -221,7 +220,7 @@ std::string string_from_guid(const GUID &guid)
 
     // use guidString...
 
-    std::string res = utf16str_to_utf8str(llutf16string(guidString));
+    std::string res = ll_convert<std::string>(std::wstring(guidString));
     // ensure memory is freed
     ::CoTaskMemFree(guidString);
 
@@ -1161,7 +1160,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
 void LLViewerJoystick::moveFlycam(bool reset)
 {
     static LLQuaternion         sFlycamRotation;
-    static LLVector3            sFlycamPosition;
+    static LLVector3d           sFlycamPosition;
     static F32                  sFlycamZoom;
 
     if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED
@@ -1184,7 +1183,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
     bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
     if (reset || mResetFlag)
     {
-        sFlycamPosition = LLViewerCamera::getInstance()->getOrigin();
+        sFlycamPosition = gAgentCamera.getCameraPositionGlobal();
         sFlycamRotation = LLViewerCamera::getInstance()->getQuaternion();
         sFlycamZoom = LLViewerCamera::getInstance()->getView();
 
@@ -1287,7 +1286,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
         }
     }
 
-    sFlycamPosition += LLVector3(sDelta) * sFlycamRotation;
+    sFlycamPosition += LLVector3d(sDelta[VX], sDelta[VY], sDelta[VZ]) * sFlycamRotation;
 
     LLMatrix3 rot_mat(sDelta[3], sDelta[4], sDelta[5]);
     sFlycamRotation = LLQuaternion(rot_mat)*sFlycamRotation;
@@ -1322,7 +1321,8 @@ void LLViewerJoystick::moveFlycam(bool reset)
     LLMatrix3 mat(sFlycamRotation);
 
     LLViewerCamera::getInstance()->setView(sFlycamZoom);
-    LLViewerCamera::getInstance()->setOrigin(sFlycamPosition);
+    LLVector3 new_camera_pos = gAgent.getPosAgentFromGlobal(sFlycamPosition);
+    LLViewerCamera::getInstance()->setOrigin(new_camera_pos);
     LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
     LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
     LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);

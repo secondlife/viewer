@@ -45,7 +45,9 @@
 #include "llworld.h"
 
 #include "tinygltf/tiny_gltf.h"
-#include <strstream>
+
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #include <unordered_set>
 
@@ -357,6 +359,7 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
 {
     if (asset_id.isNull() || override_json.empty())
     {
+        // If there is no asset, there can't be an override
         queueApply(obj, side, asset_id);
     }
     else
@@ -369,6 +372,7 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
 {
     if (asset_id.isNull() || material_override == nullptr)
     {
+        // If there is no asset, there can't be an override
         queueApply(obj, side, asset_id);
     }
     else
@@ -468,7 +472,7 @@ void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callba
         {
             data[i]["gltf_json"] = e.override_data->asJSON();
         }
-        if (!e.override_json.empty())
+        else if (!e.override_json.empty())
         {
             data[i]["gltf_json"] = e.override_json;
         }
@@ -555,8 +559,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 LLSD asset;
 
                 // read file into buffer
-                std::istrstream str(&buffer[0], static_cast<S32>(buffer.size()));
-
+                boost::iostreams::stream<boost::iostreams::array_source> str(buffer.data(), buffer.size());
                 if (LLSDSerialize::deserialize(asset, str, buffer.size()))
                 {
                     if (asset.has("version") && LLGLTFMaterial::isAcceptedVersion(asset["version"].asString()))

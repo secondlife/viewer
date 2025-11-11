@@ -13,14 +13,26 @@ add_library( ll::kdu INTERFACE IMPORTED )
 if (USE_KDU)
   include(Prebuilt)
   use_prebuilt_binary(kdu)
+
   if (WINDOWS)
-    target_link_libraries( ll::kdu INTERFACE kdu.lib)
+    find_library(KDU_LIBRARY
+      NAMES
+      kdu
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
   else (WINDOWS)
-    target_link_libraries( ll::kdu INTERFACE libkdu.a)
+    find_library(KDU_LIBRARY
+      NAMES
+      libkdu.a
+      PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
   endif (WINDOWS)
+
+  target_link_libraries(ll::kdu INTERFACE ${KDU_LIBRARY})
 
   target_include_directories( ll::kdu SYSTEM INTERFACE
           ${AUTOBUILD_INSTALL_DIR}/include/kdu
           ${LIBS_OPEN_DIR}/llkdu
           )
+  target_compile_definitions(ll::kdu INTERFACE KDU_NO_THREADS=1)
 endif (USE_KDU)

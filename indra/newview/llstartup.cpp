@@ -57,6 +57,7 @@
 #include "lllocationhistory.h"
 #include "llgltfmateriallist.h"
 #include "llimageworker.h"
+#include "llregex.h"
 
 #include "llloginflags.h"
 #include "llmd5.h"
@@ -121,6 +122,7 @@
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llpaneldirbrowser.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
 #include "llparcel.h"
@@ -397,6 +399,7 @@ bool idle_startup()
         LL_WARNS_ONCE() << "gViewerWindow is not initialized" << LL_ENDL;
         return false; // No world yet
     }
+    LL_PROFILE_ZONE_SCOPED;
 
     const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
     static LLTimer timeout;
@@ -437,7 +440,26 @@ bool idle_startup()
     system = osString.substr (begIdx, endIdx - begIdx);
     system += "Locale";
 
-    LLStringUtil::setLocale (LLTrans::getString(system));
+    std::string locale = LLTrans::getString(system);
+    if (locale != LLStringUtil::getLocale()) // is there a reason to do this on repeat?
+    {
+        LLStringUtil::setLocale(locale);
+
+        // Not all locales have AMPM, test it
+        if (LLStringOps::sAM.empty()) // Might already be overriden from LLAppViewer::init()
+        {
+            LLDate datetime(0.0);
+            std::string val = datetime.toHTTPDateString("%p");
+            if (val.empty())
+            {
+                LL_DEBUGS("InitInfo") << "Current locale \"" << locale << "\" "
+                    << "doesn't support AM/PM time format" << LL_ENDL;
+                // fallback to declarations in strings.xml
+                LLStringOps::sAM = LLTrans::getString("dateTimeAM");
+                LLStringOps::sPM = LLTrans::getString("dateTimePM");
+            }
+        }
+    }
 
     //note: Removing this line will cause incorrect button size in the login screen. -- bao.
     gTextureList.updateImages(0.01f) ;
@@ -2557,6 +2579,27 @@ void release_notes_coro(const std::string url)
     LLWeb::loadURLInternal(url);
 }
 
+void validate_release_notes_coro(const std::string url)
+{
+    LLVersionInfo& versionInfo(LLVersionInfo::instance());
+    const boost::regex version_regex(R"(\b\d+\.\d+\.\d+\.\d+\b)");
+
+    if (url.find(versionInfo.getVersion()) == std::string::npos // has no our build version
+        && ll_regex_search(url, version_regex)) // has any version
+    {
+        LL_INFOS() << "Received release notes url \"" << url << "\" wwith mismatching build, falling back to locally generated url" << LL_ENDL;
+        // Updater only provides notes for a most recent version, if it is not
+        // the current one, fall back to the hardcoded URL.
+        LLSD info(LLAppViewer::instance()->getViewerInfo());
+        std::string alt_url = info["VIEWER_RELEASE_NOTES_URL"].asString();
+        release_notes_coro(alt_url);
+    }
+    else
+    {
+        release_notes_coro(url);
+    }
+}
+
 /**
 * Check if user is running a new version of the viewer.
 * Display the Release Notes if it's not overriden by the "UpdaterShowReleaseNotes" setting.
@@ -2590,7 +2633,7 @@ void show_release_notes_if_required()
                 "showrelnotes",
                 [](const LLSD& url) {
                     LLCoros::instance().launch("releaseNotesCoro",
-                    boost::bind(&release_notes_coro, url.asString()));
+                    boost::bind(&validate_release_notes_coro, url.asString()));
                 return false;
             });
         }
@@ -2828,6 +2871,13 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFunc("GroupNoticesListReply", LLPanelGroupNotices::processGroupNoticesListReply);
 
     msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
+
+    msg->setHandlerFunc("DirPlacesReply", LLPanelDirBrowser::processDirPlacesReply);
+    msg->setHandlerFunc("DirPeopleReply", LLPanelDirBrowser::processDirPeopleReply);
+    msg->setHandlerFunc("DirEventsReply", LLPanelDirBrowser::processDirEventsReply);
+    msg->setHandlerFunc("DirGroupsReply", LLPanelDirBrowser::processDirGroupsReply);
+    msg->setHandlerFunc("DirClassifiedReply", LLPanelDirBrowser::processDirClassifiedReply);
+    msg->setHandlerFunc("DirLandReply", LLPanelDirBrowser::processDirLandReply);
 
     msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
     msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);

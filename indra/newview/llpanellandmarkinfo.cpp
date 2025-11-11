@@ -41,6 +41,7 @@
 #include "lllandmarkactions.h"
 #include "llparcel.h"
 #include "llslurl.h"
+#include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -326,7 +327,8 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
     }
     else
     {
-        std::string timeStr = getString("acquired_date");
+        static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+        std::string timeStr = use_24h ? getString("acquired_date") : getString("acquired_date_ampm");
         LLSD substitution;
         substitution["datetime"] = (S32) time_utc;
         LLStringUtil::format (timeStr, substitution);

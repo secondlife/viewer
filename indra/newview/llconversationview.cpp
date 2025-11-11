@@ -543,7 +543,7 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
     {
         bool old_value = mIsInActiveVoiceChannel;
         mIsInActiveVoiceChannel = vmi->getUUID() == session_id;
-        mCallIconLayoutPanel->setVisible(mIsInActiveVoiceChannel);
+        mCallIconLayoutPanel->setVisible(mIsInActiveVoiceChannel && !LLVoiceChannel::isSuspended());
         if (old_value != mIsInActiveVoiceChannel)
         {
             refresh();

@@ -63,7 +63,7 @@ bool LLFloaterToybox::postBuild()
 
     mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
     mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
-    mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+    mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4,_5));
     mToolBar->setButtonEnterCallback(boost::bind(&LLFloaterToybox::onToolBarButtonEnter,this,_1));
 
     //

@@ -229,7 +229,7 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
         if(wargv[ii][1] == '-') ++offset;
 
 #if LL_WINDOWS
-    name.assign(utf16str_to_utf8str(&wargv[ii][offset]));
+    name.assign(ll_convert_wide_to_string(&wargv[ii][offset]));
 #else
     name.assign(wstring_to_utf8str(&wargv[ii][offset]));
 #endif
@@ -253,7 +253,7 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
         ++ii;
 
 #if LL_WINDOWS
-    value.assign(utf16str_to_utf8str((wargv[ii])));
+    value.assign(ll_convert_wide_to_string((wargv[ii])));
 #else
     value.assign(wstring_to_utf8str((wargv[ii])));
 #endif

@@ -56,6 +56,15 @@ LLHUDEffectResetSkeleton::~LLHUDEffectResetSkeleton()
 //-----------------------------------------------------------------------------
 // packData()
 //-----------------------------------------------------------------------------
+void LLHUDEffectResetSkeleton::render()
+{
+    // HUDEffectResetSkeleton is a fake effect meant to reset skeleton only.
+    // Just wait for an update() call to do its work and then die.
+}
+
+//-----------------------------------------------------------------------------
+// packData()
+//-----------------------------------------------------------------------------
 void LLHUDEffectResetSkeleton::packData(LLMessageSystem *mesgsys)
 {
     // Pack the default data

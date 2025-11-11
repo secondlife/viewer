@@ -340,7 +340,7 @@ public:
     void setImageID(const LLUUID& image_asset_id, bool set_selection = true);
     bool updateImageStats(); // true if within limits
     const LLUUID&   getAssetID() { return mImageAssetID; }
-    const LLUUID&   findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false);
+    const LLUUID&   findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false) const;
     void            setCanApplyImmediately(bool b);
 
     void            setActive(bool active);
@@ -397,6 +397,7 @@ protected:
     void refreshLocalList();
     void refreshInventoryFilter();
     void setImageIDFromItem(const LLInventoryItem* itemp, bool set_selection = true);
+    LLViewerInventoryItem* findInvItem(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false) const;
 
     LLPointer<LLViewerTexture> mTexturep;
     LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;

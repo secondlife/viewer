@@ -3890,6 +3890,31 @@ void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::str
     }
 }
 
+bool LLInventoryAction::isFileUploadLocation(const LLUUID& dest_id, const std::string& action)
+{
+    if (action == "def_model")
+    {
+        return gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT) == dest_id;
+    }
+    else if (action == "def_texture")
+    {
+        return gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE) == dest_id;
+    }
+    else if (action == "def_sound")
+    {
+        return gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_SOUND) == dest_id;
+    }
+    else if (action == "def_animation")
+    {
+        return gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_ANIMATION) == dest_id;
+    }
+    else if (action == "def_pbr_material")
+    {
+        return gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_MATERIAL) == dest_id;
+    }
+    return false;
+}
+
 void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);

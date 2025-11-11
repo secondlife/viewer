@@ -29,7 +29,6 @@ elseif (DARWIN)
         ${ARCH_PREBUILT_DIRS_RELEASE}/libcef_dll_wrapper.a
         ${ARCH_PREBUILT_DIRS_RELEASE}/libdullahan.a
         ${APPKIT_LIBRARY}
-        "-F ${CEF_LIBRARY}"
        )
 
 elseif (LINUX)
