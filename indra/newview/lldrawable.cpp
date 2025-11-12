@@ -925,7 +925,10 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
                 LLVector3 cam_pos_from_agent = LLViewerCamera::getInstance()->getOrigin();
                 LLVector3 cam_to_box_offset = point_to_box_offset(cam_pos_from_agent, av_box);
                 mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.magVec(), 0.01f));
-                mVObjp->updateLOD();
+                if (mVObjp)
+                {
+                    mVObjp->updateLOD();
+                }
                 return;
             }
         }
@@ -936,7 +939,10 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 
         pos -= camera.getOrigin();
         mDistanceWRTCamera = ll_round(pos.magVec(), 0.01f);
-        mVObjp->updateLOD();
+        if (mVObjp)
+        {
+            mVObjp->updateLOD();
+        }
     }
 }
 
