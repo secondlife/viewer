@@ -36,16 +36,17 @@
     std::string secondLogPath;
 }
 
-@property (assign) IBOutlet LLNSWindow *window;
-@property (assign) IBOutlet NSWindow *inputWindow;
-@property (assign) IBOutlet LLNonInlineTextView *inputView;
+@property (assign) IBOutlet LLNSWindow * _Nullable window;
+@property (assign) IBOutlet NSWindow * _Nullable inputWindow;
+@property (assign) IBOutlet LLNonInlineTextView * _Nullable inputView;
 
-@property (retain) NSString *currentInputLanguage;
+@property (retain) NSString * _Nullable currentInputLanguage;
 
 - (void) oneFrame;
-- (void) showInputWindow:(bool)show withEvent:(NSEvent*)textEvent;
+- (void) showInputWindow:(bool)show withEvent:(nullable NSEvent *)textEvent;
 - (void) languageUpdated;
 - (bool) romanScript;
+- (void) setBugsplatValue:(nullable NSString *)value forAttribute:(nullable NSString *)attribute;
 @end
 
 @interface LLApplication : NSApplication
