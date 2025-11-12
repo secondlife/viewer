@@ -17,6 +17,7 @@ set(test_SOURCE_FILES
     llbuffer_tut.cpp
     lldoubledispatch_tut.cpp
     llevents_tut.cpp
+    llfile_tut.cpp
     llhttpdate_tut.cpp
     llhttpnode_tut.cpp
     lliohttpserver_tut.cpp
@@ -68,7 +69,7 @@ target_link_libraries(lltest
 
 if (WINDOWS)
   set_target_properties(lltest
-          PROPERTIES 
+          PROPERTIES
           LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
           RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
@@ -86,10 +87,10 @@ set(TEST_EXE $<TARGET_FILE:lltest>)
 
 SET_TEST_PATH(LD_LIBRARY_PATH)
 
-LL_TEST_COMMAND(command 
+LL_TEST_COMMAND(command
   "${LD_LIBRARY_PATH}"
   "${TEST_EXE}"
-  "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" 
+  "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt"
   "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
 
 ADD_CUSTOM_COMMAND(
@@ -102,11 +103,11 @@ ADD_CUSTOM_COMMAND(
 
 set(test_results ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt)
 
-# This should cause the test executable to be built, but not 
+# This should cause the test executable to be built, but not
 # run if LL_TESTS is disabled. This will hopefully keep the
-# tests up to date with any code changes changes even if 
+# tests up to date with any code changes changes even if
 # developers choose to disable LL_TESTS.
-if (LL_TESTS)  
+if (LL_TESTS)
     add_custom_target(tests_ok ALL DEPENDS ${test_results})
     if(DARWIN)
       # Support our "@executable_path/../Resources" load path for our test
