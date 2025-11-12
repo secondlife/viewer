@@ -3,6 +3,18 @@
 # Install the Second Life Viewer. This script can install the viewer both
 # system-wide and for an individual user.
 
+build_data_file="build_data.json"
+if [ -f "${build_data_file}" ]; then
+    version=$(sed -n 's/.*"Version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
+    channel=$(sed -n 's/.*"Channel"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
+    installdir_name=$(echo "$channel" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' )-install
+else
+    echo "Error: File ${build_data_file} not found." >&2
+    exit 1
+fi
+
+echo "Installing ${channel} version ${version}"
+
 VT102_STYLE_NORMAL='\E[0m'
 VT102_COLOR_RED='\E[31m'
 
@@ -58,8 +70,11 @@ function homedir_install()
 	exit 0
     fi
 
-    install_to_prefix "$HOME/.secondlife-install"
-    $HOME/.secondlife-install/etc/refresh_desktop_app_entry.sh
+    if [ -d "$XDG_DATA_HOME" ] ; then
+        install_to_prefix "$XDG_DATA_HOME/$installdir_name" #$XDG_DATA_HOME is a synonym for $HOME/.local/share/ unless the user has specified otherwise (unlikely).
+    else
+        install_to_prefix "$HOME/.local/share/$installdir_name" #XDG_DATA_HOME not set, so use default path as defined by XDG spec.
+    fi
 }
 
 function root_install()
@@ -77,7 +92,6 @@ function root_install()
     install_to_prefix "$install_prefix"
 
     mkdir -p /usr/local/share/applications
-    ${install_prefix}/etc/refresh_desktop_app_entry.sh
 }
 
 function install_to_prefix()
@@ -88,6 +102,9 @@ function install_to_prefix()
     echo " - Installing to $1"
 
     cp -a "${tarball_path}"/* "$1/" || die "Failed to complete the installation!"
+    
+    "$1"/etc/refresh_desktop_app_entry.sh || echo "Failed to integrate into DE via XDG."
+    set_slurl_handler "$1"
 }
 
 function backup_previous_installation()
@@ -96,6 +113,17 @@ function backup_previous_installation()
     echo " - Backing up previous installation to $backup_dir"
 
     mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!"
+}
+
+set_slurl_handler()
+{
+    install_dir=$1
+    echo
+    prompt "Would you like to set Second Life as your default SLurl handler? [Y/N]: "
+    if [ $? -eq 0 ]; then
+	exit 0
+    fi
+    "$install_dir"/etc/register_secondlifeprotocol.sh #Successful association comes with a notification to the user.
 }
 
 
