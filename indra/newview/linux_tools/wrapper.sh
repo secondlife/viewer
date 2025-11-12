@@ -30,10 +30,12 @@ echo "Running from ${RUN_PATH}"
 cd "${RUN_PATH}"
 
 # Re-register the secondlife:// protocol handler every launch, for now.
-./etc/register_secondlifeprotocol.sh
+#./etc/register_secondlifeprotocol.sh
 
 # Re-register the application with the desktop system every launch, for now.
-./etc/refresh_desktop_app_entry.sh
+#./etc/refresh_desktop_app_entry.sh
+
+# Above re-registering no longer used as viewer now registers itself via XDG.
 
 ## Before we mess with LD_LIBRARY_PATH, save the old one to restore for
 ##  subprocesses that care.
