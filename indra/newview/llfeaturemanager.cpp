@@ -407,7 +407,7 @@ F32 logExceptionBenchmark()
 bool checkRDNA35()
 {
     // This checks if we're running on an RDNA3.5 GPU.  You're only going to see these on AMD's APUs.
-    // As of driver version 32, we're seeing stalls in some of our queries.
+    // As of driver version 25, we're seeing stalls in some of our queries.
     // This appears to be a driver bug, and appears to be specific RDNA3.5 APUs.
     // There's multiples of these guys, so we just use this function to check if that GPU is on the list of known RDNA3.5 APUs.
     // - Geenz 11/12/2025
