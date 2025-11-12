@@ -444,7 +444,7 @@ bool LLFeatureManager::loadGPUClass()
     // As a result, we filter out these GPUs for shader profiling.
     // - Geenz 11/11/2025
 
-    if (checkRDNA35() && gGLManager.mDriverVersionVendorString.find("25.") != std::string::npos)
+    if (gGLManager.getRawGLString().find("Radeon") != std::string::npos && checkRDNA35() && gGLManager.mDriverVersionVendorString.find("25.") != std::string::npos)
     {
         LL_WARNS("RenderInit") << "Detected AMD RDNA3.5 GPU on a known bad driver; disabling shader profiling to prevent freezes." << LL_ENDL;
         mSkipProfiling = true;
