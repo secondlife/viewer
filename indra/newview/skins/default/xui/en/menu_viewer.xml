@@ -3492,6 +3492,16 @@ function="World.EnvPreset"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
             <menu_item_check
+              label="Render Avatar Cloth"
+             name="Render Avatar Cloth">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderAvatarCloth" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderAvatarCloth" />
+            </menu_item_check>
+            <menu_item_check
              label="Collect Font Vertex Buffers"
              name="Collect Font Vertex Buffers">
                 <menu_item_check.on_check
