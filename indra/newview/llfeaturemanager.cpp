@@ -406,6 +406,23 @@ F32 logExceptionBenchmark()
 
 bool LLFeatureManager::loadGPUClass()
 {
+    // This is a hack for certain AMD cards in newer driver versions on certain APUs.
+    // These GPUs will show inconsistent freezes when attempting to run shader profiles against them.
+    // This is extremely problematic as it can lead to:
+    // - Login freezes
+    // - Inability to start the client
+    // - Completely random avatars triggering a freeze
+    // As a result, we filter out these GPUs for shader profiling.
+    // - Geenz 11/11/2025
+
+    if (gGLManager.getRawGLString().find("Radeon") != std::string::npos && gGLManager.getRawGLString().find("8060") != std::string::npos)
+    {
+        //gGLManager.mDriverVersionMajor = 27; // Example driver version for testing
+        LL_WARNS("RenderInit") << "Detected AMD Radeon 8060 GPU; disabling shader profiling to prevent freezes." << LL_ENDL;
+        mSkipProfiling = true;
+        LLGLSLShader::sCanProfile = false;
+    }
+
     if (!gSavedSettings.getBOOL("SkipBenchmark"))
     {
         F32 class1_gbps = gSavedSettings.getF32("RenderClass1MemoryBandwidth");
