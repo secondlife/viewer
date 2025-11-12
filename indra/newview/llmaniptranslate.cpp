@@ -695,24 +695,28 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                 // handle attachments in local space
                 if (object->isAttachment() && object->mDrawable.notNull())
                 {
-                    // calculate local version of relative move
-                    LLQuaternion objWorldRotation = object->mDrawable->mXform.getParent()->getWorldRotation();
-                    objWorldRotation.transQuat();
-
-                    LLVector3 old_position_local = object->getPosition();
-                    LLVector3 new_position_local = selectNode->mSavedPositionLocal + (clamped_relative_move_f * objWorldRotation);
-
-                    //RN: I forget, but we need to do this because of snapping which doesn't often result
-                    // in position changes even when the mouse moves
-                    object->setPosition(new_position_local);
-                    rebuild(object);
-                    gAgentAvatarp->clampAttachmentPositions();
-                    new_position_local = object->getPosition();
-
-                    if (selectNode->mIndividualSelection)
+                    LLXform* object_xform_parent = object->mDrawable->mXform.getParent();
+                    if (object_xform_parent)
                     {
-                        // counter-translate child objects if we are moving the root as an individual
-                        object->resetChildrenPosition(old_position_local - new_position_local, true);
+                        // calculate local version of relative move
+                        LLQuaternion objWorldRotation = object_xform_parent->getWorldRotation();
+                        objWorldRotation.transQuat();
+
+                        LLVector3 old_position_local = object->getPosition();
+                        LLVector3 new_position_local = selectNode->mSavedPositionLocal + (clamped_relative_move_f * objWorldRotation);
+
+                        //RN: I forget, but we need to do this because of snapping which doesn't often result
+                        // in position changes even when the mouse moves
+                        object->setPosition(new_position_local);
+                        rebuild(object);
+                        gAgentAvatarp->clampAttachmentPositions();
+                        new_position_local = object->getPosition();
+
+                        if (selectNode->mIndividualSelection)
+                        {
+                            // counter-translate child objects if we are moving the root as an individual
+                            object->resetChildrenPosition(old_position_local - new_position_local, true);
+                        }
                     }
                 }
                 else
