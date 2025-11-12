@@ -3034,13 +3034,11 @@ void LLAppViewer::initStrings()
         }
         else
         {
-            llstat st;
-            int rc = LLFile::stat(strings_path_full, &st);
-            if (rc != 0)
+            if (!LLFile::exists(strings_path_full))
             {
-                crash_reason = "The file '" + strings_path_full + "' failed to get status. Error code: " + std::to_string(rc);
+                crash_reason = "The file '" + strings_path_full + "' doesn't seem to exist";
             }
-            else if (S_ISDIR(st.st_mode))
+            else if (LLFile::isdir(strings_path_full))
             {
                 crash_reason = "The filename '" + strings_path_full + "' is a directory name";
             }
@@ -4274,7 +4272,7 @@ void LLAppViewer::migrateCacheDirectory()
                 LLFile::remove(ds_store);
             }
 #endif
-            if (LLFile::rmdir(old_cache_dir) != 0)
+            if (LLFile::remove(old_cache_dir) != 0)
             {
                 LL_WARNS() << "could not delete old cache directory " << old_cache_dir << LL_ENDL;
             }

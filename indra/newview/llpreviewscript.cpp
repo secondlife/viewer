@@ -694,8 +694,7 @@ void LLScriptEdCore::sync()
     if (mLiveFile)
     {
         std::string tmp_file = mLiveFile->filename();
-        llstat s;
-        if (LLFile::stat(tmp_file, &s) == 0) // file exists
+        if (LLFile::isfile(tmp_file)) // file exists
         {
             mLiveFile->ignoreNextUpdate();
             writeToFile(tmp_file);

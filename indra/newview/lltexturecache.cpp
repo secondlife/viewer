@@ -1614,7 +1614,7 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
         gDirUtilp->deleteFilesInDir(mTexturesDirName, mask); // headers, fast cache
         if (purge_directories)
         {
-            LLFile::rmdir(mTexturesDirName);
+            LLFile::remove(mTexturesDirName);
         }
     }
     mHeaderIDMap.clear();

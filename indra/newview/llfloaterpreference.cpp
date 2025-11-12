@@ -1500,7 +1500,7 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
         //Couldn't move the log and created a new directory so remove the new directory
         if(madeDirectory)
         {
-            LLFile::rmdir(chatLogPath);
+            LLFile::remove(chatLogPath);
         }
         return false;
     }
@@ -1526,7 +1526,7 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
 
         if(madeDirectory)
         {
-            LLFile::rmdir(chatLogPath);
+            LLFile::remove(chatLogPath);
         }
 
         return false;
@@ -2031,17 +2031,15 @@ void LLFloaterPreference::changed()
 {
     if (LLConversationLog::instance().getIsLoggingEnabled())
     {
-    getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
+        getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
     }
     else
     {
         // onClearLog clears list, then notifies changed() and only then clears file,
         // so check presence of conversations before checking file, file will cleared later.
-        llstat st;
         bool has_logs = LLConversationLog::instance().getConversations().size() > 0
-                        && LLFile::stat(LLConversationLog::instance().getFileName(), &st) == 0
-                        && S_ISREG(st.st_mode)
-                        && st.st_size > 0;
+                        && LLFile::isfile(LLConversationLog::instance().getFileName())
+                        && LLFile::size(LLConversationLog::instance().getFileName()) > 0;
         getChild<LLButton>("clear_log")->setEnabled(has_logs);
     }
 
