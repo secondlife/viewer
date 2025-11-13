@@ -479,7 +479,34 @@ void LLAccordionCtrlTab::onUpdateScrollToChild(const LLUICtrl *cntrl)
         // Translate to parent coordinatess to check if we are in visible rectangle
         rect.translate(getRect().mLeft, getRect().mBottom);
 
-        if (!getRect().contains(rect))
+        bool needs_to_scroll = false;
+        const LLRect &acc_rect = getRect();
+        if (!acc_rect.contains(rect))
+        {
+            if (acc_rect.mTop < rect.mBottom || acc_rect.mBottom > rect.mTop)
+            {
+                // Content fully not in view
+                needs_to_scroll = true;
+            }
+            else if (acc_rect.getHeight() >= rect.getHeight())
+            {
+                // Content can be displayed fully, but only partially in view
+                needs_to_scroll = true;
+            }
+            else if (acc_rect.mTop <= rect.mTop || acc_rect.mBottom >= rect.mBottom)
+            {
+                // Intersects, but too big to be displayed fully
+                S32 covered_height = acc_rect.mTop > rect.mTop ? rect.mTop - acc_rect.mBottom : acc_rect.mTop - rect.mBottom;
+                constexpr F32 covered_ratio = 0.7f;
+                if (covered_height < covered_ratio * acc_rect.getHeight())
+                {
+                    // Try to show bigger portion of the content
+                    needs_to_scroll = true;
+                }
+            }
+            // else too big and in the middle of the view as is
+        }
+        if (needs_to_scroll)
         {
             // for accordition's scroll, height is in pixels
             // Back to local coords and calculate position for scroller

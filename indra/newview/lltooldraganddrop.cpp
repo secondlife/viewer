@@ -1537,7 +1537,7 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
             }
             else
             {
-                hit_obj->setRenderMaterialID(te, asset_id, false, true);
+                hit_obj->setRenderMaterialID(te, asset_id);
             }
         }
     }

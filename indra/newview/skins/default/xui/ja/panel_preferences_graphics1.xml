@@ -37,7 +37,7 @@
 	<slider name="QualityPerformanceSelection"/>
 	<slider control_name="RenderFarClip" label="描画距離：" name="DrawDistance"/>
 	<text name="DrawDistanceMeterText2">
-		ｍ
+		m
 	</text>
 	<check_box initial_value="true" label="大気（周辺）シェーダー" name="WindLightUseAtmosShaders"/>
 	<check_box initial_value="true" label="高度な光源モデル" name="UseLightShaders"/>
@@ -56,5 +56,5 @@
 	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
-	<button label="拡張設定…" name="AdvancedSettings"/>
+	<button label="詳細設定…" name="AdvancedSettings"/>
 </panel>

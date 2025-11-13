@@ -1884,10 +1884,18 @@ void LLFolderViewFolder::updateHasFavorites(bool new_childs_value)
 void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
 {
     LLFolderViewFolder* self = reinterpret_cast<LLFolderViewFolder*>(data);
+    if (self->mFavoritesDirtyFlags == FAVORITE_CLEANUP)
+    {
+        // parent or child already processed the update, clean the callback
+        self->mFavoritesDirtyFlags = 0;
+        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, data);
+        return;
+    }
+
     if (self->mFavoritesDirtyFlags == 0)
     {
-        // already processed either on previous run or by a different callback
-        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
+        llassert(false); // should not happen, everything that sets to 0 should clean callback
+        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, data);
         return;
     }
 
@@ -1915,7 +1923,7 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
                     // Parent will remove onIdleUpdateFavorites later, don't remove now,
                     // We are inside gIdleCallbacks. Removing 'self' callback is safe,
                     // but removing 'parent' can invalidate following iterator
-                    parent->mFavoritesDirtyFlags = 0;
+                    parent->mFavoritesDirtyFlags = FAVORITE_CLEANUP;
                 }
                 parent = parent->getParentFolder();
             }
@@ -1981,7 +1989,7 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
                         // Parent will remove onIdleUpdateFavorites later, don't remove now,
                         // We are inside gIdleCallbacks. Removing 'self' callback is safe,
                         // but removing 'parent' can invalidate following iterator
-                        parent->mFavoritesDirtyFlags = 0;
+                        parent->mFavoritesDirtyFlags = FAVORITE_CLEANUP;
                     }
                     parent = parent->getParentFolder();
                 }
@@ -1992,7 +2000,7 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
                 // Parent will remove onIdleUpdateFavorites later, don't remove now.
                 // We are inside gIdleCallbacks. Removing 'self' callback is safe,
                 // but removing 'parent' can invalidate following iterator
-                parent->mFavoritesDirtyFlags = 0;
+                parent->mFavoritesDirtyFlags = FAVORITE_CLEANUP;
             }
             parent = parent->getParentFolder();
         }
