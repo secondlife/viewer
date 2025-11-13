@@ -26,6 +26,7 @@
 
 #ifdef LL_DARWIN
 #import <Cocoa/Cocoa.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #include <iostream>
 #include "llfilepicker_mac.h"
 
@@ -59,7 +60,17 @@ NSOpenPanel *init_panel(const std::vector<std::string>* allowed_types, unsigned 
 
     if (fileTypes)
     {
-        [panel setAllowedFileTypes:fileTypes];
+        NSMutableArray<UTType *> *contentTypes = [[NSMutableArray alloc] init];
+        for (NSString *ext in fileTypes)
+        {
+            UTType *type = [UTType typeWithFilenameExtension:ext];
+            if (type) {
+                [contentTypes addObject:type];
+            }
+        }
+        if (contentTypes.count > 0) {
+            panel.allowedContentTypes = contentTypes;
+        }
     }
     else
     {
@@ -166,7 +177,18 @@ std::unique_ptr<std::string> doSaveDialog(const std::string* file,
         //[panel setMessage:@"Save Image File"];
         [panel setTreatsFilePackagesAsDirectories: ( flags & F_NAV_SUPPORT ) ];
         [panel setCanSelectHiddenExtension:true];
-        [panel setAllowedFileTypes:fileType];
+
+        NSMutableArray<UTType *> *contentTypes = [[NSMutableArray alloc] init];
+        for (NSString *ext in fileType)
+        {
+            UTType *type = [UTType typeWithFilenameExtension:ext];
+            if (type) {
+                [contentTypes addObject:type];
+            }
+        }
+        if (contentTypes.count > 0) {
+            panel.allowedContentTypes = contentTypes;
+        }
         NSString *fileName = [NSString stringWithCString:file->c_str() encoding:[NSString defaultCStringEncoding]];
 
         NSURL* url = [NSURL fileURLWithPath:fileName];
@@ -201,7 +223,18 @@ void doSaveDialogModeless(const std::string* file,
         //[panel setMessage:@"Save Image File"];
         [panel setTreatsFilePackagesAsDirectories: ( flags & F_NAV_SUPPORT ) ];
         [panel setCanSelectHiddenExtension:true];
-        [panel setAllowedFileTypes:fileType];
+
+        NSMutableArray<UTType *> *contentTypes = [[NSMutableArray alloc] init];
+        for (NSString *ext in fileType)
+        {
+            UTType *type = [UTType typeWithFilenameExtension:ext];
+            if (type) {
+                [contentTypes addObject:type];
+            }
+        }
+        if (contentTypes.count > 0) {
+            panel.allowedContentTypes = contentTypes;
+        }
         NSString *fileName = [NSString stringWithCString:file->c_str() encoding:[NSString defaultCStringEncoding]];
 
         NSURL* url = [NSURL fileURLWithPath:fileName];

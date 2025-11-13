@@ -30,11 +30,17 @@
 
 #include "llavatarname.h"   // for convenience
 #include "llsingleton.h"
+#include "llworkcontract.h"
 #include <boost/signals2.hpp>
 #include <set>
 
 class LLSD;
 class LLUUID;
+
+// Forward declarations
+namespace LLCoreHttpUtil {
+    class HttpWorkGraphAdapter;
+}
 
 class LLAvatarNameCache : public LLSingleton<LLAvatarNameCache>
 {
@@ -57,6 +63,9 @@ public:
     bool hasNameLookupURL();
     void setUsePeopleAPI(bool use_api);
     bool usePeopleAPI();
+
+    // Set the work contract group for HTTP work graphs
+    void setWorkContractGroup(LLWorkContractGroup* workGroup);
 
     // Periodically makes a batch request for display names not already in
     // cache. Called once per frame.
@@ -112,6 +121,7 @@ private:
         const LLAvatarName& av_name);
 
     void requestNamesViaCapability();
+    void requestNamesViaWorkGraph(); // Work Graph implementation of name requests
 
     // Legacy name system callbacks
     static void legacyNameCallback(const LLUUID& agent_id,
@@ -182,6 +192,15 @@ private:
 
     // Time when unrefreshed cached names were checked last.
     F64 mLastExpireCheck;
+
+    // Work contract group for HTTP work graphs
+    LLWorkContractGroup* mWorkGroup;
+
+    // HTTP work graph adapter for async requests
+    std::shared_ptr<LLCoreHttpUtil::HttpWorkGraphAdapter> mWorkGraphAdapter;
+
+    // Active work graphs - keep them alive until they complete
+    std::vector<std::shared_ptr<LLWorkGraph>> mActiveGraphs;
 };
 
 // Parse a cache-control header to get the max-age delta-seconds.

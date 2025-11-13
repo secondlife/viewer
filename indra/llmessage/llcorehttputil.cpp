@@ -39,7 +39,7 @@
 #include "llfilesystem.h"
 
 #include "message.h" // for getting the port
-
+#include "llworkcontract.h"
 
 using namespace LLCore;
 
@@ -1371,7 +1371,849 @@ void HttpCoroutineAdapter::trivialDelCoro(std::string url, LLCore::HttpRequest::
     }
 }
 
+//=========================================================================
+// HttpWorkGraphAdapter Implementation
+//=========================================================================
 
+// String constants - matching HttpCoroutineAdapter for compatibility
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS("http_result");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_SUCCESS("success");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_TYPE("type");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_STATUS("status");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_MESSAGE("message");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_URL("url");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_HEADERS("headers");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT("content");
+const std::string HttpWorkGraphAdapter::HTTP_RESULTS_RAW("raw");
+
+
+// Constructor
+HttpWorkGraphAdapter::HttpWorkGraphAdapter(const std::string& name,
+                                          LLCore::HttpRequest::policy_t policyId,
+                                          std::shared_ptr<LLWorkContractGroup> workGroup)
+    : mAdapterName(name)
+    , mPolicyId(policyId)
+    , mWorkGroup(workGroup)
+{
+    LL_DEBUGS("HttpWorkGraphAdapter") << "Created adapter: " << mAdapterName
+                                      << " with policy: " << mPolicyId
+                                      << " and work group: " << (mWorkGroup ? "provided" : "null") << LL_ENDL;
+}
+
+// Destructor
+HttpWorkGraphAdapter::~HttpWorkGraphAdapter()
+{
+    LL_DEBUGS("HttpWorkGraphAdapter") << "Destroying adapter: " << mAdapterName << LL_ENDL;
+}
+
+
+// SimpleHttpHandler implementation
+void HttpWorkGraphAdapter::SimpleHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse* response)
+{
+    std::lock_guard<std::mutex> lock(mResultMutex);
+
+    // Build LLSD result matching HttpCoroutineAdapter format
+    mResult = HttpWorkGraphAdapter::buildResultLLSD(response, mFormat);
+    mComplete.store(true, std::memory_order_release);
+}
+
+// Build LLSD result matching HttpCoroutineAdapter format exactly
+/*static*/
+LLSD HttpWorkGraphAdapter::buildResultLLSD(LLCore::HttpResponse* response, ResponseFormat format)
+{
+    LLSD result;
+    LLSD httpResult;
+
+    LLCore::HttpStatus status = response->getStatus();
+
+    // Build http_result map - exact match to HttpCoroHandler::writeStatusCodes()
+    httpResult[HTTP_RESULTS_SUCCESS] = (bool)status;
+    httpResult[HTTP_RESULTS_TYPE] = static_cast<int>(status.getType());
+    httpResult[HTTP_RESULTS_STATUS] = static_cast<int>(status.getStatus());
+    httpResult[HTTP_RESULTS_MESSAGE] = status.getMessage();
+    httpResult[HTTP_RESULTS_URL] = response->getRequestURL();
+
+    // Extract headers
+    LLSD headers;
+    if (auto h = response->getHeaders())
+    {
+        for (const auto& header : *h)
+        {
+            headers[header.first] = header.second;
+        }
+    }
+    httpResult[HTTP_RESULTS_HEADERS] = headers;
+
+    result[HTTP_RESULTS] = httpResult;
+
+    // Parse body based on format and success
+    if ((bool)status && response->getBody())
+    {
+        LLCore::BufferArray* body = response->getBody();
+
+        if (format == FORMAT_LLSD)
+        {
+            // Parse as LLSD
+            LLSD content;
+            if (responseToLLSD(response, false, content))
+            {
+                // If parsed LLSD is a map, merge into result
+                // Otherwise put in "content" field
+                if (content.isMap())
+                {
+                    for (LLSD::map_const_iterator it = content.beginMap();
+                         it != content.endMap(); ++it)
+                    {
+                        result[it->first] = it->second;
+                    }
+                }
+                else
+                {
+                    result[HTTP_RESULTS_CONTENT] = content;
+                }
+            }
+        }
+        else if (format == FORMAT_JSON)
+        {
+            // Parse as JSON using LLSD's JSON support
+            LLCore::BufferArrayStream bas(body);
+            LLSD jsonContent;
+            if (LLSDSerialize::deserialize(jsonContent, bas, body->size()))
+            {
+                result[HTTP_RESULTS_CONTENT] = jsonContent;
+            }
+            else
+            {
+                // Failed to parse JSON - store as raw string
+                std::string bodyStr;
+                bodyStr.reserve(body->size());
+                LLCore::BufferArrayStream basRaw(body);
+                basRaw >> bodyStr;
+                result[HTTP_RESULTS_CONTENT] = bodyStr;
+            }
+        }
+        else if (format == FORMAT_RAW)
+        {
+            // Store raw binary
+            size_t size = body->size();
+            std::vector<U8> data;
+            data.resize(size);
+            body->read(0, data.data(), size);
+
+            result[HTTP_RESULTS_RAW] = LLSD::Binary(data.begin(), data.end());
+        }
+    }
+    else if (!(bool)status)
+    {
+        // Handle error body for 4xx errors
+        if (status.getStatus() >= 400 && status.getStatus() < 500 && response->getBody())
+        {
+            // Try to get error body as string
+            LLCore::BufferArray* body = response->getBody();
+            size_t size = body->size();
+            std::string errorBody;
+            errorBody.resize(size);
+            body->read(0, const_cast<char*>(errorBody.data()), size);
+
+            httpResult["error_body"] = errorBody;
+            result[HTTP_RESULTS] = httpResult;  // Update with error body
+        }
+    }
+
+    return result;
+}
+
+// Internal yieldable HTTP execution
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::executeHttpRequest(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers,
+    LLCore::HttpHandle handle,
+    std::shared_ptr<SimpleHttpHandler> handler,
+    ResponseFormat format)
+{
+    // Create work graph with the provided work contract group
+    LLWorkGraphConfig config;
+    config.enableDebugLogging = true;  // Enable verbose logging for HTTP operations
+    auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+
+    // Create shared result holder
+    auto sharedResult = std::make_shared<HttpResult>();
+
+    // Create pumper to pump llcorehttp on mainloop
+    // Must be kept alive until request completes
+    auto pumper = std::make_shared<HttpRequestPumper>(request);
+
+    LL_DEBUGS("HttpWorkGraphAdapter") << "Creating work graph." << LL_ENDL;
+    // Create yieldable node that polls for HTTP completion
+    // This node will store the result in sharedResult when ready
+    // The pumper is captured to keep it alive and pumping llcorehttp
+    auto httpNode = graph->addYieldableNode(
+        [handler, sharedResult, pumper]() -> LLWorkResult {
+            LL_DEBUGS("HttpWorkGraphAdapter") << "Checking HTTP completion." << LL_ENDL;
+
+            // Check if response is ready (llcorehttp pumped externally)
+            // Use acquire semantics to ensure we see the result writes
+            if (!handler->isComplete())
+            {
+                LL_DEBUGS("HttpWorkGraphAdapter") << "Yielding - HTTP not complete." << LL_ENDL;
+                // Not ready - yield and check again later (auto reschedule)
+                return LLWorkResult::Yield;
+            }
+
+            // Response ready - copy result with proper synchronization
+            // The handler uses a mutex to protect mResult, so we need to access it through
+            // the handler's interface which should lock properly
+            {
+                std::lock_guard<std::mutex> lock(sharedResult->mutex);
+                // Copy the result - handler's getResult() should be thread-safe
+                sharedResult->result = handler->getResult();
+                sharedResult->ready.store(true, std::memory_order_release);
+            }
+
+            LL_DEBUGS("HttpWorkGraphAdapter") << "HTTP request complete." << LL_ENDL;
+            return LLWorkResult::Complete;
+        },
+        "http-request-" + url,
+        nullptr,
+        LLExecutionType::AnyThread
+    );
+
+    // Return the graph, node handle, and shared result
+    // Caller will add dependent nodes and execute the graph
+    return GraphResult{graph, httpNode, sharedResult};
+}
+
+// GET method implementation
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Issue GET request (non-blocking)
+    LLCore::HttpHandle handle = request->requestGet(
+        mPolicyId, url, options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue GET request to " << url << LL_ENDL;
+
+        // Create a graph with an immediate error result
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        // Build error result
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        // Store error result
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        // Add a simple node that completes immediately
+        auto errorNode = graph->addNode(
+            []() { /* no-op */ },
+            "http-error-" + url,
+            nullptr,
+            LLExecutionType::AnyThread
+        );
+
+        // Return without executing - caller will compose and execute
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    // Use internal method to create yieldable work graph
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+// getRawAndSchedule implementation
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getRawAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking (using RAW format)
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_RAW);
+
+    // Issue GET request (non-blocking)
+    LLCore::HttpHandle handle = request->requestGet(
+        mPolicyId, url, options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue GET request to " << url << LL_ENDL;
+
+        // Create a graph with an immediate error result
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        // Build error result
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP GET request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        // Store error result
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        // Add a simple node that completes immediately
+        auto errorNode = graph->addNode(
+            []() { /* no-op */ },
+            "http-error-" + url,
+            nullptr,
+            LLExecutionType::AnyThread
+        );
+
+        // Return without executing - caller will compose and execute
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    // Use internal method with FORMAT_RAW
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_RAW);
+}
+
+// getJsonAndSchedule implementation
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getJsonAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking (using JSON format)
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_JSON);
+
+    // Issue GET request (non-blocking)
+    LLCore::HttpHandle handle = request->requestGet(
+        mPolicyId, url, options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue GET request to " << url << LL_ENDL;
+
+        // Create a graph with an immediate error result
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        // Build error result
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP GET request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        // Store error result
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        // Add a simple node that completes immediately
+        auto errorNode = graph->addNode(
+            []() { /* no-op */ },
+            "http-error-" + url,
+            nullptr,
+            LLExecutionType::AnyThread
+        );
+
+        // Return without executing - caller will compose and execute
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    // Use internal method with FORMAT_JSON
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_JSON);
+}
+
+// POST with LLSD body
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const LLSD& body,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Issue POST request with LLSD body
+    LLCore::HttpHandle handle = requestPostWithLLSD(request, mPolicyId, url, body,
+                                                    options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue POST request to " << url << LL_ENDL;
+
+        // Create a graph with an immediate error result
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        // Build error result
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP POST request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        // Store error result
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        // Add a simple node that completes immediately
+        auto errorNode = graph->addNode(
+            []() { /* no-op */ },
+            "http-error-" + url,
+            nullptr,
+            LLExecutionType::AnyThread
+        );
+
+        // Return without executing - caller will compose and execute
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    // Use internal method to create yieldable work graph
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+// POST with raw body
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    LLCore::BufferArray::ptr_t rawbody,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Issue POST request with raw body
+    LLCore::HttpHandle handle = request->requestPost(mPolicyId, url, rawbody.get(),
+                                                     options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue POST request to " << url << LL_ENDL;
+
+        // Create a graph with an immediate error result
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        // Build error result
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP POST request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        // Store error result
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        // Add a simple node that completes immediately
+        auto errorNode = graph->addNode(
+            []() { /* no-op */ },
+            "http-error-" + url,
+            nullptr,
+            LLExecutionType::AnyThread
+        );
+
+        // Return without executing - caller will compose and execute
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    // Use internal method to create yieldable work graph
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+// Stub implementations for remaining methods
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postRawAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    LLCore::BufferArray::ptr_t rawbody,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Delegate to raw body POST
+    return postAndSchedule(request, url, rawbody, options, headers);
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postFileAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const std::string& filename,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // TODO: Implement file upload from path
+    LL_WARNS("HttpWorkGraphAdapter") << "postFileAndSchedule not yet implemented" << LL_ENDL;
+
+    LLWorkGraphConfig config;
+    config.enableDebugLogging = true;
+    auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    auto sharedResult = std::make_shared<HttpResult>();
+
+    LLSD errorResult;
+    LLSD httpResult;
+    httpResult[HTTP_RESULTS_SUCCESS] = false;
+    httpResult[HTTP_RESULTS_STATUS] = 0;
+    httpResult[HTTP_RESULTS_MESSAGE] = "postFileAndSchedule not yet implemented";
+    httpResult[HTTP_RESULTS_URL] = url;
+    errorResult[HTTP_RESULTS] = httpResult;
+
+    sharedResult->result = errorResult;
+    sharedResult->ready.store(true);
+
+    auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+    return GraphResult{graph, errorNode, sharedResult};
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postFileAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const LLUUID& assetId,
+    LLAssetType::EType assetType,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // TODO: Implement file upload from asset
+    LL_WARNS("HttpWorkGraphAdapter") << "postFileAndSchedule (asset) not yet implemented" << LL_ENDL;
+
+    LLWorkGraphConfig config;
+    config.enableDebugLogging = true;
+    auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    auto sharedResult = std::make_shared<HttpResult>();
+
+    LLSD errorResult;
+    LLSD httpResult;
+    httpResult[HTTP_RESULTS_SUCCESS] = false;
+    httpResult[HTTP_RESULTS_STATUS] = 0;
+    httpResult[HTTP_RESULTS_MESSAGE] = "postFileAndSchedule (asset) not yet implemented";
+    httpResult[HTTP_RESULTS_URL] = url;
+    errorResult[HTTP_RESULTS] = httpResult;
+
+    sharedResult->result = errorResult;
+    sharedResult->ready.store(true);
+
+    auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+    return GraphResult{graph, errorNode, sharedResult};
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postJsonAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const LLSD& body,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Setup JSON headers
+    if (!headers)
+    {
+        headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
+    }
+    headers->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_JSON);
+    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_JSON);
+
+    return postAndSchedule(request, url, body, options, headers);
+}
+
+// PUT methods
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::putAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const LLSD& body,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Issue PUT request with LLSD body
+    LLCore::HttpHandle handle = requestPutWithLLSD(request, mPolicyId, url, body,
+                                                   options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue PUT request to " << url << LL_ENDL;
+
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP PUT request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::putJsonAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const LLSD& body,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Setup JSON headers
+    if (!headers)
+    {
+        headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
+    }
+    headers->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_JSON);
+    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_JSON);
+
+    return putAndSchedule(request, url, body, options, headers);
+}
+
+// DELETE methods
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::deleteAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Issue DELETE request
+    LLCore::HttpHandle handle = request->requestDelete(mPolicyId, url,
+                                                       options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue DELETE request to " << url << LL_ENDL;
+
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP DELETE request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::deleteJsonAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const LLSD& body,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // TODO: Implement DELETE with body
+    LL_WARNS("HttpWorkGraphAdapter") << "deleteJsonAndSchedule not yet implemented" << LL_ENDL;
+
+    LLWorkGraphConfig config;
+    config.enableDebugLogging = true;
+    auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    auto sharedResult = std::make_shared<HttpResult>();
+
+    LLSD errorResult;
+    LLSD httpResult;
+    httpResult[HTTP_RESULTS_SUCCESS] = false;
+    httpResult[HTTP_RESULTS_STATUS] = 0;
+    httpResult[HTTP_RESULTS_MESSAGE] = "deleteJsonAndSchedule not yet implemented";
+    httpResult[HTTP_RESULTS_URL] = url;
+    errorResult[HTTP_RESULTS] = httpResult;
+
+    sharedResult->result = errorResult;
+    sharedResult->ready.store(true);
+
+    auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+    return GraphResult{graph, errorNode, sharedResult};
+}
+
+// PATCH method
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::patchAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const LLSD& body,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Issue PATCH request with LLSD body
+    LLCore::HttpHandle handle = requestPatchWithLLSD(request.get(), mPolicyId, url, body,
+                                                      options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue PATCH request to " << url << LL_ENDL;
+
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP PATCH request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+// WebDAV methods
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::copyAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const std::string& destination,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Add Destination header
+    if (!headers)
+    {
+        headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
+    }
+    headers->append("Destination", destination);
+
+    // Issue COPY request
+    LLCore::HttpHandle handle = request->requestCopy(mPolicyId, url,
+                                                     options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue COPY request to " << url << LL_ENDL;
+
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP COPY request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::moveAndSchedule(
+    LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    const std::string& destination,
+    LLCore::HttpOptions::ptr_t options,
+    LLCore::HttpHeaders::ptr_t headers)
+{
+    // Create handler for completion tracking
+    auto handler = std::make_shared<SimpleHttpHandler>(FORMAT_LLSD);
+
+    // Add Destination header
+    if (!headers)
+    {
+        headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
+    }
+    headers->append("Destination", destination);
+
+    // Issue MOVE request
+    LLCore::HttpHandle handle = request->requestMove(mPolicyId, url,
+                                                     options, headers, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("HttpWorkGraphAdapter") << "Failed to issue MOVE request to " << url << LL_ENDL;
+
+        LLWorkGraphConfig config;
+        config.enableDebugLogging = true;
+        auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+        auto sharedResult = std::make_shared<HttpResult>();
+
+        LLSD errorResult;
+        LLSD httpResult;
+        httpResult[HTTP_RESULTS_SUCCESS] = false;
+        httpResult[HTTP_RESULTS_STATUS] = 0;
+        httpResult[HTTP_RESULTS_MESSAGE] = "Failed to issue HTTP MOVE request";
+        httpResult[HTTP_RESULTS_URL] = url;
+        errorResult[HTTP_RESULTS] = httpResult;
+
+        sharedResult->result = errorResult;
+        sharedResult->ready.store(true);
+
+        auto errorNode = graph->addNode([]() {}, "http-error-" + url, nullptr, LLExecutionType::AnyThread);
+        return GraphResult{graph, errorNode, sharedResult};
+    }
+
+    return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
+}
+
+// End of HttpWorkGraphAdapter implementation
+//=========================================================================
 
 } // end namespace LLCoreHttpUtil
-

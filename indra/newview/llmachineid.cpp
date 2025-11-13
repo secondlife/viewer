@@ -350,7 +350,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
 bool getSerialNumber(unsigned char *unique_id, size_t len)
 {
     CFStringRef serial_cf_str = NULL;
-    io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
+    io_service_t platformExpert = IOServiceGetMatchingService(kIOMainPortDefault,
                                                                  IOServiceMatching("IOPlatformExpertDevice"));
     if (platformExpert)
     {

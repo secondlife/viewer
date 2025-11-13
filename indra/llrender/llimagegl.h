@@ -41,10 +41,7 @@
 #include "workqueue.h"
 #include <unordered_set>
 
-#include <EntropyCore/Concurrency/WorkContractGroup.h>
-#include <EntropyCore/Concurrency/WorkService.h>
-using WorkContractGroup = EntropyEngine::Core::Concurrency::WorkContractGroup;
-using WorkService = EntropyEngine::Core::Concurrency::WorkService;
+#include "llworkcontract.h"
 
 #define LL_IMAGEGL_THREAD_CHECK 0 //set to 1 to enable thread debugging for ImageGL
 
@@ -302,7 +299,7 @@ public:
 #endif
 
 public:
-    static void initClass(LLWindow* window, WorkService* service, S32 num_catagories, bool skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
+    static void initClass(LLWindow* window, LLWorkService* service, S32 num_catagories, bool skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
     static void allocateConversionBuffer();
     static void cleanupClass() ;
 
@@ -372,13 +369,13 @@ private:
 
 class LLImageGLWorkGroup : public LLSimpleton<LLImageGLWorkGroup>
 {
-    WorkContractGroup mWorkGroup;
+    LLWorkContractGroup mWorkGroup;
 
 public:
     static bool sEnabledTextures;
     static bool sEnabledMedia;
 
-    LLImageGLWorkGroup(EntropyEngine::Core::Concurrency::WorkService* service);
+    LLImageGLWorkGroup(LLWorkService* service);
 
     // Schedule these updates to execute on the main thread.
     template<typename CALLABLE>
@@ -386,7 +383,7 @@ public:
     {
         if (mWorkGroup.activeCount() < mWorkGroup.capacity())
         {
-            mWorkGroup.createContract(func, EntropyEngine::Core::Concurrency::ExecutionType::MainThread).schedule();
+            mWorkGroup.createContract(func, LLExecutionType::MainThread).schedule();
             return true;
         }
         return false;

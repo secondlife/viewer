@@ -249,7 +249,7 @@ bool is_little_endian()
 }
 
 //static
-void LLImageGL::initClass(LLWindow* window, WorkService* service, S32 num_catagories, bool skip_analyze_alpha /* = false */, bool thread_texture_loads /* = false */, bool thread_media_updates /* = false */)
+void LLImageGL::initClass(LLWindow* window, LLWorkService* service, S32 num_catagories, bool skip_analyze_alpha /* = false */, bool thread_texture_loads /* = false */, bool thread_media_updates /* = false */)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     sSkipAnalyzeAlpha = skip_analyze_alpha;
@@ -2651,7 +2651,7 @@ void LLImageGLThread::run()
 }
 
 
-LLImageGLWorkGroup::LLImageGLWorkGroup(WorkService* service) : mWorkGroup(1024, "LLImageGLWorkGroup")
+LLImageGLWorkGroup::LLImageGLWorkGroup(LLWorkService* service) : mWorkGroup(1024, "LLImageGLWorkGroup")
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     service->addWorkContractGroup(&mWorkGroup);

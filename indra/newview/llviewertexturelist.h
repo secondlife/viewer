@@ -36,10 +36,7 @@
 #include <unordered_set>
 #include "lluiimage.h"
 
-#include <EntropyCore/Concurrency/WorkContractGroup.h>
-
-using WorkContractGroup = EntropyEngine::Core::Concurrency::WorkContractGroup;
-using WorkContractHandle = EntropyEngine::Core::Concurrency::WorkContractHandle;
+#include "llworkcontract.h"
 
 const U32 LL_IMAGE_REZ_LOSSLESS_CUTOFF = 128;
 
@@ -244,7 +241,7 @@ private:
     bool mInitialized ;
     LLFrameTimer mForceDecodeTimer;
 
-    WorkContractGroup mRequestContractGroup;
+    LLWorkContractGroup mRequestContractGroup;
 
 private:
     static S32 sNumImages;

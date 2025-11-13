@@ -674,6 +674,228 @@ private:
     HttpCoroHandler::wptr_t         mWeakHandler;
 };
 
+//=========================================================================
+/// HttpWorkGraphAdapter provides HTTP operations using EntropyCore work graphs
+/// instead of coroutines. This adapter is designed to be a drop-in alternative
+/// to HttpCoroutineAdapter, using callbacks instead of suspend-and-resume.
+///
+/// Key differences from HttpCoroutineAdapter:
+/// - Returns std::shared_ptr<WorkGraph> instead of LLSD
+/// - Uses callbacks for success/error instead of suspend
+/// - Callback receives same LLSD format as coroutine adapter
+/// - Yieldable nodes handle async without blocking threads
+///
+/// Benefits:
+/// - Lower memory overhead (no coroutine stacks)
+/// - Natural dependency management with work graphs
+/// - Integration with EntropyCore work contract system
+/// - Simple migration path from coroutines
+///
+class HttpWorkGraphAdapter
+{
+public:
+    typedef std::shared_ptr<HttpWorkGraphAdapter> ptr_t;
+    typedef std::weak_ptr<HttpWorkGraphAdapter> wptr_t;
+
+    // Same string constants as HttpCoroutineAdapter for compatibility
+    static const std::string HTTP_RESULTS;
+    static const std::string HTTP_RESULTS_SUCCESS;
+    static const std::string HTTP_RESULTS_TYPE;
+    static const std::string HTTP_RESULTS_STATUS;
+    static const std::string HTTP_RESULTS_MESSAGE;
+    static const std::string HTTP_RESULTS_URL;
+    static const std::string HTTP_RESULTS_HEADERS;
+    static const std::string HTTP_RESULTS_CONTENT;
+    static const std::string HTTP_RESULTS_RAW;
+
+    // Result holder - shared between HTTP node and dependent nodes
+    struct HttpResult
+    {
+        std::atomic<bool> ready{false};
+        LLSD result;
+        std::mutex mutex;
+    };
+    typedef std::shared_ptr<HttpResult> HttpResultPtr;
+
+    // Constructor/destructor - accepts work contract group for scheduling
+    HttpWorkGraphAdapter(const std::string& name,
+                        LLCore::HttpRequest::policy_t policyId,
+                        std::shared_ptr<LLWorkContractGroup> workGroup);
+    ~HttpWorkGraphAdapter();
+
+    // GraphResult contains both the graph and the HTTP node handle for composition
+    struct GraphResult
+    {
+        std::shared_ptr<LLWorkGraph> graph;
+        LLWorkGraph::NodeHandle httpNode;
+        HttpResultPtr result;  // Shared result accessible to dependent nodes
+    };
+
+    /// GET methods - returns graph and node handle for composition
+    /// Caller can add dependent nodes that process the result
+    GraphResult getAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult getRawAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult getJsonAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    /// POST methods - returns graph and node handle for composition
+    GraphResult postAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const LLSD& body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult postAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        LLCore::BufferArray::ptr_t rawbody,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult postRawAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        LLCore::BufferArray::ptr_t rawbody,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult postFileAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const std::string& filename,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult postFileAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const LLUUID& assetId,
+        LLAssetType::EType assetType,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult postJsonAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const LLSD& body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    /// PUT methods - returns graph and node handle for composition
+    GraphResult putAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const LLSD& body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult putJsonAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const LLSD& body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    /// DELETE methods - returns graph and node handle for composition
+    GraphResult deleteAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult deleteJsonAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const LLSD& body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    /// PATCH method - returns graph and node handle for composition
+    GraphResult patchAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const LLSD& body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    /// WebDAV methods - returns graph and node handle for composition
+    GraphResult copyAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const std::string& destination,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    GraphResult moveAndSchedule(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        const std::string& destination,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+private:
+    // Response format types
+    enum ResponseFormat {
+        FORMAT_LLSD,
+        FORMAT_JSON,
+        FORMAT_RAW
+    };
+
+    // Internal helper class for tracking HTTP completion
+    class SimpleHttpHandler : public LLCore::HttpHandler
+    {
+    public:
+        SimpleHttpHandler(ResponseFormat format = FORMAT_LLSD)
+            : mComplete(false), mFormat(format) {}
+
+        void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse* response) override;
+
+        bool isComplete() const { return mComplete.load(std::memory_order_acquire); }
+        LLSD getResult() const {
+            std::lock_guard<std::mutex> lock(mResultMutex);
+            return mResult;
+        }
+
+    private:
+        std::atomic<bool> mComplete;
+        LLSD mResult;
+        mutable std::mutex mResultMutex;
+        ResponseFormat mFormat;
+    };
+
+    // Build LLSD result matching HttpCoroutineAdapter format
+    static LLSD buildResultLLSD(LLCore::HttpResponse* response, ResponseFormat format);
+
+    // Internal yieldable HTTP execution
+    GraphResult executeHttpRequest(
+        LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        LLCore::HttpOptions::ptr_t options,
+        LLCore::HttpHeaders::ptr_t headers,
+        LLCore::HttpHandle handle,
+        std::shared_ptr<SimpleHttpHandler> handler,
+        ResponseFormat format);
+
+    // Member variables
+    std::string mAdapterName;
+    LLCore::HttpRequest::policy_t mPolicyId;
+    std::shared_ptr<LLWorkContractGroup> mWorkGroup;
+};
+
 
 } // end namespace LLCoreHttpUtil
 

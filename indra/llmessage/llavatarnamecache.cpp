@@ -110,6 +110,7 @@ LLCore::HttpRequest::policy_t   sHttpPolicy;
 // further explanation.
 
 LLAvatarNameCache::LLAvatarNameCache()
+    : mWorkGroup(nullptr)
 {
     // Will be set to running later
     // For now fail immediate lookups and query async ones.
@@ -408,6 +409,132 @@ void LLAvatarNameCache::requestNamesViaCapability()
     }
 }
 
+void LLAvatarNameCache::requestNamesViaWorkGraph()
+{
+    // Work Graph implementation of avatar name requests
+    // This demonstrates the new HttpWorkGraphAdapter API
+    
+    F64 now = LLFrameTimer::getTotalSeconds();
+
+    // URL format is like:
+    // http://pdp60.lindenlab.com:8000/agents/?ids=3941037e-78ab-45f0-b421-bd6e77c1804d&ids=0012809d-7d2d-4c24-9609-af1230a37715&ids=0019aaba-24af-4f0a-aa72-6457953cf7f0
+    //
+    // Apache can handle URLs of 4096 chars, but let's be conservative
+    static const U32 NAME_URL_MAX = 4096;
+    static const U32 NAME_URL_SEND_THRESHOLD = 3500;
+
+    std::string url;
+    url.reserve(NAME_URL_MAX);
+
+    std::vector<LLUUID> agent_ids;
+    agent_ids.reserve(128);
+
+    U32 ids = 0;
+    ask_queue_t::const_iterator it;
+    while(!mAskQueue.empty())
+    {
+        it = mAskQueue.begin();
+        LLUUID agent_id = *it;
+        mAskQueue.erase(it);
+
+        if (url.empty())
+        {
+            // ...starting new request
+            url += mNameLookupURL;
+            url += "?ids=";
+            ids = 1;
+        }
+        else
+        {
+            // ...continuing existing request
+            url += "&ids=";
+            ids++;
+        }
+        url += agent_id.asString();
+        agent_ids.push_back(agent_id);
+
+        // mark request as pending
+        mPendingQueue[agent_id] = now;
+
+        if (url.size() > NAME_URL_SEND_THRESHOLD)
+        {
+            break;
+        }
+    }
+
+    if (!url.empty())
+    {
+        LL_DEBUGS("AvNameCache") << "Work Graph requesting " << ids << " ids" << LL_ENDL;
+
+        // Check if work graph adapter is available
+        if (!mWorkGraphAdapter)
+        {
+            LL_WARNS("AvNameCache") << "Work graph adapter not initialized - work contract group not set" << LL_ENDL;
+            return;
+        }
+
+        // Use the adapter instance for this request
+        auto graphResult = mWorkGraphAdapter->getAndSchedule(
+            sHttpRequest,
+            url,
+            sHttpOptions,
+            sHttpHeaders
+        );
+
+        // Add a node to process the result on the main thread
+        // This node depends on the HTTP node completing first
+        auto processNode = graphResult.graph->addNode(
+            [agent_ids, sharedResult = graphResult.result]() {
+                if (!LLAvatarNameCache::instanceExists()) return;
+
+                // Wait for result to be ready (should be ready since this node depends on HTTP node)
+                const LLSD& result = sharedResult->result;
+
+                // Check if HTTP request succeeded
+                const LLSD& httpResult = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+                if (httpResult[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_SUCCESS].asBoolean())
+                {
+                    // Process the successful response
+                    LLAvatarNameCache::getInstance()->handleAvNameCacheSuccess(
+                        result, httpResult
+                    );
+                }
+                else
+                {
+                    // Handle errors by creating dummy records
+                    for (const auto& agent_id : agent_ids)
+                    {
+                        LLAvatarNameCache::getInstance()->handleAgentError(agent_id);
+                    }
+                }
+            },
+            "avatar-name-cache-process",
+            nullptr,
+            LLExecutionType::MainThread
+        );
+
+        // Link the nodes so processNode waits for httpNode
+        graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+        // Store the graph to keep it alive while executing
+        mActiveGraphs.push_back(graphResult.graph);
+
+        // Execute the graph now that it's fully composed
+        graphResult.graph->execute();
+
+        // Clean up completed graphs periodically
+        mActiveGraphs.erase(
+            std::remove_if(mActiveGraphs.begin(), mActiveGraphs.end(),
+                [](const auto& graph) { return graph->isComplete(); }),
+            mActiveGraphs.end()
+        );
+
+        LL_DEBUGS("AvNameCache") << "Work Graph scheduled request for url: " << url
+                                 << ", agent_ids.size()=" << agent_ids.size()
+                                 << ", active graphs: " << mActiveGraphs.size() << LL_ENDL;
+    }
+}
+
 void LLAvatarNameCache::legacyNameCallback(const LLUUID& agent_id,
                                            const std::string& full_name,
                                            bool is_group)
@@ -536,6 +663,24 @@ bool LLAvatarNameCache::usePeopleAPI()
     return hasNameLookupURL() && mUsePeopleAPI;
 }
 
+void LLAvatarNameCache::setWorkContractGroup(LLWorkContractGroup* workGroup)
+{
+    mWorkGroup = workGroup;
+
+    // Create the work graph adapter with the provided work group
+    if (mWorkGroup)
+    {
+        // Convert raw pointer to shared_ptr (non-owning)
+        std::shared_ptr<LLWorkContractGroup> workGroupPtr(mWorkGroup, [](LLWorkContractGroup*){});
+        mWorkGraphAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+            "AvatarNameCache", sHttpPolicy, workGroupPtr);
+    }
+    else
+    {
+        mWorkGraphAdapter.reset();
+    }
+}
+
 void LLAvatarNameCache::idle()
 {
     // By convention, start running at first idle() call
@@ -554,7 +699,19 @@ void LLAvatarNameCache::idle()
     {
         if (usePeopleAPI())
         {
-            requestNamesViaCapability();
+            // Option to use Work Graph implementation for testing
+            // This could be controlled by a debug setting: gSavedSettings.getBOOL("UseWorkGraphForAvatarNames")
+            static bool sUseWorkGraph = true; // Set to true to test work graph implementation
+            
+            if (sUseWorkGraph)
+            {
+                LL_DEBUGS("AvNameCache") << "Using Work Graph implementation for avatar name requests" << LL_ENDL;
+                requestNamesViaWorkGraph();
+            }
+            else
+            {
+                requestNamesViaCapability();
+            }
         }
         else
         {

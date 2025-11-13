@@ -50,13 +50,9 @@
 #include "lltimer.h"
 #include "llappcorehttp.h"
 #include "threadpool_fwd.h"
+#include "llworkcontract.h"
 
 #include <boost/signals2.hpp>
-#include <EntropyCore/Concurrency/WorkService.h>
-
-using WorkService = EntropyEngine::Core::Concurrency::WorkService;
-using WorkContractGroup = EntropyEngine::Core::Concurrency::WorkContractGroup;
-using WorkContractHandle = EntropyEngine::Core::Concurrency::WorkContractHandle;
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -249,6 +245,9 @@ public:
     // llcorehttp init/shutdown/config information.
     LLAppCoreHttp & getAppCoreHttp()            { return mAppCoreHttp; }
 
+    // Get the main app work contract group for scheduling work graphs
+    LLWorkContractGroup* getMainAppGroup()        { return &mMainAppGroup; }
+
     void updateNameLookupUrl(const LLViewerRegion* regionp);
 
     // post given work to the "mainloop" work queue for handling on the main thread
@@ -383,7 +382,7 @@ private:
 
     bool mIsFirstRun;
 
-    WorkContractGroup mMainAppGroup;
+    LLWorkContractGroup mMainAppGroup;
 };
 
 // Globals with external linkage. From viewer.h
@@ -444,6 +443,6 @@ extern bool gDoDisconnect;
 
 extern bool gSimulateMemLeak;
 
-extern WorkService* gWorkService;
+extern LLWorkService* gWorkService;
 
 #endif // LL_LLAPPVIEWER_H

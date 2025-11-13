@@ -369,8 +369,8 @@ bool gLogoutInProgress = false;
 bool gSimulateMemLeak = false;
 bool gDoDisconnect = false;
 
-EntropyEngine::Core::Concurrency::WorkService* gWorkService =
-    new EntropyEngine::Core::Concurrency::WorkService{ EntropyEngine::Core::Concurrency::WorkService::Config() };
+LLWorkService* gWorkService =
+    new LLWorkService{ LLWorkService::Config() };
 
 // We don't want anyone, especially threads working on the graphics pipeline,
 // to have to block due to this WorkQueue being full.
@@ -5409,7 +5409,7 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
     //gMainloopWork.post(work);
-    mMainAppGroup.createContract(work, EntropyEngine::Core::Concurrency::ExecutionType::MainThread).schedule();
+    mMainAppGroup.createContract(work, LLExecutionType::MainThread).schedule();
 }
 
 void LLAppViewer::postToAppWorkGroup(const LL::WorkQueue::Work& work)

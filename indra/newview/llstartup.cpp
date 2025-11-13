@@ -3203,6 +3203,12 @@ void LLStartUp::initNameCache()
     cache_inst->setUsePeopleAPI(gSavedSettings.getBOOL("UsePeopleAPI"));
     cache_inst->setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
     cache_inst->setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
+
+    // Set the work contract group from the app viewer
+    if (LLAppViewer::instance())
+    {
+        cache_inst->setWorkContractGroup(LLAppViewer::instance()->getMainAppGroup());
+    }
 }
 
 

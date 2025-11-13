@@ -242,6 +242,7 @@ set(llcommon_HEADER_FILES
     lluuid.h
     llwin32headers.h
     llworkerthread.h
+    llworkcontract.h
     hbxxh.h
     lockstatic.h
     stdtypes.h
