@@ -93,7 +93,6 @@ void LLNearbyVoiceModeration::requestMuteIndividual(const LLUUID& agent_id, bool
             LLSD body;
             body["operand"] = operand;
             body["agent_id"] = agent_id;
-            body["moderator_id"] = gAgent.getID();
 
             const std::string agent_name = avatar->getFullname();
             LL_INFOS() << "Resident " << agent_name
@@ -128,7 +127,6 @@ void LLNearbyVoiceModeration::requestMuteAll(bool mute)
 
         LLSD body;
         body["operand"] = operand;
-        body["moderator_id"] = gAgent.getID();
 
         LL_INFOS() << "For all residents in this region, applying: " << operand << LL_ENDL;
 
