@@ -27,10 +27,11 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloatermarketplace.h"
+#include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 
 LLFloaterMarketplace::LLFloaterMarketplace(const LLSD& key)
-    :   LLFloater(key)
+    :   LLFloaterWebContent(key)
 {
 }
 
@@ -38,10 +39,32 @@ LLFloaterMarketplace::~LLFloaterMarketplace()
 {
 }
 
+// just to override LLFloaterWebContent
+void LLFloaterMarketplace::onClose(bool app_quitting)
+{
+}
+
 bool LLFloaterMarketplace::postBuild()
 {
-    enableResizeCtrls(true, true, false);
+    if (!LLFloaterWebContent::postBuild())
+        return false;
+
+    mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+    std::string url = gSavedSettings.getString("MarketplaceURL");
+    mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+
+    // If cookie is there, will set it now, Otherwise will have to wait for login completion
+    // which will also update marketplace instance if it already exists.
+    LLViewerMedia::getInstance()->getOpenIDCookie(mWebBrowser);
+
     return true;
 }
 
-
+void LLFloaterMarketplace::openMarketplace()
+{
+    std::string url = gSavedSettings.getString("MarketplaceURL");
+    if (mCurrentURL != url)
+    {
+        mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+    }
+}

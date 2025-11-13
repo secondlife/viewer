@@ -66,7 +66,7 @@ class LLSearchHandler : public LLCommandHandler {
 LLSearchHandler gSearchHandler;
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key)
-    : LLFloater(key)
+    : LLFloaterWebContent(key)
 {
     mSearchType.insert("standard");
     mSearchType.insert("land");
@@ -86,6 +86,12 @@ LLFloaterSearch::~LLFloaterSearch()
 void LLFloaterSearch::onOpen(const LLSD& tokens)
 {
     initiateSearch(tokens);
+    mWebBrowser->setFocus(true);
+}
+
+// just to override LLFloaterWebContent
+void LLFloaterSearch::onClose(bool app_quitting)
+{
 }
 
 void LLFloaterSearch::initiateSearch(const LLSD& tokens)
@@ -155,13 +161,22 @@ void LLFloaterSearch::initiateSearch(const LLSD& tokens)
 
     // Naviation to the calculated URL - we know it's HTML so we can
     // tell the media system not to bother with the MIME type check.
-    LLMediaCtrl* search_browser = findChild<LLMediaCtrl>("search_contents");
-    search_browser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+    mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
 }
 
 bool LLFloaterSearch::postBuild()
 {
-    enableResizeCtrls(true, true, false);
+    if (!LLFloaterWebContent::postBuild())
+        return false;
+
+    mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+
+    // If cookie is there, will set it now, Otherwise will have to wait for login completion
+    // which will also update search instance if it already exists.
+    LLViewerMedia::getInstance()->getOpenIDCookie(mWebBrowser);
+
+    getChildView("address")->setEnabled(false);
+    getChildView("popexternal")->setEnabled(false);
 
     // This call is actioned by the preload code in llViewerWindow
     // that creates the search floater during the login process

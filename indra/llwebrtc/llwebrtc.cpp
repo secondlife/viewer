@@ -572,14 +572,20 @@ void LLWebRTCImpl::workerDeployDevices()
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
 {
 
-    mRecordingDevice = id;
-    deployDevices();
+    if (mRecordingDevice != id)
+    {
+        mRecordingDevice = id;
+        deployDevices();
+    }
 }
 
 void LLWebRTCImpl::setRenderDevice(const std::string &id)
 {
-    mPlayoutDevice = id;
-    deployDevices();
+    if (mPlayoutDevice != id)
+    {
+        mPlayoutDevice = id;
+        deployDevices();
+    }
 }
 
 // updateDevices needs to happen on the worker thread.
@@ -914,6 +920,13 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             config.set_max_port(60100);
 
             webrtc::PeerConnectionDependencies pc_dependencies(this);
+            if (mPeerConnectionFactory == nullptr)
+            {
+                RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection, factory doesn't exist";
+                // Too early?
+                mPendingJobs--;
+                return;
+            }
             auto error_or_peer_connection = mPeerConnectionFactory->CreatePeerConnectionOrError(config, std::move(pc_dependencies));
             if (error_or_peer_connection.ok())
             {
@@ -1533,6 +1546,10 @@ void freePeerConnection(LLWebRTCPeerConnectionInterface* peer_connection)
 
 void init(LLWebRTCLogCallback* logCallback)
 {
+    if (gWebRTCImpl)
+    {
+        return;
+    }
     gWebRTCImpl = new LLWebRTCImpl(logCallback);
     gWebRTCImpl->init();
 }
