@@ -2955,7 +2955,7 @@ void LLPipeline::markMoved(LLDrawable *drawablep, bool damped_motion)
 
 void LLPipeline::markShift(LLDrawable *drawablep)
 {
-    if (!drawablep || drawablep->isDead())
+    if (!drawablep || drawablep->isDead() || !drawablep->getVObj())
     {
         return;
     }
@@ -2989,7 +2989,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
             iter != mShiftList.end(); iter++)
     {
         LLDrawable *drawablep = *iter;
-        if (drawablep->isDead())
+        if (drawablep->isDead() || !drawablep->getVObj())
         {
             continue;
         }
