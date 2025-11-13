@@ -9193,26 +9193,20 @@ Your voice has been muted by moderator.
     </notification>
 
     <notification
-     icon="alertmodal.tga"
+     icon="notifytip.tga"
      name="NearbyVoiceMutedByModerator"
-     type="alertmodal">
+     type="notifytip">
         The moderator has muted your voice chat.
 People in this location will not hear you if you speak.
-        <tag>voice</tag>
-        <usetemplate
-         name="okbutton"
-         yestext="OK"/>
+     <tag>voice</tag>
     </notification>
 
     <notification
-     icon="alertmodal.tga"
+     icon="notifytip.tga"
      name="NearbyVoiceUnmutedByModerator"
-     type="alertmodal">
+     type="notifytip">
         Your voice chat can now be heard by people in this location.
-        <tag>voice</tag>
-        <usetemplate
-         name="okbutton"
-         yestext="OK"/>
+     <tag>voice</tag>
     </notification>
  
     <notification
