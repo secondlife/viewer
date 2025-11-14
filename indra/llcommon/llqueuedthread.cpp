@@ -80,7 +80,7 @@ void LLQueuedThread::shutdown()
             mRequestQueue.close();
         }
 
-        S32 timeout = 100;
+        S32 timeout = 50;
         for ( ; timeout>0; timeout--)
         {
             if (isStopped())
@@ -101,19 +101,34 @@ void LLQueuedThread::shutdown()
     }
 
     QueuedRequest* req;
-    S32 active_count = 0;
+    S32 queued_count = 0;
+    bool  has_active = false;
+    lockData();
     while ( (req = (QueuedRequest*)mRequestHash.pop_element()) )
     {
-        if (req->getStatus() == STATUS_QUEUED || req->getStatus() == STATUS_INPROGRESS)
+        if (req->getStatus() == STATUS_INPROGRESS)
         {
-            ++active_count;
+            has_active = true;
+            req->setFlags(FLAG_ABORT | FLAG_AUTO_COMPLETE);
+            continue;
+        }
+        if (req->getStatus() == STATUS_QUEUED)
+        {
+            ++queued_count;
             req->setStatus(STATUS_ABORTED); // avoid assert in deleteRequest
         }
         req->deleteRequest();
     }
-    if (active_count)
+    unlockData();
+    if (queued_count)
     {
-        LL_WARNS() << "~LLQueuedThread() called with active requests: " << active_count << LL_ENDL;
+        LL_WARNS() << "~LLQueuedThread() called with unpocessed requests: " << queued_count << LL_ENDL;
+    }
+    if (has_active)
+    {
+        LL_WARNS() << "~LLQueuedThread() called with active requests!" << LL_ENDL;
+        ms_sleep(100); // last chance for request to finish
+        printQueueStats();
     }
 
     mRequestQueue.close();
@@ -570,7 +585,12 @@ LLQueuedThread::QueuedRequest::QueuedRequest(LLQueuedThread::handle_t handle, U3
 
 LLQueuedThread::QueuedRequest::~QueuedRequest()
 {
-    llassert_always(mStatus == STATUS_DELETE);
+    if (mStatus != STATUS_DELETE)
+    {
+        // The only method to delete a request is deleteRequest(),
+        // it should have set the status to STATUS_DELETE
+        LL_ERRS() << "LLQueuedThread::QueuedRequest deleted with status " << mStatus << LL_ENDL;
+    }
 }
 
 //virtual

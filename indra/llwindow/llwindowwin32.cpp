@@ -450,6 +450,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
                              F32 max_gl_version)
     :
     LLWindow(callbacks, fullscreen, flags),
+    mAbsoluteCursorPosition(false),
     mMaxGLVersion(max_gl_version),
     mMaxCores(max_cores)
 {
@@ -2464,10 +2465,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_CLOSE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CLOSE");
+            // todo: WM_CLOSE can be caused by user and by task manager,
+            // distinguish these cases.
+            // For now assume it is always user.
             window_imp->post([=]()
                 {
                     // Will the app allow the window to close?
-                    if (window_imp->mCallbacks->handleCloseRequest(window_imp))
+                    if (window_imp->mCallbacks->handleCloseRequest(window_imp, true))
                     {
                         // Get the app to initiate cleanup.
                         window_imp->mCallbacks->handleQuit(window_imp);
@@ -2483,6 +2487,50 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             {
                 PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
             }
+            return 0;
+        }
+        case WM_QUERYENDSESSION:
+        {
+            // Generally means that OS is going to shut down or user is going to log off.
+            // Can use ShutdownBlockReasonCreate here.
+            LL_INFOS("Window") << "Received WM_QUERYENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            return TRUE; // 1 = ok to end session. 0 no longer works by itself, use ShutdownBlockReasonCreate
+        }
+        case WM_ENDSESSION:
+        {
+            // OS session is shutting down, initiate cleanup.
+            // Comes after WM_QUERYENDSESSION
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ENDSESSION");
+            LL_INFOS("Window") << "Received WM_ENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            unsigned int end_session_flags = (U32)w_param;
+            if (end_session_flags == 0)
+            {
+                // session is not actually ending
+                return 0;
+            }
+
+            if ((end_session_flags & ENDSESSION_CLOSEAPP)
+                || (end_session_flags & ENDSESSION_CRITICAL)
+                || (end_session_flags & ENDSESSION_LOGOFF))
+            {
+                window_imp->post([=]()
+                {
+                    // Check if app needs cleanup or can be closed immediately.
+                    if (window_imp->mCallbacks->handleSessionExit(window_imp))
+                    {
+                        // Get the app to initiate cleanup.
+                        window_imp->mCallbacks->handleQuit(window_imp);
+                        // The app is responsible for calling destroyWindow when done with GL
+                    }
+                });
+                // Give app a second to finish up. That's not enough for a clean exit,
+                // but better than nothing.
+                // Todo: sync this better, some kind of waitForResult? Can't wait forever,
+                // but can potentially use ShutdownBlockReasonCreate for a bigger delay.
+                ms_sleep(1000);
+            }
+            // Don't need to post quit or destroy window,
+            // if session is ending OS is going to take care of it.
             return 0;
         }
         case WM_COMMAND:
@@ -3109,6 +3157,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                         prev_absolute_x = absolute_x;
                         prev_absolute_y = absolute_y;
+                        window_imp->mAbsoluteCursorPosition = true;
                     }
                     else
                     {
@@ -3125,6 +3174,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                             window_imp->mRawMouseDelta.mX += (S32)round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
                             window_imp->mRawMouseDelta.mY -= (S32)round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
                         }
+                        window_imp->mAbsoluteCursorPosition = false;
                     }
                 }
             }

@@ -498,7 +498,7 @@ void LLVOCacheEntry::updateDebugSettings()
     sNearRadius = MIN_RADIUS + ((clamped_min_radius - MIN_RADIUS) * adjust_factor);
 
     // a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
-    static LLCachedControl<F32> rear_max_radius_frac(gSavedSettings,"SceneLoadRearMaxRadiusFraction");
+    static LLCachedControl<F32> rear_max_radius_frac(gSavedSettings,"SceneLoadRearMaxRadiusFraction", .75f);
     const F32 min_radius_plus_one = sNearRadius + 1.f;
     const F32 max_radius = rear_max_radius_frac * draw_radius;
     const F32 clamped_max_radius = llclamp(max_radius, min_radius_plus_one, draw_radius); // [sNearRadius, mDrawDistance]

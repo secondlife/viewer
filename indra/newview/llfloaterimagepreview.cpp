@@ -267,6 +267,14 @@ void LLFloaterImagePreview::onBtnOK()
 
         LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
 
+        if (mRawImagep->getWidth() * mRawImagep->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
+        {
+            if (gSavedSettings.getBOOL("LosslessJ2CUpload"))
+            {
+                formatted->setReversible(true);
+            }
+        }
+
         if (formatted->encode(mRawImagep, 0.0f))
         {
             LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);

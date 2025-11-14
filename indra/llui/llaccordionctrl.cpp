@@ -494,6 +494,7 @@ void LLAccordionCtrl::arrangeMultiple()
 
 void LLAccordionCtrl::arrange()
 {
+    LL_PROFILE_ZONE_SCOPED;
     updateNoTabsHelpTextVisibility();
 
     if (mAccordionTabs.empty())
