@@ -714,7 +714,11 @@ bool LLVoiceClient::getPTTIsToggle()
 void LLVoiceClient::inputUserControlState(bool down)
 {
     if (down && !getUserPTTState())
-        LLNearbyVoiceModeration::getInstance()->showNotificationIfNeeded();
+    {
+        // Nearby chat is muted by moderator, don't toggle PTT
+        if (LLNearbyVoiceModeration::getInstance()->showNotificationIfNeeded())
+            return;
+    }
 
     if(mPTTIsToggle)
     {

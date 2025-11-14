@@ -36,8 +36,8 @@ class LLNearbyVoiceModeration : public LLSingleton <LLNearbyVoiceModeration> {
         void requestMuteAll(bool mute);
 
         void setMutedInfo(const std::string& channelID, bool mute);
-        void showMutedNotification(bool is_muted);
-        void showNotificationIfNeeded();
+        bool showMutedNotification(bool is_muted);
+        bool showNotificationIfNeeded();
 
         bool isNearbyChatModerator();
 

@@ -2340,7 +2340,7 @@ LLSpeaker * LLFloaterIMContainer::getSpeakerOfSelectedParticipant(LLSpeakerMgr *
 bool LLFloaterIMContainer::isNearbyChatSpeakerSelected()
 {
     LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
-    if (NULL == selectedItem)
+    if (!selectedItem)
     {
         LL_WARNS() << "Current selected item is null" << LL_ENDL;
         return NULL;

@@ -165,24 +165,31 @@ void LLNearbyVoiceModeration::setMutedInfo(const std::string& channelID, bool mu
             it->second = mute;
         }
     }
+    if (mute && LLVoiceClient::getInstance()->getUserPTTState())
+    {
+        LLVoiceClient::getInstance()->setUserPTTState(false);
+    }
 }
 
-void LLNearbyVoiceModeration::showNotificationIfNeeded()
+bool LLNearbyVoiceModeration::showNotificationIfNeeded()
 {
     if (LLVoiceClient::getInstance()->inProximalChannel() &&
         LLVoiceClient::getInstance()->getIsModeratorMuted(gAgentID))
     {
-        showMutedNotification(true);
+        return showMutedNotification(true);
     }
+    return false;
 }
 
-void LLNearbyVoiceModeration::showMutedNotification(bool is_muted)
+bool LLNearbyVoiceModeration::showMutedNotification(bool is_muted)
 {
     // Check if the current voice channel is nearby chat
     if (LLVoiceClient::getInstance()->inProximalChannel())
     {
         LLNotificationsUtil::add(is_muted ? "NearbyVoiceMutedByModerator" : "NearbyVoiceUnmutedByModerator");
+        return true;
     }
+    return false;
 }
 
 bool LLNearbyVoiceModeration::isNearbyChatModerator()
