@@ -168,7 +168,6 @@ void LLViewerJointAttachment::setupDrawable(LLViewerObject *object)
 //-----------------------------------------------------------------------------
 bool LLViewerJointAttachment::addObject(LLViewerObject* object)
 {
-    object->extractAttachmentItemID();
 
     // Same object reattached
     if (isObjectAttached(object))
@@ -178,6 +177,8 @@ bool LLViewerJointAttachment::addObject(LLViewerObject* object)
         // Pass through anyway to let setupDrawable()
         // re-connect object to the joint correctly
     }
+
+    object->extractAttachmentItemID();
 
     // Two instances of the same inventory item attached --
     // Request detach, and kill the object in the meantime.
