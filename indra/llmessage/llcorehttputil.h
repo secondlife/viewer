@@ -46,6 +46,8 @@
 #include "llassettype.h"
 #include "lluuid.h"
 
+#include "llworkcontract.h"
+
 ///
 /// The base llcorehttp library implements many HTTP idioms
 /// used in the viewer but not all.  That library intentionally
@@ -846,6 +848,13 @@ public:
         const std::string& destination,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
+    // Convenience methods for simpler API
+    GraphResult postRaw(const std::string& url, const LLSD& body);
+    GraphResult getRaw(const std::string& url);
+
+    // Static utility method - extract HTTP status from LLSD result
+    static LLCore::HttpStatus getStatusFromLLSD(const LLSD& httpResults);
 
 private:
     // Response format types

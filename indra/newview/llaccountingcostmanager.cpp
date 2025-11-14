@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llaccountingcostmanager.h"
 #include "llagent.h"
+#include "llappviewer.h"
 #include "httpcommon.h"
 #include "llcoros.h"
 #include "lleventcoro.h"
@@ -173,6 +174,180 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
     LLAccountingCostManager::getInstance()->mPendingObjectQuota.clear();
 }
 
+// Work graph for sending and processing accounting cost requests.
+void LLAccountingCostManager::accountingCostWorkGraph(std::string url,
+    eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle)
+{
+    LL_DEBUGS("LLAccountingCostManager") << "Starting accounting cost work graph with url '" << url << "'" << LL_ENDL;
+
+    LLAccountingCostManager* self = LLAccountingCostManager::getInstance();
+    if (!self)
+    {
+        LL_WARNS("LLAccountingCostManager") << "LLAccountingCostManager instance not available" << LL_ENDL;
+        return;
+    }
+
+    uuid_set_t diffSet;
+
+    std::set_difference(self->mObjectList.begin(),
+                        self->mObjectList.end(),
+                        self->mPendingObjectQuota.begin(),
+                        self->mPendingObjectQuota.end(),
+                        std::inserter(diffSet, diffSet.begin()));
+
+    if (diffSet.empty())
+    {
+        LL_WARNS("LLAccountingCostManager") << "No new objects to fetch costs for (diffSet is empty)" << LL_ENDL;
+        return;
+    }
+
+    LL_WARNS("LLAccountingCostManager") << "Fetching accounting costs for " << diffSet.size() << " objects" << LL_ENDL;
+
+    self->mObjectList.clear();
+
+    std::string keystr;
+    if (selectionType == Roots)
+    {
+        keystr = "selected_roots";
+    }
+    else if (selectionType == Prims)
+    {
+        keystr = "selected_prims";
+    }
+    else
+    {
+        LL_WARNS("LLAccountingCostManager") << "Invalid selection type: " << selectionType << LL_ENDL;
+        return;
+    }
+
+    LLSD objectList(LLSD::emptyMap());
+
+    for (uuid_set_t::iterator it = diffSet.begin(); it != diffSet.end(); ++it)
+    {
+        objectList.append(*it);
+    }
+
+    self->mPendingObjectQuota.insert(diffSet.begin(), diffSet.end());
+
+    LLSD dataToPost = LLSD::emptyMap();
+    dataToPost[keystr.c_str()] = objectList;
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "AccountingCost", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make POST request and get the graph
+    LL_WARNS("LLAccountingCostManager") << "Posting accounting cost request to: " << url << LL_ENDL;
+    auto graphResult = httpAdapter->postRaw(url, dataToPost);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [observerHandle, sharedResult = graphResult.result]() -> LLWorkResult {
+            if (LLApp::isQuitting())
+            {
+                LL_WARNS("LLAccountingCostManager") << "App is quitting, aborting accounting cost processing" << LL_ENDL;
+                LLAccountingCostManager::getInstance()->mPendingObjectQuota.clear();
+                return LLWorkResult::Complete;
+            }
+
+            if (observerHandle.isDead())
+            {
+                LL_WARNS("LLAccountingCostManager") << "Observer handle is dead, aborting accounting cost processing" << LL_ENDL;
+                LLAccountingCostManager::getInstance()->mPendingObjectQuota.clear();
+                return LLWorkResult::Complete;
+            }
+
+            if (!LLAccountingCostManager::instanceExists())
+            {
+                LL_WARNS("LLAccountingCostManager") << "LLAccountingCostManager instance no longer exists" << LL_ENDL;
+                return LLWorkResult::Complete;
+            }
+
+            const LLSD& results = sharedResult->result;
+            const LLSD& httpResults = results[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            LLAccountingCostObserver* observer = observerHandle.get();
+            if (!observer)
+            {
+                LL_WARNS("LLAccountingCostManager") << "Observer is null, cannot process accounting cost results" << LL_ENDL;
+                LLAccountingCostManager::getInstance()->mPendingObjectQuota.clear();
+                return LLWorkResult::Complete;
+            }
+
+            // do/while(false) allows error conditions to break out of following
+            // block while normal flow goes forward once.
+            do
+            {
+                if (!status || results.has("error"))
+                {
+                    if (!status)
+                    {
+                        LL_WARNS("LLAccountingCostManager") << "HTTP request failed with status: "
+                            << status.getType() << " - " << status.toString() << LL_ENDL;
+                        observer->setErrorStatus(status.getType(), status.toString());
+                    }
+                    else
+                    {
+                        LL_WARNS("LLAccountingCostManager") << "Error field present in response data" << LL_ENDL;
+                        observer->setErrorStatus(499, "Error on fetched data");
+                    }
+
+                    break;
+                }
+
+                if (!httpResults[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_SUCCESS].asBoolean())
+                {
+                    LL_WARNS("LLAccountingCostManager") << "Error result from HttpWorkGraphAdapter. Code "
+                        << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                    observer->setErrorStatus(httpResults["status"].asInteger(), httpResults["message"].asStringRef());
+                    break;
+                }
+
+                const LLSD& content = results[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+                if (content.has("selected"))
+                {
+                    LLSD selected = content["selected"];
+
+                    F32 physicsCost = (F32)selected["physics"].asReal();
+                    F32 networkCost = (F32)selected["streaming"].asReal();
+                    F32 simulationCost = (F32)selected["simulation"].asReal();
+
+                    SelectionCost selectionCost(physicsCost, networkCost, simulationCost);
+
+                    LL_WARNS("LLAccountingCostManager") << "Successfully retrieved accounting costs - "
+                        << "Physics: " << physicsCost << ", "
+                        << "Network: " << networkCost << ", "
+                        << "Simulation: " << simulationCost << LL_ENDL;
+
+                    observer->onWeightsUpdate(selectionCost);
+                }
+                else
+                {
+                    LL_WARNS("LLAccountingCostManager") << "Response content missing 'selected' field" << LL_ENDL;
+                }
+
+            } while (false);
+
+            // Clear pending object quota
+            LL_WARNS("LLAccountingCostManager") << "Clearing pending object quota and completing work" << LL_ENDL;
+            LLAccountingCostManager::getInstance()->mPendingObjectQuota.clear();
+
+            return LLWorkResult::Complete;
+        },
+        "accounting-cost-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set up dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
 //===============================================================================
 void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
                                           const std::string& url,
@@ -181,16 +356,26 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
     // Invoking system must have already determined capability availability
     if ( !url.empty() )
     {
-        std::string coroname =
-            LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
-            boost::bind(accountingCostCoro, url, selectionType, observer_handle));
-        LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
-
+        if (mUseWorkGraph)
+        {
+            // NEW: Work graph implementation
+            LL_DEBUGS() << "Using work graph implementation for accounting costs" << LL_ENDL;
+            accountingCostWorkGraph(url, selectionType, observer_handle);
+        }
+        else
+        {
+            // BASELINE: Original coroutine implementation
+            LL_DEBUGS() << "Using coroutine baseline implementation for accounting costs" << LL_ENDL;
+            std::string coroname =
+                LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
+                boost::bind(accountingCostCoro, url, selectionType, observer_handle));
+            LL_DEBUGS() << coroname << " with url '" << url << LL_ENDL;
+        }
     }
     else
     {
         //url was empty - warn & continue
-        LL_WARNS()<<"Supplied url is empty "<<LL_ENDL;
+        LL_WARNS("LLAccountingCostManager") << "Supplied url is empty, clearing object lists" << LL_ENDL;
         mObjectList.clear();
         mPendingObjectQuota.clear();
     }

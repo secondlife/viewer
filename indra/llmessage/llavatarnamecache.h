@@ -65,7 +65,7 @@ public:
     bool usePeopleAPI();
 
     // Set the work contract group for HTTP work graphs
-    void setWorkContractGroup(LLWorkContractGroup* workGroup);
+    void setWorkContractGroup(std::shared_ptr<LLWorkContractGroup> workGroup);
 
     // Periodically makes a batch request for display names not already in
     // cache. Called once per frame.

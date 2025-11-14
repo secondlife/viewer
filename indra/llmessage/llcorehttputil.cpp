@@ -2213,6 +2213,32 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::moveAndSchedule(
     return executeHttpRequest(request, url, options, headers, handle, handler, FORMAT_LLSD);
 }
 
+// Convenience methods
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postRaw(const std::string& url, const LLSD& body)
+{
+    LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+
+    return postAndSchedule(request, url, body, options, headers);
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getRaw(const std::string& url)
+{
+    LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+
+    return getAndSchedule(request, url, options, headers);
+}
+
+// Static utility method to extract HTTP status from LLSD result
+LLCore::HttpStatus HttpWorkGraphAdapter::getStatusFromLLSD(const LLSD& httpResults)
+{
+    // Delegate to HttpCoroutineAdapter's implementation
+    return HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+}
+
 // End of HttpWorkGraphAdapter implementation
 //=========================================================================
 

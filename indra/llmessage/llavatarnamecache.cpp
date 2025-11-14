@@ -663,17 +663,15 @@ bool LLAvatarNameCache::usePeopleAPI()
     return hasNameLookupURL() && mUsePeopleAPI;
 }
 
-void LLAvatarNameCache::setWorkContractGroup(LLWorkContractGroup* workGroup)
+void LLAvatarNameCache::setWorkContractGroup(std::shared_ptr<LLWorkContractGroup> workGroup)
 {
-    mWorkGroup = workGroup;
+    mWorkGroup = workGroup.get();
 
     // Create the work graph adapter with the provided work group
     if (mWorkGroup)
     {
-        // Convert raw pointer to shared_ptr (non-owning)
-        std::shared_ptr<LLWorkContractGroup> workGroupPtr(mWorkGroup, [](LLWorkContractGroup*){});
         mWorkGraphAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
-            "AvatarNameCache", sHttpPolicy, workGroupPtr);
+            "AvatarNameCache", sHttpPolicy, workGroup);
     }
     else
     {

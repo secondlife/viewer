@@ -63,6 +63,10 @@ public:
     //Delete a specific object from the pending list
     void removePendingObject( const LLUUID& objectID );
 
+    // A/B Testing: toggle between coroutine (false) and work graph (true) implementations
+    void setUseWorkGraph(bool useWorkGraph) { mUseWorkGraph = useWorkGraph; }
+    bool getUseWorkGraph() const { return mUseWorkGraph; }
+
 private:
     //Set of objects that will be used to generate a cost
     uuid_set_t mObjectList;
@@ -70,7 +74,14 @@ private:
     //a fetch has been instigated.
     uuid_set_t mPendingObjectQuota;
 
+    // A/B Testing flag: use work graph (true) or coroutine baseline (false)
+    bool mUseWorkGraph = false;
+
+    // BASELINE: Original coroutine-based implementation
     static void accountingCostCoro(std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
+
+    // NEW: Work graph-based implementation
+    static void accountingCostWorkGraph(std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
 
 };
 //===============================================================================

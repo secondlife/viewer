@@ -246,7 +246,7 @@ public:
     LLAppCoreHttp & getAppCoreHttp()            { return mAppCoreHttp; }
 
     // Get the main app work contract group for scheduling work graphs
-    LLWorkContractGroup* getMainAppGroup()        { return &mMainAppGroup; }
+    std::shared_ptr<LLWorkContractGroup> getMainAppGroup() { return mMainAppGroup; }
 
     void updateNameLookupUrl(const LLViewerRegion* regionp);
 
@@ -382,7 +382,7 @@ private:
 
     bool mIsFirstRun;
 
-    LLWorkContractGroup mMainAppGroup;
+    std::shared_ptr<LLWorkContractGroup> mMainAppGroup;
 };
 
 // Globals with external linkage. From viewer.h

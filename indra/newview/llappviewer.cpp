@@ -672,9 +672,10 @@ LLAppViewer::LLAppViewer()
     mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", false)),
     mFastTimerLogThread(NULL),
     mSettingsLocationList(NULL),
-    mIsFirstRun(false),
-    mMainAppGroup(2048, "LLAppViewer main group")
+    mIsFirstRun(false)
 {
+    mMainAppGroup = std::make_shared<LLWorkContractGroup>(2048, "LLAppViewer main group");
+
     if(NULL != sInstance)
     {
         LL_ERRS() << "Oh no! An instance of LLAppViewer already exists! LLAppViewer is sort of like a singleton." << LL_ENDL;
@@ -1271,7 +1272,7 @@ bool LLAppViewer::init()
 
     gWorkService->start();
 
-    gWorkService->addWorkContractGroup(&mMainAppGroup);
+    gWorkService->addWorkContractGroup(mMainAppGroup.get());
     gSavedSettings.setU32("DebugQualityPerformance", gSavedSettings.getU32("RenderQualityPerformance"));
 
 #if LL_WINDOWS
@@ -5409,14 +5410,14 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
     //gMainloopWork.post(work);
-    mMainAppGroup.createContract(work, LLExecutionType::MainThread).schedule();
+    mMainAppGroup->createContract(work, LLExecutionType::MainThread).schedule();
 }
 
 void LLAppViewer::postToAppWorkGroup(const LL::WorkQueue::Work& work)
 {
     // Create and immediately schedule a contract to execute work in the app work group.
     // We assume that the caller has already made sure that the work is generally thread safe.
-    mMainAppGroup.createContract(work).schedule();
+    mMainAppGroup->createContract(work).schedule();
 }
 
 void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
