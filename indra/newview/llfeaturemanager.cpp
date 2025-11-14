@@ -446,9 +446,9 @@ bool LLFeatureManager::loadGPUClass()
 
     if (gGLManager.getRawGLString().find("Radeon") != std::string::npos && checkRDNA35() && gGLManager.mDriverVersionVendorString.find("25.") != std::string::npos)
     {
-        LL_WARNS("RenderInit") << "Detected AMD RDNA3.5 GPU on a known bad driver; disabling shader profiling to prevent freezes." << LL_ENDL;
-        mSkipProfiling = true;
-        LLGLSLShader::sCanProfile = false;
+        LL_WARNS("RenderInit") << "Detected AMD RDNA3.5 GPU on a known bad driver; disabling benchmark and occlusion culling to prevent freezes." << LL_ENDL;
+        gSavedSettings.setBOOL("SkipBenchmark", true);
+        gSavedSettings.setBOOL("UseOcclusion", false);
     }
 
     if (!gSavedSettings.getBOOL("SkipBenchmark"))
