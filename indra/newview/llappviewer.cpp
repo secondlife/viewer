@@ -2383,8 +2383,24 @@ void LLAppViewer::initLoggingAndGetLastDuration()
             start_marker_file.close();
         }
 
-        // Rename current log file to ".old"
-        LLFile::rename(log_file, old_log_file);
+#if LL_DARWIN
+        if (gLastExecEvent != LAST_EXEC_NORMAL)
+        {
+            // While windows reports crashes immediately, mac reports next run and
+            // may take a while to trigger crash report so it has a special file.
+            // Remove .crash file if exists
+            std::string crash_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+                "SecondLife.crash");
+            LLFile::remove(crash_log_file);
+            // Rename current log file to ".crash"
+            LLFile::rename(log_file, crash_log_file);
+        }
+        else
+#endif
+        {
+            // Rename current log file to ".old"
+            LLFile::rename(log_file, old_log_file);
+        }
 
         // Set the log file to SecondLife.log
         LLError::logToFile(log_file);
@@ -3625,7 +3641,9 @@ void LLAppViewer::writeSystemInfo()
 #if LL_WINDOWS && !LL_BUGSPLAT
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 #else
-    //Not ideal but sufficient for good reporting.
+    // Far from ideal, especially when multiple instances get involved.
+    // Note that attachmentsForBugSplat expects .old extendion.
+    // Todo: improve.
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");  //LLError::logFileName();
 #endif
 

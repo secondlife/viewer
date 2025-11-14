@@ -28,9 +28,11 @@
 #if defined(LL_BUGSPLAT)
 #include <boost/filesystem.hpp>
 #include <vector>
-@import BugsplatMac;
+@import CrashReporter;
+@import HockeySDK;
+@import BugSplatMac;
 // derived from BugsplatMac's BugsplatTester/AppDelegate.m
-@interface LLAppDelegate () <BugsplatStartupManagerDelegate>
+@interface LLAppDelegate () <BugSplatDelegate>
 @end
 #endif
 #include "llwindowmacosx-objc.h"
@@ -68,13 +70,22 @@
 
 #if defined(LL_BUGSPLAT)
     infos("bugsplat setup");
-    // Engage BugsplatStartupManager *before* calling initViewer() to handle
+    // Engage BugSplat *before* calling initViewer() to handle
     // any crashes during initialization.
     // https://www.bugsplat.com/docs/platforms/os-x#initialization
-    [BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
-    [BugsplatStartupManager sharedManager].askUserDetails = NO;
-    [BugsplatStartupManager sharedManager].delegate = self;
-    [[BugsplatStartupManager sharedManager] start];
+
+    // Initialize BugSplat
+    [[BugSplat shared] setDelegate:self];
+    [[BugSplat shared] setAutoSubmitCrashReport:YES];
+    [[BugSplat shared] setPersistUserDetails:NO];
+    [[BugSplat shared] setAskUserDetails:NO];
+    [BugSplat shared].expirationTimeInterval = 0;
+    [[BugSplat shared] start];
+
+    // Optionally, add some attributes to your crash reports.
+    // Attributes are artibrary key/value pairs that are searchable in the BugSplat dashboard.
+    // [[BugSplat shared] setValue:@"Value of Plain Attribute" forAttribute:@"PlainAttribute"];
+
 #endif
     infos("post-bugsplat setup");
 
@@ -213,9 +224,52 @@
     return true;
 }
 
+- (void) setBugsplatValue:(nullable NSString *)value forAttribute:(NSString *)attribute
+{
+    //[[BugSplat shared] setValue:@"Value of not so plain <value> Attribute" forAttribute:@"NotSoPlainAttribute"];
+    [[BugSplat shared] setValue:value forAttribute:attribute];
+}
+
 #if defined(LL_BUGSPLAT)
 
-- (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
+- (void)bugSplatWillSendCrashReport:(BugSplat *)bugSplat
+{
+    infos("bugSplatWillSendCrashReport");
+}
+
+- (void)bugSplatWillSendCrashReportsAlways:(BugSplat *)bugSplat
+{
+    infos("bugSplatWillSendCrashReportsAlways");
+}
+
+- (void)bugSplatDidFinishSendingCrashReport:(BugSplat *)bugSplat
+{
+    infos("bugSplatDidFinishSendingCrashReport");
+
+    if(!secondLogPath.empty())
+    {
+        boost::filesystem::remove(secondLogPath);
+    }
+    clearDumpLogsDir();
+}
+
+- (void)bugSplatWillCancelSendingCrashReport:(BugSplat *)bugSplat
+{
+    infos("bugSplatWillCancelSendingCrashReport");
+}
+
+- (void)bugSplatWillShowSubmitCrashReportAlert:(BugSplat *)bugSplat
+{
+    infos("bugSplatWillShowSubmitCrashReportAlert");
+}
+
+- (void)bugSplat:(BugSplat *)bugSplat didFailWithError:(NSError *)error
+{
+    std::string error_str([[error localizedDescription] UTF8String]);
+    infos("bugSplat:didFailWithError: " + error_str);
+}
+
+- (NSString *)applicationLogForBugSplat:(BugSplat *)bugSplat;
 {
     CrashMetadata& meta(CrashMetadata_instance());
     // As of BugsplatMac 1.0.6, userName and userEmail properties are now
@@ -226,16 +280,21 @@
     // report we are about to send.
     infos("applicationLogForBugsplatStartupManager setting userName = '" +
           meta.agentFullname + '"');
-    bugsplatStartupManager.userName =
+    bugSplat.userName =
         [NSString stringWithCString:meta.agentFullname.c_str()
                            encoding:NSUTF8StringEncoding];
     // Use the email field for OS version, just as we do on Windows, until
     // BugSplat provides more metadata fields.
     infos("applicationLogForBugsplatStartupManager setting userEmail = '" +
           meta.OSInfo + '"');
-    bugsplatStartupManager.userEmail =
+    bugSplat.userEmail =
         [NSString stringWithCString:meta.OSInfo.c_str()
                            encoding:NSUTF8StringEncoding];
+
+    //bugSplat.userID =
+    //    [NSString stringWithCString:meta.regionName.c_str()
+    //                       encoding:NSUTF8StringEncoding];
+
     // This strangely-named override method's return value contributes the
     // User Description metadata field.
     infos("applicationLogForBugsplatStartupManager -> '" + meta.fatalMessage + "'");
@@ -243,7 +302,8 @@
                               encoding:NSUTF8StringEncoding];
 }
 
-- (NSString *)applicationKeyForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager signal:(NSString *)signal exceptionName:(NSString *)exceptionName exceptionReason:(NSString *)exceptionReason {
+- (NSString *)applicationKeyForBugSplat:(BugSplat *)bugSplat signal:(NSString *)signal exceptionName:(NSString *)exceptionName exceptionReason:(NSString *)exceptionReason
+{
     // TODO: exceptionName, exceptionReason
 
     // Windows sends location within region as well, but that's because
@@ -258,27 +318,6 @@
                               encoding:NSUTF8StringEncoding];
 }
 
-- (NSString *)defaultUserNameForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
-    std::string agentFullname(CrashMetadata_instance().agentFullname);
-    infos("defaultUserNameForBugsplatStartupManager -> '" + agentFullname + "'");
-    return [NSString stringWithCString:agentFullname.c_str()
-                              encoding:NSUTF8StringEncoding];
-}
-
-- (NSString *)defaultUserEmailForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
-    // Use the email field for OS version, just as we do on Windows, until
-    // BugSplat provides more metadata fields.
-    std::string OSInfo(CrashMetadata_instance().OSInfo);
-    infos("defaultUserEmailForBugsplatStartupManager -> '" + OSInfo + "'");
-    return [NSString stringWithCString:OSInfo.c_str()
-                              encoding:NSUTF8StringEncoding];
-}
-
-- (void)bugsplatStartupManagerWillSendCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
-{
-    infos("bugsplatStartupManagerWillSendCrashReport");
-}
-
 struct AttachmentInfo
 {
     AttachmentInfo(const std::string& path, const std::string& type):
@@ -290,7 +329,7 @@ struct AttachmentInfo
     std::string pathname, basename, mimetype;
 };
 
-- (NSArray<BugsplatAttachment *> *)attachmentsForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
+- (NSArray<BugSplatAttachment *> *)attachmentsForBugSplat:(BugSplat *)bugSplat
 {
     const CrashMetadata& metadata(CrashMetadata_instance());
 
@@ -311,12 +350,20 @@ struct AttachmentInfo
         info.push_back(AttachmentInfo(secondLogPath,  "text/xml"));
     }
 
-    // We "happen to know" that info[0].basename is "SecondLife.old" -- due to
-    // the fact that BugsplatMac only notices a crash during the viewer run
-    // following the crash.
+    // Reporting is hardcoded to SecondLife.crash
+    // BugsplatMac only notices a crash during the viewer run
+    // following the crash, sometimes even later, so viewer
+    // attempts to preserve log file by saving it as a .crash
+    // based on state of marker files.
+    if (info[0].pathname.size() >= 4
+        && info[0].pathname.compare(info[0].pathname.size() - 4, 4, ".old") == 0)
+    {
+        info[0].pathname.replace(info[0].pathname.size() - 4, 4, ".crash");
+    }
+
     // The Bugsplat service doesn't respect the MIME type above when returning
     // the log data to a browser, so take this opportunity to rename the file
-    // from <base>.old to <base>_log.txt
+    // from <base>.crash to <base>_log.txt
     info[0].basename =
         boost::filesystem::path(info[0].pathname).stem().string() + "_log.txt";
     infos("attachmentsForBugsplatStartupManager attaching log " + info[0].basename);
@@ -334,8 +381,8 @@ struct AttachmentInfo
                                                   encoding:NSUTF8StringEncoding];
         NSData *nsdata = [NSData dataWithContentsOfFile:nspathname];
 
-        BugsplatAttachment *attachment =
-            [[BugsplatAttachment alloc] initWithFilename:nsbasename
+        BugSplatAttachment *attachment =
+            [[BugSplatAttachment alloc] initWithFilename:nsbasename
                                           attachmentData:nsdata
                                              contentType:nsmimetype];
 
@@ -344,23 +391,6 @@ struct AttachmentInfo
     }
 
     return attachments;
-}
-
-- (void)bugsplatStartupManagerDidFinishSendingCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
-{
-    infos("Sent crash report to BugSplat");
-
-    if(!secondLogPath.empty())
-    {
-        boost::filesystem::remove(secondLogPath);
-    }
-    clearDumpLogsDir();
-}
-
-- (void)bugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager didFailWithError:(NSError *)error
-{
-    // TODO: message string from NSError
-    infos("Could not send crash report to BugSplat");
 }
 
 #endif // LL_BUGSPLAT
