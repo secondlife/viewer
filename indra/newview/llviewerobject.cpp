@@ -312,7 +312,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
     mLastUpdateCached(false),
     mCachedMuteListUpdateTime(0),
     mCachedOwnerInMuteList(false),
-    mRiggedAttachedWarned(false)
+    mRiggedAttachedWarned(false),
+    mUsePBR(false)
 {
     if (!is_global)
     {
@@ -6971,6 +6972,10 @@ void LLViewerObject::recursiveMarkForUpdate()
 
 void LLViewerObject::markForUpdate()
 {
+    if (!isReflectionProbe())
+    {
+        getRootEdit()->mUsePBR = false; // This will be reevaluated. HB
+    }
     if (mDrawable.notNull())
     {
         gPipeline.markTextured(mDrawable);
@@ -7524,7 +7529,12 @@ const LLUUID& LLViewerObject::getRenderMaterialID(U8 te) const
 void LLViewerObject::rebuildMaterial()
 {
     llassert(!isDead());
-
+    // Note: do not reset mUsePBR on reflection probes (would cause probe
+    // rebuild every few seconds). HB
+    if (!isReflectionProbe())
+    {
+        getRootEdit()->mUsePBR = false; // This will be reevaluated. HB
+    }
     faceMappingChanged();
     gPipeline.markTextured(mDrawable);
 }
