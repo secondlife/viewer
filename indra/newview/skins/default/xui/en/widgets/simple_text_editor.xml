@@ -15,7 +15,7 @@
   default_color="TextDefaultColor"
   text_color="TextFgColor"
   text_readonly_color="TextFgReadOnlyColor"
-  text_selected_color="White" 
+  text_selected_color="Black" 
   h_pad="6" 
   v_pad="4"
   bg_visible="true"

@@ -1904,7 +1904,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         if (mColorSwatch)
         {
             mColorSwatch->setEnabled( false );
-            mColorSwatch->setFallbackImage(LLUI::getUIImage("locked_image.j2c") );
+            mColorSwatch->setFallbackImage(LLUI::getUIImage("locked_image") );
             mColorSwatch->setValid(false);
         }
 
