@@ -424,6 +424,8 @@ public:
 
     std::string getSimHostName();
 
+    bool isRegionWebRTCEnabled();
+
     static bool isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
     // rebuild reflection probe list

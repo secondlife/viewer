@@ -57,6 +57,8 @@
 #include "llsdserialize.h"
 #include "llviewermenu.h" // is_agent_mappable
 #include "llviewerobjectlist.h"
+#include "llvoavatar.h"
+#include "llnearbyvoicemoderation.h"
 
 
 const S32 EVENTS_PER_IDLE_LOOP_CURRENT_SESSION = 80;
@@ -90,6 +92,7 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 
     mAutoResize = false;
     LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
+    LLNearbyVoiceModeration::getInstance();
 }
 
 LLFloaterIMContainer::~LLFloaterIMContainer()
@@ -530,6 +533,23 @@ void LLFloaterIMContainer::idleUpdate()
                 mGeneralTitleInUse = !needs_override;
                 setTitle(needs_override ? conversation_floaterp->getTitle() : mGeneralTitle);
             }
+        const LLConversationItem* nearby_session = getSessionModel(LLUUID());
+        if (nearby_session)
+        {
+            LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = nearby_session->getChildrenBegin();
+            LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = nearby_session->getChildrenEnd();
+            while (current_participant_model != end_participant_model)
+            {
+                LLConversationItemParticipant* participant_model =
+                        dynamic_cast<LLConversationItemParticipant*>((*current_participant_model).get());
+                if (participant_model)
+                {
+                    participant_model->setModeratorOptionsVisible(LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator());
+                }
+
+                current_participant_model++;
+            }
+        }
         }
 
         mParticipantRefreshTimer.setTimerExpirySec(1.0f);
@@ -1685,6 +1705,10 @@ bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
     {
         return isMuted(conversation_item->getUUID());
     }
+    else if ("can_allow_text_chat" == item)
+    {
+        return !isNearbyChatSpeakerSelected();
+    }
 
     return true;
 }
@@ -2014,9 +2038,27 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 
 bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& userdata, bool is_self)
 {
-    // only group moderators can perform actions related to this "enable callback"
-    if (!isGroupModerator())
+    if (LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator() && isNearbyChatSpeakerSelected())
     {
+        // Determine here which actions are allowed
+        if ("can_moderate_voice" == userdata)
+        {
+            return true;
+        }
+        else if (("can_mute" == userdata))
+        {
+            return !is_self;
+        }
+        else if ("can_unmute" == userdata)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    else if (!isGroupModerator())
+    {
+        // only group moderators can perform actions related to this "enable callback"
         return false;
     }
 
@@ -2149,7 +2191,35 @@ void LLFloaterIMContainer::banSelectedMember(const LLUUID& participant_uuid)
 
 void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUID& userID)
 {
-    if (!gAgent.getRegion()) return;
+    if (!gAgent.getRegion())
+    {
+        return;
+    }
+
+    if (isNearbyChatSpeakerSelected())
+    {
+        if ("selected" == command)
+        {
+            // Request a mute/unmute using a capability request via the simulator
+            LLNearbyVoiceModeration::getInstance()->requestMuteIndividual(userID, !isMuted(userID));
+        }
+        else
+        if ("mute_all" == command)
+        {
+            // Send the mute_all request to the server
+            const bool mute_state = true;
+            LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
+        }
+        else
+        if ("unmute_all" == command)
+        {
+            // Send the unmute_all request to the server
+            const bool mute_state = false;
+            LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
+        }
+
+        return;
+    }
 
     if (command.compare("selected"))
     {
@@ -2265,6 +2335,31 @@ LLSpeaker * LLFloaterIMContainer::getSpeakerOfSelectedParticipant(LLSpeakerMgr *
     }
 
     return speaker_managerp->findSpeaker(participant_itemp->getUUID());
+}
+
+bool LLFloaterIMContainer::isNearbyChatSpeakerSelected()
+{
+    LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
+    if (!selectedItem)
+    {
+        LL_WARNS() << "Current selected item is null" << LL_ENDL;
+        return NULL;
+    }
+
+    conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
+    conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
+    const LLUUID * conversation_uuidp = NULL;
+    while(iter != end)
+    {
+        if (iter->second == selectedItem || iter->second == selectedItem->getParentFolder())
+        {
+            conversation_uuidp = &iter->first;
+            break;
+        }
+        ++iter;
+    }
+    // Nearby chat ID is LLUUID::null
+    return conversation_uuidp->isNull();
 }
 
 void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)
