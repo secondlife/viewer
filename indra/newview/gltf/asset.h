@@ -320,6 +320,8 @@ namespace LL
             void clearData(Asset& asset);
 
             bool prep(Asset& asset, bool loadIntoVRAM);
+        private:
+            bool prepImpl(Asset& asset, const LLUUID& id);
         };
 
         // Render Batch -- vertex buffer and list of primitives to render using
