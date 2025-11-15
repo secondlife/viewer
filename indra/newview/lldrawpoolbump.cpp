@@ -55,8 +55,6 @@
 
 // static
 LLStandardBumpmap gStandardBumpmapList[TEM_BUMPMAP_COUNT];
-LL::WorkQueue::weak_t LLBumpImageList::sMainQueue;
-LL::WorkQueue::weak_t LLBumpImageList::sTexUpdateQueue;
 LLRenderTarget LLBumpImageList::sRenderTarget;
 
 // static
@@ -629,8 +627,6 @@ void LLBumpImageList::init()
     llassert( mDarknessEntries.size() == 0 );
 
     LLStandardBumpmap::restoreGL();
-    sMainQueue = LL::WorkQueue::getInstance("mainloop");
-    sTexUpdateQueue = LL::WorkQueue::getInstance("LLImageGL"); // Share work queue with tex loader.
 }
 
 void LLBumpImageList::clear()

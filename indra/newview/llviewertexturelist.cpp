@@ -1111,7 +1111,6 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
         imagep->postCreateTexture();
         imagep->mCreatePending = false;
-        mCreateTextureList.pop();
 
         if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel() &&
            (imagep->getDesiredDiscardLevel() <= MAX_DISCARD_LEVEL))
@@ -1122,6 +1121,8 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
             LL_WARNS_ONCE("Texture") << "Texture will be downscaled immediately after loading." << LL_ENDL;
             imagep->scaleDown();
         }
+
+        mCreateTextureList.pop();
 
         if (create_timer.getElapsedTimeF32() > max_time)
         {
