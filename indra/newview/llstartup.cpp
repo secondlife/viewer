@@ -35,6 +35,7 @@
 #   include <sys/stat.h>        // mkdir()
 #endif
 #include <memory>                   // std::unique_ptr
+#include <algorithm>
 
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
@@ -78,6 +79,11 @@
 #include "llstring.h"
 #include "lluserrelations.h"
 #include "llversioninfo.h"
+#include "llframetimer.h"
+#include "llviewerregion.h"
+
+#include <boost/bind.hpp>
+
 #include "llviewercontrol.h"
 #include "llviewerhelp.h"
 #include "llxorcipher.h"    // saved password, MAC address
@@ -186,7 +192,9 @@
 #include "llagentlanguage.h"
 #include "llwearable.h"
 #include "llinventorybridge.h"
+#include "llfoldertype.h"
 #include "llappearancemgr.h"
+#include "llasyncinventoryskeletonloader.h"
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
 #include "llpathfindingmanager.h"
@@ -205,7 +213,6 @@
 
 #include "threadpool.h"
 #include "llperfstats.h"
-
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -1861,30 +1868,173 @@ bool idle_startup()
     {
         LL_PROFILE_ZONE_NAMED("State inventory load skeleton")
 
-        LLSD response = LLLoginInstance::getInstance()->getResponse();
+        // Cache frequently accessed values to reduce function call overhead
+        LLLoginInstance* login_instance = LLLoginInstance::getInstance();
+        const LLSD& response = login_instance->getResponse();
 
-        LLSD inv_skel_lib = response["inventory-skel-lib"];
-        if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
+        const LLSD& inv_skel_lib = response["inventory-skel-lib"];
+        const LLSD& inv_skeleton = response["inventory-skeleton"];
+
+        const bool supports_async = login_instance->supportsAsyncInventorySkeleton();
+        const bool force_async = login_instance->forceAsyncInventorySkeleton();
+        const bool legacy_payload_available = inv_skeleton.isDefined() && !force_async;
+        const bool use_async_path = supports_async && !legacy_payload_available;
+
+        // Cache UUIDs to avoid repeated function calls
+        const LLUUID library_owner_id = gInventory.getLibraryOwnerID();
+        const LLUUID agent_id = gAgent.getID();
+
+        if (!use_async_path)
         {
-            LL_PROFILE_ZONE_NAMED("load library inv")
-            if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
+            gInventory.setAsyncInventoryLoading(false);
+            LL_INFOS("AppInit") << "Using legacy inventory skeleton payload" << LL_ENDL;
+            if (gAsyncInventorySkeletonLoader.isRunning())
             {
-                LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+                gAsyncInventorySkeletonLoader.reset();
             }
+            gAsyncAgentCacheHydrated = false;
+            gAsyncLibraryCacheHydrated = false;
+            gAsyncParentChildMapPrimed = false;
+
+            if (inv_skel_lib.isDefined() && library_owner_id.notNull())
+            {
+                LL_PROFILE_ZONE_NAMED("load library inv")
+                if (!gInventory.loadSkeleton(inv_skel_lib, library_owner_id))
+                {
+                    LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+                }
+            }
+            // Removed do_startup_frame() -- not needed here, happens after both loads
+
+            if (inv_skeleton.isDefined())
+            {
+                LL_PROFILE_ZONE_NAMED("load personal inv")
+                if (!gInventory.loadSkeleton(inv_skeleton, agent_id))
+                {
+                    LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
+                }
+            }
+            do_startup_frame();  // Single frame update after both skeleton loads
+            LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+            return false;
+        }
+
+        if (!gInventory.isAsyncInventoryLoading())
+        {
+            gInventory.setAsyncInventoryLoading(true);
+        }
+
+        if (!gAsyncLibraryCacheHydrated && library_owner_id.notNull())
+        {
+            const bool hydrate_from_cache = !inv_skel_lib.isDefined() || force_async;
+            LLSD library_payload = force_async ? LLSD() : inv_skel_lib;
+            LL_PROFILE_ZONE_NAMED("load library inv async")
+            if (!gInventory.loadSkeleton(library_payload, library_owner_id, hydrate_from_cache))
+            {
+                LL_WARNS("AppInit") << "Problem loading library inventory skeleton in async mode" << LL_ENDL;
+            }
+            gAsyncLibraryCacheHydrated = true;
         }
         do_startup_frame();
 
-        LLSD inv_skeleton = response["inventory-skeleton"];
-        if (inv_skeleton.isDefined())
+        if (!gAsyncAgentCacheHydrated)
         {
-            LL_PROFILE_ZONE_NAMED("load personal inv")
-            if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
+            LL_PROFILE_ZONE_NAMED("hydrate personal inv cache async")
+            if (!gInventory.loadSkeleton(LLSD(), agent_id, true))
             {
-                LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
+                LL_WARNS("AppInit") << "Problem hydrating cached agent inventory skeleton" << LL_ENDL;
             }
+            gAsyncAgentCacheHydrated = true;
         }
-        do_startup_frame();
-        LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+
+        const LLUUID root_folder_id = gInventory.getRootFolderID();
+        if (!gAsyncParentChildMapPrimed && root_folder_id.notNull())
+        {
+            LL_PROFILE_ZONE_NAMED("prime async inv map")
+            // buildParentChildMap optimized from O(n log n) to O(n) with caching
+            gInventory.buildParentChildMap(false);
+            gAsyncParentChildMapPrimed = true;
+            LL_DEBUGS("AppInit") << "Async inventory skeleton primed parent/child map. usable="
+                                 << (gInventory.isInventoryUsable() ? "true" : "false") << LL_ENDL;
+        }
+
+        if (!gAsyncInventorySkeletonLoader.isRunning()
+            && !gAsyncInventorySkeletonLoader.isComplete()
+            && !gAsyncInventorySkeletonLoader.hasFailed())
+        {
+            LL_INFOS("AppInit") << "Starting async inventory skeleton load" << (force_async ? " (forced)" : "") << LL_ENDL;
+            gAsyncInventorySkeletonLoader.start(force_async);
+        }
+
+        gAsyncInventorySkeletonLoader.update();
+
+        if (gAsyncInventorySkeletonLoader.hasFailed())
+        {
+            std::string failure_reason = gAsyncInventorySkeletonLoader.failureReason();
+            LL_WARNS("AppInit") << "Async inventory skeleton failed: " << failure_reason << LL_ENDL;
+            login_instance->recordAsyncInventoryFailure();
+
+            // Invalidate the cache to prevent corrupt data from being loaded on next login
+            const LLUUID& agent_id = gAgent.getID();
+            if (agent_id.notNull())
+            {
+                std::string cache_filename = LLInventoryModel::getInvCacheAddres(agent_id);
+                cache_filename.append(".gz");
+                if (LLFile::isfile(cache_filename))
+                {
+                    LL_WARNS("AppInit") << "Removing potentially corrupt inventory cache: " << cache_filename << LL_ENDL;
+                    LLFile::remove(cache_filename);
+                }
+            }
+
+            LLSD args;
+            std::string localized_message = LLTrans::getString("AsyncInventorySkeletonFailure");
+            if (!failure_reason.empty())
+            {
+                localized_message.append("\n\n").append(failure_reason);
+            }
+            args["ERROR_MESSAGE"] = localized_message;
+            LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
+
+            gAsyncInventorySkeletonLoader.reset();
+            gAsyncAgentCacheHydrated = false;
+            gAsyncLibraryCacheHydrated = false;
+            gAsyncParentChildMapPrimed = false;
+            gInventory.cleanupInventory();
+            gInventory.setAsyncInventoryLoading(false);
+
+            show_connect_box = true;
+            transition_back_to_login_panel(localized_message);
+            return false;
+        }
+
+        if (gAsyncInventorySkeletonLoader.isEssentialReady())
+        {
+            LL_INFOS("AppInit") << "Async inventory skeleton essentials ready after "
+                                 << gAsyncInventorySkeletonLoader.elapsedSeconds() << " seconds" << LL_ENDL;
+            login_instance->recordAsyncInventorySuccess();
+            gAsyncAgentCacheHydrated = false;
+            gAsyncLibraryCacheHydrated = false;
+            gAsyncParentChildMapPrimed = false;
+            LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+            do_startup_frame();
+            return false;
+        }
+
+        if (gAsyncInventorySkeletonLoader.isComplete())
+        {
+            LL_INFOS("AppInit") << "Async inventory skeleton ready after "
+                                 << gAsyncInventorySkeletonLoader.elapsedSeconds() << " seconds" << LL_ENDL;
+            login_instance->recordAsyncInventorySuccess();
+            gAsyncInventorySkeletonLoader.reset();
+            gAsyncAgentCacheHydrated = false;
+            gAsyncLibraryCacheHydrated = false;
+            gAsyncParentChildMapPrimed = false;
+            LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+            do_startup_frame();
+            return false;
+        }
+
         do_startup_frame();
         return false;
     }
@@ -1988,12 +2138,18 @@ bool idle_startup()
         // gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
         gInventory.buildParentChildMap();
 
+        const bool inventory_usable = gInventory.isInventoryUsable();
+        if (inventory_usable && gInventory.isAsyncInventoryLoading())
+        {
+            gInventory.setAsyncInventoryLoading(false);
+        }
+
         // If buildParentChildMap succeeded, inventory will now be in
         // a usable state and gInventory.isInventoryUsable() will be
         // true.
 
         // if inventory is unusable, show warning.
-        if (!gInventory.isInventoryUsable())
+        if (!inventory_usable)
         {
             LLNotificationsUtil::add("InventoryUnusable");
         }
@@ -3970,4 +4126,3 @@ void transition_back_to_login_panel(const std::string& emsg)
     reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
     gSavedSettings.setBOOL("AutoLogin", false);
 }
-

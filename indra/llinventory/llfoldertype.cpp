@@ -196,6 +196,24 @@ bool LLFolderType::lookupIsEnsembleType(EType folder_type)
 }
 
 // static
+bool LLFolderType::lookupIsEssentialType(EType folder_type)
+{
+    if (folder_type == FT_NONE)
+    {
+        return false;
+    }
+
+    if (folder_type == FT_ROOT_INVENTORY)
+    {
+        return true;
+    }
+
+    // Essential folders are those needed for basic viewer operation:
+    // singleton system folders and ensemble (outfit) folders
+    return lookupIsSingletonType(folder_type) || lookupIsEnsembleType(folder_type);
+}
+
+// static
 LLAssetType::EType LLFolderType::folderTypeToAssetType(LLFolderType::EType folder_type)
 {
     if (LLAssetType::lookup(LLAssetType::EType(folder_type)) == LLAssetType::BADLOOKUP)

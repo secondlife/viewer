@@ -3258,6 +3258,72 @@
       <key>Value</key>
       <integer>255</integer>
     </map>
+    <key>ForceAsyncInventorySkeleton</key>
+    <map>
+      <key>Comment</key>
+      <string>Force viewer to skip legacy login inventory skeleton and rely on async AIS fetching.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>AsyncInventoryMaxConcurrentFetches</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of concurrent AIS fetches used during async inventory skeleton loading.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>AsyncInventoryNotifyMinInterval</key>
+    <map>
+      <key>Comment</key>
+      <string>Minimum seconds between inventory observer notifications while async inventory loading is active.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.05</real>
+    </map>
+    <key>AsyncInventoryCapsTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum seconds to wait for inventory capabilities during async skeleton loading.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>45.0</real>
+    </map>
+    <key>AsyncInventoryFetchTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum seconds for the entire async inventory skeleton fetch process.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>180.0</real>
+    </map>
+    <key>AsyncInventoryEssentialTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum seconds to wait for essential inventory folders during async loading.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>90.0</real>
+    </map>
     <key>ForceLoginURL</key>
     <map>
       <key>Comment</key>
