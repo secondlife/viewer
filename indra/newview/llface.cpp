@@ -1067,6 +1067,61 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
     return true;
 }
 
+// Overload that returns the necessary texture transform using provided transform parameters
+bool LLFace::calcAlignedPlanarTE(const LLFace* align_to, LLVector2* res_st_offset,
+                                 LLVector2* res_st_scale, F32* res_st_rot,
+                                 F32 map_rot, F32 map_scaleS, F32 map_scaleT,
+                                 F32 map_offsS, F32 map_offsT) const
+{
+    if (!align_to)
+    {
+        return false;
+    }
+    const LLTextureEntry* tep = getTextureEntry();
+    if (!tep)
+    {
+        return false;
+    }
+    const LLTextureEntry* orig_tep = align_to->getTextureEntry();
+    if (!orig_tep)
+    {
+        return false;
+    }
+    if ((orig_tep->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR) ||
+        (tep->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR))
+    {
+        return false;
+    }
+
+    LLVector3 orig_pos, this_pos;
+    LLQuaternion orig_face_rot, this_face_rot;
+    F32 orig_proj_scale, this_proj_scale;
+    align_to->getPlanarProjectedParams(&orig_face_rot, &orig_pos, &orig_proj_scale);
+    getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
+
+    // The rotation of "this face's" texture:
+    LLQuaternion orig_st_rot = LLQuaternion(map_rot, LLVector3::z_axis) * orig_face_rot;
+    LLQuaternion this_st_rot = orig_st_rot * ~this_face_rot;
+    F32 x_ang, y_ang, z_ang;
+    this_st_rot.getEulerAngles(&x_ang, &y_ang, &z_ang);
+    *res_st_rot = z_ang;
+
+    // Offset and scale of "this face's" texture:
+    LLVector3 centers_dist = (this_pos - orig_pos) * ~orig_st_rot;
+    LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
+    st_scale *= orig_proj_scale;
+    centers_dist.scaleVec(st_scale);
+    LLVector2 orig_st_offset(map_offsS, map_offsT);
+
+    *res_st_offset = orig_st_offset + (LLVector2)centers_dist;
+    res_st_offset->mV[VX] -= (S32)res_st_offset->mV[VX];
+    res_st_offset->mV[VY] -= (S32)res_st_offset->mV[VY];
+
+    st_scale /= this_proj_scale;
+    *res_st_scale = (LLVector2)st_scale;
+    return true;
+}
+
 void LLFace::updateRebuildFlags()
 {
     if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
