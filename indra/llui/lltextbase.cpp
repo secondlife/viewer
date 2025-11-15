@@ -1038,8 +1038,37 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     {
         LLStyleSP emoji_style;
         LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
+        LLTextSegment* segmentp = nullptr;
+        segment_vec_t::iterator seg_iter;
+        if (segments && segments->size() > 0)
+        {
+            seg_iter = segments->begin();
+            segmentp = *seg_iter;
+        }
         for (S32 text_kitty = 0, text_len = static_cast<S32>(wstr.size()); text_kitty < text_len; text_kitty++)
         {
+            if (segmentp)
+            {
+                if (segmentp->getEnd() <= pos + text_kitty)
+                {
+                    seg_iter++;
+                    if (seg_iter != segments->end())
+                    {
+                        segmentp = *seg_iter;
+                    }
+                    else
+                    {
+                        segmentp = nullptr;
+                    }
+                }
+                if (segmentp && !segmentp->getPermitsEmoji())
+                {
+                    // Some segments, like LLInlineViewSegment do not permit splitting
+                    // and should not be interrupted by emoji segments
+                    continue;
+                }
+            }
+
             llwchar code = wstr[text_kitty];
             bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
             if (isEmoji)
@@ -3491,6 +3520,11 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 {
     mFontHeight = mStyle->getFont()->getLineHeight();
     mCanEdit = !mStyle->getDrawHighlightBg();
+    if (!mCanEdit)
+    {
+        // Emoji shouldn't split the segment with the mention.
+        mPermitsEmoji = false;
+    }
 
     LLUIImagePtr image = mStyle->getImage();
     if (image.notNull())
@@ -4011,6 +4045,7 @@ LLInlineViewSegment::LLInlineViewSegment(const Params& p, S32 start, S32 end)
     mTopPad(p.top_pad),
     mBottomPad(p.bottom_pad)
 {
+    mPermitsEmoji = false;
 }
 
 LLInlineViewSegment::~LLInlineViewSegment()

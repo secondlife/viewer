@@ -131,7 +131,7 @@ public:
     void            setIndexInTex(U32 ch, S32 index) { llassert(ch < LLRender::NUM_TEXTURE_CHANNELS); mIndexInTex[ch] = index; }
 
     void            setWorldMatrix(const LLMatrix4& mat);
-    const LLTextureEntry* getTextureEntry() const { return mVObjp->getTE(mTEOffset); }
+    const LLTextureEntry* getTextureEntry() const { return mVObjp ? mVObjp->getTE(mTEOffset) : nullptr; }
 
     LLFacePool*     getPool()           const   { return mDrawPoolp; }
     U32             getPoolType()       const   { return mPoolType; }

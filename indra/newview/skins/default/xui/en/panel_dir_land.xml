@@ -1,0 +1,268 @@
+<panel border="true" top="30" follows="left|top|right|bottom" height="533"
+     label="Land Sales" left="1" mouse_opaque="false" name="panel_dir_land"
+     width="778">
+    <string name="searching_text">
+        Searching...
+    </string>
+    <string name="not_found_text">
+        None Found.
+    </string>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     top="8"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="5"
+     mouse_opaque="true"
+     name="find"
+     width="150">
+        Enter search terms:
+    </text>
+    <combo_box
+     allow_text_entry="false"
+     follows="top|right"
+     layout="topleft"
+     height="18"
+     top_delta="0"
+     left="525"
+     max_chars="20"
+     mouse_opaque="true"
+     name="type"
+     width="128">
+        <combo_item name="AllTypes" value="All Types" label="All Types"/>
+        <combo_item name="Auction" value="Auction" label="Auction"/>
+        <combo_item name="MainlandSales" value="Mainland Sales" label="For Sale - Mainland"/>
+        <combo_item name="EstateSales" value="Estate Sales" label="For Sale - Estate"/>
+    </combo_box>
+    <check_box
+     left_pad="5"
+     control_name="ShowPGLand"
+     follows="right|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label=""
+     mouse_opaque="true"
+     name="incpg"
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_PG_Dark"
+     tool_tip="General"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_general"
+     width="16"/>
+    <check_box
+     left_pad="4"
+     top_delta="1"
+     layout="topleft"
+     control_name="ShowMatureLand"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label=""
+     mouse_opaque="true"
+     name="incmature"
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_M_Dark"
+     tool_tip="Moderate"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_moderate"
+     width="16"/>
+    <check_box
+     left_pad="4"
+     top_delta="1"
+     layout="topleft"
+     control_name="ShowAdultLand"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="false"
+     label=""
+     mouse_opaque="true"
+     name="incadult"
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_R_Dark"
+     tool_tip="Adult"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_adult"
+     width="16"/>
+    <check_box
+     top_pad="3"
+     layout="topleft"
+     control_name="FindLandPrice"
+     follows="left|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label="Price &#8804; "
+     left="5"
+     mouse_opaque="true"
+     name="pricecheck"
+     width="60" />
+    <line_editor
+     bevel_style="in"
+     border_style="line"
+     border_thickness="1"
+     follows="left|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     left_pad="1"
+     max_length="10"
+     mouse_opaque="true"
+     name="priceedit"
+     width="50" />
+    <text
+     bg_visible="false"
+     border_visible="false"
+     follows="left|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     halign="left"
+     height="16"
+     left_pad="3"
+     mouse_opaque="true"
+     name="pricecheck_symbol"
+     width="15">
+        L$
+    </text>
+    <check_box
+     control_name="FindLandArea"
+     follows="left|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label="Area &#8805; "
+     left_pad="10"
+     mouse_opaque="true"
+     name="areacheck"
+     width="60" />
+    <line_editor
+     bevel_style="in"
+     border_style="line"
+     border_thickness="1"
+     follows="left|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     left_pad="1"
+     max_length="10"
+     mouse_opaque="true"
+     name="areaedit"
+     width="50" />
+    <text
+     bg_visible="false"
+     border_visible="false"
+     follows="left|top"
+     layout="topleft"
+     left_pad="3"
+     font="SansSerifSmall"
+     halign="left"
+     height="16"
+     mouse_opaque="true"
+     name="areacheck_symbol"
+     width="15">
+        m²
+    </text>
+    <button
+     follows="right|top"
+     layout="topleft"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Search"
+     top_delta="0"
+     left="660"
+     mouse_opaque="true"
+     name="Search"
+     width="105" />
+    <scroll_list
+     background_visible="true"
+     layout="topleft"
+     top_pad="3"
+     column_padding="0"
+     draw_border="true"
+     draw_heading="true"
+     follows="left|top|right|bottom"
+     height="450"
+     left="5"
+     mouse_opaque="true"
+     multi_select="false"
+     name="results"
+     search_column="2"
+     width="336">
+        <column label="" name="icon" width="24" />
+        <column dynamicwidth="true" label="Name" name="name" />
+        <column label="Type" name="landtype" width="50" />
+        <column label="L$ Price" name="price" width="65" />
+        <column label="Area" name="area" width="50" />
+        <column label="L$/m²" name="per_meter" width="65" />
+    </scroll_list>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     bottom_delta="-20"
+     drop_shadow_visible="true"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="4"
+     mouse_opaque="true"
+     name="result_text"
+     v_pad="0"
+     width="328" />
+    <button
+     image_overlay="Arrow_Left_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     hover_glow_amount="0.15"
+     tool_tip="Previous page"
+     follows="right|bottom"
+     height="22"
+     right="305"
+     bottom="-533"
+     name="prev_btn"
+     width="32" />
+    <button
+     image_overlay="Arrow_Right_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     tool_tip="Next page"
+     follows="right|bottom"
+     height="22"
+     layout="topleft"
+     left_pad="5"
+     name="next_btn"
+     top_delta="0"
+     width="32"/>
+</panel>

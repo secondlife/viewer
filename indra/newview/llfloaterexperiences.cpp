@@ -171,7 +171,7 @@ void LLFloaterExperiences::onOpen( const LLSD& key )
             refreshContents();
             return;
         }
-        region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterExperiences::refreshContents, this));
+        mCapsReceivedConnection = region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterExperiences::refreshContents, this));
         return;
     }
 }
@@ -231,6 +231,7 @@ bool LLFloaterExperiences::updatePermissions( const LLSD& permission )
 
 void LLFloaterExperiences::onClose( bool app_quitting )
 {
+    mCapsReceivedConnection.disconnect();
     LLEventPumps::instance().obtain("experience_permission").stopListening("LLFloaterExperiences");
     LLFloater::onClose(app_quitting);
 }
