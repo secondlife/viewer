@@ -1059,7 +1059,7 @@ void LLShaderMgr::clearShaderCache()
     LL_INFOS("ShaderMgr") << "Removing shader cache at " << shader_cache << LL_ENDL;
     const std::string mask = "*";
     gDirUtilp->deleteFilesInDir(shader_cache, mask);
-    LLFile::rmdir(shader_cache);
+    LLFile::remove(shader_cache);
     mShaderBinaryCache.clear();
 }
 
@@ -1131,11 +1131,11 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
         {
             std::vector<U8> in_data;
             in_data.resize(shader_info.mBinaryLength);
-
-            LLUniqueFile filep = LLFile::fopen(in_path, "rb");
+            std::error_code ec;
+            LLFile filep = LLFile(in_path, LLFile::in | LLFile::binary, ec);
             if (filep)
             {
-                size_t result = fread(in_data.data(), sizeof(U8), in_data.size(), filep);
+                size_t result = filep.read(in_data.data(), in_data.size(), ec);
                 filep.close();
 
                 if (result == in_data.size())
@@ -1180,11 +1180,12 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
         if (error == GL_NO_ERROR)
         {
             std::string out_path = gDirUtilp->add(mShaderCacheDir, shader->mShaderHash.asString() + ".shaderbin");
-            LLUniqueFile outfile = LLFile::fopen(out_path, "wb");
-            if (outfile)
+            std::error_code ec;
+            LLFile filep = LLFile(out_path, LLFile::out | LLFile::binary, ec);
+            if (filep)
             {
-                fwrite(program_binary.data(), sizeof(U8), program_binary.size(), outfile);
-                outfile.close();
+                filep.write(program_binary.data(), program_binary.size(), ec);
+                filep.close();
 
                 binary_info.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
 

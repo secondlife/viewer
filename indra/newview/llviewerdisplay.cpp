@@ -1137,15 +1137,12 @@ std::string getProfileStatsFilename()
     // same second), may produce (e.g.) sec==61, but avoids collisions and
     // preserves chronological filename sort order.
     std::string name;
-    std::error_code ec;
     do
     {
         // base + missing 2-digit seconds, append ".json"
         // post-increment sec in case we have to try again
         name = stringize(base, std::setw(2), std::setfill('0'), sec++, ".json");
-    } while (std::filesystem::exists(fsyspath(name), ec));
-    // Ignoring ec means we might potentially return a name that does already
-    // exist -- but if we can't check its existence, what more can we do?
+    } while (LLFile::exists(fsyspath(name)));
     return name;
 }
 

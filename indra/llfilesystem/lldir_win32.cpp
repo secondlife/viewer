@@ -376,18 +376,7 @@ std::string LLDir_Win32::getCurPath()
 
 bool LLDir_Win32::fileExists(const std::string &filename) const
 {
-    llstat stat_data;
-    // Check the age of the file
-    // Now, we see if the files we've gathered are recent...
-    int res = LLFile::stat(filename, &stat_data);
-    if (!res)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return LLFile::exists(filename);
 }
 
 

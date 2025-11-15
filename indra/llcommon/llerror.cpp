@@ -435,13 +435,9 @@ namespace
 
         std::string file = user_dir + "/logcontrol-dev.xml";
 
-        llstat stat_info;
-        if (LLFile::stat(file, &stat_info)) {
-            // NB: stat returns non-zero if it can't read the file, for example
-            // if it doesn't exist.  LLFile has no better abstraction for
-            // testing for file existence.
-
-            file = app_dir + "/logcontrol.xml";
+        if (!LLFile::isfile(file))
+        {
+             file = app_dir + "/logcontrol.xml";
         }
         return * new LogControlFile(file);
             // NB: This instance is never freed

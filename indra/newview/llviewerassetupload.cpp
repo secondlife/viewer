@@ -482,7 +482,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         }
         else
         {
-            S32 size = LLAPRFile::size(getFileName());
+            S32 size = (S32)LLFile::size(getFileName());
             U8* buffer = new(std::nothrow) U8[size];
             if (!buffer)
             {

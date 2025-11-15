@@ -1742,12 +1742,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         user_data_path_cache += gDirUtilp->getDirDelimiter();
 
         // See if the plugin executable exists
-        llstat s;
-        if(LLFile::stat(launcher_name, &s))
+        if (!LLFile::isfile(launcher_name))
         {
             LL_WARNS_ONCE("Media") << "Couldn't find launcher at " << launcher_name << LL_ENDL;
         }
-        else if(LLFile::stat(plugin_name, &s))
+        else if (!LLFile::isfile(plugin_name))
         {
 #if !LL_LINUX
             LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;

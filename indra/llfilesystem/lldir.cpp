@@ -101,29 +101,19 @@ LLDir::~LLDir()
 std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
 {
     //Returns a vector of fullpath filenames.
-
-#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
-    boost::filesystem::path p(ll_convert<std::wstring>(dirname));
-#else
-    boost::filesystem::path p(dirname);
-#endif
-
+    std::filesystem::path p = LLFile::utf8StringToPath(dirname);
     std::vector<std::string> v;
-
-    boost::system::error_code ec;
-    if (exists(p, ec) && !ec.failed())
+    std::error_code ec;
+    if (std::filesystem::is_directory(p, ec) && !ec)
     {
-        if (is_directory(p, ec) && !ec.failed())
+        std::filesystem::directory_iterator end_iter;
+        for (std::filesystem::directory_iterator dir_itr(p);
+             dir_itr != end_iter;
+             ++dir_itr)
         {
-            boost::filesystem::directory_iterator end_iter;
-            for (boost::filesystem::directory_iterator dir_itr(p);
-                 dir_itr != end_iter;
-                 ++dir_itr)
+            if (std::filesystem::is_regular_file(dir_itr->status()))
             {
-                if (boost::filesystem::is_regular_file(dir_itr->status()))
-                {
-                    v.push_back(dir_itr->path().filename().string());
-                }
+                v.push_back(dir_itr->path().string());
             }
         }
     }
@@ -193,28 +183,23 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
     //Removes the directory and its contents.  Returns number of files deleted.
 
     U32 num_deleted = 0;
+    std::filesystem::path dir_path    = LLFile::utf8StringToPath(dir_name);
 
     try
     {
-#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
-        boost::filesystem::path dir_path(ll_convert<std::wstring>(dir_name));
-#else
-        boost::filesystem::path dir_path(dir_name);
-#endif
-
-       if (boost::filesystem::exists(dir_path))
+       if (std::filesystem::is_directory(dir_path))
        {
-          if (!boost::filesystem::is_empty(dir_path))
+          if (!std::filesystem::is_empty(dir_path))
           {   // Directory has content
-             num_deleted = (U32)boost::filesystem::remove_all(dir_path);
+             num_deleted = (U32)std::filesystem::remove_all(dir_path);
           }
           else
           {   // Directory is empty
-             boost::filesystem::remove(dir_path);
+             std::filesystem::remove(dir_path);
           }
        }
     }
-    catch (boost::filesystem::filesystem_error &er)
+    catch (std::filesystem::filesystem_error &er)
     {
         LL_WARNS() << "Failed to delete " << dir_name << " with error " << er.code().message() << LL_ENDL;
     }
@@ -1112,15 +1097,15 @@ void dir_exists_or_crash(const std::string &dir_name)
 #if LL_WINDOWS
     // *FIX: lame - it doesn't do the same thing on windows. not so
     // important since we don't deploy simulator to windows boxes.
-    LLFile::mkdir(dir_name, 0700);
+    LLFile::mkdir(dir_name);
 #else
-    struct stat dir_stat;
+    llstat dir_stat;
     if(0 != LLFile::stat(dir_name, &dir_stat))
     {
         S32 stat_rv = errno;
         if(ENOENT == stat_rv)
         {
-           if(0 != LLFile::mkdir(dir_name, 0700))       // octal
+           if(0 != LLFile::mkdir(dir_name))
            {
                LL_ERRS() << "Unable to create directory: " << dir_name << LL_ENDL;
            }
