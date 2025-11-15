@@ -852,6 +852,8 @@ public:
     // Convenience methods for simpler API
     GraphResult postRaw(const std::string& url, const LLSD& body);
     GraphResult getRaw(const std::string& url);
+    GraphResult putRaw(const std::string& url, const LLSD& body);
+    GraphResult deleteRaw(const std::string& url);
 
     // Static utility method - extract HTTP status from LLSD result
     static LLCore::HttpStatus getStatusFromLLSD(const LLSD& httpResults);

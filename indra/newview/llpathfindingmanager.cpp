@@ -38,6 +38,7 @@
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
 #include "llpathfindingcharacterlist.h"
@@ -54,6 +55,7 @@
 #include "llviewerregion.h"
 #include "llweb.h"
 #include "llcorehttputil.h"
+#include "llworkgraphmanager.h"
 #include "llworld.h"
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH        "RetrieveNavMeshSrc"
@@ -223,8 +225,15 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion, b
         navMeshPtr->handleNavMeshCheckVersion();
 
         U64 regionHandle = pRegion->getHandle();
-        std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navMeshStatusRequestCoro",
-            boost::bind(&LLPathfindingManager::navMeshStatusRequestCoro, this, navMeshStatusURL, regionHandle, pIsGetStatusOnly));
+        if (mUseWorkGraph)
+        {
+            navMeshStatusRequestWorkGraph(navMeshStatusURL, regionHandle, pIsGetStatusOnly);
+        }
+        else
+        {
+            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navMeshStatusRequestCoro",
+                boost::bind(&LLPathfindingManager::navMeshStatusRequestCoro, this, navMeshStatusURL, regionHandle, pIsGetStatusOnly));
+        }
     }
 }
 
@@ -257,13 +266,24 @@ void LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, object_re
             bool doRequestTerrain = isAllowViewTerrainProperties();
             LinksetsResponder::ptr_t linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, true, doRequestTerrain));
 
-            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetObjectsCoro",
-                boost::bind(&LLPathfindingManager::linksetObjectsCoro, this, objectLinksetsURL, linksetsResponderPtr, LLSD()));
-
-            if (doRequestTerrain)
+            if (mUseWorkGraph)
             {
-                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetTerrainCoro",
-                    boost::bind(&LLPathfindingManager::linksetTerrainCoro, this, terrainLinksetsURL, linksetsResponderPtr, LLSD()));
+                linksetObjectsWorkGraph(objectLinksetsURL, linksetsResponderPtr, LLSD());
+                if (doRequestTerrain)
+                {
+                    linksetTerrainWorkGraph(terrainLinksetsURL, linksetsResponderPtr, LLSD());
+                }
+            }
+            else
+            {
+                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetObjectsCoro",
+                    boost::bind(&LLPathfindingManager::linksetObjectsCoro, this, objectLinksetsURL, linksetsResponderPtr, LLSD()));
+
+                if (doRequestTerrain)
+                {
+                    std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetTerrainCoro",
+                        boost::bind(&LLPathfindingManager::linksetTerrainCoro, this, terrainLinksetsURL, linksetsResponderPtr, LLSD()));
+                }
             }
         }
     }
@@ -304,16 +324,31 @@ void LLPathfindingManager::requestSetLinksets(request_id_t pRequestId, const LLP
 
             LinksetsResponder::ptr_t linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, !objectPostData.isUndefined(), !terrainPostData.isUndefined()));
 
-            if (!objectPostData.isUndefined())
+            if (mUseWorkGraph)
             {
-                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetObjectsCoro",
-                    boost::bind(&LLPathfindingManager::linksetObjectsCoro, this, objectLinksetsURL, linksetsResponderPtr, objectPostData));
-            }
+                if (!objectPostData.isUndefined())
+                {
+                    linksetObjectsWorkGraph(objectLinksetsURL, linksetsResponderPtr, objectPostData);
+                }
 
-            if (!terrainPostData.isUndefined())
+                if (!terrainPostData.isUndefined())
+                {
+                    linksetTerrainWorkGraph(terrainLinksetsURL, linksetsResponderPtr, terrainPostData);
+                }
+            }
+            else
             {
-                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetTerrainCoro",
-                    boost::bind(&LLPathfindingManager::linksetTerrainCoro, this, terrainLinksetsURL, linksetsResponderPtr, terrainPostData));
+                if (!objectPostData.isUndefined())
+                {
+                    std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetObjectsCoro",
+                        boost::bind(&LLPathfindingManager::linksetObjectsCoro, this, objectLinksetsURL, linksetsResponderPtr, objectPostData));
+                }
+
+                if (!terrainPostData.isUndefined())
+                {
+                    std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetTerrainCoro",
+                        boost::bind(&LLPathfindingManager::linksetTerrainCoro, this, terrainLinksetsURL, linksetsResponderPtr, terrainPostData));
+                }
             }
         }
     }
@@ -345,8 +380,15 @@ void LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, object_
         {
             pCharactersCallback(pRequestId, kRequestStarted, emptyCharacterListPtr);
 
-            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::charactersCoro",
-                boost::bind(&LLPathfindingManager::charactersCoro, this, charactersURL, pRequestId, pCharactersCallback));
+            if (mUseWorkGraph)
+            {
+                charactersWorkGraph(charactersURL, pRequestId, pCharactersCallback);
+            }
+            else
+            {
+                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::charactersCoro",
+                    boost::bind(&LLPathfindingManager::charactersCoro, this, charactersURL, pRequestId, pCharactersCallback));
+            }
         }
     }
 }
@@ -379,8 +421,15 @@ void LLPathfindingManager::requestGetAgentState()
             std::string agentStateURL = getAgentStateURLForRegion(currentRegion);
             llassert(!agentStateURL.empty());
 
-            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navAgentStateRequestCoro",
-                boost::bind(&LLPathfindingManager::navAgentStateRequestCoro, this, agentStateURL));
+            if (mUseWorkGraph)
+            {
+                navAgentStateRequestWorkGraph(agentStateURL);
+            }
+            else
+            {
+                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navAgentStateRequestCoro",
+                    boost::bind(&LLPathfindingManager::navAgentStateRequestCoro, this, agentStateURL));
+            }
         }
     }
 }
@@ -402,8 +451,15 @@ void LLPathfindingManager::requestRebakeNavMesh(rebake_navmesh_callback_t pRebak
         std::string navMeshStatusURL = getNavMeshStatusURLForCurrentRegion();
         llassert(!navMeshStatusURL.empty());
 
-        std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navMeshRebakeCoro",
-                boost::bind(&LLPathfindingManager::navMeshRebakeCoro, this, navMeshStatusURL, pRebakeNavMeshCallback));
+        if (mUseWorkGraph)
+        {
+            navMeshRebakeWorkGraph(navMeshStatusURL, pRebakeNavMeshCallback);
+        }
+        else
+        {
+            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navMeshRebakeCoro",
+                    boost::bind(&LLPathfindingManager::navMeshRebakeCoro, this, navMeshStatusURL, pRebakeNavMeshCallback));
+        }
     }
 }
 
@@ -447,6 +503,7 @@ void LLPathfindingManager::handleDeferredGetCharactersForRegion(const LLUUID &pR
     }
 }
 
+// BASELINE: Original coroutine implementation
 void LLPathfindingManager::navMeshStatusRequestCoro(std::string url, U64 regionHandle, bool isGetStatusOnly)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -537,6 +594,7 @@ void LLPathfindingManager::navMeshStatusRequestCoro(std::string url, U64 regionH
 
 }
 
+// BASELINE: Original coroutine implementation
 void LLPathfindingManager::navAgentStateRequestCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -565,6 +623,7 @@ void LLPathfindingManager::navAgentStateRequestCoro(std::string url)
     handleAgentState(canRebake);
 }
 
+// BASELINE: Original coroutine implementation
 void LLPathfindingManager::navMeshRebakeCoro(std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -592,6 +651,7 @@ void LLPathfindingManager::navMeshRebakeCoro(std::string url, rebake_navmesh_cal
     rebakeNavMeshCallback(success);
 }
 
+// BASELINE: Original coroutine implementation
 // If called with putData undefined this coroutine will issue a get.  If there
 // is data in putData it will be PUT to the URL.
 void LLPathfindingManager::linksetObjectsCoro(std::string url, LinksetsResponder::ptr_t linksetsResponsderPtr, LLSD putData) const
@@ -628,6 +688,7 @@ void LLPathfindingManager::linksetObjectsCoro(std::string url, LinksetsResponder
     }
 }
 
+// BASELINE: Original coroutine implementation
 // If called with putData undefined this coroutine will issue a GET.  If there
 // is data in putData it will be PUT to the URL.
 void LLPathfindingManager::linksetTerrainCoro(std::string url, LinksetsResponder::ptr_t linksetsResponsderPtr, LLSD putData) const
@@ -665,6 +726,7 @@ void LLPathfindingManager::linksetTerrainCoro(std::string url, LinksetsResponder
 
 }
 
+// BASELINE: Original coroutine implementation
 void LLPathfindingManager::charactersCoro(std::string url, request_id_t requestId, object_request_callback_t callback) const
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -691,6 +753,365 @@ void LLPathfindingManager::charactersCoro(std::string url, request_id_t requestI
         LLPathfindingObjectListPtr characterListPtr = LLPathfindingObjectListPtr(new LLPathfindingCharacterList(result));
         callback(requestId, LLPathfindingManager::kRequestCompleted, characterListPtr);
     }
+}
+
+// NEW: Work graph implementation
+void LLPathfindingManager::navMeshStatusRequestWorkGraph(std::string url, U64 regionHandle, bool isGetStatusOnly)
+{
+    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    if (!region)
+    {
+        LL_WARNS("PathfindingManager") << "Attempting to retrieve navmesh status for region that has gone away." << LL_ENDL;
+        return;
+    }
+    LLUUID regionUUID = region->getRegionID();
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "NavMeshStatusRequest", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    auto graphResult = httpAdapter->getAndSchedule(LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest), url, LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions), LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders));
+
+    auto processNode = graphResult.graph->addNode(
+        [this, sharedResult = graphResult.result, regionHandle, regionUUID, isGetStatusOnly, url]() -> LLWorkResult {
+            LLViewerRegion *region = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            LLPathfindingNavMeshStatus navMeshStatus(regionUUID);
+            if (!status)
+            {
+                LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+                    ". Building using empty status." << LL_ENDL;
+            }
+            else
+            {
+                // If the response is a map, its fields are merged directly into result
+                // Otherwise they're under HTTP_RESULTS_CONTENT
+                const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ?
+                    result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+                navMeshStatus = LLPathfindingNavMeshStatus(regionUUID, content);
+            }
+
+            LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(regionUUID);
+
+            if (!navMeshStatus.isValid())
+            {
+                navMeshPtr->handleNavMeshError();
+                return LLWorkResult::Complete;
+            }
+            else if (navMeshPtr->hasNavMeshVersion(navMeshStatus))
+            {
+                navMeshPtr->handleRefresh(navMeshStatus);
+                return LLWorkResult::Complete;
+            }
+            else if (isGetStatusOnly)
+            {
+                navMeshPtr->handleNavMeshNewVersion(navMeshStatus);
+                return LLWorkResult::Complete;
+            }
+
+            if ((!region) || !region->isAlive())
+            {
+                LL_WARNS("PathfindingManager") << "About to update navmesh status for region that has gone away." << LL_ENDL;
+                navMeshPtr->handleNavMeshNotEnabled();
+                return LLWorkResult::Complete;
+            }
+
+            std::string navMeshURL = getRetrieveNavMeshURLForRegion(region);
+
+            if (navMeshURL.empty())
+            {
+                navMeshPtr->handleNavMeshNotEnabled();
+                return LLWorkResult::Complete;
+            }
+
+            navMeshPtr->handleNavMeshStart(navMeshStatus);
+            U32 navMeshVersion = navMeshStatus.getVersion();
+
+            // Start second HTTP request for navmesh data
+            LLCore::HttpRequest::policy_t httpPolicy2(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+            auto httpAdapter2 = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+                "NavMeshRetrieve", httpPolicy2, LLAppViewer::instance()->getMainAppGroup());
+
+            LLSD postData;
+            auto graphResult2 = httpAdapter2->postRaw(navMeshURL, postData);
+
+            auto processNode2 = graphResult2.graph->addNode(
+                [this, sharedResult2 = graphResult2.result, regionUUID, navMeshVersion]() -> LLWorkResult {
+                    const LLSD& result2 = sharedResult2->result;
+                    const LLSD& httpResults2 = result2[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+                    LLCore::HttpStatus status2 = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults2);
+
+                    LLPathfindingNavMeshPtr navMeshPtr2 = getNavMeshForRegion(regionUUID);
+
+                    if (!status2)
+                    {
+                        LL_WARNS("PathfindingManager") << "HTTP status, " << status2.toTerseString() <<
+                            ". reporting error." << LL_ENDL;
+                        navMeshPtr2->handleNavMeshError(navMeshVersion);
+                    }
+                    else
+                    {
+                        const LLSD& content2 = result2[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+                        navMeshPtr2->handleNavMeshResult(content2, navMeshVersion);
+                    }
+
+                    return LLWorkResult::Complete;
+                },
+                "navmesh-retrieve-process",
+                nullptr,
+                LLExecutionType::MainThread
+            );
+
+            graphResult2.graph->addDependency(graphResult2.httpNode, processNode2);
+
+            // Register graph with manager to keep it alive while executing
+            gWorkGraphManager.addGraph(graphResult2.graph);
+
+            graphResult2.graph->execute();
+
+            return LLWorkResult::Complete;
+        },
+        "navmesh-status-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void LLPathfindingManager::navAgentStateRequestWorkGraph(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "NavAgentStateRequest", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    auto graphResult = httpAdapter->getAndSchedule(LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest), url, LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions), LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders));
+
+    auto processNode = graphResult.graph->addNode(
+        [this, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            bool canRebake = false;
+            if (!status)
+            {
+                LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+                    ". Building using empty status." << LL_ENDL;
+            }
+            else
+            {
+                const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ? result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+                llassert(content.has(AGENT_STATE_CAN_REBAKE_REGION_FIELD));
+                llassert(content.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).isBoolean());
+                canRebake = content.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).asBoolean();
+            }
+
+            handleAgentState(canRebake);
+            return LLWorkResult::Complete;
+        },
+        "agent-state-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void LLPathfindingManager::navMeshRebakeWorkGraph(std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "NavMeshRebake", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    LLSD postData = LLSD::emptyMap();
+    postData["command"] = "rebuild";
+
+    auto graphResult = httpAdapter->postRaw(url, postData);
+
+    auto processNode = graphResult.graph->addNode(
+        [rebakeNavMeshCallback, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            bool success = true;
+            if (!status)
+            {
+                LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+                    ". Rebake failed." << LL_ENDL;
+                success = false;
+            }
+
+            rebakeNavMeshCallback(success);
+            return LLWorkResult::Complete;
+        },
+        "navmesh-rebake-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+// If called with putData undefined this will issue a GET.  If there
+// is data in putData it will be PUT to the URL.
+void LLPathfindingManager::linksetObjectsWorkGraph(std::string url, LinksetsResponder::ptr_t linksetsResponsderPtr, LLSD putData) const
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "LinksetObjects", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    LLCoreHttpUtil::HttpWorkGraphAdapter::GraphResult graphResult;
+
+    if (putData.isUndefined())
+    {
+        graphResult = httpAdapter->getAndSchedule(LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest), url, LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions), LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders));
+    }
+    else
+    {
+        graphResult = httpAdapter->putRaw(url, putData);
+    }
+
+    auto processNode = graphResult.graph->addNode(
+        [linksetsResponsderPtr, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+                    ". linksetObjects failed." << LL_ENDL;
+                linksetsResponsderPtr->handleObjectLinksetsError();
+            }
+            else
+            {
+                const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ? result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+                linksetsResponsderPtr->handleObjectLinksetsResult(content);
+            }
+
+            return LLWorkResult::Complete;
+        },
+        "linkset-objects-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+// If called with putData undefined this will issue a GET.  If there
+// is data in putData it will be PUT to the URL.
+void LLPathfindingManager::linksetTerrainWorkGraph(std::string url, LinksetsResponder::ptr_t linksetsResponsderPtr, LLSD putData) const
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "LinksetTerrain", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    LLCoreHttpUtil::HttpWorkGraphAdapter::GraphResult graphResult;
+
+    if (putData.isUndefined())
+    {
+        graphResult = httpAdapter->getAndSchedule(LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest), url, LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions), LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders));
+    }
+    else
+    {
+        graphResult = httpAdapter->putRaw(url, putData);
+    }
+
+    auto processNode = graphResult.graph->addNode(
+        [linksetsResponsderPtr, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+                    ". linksetTerrain failed." << LL_ENDL;
+                linksetsResponsderPtr->handleTerrainLinksetsError();
+            }
+            else
+            {
+                const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ? result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+                linksetsResponsderPtr->handleTerrainLinksetsResult(content);
+            }
+
+            return LLWorkResult::Complete;
+        },
+        "linkset-terrain-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void LLPathfindingManager::charactersWorkGraph(std::string url, request_id_t requestId, object_request_callback_t callback) const
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "Characters", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    auto graphResult = httpAdapter->getAndSchedule(LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest), url, LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions), LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders));
+
+    auto processNode = graphResult.graph->addNode(
+        [requestId, callback, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+                    ". characters failed." << LL_ENDL;
+
+                LLPathfindingObjectListPtr characterListPtr = LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
+                callback(requestId, LLPathfindingManager::kRequestError, characterListPtr);
+            }
+            else
+            {
+                const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ? result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+                LLPathfindingObjectListPtr characterListPtr = LLPathfindingObjectListPtr(new LLPathfindingCharacterList(content));
+                callback(requestId, LLPathfindingManager::kRequestCompleted, characterListPtr);
+            }
+
+            return LLWorkResult::Complete;
+        },
+        "characters-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
 }
 
 void LLPathfindingManager::handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus)

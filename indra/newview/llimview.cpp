@@ -70,6 +70,7 @@
 #include "message.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
+#include "llworkgraphmanager.h"
 #include "lluiusage.h"
 #include "llurlregistry.h"
 
@@ -100,13 +101,25 @@ enum EMultiAgentChatSessionType
     SESSION_TYPE_COUNT
 };
 
+// A/B Testing: namespace for work graph vs coroutine implementation
+namespace LLIMView {
+    static bool sUseWorkGraphs = false;
+    void setUseWorkGraphs(bool use) { sUseWorkGraphs = use; }
+    bool getUseWorkGraph() { return sUseWorkGraphs; }
+}
 
+// BASELINE: Original coroutine function declarations
 void startConferenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
-
 void startP2PVoiceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId);
-
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType, const LLSD& voiceChannelInfo);
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp);
+
+// NEW: Work graph function declarations
+void startConferenceWorkGraph(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
+void startP2PVoiceWorkGraph(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId);
+void chatterBoxInvitationWorkGraph(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType, const LLSD& voiceChannelInfo);
+void chatterBoxHistoryWorkGraph(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp);
+
 void start_deprecated_conference_chat(const LLUUID& temp_session_id, const LLUUID& creator_id, const LLUUID& other_participant_id, const LLSD& agents_to_invite);
 
 const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-1417BF03DDB4");
@@ -424,6 +437,7 @@ void on_new_message(const LLSD& msg)
     notify_of_message(msg, false);
 }
 
+// BASELINE: Original coroutine implementation
 void startConferenceCoro(std::string url,
     LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents)
 {
@@ -475,6 +489,7 @@ void startConferenceCoro(std::string url,
     }
 }
 
+// BASELINE: Original coroutine implementation
 void startP2PVoiceCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID otherParticipantId)
 {
     LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -514,6 +529,7 @@ void startP2PVoiceCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUU
     }
 }
 
+// BASELINE: Original coroutine implementation
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType, const LLSD& voiceChannelInfo)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -632,6 +648,7 @@ void translateFailure(const LLUUID& session_id, const std::string& from, const L
     LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
 }
 
+// BASELINE: Original coroutine implementation
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp)
 {   // if parameters from, message and timestamp have values, they are a message that opened chat
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -717,6 +734,364 @@ void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, 
         LOG_UNHANDLED_EXCEPTION("chatterBoxHistoryCoro");
         LL_WARNS("ChatHistory") << "chatterBoxHistoryCoro unhandled exception while processing data for session " << sessionId << LL_ENDL;
     }
+}
+
+// NEW: Work graph implementation
+void startConferenceWorkGraph(std::string url,
+    LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents)
+{
+    LL_DEBUGS("LLIMModel") << "Starting conference work graph with url '" << url << "'" << LL_ENDL;
+
+    LLSD postData;
+    postData["method"] = "start conference";
+    postData["session-id"] = tempSessionId;
+    postData["params"] = agents;
+    LLSD altParams;
+    std::string voice_server_type = gSavedSettings.getString("VoiceServerType");
+    if (voice_server_type.empty())
+    {
+        // default to the server type associated with the region we're on.
+        LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
+        voice_server_type              = versionInfo.internalVoiceServerType;
+    }
+    altParams["voice_server_type"] = voice_server_type;
+    postData["alt_params"]         = altParams;
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ConferenceChatStart", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make POST request and get the graph
+    auto graphResult = httpAdapter->postRaw(url, postData);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [tempSessionId, creatorId, otherParticipantId, agents, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("LLIMModel") << "Failed to start conference" << LL_ENDL;
+                //try an "old school" way.
+                // *TODO: What about other error status codes?  4xx 5xx?
+                if (status == LLCore::HttpStatus(HTTP_BAD_REQUEST))
+                {
+                    start_deprecated_conference_chat(
+                        tempSessionId,
+                        creatorId,
+                        otherParticipantId,
+                        agents);
+                }
+
+                //else throw an error back to the client?
+                //in theory we should have just have these error strings
+                //etc. set up in this file as opposed to the IMMgr,
+                //but the error string were unneeded here previously
+                //and it is not worth the effort switching over all
+                //the possible different language translations
+            }
+
+            return LLWorkResult::Complete;
+        },
+        "start-conference-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set up dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void startP2PVoiceWorkGraph(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID otherParticipantId)
+{
+    LL_DEBUGS("LLIMModel") << "Starting P2P voice work graph with url '" << url << "'" << LL_ENDL;
+
+    LLSD postData;
+    postData["method"]     = "start p2p voice";
+    postData["session-id"] = sessionID;
+    postData["params"]     = otherParticipantId;
+    LLSD altParams;
+    std::string voice_server_type = gSavedSettings.getString("VoiceServerType");
+    if (voice_server_type.empty())
+    {
+        // default to the server type associated with the region we're on.
+        LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
+        voice_server_type              = versionInfo.internalVoiceServerType;
+    }
+    altParams["voice_server_type"] = voice_server_type;
+    postData["alt_params"]         = altParams;
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "StartP2PVoice", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make POST request and get the graph
+    auto graphResult = httpAdapter->postRaw(url, postData);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [sessionID, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("LLIMModel") << "Failed to start p2p session" << LL_ENDL;
+                // try an "old school" way.
+                //  *TODO: What about other error status codes?  4xx 5xx?
+                if (status == LLCore::HttpStatus(HTTP_BAD_REQUEST))
+                {
+                    static const std::string error_string("session_does_not_exist_error");
+                    if (gIMMgr)
+                    {
+                        gIMMgr->showSessionStartError(error_string, sessionID);
+                    }
+                }
+            }
+
+            return LLWorkResult::Complete;
+        },
+        "start-p2p-voice-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set up dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void chatterBoxInvitationWorkGraph(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType, const LLSD& voiceChannelInfo)
+{
+    LL_DEBUGS("LLIMModel") << "Starting chatterbox invitation work graph with url '" << url << "'" << LL_ENDL;
+
+    LLSD postData;
+    postData["method"] = "accept invitation";
+    postData["session-id"] = sessionId;
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ConferenceInviteStart", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make POST request and get the graph
+    auto graphResult = httpAdapter->postRaw(url, postData);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [sessionId, invitationType, voiceChannelInfo, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!gIMMgr)
+            {
+                LL_WARNS("") << "Global IM Manager is NULL" << LL_ENDL;
+                return LLWorkResult::Complete;
+            }
+
+            if (!status)
+            {
+                LL_WARNS("LLIMModel") << "Bad HTTP response in chatterBoxInvitationWorkGraph" << LL_ENDL;
+                //throw something back to the viewer here?
+
+                gIMMgr->clearPendingAgentListUpdates(sessionId);
+                gIMMgr->clearPendingInvitation(sessionId);
+
+                if (status == LLCore::HttpStatus(HTTP_NOT_FOUND))
+                {
+                    static const std::string error_string("session_does_not_exist_error");
+                    gIMMgr->showSessionStartError(error_string, sessionId);
+                }
+                return LLWorkResult::Complete;
+            }
+
+            LLSD content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+
+            LLIMSpeakerMgr* speakerMgr = LLIMModel::getInstance()->getSpeakerManager(sessionId);
+            if (speakerMgr)
+            {
+                //we've accepted our invitation
+                //and received a list of agents that were
+                //currently in the session when the reply was sent
+                //to us.  Now, it is possible that there were some agents
+                //to slip in/out between when that message was sent to us
+                //and now.
+
+                //the agent list updates we've received have been
+                //accurate from the time we were added to the session
+                //but unfortunately, our base that we are receiving here
+                //may not be the most up to date.  It was accurate at
+                //some point in time though.
+                speakerMgr->setSpeakers(content);
+
+                //we now have our base of users in the session
+                //that was accurate at some point, but maybe not now
+                //so now we apply all of the updates we've received
+                //in case of race conditions
+                speakerMgr->updateSpeakers(gIMMgr->getPendingAgentListUpdates(sessionId));
+            }
+
+            if (LLIMMgr::INVITATION_TYPE_VOICE == invitationType)
+            {
+                gIMMgr->startCall(sessionId, LLVoiceChannel::INCOMING_CALL, voiceChannelInfo);
+            }
+
+            if ((invitationType == LLIMMgr::INVITATION_TYPE_VOICE
+                || invitationType == LLIMMgr::INVITATION_TYPE_IMMEDIATE)
+                && LLIMModel::getInstance()->findIMSession(sessionId))
+            {
+                // TODO remove in 2010, for voice calls we do not open an IM window
+                //LLFloaterIMSession::show(mSessionID);
+            }
+
+            gIMMgr->clearPendingAgentListUpdates(sessionId);
+            gIMMgr->clearPendingInvitation(sessionId);
+
+            return LLWorkResult::Complete;
+        },
+        "chatterbox-invitation-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set up dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void chatterBoxHistoryWorkGraph(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp)
+{   // if parameters from, message and timestamp have values, they are a message that opened chat
+    LL_DEBUGS("ChatHistory") << sessionId << ": Starting chat history work graph with url '" << url << "'" << LL_ENDL;
+
+    LLSD postData;
+    postData["method"] = "fetch history";
+    postData["session-id"] = sessionId;
+
+    LL_DEBUGS("ChatHistory") << sessionId << ": Chat history posting " << postData << " to " << url
+        << ", from " << from << ", message " << message << ", timestamp " << (S32)timestamp << LL_ENDL;
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ChatHistory", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make POST request and get the graph
+    auto graphResult = httpAdapter->postRaw(url, postData);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [sessionId, from, message, timestamp, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("ChatHistory") << sessionId << ": Bad HTTP response in chatterBoxHistoryWorkGraph"
+                    << ", results: " << httpResults << LL_ENDL;
+                return LLWorkResult::Complete;
+            }
+
+            if (LLApp::isExiting() || gDisconnected)
+            {
+                LL_DEBUGS("ChatHistory") << "Ignoring chat history response, shutting down" << LL_ENDL;
+                return LLWorkResult::Complete;
+            }
+
+            // Add history to IM session
+            LLSD history = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+
+            LL_DEBUGS("ChatHistory") << sessionId << ": Chat server history fetch returned " << history << LL_ENDL;
+
+            try
+            {
+                LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(sessionId);
+                if (session && history.isArray())
+                {   // Result array is sorted oldest to newest
+                    if (history.size() > 0)
+                    {   // History from the chat server has an integer 'time' value timestamp.   Create 'datetime' string which will match
+                        // what we have from the local history cache
+                        for (LLSD::array_iterator cur_server_hist = history.beginArray(), endLists = history.endArray();
+                            cur_server_hist != endLists;
+                            cur_server_hist++)
+                        {
+                            if ((*cur_server_hist).isMap())
+                            {   // Take the 'time' value from the server and make the date-time string that will be in local cache log files
+                                //   {'from_id':u7aa8c222-8a81-450e-b3d1-9c28491ef717,'message':'Can you hear me now?','from':'Chat Tester','num':i86,'time':r1.66501e+09}
+                                U32 timestamp = (U32)((*cur_server_hist)[LL_IM_TIME].asInteger());
+                                (*cur_server_hist)[LL_IM_DATE_TIME] = LLLogChat::timestamp2LogString(timestamp, true);
+                            }
+                        }
+
+                        session->addMessagesFromServerHistory(history, from, message, timestamp);
+
+                        // Display the newly added messages
+                        LLFloaterIMSession* floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", sessionId);
+                        if (floater && floater->isInVisibleChain())
+                        {
+                            floater->updateMessages();
+                        }
+                    }
+                    else
+                    {
+                        LL_DEBUGS("ChatHistory") << sessionId << ": Empty history from chat server, nothing to add" << LL_ENDL;
+                    }
+                }
+                else if (session && !history.isArray())
+                {
+                    LL_WARNS("ChatHistory") << sessionId << ": Bad array data fetching chat history" << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS("ChatHistory") << sessionId << ": Unable to find session fetching chat history" << LL_ENDL;
+                }
+            }
+            catch (...)
+            {
+                LOG_UNHANDLED_EXCEPTION("chatterBoxHistoryWorkGraph");
+                LL_WARNS("ChatHistory") << "chatterBoxHistoryWorkGraph unhandled exception while processing data for session " << sessionId << LL_ENDL;
+            }
+
+            return LLWorkResult::Complete;
+        },
+        "chat-history-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set up dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
 }
 
 LLIMModel::LLIMModel()
@@ -2184,9 +2559,19 @@ bool LLIMModel::sendStartSession(
             std::string url = region->getCapability(
                 "ChatSessionRequest");
 
-            LLCoros::instance().launch("startConferenceCoro",
-                boost::bind(&startConferenceCoro, url,
-                temp_session_id, gAgent.getID(), other_participant_id, agents));
+            // A/B Testing: branch between work graph and coroutine implementations
+            if (LLIMView::getUseWorkGraph())
+            {
+                // NEW: Work graph implementation
+                startConferenceWorkGraph(url, temp_session_id, gAgent.getID(), other_participant_id, agents);
+            }
+            else
+            {
+                // BASELINE: Original coroutine implementation
+                LLCoros::instance().launch("startConferenceCoro",
+                    boost::bind(&startConferenceCoro, url,
+                    temp_session_id, gAgent.getID(), other_participant_id, agents));
+            }
         }
         else
         {
@@ -2206,7 +2591,18 @@ bool LLIMModel::sendStartSession(
         if (region)
         {
             std::string url = region->getCapability("ChatSessionRequest");
-            LLCoros::instance().launch("startP2PVoiceCoro", boost::bind(&startP2PVoiceCoro, url, temp_session_id, gAgent.getID(), other_participant_id));
+
+            // A/B Testing: branch between work graph and coroutine implementations
+            if (LLIMView::getUseWorkGraph())
+            {
+                // NEW: Work graph implementation
+                startP2PVoiceWorkGraph(url, temp_session_id, gAgent.getID(), other_participant_id);
+            }
+            else
+            {
+                // BASELINE: Original coroutine implementation
+                LLCoros::instance().launch("startP2PVoiceCoro", boost::bind(&startP2PVoiceCoro, url, temp_session_id, gAgent.getID(), other_participant_id));
+            }
         }
         return true;
     }
@@ -3065,8 +3461,18 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
             {
                 if(!url.empty())
                 {
-                    LLCoros::instance().launch("chatterBoxInvitationCoro",
-                        boost::bind(&chatterBoxInvitationCoro, url, session_id, inv_type, payload["voice_channel_info"]));
+                    // A/B Testing: branch between work graph and coroutine implementations
+                    if (LLIMView::getUseWorkGraph())
+                    {
+                        // NEW: Work graph implementation
+                        chatterBoxInvitationWorkGraph(url, session_id, inv_type, payload["voice_channel_info"]);
+                    }
+                    else
+                    {
+                        // BASELINE: Original coroutine implementation
+                        LLCoros::instance().launch("chatterBoxInvitationCoro",
+                            boost::bind(&chatterBoxInvitationCoro, url, session_id, inv_type, payload["voice_channel_info"]));
+                    }
                 }
 
                 // send notification message to the corresponding chat
@@ -3259,7 +3665,17 @@ void LLIMMgr::addMessage(
                 std::string chat_url = gAgent.getRegionCapability("ChatSessionRequest");
                 if (!chat_url.empty())
                 {
-                    LLCoros::instance().launch("chatterBoxHistoryCoro", boost::bind(&chatterBoxHistoryCoro, chat_url, session_id, from, msg, timestamp));
+                    // A/B Testing: branch between work graph and coroutine implementations
+                    if (LLIMView::getUseWorkGraph())
+                    {
+                        // NEW: Work graph implementation
+                        chatterBoxHistoryWorkGraph(chat_url, session_id, from, msg, timestamp);
+                    }
+                    else
+                    {
+                        // BASELINE: Original coroutine implementation
+                        LLCoros::instance().launch("chatterBoxHistoryCoro", boost::bind(&chatterBoxHistoryCoro, chat_url, session_id, from, msg, timestamp));
+                    }
                 }
             }
 
@@ -4103,8 +4519,18 @@ public:
                         std::string url = gAgent.getRegionCapability("ChatSessionRequest");
                         if (!url.empty())
                         {
-                            LLCoros::instance().launch("chatterBoxHistoryCoro",
-                                boost::bind(&chatterBoxHistoryCoro, url, session_id, "", "", 0));
+                            // A/B Testing: branch between work graph and coroutine implementations
+                            if (LLIMView::getUseWorkGraph())
+                            {
+                                // NEW: Work graph implementation
+                                chatterBoxHistoryWorkGraph(url, session_id, "", "", 0);
+                            }
+                            else
+                            {
+                                // BASELINE: Original coroutine implementation
+                                LLCoros::instance().launch("chatterBoxHistoryCoro",
+                                    boost::bind(&chatterBoxHistoryCoro, url, session_id, "", "", 0));
+                            }
                         }
                     }
                 }
@@ -4301,9 +4727,19 @@ public:
 
             if ( url != "" )
             {
-                LLCoros::instance().launch("chatterBoxInvitationCoro",
-                    boost::bind(&chatterBoxInvitationCoro, url,
-                    session_id, LLIMMgr::INVITATION_TYPE_INSTANT_MESSAGE, LLSD()));
+                // A/B Testing: branch between work graph and coroutine implementations
+                if (LLIMView::getUseWorkGraph())
+                {
+                    // NEW: Work graph implementation
+                    chatterBoxInvitationWorkGraph(url, session_id, LLIMMgr::INVITATION_TYPE_INSTANT_MESSAGE, LLSD());
+                }
+                else
+                {
+                    // BASELINE: Original coroutine implementation
+                    LLCoros::instance().launch("chatterBoxInvitationCoro",
+                        boost::bind(&chatterBoxInvitationCoro, url,
+                        session_id, LLIMMgr::INVITATION_TYPE_INSTANT_MESSAGE, LLSD()));
+                }
             }
         } //end if invitation has instant message
         else if ( input["body"].has("voice") )

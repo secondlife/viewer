@@ -115,6 +115,10 @@ public:
 
     void setAccountNameChangedCallback(const account_name_changed_callback_t& cb) { mAccountNameChangedCallback = cb; }
 
+    // A/B Testing: toggle between coroutine (false) and work graph (true) implementations
+    void setUseWorkGraph(bool useWorkGraph) { mUseWorkGraph = useWorkGraph; }
+    bool getUseWorkGraph() const { return mUseWorkGraph; }
+
 private:
     // Handle name response off network.
     void processName(const LLUUID& agent_id,
@@ -199,8 +203,8 @@ private:
     // HTTP work graph adapter for async requests
     std::shared_ptr<LLCoreHttpUtil::HttpWorkGraphAdapter> mWorkGraphAdapter;
 
-    // Active work graphs - keep them alive until they complete
-    std::vector<std::shared_ptr<LLWorkGraph>> mActiveGraphs;
+    // A/B Testing flag: use work graph (true) or coroutine baseline (false)
+    bool mUseWorkGraph = false;
 };
 
 // Parse a cache-control header to get the max-age delta-seconds.

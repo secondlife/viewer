@@ -112,8 +112,11 @@
 
 // Linden library includes
 #include "llavatarnamecache.h"
+#include "llaccountingcostmanager.h"
 #include "lldiriterator.h"
 #include "llexperiencecache.h"
+#include "llpathfindingmanager.h"
+#include "llworkgraphmanager.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -1362,11 +1365,17 @@ bool LLAppViewer::doFrame()
     }
 #endif
 
+    // Propagate work graph setting to relevant classes (A/B testing)
+    propagateWorkGraphSetting();
+
+    // Perform garbage collection on completed work graphs
+    gWorkGraphManager.garbageCollect();
+
     // Execute any main thread jobs in the work service.
     if (gWorkService->hasMainThreadWork())
     {
         // Just use some arbitrary number for now to determine how many work contracts to try and execute per frame on the main thread.
-        gWorkService->executeMainThreadWork(20);
+        gWorkService->executeMainThreadWork(1);
     }
 
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
@@ -1539,6 +1548,13 @@ bool LLAppViewer::doFrame()
                 {
                     LLViewerStatsRecorder::instance().idle();
                 }
+            }
+            
+            // Execute any main thread jobs in the work service.
+            if (gWorkService->hasMainThreadWork())
+            {
+                // Just use some arbitrary number for now to determine how many work contracts to try and execute per frame on the main thread.
+                gWorkService->executeMainThreadWork(1);
             }
         }
 
@@ -5927,6 +5943,40 @@ void LLAppViewer::handleLoginComplete()
     // we logged in successfully, so save settings on logout
     LL_INFOS() << "Login successful, per account settings will be saved on log out." << LL_ENDL;
     mSavePerAccountSettings=true;
+}
+
+void LLAppViewer::propagateWorkGraphSetting()
+{
+    // Read the current setting from gSavedSettings
+    bool useWorkGraphs = gSavedSettings.getBOOL("UseWorkGraphs");
+
+    // Propagate to all relevant singleton classes for A/B testing
+    // These classes will use this setting in their main entry points
+
+    if (LLExperienceCache::instanceExists())
+    {
+        LLExperienceCache::instance().setUseWorkGraph(useWorkGraphs);
+    }
+
+    if (LLPathfindingManager::instanceExists())
+    {
+        LLPathfindingManager::instance().setUseWorkGraph(useWorkGraphs);
+    }
+
+    if (LLEnvironment::instanceExists())
+    {
+        LLEnvironment::instance().setUseWorkGraph(useWorkGraphs);
+    }
+
+    if (LLAvatarNameCache::instanceExists())
+    {
+        LLAvatarNameCache::instance().setUseWorkGraph(useWorkGraphs);
+    }
+
+    if (LLAccountingCostManager::instanceExists())
+    {
+        LLAccountingCostManager::instance().setUseWorkGraph(useWorkGraphs);
+    }
 }
 
 //virtual

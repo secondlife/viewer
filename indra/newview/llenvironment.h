@@ -342,6 +342,10 @@ public:
     DayInstance::ptr_t          getSelectedEnvironmentInstance();
     DayInstance::ptr_t          getSharedEnvironmentInstance();
 
+    // A/B Testing: toggle between coroutine (false) and work graph (true) implementations
+    void setUseWorkGraph(bool useWorkGraph) { mUseWorkGraph = useWorkGraph; }
+    bool getUseWorkGraph() const { return mUseWorkGraph; }
+
     void                initSingleton();
 
 protected:
@@ -410,6 +414,9 @@ private:
     connection_t                mRegionChangeCallbackConnection;
     connection_t                mPositionCallbackConnection;
 
+    // A/B Testing flag: use work graph (true) or coroutine baseline (false)
+    bool                        mUseWorkGraph = false;
+
     struct UpdateInfo
     {
         typedef std::shared_ptr<UpdateInfo> ptr_t;
@@ -449,9 +456,15 @@ private:
         U32                     mFlags;
     };
 
+    // BASELINE: Original coroutine implementations
     void                        coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
     void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply);
     void                        coroResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply);
+
+    // NEW: Work graph implementations
+    void                        workGraphRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
+    void                        workGraphUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply);
+    void                        workGraphResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply);
 
     void                        recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment, LLSettingsBase::Seconds transition);
 

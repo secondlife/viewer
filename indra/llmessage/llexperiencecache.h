@@ -34,6 +34,7 @@
 #include "llframetimer.h"
 #include "llsd.h"
 #include "llcorehttputil.h"
+#include "llworkcontract.h"
 #include <boost/signals2.hpp>
 #include <boost/function.hpp>
 
@@ -80,6 +81,13 @@ public:
     void getExperienceAdmin(const LLUUID &experienceId, ExperienceGetFn_t fn);
 
     void updateExperience(LLSD updateData, ExperienceGetFn_t fn);
+
+    //-------------------------------------------
+    // A/B Testing: toggle between coroutine (false) and work graph (true) implementations
+    void setUseWorkGraph(bool useWorkGraph) { mUseWorkGraph = useWorkGraph; }
+    bool getUseWorkGraph() const { return mUseWorkGraph; }
+    void setWorkContractGroup(std::shared_ptr<LLWorkContractGroup> workGroup);
+    std::shared_ptr<LLWorkContractGroup> getWorkContractGroup() const { return mWorkGroup; }
         //-------------------------------------------
     static const std::string NAME;          // "name"
     static const std::string EXPERIENCE_ID; // "public_id"
@@ -144,11 +152,21 @@ private:
     std::string     mCacheFileName;
     static bool     sShutdown; // control for coroutines, they exist out of LLExperienceCache's scope, so they need a static control
 
+    // A/B Testing flag: use work graph (true) or coroutine baseline (false)
+    bool mUseWorkGraph = false;
+
+    // Work group for graph implementations (injected by application)
+    std::shared_ptr<LLWorkContractGroup> mWorkGroup;
+
     void idleCoro();
     void eraseExpired();
+    // BASELINE: Original coroutine implementations
     void requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, RequestQueue_t);
     void requestExperiences();
+    // NEW: Work graph implementations
+    void requestExperiencesWorkGraph(std::string url, RequestQueue_t requests);
 
+    // BASELINE: Original coroutine implementations
     void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID, LLUUID, std::string, ExperienceGetFn_t);
     void findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, int, ExperienceGetFn_t);
     void getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID , ExperienceGetFn_t);
@@ -156,6 +174,17 @@ private:
     void experiencePermissionCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, permissionInvoker_fn invokerfn, std::string url, ExperienceGetFn_t fn);
     void getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID experienceId, ExperienceGetFn_t fn);
     void updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLSD updateData, ExperienceGetFn_t fn);
+
+    // NEW: Work graph implementations
+    void fetchAssociatedExperienceWorkGraph(LLUUID objectId, LLUUID itemId, std::string url, ExperienceGetFn_t fn);
+    void findExperienceByNameWorkGraph(std::string text, int page, ExperienceGetFn_t fn);
+    void getGroupExperiencesWorkGraph(LLUUID groupId, ExperienceGetFn_t fn);
+    void regionExperiencesWorkGraph(CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn);
+    void getExperiencePermissionWorkGraph(const LLUUID &experienceId, ExperienceGetFn_t fn);
+    void setExperiencePermissionWorkGraph(const LLUUID &experienceId, const std::string &permission, ExperienceGetFn_t fn);
+    void forgetExperiencePermissionWorkGraph(const LLUUID &experienceId, ExperienceGetFn_t fn);
+    void getExperienceAdminWorkGraph(LLUUID experienceId, ExperienceGetFn_t fn);
+    void updateExperienceWorkGraph(LLSD updateData, ExperienceGetFn_t fn);
 
     void bootstrap(const LLSD& legacyKeys, int initialExpiration);
     void exportFile(std::ostream& ostr) const;

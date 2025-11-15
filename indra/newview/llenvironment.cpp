@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llenvironment.h"
+#include "llworkgraphmanager.h"
 
 #include <algorithm>
 
@@ -766,7 +767,11 @@ namespace
 
         void                                testExperiencesOnParcel(S32 parcel_id);
     private:
+        // BASELINE: Original coroutine implementation
         static void                         testExperiencesOnParcelCoro(wptr_t that, S32 parcel_id);
+
+        // NEW: Work graph implementation
+        static void                         workGraphTestExperiencesOnParcel(wptr_t that, S32 parcel_id);
 
 
         void                                animateSkyChange(LLSettingsSky::ptr_t psky, LLSettingsBase::Seconds transition);
@@ -1944,15 +1949,33 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
         cb = [this, transition](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo, transition); };
     }
 
-    LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
-        [this, parcel_id, cb]() { coroRequestEnvironment(parcel_id, cb); });
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        workGraphRequestEnvironment(parcel_id, cb);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
+            [this, parcel_id, cb]() { coroRequestEnvironment(parcel_id, cb); });
+    }
 }
 
 void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, std::string display_name, S32 track_num, S32 day_length, S32 day_offset, U32 flags, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     UpdateInfo::ptr_t updates(std::make_shared<UpdateInfo>(asset_id, display_name, day_length, day_offset, altitudes, flags));
-    LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
-        [this, parcel_id, track_num, updates, cb]() { coroUpdateEnvironment(parcel_id, track_num, updates, cb); });
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        workGraphUpdateEnvironment(parcel_id, track_num, updates, cb);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
+            [this, parcel_id, track_num, updates, cb]() { coroUpdateEnvironment(parcel_id, track_num, updates, cb); });
+    }
 }
 
 void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes)
@@ -2003,8 +2026,17 @@ void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday
 {
     UpdateInfo::ptr_t updates(std::make_shared<UpdateInfo>(pday, day_length, day_offset, altitudes));
 
-    LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
-        [this, parcel_id, track_num, updates, cb]() { coroUpdateEnvironment(parcel_id, track_num, updates, cb); });
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        workGraphUpdateEnvironment(parcel_id, track_num, updates, cb);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
+            [this, parcel_id, track_num, updates, cb]() { coroUpdateEnvironment(parcel_id, track_num, updates, cb); });
+    }
 }
 
 void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
@@ -2014,10 +2046,20 @@ void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday
 
 void LLEnvironment::resetParcel(S32 parcel_id, environment_apply_fn cb)
 {
-    LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
-        [this, parcel_id, cb]() { coroResetEnvironment(parcel_id, NO_TRACK, cb); });
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        workGraphResetEnvironment(parcel_id, NO_TRACK, cb);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
+            [this, parcel_id, cb]() { coroResetEnvironment(parcel_id, NO_TRACK, cb); });
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -2066,6 +2108,79 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
     }
 }
 
+// NEW: Work graph implementation
+void LLEnvironment::workGraphRequestEnvironment(S32 parcel_id, LLEnvironment::environment_apply_fn apply)
+{
+    std::string url = gAgent.getRegionCapability("ExtEnvironment");
+    if (url.empty())
+        return;
+
+    LL_DEBUGS("ENVIRONMENT") << "Requesting for parcel_id=" << parcel_id << LL_ENDL;
+
+    if (parcel_id != INVALID_PARCEL_ID)
+    {
+        std::stringstream query;
+        query << "?parcelid=" << parcel_id;
+        url += query.str();
+    }
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "RequestEnvironment", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make GET request and get the graph
+    LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+    auto graphResult = httpAdapter->getAndSchedule(request, url, options, headers);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [parcel_id, apply, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                LL_WARNS("ENVIRONMENT") << "Couldn't retrieve environment settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
+            }
+            else if (LLApp::isExiting() || gDisconnected)
+            {
+                return LLWorkResult::Complete;
+            }
+            else
+            {
+                // If the response is a map, its fields are merged directly into result
+                // Otherwise they're under HTTP_RESULTS_CONTENT
+                const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ?
+                    result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+                LLSD environment = content[KEY_ENVIRONMENT];
+                if (environment.isDefined() && apply)
+                {
+                    LLAppViewer::instance()->postToAppWorkGroup([=]()
+                        {
+                            EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+                            apply(parcel_id, envinfo);
+                        });
+                }
+            }
+            return LLWorkResult::Complete;
+        },
+        "process-request-environment",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
+}
+
+// BASELINE: Original coroutine implementation
 void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -2182,6 +2297,145 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
     }
 }
 
+// NEW: Work graph implementation
+void LLEnvironment::workGraphUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply)
+{
+    std::string url = gAgent.getRegionCapability("ExtEnvironment");
+    if (url.empty())
+        return;
+
+    LLSD body(LLSD::emptyMap());
+    body[KEY_ENVIRONMENT] = LLSD::emptyMap();
+
+    if (track_no == NO_TRACK)
+    {   // day length and offset are only applicable if we are addressing the entire day cycle.
+        if (updates->mDayLength > 0)
+        {
+            body[KEY_ENVIRONMENT][KEY_DAYLENGTH] = updates->mDayLength;
+        }
+
+        if (updates->mDayOffset > 0)
+        {
+            body[KEY_ENVIRONMENT][KEY_DAYOFFSET] = updates->mDayOffset;
+        }
+
+        if ((parcel_id == INVALID_PARCEL_ID) && (updates->mAltitudes.size() == 3))
+        {   // only test for altitude changes if we are changing the region.
+            body[KEY_ENVIRONMENT][KEY_TRACKALTS] = LLSD::emptyArray();
+            for (S32 i = 0; i < 3; ++i)
+            {
+                body[KEY_ENVIRONMENT][KEY_TRACKALTS][i] = updates->mAltitudes[i];
+            }
+        }
+    }
+
+    if (updates->mDayp)
+    {
+        body[KEY_ENVIRONMENT][KEY_DAYCYCLE] = updates->mDayp->getSettings();
+    }
+    else if (!updates->mSettingsAsset.isNull())
+    {
+        body[KEY_ENVIRONMENT][KEY_DAYASSET] = updates->mSettingsAsset;
+        if (!updates->mDayName.empty())
+        {
+            body[KEY_ENVIRONMENT][KEY_DAYNAME] = updates->mDayName;
+        }
+    }
+
+    body[KEY_ENVIRONMENT][KEY_FLAGS] = LLSD::Integer(updates->mFlags);
+
+    if ((parcel_id != INVALID_PARCEL_ID) || (track_no != NO_TRACK))
+    {
+        std::stringstream query;
+        query << "?";
+
+        if (parcel_id != INVALID_PARCEL_ID)
+        {
+            query << "parcelid=" << parcel_id;
+
+            if (track_no != NO_TRACK)
+                query << "&";
+        }
+
+        if (track_no != NO_TRACK)
+        {
+            query << "trackno=" << track_no;
+        }
+
+        url += query.str();
+    }
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "UpdateEnvironment", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make PUT request and get the graph
+    LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+    auto graphResult = httpAdapter->putAndSchedule(request, url, body, options, headers);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [parcel_id, apply, sharedResult = graphResult.result]() -> LLWorkResult {
+            if (LLApp::isExiting())
+                return LLWorkResult::Complete;
+
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            LLSD notify;
+
+            // If the response is a map, its fields are merged directly into result
+            // Otherwise they're under HTTP_RESULTS_CONTENT
+            const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ?
+                result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+            if (!status || !content["success"].asBoolean())
+            {
+                LL_WARNS("ENVIRONMENT") << "Couldn't update Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
+
+                notify = LLSD::emptyMap();
+                std::string reason = content["message"].asString();
+                if (reason.empty())
+                {
+                    notify["FAIL_REASON"] = status.toString();
+                }
+                else
+                {
+                    notify["FAIL_REASON"] = reason;
+                }
+            }
+            else
+            {
+                LLSD environment = content[KEY_ENVIRONMENT];
+                if (environment.isDefined() && apply)
+                {
+                    EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+                    apply(parcel_id, envinfo);
+                }
+            }
+
+            if (!notify.isUndefined())
+            {
+                LLNotificationsUtil::add("WLRegionApplyFail", notify);
+            }
+            return LLWorkResult::Complete;
+        },
+        "process-update-environment",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
+}
+
+// BASELINE: Original coroutine implementation
 void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -2246,6 +2500,95 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
         LLNotificationsUtil::add("WLRegionApplyFail", notify);
         //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
     }
+}
+
+// NEW: Work graph implementation
+void LLEnvironment::workGraphResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply)
+{
+    std::string url = gAgent.getRegionCapability("ExtEnvironment");
+    if (url.empty())
+        return;
+
+    if ((parcel_id != INVALID_PARCEL_ID) || (track_no != NO_TRACK))
+    {
+        std::stringstream query;
+        query << "?";
+
+        if (parcel_id != INVALID_PARCEL_ID)
+        {
+            query << "parcelid=" << parcel_id;
+
+            if (track_no != NO_TRACK)
+                query << "&";
+        }
+        if (track_no != NO_TRACK)
+        {
+            query << "trackno=" << track_no;
+        }
+        url += query.str();
+    }
+
+    // Create HTTP work graph adapter
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ResetEnvironment", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+    // Make DELETE request and get the graph
+    LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+    auto graphResult = httpAdapter->deleteAndSchedule(request, url, options, headers);
+
+    // Add processing node that runs on main thread
+    auto processNode = graphResult.graph->addNode(
+        [parcel_id, apply, sharedResult = graphResult.result]() -> LLWorkResult {
+            if (LLApp::isExiting())
+                return LLWorkResult::Complete;
+
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            LLSD notify;
+
+            // If the response is a map, its fields are merged directly into result
+            // Otherwise they're under HTTP_RESULTS_CONTENT
+            const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ?
+                result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+            if (!status || !content["success"].asBoolean())
+            {
+                LL_WARNS("ENVIRONMENT") << "Couldn't reset Windlight settings in " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
+
+                notify = LLSD::emptyMap();
+                std::string reason = content["message"].asString();
+                notify["FAIL_REASON"] = reason.empty() ? status.toString() : reason;
+            }
+            else if (apply)
+            {
+                LLSD environment = content[KEY_ENVIRONMENT];
+                if (environment.isDefined())
+                {
+                    EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+                    apply(parcel_id, envinfo);
+                }
+            }
+
+            if (!notify.isUndefined())
+            {
+                LLNotificationsUtil::add("WLRegionApplyFail", notify);
+            }
+            return LLWorkResult::Complete;
+        },
+        "process-reset-environment",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    // Set dependency: processing depends on HTTP completing
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    gWorkGraphManager.addGraph(graphResult.graph);
+    graphResult.graph->execute();
 }
 
 
@@ -3320,9 +3663,17 @@ namespace
 
     void DayInjection::testExperiencesOnParcel(S32 parcel_id)
     {
-        LLCoros::instance().launch("DayInjection::testExperiencesOnParcel",
-            [this, parcel_id]() { DayInjection::testExperiencesOnParcelCoro(std::static_pointer_cast<DayInjection>(this->shared_from_this()), parcel_id); });
-
+        if (LLEnvironment::instance().getUseWorkGraph())
+        {
+            // NEW: Work graph implementation
+            DayInjection::workGraphTestExperiencesOnParcel(std::static_pointer_cast<DayInjection>(this->shared_from_this()), parcel_id);
+        }
+        else
+        {
+            // BASELINE: Original coroutine implementation
+            LLCoros::instance().launch("DayInjection::testExperiencesOnParcel",
+                [this, parcel_id]() { DayInjection::testExperiencesOnParcelCoro(std::static_pointer_cast<DayInjection>(this->shared_from_this()), parcel_id); });
+        }
     }
 
     void DayInjection::setInjectedDay(const LLSettingsDay::ptr_t &pday, LLUUID experience_id, LLSettingsBase::Seconds transition)
@@ -3414,6 +3765,7 @@ namespace
     }
 
 
+    // BASELINE: Original coroutine implementation
     void DayInjection::testExperiencesOnParcelCoro(wptr_t that, S32 parcel_id)
     {
         LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -3485,6 +3837,108 @@ namespace
 
             }
         }
+    }
+
+    // NEW: Work graph implementation
+    void DayInjection::workGraphTestExperiencesOnParcel(wptr_t that, S32 parcel_id)
+    {
+        std::string url = gAgent.getRegionCapability("ExperienceQuery");
+
+        if (url.empty())
+        {
+            LL_WARNS("ENVIRONMENT") << "No experience query cap." << LL_ENDL;
+            return; // no checking in this region.
+        }
+
+        {
+            ptr_t thatlock(that);
+            std::stringstream fullurl;
+
+            if (!thatlock)
+                return;
+
+            fullurl << url << "?";
+            fullurl << "parcelid=" << parcel_id;
+
+            for (auto it = thatlock->mActiveExperiences.begin(); it != thatlock->mActiveExperiences.end(); ++it)
+            {
+                if (it != thatlock->mActiveExperiences.begin())
+                    fullurl << ",";
+                else
+                    fullurl << "&experiences=";
+                fullurl << (*it).asString();
+            }
+            url = fullurl.str();
+        }
+
+        // Create HTTP work graph adapter
+        LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+        auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+            "testExperiencesOnParcel", httpPolicy, LLAppViewer::instance()->getMainAppGroup());
+
+        // Make GET request and get the graph
+        LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+        LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+        LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+        auto graphResult = httpAdapter->getAndSchedule(request, url, options, headers);
+
+        // Add processing node that runs on main thread
+        auto processNode = graphResult.graph->addNode(
+            [that, parcel_id, sharedResult = graphResult.result]() -> LLWorkResult {
+                const LLSD& result = sharedResult->result;
+                const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+                LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+                if (!status)
+                {
+                    LL_WARNS() << "Unable to retrieve experience status for parcel." << LL_ENDL;
+                    return LLWorkResult::Complete;
+                }
+
+                {
+                    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+                    if (!parcel)
+                        return LLWorkResult::Complete;
+
+                    if (parcel_id != parcel->getLocalID())
+                    {
+                        // Agent no longer on queried parcel.
+                        return LLWorkResult::Complete;
+                    }
+                }
+
+                // If the response is a map, its fields are merged directly into result
+                // Otherwise they're under HTTP_RESULTS_CONTENT
+                const LLSD& content = result.has(LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT) ?
+                    result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT] : result;
+                LLSD experiences = content["experiences"];
+                {
+                    ptr_t thatlock(that);
+                    if (!thatlock)
+                        return LLWorkResult::Complete;
+
+                    for (LLSD::map_iterator itr = experiences.beginMap(); itr != experiences.endMap(); ++itr)
+                    {
+                        if (!((*itr).second.asBoolean()))
+                            thatlock->clearInjections(LLUUID((*itr).first), LLEnvironment::TRANSITION_FAST);
+
+                    }
+                }
+                return LLWorkResult::Complete;
+            },
+            "process-test-experiences",
+            nullptr,
+            LLExecutionType::MainThread
+        );
+
+        // Set dependency: processing depends on HTTP completing
+        graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+        // Register the graph with the manager to keep it alive while executing
+        gWorkGraphManager.addGraph(graphResult.graph);
+
+        // Execute the graph
+        graphResult.graph->execute();
     }
 
     void DayInjection::animateSkyChange(LLSettingsSky::ptr_t psky, LLSettingsBase::Seconds transition)

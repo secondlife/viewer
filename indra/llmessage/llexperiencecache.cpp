@@ -31,7 +31,9 @@
 #include "lleventcoro.h"
 #include "lleventfilter.h"
 #include "llcoproceduremanager.h"
+#include "llcorehttputil.h"
 #include "lldir.h"
+#include "llworkgraphmanager.h"
 #include <set>
 #include <map>
 #include <boost/tokenizer.hpp>
@@ -128,6 +130,12 @@ void LLExperienceCache::cleanup()
         cache_stream << (*this);
     }
     sShutdown = true;
+}
+
+//-------------------------------------------------------------------------
+void LLExperienceCache::setWorkContractGroup(std::shared_ptr<LLWorkContractGroup> workGroup)
+{
+    mWorkGroup = workGroup;
 }
 
 //-------------------------------------------------------------------------
@@ -247,6 +255,7 @@ const LLExperienceCache::cache_t& LLExperienceCache::getCached()
     return mCache;
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, std::string url, RequestQueue_t requests)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
@@ -317,6 +326,100 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
 }
 
+// NEW: Work graph implementation
+void LLExperienceCache::requestExperiencesWorkGraph(std::string url, RequestQueue_t requests)
+{
+    LL_DEBUGS("ExperienceCache") << "Starting request experiences work graph with url '" << url << "'" << LL_ENDL;
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->getRaw(url);
+
+    auto processNode = graphResult.graph->addNode(
+        [this, requests, sharedResult = graphResult.result]() -> LLWorkResult {
+            if (sShutdown)
+            {
+                return LLWorkResult::Complete;
+            }
+
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                F64 now = LLFrameTimer::getTotalSeconds();
+                LLSD headers = httpResults[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_HEADERS];
+
+                // build dummy entries for the failed requests
+                for (RequestQueue_t::const_iterator it = requests.begin(); it != requests.end(); ++it)
+                {
+                    LLSD exp = get(*it);
+                    if (exp.isUndefined())
+                    {
+                        exp[PROPERTIES] = PROPERTY_INVALID;
+                    }
+                    exp[EXPIRES] = now + LLExperienceCacheImpl::getErrorRetryDeltaTime(status, headers);
+                    exp[EXPERIENCE_ID] = *it;
+                    exp["key_type"] = EXPERIENCE_ID;
+                    exp["uuid"] = *it;
+                    exp["error"] = (LLSD::Integer)status.getType();
+                    exp[QUOTA] = DEFAULT_QUOTA;
+
+                    processExperience(*it, exp);
+                }
+                return LLWorkResult::Complete;
+            }
+
+            const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+            LLSD experiences = content["experience_keys"];
+
+            for (LLSD::array_const_iterator it = experiences.beginArray();
+                it != experiences.endArray(); ++it)
+            {
+                const LLSD& row = *it;
+                LLUUID public_key = row[EXPERIENCE_ID].asUUID();
+
+                LL_DEBUGS("ExperienceCache") << "Received result for " << public_key
+                    << " display '" << row[LLExperienceCache::NAME].asString() << "'" << LL_ENDL;
+
+                processExperience(public_key, row);
+            }
+
+            LLSD error_ids = content["error_ids"];
+
+            for (LLSD::array_const_iterator errIt = error_ids.beginArray();
+                errIt != error_ids.endArray(); ++errIt)
+            {
+                LLUUID id = errIt->asUUID();
+                LLSD exp;
+                exp[EXPIRES] = DEFAULT_EXPIRATION;
+                exp[EXPERIENCE_ID] = id;
+                exp[PROPERTIES] = PROPERTY_INVALID;
+                exp[MISSING] = true;
+                exp[QUOTA] = DEFAULT_QUOTA;
+
+                processExperience(id, exp);
+                LL_WARNS("ExperienceCache") << "Error result for " << id << LL_ENDL;
+            }
+
+            return LLWorkResult::Complete;
+        },
+        "request-experiences-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
 
 void LLExperienceCache::requestExperiences()
 {
@@ -360,9 +463,19 @@ void LLExperienceCache::requestExperiences()
         mPendingQueue[key] = now;
 
         if (mRequestQueue.empty() || (ostr.tellp() > EXP_URL_SEND_THRESHOLD))
-        {   // request is placed in the coprocedure pool for the ExpCache cache.  Throttling is done by the pool itself.
-            LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "RequestExperiences",
-                boost::bind(&LLExperienceCache::requestExperiencesCoro, this, _1, ostr.str(), requests) );
+        {
+            if (mUseWorkGraph)
+            {
+                // NEW: Work graph implementation
+                requestExperiencesWorkGraph(ostr.str(), requests);
+            }
+            else
+            {
+                // BASELINE: Original coroutine implementation
+                // request is placed in the coprocedure pool for the ExpCache cache.  Throttling is done by the pool itself.
+                LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "RequestExperiences",
+                    boost::bind(&LLExperienceCache::requestExperiencesCoro, this, _1, ostr.str(), requests) );
+            }
 
             ostr.str(std::string());
             ostr << urlBase << "?page_size=" << PAGE_SIZE1;
@@ -544,8 +657,17 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
         return;
     }
 
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
-        boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId,  std::string(), fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        fetchAssociatedExperienceWorkGraph(objectId, itemId, std::string(), fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
+            boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId,  std::string(), fn));
+    }
 }
 
 void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, std::string url, ExperienceGetFn_t fn)
@@ -556,10 +678,20 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
         return;
     }
 
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
-        boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId, url, fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        fetchAssociatedExperienceWorkGraph(objectId, itemId, url, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
+            boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId, url, fn));
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID objectId, LLUUID itemId, std::string url, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
@@ -609,6 +741,77 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
     get(expId, fn);
 }
 
+// NEW: Work graph implementation
+void LLExperienceCache::fetchAssociatedExperienceWorkGraph(LLUUID objectId, LLUUID itemId, std::string url, ExperienceGetFn_t fn)
+{
+    if (url.empty())
+    {
+        url = mCapability("GetMetadata");
+
+        if (url.empty())
+        {
+            LL_WARNS("ExperienceCache") << "No Metadata capability." << LL_ENDL;
+            return;
+        }
+    }
+
+    LLSD fields;
+    fields.append("experience");
+    LLSD data;
+    data["object-id"] = objectId;
+    data["item-id"] = itemId;
+    data["fields"] = fields;
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->postRaw(url, data);
+
+    auto processNode = graphResult.graph->addNode(
+        [this, fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if ((!status) || (!result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT].has("experience")))
+            {
+                LLSD failure;
+                if (!status)
+                {
+                    failure["error"] = (LLSD::Integer)status.getType();
+                    failure["message"] = status.getMessage();
+                }
+                else
+                {
+                    failure["error"] = -1;
+                    failure["message"] = "no experience";
+                }
+                if (fn && !fn.empty())
+                    fn(failure);
+                return LLWorkResult::Complete;
+            }
+
+            const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+            LLUUID expId = content["experience"].asUUID();
+            get(expId, fn);
+
+            return LLWorkResult::Complete;
+        },
+        "fetch-associated-experience-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
 //-------------------------------------------------------------------------
 void LLExperienceCache::findExperienceByName(const std::string text, int page, ExperienceGetFn_t fn)
 {
@@ -618,10 +821,20 @@ void LLExperienceCache::findExperienceByName(const std::string text, int page, E
         return;
     }
 
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Search Name",
-        boost::bind(&LLExperienceCache::findExperienceByNameCoro, this, _1, text, page, fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        findExperienceByNameWorkGraph(text, page, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Search Name",
+            boost::bind(&LLExperienceCache::findExperienceByNameCoro, this, _1, text, page, fn));
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, std::string text, int page, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
@@ -652,6 +865,55 @@ void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAd
     fn(result);
 }
 
+// NEW: Work graph implementation
+void LLExperienceCache::findExperienceByNameWorkGraph(std::string text, int page, ExperienceGetFn_t fn)
+{
+    std::ostringstream urlStream;
+    urlStream << mCapability("FindExperienceByName") << "?page=" << page << "&page_size=" << SEARCH_PAGE_SIZE << "&query=" << LLURI::escape(text);
+    std::string url = urlStream.str();
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->getRaw(url);
+
+    auto processNode = graphResult.graph->addNode(
+        [this, fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                fn(LLSD());
+                return LLWorkResult::Complete;
+            }
+
+            const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+            const LLSD& experiences = content["experience_keys"];
+            for (LLSD::array_const_iterator it = experiences.beginArray(); it != experiences.endArray(); ++it)
+            {
+                insert(*it);
+            }
+
+            fn(content);
+            return LLWorkResult::Complete;
+        },
+        "find-experience-by-name-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
 //-------------------------------------------------------------------------
 void LLExperienceCache::getGroupExperiences(const LLUUID &groupId, ExperienceGetFn_t fn)
 {
@@ -661,10 +923,20 @@ void LLExperienceCache::getGroupExperiences(const LLUUID &groupId, ExperienceGet
         return;
     }
 
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Group Experiences",
-        boost::bind(&LLExperienceCache::getGroupExperiencesCoro, this, _1, groupId, fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        getGroupExperiencesWorkGraph(groupId, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Group Experiences",
+            boost::bind(&LLExperienceCache::getGroupExperiencesCoro, this, _1, groupId, fn));
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID groupId, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
@@ -694,19 +966,87 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
     fn(experienceIds);
 }
 
+// NEW: Work graph implementation
+void LLExperienceCache::getGroupExperiencesWorkGraph(LLUUID groupId, ExperienceGetFn_t fn)
+{
+    std::string url = mCapability("GroupExperiences");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Group Experiences capability" << LL_ENDL;
+        return;
+    }
+
+    url += "?" + groupId.asString();
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->getRaw(url);
+
+    auto processNode = graphResult.graph->addNode(
+        [fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                fn(LLSD());
+                return LLWorkResult::Complete;
+            }
+
+            const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+            const LLSD& experienceIds = content["experience_ids"];
+            fn(experienceIds);
+            return LLWorkResult::Complete;
+        },
+        "get-group-experiences-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
 //-------------------------------------------------------------------------
 void LLExperienceCache::getRegionExperiences(CapabilityQuery_t regioncaps, ExperienceGetFn_t fn)
 {
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
-        boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, false, LLSD(), fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        regionExperiencesWorkGraph(regioncaps, false, LLSD(), fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
+            boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, false, LLSD(), fn));
+    }
 }
 
 void LLExperienceCache::setRegionExperiences(CapabilityQuery_t regioncaps, const LLSD &experiences, ExperienceGetFn_t fn)
 {
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
-        boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, true, experiences, fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        regionExperiencesWorkGraph(regioncaps, true, experiences, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
+            boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, true, experiences, fn));
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter,
     CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn)
 {
@@ -740,6 +1080,51 @@ void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapt
 
 }
 
+// NEW: Work graph implementation
+void LLExperienceCache::regionExperiencesWorkGraph(CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn)
+{
+    std::string url = regioncaps("RegionExperiences");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Region Experiences capability" << LL_ENDL;
+        return;
+    }
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = update ? httpAdapter->postRaw(url, experiences) : httpAdapter->getRaw(url);
+
+    auto processNode = graphResult.graph->addNode(
+        [fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status)
+            {
+                return LLWorkResult::Complete;
+            }
+
+            const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+            fn(content);
+            return LLWorkResult::Complete;
+        },
+        "region-experiences-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
 //-------------------------------------------------------------------------
 void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn)
 {
@@ -749,20 +1134,28 @@ void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, Expe
         return;
     }
 
-    std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        getExperiencePermissionWorkGraph(experienceId, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
 
-    permissionInvoker_fn invoker(boost::bind(
-        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
-        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
-        //----
-        // _1 -> httpAdapter
-        // _2 -> httpRequest
-        // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+        permissionInvoker_fn invoker(boost::bind(
+            // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+            static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+            //----
+            // _1 -> httpAdapter
+            // _2 -> httpRequest
+            // _3 -> url
+            (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
-
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
-        boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
+            boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+    }
 }
 
 void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, const std::string &permission, ExperienceGetFn_t fn)
@@ -773,26 +1166,34 @@ void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, cons
         return;
     }
 
-    std::string url = mCapability("ExperiencePreferences");
-    if (url.empty())
-        return;
-    LLSD permData;
-    LLSD data;
-    permData["permission"] = permission;
-    data[experienceId.asString()] = permData;
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        setExperiencePermissionWorkGraph(experienceId, permission, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        std::string url = mCapability("ExperiencePreferences");
+        if (url.empty())
+            return;
+        LLSD permData;
+        LLSD data;
+        permData["permission"] = permission;
+        data[experienceId.asString()] = permData;
 
-    permissionInvoker_fn invoker(boost::bind(
-        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
-        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
-        //----
-        // _1 -> httpAdapter
-        // _2 -> httpRequest
-        // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+        permissionInvoker_fn invoker(boost::bind(
+            // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+            static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+            //----
+            // _1 -> httpAdapter
+            // _2 -> httpRequest
+            // _3 -> url
+            (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
-
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
-        boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
+            boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+    }
 }
 
 void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn)
@@ -803,23 +1204,31 @@ void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, E
         return;
     }
 
-    std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        forgetExperiencePermissionWorkGraph(experienceId, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
 
+        permissionInvoker_fn invoker(boost::bind(
+            // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+            static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+            //----
+            // _1 -> httpAdapter
+            // _2 -> httpRequest
+            // _3 -> url
+            (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
-    permissionInvoker_fn invoker(boost::bind(
-        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
-        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
-        //----
-        // _1 -> httpAdapter
-        // _2 -> httpRequest
-        // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
-
-
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
-        boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
+            boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::experiencePermissionCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, permissionInvoker_fn invokerfn, std::string url, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
@@ -847,10 +1256,20 @@ void LLExperienceCache::getExperienceAdmin(const LLUUID &experienceId, Experienc
         return;
     }
 
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
-        boost::bind(&LLExperienceCache::getExperienceAdminCoro, this, _1, experienceId, fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        getExperienceAdminWorkGraph(experienceId, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
+            boost::bind(&LLExperienceCache::getExperienceAdminCoro, this, _1, experienceId, fn));
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID experienceId, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
@@ -879,10 +1298,20 @@ void LLExperienceCache::updateExperience(LLSD updateData, ExperienceGetFn_t fn)
         return;
     }
 
-    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
-        boost::bind(&LLExperienceCache::updateExperienceCoro, this, _1, updateData, fn));
+    if (mUseWorkGraph)
+    {
+        // NEW: Work graph implementation
+        updateExperienceWorkGraph(updateData, fn);
+    }
+    else
+    {
+        // BASELINE: Original coroutine implementation
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
+            boost::bind(&LLExperienceCache::updateExperienceCoro, this, _1, updateData, fn));
+    }
 }
 
+// BASELINE: Original coroutine implementation
 void LLExperienceCache::updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLSD updateData, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
@@ -901,6 +1330,206 @@ void LLExperienceCache::updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapte
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, updateData);
 
     fn(result);
+}
+
+// NEW: Work graph implementation
+void LLExperienceCache::getExperiencePermissionWorkGraph(const LLUUID &experienceId, ExperienceGetFn_t fn)
+{
+    std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->getRaw(url);
+
+    auto processNode = graphResult.graph->addNode(
+        [fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (status)
+            {
+                const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+                fn(content);
+            }
+            return LLWorkResult::Complete;
+        },
+        "get-experience-permission-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void LLExperienceCache::setExperiencePermissionWorkGraph(const LLUUID &experienceId, const std::string &permission, ExperienceGetFn_t fn)
+{
+    std::string url = mCapability("ExperiencePreferences");
+    if (url.empty())
+        return;
+
+    LLSD permData;
+    LLSD data;
+    permData["permission"] = permission;
+    data[experienceId.asString()] = permData;
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->putRaw(url, data);
+
+    auto processNode = graphResult.graph->addNode(
+        [fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (status)
+            {
+                const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+                fn(content);
+            }
+            return LLWorkResult::Complete;
+        },
+        "set-experience-permission-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void LLExperienceCache::forgetExperiencePermissionWorkGraph(const LLUUID &experienceId, ExperienceGetFn_t fn)
+{
+    std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->deleteRaw(url);
+
+    auto processNode = graphResult.graph->addNode(
+        [fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& httpResults = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpWorkGraphAdapter::getStatusFromLLSD(httpResults);
+
+            if (status)
+            {
+                const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+                fn(content);
+            }
+            return LLWorkResult::Complete;
+        },
+        "forget-experience-permission-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void LLExperienceCache::getExperienceAdminWorkGraph(LLUUID experienceId, ExperienceGetFn_t fn)
+{
+    std::string url = mCapability("IsExperienceAdmin");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Region Experiences capability" << LL_ENDL;
+        return;
+    }
+    url += "?experience_id=" + experienceId.asString();
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->getRaw(url);
+
+    auto processNode = graphResult.graph->addNode(
+        [fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+            fn(content);
+            return LLWorkResult::Complete;
+        },
+        "get-experience-admin-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
+}
+
+// NEW: Work graph implementation
+void LLExperienceCache::updateExperienceWorkGraph(LLSD updateData, ExperienceGetFn_t fn)
+{
+    std::string url = mCapability("UpdateExperience");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Region Experiences capability" << LL_ENDL;
+        return;
+    }
+
+    updateData.erase(LLExperienceCache::QUOTA);
+    updateData.erase(LLExperienceCache::EXPIRES);
+    updateData.erase(LLExperienceCache::AGENT_ID);
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpWorkGraphAdapter>(
+        "ExperienceCache", httpPolicy, mWorkGroup);
+
+    auto graphResult = httpAdapter->postRaw(url, updateData);
+
+    auto processNode = graphResult.graph->addNode(
+        [fn, sharedResult = graphResult.result]() -> LLWorkResult {
+            const LLSD& result = sharedResult->result;
+            const LLSD& content = result[LLCoreHttpUtil::HttpWorkGraphAdapter::HTTP_RESULTS_CONTENT];
+            fn(content);
+            return LLWorkResult::Complete;
+        },
+        "update-experience-process",
+        nullptr,
+        LLExecutionType::MainThread
+    );
+
+    graphResult.graph->addDependency(graphResult.httpNode, processNode);
+
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
+    // Execute the graph
+    graphResult.graph->execute();
 }
 
 //=========================================================================

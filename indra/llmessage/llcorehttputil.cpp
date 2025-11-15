@@ -40,6 +40,7 @@
 
 #include "message.h" // for getting the port
 #include "llworkcontract.h"
+#include "llworkgraphmanager.h"
 
 using namespace LLCore;
 
@@ -1537,6 +1538,10 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::executeHttpRequest(
     LLWorkGraphConfig config;
     config.enableDebugLogging = true;  // Enable verbose logging for HTTP operations
     auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
+
+    // Register with global manager to keep it alive during execution
+    gWorkGraphManager.addGraph(graph);
 
     // Create shared result holder
     auto sharedResult = std::make_shared<HttpResult>();
@@ -1607,6 +1612,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         // Build error result
@@ -1660,6 +1666,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getRawAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         // Build error result
@@ -1713,6 +1720,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getJsonAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         // Build error result
@@ -1767,6 +1775,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         // Build error result
@@ -1821,6 +1830,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         // Build error result
@@ -1877,6 +1887,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postFileAndSchedule(
     LLWorkGraphConfig config;
     config.enableDebugLogging = true;
     auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
     auto sharedResult = std::make_shared<HttpResult>();
 
     LLSD errorResult;
@@ -1908,6 +1919,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::postFileAndSchedule(
     LLWorkGraphConfig config;
     config.enableDebugLogging = true;
     auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
     auto sharedResult = std::make_shared<HttpResult>();
 
     LLSD errorResult;
@@ -1965,6 +1977,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::putAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         LLSD errorResult;
@@ -2024,6 +2037,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::deleteAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         LLSD errorResult;
@@ -2057,6 +2071,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::deleteJsonAndSchedule(
     LLWorkGraphConfig config;
     config.enableDebugLogging = true;
     auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
     auto sharedResult = std::make_shared<HttpResult>();
 
     LLSD errorResult;
@@ -2096,6 +2111,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::patchAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         LLSD errorResult;
@@ -2145,6 +2161,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::copyAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         LLSD errorResult;
@@ -2193,6 +2210,7 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::moveAndSchedule(
         LLWorkGraphConfig config;
         config.enableDebugLogging = true;
         auto graph = std::make_shared<LLWorkGraph>(mWorkGroup.get(), config);
+    gWorkGraphManager.addGraph(graph);
         auto sharedResult = std::make_shared<HttpResult>();
 
         LLSD errorResult;
@@ -2230,6 +2248,24 @@ HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::getRaw(const std::string
     LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
 
     return getAndSchedule(request, url, options, headers);
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::putRaw(const std::string& url, const LLSD& body)
+{
+    LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+
+    return putAndSchedule(request, url, body, options, headers);
+}
+
+HttpWorkGraphAdapter::GraphResult HttpWorkGraphAdapter::deleteRaw(const std::string& url)
+{
+    LLCore::HttpRequest::ptr_t request(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t options(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+
+    return deleteAndSchedule(request, url, options, headers);
 }
 
 // Static utility method to extract HTTP status from LLSD result

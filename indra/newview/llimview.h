@@ -38,6 +38,12 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 
+// A/B Testing: namespace-level flag for work graph vs coroutine implementation
+namespace LLIMView {
+    void setUseWorkGraphs(bool use);
+    bool getUseWorkGraph();
+}
+
 class LLAvatarName;
 class LLFriendObserver;
 class LLCallDialogManager;

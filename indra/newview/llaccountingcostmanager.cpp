@@ -34,6 +34,7 @@
 #include "llcorehttputil.h"
 #include "llexception.h"
 #include "stringize.h"
+#include "llworkgraphmanager.h"
 #include <algorithm>
 #include <iterator>
 
@@ -344,8 +345,13 @@ void LLAccountingCostManager::accountingCostWorkGraph(std::string url,
     // Set up dependency: processing depends on HTTP completing
     graphResult.graph->addDependency(graphResult.httpNode, processNode);
 
+    // Register the graph with the manager to keep it alive while executing
+    gWorkGraphManager.addGraph(graphResult.graph);
+
     // Execute the graph
     graphResult.graph->execute();
+
+    LL_DEBUGS("LLAccountingCostManager") << "Work graph scheduled" << LL_ENDL;
 }
 
 //===============================================================================

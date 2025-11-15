@@ -33,6 +33,7 @@
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
+#include "llworkcontract.h"
 #include "llpathfindinglinkset.h"
 #include "llpathfindingobjectlist.h"
 #include "llpathfindingnavmesh.h"
@@ -93,6 +94,10 @@ public:
     typedef boost::function<void (bool)> rebake_navmesh_callback_t;
     void requestRebakeNavMesh(rebake_navmesh_callback_t pRebakeNavMeshCallback);
 
+    // A/B Testing: toggle between coroutine (false) and work graph (true) implementations
+    void setUseWorkGraph(bool useWorkGraph) { mUseWorkGraph = useWorkGraph; }
+    bool getUseWorkGraph() const { return mUseWorkGraph; }
+
 protected:
 
 private:
@@ -104,12 +109,21 @@ private:
     void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
     void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
+    // BASELINE: Original coroutine implementations
     void navMeshStatusRequestCoro(std::string url, U64 regionHandle, bool isGetStatusOnly);
     void navAgentStateRequestCoro(std::string url);
     void navMeshRebakeCoro(std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback);
     void linksetObjectsCoro(std::string url, std::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
     void linksetTerrainCoro(std::string url, std::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
     void charactersCoro(std::string url, request_id_t requestId, object_request_callback_t callback) const;
+
+    // NEW: Work graph implementations
+    void navMeshStatusRequestWorkGraph(std::string url, U64 regionHandle, bool isGetStatusOnly);
+    void navAgentStateRequestWorkGraph(std::string url);
+    void navMeshRebakeWorkGraph(std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback);
+    void linksetObjectsWorkGraph(std::string url, std::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
+    void linksetTerrainWorkGraph(std::string url, std::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
+    void charactersWorkGraph(std::string url, request_id_t requestId, object_request_callback_t callback) const;
 
     //void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
     void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
@@ -133,6 +147,9 @@ private:
 
     NavMeshMap           mNavMeshMap;
     agent_state_signal_t mAgentStateSignal;
+
+    // A/B Testing flag: use work graph (true) or coroutine baseline (false)
+    bool mUseWorkGraph = false;
 };
 
 #endif // LL_LLPATHFINDINGMANAGER_H

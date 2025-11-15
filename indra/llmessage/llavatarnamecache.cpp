@@ -46,6 +46,7 @@
 #include "llexception.h"
 #include "stringize.h"
 #include "workqueue.h"
+#include "llworkgraphmanager.h"
 
 #include <map>
 #include <set>
@@ -516,22 +517,15 @@ void LLAvatarNameCache::requestNamesViaWorkGraph()
         // Link the nodes so processNode waits for httpNode
         graphResult.graph->addDependency(graphResult.httpNode, processNode);
 
-        // Store the graph to keep it alive while executing
-        mActiveGraphs.push_back(graphResult.graph);
+        // Register the graph with global manager to keep it alive while executing
+        gWorkGraphManager.addGraph(graphResult.graph);
 
         // Execute the graph now that it's fully composed
         graphResult.graph->execute();
 
-        // Clean up completed graphs periodically
-        mActiveGraphs.erase(
-            std::remove_if(mActiveGraphs.begin(), mActiveGraphs.end(),
-                [](const auto& graph) { return graph->isComplete(); }),
-            mActiveGraphs.end()
-        );
-
         LL_DEBUGS("AvNameCache") << "Work Graph scheduled request for url: " << url
                                  << ", agent_ids.size()=" << agent_ids.size()
-                                 << ", active graphs: " << mActiveGraphs.size() << LL_ENDL;
+                                 << ", active graphs: " << gWorkGraphManager.getActiveGraphCount() << LL_ENDL;
     }
 }
 

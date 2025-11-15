@@ -102,6 +102,7 @@ set(llcommon_SOURCE_FILES
     lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
+    llworkgraphmanager.cpp
     hbxxh.cpp
     u64.cpp
     threadpool.cpp
@@ -242,6 +243,7 @@ set(llcommon_HEADER_FILES
     lluuid.h
     llwin32headers.h
     llworkerthread.h
+    llworkgraphmanager.h
     llworkcontract.h
     hbxxh.h
     lockstatic.h

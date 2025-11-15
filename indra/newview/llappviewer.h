@@ -248,6 +248,11 @@ public:
     // Get the main app work contract group for scheduling work graphs
     std::shared_ptr<LLWorkContractGroup> getMainAppGroup() { return mMainAppGroup; }
 
+    // Global toggle for work graph implementations (A/B testing)
+    // When enabled, uses new work graph implementations instead of coroutines
+    // Runs every frame to keep all classes synchronized with the current setting
+    void propagateWorkGraphSetting();
+
     void updateNameLookupUrl(const LLViewerRegion* regionp);
 
     // post given work to the "mainloop" work queue for handling on the main thread
