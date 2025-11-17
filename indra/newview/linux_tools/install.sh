@@ -102,7 +102,7 @@ function install_to_prefix()
     echo " - Installing to $1"
 
     cp -a "${tarball_path}"/* "$1/" || die "Failed to complete the installation!"
-    
+
     "$1"/etc/refresh_desktop_app_entry.sh || echo "Failed to integrate into DE via XDG."
     set_slurl_handler "$1"
 }

@@ -58,7 +58,7 @@ Name=Associate SLURLs"
 #The "PrefersNonDefaultGPU" line should automatically run the viewer on the most powerful GPU in the system, if it is not default. If it is, this is ignored.
 
 # NOTE: DO NOT CHANGE THE "GenericName" FIELD - ONLY CHANGE THE "Name" FIELD. (This is to ensure that searching "Second Life" will show all the viewers installed in a user's system, regardless of their canonical name.)
-    
+
     printf "Installing menu entries via XDG..."
     printf "%b" "${desktop_entry}" > "${installation_prefix}/${desktopfilename}".desktop || echo "Failed to install application menu!"
 	xdg-icon-resource install --novendor --size 256 "${installation_prefix}/secondlife_icon.png" "${desktopfilename}"
