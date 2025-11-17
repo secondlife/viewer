@@ -5025,7 +5025,7 @@ void LLRiggedVolume::update(
     else
     {
         face_begin = face_index;
-        face_end = face_begin + 1;
+        face_end = llmin(face_begin + 1, volume->getNumVolumeFaces());
     }
     for (S32 i = face_begin; i < face_end; ++i)
     {

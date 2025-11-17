@@ -53,7 +53,10 @@ LLConversationLogListItem::LLConversationLogListItem(const LLConversation* conve
 
     if (mConversation->hasOfflineMessages() && !ims_are_read)
     {
-        mIMFloaterShowedConnection = LLFloaterIMSession::setIMFloaterShowedCallback(boost::bind(&LLConversationLogListItem::onIMFloaterShown, this, _1));
+        mIMFloaterShowedConnection = LLFloaterIMSession::setIMFloaterShowedCallback([this](const LLUUID& session_id)
+        {
+            onIMFloaterShown(session_id);
+        });
     }
 }
 

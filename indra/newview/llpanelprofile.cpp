@@ -693,6 +693,7 @@ LLPanelProfileSecondLife::LLPanelProfileSecondLife()
     , mWaitingForImageUpload(false)
     , mAllowPublish(false)
     , mHideAge(false)
+    , mAllowEdit(true)
 {
 }
 
@@ -708,6 +709,10 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
     if (mAvatarNameCacheConnection.connected())
     {
         mAvatarNameCacheConnection.disconnect();
+    }
+    if (mMenuNameCacheConnection.connected())
+    {
+        mMenuNameCacheConnection.disconnect();
     }
 }
 
@@ -757,14 +762,15 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     LLUUID avatar_id = getAvatarId();
 
     bool own_profile = getSelfProfile();
+    bool allow_edit = own_profile && mAllowEdit;
 
     mGroupList->setShowNone(!own_profile);
 
-    childSetVisible("notes_panel", !own_profile);
-    childSetVisible("settings_panel", own_profile);
-    childSetVisible("about_buttons_panel", own_profile);
+    childSetVisible("notes_panel", !allow_edit);
+    childSetVisible("settings_panel", allow_edit);
+    childSetVisible("about_buttons_panel", allow_edit);
 
-    if (own_profile)
+    if (allow_edit)
     {
         // Group list control cannot toggle ForAgent loading
         // Less than ideal, but viewing own profile via search is edge case
@@ -789,7 +795,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
         mAgentActionMenuButton->setMenu("menu_profile_other.xml", LLMenuButton::MP_BOTTOM_RIGHT);
     }
 
-    mDescriptionEdit->setParseHTML(!own_profile);
+    mDescriptionEdit->setParseHTML(!allow_edit);
 
     if (!own_profile)
     {
@@ -1280,7 +1286,7 @@ void LLPanelProfileSecondLife::setLoaded()
         {
             mHideAgeCombo->setEnabled(true);
         }
-        mDescriptionEdit->setEnabled(true);
+        mDescriptionEdit->setEnabled(mAllowEdit);
     }
 }
 
@@ -1456,7 +1462,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     }
     else if (item_name == "edit_display_name")
     {
-        LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCacheSetName, this, _1, _2));
+        mMenuNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCacheSetName, this, _1, _2));
         LLFirstUse::setDisplayName(false);
     }
     else if (item_name == "edit_partner")

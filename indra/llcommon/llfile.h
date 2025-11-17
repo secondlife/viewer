@@ -41,8 +41,9 @@ typedef FILE    LLFILE;
 #include <sys/stat.h>
 
 #if LL_WINDOWS
-// windows version of stat function and stat data structure are called _stat
-typedef struct _stat    llstat;
+// The Windows version of stat function and stat data structure are called _stat64
+// We use _stat64 here to support 64-bit st_size and time_t values
+typedef struct _stat64  llstat;
 #else
 typedef struct stat     llstat;
 #include <sys/types.h>
@@ -56,35 +57,110 @@ typedef struct stat     llstat;
 # define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
 #endif
 
+// Windows C runtime library does not define this and does not support symlink detection in the
+// stat functions but we do in our getattr() function
+#ifndef S_IFLNK
+#define S_IFLNK 0xA000 /* symlink */
+#endif
+
+#ifndef S_ISLNK
+#define S_ISLNK(x) (((x) & S_IFMT) == S_IFLNK)
+#endif
+
 #include "llstring.h" // safe char* -> std::string conversion
 
+/// LLFile is a class of static functions operating on paths
+/// All the functions with a path string input take UTF8 path/filenames
 class LL_COMMON_API LLFile
 {
 public:
-    // All these functions take UTF8 path/filenames.
-    static  LLFILE* fopen(const std::string& filename,const char* accessmode);  /* Flawfinder: ignore */
-    static  LLFILE* _fsopen(const std::string& filename,const char* accessmode,int  sharingFlag);
+    /// open a file with the specified access mode
+    static  LLFILE* fopen(const std::string& filename, const char* accessmode);  /* Flawfinder: ignore */
+    ///< 'accessmode' follows the rules of the Posix fopen() mode parameter
+    /// "r" open the file for reading only and positions the stream at the beginning
+    /// "r+" open the file for reading and writing and positions the stream at the beginning
+    /// "w" open the file for reading and writing and truncate it to zero length
+    /// "w+" open or create the file for reading and writing and truncate to zero length if it existed
+    /// "a" open the file for reading and writing and position the stream at the end of the file
+    /// "a+" open or create the file for reading and writing and position the stream at the end of the file
+    ///
+    /// in addition to these values, "b" can be appended to indicate binary stream access, but on Linux and Mac
+    /// this is strictly for compatibility and has no effect. On Windows this makes the file functions not
+    /// try to translate line endings. Windows also allows to append "t" to indicate text mode. If neither
+    /// "b" or "t" is defined, Windows uses the value set by _fmode which by default is _O_TEXT.
+    /// This means that it is always a good idea to append "b" specifically for binary file access to
+    /// avoid corruption of the binary consistency of the data stream when reading or writing
+    /// Other characters in 'accessmode' will usually cause an error as fopen will verify this parameter
+    /// @returns a valid LLFILE* pointer on success or NULL on failure
 
     static  int     close(LLFILE * file);
 
+    /// retrieve the content of a file into a string
     static std::string getContents(const std::string& filename);
+    ///< @returns the content of the file or an empty string on failure
 
-    // perms is a permissions mask like 0777 or 0700.  In most cases it will
-    // be overridden by the user's umask.  It is ignored on Windows.
-    // mkdir() considers "directory already exists" to be SUCCESS.
+    /// create a directory
     static  int     mkdir(const std::string& filename, int perms = 0700);
+    ///< perms is a permissions mask like 0777 or 0700.  In most cases it will be
+    ///  overridden by the user's umask. It is ignored on Windows.
+    ///  mkdir() considers "directory already exists" to be not an error.
+    ///  @returns 0 on success and -1 on failure.
 
-    static  int     rmdir(const std::string& filename);
-    static  int     remove(const std::string& filename, int supress_error = 0);
-    static  int     rename(const std::string& filename,const std::string& newname, int supress_error = 0);
+    //// remove a directory
+    static  int     rmdir(const std::string& filename, int suppress_error = 0);
+    ///< pass ENOENT in the optional 'suppress_error' parameter
+    ///  if you don't want a warning in the log when the directory does not exist
+    ///  @returns 0 on success and -1 on failure.
+
+    /// remove a file or directory
+    static  int     remove(const std::string& filename, int suppress_error = 0);
+    ///< pass ENOENT in the optional 'suppress_error' parameter
+    ///  if you don't want a warning in the log when the directory does not exist
+    ///  @returns 0 on success and -1 on failure.
+
+    /// rename a file
+    static  int     rename(const std::string& filename, const std::string& newname, int suppress_error = 0);
+    ///< it will silently overwrite newname if it exists without returning an error
+    ///  Posix guarantees that if newname already exists, then there will be no moment
+    ///  in which for other processes newname does not exist. There is no such guarantee
+    ///  under Windows at this time. It may do it in the same way but the used Windows API
+    ///  does not make such guarantees.
+    ///  @returns 0 on success and -1 on failure.
+
+
+    /// copy the contents of file from 'from' to 'to' filename
     static  bool    copy(const std::string& from, const std::string& to);
+    ///< @returns true on success and false on failure.
 
-    static  int     stat(const std::string& filename,llstat*    file_status);
-    static  bool    isdir(const std::string&    filename);
-    static  bool    isfile(const std::string&   filename);
-    static  LLFILE *    _Fiopen(const std::string& filename,
-            std::ios::openmode mode);
+    /// return the file stat structure for filename
+    static  int     stat(const std::string& filename, llstat* file_status, int suppress_error = ENOENT);
+    ///< for compatibility with existing uses of LL_File::stat() we use ENOENT as default in the
+    ///  optional 'suppress_error' parameter to avoid spamming the log with warnings when the API
+    ///  is used to detect if a file exists
+    ///  @returns 0 on success and -1 on failure.
 
+    /// get the file or directory attributes for filename
+    static  unsigned short getattr(const std::string& filename, bool dontFollowSymLink = false, int suppress_error = ENOENT);
+    ///< a more lightweight function on Windows to stat, that just returns the file attribute flags
+    ///  dontFollowSymLinks set to true returns the attributes of the symlink if it is one, rather than resolving it
+    ///  we pass by default ENOENT in the optional 'suppress_error' parameter to not spam the log with
+    ///  warnings when the file or directory does not exist
+    ///  @returns 0 on failure and a st_mode value with either S_IFDIR or S_IFREG set otherwise
+    ///  together with the three access bits which under Windows only the write bit is relevant.
+
+    /// check if filename is an existing directory
+    static  bool    isdir(const std::string& filename);
+    ///< @returns true if the path is for an existing directory
+
+    /// check if filename is an existing file
+    static  bool    isfile(const std::string& filename);
+    ///< @returns true if the path is for an existing file
+
+    /// check if filename is a symlink
+    static  bool    islink(const std::string& filename);
+    ///< @returns true if the path is pointing at a symlink
+
+    /// return a path to the temporary directory on the system
     static  const char * tmpdir();
 };
 

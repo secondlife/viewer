@@ -71,6 +71,7 @@ private:
     static void retrieveExperienceListCoro(std::string url, LLHandle<LLFloaterExperiences> hparent,
         NameMap_t tabMapping, std::string errorNotify, Callback_t cback, invokationFn_t invoker);
     std::vector<LLUUID> mPrepurchaseIds;
+    boost::signals2::scoped_connection mCapsReceivedConnection;
 };
 
 #endif //LL_LLFLOATEREXPERIENCES_H

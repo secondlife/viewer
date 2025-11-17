@@ -87,6 +87,7 @@ public:
                            const std::string& inventory_name,
                            LLOfferInfo* inventory_offer);
 
+    void hideBackBtn();
 
 protected:
     virtual void update(LLGroupChange gc);

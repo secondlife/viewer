@@ -46,11 +46,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a21487f4e3a68721fd97edef117795a1b7212a77</string>
+              <string>3f8e58fe74e144b771858e89a5514bf354964c76</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.5-r1/apr_suite-1.7.5-12259255574-darwin64-12259255574.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.5-r2/apr_suite-1.7.5-18696779749-darwin64-18696779749.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -60,11 +60,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>45baf82d3366734e542a2a3749f495b64f5513b4</string>
+              <string>df36114eb8fb66fdcbb190011222a7d336791d98</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.5-r1/apr_suite-1.7.5-12259255574-linux64-12259255574.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.5-r2/apr_suite-1.7.5-18696779749-linux64-18696779749.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -74,11 +74,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bdd35d3b9580d3cdcb98afae639936aaa40e24c4</string>
+              <string>164705831819d247753c9fd608c2c1ac8dca1883</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.5-r1/apr_suite-1.7.5-12259255574-windows64-12259255574.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.5-r2/apr_suite-1.7.5-18696779749-windows64-18696779749.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -91,7 +91,7 @@
         <key>copyright</key>
         <string>Copyright © 2012 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</string>
         <key>version</key>
-        <string>1.7.5-12259255574</string>
+        <string>1.7.5-18696779749</string>
         <key>name</key>
         <string>apr_suite</string>
         <key>description</key>
@@ -1459,36 +1459,6 @@
         <string>1.0.11137145495</string>
         <key>name</key>
         <string>llphysicsextensions_source</string>
-      </map>
-      <key>llphysicsextensions_stub</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>common</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>bc41438b10ac6474cf5560465a3662a64f9e65a81342e4c33f18f6694581c7ee28c9ee6f091c36e80a0b1e10c68205be71eb5f8e40fef115d2c744fc2bbfcb43</string>
-              <key>hash_algorithm</key>
-              <string>blake2b</string>
-              <key>url</key>
-              <string>https://github.com/AlchemyViewer/llphysicsextensions_stub/releases/download/v1.0-cb4900e/llphysicsextensions_stub-1.0-common-17836965684.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>common</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>internal</string>
-        <key>license_file</key>
-        <string>LICENSES/llphysicsextensions.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
-        <key>version</key>
-        <string>1.0</string>
-        <key>name</key>
-        <string>llphysicsextensions_stub</string>
       </map>
       <key>llphysicsextensions_tpv</key>
       <map>

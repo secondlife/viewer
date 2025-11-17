@@ -2073,7 +2073,6 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
 
             objectp->clearTEWaterExclusion(te);
             // Blank out most override data on the object and send to server
-            objectp->setRenderMaterialID(te, asset_id);
             if (should_preserve_transforms && preserved_override)
             {
                 // Apply material with preserved transforms
