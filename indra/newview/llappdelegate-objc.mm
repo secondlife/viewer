@@ -350,12 +350,12 @@ struct AttachmentInfo
         info.push_back(AttachmentInfo(secondLogPath,  "text/xml"));
     }
 
-    // We "happen to know" that info[0].basename is "SecondLife.old" -- due to
+    // We "happen to know" that info[0].basename is "SecondLife.crash" -- due to
     // the fact that BugsplatMac only notices a crash during the viewer run
     // following the crash.
     // The Bugsplat service doesn't respect the MIME type above when returning
     // the log data to a browser, so take this opportunity to rename the file
-    // from <base>.old to <base>_log.txt
+    // from <base>.crash to <base>_log.txt
     info[0].basename =
         boost::filesystem::path(info[0].pathname).stem().string() + "_log.txt";
     infos("attachmentsForBugsplatStartupManager attaching log " + info[0].basename);

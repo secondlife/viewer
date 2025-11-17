@@ -3622,7 +3622,10 @@ void LLAppViewer::writeSystemInfo()
     if (! gDebugInfo.has("Dynamic") )
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
 
-#if LL_WINDOWS && !LL_BUGSPLAT
+#if LL_DARWIN
+    // crash processing in CrashMetadataSingleton reads SLLog
+    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.crash");
+#elif LL_WINDOWS && !LL_BUGSPLAT
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 #else
     // Far from ideal, especially when multiple instances get involved.
@@ -4034,6 +4037,22 @@ void LLAppViewer::processMarkerFiles()
         }
         LLAPRFile::remove(error_marker_file);
     }
+
+#if LL_DARWIN
+    if (!mSecondInstance && gLastExecEvent != LAST_EXEC_NORMAL)
+    {
+        // While windows reports crashes immediately, mac reports next run and
+        // may take a while to trigger crash report so it has a special file.
+        // Remove .crash file if exists
+        std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            "SecondLife.old");
+        std::string crash_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            "SecondLife.crash");
+        LLFile::remove(crash_log_file);
+        // Rename ".old" log file to ".crash"
+        LLFile::rename(old_log_file, crash_log_file);
+    }
+#endif
 }
 
 void LLAppViewer::removeMarkerFiles()
