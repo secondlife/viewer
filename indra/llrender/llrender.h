@@ -43,7 +43,6 @@
 #include "llglheaders.h"
 #include "llmatrix4a.h"
 #include "glm/mat4x4.hpp"
-#include <boost/align/aligned_allocator.hpp>
 
 #include <array>
 #include <chrono>
@@ -531,8 +530,8 @@ private:
     eBlendFactor mCurrBlendAlphaSFactor;
     eBlendFactor mCurrBlendAlphaDFactor;
 
-    std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 16> > mUIOffset;
-    std::vector<LLVector4a, boost::alignment::aligned_allocator<LLVector4a, 16> > mUIScale;
+    std::vector<LLVector4a> mUIOffset;
+    std::vector<LLVector4a> mUIScale;
 
     struct LLVBCache
     {

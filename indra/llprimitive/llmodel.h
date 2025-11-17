@@ -33,8 +33,6 @@
 #include "m4math.h"
 #include <queue>
 
-#include <boost/align/aligned_allocator.hpp>
-
 class daeElement;
 class domMesh;
 
