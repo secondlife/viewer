@@ -259,10 +259,9 @@ class ViewerManifest(LLManifest):
         global CHANNEL_VENDOR_BASE
         channel_type=self.channel_type()
         if channel_type == 'release':
-            app_suffix='Viewer'
+            return CHANNEL_VENDOR_BASE
         else:
-            app_suffix=self.channel_variant()
-        return CHANNEL_VENDOR_BASE + ' ' + app_suffix
+            return CHANNEL_VENDOR_BASE + ' ' + self.channel_variant()
 
     def exec_name(self):
         return "SecondLifeViewer"
