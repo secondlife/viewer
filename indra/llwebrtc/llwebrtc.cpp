@@ -914,14 +914,17 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             config.set_max_port(60100);
 
             webrtc::PeerConnectionDependencies pc_dependencies(this);
-            if (mPeerConnectionFactory == nullptr)
+            // Other thread manages mPeerConnectionFactory's lifetime and it can be reset
+            // at any momment, create own scoped_refptr (atomic).
+            webrtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> peer_connection_factory = mPeerConnectionFactory;
+            if (peer_connection_factory == nullptr)
             {
                 RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection, factory doesn't exist";
                 // Too early?
                 mPendingJobs--;
                 return;
             }
-            auto error_or_peer_connection = mPeerConnectionFactory->CreatePeerConnectionOrError(config, std::move(pc_dependencies));
+            auto error_or_peer_connection = peer_connection_factory->CreatePeerConnectionOrError(config, std::move(pc_dependencies));
             if (error_or_peer_connection.ok())
             {
                 mPeerConnection = std::move(error_or_peer_connection.value());
@@ -954,10 +957,10 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             audioOptions.noise_suppression = true;
             audioOptions.init_recording_on_send = false;
 
-            mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");
+            mLocalStream = peer_connection_factory->CreateLocalMediaStream("SLStream");
 
             webrtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
-                mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
+                peer_connection_factory->CreateAudioTrack("SLAudio", peer_connection_factory->CreateAudioSource(audioOptions).get()));
             audio_track->set_enabled(false);
             mLocalStream->AddTrack(audio_track);
 
