@@ -2726,11 +2726,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>61aaf739bf77e102b4f72e5a4f5230587f6e8bb1</string>
+              <string>a69aa37bfbcb934974f7af906f6dc6b044692f07</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-websocketpp/releases/download/v0.8.2-r1/websocketpp-0.8.2.19583062881-common-19583062881.tar.zst</string>
+              <string>https://github.com/secondlife/3p-websocketpp/releases/download/v0.8.2-r2/websocketpp-0.8.2.19586590594-common-19586590594.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2743,7 +2743,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2014, Peter Thorson</string>
         <key>version</key>
-        <string>0.8.2.19583062881</string>
+        <string>0.8.2.19586590594</string>
         <key>name</key>
         <string>websocketpp</string>
         <key>vcs_branch</key>
