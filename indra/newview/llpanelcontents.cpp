@@ -221,6 +221,19 @@ void LLPanelContents::clearContents()
 // Static functions
 //
 
+// See below comment in `onClickNewScript()` about this hack :(
+static const std::string DEFAULT_SLUA_SCRIPT = R"(
+function LLEvents.touch_start(detected)
+    ll.Say(0, "Touched.")
+end
+
+local function main()
+    print("Hello, Avatar!")
+end
+
+main()
+)";
+
 // static
 void LLPanelContents::onClickNewScript(void *userdata)
 {
@@ -274,18 +287,6 @@ void LLPanelContents::onClickNewScript(void *userdata)
                             LLViewerInventoryItem* item = gInventory.getItem(inv_item);
                             if (item)
                             {
-                                const std::string hello_lua_script =
-                                    "function state_entry()\n"
-                                    "   ll.Say(0, \"Hello, Avatar!\")\n"
-                                    "end\n"
-                                    "\n"
-                                    "function touch_start(total_number)\n"
-                                    "   ll.Say(0, \"Touched.\")\n"
-                                    "end\n"
-                                    "\n"
-                                    "-- Simulate the state_entry event\n"
-                                    "state_entry()\n";
-
                                 auto scriptUploadFinished = [object, item](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)
                                     {
                                         LLPointer<LLViewerInventoryItem> new_script = new LLViewerInventoryItem(item);
@@ -312,7 +313,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
                                     LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
                                         item->getUUID(),
                                         "luau",
-                                        hello_lua_script,
+                                        DEFAULT_SLUA_SCRIPT,
                                         scriptUploadFinished,
                                         nullptr));
 

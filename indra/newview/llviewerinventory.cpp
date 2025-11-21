@@ -1016,6 +1016,19 @@ void set_default_permissions(LLViewerInventoryItem* item, std::string perm_type)
     }
 }
 
+// See below comment in `create_script_cb()` about this hack :(
+static const std::string DEFAULT_SLUA_SCRIPT = R"(
+function LLEvents.touch_start(detected)
+    ll.Say(0, "Touched.")
+end
+
+local function main()
+    print("Hello, Avatar!")
+end
+
+main()
+)";
+
 void create_script_cb(const LLUUID& inv_item)
 {
     if (!inv_item.isNull())
@@ -1039,26 +1052,13 @@ void create_script_cb(const LLUUID& inv_item)
                 region->getSimulatorFeatures(simulatorFeatures);
                 if (simulatorFeatures["LuaScriptsEnabled"].asBoolean())
                 {
-
-                    const std::string hello_lua_script =
-                        "function state_entry()\n"
-                        "   ll.Say(0, \"Hello, Avatar!\")\n"
-                        "end\n"
-                        "\n"
-                        "function touch_start(total_number)\n"
-                        "   ll.Say(0, \"Touched.\")\n"
-                        "end\n"
-                        "\n"
-                        "-- Simulate the state_entry event\n"
-                        "state_entry()\n";
-
                     std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
                     if (!url.empty())
                     {
                         LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
                             item->getUUID(),
                             "luau",
-                            hello_lua_script,
+                            DEFAULT_SLUA_SCRIPT,
                             nullptr,
                             nullptr));
 
