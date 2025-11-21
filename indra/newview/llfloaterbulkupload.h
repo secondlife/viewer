@@ -59,6 +59,7 @@ private:
     std::vector<std::string> mFiles;
     bool mAllow2kTextures = true;
     bool mHas2kTextures = false;
+    LLUUID mDestinationFolderId;
     S32 mUploadCost = 0;
     S32 mUploadCount = 0;
 };
