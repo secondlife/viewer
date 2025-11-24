@@ -9020,6 +9020,17 @@
     <key>Value</key>
     <integer>16</integer>
   </map>
+    <key>RenderReflectionProbeShowTransparent</key>
+    <map>
+        <key>Comment</key>
+        <string>Show reflection probes in the transparency debug view</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>RenderReflectionProbeVolumes</key>
     <map>
       <key>Comment</key>

@@ -1556,6 +1556,18 @@ function="World.EnvPreset"
                   <menu_item_check.on_click
                    function="View.HighlightTransparent" />
                 </menu_item_check>
+                <menu_item_check
+                   label="Highlight Transparent Probes"
+                   name="Highlight Transparent Probes"
+                   shortcut="alt|shift|T">
+                  <menu_item_check.on_check
+                   function="CheckControl"
+                   parameter="RenderReflectionProbeShowTransparent" />
+                  <menu_item_check.on_click
+                   function="View.HighlightTransparentProbe" />
+                  <menu_item_check.on_enable
+                   function="View.CheckHighlightTransparent"/>
+                </menu_item_check>
         <menu_item_separator/>
           
           <menu_item_check
