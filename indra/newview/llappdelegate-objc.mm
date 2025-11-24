@@ -226,8 +226,10 @@
 
 - (void) setBugsplatValue:(nullable NSString *)value forAttribute:(NSString *)attribute
 {
+#if defined(LL_BUGSPLAT)
     //[[BugSplat shared] setValue:@"Value of not so plain <value> Attribute" forAttribute:@"NotSoPlainAttribute"];
     [[BugSplat shared] setValue:value forAttribute:attribute];
+#endif // LL_BUGSPLAT
 }
 
 #if defined(LL_BUGSPLAT)
