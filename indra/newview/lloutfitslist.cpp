@@ -568,6 +568,10 @@ void LLOutfitsList::onRefreshComplete(LLUICtrl* ctrl)
     if (!ctrl || getFilterSubString().empty())
         return;
 
+    LL_PROFILE_ZONE_SCOPED;
+
+    // TODO: We are doing it multiple times per frame on init
+    // as multiple lists are refreshing. Needs improvements.
     for (outfits_map_t::iterator
              iter = mOutfitsMap.begin(),
              iter_end = mOutfitsMap.end();

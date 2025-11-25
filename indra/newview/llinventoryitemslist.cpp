@@ -145,6 +145,7 @@ void LLInventoryItemsList::updateSelection()
 bool LLInventoryItemsList::doIdle()
 {
     if (mRefreshState == REFRESH_COMPLETE) return true; // done
+    LL_PROFILE_ZONE_SCOPED;
 
     if (isInVisibleChain() || mForceRefresh || !getFilterSubString().empty())
     {
@@ -166,7 +167,7 @@ void LLInventoryItemsList::idle(void* user_data)
 
     using namespace std::chrono;
     auto start = steady_clock::now();
-    const milliseconds time_limit = milliseconds(3);
+    const milliseconds time_limit = milliseconds(2);
     const auto end_time = start + time_limit;
     S32 max_update_count = 50;
 
