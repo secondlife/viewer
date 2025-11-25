@@ -90,14 +90,14 @@ void LLFontGL::destroyGL()
     mFontFreetype->destroyGL();
 }
 
-bool LLFontGL::loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool is_fallback, S32 face_n)
+bool LLFontGL::loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool is_fallback, S32 face_n, EFontHinting hinting, S32 flags)
 {
     if(mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
     {
         mFontFreetype = new LLFontFreetype;
     }
 
-    return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, is_fallback, face_n);
+    return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, is_fallback, face_n, hinting, flags);
 }
 
 S32 LLFontGL::getNumFaces(const std::string& filename)
