@@ -117,6 +117,7 @@ protected:
     };
 
     ERefreshStates mRefreshState;
+    bool mNeedsArrange = true;
 
 private:
     uuid_vec_t mIDs; // IDs of items that were added in refreshList().

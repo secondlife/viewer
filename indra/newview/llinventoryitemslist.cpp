@@ -51,6 +51,7 @@ LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p
 :   LLFlatListViewEx(p)
 ,   mRefreshState(REFRESH_COMPLETE)
 ,   mForceRefresh(false)
+,   mNeedsArrange(true)
 {
     // TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
     // but reset to true in all derived classes. This settings might need to
@@ -218,8 +219,6 @@ void LLInventoryItemsList::refresh()
                 mRefreshState = REFRESH_LIST_SORT;
             }
 
-            rearrangeItems();
-            notifyParentItemsRectChanged();
             break;
         }
     case REFRESH_LIST_ERASE:
@@ -229,10 +228,21 @@ void LLInventoryItemsList::refresh()
             for (; mRemovedItems.end() != it; ++it)
             {
                 // don't filter items right away
-                removeItemByUUID(*it, false);
+                removeItemByUUID(*it, false /*don't rearrange*/);
             }
             mRemovedItems.clear();
-            mRefreshState = REFRESH_LIST_SORT; // fix visibility and arrange
+            mRefreshState = REFRESH_LIST_SORT; // fix visibility
+
+            // Assume that visible items were removed.
+            if (getVisible())
+            {
+                rearrangeItems();
+                notifyParentItemsRectChanged();
+            }
+            else
+            {
+                mNeedsArrange = true;
+            }
             break;
         }
     case REFRESH_LIST_APPEND:
@@ -275,18 +285,25 @@ void LLInventoryItemsList::refresh()
             LLSD action;
             action.with("match_filter", cur_filter);
 
+            bool new_visible_items = false;
             pairs_const_iterator_t pair_it = panel_list.begin();
             for (; pair_it != panel_list.end(); ++pair_it)
             {
                 item_pair_t* item_pair = *pair_it;
                 if (item_pair->first->getParent() != NULL)
                 {
-                    updateItemVisibility(item_pair->first, action);
+                    new_visible_items |= updateItemVisibility(item_pair->first, action);
                 }
             }
 
-            rearrangeItems();
-            notifyParentItemsRectChanged();
+            mNeedsArrange |= new_visible_items;
+            if (mNeedsArrange && getVisible())
+            {
+                // show changes now
+                rearrangeItems();
+                notifyParentItemsRectChanged();
+                mNeedsArrange = false;
+            }
 
             if (mAddedItems.size() > 0)
             {
@@ -304,16 +321,33 @@ void LLInventoryItemsList::refresh()
         {
             LL_PROFILE_ZONE_NAMED("items_refresh_sort");
             // Filter, sort, rearrange and notify parent about shape changes
-            filterItems(true, true);
+            if (filterItems(true, true))
+            {
+                mNeedsArrange = false; // just rearranged
+            }
 
             if (mAddedItems.size() == 0)
             {
+                if (mNeedsArrange)
+                {
+                    // Done, last chance to rearrange
+                    rearrangeItems();
+                    notifyParentItemsRectChanged();
+                    mNeedsArrange = false;
+                }
                 // After list building completed, select items that had been requested to select before list was build
                 updateSelection();
                 mRefreshState = REFRESH_COMPLETE;
             }
             else
             {
+                if (mNeedsArrange && getVisible())
+                {
+                    // show changes now
+                    rearrangeItems();
+                    notifyParentItemsRectChanged();
+                    mNeedsArrange = false;
+                }
                 mRefreshState = REFRESH_LIST_APPEND;
             }
             break;
@@ -347,6 +381,7 @@ void LLInventoryItemsList::computeDifference(
 
 LLPanel* LLInventoryItemsList::createNewItem(LLViewerInventoryItem* item)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (!item)
     {
         LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
