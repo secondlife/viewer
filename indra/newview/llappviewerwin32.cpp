@@ -754,7 +754,8 @@ bool LLAppViewerWin32::init()
                         LL_VIEWER_VERSION_BUILD));
 
                     DWORD dwFlags = MDSF_NONINTERACTIVE | // automatically submit report without prompting
-                        MDSF_PREVENTHIJACKING; // disallow swiping Exception filter
+                        MDSF_PREVENTHIJACKING | // disallow swiping Exception filter
+                        MDSF_DETECTHANGS; // periodically checks this thread for 'hangs'
 
                     bool needs_log_file = !isSecondInstance();
                     LL_DEBUGS("BUGSPLAT");
