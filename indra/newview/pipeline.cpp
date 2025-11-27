@@ -818,9 +818,8 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-
-    static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
-    bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
+    bool has_hdr = gSavedSettings.getBOOL("RenderHDREnabled");
+    bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr;
 
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
@@ -886,6 +885,8 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 
     if (!gCubeSnapshot) // hack to not re-allocate various targets for cube snapshots
     {
+        U32 post_color_fmt = gSavedSettings.getBOOL("RenderHighPrecisionPostProcess") ? GL_RGBA16F : GL_RGBA;
+
         if (RenderUIBuffer)
         {
             if (!mUIScreen.allocate(resX, resY, GL_RGBA))
@@ -896,10 +897,10 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 
         if (RenderFSAAType > 0)
         {
-            if (!mFXAAMap.allocate(resX, resY, GL_RGBA)) return false;
+            if (!mFXAAMap.allocate(resX, resY, post_color_fmt)) return false;
             if (RenderFSAAType == 2)
             {
-                if (!mSMAABlendBuffer.allocate(resX, resY, GL_RGBA, false)) return false;
+                if (!mSMAABlendBuffer.allocate(resX, resY, post_color_fmt, false)) return false;
             }
         }
         else
@@ -920,8 +921,8 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
             mSceneMap.release();
         }
 
-        mPostPingMap.allocate(resX, resY, GL_RGBA);
-        mPostPongMap.allocate(resX, resY, GL_RGBA);
+        mPostPingMap.allocate(resX, resY, post_color_fmt);
+        mPostPongMap.allocate(resX, resY, post_color_fmt);
 
         // The water exclusion mask needs its own depth buffer so we can take care of the problem of multiple water planes.
         // Should we ever make water not just a plane, it also aids with that as well as the water planes will be rendered into the mask.

@@ -30,9 +30,13 @@ out vec4 frag_data[4];
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-in vec3 vary_CloudColorSun;
-in vec3 vary_CloudColorAmbient;
-in float vary_CloudDensity;
+// In
+in vec3 pos;
+
+in vec2 vary_texcoord0;
+in vec2 vary_texcoord1;
+in vec2 vary_texcoord2;
+in vec2 vary_texcoord3;
 
 uniform sampler2D cloud_noise_texture;
 uniform sampler2D cloud_noise_texture_next;
@@ -42,11 +46,26 @@ uniform vec3 cloud_pos_density2;
 uniform float cloud_scale;
 uniform float cloud_variance;
 
-in vec2 vary_texcoord0;
-in vec2 vary_texcoord1;
-in vec2 vary_texcoord2;
-in vec2 vary_texcoord3;
-in float altitude_blend_factor;
+uniform vec3 camPosLocal;
+
+uniform vec3 lightnorm;
+uniform vec3 sunlight_color;
+uniform vec3 moonlight_color;
+uniform int sun_up_factor;
+uniform vec3 ambient_color;
+uniform vec3 blue_horizon;
+uniform vec3 blue_density;
+uniform float haze_horizon;
+uniform float haze_density;
+
+uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float max_y;
+
+uniform vec3 glow;
+uniform float sun_moon_glow_factor;
+
+uniform vec3 cloud_color;
 
 vec4 cloudNoise(vec2 uv)
 {
@@ -58,21 +77,111 @@ vec4 cloudNoise(vec2 uv)
 
 void main()
 {
-    // Set variables
-    vec2 uv1 = vary_texcoord0.xy;
-    vec2 uv2 = vary_texcoord1.xy;
-
-    vec3 cloudColorSun = vary_CloudColorSun;
-    vec3 cloudColorAmbient = vary_CloudColorAmbient;
-    float cloudDensity = vary_CloudDensity;
-    vec2 uv3 = vary_texcoord2.xy;
-    vec2 uv4 = vary_texcoord3.xy;
-
     if (cloud_scale < 0.001)
     {
         discard;
     }
 
+    // Set variables
+    vec2 uv1 = vary_texcoord0.xy;
+    vec2 uv2 = vary_texcoord1.xy;
+    vec2 uv3 = vary_texcoord2.xy;
+    vec2 uv4 = vary_texcoord3.xy;
+
+    // Get relative position
+    vec3 rel_pos = pos.xyz - camPosLocal.xyz + vec3(0, 50, 0);
+
+    float altitude_blend_factor = clamp((rel_pos.y + 512.0) / max_y, 0.0, 1.0);
+
+    // Set altitude
+    if (rel_pos.y > 0)
+    {
+        rel_pos *= (max_y / rel_pos.y);
+    }
+    if (rel_pos.y < 0)
+    {
+        altitude_blend_factor = 0; // SL-11589 Fix clouds drooping below horizon
+        rel_pos *= (-32000. / rel_pos.y);
+    }
+
+    // Can normalize then
+    vec3  rel_pos_norm = normalize(rel_pos);
+    float rel_pos_len  = length(rel_pos);
+
+    // Initialize temp variables
+    vec3 sunlight = sunlight_color;
+    vec3 light_atten;
+
+    // Sunlight attenuation effect (hue and brightness) due to atmosphere
+    // this is used later for sunlight modulation at various altitudes
+    light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
+
+    // Calculate relative weights
+    vec3 combined_haze = abs(blue_density) + vec3(abs(haze_density));
+    vec3 blue_weight   = blue_density / combined_haze;
+    vec3 haze_weight   = haze_density / combined_haze;
+
+    // Compute sunlight from rel_pos & lightnorm (for long rays like sky)
+    float off_axis = 1.0 / max(1e-6, max(0., rel_pos_norm.y) + lightnorm.y);
+    sunlight *= exp(-light_atten * off_axis);
+
+    // Distance
+    float density_dist = rel_pos_len * density_multiplier;
+
+    // Transparency (-> combined_haze)
+    // ATI Bugfix -- can't store combined_haze*density_dist in a variable because the ati
+    // compiler gets confused.
+    combined_haze = exp(-combined_haze * density_dist);
+
+    // Compute haze glow
+    float haze_glow = 1.0 - dot(rel_pos_norm, lightnorm.xyz);
+    // haze_glow is 0 at the sun and increases away from sun
+    haze_glow = max(haze_glow, .001);
+    // Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
+    haze_glow *= glow.x;
+    // Higher glow.x gives dimmer glow (because next step is 1 / "angle")
+    haze_glow = pow(haze_glow, glow.z);
+    // glow.z should be negative, so we're doing a sort of (1 / "angle") function
+
+    haze_glow *= sun_moon_glow_factor;
+
+    // Add "minimum anti-solar illumination"
+    // For sun, add to glow.  For moon, remove glow entirely. SL-13768
+    haze_glow = (sun_moon_glow_factor < 1.0) ? 0.0 : (haze_glow + 0.25);
+
+    // Increase ambient when there are more clouds
+    vec3 tmpAmbient = ambient_color;
+    tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5;
+
+    // Dim sunlight by cloud shadow percentage
+    sunlight *= (1. - cloud_shadow);
+
+    // Haze color below cloud
+    vec3 additiveColorBelowCloud =
+        (blue_horizon * blue_weight * (sunlight + tmpAmbient) + (haze_horizon * haze_weight) * (sunlight * haze_glow + tmpAmbient));
+
+    // CLOUDS
+    sunlight = sunlight_color;
+    off_axis = 1.0 / max(1e-6, lightnorm.y * 2.);
+    sunlight *= exp(-light_atten * off_axis);
+
+    // Cloud color out
+    vec3 cloudColorSun = (sunlight * haze_glow) * cloud_color;
+    vec3 cloudColorAmbient = tmpAmbient * cloud_color;
+
+    // Attenuate cloud color by atmosphere
+    combined_haze = sqrt(combined_haze);  // less atmos opacity (more transparency) below clouds
+    cloudColorSun *= combined_haze;
+    cloudColorAmbient *= combined_haze;
+    vec3 oHazeColorBelowCloud = additiveColorBelowCloud * (1. - combined_haze);
+
+    // Make a nice cloud density based on the cloud_shadow value that was passed in.
+    float cloudDensity = 2. * (cloud_shadow - 0.25);
+
+    // Combine these to minimize register use
+    cloudColorAmbient += oHazeColorBelowCloud;
+
+    // Cloud Fragment
     vec2 disturbance  = vec2(cloudNoise(uv1 / 8.0f).x, cloudNoise((uv3 + uv1) / 16.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
     vec2 disturbance2 = vec2(cloudNoise((uv1 + uv3) / 4.0f).x, cloudNoise((uv4 + uv2) / 8.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
 
