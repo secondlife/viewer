@@ -520,21 +520,17 @@ bool LLGLTFPreviewTexture::render()
     // *HACK: Hide mExposureMap from generateExposure
     gPipeline.mExposureMap.swapFBORefs(gPipeline.mLastExposure);
 
-    gPipeline.copyScreenSpaceReflections(&screen, &gPipeline.mSceneMap);
     gPipeline.generateLuminance(&screen, &gPipeline.mLuminanceMap);
     gPipeline.generateExposure(&gPipeline.mLuminanceMap, &gPipeline.mExposureMap, /*use_history = */ false);
     gPipeline.gammaCorrect(&screen, &gPipeline.mPostPingMap);
     LLVertexBuffer::unbind();
     gPipeline.generateGlow(&gPipeline.mPostPingMap);
     gPipeline.combineGlow(&gPipeline.mPostPingMap, &screen);
-    gPipeline.renderDoF(&screen, &gPipeline.mPostPingMap);
-    gPipeline.applyFXAA(&gPipeline.mPostPingMap, &screen);
 
     // *HACK: Restore mExposureMap (it will be consumed by generateExposure next frame)
     gPipeline.mExposureMap.swapFBORefs(gPipeline.mLastExposure);
 
     // Final render
-
     gDeferredPostNoDoFProgram.bind();
 
     // From LLPipeline::renderFinalize: "Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems."
