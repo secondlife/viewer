@@ -29,92 +29,74 @@
 
 #include "linden_common.h"
 
-#include <boost/thread.hpp>
-#include <boost/function.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <functional>
+#include <thread>
 
-#include "apr.h" // thread-related functions
 #include "_refcounted.h"
 
 namespace LLCoreInt
 {
 
-class HttpThread : public RefCounted
+class HttpThread
 {
+public:
+    HttpThread() = delete;                              // Not defined
+    void operator=(const HttpThread &) = delete;        // Not defined
+
 private:
-    HttpThread();                           // Not defined
-    void operator=(const HttpThread &);     // Not defined
-
-    void at_exit()
-        {
-            // the thread function has exited so we need to release our reference
-            // to ourself so that we will be automagically cleaned up.
-            release();
-        }
-
     void run()
-        { // THREAD CONTEXT
-
-            // Take out additional reference for the at_exit handler
-            addRef();
-            boost::this_thread::at_thread_exit(boost::bind(&HttpThread::at_exit, this));
-
-            // run the thread function
-            mThreadFunc(this);
-
-        } // THREAD CONTEXT
-
-protected:
-    virtual ~HttpThread()
-        {
-            delete mThread;
-        }
+    { // THREAD CONTEXT
+        // run the thread function
+        mThreadFunc(this);
+    } // THREAD CONTEXT
 
 public:
     /// Constructs a thread object for concurrent execution but does
     /// not start running.  Caller receives on refcount on the thread
     /// instance.  If the thread is started, another will be taken
     /// out for the exit handler.
-    explicit HttpThread(boost::function<void (HttpThread *)> threadFunc)
-        : RefCounted(true), // implicit reference
-          mThreadFunc(threadFunc)
-        {
-            // this creates a boost thread that will call HttpThread::run on this instance
-            // and pass it the threadfunc callable...
-            boost::function<void()> f = boost::bind(&HttpThread::run, this);
+    explicit HttpThread(std::function<void (HttpThread *)> threadFunc)
+          : mThreadFunc(threadFunc)
+    {
+        // this creates a std thread that will call HttpThread::run on this instance
+        // and pass it the threadfunc callable...
+        std::function<void()> f = std::bind(&HttpThread::run, this);
 
-            mThread = new boost::thread(f);
-        }
+        mThread = std::make_unique<std::thread>(f);
+        mNativeHandle = mThread->native_handle();
+    }
+
+    ~HttpThread() = default;
 
     inline void join()
-        {
-            mThread->join();
-        }
-
-    inline bool timedJoin(S32 millis)
-        {
-            return mThread->timed_join(boost::posix_time::milliseconds(millis));
-        }
+    {
+        mThread->join();
+    }
 
     inline bool joinable() const
-        {
-            return mThread->joinable();
-        }
+    {
+        return mThread->joinable();
+    }
+
+    inline void detach()
+    {
+        mThread->detach();
+    }
 
     // A very hostile method to force a thread to quit
     inline void cancel()
-        {
-            boost::thread::native_handle_type thread(mThread->native_handle());
-#if     LL_WINDOWS
-            TerminateThread(thread, 0);
+    {
+#if LL_WINDOWS
+        TerminateThread(mNativeHandle, 0);
 #else
-            pthread_cancel(thread);
+        pthread_cancel(mNativeHandle);
 #endif
-        }
+    }
 
 private:
-    boost::function<void(HttpThread *)> mThreadFunc;
-    boost::thread * mThread;
+    std::function<void(HttpThread *)> mThreadFunc;
+    std::unique_ptr<std::thread> mThread;
+    std::thread::native_handle_type mNativeHandle;
 }; // end class HttpThread
 
 } // end namespace LLCoreInt

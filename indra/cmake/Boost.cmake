@@ -65,14 +65,6 @@ find_library(BOOST_SYSTEM_LIBRARY
     boost_system-mt${addrsfx}
     PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
-find_library(BOOST_THREAD_LIBRARY
-    NAMES
-    libboost_thread-mt
-    libboost_thread-mt${addrsfx}
-    boost_thread-mt
-    boost_thread-mt${addrsfx}
-    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
-
 find_library(BOOST_URL_LIBRARY
     NAMES
     libboost_url-mt
@@ -88,7 +80,6 @@ target_link_libraries(ll::boost INTERFACE
     ${BOOST_PROGRAMOPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
     ${BOOST_SYSTEM_LIBRARY}
-    ${BOOST_THREAD_LIBRARY}
     ${BOOST_URL_LIBRARY})
 
 if (LINUX)

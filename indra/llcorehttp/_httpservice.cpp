@@ -71,7 +71,6 @@ volatile HttpService::EState HttpService::sState(NOT_INITIALIZED);
 HttpService::HttpService()
     : mRequestQueue(NULL),
       mExitRequested(0U),
-      mThread(NULL),
       mPolicy(NULL),
       mTransport(NULL),
       mLastPolicy(0)
@@ -90,23 +89,30 @@ HttpService::~HttpService()
         {
             if (mRequestQueue->stopQueue())
             {
-                // Give mRequestQueue a chance to finish
-                ms_sleep(10);
+                // Now wait a bit for the thread to exit
+                S32       counter  = 0;
+                const S32 MAX_WAIT = 600;
+                while (counter < MAX_WAIT)
+                {
+                    if (STOPPED == sState)
+                    {
+                        break;
+                    }
+                    // Sleep for a tenth of a second
+                    ms_sleep(100);
+                    std::this_thread::yield();
+                    counter++;
+                }
             }
         }
 
-        if (mThread)
+        if (mThread && RUNNING == sState)
         {
-            if (! mThread->timedJoin(250))
-            {
-                // Failed to join, expect problems ahead so do a hard termination.
-                LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems." << LL_NEWLINE
-                                    << "State: " << S32(sState)
-                                    << " Last policy: " << U32(mLastPolicy)
-                                    << LL_ENDL;
+            // Failed to shutdown, expect problems ahead so do a hard termination.
+            LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems." << LL_NEWLINE << "State: " << S32(sState)
+                               << " Last policy: " << U32(mLastPolicy) << LL_ENDL;
 
-                mThread->cancel();
-            }
+            mThread->cancel();
         }
     }
 
@@ -122,11 +128,7 @@ HttpService::~HttpService()
     delete mPolicy;
     mPolicy = NULL;
 
-    if (mThread)
-    {
-        mThread->release();
-        mThread = NULL;
-    }
+    mThread.reset();
 }
 
 
@@ -205,14 +207,15 @@ void HttpService::startThread()
 
     if (mThread)
     {
-        mThread->release();
+        mThread.reset();
     }
 
     // Push current policy definitions, enable policy & transport components
     mPolicy->start();
     mTransport->start(mLastPolicy + 1);
 
-    mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
+    mThread = std::make_unique<LLCoreInt::HttpThread>(boost::bind(&HttpService::threadRun, this, _1));
+    mThread->detach(); // Detach thread to let it clean its self up
     sState = RUNNING;
 }
 
@@ -286,8 +289,6 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
     set_thread_name("HttpService");
     LL_PROFILER_SET_THREAD_NAME("HttpService");
 
-    boost::this_thread::disable_interruption di;
-
     ELoopSpeed loop(REQUEST_SLEEP);
     while (! mExitRequested)
     {
@@ -314,7 +315,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
         {
             LOG_UNHANDLED_EXCEPTION("");
         }
-        catch (std::bad_alloc&)
+        catch (const std::bad_alloc&)
         {
             LLMemory::logMemoryInfo(true);
 
