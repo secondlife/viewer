@@ -191,7 +191,6 @@
 #include "llsd.h"
 #include <string>
 #include <curl/curl.h>
-#include "boost/noncopyable.hpp"
 
 namespace LLCore
 {

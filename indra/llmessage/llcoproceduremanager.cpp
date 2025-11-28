@@ -53,13 +53,17 @@ static const U32 DEFAULT_POOL_SIZE = 5;
 const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 1024*512;
 
 //=========================================================================
-class LLCoprocedurePool: private boost::noncopyable
+class LLCoprocedurePool
 {
 public:
     typedef LLCoprocedureManager::CoProcedure_t CoProcedure_t;
 
     LLCoprocedurePool(const std::string &name, size_t size, size_t queue_size);
     ~LLCoprocedurePool();
+
+    // Non-copyable
+    LLCoprocedurePool(const LLCoprocedurePool&) = delete;
+    LLCoprocedurePool& operator=(const LLCoprocedurePool&) = delete;
 
     /// Places the coprocedure on the queue for processing.
     ///

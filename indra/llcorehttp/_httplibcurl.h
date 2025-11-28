@@ -61,8 +61,8 @@ public:
     virtual ~HttpLibcurl();
 
 private:
-    HttpLibcurl(const HttpLibcurl &);           // Not defined
-    void operator=(const HttpLibcurl &);        // Not defined
+    HttpLibcurl(const HttpLibcurl&) = delete;
+    void operator=(const HttpLibcurl&) = delete;
 
 public:
     typedef std::shared_ptr<HttpOpRequest> opReqPtr_t;
@@ -179,8 +179,8 @@ protected:
         ~HandleCache();
 
     private:
-        HandleCache(const HandleCache &);               // Not defined
-        void operator=(const HandleCache &);            // Not defined
+        HandleCache(const HandleCache&)    = delete;
+        void operator=(const HandleCache&) = delete;
 
     public:
         /// Allocate a curl handle for caller.  May be freed using

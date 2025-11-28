@@ -25,7 +25,6 @@
 #ifndef LLSINGLETON_H
 #define LLSINGLETON_H
 
-#include <boost/noncopyable.hpp>
 #include <boost/unordered_set.hpp>
 #include <initializer_list>
 #include <list>
@@ -43,10 +42,13 @@
 #pragma warning(disable : 4506)   // no definition for inline function
 #endif
 
-class LLSingletonBase: private boost::noncopyable
+class LLSingletonBase
 {
 public:
     class MasterList;
+
+    LLSingletonBase(const LLSingletonBase&) = delete;
+    LLSingletonBase& operator=(const LLSingletonBase&) = delete;
 
 private:
     // All existing LLSingleton instances are tracked in this master list.

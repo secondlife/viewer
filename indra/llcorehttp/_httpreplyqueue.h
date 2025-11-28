@@ -30,8 +30,6 @@
 
 #include "_refcounted.h"
 #include "_mutex.h"
-#include "boost/noncopyable.hpp"
-
 
 namespace LLCore
 {
@@ -59,7 +57,7 @@ class HttpOperation;
 /// will be coded anyway so it shouldn't be too much of a
 /// burden.
 
-class HttpReplyQueue : private boost::noncopyable
+class HttpReplyQueue
 {
 
 public:
@@ -68,6 +66,9 @@ public:
 
     HttpReplyQueue();
     virtual ~HttpReplyQueue();
+
+    HttpReplyQueue(const HttpReplyQueue&) = delete;
+    HttpReplyQueue& operator=(const HttpReplyQueue&) = delete;
 
 public:
 

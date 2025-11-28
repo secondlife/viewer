@@ -49,8 +49,7 @@
 #define SETTINGS_OVERRIDE override
 
 class LLSettingsBase :
-    public PTR_NAMESPACE::enable_shared_from_this<LLSettingsBase>,
-    private boost::noncopyable
+    public PTR_NAMESPACE::enable_shared_from_this<LLSettingsBase>
 {
     friend class LLEnvironment;
     friend class LLSettingsDay;
@@ -96,7 +95,11 @@ public:
 
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsBase> ptr_t;
 
-    virtual ~LLSettingsBase() { };
+    virtual ~LLSettingsBase() = default;
+
+    // Non-copyable
+    LLSettingsBase(const LLSettingsBase&) = delete;
+    LLSettingsBase& operator=(const LLSettingsBase&) = delete;
 
     //---------------------------------------------------------------------
     virtual std::string getSettingsType() const = 0;
@@ -430,7 +433,7 @@ public:
             mFinal = mInitial;
     }
 
-    virtual ~LLSettingsBlender() {}
+    virtual ~LLSettingsBlender() = default;
 
     virtual void reset( LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::TrackPosition&)
     {

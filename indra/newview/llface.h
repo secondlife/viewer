@@ -58,16 +58,8 @@ class alignas(16) LLFace
 {
     LL_ALIGN_NEW
 public:
-    LLFace(const LLFace& rhs)
-    {
-        *this = rhs;
-    }
-
-    const LLFace& operator=(const LLFace& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLFace(const LLFace& rhs) = delete;
+    const LLFace& operator=(const LLFace& rhs) = delete;
 
     enum EMasks
     {

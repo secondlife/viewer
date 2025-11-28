@@ -654,12 +654,10 @@ public:
           mRequestedBytes(requested_bytes)
         {}
 
-    virtual ~LLMeshHandlerBase()
-        {}
+    virtual ~LLMeshHandlerBase() = default;
 
-protected:
-    LLMeshHandlerBase(const LLMeshHandlerBase &);               // Not defined
-    void operator=(const LLMeshHandlerBase &);                  // Not defined
+    LLMeshHandlerBase(const LLMeshHandlerBase &) = delete;
+    LLMeshHandlerBase& operator=(const LLMeshHandlerBase&) = delete;
 
 public:
     virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
@@ -693,9 +691,8 @@ public:
     }
     virtual ~LLMeshHeaderHandler();
 
-protected:
-    LLMeshHeaderHandler(const LLMeshHeaderHandler &);           // Not defined
-    void operator=(const LLMeshHeaderHandler &);                // Not defined
+    LLMeshHeaderHandler(const LLMeshHeaderHandler&) = delete;
+    LLMeshHeaderHandler& operator=(const LLMeshHeaderHandler&) = delete;
 
 public:
     virtual void processData(LLCore::BufferArray * body, S32 body_offset, U8 * data, S32 data_size);
@@ -719,9 +716,8 @@ public:
         }
     virtual ~LLMeshLODHandler();
 
-protected:
-    LLMeshLODHandler(const LLMeshLODHandler &);                 // Not defined
-    void operator=(const LLMeshLODHandler &);                   // Not defined
+    LLMeshLODHandler(const LLMeshLODHandler&) = delete;
+    LLMeshLODHandler& operator=(const LLMeshLODHandler&) = delete;
 
 public:
     virtual void processData(LLCore::BufferArray * body, S32 body_offset, U8 * data, S32 data_size);
@@ -750,9 +746,8 @@ public:
     }
     virtual ~LLMeshSkinInfoHandler();
 
-protected:
-    LLMeshSkinInfoHandler(const LLMeshSkinInfoHandler &);       // Not defined
-    void operator=(const LLMeshSkinInfoHandler &);              // Not defined
+    LLMeshSkinInfoHandler(const LLMeshSkinInfoHandler&) = delete;
+    LLMeshSkinInfoHandler& operator=(const LLMeshSkinInfoHandler&) = delete;
 
     void processSkin(U8* data, S32 data_size);
 
@@ -778,9 +773,8 @@ public:
     {}
     virtual ~LLMeshDecompositionHandler();
 
-protected:
-    LLMeshDecompositionHandler(const LLMeshDecompositionHandler &);     // Not defined
-    void operator=(const LLMeshDecompositionHandler &);                 // Not defined
+    LLMeshDecompositionHandler(const LLMeshDecompositionHandler&) = delete;
+    LLMeshDecompositionHandler& operator=(const LLMeshDecompositionHandler&) = delete;
 
 public:
     virtual void processData(LLCore::BufferArray * body, S32 body_offset, U8 * data, S32 data_size);
@@ -804,9 +798,8 @@ public:
     {}
     virtual ~LLMeshPhysicsShapeHandler();
 
-protected:
-    LLMeshPhysicsShapeHandler(const LLMeshPhysicsShapeHandler &);   // Not defined
-    void operator=(const LLMeshPhysicsShapeHandler &);              // Not defined
+    LLMeshPhysicsShapeHandler(const LLMeshPhysicsShapeHandler&) = delete;
+    LLMeshPhysicsShapeHandler& operator=(const LLMeshPhysicsShapeHandler&) = delete;
 
 public:
     virtual void processData(LLCore::BufferArray * body, S32 body_offset, U8 * data, S32 data_size);

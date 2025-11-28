@@ -68,8 +68,7 @@ class HttpService;
 /// via queue-like interfaces that are thread compatible
 /// and those interfaces establish the access rules.
 
-class HttpOperation : private boost::noncopyable,
-    public std::enable_shared_from_this<HttpOperation>
+class HttpOperation : public std::enable_shared_from_this<HttpOperation>
 {
 public:
     typedef std::shared_ptr<HttpOperation> ptr_t;
@@ -82,6 +81,9 @@ public:
     /// Threading:  called by any thread.
     virtual ~HttpOperation();                           // Use release()
 
+    // Non-copyable
+    HttpOperation(const HttpOperation&) = delete;
+    HttpOperation& operator=(const HttpOperation&) = delete;
 
 public:
     /// Register a reply queue and a handler for completion notifications.
@@ -220,12 +222,10 @@ class HttpOpStop : public HttpOperation
 {
 public:
     HttpOpStop();
-
     virtual ~HttpOpStop();
 
-private:
-    HttpOpStop(const HttpOpStop &);                 // Not defined
-    void operator=(const HttpOpStop &);             // Not defined
+    HttpOpStop(const HttpOpStop &) = delete;
+    HttpOpStop& operator=(const HttpOpStop&) = delete;
 
 public:
     virtual void stageFromRequest(HttpService *);
@@ -242,12 +242,10 @@ class HttpOpNull : public HttpOperation
 {
 public:
     HttpOpNull();
-
     virtual ~HttpOpNull();
 
-private:
-    HttpOpNull(const HttpOpNull &);                 // Not defined
-    void operator=(const HttpOpNull &);             // Not defined
+    HttpOpNull(const HttpOpNull&) = delete;
+    HttpOpNull& operator=(const HttpOpNull&) = delete;
 
 public:
     virtual void stageFromRequest(HttpService *);
@@ -264,12 +262,10 @@ public:
     // 0 does a hard spin in the operation
     // 1 does a soft spin continuously requeuing itself
     HttpOpSpin(int mode);
-
     virtual ~HttpOpSpin();
 
-private:
-    HttpOpSpin(const HttpOpSpin &);                 // Not defined
-    void operator=(const HttpOpSpin &);             // Not defined
+    HttpOpSpin(const HttpOpSpin&) = delete;
+    HttpOpSpin& operator=(const HttpOpSpin&) = delete;
 
 public:
     virtual void stageFromRequest(HttpService *);

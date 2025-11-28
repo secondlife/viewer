@@ -44,8 +44,9 @@ namespace LLCoreInt
 class RefCounted
 {
 private:
-    RefCounted();                               // Not defined - may not be default constructed
-    void operator=(const RefCounted &);         // Not defined
+    RefCounted() = delete; // may not be default constructed
+    RefCounted(const RefCounted&) = delete;
+    RefCounted& operator=(const RefCounted&) = delete;
 
 public:
     explicit RefCounted(bool const implicit)

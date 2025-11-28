@@ -156,8 +156,8 @@ protected:
     LLTextBox*  mGroupNameBoxExp;
 
 private:
-    LLGroupNotificationListItem(const LLGroupNotificationListItem &);
-    LLGroupNotificationListItem & operator=(LLGroupNotificationListItem &);
+    LLGroupNotificationListItem(const LLGroupNotificationListItem&) = delete;
+    LLGroupNotificationListItem& operator=(LLGroupNotificationListItem&) = delete;
 
     void setGroupName(std::string name);
     bool updateFromCache();
@@ -175,8 +175,8 @@ public:
 private:
     friend class LLNotificationListItem;
     LLGroupInviteNotificationListItem(const Params& p);
-    LLGroupInviteNotificationListItem(const LLGroupInviteNotificationListItem &);
-    LLGroupInviteNotificationListItem & operator=(LLGroupInviteNotificationListItem &);
+    LLGroupInviteNotificationListItem(const LLGroupInviteNotificationListItem&) = delete;
+    LLGroupInviteNotificationListItem& operator=(LLGroupInviteNotificationListItem&) = delete;
 
     void setFee(S32 fee);
 
@@ -202,8 +202,8 @@ public:
 private:
     friend class LLNotificationListItem;
     LLGroupNoticeNotificationListItem(const Params& p);
-    LLGroupNoticeNotificationListItem(const LLGroupNoticeNotificationListItem &);
-    LLGroupNoticeNotificationListItem & operator=(LLGroupNoticeNotificationListItem &);
+    LLGroupNoticeNotificationListItem(const LLGroupNoticeNotificationListItem&) = delete;
+    LLGroupNoticeNotificationListItem& operator=(LLGroupNoticeNotificationListItem&) = delete;
 
     void setSender(std::string sender);
     void onClickAttachment();
@@ -226,8 +226,8 @@ public:
 private:
     friend class LLNotificationListItem;
     LLTransactionNotificationListItem(const Params& p);
-    LLTransactionNotificationListItem(const LLTransactionNotificationListItem &);
-    LLTransactionNotificationListItem & operator=(LLTransactionNotificationListItem &);
+    LLTransactionNotificationListItem(const LLTransactionNotificationListItem&) = delete;
+    LLTransactionNotificationListItem& operator=(LLTransactionNotificationListItem&) = delete;
     LLAvatarIconCtrl* mAvatarIcon;
     LLAvatarIconCtrl* mAvatarIconExp;
 };
@@ -239,8 +239,8 @@ public:
 private:
     friend class LLNotificationListItem;
     LLSystemNotificationListItem(const Params& p);
-    LLSystemNotificationListItem(const LLSystemNotificationListItem &);
-    LLSystemNotificationListItem & operator=(LLSystemNotificationListItem &);
+    LLSystemNotificationListItem(const LLSystemNotificationListItem&) = delete;
+    LLSystemNotificationListItem & operator=(LLSystemNotificationListItem &) = delete;
     LLIconCtrl* mSystemNotificationIcon;
     LLIconCtrl* mSystemNotificationIconExp;
     bool mIsCaution;
