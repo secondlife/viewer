@@ -289,7 +289,8 @@ void LLFloaterImagePreview::onBtnOK()
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
-                expected_upload_cost
+                expected_upload_cost,
+                mDestinationFolderId
             ));
 
             upload_new_resource(assetUploadInfo);

@@ -157,7 +157,7 @@ const S32 AUCTION_CODE = 7;     // for auction place
 const S32 POPULAR_CODE = 8;     // popular by dwell
 
 // mask values for search flags
-const S32 SEARCH_NONE = 0;	// should try not to send this to the search engine
+const S32 SEARCH_NONE = 0;  // should try not to send this to the search engine
 const S32 SEARCH_PG = 1;
 const S32 SEARCH_MATURE = 2;
 const S32 SEARCH_ADULT = 4;
