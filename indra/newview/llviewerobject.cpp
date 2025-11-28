@@ -7235,7 +7235,7 @@ void LLAlphaObject::getBlendFunc(S32 face, LLRender::eBlendFactor& src, LLRender
 void LLStaticViewerObject::updateDrawable(bool force_damped)
 {
     // Force an immediate rebuild on any update
-    if (mDrawable.notNull())
+    if (mDrawable.notNull() && mDrawable->getVObj())
     {
         mDrawable->updateXform(true);
         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);

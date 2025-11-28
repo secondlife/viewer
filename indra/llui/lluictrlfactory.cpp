@@ -100,16 +100,19 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
     std::string base_filename = search_paths.front();
     if (!base_filename.empty())
     {
-        LLUICtrlFactory::instance().pushFileName(base_filename);
+        LLUICtrlFactory *factory = LLUICtrlFactory::getInstance();
+        factory->mFileNames.push_back(base_filename);
 
-        if (!LLXMLNode::getLayeredXMLNode(root_node, search_paths))
+        if (LLXMLNode::getLayeredXMLNode(root_node, search_paths))
+        {
+            LLXUIParser parser;
+            parser.readXUI(root_node, block, base_filename);
+        }
+        else
         {
             LL_WARNS() << "Couldn't parse widget from: " << base_filename << LL_ENDL;
-            return;
         }
-        LLXUIParser parser;
-        parser.readXUI(root_node, block, base_filename);
-        LLUICtrlFactory::instance().popFileName();
+        factory->mFileNames.pop_back();
     }
 }
 

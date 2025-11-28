@@ -724,8 +724,7 @@
         
 <menu_item_call
          label="360 snapshot"
-         name="Capture 360"
-         shortcut="control|alt|shift|s">
+         name="Capture 360">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="360capture" />
@@ -3491,6 +3490,16 @@ function="World.EnvPreset"
                 <menu_item_check.on_click
                  function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedParticles" />
+            </menu_item_check>
+            <menu_item_check
+              label="Render Avatar Cloth"
+             name="Render Avatar Cloth">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderAvatarCloth" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderAvatarCloth" />
             </menu_item_check>
             <menu_item_check
              label="Collect Font Vertex Buffers"
