@@ -86,6 +86,7 @@
 #include "raytrace.h"
 
 // newview includes
+#include "llaccordionctrl.h"
 #include "llbox.h"
 #include "llchicletbar.h"
 #include "llconsole.h"
@@ -3440,6 +3441,8 @@ void LLViewerWindow::updateUI()
 
     LLConsole::updateClass();
 
+    // execute postponed arrange calls
+    LLAccordionCtrl::updateClass();
     // animate layout stacks so we have up to date rect for world view
     LLLayoutStack::updateClass();
 

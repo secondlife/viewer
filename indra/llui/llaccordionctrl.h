@@ -142,6 +142,9 @@ public:
 
     void setSkipScrollToChild(bool skip) { mSkipScrollToChild = skip; }
 
+    void scheduleArrange();
+    static void updateClass();
+
 private:
     void    initNoTabsWidget(const LLTextBox::Params& tb_params);
     void    updateNoTabsHelpTextVisibility();
@@ -188,12 +191,15 @@ private:
     LLTextBox*      mNoVisibleTabsHelpText = nullptr;
 
     bool            mSkipScrollToChild = false;
+    bool            mArrangePending = false;
 
     std::string     mNoMatchedTabsOrigString;
     std::string     mNoVisibleTabsOrigString;
 
     LLAccordionCtrlTab*     mSelectedTab = nullptr;
     const LLTabComparator*  mTabComparator = nullptr;
+
+    static std::set<LLAccordionCtrl*> sPendingArrange;
 };
 
 

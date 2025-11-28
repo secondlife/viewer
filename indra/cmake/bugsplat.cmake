@@ -23,8 +23,14 @@ if (USE_BUGSPLAT)
     elseif (DARWIN)
         find_library(BUGSPLAT_LIBRARIES BugsplatMac REQUIRED
                 NO_DEFAULT_PATH PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
+        find_library(CRASHREPORTED_LIBRARIES CrashReporter REQUIRED
+                NO_DEFAULT_PATH PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
+        find_library(HOCKEYSDK_LIBRARIES HockeySDK REQUIRED
+                NO_DEFAULT_PATH PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
         target_link_libraries( ll::bugsplat INTERFACE
                 ${BUGSPLAT_LIBRARIES}
+                ${CRASHREPORTED_LIBRARIES}
+                ${HOCKEYSDK_LIBRARIES}
                 )
     else (WINDOWS)
         message(FATAL_ERROR "BugSplat is not supported; add -DUSE_BUGSPLAT=OFF")

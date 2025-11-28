@@ -6,7 +6,7 @@
 	<panel.string name="bandwidth_tooltip">
 		Bande passante
 	</panel.string>
-	<panel.string name="time">
+	<panel.string name="time_ampm">
 		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
 	</panel.string>
 	<panel.string name="timeTooltip">

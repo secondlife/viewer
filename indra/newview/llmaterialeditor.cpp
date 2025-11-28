@@ -1987,12 +1987,14 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
     {
         // Prespecified material
         LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        me->mUploadFolder = dest_folder;
         me->loadMaterial(model_in, filename, index);
     }
     else if (model_in.materials.size() == 1)
     {
         // Only one material, just load it
         LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        me->mUploadFolder = dest_folder;
         me->loadMaterial(model_in, filename, 0);
     }
     else
@@ -2018,11 +2020,12 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
         material_list.push_back(LLTrans::getString("material_batch_import_text"));
 
         LLFloaterComboOptions::showUI(
-            [model_in, filename](const std::string& option, S32 index)
+            [model_in, filename, dest_folder](const std::string& option, S32 index)
         {
             if (index >= 0) // -1 on cancel
             {
                 LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+                me->mUploadFolder = dest_folder;
                 me->loadMaterial(model_in, filename, index);
             }
         },
@@ -2448,7 +2451,7 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
     if (index == model_in.materials.size())
     {
         // bulk upload all the things
-        upload_bulk({ filename }, LLFilePicker::FFLOAD_MATERIAL, true, LLUUID::null);
+        upload_bulk({ filename }, LLFilePicker::FFLOAD_MATERIAL, true, mUploadFolder);
         return;
     }
 

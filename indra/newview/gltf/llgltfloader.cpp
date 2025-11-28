@@ -602,11 +602,12 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
         if (material->mPbrMetallicRoughness.mBaseColorTexture.mIndex >= 0)
         {
             S32 texIndex = material->mPbrMetallicRoughness.mBaseColorTexture.mIndex;
-            std::string filename = processTexture(texIndex, "base_color", material->mName);
+            std::string full_path;
+            std::string filename = processTexture(full_path, texIndex, "base_color", material->mName);
 
             if (!filename.empty())
             {
-                impMat.mDiffuseMapFilename = filename;
+                impMat.mDiffuseMapFilename = full_path;
                 impMat.mDiffuseMapLabel = material->mName.empty() ? filename : material->mName;
 
                 // Check if the texture is already loaded
@@ -637,7 +638,7 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
     return cachedMat;
 }
 
-std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& texture_type, const std::string& material_name)
+std::string LLGLTFLoader::processTexture(std::string& full_path_out, S32 texture_index, const std::string& texture_type, const std::string& material_name)
 {
     S32 sourceIndex;
     if (!validateTextureIndex(texture_index, sourceIndex))
@@ -661,6 +662,12 @@ std::string LLGLTFLoader::processTexture(S32 texture_index, const std::string& t
         {
             // Uri might be escaped
             filename = LLURI::unescape(filename);
+            full_path = dir + gDirUtilp->getDirDelimiter() + filename;
+        }
+
+        if (gDirUtilp->fileExists(full_path))
+        {
+            full_path_out = full_path;
         }
 
         LL_INFOS("GLTF_IMPORT") << "Found texture: " << filename << " for material: " << material_name << LL_ENDL;

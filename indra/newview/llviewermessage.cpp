@@ -1558,6 +1558,7 @@ void LLOfferInfo::sendReceiveResponse(bool accept, const LLUUID &destination_fol
     if (mTransactionID.isNull())
     {
         // Not provided, message won't work
+        LL_WARNS("Messaging") << "Missing transaction id, response for " << mIM << " won't work" << LL_ENDL;
         return;
     }
 
@@ -1600,6 +1601,8 @@ void LLOfferInfo::sendReceiveResponse(bool accept, const LLUUID &destination_fol
         msg->addU8Fast(_PREHASH_Dialog, (U8)(im + 1));
         msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(destination_folder_id.mData),
                                 sizeof(destination_folder_id.mData));
+
+        LL_DEBUGS("Messaging") << "Processing" << (U8)(im + 1) << " with transaction id " << mTransactionID << LL_ENDL;
     }
     else
     {
