@@ -114,8 +114,8 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
 S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType file_type)
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
-
-    return (S32)LLFile::size(filename);
+    S64 fileSize = LLFile::size(filename);
+    return (fileSize > 0) ? (S32)fileSize : 0;
 }
 
 bool LLFileSystem::read(U8* buffer, S32 bytes)

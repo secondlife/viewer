@@ -53,19 +53,25 @@ typedef FILE LLFILE;
 
 #include "llstring.h" // safe char* -> std::string conversion
 
+/// This class provides a selection of functions to operate on files through names and
+/// a class implementation to represent a file for reading and writing to it
 /// All the functions with a path string input take UTF8 path/filenames
+///
+/// @nosubgrouping
+///
 class LL_COMMON_API LLFile
 {
 public:
-    //--------------------------------------------------------------------------------------
-    // constants
-    //--------------------------------------------------------------------------------------
-    // These can be passed to the omode parameter of LLFile::open() and its constructor
-    /*
+    // ================================================================================
+    /// @name Constants
+    ///
+    ///@{
+    /** These can be passed to the omode parameter of LLFile::open() and its constructor
+
     This is similar to the openmode flags for std:fstream but not exactly the same
     std::fstream open() does not allow to open a file for writing without either
     forcing the file to be truncated on open or all write operations being always
-    appended to the end of the file.
+    appended to the end of the file or failing to open when the file does not exist.
     But to allow implementing the LLAPRFile::writeEx() functionality we need to be
     able to write at a random position to the file without truncating it on open.
 
@@ -104,65 +110,71 @@ public:
     static const std::ios_base::openmode trunc     = 1 << 6;    // truncate on open
     static const std::ios_base::openmode noreplace = 1 << 7;    // no replace if it exists
 
-    // Additional optional omode flags to open() and lmode to fopen() or mode flags to lock()
-    // to indicate which sort of lock if any to attempt to get
+    /// Additional optional flags to omode in open() and lmode in fopen() or lock()
+    /// to indicate which sort of lock if any to attempt to get
+    ///
+    /// NOTE: there is a fundamental difference between platforms.
+    /// On Windows this lock is mandatory as it is part of the API to open a file handle and other
+    /// processes can not avoid it. If a file was opened denying other processes read and/or write
+    /// access, trying to open the same file in another process with that access will fail.
+    /// On Mac and Linux it is only an advisory lock implemented through the flock() system call.
+    /// This means that any other application needs to also attempt to at least acquire a shared
+    /// lock on the file in order to notice that the file is actually already locked. It can
+    /// therefore not be used to prevent random other applications from accessing the file, but it
+    /// works for other viewer processes when they use either the LLFile::open() or LLFile::fopen()
+    /// functions with the appropriate lock flags to open a file.
     static const std::ios_base::openmode exclusive = 1 << 16;
     static const std::ios_base::openmode shared    = 1 << 17;
-    // When used either in omode for LLFile::open() or in lmode for LLFile::fopen() there is a
-    // difference between platforms.
-    // On Windows this lock is mandatory as it is part of the API to open a file and other processes
-    // can not avoid it. If a file was opened denying other processes read and/or write access,
-    // trying to open the same file with that access will fail.
-    // On Mac and Linux it is only an advisory lock. This means that the other application
-    // needs to also attempt to at least acquire a shared lock on the file in order to notice that
-    // the file is actually already locked. It can therefore not be used to prevent random other
-    // applications from accessing the file, but it works for other viewer processes when they use
-    // either the LLFile::open() or LLFile::fopen() functions with the appropriate lock flags to
-    // open a file.
 
-    // Additional mode flag to indicate to rather fail instead of blocking when trying
-    // to acquire a lock with LLFile::lock()
+    /// Additional lmode flag to indicate to rather fail instead of blocking when trying
+    /// to acquire a lock with LLFile::lock()
     static const std::ios_base::openmode noblock   = 1 << 18;
 
+    /// The mask value for the lock mask bits
     static const std::ios_base::openmode lock_mask = exclusive | shared;
 
-    // These can be passed to the dir parameter of LLFile::seek()
+    /// One of these can be passed to the dir parameter of LLFile::seek()
     static const std::ios_base::seekdir beg        = std::ios_base::beg;
     static const std::ios_base::seekdir cur        = std::ios_base::cur;
     static const std::ios_base::seekdir end        = std::ios_base::end;
+    ///@}
 
-    //--------------------------------------------------------------------------------------
-    // constructor/deconstructor
-    //--------------------------------------------------------------------------------------
+    // ================================================================================
+    /// @name constructor/deconstructor
+    ///
+    ///@{
+    ///  default constructor
     LLFile() : mHandle(InvalidHandle) {}
 
-    // no copy
+    /// no copy constructor
     LLFile(const LLFile&) = delete;
 
-    // move construction
+    /// move constructor
     LLFile(LLFile&& other) noexcept
     {
         mHandle = other.mHandle;
         other.mHandle = InvalidHandle;
     }
 
-    // open a file
+    /// constructor opening the file
     LLFile(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666) :
         mHandle(InvalidHandle)
     {
         open(filename, omode, ec, perm);
     }
 
-    // Make it a RAII class
+    /// destructor always attempts to close the file
     ~LLFile() { close(); }
+    ///@}
 
-    //--------------------------------------------------------------------------------------
-    // operators
-    //--------------------------------------------------------------------------------------
-    // copy assignment deleted
+    // ================================================================================
+    /// @name operators
+    ///
+    ///@{
+    /// copy assignment deleted
     LLFile& operator=(const LLFile&) = delete;
 
-    // move assignment
+    /// move assignment
     LLFile& operator=(LLFile&& other) noexcept
     {
         close();
@@ -173,13 +185,17 @@ public:
     // detect whether the wrapped file descriptor/handle is open or not
     explicit operator bool() const { return (mHandle != InvalidHandle); }
     bool     operator!() { return (mHandle == InvalidHandle); }
+    ///@}
 
-    //--------------------------------------------------------------------------------------
-    // class member methods
-    //--------------------------------------------------------------------------------------
-
-    /// All of these functions take as one of their parameters a std::error_code object which can be used to
+    /// ================================================================================
+    /// @name  class member methods
+    ///
+    /// These methods provide read and write support as well as additional functionality to query the size of
+    /// the file, change the position of the the current file pointer or query it.
+    ///
+    /// Most of these functions take as one of their parameters a std::error_code object which can be used to
     /// determine in more detail what error occurred if required
+    ///@{
 
     /// Open a file with the specific open mode flags
     int open(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666);
@@ -189,7 +205,7 @@ public:
     S64 size(std::error_code& ec);
     ///< @returns the number of bytes in the file or -1 on failure
 
-    /// Return the current file pointer into the file
+    /// Query the position of the current file pointer in the file
     S64 tell(std::error_code& ec);
     ///< @returns the absolute offset of the file pointer in bytes relative to the start of the file or -1 on failure
 
@@ -201,76 +217,78 @@ public:
     int seek(S64 offset, std::ios_base::seekdir dir, std::error_code& ec);
     ///< @returns 0 on success, -1 on failure
 
-    /// Read a number of bytes into the buffer starting at the current file pointer
+    /// Read the specified number of bytes into the buffer starting at the current file pointer
     S64 read(void* buffer, S64 nbytes, std::error_code& ec);
     ///< If the file ends before the requested amount of bytes could be read, the function succeeds and
-    /// returns the bytes up to the end of the file. The return value indicates the number of actually
-    /// read bytes and can be therefore smaller than the requested amount.
-    /// @returns the number of bytes read from the file or -1 on failure
+    ///  returns the bytes up to the end of the file. The return value indicates the number of actually
+    ///  read bytes and can be therefore smaller than the requested amount.
+    ///  @returns the number of bytes read from the file or -1 on failure
 
-    /// Write a number of bytes to the file starting at the current file pointer
+    /// Write the specified number of bytes to the file starting at the current file pointer
     S64 write(const void* buffer, S64 nbytes, std::error_code& ec);
-    /// @returns the number of bytes written to the file or -1 on failure
+    ///< @returns the number of bytes written to the file or -1 on failure
 
-    /// Write into the file starting at the current file pointer using printf style format
+    /// Write into the file starting at the current file pointer using printf style format and
+    /// additional optional parameters as specified in the fmt string
     S64 printf(const char* fmt, ...);
-    /// @returns the number of bytes written to the file or -1 on failure
+    ///< @returns the number of bytes written to the file or -1 on failure
 
     /// Attempt to acquire or release a lock on the file
-    int lock(int mode, std::error_code& ec);
-    ///< mode can be one of LLFile::exclusive or LLFile::shared to acquire the according lock
-    /// or 0 to give up an earlier acquired lock. Adding LLFile::noblock together with one of
-    /// the lock requests will cause the function to fail if the lock can not be acquired,
-    /// otherwise the function will block until the lock can be acquired.
-    /// @returns 0 on success, -1 on failure
+    int lock(int lmode, std::error_code& ec);
+    ///< lmode can be one of LLFile::exclusive or LLFile::shared to acquire the according lock
+    ///  or 0 to give up an earlier acquired lock. Adding LLFile::noblock together with one of
+    ///  the lock requests will cause the function to fail if the lock can not be acquired,
+    ///  otherwise the function will block until the lock can be acquired.
+    ///  @returns 0 on success, -1 on failure
 
     /// close the file explicitely
     int close(std::error_code& ec);
     ///< @returns 0 on success, -1 on failure
 
-    /// Convinience function to close the file without parameters
+    /// Convenience function to close the file without additional parameters
     int close();
     ///< @returns 0 on success, -1 on failure
+    ///@}
 
-    //----------------------------------------------------------------------------------------
-    // static member functions
-    //
-    // All filename parameters are UTF8 file paths
-    //
-    //----------------------------------------------------------------------------------------
+    /// ================================================================================
+    /// @name  static member functions
+    ///
+    /// These functions are static and operate with UTF8 filenames as one of their parameters.
+    ///
+    ///@{
     /// open a file with the specified access mode
     static LLFILE* fopen(const std::string& filename, const char* accessmode, int lmode = 0);
     ///< 'accessmode' follows the rules of the Posix fopen() mode parameter
-    /// "r" open the file for reading only and positions the stream at the beginning
-    /// "r+" open the file for reading and writing and positions the stream at the beginning
-    /// "w" open the file for reading and writing and truncate it to zero length
-    /// "w+" open or create the file for reading and writing and truncate to zero length if it existed
-    /// "a" open the file for reading and writing and and before every write position the stream at the end of the file
-    /// "a+" open or create the file for reading and writing and before every write position the stream at the end of the file
+    ///  "r" open the file for reading only and positions the stream at the beginning
+    ///  "r+" open the file for reading and writing and positions the stream at the beginning
+    ///  "w" open the file for reading and writing and truncate it to zero length
+    ///  "w+" open or create the file for reading and writing and truncate to zero length if it existed
+    ///  "a" open the file for reading and writing and before every write position the stream at the end of the file
+    ///  "a+" open or create the file for reading and writing and before every write position the stream at the end of the file
     ///
-    /// in addition to these values, "b" can be appended to indicate binary stream access, but on Linux and Mac
-    /// this is strictly for compatibility and has no effect. On Windows this makes the file functions not
-    /// try to translate line endings. Windows also allows to append "t" to indicate text mode. If neither
-    /// "b" or "t" is defined, Windows uses the value set by _fmode which by default is _O_TEXT.
-    /// This means that it is always a good idea to append "b" specifically for binary file access to
-    /// avoid corruption of the binary consistency of the data stream when reading or writing
-    /// Other characters in 'accessmode', while possible on some platforms (Windows), will usually
-    /// cause an error as fopen will verify this parameter
+    ///  in addition to these values, "b" can be appended to indicate binary stream access, but on Linux and Mac
+    ///  this is strictly for compatibility and has no effect. On Windows this makes the file functions not
+    ///  try to translate line endings. Windows also allows to append "t" to indicate text mode. If neither
+    ///  "b" or "t" is defined, Windows uses the value set by _fmode which by default is _O_TEXT.
+    ///  This means that it is always a good idea to append "b" specifically for binary file access to
+    ///  avoid corruption of the binary consistency of the data stream when reading or writing
+    ///  Other characters in 'accessmode', while possible on some platforms (Windows), will usually
+    ///  cause an error on other platforms as fopen will verify this parameter
     ///
-    /// lmode is optional and allows to lock the file for other processes either as a shared lock or an
-    /// exclusive lock. If the requested lock conflicts with an already existing lock, the open fails.
-    /// Pass either LLFIle::exclusive or LLFile::shared to this parameter if you want to prevent other
-    /// processes from reading (exclusive lock) or writing (shared lock) to the file. It will always use
-    /// LLFile::noblock, meaning the open will immediately fail if it conflicts with an existing lock on the
-    /// file.
+    ///  lmode is optional and allows to lock the file for other processes either as a shared lock or an
+    ///  exclusive lock. If the requested lock conflicts with an already existing lock, the open fails.
+    ///  Pass either LLFIle::exclusive or LLFile::shared to this parameter if you want to prevent other
+    ///  processes from reading (exclusive lock) or writing (shared lock) to the file. It will always use
+    ///  LLFile::noblock, meaning the open will immediately fail if it conflicts with an existing lock on the
+    ///  file.
     ///
-    /// @returns a valid LLFILE* pointer on success that can be passed to the fread() and fwrite() functions
-    /// and some other f<something> functions in the Standard C library that accept a FILE* as parameter
-    /// or NULL on failure
+    ///  @returns a valid LLFILE* pointer on success that can be passed to the fread() and fwrite() functions
+    ///  and some other f<something> functions in the Standard C library that accept a FILE* as parameter
+    ///  or NULL on failure
 
     /// Close a file handle opened with fopen() above
     static  int     close(LLFILE * file);
-    ///  @returns 0 on success and -1 on failure.
+    ///< @returns 0 on success and -1 on failure.
 
     /// create a directory
     static  int     mkdir(const std::string& filename);
@@ -288,27 +306,42 @@ public:
     ///< it will silently overwrite newname if it exists without returning an error
     ///  Posix guarantees that if newname already exists, then there will be no moment
     ///  in which for other processes newname does not exist. There is no such guarantee
-    ///  under Windows at this time. It may do it in the same way but the used Windows API
-    ///  does not make such guarantees.
+    ///  under Windows at this time. It may do it in the same way but the used Windows
+    ///  APIs do not make such guarantees.
     ///  @returns 0 on success and -1 on failure.
 
-    /// copy the contents of the file from 'from' to 'to' filename
-    static  bool    copy(const std::string& from, const std::string& to);
-    ///< @returns true on success and false on failure.
+    /// copy the contents of the file from 'source' to 'target'
+    static  bool    copy(const std::string& source, const std::string& target);
+    ///< Copies the contents of the file 'source' to the file 'target', overwriting 'target' if it already
+    ///  existed.
+    ///  This is a convenience function that implements the previous behavior of silently overwriting an
+    ///  already existing target file. Consider using the function below if you desire a different
+    ///  behavior when the target file already exists
+    ///  @returns true on success and false on failure.
+
+    /// copy the contents of the file from 'from' to 'to'
+    static  bool    copy(const std::string& source, const std::string& target, std::filesystem::copy_options options, std::error_code& ec);
+    ///< Copies the contents of the file 'source' to the file 'target'. The options parameter allows to
+    ///  specify what should happen if the "target" file already exists:
+    ///   std::filesystem::copy_options::none - return an error in ec and fail
+    ///   std::filesystem::copy_options::skip_existing - skip the operation and do not overwrite file
+    ///   std::filesystem::copy_options::overwrite_existing - overwrite the file
+    ///   std::filesystem::copy_options::update_existing - overwrite the file only if it is older than the file being copied
+    ///  @returns true on success and false on failure.
 
     /// retrieve the content of a file into a string
     static std::string getContents(const std::string& filename);
     static std::string getContents(const std::string& filename, std::error_code& ec);
-    ///< @returns the content of the file or an empty string on failure
+    ///< @returns the entire content of the file as std::string or an empty string on failure
 
     /// read nBytes from the file into the buffer, starting at offset in the file
-    static S64      read(const std::string& filename, void* buf, S64 offset, S64 nbytes);
-    static S64      read(const std::string& filename, void* buf, S64 offset, S64 nbytes, std::error_code& ec);
+    static  S64     read(const std::string& filename, void* buf, S64 offset, S64 nbytes);
+    static  S64     read(const std::string& filename, void* buf, S64 offset, S64 nbytes, std::error_code& ec);
     ///< @returns bytes read on success, or -1 on failure
 
     /// write nBytes from the buffer into the file, starting at offset in the file
-    static S64      write(const std::string& filename, const void* buf, S64 offset, S64 nbytes);
-    static S64      write(const std::string& filename, const void* buf, S64 offset, S64 nbytes, std::error_code& ec);
+    static  S64     write(const std::string& filename, const void* buf, S64 offset, S64 nbytes);
+    static  S64     write(const std::string& filename, const void* buf, S64 offset, S64 nbytes, std::error_code& ec);
     ///< A negative offset will append the data to the end of the file
     ///  @returns bytes written on success, or -1 on failure
 
@@ -321,7 +354,16 @@ public:
 
     /// get the creation data and time of a file
     static std::time_t getCreationTime(const std::string& filename, int suppress_warning = 0);
-    ///< @returns the creation time of the file or 0 on error
+    ///< Different systems have different support for this. Under Windows this is supposedly
+    ///  the actual time the file was created, on the Mac this is the actual birth date of
+    ///  the file which is in fact the creation time. The according ctime entry in the stat
+    ///  structure under Linux (and any other *nix really) is however contrary to what one
+    ///  might expect based on the c in ctime not the creation time but the time the last
+    ///  change to the inode entry was made. Changing access rights to a file will update
+    ///  this value too. In order to have a true creation time under Linux, we would have
+    ///  to use the statx() call which is available since kernel 4.19, but that will require
+    ///  considerable changes to the implementation of above stat() function.
+    ///  @returns the creation time (last status change under Linux) of the file or 0 on error
 
     /// get the last modification data and time of a file
     static std::time_t getModificationTime(const std::string& filename, int suppress_warning = 0);
@@ -332,7 +374,7 @@ public:
     ///< dontFollowSymLinks set to true returns the attributes of the symlink if it is one, rather than resolving it
     ///  we pass by default ENOENT in the optional 'suppress_warning' parameter to not spam the log with
     ///  warnings when the file or directory does not exist
-    ///  @returns a std::filesystem::file_status value that can be passed to the according std::filesystem::exists()
+    ///  @returns a std::filesystem::file_status value that can be passed to the appropriate std::filesystem::exists()
     ///  and other APIs accepting a file_status.
 
     /// get the size of a file in bytes
@@ -342,19 +384,19 @@ public:
     ///  @returns the file size on success or -1 on failure.
 
     /// check if filename is an existing file or directory
-    static bool     exists(const std::string& filename);
+    static  bool    exists(const std::string& filename);
     ///< @returns true if the path is for an existing file or directory
 
     /// check if filename is an existing directory
-    static bool     isdir(const std::string& filename);
+    static  bool    isdir(const std::string& filename);
     ///< @returns true if the path is for an existing directory
 
     /// check if filename is an existing file
-    static bool     isfile(const std::string& filename);
+    static  bool    isfile(const std::string& filename);
     ///< @returns true if the path is for an existing file
 
     /// check if filename is a symlink
-    static bool     islink(const std::string& filename);
+    static  bool    islink(const std::string& filename);
     ///< @returns true if the path is pointing at a symlink
 
     /// return a path to the temporary directory on the system
@@ -363,6 +405,7 @@ public:
     /// converts a string containing a path in utf8 encoding into an explicit filesystem path
     static std::filesystem::path utf8StringToPath(const std::string& pathname);
     ///< @returns the path as a std::filesystem::path
+    ///@}
 
 private:
 #if LL_WINDOWS
@@ -373,9 +416,9 @@ private:
     const llfile_handle_t InvalidHandle = -1;
 #endif
 
-    //----------------------------------------------------------------------------------------
-    // static member functions
-    //----------------------------------------------------------------------------------------
+    /// ================================================================================
+    /// @name private static member functions
+    ///
 #if LL_WINDOWS
     /// convert a string containing a path in utf8 encoding into a Windows format std::wstring
     static std::wstring utf8StringToWstring(const std::string& pathname);
@@ -393,7 +436,7 @@ private:
     ///
     ///  @returns the path as a std::wstring path
 #endif
-    llfile_handle_t mHandle;
+    llfile_handle_t mHandle;       // The file handle/descriptor
     std::ios_base::openmode mOpen; // Used to emulate std::ios_base::app under Windows
 };
 
@@ -484,17 +527,6 @@ class LL_COMMON_API llofstream : public std::ofstream
     void open(const std::string& _Filename,
               ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 };
-
-
-/**
- * @brief filesize helpers.
- *
- * The file size helpers are not considered particularly efficient,
- * and should only be used for config files and the like -- not in a
- * loop.
- */
-std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
-std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
 
 #else // ! LL_WINDOWS
 

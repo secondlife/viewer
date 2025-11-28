@@ -29,7 +29,6 @@
 
 #include "linden_common.h"
 #include "llfile.h"
-#include "llstring.h"
 #include "llerror.h"
 #include "stringize.h"
 
@@ -236,7 +235,7 @@ static int warnif(const std::string& desc, const std::string& filename, int rc, 
 
         // For certain operations, a particular errno value might be
         // acceptable -- e.g. stat() could permit ENOENT, mkdir() could permit
-        // EEXIST. Don't warn if caller explicitly says this errno is okay.
+        // EEXIST. Don't log a warning if caller explicitly says this errno is okay.
         if (errn != accept)
         {
             LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
@@ -910,22 +909,29 @@ S64 LLFile::read(const std::string& filename, void* buf, S64 offset, S64 nbytes,
         return 0;
     }
 
-    std::ios_base::openmode omode = LLFile::in | LLFile::binary;
-
-    LLFile file(filename, omode, ec);
-    if (file)
+    if (!buf || offset < 0)
     {
-        S64 bytes_read = 0;
-        if (offset > 0)
+        set_ec_to_parameter_error(ec);
+    }
+    else
+    {
+        std::ios_base::openmode omode = LLFile::in | LLFile::binary;
+
+        LLFile file(filename, omode, ec);
+        if (file)
         {
-            file.seek(offset, ec);
-        }
-        if (!ec)
-        {
-            bytes_read = file.read(buf, nbytes, ec);
+            S64 bytes_read = 0;
+            if (offset > 0)
+            {
+                file.seek(offset, ec);
+            }
             if (!ec)
             {
-                return bytes_read;
+                bytes_read = file.read(buf, nbytes, ec);
+                if (!ec)
+                {
+                    return bytes_read;
+                }
             }
         }
     }
@@ -949,26 +955,33 @@ S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 
         return 0;
     }
 
-    std::ios_base::openmode omode = LLFile::out | LLFile::binary;
-    if (offset < 0)
+    if (!buf)
     {
-        omode |= LLFile::app;
+        set_ec_to_parameter_error(ec);
     }
-
-    LLFile file(filename, omode, ec);
-    if (file)
+    else
     {
-        S64 bytes_written = 0;
-        if (offset > 0)
+        std::ios_base::openmode omode = LLFile::out | LLFile::binary;
+        if (offset < 0)
         {
-            file.seek(offset, ec);
+            omode |= LLFile::app;
         }
-        if (!ec)
+
+        LLFile file(filename, omode, ec);
+        if (file)
         {
-            bytes_written = file.write(buf, nbytes, ec);
+            S64 bytes_written = 0;
+            if (offset > 0)
+            {
+                file.seek(offset, ec);
+            }
             if (!ec)
             {
-                return bytes_written;
+                bytes_written = file.write(buf, nbytes, ec);
+                if (!ec)
+                {
+                    return bytes_written;
+                }
             }
         }
     }
@@ -976,15 +989,21 @@ S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 
 }
 
 // static
-bool LLFile::copy(const std::string& from, const std::string& to)
+bool LLFile::copy(const std::string& source, const std::string& target)
 {
     std::error_code ec;
-    std::filesystem::path from_path = utf8StringToPath(from);
-    std::filesystem::path to_path   = utf8StringToPath(to);
-    bool copied = std::filesystem::copy_file(from_path, to_path, ec);
+    return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
+}
+
+// static
+bool LLFile::copy(const std::string& source, const std::string& target, std::filesystem::copy_options options, std::error_code& ec)
+{
+    std::filesystem::path source_path = utf8StringToPath(source);
+    std::filesystem::path target_path = utf8StringToPath(target);
+    bool copied = std::filesystem::copy_file(source_path, target_path, options, ec);
     if (!copied)
     {
-        LL_WARNS("LLFile") << "copy failed" << LL_ENDL;
+        warnif(STRINGIZE("copy failed, to '" << target << "' from"), source, ec);
     }
     return copied;
 }
@@ -1004,7 +1023,7 @@ int LLFile::stat(const std::string& filename, llstat* filestatus, const char *fn
 // static
 std::time_t LLFile::getCreationTime(const std::string& filename, int suppress_warning)
 {
-    // As if C++20 there is no functionality in std::filesystem to retrieve this information
+    // As of C++20 there is no functionality in std::filesystem to retrieve this information
     llstat filestat;
     int rc = stat(filename, &filestat, "getCreationTime", suppress_warning);
     if (rc == 0)
@@ -1046,7 +1065,7 @@ S64 LLFile::size(const std::string& filename, int suppress_warning)
     std::error_code ec;
     std::filesystem::path file_path = utf8StringToPath(filename);
     std::intmax_t size = (std::intmax_t)std::filesystem::file_size(file_path, ec);
-    return warnif("size", filename, ec, suppress_warning) ? -1 : size;
+    return warnif("size", filename, ec, suppress_warning) ? 0 : size;
 }
 
 // static
@@ -1057,13 +1076,13 @@ std::filesystem::file_status LLFile::getStatus(const std::string& filename, bool
     std::filesystem::file_status status;
     if (dontFollowSymLink)
     {
-        status = std::filesystem::status(file_path, ec);
+        status = std::filesystem::symlink_status(file_path, ec);
     }
     else
     {
-        status = std::filesystem::symlink_status(file_path, ec);
+        status = std::filesystem::status(file_path, ec);
     }
-    warnif("getattr", filename, ec, suppress_warning);
+    warnif("getStatus()", filename, ec, suppress_warning);
     return status;
 }
 
@@ -1155,9 +1174,7 @@ void llifstream::open(const std::string& _Filename, ios_base::openmode _Mode)
                         _Mode | ios_base::in);
 }
 
-
 /************** output file stream ********************************/
-
 
 llofstream::llofstream() {}
 
@@ -1172,32 +1189,6 @@ void llofstream::open(const std::string& _Filename, ios_base::openmode _Mode)
 {
     std::ofstream::open(ll_convert<std::wstring>( _Filename ).c_str(),
                         _Mode | ios_base::out);
-}
-
-/************** helper functions ********************************/
-
-std::streamsize llifstream_size(llifstream& ifstr)
-{
-    if(!ifstr.is_open()) return 0;
-    std::streampos pos_old = ifstr.tellg();
-    ifstr.seekg(0, std::ios_base::beg);
-    std::streampos pos_beg = ifstr.tellg();
-    ifstr.seekg(0, std::ios_base::end);
-    std::streampos pos_end = ifstr.tellg();
-    ifstr.seekg(pos_old, std::ios_base::beg);
-    return pos_end - pos_beg;
-}
-
-std::streamsize llofstream_size(llofstream& ofstr)
-{
-    if(!ofstr.is_open()) return 0;
-    std::streampos pos_old = ofstr.tellp();
-    ofstr.seekp(0, std::ios_base::beg);
-    std::streampos pos_beg = ofstr.tellp();
-    ofstr.seekp(0, std::ios_base::end);
-    std::streampos pos_end = ofstr.tellp();
-    ofstr.seekp(pos_old, std::ios_base::beg);
-    return pos_end - pos_beg;
 }
 
 #endif  // LL_WINDOWS
