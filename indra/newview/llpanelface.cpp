@@ -1166,26 +1166,22 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         bool missing_asset = false;
         {
             LLGLenum image_format = GL_RGB;
+            bool has_alpha = false;
             bool identical_image_format = false;
-            LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
+            LLSelectedTE::getImageFormat(image_format, has_alpha, identical_image_format, missing_asset);
 
             if (!missing_asset)
             {
-                mIsAlpha = false;
+                mIsAlpha = has_alpha;
                 switch (image_format)
                 {
                     case GL_RGBA:
                     case GL_ALPHA:
-                    {
-                        mIsAlpha = true;
-                    }
-                    break;
-
                     case GL_RGB:
                         break;
                     default:
                     {
-                        LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+                        LL_WARNS() << "Unexpected tex format in LLPanelFace..." << LL_ENDL;
                     }
                     break;
                 }
@@ -3292,23 +3288,22 @@ void LLPanelFace::onSelectTexture()
     sendTexture();
 
     LLGLenum image_format;
+    bool has_alpha;
     bool identical_image_format = false;
     bool missing_asset = false;
-    LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
+    LLSelectedTE::getImageFormat(image_format, has_alpha, identical_image_format, missing_asset);
 
-    U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
     if (!missing_asset)
     {
+        U32 alpha_mode = has_alpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
         switch (image_format)
         {
         case GL_RGBA:
         case GL_ALPHA:
-            alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
-            break;
         case GL_RGB:
             break;
         default:
-            LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+            LL_WARNS() << "Unexpected tex format in LLPanelFace..." << LL_ENDL;
             break;
         }
 
@@ -5258,12 +5253,13 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
     identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return, false, (LLFace*)nullptr);
 }
 
-void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face, bool& missing_asset)
+void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& has_alpha, bool& identical_face, bool& missing_asset)
 {
     struct LLSelectedTEGetmatId : public LLSelectedTEFunctor
     {
         LLSelectedTEGetmatId()
             : mImageFormat(GL_RGB)
+            , mHasAlpha(false)
             , mIdentical(true)
             , mMissingAsset(false)
             , mFirstRun(true)
@@ -5278,6 +5274,10 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
             {
                 format = image->getPrimaryFormat();
                 missing = image->isMissingAsset();
+                if (format == GL_RGBA || format == GL_ALPHA)
+                {
+                    mHasAlpha = true;
+                }
             }
 
             if (mFirstRun)
@@ -5294,6 +5294,7 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
             return true;
         }
         LLGLenum mImageFormat;
+        bool mHasAlpha;
         bool mIdentical;
         bool mMissingAsset;
         bool mFirstRun;
@@ -5301,6 +5302,7 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
 
     image_format_to_return = func.mImageFormat;
+    has_alpha = func.mHasAlpha;
     identical_face = func.mIdentical;
     missing_asset = func.mMissingAsset;
 }

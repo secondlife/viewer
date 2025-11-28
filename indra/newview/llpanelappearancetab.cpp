@@ -40,6 +40,7 @@ void LLPanelAppearanceTab::setFilterSubString(const std::string& new_string)
     {
         std::string old_string = mFilterSubString;
         mFilterSubString = new_string;
+        mFilterGeneration++;
         onFilterSubStringChanged(mFilterSubString, old_string);
     }
 
@@ -52,6 +53,7 @@ void LLPanelAppearanceTab::checkFilterSubString()
     {
         std::string old_string = mFilterSubString;
         mFilterSubString = sRecentFilterSubString;
+        mFilterGeneration++;
         onFilterSubStringChanged(mFilterSubString, old_string);
     }
 }

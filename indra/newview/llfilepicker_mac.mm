@@ -114,38 +114,73 @@ void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
 
     @autoreleasepool
     {
-        // Note: might need to return and save this panel
-        // so that it does not close immediately
         NSOpenPanel *panel = init_panel(allowed_types,flags);
+        NSWindow *mainWindow = [NSApp mainWindow];
 
-        [panel beginWithCompletionHandler:^(NSModalResponse result)
+        if (mainWindow)
         {
-            std::vector<std::string> outfiles;
-            if (result == NSModalResponseOK)
+            [panel beginSheetModalForWindow:mainWindow
+                          completionHandler:^(NSModalResponse result)
             {
-                NSArray *filesToOpen = [panel URLs];
-                int i, count = [filesToOpen count];
-
-                if (count > 0)
+                std::vector<std::string> outfiles;
+                if (result == NSModalResponseOK)
                 {
+                    NSArray *filesToOpen = [panel URLs];
+                    int i, count = [filesToOpen count];
 
-                    for (i=0; i<count; i++) {
-                        NSString *aFile = [[filesToOpen objectAtIndex:i] path];
-                        std::string *afilestr = new std::string([aFile UTF8String]);
-                        outfiles.push_back(*afilestr);
+                    if (count > 0)
+                    {
+
+                        for (i=0; i<count; i++) {
+                            NSString *aFile = [[filesToOpen objectAtIndex:i] path];
+                            std::string *afilestr = new std::string([aFile UTF8String]);
+                            outfiles.push_back(*afilestr);
+                        }
+                        callback(true, outfiles, userdata);
                     }
-                    callback(true, outfiles, userdata);
+                    else // no valid result
+                    {
+                        callback(false, outfiles, userdata);
+                    }
                 }
-                else // no valid result
+                else // cancel
                 {
                     callback(false, outfiles, userdata);
                 }
-            }
-            else // cancel
+            }];
+        }
+        else
+        {
+            //present as modeless window
+            [panel beginWithCompletionHandler:^(NSModalResponse result)
             {
-                callback(false, outfiles, userdata);
-            }
-        }];
+                std::vector<std::string> outfiles;
+                if (result == NSModalResponseOK)
+                {
+                    NSArray *filesToOpen = [panel URLs];
+                    int i, count = [filesToOpen count];
+
+                    if (count > 0)
+                    {
+
+                        for (i=0; i<count; i++) {
+                            NSString *aFile = [[filesToOpen objectAtIndex:i] path];
+                            std::string *afilestr = new std::string([aFile UTF8String]);
+                            outfiles.push_back(*afilestr);
+                        }
+                        callback(true, outfiles, userdata);
+                    }
+                    else // no valid result
+                    {
+                        callback(false, outfiles, userdata);
+                    }
+                }
+                else // cancel
+                {
+                    callback(false, outfiles, userdata);
+                }
+            }];
+        }
     }
 }
 
