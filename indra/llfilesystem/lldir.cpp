@@ -44,15 +44,8 @@
 #include "stringize.h"
 #include "llstring.h"
 #include <boost/filesystem.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
 #include <algorithm>
-
-using boost::assign::list_of;
-using boost::assign::map_list_of;
 
 #if LL_WINDOWS
 #include "lldir_win32.h"
@@ -448,28 +441,28 @@ const std::string &LLDir::getUserName() const
 static std::string ELLPathToString(ELLPath location)
 {
     typedef std::map<ELLPath, const char*> ELLPathMap;
-#define ENT(symbol) (symbol, #symbol)
-    static const ELLPathMap sMap = map_list_of
-        ENT(LL_PATH_NONE)
-        ENT(LL_PATH_USER_SETTINGS)
-        ENT(LL_PATH_APP_SETTINGS)
-        ENT(LL_PATH_PER_SL_ACCOUNT) // returns/expands to blank string if we don't know the account name yet
-        ENT(LL_PATH_CACHE)
-        ENT(LL_PATH_CHARACTER)
-        ENT(LL_PATH_HELP)
-        ENT(LL_PATH_LOGS)
-        ENT(LL_PATH_TEMP)
-        ENT(LL_PATH_SKINS)
-        ENT(LL_PATH_TOP_SKIN)
-        ENT(LL_PATH_CHAT_LOGS)
-        ENT(LL_PATH_PER_ACCOUNT_CHAT_LOGS)
-        ENT(LL_PATH_USER_SKIN)
-        ENT(LL_PATH_LOCAL_ASSETS)
-        ENT(LL_PATH_EXECUTABLE)
-        ENT(LL_PATH_DEFAULT_SKIN)
-        ENT(LL_PATH_FONTS)
-        ENT(LL_PATH_LAST)
-    ;
+#define ENT(symbol) { symbol, #symbol }
+    static const ELLPathMap sMap = {
+        ENT(LL_PATH_NONE),
+        ENT(LL_PATH_USER_SETTINGS),
+        ENT(LL_PATH_APP_SETTINGS),
+        ENT(LL_PATH_PER_SL_ACCOUNT), // returns/expands to blank string if we don't know the account name yet
+        ENT(LL_PATH_CACHE),
+        ENT(LL_PATH_CHARACTER),
+        ENT(LL_PATH_HELP),
+        ENT(LL_PATH_LOGS),
+        ENT(LL_PATH_TEMP),
+        ENT(LL_PATH_SKINS),
+        ENT(LL_PATH_TOP_SKIN),
+        ENT(LL_PATH_CHAT_LOGS),
+        ENT(LL_PATH_PER_ACCOUNT_CHAT_LOGS),
+        ENT(LL_PATH_USER_SKIN),
+        ENT(LL_PATH_LOCAL_ASSETS),
+        ENT(LL_PATH_EXECUTABLE),
+        ENT(LL_PATH_DEFAULT_SKIN),
+        ENT(LL_PATH_FONTS),
+        ENT(LL_PATH_LAST),
+    };
 #undef ENT
 
     ELLPathMap::const_iterator found = sMap.find(location);
@@ -725,10 +718,10 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     // Recognize subdirs that have no localization.
-    static const std::set<std::string> sUnlocalized = list_of
-        ("")                        // top-level directory not localized
-        ("textures")                // textures not localized
-    ;
+    static const std::set<std::string> sUnlocalized = {
+        "",        // top-level directory not localized
+        "textures" // textures not localized
+    };
 
     LL_DEBUGS("LLDir") << "subdir '" << subdir << "', filename '" << filename
                        << "', constraint "

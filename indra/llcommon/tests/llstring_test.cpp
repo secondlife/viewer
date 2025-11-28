@@ -28,12 +28,9 @@
 
 #include "linden_common.h"
 
-#include <boost/assign/list_of.hpp>
 #include "../llstring.h"
 #include "StringVec.h"                  // must come BEFORE lltut.h
 #include "../test/lltut.h"
-
-using boost::assign::list_of;
 
 namespace tut
 {
@@ -763,14 +760,14 @@ namespace tut
         ensure_equals("only delims",
                       LLStringUtil::getTokens("   \r\n   ", " \r\n"), StringVec());
         ensure_equals("sequence of delims",
-                      LLStringUtil::getTokens(",,, one ,,,", ","), list_of("one"));
+                      LLStringUtil::getTokens(",,, one ,,,", ","), StringVec{"one"});
         // nat considers this a dubious implementation side effect, but I'd
         // hate to change it now...
         ensure_equals("noncontiguous tokens",
-                      LLStringUtil::getTokens(", ,, , one ,,,", ","), list_of("")("")("one"));
+                      LLStringUtil::getTokens(", ,, , one ,,,", ","), StringVec{ "", "", "one" });
         ensure_equals("space-padded tokens",
-                      LLStringUtil::getTokens(",    one  ,  two  ,", ","), list_of("one")("two"));
-        ensure_equals("no delims", LLStringUtil::getTokens("one", ","), list_of("one"));
+                      LLStringUtil::getTokens(",    one  ,  two  ,", ","), StringVec{"one", "two"});
+        ensure_equals("no delims", LLStringUtil::getTokens("one", ","), StringVec{ "one" });
     }
 
     // Shorthand for verifying that getTokens() behaves the same when you
@@ -817,39 +814,33 @@ namespace tut
         ensure_getTokens("only delims",
                          "   \r\n   ", " \r\n", "", StringVec());
         ensure_getTokens("sequence of delims",
-                         ",,, one ,,,", ", ", "", list_of("one"));
+                         ",,, one ,,,", ", ", "", StringVec{"one"});
         // Note contrast with the case in the previous method
         ensure_getTokens("noncontiguous tokens",
-                         ", ,, , one ,,,", ", ", "", list_of("one"));
+                         ", ,, , one ,,,", ", ", "", StringVec{"one"});
         ensure_getTokens("space-padded tokens",
                          ",    one  ,  two  ,", ", ", "",
-                         list_of("one")("two"));
-        ensure_getTokens("no delims", "one", ",", "", list_of("one"));
+                         StringVec{"one", "two"});
+        ensure_getTokens("no delims", "one", ",", "", StringVec{ "one" });
 
         // drop_delims vs. keep_delims
         ensure_getTokens("arithmetic",
-                         " ab+def  / xx*  yy ", " ", "+-*/",
-                         list_of("ab")("+")("def")("/")("xx")("*")("yy"));
+                         " ab+def  / xx*  yy ", " ", "+-*/", { "ab", "+", "def", "/", "xx", "*", "yy" });
 
         // quotes
         ensure_getTokens("no quotes",
-                         "She said, \"Don't go.\"", " ", ",", "",
-                         list_of("She")("said")(",")("\"Don't")("go.\""));
+                         "She said, \"Don't go.\"", " ", ",", "", { "She", "said", ",", "\"Don't", "go.\"" });
         ensure_getTokens("quotes",
-                         "She said, \"Don't go.\"", " ", ",", "\"",
-                         list_of("She")("said")(",")("Don't go."));
+                         "She said, \"Don't go.\"", " ", ",", "\"", { "She", "said", ",", "Don't go." });
         ensure_getTokens("quotes and delims",
                          "run c:/'Documents and Settings'/someone", " ", "", "'",
-                         list_of("run")("c:/Documents and Settings/someone"));
+                         { "run", "c:/Documents and Settings/someone" });
         ensure_getTokens("unmatched quote",
-                         "baby don't leave", " ", "", "'",
-                         list_of("baby")("don't")("leave"));
+                         "baby don't leave", " ", "", "'", { "baby", "don't", "leave" });
         ensure_getTokens("adjacent quoted",
-                         "abc'def \"ghi'\"jkl' mno\"pqr", " ", "", "\"'",
-                         list_of("abcdef \"ghijkl' mnopqr"));
+                         "abc'def \"ghi'\"jkl' mno\"pqr", " ", "", "\"'", { "abcdef \"ghijkl' mnopqr" });
         ensure_getTokens("quoted empty string",
-                         "--set SomeVar ''", " ", "", "'",
-                         list_of("--set")("SomeVar")(""));
+                         "--set SomeVar ''", " ", "", "'", { "--set", "SomeVar", "" });
 
         // escapes
         // Don't use backslash as an escape for these tests -- you'll go nuts
@@ -857,15 +848,12 @@ namespace tut
         // something else!
         ensure_equals("escaped delims",
                       LLStringUtil::getTokens("^ a - dog^-gone^ phrase", " ", "-", "", "^"),
-                      list_of(" a")("-")("dog-gone phrase"));
+                      StringVec{ " a", "-", "dog-gone phrase" });
         ensure_equals("escaped quotes",
                       LLStringUtil::getTokens("say: 'this isn^'t w^orking'.", " ", "", "'", "^"),
-                      list_of("say:")("this isn't working."));
+                      StringVec{ "say:", "this isn't working." });
         ensure_equals("escaped escape",
-                      LLStringUtil::getTokens("want x^^2", " ", "", "", "^"),
-                      list_of("want")("x^2"));
-        ensure_equals("escape at end",
-                      LLStringUtil::getTokens("it's^ up there^", " ", "", "'", "^"),
-                      list_of("it's up")("there^"));
+                      LLStringUtil::getTokens("want x^^2", " ", "", "", "^"), StringVec{ "want", "x^2" });
+        ensure_equals("escape at end", LLStringUtil::getTokens("it's^ up there^", " ", "", "'", "^"), StringVec{ "it's up", "there^" });
     }
 }

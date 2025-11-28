@@ -32,7 +32,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "llsdserialize.h"
 #include "llerror.h"
@@ -61,14 +60,7 @@ namespace
     // List of command-line switches that can't map-to settings variables.
     // Going forward, we want every new command-line switch to map-to some
     // settings variable. This list is used to validate that.
-    const std::set<std::string> unmapped_options = boost::assign::list_of
-        ("help")
-        ("set")
-        ("setdefault")
-        ("settings")
-        ("sessionsettings")
-        ("usersessionsettings")
-    ;
+    const std::set<std::string> unmapped_options = { "help", "set", "setdefault", "settings", "sessionsettings", "usersessionsettings" };
 
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;
