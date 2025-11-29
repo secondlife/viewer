@@ -77,30 +77,30 @@ public:
 
     any other combinations than listed here are not allowed and will cause an error
 
-    bin    in     out    trunc  app    norep  File exists       File does not exist
-    -------------------------------------------------------------------------------
-    -      +      -      -      -      -      Open at begin     Failure to open
-    +      +      -      -      -      -        "                 "
-    -      -      +      -      -      -        "               Create new
-    +      -      +      -      -      -        "                 "
-    -      +      +      -      -      -        "                 "
-    +      +      +      -      -      -        "                 "
-    -------------------------------------------------------------------------------
-    -      -      +      +      -      -      Destroy contents  Create new
-    +      -      +      +      -      -        "                 "
-    -      +      +      +      -      -        "                 "
-    +      +      +      +      -      -        "                 "
-    -------------------------------------------------------------------------------
-    -      -      +      x      -      +      Failure to open   Create new
-    +      -      +      x      -      +        "                 "
-    -      +      +      x      -      +        "                 "
-    +      +      +      x      -      +        "                 "
-    -------------------------------------------------------------------------------
-    -      -      +      -      +      -      Write to end      Create new
-    +      -      +      -      +      -        "                 "
-    -      +      +      -      +      -        "                 "
-    +      +      +      -      +      -        "                 "
-    -------------------------------------------------------------------------------
+    bin    in     out    trunc  app    noreplace  File exists       File doesn't exist
+    ----------------------------------------------------------------------------------
+    -      +      -      -      -      -          Open at begin     Failure to open
+    +      +      -      -      -      -            "                 "
+    -      -      +      -      -      -            "               Create new
+    +      -      +      -      -      -            "                 "
+    -      +      +      -      -      -            "                 "
+    +      +      +      -      -      -            "                 "
+    ----------------------------------------------------------------------------------
+    -      -      +      +      -      -          Destroy contents  Create new
+    +      -      +      +      -      -            "                 "
+    -      +      +      +      -      -            "                 "
+    +      +      +      +      -      -            "                 "
+    ----------------------------------------------------------------------------------
+    -      -      +      x      -      +          Failure to open   Create new
+    +      -      +      x      -      +            "                 "
+    -      +      +      x      -      +            "                 "
+    +      +      +      x      -      +            "                 "
+    ----------------------------------------------------------------------------------
+    -      -      +      -      +      -          Write to end      Create new
+    +      -      +      -      +      -            "                 "
+    -      +      +      -      +      -            "                 "
+    +      +      +      -      +      -            "                 "
+    ----------------------------------------------------------------------------------
     */
     static const std::ios_base::openmode app       = 1 << 1;    // append to end
     static const std::ios_base::openmode ate       = 1 << 2;    // initialize to end
@@ -241,7 +241,7 @@ public:
     ///  otherwise the function will block until the lock can be acquired.
     ///  @returns 0 on success, -1 on failure
 
-    /// close the file explicitely
+    /// close the file explicitly
     int close(std::error_code& ec);
     ///< @returns 0 on success, -1 on failure
 
@@ -297,8 +297,9 @@ public:
 
     /// remove a file or directory
     static  int     remove(const std::string& filename, int suppress_warning = 0);
-    ///< pass ENOENT in the optional 'suppress_warning' parameter if you don't want
-    ///  a warning in the log when the directory does not exist
+    ///< pass an errno value (e.g., ENOENT) in the optional 'suppress_warning' parameter if you want to
+    ///  suppress a warning in the log when the failure matches that errno (e.g., suppress warning if
+    ///  the file or directory does not exist)
     ///  @returns 0 on success and -1 on failure.
 
     /// rename a file

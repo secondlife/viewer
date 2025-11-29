@@ -332,13 +332,13 @@ inline DWORD decode_open_create_flags(std::ios_base::openmode omode)
     {
         if (!(omode & LLFile::out))
         {
-            return TRUNCATE_EXISTING; // open and truncatte if it exists, otherwise fail
+            return TRUNCATE_EXISTING; // open and truncate if it exists, otherwise fail
         }
         return CREATE_ALWAYS; // open and truncate if it exists, otherwise create it
     }
     if (!(omode & LLFile::out))
     {
-        return OPEN_EXISTING; // open if exists, otherwise fail
+        return OPEN_EXISTING; // open if it exists, otherwise fail
     }
     // LLFile::app or (LLFile::out and (!LLFile::trunc or !LLFile::noreplace))
     return OPEN_ALWAYS; // open if it exists, otherwise create it
@@ -738,7 +738,7 @@ int LLFile::lock(int mode, std::error_code& ec)
         {
             flags |= LOCKFILE_EXCLUSIVE_LOCK;
         }
-        // We lock the  maximum range, since flock only supports locking the entire file too
+        // We lock the maximum range, since flock only supports locking the entire file too
         if (LockFileEx(mHandle, flags, 0, MAXDWORD, MAXDWORD, &overlapped))
         {
             return clear_error(ec);
