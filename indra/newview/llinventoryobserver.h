@@ -258,7 +258,7 @@ protected:
 class LLInventoryCategoriesObserver : public LLInventoryObserver
 {
 public:
-    typedef boost::function<void()> callback_t;
+    typedef std::function<void()> callback_t;
 
     LLInventoryCategoriesObserver() {};
     virtual void changed(U32 mask);

@@ -189,11 +189,11 @@ public:
     // Signals
     //--------------------------------------------------------------------
 public:
-    typedef boost::function<void()>         loading_started_callback_t;
+    typedef std::function<void()>           loading_started_callback_t;
     typedef boost::signals2::signal<void()> loading_started_signal_t;
     boost::signals2::connection             addLoadingStartedCallback(loading_started_callback_t cb);
 
-    typedef boost::function<void()>         loaded_callback_t;
+    typedef std::function<void()>           loaded_callback_t;
     typedef boost::signals2::signal<void()> loaded_signal_t;
     boost::signals2::connection             addLoadedCallback(loaded_callback_t cb);
 

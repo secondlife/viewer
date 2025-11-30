@@ -407,7 +407,7 @@ void LLFloaterExperiences::retrieveExperienceListCoro(std::string url,
             {
                 const LLSD& ids = result[it->first];
                 tab->setExperienceList(ids);
-                if (!cback.empty())
+                if (cback != nullptr)
                 {
                     cback(tab, result);
                 }

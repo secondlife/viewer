@@ -437,8 +437,8 @@ LLAgent::LLAgent() :
     mAutoPilotTargetDist(0.f),
     mAutoPilotNoProgressFrameCount(0),
     mAutoPilotRotationThreshold(0.f),
-    mAutoPilotFinishedCallback(NULL),
-    mAutoPilotCallbackData(NULL),
+    mAutoPilotFinishedCallback(nullptr),
+    mAutoPilotCallbackData(nullptr),
 
     mMovementKeysLocked(false),
 
@@ -455,8 +455,8 @@ LLAgent::LLAgent() :
 
     mVoiceConnected(false),
 
-    mMouselookModeInSignal(NULL),
-    mMouselookModeOutSignal(NULL)
+    mMouselookModeInSignal(nullptr),
+    mMouselookModeOutSignal(nullptr)
 {
     for (U32 i = 0; i < TOTAL_CONTROLS; i++)
     {

@@ -141,7 +141,7 @@ private:
 class LLSpeakerActionTimer : public LLEventTimer
 {
 public:
-    typedef boost::function<bool(const LLUUID&)>    action_callback_t;
+    typedef std::function<bool(const LLUUID&)>      action_callback_t;
     typedef std::map<LLUUID, LLSpeakerActionTimer*> action_timers_map_t;
     typedef action_timers_map_t::value_type         action_value_t;
     typedef action_timers_map_t::const_iterator     action_timer_const_iter_t;

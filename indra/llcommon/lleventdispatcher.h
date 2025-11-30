@@ -33,7 +33,6 @@
 #define LL_LLEVENTDISPATCHER_H
 
 #include <boost/fiber/fss.hpp>
-#include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <functional>               // std::function
@@ -316,7 +315,7 @@ public:
      */
     template<typename Method, typename InstanceGetter,
              typename = typename std::enable_if<
-                 boost::function_types::is_member_function_pointer<Method>::value &&
+                 std::is_member_function_pointer<Method>::value &&
                  ! std::is_convertible<InstanceGetter, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Method f,
@@ -362,7 +361,7 @@ public:
      */
     template<typename Method, typename InstanceGetter,
              typename = typename std::enable_if<
-                 boost::function_types::is_member_function_pointer<Method>::value &&
+                 std::is_member_function_pointer<Method>::value &&
                  ! std::is_convertible<InstanceGetter, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Method f,

@@ -288,7 +288,7 @@ public:
     public:
         static const U32 VALIDATION_PARTIAL;
 
-        typedef boost::function<bool(LLSD &, U32)> verify_pr;
+        typedef std::function<bool(LLSD &, U32)> verify_pr;
 
         Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr(), LLSD defval = LLSD())  :
             mName(name),

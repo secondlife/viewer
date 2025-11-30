@@ -33,8 +33,9 @@
 #include "llparcelselection.h"
 #include "llui.h"
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
+
+#include <functional>
 
 class LLUUID;
 class LLMessageSystem;
@@ -79,9 +80,9 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
     ~LLViewerParcelMgr();
 
 public:
-    typedef boost::function<void (const LLVector3d&, const bool& local)> teleport_finished_callback_t;
+    typedef std::function<void (const LLVector3d&, const bool& local)> teleport_finished_callback_t;
     typedef boost::signals2::signal<void (const LLVector3d&, const bool&)> teleport_finished_signal_t;
-    typedef boost::function<void()> teleport_failed_callback_t;
+    typedef std::function<void()> teleport_failed_callback_t;
     typedef boost::signals2::signal<void()> teleport_failed_signal_t;
 
     static void cleanupGlobals();

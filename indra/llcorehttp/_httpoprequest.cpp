@@ -153,7 +153,7 @@ HttpOpRequest::HttpOpRequest()
       mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT),
       mPolicyMinRetryBackoff(HttpTime(HTTP_RETRY_BACKOFF_MIN_DEFAULT)),
       mPolicyMaxRetryBackoff(HttpTime(HTTP_RETRY_BACKOFF_MAX_DEFAULT)),
-      mCallbackSSLVerify(NULL)
+      mCallbackSSLVerify(nullptr)
 {
     // *NOTE:  As members are added, retry initialization/cleanup
     // may need to be extended in @see prepareRequest().

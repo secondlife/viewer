@@ -41,10 +41,10 @@ class LLCoprocedureManager : public LLSingleton < LLCoprocedureManager >
     virtual ~LLCoprocedureManager();
 
 public:
-    typedef boost::function<U32(const std::string &)> SettingQuery_t;
-    typedef boost::function<void(const std::string &, U32, const std::string &)> SettingUpdate_t;
+    typedef std::function<U32(const std::string &)> SettingQuery_t;
+    typedef std::function<void(const std::string &, U32, const std::string &)> SettingUpdate_t;
 
-    typedef boost::function<void(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
+    typedef std::function<void(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
 
     /// Places the coprocedure on the queue for processing.
     ///

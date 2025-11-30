@@ -598,7 +598,7 @@ bool LLSettingsBase::Validator::verify(LLSD &data, U32 flags)
         return false;
     }
 
-    if (!mVerify.empty() && !mVerify(data[mName], flags))
+    if (mVerify != nullptr && !mVerify(data[mName], flags))
     {
         LL_WARNS("SETTINGS") << "Setting '" << mName << "' fails validation." << LL_ENDL;
         return false;

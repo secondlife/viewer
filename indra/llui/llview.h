@@ -48,8 +48,8 @@
 #include "lltreeiterators.h"
 #include "llfocusmgr.h"
 
+#include <functional>
 #include <list>
-#include <boost/function.hpp>
 
 class LLSD;
 
@@ -626,7 +626,7 @@ private:
     LLView& getDefaultWidgetContainer() const;
 
     // This allows special mouse-event targeting logic for testing.
-    typedef boost::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
+    typedef std::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
     static DrilldownFunc sDrilldown;
 
 public:

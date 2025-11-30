@@ -49,11 +49,11 @@ public:
 
 public:
     // callback for a function getting a rect valid for control's position
-    typedef boost::function<void (LLRect& )> get_allowed_rect_callback_t;
+    typedef std::function<void (LLRect& )> get_allowed_rect_callback_t;
 
     LOG_CLASS(LLDockControl);
     LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
-            const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_rect_callback = NULL);
+            const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_rect_callback = nullptr);
     virtual ~LLDockControl();
 
 public:

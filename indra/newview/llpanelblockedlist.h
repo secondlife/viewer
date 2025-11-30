@@ -95,7 +95,7 @@ class LLFloaterGetBlockedObjectName : public LLFloater
 {
     friend class LLFloaterReg;
 public:
-    typedef boost::function<void (const std::string&)> get_object_name_callback_t;
+    typedef std::function<void(const std::string&)> get_object_name_callback_t;
 
     bool postBuild() override;
 

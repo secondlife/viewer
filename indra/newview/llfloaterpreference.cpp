@@ -2068,7 +2068,7 @@ class LLPanelPreference::Updater : public LLEventTimer
 
 public:
 
-    typedef boost::function<bool(const LLSD&)> callback_t;
+    typedef std::function<bool(const LLSD&)> callback_t;
 
     Updater(callback_t cb, F32 period)
     :LLEventTimer(period),

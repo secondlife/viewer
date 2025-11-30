@@ -30,7 +30,6 @@
 
 #include "llstring.h"
 #include "llinitparam.h"
-#include <boost/function.hpp>
 
 namespace LLTextValidate
 {

@@ -362,7 +362,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     }
     else if ("show_on_map" == action)
     {
-        boost::function<void(LLLandmark*)> show_on_map_cb = [](LLLandmark* landmark)
+        std::function<void(LLLandmark*)> show_on_map_cb = [](LLLandmark* landmark)
         {
             LLVector3d landmark_global_pos;
             if (landmark->getGlobalPos(landmark_global_pos))

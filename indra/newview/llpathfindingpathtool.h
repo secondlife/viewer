@@ -27,7 +27,7 @@
 #ifndef LL_LLPATHFINDINGPATHTOOL_H
 #define LL_LLPATHFINDINGPATHTOOL_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/signals2.hpp>
 
 #include "llpathinglib.h"
@@ -62,7 +62,7 @@ public:
         kCharacterTypeD
     } ECharacterType;
 
-    typedef boost::function<void (void)>         path_event_callback_t;
+    typedef std::function<void(void)>            path_event_callback_t;
     typedef boost::signals2::signal<void (void)> path_event_signal_t;
     typedef boost::signals2::connection          path_event_slot_t;
 

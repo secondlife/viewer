@@ -35,8 +35,6 @@
 #include "llrefcount.h"             // LLRefCount
 #include <boost/intrusive_ptr.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/type_traits/is_base_of.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
 #include <memory>                   // std::shared_ptr, std::unique_ptr
 #include <type_traits>
 
@@ -58,14 +56,14 @@ struct LLPtrTo
 
 /// specialize for subclasses of LLRefCount
 template <class T>
-struct LLPtrTo<T, typename std::enable_if< boost::is_base_of<LLRefCount, T>::value >::type>
+struct LLPtrTo<T, typename std::enable_if< std::is_base_of<LLRefCount, T>::value >::type>
 {
     typedef LLPointer<T> type;
 };
 
 /// specialize for subclasses of LLThreadSafeRefCount
 template <class T>
-struct LLPtrTo<T, typename std::enable_if< boost::is_base_of<LLThreadSafeRefCount, T>::value >::type>
+struct LLPtrTo<T, typename std::enable_if< std::is_base_of<LLThreadSafeRefCount, T>::value >::type>
 {
     typedef LLPointer<T> type;
 };
@@ -76,7 +74,7 @@ struct LLPtrTo<T, typename std::enable_if< boost::is_base_of<LLThreadSafeRefCoun
 template <typename PTRTYPE>
 struct LLRemovePointer
 {
-    typedef typename boost::remove_pointer<PTRTYPE>::type type;
+    typedef typename std::remove_pointer<PTRTYPE>::type type;
 };
 
 /// specialize for LLPointer<SOMECLASS>

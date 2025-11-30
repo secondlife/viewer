@@ -71,7 +71,7 @@ LLNotificationPtr LLNotificationsUtil::add(const std::string& name,
 LLNotificationPtr LLNotificationsUtil::add(const std::string& name,
                       const LLSD& substitutions,
                       const LLSD& payload,
-                      boost::function<void (const LLSD&, const LLSD&)> functor)
+                      std::function<void (const LLSD&, const LLSD&)> functor)
 {
     LLNotification::Params::Functor functor_p;
     functor_p.function = functor;

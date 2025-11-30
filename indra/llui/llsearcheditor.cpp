@@ -106,12 +106,12 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 
 LLSearchEditor::~LLSearchEditor()
 {
-    mKeystrokeCallback = NULL;
-    mTextChangedCallback = NULL;
+    mKeystrokeCallback   = nullptr;
+    mTextChangedCallback = nullptr;
     setCommitOnFocusLost(false);
 
-    mSearchButton = NULL;
-    mClearButton = NULL;
+    mSearchButton = nullptr;
+    mClearButton  = nullptr;
     mSearchEditor->deleteAllChildren();
     deleteAllChildren();
 }

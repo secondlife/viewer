@@ -494,7 +494,7 @@ bool LLMaterialEditor::postBuild()
         refreshUploadCost();
     }
 
-    boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void* userData)
+    std::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void* userData)
     {
         const U32 *flag = (const U32*)userData;
         markChangesUnsaved(*flag);

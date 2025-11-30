@@ -155,8 +155,8 @@ LLCoprocedureManager::~LLCoprocedureManager()
         // Shutting down, just log it
         LL_WARNS() << "Exception during ~LLCoprocedureManager(): " << e.what() << LL_ENDL;
     }
-    mPropertyQueryFn.clear();
-    mPropertyDefineFn.clear();
+    mPropertyQueryFn = nullptr;
+    mPropertyDefineFn = nullptr;
     mPoolMap.clear();
 }
 

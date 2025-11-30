@@ -48,8 +48,9 @@
 #include "lltrace.h"
 #include "llsnapshotmodel.h"
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
+
+#include <functional>
 
 class LLView;
 class LLViewerObject;
@@ -238,7 +239,7 @@ public:
                     const std::map<std::string, std::string>& args);
 
     // signal on update of WorldView rect
-    typedef boost::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
+    typedef std::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
     typedef boost::signals2::signal<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_signal_t;
     world_rect_signal_t mOnWorldViewRectUpdated;
     boost::signals2::connection setOnWorldViewRectUpdated(world_rect_callback_t cb) { return mOnWorldViewRectUpdated.connect(cb); }

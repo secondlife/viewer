@@ -84,7 +84,7 @@ public:
     virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
     //callbacks
-    typedef boost::function<void (LLNotificationListItem* item)> item_callback_t;
+    typedef std::function<void (LLNotificationListItem* item)> item_callback_t;
     typedef boost::signals2::signal<void (LLNotificationListItem* item)> item_signal_t;
     item_signal_t mOnItemClose;
     item_signal_t mOnItemClick;

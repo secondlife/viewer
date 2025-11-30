@@ -57,7 +57,7 @@ namespace
 
     inline bool getBoolSetting(const std::string &keyname)
     {
-        if (!mBoolSettingGet || mBoolSettingGet.empty())
+        if (mBoolSettingGet == nullptr)
             return(false);
         return mBoolSettingGet(HTTP_LOGBODY_KEY);
     }
@@ -69,7 +69,7 @@ void setPropertyMethods(BoolSettingQuery_t queryfn, BoolSettingUpdate_t updatefn
     mBoolSettingGet = queryfn;
     mBoolSettingPut = updatefn;
 
-    if (mBoolSettingPut && !mBoolSettingPut.empty())
+    if (mBoolSettingPut != nullptr)
     {
         mBoolSettingPut(HTTP_LOGBODY_KEY, false, "Log the entire HTTP body in the case of an HTTP error.");
     }
@@ -1236,9 +1236,9 @@ void HttpCoroutineAdapter::callbackHttpGet(const std::string &url, LLCore::HttpR
 /*static*/
 void HttpCoroutineAdapter::messageHttpGet(const std::string &url, const std::string &success, const std::string &failure)
 {
-    completionCallback_t cbSuccess = (success.empty()) ? NULL :
+    completionCallback_t cbSuccess = (success.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
-    completionCallback_t cbFailure = (failure.empty()) ? NULL :
+    completionCallback_t cbFailure = (failure.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
     callbackHttpGet(url, cbSuccess, cbFailure);
 }
@@ -1286,9 +1286,9 @@ void HttpCoroutineAdapter::callbackHttpPost(const std::string &url, LLCore::Http
 /*static*/
 void HttpCoroutineAdapter::messageHttpPost(const std::string &url, const LLSD &postData, const std::string &success, const std::string &failure)
 {
-    completionCallback_t cbSuccess = (success.empty()) ? NULL :
+    completionCallback_t cbSuccess = (success.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
-    completionCallback_t cbFailure = (failure.empty()) ? NULL :
+    completionCallback_t cbFailure = (failure.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
 
     callbackHttpPost(url, postData, cbSuccess, cbFailure);

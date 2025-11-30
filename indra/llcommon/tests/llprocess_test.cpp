@@ -21,7 +21,6 @@
 // external library headers
 #include "llapr.h"
 #include "apr_thread_proc.h"
-#include <boost/function.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 // other Linden headers

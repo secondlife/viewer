@@ -33,7 +33,6 @@
 #include <stdexcept>
 
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <boost/range.hpp>
 
 #include <boost/lambda/lambda.hpp>

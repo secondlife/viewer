@@ -29,9 +29,9 @@
 
 #include "llsingleton.h" // for LLSingleton
 
+#include <functional>
 #include <vector>
 #include <string>
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
 #include "llteleporthistorystorage.h"
 
@@ -80,7 +80,7 @@ class LLTeleportHistory: public LLSingleton<LLTeleportHistory>
 public:
 
     typedef std::vector<LLTeleportHistoryItem>  slurl_list_t;
-    typedef boost::function<void()>             history_callback_t;
+    typedef std::function<void()>               history_callback_t;
     typedef boost::signals2::signal<void()>     history_signal_t;
 
     /**

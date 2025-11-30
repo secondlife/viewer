@@ -37,10 +37,11 @@
 
 #include "llsingleton.h"
 #include <boost/call_traits.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
 #include <boost/utility/value_init.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/signals2/signal.hpp>
+
+#include <type_traits>
 
 // Forward declare the user template, since we want to be able to point to it
 // in some of its implementation classes.
@@ -163,7 +164,7 @@ public:
 
     // make read access to mHeld as cheap and transparent as possible
     operator T () const { return mHeld; }
-    typename boost::remove_pointer<T>::type operator*() const { return *mHeld; }
+    typename std::remove_pointer<T>::type operator*() const { return *mHeld; }
     typename boost::call_traits<T>::value_type operator->() const { return mHeld; }
     // uncomment 'explicit' as soon as we allow C++11 compilation
     /*explicit*/ operator bool() const { return bool(mHeld); }
