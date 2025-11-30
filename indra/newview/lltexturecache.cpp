@@ -210,9 +210,7 @@ bool LLTextureCacheLocalFileWorker::doRead()
     }
     mReadData = (U8*)ll_aligned_malloc_16(mDataSize);
 
-//  S32 bytes_read = LLAPRFile::readEx(mFileName, mReadData, mOffset, mDataSize, mCache->getLocalAPRFilePool());
     S32 bytes_read = (S32)LLFile::read(mFileName, mReadData, mOffset, mDataSize);
-
     if (bytes_read != mDataSize)
     {
 //      LL_WARNS() << "Error reading file from local cache: " << mFileName
@@ -347,16 +345,10 @@ bool LLTextureCacheRemoteWorker::doRead()
 
         if (mReadData)
         {
-//          S32 bytes_read = LLAPRFile::readEx(local_filename,
-//                                             mReadData,
-//                                             mOffset,
-//                                             mDataSize,
-//                                             mCache->getLocalAPRFilePool());
             S32 bytes_read = (S32)LLFile::read(local_filename,
                                                mReadData,
                                                mOffset,
                                                mDataSize);
-
             if (bytes_read != mDataSize)
             {
                 LL_WARNS() << "Error reading file from local cache: " << local_filename
@@ -415,8 +407,6 @@ bool LLTextureCacheRemoteWorker::doRead()
         mReadData = (U8*)ll_aligned_malloc_16(size);
         if (mReadData)
         {
-//          S32 bytes_read = LLAPRFile::readEx(mCache->mHeaderDataFileName,
-//                                             mReadData, offset, size, mCache->getLocalAPRFilePool());
             S32 bytes_read = (S32)LLFile::read(mCache->mHeaderDataFileName, mReadData, offset, size);
             if (bytes_read != size)
             {
@@ -493,10 +483,6 @@ bool LLTextureCacheRemoteWorker::doRead()
                 mReadData = data;
 
                 // Read the data at last
-//                S32 bytes_read = LLAPRFile::readEx(filename,
-//                                                 mReadData + data_offset,
-//                                                 file_offset, file_size,
-//                                                 mCache->getLocalAPRFilePool());
                 S32 bytes_read = (S32)LLFile::read(filename,
                                                    mReadData + data_offset,
                                                    file_offset, file_size);
@@ -645,14 +631,12 @@ bool LLTextureCacheRemoteWorker::doWrite()
                 U8* padBuffer = (U8*)ll_aligned_malloc_16(TEXTURE_CACHE_ENTRY_SIZE);
                 memset(padBuffer, 0, TEXTURE_CACHE_ENTRY_SIZE);     // Init with zeros
                 memcpy(padBuffer, mWriteData, mDataSize);           // Copy the write buffer
-//              bytes_written = LLAPRFile::writeEx(mCache->mHeaderDataFileName, padBuffer, offset, size, mCache->getLocalAPRFilePool());
                 bytes_written = (S32)LLFile::write(mCache->mHeaderDataFileName, padBuffer, offset, size);
                 ll_aligned_free_16(padBuffer);
             }
             else
             {
                 // Write the header record (== first TEXTURE_CACHE_ENTRY_SIZE bytes of the raw file) in the header file
-//              bytes_written = LLAPRFile::writeEx(mCache->mHeaderDataFileName, mWriteData, offset, size, , mCache->getLocalAPRFilePool());
                 bytes_written = (S32)LLFile::write(mCache->mHeaderDataFileName, mWriteData, offset, size);
             }
 
@@ -693,10 +677,6 @@ bool LLTextureCacheRemoteWorker::doWrite()
                 // build the cache file name from the UUID
                 std::string filename = mCache->getTextureFileName(mID);
                 //          LL_INFOS() << "Writing Body: " << filename << " Bytes: " << file_offset+file_size << LL_ENDL;
-/*              S32 bytes_written = LLAPRFile::writeEx(filename,
-                                                       mWriteData + TEXTURE_CACHE_ENTRY_SIZE,
-                                                       0, file_size,
-                                                       mCache->getLocalAPRFilePool()); */
                 S32 bytes_written = (S32)LLFile::write(filename, mWriteData + TEXTURE_CACHE_ENTRY_SIZE, 0, file_size);
                 if (bytes_written <= 0)
                 {
@@ -1083,8 +1063,6 @@ void LLTextureCache::readEntriesHeader()
     llassert_always(mHeaderAPRFile == NULL);
     if (LLFile::isfile(mHeaderEntriesFileName))
     {
-//      LLAPRFile::readEx(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo),
-//                        mHeaderAPRFilePoolp);
         LLFile::read(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
     }
     else //create an empty entries header.
@@ -1116,8 +1094,6 @@ void LLTextureCache::writeEntriesHeader()
     llassert_always(mHeaderAPRFile == NULL);
     if (!mReadOnly)
     {
-//      LLAPRFile::writeEx(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo),
-//                         mHeaderAPRFilePoolp);
         LLFile::write(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
     }
 }
