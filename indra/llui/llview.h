@@ -48,9 +48,8 @@
 #include "lltreeiterators.h"
 #include "llfocusmgr.h"
 
+#include <functional>
 #include <list>
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
 
 class LLSD;
 
@@ -627,7 +626,7 @@ private:
     LLView& getDefaultWidgetContainer() const;
 
     // This allows special mouse-event targeting logic for testing.
-    typedef boost::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
+    typedef std::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
     static DrilldownFunc sDrilldown;
 
 public:
@@ -637,7 +636,7 @@ public:
     //     LLView::TemporaryDrilldownFunc scoped_func(myfunctor);
     //     // ... test with myfunctor ...
     // } // exiting block restores original LLView::sDrilldown
-    class TemporaryDrilldownFunc: public boost::noncopyable
+    class TemporaryDrilldownFunc
     {
     public:
         TemporaryDrilldownFunc(const DrilldownFunc& func):
@@ -650,6 +649,10 @@ public:
         {
             sDrilldown = mOldDrilldown;
         }
+
+        // Non-copyable
+        TemporaryDrilldownFunc(const TemporaryDrilldownFunc&) = delete;
+        TemporaryDrilldownFunc& operator=(const TemporaryDrilldownFunc&) = delete;
 
     private:
         DrilldownFunc mOldDrilldown;

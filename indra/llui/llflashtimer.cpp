@@ -50,7 +50,7 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 void LLFlashTimer::unset()
 {
     mUnset = true;
-    mCallback = NULL;
+    mCallback = nullptr;
 }
 
 bool LLFlashTimer::tick()

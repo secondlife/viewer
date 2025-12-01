@@ -40,7 +40,7 @@ class LLSetKeyBindDialog::Updater : public LLEventTimer
 {
 public:
 
-    typedef boost::function<void(MASK)> callback_t;
+    typedef std::function<void(MASK)> callback_t;
 
     Updater(callback_t cb, F32 period, MASK mask)
         :LLEventTimer(period),

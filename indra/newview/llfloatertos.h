@@ -30,7 +30,6 @@
 #include "llmodaldialog.h"
 #include "llassetstorage.h"
 #include "llmediactrl.h"
-#include <boost/function.hpp>
 #include "lleventcoro.h"
 #include "llcoros.h"
 

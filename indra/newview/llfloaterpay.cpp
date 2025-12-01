@@ -127,8 +127,8 @@ const S32 PAY_AMOUNT_NOTIFICATION = 200;
 LLFloaterPay::LLFloaterPay(const LLSD& key)
     : LLFloater(key),
       mCallbackData(),
-      mCallback(NULL),
-      mObjectNameText(NULL),
+      mCallback(nullptr),
+      mObjectNameText(nullptr),
       mTargetUUID(key.asUUID()),
       mTargetIsGroup(false),
       mHaveName(false)

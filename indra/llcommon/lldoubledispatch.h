@@ -30,9 +30,7 @@
 #define LL_LLDOUBLEDISPATCH_H
 
 #include <list>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
+#include <functional>
 
 /**
  * This class supports function calls which are virtual on the dynamic type of
@@ -156,9 +154,9 @@ public:
         insert(t1, t2, func);
         if (symmetrical)
         {
-            // Use boost::bind() to construct a param-swapping thunk. Don't
+            // Use std::bind() to construct a param-swapping thunk. Don't
             // forget to reverse the parameters too.
-            insert(t2, t1, boost::bind(func, _2, _1));
+            insert(t2, t1, std::bind(func, std::placeholders::_2, std::placeholders::_1));
         }
     }
 
@@ -193,7 +191,7 @@ public:
         insert(Type<Type1>(), Type<Type2>(), func, insertion);
         if (symmetrical)
         {
-            insert(Type<Type2>(), Type<Type1>(), boost::bind(func, _2, _1), insertion);
+            insert(Type<Type2>(), Type<Type1>(), std::bind(func, std::placeholders::_2, std::placeholders::_1), insertion);
         }
     }
 
@@ -271,8 +269,8 @@ private:
     typename DispatchTable::iterator find(const ParamBaseType& param1, const ParamBaseType& param2)
     {
         return std::find_if(mDispatch.begin(), mDispatch.end(),
-                            boost::bind(&EntryBase::matches, _1,
-                                        boost::ref(param1), boost::ref(param2)));
+                            std::bind(&EntryBase::matches, std::placeholders::_1,
+                                        std::ref(param1), std::ref(param2)));
     }
 
     /// Look up the first matching entry.

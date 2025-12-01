@@ -65,8 +65,8 @@ public:
 protected:
     virtual ~HttpResponse();                            // Use release()
 
-    HttpResponse(const HttpResponse &);                 // Not defined
-    void operator=(const HttpResponse &);               // Not defined
+    HttpResponse(const HttpResponse&) = delete;
+    void operator=(const HttpResponse&) = delete;
 
 public:
     /// Statistics for the HTTP

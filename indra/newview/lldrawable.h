@@ -67,17 +67,8 @@ class LLDrawable
 public:
     typedef std::vector<LLFace*> face_list_t;
 
-    LLDrawable(const LLDrawable& rhs)
-        : LLViewerOctreeEntryData(rhs)
-    {
-        *this = rhs;
-    }
-
-    const LLDrawable& operator=(const LLDrawable& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLDrawable(const LLDrawable& rhs) = delete;
+    const LLDrawable& operator=(const LLDrawable& rhs) = delete;
 
     static void initClass();
 

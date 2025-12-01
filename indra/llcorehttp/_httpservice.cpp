@@ -27,7 +27,6 @@
 #include "_httpservice.h"
 
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
 
 #include "_httpoperation.h"
 #include "_httprequestqueue.h"

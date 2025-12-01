@@ -42,7 +42,7 @@ class LLAvatarNameCache : public LLSingleton<LLAvatarNameCache>
     ~LLAvatarNameCache();
 public:
     typedef boost::signals2::signal<void (void)> use_display_name_signal_t;
-    typedef boost::function<void (const LLUUID id, const LLAvatarName& av_name)> account_name_changed_callback_t;
+    typedef std::function<void (const LLUUID id, const LLAvatarName& av_name)> account_name_changed_callback_t;
 
     // Import/export the name cache to file.
     bool importFile(std::istream& istr);

@@ -37,7 +37,6 @@
 #include "llfloater.h"
 #include "lluistring.h"
 #include "llview.h"
-#include <boost/function.hpp>
 
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;

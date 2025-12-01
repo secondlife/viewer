@@ -222,7 +222,7 @@ public:
         return mOnLoginCompleted.connect(cb);
     }
 
-    void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
+    void addOnIdleCallback(const std::function<void()>& cb); // add a callback to fire (once) when idle
 
     void initGeneralThread();
     void purgeUserDataOnExit() { mPurgeUserDataOnExit = true; }

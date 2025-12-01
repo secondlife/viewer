@@ -39,9 +39,9 @@ public:
     friend class LLExperienceSearchResponder;
     friend class LLFloaterExperiencePicker;
 
-    typedef boost::function<void (const uuid_vec_t&)> select_callback_t;
+    typedef std::function<void(const uuid_vec_t&)> select_callback_t;
     // filter function for experiences, return true if the experience should be hidden.
-    typedef boost::function<bool (const LLSD&)> filter_function;
+    typedef std::function<bool(const LLSD&)> filter_function;
     typedef std::vector<filter_function> filter_list;
 
     LLPanelExperiencePicker();

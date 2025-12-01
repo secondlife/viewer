@@ -87,7 +87,7 @@ public:
     void addChat    (LLSD& chat);
     void arrangeToasts      ();
 
-    typedef boost::function<LLFloaterIMNearbyChatToastPanel* (void )> create_toast_panel_callback_t;
+    typedef std::function<LLFloaterIMNearbyChatToastPanel*(void)> create_toast_panel_callback_t;
     void setCreatePanelCallback(create_toast_panel_callback_t value) { m_create_toast_panel_callback_t = value;}
 
     void onToastDestroyed   (LLToast* toast, bool app_quitting);

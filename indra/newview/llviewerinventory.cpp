@@ -1712,7 +1712,7 @@ void create_new_item(const std::string& name,
                    LLAssetType::EType asset_type,
                    LLInventoryType::EType inv_type,
                    U32 next_owner_perm,
-                   std::function<void(const LLUUID&)> created_cb = NULL)
+                   std::function<void(const LLUUID&)> created_cb = nullptr)
 {
     std::string desc;
     LLViewerAssetType::generateDescriptionFor(asset_type, desc);
@@ -1836,7 +1836,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
             parent_id = gInventory.getRootFolderID();
         }
 
-        std::function<void(const LLUUID&)> callback_cat_created = NULL;
+        std::function<void(const LLUUID&)> callback_cat_created = nullptr;
         if (panel)
         {
             LLHandle<LLPanel> handle = panel->getHandle();

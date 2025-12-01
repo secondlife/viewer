@@ -125,9 +125,8 @@ public:
             LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
         }
 
-protected:
-    BGItemHttpHandler(const BGItemHttpHandler&);               // Not defined
-    void operator=(const BGItemHttpHandler&);                  // Not defined
+    BGItemHttpHandler(const BGItemHttpHandler&) = delete;
+    BGItemHttpHandler& operator=(const BGItemHttpHandler&) = delete;
 };
 
 
@@ -159,8 +158,8 @@ public:
         }
 
 protected:
-    BGFolderHttpHandler(const BGFolderHttpHandler&);           // Not defined
-    void operator=(const BGFolderHttpHandler&);                // Not defined
+    BGFolderHttpHandler(const BGFolderHttpHandler&) = delete;
+    BGFolderHttpHandler& operator=(const BGFolderHttpHandler&) = delete;
 
 public:
     virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse* response);

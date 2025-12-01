@@ -78,16 +78,8 @@ public:
     LLVolumeOctreeListener(LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node);
     ~LLVolumeOctreeListener();
 
-    LLVolumeOctreeListener(const LLVolumeOctreeListener& rhs)
-    {
-        *this = rhs;
-    }
-
-    const LLVolumeOctreeListener& operator=(const LLVolumeOctreeListener& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLVolumeOctreeListener(const LLVolumeOctreeListener& rhs) = delete;
+    const LLVolumeOctreeListener& operator=(const LLVolumeOctreeListener& rhs) = delete;
 
      //LISTENER FUNCTIONS
     virtual void handleChildAddition(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* parent, LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* child);

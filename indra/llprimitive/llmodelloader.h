@@ -29,7 +29,7 @@
 
 #include "llmodel.h"
 #include "llthread.h"
-#include <boost/function.hpp>
+#include <functional>
 #include <list>
 
 class LLJoint;
@@ -57,25 +57,25 @@ public:
 
     // Callback with loaded model data and loaded LoD
     //
-    typedef boost::function<void (scene&, model_list&, S32, void*)> load_callback_t;
+    typedef std::function<void (scene&, model_list&, S32, void*)> load_callback_t;
 
     // Function to provide joint lookup by name
     // (within preview avi skeleton, for example)
     //
-    typedef boost::function<LLJoint* (const std::string&, void*)> joint_lookup_func_t;
+    typedef std::function<LLJoint* (const std::string&, void*)> joint_lookup_func_t;
 
     // Func to load and associate material with all it's textures,
     // returned value is the number of textures loaded
     // intentionally non-const so func can modify material to
     // store platform-specific data
     //
-    typedef boost::function<U32 (LLImportMaterial&, void*)> texture_load_func_t;
+    typedef std::function<U32 (LLImportMaterial&, void*)> texture_load_func_t;
 
     // Callback to inform client of state changes
     // during loading process (errors will be reported
     // as state changes here as well)
     //
-    typedef boost::function<void (U32, void*)> state_callback_t;
+    typedef std::function<void (U32, void*)> state_callback_t;
 
     typedef enum
     {

@@ -41,7 +41,7 @@
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model) :
     LLConversationItemSession(data_source->getSessionID(), root_view_model),
     mSpeakerMgr(data_source),
-    mValidateSpeakerCallback(NULL)
+    mValidateSpeakerCallback(nullptr)
 {
     mSpeakerAddListener = new SpeakerAddListener(*this);
     mSpeakerRemoveListener = new SpeakerRemoveListener(*this);

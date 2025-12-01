@@ -118,7 +118,7 @@ void LLSplitButton::onItemSelected(LLUICtrl* ctrl)
     hideButtons();
 
     // call the callback if it exists
-    if(!mSelectionCallback.empty())
+    if(mSelectionCallback != nullptr)
     {
         mSelectionCallback(this, ctrl->getName());
     }

@@ -31,7 +31,7 @@
 #include "llerror.h"
 #include "llpointer.h"
 #include "llrefcount.h"
-#include "boost/function.hpp"
+#include <functional>
 #include <string>
 
 class LLSD;
@@ -92,7 +92,7 @@ namespace LLError
         Control functions.
     */
 
-    typedef boost::function<void(const std::string&)> FatalFunction;
+    typedef std::function<void(const std::string&)> FatalFunction;
 
     LL_COMMON_API void setFatalFunction(const FatalFunction&);
         // The fatal function will be called after an message of LEVEL_ERROR

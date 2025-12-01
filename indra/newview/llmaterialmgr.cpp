@@ -67,7 +67,7 @@
 class LLMaterialHttpHandler : public LLHttpSDHandler
 {
 public:
-    typedef boost::function<void(bool, const LLSD&)> CallbackFunction;
+    typedef std::function<void(bool, const LLSD&)> CallbackFunction;
     typedef std::shared_ptr<LLMaterialHttpHandler> ptr_t;
 
     LLMaterialHttpHandler(const std::string& method, CallbackFunction cback);

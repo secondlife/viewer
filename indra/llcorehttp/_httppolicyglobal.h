@@ -55,7 +55,7 @@ public:
     HttpPolicyGlobal & operator=(const HttpPolicyGlobal &);
 
 private:
-    HttpPolicyGlobal(const HttpPolicyGlobal &);         // Not defined
+    HttpPolicyGlobal(const HttpPolicyGlobal &) = delete;
 
 public:
     HttpStatus set(HttpRequest::EPolicyOption opt, long value);

@@ -75,7 +75,7 @@ public:
 class LLOutfitListBase : public LLPanelAppearanceTab
 {
 public:
-    typedef boost::function<void(const LLUUID&)> selection_change_callback_t;
+    typedef std::function<void(const LLUUID&)>           selection_change_callback_t;
     typedef boost::signals2::signal<void(const LLUUID&)> selection_change_signal_t;
 
     LLOutfitListBase();

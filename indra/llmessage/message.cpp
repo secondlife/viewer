@@ -1162,7 +1162,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
     {
         LLSD message = mLLSDMessageBuilder->getMessage();
 
-        UntrustedCallback_t cb = NULL;
+        UntrustedCallback_t cb = nullptr;
         if ((mSendReliable) && (mReliablePacketParams.mCallback))
         {
             cb = boost::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
@@ -1359,7 +1359,7 @@ S32 LLMessageSystem::sendMessage(
         return 0;
     }
 
-    UntrustedCallback_t cb = NULL;
+    UntrustedCallback_t cb = nullptr;
     if ((mSendReliable) && (mReliablePacketParams.mCallback))
     {
         cb = boost::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
@@ -4049,8 +4049,10 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    if ((callback) && (!callback.empty()))
+    if (callback != nullptr)
+    {
         callback((status) ? LL_ERR_NOERR : LL_ERR_TCP_TIMEOUT);
+    }
 }
 
 

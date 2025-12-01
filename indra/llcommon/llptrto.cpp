@@ -31,10 +31,9 @@
 // associated header
 #include "llptrto.h"
 // STL headers
+#include <type_traits>
 // std headers
 // external library headers
-#include <boost/type_traits/is_same.hpp>
-#include <boost/static_assert.hpp>
 // other Linden headers
 #include "llmemory.h"
 
@@ -76,27 +75,27 @@ public:
 int main(int argc, char *argv[])
 {
     // test LLPtrTo<>
-    BOOST_STATIC_ASSERT((boost::is_same<LLPtrTo<RCFoo>::type, LLPointer<RCFoo> >::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLPtrTo<RCSubFoo>::type, LLPointer<RCSubFoo> >::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLPtrTo<TSRCFoo>::type, LLPointer<TSRCFoo> >::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLPtrTo<Bar>::type, Bar*>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLPtrTo<SubBar>::type, SubBar*>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLPtrTo<int>::type, int*>::value));
+    static_assert((std::is_same_v<LLPtrTo<RCFoo>::type, LLPointer<RCFoo> >));
+    static_assert((std::is_same_v<LLPtrTo<RCSubFoo>::type, LLPointer<RCSubFoo> >));
+    static_assert((std::is_same_v<LLPtrTo<TSRCFoo>::type, LLPointer<TSRCFoo> >));
+    static_assert((std::is_same_v<LLPtrTo<Bar>::type, Bar*>));
+    static_assert((std::is_same_v<LLPtrTo<SubBar>::type, SubBar*>));
+    static_assert((std::is_same_v<LLPtrTo<int>::type, int*>));
 
     // Test LLRemovePointer<>. Note that we remove both pointer variants from
     // each kind of type, regardless of whether the variant makes sense.
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer<RCFoo*>::type, RCFoo>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer< LLPointer<RCFoo> >::type, RCFoo>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer<RCSubFoo*>::type, RCSubFoo>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer< LLPointer<RCSubFoo> >::type, RCSubFoo>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer<TSRCFoo*>::type, TSRCFoo>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer< LLPointer<TSRCFoo> >::type, TSRCFoo>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer<Bar*>::type, Bar>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer< LLPointer<Bar> >::type, Bar>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer<SubBar*>::type, SubBar>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer< LLPointer<SubBar> >::type, SubBar>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer<int*>::type, int>::value));
-    BOOST_STATIC_ASSERT((boost::is_same<LLRemovePointer< LLPointer<int> >::type, int>::value));
+    static_assert((std::is_same_v<LLRemovePointer<RCFoo*>::type, RCFoo>));
+    static_assert((std::is_same_v<LLRemovePointer< LLPointer<RCFoo> >::type, RCFoo>));
+    static_assert((std::is_same_v<LLRemovePointer<RCSubFoo*>::type, RCSubFoo>));
+    static_assert((std::is_same_v<LLRemovePointer< LLPointer<RCSubFoo> >::type, RCSubFoo>));
+    static_assert((std::is_same_v<LLRemovePointer<TSRCFoo*>::type, TSRCFoo>));
+    static_assert((std::is_same_v<LLRemovePointer< LLPointer<TSRCFoo> >::type, TSRCFoo>));
+    static_assert((std::is_same_v<LLRemovePointer<Bar*>::type, Bar>));
+    static_assert((std::is_same_v<LLRemovePointer< LLPointer<Bar> >::type, Bar>));
+    static_assert((std::is_same_v<LLRemovePointer<SubBar*>::type, SubBar>));
+    static_assert((std::is_same_v<LLRemovePointer< LLPointer<SubBar> >::type, SubBar>));
+    static_assert((std::is_same_v<LLRemovePointer<int*>::type, int>));
+    static_assert((std::is_same_v<LLRemovePointer< LLPointer<int> >::type, int>));
 
     return 0;
 }

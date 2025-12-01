@@ -210,12 +210,12 @@ private:
     boost::signals2::signal<void(const LLUUID &)> mIconClickedSignal;
 
 public:
-    boost::signals2::connection setOnNameListCompleteCallback(boost::function<void(bool)> onNameListCompleteCallback)
+    boost::signals2::connection setOnNameListCompleteCallback(std::function<void(bool)> onNameListCompleteCallback)
     {
         return mNameListCompleteSignal.connect(onNameListCompleteCallback);
     }
 
-    boost::signals2::connection setIconClickedCallback(boost::function<void(const LLUUID &)> cb)
+    boost::signals2::connection setIconClickedCallback(std::function<void(const LLUUID&)> cb)
     {
         return mIconClickedSignal.connect(cb);
     }

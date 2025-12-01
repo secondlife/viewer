@@ -28,11 +28,12 @@
 #ifndef LL_LLPARAM_H
 #define LL_LLPARAM_H
 
+#include <functional>
+#include <type_traits>
 #include <vector>
 #include <list>
+#include <unordered_map>
 #include <boost/function.hpp>
-#include <boost/type_traits/is_convertible.hpp>
-#include <boost/type_traits/is_enum.hpp>
 #include <boost/unordered_map.hpp>
 
 #include "llerror.h"
@@ -105,6 +106,26 @@ namespace LLTypeTags
     };
 }
 
+namespace ll
+{
+    // Primary template: general case is false
+    template<typename T>
+    struct is_std_function : std::false_type
+    {
+    };
+
+    // Specialization for std::function
+    // R is the return type, Args is a parameter pack for argument types
+    template<typename R, typename... Args>
+    struct is_std_function<std::function<R(Args...)>> : std::true_type
+    {
+    };
+
+    // Helper variable template for convenience (C++14 onwards)
+    template<typename T>
+    constexpr bool is_std_function_v = is_std_function<T>::value;
+}
+
 namespace LLInitParam
 {
     // used to indicate no matching value to a given name when parsing
@@ -114,7 +135,7 @@ namespace LLInitParam
 
     // wraps comparison operator between any 2 values of the same type
     // specialize to handle cases where equality isn't defined well, or at all
-    template <typename T, bool IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::value >
+    template <typename T, bool IS_BOOST_FUNCTION = std::is_constructible_v<T, boost::function_base> || ll::is_std_function_v<T>>
     struct ParamCompare
     {
         static bool equals(const T &a, const T &b)
@@ -123,7 +144,7 @@ namespace LLInitParam
         }
     };
 
-    // boost function types are not comparable
+    // boost and std function types are not comparable
     template<typename T>
     struct ParamCompare<T, true>
     {
@@ -474,7 +495,7 @@ namespace LLInitParam
 
         typedef bool (*parser_read_func_t)(Parser& parser, void* output);
         typedef bool (*parser_write_func_t)(Parser& parser, const void*, name_stack_t&);
-        typedef boost::function<void (name_stack_t&, S32, S32, const possible_values_t*)>   parser_inspect_func_t;
+        typedef std::function<void (name_stack_t&, S32, S32, const possible_values_t*)>   parser_inspect_func_t;
 
         typedef std::map<const std::type_info*, parser_read_func_t>     parser_read_func_map_t;
         typedef std::map<const std::type_info*, parser_write_func_t>    parser_write_func_map_t;
@@ -491,7 +512,7 @@ namespace LLInitParam
 
         virtual ~Parser();
 
-        template <typename T> bool readValue(T& param, typename boost::disable_if<boost::is_enum<T> >::type* dummy = 0)
+        template <typename T> bool readValue(T& param, typename std::enable_if_t<!std::is_enum_v<T>>* dummy = 0)
         {
             parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
             if (found_it != mParserReadFuncs->end())
@@ -502,7 +523,7 @@ namespace LLInitParam
             return false;
         }
 
-        template <typename T> bool readValue(T& param, typename boost::enable_if<boost::is_enum<T> >::type* dummy = 0)
+        template <typename T> bool readValue(T& param, typename std::enable_if_t<std::is_enum_v<T> >* dummy = 0)
         {
             parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
             if (found_it != mParserReadFuncs->end())

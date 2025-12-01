@@ -36,7 +36,7 @@ class LLTextBox :
 public:
 
     // *TODO: Add callback to Params
-    typedef boost::function<void (void)> callback_t;
+    typedef std::function<void (void)> callback_t;
 
     struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
     {};
@@ -58,7 +58,7 @@ public:
 
     void setRightAlign() { mHAlign = LLFontGL::RIGHT; }
     void setHAlign(LLFontGL::HAlign align) { mHAlign = align; }
-    void setClickedCallback(boost::function<void(void*)> cb, void* userdata = NULL);
+    void setClickedCallback(std::function<void(void*)> cb, void* userdata = nullptr);
 
     void reshapeToFitText(bool called_from_parent = false);
 

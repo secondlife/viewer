@@ -26,8 +26,6 @@
 #ifndef LL_LLLOGIN_H
 #define LL_LLLOGIN_H
 
-#include <boost/scoped_ptr.hpp>
-
 class LLSD;
 class LLEventPump;
 

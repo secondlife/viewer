@@ -743,10 +743,10 @@ public:
         : LLTextureFetch::TFRequest(),
           mRegionHandle(region_handle)
         {}
-    TFReqSetRegion & operator=(const TFReqSetRegion &); // Not defined
+    TFReqSetRegion(const TFReqSetRegion&) = delete;
+    TFReqSetRegion& operator=(const TFReqSetRegion&) = delete;
 
-    virtual ~TFReqSetRegion()
-        {}
+    virtual ~TFReqSetRegion() = default;
 
     virtual bool doWork(LLTextureFetch * fetcher);
 
@@ -793,7 +793,9 @@ public:
         const LLUUID & session_id,
         const LLUUID & agent_id,
         LLSD& stats_sd);
-    TFReqSendMetrics & operator=(const TFReqSendMetrics &); // Not defined
+
+    TFReqSendMetrics(const TFReqSendMetrics&) = delete;
+    TFReqSendMetrics& operator=(const TFReqSendMetrics&) = delete;
 
     virtual ~TFReqSendMetrics();
 

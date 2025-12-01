@@ -28,15 +28,16 @@
 #ifndef LL_LAZY_VALUE_H
 #define LL_LAZY_VALUE_H
 
-#include <boost/function.hpp>
+#include <functional>
+#include <type_traits>
 
 // Holds on to a value of type T *or* calls a functor to generate a value of type T
 template<typename T>
 class LLLazyValue
 {
 public:
-    typedef typename boost::add_reference<typename boost::add_const<T>::type>::type T_const_ref;
-    typedef typename boost::function<T_const_ref (void)>                            function_type;
+    typedef typename std::add_lvalue_reference<typename std::add_const<T>::type>::type T_const_ref;
+    typedef typename std::function<T_const_ref (void)>                            function_type;
 
 public:
     LLLazyValue(const function_type& value)

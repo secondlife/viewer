@@ -75,6 +75,7 @@
  *
  */
 
+#include <functional>
 #include <string>
 #include <list>
 #include <vector>
@@ -83,8 +84,6 @@
 #include <iomanip>
 #include <sstream>
 
-#include <boost/utility.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/signals2.hpp>
 #include <boost/range.hpp>
 #include <boost/intrusive_ptr.hpp>
@@ -129,7 +128,7 @@ public:
     virtual void fromLLSD(const LLSD& params) = 0;
 };
 
-typedef boost::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
+typedef std::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
 
 typedef std::shared_ptr<LLNotificationResponderInterface> LLNotificationResponderPtr;
 
@@ -303,7 +302,6 @@ typedef std::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRu
  * shared pointer.
  */
 class LLNotification  :
-    boost::noncopyable,
     public std::enable_shared_from_this<LLNotification>
 {
 LOG_CLASS(LLNotification);
@@ -428,6 +426,10 @@ private:
 
 public:
     LLNotification(const LLSDParamAdapter<Params>& p);
+
+    // Non-copyable
+    LLNotification(const LLNotification&) = delete;
+    LLNotification& operator=(const LLNotification&) = delete;
 
     void setResponseFunctor(std::string const &responseFunctorName);
 
@@ -666,8 +668,8 @@ namespace LLNotificationFilters
     template<typename T>
     struct filterBy
     {
-        typedef boost::function<T (LLNotificationPtr)>  field_t;
-        typedef typename boost::remove_reference<T>::type       value_t;
+        typedef std::function<T (LLNotificationPtr)>  field_t;
+        typedef typename std::remove_reference<T>::type       value_t;
 
         filterBy(field_t field, value_t value, EComparison comparison = EQUAL)
             :   mField(field),
@@ -712,7 +714,7 @@ namespace LLNotificationComparators
     };
 };
 
-typedef boost::function<bool (LLNotificationPtr)> LLNotificationFilter;
+typedef std::function<bool (LLNotificationPtr)> LLNotificationFilter;
 typedef std::set<LLNotificationPtr, LLNotificationComparators::orderByUUID> LLNotificationSet;
 typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 
@@ -817,10 +819,9 @@ typedef boost::intrusive_ptr<LLNotificationChannel> LLNotificationChannelPtr;
 // manages a list of notifications
 // Note that if this is ever copied around, we might find ourselves with multiple copies
 // of a queue with notifications being added to different nonequivalent copies. So we
-// make it inherit from boost::noncopyable, and then create a map of LLPointer to manage it.
+// delete the copy operator and constructor, and then create a map of LLPointer to manage it.
 //
 class LLNotificationChannel :
-    boost::noncopyable,
     public LLNotificationChannelBase,
     public LLInstanceTracker<LLNotificationChannel, std::string>
 {
@@ -843,6 +844,10 @@ public:
     virtual ~LLNotificationChannel();
     typedef LLNotificationSet::iterator Iterator;
 
+    // Non-copyable
+    LLNotificationChannel(const LLNotificationChannel&) = delete;
+    LLNotificationChannel& operator=(const LLNotificationChannel&) = delete;
+
     std::string getName() const { return mName; }
     typedef std::vector<std::string>::const_iterator parents_iter;
     boost::iterator_range<parents_iter> getParents() const
@@ -854,7 +859,7 @@ public:
     S32 size() const;
     size_t size();
 
-    typedef boost::function<void(LLNotificationPtr)> NotificationProcess;
+    typedef std::function<void(LLNotificationPtr)> NotificationProcess;
     void forEachNotification(NotificationProcess process);
 
     std::string summarize();

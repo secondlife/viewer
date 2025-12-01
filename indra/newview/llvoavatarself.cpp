@@ -2735,7 +2735,7 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
         // Dereferencing the previous callback will cause
         // updateAppearanceFromCOF to be called, whenever all refs
         // have resolved.
-        gAgentAvatarp->mEndCustomizeCallback = NULL;
+        gAgentAvatarp->mEndCustomizeCallback = nullptr;
     }
 }
 
