@@ -52,11 +52,13 @@ if(LL_TESTS)
   add_executable(login_doctest
       tests/lllogin_doctest.cpp
       ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+      ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
   )
 
   target_include_directories(login_doctest
       PRIVATE
           ${DOCTEST_INCLUDE_DIR}
+          ${CMAKE_SOURCE_DIR}/extern/doctest
           ${CMAKE_SOURCE_DIR}/test
           ${CMAKE_CURRENT_SOURCE_DIR}
           ${CMAKE_CURRENT_SOURCE_DIR}/tests

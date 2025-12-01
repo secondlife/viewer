@@ -25,5 +25,39 @@
  * $/LicenseInfo$
  */
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
+
 #include "doctest.h"
+
+#include "lltest_harness.h"
+
+#include <cstdlib>
+#include <iostream>
+
+int main(int argc, char** argv)
+{
+    lltest_init_apr();
+
+    const char* LOGTEST = std::getenv("LOGTEST");
+    const char* LOGFAIL = std::getenv("LOGFAIL");
+
+    std::string app_name(argv[0]);
+    std::shared_ptr<LLReplayLog> replayer =
+        lltest_init_logging_no_fatal(app_name, LOGTEST, LOGFAIL);
+
+    lltest_init_trace();
+
+    doctest::Context context;
+    context.applyCommandLine(argc, argv);
+
+    int result = context.run();
+
+    if (result != 0 && replayer)
+    {
+        replayer->replay(std::cerr);
+    }
+
+    lltest_shutdown_apr();
+
+    return result;
+}

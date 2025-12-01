@@ -41,8 +41,6 @@
  * $/LicenseInfo$
  */
 
-
-
 namespace tut
 {
     using tut_compat::ensure;
@@ -50,49 +48,10 @@ namespace tut
     using tut_compat::ensure_not;
     using tut_compat::ensure_throws;
 
-        struct llquat_test
-        {
-        };
-
-        //test case for LLQuaternion::LLQuaternion(void) fn.
-
-
-        //test case for explicit LLQuaternion(const LLMatrix4 &mat) fn.
-
-
-
-
-        //test case for LLQuaternion(F32 x, F32 y, F32 z, F32 w), setQuatInit() and normQuat() fns.
-
-
-        //test case for conjQuat() and transQuat() fns.
-
-
-        //test case for dot(const LLQuaternion &a, const LLQuaternion &b) fn.
-
-
-        //test case for LLQuaternion &LLQuaternion::constrain(F32 radians) fn.
-
-
-
-
-
-
-        //test case for LLVector4 operator*(const LLVector4 &a, const LLQuaternion &rot) fn.
-
-
-        //test case for LLVector3 operator*(const LLVector3 &a, const LLQuaternion &rot) fn.
-
-
-        //test case for LLVector3d operator*(const LLVector3d &a, const LLQuaternion &rot) fn.
-
-
-        //test case for inline LLQuaternion operator-(const LLQuaternion &a) fn.
-
-
-        //test case for inline LLQuaternion operator*(F32 a, const LLQuaternion &q) and
-        //inline LLQuaternion operator*(F32 a, const LLQuaternion &q) fns.
-} // namespace tut
+    struct llquat_test
+    {
+    };
+}
 
 TUT_SUITE("llquaternion_test")
 {
@@ -353,23 +312,29 @@ TUT_SUITE("llquaternion_test")
 
     TUT_CASE("llquaternion_test::llquat_test_object_t_test_10")
     {
+        using namespace tut;
         LLVector4 vect(12.0f, 5.0f, 60.0f, 75.1f);
         LLQuaternion quat(2323.034f, 23.5f, 673.23f, 57667.5f);
         LLVector4 result = vect * quat;
 
-        LL_CHECK_APPROX(result.mV[0], 39928406016.0f, 1.0f);
-        LL_CHECK_IN_RANGE(result.mV[1], 1457800960.0f, 1457802240.0f);
-        LL_CHECK_APPROX(result.mV[2], 200580612096.0f, 2.0f);
-        LL_CHECK_APPROX(result.mV[3], 75.099998f, 1.0e-5f);
+        TUT_CHECK_MSG(
+            is_approx_equal(39928406016.0f, result.mV[0]) &&
+            result.mV[1] <= 1457802240.0f &&
+            result.mV[1] >= 1457800960.0f &&
+            is_approx_equal(200580612096.0f, result.mV[2]) &&
+            (75.099998f == result.mV[3]),
+            "1. LLVector4 operator*(const LLVector4 &a, const LLQuaternion &rot) failed");
 
         LLVector4 vect1(22.0f, 45.0f, 40.0f, 78.1f);
         LLQuaternion quat1(2.034f, 45.5f, 37.23f, 7.5f);
         result = vect1 * quat1;
 
-        LL_CHECK_APPROX(result.mV[0], -58153.5390f, 1.0e-3f);
-        LL_CHECK_APPROX(result.mV[1], 183787.8125f, 1.0e-3f);
-        LL_CHECK_APPROX(result.mV[2], 116864.164063f, 1.0e-3f);
-        LL_CHECK_APPROX(result.mV[3], 78.099998f, 1.0e-5f);
+        TUT_CHECK_MSG(
+            is_approx_equal(-58153.5390f, result.mV[0]) &&
+            is_approx_equal(183787.8125f, result.mV[1]) &&
+            is_approx_equal(116864.164063f, result.mV[2]) &&
+            is_approx_equal(78.099998f, result.mV[3]),
+            "2. LLVector4 operator*(const LLVector4 &a, const LLQuaternion &rot) failed");
     }
 
     TUT_CASE("llquaternion_test::llquat_test_object_t_test_11")

@@ -32,6 +32,7 @@ set(test_SOURCE_FILES
     llstreamtools_tut.cpp
     lltemplatemessagebuilder_tut.cpp
     lltut.cpp
+    lltest_harness.cpp
     message_tut.cpp
     test.cpp
     )

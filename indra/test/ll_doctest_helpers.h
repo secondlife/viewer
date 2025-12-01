@@ -104,3 +104,12 @@ inline void check_range_equal(
     } while (false)
 
 #define LL_CHECK_MSG(condition, message) CHECK_MESSAGE((condition), (message))
+
+// Convenience aliases used by some hand-written doctest suites.
+// `LL_CHECK_EQ_MEM` verifies that two memory regions of length `len`
+// have identical byte contents.
+#define LL_CHECK_EQ_MEM(ptrA, ptrB, len) LL_CHECK_EQ_RANGE((ptrA), (ptrB), (len))
+
+// `LL_CHECK_EQ_STR` compares two strings for equality using the
+// underlying `==` operator, emitting a readable failure message.
+#define LL_CHECK_EQ_STR(lhs, rhs) CHECK_EQ((lhs), (rhs))

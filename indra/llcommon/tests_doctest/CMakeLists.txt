@@ -1,10 +1,12 @@
-file(GLOB LLCOMMON_DOCTEST_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*_doctest.cpp"
+set(LLCOMMON_DOCTEST_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuple_test_doctest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/workqueue_test_doctest.cpp
 )
 
 add_executable(llcommon_doctest
     ${LLCOMMON_DOCTEST_SOURCES}
     ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
 )
 
 target_include_directories(llcommon_doctest

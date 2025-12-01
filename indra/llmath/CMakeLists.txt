@@ -132,4 +132,6 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
+
+  add_subdirectory(tests_doctest)
 endif (LL_TESTS)

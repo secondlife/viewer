@@ -42,6 +42,7 @@
 #include "namedtempfile.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
+#include "lltest_harness.h"
 
 #include "apr_pools.h"
 #include "apr_getopt.h"
@@ -66,95 +67,6 @@ namespace tut
 
     test_runner_singleton runner;
 }
-
-class LLReplayLog
-{
-public:
-    LLReplayLog() {}
-    virtual ~LLReplayLog() {}
-
-    virtual void reset() {}
-    virtual void replay(std::ostream&) {}
-};
-
-class RecordToTempFile : public LLError::Recorder, public boost::noncopyable
-{
-public:
-    RecordToTempFile()
-        : LLError::Recorder(),
-        boost::noncopyable(),
-        mTempFile("log", ""),
-        mFile(mTempFile.getName().c_str())
-    {
-    }
-
-    virtual ~RecordToTempFile()
-    {
-        mFile.close();
-    }
-
-    virtual void recordMessage(LLError::ELevel level, const std::string& message)
-    {
-        LL_PROFILE_ZONE_SCOPED;
-        mFile << message << std::endl;
-    }
-
-    void reset()
-    {
-        mFile.close();
-        mFile.open(mTempFile.getName().c_str());
-    }
-
-    void replay(std::ostream& out)
-    {
-        mFile.close();
-        std::ifstream inf(mTempFile.getName().c_str());
-        std::string line;
-        while (std::getline(inf, line))
-        {
-            out << line << std::endl;
-        }
-    }
-
-private:
-    NamedTempFile mTempFile;
-    llofstream mFile;
-};
-
-class LLReplayLogReal: public LLReplayLog, public boost::noncopyable
-{
-public:
-    LLReplayLogReal(LLError::ELevel level)
-        : LLReplayLog(),
-        boost::noncopyable(),
-        mOldSettings(LLError::saveAndResetSettings()),
-        mRecorder(new RecordToTempFile())
-    {
-        LLError::setFatalFunction(wouldHaveCrashed);
-        LLError::setDefaultLevel(level);
-        LLError::addRecorder(mRecorder);
-    }
-
-    virtual ~LLReplayLogReal()
-    {
-        LLError::removeRecorder(mRecorder);
-        LLError::restoreSettings(mOldSettings);
-    }
-
-    virtual void reset()
-    {
-        std::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->reset();
-    }
-
-    virtual void replay(std::ostream& out)
-    {
-        std::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->replay(out);
-    }
-
-private:
-    LLError::SettingsStoragePtr mOldSettings;
-    LLError::RecorderPtr mRecorder;
-};
 
 class LLTestCallback : public chained_callback
 {
@@ -501,11 +413,9 @@ void wouldHaveCrashed(const std::string& message)
     tut::fail("llerrs message: " + message);
 }
 
-static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
-
 int main(int argc, char **argv)
 {
-    ll_init_apr();
+    lltest_init_apr();
     apr_getopt_t* os = NULL;
     if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
     {
@@ -585,40 +495,13 @@ int main(int argc, char **argv)
 
     // set up logging
     const char* LOGFAIL = getenv("LOGFAIL");
-    std::shared_ptr<LLReplayLog> replayer{std::make_shared<LLReplayLog>()};
-
-    // Testing environment variables for both 'set' and 'not empty' allows a
-    // user to suppress a pre-existing environment variable by forcing empty.
-    if (LOGTEST && *LOGTEST)
-    {
-        LLError::initForApplication(".", ".", true /* log to stderr */);
-        LLError::setDefaultLevel(LLError::decodeLevel(LOGTEST));
-    }
-    else
-    {
-        LLError::initForApplication(".", ".", false /* do not log to stderr */);
-        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-        if (LOGFAIL && *LOGFAIL)
-        {
-            LLError::ELevel level = LLError::decodeLevel(LOGFAIL);
-            replayer.reset(new LLReplayLogReal(level));
-        }
-    }
-    LLError::setFatalFunction(wouldHaveCrashed);
     std::string test_app_name(argv[0]);
-    std::string test_log = test_app_name + ".log";
-    LLFile::remove(test_log);
-    LLError::logToFile(test_log);
 
-#ifdef CTYPE_WORKAROUND
-    ctype_workaround();
-#endif
+    std::shared_ptr<LLReplayLog> replayer =
+        lltest_init_logging(test_app_name, LOGTEST, LOGFAIL);
+    LLError::setFatalFunction(wouldHaveCrashed);
 
-    if (!sMasterThreadRecorder)
-    {
-        sMasterThreadRecorder = new LLTrace::ThreadRecorder();
-        LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
-    }
+    lltest_init_trace();
 
     // run the tests
 
@@ -660,7 +543,7 @@ int main(int argc, char **argv)
         s.close();
     }
 
-    ll_cleanup_apr();
+    lltest_shutdown_apr();
 
     int retval = (success ? 0 : 1);
     return retval;

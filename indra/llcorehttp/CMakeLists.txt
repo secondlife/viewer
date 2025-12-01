@@ -165,4 +165,6 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
 
   target_link_libraries(http_texture_load ${example_libs})
 
+  add_subdirectory(tests_doctest)
+
 endif (LL_TESTS AND LLCOREHTTP_TESTS)
