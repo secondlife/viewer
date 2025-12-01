@@ -32,6 +32,7 @@
 #include "llrect.h"
 #include "llsd.h"
 #include <functional>
+#include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
 #include "llinitparam.h"

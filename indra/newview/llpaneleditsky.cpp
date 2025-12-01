@@ -35,7 +35,6 @@
 #include "llvirtualtrackball.h"
 #include "llsettingssky.h"
 #include "llenvironment.h"
-#include "llatmosphere.h"
 #include "llviewercontrol.h"
 
 namespace
@@ -926,13 +925,6 @@ void LLPanelSettingsSkyDensityTab::updateProfile()
     mSkySettings->setAbsorptionConfigs(absorption_config);
     mSkySettings->update();
     setIsDirty();
-
-    if (gAtmosphere)
-    {
-        AtmosphericModelSettings atmospheric_settings;
-        LLEnvironment::getAtmosphericModelSettings(atmospheric_settings, mSkySettings);
-        gAtmosphere->configureAtmosphericModel(atmospheric_settings);
-    }
 }
 
 void LLPanelSettingsSkyDensityTab::onRayleighExponentialChanged()

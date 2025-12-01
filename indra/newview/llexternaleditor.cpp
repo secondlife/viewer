@@ -44,8 +44,20 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
     std::string cmd = findCommand(env_var, override);
     if (cmd.empty())
     {
-        LL_WARNS() << "Editor command is empty or not set" << LL_ENDL;
-        return EC_NOT_SPECIFIED;
+        LL_INFOS() << "Editor command is empty or not set, falling back to OS open handler" << LL_ENDL;
+#if LL_WINDOWS
+        static const std::string os_cmd = "%SystemRoot%\\explorer.exe \"%s\"";
+#elif LL_DARWIN
+        static const std::string os_cmd = "/usr/bin/open \"%s\"";
+#elif LL_LINUX
+        static const std::string os_cmd = "/usr/bin/xdg-open \"%s\"";
+#endif
+        cmd = findCommand("", os_cmd);
+        if (cmd.empty())
+        {
+            LL_WARNS() << "Failed to find OS open handler \"" << cmd << "\"" << LL_ENDL;
+            return EC_NOT_SPECIFIED;
+        }
     }
 
     string_vec_t tokens;

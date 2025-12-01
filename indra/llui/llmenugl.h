@@ -38,6 +38,8 @@
 #include "lluistring.h"
 #include "llview.h"
 
+#include <boost/bind.hpp>
+
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;
 
