@@ -63,7 +63,7 @@ public:
     virtual void hide();
 
 protected:
-    typedef boost::function<void (const LLUUID& id)> functor_t;
+    typedef std::function<void (const LLUUID& id)> functor_t;
 
     virtual LLContextMenu* createMenu() = 0;
 

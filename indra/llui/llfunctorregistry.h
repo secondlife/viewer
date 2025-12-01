@@ -31,8 +31,6 @@
 #include <string>
 #include <map>
 
-#include <boost/function.hpp>
-
 #include "llsd.h"
 #include "llsingleton.h"
 

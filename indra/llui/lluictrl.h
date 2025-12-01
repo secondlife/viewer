@@ -31,7 +31,7 @@
 //#include "llboost.h"
 #include "llrect.h"
 #include "llsd.h"
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/signals2.hpp>
 
 #include "llinitparam.h"
@@ -47,12 +47,12 @@ class LLUICtrl
     : public LLView, public boost::signals2::trackable
 {
 public:
-    typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> commit_callback_t;
+    typedef std::function<void (LLUICtrl* ctrl, const LLSD& param)> commit_callback_t;
     typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
     // *TODO: add xml support for this type of signal in the future
     typedef boost::signals2::signal<void (LLUICtrl* ctrl, S32 x, S32 y, MASK mask)> mouse_signal_t;
 
-    typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
+    typedef std::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
     typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
 
     struct CallbackParam : public LLInitParam::Block<CallbackParam>
@@ -258,8 +258,8 @@ public:
     boost::signals2::connection setDoubleClickCallback( const mouse_signal_t::slot_type& cb );
 
     // *TODO: Deprecate; for backwards compatability only:
-    boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);
-    boost::signals2::connection setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb );
+    boost::signals2::connection setCommitCallback( std::function<void (LLUICtrl*,void*)> cb, void* data);
+    boost::signals2::connection setValidateBeforeCommit( std::function<bool (const LLSD& data)> cb );
 
     LLUICtrl* findRootMostFocusRoot();
 

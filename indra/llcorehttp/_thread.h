@@ -42,8 +42,10 @@ namespace LLCoreInt
 class HttpThread : public RefCounted
 {
 private:
-    HttpThread();                           // Not defined
-    void operator=(const HttpThread &);     // Not defined
+    // May not be default constructed or copied
+    HttpThread() = delete;
+    HttpThread(const HttpThread&) = delete;
+    void operator=(const HttpThread &) = delete;
 
     void at_exit()
         {

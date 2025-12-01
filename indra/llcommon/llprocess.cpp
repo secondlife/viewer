@@ -529,18 +529,9 @@ LLProcess::LLProcess(const LLSDOrParams& params):
     // preserve existing semantics, we promise that mAttached defaults to the
     // same setting as mAutokill.
     mAttached(params.attached.isProvided()? params.attached : params.autokill),
-    mPool(NULL),
-    mPipes(NSLOTS)
+    mPool(NULL)
 {
-    // Hmm, when you construct a ptr_vector with a size, it merely reserves
-    // space, it doesn't actually make it that big. Explicitly make it bigger.
-    // Because of ptr_vector's odd semantics, have to push_back(0) the right
-    // number of times! resize() wants to default-construct new BasePipe
-    // instances, which fails because it's pure virtual. But because of the
-    // constructor call, these push_back() calls should require no new
-    // allocation.
-    for (size_t i = 0; i < mPipes.capacity(); ++i)
-        mPipes.push_back(0);
+    mPipes.resize(NSLOTS);
 
     if (! params.validateBlock(true))
     {
@@ -752,11 +743,11 @@ LLProcess::LLProcess(const LLSDOrParams& params):
         apr_file_t* pipe(mProcess.*(members[i]));
         if (i == STDIN)
         {
-            mPipes.replace(i, new WritePipeImpl(desc, pipe));
+            mPipes[i] = std::make_unique<WritePipeImpl>(desc, pipe);
         }
         else
         {
-            mPipes.replace(i, new ReadPipeImpl(desc, pipe, FILESLOT(i)));
+            mPipes[i] = std::make_unique<ReadPipeImpl>(desc, pipe, FILESLOT(i));
         }
         // Removed temporaily for Xcode 7 build tests: error was:
         // "error: expression with side effects will be evaluated despite
@@ -1064,14 +1055,14 @@ PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
         error = STRINGIZE(mDesc << " has no slot " << slot);
         return NULL;
     }
-    if (mPipes.is_null(slot))
+    if (!mPipes[slot])
     {
         error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a monitored pipe");
         return NULL;
     }
     // Make sure we dynamic_cast in pointer domain so we can test, rather than
     // accepting runtime's exception.
-    PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(&mPipes[slot]);
+    PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(mPipes[slot].get());
     if (! ppipe)
     {
         error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a " << typeid(PIPETYPE).name());

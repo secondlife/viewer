@@ -41,8 +41,8 @@ void LLTransferTargetVFile::updateQueue(bool shutdown)
 LLTransferTargetParamsVFile::LLTransferTargetParamsVFile() :
     LLTransferTargetParams(LLTTT_VFILE),
     mAssetType(LLAssetType::AT_NONE),
-    mCompleteCallback(NULL),
-    mRequestDatap(NULL),
+    mCompleteCallback(nullptr),
+    mRequestDatap(nullptr),
     mErrCode(0)
 {
 }

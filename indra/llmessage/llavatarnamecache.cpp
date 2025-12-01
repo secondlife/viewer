@@ -117,9 +117,9 @@ LLAvatarNameCache::LLAvatarNameCache()
 
     mUsePeopleAPI = true;
 
-    sHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-    sHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
-    sHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
+    sHttpRequest = std::make_shared<LLCore::HttpRequest>();
+    sHttpHeaders = std::make_shared<LLCore::HttpHeaders>();
+    sHttpOptions = std::make_shared<LLCore::HttpOptions>();
     sHttpPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
 }
 

@@ -153,7 +153,7 @@ public:
 
     ~LLButton();
     // For backward compatability only
-    typedef boost::function<void(void*)> button_callback_t;
+    typedef std::function<void(void*)> button_callback_t;
 
     void            addImageAttributeToXML(LLXMLNodePtr node, const std::string& imageName,
                                         const LLUUID&   imageID,const std::string&  xmlTagName) const;

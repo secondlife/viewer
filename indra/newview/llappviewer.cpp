@@ -1232,8 +1232,8 @@ bool LLAppViewer::init()
     /// Tell the Coprocedure manager how to discover and store the pool sizes
     // what I wanted
     LLCoprocedureManager::getInstance()->setPropertyMethods(
-        boost::bind(&LLControlGroup::getU32, boost::ref(gSavedSettings), _1),
-        boost::bind(&LLControlGroup::declareU32, boost::ref(gSavedSettings), _1, _2, _3, LLControlVariable::PERSIST_ALWAYS));
+        std::bind(&LLControlGroup::getU32, std::ref(gSavedSettings), std::placeholders::_1),
+        std::bind(&LLControlGroup::declareU32, std::ref(gSavedSettings), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, LLControlVariable::PERSIST_ALWAYS));
 
     // TODO: consider moving proxy initialization here or LLCopocedureManager after proxy initialization, may be implement
     // some other protection to make sure we don't use network before initializng proxy
@@ -4461,7 +4461,7 @@ bool LLAppViewer::initCache()
     return true;
 }
 
-void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
+void LLAppViewer::addOnIdleCallback(const std::function<void()>& cb)
 {
     gMainloopWork.post(cb);
 }

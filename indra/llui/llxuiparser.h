@@ -31,7 +31,7 @@
 #include "llregistry.h"
 #include "llxmlnode.h"
 
-#include <boost/function.hpp>
+#include <functional>
 #include <iosfwd>
 #include <stack>
 #include <set>
@@ -47,7 +47,7 @@ class LLWidgetTypeRegistry
 
 
 // global static instance for registering all widget types
-typedef boost::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)> LLWidgetCreatorFunc;
+typedef std::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)> LLWidgetCreatorFunc;
 
 typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
 

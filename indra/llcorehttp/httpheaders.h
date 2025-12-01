@@ -74,7 +74,7 @@ namespace LLCore
 /// constructor is given a refcount.
 ///
 
-class HttpHeaders: private boost::noncopyable
+class HttpHeaders
 {
 public:
     typedef std::pair<std::string, std::string> header_t;
@@ -94,11 +94,11 @@ public:
     HttpHeaders();
     virtual ~HttpHeaders();                     // Use release()
 
-    //typedef LLCoreInt::IntrusivePtr<HttpHeaders> ptr_t;
-protected:
+    // Non-copyable
+    HttpHeaders(const HttpHeaders&) = delete;
+    HttpHeaders& operator=(const HttpHeaders&) = delete;
 
-    HttpHeaders(const HttpHeaders &);           // Not defined
-    void operator=(const HttpHeaders &);        // Not defined
+    //typedef LLCoreInt::IntrusivePtr<HttpHeaders> ptr_t;
 
 public:
     // Empty the list of headers.

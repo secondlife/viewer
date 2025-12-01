@@ -30,6 +30,7 @@
 #if ! defined(LL_LLDEPENDENCIES_H)
 #define LL_LLDEPENDENCIES_H
 
+#include <functional>
 #include <string>
 #include <vector>
 #include <set>
@@ -38,7 +39,6 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include "llexception.h"
 
@@ -217,7 +217,7 @@ class LLDependencies: public LLDependenciesBase
     /// We have various ways to get the dependencies for a given DepNode.
     /// Rather than having to restate each one for 'after' and 'before'
     /// separately, pass a dep_selector so we can apply each to either.
-    typedef boost::function<const typename DepNode::dep_set&(const DepNode&)> dep_selector;
+    typedef std::function<const typename DepNode::dep_set&(const DepNode&)> dep_selector;
 
 public:
     LLDependencies() {}
@@ -340,7 +340,7 @@ private:
 
 public:
     /// iterator over value_type entries
-    typedef boost::transform_iterator<boost::function<value_type(DepNodeMapEntry&)>,
+    typedef boost::transform_iterator<std::function<value_type(DepNodeMapEntry&)>,
                                       typename DepNodeMap::iterator> iterator;
     /// range over value_type entries
     typedef boost::iterator_range<iterator> range;
@@ -352,7 +352,7 @@ public:
     }
 
     /// iterator over const_value_type entries
-    typedef boost::transform_iterator<boost::function<const_value_type(const DepNodeMapEntry&)>,
+    typedef boost::transform_iterator<std::function<const_value_type(const DepNodeMapEntry&)>,
                                       typename DepNodeMap::const_iterator> const_iterator;
     /// range over const_value_type entries
     typedef boost::iterator_range<const_iterator> const_range;
@@ -364,7 +364,7 @@ public:
     }
 
     /// iterator over stored NODEs
-    typedef boost::transform_iterator<boost::function<NODE&(DepNodeMapEntry&)>,
+    typedef boost::transform_iterator<std::function<NODE&(DepNodeMapEntry&)>,
                                       typename DepNodeMap::iterator> node_iterator;
     /// range over stored NODEs
     typedef boost::iterator_range<node_iterator> node_range;
@@ -380,7 +380,7 @@ public:
     }
 
     /// const iterator over stored NODEs
-    typedef boost::transform_iterator<boost::function<const NODE&(const DepNodeMapEntry&)>,
+    typedef boost::transform_iterator<std::function<const NODE&(const DepNodeMapEntry&)>,
                                       typename DepNodeMap::const_iterator> const_node_iterator;
     /// const range over stored NODEs
     typedef boost::iterator_range<const_node_iterator> const_node_range;
@@ -396,7 +396,7 @@ public:
     }
 
     /// const iterator over stored KEYs
-    typedef boost::transform_iterator<boost::function<const KEY&(const DepNodeMapEntry&)>,
+    typedef boost::transform_iterator<std::function<const KEY&(const DepNodeMapEntry&)>,
                                       typename DepNodeMap::const_iterator> const_key_iterator;
     /// const range over stored KEYs
     typedef boost::iterator_range<const_key_iterator> const_key_range;

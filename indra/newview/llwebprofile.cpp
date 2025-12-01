@@ -83,7 +83,7 @@ void LLWebProfile::setAuthCookie(const std::string& cookie)
 /*static*/
 LLCore::HttpHeaders::ptr_t LLWebProfile::buildDefaultHeaders()
 {
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpHeaders::ptr_t httpHeaders = std::make_shared<LLCore::HttpHeaders>();
     LLSD headers = LLViewerMedia::getInstance()->getHeaders();
 
     for (LLSD::map_iterator it = headers.beginMap(); it != headers.endMap(); ++it)
@@ -100,9 +100,9 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("uploadImageCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     if (dynamic_cast<LLImagePNG*>(image.get()) == 0)

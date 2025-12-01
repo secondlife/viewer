@@ -295,10 +295,10 @@ public:
     typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
     bool requestPostCapability(const std::string &capName,
                                LLSD              &postData,
-                               httpCallback_t     cbSuccess = NULL,
-                               httpCallback_t     cbFailure = NULL);
-    bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
-    bool requestDelCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+                               httpCallback_t     cbSuccess = nullptr,
+                               httpCallback_t     cbFailure = nullptr);
+    bool requestGetCapability(const std::string& capName, httpCallback_t cbSuccess = nullptr, httpCallback_t cbFailure = nullptr);
+    bool requestDelCapability(const std::string& capName, httpCallback_t cbSuccess = nullptr, httpCallback_t cbFailure = nullptr);
 
     /// implements LLCapabilityProvider
     /*virtual*/ const LLHost& getHost() const;

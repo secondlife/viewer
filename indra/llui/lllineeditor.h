@@ -60,7 +60,7 @@ class LLLineEditor
 {
 public:
 
-    typedef boost::function<void (LLLineEditor* caller)> keystroke_callback_t;
+    typedef std::function<void (LLLineEditor* caller)> keystroke_callback_t;
 
     struct MaxLength : public LLInitParam::ChoiceBlock<MaxLength>
     {
@@ -259,7 +259,7 @@ public:
     void            setSelectAllonCommit(bool b) { mSelectAllonCommit = b; }
 
     void            onKeystroke();
-    typedef boost::function<void (LLLineEditor* caller, void* user_data)> callback_t;
+    typedef std::function<void (LLLineEditor* caller, void* user_data)> callback_t;
     void            setKeystrokeCallback(callback_t callback, void* user_data);
 
     void            setMaxTextLength(S32 max_text_length);

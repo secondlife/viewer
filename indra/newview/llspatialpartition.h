@@ -71,16 +71,8 @@ protected:
     ~LLDrawInfo();
 
 public:
-    LLDrawInfo(const LLDrawInfo& rhs)
-    {
-        *this = rhs;
-    }
-
-    const LLDrawInfo& operator=(const LLDrawInfo& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLDrawInfo(const LLDrawInfo& rhs) = delete;
+    const LLDrawInfo& operator=(const LLDrawInfo& rhs) = delete;
 
     // return a hash of this LLDrawInfo as a debug color
     LLColor4U getDebugColor() const;
@@ -206,16 +198,8 @@ class LLSpatialGroup : public LLOcclusionCullingGroup
     friend class LLOctreeStateCheck;
 public:
 
-    LLSpatialGroup(const LLSpatialGroup& rhs) : LLOcclusionCullingGroup(rhs)
-    {
-        *this = rhs;
-    }
-
-    const LLSpatialGroup& operator=(const LLSpatialGroup& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLSpatialGroup(const LLSpatialGroup& rhs) = delete;
+    const LLSpatialGroup& operator=(const LLSpatialGroup& rhs) = delete;
 
     static U32 sNodeCount;
     static bool sNoDelete; //deletion of spatial groups and draw info not allowed if true

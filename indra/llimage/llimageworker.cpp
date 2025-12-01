@@ -67,7 +67,7 @@ private:
 LLImageDecodeThread::LLImageDecodeThread(bool /*threaded*/)
     : mDecodeCount(0)
 {
-    mThreadPool.reset(new LL::ThreadPool("ImageDecode", 8));
+    mThreadPool = std::make_unique<LL::ThreadPool>("ImageDecode", 8);
     mThreadPool->start();
 }
 

@@ -999,15 +999,16 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 }
 
 // *TODO: Deprecate; for backwards compatability only:
-boost::signals2::connection LLUICtrl::setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data)
+boost::signals2::connection LLUICtrl::setCommitCallback( std::function<void (LLUICtrl*,void*)> cb, void* data)
 {
-    return setCommitCallback( boost::bind(cb, _1, data));
+    return setCommitCallback( std::bind(cb, std::placeholders::_1, data));
 }
-boost::signals2::connection LLUICtrl::setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb )
+
+boost::signals2::connection LLUICtrl::setValidateBeforeCommit( std::function<bool (const LLSD& data)> cb )
 {
     if (!mValidateSignal) mValidateSignal = new enable_signal_t();
 
-    return mValidateSignal->connect(boost::bind(cb, _2));
+    return mValidateSignal->connect(std::bind(cb, std::placeholders::_2));
 }
 
 // virtual

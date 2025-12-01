@@ -30,7 +30,7 @@
 #include "lltextbox.h"
 #include "llurlmatch.h"
 
-boost::function<bool(LLUrlMatch*,LLTextBase*)>  LLTextUtil::TextHelpers::iconCallbackCreationFunction = 0;
+std::function<bool(LLUrlMatch*, LLTextBase*)> LLTextUtil::TextHelpers::iconCallbackCreationFunction = nullptr;
 
 void LLTextUtil::textboxSetHighlightedVal(LLTextBox *txtbox, const LLStyle::Params& normal_style, const std::string& text, const std::string& hl)
 {

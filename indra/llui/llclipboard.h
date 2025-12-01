@@ -27,8 +27,6 @@
 #ifndef LL_LLCLIPBOARD_H
 #define LL_LLCLIPBOARD_H
 
-#include <boost/function.hpp>
-
 #include "llstring.h"
 #include "lluuid.h"
 #include "llsingleton.h"

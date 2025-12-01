@@ -56,8 +56,8 @@ public:
     virtual ~HttpPolicy();
 
 private:
-    HttpPolicy(const HttpPolicy &);             // Not defined
-    void operator=(const HttpPolicy &);         // Not defined
+    HttpPolicy(const HttpPolicy&) = delete;
+    void operator=(const HttpPolicy&) = delete;
 
 public:
     typedef std::shared_ptr<HttpOpRequest> opReqPtr_t;

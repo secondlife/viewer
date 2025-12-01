@@ -438,7 +438,7 @@ template <typename T>
 const LLEditWearableDictionary::PickerControlEntry*
 get_picker_entry (const ETextureIndex index) { return NULL; }
 
-typedef boost::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry*)> function_t;
+typedef std::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry*)> function_t;
 
 typedef struct PickerControlEntryNamePredicate
 {

@@ -53,7 +53,7 @@ public:
     ~HttpPolicyClass();
 
     HttpPolicyClass & operator=(const HttpPolicyClass &);
-    HttpPolicyClass(const HttpPolicyClass &);           // Not defined
+    HttpPolicyClass(const HttpPolicyClass &);
 
 public:
     HttpStatus set(HttpRequest::EPolicyOption opt, long value);

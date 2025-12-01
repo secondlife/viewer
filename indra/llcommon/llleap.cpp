@@ -61,7 +61,7 @@ public:
         // Pass it a callback to our connect() method, so it can send events
         // from a particular LLEventPump to the plugin without having to know
         // this class or method name.
-        mListener(new LLLeapListener(
+        mListener(std::make_unique<LLLeapListener>(
                       [this](LLEventPump& pump, const std::string& listener)
                       { return connect(pump, listener); }))
     {

@@ -133,11 +133,8 @@ public:
     static void initClass();
     static void cleanupClass();
 
-    const LLAtmosphere& operator=(const LLAtmosphere& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLAtmosphere(const LLAtmosphere& rhs) = delete;
+    const LLAtmosphere& operator=(const LLAtmosphere& rhs) = delete;
 
     LLGLTexture* getTransmittance();
     LLGLTexture* getScattering();
@@ -147,11 +144,6 @@ public:
     bool configureAtmosphericModel(AtmosphericModelSettings& settings);
 
 protected:
-    LLAtmosphere(const LLAtmosphere& rhs)
-    {
-        *this = rhs;
-    }
-
     LLPointer<LLGLTexture> m_transmittance;
     LLPointer<LLGLTexture> m_scattering;
     LLPointer<LLGLTexture> m_mie_scatter_texture;

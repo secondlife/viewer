@@ -1816,8 +1816,8 @@ void LLInventoryGallery::paste(const LLUUID& dest,
                                const LLUUID& marketplacelistings_id)
 {
     LLHandle<LLPanel> handle = getHandle();
-    std::function <void(const LLUUID)> on_copy_callback = NULL;
-    LLPointer<LLInventoryCallback> cb = NULL;
+    std::function<void(const LLUUID)> on_copy_callback = nullptr;
+    LLPointer<LLInventoryCallback> cb = nullptr;
     if (dest == mFolderID)
     {
         on_copy_callback = [handle](const LLUUID& inv_item)
@@ -3582,12 +3582,12 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
 
         if (accept && drop)
         {
-            std::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
+            std::shared_ptr<LLMoveInv> move_inv = std::make_shared<LLMoveInv>();
             move_inv->mObjectID = inv_item->getParentUUID();
             std::pair<LLUUID, LLUUID> item_pair(folder_id, inv_item->getUUID());
             move_inv->mMoveList.push_back(item_pair);
-            move_inv->mCallback = NULL;
-            move_inv->mUserData = NULL;
+            move_inv->mCallback = nullptr;
+            move_inv->mUserData = nullptr;
             if (is_move)
             {
                 warn_move_inventory(object, move_inv);

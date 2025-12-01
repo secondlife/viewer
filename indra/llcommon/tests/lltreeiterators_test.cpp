@@ -32,6 +32,7 @@
 
 // STL headers
 // std headers
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -915,7 +916,7 @@ struct WalkExpected<LLTreeIter::BFS>: public Expected
 template <class NODE, typename CHILDITER>
 typename LLPtrTo<NODE>::type
 get_B2b(const typename LLPtrTo<NODE>::type& root,
-        const boost::function<CHILDITER(const typename LLPtrTo<NODE>::type&)>& child_begin)
+        const std::function<CHILDITER(const typename LLPtrTo<NODE>::type&)>& child_begin)
 {
     typedef typename LLPtrTo<NODE>::type NodePtr;
     CHILDITER Bi(child_begin(root));
