@@ -31,7 +31,7 @@
 
 class LLFloaterBanDuration : public LLFloater
 {
-    typedef boost::function<void(const uuid_vec_t&, const S32 duration)> select_callback_t;
+    typedef std::function<void(const uuid_vec_t&, const S32 duration)> select_callback_t;
 
 public:
     LLFloaterBanDuration(const LLSD& target);

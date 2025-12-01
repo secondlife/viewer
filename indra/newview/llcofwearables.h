@@ -54,7 +54,7 @@ public:
         LLCOFCallbacks() {};
         virtual ~LLCOFCallbacks() {};
 
-        typedef boost::function<void ()> cof_callback_t;
+        typedef std::function<void()> cof_callback_t;
 
         cof_callback_t mAddWearable;
         cof_callback_t mMoveWearableCloser;

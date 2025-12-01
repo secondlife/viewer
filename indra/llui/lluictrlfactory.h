@@ -311,7 +311,7 @@ LLUICtrlFactory::ParamDefaults<LLInitParam::BaseBlock, DUMMY>::ParamDefaults() {
 template<typename DERIVED>
 template<typename T>
 LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreatorFunc func)
-:   LLChildRegistry<DERIVED>::StaticRegistrar(tag, func.empty() ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T> : func)
+:   LLChildRegistry<DERIVED>::StaticRegistrar(tag, func == nullptr ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T> : func)
 {
     // add this widget to various registries
     LLUICtrlFactory::instance().registerWidget(&typeid(T), &typeid(typename T::Params), tag);

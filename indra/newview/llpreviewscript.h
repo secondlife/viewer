@@ -58,7 +58,7 @@ class LLScriptMovedObserver;
 class LLLiveLSLFile : public LLLiveFile
 {
 public:
-    typedef boost::function<bool(const std::string& filename)> change_callback_t;
+    typedef std::function<bool(const std::string& filename)> change_callback_t;
 
     LLLiveLSLFile(std::string file_path, change_callback_t change_cb);
     ~LLLiveLSLFile();

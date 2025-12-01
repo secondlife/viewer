@@ -30,7 +30,6 @@
 #include <fstream>
 
 #include <boost/regex.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "llfeaturemanager.h"
 #include "lldir.h"
@@ -184,15 +183,15 @@ void LLFeatureList::dump()
     }
 }
 
-static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_of
-    ("Low")
-    ("LowMid")
-    ("Mid")
-    ("MidHigh")
-    ("High")
-    ("HighUltra")
-    ("Ultra")
-;
+static const std::vector<std::string> sGraphicsLevelNames = {
+    "Low",
+    "LowMid",
+    "Mid",
+    "MidHigh",
+    "High",
+    "HighUltra",
+    "Ultra"
+};
 
 U32 LLFeatureManager::getMaxGraphicsLevel() const
 {

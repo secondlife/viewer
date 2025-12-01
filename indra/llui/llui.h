@@ -241,9 +241,9 @@ public:
     //
     // Methods
     //
-    typedef boost::function<void(LLView*)> add_popup_t;
-    typedef boost::function<void(LLView*)> remove_popup_t;
-    typedef boost::function<void(void)> clear_popups_t;
+    typedef std::function<void(LLView*)> add_popup_t;
+    typedef std::function<void(LLView*)> remove_popup_t;
+    typedef std::function<void(void)> clear_popups_t;
 
     void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 

@@ -43,7 +43,7 @@ LLWorldMapMessage::LLWorldMapMessage() :
     mSLURLRegionName(),
     mSLURLRegionHandle(0),
     mSLURL(),
-    mSLURLCallback(0),
+    mSLURLCallback(nullptr),
     mSLURLTeleport(false)
 {
 }
@@ -215,14 +215,14 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 
         // Handle the SLURL callback if any
         url_callback_t callback = LLWorldMapMessage::getInstance()->mSLURLCallback;
-        if(callback != NULL)
+        if (callback != nullptr)
         {
             U64 handle = to_region_handle(x_world, y_world);
             // Check if we reached the requested region
             if ((LLStringUtil::compareInsensitive(LLWorldMapMessage::getInstance()->mSLURLRegionName, name)==0)
                 || (LLWorldMapMessage::getInstance()->mSLURLRegionHandle == handle))
             {
-                LLWorldMapMessage::getInstance()->mSLURLCallback = NULL;
+                LLWorldMapMessage::getInstance()->mSLURLCallback = nullptr;
                 LLWorldMapMessage::getInstance()->mSLURLRegionName.clear();
                 LLWorldMapMessage::getInstance()->mSLURLRegionHandle = 0;
 

@@ -437,8 +437,8 @@ LLAgent::LLAgent() :
     mAutoPilotTargetDist(0.f),
     mAutoPilotNoProgressFrameCount(0),
     mAutoPilotRotationThreshold(0.f),
-    mAutoPilotFinishedCallback(NULL),
-    mAutoPilotCallbackData(NULL),
+    mAutoPilotFinishedCallback(nullptr),
+    mAutoPilotCallbackData(nullptr),
 
     mMovementKeysLocked(false),
 
@@ -455,8 +455,8 @@ LLAgent::LLAgent() :
 
     mVoiceConnected(false),
 
-    mMouselookModeInSignal(NULL),
-    mMouselookModeOutSignal(NULL)
+    mMouselookModeInSignal(nullptr),
+    mMouselookModeOutSignal(nullptr)
 {
     for (U32 i = 0; i < TOTAL_CONTROLS; i++)
     {
@@ -464,7 +464,7 @@ LLAgent::LLAgent() :
         mControlsTakenPassedOnCount[i] = 0;
     }
 
-    mListener.reset(new LLAgentListener(*this));
+    mListener = std::make_shared<LLAgentListener>(*this);
 
     addParcelChangedCallback(&setCanEditParcel);
 
@@ -4700,9 +4700,9 @@ void LLAgent::requestAgentUserInfoCoro(std::string capurl)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAgentUserInfoCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestAgentUserInfoCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     httpOpts->setFollowRedirects(true);
@@ -4760,9 +4760,9 @@ void LLAgent::updateAgentUserInfoCoro(std::string capurl, std::string directory_
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAgentUserInfoCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestAgentUserInfoCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     httpOpts->setFollowRedirects(true);

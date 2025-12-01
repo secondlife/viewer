@@ -60,7 +60,7 @@ public:
     virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
     //callbacks
-    typedef boost::function<void (LLSysWellItem* item)> syswell_item_callback_t;
+    typedef std::function<void (LLSysWellItem* item)> syswell_item_callback_t;
     typedef boost::signals2::signal<void (LLSysWellItem* item)> syswell_item_signal_t;
     syswell_item_signal_t mOnItemClose;
     syswell_item_signal_t mOnItemClick;

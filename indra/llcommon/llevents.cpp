@@ -44,7 +44,6 @@
 #include <cmath>
 #include <cctype>
 // external library headers
-#include <boost/range/iterator_range.hpp>
 #if LL_WINDOWS
 #pragma warning (push)
 #pragma warning (disable : 4701) // compiler thinks might use uninitialized var, but no

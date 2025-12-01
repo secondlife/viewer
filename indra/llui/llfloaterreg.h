@@ -30,8 +30,8 @@
 #include "llrect.h"
 #include "llsd.h"
 
+#include <functional>
 #include <list>
-#include <boost/function.hpp>
 
 //*******************************************************
 //
@@ -41,7 +41,7 @@
 class LLFloater;
 class LLUICtrl;
 
-typedef boost::function<LLFloater* (const LLSD& key)> LLFloaterBuildFunc;
+typedef std::function<LLFloater* (const LLSD& key)> LLFloaterBuildFunc;
 
 class LLFloaterReg
 {

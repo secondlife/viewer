@@ -35,7 +35,6 @@
 #include <set>
 #include <map>
 #include <boost/tokenizer.hpp>
-#include <boost/concept_check.hpp>
 
 //=========================================================================
 namespace LLExperienceCacheImpl
@@ -249,7 +248,7 @@ const LLExperienceCache::cache_t& LLExperienceCache::getCached()
 
 void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, std::string url, RequestQueue_t requests)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     //LL_INFOS("requestExperiencesCoro") << "url: " << url << LL_ENDL;
 
@@ -320,7 +319,7 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
 void LLExperienceCache::requestExperiences()
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -527,7 +526,7 @@ void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::ExperienceGetF
 
     fetch(key);
 
-    signal_ptr signal = signal_ptr(new callback_signal_t());
+    signal_ptr signal = std::make_shared<callback_signal_t>();
 
     std::pair<signal_map_t::iterator, bool> result = mSignalMap.insert(signal_map_t::value_type(key, signal));
     if (!result.second)
@@ -538,7 +537,7 @@ void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::ExperienceGetF
 //=========================================================================
 void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -550,7 +549,7 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
 
 void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, std::string url, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -562,7 +561,7 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
 
 void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID objectId, LLUUID itemId, std::string url, ExperienceGetFn_t fn)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     if (url.empty())
     {
@@ -600,8 +599,10 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
             failure["error"] = -1;
             failure["message"] = "no experience";
         }
-        if (fn && !fn.empty())
+        if (fn != nullptr)
+        {
             fn(failure);
+        }
         return;
     }
 
@@ -612,7 +613,7 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
 //-------------------------------------------------------------------------
 void LLExperienceCache::findExperienceByName(const std::string text, int page, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -624,7 +625,7 @@ void LLExperienceCache::findExperienceByName(const std::string text, int page, E
 
 void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, std::string text, int page, ExperienceGetFn_t fn)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
     std::ostringstream url;
 
 
@@ -655,7 +656,7 @@ void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAd
 //-------------------------------------------------------------------------
 void LLExperienceCache::getGroupExperiences(const LLUUID &groupId, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -667,7 +668,7 @@ void LLExperienceCache::getGroupExperiences(const LLUUID &groupId, ExperienceGet
 
 void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID groupId, ExperienceGetFn_t fn)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     // search for experiences owned by the current group
     std::string url = mCapability("GroupExperiences");
@@ -710,7 +711,7 @@ void LLExperienceCache::setRegionExperiences(CapabilityQuery_t regioncaps, const
 void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter,
     CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     // search for experiences owned by the current group
     std::string url = regioncaps("RegionExperiences");
@@ -743,7 +744,7 @@ void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapt
 //-------------------------------------------------------------------------
 void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -767,7 +768,7 @@ void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, Expe
 
 void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, const std::string &permission, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -797,7 +798,7 @@ void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, cons
 
 void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -822,7 +823,7 @@ void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, E
 
 void LLExperienceCache::experiencePermissionCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, permissionInvoker_fn invokerfn, std::string url, ExperienceGetFn_t fn)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     // search for experiences owned by the current group
 
@@ -841,7 +842,7 @@ void LLExperienceCache::experiencePermissionCoro(LLCoreHttpUtil::HttpCoroutineAd
 //-------------------------------------------------------------------------
 void LLExperienceCache::getExperienceAdmin(const LLUUID &experienceId, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -853,7 +854,7 @@ void LLExperienceCache::getExperienceAdmin(const LLUUID &experienceId, Experienc
 
 void LLExperienceCache::getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID experienceId, ExperienceGetFn_t fn)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     std::string url = mCapability("IsExperienceAdmin");
     if (url.empty())
@@ -873,7 +874,7 @@ void LLExperienceCache::getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdap
 //-------------------------------------------------------------------------
 void LLExperienceCache::updateExperience(LLSD updateData, ExperienceGetFn_t fn)
 {
-    if (mCapability.empty())
+    if (mCapability == nullptr)
     {
         LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
         return;
@@ -885,7 +886,7 @@ void LLExperienceCache::updateExperience(LLSD updateData, ExperienceGetFn_t fn)
 
 void LLExperienceCache::updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLSD updateData, ExperienceGetFn_t fn)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     std::string url = mCapability("UpdateExperience");
     if (url.empty())

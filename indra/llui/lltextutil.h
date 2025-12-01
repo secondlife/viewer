@@ -74,7 +74,7 @@ namespace LLTextUtil
         //we need this special callback since we need to create LLAvataIconCtrls while parsing
         //avatar/group url but can't create LLAvataIconCtrl from LLUI
         public:
-            static boost::function<bool(LLUrlMatch*,LLTextBase*)> iconCallbackCreationFunction;
+            static std::function<bool(LLUrlMatch*,LLTextBase*)> iconCallbackCreationFunction;
     };
 
 

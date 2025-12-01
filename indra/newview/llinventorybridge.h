@@ -239,7 +239,7 @@ public:
                  const LLUUID& uuid) :
         LLInvFVBridge(inventory, root, uuid) {}
 
-    typedef boost::function<void(std::string& slurl)> slurl_callback_t;
+    typedef std::function<void(std::string& slurl)> slurl_callback_t;
 
     virtual void performAction(LLInventoryModel* model, std::string action);
     virtual void selectItem();
@@ -833,7 +833,7 @@ void rez_attachment(LLViewerInventoryItem* item,
 bool move_inv_category_world_to_agent(const LLUUID& object_id,
                                       const LLUUID& category_id,
                                       bool drop,
-                                      std::function<void(S32, void*, const LLMoveInv *)> callback = NULL,
+                                      std::function<void(S32, void*, const LLMoveInv *)> callback = nullptr,
                                       void* user_data = NULL,
                                       LLInventoryFilter* filter = NULL);
 

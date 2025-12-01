@@ -30,7 +30,6 @@
 #define LL_LLPLUGINPROCESSPARENT_H
 
 #include <queue>
-#include <boost/enable_shared_from_this.hpp>
 
 #include "llapr.h"
 #include "llprocess.h"

@@ -1758,7 +1758,7 @@ bool sort_alpha(const LLViewerInventoryCategory* cat1, const LLViewerInventoryCa
 // The only inventory changes that are done is to move and sort folders containing no-copy items to stock folders.
 // @pending_callbacks - how many callbacks we are waiting for, must be inited before use
 // @result - true if things validate, false if issues are raised, must be inited before use
-typedef boost::function<void(S32 pending_callbacks, bool result)> validation_result_callback_t;
+typedef std::function<void(S32 pending_callbacks, bool result)> validation_result_callback_t;
 void validate_marketplacelistings(
     LLInventoryCategory* cat,
     validation_result_callback_t cb_result,

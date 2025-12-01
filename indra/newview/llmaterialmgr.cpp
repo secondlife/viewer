@@ -67,7 +67,7 @@
 class LLMaterialHttpHandler : public LLHttpSDHandler
 {
 public:
-    typedef boost::function<void(bool, const LLSD&)> CallbackFunction;
+    typedef std::function<void(bool, const LLSD&)> CallbackFunction;
     typedef std::shared_ptr<LLMaterialHttpHandler> ptr_t;
 
     LLMaterialHttpHandler(const std::string& method, CallbackFunction cback);
@@ -137,9 +137,9 @@ LLMaterialMgr::LLMaterialMgr():
 {
     LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 
-    mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-    mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
-    mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
+    mHttpRequest = std::make_shared<LLCore::HttpRequest>();
+    mHttpHeaders = std::make_shared<LLCore::HttpHeaders>();
+    mHttpOptions = std::make_shared<LLCore::HttpOptions>();
     mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_MATERIALS);
 
     mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(LLMaterialID::null, LLMaterialPtr(NULL)));
@@ -684,9 +684,9 @@ void LLMaterialMgr::processGetQueue()
         LLSD postData = LLSD::emptyMap();
         postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
-        LLCore::HttpHandler::ptr_t handler(new LLMaterialHttpHandler("POST",
+        LLCore::HttpHandler::ptr_t handler = std::make_shared<LLMaterialHttpHandler>("POST",
                 boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
-                ));
+                );
 
         LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
             << "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
@@ -864,9 +864,9 @@ void LLMaterialMgr::processGetAllQueueCoro(LLUUID regionId)
 
     LL_DEBUGS("Materials") << "GET all for region " << regionId << "url " << capURL << LL_ENDL;
 
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
-            new LLCoreHttpUtil::HttpCoroutineAdapter("processGetAllQueue", LLCore::HttpRequest::DEFAULT_POLICY_ID));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("processGetAllQueue", LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, capURL);
 
@@ -973,9 +973,9 @@ void LLMaterialMgr::processPutQueue()
 
             LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces to region " << itRequest->first->getName() << LL_ENDL;
 
-            LLCore::HttpHandler::ptr_t handler (new LLMaterialHttpHandler("PUT",
+            LLCore::HttpHandler::ptr_t handler = std::make_shared<LLMaterialHttpHandler>("PUT",
                                         boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
-                                        ));
+                                        );
 
             LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(
                 mHttpRequest, mHttpPolicy, capURL,

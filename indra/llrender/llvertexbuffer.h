@@ -98,16 +98,8 @@ public:
         U32 mEnd;
     };
 
-    LLVertexBuffer(const LLVertexBuffer& rhs)
-    {
-        *this = rhs;
-    }
-
-    const LLVertexBuffer& operator=(const LLVertexBuffer& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLVertexBuffer(const LLVertexBuffer& rhs) = delete;
+    const LLVertexBuffer& operator=(const LLVertexBuffer& rhs) = delete;
 
     static void initClass(LLWindow* window);
     static void cleanupClass();

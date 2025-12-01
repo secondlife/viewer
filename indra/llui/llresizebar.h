@@ -62,7 +62,7 @@ public:
     void            setEnableSnapping(bool enable) { mSnappingEnabled = enable; }
     void            setAllowDoubleClickSnapping(bool allow) { mAllowDoubleClickSnapping = allow; }
     bool            canResize() const { return getEnabled() && mMaxSize > mMinSize; }
-    void            setResizeListener(boost::function<void(void*)> listener) {mResizeListener = listener;}
+    void            setResizeListener(std::function<void(void*)> listener) { mResizeListener = listener; }
     void            setImagePanel(LLPanel * panelp);
     LLPanel *       getImagePanel() const;
 
@@ -78,7 +78,7 @@ private:
     bool                            mSnappingEnabled,
                                     mAllowDoubleClickSnapping;
     LLView*                         mResizingView;
-    boost::function<void(void*)>    mResizeListener;
+    std::function<void(void*)>    mResizeListener;
     LLPointer<LLUIImage>            mDragHandleImage;
     LLPanel *                       mImagePanel;
 };

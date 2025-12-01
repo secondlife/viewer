@@ -33,9 +33,7 @@
 #define LL_LLEVENTDISPATCHER_H
 
 #include <boost/fiber/fss.hpp>
-#include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
-#include <boost/hof/is_invocable.hpp> // until C++17, when we get std::is_invocable
 #include <boost/iterator/transform_iterator.hpp>
 #include <functional>               // std::function
 #include <memory>                   // std::unique_ptr
@@ -99,7 +97,7 @@ public:
 
     template <typename CALLABLE,
               typename=typename std::enable_if<
-                  boost::hof::is_invocable<CALLABLE, LLSD>::value
+                  std::is_invocable<CALLABLE, LLSD>::value
              >::type>
     void add(const std::string& name,
              const std::string& desc,
@@ -295,9 +293,8 @@ public:
      * converted to the corresponding parameter type using LLSDParam.
      */
     template <typename CALLABLE,
-              typename=typename std::enable_if<
-                  ! boost::hof::is_invocable<CALLABLE, LLSD>()
-             >::type>
+              typename=typename std::enable_if_t<
+                  ! std::is_invocable<CALLABLE, LLSD>()>>
     void add(const std::string& name,
              const std::string& desc,
              CALLABLE&& f)
@@ -318,7 +315,7 @@ public:
      */
     template<typename Method, typename InstanceGetter,
              typename = typename std::enable_if<
-                 boost::function_types::is_member_function_pointer<Method>::value &&
+                 std::is_member_function_pointer<Method>::value &&
                  ! std::is_convertible<InstanceGetter, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Method f,
@@ -338,7 +335,7 @@ public:
     template<typename Function,
              typename = typename std::enable_if<
                  boost::function_types::is_nonmember_callable_builtin<Function>::value &&
-                 ! boost::hof::is_invocable<Function, LLSD>::value
+                 ! std::is_invocable<Function, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Function f,
              const LLSD& params, const LLSD& defaults=LLSD());
@@ -364,7 +361,7 @@ public:
      */
     template<typename Method, typename InstanceGetter,
              typename = typename std::enable_if<
-                 boost::function_types::is_member_function_pointer<Method>::value &&
+                 std::is_member_function_pointer<Method>::value &&
                  ! std::is_convertible<InstanceGetter, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Method f,

@@ -27,8 +27,6 @@
 #ifndef LL_LLTHREADWATCHDOG_H
 #define LL_LLTHREADWATCHDOG_H
 
-#include <boost/function.hpp>
-
 #ifndef LL_TIMER_H
     #include "lltimer.h"
 #endif

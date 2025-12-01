@@ -94,7 +94,6 @@
 #include "llmeshrepository.h"
 #include "llfloaterregionrestarting.h"
 #include "llpanelexperiencelisteditor.h"
-#include <boost/function.hpp>
 #include "llpanelexperiencepicker.h"
 #include "llexperiencecache.h"
 #include "llpanelexperiences.h"
@@ -4033,8 +4032,8 @@ void LLPanelEstateAccess::updateLists()
 void LLPanelEstateAccess::requestEstateGetAccessCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestEstateGetAccessoCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestEstateGetAccessoCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 

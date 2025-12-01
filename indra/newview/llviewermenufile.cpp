@@ -642,7 +642,7 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                         LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
                         fmt_file.write(formatted->getData(), formatted->getDataSize());
 
-                        LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
+                        LLResourceUploadInfo::ptr_t assetUploadInfo = std::make_shared<LLResourceUploadInfo>(
                             tid, LLAssetType::AT_TEXTURE,
                             asset_name,
                             asset_name, 0,
@@ -652,14 +652,14 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                             LLFloaterPerms::getEveryonePerms("Uploads"),
                             LLAgentBenefitsMgr::current().getTextureUploadCost(raw_image->getWidth(), raw_image->getHeight()),
                             dest
-                        ));
+                        );
 
                         upload_new_resource(assetUploadInfo);
                     }
                 }
                 else
                 {
-                    LLNewFileResourceUploadInfo* info_p = new LLNewFileResourceUploadInfo(
+                    LLResourceUploadInfo::ptr_t uploadInfo = std::make_shared<LLNewFileResourceUploadInfo>(
                         filename,
                         asset_name,
                         asset_name, 0,
@@ -669,7 +669,6 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                         LLFloaterPerms::getEveryonePerms("Uploads"),
                         expected_upload_cost,
                         dest);
-                    LLResourceUploadInfo::ptr_t uploadInfo(info_p);
 
                     upload_new_resource(uploadInfo);
                 }

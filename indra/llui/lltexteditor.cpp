@@ -1242,7 +1242,7 @@ void LLTextEditor::addChar(llwchar wc)
     tryToShowEmojiHelper();
     tryToShowMentionHelper();
 
-    if (!mReadOnly && mAutoreplaceCallback != NULL)
+    if (!mReadOnly && mAutoreplaceCallback != nullptr)
     {
         // autoreplace the text, if necessary
         S32 replacement_start;

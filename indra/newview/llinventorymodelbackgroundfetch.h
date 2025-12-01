@@ -53,7 +53,7 @@ public:
     void scheduleFolderFetch(const LLUUID& cat_id, bool forced = false);
     void scheduleItemFetch(const LLUUID& item_id, bool forced = false);
 
-    typedef boost::function<void()> nullary_func_t;
+    typedef std::function<void()> nullary_func_t;
     // AIS3 only, Fetches folder and everything links inside the folder point to
     // Intended for outfits
     void fetchFolderAndLinks(const LLUUID& cat_id, nullary_func_t callback);
@@ -78,7 +78,7 @@ public:
     bool isBulkFetchProcessingComplete() const;
     void setAllFoldersFetched();
 
-    typedef boost::function<void()> folders_fetched_callback_t;
+    typedef std::function<void()> folders_fetched_callback_t;
     boost::signals2::connection setFetchCompletionCallback(folders_fetched_callback_t cb);
 
     void addRequestAtFront(const LLUUID& id, bool recursive, bool is_category);

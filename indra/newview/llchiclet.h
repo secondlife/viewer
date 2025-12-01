@@ -187,7 +187,7 @@ public:
     /*virtual*/ boost::signals2::connection setLeftButtonClickCallback(
         const commit_callback_t& cb);
 
-    typedef boost::function<void (LLChiclet* ctrl, const LLSD& param)>
+    typedef std::function<void(LLChiclet* ctrl, const LLSD& param)>
         chiclet_size_changed_callback_t;
 
     /**

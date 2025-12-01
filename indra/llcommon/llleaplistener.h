@@ -13,10 +13,9 @@
 #define LL_LLLEAPLISTENER_H
 
 #include "lleventapi.h"
+#include <functional>
 #include <map>
 #include <string>
-#include <boost/function.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
 
 /// Listener class implementing LLLeap query/control operations.
 /// See https://jira.lindenlab.com/jira/browse/DEV-31978.
@@ -31,7 +30,7 @@ public:
      * define the signature for a function that will perform that, and make
      * our constructor accept such a function.
      */
-    typedef boost::function<LLBoundListener(LLEventPump&, const std::string& listener)>
+    typedef std::function<LLBoundListener(LLEventPump&, const std::string& listener)>
             ConnectFunc;
     LLLeapListener(const ConnectFunc& connect);
     ~LLLeapListener();

@@ -21,7 +21,6 @@
 // external library headers
 #include "llapr.h"
 #include "apr_thread_proc.h"
-#include <boost/function.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 // other Linden headers
@@ -264,9 +263,12 @@ static std::string python_out(const std::string& desc, const CONTENT& script)
 }
 
 /// Create a temporary directory and clean it up later.
-class NamedTempDir: public boost::noncopyable
+class NamedTempDir
 {
 public:
+    NamedTempDir(const NamedTempDir&) = delete;
+    NamedTempDir& operator=(const NamedTempDir&) = delete;
+
     NamedTempDir():
         mPath(NamedTempFile::temp_path()),
         mCreated(boost::filesystem::create_directories(mPath))
@@ -1095,8 +1097,11 @@ namespace tut
         ensure_equals("bad child exit code",   py.mPy->getStatus().mData,  0);
     }
 
-    struct EventListener: public boost::noncopyable
+    struct EventListener
     {
+        EventListener(const EventListener&) = delete;
+        EventListener& operator=(const EventListener&) = delete;
+
         EventListener(LLEventPump& pump)
         {
             mConnection =
