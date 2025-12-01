@@ -3145,7 +3145,7 @@ bool LLAppViewer::initWindow()
 
     // Need to load feature table before cheking to start watchdog.
     bool use_watchdog = false;
-    int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
+    S32 watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
     if (watchdog_enabled_setting == -1)
     {
         use_watchdog = !LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
@@ -5820,12 +5820,12 @@ void LLAppViewer::forceExceptionThreadCrash()
     thread->start();
 }
 
-void LLAppViewer::initMainloopTimeout(std::string_view state, F32 secs)
+void LLAppViewer::initMainloopTimeout(std::string_view state)
 {
     if (!mMainloopTimeout)
     {
         mMainloopTimeout = new LLWatchdogTimeout();
-        resumeMainloopTimeout(state, secs);
+        resumeMainloopTimeout(state);
     }
 }
 
@@ -5838,17 +5838,11 @@ void LLAppViewer::destroyMainloopTimeout()
     }
 }
 
-void LLAppViewer::resumeMainloopTimeout(std::string_view state, F32 secs)
+void LLAppViewer::resumeMainloopTimeout(std::string_view state)
 {
     if (mMainloopTimeout)
     {
-        if (secs < 0.0f)
-        {
-            static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60.f);
-            secs = mainloop_timeout;
-        }
-
-        mMainloopTimeout->setTimeout(secs);
+        mMainloopTimeout->setTimeout(getMainloopTimeoutSec());
         mMainloopTimeout->start(state);
     }
 }
@@ -5861,20 +5855,30 @@ void LLAppViewer::pauseMainloopTimeout()
     }
 }
 
-void LLAppViewer::pingMainloopTimeout(std::string_view state, F32 secs)
+void LLAppViewer::pingMainloopTimeout(std::string_view state)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
 
     if (mMainloopTimeout)
     {
-        if (secs < 0.0f)
-        {
-            static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60);
-            secs = mainloop_timeout;
-        }
-
-        mMainloopTimeout->setTimeout(secs);
+        mMainloopTimeout->setTimeout(getMainloopTimeoutSec());
         mMainloopTimeout->ping(state);
+    }
+}
+
+
+F32 LLAppViewer::getMainloopTimeoutSec() const
+{
+    if (LLStartUp::getStartupState() == STATE_STARTED
+        && gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)
+    {
+        static LLCachedControl<F32> mainloop_started(gSavedSettings, "MainloopTimeoutStarted", 30.f);
+        return mainloop_started();
+    }
+    else
+    {
+        static LLCachedControl<F32> mainloop_default(gSavedSettings, "MainloopTimeoutDefault", 120.f);
+        return mainloop_default();
     }
 }
 

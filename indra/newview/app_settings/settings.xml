@@ -4484,13 +4484,24 @@
     <key>MainloopTimeoutDefault</key>
     <map>
       <key>Comment</key>
-      <string>Timeout duration for mainloop lock detection, in seconds.</string>
+      <string>Timeout duration for mainloop lock detection during teleports, login and logout, in seconds.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>60.0</real>
+      <real>120.0</real>
+    </map>
+    <key>MainloopTimeoutStarted</key>
+    <map>
+        <key>Comment</key>
+        <string>Timeout duration for mainloop lock detection when logged in and not teleporting, in seconds.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>30.0</real>
     </map>
     <key>MapScale</key>
     <map>
@@ -13862,13 +13873,13 @@
     <key>WatchdogEnabled</key>
     <map>
       <key>Comment</key>
-      <string>Controls whether the thread watchdog timer is activated. Value is boolean. Set to -1 to defer to built-in default.</string>
+      <string>Controls whether the thread watchdog timer is activated. Value is S32. Set to -1 to defer to built-in default.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>

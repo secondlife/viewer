@@ -204,11 +204,13 @@ public:
     // For thread debugging.
     // llstartup needs to control init.
     // llworld, send_agent_pause() also controls pause/resume.
-    void initMainloopTimeout(std::string_view state, F32 secs = -1.0f);
+    void initMainloopTimeout(std::string_view state);
     void destroyMainloopTimeout();
     void pauseMainloopTimeout();
-    void resumeMainloopTimeout(std::string_view state = "", F32 secs = -1.0f);
-    void pingMainloopTimeout(std::string_view state, F32 secs = -1.0f);
+    void resumeMainloopTimeout(std::string_view state = "");
+    void pingMainloopTimeout(std::string_view state);
+
+    F32 getMainloopTimeoutSec() const;
 
     // Handle the 'login completed' event.
     // *NOTE:Mani Fix this for login abstraction!!
