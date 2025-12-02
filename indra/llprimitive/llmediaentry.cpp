@@ -74,7 +74,7 @@ const char* LLMediaEntry::WHITELIST_KEY         = MEDIA_WHITELIST_KEY_STR;
 const char* LLMediaEntry::PERMS_INTERACT_KEY    = MEDIA_PERMS_INTERACT_KEY_STR;
 const char* LLMediaEntry::PERMS_CONTROL_KEY     = MEDIA_PERMS_CONTROL_KEY_STR;
 
-#define DEFAULT_URL_PREFIX  "http://"
+#define DEFAULT_URL_PREFIX  "https://"
 
 // Constructor(s)
 LLMediaEntry::LLMediaEntry() :

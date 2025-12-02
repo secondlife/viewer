@@ -33,7 +33,7 @@ LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedT
 {
     if (u.find("://") == std::string::npos)
     {
-        mNormalizedUri = "http://";
+        mNormalizedUri = "https://";
         mTmpScheme = true;
     }
 
