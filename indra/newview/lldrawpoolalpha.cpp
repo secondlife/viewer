@@ -278,7 +278,7 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
 
 void LLDrawPoolAlpha::renderDebugAlpha()
 {
-    if (sShowDebugAlpha)
+    if (sShowDebugAlpha && !gCubeSnapshot)
     {
         gHighlightProgram.bind();
         gGL.diffuseColor4f(1, 0, 0, 1);
