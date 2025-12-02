@@ -234,7 +234,7 @@ bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
          || label.find("www.") != std::string::npos)
         && label.find("://") == std::string::npos)
     {
-        label = "http://" + label;
+        label = "https://" + label;
     }
 
     return !LLUrlRegistry::instance().hasUrl(label);
@@ -315,7 +315,7 @@ std::string LLUrlEntryHTTP::getUrl(const std::string &string) const
 {
     if (string.find("://") == std::string::npos)
     {
-        return "http://" + escapeUrl(string);
+        return "https://" + escapeUrl(string);
     }
     return escapeUrl(string);
 }

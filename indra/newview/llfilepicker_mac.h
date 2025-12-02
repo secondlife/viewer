@@ -44,7 +44,7 @@ std::unique_ptr<std::vector<std::string>> doLoadDialog(const std::vector<std::st
 
 // doLoadDialogModeless if window does not exists creates a modeless
 // window, if it does exist, creates a 'sheet' that does not block
-// thead but blocks window interractions
+// thread but blocks window interractions
 void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
                 unsigned int flags,
                 void (*callback)(bool, std::vector<std::string>&, void*),

@@ -220,7 +220,7 @@ const std::string LLPanelMediaSettingsSecurity::makeValidUrl( const std::string&
     if ( candidate_url.scheme().empty() )
     {
         // build a URL comprised of default scheme and the original fragment
-        const std::string default_scheme( "http://" );
+        const std::string default_scheme( "https://" );
         return default_scheme + src_url;
     };
 

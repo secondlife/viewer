@@ -69,7 +69,7 @@ const std::string MAIN_GRID_LOGIN_URI = "https://login.agni.lindenlab.com/cgi-bi
 
 const std::string SL_UPDATE_QUERY_URL = "https://update.secondlife.com/update";
 
-const std::string MAIN_GRID_SLURL_BASE = "http://maps.secondlife.com/secondlife/";
+const std::string MAIN_GRID_SLURL_BASE = "https://maps.secondlife.com/secondlife/";
 const std::string SYSTEM_GRID_APP_SLURL_BASE = "secondlife:///app";
 
 const std::string MAIN_GRID_WEB_PROFILE_URL = "https://my.secondlife.com/";
@@ -281,7 +281,7 @@ bool LLGridManager::addGrid(LLSD& grid_data)
                 // Populate to the default values
                 if (!grid_data.has(GRID_LOGIN_PAGE_VALUE))
                 {
-                    grid_data[GRID_LOGIN_PAGE_VALUE] = std::string("http://") + grid + "/app/login/";
+                    grid_data[GRID_LOGIN_PAGE_VALUE] = std::string("https://") + grid + "/app/login/";
                 }
                 if (!grid_data.has(GRID_HELPER_URI_VALUE))
                 {

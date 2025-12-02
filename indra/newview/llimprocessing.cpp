@@ -202,8 +202,18 @@ void inventory_offer_handler(LLOfferInfo* info)
     auto indx = msg.find(" ( http://slurl.com/secondlife/");
     if (indx == std::string::npos)
     {
-        // try to find new slurl host
+        // https
+        indx = msg.find(" ( https://slurl.com/secondlife/");
+    }
+    if (indx == std::string::npos)
+    {
+        // try to find new slurl http host
         indx = msg.find(" ( http://maps.secondlife.com/secondlife/");
+    }
+    if (indx == std::string::npos)
+    {
+        // try to find new slurl https host
+        indx = msg.find(" ( https://maps.secondlife.com/secondlife/");
     }
     if (indx >= 0)
     {

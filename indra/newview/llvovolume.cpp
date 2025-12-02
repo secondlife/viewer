@@ -2693,10 +2693,10 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
     if (mep && impl)
     {
         std::string url = mep->getCurrentURL();
-        // Look for a ":", if not there, assume "http://"
+        // Look for a ":", if not there, assume "https://"
         if (!url.empty() && std::string::npos == url.find(':'))
         {
-            url = "http://" + url;
+            url = "https://" + url;
         }
         // If the url we're trying to "bounce back" to is either empty or not
         // allowed by the whitelist, try the home url.  If *that* doesn't work,
@@ -2704,10 +2704,10 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
         if (url.empty() || !mep->checkCandidateUrl(url))
         {
             url = mep->getHomeURL();
-            // Look for a ":", if not there, assume "http://"
+            // Look for a ":", if not there, assume "https://"
             if (!url.empty() && std::string::npos == url.find(':'))
             {
-                url = "http://" + url;
+                url = "https://" + url;
             }
         }
         if (url.empty() || !mep->checkCandidateUrl(url))
