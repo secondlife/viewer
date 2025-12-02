@@ -3950,7 +3950,7 @@ void LLAppViewer::processMarkerFiles()
 #if LL_WINDOWS && LL_BUGSPLAT
             // bugsplat will set correct state in bugsplatSendLog
             // Might be more accurate to rename this one into 'unknown'
-            gLastExecEvent = LAST_EXEC_FROZE;
+            gLastExecEvent = LAST_EXEC_UNKNOWN;
 #else
             gLastExecEvent = LAST_EXEC_OTHER_CRASH;
 #endif // LL_WINDOWS
@@ -3996,7 +3996,8 @@ void LLAppViewer::processMarkerFiles()
     {
         if (markerIsSameVersion(logout_marker_file))
         {
-            gLastExecEvent = LAST_EXEC_LOGOUT_FROZE;
+            // Either froze, got killed or somehow crash was not caught
+            gLastExecEvent = LAST_EXEC_LOGOUT_UNKNOWN;
             LL_INFOS("MarkerFile") << "Logout crash marker '"<< logout_marker_file << "', changing LastExecEvent to LOGOUT_FROZE" << LL_ENDL;
         }
         else
