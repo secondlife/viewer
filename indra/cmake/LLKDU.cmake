@@ -17,8 +17,14 @@ if (USE_KDU)
   find_library(KDU_LIBRARY
     NAMES
     kdu
+    kdu.lib
     libkdu.a
-    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+    PATHS
+      "${ARCH_PREBUILT_DIRS_RELEASE}"
+      "${AUTOBUILD_INSTALL_DIR}/lib"
+    PATH_SUFFIXES release
+    REQUIRED
+    NO_DEFAULT_PATH)
 
   target_link_libraries(ll::kdu INTERFACE ${KDU_LIBRARY})
 
