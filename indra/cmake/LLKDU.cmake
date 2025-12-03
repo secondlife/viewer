@@ -17,6 +17,7 @@ if (USE_KDU)
   find_library(KDU_LIBRARY
     NAMES
     kdu
+    kdu.lib
     libkdu.a
     PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
