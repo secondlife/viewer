@@ -35,12 +35,6 @@
 
 #include "llwin32headers.h"
 #include "apr_thread_proc.h"
-#include "apr_getopt.h"
-#include "apr_signal.h"
-
-#include "llstring.h"
-
-#include "mutex.h"
 
 struct apr_dso_handle_t;
 /**
@@ -184,10 +178,6 @@ private:
     static apr_file_t* open(const std::string& filename, apr_pool_t* apr_pool, apr_int32_t flags);
     static apr_status_t close(apr_file_t* file) ;
     static S32 seek(apr_file_t* file, apr_seek_where_t where, S32 offset);
-public:
-    // Returns bytes read/written, 0 if read/write fails:
-    static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);
-    static S32 writeEx(const std::string& filename, const void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
 //*******************************************************************************************************************************
 };
 
