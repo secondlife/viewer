@@ -3477,7 +3477,6 @@ S32 LLTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offs
 void LLTextSegment::updateLayout(const LLTextBase& editor) {}
 F32 LLTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect) { return draw_rect.mLeft; }
 bool LLTextSegment::canEdit() const { return false; }
-bool LLTextSegment::getPermitsEmoji() const { return true; }
 void LLTextSegment::unlinkFromDocument(LLTextBase*) {}
 void LLTextSegment::linkToDocument(LLTextBase*) {}
 const LLUIColor& LLTextSegment::getColor() const { static const LLUIColor white = LLUIColorTable::instance().getColor("White", LLColor4::white); return white; }
