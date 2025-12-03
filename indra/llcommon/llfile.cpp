@@ -226,7 +226,7 @@ static void find_locking_process(const std::string& filename)
 }
 #endif // LL_WINDOWS hack to identify processes holding file open
 
-static int warnif(const std::string& desc, const std::string& filename, int rc, int accept = 0)
+static int warnif(const std::string& desc, const std::string& filename, int rc, int suppress_warning = 0)
 {
     if (rc < 0)
     {
@@ -236,7 +236,7 @@ static int warnif(const std::string& desc, const std::string& filename, int rc, 
         // For certain operations, a particular errno value might be
         // acceptable -- e.g. stat() could permit ENOENT, mkdir() could permit
         // EEXIST. Don't log a warning if caller explicitly says this errno is okay.
-        if (errn != accept)
+        if (errn != suppress_warning)
         {
             LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
         }
@@ -252,12 +252,12 @@ static int warnif(const std::string& desc, const std::string& filename, int rc, 
     return rc;
 }
 
-static int warnif(const std::string& desc, const std::string& filename, std::error_code& ec, int accept = 0)
+static int warnif(const std::string& desc, const std::string& filename, const std::error_code& ec, int suppress_warning = 0)
 {
     if (ec)
     {
-        // get Posix errno from the std::error_code so we can compare it to the accept parameter to see
-        // when a caller wants us to not generate a warning for a particular error code
+        // get Posix errno from the std::error_code so we can compare it to the suppress_warning parameter
+        // to see when a caller wants us to not generate a warning for a particular error code
 #if LL_WINDOWS
         int errn = get_errno_from_oserror(ec.value());
 #else
@@ -265,7 +265,7 @@ static int warnif(const std::string& desc, const std::string& filename, std::err
 #endif
         // For certain operations, a particular errno value might be acceptable
         // Don't warn if caller explicitly says this errno is okay.
-        if (errn != accept)
+        if (errn != suppress_warning)
         {
             LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename << "' (errno " << errn << "): " << ec.message() << LL_ENDL;
         }
@@ -511,12 +511,13 @@ int LLFile::open(const std::string& filename, std::ios_base::openmode omode, std
 
     std::wstring file_path = utf8StringToWstring(filename);
     mHandle = CreateFileW(file_path.c_str(), access, share, nullptr, create, attributes, nullptr);
+    // The dwShareMode = share parameter takes care of locking the file for other processes if indicated,
+    // no need to do anything else for file locking here
 #else
     int oflags = decode_open_mode(omode);
-    int lmode = LLFile::noblock | (omode & LLFile::lock_mask);
+    int lmode = omode & LLFile::lock_mask;
     mHandle = ::open(filename.c_str(), oflags, perm);
-    if (mHandle != InvalidHandle && omode & LLFile::lock_mask &&
-        lock(omode | LLFile::noblock, ec) != 0)
+    if (mHandle != InvalidHandle && lmode && lock(lmode | LLFile::noblock, ec) != 0)
     {
         close();
         return -1;
@@ -611,8 +612,7 @@ S64 LLFile::read(void* buffer, S64 nbytes, std::error_code& ec)
     if (nbytes == 0)
     {
         // Nothing to do
-        clear_error(ec);
-        return 0;
+        return clear_error(ec);
     }
     else if (!buffer || nbytes < 0)
     {
@@ -652,8 +652,7 @@ S64 LLFile::write(const void* buffer, S64 nbytes, std::error_code& ec)
     if (nbytes == 0)
     {
         // Nothing to do here
-        clear_error(ec);
-        return 0;
+        return clear_error(ec);
     }
     else if (!buffer || nbytes < 0)
     {
@@ -699,7 +698,7 @@ S64 LLFile::printf(const char* fmt, ...)
     va_start(args1, fmt);
     va_list args2;
     va_copy(args2, args1);
-    int length = vsnprintf(NULL, 0, fmt, args1);
+    int length = vsnprintf(nullptr, 0, fmt, args1);
     va_end(args1);
     if (length < 0)
     {
@@ -806,7 +805,7 @@ LLFILE* LLFile::fopen(const std::string& filename, const char* mode, int lmode)
         // Rather fail on a sharing conflict than block
         if (flock(fileno(file), decode_lock_mode(lmode | LLFile::noblock)))
         {
-            LLFile::close(file);
+            ::fclose(file);
             file = nullptr;
         }
     }
@@ -820,13 +819,7 @@ int LLFile::close(LLFILE* file)
     int ret_value = 0;
     if (file)
     {
-        // Read the current errno and restore it if it was not 0
-        int errn = errno;
         ret_value = ::fclose(file);
-        if (errn)
-        {
-            errno = errn;
-        }
     }
     return ret_value;
 }
@@ -874,22 +867,22 @@ int LLFile::mkdir(const std::string& dirname)
 }
 
 // static
-int LLFile::remove(const std::string& filename, int suppress_error)
+int LLFile::remove(const std::string& filename, int suppress_warning)
 {
     std::error_code ec;
     std::filesystem::path file_path = utf8StringToPath(filename);
     std::filesystem::remove(file_path, ec);
-    return warnif("remove", filename, ec, suppress_error);
+    return warnif("remove", filename, ec, suppress_warning);
 }
 
 // static
-int LLFile::rename(const std::string& filename, const std::string& newname, int suppress_error)
+int LLFile::rename(const std::string& filename, const std::string& newname, int suppress_warning)
 {
     std::error_code ec;
     std::filesystem::path file_path = utf8StringToPath(filename);
     std::filesystem::path new_path = utf8StringToPath(newname);
     std::filesystem::rename(file_path, new_path, ec);
-    return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, ec, suppress_error);
+    return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, ec, suppress_warning);
 }
 
 // static
@@ -1064,8 +1057,12 @@ S64 LLFile::size(const std::string& filename, int suppress_warning)
 {
     std::error_code ec;
     std::filesystem::path file_path = utf8StringToPath(filename);
-    std::intmax_t size = (std::intmax_t)std::filesystem::file_size(file_path, ec);
-    return warnif("size", filename, ec, suppress_warning) ? 0 : size;
+    std::intmax_t size = static_cast<std::intmax_t>(std::filesystem::file_size(file_path, ec));
+    if (ec)
+    {
+        return warnif("size", filename, ec, suppress_warning);
+    }
+    return size;
 }
 
 // static
@@ -1152,7 +1149,12 @@ std::wstring LLFile::utf8StringToWstring(const std::string& pathname)
         utf16string.assign(L"\\\\?\\").append(utf16path);
 
         /* remove trailing spaces and dots (yes, Windows really does that) */
-        return utf16string.substr(0, utf16string.find_last_not_of(L" \t."));
+        size_t last_valid = utf16string.find_last_not_of(L" \t.");
+        if (last_valid == std::wstring::npos)
+        {
+            return std::wstring();
+        }
+        return utf16string.substr(0, last_valid + 1);
     }
     return utf16string;
 }

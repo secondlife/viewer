@@ -181,7 +181,6 @@ bool LLTextureCacheLocalFileWorker::doRead()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     S32 local_size = (S32)LLFile::size(mFileName);
-
     if (local_size > 0 && mFileName.size() > 4)
     {
         mDataSize = local_size; // Only a complete file is valid
@@ -444,7 +443,7 @@ bool LLTextureCacheRemoteWorker::doRead()
         std::string filename = mCache->getTextureFileName(mID);
         S32 filesize = (S32)LLFile::size(filename);
 
-        if (filesize && (filesize + TEXTURE_CACHE_ENTRY_SIZE) > mOffset)
+        if (filesize > 0 && (filesize + TEXTURE_CACHE_ENTRY_SIZE) > mOffset)
         {
             S32 max_datasize = TEXTURE_CACHE_ENTRY_SIZE + filesize - mOffset;
             mDataSize = llmin(max_datasize, mDataSize);
@@ -934,8 +933,6 @@ const char* fast_cache_filename = "FastCache.cache";
 
 void LLTextureCache::setDirNames(ELLPath location)
 {
-//  std::string delem = gDirUtilp->getDirDelimiter();
-
     mHeaderEntriesFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, entries_filename);
     mHeaderDataFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, cache_filename);
     mTexturesDirName = gDirUtilp->getExpandedFilename(location, textures_dirname);

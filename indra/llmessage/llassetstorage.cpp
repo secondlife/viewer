@@ -467,7 +467,7 @@ bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetTyp
         else
         {
             LL_WARNS("AssetStorage") << "Asset vfile " << uuid << ":" << type
-                                     << " found in static cache with bad size " << file.getSize() << ", ignoring" << LL_ENDL;
+                                     << " found in static cache with bad size " << size << ", ignoring" << LL_ENDL;
         }
     }
     return false;

@@ -191,7 +191,7 @@ public:
     /// @name  class member methods
     ///
     /// These methods provide read and write support as well as additional functionality to query the size of
-    /// the file, change the position of the the current file pointer or query it.
+    /// the file, change the position of the current file pointer or query it.
     ///
     /// Most of these functions take as one of their parameters a std::error_code object which can be used to
     /// determine in more detail what error occurred if required
@@ -370,11 +370,11 @@ public:
     static std::time_t getModificationTime(const std::string& filename, int suppress_warning = 0);
     ///< @returns the modification time of the file or 0 on error
 
-    /// get the file or directory attributes for filename
+    /// get the std::filesystem::file_status for filename
     static std::filesystem::file_status getStatus(const std::string& filename, bool dontFollowSymLink = false, int suppress_warning  = ENOENT);
-    ///< dontFollowSymLinks set to true returns the attributes of the symlink if it is one, rather than resolving it
-    ///  we pass by default ENOENT in the optional 'suppress_warning' parameter to not spam the log with
-    ///  warnings when the file or directory does not exist
+    ///< dontFollowSymLinks set to true returns the std::filesystem::file_status of the symlink if it
+    ///  is one, rather than resolving it. We pass by default ENOENT in the optional 'suppress_warning'
+    ///  parameter to not spam the log with warnings when the file or directory does not exist
     ///  @returns a std::filesystem::file_status value that can be passed to the appropriate std::filesystem::exists()
     ///  and other APIs accepting a file_status.
 

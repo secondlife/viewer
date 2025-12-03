@@ -84,7 +84,6 @@ namespace tut
         ensure("llfile_test1.dat should not yet exist", !LLFile::exists(testfile1.string()));
 
         const char* testdata = "testdata";
-        std::time_t current = time(nullptr);
         S64 bytes = LLFile::write(testfile1.string(), testdata, 0, sizeof(testdata));
         ensure("LLFile::write() did not write correctly", bytes == sizeof(testdata));
 
