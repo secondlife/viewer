@@ -69,15 +69,15 @@ const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
 
 LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     : LLOutfitListBase(),
-      mScrollPanel(NULL),
-      mGalleryPanel(NULL),
-      mLastRowPanel(NULL),
+      mScrollPanel(nullptr),
+      mGalleryPanel(nullptr),
+      mLastRowPanel(nullptr),
       mGalleryCreated(false),
       mRowCount(0),
       mItemsAddedCount(0),
-      mOutfitLinkPending(NULL),
-      mOutfitRenamePending(NULL),
-      mSnapshotFolderID(NULL),
+      mOutfitLinkPending(nullptr),
+      mOutfitRenamePending(nullptr),
+      mSnapshotFolderID(nullptr),
       mRowPanelHeight(p.row_panel_height),
       mVerticalGap(p.vertical_gap),
       mHorizontalGap(p.horizontal_gap),
@@ -87,7 +87,7 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mItemsInRow(p.items_in_row),
       mRowPanWidthFactor(p.row_panel_width_factor),
       mGalleryWidthFactor(p.gallery_width_factor),
-      mTextureSelected(NULL),
+      mTextureSelected(nullptr),
       mSortMenu(nullptr)
 {
     updateGalleryWidth();
@@ -548,7 +548,7 @@ void LLOutfitGallery::removeLastRow()
     }
     else
     {
-        mLastRowPanel = NULL;
+        mLastRowPanel = nullptr;
     }
 }
 
@@ -714,7 +714,7 @@ LLPanel* LLOutfitGallery::buildItemPanel(int left)
 {
     LLPanel::Params lpparams;
     int top = 0;
-    LLPanel* lpanel = NULL;
+    LLPanel* lpanel = nullptr;
     if(mUnusedItemPanels.empty())
     {
         lpanel = LLUICtrlFactory::create<LLPanel>(lpparams);
@@ -736,7 +736,7 @@ LLPanel* LLOutfitGallery::buildItemPanel(int left)
 LLPanel* LLOutfitGallery::buildRowPanel(int left, int bottom)
 {
     LLPanel::Params sparams;
-    LLPanel* stack = NULL;
+    LLPanel* stack = nullptr;
     if(mUnusedRowPanels.empty())
     {
         stack = LLUICtrlFactory::create<LLPanel>(sparams);
@@ -809,7 +809,7 @@ void LLOutfitGallery::getCurrentCategories(uuid_vec_t& vcur)
         iter != mOutfitMap.end();
         iter++)
     {
-        if ((*iter).second != NULL)
+        if ((*iter).second != nullptr)
         {
             vcur.push_back((*iter).first);
         }
@@ -837,7 +837,7 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     mOutfitMap.insert(LLOutfitGallery::outfit_map_value_t(cat_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
         _1, _2, _3, cat_id));
-    LLWearableItemsList* list = NULL;
+    LLWearableItemsList* list = nullptr;
     item->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
     if (mGalleryCreated)
     {
@@ -878,7 +878,7 @@ void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
         removeFromGalleryMiddle(item);
 
         // kill removed item
-        if (item != NULL)
+        if (item != nullptr)
         {
             item->die();
         }
@@ -1177,7 +1177,7 @@ bool LLOutfitGalleryItem::openOutfitsContent()
         {
             LLAccordionCtrl* accordion = panel->getChild<LLAccordionCtrl>("outfits_accordion");
             LLOutfitsList* outfit_list = dynamic_cast<LLOutfitsList*>(panel);
-            if (accordion != NULL && outfit_list != NULL)
+            if (accordion != nullptr && outfit_list != nullptr)
             {
                 outfit_list->setSelectedOutfitByUUID(mUUID);
                 LLAccordionCtrlTab* tab = accordion->getSelectedTab();
@@ -1218,7 +1218,7 @@ LLUUID LLOutfitGalleryItem::getImageAssetId()
 
 void LLOutfitGalleryItem::setDefaultImage()
 {
-    mTexturep = NULL;
+    mTexturep = nullptr;
     mImageAssetId.setNull();
     mPreviewIcon->setVisible(true);
     mDefaultImage = true;
@@ -1323,7 +1323,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
                 LLUUID asset_id, inv_id;
                 std::string item_name;
-                if (linked_item != NULL)
+                if (linked_item != nullptr)
                 {
                     if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
                     {
@@ -1362,7 +1362,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                         std::string new_name = getString("outfit_photo_string", photo_string_args);
                         LLSD updates;
                         updates["name"] = new_name;
-                        update_inventory_item(inv_id, updates, NULL);
+                        update_inventory_item(inv_id, updates, nullptr);
                         mOutfitRenamePending.setNull();
                         LLFloater* appearance_floater = LLFloaterReg::getInstance("appearance");
                         if (appearance_floater)

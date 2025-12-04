@@ -335,17 +335,17 @@ public:
     // Get first descendant of the child object under the specified parent
     const LLViewerInventoryCategory *getFirstDescendantOf(const LLUUID& master_parent_id, const LLUUID& obj_id) const;
 
-    // Get the object by id. Returns NULL if not found.
+    // Get the object by id. Returns nullptr if not found.
     //   NOTE: Use the pointer returned for read operations - do
     //   not modify the object values in place or you will break stuff.
     LLInventoryObject* getObject(const LLUUID& id) const;
 
-    // Get the item by id. Returns NULL if not found.
+    // Get the item by id. Returns nullptr if not found.
     //    NOTE: Use the pointer for read operations - use the
     //    updateItem() method to actually modify values.
     LLViewerInventoryItem* getItem(const LLUUID& id) const;
 
-    // Get the category by id. Returns NULL if not found.
+    // Get the category by id. Returns nullptr if not found.
     //    NOTE: Use the pointer for read operations - use the
     //    updateCategory() method to actually modify values.
     LLViewerInventoryCategory* getCategory(const LLUUID& id) const;
@@ -484,7 +484,7 @@ public:
     //--------------------------------------------------------------------
 public:
     // Returns the UUID of the new category. If you want to use the default
-    // name based on type, pass in a NULL to the 'name' parameter.
+    // name based on type, pass in a nullptr to the 'name' parameter.
     void createNewCategory(const LLUUID& parent_id,
                              LLFolderType::EType preferred_type,
                              const std::string& name,

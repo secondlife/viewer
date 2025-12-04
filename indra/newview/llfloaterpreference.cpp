@@ -566,10 +566,10 @@ LLFloaterPreference::~LLFloaterPreference()
 
 void LLFloaterPreference::draw()
 {
-    bool has_first_selected = (mDisabledPopups->getFirstSelected()!=NULL);
+    bool has_first_selected = (mDisabledPopups->getFirstSelected()!=nullptr);
     mEnablePopupBtn->setEnabled(has_first_selected);
 
-    has_first_selected = (mEnabledPopups->getFirstSelected()!=NULL);
+    has_first_selected = (mEnabledPopups->getFirstSelected()!=nullptr);
     mDisablePopupBtn->setEnabled(has_first_selected);
 
     LLFloater::draw();
@@ -1235,7 +1235,7 @@ void LLFloaterPreference::buildPopupLists()
         row["columns"][0]["font"] = "SANSSERIF_SMALL";
         row["columns"][0]["width"] = 400;
 
-        LLScrollListItem* item = NULL;
+        LLScrollListItem* item = nullptr;
 
         bool show_popup = !formp->getIgnored();
         if (!show_popup)
@@ -1688,7 +1688,7 @@ bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map
 {
     LLXMLNodePtr root;
 
-    if (!LLXMLNode::parseFile(filename, root, NULL))
+    if (!LLXMLNode::parseFile(filename, root, nullptr))
     {
         LL_WARNS("Preferences") << "Unable to parse file " << filename << LL_ENDL;
         return false;
@@ -2011,7 +2011,7 @@ void LLFloaterPreference::selectPanel(const LLSD& name)
 {
     LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
     LLPanel * panel = tab_containerp->getPanelByName(name.asStringRef());
-    if (NULL != panel)
+    if (nullptr != panel)
     {
         tab_containerp->selectTabPanel(panel);
     }
@@ -2104,7 +2104,7 @@ private:
 static LLPanelInjector<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
 : LLPanel(),
-  mBandWidthUpdater(NULL)
+  mBandWidthUpdater(nullptr)
 {
     mCommitCallbackRegistrar.add("Pref.setControlFalse",    boost::bind(&LLPanelPreference::setControlFalse,this, _2));
     mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",    boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
@@ -2840,7 +2840,7 @@ void LLPanelPreferenceControls::updateTable()
         std::string control = list[i]->getValue();
         if (!control.empty())
         {
-            LLScrollListCell* cell = NULL;
+            LLScrollListCell* cell = nullptr;
 
             S32 num_columns = pControlsTable->getNumColumns();
             for (S32 col = 1; col < num_columns; col++)
@@ -2908,7 +2908,7 @@ void LLPanelPreferenceControls::resetDirtyChilds()
 void LLPanelPreferenceControls::onListCommit()
 {
     LLScrollListItem* item = pControlsTable->getFirstSelected();
-    if (item == NULL)
+    if (item == nullptr)
     {
         return;
     }

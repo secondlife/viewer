@@ -53,8 +53,8 @@ public:
     LOG_CLASS(LLBasicCertificate);
 
     // The optional validation_params allow us to make the unit test time-invariant
-    LLBasicCertificate(const std::string& pem_cert, const LLSD* validation_params = NULL);
-    LLBasicCertificate(X509* openSSLX509, const LLSD* validation_params = NULL);
+    LLBasicCertificate(const std::string& pem_cert, const LLSD* validation_params = nullptr);
+    LLBasicCertificate(X509* openSSLX509, const LLSD* validation_params = nullptr);
 
     virtual ~LLBasicCertificate();
 

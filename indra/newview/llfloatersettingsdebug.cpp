@@ -38,7 +38,7 @@
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key)
 :   LLFloater(key),
-    mSettingList(NULL)
+    mSettingList(nullptr)
 {
     mCommitCallbackRegistrar.add("CommitSettings",  boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this));
     mCommitCallbackRegistrar.add("ClickDefault",    boost::bind(&LLFloaterSettingsDebug::onClickDefault, this));

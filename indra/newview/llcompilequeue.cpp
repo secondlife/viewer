@@ -748,7 +748,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
             LLInventoryObject::object_list_t inventory;
             if (obj)
             {
-                ObjectInventoryFetcher::ptr_t fetcher(new ObjectInventoryFetcher(maildrop, obj, NULL));
+                ObjectInventoryFetcher::ptr_t fetcher(new ObjectInventoryFetcher(maildrop, obj, nullptr));
 
                 fetcher->fetchInventory();
 

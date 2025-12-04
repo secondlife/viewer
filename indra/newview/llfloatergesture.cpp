@@ -102,7 +102,7 @@ public:
     {
         if(mFloater)
         {
-            mFloater->addGesture(inv_item,NULL,mFloater->getChild<LLScrollListCtrl>("gesture_list"));
+            mFloater->addGesture(inv_item, nullptr, mFloater->getChild<LLScrollListCtrl>("gesture_list"));
 
             // EXP-1909 (Pasted gesture displayed twice)
             // The problem is that addGesture is called here for the second time for the same item (which is copied)
@@ -183,7 +183,7 @@ LLFloaterGesture::~LLFloaterGesture()
 {
     LLGestureMgr::instance().removeObserver(mObserver);
     delete mObserver;
-    mObserver = NULL;
+    mObserver = nullptr;
     gInventory.removeObserver(this);
 }
 
@@ -288,7 +288,7 @@ void LLFloaterGesture::buildGestureList()
             if (active_gestures.find(item->getUUID()) == active_gestures.end())
             {
                 // if gesture wasn't loaded yet, we can display only name
-                addGesture(item->getUUID(), NULL, mGestureList);
+                addGesture(item->getUUID(), nullptr, mGestureList);
             }
         }
     }
@@ -578,7 +578,7 @@ void LLFloaterGesture::onGestureRename(const LLSD& notification, const LLSD& res
         {
             LLSD updates;
             updates["name"] = new_name;
-            update_inventory_item(item_id, updates, NULL);
+            update_inventory_item(item_id, updates, nullptr);
         }
     }
 }

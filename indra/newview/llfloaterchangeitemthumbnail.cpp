@@ -300,11 +300,11 @@ LLInventoryObject* LLFloaterChangeItemThumbnail::getInventoryObject()
 {
     if (mItemList.size() == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     const LLUUID item_id = *mItemList.begin();
-    LLInventoryObject* obj = NULL;
+    LLInventoryObject* obj = nullptr;
     if (mTaskId.isNull())
     {
         // it is in agent inventory
@@ -323,7 +323,7 @@ LLInventoryObject* LLFloaterChangeItemThumbnail::getInventoryObject()
         {
             if (!mObserverInitialized)
             {
-                registerVOInventoryListener(object, NULL);
+                registerVOInventoryListener(object, nullptr);
                 mObserverInitialized = false;
             }
 
@@ -693,7 +693,7 @@ void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id
             false,
             false,
             (void*)data,
-            NULL,
+            nullptr,
             false);
     }
     else
@@ -867,7 +867,7 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
             PERM_NONE,
             PERM_NONE,
             false,
-            NULL,
+            nullptr,
             PICK_TEXTURE);
 
         mPickerHandle = floaterp->getHandle();
@@ -984,7 +984,7 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
                                             true,
                                             false,
                                             (void*)data,
-                                            NULL,
+                                            nullptr,
                                             false);
                 texturep->forceToSaveRawImage(0);
             }
@@ -1084,12 +1084,12 @@ void LLFloaterChangeItemThumbnail::setThumbnailId(const LLUUID& new_thumbnail_id
         LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
         if (view_folder)
         {
-            update_inventory_category(inv_obj_id, updates, NULL);
+            update_inventory_category(inv_obj_id, updates, nullptr);
         }
         LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
         if (view_item)
         {
-            update_inventory_item(inv_obj_id, updates, NULL);
+            update_inventory_item(inv_obj_id, updates, nullptr);
         }
     }
 }

@@ -319,7 +319,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
     if (LLUUID::null != mObjectID)
     {
         // get object info for the user's benefit
-        LLViewerObject* objectp = NULL;
+        LLViewerObject* objectp = nullptr;
         objectp = gObjectList.findObject( mObjectID );
         if (objectp)
         {

@@ -140,7 +140,7 @@ private:
 public:
     LLVector3d      getCameraPositionGlobal() const;
     const LLVector3& getCameraPositionAgent() const;
-    LLVector3d      calcCameraPositionTargetGlobal(bool *hit_limit = NULL); // Calculate the camera position target
+    LLVector3d      calcCameraPositionTargetGlobal(bool *hit_limit = nullptr); // Calculate the camera position target
     F32             getCameraMinOffGround();        // Minimum height off ground for this mode, meters
     void            setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
     bool            calcCameraMinDistance(F32 &obj_min_distance);
@@ -239,11 +239,11 @@ private:
     //--------------------------------------------------------------------
 public:
     void            updateLookAt(const S32 mouse_x, const S32 mouse_y);
-    bool            setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+    bool            setLookAt(ELookAtType target_type, LLViewerObject *object = nullptr, LLVector3 position = LLVector3::zero);
     ELookAtType     getLookAtType();
     void            lookAtLastChat();
     void            slamLookAt(const LLVector3 &look_at); // Set the physics data
-    bool            setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+    bool            setPointAt(EPointAtType target_type, LLViewerObject *object = nullptr, LLVector3 position = LLVector3::zero);
     EPointAtType    getPointAtType();
 public:
     LLPointer<LLHUDEffectLookAt> mLookAt;

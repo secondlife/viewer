@@ -214,7 +214,7 @@ void LLPreviewAnim::showAdvanced()
         LLRect rect = getRect();
         reshape(rect.getWidth(), rect.getHeight() + pAdvancedStatsTextBox->getRect().getHeight() + ADVANCED_VPAD, false);
 
-        LLMotion *motion = NULL;
+        LLMotion *motion = nullptr;
         const LLInventoryItem* item = getItem();
         if (item)
         {

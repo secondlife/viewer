@@ -74,9 +74,9 @@ typedef struct
 namespace
 {
     int gArgC = 0;
-    char **gArgV = NULL;
-    LLAppViewerLinux* gViewerAppPtr = NULL;
-    void (*gOldTerminateHandler)() = NULL;
+    char **gArgV = nullptr;
+    LLAppViewerLinux* gViewerAppPtr = nullptr;
+    void (*gOldTerminateHandler)() = nullptr;
 }
 
 void check_vm_bloat()
@@ -320,7 +320,7 @@ static void dispatchSLURL(gchar const *slurl)
     LL_INFOS() << "Was asked to go to slurl: " << slurl << LL_ENDL;
 
     std::string url = slurl;
-    LLMediaCtrl* web = NULL;
+    LLMediaCtrl* web = nullptr;
     const bool trusted_browser = false;
     LLURLDispatcher::dispatch(url, "", web, trusted_browser);
 }
@@ -352,9 +352,9 @@ static void busAcquired(GDBusConnection *connection, const gchar *name, gpointer
                                                 VIEWERAPI_PATH,
                                                 gBusNodeInfo->interfaces[0],
                                                 &interface_vtable,
-                                                NULL,  /* user_data */
-                                                             NULL,  /* user_data_free_func */
-                                                             NULL); /* GError** */
+                                                nullptr,  /* user_data */
+                                                             nullptr,  /* user_data_free_func */
+                                                             nullptr); /* GError** */
     g_assert (id > 0);
 }
 
@@ -368,8 +368,8 @@ static void nameLost(GDBusConnection *connection, const gchar *name, gpointer us
 }
 void viewerappapi_init(ViewerAppAPI *server)
 {
-    gBusNodeInfo = g_dbus_node_info_new_for_xml (DBUS_SERVER, NULL);
-    g_assert (gBusNodeInfo != NULL);
+    gBusNodeInfo = g_dbus_node_info_new_for_xml (DBUS_SERVER, nullptr);
+    g_assert (gBusNodeInfo != nullptr);
 
     g_bus_own_name(G_BUS_TYPE_SESSION,
                    VIEWERAPI_SERVICE,
@@ -377,8 +377,8 @@ void viewerappapi_init(ViewerAppAPI *server)
                    busAcquired,
                    nameAcquired,
                    nameLost,
-                   NULL,
-                   NULL);
+                   nullptr,
+                   nullptr);
 
 }
 
@@ -388,7 +388,7 @@ void viewerappapi_init(ViewerAppAPI *server)
 bool LLAppViewerLinux::initSLURLHandler()
 {
     //ViewerAppAPI *api_server = (ViewerAppAPI*)
-    g_object_new(viewerappapi_get_type(), NULL);
+    g_object_new(viewerappapi_get_type(), nullptr);
 
     return true;
 }
@@ -396,7 +396,7 @@ bool LLAppViewerLinux::initSLURLHandler()
 //virtual
 bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 {
-    auto *pBus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, nullptr);
+    auto *pBus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
 
     if( !pBus )
     {
@@ -474,7 +474,7 @@ bool LLAppViewerLinux::beingDebugged()
             {
                 char *base = strrchr(buf, '/');
                 buf[n + 1] = '\0';
-                if (base == NULL)
+                if (base == nullptr)
                 {
                     base = buf;
                 } else {
@@ -501,7 +501,7 @@ bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)
     }
 
     // Find the system language.
-    FL_Locale *locale = NULL;
+    FL_Locale *locale = nullptr;
     FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
     if (success != 0)
     {

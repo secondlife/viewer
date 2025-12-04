@@ -62,16 +62,16 @@ const char *CHECKERBOARD_DATA_URL = "data:image/svg+xml,%3Csvg xmlns=%22http://w
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
-    mAutoLoop( NULL ),
-    mFirstClick( NULL ),
-    mAutoZoom( NULL ),
-    mAutoPlay( NULL ),
-    mAutoScale( NULL ),
-    mWidthPixels( NULL ),
-    mHeightPixels( NULL ),
-    mHomeURL( NULL ),
-    mCurrentURL( NULL ),
-    mParent( NULL ),
+    mAutoLoop( nullptr ),
+    mFirstClick( nullptr ),
+    mAutoZoom( nullptr ),
+    mAutoPlay( nullptr ),
+    mAutoScale( nullptr ),
+    mWidthPixels( nullptr ),
+    mHeightPixels( nullptr ),
+    mHomeURL( nullptr ),
+    mCurrentURL( nullptr ),
+    mParent( nullptr ),
     mMediaEditable(false)
 {
     // build dialog from XML
@@ -277,7 +277,7 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& _media
         { LLMediaEntry::HOME_URL_KEY,               self->mHomeURL,         "LLLineEditor" },
         { LLMediaEntry::FIRST_CLICK_INTERACT_KEY,   self->mFirstClick,      "LLCheckBoxCtrl" },
         { LLMediaEntry::WIDTH_PIXELS_KEY,           self->mWidthPixels,     "LLSpinCtrl" },
-        { "", NULL , "" }
+        { "", nullptr , "" }
     };
 
     for( int i = 0; data_set[ i ].key_name.length() > 0; ++i )

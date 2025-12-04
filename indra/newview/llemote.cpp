@@ -44,7 +44,7 @@
 //-----------------------------------------------------------------------------
 LLEmote::LLEmote(const LLUUID &id) : LLMotion(id)
 {
-    mCharacter = NULL;
+    mCharacter = nullptr;
 
     //RN: flag face joint as highest priority for now, until we implement a proper animation track
     mJointSignature[0][LL_FACE_JOINT_NUM] = 0xff;

@@ -482,7 +482,7 @@ private:
 class LLTrackPhaseWrapper : public LLInventoryCallback
 {
 public:
-    LLTrackPhaseWrapper(const std::string& phase_name, LLPointer<LLInventoryCallback> cb = NULL):
+    LLTrackPhaseWrapper(const std::string& phase_name, LLPointer<LLInventoryCallback> cb = nullptr):
         mTrackingPhase(phase_name),
         mCB(cb)
     {
@@ -664,7 +664,7 @@ struct LLFoundData
     LLFoundData() :
         mAssetType(LLAssetType::AT_NONE),
         mWearableType(LLWearableType::WT_INVALID),
-        mWearable(NULL) {}
+        mWearable(nullptr) {}
 
     LLFoundData(const LLUUID& item_id,
                 const LLUUID& asset_id,
@@ -679,7 +679,7 @@ struct LLFoundData
         mAssetType(asset_type),
         mWearableType(wearable_type),
         mIsReplacement(is_replacement),
-        mWearable( NULL ) {}
+        mWearable( nullptr ) {}
 
     LLUUID mItemID;
     LLUUID mAssetID;
@@ -1035,7 +1035,7 @@ void recovered_item_link_cb(const LLUUID& item_id, LLWearableType::EType type, L
     holder->eraseTypeToLink(type);
     // Add wearable to FoundData for actual wearing
     LLViewerInventoryItem *item = gInventory.getItem(item_id);
-    LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+    LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : nullptr;
 
     if (linked_item)
     {
@@ -1446,14 +1446,14 @@ const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
             const LLUUID parent_id = cat->getParentUUID();
             LLViewerInventoryCategory*  parent_cat =  gInventory.getCategory(parent_id);
             // if base outfit moved to trash it means that we don't have base outfit
-            if (parent_cat != NULL && parent_cat->getPreferredType() == LLFolderType::FT_TRASH)
+            if (parent_cat != nullptr && parent_cat->getPreferredType() == LLFolderType::FT_TRASH)
             {
-                return NULL;
+                return nullptr;
             }
             return item;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 bool LLAppearanceMgr::getBaseOutfitName(std::string& name)
@@ -1632,7 +1632,7 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
                 // Unfortunately we have no way to determine attachment point from inventory item.
                 // We might want to forbid wearing multiple objects with replace option in future.
                 bool replace_item = needs_to_replace(item_to_wear, first_for_object, first_for_type, replace);
-                rez_attachment(item_to_wear, NULL, replace_item);
+                rez_attachment(item_to_wear, nullptr, replace_item);
             }
             break;
 
@@ -1684,7 +1684,7 @@ void LLAppearanceMgr::removeOutfitPhoto(const LLUUID& outfit_id)
     for (LLViewerInventoryItem* outfit_item : outfit_item_array)
     {
         LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-        if (linked_item != NULL)
+        if (linked_item != nullptr)
         {
             if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
             {
@@ -1829,7 +1829,7 @@ void LLAppearanceMgr::slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_
     gInventory.getDirectDescendentsOf(src_id, cats, items);
     if (!cats || !items)
     {
-        // NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+        // nullptr means the call failed -- cats/items map doesn't exist (note: this does NOT mean
         // that the cat just doesn't have any items or subfolders).
         LLViewerInventoryCategory* category = gInventory.getCategory(src_id);
         if (category)
@@ -1840,7 +1840,7 @@ void LLAppearanceMgr::slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_
         {
             LL_WARNS() << "Category could not be retrieved, linking content failed." << LL_ENDL;
         }
-        llassert(cats != NULL && items != NULL);
+        llassert(cats != nullptr && items != nullptr);
 
         return;
     }
@@ -2498,7 +2498,7 @@ void get_sorted_base_and_cof_items(LLInventoryModel::item_array_t& cof_item_arra
         for (U32 i = 0; i < outfit_item_array.size(); ++i)
         {
             LLViewerInventoryItem* linked_item = outfit_item_array.at(i)->getLinkedItem();
-            if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            if (linked_item != nullptr && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
             {
                 outfit_item_array.erase(outfit_item_array.begin() + i);
                 break;
@@ -2672,7 +2672,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
     for(S32 i = 0; i  < wear_items.size(); ++i)
     {
         LLViewerInventoryItem *item = wear_items.at(i);
-        LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+        LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : nullptr;
 
         // Fault injection: use debug setting to test asset
         // fetch failures (should be replaced by new defaults in
@@ -2862,7 +2862,7 @@ void LLAppearanceMgr::wearCategoryFinal(const LLUUID& cat_id, bool copy_items, b
         {
             name = cat->getName();
         }
-        LLViewerInventoryItem* item = NULL;
+        LLViewerInventoryItem* item = nullptr;
         LLInventoryModel::item_array_t::const_iterator it = items->begin();
         LLInventoryModel::item_array_t::const_iterator end = items->end();
         LLUUID pid;
@@ -2958,7 +2958,7 @@ void LLAppearanceMgr::wearOutfitByName(const std::string& name)
                                     LLInventoryModel::EXCLUDE_TRASH,
                                     has_name);
     bool copy_items = false;
-    LLInventoryCategory* cat = NULL;
+    LLInventoryCategory* cat = nullptr;
     if (cat_array.size() > 0)
     {
         // Just wear the first one that matches
@@ -3190,7 +3190,7 @@ void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
 class LLUpdateOnCOFLinkRemove : public LLInventoryCallback
 {
 public:
-    LLUpdateOnCOFLinkRemove(const LLUUID& remove_item_id, LLPointer<LLInventoryCallback> cb = NULL):
+    LLUpdateOnCOFLinkRemove(const LLUUID& remove_item_id, LLPointer<LLInventoryCallback> cb = nullptr):
         mItemID(remove_item_id),
         mCB(cb)
     {
@@ -3266,7 +3266,7 @@ void LLAppearanceMgr::updateIsDirty()
 
     // find base outfit link
     const LLViewerInventoryItem* base_outfit_item = getBaseOutfitLink();
-    LLViewerInventoryCategory* catp = NULL;
+    LLViewerInventoryCategory* catp = nullptr;
     if (base_outfit_item && base_outfit_item->getIsLinkType())
     {
         catp = base_outfit_item->getLinkedCategory();
@@ -3297,7 +3297,7 @@ void LLAppearanceMgr::updateIsDirty()
         for (U32 i = 0; i < outfit_items.size(); ++i)
         {
             LLViewerInventoryItem* linked_item = outfit_items.at(i)->getLinkedItem();
-            if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            if (linked_item != nullptr && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
             {
                 outfit_items.erase(outfit_items.begin() + i);
                 break;
@@ -3386,7 +3386,7 @@ void LLAppearanceMgr::copyLibraryGestures()
     {
         std::string& folder_name = *it;
 
-        LLPointer<LLInventoryCallback> cb(NULL);
+        LLPointer<LLInventoryCallback> cb(nullptr);
 
         // After copying gestures, activate Common, Other, plus
         // Male and/or Female, depending upon the initial outfit gender.
@@ -3455,7 +3455,7 @@ void appearance_mgr_update_dirty_state()
         LLUUID image_id = app_mgr.getOutfitImage();
         if(image_id.notNull())
         {
-            LLPointer<LLInventoryCallback> cb = NULL;
+            LLPointer<LLInventoryCallback> cb = nullptr;
             link_inventory_object(app_mgr.getBaseOutfitUUID(), image_id, cb);
         }
 
@@ -3478,7 +3478,7 @@ void update_base_outfit_after_ordering()
     for (LLViewerInventoryItem* outfit_item : outfit_item_array)
     {
         LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-        if (linked_item != NULL)
+        if (linked_item != nullptr)
         {
             if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
             {
@@ -3521,7 +3521,7 @@ void update_base_outfit_after_ordering()
         for (U32 i = 0; i < outfit_item_array.size(); ++i)
         {
             LLViewerInventoryItem* linked_item = outfit_item_array.at(i)->getLinkedItem();
-            if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            if (linked_item != nullptr && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
             {
                 outfit_item_array.erase(outfit_item_array.begin() + i);
                 break;
@@ -3761,7 +3761,7 @@ LLSD LLAppearanceMgr::dumpCOF() const
         if (LLAssetType::AT_LINK == inv_item->getActualType())
         {
             const LLViewerInventoryItem* linked_item = inv_item->getLinkedItem();
-            if (NULL == linked_item)
+            if (nullptr == linked_item)
             {
                 LL_WARNS() << "Broken link for item '" << inv_item->getName()
                         << "' (" << inv_item->getUUID()
@@ -4353,7 +4353,7 @@ void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
     for (S32 i=0; i<items.size(); i++)
     {
         LLViewerInventoryItem *item = items.at(i);
-        LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+        LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : nullptr;
         LLUUID asset_id;
         if (linked_item)
         {
@@ -4382,8 +4382,8 @@ LLAppearanceMgr::LLAppearanceMgr():
     mUnlockOutfitTimer = std::make_unique<LLOutfitUnLockTimer>((F32)gSavedSettings.getS32(
             "OutfitOperationsTimeout"));
 
-    gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
-    gIdleCallbacks.addFunction(&LLAppearanceMgr::onIdle, NULL); //sheduling appearance update requests
+    gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, nullptr);
+    gIdleCallbacks.addFunction(&LLAppearanceMgr::onIdle, nullptr); //sheduling appearance update requests
 }
 
 LLAppearanceMgr::~LLAppearanceMgr()
@@ -4764,7 +4764,7 @@ void wear_multiple(const uuid_vec_t& ids, bool replace)
     S32 other_count = 0;
     add_wearable_type_counts(ids, clothing_count, bodypart_count, object_count, other_count);
 
-    LLPointer<LLInventoryCallback> cb = NULL;
+    LLPointer<LLInventoryCallback> cb = nullptr;
     if (clothing_count > 0 || bodypart_count > 0)
     {
         cb = new LLUpdateAppearanceOnDestroy;
@@ -4838,7 +4838,7 @@ public:
         }
 
         // release avatar picker keyboard focus
-        gFocusMgr.setKeyboardFocus( NULL );
+        gFocusMgr.setKeyboardFocus( nullptr );
 
         return true;
     }

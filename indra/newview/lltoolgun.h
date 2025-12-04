@@ -34,7 +34,7 @@
 class LLToolGun : public LLTool
 {
 public:
-    LLToolGun( LLToolComposite* composite=NULL );
+    LLToolGun( LLToolComposite* composite=nullptr );
 
     virtual void    draw();
 
@@ -44,7 +44,7 @@ public:
     virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
     virtual bool    handleHover(S32 x, S32 y, MASK mask);
 
-    virtual LLTool* getOverrideTool(MASK mask) { return NULL; }
+    virtual LLTool* getOverrideTool(MASK mask) { return nullptr; }
     virtual bool    clipMouseWhenDown()     { return false; }
 private:
     bool mIsSelected;

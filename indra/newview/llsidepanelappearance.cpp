@@ -75,9 +75,9 @@ private:
 LLSidepanelAppearance::LLSidepanelAppearance() :
     LLPanel(),
     mFilterSubString(LLStringUtil::null),
-    mFilterEditor(NULL),
-    mOutfitEdit(NULL),
-    mCurrOutfitPanel(NULL),
+    mFilterEditor(nullptr),
+    mOutfitEdit(nullptr),
+    mCurrOutfitPanel(nullptr),
     mOpened(false)
 {
     LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
@@ -212,7 +212,7 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 
         if (is_outfit_edit_visible || is_wearable_edit_visible)
         {
-            const LLViewerWearable *wearable_ptr = mEditWearable ? mEditWearable->getWearable() : NULL;
+            const LLViewerWearable *wearable_ptr = mEditWearable ? mEditWearable->getWearable() : nullptr;
             if (!wearable_ptr)
             {
                 LL_WARNS() << "Visibility change to invalid wearable" << LL_ENDL;
@@ -320,8 +320,8 @@ void LLSidepanelAppearance::showOutfitEditPanel()
     // Accordion's state must be reset in all cases except the one when user
     // is returning back to the mOutfitEdit panel from the mEditWearable panel.
     // The simplest way to control this is to check the visibility state of the mEditWearable
-    // BEFORE it is changed by the call to the toggleWearableEditPanel(false, NULL, true).
-    if (mEditWearable != NULL && !mEditWearable->getVisible() && mOutfitEdit != NULL)
+    // BEFORE it is changed by the call to the toggleWearableEditPanel(false, nullptr, true).
+    if (mEditWearable != nullptr && !mEditWearable->getVisible() && mOutfitEdit != nullptr)
     {
         mOutfitEdit->resetAccordionState();
     }
@@ -329,18 +329,18 @@ void LLSidepanelAppearance::showOutfitEditPanel()
     // If we're exiting the edit wearable view, and the camera was not focused on the avatar
     // (e.g. such as if we were editing a physics param), then skip the outfits edit mode since
     // otherwise this would trigger the camera focus mode.
-    if (mEditWearable != NULL && mEditWearable->getVisible() && !gAgentCamera.cameraCustomizeAvatar())
+    if (mEditWearable != nullptr && mEditWearable->getVisible() && !gAgentCamera.cameraCustomizeAvatar())
     {
         showOutfitsInventoryPanel();
         return;
     }
 
     toggleMyOutfitsPanel(false, "");
-    toggleWearableEditPanel(false, NULL, true); // don't switch out of edit appearance mode
+    toggleWearableEditPanel(false, nullptr, true); // don't switch out of edit appearance mode
     toggleOutfitEditPanel(true);
 }
 
-void LLSidepanelAppearance::showWearableEditPanel(LLViewerWearable *wearable /* = NULL*/, bool disable_camera_switch)
+void LLSidepanelAppearance::showWearableEditPanel(LLViewerWearable *wearable /* = nullptr*/, bool disable_camera_switch)
 {
     toggleMyOutfitsPanel(false, "");
     toggleOutfitEditPanel(false, true); // don't switch out of edit appearance mode
@@ -447,7 +447,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(bool visible, LLViewerWearab
     {
         // Save changes if closing.
         mEditWearable->saveChanges();
-        mEditWearable->setWearable(NULL);
+        mEditWearable->setWearable(nullptr);
         LLAppearanceMgr::getInstance()->updateIsDirty();
         if (change_state)
         {

@@ -55,7 +55,7 @@
 
 static U32 sShaderLevel = 0;
 
-LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
+LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = nullptr;
 bool    LLDrawPoolAvatar::sSkipOpaque = false;
 bool    LLDrawPoolAvatar::sSkipTransparent = false;
 S32     LLDrawPoolAvatar::sShadowPass = -1;
@@ -342,7 +342,7 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
     {
         sVertexProgram->unbind();
     }
-    sVertexProgram = NULL;
+    sVertexProgram = nullptr;
     sRenderingSkinned = false;
     LLDrawPoolAvatar::sShadowPass = -1;
 }
@@ -425,11 +425,11 @@ void LLDrawPoolAvatar::render(S32 pass)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (LLPipeline::sImpostorRender)
     {
-        renderAvatars(NULL, ++pass);
+        renderAvatars(nullptr, ++pass);
         return;
     }
 
-    renderAvatars(NULL, pass); // render all avatars
+    renderAvatars(nullptr, pass); // render all avatars
 }
 
 void LLDrawPoolAvatar::beginRenderPass(S32 pass)
@@ -517,7 +517,7 @@ void LLDrawPoolAvatar::beginRigid()
     {
         sVertexProgram = &gObjectAlphaMaskNoColorProgram;
 
-        if (sVertexProgram != NULL)
+        if (sVertexProgram != nullptr)
         {   //eyeballs render with the specular shader
             sVertexProgram->bind();
             sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
@@ -525,7 +525,7 @@ void LLDrawPoolAvatar::beginRigid()
     }
     else
     {
-        sVertexProgram = NULL;
+        sVertexProgram = nullptr;
     }
 }
 
@@ -534,7 +534,7 @@ void LLDrawPoolAvatar::endRigid()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     sShaderLevel = mShaderLevel;
-    if (sVertexProgram != NULL)
+    if (sVertexProgram != nullptr)
     {
         sVertexProgram->unbind();
     }
@@ -566,7 +566,7 @@ void LLDrawPoolAvatar::endDeferredImpostor()
     sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
     sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
     gPipeline.unbindDeferredShader(*sVertexProgram);
-   sVertexProgram = NULL;
+   sVertexProgram = nullptr;
    sDiffuseChannel = 0;
 }
 
@@ -682,7 +682,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         return;
     }
 
-    LLVOAvatar *avatarp = NULL;
+    LLVOAvatar *avatarp = nullptr;
 
     if (single_avatar)
     {
@@ -836,12 +836,12 @@ LLViewerTexture *LLDrawPoolAvatar::getDebugTexture()
 
     if (mReferences.empty())
     {
-        return NULL;
+        return nullptr;
     }
     LLFace *face = mReferences[0];
     if (!face->getDrawable())
     {
-        return NULL;
+        return nullptr;
     }
     const LLViewerObject *objectp = face->getDrawable()->getVObj();
 

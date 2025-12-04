@@ -199,7 +199,7 @@ namespace
 
 namespace
 {
-    void (*gOldTerminateHandler)() = NULL;
+    void (*gOldTerminateHandler)() = nullptr;
 }
 
 static void exceptionTerminateHandler()
@@ -251,7 +251,7 @@ bool create_app_mutex()
     bool result = true;
     LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
     HANDLE hMutex;
-    hMutex = CreateMutex(NULL, TRUE, unique_mutex_name);
+    hMutex = CreateMutex(nullptr, TRUE, unique_mutex_name);
     if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
         result = false;
@@ -562,7 +562,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
     }
     delete viewer_app_ptr;
-    viewer_app_ptr = NULL;
+    viewer_app_ptr = nullptr;
 
     // (NVAPI) (6) We clean up. This is analogous to doing a free()
     if (hSession)
@@ -673,7 +673,7 @@ void set_stream(const char* desc, FILE* fp, DWORD handle_id, const char* name, c
         if (freopen_s(&ignore, name, mode, fp) == 0)
         {
             // use unbuffered I/O
-            setvbuf( fp, NULL, _IONBF, 0 );
+            setvbuf( fp, nullptr, _IONBF, 0 );
         }
     }
 }
@@ -844,7 +844,7 @@ bool LLAppViewerWin32::initWindow()
         DEVMODE dev_mode;
         ::ZeroMemory(&dev_mode, sizeof(DEVMODE));
         dev_mode.dmSize = sizeof(DEVMODE);
-        if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
+        if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &dev_mode))
         {
             gSavedSettings.setU32("WindowWidth", dev_mode.dmPelsWidth);
             gSavedSettings.setU32("WindowHeight", dev_mode.dmPelsHeight);
@@ -900,7 +900,7 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
     }
 
     // Find the system language.
-    FL_Locale *locale = NULL;
+    FL_Locale *locale = nullptr;
     FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
     if (success != 0)
     {
@@ -938,9 +938,9 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
     mbstowcs(window_class, sWindowClass.c_str(), 255);
     window_class[255] = 0;
     // Use the class instead of the window name.
-    HWND other_window = FindWindow(window_class, NULL);
+    HWND other_window = FindWindow(window_class, nullptr);
 
-    if (other_window != NULL)
+    if (other_window != nullptr)
     {
         LL_DEBUGS() << "Found other window with the name '" << getWindowTitle() << "'" << LL_ENDL;
         COPYDATASTRUCT cds;
@@ -967,12 +967,12 @@ std::string LLAppViewerWin32::generateSerialNumber()
     DWORD flags = 0;
     BOOL success = GetVolumeInformation(
             L"C:\\",
-            NULL,       // volume name buffer
+            nullptr,       // volume name buffer
             0,          // volume name buffer size
             &serial,    // volume serial
-            NULL,       // max component length
+            nullptr,       // max component length
             &flags,     // file system flags
-            NULL,       // file system name buffer
+            nullptr,       // file system name buffer
             0);         // file system name buffer size
     if (success)
     {

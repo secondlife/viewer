@@ -450,7 +450,7 @@ void LLViewerInventoryItem::updateServer(bool is_new) const
             updates["hash_id"] = getTransactionID();
         }
     }
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)nullptr, _1);
     AISAPI::UpdateItem(getUUID(), updates, cr);
 }
 
@@ -563,7 +563,7 @@ void LLViewerInventoryItem::updateParentOnServer(bool restamp) const
     msg->nextBlockFast(_PREHASH_InventoryData);
     msg->addUUIDFast(_PREHASH_ItemID, mUUID);
     msg->addUUIDFast(_PREHASH_FolderID, mParentUUID);
-    msg->addString("NewName", NULL);
+    msg->addString("NewName", nullptr);
     gAgent.sendReliableMessage();
 }
 
@@ -659,7 +659,7 @@ void LLViewerInventoryCategory::updateServer(bool is_new) const
     }
 
     LLSD new_llsd = asLLSD();
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)nullptr, _1);
     AISAPI::UpdateCategory(getUUID(), new_llsd, cr);
 }
 
@@ -877,7 +877,7 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 
 
     LLSD new_llsd = new_cat->asLLSD();
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>) NULL, _1);
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>) nullptr, _1);
     AISAPI::UpdateCategory(folder_id, new_llsd, cr);
 
     setPreferredType(new_folder_type);
@@ -908,12 +908,12 @@ void LLViewerInventoryCategory::unpackMessage(LLMessageSystem* msg, const char* 
 /// Local function definitions
 ///----------------------------------------------------------------------------
 
-LLInventoryCallbackManager *LLInventoryCallbackManager::sInstance = NULL;
+LLInventoryCallbackManager *LLInventoryCallbackManager::sInstance = nullptr;
 
 LLInventoryCallbackManager::LLInventoryCallbackManager() :
     mLastCallback(0)
 {
-    if( sInstance != NULL )
+    if( sInstance != nullptr )
     {
         LL_WARNS(LOG_INV) << "LLInventoryCallbackManager::LLInventoryCallbackManager: unexpected multiple instances" << LL_ENDL;
         return;
@@ -928,7 +928,7 @@ LLInventoryCallbackManager::~LLInventoryCallbackManager()
         LL_WARNS(LOG_INV) << "LLInventoryCallbackManager::~LLInventoryCallbackManager: unexpected multiple instances" << LL_ENDL;
         return;
     }
-    sInstance = NULL;
+    sInstance = nullptr;
 }
 
 //static
@@ -939,7 +939,7 @@ void LLInventoryCallbackManager::destroyClass()
         for (callback_map_t::iterator it = sInstance->mMap.begin(), end_it = sInstance->mMap.end(); it != end_it; ++it)
         {
             // drop LLPointer reference to callback
-            it->second = NULL;
+            it->second = nullptr;
         }
         sInstance->mMap.clear();
     }
@@ -1203,7 +1203,7 @@ void create_inventory_callingcard_callback(LLPointer<LLInventoryCallback> cb,
                           cb);
 }
 
-void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
+void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=nullptr*/)
 {
     LLAvatarName av_name;
     LLAvatarNameCache::get(avatar_id, boost::bind(&create_inventory_callingcard_callback, cb, parent, _1, _2));
@@ -1661,7 +1661,7 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
                                   const LLInventoryItem *src,
                                   U32 callback_id)
 {
-    if (NULL == src)
+    if (nullptr == src)
     {
         LL_WARNS(LOG_NOTECARD) << "Null pointer to item was passed for object_id "
                                << object_id << " and notecard_inv_id "
@@ -1669,9 +1669,9 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
         return;
     }
 
-    LLViewerRegion* viewer_region = NULL;
-    LLViewerObject* vo = NULL;
-    if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != NULL)
+    LLViewerRegion* viewer_region = nullptr;
+    LLViewerObject* vo = nullptr;
+    if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != nullptr)
     {
         viewer_region = vo->getRegion();
     }
@@ -1718,7 +1718,7 @@ void create_new_item(const std::string& name,
     LLViewerAssetType::generateDescriptionFor(asset_type, desc);
     next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
 
-    LLPointer<LLBoostFuncInventoryCallback> cb = NULL;
+    LLPointer<LLBoostFuncInventoryCallback> cb = nullptr;
 
     switch (inv_type)
     {
@@ -1755,7 +1755,7 @@ void create_new_item(const std::string& name,
             break;
         }
     }
-    if (created_cb != NULL)
+    if (created_cb != nullptr)
     {
         cb->addOnFireFunc(created_cb);
     }
@@ -1851,7 +1851,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                 LL_DEBUGS(LOG_INV) << "Done creating inventory: " << new_category_id << LL_ENDL;
             };
         }
-        else if (created_cb != NULL)
+        else if (created_cb != nullptr)
         {
             callback_cat_created = created_cb;
         }
@@ -2209,11 +2209,11 @@ LLViewerInventoryItem *LLViewerInventoryItem::getLinkedItem() const
         if (linked_item && linked_item->getIsLinkType())
         {
             LL_WARNS(LOG_INV) << "Warning: Accessing link to link" << LL_ENDL;
-            return NULL;
+            return nullptr;
         }
         return linked_item;
     }
-    return NULL;
+    return nullptr;
 }
 
 LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
@@ -2223,7 +2223,7 @@ LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
         LLViewerInventoryCategory *linked_category = gInventory.getCategory(mAssetUUID);
         return linked_category;
     }
-    return NULL;
+    return nullptr;
 }
 
 bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const

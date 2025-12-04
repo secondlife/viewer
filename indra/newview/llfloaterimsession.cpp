@@ -148,14 +148,14 @@ void LLFloaterIMSession::onClickCloseBtn(bool app_qutting)
 
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
-    if (session != NULL)
+    if (session != nullptr)
     {
         bool is_call_with_chat = session->isGroupSessionType()
                 || session->isAdHocSessionType() || session->isP2PSessionType();
 
         LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
 
-        if (is_call_with_chat && voice_channel != NULL
+        if (is_call_with_chat && voice_channel != nullptr
                 && voice_channel->isActive())
         {
             LLSD payload;
@@ -482,7 +482,7 @@ void LLFloaterIMSession::addP2PSessionParticipants(const LLSD& notification, con
     LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
 
     // first check whether this is a voice session
-    bool is_voice_call = voice_channel != NULL && voice_channel->isActive();
+    bool is_voice_call = voice_channel != nullptr && voice_channel->isActive();
 
     uuid_vec_t temp_ids;
 
@@ -581,7 +581,7 @@ LLFloaterIMSession* LLFloaterIMSession::show(const LLUUID& session_id)
     closeHiddenIMToasts();
 
     if (!gIMMgr->hasSession(session_id))
-        return NULL;
+        return nullptr;
 
     // Test the existence of the floater before we try to create it
     bool exist = findInstance(session_id);
@@ -589,7 +589,7 @@ LLFloaterIMSession* LLFloaterIMSession::show(const LLUUID& session_id)
     // Get the floater: this will create the instance if it didn't exist
     LLFloaterIMSession* floater = getInstance(session_id);
     if (!floater)
-        return NULL;
+        return nullptr;
 
     LLFloaterIMContainer* floater_container = LLFloaterIMContainer::getInstance();
 
@@ -701,10 +701,10 @@ void LLFloaterIMSession::setVisible(bool visible)
     if(!visible)
     {
         LLChicletPanel * chiclet_panelp = LLChicletBar::getInstance()->getChicletPanel();
-        if (NULL != chiclet_panelp)
+        if (nullptr != chiclet_panelp)
         {
             LLIMChiclet * chicletp = chiclet_panelp->findChiclet<LLIMChiclet>(mSessionID);
-            if(NULL != chicletp)
+            if(nullptr != chicletp)
             {
                 chicletp->setToggleState(false);
             }
@@ -860,7 +860,7 @@ void LLFloaterIMSession::updateMessages()
             {
                 chat.mNotifId = msg["notification_id"].asUUID();
                 // if notification exists - embed it
-                if (LLNotificationsUtil::find(chat.mNotifId) != NULL)
+                if (LLNotificationsUtil::find(chat.mNotifId) != nullptr)
                 {
                     // remove embedded notification from channel
                     LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
@@ -889,7 +889,7 @@ void LLFloaterIMSession::updateMessages()
             mLastMessageIndex = msg["index"].asInteger();
 
             // if it is a notification - next message is a notification history log, so skip it
-            if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != NULL)
+            if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != nullptr)
             {
                 if (++iter == iter_end)
                 {
@@ -910,7 +910,7 @@ void LLFloaterIMSession::reloadMessages(bool clean_messages/* = false*/)
     {
         LLIMModel::LLIMSession * sessionp = LLIMModel::instance().findIMSession(mSessionID);
 
-        if (NULL != sessionp)
+        if (nullptr != sessionp)
         {
             sessionp->loadHistory();
         }
@@ -1184,7 +1184,7 @@ bool LLFloaterIMSession::isInviteAllowed() const
 bool LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 {
     LLViewerRegion* region = gAgent.getRegion();
-    bool is_region_exist = region != NULL;
+    bool is_region_exist = region != nullptr;
 
     if (is_region_exist)
     {
@@ -1300,7 +1300,7 @@ void LLFloaterIMSession::closeHiddenIMToasts()
 
     LLNotificationsUI::LLScreenChannel* channel =
             LLNotificationsUI::LLChannelManager::getNotificationScreenChannel();
-    if (channel != NULL)
+    if (channel != nullptr)
     {
         channel->closeHiddenToasts(IMToastMatcher());
     }
@@ -1313,7 +1313,7 @@ void LLFloaterIMSession::confirmLeaveCallCallback(const LLSD& notification, cons
     LLUUID session_id = payload["session_id"];
 
     LLFloater* im_floater = findInstance(session_id);
-    if (option == 0 && im_floater != NULL)
+    if (option == 0 && im_floater != nullptr)
     {
         im_floater->closeFloater();
     }

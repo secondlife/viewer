@@ -65,7 +65,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
+void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = nullptr;
 
 S32 LLViewerTextureList::sNumImages = 0;
 
@@ -410,7 +410,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
     LL_PROFILE_ZONE_TEXT(filename.c_str(), filename.size());
     if(!mInitialized)
     {
-        return NULL ;
+        return nullptr ;
     }
 
     std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
@@ -438,7 +438,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     if(!mInitialized)
     {
-        return NULL ;
+        return nullptr ;
     }
 
     // generate UUID based on hash of filename
@@ -561,7 +561,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     if(!mInitialized)
     {
-        return NULL ;
+        return nullptr ;
     }
 
     // Return the image with ID image_id
@@ -684,7 +684,7 @@ LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLTextureKey &searc
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     uuid_map_t::iterator iter = mUUIDMap.find(search_key);
     if (iter == mUUIDMap.end())
-        return NULL;
+        return nullptr;
     return iter->second;
 }
 
@@ -1341,7 +1341,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
         LLViewerFetchedTexture* imagep = *iter++;
         imagep->updateFetch();
     }
-    std::shared_ptr<LL::WorkQueue> main_queue = LLImageGLThread::sEnabledTextures ? LL::WorkQueue::getInstance("mainloop") : NULL;
+    std::shared_ptr<LL::WorkQueue> main_queue = LLImageGLThread::sEnabledTextures ? LL::WorkQueue::getInstance("mainloop") : nullptr;
     // Run threads
     size_t fetch_pending = 0;
     while (1)
@@ -1548,7 +1548,7 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
     {
         LL_INFOS() << "convertToUploadFile : encode returns with error!!" << LL_ENDL;
         // Clear up the pointer so we don't leak that one
-        compressedImage = NULL;
+        compressedImage = nullptr;
     }
 
     return compressedImage;
@@ -1656,7 +1656,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
                                         LLUIImage::EScaleStyle scale_style)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    if (!imagep) return NULL;
+    if (!imagep) return nullptr;
 
     imagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
@@ -1687,7 +1687,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
         datap->mImageScaleRegion = scale_rect;
         datap->mImageClipRegion = clip_rect;
 
-        imagep->setLoadedCallback(onUIImageLoaded, 0, false, false, datap, NULL);
+        imagep->setLoadedCallback(onUIImageLoaded, 0, false, false, datap, nullptr);
     }
     return new_imagep;
 }
@@ -1826,7 +1826,7 @@ bool LLUIImageList::initFromFile()
 
     // The first (most generic) file gets special validations
     LLXMLNodePtr root;
-    if (!LLXMLNode::parseFile(*pi, root, NULL))
+    if (!LLXMLNode::parseFile(*pi, root, nullptr))
     {
         LL_WARNS() << "Unable to parse UI image list file " << *pi << LL_ENDL;
         return false;
@@ -1845,7 +1845,7 @@ bool LLUIImageList::initFromFile()
     while (++pi != pend)
     {
         LLXMLNodePtr update_root;
-        if (LLXMLNode::parseFile(*pi, update_root, NULL))
+        if (LLXMLNode::parseFile(*pi, update_root, nullptr))
         {
             parser.readXUI(update_root, images, *pi);
         }

@@ -50,7 +50,7 @@ LLSidepanelInventorySubpanel::LLSidepanelInventorySubpanel(const LLPanel::Params
   : LLPanel(p),
     mIsDirty(true),
     mIsEditing(false),
-    mCancelBtn(NULL)
+    mCancelBtn(nullptr)
 {
 }
 

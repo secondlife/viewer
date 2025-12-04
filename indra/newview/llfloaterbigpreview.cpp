@@ -35,8 +35,8 @@
 ///////////////////////
 
 LLFloaterBigPreview::LLFloaterBigPreview(const LLSD& key) : LLFloater(key),
-    mPreviewPlaceholder(NULL),
-    mFloaterOwner(NULL)
+    mPreviewPlaceholder(nullptr),
+    mFloaterOwner(nullptr)
 {
 }
 

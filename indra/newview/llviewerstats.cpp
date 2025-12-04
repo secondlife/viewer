@@ -817,7 +817,7 @@ void send_viewer_stats(bool include_preferences)
         //     C:\Windows\System32
         //     C:\Windows\SysWOW64
         HMODULE vulkan_loader = LoadLibraryA("vulkan-1.dll");
-        if (NULL != vulkan_loader)
+        if (nullptr != vulkan_loader)
         {
             vulkan_detected = true;
             vulkan_max_api_version = "1.0"; // We have at least 1.0.  See the note about vkEnumerateInstanceVersion() below.
@@ -846,7 +846,7 @@ void send_viewer_stats(bool include_preferences)
                 // Check for vkEnumerateInstanceVersion.  If it exists then we have at least 1.1 and can query the max API version.
                 // NOTE: Each VkPhysicalDevice that supports Vulkan has its own VkPhysicalDeviceProperties.apiVersion which is separate from the max API version!
                 // See: https://www.lunarg.com/wp-content/uploads/2019/02/Vulkan-1.1-Compatibility-Statement_01_19.pdf
-                PFN_vkEnumerateInstanceVersion pEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion) pGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
+                PFN_vkEnumerateInstanceVersion pEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion) pGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion");
                 if(pEnumerateInstanceVersion)
                 {
                     uint32_t version = VK_MAKE_API_VERSION(0,1,1,0);   // e.g. 4202631 = 1.2.135.0

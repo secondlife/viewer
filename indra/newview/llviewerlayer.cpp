@@ -46,7 +46,7 @@ LLViewerLayer::LLViewerLayer(const S32 width, const F32 scale)
 LLViewerLayer::~LLViewerLayer()
 {
     delete[] mDatap;
-    mDatap = NULL;
+    mDatap = nullptr;
 }
 
 F32 LLViewerLayer::getValue(const S32 x, const S32 y) const

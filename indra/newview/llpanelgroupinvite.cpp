@@ -98,14 +98,14 @@ public:
 LLPanelGroupInvite::impl::impl(const LLUUID& group_id):
     mGroupID( group_id ),
     mLoadingText (),
-    mInvitees ( NULL ),
-    mRoleNames( NULL ),
-    mOKButton ( NULL ),
-    mRemoveButton( NULL ),
-    mGroupName( NULL ),
+    mInvitees ( nullptr ),
+    mRoleNames( nullptr ),
+    mOKButton ( nullptr ),
+    mRemoveButton( nullptr ),
+    mGroupName( nullptr ),
     mConfirmedOwnerInvite( false ),
-    mCloseCallback( NULL ),
-    mCloseCallbackUserData( NULL ),
+    mCloseCallback( nullptr ),
+    mCloseCallbackUserData( nullptr ),
     mAvatarNameCacheConnection()
 {
 }
@@ -258,7 +258,7 @@ void LLPanelGroupInvite::impl::addRoleNames(LLGroupMgrGroupData* gdatap)
                                                  GP_ROLE_ASSIGN_MEMBER);
     bool can_assign_limited = gAgent.hasPowerInGroup(mGroupID,
                                                      GP_ROLE_ASSIGN_MEMBER_LIMITED);
-    LLGroupMemberData* member_data = NULL;
+    LLGroupMemberData* member_data = nullptr;
     //get the member data for the agent if it exists
     if (agent_iter != gdatap->mMembers.end())
     {

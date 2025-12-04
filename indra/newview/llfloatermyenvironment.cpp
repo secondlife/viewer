@@ -277,7 +277,7 @@ void LLFloaterMyEnvironment::onDeleteSelected()
 
 void LLFloaterMyEnvironment::onDoCreate(const LLSD &data)
 {
-    menu_create_inventory_item(mInventoryList, NULL, data);
+    menu_create_inventory_item(mInventoryList, nullptr, data);
 }
 
 void LLFloaterMyEnvironment::onDoApply(const std::string &context)

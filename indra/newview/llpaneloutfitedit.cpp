@@ -159,7 +159,7 @@ public:
 
         registrar.add("Wearable.Create", boost::bind(onCreate, _2));
 
-        llassert(LLMenuGL::sMenuContainer != NULL);
+        llassert(LLMenuGL::sMenuContainer != nullptr);
         LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
             "menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
         llassert(menu);
@@ -230,7 +230,7 @@ public:
         enable_registrar.add("AddWearable.Gear.Check", boost::bind(onCheck, flat_list_handle, inventory_panel_handle, _2));
         enable_registrar.add("AddWearable.Gear.Visible", boost::bind(onVisible, inventory_panel_handle, _2));
 
-        llassert(LLMenuGL::sMenuContainer != NULL);
+        llassert(LLMenuGL::sMenuContainer != nullptr);
         LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
             "menu_add_wearable_gear.xml",
             LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -366,7 +366,7 @@ private:
 inline LLCOFDragAndDropObserver::LLCOFDragAndDropObserver(LLInventoryModel* model):
         mModel(model)
 {
-    if (model != NULL)
+    if (model != nullptr)
     {
         model->addObserver(this);
     }
@@ -374,7 +374,7 @@ inline LLCOFDragAndDropObserver::LLCOFDragAndDropObserver(LLInventoryModel* mode
 
 inline LLCOFDragAndDropObserver::~LLCOFDragAndDropObserver()
 {
-    if (mModel != NULL && mModel->containsObserver(this))
+    if (mModel != nullptr && mModel->containsObserver(this))
     {
         mModel->removeObserver(this);
     }
@@ -391,22 +391,22 @@ void LLCOFDragAndDropObserver::done()
 
 LLPanelOutfitEdit::LLPanelOutfitEdit()
 :   LLPanel(),
-    mSearchFilter(NULL),
-    mCOFWearables(NULL),
-    mInventoryItemsPanel(NULL),
-    mGearMenu(NULL),
-    mAddWearablesGearMenu(NULL),
-    mCOFDragAndDropObserver(NULL),
+    mSearchFilter(nullptr),
+    mCOFWearables(nullptr),
+    mInventoryItemsPanel(nullptr),
+    mGearMenu(nullptr),
+    mAddWearablesGearMenu(nullptr),
+    mCOFDragAndDropObserver(nullptr),
     mInitialized(false),
-    mAddWearablesPanel(NULL),
-    mFolderViewFilterCmbBox(NULL),
-    mListViewFilterCmbBox(NULL),
-    mWearableListManager(NULL),
-    mPlusBtn(NULL),
-    mWearablesGearMenuBtn(NULL),
-    mGearMenuBtn(NULL),
-    mStatus(NULL),
-    mCurrentOutfitName(NULL)
+    mAddWearablesPanel(nullptr),
+    mFolderViewFilterCmbBox(nullptr),
+    mListViewFilterCmbBox(nullptr),
+    mWearableListManager(nullptr),
+    mPlusBtn(nullptr),
+    mWearablesGearMenuBtn(nullptr),
+    mGearMenuBtn(nullptr),
+    mStatus(nullptr),
+    mCurrentOutfitName(nullptr)
 {
     mSavedFolderState = new LLSaveFolderState();
     mSavedFolderState->setApply(false);
@@ -484,12 +484,12 @@ bool LLPanelOutfitEdit::postBuild()
     mFilterBtn = getChild<LLButton>("filter_button");
     mFilterBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this));
 
-    childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesFolderView, this), NULL);
-    childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
-    childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
-    childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
-    childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
-    childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
+    childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesFolderView, this), nullptr);
+    childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), nullptr);
+    childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), nullptr);
+    childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), nullptr);
+    childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), nullptr);
+    childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), nullptr);
 
     setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChanged, this, _2));
 
@@ -915,9 +915,9 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
 {
     selection_info_t result = std::make_pair(LLWearableType::WT_NONE, 0);
 
-    if (mAddWearablesPanel != NULL && mAddWearablesPanel->getVisible())
+    if (mAddWearablesPanel != nullptr && mAddWearablesPanel->getVisible())
     {
-        if (mInventoryItemsPanel != NULL && mInventoryItemsPanel->getVisible())
+        if (mInventoryItemsPanel != nullptr && mInventoryItemsPanel->getVisible())
         {
             std::set<LLFolderViewItem*> selected_items =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
@@ -928,7 +928,7 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
                 result.first = getWearableTypeByItemUUID(static_cast<LLFolderViewModelItemInventory*>((*selected_items.begin())->getViewModelItem())->getUUID());
             }
         }
-        else if (mWearableItemsList != NULL && mWearableItemsList->getVisible())
+        else if (mWearableItemsList != nullptr && mWearableItemsList->getVisible())
         {
             std::vector<LLUUID> selected_uuids;
             mWearableItemsList->getSelectedUUIDs(selected_uuids);
@@ -948,7 +948,7 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
 LLWearableType::EType LLPanelOutfitEdit::getWearableTypeByItemUUID(const LLUUID& item_uuid) const
 {
     LLViewerInventoryItem* item = gInventory.getLinkedItem(item_uuid);
-    return (item != NULL) ? item->getWearableType() : LLWearableType::WT_NONE;
+    return (item != nullptr) ? item->getWearableType() : LLWearableType::WT_NONE;
 }
 
 void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
@@ -1187,7 +1187,7 @@ bool LLPanelOutfitEdit::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                           EAcceptance* accept,
                                           std::string& tooltip_msg)
 {
-    if (cargo_data == NULL)
+    if (cargo_data == nullptr)
     {
         LL_WARNS() << "cargo_data is NULL" << LL_ENDL;
         return true;
@@ -1287,7 +1287,7 @@ bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch
 
 void LLPanelOutfitEdit::resetAccordionState()
 {
-    if (mCOFWearables != NULL)
+    if (mCOFWearables != nullptr)
     {
         mCOFWearables->expandDefaultAccordionTab();
     }

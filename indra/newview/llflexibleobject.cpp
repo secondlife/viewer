@@ -252,7 +252,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     S32 num_sections = 1 << mSimulateRes;
 
     LLVector3 scale;
-    if (inScale == (LLVector3*)NULL)
+    if (inScale == (LLVector3*)nullptr)
     {
         scale = mVO->mDrawable->getScale();
     }

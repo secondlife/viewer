@@ -186,7 +186,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
     // sometimes the inventory is already there and
     // the callback is called immediately.
     LLViewerObject* obj = selection->getFirstRootObject();
-    floater->registerVOInventoryListener(obj,NULL);
+    floater->registerVOInventoryListener(obj, nullptr);
     floater->requestVOInventory();
 
     if (!floater->mSelectionUpdateSlot.connected())

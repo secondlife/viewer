@@ -93,7 +93,7 @@
 //
 // Globals
 //
-LLStatusBar *gStatusBar = NULL;
+LLStatusBar *gStatusBar = nullptr;
 S32 STATUS_BAR_HEIGHT = 26;
 extern S32 MENU_BAR_HEIGHT;
 
@@ -109,19 +109,19 @@ static void onClickVolume(void*);
 
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :   LLPanel(),
-    mTextTime(NULL),
-    mSGBandwidth(NULL),
-    mSGPacketLoss(NULL),
-    mBtnVolume(NULL),
-    mBoxBalance(NULL),
+    mTextTime(nullptr),
+    mSGBandwidth(nullptr),
+    mSGPacketLoss(nullptr),
+    mBtnVolume(nullptr),
+    mBoxBalance(nullptr),
     mBalance(0),
     mBalanceClicked(false),
     mObscureBalance(false),
     mHealth(100),
     mSquareMetersCredit(0),
     mSquareMetersCommitted(0),
-    mFilterEdit(NULL),          // Edit for filtering
-    mSearchPanel(NULL)          // Panel for filtering
+    mFilterEdit(nullptr),          // Edit for filtering
+    mSearchPanel(nullptr)          // Panel for filtering
 {
     setRect(rect);
 
@@ -448,7 +448,7 @@ void LLStatusBar::sendMoneyBalanceRequest()
     }
     // Double amount of retries due to this request initially happening during busy stage
     // Ideally this should be turned into a capability
-    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, true, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);
+    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, true, LL_PING_BASED_TIMEOUT_DUMMY, nullptr, nullptr);
 }
 
 

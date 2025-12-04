@@ -150,7 +150,7 @@ void LLFloaterPathfindingObjects::draw()
                 const LLScrollListItem *selectedItem = *selectedItemIter;
 
                 LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
-                if (viewerObject != NULL)
+                if (viewerObject != nullptr)
                 {
                     const std::string &objectName = selectedItem->getColumn(nameColumnIndex)->getValue().asString();
                     gObjectList.addDebugBeacon(viewerObject->getPositionAgent(), objectName, beaconColor, beaconTextColor, beaconWidth);
@@ -162,17 +162,17 @@ void LLFloaterPathfindingObjects::draw()
 
 LLFloaterPathfindingObjects::LLFloaterPathfindingObjects(const LLSD &pSeed)
     : LLFloater(pSeed),
-    mObjectsScrollList(NULL),
-    mMessagingStatus(NULL),
-    mRefreshListButton(NULL),
-    mSelectAllButton(NULL),
-    mSelectNoneButton(NULL),
-    mShowBeaconCheckBox(NULL),
-    mTakeButton(NULL),
-    mTakeCopyButton(NULL),
-    mReturnButton(NULL),
-    mDeleteButton(NULL),
-    mTeleportButton(NULL),
+    mObjectsScrollList(nullptr),
+    mMessagingStatus(nullptr),
+    mRefreshListButton(nullptr),
+    mSelectAllButton(nullptr),
+    mSelectNoneButton(nullptr),
+    mShowBeaconCheckBox(nullptr),
+    mTakeButton(nullptr),
+    mTakeCopyButton(nullptr),
+    mReturnButton(nullptr),
+    mDeleteButton(nullptr),
+    mTeleportButton(nullptr),
     mDefaultBeaconColor(),
     mDefaultBeaconTextColor(),
     mErrorTextColor(),
@@ -202,46 +202,46 @@ bool LLFloaterPathfindingObjects::postBuild()
     mWarningTextColor = LLUIColorTable::getInstance()->getColor("PathfindingWarningColor");
 
     mObjectsScrollList = findChild<LLScrollListCtrl>("objects_scroll_list");
-    llassert(mObjectsScrollList != NULL);
+    llassert(mObjectsScrollList != nullptr);
     mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onScrollListSelectionChanged, this));
     mObjectsScrollList->sortByColumnIndex(static_cast<U32>(getNameColumnIndex()), true);
 
     mMessagingStatus = findChild<LLTextBase>("messaging_status");
-    llassert(mMessagingStatus != NULL);
+    llassert(mMessagingStatus != nullptr);
 
     mRefreshListButton = findChild<LLButton>("refresh_objects_list");
-    llassert(mRefreshListButton != NULL);
+    llassert(mRefreshListButton != nullptr);
     mRefreshListButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onRefreshObjectsClicked, this));
 
     mSelectAllButton = findChild<LLButton>("select_all_objects");
-    llassert(mSelectAllButton != NULL);
+    llassert(mSelectAllButton != nullptr);
     mSelectAllButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onSelectAllObjectsClicked, this));
 
     mSelectNoneButton = findChild<LLButton>("select_none_objects");
-    llassert(mSelectNoneButton != NULL);
+    llassert(mSelectNoneButton != nullptr);
     mSelectNoneButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onSelectNoneObjectsClicked, this));
 
     mShowBeaconCheckBox = findChild<LLCheckBoxCtrl>("show_beacon");
-    llassert(mShowBeaconCheckBox != NULL);
+    llassert(mShowBeaconCheckBox != nullptr);
 
     mTakeButton = findChild<LLButton>("take_objects");
-    llassert(mTakeButton != NULL);
+    llassert(mTakeButton != nullptr);
     mTakeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onTakeClicked, this));
 
     mTakeCopyButton = findChild<LLButton>("take_copy_objects");
-    llassert(mTakeCopyButton != NULL);
+    llassert(mTakeCopyButton != nullptr);
     mTakeCopyButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onTakeCopyClicked, this));
 
     mReturnButton = findChild<LLButton>("return_objects");
-    llassert(mReturnButton != NULL);
+    llassert(mReturnButton != nullptr);
     mReturnButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onReturnClicked, this));
 
     mDeleteButton = findChild<LLButton>("delete_objects");
-    llassert(mDeleteButton != NULL);
+    llassert(mDeleteButton != nullptr);
     mDeleteButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onDeleteClicked, this));
 
     mTeleportButton = findChild<LLButton>("teleport_me_to_object");
-    llassert(mTeleportButton != NULL);
+    llassert(mTeleportButton != nullptr);
     mTeleportButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onTeleportClicked, this));
 
     return LLFloater::postBuild();
@@ -301,7 +301,7 @@ void LLFloaterPathfindingObjects::handleUpdateObjectList(LLPathfindingManager::r
             setMessagingState(kMessagingSetRequestSent);
             break;
         case LLPathfindingManager::kRequestCompleted :
-            if (mObjectList == NULL)
+            if (mObjectList == nullptr)
             {
                 mObjectList = pObjectList;
             }
@@ -351,7 +351,7 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList(bool update_if_needed
     mObjectsScrollList->deleteAllItems();
     mMissingNameObjectsScrollListItems.clear();
 
-    if ((mObjectList != NULL) && !mObjectList->isEmpty())
+    if ((mObjectList != nullptr) && !mObjectList->isEmpty())
     {
         buildObjectsScrollList(mObjectList);
 
@@ -532,10 +532,10 @@ void LLFloaterPathfindingObjects::teleportToSelectedObject()
     {
         std::vector<LLScrollListItem*>::const_reference selectedItemRef = selectedItems.front();
         const LLScrollListItem *selectedItem = selectedItemRef;
-        llassert(mObjectList != NULL);
+        llassert(mObjectList != nullptr);
         LLVector3d teleportLocation;
         LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
-        if (viewerObject == NULL)
+        if (viewerObject == nullptr)
         {
             // If we cannot find the object in the viewer list, teleport to the last reported position
             const LLPathfindingObjectPtr objectPtr = mObjectList->find(selectedItem->getUUID().asString());
@@ -573,7 +573,7 @@ LLPathfindingObjectListPtr LLFloaterPathfindingObjects::getSelectedObjects() con
             itemIter != selectedItems.end(); ++itemIter)
         {
             LLPathfindingObjectPtr objectPtr = findObject(*itemIter);
-            if (objectPtr != NULL)
+            if (objectPtr != nullptr)
             {
                 selectedObjects->update(objectPtr);
             }
@@ -700,13 +700,13 @@ void LLFloaterPathfindingObjects::onGodLevelChange(U8 pGodLevel)
 
 void LLFloaterPathfindingObjects::handleObjectNameResponse(const LLPathfindingObject *pObject)
 {
-    llassert(pObject != NULL);
+    llassert(pObject != nullptr);
     const std::string uuid = pObject->getUUID().asString();
     scroll_list_item_map::iterator scrollListItemIter = mMissingNameObjectsScrollListItems.find(uuid);
     if (scrollListItemIter != mMissingNameObjectsScrollListItems.end())
     {
         LLScrollListItem *scrollListItem = scrollListItemIter->second;
-        llassert(scrollListItem != NULL);
+        llassert(scrollListItem != nullptr);
 
         LLScrollListCell *scrollListCell = scrollListItem->getColumn(getOwnerNameColumnIndex());
         LLSD ownerName = getOwnerName(pObject);
@@ -846,7 +846,7 @@ void LLFloaterPathfindingObjects::selectScrollListItemsInWorld()
             const LLScrollListItem *selectedItem = *selectedItemIter;
 
             LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
-            if (viewerObject != NULL)
+            if (viewerObject != nullptr)
             {
                 viewerObjects.push_back(viewerObject);
             }
@@ -883,7 +883,7 @@ LLPathfindingObjectPtr LLFloaterPathfindingObjects::findObject(const LLScrollLis
 
     LLUUID uuid = pListItem->getUUID();
     const std::string &uuidString = uuid.asString();
-    llassert(mObjectList != NULL);
+    llassert(mObjectList != nullptr);
     objectPtr = mObjectList->find(uuidString);
 
     return objectPtr;

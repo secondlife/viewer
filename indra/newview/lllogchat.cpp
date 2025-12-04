@@ -142,7 +142,7 @@ public:
     {
         typedef boost::date_time::local_adjustor<ptime, -8, no_dst> pst;
         typedef boost::date_time::local_adjustor<ptime, -7, no_dst> pdt;
-        time_t t_time = time(NULL);
+        time_t t_time = time(nullptr);
         ptime p_time = LLStringOps::getPacificDaylightTime()
             ? pdt::utc_to_local(from_time_t(t_time))
             : pst::utc_to_local(from_time_t(t_time));
@@ -208,7 +208,7 @@ LLLogChatTimeScanner::LLLogChatTimeScanner()
 }
 
 LLLogChat::LLLogChat()
-: mSaveHistorySignal(NULL) // only needed in preferences
+: mSaveHistorySignal(nullptr) // only needed in preferences
 {
     mHistoryThreadsMutex = new LLMutex();
 }
@@ -216,13 +216,13 @@ LLLogChat::LLLogChat()
 LLLogChat::~LLLogChat()
 {
     delete mHistoryThreadsMutex;
-    mHistoryThreadsMutex = NULL;
+    mHistoryThreadsMutex = nullptr;
 
     if (mSaveHistorySignal)
     {
         mSaveHistorySignal->disconnect_all_slots();
         delete mSaveHistorySignal;
-        mSaveHistorySignal = NULL;
+        mSaveHistorySignal = nullptr;
     }
 }
 
@@ -560,7 +560,7 @@ LLLoadHistoryThread* LLLogChat::getLoadHistoryThread(LLUUID session_id)
     {
         return it->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 LLDeleteHistoryThread* LLLogChat::getDeleteHistoryThread(LLUUID session_id)
@@ -571,7 +571,7 @@ LLDeleteHistoryThread* LLLogChat::getDeleteHistoryThread(LLUUID session_id)
     {
         return it->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 bool LLLogChat::addLoadHistoryThread(LLUUID& session_id, LLLoadHistoryThread* lthread)
@@ -627,7 +627,7 @@ LLMutex* LLLogChat::historyThreadsMutex()
 
 void LLLogChat::triggerHistorySignal()
 {
-    if (NULL != mSaveHistorySignal)
+    if (nullptr != mSaveHistorySignal)
     {
         (*mSaveHistorySignal)();
     }
@@ -731,7 +731,7 @@ void LLLogChat::getListOfTranscriptBackupFiles(std::vector<std::string>& list_of
 
 boost::signals2::connection LLLogChat::setSaveHistorySignal(const save_history_signal_t::slot_type& cb)
 {
-    if (NULL == mSaveHistorySignal)
+    if (nullptr == mSaveHistorySignal)
     {
         mSaveHistorySignal = new save_history_signal_t();
     }
@@ -891,7 +891,7 @@ bool LLLogChat::isTranscriptFileFound(std::string fullname)
 {
     bool result = false;
     LLFILE * filep = LLFile::fopen(fullname, "rb");
-    if (NULL != filep)
+    if (nullptr != filep)
     {
         if (makeLogFileName("chat") == fullname)
         {
@@ -910,7 +910,7 @@ bool LLLogChat::isTranscriptFileFound(std::string fullname)
             bytes_to_read = LOG_RECALL_SIZE - 1;
         }
 
-        if (bytes_to_read > 0 && NULL != fgets(buffer, bytes_to_read, filep))
+        if (bytes_to_read > 0 && nullptr != fgets(buffer, bytes_to_read, filep))
         {
             //matching a timestamp
             boost::match_results<std::string::const_iterator> matches;
@@ -1103,15 +1103,15 @@ LLDeleteHistoryThread::~LLDeleteHistoryThread()
 }
 void LLDeleteHistoryThread::run()
 {
-    if (mLoadThread != NULL)
+    if (mLoadThread != nullptr)
     {
         mLoadThread->waitFinished();
     }
-    if (NULL != mMessages)
+    if (nullptr != mMessages)
     {
         delete mMessages;
     }
-    mMessages = NULL;
+    mMessages = nullptr;
     setFinished();
 }
 
@@ -1155,7 +1155,7 @@ LLLoadHistoryThread::LLLoadHistoryThread(const std::string& file_name, std::list
     mFileName(file_name),
     mLoadParams(load_params),
     mNewLoad(true),
-    mLoadEndSignal(NULL)
+    mLoadEndSignal(nullptr)
 {
 }
 
@@ -1274,7 +1274,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
 boost::signals2::connection LLLoadHistoryThread::setLoadEndSignal(const load_end_signal_t::slot_type& cb)
 {
-    if (NULL == mLoadEndSignal)
+    if (nullptr == mLoadEndSignal)
     {
         mLoadEndSignal = new load_end_signal_t();
     }
@@ -1284,10 +1284,10 @@ boost::signals2::connection LLLoadHistoryThread::setLoadEndSignal(const load_end
 
 void LLLoadHistoryThread::removeLoadEndSignal(const load_end_signal_t::slot_type& cb)
 {
-    if (NULL != mLoadEndSignal)
+    if (nullptr != mLoadEndSignal)
     {
         mLoadEndSignal->disconnect_all_slots();
         delete mLoadEndSignal;
     }
-    mLoadEndSignal = NULL;
+    mLoadEndSignal = nullptr;
 }

@@ -44,8 +44,8 @@
 
 #include "lluictrlfactory.h"
 
-LLPanelLandSelectObserver* LLPanelLandInfo::sObserver = NULL;
-LLPanelLandInfo* LLPanelLandInfo::sInstance = NULL;
+LLPanelLandSelectObserver* LLPanelLandInfo::sObserver = nullptr;
+LLPanelLandInfo* LLPanelLandInfo::sInstance = nullptr;
 
 class LLPanelLandSelectObserver : public LLParcelObserver
 {
@@ -86,7 +86,7 @@ bool    LLPanelLandInfo::postBuild()
 //
 LLPanelLandInfo::LLPanelLandInfo()
 :   LLPanel(),
-    mCheckShowOwners(NULL)
+    mCheckShowOwners(nullptr)
 {
     if (!sInstance)
     {
@@ -106,9 +106,9 @@ LLPanelLandInfo::~LLPanelLandInfo()
 {
     LLViewerParcelMgr::getInstance()->removeObserver( sObserver );
     delete sObserver;
-    sObserver = NULL;
+    sObserver = nullptr;
 
-    sInstance = NULL;
+    sInstance = nullptr;
 }
 
 

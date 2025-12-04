@@ -71,7 +71,7 @@ bool LLPanelAppearanceTab::canTakeOffSelected()
         LLViewerInventoryItem* item = gInventory.getItem(*it);
         if (!item) continue;
 
-        if (is_worn(NULL, item)) return true;
+        if (is_worn(nullptr, item)) return true;
     }
     return false;
 }

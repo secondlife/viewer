@@ -81,7 +81,7 @@ std::string construct_start_string();
 
 LLLoginInstance::LLLoginInstance() :
     mLoginModule(std::make_unique<LLLogin>()),
-    mNotifications(NULL),
+    mNotifications(nullptr),
     mLoginState("offline"),
     mSaveMFA(true),
     mAttemptComplete(false),

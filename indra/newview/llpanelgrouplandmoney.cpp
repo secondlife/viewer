@@ -246,15 +246,15 @@ LLPanelGroupLandMoney::impl::impl(LLPanelGroupLandMoney& panel)
     mNeedsSendGroupLandRequest = true;
     mNeedsApply = false;
 
-    mYourContributionEditorp = NULL;
-    mMapButtonp = NULL;
-    mGroupParcelsp = NULL;
-    mGroupOverLimitTextp = NULL;
-    mGroupOverLimitIconp = NULL;
+    mYourContributionEditorp = nullptr;
+    mMapButtonp = nullptr;
+    mGroupParcelsp = nullptr;
+    mGroupOverLimitTextp = nullptr;
+    mGroupOverLimitIconp = nullptr;
 
-    mMoneySalesTabEHp    = NULL;
-    mMoneyPlanningTabEHp = NULL;
-    mMoneyDetailsTabEHp  = NULL;
+    mMoneySalesTabEHp    = nullptr;
+    mMoneyPlanningTabEHp = nullptr;
+    mMoneyDetailsTabEHp  = nullptr;
 }
 
 LLPanelGroupLandMoney::impl::~impl()
@@ -636,7 +636,7 @@ void LLPanelGroupLandMoney::update(LLGroupChange gc)
         {
             eh = get_if_there(LLGroupMoneyTabEventHandler::sTabsToHandlers,
                               panelp,
-                              (LLGroupMoneyTabEventHandler*)NULL);
+                              (LLGroupMoneyTabEventHandler*)nullptr);
             if ( eh ) eh->onClickTab();
         }
     }
@@ -1340,8 +1340,8 @@ LLGroupMoneyPlanningTabEventHandler::LLGroupMoneyPlanningTabEventHandler(LLTextE
                                                                          LLTabContainer* tab_containerp,
                                                                          LLPanel* panelp,
                                                                          const std::string& loading_text)
-    : LLGroupMoneyTabEventHandler(NULL,
-                                  NULL,
+    : LLGroupMoneyTabEventHandler(nullptr,
+                                  nullptr,
                                   text_editorp,
                                   tab_containerp,
                                   panelp,
@@ -1640,7 +1640,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
         earlierp = getChild<LLButton>("earlier_sales_button", true);
         laterp = getChild<LLButton>("later_sales_button", true);
         panelp = getChild<LLPanel>("group_money_sales_tab", true);
-        if(mImplementationp->mMoneySalesTabEHp == NULL)
+        if(mImplementationp->mMoneySalesTabEHp == nullptr)
             mImplementationp->mMoneySalesTabEHp = new LLGroupMoneySalesTabEventHandler(earlierp,laterp,textp,tabcp,panelp,loading_text);
         mImplementationp->mMoneySalesTabEHp->setGroupID(mGroupID);
     }

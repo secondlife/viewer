@@ -684,9 +684,9 @@ void LLFloaterTexturePicker::draw()
     //bool allow_copy = false;
     if( mOwner )
     {
-        mTexturep = NULL;
+        mTexturep = nullptr;
         LLPointer<LLFetchedGLTFMaterial> old_material = mGLTFMaterial;
-        mGLTFMaterial = NULL;
+        mGLTFMaterial = nullptr;
         if (mImageAssetID.notNull())
         {
             if (mInventoryPickType == PICK_MATERIAL)
@@ -712,7 +712,7 @@ void LLFloaterTexturePicker::draw()
             }
             else
             {
-                LLPointer<LLViewerFetchedTexture> texture = NULL;
+                LLPointer<LLViewerFetchedTexture> texture = nullptr;
                 mGLTFPreview = nullptr;
 
                 if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
@@ -723,7 +723,7 @@ void LLFloaterTexturePicker::draw()
                     if (obj)
                     {
                         LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
-                        texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+                        texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : nullptr;
                     }
                 }
 
@@ -1958,7 +1958,7 @@ void LLTextureCtrl::closeDependentFloater()
     LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
     if( floaterp && floaterp->isInVisibleChain())
     {
-        floaterp->setOwner(NULL);
+        floaterp->setOwner(nullptr);
         floaterp->setVisible(false);
         floaterp->closeFloater();
     }
@@ -2042,7 +2042,7 @@ void LLTextureCtrl::onFloaterClose()
         {
             mOnCloseCallback(this,LLSD());
         }
-        floaterp->setOwner(NULL);
+        floaterp->setOwner(nullptr);
     }
 
     mFloaterHandle.markDead();
@@ -2249,13 +2249,13 @@ void LLTextureCtrl::draw()
 {
     mBorder->setKeyboardFocusHighlight(hasFocus());
 
-    LLPointer<LLViewerTexture> preview = NULL;
+    LLPointer<LLViewerTexture> preview = nullptr;
 
     if (!mValid)
     {
-        mTexturep = NULL;
-        mGLTFMaterial = NULL;
-        mGLTFPreview = NULL;
+        mTexturep = nullptr;
+        mGLTFMaterial = nullptr;
+        mGLTFPreview = nullptr;
     }
     else if (!mImageAssetID.isNull())
     {
@@ -2265,9 +2265,9 @@ void LLTextureCtrl::draw()
             if (obj)
             {
                 LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
-                mTexturep = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
-                mGLTFMaterial = NULL;
-                mGLTFPreview = NULL;
+                mTexturep = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : nullptr;
+                mGLTFMaterial = nullptr;
+                mGLTFPreview = nullptr;
 
                 preview = mTexturep;
             }
@@ -2277,8 +2277,8 @@ void LLTextureCtrl::draw()
         if (preview.isNull())
         {
             LLPointer<LLFetchedGLTFMaterial> old_material = mGLTFMaterial;
-            mGLTFMaterial = NULL;
-            mTexturep = NULL;
+            mGLTFMaterial = nullptr;
+            mTexturep = nullptr;
             if (mInventoryPickType == PICK_MATERIAL)
             {
                 mGLTFMaterial = gGLTFMaterialList.getMaterial(mImageAssetID);
@@ -2313,9 +2313,9 @@ void LLTextureCtrl::draw()
     }
     else//mImageAssetID == LLUUID::null
     {
-        mTexturep = NULL;
-        mGLTFMaterial = NULL;
-        mGLTFPreview = NULL;
+        mTexturep = nullptr;
+        mGLTFMaterial = nullptr;
+        mGLTFPreview = nullptr;
     }
 
     // Border

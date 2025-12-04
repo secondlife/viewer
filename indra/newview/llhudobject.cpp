@@ -59,8 +59,8 @@ bool hud_object_further_away::operator()(const LLPointer<LLHUDObject>& lhs, cons
 
 LLHUDObject::LLHUDObject(const U8 type) :
     mPositionGlobal(),
-    mSourceObject(NULL),
-    mTargetObject(NULL)
+    mSourceObject(nullptr),
+    mTargetObject(nullptr)
 {
     mVisible = true;
     mType = type;
@@ -75,8 +75,8 @@ void LLHUDObject::markDead()
 {
     mVisible = false;
     mDead = true;
-    mSourceObject = NULL;
-    mTargetObject = NULL;
+    mSourceObject = nullptr;
+    mTargetObject = nullptr;
 }
 
 F32 LLHUDObject::getDistance() const
@@ -133,7 +133,7 @@ void LLHUDObject::cleanupHUDObjects()
 // static
 LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 {
-    LLHUDObject *hud_objectp = NULL;
+    LLHUDObject *hud_objectp = nullptr;
 
     switch (type)
     {
@@ -158,7 +158,7 @@ LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 
 LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 {
-    LLHUDEffect *hud_objectp = NULL;
+    LLHUDEffect *hud_objectp = nullptr;
 
     switch (type)
     {

@@ -517,7 +517,7 @@ bool LLPanelProfilePicks::canDeletePick()
 LLPanelProfilePick::LLPanelProfilePick()
  : LLPanelProfilePropertiesProcessorTab()
  , LLRemoteParcelInfoObserver()
- , mSnapshotCtrl(NULL)
+ , mSnapshotCtrl(nullptr)
  , mPickId(LLUUID::null)
  , mParcelId(LLUUID::null)
  , mRequestedId(LLUUID::null)
@@ -640,7 +640,7 @@ bool LLPanelProfilePick::postBuild()
     mCancelButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickCancel, this));
     mSetCurrentLocationButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSetLocation, this));
 
-    mPickName->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1), NULL);
+    mPickName->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1), nullptr);
     mPickName->setEnabled(false);
 
     mPickDescription->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1));

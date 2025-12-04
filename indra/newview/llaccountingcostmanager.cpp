@@ -111,7 +111,7 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
             return;
         }
 
-        LLAccountingCostObserver* observer = NULL;
+        LLAccountingCostObserver* observer = nullptr;
 
         // do/while(false) allows error conditions to break out of following
         // block while normal flow goes forward once.

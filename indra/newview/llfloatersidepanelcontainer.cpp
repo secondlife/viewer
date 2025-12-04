@@ -140,7 +140,7 @@ void LLFloaterSidePanelContainer::onCloseMsgCallback(const LLSD& notification, c
 
 LLFloater* LLFloaterSidePanelContainer::getTopmostInventoryFloater()
 {
-    LLFloater* topmost_floater = NULL;
+    LLFloater* topmost_floater = nullptr;
     S32 z_min = S32_MAX;
 
     LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
@@ -165,7 +165,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(std::string_view panel_name
 {
     LLView* view = findChildView(panel_name, true);
     if (!view)
-        return NULL;
+        return nullptr;
 
     if (!getVisible())
     {
@@ -176,7 +176,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(std::string_view panel_name
         setFocus(true);
     }
 
-    LLPanel* panel = NULL;
+    LLPanel* panel = nullptr;
 
     LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
     if (container)
@@ -184,7 +184,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(std::string_view panel_name
         container->openPanel(panel_name, params);
         panel = container->getCurrentPanel();
     }
-    else if ((panel = dynamic_cast<LLPanel*>(view)) != NULL)
+    else if ((panel = dynamic_cast<LLPanel*>(view)) != nullptr)
     {
         panel->onOpen(params);
     }
@@ -225,7 +225,7 @@ LLPanel* LLFloaterSidePanelContainer::getPanel(std::string_view floater_name, st
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 LLPanel* LLFloaterSidePanelContainer::findPanel(std::string_view floater_name, std::string_view panel_name)
@@ -243,5 +243,5 @@ LLPanel* LLFloaterSidePanelContainer::findPanel(std::string_view floater_name, s
         }
     }
 
-    return NULL;
+    return nullptr;
 }

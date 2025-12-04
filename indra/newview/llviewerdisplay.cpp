@@ -534,7 +534,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         static F32 last_update_time = 0.f;
         if ((gFrameTimeSeconds - last_update_time) > 1.f)
         {
-            InvalidateRect((HWND)gViewerWindow->getPlatformWindow(), NULL, false);
+            InvalidateRect((HWND)gViewerWindow->getPlatformWindow(), nullptr, false);
             last_update_time = gFrameTimeSeconds;
         }
 #elif LL_DARWIN
@@ -1820,7 +1820,7 @@ void render_disconnected_background()
         if (!image_png->decode(raw, 0.0f))
         {
             LL_INFOS() << "Bitmap decode failed" << LL_ENDL;
-            gDisconnectedImagep = NULL;
+            gDisconnectedImagep = nullptr;
             return;
         }
 

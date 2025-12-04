@@ -210,18 +210,18 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 :   LLComboBox(p),
     mIconHPad(p.icon_hpad),
     mAddLandmarkHPad(p.add_landmark_hpad),
-    mLocationContextMenu(NULL),
-    mAddLandmarkBtn(NULL),
-    mForSaleBtn(NULL),
-    mInfoBtn(NULL),
+    mLocationContextMenu(nullptr),
+    mAddLandmarkBtn(nullptr),
+    mForSaleBtn(nullptr),
+    mInfoBtn(nullptr),
     mRegionCrossingSlot(),
     mNavMeshSlot(),
     mIsNavMeshDirty(false),
-    mLandmarkImageOn(NULL),
-    mLandmarkImageOff(NULL),
-    mIconMaturityGeneral(NULL),
-    mIconMaturityAdult(NULL),
-    mIconMaturityModerate(NULL),
+    mLandmarkImageOn(nullptr),
+    mLandmarkImageOff(nullptr),
+    mIconMaturityGeneral(nullptr),
+    mIconMaturityAdult(nullptr),
+    mIconMaturityModerate(nullptr),
     mMaturityHelpTopic(p.maturity_help_topic)
 {
     // Lets replace default LLLineEditor with LLLocationLineEditor
@@ -927,7 +927,7 @@ void LLLocationInputCtrl::refreshMaturityButton()
         return;
 
     bool button_visible = true;
-    LLPointer<LLUIImage> rating_image = NULL;
+    LLPointer<LLUIImage> rating_image = nullptr;
     std::string rating_tooltip;
 
     U8 sim_access = region->getSimAccess();
@@ -999,7 +999,7 @@ void LLLocationInputCtrl::addLocationHistoryEntry(const std::string& title, cons
 void LLLocationInputCtrl::rebuildLocationHistory(const std::string& filter)
 {
     LLLocationHistory::location_list_t filtered_items;
-    const LLLocationHistory::location_list_t* itemsp = NULL;
+    const LLLocationHistory::location_list_t* itemsp = nullptr;
     LLLocationHistory* lh = LLLocationHistory::getInstance();
 
     if (filter.empty())
@@ -1206,7 +1206,7 @@ void LLLocationInputCtrl::callbackRebakeRegion(const LLSD& notification, const L
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0) // OK
     {
-        if (LLPathfindingManager::getInstance() != NULL)
+        if (LLPathfindingManager::getInstance() != nullptr)
         {
             LLMenuOptionPathfindingRebakeNavmesh::getInstance()->sendRequestRebakeNavmesh();
         }
@@ -1230,7 +1230,7 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
         LLNotificationsUtil::add("NoBuild");
         break;
     case PATHFINDING_DIRTY_ICON:
-        if (LLPathfindingManager::getInstance() != NULL)
+        if (LLPathfindingManager::getInstance() != nullptr)
         {
             LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
             if (rebakeInstance && rebakeInstance->canRebakeRegion() && (rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available))
@@ -1282,7 +1282,7 @@ void LLLocationInputCtrl::createNavMeshStatusListenerForCurrentRegion()
     }
 
     LLViewerRegion *currentRegion = gAgent.getRegion();
-    if (currentRegion != NULL)
+    if (currentRegion != nullptr)
     {
         mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLLocationInputCtrl::onNavMeshStatusChange, this, _2));
         LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);

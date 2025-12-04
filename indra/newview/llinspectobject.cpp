@@ -121,11 +121,11 @@ private:
 
 LLInspectObject::LLInspectObject(const LLSD& sd)
 :   LLInspect( LLSD() ),    // single_instance, doesn't really need key
-    mObjectID(NULL),            // set in onOpen()
+    mObjectID(nullptr),            // set in onOpen()
     mObjectFace(0),
-    mObjectSelection(NULL),
-    mMediaImpl(NULL),
-    mMediaEntry(NULL)
+    mObjectSelection(nullptr),
+    mMediaImpl(nullptr),
+    mMediaEntry(nullptr)
 {
     // can't make the properties request until the widgets are constructed
     // as it might return immediately, so do it in postBuild.
@@ -236,7 +236,7 @@ void LLInspectObject::onOpen(const LLSD& data)
         if (!tep)
             return;
 
-        mMediaEntry = tep->hasMedia() ? tep->getMediaData() : NULL;
+        mMediaEntry = tep->hasMedia() ? tep->getMediaData() : nullptr;
         if(!mMediaEntry)
             return;
 
@@ -248,7 +248,7 @@ void LLInspectObject::onOpen(const LLSD& data)
 void LLInspectObject::onClose(bool app_quitting)
 {
     // Release selection to deselect
-    mObjectSelection = NULL;
+    mObjectSelection = nullptr;
     mPreviousObjectID = mObjectID;
 
     getChild<LLMenuButton>("gear_btn")->hideMenu();
@@ -295,7 +295,7 @@ void LLInspectObject::update()
     if (!tep)
         return;
 
-    mMediaEntry = tep->hasMedia() ? tep->getMediaData() : NULL;
+    mMediaEntry = tep->hasMedia() ? tep->getMediaData() : nullptr;
     if(!mMediaEntry)
         return;
 
@@ -442,7 +442,7 @@ void LLInspectObject::updateMediaCurrentURL()
     if(mMediaImpl.notNull() && mMediaImpl->hasMedia())
     {
 
-        LLPluginClassMedia* media_plugin = NULL;
+        LLPluginClassMedia* media_plugin = nullptr;
         media_plugin = mMediaImpl->getMediaPlugin();
         if(media_plugin)
         {
@@ -547,7 +547,7 @@ void LLInspectObject::updateSecureBrowsing()
     if(mMediaImpl.notNull()
        && mMediaImpl->hasMedia())
     {
-        LLPluginClassMedia* media_plugin = NULL;
+        LLPluginClassMedia* media_plugin = nullptr;
         std::string current_url = "";
         media_plugin = mMediaImpl->getMediaPlugin();
         if(media_plugin)

@@ -54,7 +54,7 @@ public:
     const LLVector3     getPositionAgent() const;
 
 
-    void clear() { mRegionp = NULL; mPositionRegion.clearVec(); }
+    void clear() { mRegionp = nullptr; mPositionRegion.clearVec(); }
 //  LLRegionPosition operator+(const LLRegionPosition &pos) const;
 };
 

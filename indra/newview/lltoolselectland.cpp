@@ -216,7 +216,7 @@ void LLToolSelectLand::handleSelect()
 
 void LLToolSelectLand::handleDeselect()
 {
-    mSelection = NULL;
+    mSelection = nullptr;
 }
 
 

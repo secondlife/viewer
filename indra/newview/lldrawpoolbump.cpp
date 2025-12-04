@@ -71,7 +71,7 @@ const U32 VERTEX_MASK_BUMP = LLVertexBuffer::MAP_VERTEX |LLVertexBuffer::MAP_TEX
 U32 LLDrawPoolBump::sVertexMask = VERTEX_MASK_SHINY;
 
 
-static LLGLSLShader* shader = NULL;
+static LLGLSLShader* shader = nullptr;
 static S32 cube_channel = -1;
 static S32 diffuse_channel = -1;
 static S32 bump_channel = -1;
@@ -158,7 +158,7 @@ void LLStandardBumpmap::addstandard()
         gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage =
             LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id));
         gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setBoostLevel(LLGLTexture::LOCAL) ;
-        gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, true, false, NULL, NULL );
+        gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, true, false, nullptr, nullptr );
         gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->forceToSaveRawImage(0, 30.f) ;
         LLStandardBumpmap::sStandardBumpmapCount++;
     }
@@ -173,7 +173,7 @@ void LLStandardBumpmap::clear()
     for( U32 i = 0; i < LLStandardBumpmap::sStandardBumpmapCount; i++ )
     {
         gStandardBumpmapList[i].mLabel.assign("");
-        gStandardBumpmapList[i].mImage = NULL;
+        gStandardBumpmapList[i].mImage = nullptr;
     }
     sStandardBumpmapCount = 0;
 }
@@ -210,7 +210,7 @@ S32 LLDrawPoolBump::numBumpPasses()
 //static
 void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel)
 {
-    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : nullptr;
     if( cube_map && !LLPipeline::sReflectionProbesEnabled )
     {
         if (shader )
@@ -257,7 +257,7 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
 //static
 void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel)
 {
-    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : nullptr;
     if( cube_map && !LLPipeline::sReflectionProbesEnabled)
     {
         if (shader_level > 1)
@@ -305,7 +305,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
         gGL.getTexUnit(channel)->bind(&gPipeline.mExposureMap);
     }
 
-    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : nullptr;
 
     if (cube_map && !LLPipeline::sReflectionProbesEnabled)
     {
@@ -386,7 +386,7 @@ void LLDrawPoolBump::endFullbrightShiny()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_SHINY);
 
-    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+    LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : nullptr;
     if( cube_map && !LLPipeline::sReflectionProbesEnabled )
     {
         cube_map->disable();
@@ -451,7 +451,7 @@ bool LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, S32 cha
         return false;
     }
 
-    LLViewerTexture* bump = NULL;
+    LLViewerTexture* bump = nullptr;
 
     switch( bump_code )
     {

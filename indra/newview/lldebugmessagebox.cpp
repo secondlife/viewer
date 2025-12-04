@@ -56,9 +56,9 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
     slider_p.can_edit_text(true);
     slider_p.show_text(true);
 
-    mSlider1 = NULL;
-    mSlider2 = NULL;
-    mSlider3 = NULL;
+    mSlider1 = nullptr;
+    mSlider2 = nullptr;
+    mSlider3 = nullptr;
 
     switch(var_type)
     {

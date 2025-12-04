@@ -95,10 +95,10 @@ static std::string MATURITY         = "[MATURITY]";
 // constants used in callbacks below - syntactic sugar.
 static const bool BUY_GROUP_LAND = true;
 static const bool BUY_PERSONAL_LAND = false;
-LLPointer<LLParcelSelection> LLPanelLandGeneral::sSelectionForBuyPass = NULL;
+LLPointer<LLParcelSelection> LLPanelLandGeneral::sSelectionForBuyPass = nullptr;
 
 // Statics
-LLParcelSelectionObserver* LLFloaterLand::sObserver = NULL;
+LLParcelSelectionObserver* LLFloaterLand::sObserver = nullptr;
 S32 LLFloaterLand::sLastTab = 0;
 
 // Local classes
@@ -171,7 +171,7 @@ void insert_maturity_into_textbox(LLTextBox* target_textbox, LLFloater* names_fl
 //---------------------------------------------------------------------------
 
 void send_parcel_select_objects(S32 parcel_local_id, U32 return_type,
-                                uuid_list_t* return_ids = NULL)
+                                uuid_list_t* return_ids = nullptr)
 {
     LLMessageSystem *msg = gMessageSystem;
 
@@ -228,7 +228,7 @@ LLPanelLandObjects* LLFloaterLand::getCurrentPanelLandObjects()
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -242,7 +242,7 @@ LLPanelLandCovenant* LLFloaterLand::getCurrentPanelLandCovenant()
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -328,7 +328,7 @@ LLFloaterLand::~LLFloaterLand()
 {
     LLViewerParcelMgr::getInstance()->removeObserver( sObserver );
     delete sObserver;
-    sObserver = NULL;
+    sObserver = nullptr;
 }
 
 // public
@@ -520,10 +520,10 @@ bool LLPanelLandGeneral::postBuild()
     mBtnBuyPass->setClickedCallback(onClickBuyPass, this);
 
     mBtnReleaseLand = getChild<LLButton>("Abandon Land...");
-    mBtnReleaseLand->setClickedCallback(onClickRelease, NULL);
+    mBtnReleaseLand->setClickedCallback(onClickRelease, nullptr);
 
     mBtnReclaimLand = getChild<LLButton>("Reclaim Land...");
-    mBtnReclaimLand->setClickedCallback(onClickReclaim, NULL);
+    mBtnReclaimLand->setClickedCallback(onClickReclaim, nullptr);
 
     mBtnStartAuction = getChild<LLButton>("Linden Sale...");
     mBtnStartAuction->setClickedCallback(onClickStartAuction, this);
@@ -994,7 +994,7 @@ void LLPanelLandGeneral::onClickScriptLimits(void* data)
 {
     LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
     LLParcel* parcel = panelp->mParcel->getParcel();
-    if(parcel != NULL)
+    if(parcel != nullptr)
     {
         LLFloaterReg::showInstance("script_limits");
     }
@@ -1027,8 +1027,8 @@ void LLPanelLandGeneral::onClickReclaim(void*)
 bool LLPanelLandGeneral::enableBuyPass(void* data)
 {
     LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
-    LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
-    return (parcel != NULL) && (parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned());
+    LLParcel* parcel = panelp != nullptr ? panelp->mParcel->getParcel() : LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+    return (parcel != nullptr) && (parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned());
 }
 
 
@@ -1036,7 +1036,7 @@ bool LLPanelLandGeneral::enableBuyPass(void* data)
 void LLPanelLandGeneral::onClickBuyPass(void* data)
 {
     LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
-    LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+    LLParcel* parcel = panelp != nullptr ? panelp->mParcel->getParcel() : LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
 
     if (!parcel) return;
 
@@ -1087,7 +1087,7 @@ bool LLPanelLandGeneral::cbBuyPass(const LLSD& notification, const LLSD& respons
         LLViewerParcelMgr::getInstance()->buyPass();
     }
     // we are done with buying pass, additional selection is no longer needed
-    sSelectionForBuyPass = NULL;
+    sSelectionForBuyPass = nullptr;
     return false;
 }
 
@@ -1153,25 +1153,25 @@ LLPanelLandObjects::LLPanelLandObjects(LLParcelSelectionHandle& parcel)
     :   LLPanel(),
 
         mParcel(parcel),
-        mParcelObjectBonus(NULL),
-        mSWTotalObjects(NULL),
-        mObjectContribution(NULL),
-        mTotalObjects(NULL),
-        mOwnerObjects(NULL),
-        mBtnShowOwnerObjects(NULL),
-        mBtnReturnOwnerObjects(NULL),
-        mGroupObjects(NULL),
-        mBtnShowGroupObjects(NULL),
-        mBtnReturnGroupObjects(NULL),
-        mOtherObjects(NULL),
-        mBtnShowOtherObjects(NULL),
-        mBtnReturnOtherObjects(NULL),
-        mSelectedObjects(NULL),
-        mCleanOtherObjectsTime(NULL),
+        mParcelObjectBonus(nullptr),
+        mSWTotalObjects(nullptr),
+        mObjectContribution(nullptr),
+        mTotalObjects(nullptr),
+        mOwnerObjects(nullptr),
+        mBtnShowOwnerObjects(nullptr),
+        mBtnReturnOwnerObjects(nullptr),
+        mGroupObjects(nullptr),
+        mBtnShowGroupObjects(nullptr),
+        mBtnReturnGroupObjects(nullptr),
+        mOtherObjects(nullptr),
+        mBtnShowOtherObjects(nullptr),
+        mBtnReturnOtherObjects(nullptr),
+        mSelectedObjects(nullptr),
+        mCleanOtherObjectsTime(nullptr),
         mOtherTime(0),
-        mBtnRefresh(NULL),
-        mBtnReturnOwnerList(NULL),
-        mOwnerList(NULL),
+        mBtnRefresh(nullptr),
+        mBtnReturnOwnerList(nullptr),
+        mOwnerList(nullptr),
         mFirstReply(true),
         mSelectedCount(0),
         mSelectedIsGroup(false)
@@ -1411,7 +1411,7 @@ void send_other_clean_time_message(S32 parcel_local_id, S32 other_clean_time)
 }
 
 void send_return_objects_message(S32 parcel_local_id, S32 return_type,
-                                 uuid_list_t* owner_ids = NULL)
+                                 uuid_list_t* owner_ids = nullptr)
 {
     LLMessageSystem *msg = gMessageSystem;
 
@@ -1899,25 +1899,25 @@ void LLPanelLandObjects::onCommitClean(LLUICtrl *caller, void* user_data)
 
 LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 :   LLPanel(),
-    mCheckEditObjects(NULL),
-    mCheckEditGroupObjects(NULL),
-    mCheckAllObjectEntry(NULL),
-    mCheckGroupObjectEntry(NULL),
-    mCheckSafe(NULL),
-    mCheckFly(NULL),
-    mCheckGroupScripts(NULL),
-    mCheckOtherScripts(NULL),
-    mCheckShowDirectory(NULL),
-    mCategoryCombo(NULL),
-    mLandingTypeCombo(NULL),
-    mSnapshotCtrl(NULL),
-    mLocationText(NULL),
-    mSeeAvatarsText(NULL),
-    mSetBtn(NULL),
-    mClearBtn(NULL),
-    mMatureCtrl(NULL),
-    mPushRestrictionCtrl(NULL),
-    mSeeAvatarsCtrl(NULL),
+    mCheckEditObjects(nullptr),
+    mCheckEditGroupObjects(nullptr),
+    mCheckAllObjectEntry(nullptr),
+    mCheckGroupObjectEntry(nullptr),
+    mCheckSafe(nullptr),
+    mCheckFly(nullptr),
+    mCheckGroupScripts(nullptr),
+    mCheckOtherScripts(nullptr),
+    mCheckShowDirectory(nullptr),
+    mCategoryCombo(nullptr),
+    mLandingTypeCombo(nullptr),
+    mSnapshotCtrl(nullptr),
+    mLocationText(nullptr),
+    mSeeAvatarsText(nullptr),
+    mSetBtn(nullptr),
+    mClearBtn(nullptr),
+    mMatureCtrl(nullptr),
+    mPushRestrictionCtrl(nullptr),
+    mSeeAvatarsCtrl(nullptr),
     mParcel(parcel)
 {
 }
@@ -1996,7 +1996,7 @@ bool LLPanelLandOptions::postBuild()
     }
     else
     {
-        LL_WARNS() << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'snapshot_ctrl'" << LL_ENDL;
+        LL_WARNS() << "LLUICtrlFactory::getTexturePickerByName() returned nullptr for 'snapshot_ctrl'" << LL_ENDL;
     }
 
 
@@ -2415,7 +2415,7 @@ void LLPanelLandOptions::toggleSeeAvatars(void* userdata)
     {
         self->getChild<LLCheckBoxCtrl>("SeeAvatarsCheck")->toggle();
         self->getChild<LLCheckBoxCtrl>("SeeAvatarsCheck")->setBtnFocus();
-        self->onCommitAny(NULL, userdata);
+        self->onCommitAny(nullptr, userdata);
     }
 }
 //---------------------------------------------------------------------------
@@ -2530,7 +2530,7 @@ void LLPanelLandAccess::refresh()
                 if (entry.mTime != 0)
                 {
                     LLStringUtil::format_map_t args;
-                    S32 now = (S32)time(NULL);
+                    S32 now = (S32)time(nullptr);
                     S32 seconds = entry.mTime - now;
                     if (seconds < 0) seconds = 0;
                     prefix.assign(" (");
@@ -2579,7 +2579,7 @@ void LLPanelLandAccess::refresh()
                 if (entry.mTime != 0)
                 {
                     LLStringUtil::format_map_t args;
-                    S32 now = (S32)time(NULL);
+                    S32 now = (S32)time(nullptr);
                     seconds = entry.mTime - now;
                     if (seconds < 0) seconds = 0;
 
@@ -3280,7 +3280,7 @@ void LLPanelLandExperiences::refreshPanel(LLPanelExperienceListEditor* panel, U3
     LLParcel *parcel = mParcel->getParcel();
 
     // Display options
-    if (panel == NULL)
+    if (panel == nullptr)
     {
         return;
     }

@@ -44,7 +44,7 @@
 
 void LLGLTexture::setBoostLevel(S32 ) { }
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string&, FTType, bool, LLGLTexture::EBoostLevel, S8,
-                                                                         LLGLint, LLGLenum, const LLUUID& ) { return NULL; }
+                                                                         LLGLint, LLGLenum, const LLUUID& ) { return nullptr; }
 
 LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLControlGroup, std::string>(name) { }
 LLControlGroup::~LLControlGroup() { }

@@ -177,7 +177,7 @@ bool LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(const std::string& retry_a
     }
 
     // Parse rfc1123 date.
-    time_t date = curl_getdate(retry_after.c_str(), NULL);
+    time_t date = curl_getdate(retry_after.c_str(), nullptr);
     if (-1 == date) return false;
 
     seconds_to_wait = (F32)((F64)date - LLTimer::getTotalSeconds());

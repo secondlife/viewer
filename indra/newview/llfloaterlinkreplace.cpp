@@ -255,7 +255,7 @@ void LLFloaterLinkReplace::linkCreatedCallback(LLHandle<LLFloaterLinkReplace> fl
 
                 LLSD updates;
                 updates["desc"] = "";
-                update_inventory_item(item->getUUID(), updates, LLPointer<LLInventoryCallback>(NULL));
+                update_inventory_item(item->getUUID(), updates, LLPointer<LLInventoryCallback>(nullptr));
             }
         }
     }

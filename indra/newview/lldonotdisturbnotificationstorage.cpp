@@ -107,7 +107,7 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
 
     LLNotificationChannelPtr channelPtr = getCommunicationChannel();
     const LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
-    llassert(commChannel != NULL);
+    llassert(commChannel != nullptr);
 
     LLSD output = LLSD::emptyMap();
     LLSD& data = output["data"];
@@ -198,7 +198,7 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
         {
             notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
             LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
-            if (responder == NULL)
+            if (responder == nullptr)
             {
                 LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
                     << notification->getType() << "'" << LL_ENDL;
@@ -236,7 +236,7 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
 
     LLNotificationChannelPtr channelPtr = getCommunicationChannel();
     LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
-    llassert(commChannel != NULL);
+    llassert(commChannel != nullptr);
 
     LLNotifications& instance = LLNotifications::instance();
     bool imToastExists = false;

@@ -596,7 +596,7 @@ static LLVOAvatar* find_avatar(const LLUUID& id)
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

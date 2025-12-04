@@ -68,7 +68,7 @@ public:
         return sTrackerp;
     }
 
-    static void cleanupInstance() { delete sTrackerp; sTrackerp = NULL; }
+    static void cleanupInstance() { delete sTrackerp; sTrackerp = nullptr; }
 
     //static void drawTrackerArrow();
     // these are static so that they can be used a callbacks

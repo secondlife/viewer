@@ -267,7 +267,7 @@ static void killGateway()
 
         sGatewayPump.stopListening("VivoxDaemonPump");
         sGatewayPtr->kill(__FUNCTION__);
-        sGatewayPtr=NULL;
+        sGatewayPtr=nullptr;
     }
     else
     {
@@ -435,7 +435,7 @@ void LLVivoxVoiceClient::terminate()
     }
 
     sShuttingDown = true;
-    sPump = NULL;
+    sPump = nullptr;
 }
 
 //---------------------------------------------------
@@ -1554,7 +1554,7 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
     //_INFOS("Voice") << "Requesting voice info for Parcel" << LL_ENDL;
 
     LLViewerRegion * region = gAgent.getRegion();
-    if (region == NULL || !region->capabilitiesReceived())
+    if (region == nullptr || !region->capabilitiesReceived())
     {
         LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest capability not yet available, deferring" << LL_ENDL;
         return false;
@@ -1840,7 +1840,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
                 // Save looped recording
                 std::string savepath("/tmp/vivoxrecording");
                 {
-                    time_t now = time(NULL);
+                    time_t now = time(nullptr);
                     const size_t BUF_SIZE = 64;
                     char time_str[BUF_SIZE];    /* Flawfinder: ignore */
 
@@ -1906,7 +1906,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
     }
     else
     {
-        LL_WARNS("Voice") << "terminateAudioSession(" << wait << ") with NULL mAudioSession" << LL_ENDL;
+        LL_WARNS("Voice") << "terminateAudioSession(" << wait << ") with nullptr mAudioSession" << LL_ENDL;
         notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
     }
 
@@ -2004,7 +2004,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 recordingAndPlaybackMode();
             }
-            else if (mProcessChannels && ((mNextAudioSession == NULL) || checkParcelChanged()))
+            else if (mProcessChannels && ((mNextAudioSession == nullptr) || checkParcelChanged()))
             {
                 // the parcel is changed, or we have no pending audio sessions,
                 // so try to request the parcel voice info
@@ -2669,7 +2669,7 @@ void LLVivoxVoiceClient::leaveAudioSession()
             // Save looped recording
             std::string savepath("/tmp/vivoxrecording");
             {
-                time_t now = time(NULL);
+                time_t now = time(nullptr);
                 const size_t BUF_SIZE = 64;
                 char time_str[BUF_SIZE];    /* Flawfinder: ignore */
 
@@ -5075,7 +5075,7 @@ bool LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
     bool result = true;
     sessionStatePtr_t session(findSession(session_id));
 
-    if(session != NULL)
+    if(session != nullptr)
     {
         result = session->isCallBackPossible();
     }
@@ -5090,7 +5090,7 @@ bool LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
     bool result = true;
     sessionStatePtr_t session(findSession(session_id));
 
-    if(session != NULL)
+    if(session != nullptr)
     {
         result = session->isTextIMPossible();
     }
@@ -5731,7 +5731,7 @@ void LLVivoxVoiceClient::recordingLoopSave(const std::string& filename)
 {
 //  LL_DEBUGS("Voice") << "sending SessionGroup.ControlRecording (Flush)" << LL_ENDL;
 
-    if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+    if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
     {
         std::ostringstream stream;
         stream
@@ -5749,7 +5749,7 @@ void LLVivoxVoiceClient::recordingStop()
 {
 //  LL_DEBUGS("Voice") << "sending SessionGroup.ControlRecording (Stop)" << LL_ENDL;
 
-    if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+    if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
     {
         std::ostringstream stream;
         stream
@@ -5766,7 +5766,7 @@ void LLVivoxVoiceClient::filePlaybackStart(const std::string& filename)
 {
 //  LL_DEBUGS("Voice") << "sending SessionGroup.ControlPlayback (Start)" << LL_ENDL;
 
-    if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+    if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
     {
         std::ostringstream stream;
         stream
@@ -5784,7 +5784,7 @@ void LLVivoxVoiceClient::filePlaybackStop()
 {
 //  LL_DEBUGS("Voice") << "sending SessionGroup.ControlPlayback (Stop)" << LL_ENDL;
 
-    if(mAudioSession != NULL && !mAudioSession->mGroupHandle.empty())
+    if(mAudioSession != nullptr && !mAudioSession->mGroupHandle.empty())
     {
         std::ostringstream stream;
         stream
@@ -6109,7 +6109,7 @@ void LLVivoxVoiceClient::clearSessionHandle(const sessionStatePtr_t &session)
     }
     else
     {
-        LL_WARNS("Voice") << "Attempt to clear NULL session!" << LL_ENDL;
+        LL_WARNS("Voice") << "Attempt to clear nullptr session!" << LL_ENDL;
     }
 
 }
@@ -6535,7 +6535,7 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
         font_id.generate(STRINGIZE(font_type << ":" << name));
     }
 
-    voiceFontEntry *font = NULL;
+    voiceFontEntry *font = nullptr;
 
     voice_font_map_t& font_map = template_font ? mVoiceFontTemplateMap : mVoiceFontMap;
     voice_effect_list_t& font_list = template_font ? mVoiceFontTemplateList : mVoiceFontList;
@@ -6856,7 +6856,7 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 bool LLVivoxVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name)
 {
     LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
-    if (NULL != effect_interfacep)
+    if (nullptr != effect_interfacep)
     {
         const LLUUID& currect_voice_effect_id = effect_interfacep->getVoiceEffect();
 
@@ -6884,7 +6884,7 @@ bool LLVivoxVoiceClient::onCheckVoiceEffect(const std::string& voice_effect_name
 void LLVivoxVoiceClient::onClickVoiceEffect(const std::string& voice_effect_name)
 {
     LLVoiceEffectInterface * effect_interfacep = LLVoiceClient::instance().getVoiceEffectInterface();
-    if (NULL != effect_interfacep)
+    if (nullptr != effect_interfacep)
     {
         if (voice_effect_name == "NoVoiceMorphing")
         {
@@ -6919,7 +6919,7 @@ void LLVivoxVoiceClient::updateVoiceMorphingMenu()
             {
                 LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", true);
 
-                if (NULL != voice_morphing_menup)
+                if (nullptr != voice_morphing_menup)
                 {
                     S32 items = voice_morphing_menup->getItemCount();
                     if (items > 0)
@@ -7146,7 +7146,7 @@ void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
 
 LLVivoxProtocolParser::LLVivoxProtocolParser()
 {
-    parser = XML_ParserCreate(NULL);
+    parser = XML_ParserCreate(nullptr);
 
     reset();
 }
@@ -7216,7 +7216,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
         // Reset internal state of the LLVivoxProtocolParser (no effect on the expat parser)
         reset();
 
-        XML_ParserReset(parser, NULL);
+        XML_ParserReset(parser, nullptr);
         XML_SetElementHandler(parser, ExpatStartTag, ExpatEndTag);
         XML_SetCharacterDataHandler(parser, ExpatCharHandler);
         XML_SetUserData(parser, this);
@@ -7402,21 +7402,21 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 
         // Closing a tag. Finalize the text we've accumulated and reset
         if (!stricmp("ReturnCode", tag))
-            returnCode = strtol(string.c_str(), NULL, 10);
+            returnCode = strtol(string.c_str(), nullptr, 10);
         else if (!stricmp("SessionHandle", tag))
             sessionHandle = string;
         else if (!stricmp("SessionGroupHandle", tag))
             sessionGroupHandle = string;
         else if (!stricmp("StatusCode", tag))
-            statusCode = strtol(string.c_str(), NULL, 10);
+            statusCode = strtol(string.c_str(), nullptr, 10);
         else if (!stricmp("StatusString", tag))
             statusString = string;
         else if (!stricmp("ParticipantURI", tag))
             uriString = string;
         else if (!stricmp("Volume", tag))
-            volume = strtol(string.c_str(), NULL, 10);
+            volume = strtol(string.c_str(), nullptr, 10);
         else if (!stricmp("Energy", tag))
-            energy = (F32)strtod(string.c_str(), NULL);
+            energy = (F32)strtod(string.c_str(), nullptr);
         else if (!stricmp("IsModeratorMuted", tag))
             isModeratorMuted = !stricmp(string.c_str(), "true");
         else if (!stricmp("IsSpeaking", tag))
@@ -7424,7 +7424,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
         else if (!stricmp("Alias", tag))
             alias = string;
         else if (!stricmp("NumberOfAliases", tag))
-            numberOfAliases = strtol(string.c_str(), NULL, 10);
+            numberOfAliases = strtol(string.c_str(), nullptr, 10);
         else if (!stricmp("Application", tag))
             applicationString = string;
         else if (!stricmp("ConnectorHandle", tag))
@@ -7436,7 +7436,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
         else if (!stricmp("AccountHandle", tag))
             accountHandle = string;
         else if (!stricmp("State", tag))
-            state = strtol(string.c_str(), NULL, 10);
+            state = strtol(string.c_str(), nullptr, 10);
         else if (!stricmp("URI", tag))
             uriString = string;
         else if (!stricmp("IsChannel", tag))
@@ -7458,11 +7458,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
         else if (!stricmp("AccountName", tag))
             nameString = string;
         else if (!stricmp("ParticipantType", tag))
-            participantType = strtol(string.c_str(), NULL, 10);
+            participantType = strtol(string.c_str(), nullptr, 10);
         else if (!stricmp("IsLocallyMuted", tag))
             isLocallyMuted = !stricmp(string.c_str(), "true");
         else if (!stricmp("MicEnergy", tag))
-            energy = (F32)strtod(string.c_str(), NULL);
+            energy = (F32)strtod(string.c_str(), nullptr);
         else if (!stricmp("ChannelName", tag))
             nameString = string;
         else if (!stricmp("ChannelURI", tag))
@@ -7523,7 +7523,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
         }
         else if (!stricmp("ID", tag))
         {
-            id = strtol(string.c_str(), NULL, 10);
+            id = strtol(string.c_str(), nullptr, 10);
         }
         else if (!stricmp("Description", tag))
         {
@@ -7539,11 +7539,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
         }
         else if (!stricmp("Type", tag))
         {
-            fontType = strtol(string.c_str(), NULL, 10);
+            fontType = strtol(string.c_str(), nullptr, 10);
         }
         else if (!stricmp("Status", tag))
         {
-            fontStatus = strtol(string.c_str(), NULL, 10);
+            fontStatus = strtol(string.c_str(), nullptr, 10);
         }
         else if (!stricmp("MediaCompletionType", tag))
         {

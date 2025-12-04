@@ -74,9 +74,9 @@ void LLUIListener::call(const LLSD& event) const
         // Interestingly, view_listener_t::addMenu() (addCommit(),
         // addEnable()) constructs a commit_callback_t callable that accepts
         // two parameters but discards the first. Only the second is passed to
-        // handleEvent(). Therefore we feel completely safe passing NULL for
+        // handleEvent(). Therefore we feel completely safe passing nullptr for
         // the first parameter.
-        (*func)(NULL, event["parameter"]);
+        (*func)(nullptr, event["parameter"]);
     }
 }
 

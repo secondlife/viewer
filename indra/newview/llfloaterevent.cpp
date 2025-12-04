@@ -60,7 +60,7 @@
 LLFloaterEvent::LLFloaterEvent(const LLSD& key)
     : LLFloater(key),
       LLViewerMediaObserver(),
-      mBrowser(NULL),
+      mBrowser(nullptr),
       mEventID(0)
 {
 }

@@ -38,7 +38,7 @@ static const std::string LANDMARKS_INVENTORY_LIST_NAME("landmarks_list");
 
 bool is_landmarks_panel(const LLInventoryPanel* inv_panel)
 {
-    if (NULL == inv_panel)
+    if (nullptr == inv_panel)
         return false;
     return inv_panel->getName() == LANDMARKS_INVENTORY_LIST_NAME;
 }
@@ -92,7 +92,7 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
     if (inv_panel)
     {
         LLFolderViewFolder* folder =  dynamic_cast<LLFolderViewFolder*>(inv_panel->getItemByID(mUUID));
-        is_open = (NULL != folder) && folder->isOpen();
+        is_open = (nullptr != folder) && folder->isOpen();
     }
 
     // collect all items' names
@@ -134,7 +134,7 @@ void LLPlacesFolderBridge::performAction(LLInventoryModel* model, std::string ac
 
 LLFolderViewFolder* LLPlacesFolderBridge::getFolder()
 {
-    LLFolderViewFolder* folder = NULL;
+    LLFolderViewFolder* folder = nullptr;
     LLInventoryPanel* inv_panel = mInventoryPanel.get();
     if (inv_panel)
     {
@@ -155,7 +155,7 @@ LLInvFVBridge* LLPlacesInventoryBridgeBuilder::createBridge(
     const LLUUID& uuid,
     U32 flags/* = 0x00*/) const
 {
-    LLInvFVBridge* new_listener = NULL;
+    LLInvFVBridge* new_listener = nullptr;
     switch(asset_type)
     {
     case LLAssetType::AT_LANDMARK:

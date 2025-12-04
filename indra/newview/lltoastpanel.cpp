@@ -115,7 +115,7 @@ LLToastPanel* LLToastPanel::buidPanelFromNotification(
         const LLNotificationPtr& notification)
 {
     LL_PROFILE_ZONE_SCOPED;
-    LLToastPanel* res = NULL;
+    LLToastPanel* res = nullptr;
 
     //process tip toast panels
     if ("notifytip" == notification->getType())
@@ -152,7 +152,7 @@ LLToastPanel* LLToastPanel::buidPanelFromNotification(
 
 LLCheckBoxToastPanel::LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf)
 : LLToastPanel(p_ntf),
-mCheck(NULL)
+mCheck(nullptr)
 {
 
 }

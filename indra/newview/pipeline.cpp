@@ -250,7 +250,7 @@ bool    gAvatarBacklight = false;
 
 bool    gDebugPipeline = false;
 LLPipeline gPipeline;
-const LLMatrix4* gGLLastMatrix = NULL;
+const LLMatrix4* gGLLastMatrix = nullptr;
 
 LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY("Render Geometry");
 LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS("Grass");
@@ -349,7 +349,7 @@ F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
 
-static LLCullResult* sCull = NULL;
+static LLCullResult* sCull = nullptr;
 
 void validate_framebuffer_object();
 
@@ -399,7 +399,7 @@ LLPipeline::LLPipeline() :
     mMeshDirtyQueryObject(0),
     mGroupQ1Locked(false),
     mResetVertexBuffers(false),
-    mLastRebuildPool(NULL),
+    mLastRebuildPool(nullptr),
     mLightMask(0),
     mLightMovingMask(0)
 {
@@ -672,28 +672,28 @@ void LLPipeline::cleanup()
     delete mAlphaPoolPostWater;
     mAlphaPoolPostWater = nullptr;
     delete mSkyPool;
-    mSkyPool = NULL;
+    mSkyPool = nullptr;
     delete mTerrainPool;
-    mTerrainPool = NULL;
+    mTerrainPool = nullptr;
     delete mWaterPool;
-    mWaterPool = NULL;
+    mWaterPool = nullptr;
     delete mSimplePool;
-    mSimplePool = NULL;
+    mSimplePool = nullptr;
     delete mFullbrightPool;
-    mFullbrightPool = NULL;
+    mFullbrightPool = nullptr;
     delete mGlowPool;
-    mGlowPool = NULL;
+    mGlowPool = nullptr;
     delete mBumpPool;
-    mBumpPool = NULL;
+    mBumpPool = nullptr;
     // don't delete wl sky pool it was handled above in the for loop
     //delete mWLSkyPool;
-    mWLSkyPool = NULL;
+    mWLSkyPool = nullptr;
     delete mWaterExclusionPool;
     mWaterExclusionPool = nullptr;
 
     releaseGLBuffers();
 
-    mFaceSelectImagep = NULL;
+    mFaceSelectImagep = nullptr;
 
     mMovedList.clear();
     mMovedBridge.clear();
@@ -701,10 +701,10 @@ void LLPipeline::cleanup()
 
     mInitialized = false;
 
-    mDeferredVB = NULL;
+    mDeferredVB = nullptr;
     mScreenTriangleVB = nullptr;
 
-    mCubeVB = NULL;
+    mCubeVB = nullptr;
 
     mReflectionMapManager.cleanup();
     mHeroProbeManager.cleanup();
@@ -1653,7 +1653,7 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 {
     assertInitialized();
 
-    LLDrawPool *poolp = NULL;
+    LLDrawPool *poolp = nullptr;
     switch( type )
     {
     case LLDrawPool::POOL_SIMPLE:
@@ -1887,12 +1887,12 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
     {
         if (mShadowSpotLight[i] == drawablep)
         {
-            mShadowSpotLight[i] = NULL;
+            mShadowSpotLight[i] = nullptr;
         }
 
         if (mTargetShadowSpotLight[i] == drawablep)
         {
-            mTargetShadowSpotLight[i] = NULL;
+            mTargetShadowSpotLight[i] = nullptr;
         }
     }
 }
@@ -1980,7 +1980,7 @@ void LLPipeline::createObject(LLViewerObject* vobj)
     }
     else
     {
-        vobj->setDrawableParent(NULL); // LLPipeline::addObject 2
+        vobj->setDrawableParent(nullptr); // LLPipeline::addObject 2
     }
 
     markRebuild(drawablep, LLDrawable::REBUILD_ALL);
@@ -2021,7 +2021,7 @@ void LLPipeline::updateMoveDampedAsync(LLDrawable* drawablep)
     }
     if (!drawablep)
     {
-        LL_ERRS() << "updateMove called with NULL drawablep" << LL_ENDL;
+        LL_ERRS() << "updateMove called with nullptr drawablep" << LL_ENDL;
         return;
     }
     if (drawablep->isState(LLDrawable::EARLY_MOVE))
@@ -2052,7 +2052,7 @@ void LLPipeline::updateMoveNormalAsync(LLDrawable* drawablep)
     }
     if (!drawablep)
     {
-        LL_ERRS() << "updateMove called with NULL drawablep" << LL_ENDL;
+        LL_ERRS() << "updateMove called with nullptr drawablep" << LL_ENDL;
         return;
     }
     if (drawablep->isState(LLDrawable::EARLY_MOVE))
@@ -2221,7 +2221,7 @@ void LLPipeline::grabReferences(LLCullResult& result)
 void LLPipeline::clearReferences()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-    sCull = NULL;
+    sCull = nullptr;
     mGroupSaveQ1.clear();
 }
 
@@ -3162,7 +3162,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 
     if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
     {
-        LLSpatialGroup* last_group = NULL;
+        LLSpatialGroup* last_group = nullptr;
         bool fov_changed = LLViewerCamera::getInstance()->isDefaultFOVChanged();
         for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
         {
@@ -3170,7 +3170,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
             LLSpatialBridge* bridge = *cur_iter;
             LLSpatialGroup* group = bridge->getSpatialGroup();
 
-            if (last_group == NULL)
+            if (last_group == nullptr)
             {
                 last_group = group;
             }
@@ -3291,7 +3291,7 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 
     if (drawablep->isAvatar())
     { //don't draw avatars beyond render distance or if we don't have a spatial group.
-        if ((drawablep->getSpatialGroup() == NULL) ||
+        if ((drawablep->getSpatialGroup() == nullptr) ||
             (drawablep->getSpatialGroup()->mDistance > LLVOAvatar::sRenderDistance))
         {
             return;
@@ -3310,7 +3310,7 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
     {
         if (!drawablep->isState(LLDrawable::INVISIBLE|LLDrawable::FORCE_INVISIBLE))
         {
-            drawablep->setVisible(camera, NULL, false);
+            drawablep->setVisible(camera, nullptr, false);
         }
     }
 
@@ -4057,7 +4057,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
             {
                 llassert(!gCubeSnapshot); // never do occlusion culling on cube snapshots
                 occlude = false;
-                gGLLastMatrix = NULL;
+                gGLLastMatrix = nullptr;
                 gGL.loadMatrix(gGLModelView);
                 doOcclusion(camera);
             }
@@ -4067,7 +4067,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pool render");
 
-                gGLLastMatrix = NULL;
+                gGLLastMatrix = nullptr;
                 gGL.loadMatrix(gGLModelView);
 
                 for( S32 i = 0; i < poolp->getNumDeferredPasses(); i++ )
@@ -4106,7 +4106,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
             stop_glerror();
         }
 
-        gGLLastMatrix = NULL;
+        gGLLastMatrix = nullptr;
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.loadMatrix(gGLModelView);
 
@@ -4203,7 +4203,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred poolrender");
 
-            gGLLastMatrix = NULL;
+            gGLLastMatrix = nullptr;
             gGL.loadMatrix(gGLModelView);
 
             for( S32 i = 0; i < poolp->getNumPostDeferredPasses(); i++ )
@@ -4245,7 +4245,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
         stop_glerror();
     }
 
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.loadMatrix(gGLModelView);
 
@@ -4287,7 +4287,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
         {
             poolp->prerender() ;
 
-            gGLLastMatrix = NULL;
+            gGLLastMatrix = nullptr;
             gGL.loadMatrix(gGLModelView);
 
             for( S32 i = 0; i < poolp->getNumShadowPasses(); i++ )
@@ -4324,7 +4324,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
         stop_glerror();
     }
 
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
     gGL.loadMatrix(gGLModelView);
 }
 
@@ -4417,7 +4417,7 @@ void LLPipeline::renderDebug()
     {
         //Render any navmesh geometry
         LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-        if ( llPathingLibInstance != NULL )
+        if ( llPathingLibInstance != nullptr )
         {
             //character floater renderables
 
@@ -4687,7 +4687,7 @@ void LLPipeline::renderDebug()
         }
     }
 
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
     gGL.loadMatrix(gGLModelView);
     gGL.setColorMask(true, false);
 
@@ -4811,7 +4811,7 @@ void LLPipeline::renderDebug()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("probe debug display");
 
-        bindDeferredShader(gReflectionProbeDisplayProgram, NULL);
+        bindDeferredShader(gReflectionProbeDisplayProgram, nullptr);
         mScreenTriangleVB->setBuffer();
 
         LLGLEnable blend(GL_BLEND);
@@ -5054,7 +5054,7 @@ void LLPipeline::rebuildPools()
             removeFromQuickLookup( poolp );
             if (poolp == mLastRebuildPool)
             {
-                mLastRebuildPool = NULL;
+                mLastRebuildPool = nullptr;
             }
             delete poolp;
         }
@@ -5298,37 +5298,37 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
     {
     case LLDrawPool::POOL_SIMPLE:
         llassert(mSimplePool == poolp);
-        mSimplePool = NULL;
+        mSimplePool = nullptr;
         break;
 
     case LLDrawPool::POOL_ALPHA_MASK:
         llassert(mAlphaMaskPool == poolp);
-        mAlphaMaskPool = NULL;
+        mAlphaMaskPool = nullptr;
         break;
 
     case LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK:
         llassert(mFullbrightAlphaMaskPool == poolp);
-        mFullbrightAlphaMaskPool = NULL;
+        mFullbrightAlphaMaskPool = nullptr;
         break;
 
     case LLDrawPool::POOL_GRASS:
         llassert(mGrassPool == poolp);
-        mGrassPool = NULL;
+        mGrassPool = nullptr;
         break;
 
     case LLDrawPool::POOL_FULLBRIGHT:
         llassert(mFullbrightPool == poolp);
-        mFullbrightPool = NULL;
+        mFullbrightPool = nullptr;
         break;
 
     case LLDrawPool::POOL_WL_SKY:
         llassert(mWLSkyPool == poolp);
-        mWLSkyPool = NULL;
+        mWLSkyPool = nullptr;
         break;
 
     case LLDrawPool::POOL_GLOW:
         llassert(mGlowPool == poolp);
-        mGlowPool = NULL;
+        mGlowPool = nullptr;
         break;
 
     case LLDrawPool::POOL_TREE:
@@ -5355,12 +5355,12 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 
     case LLDrawPool::POOL_BUMP:
         llassert( poolp == mBumpPool );
-        mBumpPool = NULL;
+        mBumpPool = nullptr;
         break;
 
     case LLDrawPool::POOL_MATERIALS:
         llassert(poolp == mMaterialsPool);
-        mMaterialsPool = NULL;
+        mMaterialsPool = nullptr;
         break;
 
     case LLDrawPool::POOL_ALPHA_PRE_WATER:
@@ -5379,22 +5379,22 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 
     case LLDrawPool::POOL_SKY:
         llassert( poolp == mSkyPool );
-        mSkyPool = NULL;
+        mSkyPool = nullptr;
         break;
 
     case LLDrawPool::POOL_WATER:
         llassert( poolp == mWaterPool );
-        mWaterPool = NULL;
+        mWaterPool = nullptr;
         break;
 
     case LLDrawPool::POOL_GLTF_PBR:
         llassert( poolp == mPBROpaquePool );
-        mPBROpaquePool = NULL;
+        mPBROpaquePool = nullptr;
         break;
 
     case LLDrawPool::POOL_GLTF_PBR_ALPHA_MASK:
         llassert(poolp == mPBRAlphaMaskPool);
-        mPBRAlphaMaskPool = NULL;
+        mPBRAlphaMaskPool = nullptr;
         break;
 
     case LLDrawPool::POOL_WATEREXCLUSION:
@@ -6526,7 +6526,7 @@ LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector4a& start,
 
     LLVector4a position;
 
-    LLDrawable* drawable = NULL;
+    LLDrawable* drawable = nullptr;
 
     for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
             iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -6536,7 +6536,7 @@ LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector4a& start,
         LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_PARTICLE);
         if (part && hasRenderType(part->mDrawableType))
         {
-            LLDrawable* hit = part->lineSegmentIntersect(start, local_end, true, false, true, false, face_hit, &position, NULL, NULL, NULL);
+            LLDrawable* hit = part->lineSegmentIntersect(start, local_end, true, false, true, false, face_hit, &position, nullptr, nullptr, nullptr);
             if (hit)
             {
                 drawable = hit;
@@ -6545,7 +6545,7 @@ LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector4a& start,
         }
     }
 
-    LLVOPartGroup* ret = NULL;
+    LLVOPartGroup* ret = nullptr;
     if (drawable)
     {
         //make sure we're returning an LLVOPartGroup
@@ -6575,7 +6575,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
                                                         LLVector4a* tangent             // return the surface tangent at the intersection point
     )
 {
-    LLDrawable* drawable = NULL;
+    LLDrawable* drawable = nullptr;
 
     LLVector4a local_end = end;
 
@@ -6734,7 +6734,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
         *intersection = position;
     }
 
-    return drawable ? drawable->getVObj().get() : NULL;
+    return drawable ? drawable->getVObj().get() : nullptr;
 }
 
 LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
@@ -6746,7 +6746,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, c
                                                       LLVector4a* tangent               // return the surface tangent at the intersection point
     )
 {
-    LLDrawable* drawable = NULL;
+    LLDrawable* drawable = nullptr;
 
     for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
             iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -6775,7 +6775,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, c
             toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
         }
     }
-    return drawable ? drawable->getVObj().get() : NULL;
+    return drawable ? drawable->getVObj().get() : nullptr;
 }
 
 LLSpatialPartition* LLPipeline::getSpatialPartition(LLViewerObject* vobj)
@@ -6788,7 +6788,7 @@ LLSpatialPartition* LLPipeline::getSpatialPartition(LLViewerObject* vobj)
             return region->getSpatialPartition(vobj->getPartitionType());
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
@@ -6812,7 +6812,7 @@ void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool 
 {
     assertInitialized();
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 
     if (rigged)
     {
@@ -6824,14 +6824,14 @@ void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool 
     }
 
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 }
 
 void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
 {
     assertInitialized();
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 
     if (rigged)
     {
@@ -6843,7 +6843,7 @@ void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
     }
 
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 
     if (!rigged)
     {
@@ -6861,7 +6861,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     assertInitialized();
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
     S32 sun_up = LLEnvironment::instance().getIsSunUp() ? 1 : 0;
     U32 target_width = LLRenderTarget::sCurResX;
     U32 type = LLRenderPass::PASS_ALPHA;
@@ -6932,7 +6932,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
     }
 
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19
@@ -6940,7 +6940,7 @@ void LLPipeline::renderMaskedObjects(U32 type, bool texture, bool batch_texture,
 {
     assertInitialized();
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
     if (rigged)
     {
         mAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture);
@@ -6950,7 +6950,7 @@ void LLPipeline::renderMaskedObjects(U32 type, bool texture, bool batch_texture,
         mAlphaMaskPool->pushMaskBatches(type, texture, batch_texture);
     }
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19
@@ -6958,7 +6958,7 @@ void LLPipeline::renderFullbrightMaskedObjects(U32 type, bool texture, bool batc
 {
     assertInitialized();
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
     if (rigged)
     {
         mFullbrightAlphaMaskPool->pushRiggedMaskBatches(type+1, texture, batch_texture);
@@ -6968,7 +6968,7 @@ void LLPipeline::renderFullbrightMaskedObjects(U32 type, bool texture, bool batc
         mFullbrightAlphaMaskPool->pushMaskBatches(type, texture, batch_texture);
     }
     gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 }
 
 void apply_cube_face_rotation(U32 face)
@@ -8341,7 +8341,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
         if (channel > -1)
         {
-            LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+            LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : nullptr;
             if (cube_map)
             {
                 cube_map->enable(channel);
@@ -8647,7 +8647,7 @@ void LLPipeline::renderDeferredLighting()
             {
                 for (U32 i = 0; i < 2; i++)
                 {
-                    mTargetShadowSpotLight[i] = NULL;
+                    mTargetShadowSpotLight[i] = nullptr;
                 }
             }
 
@@ -9076,7 +9076,7 @@ void LLPipeline::doWaterHaze()
             LLGLDepthTest depth(GL_TRUE, GL_FALSE);
             LLGLDisable   cull(GL_CULL_FACE);
 
-            gGLLastMatrix = NULL;
+            gGLLastMatrix = nullptr;
             gGL.loadMatrix(gGLModelView);
 
             if (mWaterPool)
@@ -9226,7 +9226,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 
     LLViewerTexture* img = volume->getLightTexture();
 
-    if (img == NULL)
+    if (img == nullptr)
     {
         img = LLViewerFetchedTexture::sWhiteImagep;
     }
@@ -9290,7 +9290,7 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
         S32 channel = shader.disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
         if (channel > -1)
         {
-            LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+            LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : nullptr;
             if (cube_map)
             {
                 cube_map->disable();
@@ -9506,7 +9506,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
     gGL.loadMatrix(glm::value_ptr(view));
 
     stop_glerror();
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
@@ -9626,7 +9626,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
 
             gGL.loadMatrix(gGLModelView);
-            gGLLastMatrix = NULL;
+            gGLLastMatrix = nullptr;
 
             U32 type = LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK;
 
@@ -9640,12 +9640,12 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             }
 
             gGL.loadMatrix(gGLModelView);
-            gGLLastMatrix = NULL;
+            gGLLastMatrix = nullptr;
         }
     }
 
     gDeferredShadowCubeProgram.bind();
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
     gGL.loadMatrix(gGLModelView);
 
     gGL.setColorMask(true, true);
@@ -9654,7 +9654,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
     gGL.popMatrix();
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.popMatrix();
-    gGLLastMatrix = NULL;
+    gGLLastMatrix = nullptr;
 
     // reset occlusion culling flag
     sUseOcclusion = saved_occlusion;
@@ -10554,7 +10554,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
             if (!volume)
             {
-                mShadowSpotLight[i] = NULL;
+                mShadowSpotLight[i] = nullptr;
                 continue;
             }
 
@@ -10644,7 +10644,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     }
     else
     { //no spotlight shadows
-        mShadowSpotLight[0] = mShadowSpotLight[1] = NULL;
+        mShadowSpotLight[0] = mShadowSpotLight[1] = nullptr;
     }
 
 
@@ -11364,7 +11364,7 @@ void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
     while ( itCurrent != itEnd )
     {
         U32 index = *itCurrent;
-        LLViewerObject* pObject = NULL;
+        LLViewerObject* pObject = nullptr;
         if ( index < objCnt )
         {
             pObject = gObjectList.getObject( index );

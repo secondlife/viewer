@@ -190,7 +190,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     {
         for (LLUUID& selected_id : mUUIDs)
         {
-            remove_inventory_object(selected_id, NULL);
+            remove_inventory_object(selected_id, nullptr);
         }
     }
     else if ("goto" == action)
@@ -470,7 +470,7 @@ void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLS
         {
             LLSD updates;
             updates["name"] = new_name;
-            update_inventory_category(cat->getUUID(),updates, NULL);
+            update_inventory_category(cat->getUUID(),updates, nullptr);
             return;
         }
 
@@ -479,7 +479,7 @@ void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLS
         {
             LLSD updates;
             updates["name"] = new_name;
-            update_inventory_item(item->getUUID(),updates, NULL);
+            update_inventory_item(item->getUUID(),updates, nullptr);
         }
     }
 }
@@ -525,7 +525,7 @@ bool is_inbox_folder(LLUUID item_id)
 bool can_list_on_marketplace(const LLUUID &id)
 {
     const LLInventoryObject* obj = gInventory.getObject(id);
-    bool can_list = (obj != NULL);
+    bool can_list = (obj != nullptr);
 
     if (can_list)
     {

@@ -127,7 +127,7 @@ LLAppCoreHttp::HttpClass::HttpClass()
 
 
 LLAppCoreHttp::LLAppCoreHttp()
-    : mRequest(NULL),
+    : mRequest(nullptr),
       mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
       mStopRequested(0.0),
       mStopped(false),
@@ -138,7 +138,7 @@ LLAppCoreHttp::LLAppCoreHttp()
 LLAppCoreHttp::~LLAppCoreHttp()
 {
     delete mRequest;
-    mRequest = NULL;
+    mRequest = nullptr;
 }
 
 
@@ -164,7 +164,7 @@ void LLAppCoreHttp::init()
         LL_DEBUGS("Init") << "Setting CA File to " << ca_file << LL_ENDL;
         status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
                                                             LLCore::HttpRequest::GLOBAL_POLICY_ID,
-                                                            ca_file, NULL);
+                                                            ca_file, nullptr);
     }
     else
     {
@@ -181,7 +181,7 @@ void LLAppCoreHttp::init()
     // Establish HTTP Proxy, if desired.
     status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_LLPROXY,
                                                         LLCore::HttpRequest::GLOBAL_POLICY_ID,
-                                                        1, NULL);
+                                                        1, nullptr);
     if (! status)
     {
         LL_WARNS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
@@ -191,7 +191,7 @@ void LLAppCoreHttp::init()
     // Set up SSL Verification call back.
     status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_SSL_VERIFY_CALLBACK,
                                                         LLCore::HttpRequest::GLOBAL_POLICY_ID,
-                                                        sslVerify, NULL);
+                                                        sslVerify, nullptr);
     if (!status)
     {
         LL_WARNS("Init") << "Failed to set SSL Verification.  Reason:  " << status.toString() << LL_ENDL;
@@ -226,7 +226,7 @@ void LLAppCoreHttp::init()
         trace_level = long(gSavedSettings.getU32(http_trace));
         status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE,
                                                             LLCore::HttpRequest::GLOBAL_POLICY_ID,
-                                                            trace_level, NULL);
+                                                            trace_level, nullptr);
     }
 
     // Setup default policy and constrain if directed to
@@ -376,7 +376,7 @@ void LLAppCoreHttp::cleanup()
     mPipelinedSignal.disconnect();
 
     delete mRequest;
-    mRequest = NULL;
+    mRequest = nullptr;
 
     LLCore::HttpStatus status = LLCore::HttpRequest::destroyService();
     if (! status)
@@ -406,7 +406,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
                 status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_THROTTLE_RATE,
                                                                     mHttpClasses[app_policy].mPolicy,
                                                                     init_data[i].mRate,
-                                                                    NULL);
+                                                                    nullptr);
                 if (! status)
                 {
                     LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage

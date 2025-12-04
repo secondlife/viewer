@@ -260,13 +260,13 @@ bool LLToolPie::handleLeftClickPick()
             }
         }
 
-        gFocusMgr.setKeyboardFocus(NULL);
+        gFocusMgr.setKeyboardFocus(nullptr);
         return LLTool::handleMouseDown(x, y, mask);
     }
 
     // didn't click in any UI object, so must have clicked in the world
     LLViewerObject *object = mPick.getObject();
-    LLViewerObject *parent = NULL;
+    LLViewerObject *parent = nullptr;
 
     if (mPick.mPickType != LLPickInfo::PICK_LAND)
     {
@@ -307,7 +307,7 @@ bool LLToolPie::handleLeftClickPick()
                 {
                     handle_object_sit_or_stand();
                     // put focus in world when sitting on an object
-                    gFocusMgr.setKeyboardFocus(NULL);
+                    gFocusMgr.setKeyboardFocus(nullptr);
                     return true;
                 } // else nothing (fall through to touch)
             }
@@ -395,7 +395,7 @@ bool LLToolPie::handleLeftClickPick()
     // put focus back "in world"
     if (gFocusMgr.getKeyboardFocus())
     {
-        gFocusMgr.setKeyboardFocus(NULL);
+        gFocusMgr.setKeyboardFocus(nullptr);
     }
 
     bool touchable = object
@@ -498,7 +498,7 @@ U8 final_click_action(LLViewerObject* obj)
 
 ECursorType LLToolPie::cursorFromObject(LLViewerObject* object)
 {
-    LLViewerObject* parent = NULL;
+    LLViewerObject* parent = nullptr;
     if (object)
     {
         parent = object->getRootEdit();
@@ -559,8 +559,8 @@ ECursorType LLToolPie::cursorFromObject(LLViewerObject* object)
 
 void LLToolPie::resetSelection()
 {
-    mLeftClickSelection = NULL;
-    mClickActionObject = NULL;
+    mLeftClickSelection = nullptr;
+    mClickActionObject = nullptr;
     mClickAction = 0;
 }
 
@@ -631,7 +631,7 @@ bool LLToolPie::walkToClickedLocation()
         mAutoPilotDestination->setDuration(3.f);
 
         LLVector3d pos = LLToolPie::getInstance()->getPick().mPosGlobal;
-        gAgent.startAutoPilotGlobal(pos, std::string(), NULL, NULL, NULL, 0.f, 0.03f, false);
+        gAgent.startAutoPilotGlobal(pos, std::string(), nullptr, nullptr, nullptr, 0.f, 0.03f, false);
         LLFirstUse::notMoving(false);
         showVisualContextMenuEffect();
         return true;
@@ -661,7 +661,7 @@ bool LLToolPie::teleportToClickedLocation()
                                                   pick_rigged);
     }
     LLViewerObject* objp = mHoverPick.getObject();
-    LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
+    LLViewerObject* parentp = objp ? objp->getRootEdit() : nullptr;
 
     if (objp && (objp->getAvatar() == gAgentAvatarp || objp == gAgentAvatarp)) // ex: nametag
     {
@@ -741,7 +741,7 @@ bool LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
     bool pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
     mHoverPick = gViewerWindow->pickImmediate(x, y, false, pick_rigged);
-    LLViewerObject *parent = NULL;
+    LLViewerObject *parent = nullptr;
     LLViewerObject *object = mHoverPick.getObject();
     LLSelectMgr::getInstance()->setHoverObject(object, mHoverPick.mObjectFace);
     if (object)
@@ -1156,11 +1156,11 @@ bool LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
             if(tep)
             {
                 has_media = tep->hasMedia();
-                const LLMediaEntry* mep = has_media ? tep->getMediaData() : NULL;
+                const LLMediaEntry* mep = has_media ? tep->getMediaData() : nullptr;
                 if (mep)
                 {
                     viewer_media_t media_impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
-                    LLPluginClassMedia* media_plugin = NULL;
+                    LLPluginClassMedia* media_plugin = nullptr;
 
                     if (media_impl.notNull() && (media_impl->hasMedia()))
                     {
@@ -1325,13 +1325,13 @@ void LLToolPie::playCurrentMedia(const LLPickInfo& info)
     if (!tep)
         return;
 
-    const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+    const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : nullptr;
     if(!mep)
         return;
 
     //TODO: Can you Use it?
 
-    LLPluginClassMedia* media_plugin = NULL;
+    LLPluginClassMedia* media_plugin = nullptr;
 
     viewer_media_t media_impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
 
@@ -1377,13 +1377,13 @@ void LLToolPie::VisitHomePage(const LLPickInfo& info)
     if (!tep)
         return;
 
-    const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+    const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : nullptr;
     if(!mep)
         return;
 
     //TODO: Can you Use it?
 
-    LLPluginClassMedia* media_plugin = NULL;
+    LLPluginClassMedia* media_plugin = nullptr;
 
     viewer_media_t media_impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
 
@@ -1410,7 +1410,7 @@ void LLToolPie::handleDeselect()
         setMouseCapture( false );  // Calls onMouseCaptureLost() indirectly
     }
     // remove temporary selection for pie menu
-    LLSelectMgr::getInstance()->setHoverObject(NULL);
+    LLSelectMgr::getInstance()->setHoverObject(nullptr);
 
     // Menu may be still up during transfer to different tool.
     // toolfocus and toolgrab should retain menu, they will clear it if needed
@@ -1660,7 +1660,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
     if (!tep)
         return false;
 
-    LLMediaEntry* mep = (tep->hasMedia()) ? tep->getMediaData() : NULL;
+    LLMediaEntry* mep = (tep->hasMedia()) ? tep->getMediaData() : nullptr;
     if (!mep)
         return false;
 
@@ -1724,7 +1724,7 @@ bool LLToolPie::handleMediaDblClick(const LLPickInfo& pick)
     if (!tep)
         return false;
 
-    LLMediaEntry* mep = (tep->hasMedia()) ? tep->getMediaData() : NULL;
+    LLMediaEntry* mep = (tep->hasMedia()) ? tep->getMediaData() : nullptr;
     if (!mep)
         return false;
 
@@ -1779,7 +1779,7 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
     if(!tep)
         return false;
 
-    const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+    const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : nullptr;
     if (mep
         && gSavedSettings.getBOOL("MediaOnAPrimUI"))
     {
@@ -1850,7 +1850,7 @@ static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
     if( face < 0 || face >= objectp->getNumTEs() ) return;
 
     // is media playing on this face?
-    if (LLViewerMedia::getInstance()->getMediaImplFromTextureID(objectp->getTE(face)->getID()) != NULL)
+    if (LLViewerMedia::getInstance()->getMediaImplFromTextureID(objectp->getTE(face)->getID()) != nullptr)
     {
         handle_click_action_play();
         return;
@@ -2003,7 +2003,7 @@ bool LLToolPie::handleRightClickPick()
     // non UI object - put focus back "in world"
     if (gFocusMgr.getKeyboardFocus())
     {
-        gFocusMgr.setKeyboardFocus(NULL);
+        gFocusMgr.setKeyboardFocus(nullptr);
     }
 
     LLTool::handleRightMouseDown(x, y, mask);

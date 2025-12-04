@@ -89,7 +89,7 @@
 #include "llmeshrepository.h"
 
 // Globals
-LLFloaterTools *gFloaterTools = NULL;
+LLFloaterTools *gFloaterTools = nullptr;
 bool LLFloaterTools::sShowObjectCost = true;
 bool LLFloaterTools::sPreviousFocusOnAvatar = false;
 
@@ -321,58 +321,58 @@ bool    LLFloaterTools::postBuild()
 // during LLViewerWindow's per-frame hover processing.
 LLFloaterTools::LLFloaterTools(const LLSD& key)
 :   LLFloater(key),
-    mBtnFocus(NULL),
-    mBtnMove(NULL),
-    mBtnEdit(NULL),
-    mBtnCreate(NULL),
-    mBtnLand(NULL),
-    mTextStatus(NULL),
+    mBtnFocus(nullptr),
+    mBtnMove(nullptr),
+    mBtnEdit(nullptr),
+    mBtnCreate(nullptr),
+    mBtnLand(nullptr),
+    mTextStatus(nullptr),
 
-    mRadioGroupFocus(NULL),
-    mRadioGroupMove(NULL),
-    mRadioGroupEdit(NULL),
+    mRadioGroupFocus(nullptr),
+    mRadioGroupMove(nullptr),
+    mRadioGroupEdit(nullptr),
 
-    mCheckSelectIndividual(NULL),
+    mCheckSelectIndividual(nullptr),
 
-    mCheckSnapToGrid(NULL),
-    mBtnGridOptions(NULL),
-    mComboGridMode(NULL),
-    mCheckStretchUniform(NULL),
-    mCheckStretchTexture(NULL),
-    mCheckStretchUniformLabel(NULL),
+    mCheckSnapToGrid(nullptr),
+    mBtnGridOptions(nullptr),
+    mComboGridMode(nullptr),
+    mCheckStretchUniform(nullptr),
+    mCheckStretchTexture(nullptr),
+    mCheckStretchUniformLabel(nullptr),
 
-    mBtnRotateLeft(NULL),
-    mBtnRotateReset(NULL),
-    mBtnRotateRight(NULL),
+    mBtnRotateLeft(nullptr),
+    mBtnRotateReset(nullptr),
+    mBtnRotateRight(nullptr),
 
-    mBtnLink(NULL),
-    mBtnUnlink(NULL),
+    mBtnLink(nullptr),
+    mBtnUnlink(nullptr),
 
-    mBtnDelete(NULL),
-    mBtnDuplicate(NULL),
-    mBtnDuplicateInPlace(NULL),
+    mBtnDelete(nullptr),
+    mBtnDuplicate(nullptr),
+    mBtnDuplicateInPlace(nullptr),
 
-    mCheckSticky(NULL),
-    mCheckCopySelection(NULL),
-    mCheckCopyCenters(NULL),
-    mCheckCopyRotates(NULL),
-    mRadioGroupLand(NULL),
-    mSliderDozerSize(NULL),
-    mSliderDozerForce(NULL),
-    mBtnApplyToSelection(NULL),
+    mCheckSticky(nullptr),
+    mCheckCopySelection(nullptr),
+    mCheckCopyCenters(nullptr),
+    mCheckCopyRotates(nullptr),
+    mRadioGroupLand(nullptr),
+    mSliderDozerSize(nullptr),
+    mSliderDozerForce(nullptr),
+    mBtnApplyToSelection(nullptr),
 
-    mTab(NULL),
-    mPanelPermissions(NULL),
-    mPanelObject(NULL),
-    mPanelVolume(NULL),
-    mPanelContents(NULL),
-    mPanelFace(NULL),
-    mPanelLandInfo(NULL),
+    mTab(nullptr),
+    mPanelPermissions(nullptr),
+    mPanelObject(nullptr),
+    mPanelVolume(nullptr),
+    mPanelContents(nullptr),
+    mPanelFace(nullptr),
+    mPanelLandInfo(nullptr),
 
-    mCostTextBorder(NULL),
-    mTabLand(NULL),
+    mCostTextBorder(nullptr),
+    mTabLand(nullptr),
 
-    mLandImpactsObserver(NULL),
+    mLandImpactsObserver(nullptr),
 
     mDirty(true),
     mHasSelection(true)
@@ -410,7 +410,7 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 LLFloaterTools::~LLFloaterTools()
 {
     // children automatically deleted
-    gFloaterTools = NULL;
+    gFloaterTools = nullptr;
 
     LLViewerParcelMgr::getInstance()->removeObserver(mLandImpactsObserver);
     delete mLandImpactsObserver;
@@ -915,8 +915,8 @@ void LLFloaterTools::onClose(bool app_quitting)
 
     resetToolState();
 
-    mParcelSelection = NULL;
-    mObjectSelection = NULL;
+    mParcelSelection = nullptr;
+    mObjectSelection = nullptr;
 
     // Switch back to basic toolset
     LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
@@ -1076,7 +1076,7 @@ void commit_select_component(void *data)
     //forfeit focus
     if (gFocusMgr.childHasKeyboardFocus(floaterp))
     {
-        gFocusMgr.setKeyboardFocus(NULL);
+        gFocusMgr.setKeyboardFocus(nullptr);
     }
 
     bool select_individuals = floaterp->mCheckSelectIndividual->get();
@@ -1098,7 +1098,7 @@ void LLFloaterTools::setObjectType( LLPCode pcode )
 {
     LLToolPlacer::setObjectType( pcode );
     gSavedSettings.setBOOL("CreateToolCopySelection", false);
-    gFocusMgr.setMouseCapture(NULL);
+    gFocusMgr.setMouseCapture(nullptr);
 }
 
 void commit_grid_mode(LLUICtrl *ctrl)

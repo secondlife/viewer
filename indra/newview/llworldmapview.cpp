@@ -77,27 +77,27 @@ constexpr F32 GODLY_TELEPORT_HEIGHT = 200.f;
 constexpr F32 BIG_DOT_RADIUS = 5.f;
 bool LLWorldMapView::sHandledLastClick = false;
 
-LLUIImagePtr LLWorldMapView::sAvatarSmallImage = NULL;
-LLUIImagePtr LLWorldMapView::sAvatarYouImage = NULL;
-LLUIImagePtr LLWorldMapView::sAvatarYouLargeImage = NULL;
-LLUIImagePtr LLWorldMapView::sAvatarLevelImage = NULL;
-LLUIImagePtr LLWorldMapView::sAvatarAboveImage = NULL;
-LLUIImagePtr LLWorldMapView::sAvatarBelowImage = NULL;
-LLUIImagePtr LLWorldMapView::sAvatarUnknownImage = NULL;
+LLUIImagePtr LLWorldMapView::sAvatarSmallImage = nullptr;
+LLUIImagePtr LLWorldMapView::sAvatarYouImage = nullptr;
+LLUIImagePtr LLWorldMapView::sAvatarYouLargeImage = nullptr;
+LLUIImagePtr LLWorldMapView::sAvatarLevelImage = nullptr;
+LLUIImagePtr LLWorldMapView::sAvatarAboveImage = nullptr;
+LLUIImagePtr LLWorldMapView::sAvatarBelowImage = nullptr;
+LLUIImagePtr LLWorldMapView::sAvatarUnknownImage = nullptr;
 
-LLUIImagePtr LLWorldMapView::sTelehubImage = NULL;
-LLUIImagePtr LLWorldMapView::sInfohubImage = NULL;
-LLUIImagePtr LLWorldMapView::sHomeImage = NULL;
-LLUIImagePtr LLWorldMapView::sEventImage = NULL;
-LLUIImagePtr LLWorldMapView::sEventMatureImage = NULL;
-LLUIImagePtr LLWorldMapView::sEventAdultImage = NULL;
+LLUIImagePtr LLWorldMapView::sTelehubImage = nullptr;
+LLUIImagePtr LLWorldMapView::sInfohubImage = nullptr;
+LLUIImagePtr LLWorldMapView::sHomeImage = nullptr;
+LLUIImagePtr LLWorldMapView::sEventImage = nullptr;
+LLUIImagePtr LLWorldMapView::sEventMatureImage = nullptr;
+LLUIImagePtr LLWorldMapView::sEventAdultImage = nullptr;
 
-LLUIImagePtr LLWorldMapView::sTrackCircleImage = NULL;
-LLUIImagePtr LLWorldMapView::sTrackArrowImage = NULL;
+LLUIImagePtr LLWorldMapView::sTrackCircleImage = nullptr;
+LLUIImagePtr LLWorldMapView::sTrackArrowImage = nullptr;
 
-LLUIImagePtr LLWorldMapView::sClassifiedsImage = NULL;
-LLUIImagePtr LLWorldMapView::sForSaleImage = NULL;
-LLUIImagePtr LLWorldMapView::sForSaleAdultImage = NULL;
+LLUIImagePtr LLWorldMapView::sClassifiedsImage = nullptr;
+LLUIImagePtr LLWorldMapView::sForSaleImage = nullptr;
+LLUIImagePtr LLWorldMapView::sForSaleAdultImage = nullptr;
 
 S32 LLWorldMapView::sTrackingArrowX = 0;
 S32 LLWorldMapView::sTrackingArrowY = 0;
@@ -149,26 +149,26 @@ void LLWorldMapView::initClass()
 // static
 void LLWorldMapView::cleanupClass()
 {
-    sAvatarSmallImage = NULL;
-    sAvatarYouImage = NULL;
-    sAvatarYouLargeImage = NULL;
-    sAvatarLevelImage = NULL;
-    sAvatarAboveImage = NULL;
-    sAvatarBelowImage = NULL;
-    sAvatarUnknownImage = NULL;
+    sAvatarSmallImage = nullptr;
+    sAvatarYouImage = nullptr;
+    sAvatarYouLargeImage = nullptr;
+    sAvatarLevelImage = nullptr;
+    sAvatarAboveImage = nullptr;
+    sAvatarBelowImage = nullptr;
+    sAvatarUnknownImage = nullptr;
 
-    sTelehubImage = NULL;
-    sInfohubImage = NULL;
-    sHomeImage = NULL;
-    sEventImage = NULL;
-    sEventMatureImage = NULL;
-    sEventAdultImage = NULL;
+    sTelehubImage = nullptr;
+    sInfohubImage = nullptr;
+    sHomeImage = nullptr;
+    sEventImage = nullptr;
+    sEventMatureImage = nullptr;
+    sEventAdultImage = nullptr;
 
-    sTrackCircleImage = NULL;
-    sTrackArrowImage = NULL;
-    sClassifiedsImage = NULL;
-    sForSaleImage = NULL;
-    sForSaleAdultImage = NULL;
+    sTrackCircleImage = nullptr;
+    sTrackArrowImage = nullptr;
+    sClassifiedsImage = nullptr;
+    sForSaleImage = nullptr;
+    sForSaleAdultImage = nullptr;
 }
 
 LLWorldMapView::LLWorldMapView() :
@@ -535,7 +535,7 @@ void LLWorldMapView::draw()
                     LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW,
                     S32_MAX, //max_chars
                     (S32)mMapScale, //max_pixels
-                    NULL,
+                    nullptr,
                     /*use_ellipses*/true);
             }
         }
@@ -718,7 +718,7 @@ bool LLWorldMapView::drawMipmapLevel(S32 width, S32 height, S32 level, bool load
             LLVector3d pos_global(index_x, index_y, pos_SW[VZ]);
             // Convert to the mipmap level coordinates for that point (i.e. which tile to we hit)
             LLWorldMipmap::globalToMipmap(pos_global[VX], pos_global[VY], level, &grid_x, &grid_y);
-            // Get the tile. Note: NULL means that the image does not exist (so it's considered "complete" as far as fetching is concerned)
+            // Get the tile. Note: nullptr means that the image does not exist (so it's considered "complete" as far as fetching is concerned)
             LLPointer<LLViewerFetchedTexture> simimage = LLWorldMap::getInstance()->getObjectsTile(grid_x, grid_y, level, load);
             if (simimage)
             {
@@ -868,7 +868,7 @@ void LLWorldMapView::drawItems()
     {
         U64 handle = *iter;
         LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(handle);
-        if ((info == NULL) || (info->isDown()))
+        if ((info == nullptr) || (info->isDown()))
         {
             continue;
         }
@@ -920,7 +920,7 @@ void LLWorldMapView::drawAgents()
     {
         U64 handle = *iter;
         LLSimInfo* siminfo = LLWorldMap::getInstance()->simInfoFromHandle(handle);
-        if ((siminfo == NULL) || (siminfo->isDown()))
+        if ((siminfo == nullptr) || (siminfo->isDown()))
         {
             continue;
         }
@@ -1562,7 +1562,7 @@ void LLWorldMapView::handleClick(S32 x, S32 y, MASK mask,
             {
                 U64 handle = *iter;
                 LLSimInfo* siminfo = LLWorldMap::getInstance()->simInfoFromHandle(handle);
-                if ((siminfo == NULL) || (siminfo->isDown()))
+                if ((siminfo == nullptr) || (siminfo->isDown()))
                 {
                     continue;
                 }
@@ -1701,7 +1701,7 @@ bool LLWorldMapView::handleMouseUp( S32 x, S32 y, MASK mask )
             handleClick(x, y, mask, &hit_type, &id);
         }
         gViewerWindow->showCursor();
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setMouseCapture( nullptr );
         return true;
     }
     return false;
@@ -1771,7 +1771,7 @@ bool LLWorldMapView::handleHover( S32 x, S32 y, MASK mask )
     {
         // While we're waiting for data from the tracker, we're busy. JC
         LLVector3d pos_global = LLTracker::getTrackedPositionGlobal();
-        if (LLTracker::isTracking(NULL)
+        if (LLTracker::isTracking(nullptr)
             && pos_global.isExactlyZero())
         {
             gViewerWindow->setCursor( UI_CURSOR_WAIT );
@@ -1810,7 +1810,7 @@ bool LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
                 // Invoke the event details floater if someone is clicking on an event.
                 LLSD params(LLSD::emptyArray());
                 params.append(event_id);
-                LLCommandDispatcher::dispatch("event", params, LLSD(), LLGridManager::getInstance()->getGrid(), NULL, LLCommandHandler::NAV_TYPE_CLICKED, true);
+                LLCommandDispatcher::dispatch("event", params, LLSD(), LLGridManager::getInstance()->getGrid(), nullptr, LLCommandHandler::NAV_TYPE_CLICKED, true);
                 break;
             }
         case MAP_ITEM_LAND_FOR_SALE:

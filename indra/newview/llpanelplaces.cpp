@@ -235,13 +235,13 @@ static LLPanelInjector<LLPanelPlaces> t_places("panel_places");
 
 LLPanelPlaces::LLPanelPlaces()
     :   LLPanel(),
-        mActivePanel(NULL),
-        mFilterEditor(NULL),
-        mPlaceProfile(NULL),
-        mLandmarkInfo(NULL),
-        mItem(NULL),
-        mPlaceMenu(NULL),
-        mLandmarkMenu(NULL),
+        mActivePanel(nullptr),
+        mFilterEditor(nullptr),
+        mPlaceProfile(nullptr),
+        mLandmarkInfo(nullptr),
+        mItem(nullptr),
+        mPlaceMenu(nullptr),
+        mLandmarkMenu(nullptr),
         mPosGlobal(),
         isLandmarkEditModeOn(false),
         mTabsCreated(false)
@@ -368,7 +368,7 @@ bool LLPanelPlaces::postBuild()
     mLandmarkInfo->getChild<LLButton>("back_btn")->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
     LLLineEditor* title_editor = mLandmarkInfo->getChild<LLLineEditor>("title_editor");
-    title_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this), NULL);
+    title_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this), nullptr);
 
     LLTextEditor* notes_editor = mLandmarkInfo->getChild<LLTextEditor>("notes_editor");
     notes_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
@@ -433,7 +433,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
             mPlaceInfoType = key_type;
             mPosGlobal.setZero();
-            mItem = NULL;
+            mItem = nullptr;
             mRegionId.setNull();
             togglePlaceInfoPanel(true);
 
@@ -659,7 +659,7 @@ void LLPanelPlaces::onTabSelected()
 
     // History panel does not support deletion nor creation
     // Hide menus
-    bool supports_create = mActivePanel->getCreateMenu() != NULL;
+    bool supports_create = mActivePanel->getCreateMenu() != nullptr;
     childSetVisible("add_btn_panel", supports_create);
 
     // favorites and inventory can remove items, history can clear history
@@ -869,7 +869,7 @@ void LLPanelPlaces::onOverflowButtonClicked()
 
     if ((is_agent_place_info_visible ||
          mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
-         mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE) && mPlaceMenu != NULL)
+         mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE) && mPlaceMenu != nullptr)
     {
         menu = mPlaceMenu;
 
@@ -894,7 +894,7 @@ void LLPanelPlaces::onOverflowButtonClicked()
         menu->setItemVisible("landmark", mPlaceInfoType != TELEPORT_HISTORY_INFO_TYPE);
         menu->arrangeAndClear();
     }
-    else if (mPlaceInfoType == LANDMARK_INFO_TYPE && mLandmarkMenu != NULL)
+    else if (mPlaceInfoType == LANDMARK_INFO_TYPE && mLandmarkMenu != nullptr)
     {
         menu = mLandmarkMenu;
 
@@ -969,7 +969,7 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
                                     mItem->getUUID(),
                                     favorites_id,
                                     std::string(),
-                                    LLPointer<LLInventoryCallback>(NULL));
+                                    LLPointer<LLInventoryCallback>(nullptr));
                 LL_INFOS() << "Copied inventory item #" << mItem->getUUID() << " to favorites." << LL_ENDL;
             }
         }
@@ -1209,7 +1209,7 @@ void LLPanelPlaces::createTabs()
 
         // History panel does not support deletion nor creation
         // Hide menus
-        bool supports_create = mActivePanel->getCreateMenu() != NULL;
+        bool supports_create = mActivePanel->getCreateMenu() != nullptr;
         childSetVisible("add_btn_panel", supports_create);
 
         // favorites and inventory can remove items, history can clear history
@@ -1332,7 +1332,7 @@ LLPanelPlaceInfo* LLPanelPlaces::getCurrentInfoPanel()
         return mLandmarkInfo;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void LLPanelPlaces::hideBackBtn()

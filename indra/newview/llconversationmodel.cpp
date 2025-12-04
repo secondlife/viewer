@@ -160,7 +160,7 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
         }
         else
         {
-            LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : NULL;
+            LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : nullptr;
             if(voice_channel != LLVoiceChannel::getCurrentVoiceChannel())
             {
                 items.push_back(std::string("voice_call"));
@@ -323,7 +323,7 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
         std::string new_session_name;
         LLAvatarActions::buildResidentsString(temp_uuids, new_session_name);
         renameItem(new_session_name);
-        postEvent("update_session", this, NULL);
+        postEvent("update_session", this, nullptr);
     }
 }
 
@@ -365,7 +365,7 @@ void LLConversationItemSession::clearAndDeparentModels()
         // and have a different parent
         if (child->getParent() == this)
         {
-            child->setParent(NULL);
+            child->setParent(nullptr);
         }
         it = mChildren.erase(it);
     }
@@ -375,7 +375,7 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
 {
     // This is *not* a general tree parsing algorithm. It assumes that a session contains only
     // items (LLConversationItemParticipant) that have themselve no children.
-    LLConversationItemParticipant* participant = NULL;
+    LLConversationItemParticipant* participant = nullptr;
     child_list_t::iterator iter;
     for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
     {
@@ -385,7 +385,7 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
             break;
         }
     }
-    return (iter == mChildren.end() ? NULL : participant);
+    return (iter == mChildren.end() ? nullptr : participant);
 }
 
 void LLConversationItemSession::setParticipantIsMuted(const LLUUID& participant_id, bool is_muted)
@@ -468,7 +468,7 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLConversationItemSession::addVoiceOptions(menuentry_vec_t& items)
 {
-    LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : NULL;
+    LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : nullptr;
 
     if(voice_channel != LLVoiceChannel::getCurrentVoiceChannel())
     {
@@ -485,7 +485,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
 {
     F64 most_recent_time = mLastActiveTime;
     bool has_time = (most_recent_time > 0.1);
-    LLConversationItemParticipant* participant = NULL;
+    LLConversationItemParticipant* participant = nullptr;
     child_list_t::const_iterator iter;
     for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
     {
@@ -531,7 +531,7 @@ void LLConversationItemSession::onAvatarNameCache(const LLAvatarName& av_name)
     }
 
     renameItem(av_name.getDisplayName());
-    postEvent("update_session", this, NULL);
+    postEvent("update_session", this, nullptr);
 }
 
 //
@@ -593,10 +593,10 @@ void LLConversationItemParticipant::updateName(const LLAvatarName& av_name)
     }
 
     renameItem(mDisplayName);
-    if (mParent != NULL)
+    if (mParent != nullptr)
     {
         LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
-        if (parent_session != NULL)
+        if (parent_session != nullptr)
         {
             parent_session->requestSort();
             parent_session->updateName(this);
@@ -617,7 +617,7 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 LLConversationItemSession* LLConversationItemParticipant::getParentSession()
 {
-    LLConversationItemSession* parent_session = NULL;
+    LLConversationItemSession* parent_session = nullptr;
     if (hasParent())
     {
         parent_session = dynamic_cast<LLConversationItemSession*>(mParent);

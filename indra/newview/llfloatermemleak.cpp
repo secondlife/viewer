@@ -130,7 +130,7 @@ void LLFloaterMemLeak::idle()
         return ;
     }
 
-    char* p = NULL ;
+    char* p = nullptr ;
     if(sMemLeakingSpeed > 0 && sTotalLeaked < sMaxLeakedMem)
     {
         p = new char[sMemLeakingSpeed] ;

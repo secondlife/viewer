@@ -417,8 +417,8 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
     mContextMenuHandle(),
     mImageDragIndication(p.image_drag_indication),
     mShowDragMarker(false),
-    mLandingTab(NULL),
-    mLastTab(NULL),
+    mLandingTab(nullptr),
+    mLastTab(nullptr),
     mItemsListDirty(false),
     mUpdateDropDownItems(true),
     mRestoreOverflowMenu(false),
@@ -521,15 +521,15 @@ bool LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                     if (mLastTab && (x >= mLastTab->getRect().mRight))
                     {
                         /*
-                         * the condition dest == NULL can be satisfied not only in the case
+                         * the condition dest == nullptr can be satisfied not only in the case
                          * of dragging to the right from the last tab of the favbar. there is a
                          * small gap between each tab. if the user drags something exactly there
-                         * then mLandingTab will be set to NULL and the dragged item will be pushed
+                         * then mLandingTab will be set to nullptr and the dragged item will be pushed
                          * to the end of the favorites bar. this is incorrect behavior. that's why
                          * we need an additional check which excludes the case described previously
                          * making sure that the mouse pointer is beyond the last tab.
                          */
-                        setLandingTab(NULL);
+                        setLandingTab(nullptr);
                     }
                 }
             }
@@ -579,8 +579,8 @@ bool LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                 {
                     if (mItems.empty())
                     {
-                        setLandingTab(NULL);
-                        mLastTab = NULL;
+                        setLandingTab(nullptr);
+                        mLastTab = nullptr;
                     }
                     handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
                 }
@@ -935,7 +935,7 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
     if(mItems.empty())
     {
         mBarLabel->setVisible(true);
-        mLastTab = NULL;
+        mLastTab = nullptr;
     }
     else
     {
@@ -984,7 +984,7 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
             {
                 if (mLastTab == button)
                 {
-                    mLastTab = NULL;
+                    mLastTab = nullptr;
                 }
                 removeChild(button);
                 delete button;
@@ -1012,7 +1012,7 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
             }
         }
         //last_right_edge is saving coordinates
-        LLButton* last_new_button = NULL;
+        LLButton* last_new_button = nullptr;
         int j = first_changed_item_index;
         for (; j < mItems.size(); j++)
         {
@@ -1082,19 +1082,19 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
      */
     int required_width = mFont->getWidth(item->getName()) + 20;
     int width = required_width > def_button_width? def_button_width : required_width;
-    LLFavoriteLandmarkButton* fav_btn = NULL;
+    LLFavoriteLandmarkButton* fav_btn = nullptr;
 
     // do we have a place for next button + double buttonHGap + mMoreTextBox ?
     if(curr_x + width + 2*button_x_delta +  mMoreTextBox->getRect().getWidth() > getRect().mRight )
     {
-        return NULL;
+        return nullptr;
     }
     LLButton::Params fav_btn_params(button_params);
     fav_btn = LLUICtrlFactory::create<LLFavoriteLandmarkButton>(fav_btn_params);
-    if (NULL == fav_btn)
+    if (nullptr == fav_btn)
     {
         LL_WARNS("FavoritesBar") << "Unable to create LLFavoriteLandmarkButton widget: " << item->getName() << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     addChild(fav_btn);
@@ -1356,7 +1356,7 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 
     // Release mouse capture so hover events go to the popup menu
     // because this is happening during a mouse down.
-    gFocusMgr.setMouseCapture(NULL);
+    gFocusMgr.setMouseCapture(nullptr);
 
     menu->updateParent(LLMenuGL::sMenuContainer);
     LLMenuGL::showPopup(fav_button, menu, x, y);
@@ -1364,7 +1364,7 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 
 bool LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    bool handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+    bool handled = childrenHandleRightMouseDown( x, y, mask) != nullptr;
     if(!handled && !gMenuHolder->hasVisibleMenu())
     {
         show_navbar_context_menu(this,x,y);
@@ -1548,7 +1548,7 @@ void LLFavoritesBarCtrl::pasteFromClipboard() const
     LLInventoryModel* model = &gInventory;
     if(model && isClipboardPasteable())
     {
-        LLInventoryItem* item = NULL;
+        LLInventoryItem* item = nullptr;
         std::vector<LLUUID> objects;
         LLClipboard::instance().pasteFromClipboard(objects);
         auto count = objects.size();
@@ -1564,7 +1564,7 @@ void LLFavoritesBarCtrl::pasteFromClipboard() const
                     item->getUUID(),
                     parent_id,
                     std::string(),
-                    LLPointer<LLInventoryCallback>(NULL));
+                    LLPointer<LLInventoryCallback>(nullptr));
             }
         }
     }
@@ -1631,7 +1631,7 @@ bool LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 
 LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)
 {
-    LLUICtrl* ctrl = NULL;
+    LLUICtrl* ctrl = nullptr;
     const child_list_t* list = getChildList();
 
     for (child_list_const_iter_t i = list->begin(); i != list->end(); ++i)

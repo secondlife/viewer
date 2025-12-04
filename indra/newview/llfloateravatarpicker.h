@@ -50,7 +50,7 @@ public:
                                        bool closeOnSelect = false,
                                        bool skip_agent = false,
                                        const std::string& name = "",
-                                       LLView * frustumOrigin = NULL);
+                                       LLView * frustumOrigin = nullptr);
 
     LLFloaterAvatarPicker(const LLSD& key);
     virtual ~LLFloaterAvatarPicker();

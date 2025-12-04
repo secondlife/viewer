@@ -173,7 +173,7 @@ void LLHUDEffectBeam::setSourceObject(LLViewerObject *objp)
     if (objp->isDead())
     {
         LL_WARNS() << "HUDEffectBeam: Source object is dead!" << LL_ENDL;
-        mSourceObject = NULL;
+        mSourceObject = nullptr;
         return;
     }
 
@@ -219,7 +219,7 @@ void LLHUDEffectBeam::setTargetObject(LLViewerObject *objp)
 void LLHUDEffectBeam::setTargetPos(const LLVector3d &pos_global)
 {
     mTargetPos = pos_global;
-    mTargetObject = NULL;
+    mTargetObject = nullptr;
 }
 
 void LLHUDEffectBeam::render()

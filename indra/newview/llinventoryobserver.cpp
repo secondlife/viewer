@@ -471,7 +471,7 @@ bool LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInven
     if (!cats || !items)
     {
         LL_WARNS() << "Category '" << cat->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
-        // NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+        // nullptr means the call failed -- cats/items map doesn't exist (note: this does NOT mean
         // that the cat just doesn't have any items or subfolders).
         // Unrecoverable, so just return done so that this observer can be cleared
         // from memory.
@@ -706,11 +706,11 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
         if (!cats || !items)
         {
             LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
-            // NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+            // nullptr means the call failed -- cats/items map doesn't exist (note: this does NOT mean
             // that the cat just doesn't have any items or subfolders).
             // Unrecoverable, so just skip this category.
 
-            llassert(cats != NULL && items != NULL);
+            llassert(cats != nullptr && items != nullptr);
 
             continue;
         }
@@ -795,12 +795,12 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
         if (!cats || !items)
         {
             LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
-            // NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+            // nullptr means the call failed -- cats/items map doesn't exist (note: this does NOT mean
             // that the cat just doesn't have any items or subfolders).
             // Unrecoverable, so just return "false" meaning that the category can't be observed.
             can_be_added = false;
 
-            llassert(cats != NULL && items != NULL);
+            llassert(cats != nullptr && items != nullptr);
         }
         else
         {

@@ -51,7 +51,7 @@ LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t ca
     if (!floater)
     {
         LL_WARNS() << "Cannot instantiate experience picker" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     if (floater->mSearchPanel)
@@ -86,7 +86,7 @@ void LLFloaterExperiencePicker::draw()
 
 LLFloaterExperiencePicker::LLFloaterExperiencePicker( const LLSD& key )
     :LLFloater(key)
-    ,mSearchPanel(NULL)
+    ,mSearchPanel(nullptr)
     ,mContextConeOpacity(0.f)
     ,mContextConeInAlpha(CONTEXT_CONE_IN_ALPHA)
     ,mContextConeOutAlpha(CONTEXT_CONE_OUT_ALPHA)

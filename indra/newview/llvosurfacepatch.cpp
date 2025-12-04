@@ -49,9 +49,9 @@ F32 LLVOSurfacePatch::sLODFactor = 1.f;
 LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
     :   LLStaticViewerObject(id, pcode, regionp),
         mDirtiedPatch(false),
-        mPool(NULL),
+        mPool(nullptr),
         mBaseComp(0),
-        mPatchp(NULL),
+        mPatchp(nullptr),
         mDirtyTexture(false),
         mDirtyTerrain(false),
         mLastNorthStride(0),
@@ -67,7 +67,7 @@ LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLView
 
 LLVOSurfacePatch::~LLVOSurfacePatch()
 {
-    mPatchp = NULL;
+    mPatchp = nullptr;
 }
 
 
@@ -76,7 +76,7 @@ void LLVOSurfacePatch::markDead()
     if (mPatchp)
     {
         mPatchp->clearVObj();
-        mPatchp = NULL;
+        mPatchp = nullptr;
     }
     LLViewerObject::markDead();
 }
@@ -132,7 +132,7 @@ LLDrawable *LLVOSurfacePatch::createDrawable(LLPipeline *pipeline)
 
     LLFacePool *poolp = getPool();
 
-    mDrawable->addFace(poolp, NULL);
+    mDrawable->addFace(poolp, nullptr);
 
     return mDrawable;
 }
@@ -786,7 +786,7 @@ void LLVOSurfacePatch::dirtyGeom()
         LLFace* facep = mDrawable->getFace(0);
         if (facep)
         {
-            facep->setVertexBuffer(NULL);
+            facep->setVertexBuffer(nullptr);
         }
         mDrawable->movePartition();
     }

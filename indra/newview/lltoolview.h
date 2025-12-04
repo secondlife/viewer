@@ -50,7 +50,7 @@ public:
     LLToolView*     mParent;        // toolview that owns this container
     LLButton*       mButton;
     LLPanel*        mPanel;
-    LLTool*         mTool;          // if not NULL, this is a tool ref
+    LLTool*         mTool;          // if not nullptr, this is a tool ref
 };
 
 

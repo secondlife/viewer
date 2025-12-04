@@ -86,7 +86,7 @@ public:
     } EStatus;
 
     ImplBase(LLFloaterSnapshotBase* floater) : mAvatarPauseHandles(),
-        mLastToolset(NULL),
+        mLastToolset(nullptr),
         mAspectRatioCheckOff(false),
         mNeedRefresh(false),
         mSkipReshaping(false),

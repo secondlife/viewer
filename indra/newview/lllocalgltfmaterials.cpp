@@ -375,7 +375,7 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
             notif_args["FNAME"] = filename;
             LLNotificationsUtil::add("LocalGLTFVerifyFail", notif_args);
 
-            unit = NULL;
+            unit = nullptr;
         }
     }
 
@@ -402,7 +402,7 @@ void LLLocalGLTFMaterialMgr::delUnit(LLUUID tracking_id)
             LLLocalGLTFMaterial* unit = *del_iter;
             mMaterialList.remove(unit);
 
-            unit = NULL;
+            unit = nullptr;
         }
     }
 }

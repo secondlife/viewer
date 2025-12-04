@@ -128,16 +128,16 @@ public:
     void wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
                            bool do_update,
                            bool replace,
-                           LLPointer<LLInventoryCallback> cb = NULL);
+                           LLPointer<LLInventoryCallback> cb = nullptr);
 
     // Wear/attach an item (from a user's inventory) on the agent
     void wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update, bool replace = false,
-                          LLPointer<LLInventoryCallback> cb = NULL);
+                          LLPointer<LLInventoryCallback> cb = nullptr);
 
     // Update the displayed outfit name in UI.
     void updatePanelOutfitName(const std::string& name);
 
-    void purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb = NULL);
+    void purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb = nullptr);
     void createBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> link_waiter);
 
     void updateAgentWearables(LLWearableHoldingPattern* holder);
@@ -154,16 +154,16 @@ public:
     void setAttachmentInvLinkEnable(bool val);
 
     // Add COF link to individual item.
-    void addCOFItemLink(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
-    void addCOFItemLink(const LLInventoryItem *item, LLPointer<LLInventoryCallback> cb = NULL, const std::string description = "");
+    void addCOFItemLink(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = nullptr, const std::string description = "");
+    void addCOFItemLink(const LLInventoryItem *item, LLPointer<LLInventoryCallback> cb = nullptr, const std::string description = "");
 
     // Find COF entries referencing the given item.
     LLInventoryModel::item_array_t findCOFItemLinks(const LLUUID& item_id);
     bool isLinkedInCOF(const LLUUID& item_id);
 
     // Remove COF entries
-    void removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = NULL);
-    void removeCOFLinksOfType(LLWearableType::EType type, LLPointer<LLInventoryCallback> cb = NULL);
+    void removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInventoryCallback> cb = nullptr);
+    void removeCOFLinksOfType(LLWearableType::EType type, LLPointer<LLInventoryCallback> cb = nullptr);
     void removeAllClothesFromAvatar();
     void removeAllAttachmentsFromAvatar();
 
@@ -223,7 +223,7 @@ public:
     bool validateClothingOrderingInfo(LLUUID cat_id = LLUUID::null);
 
     void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null,
-                                    LLPointer<LLInventoryCallback> cb = NULL);
+                                    LLPointer<LLInventoryCallback> cb = nullptr);
 
     bool isOutfitLocked() { return mOutfitLocked; }
 

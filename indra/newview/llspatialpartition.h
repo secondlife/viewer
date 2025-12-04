@@ -141,7 +141,7 @@ public:
     { //sort by texture
         bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs)
         {
-            // sort by pointer, sort NULL down to the end
+            // sort by pointer, sort nullptr down to the end
             return lhs.get() != rhs.get()
                         && (lhs.isNull() || (rhs.notNull() && lhs->mTexture.get() > rhs->mTexture.get()));
         }
@@ -151,7 +151,7 @@ public:
     { //sort by texture
         bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs)
         {
-            // sort by pointer, sort NULL down to the end
+            // sort by pointer, sort nullptr down to the end
             return lhs.get() != rhs.get()
                     && (lhs.isNull() || (rhs.notNull() && lhs->mVertexBuffer.get() > rhs->mVertexBuffer.get()));
         }
@@ -183,7 +183,7 @@ public:
     {
         bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs)
         {
-            // sort by mBump value, sort NULL down to the end
+            // sort by mBump value, sort nullptr down to the end
             return lhs.get() != rhs.get()
                         && (lhs.isNull() || (rhs.notNull() && lhs->mBump > rhs->mBump));
         }
@@ -304,10 +304,10 @@ public:
         bool pick_unselectable,
         bool pick_reflection_probe,
         S32* face_hit,                          // return the face hit
-        LLVector4a* intersection = NULL,         // return the intersection point
-        LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-        LLVector4a* normal = NULL,               // return the surface normal at the intersection point
-        LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
+        LLVector4a* intersection = nullptr,         // return the intersection point
+        LLVector2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
+        LLVector4a* normal = nullptr,               // return the surface normal at the intersection point
+        LLVector4a* tangent = nullptr             // return the surface tangent at the intersection point
     );
 
 
@@ -382,10 +382,10 @@ public:
                                      bool pick_unselectable,
                                      bool pick_reflection_probe,
                                      S32* face_hit,                          // return the face hit
-                                     LLVector4a* intersection = NULL,         // return the intersection point
-                                     LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-                                     LLVector4a* normal = NULL,               // return the surface normal at the intersection point
-                                     LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
+                                     LLVector4a* intersection = nullptr,         // return the intersection point
+                                     LLVector2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
+                                     LLVector4a* normal = nullptr,               // return the surface normal at the intersection point
+                                     LLVector4a* tangent = nullptr             // return the surface tangent at the intersection point
         );
 
 
@@ -407,7 +407,7 @@ public:
     bool isHUDPartition() ;
 
     LLSpatialBridge* asBridge() { return mBridge; }
-    bool isBridge() { return asBridge() != NULL; }
+    bool isBridge() { return asBridge() != nullptr; }
 
     void renderPhysicsShapes(bool depth_only);
     void renderDebug();
@@ -417,7 +417,7 @@ public:
     bool getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
 
 public:
-    LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
+    LLSpatialBridge* mBridge; // nullptr for non-LLSpatialBridge instances, otherwise, mBridge == this
                             // use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
                             // to call asBridge() from the destructor
 
@@ -444,7 +444,7 @@ public:
     virtual bool isSpatialBridge() const        { return true; }
     virtual void updateSpatialExtents();
     virtual void updateBinRadius();
-    virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = NULL, bool for_select = false);
+    virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = nullptr, bool for_select = false);
     virtual void updateDistance(LLCamera& camera_in, bool force_update);
     virtual void makeActive();
     virtual void move(LLDrawable *drawablep, LLSpatialGroup *curp, bool immediate = false);

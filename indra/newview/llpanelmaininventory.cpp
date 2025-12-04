@@ -128,15 +128,15 @@ private:
 
 LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
     : LLPanel(p),
-      mActivePanel(NULL),
-      mWornItemsPanel(NULL),
-      mSavedFolderState(NULL),
+      mActivePanel(nullptr),
+      mWornItemsPanel(nullptr),
+      mSavedFolderState(nullptr),
       mFilterText(""),
-      mMenuGearDefault(NULL),
-      mMenuVisibility(NULL),
+      mMenuGearDefault(nullptr),
+      mMenuVisibility(nullptr),
       mMenuAddHandle(),
       mNeedUploadCost(true),
-      mMenuViewDefault(NULL),
+      mMenuViewDefault(nullptr),
       mSingleFolderMode(false),
       mForceShowInvLayout(false),
       mViewMode(MODE_COMBINATION),
@@ -416,7 +416,7 @@ void LLPanelMainInventory::startSearch()
 
 bool LLPanelMainInventory::handleKeyHere(KEY key, MASK mask)
 {
-    LLFolderView* root_folder = mActivePanel ? mActivePanel->getRootFolder() : NULL;
+    LLFolderView* root_folder = mActivePanel ? mActivePanel->getRootFolder() : nullptr;
     if (root_folder)
     {
         // first check for user accepting current search results
@@ -478,7 +478,7 @@ LLFloaterSidePanelContainer* LLPanelMainInventory::newWindow()
         sidepanel_inventory->initInventoryViews();
         return floater;
     }
-    return NULL;
+    return nullptr;
 }
 
 //static
@@ -566,7 +566,7 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                         LL_DEBUGS("Inventory") << "Done creating inventory: " << new_id << LL_ENDL;
                     }
                 };
-                menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_created);
+                menu_create_inventory_item(nullptr, getCurrentSFVRoot(), userdata, LLUUID::null, callback_created);
             }
         }
         else
@@ -585,13 +585,13 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
                     }
                 }
             };
-            menu_create_inventory_item(NULL, getCurrentSFVRoot(), userdata, LLUUID::null, callback_created);
+            menu_create_inventory_item(nullptr, getCurrentSFVRoot(), userdata, LLUUID::null, callback_created);
         }
     }
     else
     {
         selectAllItemsPanel();
-        menu_create_inventory_item(mAllItemsPanel, NULL, userdata);
+        menu_create_inventory_item(mAllItemsPanel, nullptr, userdata);
     }
 }
 
@@ -759,7 +759,7 @@ bool LLPanelMainInventory::filtersVisible(void* user_data)
     LLPanelMainInventory* self = (LLPanelMainInventory*)user_data;
     if(!self) return false;
 
-    return self->getFinder() != NULL;
+    return self->getFinder() != nullptr;
 }
 
 void LLPanelMainInventory::onClearSearch()
@@ -851,7 +851,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
  //static
  bool LLPanelMainInventory::incrementalFind(LLFolderViewItem* first_item, const char *find_text, bool backward)
  {
-    LLPanelMainInventory* active_view = NULL;
+    LLPanelMainInventory* active_view = nullptr;
 
     LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
     for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
@@ -1669,7 +1669,7 @@ void LLPanelMainInventory::onViewModeClick()
             if (current_item)
             {
                 const LLUUID& id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
-                if(gInventory.getCategory(id) != NULL)
+                if(gInventory.getCategory(id) != nullptr)
                 {
                     new_root_folder = id;
                 }
@@ -2077,7 +2077,7 @@ void LLPanelMainInventory::onVisibilityChange( bool new_visibility )
 
 bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
 {
-    LLViewerInventoryItem *inv_item = NULL;
+    LLViewerInventoryItem *inv_item = nullptr;
     if(mSingleFolderMode && isGalleryViewMode())
     {
         inv_item = gInventory.getItem(mCombinationGalleryPanel->getFirstSelectedItemID());
@@ -2577,7 +2577,7 @@ LLSidepanelInventory* LLPanelMainInventory::getParentSidepanelInventory()
     {
         return dynamic_cast<LLSidepanelInventory*>(inventory_container->findChild<LLPanel>("main_panel", true));
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLPanelMainInventory::setViewMode(EViewModeType mode)

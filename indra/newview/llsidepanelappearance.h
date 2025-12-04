@@ -60,7 +60,7 @@ public:
     void showOutfitsInventoryPanel(); // last selected
     void showOutfitsInventoryPanel(const std::string& tab_name);
     void showOutfitEditPanel();
-    void showWearableEditPanel(LLViewerWearable *wearable = NULL, bool disable_camera_switch = false);
+    void showWearableEditPanel(LLViewerWearable *wearable = nullptr, bool disable_camera_switch = false);
     void setWearablesLoading(bool val);
     void showDefaultSubpart();
     void updateScrollingPanelList();

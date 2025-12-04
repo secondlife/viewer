@@ -406,7 +406,7 @@ void LLNetMap::draw()
 
             pos_map = globalPosToView(positions[i]);
 
-            bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
+            bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr);
 
             LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
 
@@ -1040,7 +1040,7 @@ bool LLNetMap::handleMouseUp(S32 x, S32 y, MASK mask)
             mMouseDown.set(0, 0);
         }
         gViewerWindow->showCursor();
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
         return true;
     }
 
@@ -1081,7 +1081,7 @@ bool LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
     if (double_click_teleport || double_click_show_world_map)
     {
         // If we're not tracking a beacon already, double-click will set one
-        if (!LLTracker::isTracking(NULL))
+        if (!LLTracker::isTracking(nullptr))
         {
             LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
             if (world_map)
@@ -1193,7 +1193,7 @@ void LLNetMap::handleStopTracking (const LLSD& userdata)
     if (menu)
     {
         menu->setItemEnabled ("Stop Tracking", false);
-        LLTracker::stopTracking (LLTracker::isTracking(NULL));
+        LLTracker::stopTracking (LLTracker::isTracking(nullptr));
     }
 }
 

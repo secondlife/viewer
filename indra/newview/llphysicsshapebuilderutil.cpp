@@ -45,7 +45,7 @@ bool LLPhysicsVolumeParams::hasDecomposition() const
 
     LLModel::Decomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
 
-    return decomp != NULL;
+    return decomp != nullptr;
 }
 
 /* static */

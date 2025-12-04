@@ -131,7 +131,7 @@ public:
      * Called when the floater gets opened/closed, user sits, stands up or starts/stops flying.
      *
      * @param move_view The floater to attach to (not always accessible via floater registry).
-     *        If NULL is passed, the panel gets reparented to its original container.
+     *        If nullptr is passed, the panel gets reparented to its original container.
      *
      * @see mAttached
      * @see mOriginalParent

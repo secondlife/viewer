@@ -57,7 +57,7 @@ int DebugDetailMap = 0;
 S32 LLDrawPoolTerrain::sPBRDetailMode = 0;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
 F32 LLDrawPoolTerrain::sPBRDetailScale = DETAIL_SCALE;
-static LLGLSLShader* sShader = NULL;
+static LLGLSLShader* sShader = nullptr;
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_TERRAIN("Terrain Shadow");
 
 
@@ -86,7 +86,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 
 LLDrawPoolTerrain::~LLDrawPoolTerrain()
 {
-    llassert( gPipeline.findPool( getType(), getTexture() ) == NULL );
+    llassert( gPipeline.findPool( getType(), getTexture() ) == nullptr );
 }
 
 U32 LLDrawPoolTerrain::getVertexDataMask()

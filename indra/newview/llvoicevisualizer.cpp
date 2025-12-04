@@ -78,15 +78,15 @@ const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is 
 //------------------------------------------------------------------
 bool LLVoiceVisualizer::sPrefsInitialized   = false;
 bool LLVoiceVisualizer::sLipSyncEnabled     = false;
-F32* LLVoiceVisualizer::sOoh                = NULL;
-F32* LLVoiceVisualizer::sAah                = NULL;
+F32* LLVoiceVisualizer::sOoh                = nullptr;
+F32* LLVoiceVisualizer::sAah                = nullptr;
 U32  LLVoiceVisualizer::sOohs               = 0;
 U32  LLVoiceVisualizer::sAahs               = 0;
 F32  LLVoiceVisualizer::sOohAahRate         = 0.0f;
-F32* LLVoiceVisualizer::sOohPowerTransfer   = NULL;
+F32* LLVoiceVisualizer::sOohPowerTransfer   = nullptr;
 U32  LLVoiceVisualizer::sOohPowerTransfers  = 0;
 F32  LLVoiceVisualizer::sOohPowerTransfersf = 0.0f;
-F32* LLVoiceVisualizer::sAahPowerTransfer   = NULL;
+F32* LLVoiceVisualizer::sAahPowerTransfer   = nullptr;
 U32  LLVoiceVisualizer::sAahPowerTransfers  = 0;
 F32  LLVoiceVisualizer::sAahPowerTransfersf = 0.0f;
 

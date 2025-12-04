@@ -117,8 +117,8 @@ LLAgentCamera::LLAgentCamera() :
 
     mDrawDistance( DEFAULT_FAR_PLANE ),
 
-    mLookAt(NULL),
-    mPointAt(NULL),
+    mLookAt(nullptr),
+    mPointAt(nullptr),
 
     mHUDTargetZoom(1.f),
     mHUDCurZoom(1.f),
@@ -157,7 +157,7 @@ LLAgentCamera::LLAgentCamera() :
     mAllowChangeToFollow(false),
     mFocusGlobal(),
     mFocusTargetGlobal(),
-    mFocusObject(NULL),
+    mFocusObject(nullptr),
     mFocusObjectDist(0.f),
     mFocusObjectOffset(),
     mTrackFocusObject(true),
@@ -233,14 +233,14 @@ void LLAgentCamera::cleanup()
     if(mLookAt)
     {
         mLookAt->markDead() ;
-        mLookAt = NULL;
+        mLookAt = nullptr;
     }
     if(mPointAt)
     {
         mPointAt->markDead() ;
-        mPointAt = NULL;
+        mPointAt = nullptr;
     }
-    setFocusObject(NULL);
+    setFocusObject(nullptr);
 }
 
 void LLAgentCamera::setAvatarObject(LLVOAvatarSelf* avatar)
@@ -303,7 +303,7 @@ void LLAgentCamera::resetView(bool reset_camera, bool change_camera)
         LLSelectMgr::getInstance()->deselectAll();
     }
 
-    if (gMenuHolder != NULL)
+    if (gMenuHolder != nullptr)
     {
         // Hide all popup menus
         gMenuHolder->hideMenus();
@@ -361,7 +361,7 @@ void LLAgentCamera::resetView(bool reset_camera, bool change_camera)
         // resetting camera also resets position overrides in debug mode 'AllowSelectAvatar'
         LLObjectSelectionHandle selected_handle = LLSelectMgr::getInstance()->getSelection();
         if (selected_handle->getObjectCount() == 1
-            && selected_handle->getFirstObject() != NULL
+            && selected_handle->getFirstObject() != nullptr
             && selected_handle->getFirstObject()->isAvatar())
         {
             LLSelectMgr::getInstance()->resetObjectOverrides(selected_handle);
@@ -1475,7 +1475,7 @@ void LLAgentCamera::updateCamera()
     // follow camera when in customize mode
     if (cameraCustomizeAvatar())
     {
-        setLookAt(LOOKAT_TARGET_FOCUS, NULL, position_agent);
+        setLookAt(LOOKAT_TARGET_FOCUS, nullptr, position_agent);
     }
 
     // update the travel distance stat
@@ -2187,7 +2187,7 @@ void LLAgentCamera::changeCameraToMouselook(bool animate)
 
     if (mCameraMode != CAMERA_MODE_MOUSELOOK)
     {
-        gFocusMgr.setKeyboardFocus(NULL);
+        gFocusMgr.setKeyboardFocus(nullptr);
 
         updateLastCamera();
         mCameraMode = CAMERA_MODE_MOUSELOOK;
@@ -2389,8 +2389,8 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
         mCameraMode = CAMERA_MODE_CUSTOMIZE_AVATAR;
         gAgent.clearControlFlags(AGENT_CONTROL_MOUSELOOK);
 
-        gFocusMgr.setKeyboardFocus( NULL );
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setKeyboardFocus( nullptr );
+        gFocusMgr.setMouseCapture( nullptr );
         if( gMorphView )
         {
             gMorphView->setVisible( true );
@@ -2493,7 +2493,7 @@ void LLAgentCamera::clearFocusObject()
     {
         startCameraAnimation();
 
-        setFocusObject(NULL);
+        setFocusObject(nullptr);
         mFocusObjectOffset.clearVec();
     }
 }
@@ -2573,7 +2573,7 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
             }
             else
             {
-                setLookAt(LOOKAT_TARGET_FOCUS, NULL, gAgent.getPosAgentFromGlobal(mFocusTargetGlobal));
+                setLookAt(LOOKAT_TARGET_FOCUS, nullptr, gAgent.getPosAgentFromGlobal(mFocusTargetGlobal));
             }
         }
     }
@@ -2643,7 +2643,7 @@ void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, con
     }
     else
     {
-        setLookAt(LOOKAT_TARGET_FOCUS, NULL, gAgent.getPosAgentFromGlobal(mFocusTargetGlobal));
+        setLookAt(LOOKAT_TARGET_FOCUS, nullptr, gAgent.getPosAgentFromGlobal(mFocusTargetGlobal));
     }
 
     if (mCameraAnimating)
@@ -2682,7 +2682,7 @@ void LLAgentCamera::setSitCamera(const LLUUID &object_id, const LLVector3 &camer
     {
         mSitCameraPos.clearVec();
         mSitCameraFocus.clearVec();
-        mSitCameraReferenceObject = NULL;
+        mSitCameraReferenceObject = nullptr;
         mSitCameraEnabled = false;
     }
 }

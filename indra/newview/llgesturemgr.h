@@ -130,7 +130,7 @@ public:
     bool triggerGestureRelease(KEY key, MASK mask);
 
     // Trigger all gestures referenced as substrings in this string
-    bool triggerAndReviseString(const std::string &str, std::string *revised_string = NULL);
+    bool triggerAndReviseString(const std::string &str, std::string *revised_string = nullptr);
 
     // Does some gesture have this key bound?
     bool isKeyBound(KEY key, MASK mask);

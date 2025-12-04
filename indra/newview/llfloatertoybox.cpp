@@ -39,7 +39,7 @@
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
     : LLFloater(key)
-    , mToolBar(NULL)
+    , mToolBar(nullptr)
 {
     mCommitCallbackRegistrar.add("Toybox.RestoreDefaults", boost::bind(&LLFloaterToybox::onBtnRestoreDefaults, this));
     mCommitCallbackRegistrar.add("Toybox.ClearAll", boost::bind(&LLFloaterToybox::onBtnClearAll, this));
@@ -99,7 +99,7 @@ bool LLFloaterToybox::postBuild()
 
 void LLFloaterToybox::draw()
 {
-    llassert(gToolBarView != NULL);
+    llassert(gToolBarView != nullptr);
 
     const command_id_list_t& command_list = mToolBar->getCommandsList();
 

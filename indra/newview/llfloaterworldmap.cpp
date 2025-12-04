@@ -270,7 +270,7 @@ public:
 };
 LLMapTrackAvatarHandler gMapTrackAvatar;
 
-LLFloaterWorldMap* gFloaterWorldMap = NULL;
+LLFloaterWorldMap* gFloaterWorldMap = nullptr;
 
 class LLMapInventoryObserver : public LLInventoryObserver
 {
@@ -469,16 +469,16 @@ LLFloaterWorldMap::~LLFloaterWorldMap()
     }
 
     // All cleaned up by LLView destructor
-    mMapView = NULL;
+    mMapView = nullptr;
 
     // Inventory deletes all observers on shutdown
-    mInventory = NULL;
-    mInventoryObserver = NULL;
+    mInventory = nullptr;
+    mInventoryObserver = nullptr;
 
     // avatar tracker will delete this for us.
-    mFriendObserver = NULL;
+    mFriendObserver = nullptr;
 
-    gFloaterWorldMap = NULL;
+    gFloaterWorldMap = nullptr;
 
     mTeleportFinishConnection.disconnect();
 }
@@ -1029,8 +1029,8 @@ void LLFloaterWorldMap::observeInventory(LLInventoryModel* model)
     {
         mInventory->removeObserver(mInventoryObserver);
         delete mInventoryObserver;
-        mInventory = NULL;
-        mInventoryObserver = NULL;
+        mInventory = nullptr;
+        mInventoryObserver = nullptr;
     }
     if(model)
     {
@@ -1597,7 +1597,7 @@ void LLFloaterWorldMap::teleport()
                                                 gMessageSystem,
                                                 gAgent.getRegionHost(),
                                                 region_id,
-                                                NULL);
+                                                nullptr);
             }
         }
     }
@@ -1674,7 +1674,7 @@ void LLFloaterWorldMap::teleportToLandmark()
                                                 gMessageSystem,
                                                 gAgent.getRegionHost(),
                                                 region_id,
-                                                NULL);
+                                                nullptr);
             }
         }
     }
@@ -1862,7 +1862,7 @@ void LLFloaterWorldMap::onFocusLost()
 }
 
 LLPanelHideBeacon::LLPanelHideBeacon() :
-    mHideButton(NULL)
+    mHideButton(nullptr)
 {
 }
 
@@ -1887,7 +1887,7 @@ bool LLPanelHideBeacon::postBuild()
 //virtual
 void LLPanelHideBeacon::draw()
 {
-    if (!LLTracker::isTracking(NULL))
+    if (!LLTracker::isTracking(nullptr))
     {
         mHideButton->setVisible(false);
         return;
@@ -1949,7 +1949,7 @@ void LLPanelHideBeacon::updatePosition()
         left_tb_width = toolbar_left->getRect().getWidth();
     }
 
-    if (gToolBarView != NULL && gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_LEFT)->hasButtons())
+    if (gToolBarView != nullptr && gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_LEFT)->hasButtons())
     {
         S32 x_pos = bottom_tb_center - getRect().getWidth() / 2 - left_tb_width;
         setOrigin( x_pos + HIDE_BEACON_PAD, 0);

@@ -84,7 +84,7 @@ LLGestureMgr::~LLGestureMgr()
         LLMultiGesture* gesture = (*it).second;
 
         delete gesture;
-        gesture = NULL;
+        gesture = nullptr;
     }
     gInventory.removeObserver(this);
 }
@@ -272,9 +272,9 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 //      return;
 //  }
 
-    // For now, put NULL into the item map.  We'll build a gesture
+    // For now, put nullptr into the item map.  We'll build a gesture
     // class object when the asset data arrives.
-    mActive[base_item_id] = NULL;
+    mActive[base_item_id] = nullptr;
 
     // Copy the UUID
     if (asset_id.notNull())
@@ -323,7 +323,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
         stopGesture(gesture);
 
         delete gesture;
-        gesture = NULL;
+        gesture = nullptr;
     }
 
     mActive.erase(it);
@@ -377,7 +377,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
             stopGesture(gest);
 
             delete gest;
-            gest = NULL;
+            gest = nullptr;
 
             mActive.erase(it++);
             gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
@@ -491,7 +491,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
     if (old_gesture != new_gesture)
     {
         delete old_gesture;
-        old_gesture = NULL;
+        old_gesture = nullptr;
     }
 
     if (asset_id.notNull())
@@ -585,7 +585,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture, bool fromKeyPress)
                     gAssetStorage->getAssetData(sound_id,
                                     LLAssetType::AT_SOUND,
                                     onAssetLoadComplete,
-                                    NULL,
+                                    nullptr,
                                     true);
                 }
                 break;
@@ -643,7 +643,7 @@ bool LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
     for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
     {
         const char* cur_token = token_iter->c_str();
-        LLMultiGesture* gesture = NULL;
+        LLMultiGesture* gesture = nullptr;
 
         // Only pay attention to the first gesture in the string.
         if( !found_gestures )
@@ -663,7 +663,7 @@ bool LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
                     matching.push_back(gesture);
                 }
 
-                gesture = NULL;
+                gesture = nullptr;
             }
 
 
@@ -715,7 +715,7 @@ bool LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
         }
 
         first_token = false;
-        gesture = NULL;
+        gesture = nullptr;
     }
     return found_gestures;
 }
@@ -825,7 +825,7 @@ void LLGestureMgr::update()
 
                 // callback might have deleted gesture, can't
                 // rely on this pointer any more
-                gesture = NULL;
+                gesture = nullptr;
             }
         }
 
@@ -895,11 +895,11 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
     {
         // Get the current step, if there is one.
         // Otherwise enter the waiting at end state.
-        LLGestureStep* step = NULL;
+        LLGestureStep* step = nullptr;
         if (gesture->mCurrentStep < (S32)gesture->mSteps.size())
         {
             step = gesture->mSteps[gesture->mCurrentStep];
-            llassert(step != NULL);
+            llassert(step != nullptr);
         }
         else
         {
@@ -1119,7 +1119,7 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
     bool deactivate_similar = info->mDeactivateSimilar;
 
     delete info;
-    info = NULL;
+    info = nullptr;
     LLGestureMgr& self = LLGestureMgr::instance();
     self.mLoadingCount--;
 
@@ -1191,7 +1191,7 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 
                     self.mActive.erase(item_id);
                     delete old_gesture;
-                    old_gesture = NULL;
+                    old_gesture = nullptr;
                 }
             }
 
@@ -1242,13 +1242,13 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 
                     self.stopGesture(old_gesture);
                     delete old_gesture;
-                    old_gesture = NULL;
+                    old_gesture = nullptr;
                 }
                 self.mActive.erase(item_id);
             }
 
             delete gesture;
-            gesture = NULL;
+            gesture = nullptr;
         }
     }
     else
@@ -1276,7 +1276,7 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 
                 self.stopGesture(old_gesture);
                 delete old_gesture;
-                old_gesture = NULL;
+                old_gesture = nullptr;
             }
             self.mActive.erase(item_id);
         }
@@ -1408,7 +1408,7 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 
         // callback might have deleted gesture, can't
         // rely on this pointer any more
-        gesture = NULL;
+        gesture = nullptr;
     }
 
     notifyObservers();

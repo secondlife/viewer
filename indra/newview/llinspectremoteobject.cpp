@@ -71,8 +71,8 @@ private:
 
 LLInspectRemoteObject::LLInspectRemoteObject(const LLSD& sd) :
     LLInspect(LLSD()),
-    mObjectID(NULL),
-    mOwnerID(NULL),
+    mObjectID(nullptr),
+    mOwnerID(nullptr),
     mSLurl(""),
     mName(""),
     mGroupOwned(false)

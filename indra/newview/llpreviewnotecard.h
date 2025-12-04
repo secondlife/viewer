@@ -86,7 +86,7 @@ protected:
 
     void updateTitleButtons() override;
     void loadAsset() override;
-    bool saveIfNeeded(LLInventoryItem* copyitem = NULL, bool sync = true);
+    bool saveIfNeeded(LLInventoryItem* copyitem = nullptr, bool sync = true);
 
     void deleteNotecard();
 

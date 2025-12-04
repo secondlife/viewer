@@ -45,7 +45,7 @@ bool LLFloaterSLappTest::postBuild()
         {
             std::string slapp(getString("remove_folder_slapp"));
             getChild<LLTextBox>("remove_folder_txt")->setValue(slapp + editor->getValue().asString());
-        }, NULL);
+        }, nullptr);
 
     return true;
 }

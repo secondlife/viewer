@@ -127,7 +127,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
             {
                 LLUUID target_agent_id = LLUUID(agent_iter->first);
                 LLViewerObject* vobjp = gObjectList.findObject(target_agent_id);
-                LLVOAvatar *avatarp = NULL;
+                LLVOAvatar *avatarp = nullptr;
                 if (vobjp)
                 {
                     avatarp = vobjp->asAvatar();
@@ -260,8 +260,8 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
     LLSD report = LLSD::emptyMap();
     report[KEY_AGENTS] = agents;
 
-    regionp = NULL;
-    world_inst = NULL;
+    regionp = nullptr;
+    world_inst = nullptr;
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, report, httpOpts);
 
     world_inst = LLWorld::getInstance();

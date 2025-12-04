@@ -254,7 +254,7 @@ LLCallbackList::test()
 
     LL_INFOS() << "Testing LLCallbackList" << LL_ENDL;
 
-    if (!list->deleteFunction(NULL))
+    if (!list->deleteFunction(nullptr))
     {
         LL_INFOS() << "passed 1" << LL_ENDL;
     }
@@ -264,7 +264,7 @@ LLCallbackList::test()
     }
 
     // LL_INFOS() << "This should crash" << LL_ENDL;
-    // list->addFunction(NULL);
+    // list->addFunction(nullptr);
 
     list->addFunction(&test1, &a);
     list->addFunction(&test1, &a);

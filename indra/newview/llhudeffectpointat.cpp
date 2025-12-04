@@ -212,7 +212,7 @@ void LLHUDEffectPointAt::setTargetObjectAndOffset(LLViewerObject *objp, LLVector
 //-----------------------------------------------------------------------------
 void LLHUDEffectPointAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 {
-    mTargetObject = NULL;
+    mTargetObject = nullptr;
     mTargetOffsetGlobal = target_pos_global;
 }
 
@@ -300,7 +300,7 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
 //-----------------------------------------------------------------------------
 void LLHUDEffectPointAt::clearPointAtTarget()
 {
-    mTargetObject = NULL;
+    mTargetObject = nullptr;
     mTargetOffsetGlobal.clearVec();
     mTargetType = POINTAT_TARGET_NONE;
 }

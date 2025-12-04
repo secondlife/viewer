@@ -146,7 +146,7 @@ public:
                         const LLUUID& session_id,
                         const LLRect& rect = LLRect::null,
                         bool show_images = true,
-                        LLTextBase* parent_text = NULL);
+                        LLTextBase* parent_text = nullptr);
 
     void compactButtons();
 

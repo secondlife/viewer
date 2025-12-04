@@ -274,7 +274,7 @@ public:
     {
         bool operator()(LLSelectNode* node)
         {
-            return (node->getObject() != NULL);
+            return (node->getObject() != nullptr);
         }
     };
     typedef boost::filter_iterator<is_non_null, list_t::iterator > iterator;
@@ -285,7 +285,7 @@ public:
     {
         bool operator()(LLSelectNode* node)
         {
-            return (node->getObject() != NULL) && node->mValid;
+            return (node->getObject() != nullptr) && node->mValid;
         }
     };
     typedef boost::filter_iterator<is_valid, list_t::iterator > valid_iterator;
@@ -323,8 +323,8 @@ public:
 
     bool isEmpty() const;
 
-    LLSelectNode*   getFirstNode(LLSelectedNodeFunctor* func = NULL);
-    LLSelectNode*   getFirstRootNode(LLSelectedNodeFunctor* func = NULL, bool non_root_ok = false);
+    LLSelectNode*   getFirstNode(LLSelectedNodeFunctor* func = nullptr);
+    LLSelectNode*   getFirstRootNode(LLSelectedNodeFunctor* func = nullptr, bool non_root_ok = false);
     LLViewerObject* getFirstSelectedObject(LLSelectedNodeFunctor* func, bool get_parent = false);
     LLViewerObject* getFirstObject();
     LLViewerObject* getFirstRootObject(bool non_root_ok = false);
@@ -355,8 +355,8 @@ public:
     F32 getSelectedLinksetPhysicsCost();
     S32 getSelectedObjectRenderCost();
 
-    F32 getSelectedObjectStreamingCost(S32* total_bytes = NULL, S32* visible_bytes = NULL);
-    U32 getSelectedObjectTriangleCount(S32* vcount = NULL);
+    F32 getSelectedObjectStreamingCost(S32* total_bytes = nullptr, S32* visible_bytes = nullptr);
+    U32 getSelectedObjectTriangleCount(S32* vcount = nullptr);
 
     S32 getTECount();
     S32 getRootObjectCount();

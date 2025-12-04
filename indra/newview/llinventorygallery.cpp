@@ -92,9 +92,9 @@ protected:
 
 LLInventoryGallery::LLInventoryGallery(const LLInventoryGallery::Params& p)
     : LLPanel(),
-      mScrollPanel(NULL),
-      mGalleryPanel(NULL),
-      mLastRowPanel(NULL),
+      mScrollPanel(nullptr),
+      mGalleryPanel(nullptr),
+      mLastRowPanel(nullptr),
       mGalleryCreated(false),
       mRowCount(0),
       mItemsAddedCount(0),
@@ -160,7 +160,7 @@ LLInventoryGallery::~LLInventoryGallery()
 {
     if (gEditMenuHandler == this)
     {
-        gEditMenuHandler = NULL;
+        gEditMenuHandler = nullptr;
     }
 
     delete mInventoryGalleryMenu;
@@ -515,7 +515,7 @@ void LLInventoryGallery::removeLastRow()
     }
     else
     {
-        mLastRowPanel = NULL;
+        mLastRowPanel = nullptr;
     }
 }
 
@@ -691,7 +691,7 @@ void LLInventoryGallery::reshapeGalleryPanel(int row_count)
 LLPanel* LLInventoryGallery::buildItemPanel(int left)
 {
     int top = 0;
-    LLPanel* lpanel = NULL;
+    LLPanel* lpanel = nullptr;
     if(mUnusedItemPanels.empty())
     {
         LLPanel::Params lpparams;
@@ -716,7 +716,7 @@ LLPanel* LLInventoryGallery::buildItemPanel(int left)
 
 LLPanel* LLInventoryGallery::buildRowPanel(int left, int bottom)
 {
-    LLPanel* stack = NULL;
+    LLPanel* stack = nullptr;
     if(mUnusedRowPanels.empty())
     {
         LLPanel::Params sparams;
@@ -895,7 +895,7 @@ void LLInventoryGallery::getCurrentCategories(uuid_vec_t& vcur)
         iter != mItemMap.end();
         iter++)
     {
-        if ((*iter).second != NULL)
+        if ((*iter).second != nullptr)
         {
             vcur.push_back((*iter).first);
         }
@@ -979,7 +979,7 @@ void LLInventoryGallery::updateRemovedItem(LLUUID item_id)
         removeFromGalleryMiddle(item);
 
         // kill removed item
-        if (item != NULL)
+        if (item != nullptr)
         {
             // Todo: instead of deleting, store somewhere to reuse later
             item->die();
@@ -1367,7 +1367,7 @@ void LLInventoryGallery::moveRight(MASK mask)
 
 void LLInventoryGallery::toggleSelectionRange(S32 start_idx, S32 end_idx)
 {
-    LLInventoryGalleryItem* item = NULL;
+    LLInventoryGalleryItem* item = nullptr;
     if (end_idx > start_idx)
     {
         for (S32 i = start_idx; i <= end_idx; i++)
@@ -1431,7 +1431,7 @@ void LLInventoryGallery::onFocusLost()
     // inventory no longer handles cut/copy/paste/delete
     if (gEditMenuHandler == this)
     {
-        gEditMenuHandler = NULL;
+        gEditMenuHandler = nullptr;
     }
 
     LLPanel::onFocusLost();
@@ -1454,7 +1454,7 @@ void LLInventoryGallery::onFocusReceived()
     // Tab support, when tabbing into this view, select first item
     if (mSelectedItemIDs.size() > 0)
     {
-        LLInventoryGalleryItem* focus_item = NULL;
+        LLInventoryGalleryItem* focus_item = nullptr;
         for (const LLUUID& id : mSelectedItemIDs)
         {
             LLInventoryGalleryItem* item = getItem(id);
@@ -1640,7 +1640,7 @@ LLInventoryGalleryItem* LLInventoryGallery::getFirstSelectedItem()
         selection_deque::iterator iter = mSelectedItemIDs.begin();
         return getItem(*iter);
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLInventoryGallery::copy()
@@ -1987,11 +1987,11 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
                                                               {
                                                                   for (const LLUUID& id : item_deletion_list)
                                                                   {
-                                                                      remove_inventory_item(id, NULL);
+                                                                      remove_inventory_item(id, nullptr);
                                                                   }
                                                                   for (const LLUUID& id : cat_deletion_list)
                                                                   {
-                                                                      remove_inventory_category(id, NULL);
+                                                                      remove_inventory_category(id, nullptr);
                                                                   }
                                                               });
         }
@@ -2190,7 +2190,7 @@ void LLInventoryGallery::pasteAsLink(const LLUUID& dest,
         return;
     }
 
-    LLPointer<LLInventoryCallback> cb = NULL;
+    LLPointer<LLInventoryCallback> cb = nullptr;
     if (dest == mFolderID)
     {
         LLHandle<LLPanel> handle = getHandle();
@@ -2225,7 +2225,7 @@ void LLInventoryGallery::doCreate(const LLUUID& dest, const LLSD& userdata)
     LLViewerInventoryCategory* cat = gInventory.getCategory(dest);
     if (cat && mFolderID != dest)
     {
-        menu_create_inventory_item(NULL, dest, userdata, LLUUID::null);
+        menu_create_inventory_item(nullptr, dest, userdata, LLUUID::null);
     }
     else
     {
@@ -2248,7 +2248,7 @@ void LLInventoryGallery::doCreate(const LLUUID& dest, const LLSD& userdata)
                 }
             };
 
-        menu_create_inventory_item(NULL, mFolderID, userdata, LLUUID::null, callback_cat_created);
+        menu_create_inventory_item(nullptr, mFolderID, userdata, LLUUID::null, callback_cat_created);
     }
 }
 
@@ -2261,7 +2261,7 @@ void LLInventoryGallery::resetEditHandler()
 {
     if (gEditMenuHandler == this)
     {
-        gEditMenuHandler = NULL;
+        gEditMenuHandler = nullptr;
     }
 }
 
@@ -2800,7 +2800,7 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     mIsFolder(true),
     mIsLink(false),
     mHidden(false),
-    mGallery(NULL),
+    mGallery(nullptr),
     mType(LLAssetType::AT_NONE),
     mSortGroup(SG_ITEM),
     mCutGeneration(0),
@@ -3009,7 +3009,7 @@ bool LLInventoryGalleryItem::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
         return true;
     }
     return LLPanel::handleMouseUp(x, y, mask);
@@ -3346,7 +3346,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
 
     LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
     bool accept = false;
-    LLViewerObject* object = NULL;
+    LLViewerObject* object = nullptr;
     if (LLToolDragAndDrop::SOURCE_AGENT == source)
     {
         const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -3471,7 +3471,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
                     inv_item->getUUID(),
                     folder_id,
                     std::string(),
-                    LLPointer<LLInventoryCallback>(NULL));
+                    LLPointer<LLInventoryCallback>(nullptr));
             }
             // CURRENT OUTFIT or OUTFIT folder
             // (link the item)
@@ -3483,7 +3483,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
                 }
                 else
                 {
-                    LLPointer<LLInventoryCallback> cb = NULL;
+                    LLPointer<LLInventoryCallback> cb = nullptr;
                     link_inventory_object(folder_id, LLConstPointer<LLInventoryObject>(inv_item), cb);
                 }
             }
@@ -3665,7 +3665,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
                         inv_item->getUUID(),
                         folder_id,
                         std::string(),
-                        LLPointer<LLInventoryCallback>(NULL));
+                        LLPointer<LLInventoryCallback>(nullptr));
                 }
                 // CURRENT OUTFIT or OUTFIT folder
                 // (link the item)
@@ -3677,7 +3677,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
                     }
                     else
                     {
-                        LLPointer<LLInventoryCallback> cb = NULL;
+                        LLPointer<LLInventoryCallback> cb = nullptr;
                         link_inventory_object(folder_id, LLConstPointer<LLInventoryObject>(inv_item), cb);
                     }
                 }
@@ -3689,7 +3689,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
                         inv_item->getUUID(),
                         folder_id,
                         std::string(),
-                        LLPointer<LLInventoryCallback>(NULL));
+                        LLPointer<LLInventoryCallback>(nullptr));
                 }
             }
         }
@@ -3735,7 +3735,7 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
 
     // check to make sure source is agent inventory, and is represented there.
     LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
-    const bool is_agent_inventory = (model->getCategory(cat_id) != NULL)
+    const bool is_agent_inventory = (model->getCategory(cat_id) != nullptr)
         && (LLToolDragAndDrop::SOURCE_AGENT == source);
 
     bool accept = false;
@@ -4179,7 +4179,7 @@ void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id)
 
     if (!link_array.empty())
     {
-        LLPointer<LLInventoryCallback> cb = NULL;
+        LLPointer<LLInventoryCallback> cb = nullptr;
         link_inventory_array(cat_dest_id, link_array, cb);
     }
 }

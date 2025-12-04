@@ -55,7 +55,7 @@ const MASK DEFAULT_GRAB_MASK = MASK_CONTROL;
 class LLToolGrabBase : public LLTool
 {
 public:
-    LLToolGrabBase(LLToolComposite* composite=NULL);
+    LLToolGrabBase(LLToolComposite* composite=nullptr);
     ~LLToolGrabBase();
 
     /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask);

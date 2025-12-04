@@ -77,7 +77,7 @@ LLControlGroup::~LLControlGroup() {}
 LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
-                                   LLControlVariable::ePersist persist) {return NULL;}
+                                   LLControlVariable::ePersist persist) {return nullptr;}
 void LLControlGroup::setString(std::string_view name, const std::string& val){}
 std::string LLControlGroup::getString(std::string_view name)
 {
@@ -648,27 +648,27 @@ namespace tut
             LLFile::remove("test_password.dat");
             LLFile::remove("sechandler_settings.tmp");
 
-            mX509TestCert = NULL;
-            mX509RootCert = NULL;
-            mX509IntermediateCert = NULL;
-            mX509ChildCert = NULL;
+            mX509TestCert = nullptr;
+            mX509RootCert = nullptr;
+            mX509IntermediateCert = nullptr;
+            mX509ChildCert = nullptr;
 
             // Read each of the 4 Pem certs and store in mX509*Cert pointers
             BIO * validation_bio;
             validation_bio = BIO_new_mem_buf((void*)mPemTestCert.c_str(), static_cast<S32>(mPemTestCert.length()));
-            PEM_read_bio_X509(validation_bio, &mX509TestCert, 0, NULL);
+            PEM_read_bio_X509(validation_bio, &mX509TestCert, 0, nullptr);
             BIO_free(validation_bio);
 
             validation_bio = BIO_new_mem_buf((void*)mPemRootCert.c_str(), static_cast<S32>(mPemRootCert.length()));
-            PEM_read_bio_X509(validation_bio, &mX509RootCert, 0, NULL);
+            PEM_read_bio_X509(validation_bio, &mX509RootCert, 0, nullptr);
             BIO_free(validation_bio);
 
             validation_bio = BIO_new_mem_buf((void*)mPemIntermediateCert.c_str(), static_cast<S32>(mPemIntermediateCert.length()));
-            PEM_read_bio_X509(validation_bio, &mX509IntermediateCert, 0, NULL);
+            PEM_read_bio_X509(validation_bio, &mX509IntermediateCert, 0, nullptr);
             BIO_free(validation_bio);
 
             validation_bio = BIO_new_mem_buf((void*)mPemChildCert.c_str(), static_cast<S32>(mPemChildCert.length()));
-            PEM_read_bio_X509(validation_bio, &mX509ChildCert, 0, NULL);
+            PEM_read_bio_X509(validation_bio, &mX509ChildCert, 0, nullptr);
             BIO_free(validation_bio);
         }
         ~sechandler_basic_test()
@@ -835,7 +835,7 @@ namespace tut
         ensure("not found", data.isUndefined());
 
         // cause a 'write' by using 'LLPointer' to delete then instantiate a handler
-        handler = NULL;
+        handler = nullptr;
         handler = new LLSecAPIBasicHandler("sechandler_settings.tmp", "test_password.dat");
         handler->init();
 
@@ -845,7 +845,7 @@ namespace tut
         ensure_equals("verify datatype stored data5a", (std::string)data["store_data5"]["subelem2"], "test_subelem2");
 
         // rewrite the initial file to verify reloads
-        handler = NULL;
+        handler = nullptr;
         llofstream temp_file2("sechandler_settings.tmp", std::ofstream::binary);
         temp_file2.write((const char *)&binary_data[0], binary_data.size());
         temp_file2.close();
@@ -864,7 +864,7 @@ namespace tut
         handler->init();
         data = handler->getProtectedData("test_data_type1", "test_data_id");
         ensure("not found", data.isUndefined());
-        handler = NULL;
+        handler = nullptr;
 
         ensure(LLFile::isfile("sechandler_settings.tmp"));
     }
@@ -1085,10 +1085,10 @@ namespace tut
 
         // validate load with empty file
         test_store->save();
-        test_store = NULL;
+        test_store = nullptr;
         test_store = new LLBasicCertificateStore("mycertstore.pem");
         ensure_equals("when loading with nothing, we should result in no certs in store", test_store->size(), 0);
-        test_store=NULL;
+        test_store=nullptr;
 
         // instantiate a cert store from a file
         llofstream certstorefile("mycertstore.pem", std::ios::out);
@@ -1111,7 +1111,7 @@ namespace tut
         // validate save
         LLFile::remove("mycertstore.pem");
         test_store->save();
-        test_store = NULL;
+        test_store = nullptr;
         test_store = new LLBasicCertificateStore("mycertstore.pem");
         ensure_equals("two elements in store after save", test_store->size(), 2);
         LLCertificateStore::iterator current_cert = test_store->begin();
@@ -1236,13 +1236,13 @@ namespace tut
     void sechandler_basic_test_object::test<8>()
     {
         // validate create from empty chain
-        LLPointer<LLBasicCertificateChain> test_chain = new LLBasicCertificateChain(NULL);
+        LLPointer<LLBasicCertificateChain> test_chain = new LLBasicCertificateChain(nullptr);
         ensure_equals("when loading with nothing, we should result in no certs in chain", test_chain->size(), 0);
 
         // Single cert in the chain.
         X509_STORE_CTX *test_store = X509_STORE_CTX_new();
         X509_STORE_CTX_set_cert(test_store, mX509ChildCert);
-        X509_STORE_CTX_set0_untrusted(test_store, NULL);
+        X509_STORE_CTX_set0_untrusted(test_store, nullptr);
         test_chain = new LLBasicCertificateChain(test_store);
         X509_STORE_CTX_free(test_store);
         ensure_equals("two elements in store [1]", test_chain->size(), 1);
@@ -1327,7 +1327,7 @@ namespace tut
         LLSD validation_params;
 
         // validate basic trust for a chain containing only the intermediate cert.  (1 deep)
-        LLPointer<LLBasicCertificateChain> test_chain = new LLBasicCertificateChain(NULL);
+        LLPointer<LLBasicCertificateChain> test_chain = new LLBasicCertificateChain(nullptr);
 
         test_chain->add(new LLBasicCertificate(mX509IntermediateCert, &mValidationDate));
 
@@ -1342,7 +1342,7 @@ namespace tut
         test_store->validate(0, test_chain, validation_params);
 
         // basic failure cases
-        test_chain = new LLBasicCertificateChain(NULL);
+        test_chain = new LLBasicCertificateChain(nullptr);
         //validate with only the child cert in chain, but child cert was previously
         // trusted
         test_chain->add(new LLBasicCertificate(mX509ChildCert, &mValidationDate));
@@ -1413,13 +1413,13 @@ namespace tut
 
         // test SSL KU
         // validate basic trust for a chain containing child and intermediate.
-        test_chain = new LLBasicCertificateChain(NULL);
+        test_chain = new LLBasicCertificateChain(nullptr);
         test_chain->add(new LLBasicCertificate(mX509ChildCert, &mValidationDate));
         test_chain->add(new LLBasicCertificate(mX509IntermediateCert, &mValidationDate));
         test_store->validate(VALIDATION_POLICY_SSL_KU | VALIDATION_POLICY_TRUSTED,
                              test_chain, validation_params);
 
-        test_chain = new LLBasicCertificateChain(NULL);
+        test_chain = new LLBasicCertificateChain(nullptr);
         test_chain->add(new LLBasicCertificate(mX509TestCert, &mValidationDate));
 
         test_store = new LLBasicCertificateStore("mycertstore.pem");

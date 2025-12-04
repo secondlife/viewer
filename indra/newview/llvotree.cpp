@@ -98,7 +98,7 @@ LLVOTree::~LLVOTree()
     if (mData)
     {
         delete[] mData;
-        mData = NULL;
+        mData = nullptr;
     }
 }
 
@@ -494,11 +494,11 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
 
     if(mTrunkLOD >= sMAX_NUM_TREE_LOD_LEVELS) //do not display the tree.
     {
-        mReferenceBuffer = NULL ;
+        mReferenceBuffer = nullptr ;
         LLFace * facep = drawable->getFace(0);
         if (facep)
         {
-            facep->setVertexBuffer(NULL);
+            facep->setVertexBuffer(nullptr);
         }
         return true ;
     }
@@ -539,7 +539,7 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
             LL_WARNS() << "Failed to allocate Vertex Buffer on update to "
                 << max_vertices << " vertices and "
                 << max_indices << " indices" << LL_ENDL;
-            mReferenceBuffer = NULL; //unref
+            mReferenceBuffer = nullptr; //unref
             return true;
         }
 

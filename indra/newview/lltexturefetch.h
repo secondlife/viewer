@@ -285,7 +285,7 @@ private:
 
     /**
      * Returns the first TFRequest object in the command queue or
-     * NULL if none is present.
+     * nullptr if none is present.
      *
      * Caller acquires ownership of the object and must dispose of it.
      *

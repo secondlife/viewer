@@ -582,9 +582,9 @@ void LLVLComposition::setDetailAssetID(S32 asset, const LLUUID& id)
         return;
     }
     LLTerrainMaterials::setDetailAssetID(asset, id);
-    mRawImages[asset] = NULL;
-    mRawImagesBaseColor[asset] = NULL;
-    mRawImagesEmissive[asset] = NULL;
+    mRawImages[asset] = nullptr;
+    mRawImagesBaseColor[asset] = nullptr;
+    mRawImagesEmissive[asset] = nullptr;
 }
 
 void LLVLComposition::setStartHeight(S32 corner, const F32 start_height)

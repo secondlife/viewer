@@ -70,7 +70,7 @@ static LLAvatarRenderMuteListObserver sAvatarRenderMuteListObserver;
 
 LLFloaterAvatarRenderSettings::LLFloaterAvatarRenderSettings(const LLSD& key)
 :   LLFloater(key),
-    mAvatarSettingsList(NULL),
+    mAvatarSettingsList(nullptr),
     mNeedsUpdate(false)
 {
     mContextMenu = new LLSettingsContextMenu(this);
@@ -153,7 +153,7 @@ static LLVOAvatar* find_avatar(const LLUUID& id)
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

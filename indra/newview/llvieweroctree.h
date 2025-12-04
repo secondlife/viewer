@@ -94,9 +94,9 @@ public:
     void removeData(LLViewerOctreeEntryData* data);
 
     LLViewerOctreeEntryData* getDrawable() const {return mData[LLDRAWABLE];}
-    bool                     hasDrawable() const {return mData[LLDRAWABLE] != NULL;}
+    bool                     hasDrawable() const {return mData[LLDRAWABLE] != nullptr;}
     LLViewerOctreeEntryData* getVOCacheEntry() const {return mData[LLVOCACHEENTRY];}
-    bool                     hasVOCacheEntry() const {return mData[LLVOCACHEENTRY] != NULL;}
+    bool                     hasVOCacheEntry() const {return mData[LLVOCACHEENTRY] != nullptr;}
 
     const LLVector4a* getSpatialExtents() const {return mExtents;}
     const LLVector4a& getPositionGroup() const  {return mPositionGroup;}
@@ -300,7 +300,7 @@ public:
     void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
     void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
     void checkOcclusion(); //read back last occlusion query (if any)
-    void doOcclusion(LLCamera* camera, const LLVector4a* shift = NULL); //issue occlusion query
+    void doOcclusion(LLCamera* camera, const LLVector4a* shift = nullptr); //issue occlusion query
     bool isOcclusionState(U32 state) const { return mOcclusionState[LLViewerCamera::sCurCameraID] & state; }
     U32  getOcclusionState() const { return mOcclusionState[LLViewerCamera::sCurCameraID];}
 

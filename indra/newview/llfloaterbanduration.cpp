@@ -53,7 +53,7 @@ LLFloaterBanDuration* LLFloaterBanDuration::show(select_callback_t callback, uui
     if (!floater)
     {
         LL_WARNS() << "Cannot instantiate ban duration floater" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     floater->mSelectionCallback = callback;

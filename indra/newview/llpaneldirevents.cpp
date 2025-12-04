@@ -69,7 +69,7 @@ bool LLPanelDirEvents::postBuild()
     childSetAction("Search", LLPanelDirBrowser::onClickSearchCore, this);
     setDefaultBtn("Search");
 
-    onDateModeCallback(NULL, this);
+    onDateModeCallback(nullptr, this);
 
     mCurrentSortColumn = "time";
 

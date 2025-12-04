@@ -42,7 +42,7 @@
 #include "llui.h"
 #include "lluictrlfactory.h"
 
-LLHUDView *gHUDView = NULL;
+LLHUDView *gHUDView = nullptr;
 
 LLHUDView::LLHUDView(const LLRect& r)
 {

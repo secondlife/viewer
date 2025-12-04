@@ -155,8 +155,8 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
         }
         else
         {
-            // Return with NULL if not found and we're not trying to load
-            return NULL;
+            // Return with nullptr if not found and we're not trying to load
+            return nullptr;
         }
     }
 
@@ -164,8 +164,8 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
     LLPointer<LLViewerFetchedTexture> img = found->second;
     if (img->isMissingAsset())
     {
-        // Return NULL if asset missing
-        return NULL;
+        // Return nullptr if asset missing
+        return nullptr;
     }
     else
     {

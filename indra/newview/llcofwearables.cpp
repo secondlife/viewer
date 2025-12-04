@@ -183,7 +183,7 @@ protected:
         LLPanelOutfitEdit   * panel_outfit_edit =
                         dynamic_cast<LLPanelOutfitEdit*> (LLFloaterSidePanelContainer::getPanel("appearance",
                                 "panel_outfit_edit"));
-        if (panel_outfit_edit != NULL)
+        if (panel_outfit_edit != nullptr)
         {
             panel_outfit_edit->onReplaceMenuItemClicked(item_id);
         }
@@ -283,15 +283,15 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 
 LLCOFWearables::LLCOFWearables() : LLPanel(),
-    mAttachments(NULL),
-    mClothing(NULL),
-    mBodyParts(NULL),
-    mLastSelectedList(NULL),
-    mClothingTab(NULL),
-    mAttachmentsTab(NULL),
-    mBodyPartsTab(NULL),
-    mLastSelectedTab(NULL),
-    mAccordionCtrl(NULL),
+    mAttachments(nullptr),
+    mClothing(nullptr),
+    mBodyParts(nullptr),
+    mLastSelectedList(nullptr),
+    mClothingTab(nullptr),
+    mAttachmentsTab(nullptr),
+    mBodyPartsTab(nullptr),
+    mLastSelectedTab(nullptr),
+    mAccordionCtrl(nullptr),
     mCOFVersion(-1)
 {
     mClothingMenu = new CofClothingContextMenu(this);
@@ -504,7 +504,7 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 
         const LLAssetType::EType item_type = item->getType();
         if (item_type == LLAssetType::AT_CLOTHING) continue;
-        LLPanelInventoryListItemBase* item_panel = NULL;
+        LLPanelInventoryListItemBase* item_panel = nullptr;
         if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_GESTURE)
         {
             item_panel = buildAttachemntListItem(item);
@@ -542,15 +542,15 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last)
 {
     llassert(item);
-    if (!item) return NULL;
+    if (!item) return nullptr;
     LLPanelClothingListItem* item_panel = LLPanelClothingListItem::create(item);
-    if (!item_panel) return NULL;
+    if (!item_panel) return nullptr;
 
     //updating verbs
     //we don't need to use permissions of a link but of an actual/linked item
     if (item->getLinkedItem()) item = item->getLinkedItem();
     llassert(item);
-    if (!item) return NULL;
+    if (!item) return nullptr;
 
     bool allow_modify = item->getPermissions().allowModifyBy(gAgentID);
 
@@ -576,15 +576,15 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventoryItem* item)
 {
     llassert(item);
-    if (!item) return NULL;
+    if (!item) return nullptr;
     LLPanelBodyPartsListItem* item_panel = LLPanelBodyPartsListItem::create(item);
-    if (!item_panel) return NULL;
+    if (!item_panel) return nullptr;
 
     //updating verbs
     //we don't need to use permissions of a link but of an actual/linked item
     if (item->getLinkedItem()) item = item->getLinkedItem();
     llassert(item);
-    if (!item) return NULL;
+    if (!item) return nullptr;
     bool allow_modify = item->getPermissions().allowModifyBy(gAgentID);
     item_panel->setShowLockButton(!allow_modify);
     item_panel->setShowEditButton(allow_modify);
@@ -600,10 +600,10 @@ LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventor
 LLPanelDeletableWearableListItem* LLCOFWearables::buildAttachemntListItem(LLViewerInventoryItem* item)
 {
     llassert(item);
-    if (!item) return NULL;
+    if (!item) return nullptr;
 
     LLPanelAttachmentListItem* item_panel = LLPanelAttachmentListItem::create(item);
-    if (!item_panel) return NULL;
+    if (!item_panel) return nullptr;
 
     //setting callbacks
     //*TODO move that item panel's inner structure disclosing stuff into the panels
@@ -675,7 +675,7 @@ bool LLCOFWearables::getSelectedUUIDs(uuid_vec_t& selected_ids)
 
 LLPanel* LLCOFWearables::getSelectedItem()
 {
-    if (!mLastSelectedList) return NULL;
+    if (!mLastSelectedList) return nullptr;
 
     return mLastSelectedList->getSelectedItem();
 }
@@ -701,7 +701,7 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 
     static type_map_t type_map;
 
-    if (mAccordionCtrl != NULL)
+    if (mAccordionCtrl != nullptr)
     {
         const LLAccordionCtrlTab* expanded_tab = mAccordionCtrl->getExpandedTab();
 
@@ -713,7 +713,7 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 
 LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
     {
-    if (mAccordionCtrl != NULL)
+    if (mAccordionCtrl != nullptr)
     {
         const LLAccordionCtrlTab* selected_tab = mAccordionCtrl->getSelectedTab();
 
@@ -725,7 +725,7 @@ LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
 
 void LLCOFWearables::expandDefaultAccordionTab()
 {
-    if (mAccordionCtrl != NULL)
+    if (mAccordionCtrl != nullptr)
     {
         mAccordionCtrl->expandDefaultTab();
     }

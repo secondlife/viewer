@@ -49,7 +49,7 @@ public:
     void clearVOInventoryListener();
 
 protected:
-    LLVOInventoryListener() : mListenerVObject(NULL) { }
+    LLVOInventoryListener() : mListenerVObject(nullptr) { }
     virtual ~LLVOInventoryListener() { removeVOInventoryListener(); }
 
     void registerVOInventoryListener(LLViewerObject* object, void* user_data);

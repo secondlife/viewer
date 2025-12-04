@@ -865,22 +865,22 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
     LLVector2 tc;
     LLVector4a tn;
 
-    if (intersection != NULL)
+    if (intersection != nullptr)
     {
         p = *intersection;
     }
 
-    if (tex_coord != NULL)
+    if (tex_coord != nullptr)
     {
         tc = *tex_coord;
     }
 
-    if (normal != NULL)
+    if (normal != nullptr)
     {
         n = *normal;
     }
 
-    if (tangent != NULL)
+    if (tangent != nullptr)
     {
         tn = *tangent;
     }
@@ -890,24 +890,24 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
     if (hit_node_index >= 0)
     {
         local_end = p;
-        if (node_hit != NULL)
+        if (node_hit != nullptr)
         {
             *node_hit = hit_node_index;
         }
 
-        if (intersection != NULL)
+        if (intersection != nullptr)
         {
             asset_to_agent.affineTransform(p, *intersection);
         }
 
-        if (normal != NULL)
+        if (normal != nullptr)
         {
             LLVector3 v_n(n.getF32ptr());
             normal->load3(obj->volumeDirectionToAgent(v_n).mV);
             (*normal).normalize3fast();
         }
 
-        if (tangent != NULL)
+        if (tangent != nullptr)
         {
             LLVector3 v_tn(tn.getF32ptr());
 
@@ -922,7 +922,7 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
             (*tangent).normalize3fast();
         }
 
-        if (tex_coord != NULL)
+        if (tex_coord != nullptr)
         {
             *tex_coord = tc;
         }

@@ -125,12 +125,12 @@ LLNotificationPtr LLNotificationsUtil::add(const std::string& name,
                                            const LLSD& payload,
                                            std::function<void (const LLSD&, const LLSD&)> functor)
 {
-    return LLNotificationPtr((LLNotification*)NULL);
+    return LLNotificationPtr((LLNotification*)nullptr);
 }
 
 LLNotificationPtr LLNotificationsUtil::add(const std::string& name, const LLSD& args)
 {
-    return LLNotificationPtr((LLNotification*)NULL);
+    return LLNotificationPtr((LLNotification*)nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -205,8 +205,8 @@ F32 LLControlGroup::getF32(std::string_view name) { return 0.0f; }
 U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only) { return 1; }
 void LLControlGroup::setString(std::string_view name, const std::string& val) {}
 std::string LLControlGroup::getString(std::string_view name) { return "test_string"; }
-LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, bool initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
-LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
+LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, bool initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return nullptr; }
+LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return nullptr; }
 
 #include "lluicolortable.h"
 void LLUIColorTable::saveUserSettings(void)const {}
@@ -231,7 +231,7 @@ LLAppViewer * LLAppViewer::sInstance = 0;
 #include "llnotifications.h"
 #include "llfloaterreg.h"
 static std::string gTOSType;
-static LLEventPump * gTOSReplyPump = NULL;
+static LLEventPump * gTOSReplyPump = nullptr;
 
 LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
@@ -240,7 +240,7 @@ LLFloater* LLFloaterReg::showInstance(std::string_view name, const LLSD& key, bo
 {
     gTOSType = name;
     gTOSReplyPump = &LLEventPumps::instance().obtain(key["reply_pump"]);
-    return NULL;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -273,7 +273,7 @@ public:
     {
         mResponder = functor;
         mAddedCount++;
-        return LLNotificationPtr((LLNotification*)NULL);
+        return LLNotificationPtr((LLNotification*)nullptr);
     }
 
     void sendYesResponse()

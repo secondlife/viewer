@@ -64,7 +64,7 @@ void load_exr(const std::string& filename)
     float* out; // width * height * RGBA
     int width;
     int height;
-    const char* err = NULL; // or nullptr in C++11
+    const char* err = nullptr;
 
     int ret =  LoadEXRWithLayer(&out, &width, &height, filename.c_str(), /* layername */ nullptr, &err);
     if (ret == TINYEXR_SUCCESS)

@@ -33,7 +33,7 @@
 
 LLFloaterConversationLog::LLFloaterConversationLog(const LLSD& key)
 :   LLFloater(key),
-    mConversationLogList(NULL)
+    mConversationLogList(nullptr)
 {
     mCommitCallbackRegistrar.add("CallLog.Action",  boost::bind(&LLFloaterConversationLog::onCustomAction,  this, _2));
     mEnableCallbackRegistrar.add("CallLog.Check",   boost::bind(&LLFloaterConversationLog::isActionChecked, this, _2));
@@ -69,7 +69,7 @@ bool LLFloaterConversationLog::postBuild()
 
 void LLFloaterConversationLog::draw()
 {
-    mConversationsGearBtn->setEnabled(mConversationLogList->getSelectedItem() != NULL);
+    mConversationsGearBtn->setEnabled(mConversationLogList->getSelectedItem() != nullptr);
     LLFloater::draw();
 }
 

@@ -240,7 +240,7 @@ namespace LLPerfStats
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
             // LL_INFOS("perfstats") << "processing update:" << LL_ENDL;
-            // Note: nullptr is used as the key for global stats
+            // Note: NULL is used as the key for global stats
 
             if (upd.statType == StatType_t::RENDER_DONE && upd.objType == ObjType_t::OT_GENERAL && upd.time == 0)
             {

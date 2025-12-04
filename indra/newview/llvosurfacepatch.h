@@ -78,11 +78,11 @@ public:
                                           bool pick_transparent = false,
                                           bool pick_rigged = false,
                                           bool pick_unselectable = true,
-                                          S32* face_hit = NULL,                 // which face was hit
-                                          LLVector4a* intersection = NULL,       // return the intersection point
-                                          LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
-                                          LLVector4a* normal = NULL,             // return the surface normal at the intersection point
-                                          LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
+                                          S32* face_hit = nullptr,                 // which face was hit
+                                          LLVector4a* intersection = nullptr,       // return the intersection point
+                                          LLVector2* tex_coord = nullptr,          // return the texture coordinates of the intersection point
+                                          LLVector4a* normal = nullptr,             // return the surface normal at the intersection point
+                                          LLVector4a* tangent = nullptr           // return the surface tangent at the intersection point
         );
 
     bool            mDirtiedPatch;

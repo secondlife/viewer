@@ -100,7 +100,7 @@ public:
         const std::string &text_utf8,
         const LLColor4& color,
         const LLFontGL::StyleFlags style = LLFontGL::NORMAL,
-        const LLFontGL* font = NULL,
+        const LLFontGL* font = nullptr,
         const bool use_ellipses = false,
         F32 max_pixels = HUD_TEXT_MAX_WIDTH);
 

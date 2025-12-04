@@ -53,9 +53,9 @@ LLSurfacePatch::LLSurfacePatch()
     mDirtyZStats(true),
     mHeightsGenerated(false),
     mDataOffset(0),
-    mDataZ(NULL),
-    mDataNorm(NULL),
-    mVObjp(NULL),
+    mDataZ(nullptr),
+    mDataNorm(nullptr),
+    mVObjp(nullptr),
     mOriginRegion(0.f, 0.f, 0.f),
     mCenterRegion(0.f, 0.f, 0.f),
     mMinZ(0.f),
@@ -69,12 +69,12 @@ LLSurfacePatch::LLSurfacePatch()
     // set to non-zero values by higher classes.
     mConnectedEdge(NO_EDGE),
     mLastUpdateTime(0),
-    mSurfacep(NULL)
+    mSurfacep(nullptr)
 {
     S32 i;
     for (i = 0; i < 8; i++)
     {
-        setNeighborPatch(i, NULL);
+        setNeighborPatch(i, nullptr);
     }
     for (i = 0; i < 9; i++)
     {
@@ -85,7 +85,7 @@ LLSurfacePatch::LLSurfacePatch()
 
 LLSurfacePatch::~LLSurfacePatch()
 {
-    mVObjp = NULL;
+    mVObjp = nullptr;
 }
 
 
@@ -116,7 +116,7 @@ void LLSurfacePatch::dirty()
 void LLSurfacePatch::setSurface(LLSurface *surfacep)
 {
     mSurfacep = surfacep;
-    if (mVObjp == (LLVOSurfacePatch *)NULL)
+    if (mVObjp == (LLVOSurfacePatch *)nullptr)
     {
         llassert(mSurfacep->mType == 'l');
 
@@ -136,7 +136,7 @@ void LLSurfacePatch::disconnectNeighbor(LLSurface *surfacep)
         {
             if (getNeighborPatch(i)->mSurfacep == surfacep)
             {
-                setNeighborPatch(i, NULL);
+                setNeighborPatch(i, nullptr);
                 mNormalsInvalid[i] = true;
             }
         }
@@ -1188,5 +1188,5 @@ LLSurfacePatch *LLSurfacePatch::getNeighborPatch(const U32 direction) const
 
 void LLSurfacePatch::clearVObj()
 {
-    mVObjp = NULL;
+    mVObjp = nullptr;
 }

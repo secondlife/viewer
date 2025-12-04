@@ -61,23 +61,23 @@ void cb_group_do_nothing()
 }
 
 LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
-:   super(NULL, false, session_id),
+:   super(nullptr, false, session_id),
     mIsP2PChat(false),
-    mExpandCollapseBtn(NULL),
-    mTearOffBtn(NULL),
-    mCloseBtn(NULL),
+    mExpandCollapseBtn(nullptr),
+    mTearOffBtn(nullptr),
+    mCloseBtn(nullptr),
     mSessionID(session_id.asUUID()),
-    mConversationsRoot(NULL),
-    mScroller(NULL),
-    mChatHistory(NULL),
-    mInputEditor(NULL),
+    mConversationsRoot(nullptr),
+    mScroller(nullptr),
+    mChatHistory(nullptr),
+    mInputEditor(nullptr),
     mInputEditorPad(0),
     mRefreshTimer(new LLTimer()),
     mIsHostAttached(false),
     mHasVisibleBeenInitialized(false),
     mIsParticipantListExpanded(true),
-    mChatLayoutPanel(NULL),
-    mInputPanels(NULL),
+    mChatLayoutPanel(nullptr),
+    mInputPanels(nullptr),
     mChatLayoutPanelHeight(0)
 {
     setAutoFocus(false);
@@ -212,10 +212,10 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
             else
             {
                 // setting of the "potential" host for Nearby Chat: this sequence sets
-                // LLFloater::mHostHandle = NULL (a current host), but
+                // LLFloater::mHostHandle = nullptr (a current host), but
                 // LLFloater::mLastHostHandle = floater_container (a "future" host)
                 conversp->setHost(floater_container);
-                conversp->setHost(NULL);
+                conversp->setHost(nullptr);
 
                 conversp->forceReshape();
             }
@@ -347,7 +347,7 @@ bool LLFloaterIMSessionTab::postBuild()
     p.parent_panel = mParticipantListPanel;
     p.listener = base_item;
     p.view_model = &mConversationViewModel;
-    p.root = NULL;
+    p.root = nullptr;
     p.use_ellipses = true;
     p.options_menu = "menu_conversation.xml";
     p.name = "root";
@@ -613,7 +613,7 @@ void LLFloaterIMSessionTab::closeFloater(bool app_quitting)
 void LLFloaterIMSessionTab::deleteAllChildren()
 {
     super::deleteAllChildren();
-    mVoiceButton = NULL;
+    mVoiceButton = nullptr;
 }
 
 std::string LLFloaterIMSessionTab::appendTime()
@@ -846,7 +846,7 @@ void LLFloaterIMSessionTab::refreshConversation()
     }
 
     mConversationViewModel.requestSortAll();
-    if(mConversationsRoot != NULL)
+    if(mConversationsRoot != nullptr)
     {
         mConversationsRoot->arrangeAll();
         mConversationsRoot->update();
@@ -1358,7 +1358,7 @@ void LLFloaterIMSessionTab::getSelectedUUIDs(uuid_vec_t& selected_uuids)
 
 LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
 {
-    LLConversationItem *conversationItem = NULL;
+    LLConversationItem *conversationItem = nullptr;
 
     if(mConversationsRoot &&
         mConversationsRoot->getCurSelectedItem() &&

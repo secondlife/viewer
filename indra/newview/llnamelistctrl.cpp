@@ -343,7 +343,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
     LLUUID id = name_item.value().asUUID();
     LLNameListItem* item = new LLNameListItem(name_item,name_item.target() == GROUP, name_item.target() == EXPERIENCE);
 
-    if (!item) return NULL;
+    if (!item) return nullptr;
 
     LLScrollListCtrl::addRow(item, name_item, pos);
 
@@ -481,7 +481,7 @@ LLScrollListItem* LLNameListCtrl::getNameItemByAgentId(const LLUUID& agent_id)
             return item;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLNameListCtrl::selectItemBySpecialId(const LLUUID& special_id)

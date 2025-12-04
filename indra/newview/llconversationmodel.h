@@ -75,7 +75,7 @@ public:
     virtual std::string getSearchableUUIDString() const {return LLStringUtil::null;}
     virtual const LLUUID& getUUID() const { return mUUID; }
     virtual time_t getCreationDate() const { return 0; }
-    virtual LLPointer<LLUIImage> getIcon() const { return NULL; }
+    virtual LLPointer<LLUIImage> getIcon() const { return nullptr; }
     virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
     virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
     virtual std::string getLabelSuffix() const { return LLStringUtil::null; }

@@ -35,7 +35,7 @@
 #include "llvolumemgr.h"
 #include "llmeshrepository.h"
 
-LLSceneView* gSceneView = NULL;
+LLSceneView* gSceneView = nullptr;
 
 //borrow this helper function from llfasttimerview.cpp
 template <class VEC_TYPE>

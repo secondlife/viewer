@@ -63,7 +63,7 @@ LLControlGroup::~LLControlGroup() {}
 LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
-                                   LLControlVariable::ePersist persist) {return NULL;}
+                                   LLControlVariable::ePersist persist) {return nullptr;}
 void LLControlGroup::setString(std::string_view name, const std::string& val){}
 
 std::string gCmdLineLoginURI;

@@ -56,7 +56,7 @@ LLVector3 LLSprite::sNormal(0.0f,0.0f,0.0f);
 // A simple initialization
 LLSprite::LLSprite(const LLUUID &image_uuid) :
     mImageID(image_uuid),
-    mImagep(NULL),
+    mImagep(nullptr),
     mPitch(0.f),
     mYaw(0.f),
     mPosition(0.0f, 0.0f, 0.0f),

@@ -60,7 +60,7 @@
 #include "llvoavatarself.h"
 #include "lltexlayer.h"
 
-LLTextureView *gTextureView = NULL;
+LLTextureView *gTextureView = nullptr;
 
 #define HIGH_PRIORITY 100000000.f
 

@@ -142,14 +142,14 @@ LLMaterialMgr::LLMaterialMgr():
     mHttpOptions = std::make_shared<LLCore::HttpOptions>();
     mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_MATERIALS);
 
-    mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(LLMaterialID::null, LLMaterialPtr(NULL)));
-    gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, NULL);
+    mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(LLMaterialID::null, LLMaterialPtr(nullptr)));
+    gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, nullptr);
     LLWorld::instance().setRegionRemovedCallback(boost::bind(&LLMaterialMgr::onRegionRemoved, this, _1));
 }
 
 LLMaterialMgr::~LLMaterialMgr()
 {
-    gIdleCallbacks.deleteFunction(&LLMaterialMgr::onIdle, NULL);
+    gIdleCallbacks.deleteFunction(&LLMaterialMgr::onIdle, nullptr);
 }
 
 bool LLMaterialMgr::isGetPending(const LLUUID& region_id, const LLMaterialID& material_id) const
@@ -821,7 +821,7 @@ void LLMaterialMgr::processGetAllQueue()
 void LLMaterialMgr::processGetAllQueueCoro(LLUUID regionId)
 {
     LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(regionId);
-    if (regionp == NULL)
+    if (regionp == nullptr)
     {
         LL_WARNS("Materials") << "Unknown region with id " << regionId.asString() << LL_ENDL;
         clearGetQueues(regionId);       // Invalidates region_id

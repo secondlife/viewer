@@ -74,14 +74,14 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
     :   LLView(p),
     mColor(1.f, 0.f, 0.f, 0.5f),
     mCurImageIndex(0),
-    mPreviewImage(NULL),
-    mThumbnailImage(NULL) ,
-    mBigThumbnailImage(NULL) ,
+    mPreviewImage(nullptr),
+    mThumbnailImage(nullptr) ,
+    mBigThumbnailImage(nullptr) ,
     mThumbnailWidth(0),
     mThumbnailHeight(0),
     mThumbnailSubsampled(false),
-    mPreviewImageEncoded(NULL),
-    mFormattedImage(NULL),
+    mPreviewImageEncoded(nullptr),
+    mFormattedImage(nullptr),
     mShineCountdown(0),
     mFlashAlpha(0.f),
     mNeedsFlash(true),
@@ -97,7 +97,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
     mFilterName(""),
     mAllowRenderUI(true),
     mAllowFullScreenPreview(true),
-    mViewContainer(NULL)
+    mViewContainer(nullptr)
 {
     setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
     mSnapshotDelayTimer.setTimerExpirySec(0.0f);
@@ -124,13 +124,13 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 LLSnapshotLivePreview::~LLSnapshotLivePreview()
 {
     // delete images
-    mPreviewImage = NULL;
-    mPreviewImageEncoded = NULL;
-    mFormattedImage = NULL;
+    mPreviewImage = nullptr;
+    mPreviewImageEncoded = nullptr;
+    mFormattedImage = nullptr;
 
     //  gIdleCallbacks.deleteFunction( &LLSnapshotLivePreview::onIdle, (void*)this );
     sList.erase(this);
-    sSaveLocalImage = NULL;
+    sSaveLocalImage = nullptr;
 }
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size)
@@ -228,7 +228,7 @@ bool LLSnapshotLivePreview::setSnapshotQuality(S32 quality, bool set_by_user)
         {
             gSavedSettings.setS32("SnapshotQuality", quality);
         }
-        mFormattedImage = NULL;     // Invalidate the already formatted image if any
+        mFormattedImage = nullptr;     // Invalidate the already formatted image if any
         return true;
     }
     return false;
@@ -571,7 +571,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(bool force_update)
         // Scale to the thumbnail size
         if (!raw->scale(mThumbnailWidth, mThumbnailHeight))
         {
-            raw = NULL ;
+            raw = nullptr ;
         }
     }
     else
@@ -585,7 +585,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(bool force_update)
                                          gSavedSettings.getBOOL("RenderSnapshotNoPost"),
                                          mSnapshotBufferType) )
         {
-            raw = NULL ;
+            raw = nullptr ;
         }
     }
 
@@ -620,7 +620,7 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
 {
     if (mThumbnailUpdateLock) //in the process of updating
     {
-        return NULL;
+        return nullptr;
     }
     if (mBigThumbnailUpToDate && mBigThumbnailImage)//already updated
     {
@@ -756,9 +756,9 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 previewp->getMaxImageSize()))
         {
             // Invalidate/delete any existing encoded image
-            previewp->mPreviewImageEncoded = NULL;
+            previewp->mPreviewImageEncoded = nullptr;
             // Invalidate/delete any existing formatted image
-            previewp->mFormattedImage = NULL;
+            previewp->mFormattedImage = nullptr;
             // Update the data size
             previewp->estimateDataSize();
 
@@ -1005,7 +1005,7 @@ void LLSnapshotLivePreview::setSnapshotFormat(LLSnapshotModel::ESnapshotFormat f
 {
     if (mSnapshotFormat != format)
     {
-        mFormattedImage = NULL;     // Invalidate the already formatted image if any
+        mFormattedImage = nullptr;     // Invalidate the already formatted image if any
         mSnapshotFormat = format;
     }
 }

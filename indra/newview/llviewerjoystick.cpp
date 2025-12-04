@@ -164,12 +164,12 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
         {
             LL_DEBUGS("Joystick") << "Found and attempting to use device: " << product_name << LL_ENDL;
             LPDIRECTINPUT8       di8_interface = *((LPDIRECTINPUT8 *)gViewerWindow->getWindow()->getDirectInput8());
-            LPDIRECTINPUTDEVICE8 device = NULL;
+            LPDIRECTINPUTDEVICE8 device = nullptr;
 
             HRESULT status = di8_interface->CreateDevice(
                 device_instance_ptr->guidInstance, // REFGUID rguid,
                 &device,                           // LPDIRECTINPUTDEVICE * lplpDirectInputDevice,
-                NULL                               // LPUNKNOWN pUnkOuter
+                nullptr                               // LPUNKNOWN pUnkOuter
                 );
 
             if (status == DI_OK)
@@ -314,7 +314,7 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 // -----------------------------------------------------------------------------
 LLViewerJoystick::LLViewerJoystick()
 :   mDriverState(JDS_UNINITIALIZED),
-    mNdofDev(NULL),
+    mNdofDev(nullptr),
     mResetFlag(false),
     mCameraUpdated(true),
     mOverrideCamera(false),
@@ -408,12 +408,12 @@ void LLViewerJoystick::init(bool autoenable)
 #endif
             if (mDriverState != JDS_INITIALIZED)
             {
-                if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
+                if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, nullptr))
                 {
                     LL_INFOS("Joystick") << "Failed to gather input devices. Falling back to ndof's init" << LL_ENDL;
                     // Failed to gather devices, init first suitable one
                 mLastDeviceUUID = LLSD();
-                void *preffered_device = NULL;
+                void *preffered_device = nullptr;
                 initDevice(preffered_device);
             }
             }
@@ -505,11 +505,11 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 
     if (mDriverState != JDS_INITIALIZED)
     {
-        if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, NULL))
+        if (!gViewerWindow->getWindow()->getInputDevices(device_type, osx_callback, win_callback, nullptr))
         {
             LL_INFOS("Joystick") << "Failed to gather input devices. Falling back to ndof's init" << LL_ENDL;
             // Failed to gather devices from window, init first suitable one
-        void *preffered_device = NULL;
+        void *preffered_device = nullptr;
         mLastDeviceUUID = LLSD();
         initDevice(preffered_device);
     }
@@ -593,11 +593,11 @@ bool LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
 void LLViewerJoystick::terminate()
 {
 #if LIB_NDOF
-    if (mNdofDev != NULL)
+    if (mNdofDev != nullptr)
     {
         ndof_libcleanup(); // frees alocated memory in mNdofDev
         mDriverState = JDS_UNINITIALIZED;
-        mNdofDev = NULL;
+        mNdofDev = nullptr;
         LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
     }
 #endif

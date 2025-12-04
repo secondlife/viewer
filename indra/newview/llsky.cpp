@@ -83,8 +83,8 @@ LLSky::~LLSky()
 
 void LLSky::cleanup()
 {
-    mVOSkyp = NULL;
-    mVOWLSkyp = NULL;
+    mVOSkyp = nullptr;
+    mVOWLSkyp = nullptr;
 }
 
 void LLSky::destroyGL()
@@ -197,11 +197,11 @@ void LLSky::setMoonDirectionCFR(const LLVector3 &moon_direction)
 
 void LLSky::init()
 {
-    mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, NULL));
+    mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, nullptr));
     mVOWLSkyp->init();
     gPipeline.createObject(mVOWLSkyp.get());
 
-    mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, NULL);
+    mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, nullptr);
     mVOSkyp->init();
     gPipeline.createObject(mVOSkyp.get());
 

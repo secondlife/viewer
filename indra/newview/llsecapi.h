@@ -187,7 +187,7 @@ public:
     {
     public:
         iterator(LLPointer<iterator_impl> impl) : mImpl(impl) {}
-        iterator() : mImpl(NULL) {}
+        iterator() : mImpl(nullptr) {}
         iterator(const iterator& _iter) {mImpl = _iter.mImpl->clone(); }
         ~iterator() {}
         iterator& operator++() { if(mImpl.notNull()) mImpl->seek(true); return *this;}

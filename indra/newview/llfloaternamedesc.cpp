@@ -201,7 +201,7 @@ void LLFloaterNameDesc::onBtnOK( )
     S32 expected_upload_cost = getExpectedUploadCost();
     if (can_afford_transaction(expected_upload_cost))
     {
-        void *nruserdata = NULL;
+        void *nruserdata = nullptr;
         std::string display_name = LLStringUtil::null;
 
         LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewFileResourceUploadInfo>(

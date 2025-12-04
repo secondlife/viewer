@@ -74,7 +74,7 @@ const F32 PLANE_TICK_SIZE = 0.4f;
 const F32 MANIPULATOR_SCALE_HALF_LIFE = 0.07f;
 const F32 SNAP_ARROW_SCALE = 0.7f;
 
-static LLPointer<LLViewerTexture> sGridTex = NULL ;
+static LLPointer<LLViewerTexture> sGridTex = nullptr ;
 
 const LLManip::EManipPart MANIPULATOR_IDS[9] =
 {
@@ -150,7 +150,7 @@ void LLManipTranslate::destroyGL()
 {
     if (sGridTex)
     {
-        sGridTex = NULL ;
+        sGridTex = nullptr ;
     }
 }
 
@@ -165,7 +165,7 @@ void LLManipTranslate::restoreGL()
     sGridTex = LLViewerTextureManager::getLocalTexture() ;
     if(!sGridTex->createGLTexture())
     {
-        sGridTex = NULL ;
+        sGridTex = nullptr ;
         return ;
     }
 
@@ -688,9 +688,9 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                 }
             }
 
-            LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
+            LLViewerObject* root_object = (object == nullptr) ? nullptr : object->getRootEdit();
             if (object->permMove() && !object->isPermanentEnforced() &&
-                ((root_object == NULL) || !root_object->isPermanentEnforced()))
+                ((root_object == nullptr) || !root_object->isPermanentEnforced()))
             {
                 // handle attachments in local space
                 if (object->isAttachment() && object->mDrawable.notNull())
@@ -2297,9 +2297,9 @@ bool LLManipTranslate::canAffectSelection()
         {
             virtual bool apply(LLViewerObject* objectp)
             {
-                LLViewerObject *root_object = (objectp == NULL) ? NULL : objectp->getRootEdit();
+                LLViewerObject *root_object = (objectp == nullptr) ? nullptr : objectp->getRootEdit();
                 return objectp->permMove() && !objectp->isPermanentEnforced() &&
-                    ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+                    ((root_object == nullptr) || !root_object->isPermanentEnforced()) &&
                     (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
             }
         } func;

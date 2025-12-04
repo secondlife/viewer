@@ -38,14 +38,14 @@
 #include "lltoastnotifypanel.h"
 
 //---------------------------------------------------------------------------------
-LLFloaterNotificationsTabbed::LLFloaterNotificationsTabbed(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
-    mChannel(NULL),
-    mSysWellChiclet(NULL),
-    mGroupInviteMessageList(NULL),
-    mGroupNoticeMessageList(NULL),
-    mTransactionMessageList(NULL),
-    mSystemMessageList(NULL),
-    mNotificationsTabContainer(NULL),
+LLFloaterNotificationsTabbed::LLFloaterNotificationsTabbed(const LLSD& key) : LLTransientDockableFloater(nullptr, true,  key),
+    mChannel(nullptr),
+    mSysWellChiclet(nullptr),
+    mGroupInviteMessageList(nullptr),
+    mGroupNoticeMessageList(nullptr),
+    mTransactionMessageList(nullptr),
+    mSystemMessageList(nullptr),
+    mNotificationsTabContainer(nullptr),
     NOTIFICATION_TABBED_ANCHOR_NAME("notification_well_panel"),
     IM_WELL_ANCHOR_NAME("im_well_panel"),
     mIsReshapedByUser(false)
@@ -107,7 +107,7 @@ void LLFloaterNotificationsTabbed::onStartUpToastClick(S32 x, S32 y, MASK mask)
 void LLFloaterNotificationsTabbed::setSysWellChiclet(LLSysWellChiclet* chiclet)
 {
     mSysWellChiclet = chiclet;
-    if(NULL != mSysWellChiclet)
+    if(nullptr != mSysWellChiclet)
     {
         mSysWellChiclet->updateWidget(isWindowEmpty());
     }
@@ -124,7 +124,7 @@ void LLFloaterNotificationsTabbed::removeItemByID(const LLUUID& id, std::string 
 {
     if(mNotificationsSeparator->removeItemByID(type, id))
     {
-        if (NULL != mSysWellChiclet)
+        if (nullptr != mSysWellChiclet)
         {
             mSysWellChiclet->updateWidget(isWindowEmpty());
         }
@@ -156,7 +156,7 @@ void LLFloaterNotificationsTabbed::initChannel()
     LLNotificationsUI::LLScreenChannelBase* channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(
         LLNotificationsUI::NOTIFICATION_CHANNEL_UUID);
     mChannel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>(channel);
-    if(NULL == mChannel)
+    if(nullptr == mChannel)
     {
         LL_WARNS() << "LLSysWellWindow::initChannel() - could not get a requested screen channel" << LL_ENDL;
     }
@@ -177,7 +177,7 @@ void LLFloaterNotificationsTabbed::setVisible(bool visible)
     }
     if (visible)
     {
-        if (NULL == getDockControl() && getDockTongue().notNull())
+        if (nullptr == getDockControl() && getDockTongue().notNull())
         {
             setDockControl(new LLDockControl(
                 LLChicletBar::getInstance()->getChild<LLView>(getAnchorViewName()), this,
@@ -186,7 +186,7 @@ void LLFloaterNotificationsTabbed::setVisible(bool visible)
     }
 
     // do not show empty window
-    if (NULL == mNotificationsSeparator || isWindowEmpty()) visible = false;
+    if (nullptr == mNotificationsSeparator || isWindowEmpty()) visible = false;
 
     LLTransientDockableFloater::setVisible(visible);
 
@@ -271,7 +271,7 @@ void LLFloaterNotificationsTabbed::addItem(LLNotificationListItem::Params p)
     if (mNotificationsSeparator->findItemByID(p.notification_name, p.notification_id))
         return;
     LLNotificationListItem* new_item = LLNotificationListItem::create(p);
-    if (new_item == NULL)
+    if (new_item == nullptr)
     {
         return;
     }
@@ -482,7 +482,7 @@ bool LLNotificationSeparator::addItem(std::string& tag, LLNotificationListItem* 
     {
         return it->second->addNotification(item);
     }
-    else if (mUnTaggedList != NULL)
+    else if (mUnTaggedList != nullptr)
     {
         return mUnTaggedList->addNotification(item);
     }
@@ -497,7 +497,7 @@ bool LLNotificationSeparator::removeItemByID(std::string& tag, const LLUUID& id)
     {
         return it->second->removeItemByValue(id);
     }
-    else if (mUnTaggedList != NULL)
+    else if (mUnTaggedList != nullptr)
     {
         return mUnTaggedList->removeItemByValue(id);
     }
@@ -513,7 +513,7 @@ U32 LLNotificationSeparator::size() const
     {
         size = size + (*it)->size();
     }
-    if (mUnTaggedList != NULL)
+    if (mUnTaggedList != nullptr)
     {
         size = size + mUnTaggedList->size();
     }
@@ -528,12 +528,12 @@ LLPanel* LLNotificationSeparator::findItemByID(std::string& tag, const LLUUID& i
     {
         return it->second->getItemByValue(id);
     }
-    else if (mUnTaggedList != NULL)
+    else if (mUnTaggedList != nullptr)
     {
         return mUnTaggedList->getItemByValue(id);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //static
@@ -560,7 +560,7 @@ void LLNotificationSeparator::getItems(std::vector<LLNotificationListItem*>& ite
     {
         getItemsFromList(items, *lists_it);
     }
-    if (mUnTaggedList != NULL)
+    if (mUnTaggedList != nullptr)
     {
         getItemsFromList(items, mUnTaggedList);
     }
@@ -568,7 +568,7 @@ void LLNotificationSeparator::getItems(std::vector<LLNotificationListItem*>& ite
 
 //---------------------------------------------------------------------------------
 LLNotificationSeparator::LLNotificationSeparator()
-    : mUnTaggedList(NULL)
+    : mUnTaggedList(nullptr)
 {}
 
 //---------------------------------------------------------------------------------

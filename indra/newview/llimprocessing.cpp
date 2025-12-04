@@ -225,7 +225,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 
     LLSD payload;
 
-    // must protect against a NULL return from lookupHumanReadable()
+    // must protect against a nullptr return from lookupHumanReadable()
     std::string typestr = ll_safe_string(LLAssetType::lookupHumanReadable(info->mType));
     if (!typestr.empty())
     {
@@ -235,7 +235,7 @@ void inventory_offer_handler(LLOfferInfo* info)
     }
     else
     {
-        LL_WARNS("Messaging") << "LLAssetType::lookupHumanReadable() returned NULL - probably bad asset type: " << info->mType << LL_ENDL;
+        LL_WARNS("Messaging") << "LLAssetType::lookupHumanReadable() returned nullptr - probably bad asset type: " << info->mType << LL_ENDL;
         args["OBJECTTYPE"] = "";
 
         // This seems safest, rather than propagating bogosity
@@ -457,7 +457,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         // object IMs contain sender object id in session_id (STORM-1209)
         || (dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id));
     bool is_owned_by_me = false;
-    bool is_friend = LLAvatarTracker::instance().getBuddyInfo(from_id) != NULL;
+    bool is_friend = LLAvatarTracker::instance().getBuddyInfo(from_id) != nullptr;
     bool accept_im_from_only_friend = gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly");
     bool is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
         LLMuteList::isLinden(name);
@@ -756,7 +756,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
 
             // If there is inventory, give the user the inventory offer.
-            LLOfferInfo* info = NULL;
+            LLOfferInfo* info = nullptr;
 
             if (has_inventory)
             {
@@ -1210,7 +1210,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 return;
             }
-            else if (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL))
+            else if (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(from_id) == nullptr))
             {
                 return;
             }

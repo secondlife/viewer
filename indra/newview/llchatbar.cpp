@@ -65,7 +65,7 @@
 //
 constexpr F32 AGENT_TYPING_TIMEOUT = 5.f;   // seconds
 
-LLChatBar *gChatBar = NULL;
+LLChatBar *gChatBar = nullptr;
 
 class LLChatBarGestureObserver : public LLGestureManagerObserver
 {
@@ -86,12 +86,12 @@ extern void send_chat_from_viewer(const std::string& utf8_out_text, EChatType ty
 
 LLChatBar::LLChatBar()
 :   LLPanel(),
-    mInputEditor(NULL),
+    mInputEditor(nullptr),
     mGestureLabelTimer(),
     mLastSpecialChatChannel(0),
     mIsBuilt(false),
-    mGestureCombo(NULL),
-    mObserver(NULL)
+    mGestureCombo(nullptr),
+    mObserver(nullptr)
 {
     //setIsChrome(true);
 }
@@ -101,7 +101,7 @@ LLChatBar::~LLChatBar()
 {
     LLGestureMgr::instance().removeObserver(mObserver);
     delete mObserver;
-    mObserver = NULL;
+    mObserver = nullptr;
     // LLView destructor cleans up children
 }
 
@@ -173,7 +173,7 @@ void LLChatBar::refresh()
     const F32 SHOW_GESTURE_NAME_TIME = 2.f;
     if (mGestureLabelTimer.getStarted() && mGestureLabelTimer.getElapsedTimeF32() > SHOW_GESTURE_NAME_TIME)
     {
-        LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
+        LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : nullptr;
         if (gestures) gestures->selectFirstItem();
         mGestureLabelTimer.stop();
     }
@@ -337,7 +337,7 @@ LLWString LLChatBar::stripChannelNumber(const LLWString &mesg, S32* channel)
             pos++;
         }
 
-        mLastSpecialChatChannel = strtol(wstring_to_utf8str(channel_string).c_str(), NULL, 10);
+        mLastSpecialChatChannel = strtol(wstring_to_utf8str(channel_string).c_str(), nullptr, 10);
         *channel = mLastSpecialChatChannel;
         return mesg.substr(pos, mesg.length() - pos);
     }
@@ -621,7 +621,7 @@ void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, bool 
 
 void LLChatBar::onCommitGesture(LLUICtrl* ctrl)
 {
-    LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
+    LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : nullptr;
     if (gestures)
     {
         S32 index = gestures->getFirstSelectedIndex();
@@ -645,7 +645,7 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl)
         }
     }
     mGestureLabelTimer.start();
-    if (mGestureCombo != NULL)
+    if (mGestureCombo != nullptr)
     {
         // free focus back to chat bar
         mGestureCombo->setFocus(false);

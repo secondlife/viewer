@@ -166,22 +166,22 @@ public:
                                                  bool pick_transparent = false,
                                                  bool pick_rigged = false,
                                                  bool pick_unselectable = true,
-                                                 S32* face_hit = NULL,             // which face was hit
-                                                 LLVector4a* intersection = NULL,   // return the intersection point
-                                                 LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
-                                                 LLVector4a* normal = NULL,         // return the surface normal at the intersection point
-                                                 LLVector4a* tangent = NULL);     // return the surface tangent at the intersection point
+                                                 S32* face_hit = nullptr,             // which face was hit
+                                                 LLVector4a* intersection = nullptr,   // return the intersection point
+                                                 LLVector2* tex_coord = nullptr,      // return the texture coordinates of the intersection point
+                                                 LLVector4a* normal = nullptr,         // return the surface normal at the intersection point
+                                                 LLVector4a* tangent = nullptr);     // return the surface tangent at the intersection point
     virtual LLViewerObject* lineSegmentIntersectRiggedAttachments(
                                                  const LLVector4a& start, const LLVector4a& end,
                                                  S32 face = -1,                    // which face to check, -1 = ALL_SIDES
                                                  bool pick_transparent = false,
                                                  bool pick_rigged = false,
                                                  bool pick_unselectable = true,
-                                                 S32* face_hit = NULL,             // which face was hit
-                                                 LLVector4a* intersection = NULL,   // return the intersection point
-                                                 LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
-                                                 LLVector4a* normal = NULL,         // return the surface normal at the intersection point
-                                                 LLVector4a* tangent = NULL);     // return the surface tangent at the intersection point
+                                                 S32* face_hit = nullptr,             // which face was hit
+                                                 LLVector4a* intersection = nullptr,   // return the intersection point
+                                                 LLVector2* tex_coord = nullptr,      // return the texture coordinates of the intersection point
+                                                 LLVector4a* normal = nullptr,         // return the surface normal at the intersection point
+                                                 LLVector4a* tangent = nullptr);     // return the surface tangent at the intersection point
 
     //--------------------------------------------------------------------
     // LLCharacter interface and related
@@ -211,7 +211,7 @@ public:
     inline size_t getSkeletonJointCount() const { return mSkeleton.size(); }
 
     void                    notifyAttachmentMeshLoaded();
-    void                    addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen = NULL, bool recursive = true);
+    void                    addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen = nullptr, bool recursive = true);
     void                    removeAttachmentOverridesForObject(const LLUUID& mesh_id);
     void                    removeAttachmentOverridesForObject(LLViewerObject *vo);
     bool                    jointIsRiggedTo(const LLJoint *joint) const;
@@ -259,8 +259,8 @@ public:
     virtual bool    isBuddy() const;
 
     // If this is an attachment, return the avatar it is attached to. Otherwise NULL.
-    virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
-    virtual LLVOAvatar *getAttachedAvatar() { return NULL; }
+    virtual const LLVOAvatar *getAttachedAvatar() const { return nullptr; }
+    virtual LLVOAvatar *getAttachedAvatar() { return nullptr; }
 
 
 private: //aligned members

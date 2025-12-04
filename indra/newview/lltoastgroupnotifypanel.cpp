@@ -53,7 +53,7 @@ const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT   = 7;
 
 LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notification)
 :   LLToastPanel(notification),
-    mInventoryOffer(NULL)
+    mInventoryOffer(nullptr)
 {
     buildFromFile( "panel_group_notify.xml");
     const LLSD& payload = notification->getPayload();
@@ -174,10 +174,10 @@ void LLToastGroupNotifyPanel::close()
     // The group notice dialog may be an inventory offer.
     // If it has an inventory save button and that button is still enabled
     // Then we need to send the inventory declined message
-    if(mInventoryOffer != NULL)
+    if(mInventoryOffer != nullptr)
     {
         mInventoryOffer->forceResponse(IOR_DECLINE);
-        mInventoryOffer = NULL;
+        mInventoryOffer = nullptr;
     }
 
     die();
@@ -192,7 +192,7 @@ void LLToastGroupNotifyPanel::onClickOk()
 
 void LLToastGroupNotifyPanel::onClickAttachment()
 {
-    if (mInventoryOffer != NULL) {
+    if (mInventoryOffer != nullptr) {
         mInventoryOffer->forceResponse(IOR_ACCEPT);
 
         LLTextBox * pAttachLink = getChild<LLTextBox> ("attachment");
@@ -209,7 +209,7 @@ void LLToastGroupNotifyPanel::onClickAttachment()
             LLNotifications::instance().add("AttachmentSaved", LLSD(), LLSD());
         }
 
-        mInventoryOffer = NULL;
+        mInventoryOffer = nullptr;
     }
 }
 

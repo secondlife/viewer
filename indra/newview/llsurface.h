@@ -149,7 +149,7 @@ public:
     S32 mNumberOfPatches;           // Total number of patches
 
 
-    // Each surface points at 8 neighbors (or NULL)
+    // Each surface points at 8 neighbors (or nullptr)
     // +---+---+---+
     // |NW | N | NE|
     // +---+---+---+

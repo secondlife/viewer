@@ -87,7 +87,7 @@ LLPanelGroup::LLPanelGroup()
 :   LLPanel(),
     LLGroupMgrObserver( LLUUID() ),
     mSkipRefresh(false),
-    mButtonJoin(NULL)
+    mButtonJoin(nullptr)
 {
     // Set up the factory callbacks.
     // Roles sub tabs
@@ -166,7 +166,7 @@ bool LLPanelGroup::postBuild()
 
     mGroupNameCtrl = getChild<LLUICtrl>("group_name");
 
-    childSetCommitCallback("back",boost::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
+    childSetCommitCallback("back", boost::bind(&LLPanelGroup::onBackBtnClick, this), nullptr);
 
     LLPanelGroupTab* panel_general = findChild<LLPanelGroupTab>("group_general_tab_panel");
     LLPanelGroupTab* panel_roles = findChild<LLPanelGroupTab>("group_roles_tab_panel");

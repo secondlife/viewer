@@ -188,7 +188,7 @@ public:
     virtual bool    isAttachment() const { return false; }
     const std::string& getAttachmentItemName() const;
 
-    virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
+    virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or nullptr if object is not an attachment
 
     bool hasRenderMaterialParams() const;
     void setHasRenderMaterialParams(bool has_params);
@@ -316,11 +316,11 @@ public:
                                       bool pick_transparent = false,
                                       bool pick_rigged = false,
                                       bool pick_unselectable = true,
-                                      S32* face_hit = NULL,                   // which face was hit
-                                      LLVector4a* intersection = NULL,         // return the intersection point
-                                      LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-                                      LLVector4a* normal = NULL,               // return the surface normal at the intersection point
-                                      LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
+                                      S32* face_hit = nullptr,                   // which face was hit
+                                      LLVector4a* intersection = nullptr,         // return the intersection point
+                                      LLVector2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
+                                      LLVector4a* normal = nullptr,               // return the surface normal at the intersection point
+                                      LLVector4a* tangent = nullptr             // return the surface tangent at the intersection point
         );
 
     virtual bool lineSegmentBoundingBox(const LLVector4a& start, const LLVector4a& end);
@@ -424,11 +424,11 @@ public:
     virtual F32 getEstTrianglesStreamingCost() const;
     virtual F32 getStreamingCost() const;
     virtual bool getCostData(LLMeshCostData& costs) const;
-    virtual U32 getTriangleCount(S32* vcount = NULL) const;
+    virtual U32 getTriangleCount(S32* vcount = nullptr) const;
     virtual U32 getHighLODTriangleCount();
     F32 recursiveGetScaledSurfaceArea() const;
 
-    U32 recursiveGetTriangleCount(S32* vcount = NULL) const;
+    U32 recursiveGetTriangleCount(S32* vcount = nullptr) const;
 
     void setObjectCost(F32 cost);
     F32 getObjectCost();
@@ -457,11 +457,11 @@ public:
     void setAttachedSound(const LLUUID &audio_uuid, const LLUUID& owner_id, const F32 gain, const U8 flags);
     void adjustAudioGain(const F32 gain);
     F32  getSoundCutOffRadius() const { return mSoundCutOffRadius; }
-    void clearAttachedSound()                               { mAudioSourcep = NULL; }
+    void clearAttachedSound()                               { mAudioSourcep = nullptr; }
 
      // Create if necessary
     LLAudioSource *getAudioSource(const LLUUID& owner_id);
-    bool isAudioSource() const {return mAudioSourcep != NULL;}
+    bool isAudioSource() const {return mAudioSourcep != nullptr;}
 
     U8 getMediaType() const;
     void setMediaType(U8 media_type);
@@ -914,7 +914,7 @@ protected:
     LLQuaternion    mPreviousRotation;
 
     U8              mAttachmentState;   // this encodes the attachment id in a somewhat complex way. 0 if not an attachment.
-    LLViewerObjectMedia* mMedia;    // NULL if no media associated
+    LLViewerObjectMedia* mMedia;    // nullptr if no media associated
     U8 mClickAction;
     F32 mObjectCost; //resource cost of this object or -1 if unknown
     F32 mLinksetCost;

@@ -301,7 +301,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
     // We also take care of degenerated cases so we don't update all folders in the inventory by mistake.
 
     if (cur_uuid.isNull()
-        || gInventory.getCategory(cur_uuid) == NULL
+        || gInventory.getCategory(cur_uuid) == nullptr
         || gInventory.getCategory(cur_uuid)->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
     {
         return;
@@ -314,7 +314,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
         // Retrieve the listing uuid this object is in
         LLUUID listing_uuid = nested_parent_id(cur_uuid, depth);
         LLViewerInventoryCategory* listing_cat = gInventory.getCategory(listing_uuid);
-        bool listing_cat_loaded = listing_cat != NULL && listing_cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN;
+        bool listing_cat_loaded = listing_cat != nullptr && listing_cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN;
 
         // Verify marketplace data consistency for this listing
         if (perform_consistency_enforcement
@@ -419,7 +419,7 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 
     if (!model ||
         !get_is_category_renameable(model, cat_id) ||
-        (cat = model->getCategory(cat_id)) == NULL ||
+        (cat = model->getCategory(cat_id)) == nullptr ||
         cat->getName() == new_name)
     {
         return;
@@ -427,7 +427,7 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 
     LLSD updates;
     updates["name"] = new_name;
-    update_inventory_category(cat_id, updates, NULL);
+    update_inventory_category(cat_id, updates, nullptr);
 }
 
 void copy_inventory_category(LLInventoryModel* model,
@@ -1207,13 +1207,13 @@ bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg
     }
 
     // A category is always considered as passing...
-    if (linked_category != NULL)
+    if (linked_category != nullptr)
     {
         return true;
     }
 
     // Take the linked item if necessary
-    if (linked_item != NULL)
+    if (linked_item != nullptr)
     {
         inv_item = linked_item;
     }
@@ -1363,7 +1363,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
         unsigned int existing_folder_count = 0;
 
         // Get the version folder: that's where the counts start from
-        const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
+        const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : nullptr);
 
         if (version_folder)
         {
@@ -1433,7 +1433,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     int insertion_point_folder_depth = (root_folder ? get_folder_path_length(root_folder->getUUID(), dest_folder->getUUID()) + 1 : 1);
 
     // Get the version folder: that's where the folders and items counts start from
-    const LLViewerInventoryCategory * version_folder = (insertion_point_folder_depth >= 2 ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
+    const LLViewerInventoryCategory * version_folder = (insertion_point_folder_depth >= 2 ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : nullptr);
 
     // Compare the whole with the nested folders depth limit
     // Note: substract 2 as we leave root and version folder out of the count threshold
@@ -1543,7 +1543,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
     LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
     LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
 
-    if (linked_category != NULL)
+    if (linked_category != nullptr)
     {
         // Move the linked folder directly
         return move_folder_to_marketplacelistings(linked_category, dest_folder, copy);
@@ -1552,7 +1552,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
     {
         // Grab the linked item if any
         LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
-        viewer_inv_item = (linked_item != NULL ? linked_item : viewer_inv_item);
+        viewer_inv_item = (linked_item != nullptr ? linked_item : viewer_inv_item);
 
         // If we want to copy but the item is no copy, fail silently (this is a common case that doesn't warrant notification)
         if (copy && !viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
@@ -2680,7 +2680,7 @@ bool can_share_item(const LLUUID& item_id)
             }
             else
             {
-                can_share = (gInventory.getCategory(item_id) != NULL);
+                can_share = (gInventory.getCategory(item_id) != nullptr);
             }
 
             const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -3352,7 +3352,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     if (user_confirm && (("delete" == action) || ("cut" == action) || ("rename" == action) || ("properties" == action) || ("task_properties" == action) || ("open" == action)))
     {
         std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
-        LLFolderViewModelItemInventory * viewModel = NULL;
+        LLFolderViewModelItemInventory * viewModel = nullptr;
         for (; set_iter != selected_items.end(); ++set_iter)
         {
             viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
@@ -3554,7 +3554,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
 
 
-    LLMultiPreview* multi_previewp = NULL;
+    LLMultiPreview* multi_previewp = nullptr;
     LLMultiItemProperties* multi_itempropertiesp = nullptr;
 
     if (("task_open" == action  || "open" == action) && selected_items.size() > 1)
@@ -3773,7 +3773,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     // Update the marketplace listings that have been affected by the operation
     updateMarketplaceFolders();
 
-    LLFloater::setFloaterHost(NULL);
+    LLFloater::setFloaterHost(nullptr);
     if (multi_previewp)
     {
         multi_previewp->openFloater(LLSD());
@@ -3812,7 +3812,7 @@ void LLInventoryAction::saveMultipleTextures(const std::vector<std::string>& fil
         bridge->performAction(model, "save_selected_as");
     }
 
-    LLFloater::setFloaterHost(NULL);
+    LLFloater::setFloaterHost(nullptr);
     if (multi_previewp)
     {
         multi_previewp->openFloater(LLSD());
@@ -3825,7 +3825,7 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
     {
         //Get selected items
         LLFolderView::selected_items_t selectedItems = root->getSelectedItems();
-        LLFolderViewModelItemInventory * viewModel = NULL;
+        LLFolderViewModelItemInventory * viewModel = nullptr;
 
         //If user is in DND and deletes item, make sure the notification is not displayed by removing the notification
         //from DND history and .xml file. Once this is done, upon exit of DND mode the item deleted will not show a notification.
@@ -4019,7 +4019,7 @@ void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
 
     std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
     std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
-    LLFolderViewModelItemInventory * viewModel = NULL;
+    LLFolderViewModelItemInventory * viewModel = nullptr;
     for (; set_iter != selected_items.end(); ++set_iter)
     {
         viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());

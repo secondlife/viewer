@@ -81,11 +81,11 @@ const S32 PREVIEW_TEXTURE_HEIGHT = 320;
 LLFloaterImagePreview::LLFloaterImagePreview(const LLSD& args) :
     LLFloaterNameDesc(args),
 
-    mAvatarPreview(NULL),
-    mSculptedPreview(NULL),
+    mAvatarPreview(nullptr),
+    mSculptedPreview(nullptr),
     mLastMouseX(0),
     mLastMouseY(0),
-    mImagep(NULL)
+    mImagep(nullptr)
 {
     loadImage(mFilenameAndPath);
 }
@@ -115,7 +115,7 @@ bool LLFloaterImagePreview::postBuild()
 
     getChildView("bad_image_text")->setVisible(false);
 
-    if (mRawImagep.notNull() && gAgent.getRegion() != NULL)
+    if (mRawImagep.notNull() && gAgent.getRegion() != nullptr)
     {
         mAvatarPreview = new LLImagePreviewAvatar(256, 256);
         mAvatarPreview->setPreviewTarget("mPelvis", "mUpperBodyMesh0", mRawImagep, 2.f, false);
@@ -134,8 +134,8 @@ bool LLFloaterImagePreview::postBuild()
     }
     else
     {
-        mAvatarPreview = NULL;
-        mSculptedPreview = NULL;
+        mAvatarPreview = nullptr;
+        mSculptedPreview = nullptr;
         getChildView("bad_image_text")->setVisible(true);
         getChildView("clothing_type_combo")->setEnabled(false);
         getChildView("ok_btn")->setEnabled(false);
@@ -167,8 +167,8 @@ LLFloaterImagePreview::~LLFloaterImagePreview()
 {
     clearAllPreviewTextures();
 
-    mRawImagep = NULL;
-    mImagep = NULL ;
+    mRawImagep = nullptr;
+    mImagep = nullptr ;
 }
 
 //static
@@ -702,8 +702,8 @@ void LLFloaterImagePreview::onMouseCaptureLostImagePreview(LLMouseHandler* handl
 LLImagePreviewAvatar::LLImagePreviewAvatar(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, false)
 {
     mNeedsUpdate = true;
-    mTargetJoint = NULL;
-    mTargetMesh = NULL;
+    mTargetJoint = nullptr;
+    mTargetMesh = nullptr;
     mCameraDistance = 0.f;
     mCameraYaw = 0.f;
     mCameraPitch = 0.f;

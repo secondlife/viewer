@@ -32,10 +32,10 @@ LLShaderMgr::~LLShaderMgr() {}
 LLViewerShaderMgr::LLViewerShaderMgr() {}
 LLViewerShaderMgr::~LLViewerShaderMgr() {}
 
-LLViewerShaderMgr* stub_instance = NULL;
+LLViewerShaderMgr* stub_instance = nullptr;
 
 LLViewerShaderMgr* LLViewerShaderMgr::instance() {
-    if(NULL == stub_instance)
+    if(nullptr == stub_instance)
     {
         stub_instance = new LLViewerShaderMgr();
     }

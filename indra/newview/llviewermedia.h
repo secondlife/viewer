@@ -115,8 +115,8 @@ public:
     // Set all media paused(stopped for non time based) or playing, depending on val.   Does not include media in the UI.
     void setAllMediaPaused(bool val);
 
-    static void onIdle(void* dummy_arg = NULL); // updateMedia wrapper
-    void updateMedia(void* dummy_arg = NULL);
+    static void onIdle(void* dummy_arg = nullptr); // updateMedia wrapper
+    void updateMedia(void* dummy_arg = nullptr);
 
     F32 getVolume();
     void muteListChanged();
@@ -309,7 +309,7 @@ public:
     void setTarget(const std::string& target) { mTarget = target; }
 
     // utility function to create a ready-to-use media instance from a desired media type.
-    static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target = LLStringUtil::null, bool clean_browser = false);
+    static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be nullptr */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target = LLStringUtil::null, bool clean_browser = false);
 
     // Internally set our desired browser user agent string, including
     // the Second Life version and skin name.  Used because we can

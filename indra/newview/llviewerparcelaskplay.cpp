@@ -44,7 +44,7 @@
 // class LLViewerParcelAskPlay
 
 LLViewerParcelAskPlay::LLViewerParcelAskPlay() :
-pNotification(NULL)
+pNotification(nullptr)
 {
 }
 
@@ -116,7 +116,7 @@ void LLViewerParcelAskPlay::cancelNotification()
             pNotification->setIgnored(false);
             LLNotifications::getInstance()->cancel(pNotification);
         }
-        pNotification = NULL;
+        pNotification = nullptr;
     }
 }
 
@@ -163,7 +163,7 @@ LLViewerParcelAskPlay::ParcelData* LLViewerParcelAskPlay::getSetting(const LLUUI
             return &(found_parcel->second);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 LLViewerParcelAskPlay::EAskPlayMode LLViewerParcelAskPlay::getPlayMode(const LLUUID &region_id, const S32 &parcel_id)

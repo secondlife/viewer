@@ -51,7 +51,7 @@
 void LLGLTexture::setBoostLevel(S32 ) { }
 void LLGLTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, FTType, bool, LLGLTexture::EBoostLevel, S8,
-                                                                  LLGLint, LLGLenum, LLHost ) { return NULL; }
+                                                                  LLGLint, LLGLenum, LLHost ) { return nullptr; }
 
 // Stub related map calls
 LLWorldMapMessage::LLWorldMapMessage() { }
@@ -64,7 +64,7 @@ LLWorldMipmap::~LLWorldMipmap() { }
 void LLWorldMipmap::reset() { }
 void LLWorldMipmap::dropBoostLevels() { }
 void LLWorldMipmap::equalizeBoostLevels() { }
-LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load) { return NULL; }
+LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load) { return nullptr; }
 
 // Stub other stuff
 std::string LLTrans::getString(std::string_view, const LLStringUtil::format_map_t&, bool def_string) { return std::string("test_trans"); }
@@ -141,7 +141,7 @@ namespace tut
         }
         ~worldmap_test()
         {
-            mWorld = NULL;
+            mWorld = nullptr;
         }
     };
 
@@ -436,23 +436,23 @@ namespace tut
                             0.0f);
         LLSimInfo* sim;
         sim = mWorld->simInfoFromPosGlobal(pos1);
-        ensure("LLWorldMap::simInfoFromPosGlobal() test on existing region failed", sim != NULL);
+        ensure("LLWorldMap::simInfoFromPosGlobal() test on existing region failed", sim != nullptr);
 
         // Test 14 : simInfoFromPosGlobal() outside region
         LLVector3d pos2(    X_WORLD_TEST + REGION_WIDTH_METERS*4 + REGION_WIDTH_METERS/2,
                             Y_WORLD_TEST + REGION_WIDTH_METERS*4 + REGION_WIDTH_METERS/2,
                             0.0f);
         sim = mWorld->simInfoFromPosGlobal(pos2);
-        ensure("LLWorldMap::simInfoFromPosGlobal() test outside region failed", sim == NULL);
+        ensure("LLWorldMap::simInfoFromPosGlobal() test outside region failed", sim == nullptr);
 
         // Test 15 : simInfoFromName()
         sim = mWorld->simInfoFromName(name_sim);
-        ensure("LLWorldMap::simInfoFromName() test on existing region failed", sim != NULL);
+        ensure("LLWorldMap::simInfoFromName() test on existing region failed", sim != nullptr);
 
         // Test 16 : simInfoFromHandle()
         U64 handle = to_region_handle_global(X_WORLD_TEST, Y_WORLD_TEST);
         sim = mWorld->simInfoFromHandle(handle);
-        ensure("LLWorldMap::simInfoFromHandle() test on existing region failed", sim != NULL);
+        ensure("LLWorldMap::simInfoFromHandle() test on existing region failed", sim != nullptr);
 
         // Test 17 : simNameFromPosGlobal()
         LLVector3d pos3(    X_WORLD_TEST + REGION_WIDTH_METERS/2,

@@ -53,12 +53,12 @@ LLRect LLScreenChannelBase::getChannelRect()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    if (mFloaterSnapRegion == NULL)
+    if (mFloaterSnapRegion == nullptr)
     {
         mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
-    if (mChicletRegion == NULL)
+    if (mChicletRegion == nullptr)
     {
         mChicletRegion = gViewerWindow->getChicletContainer();
     }
@@ -84,14 +84,14 @@ LLScreenChannelBase::LLScreenChannelBase(const Params& p)
     mToastAlignment(p.toast_align),
     mCanStoreToasts(true),
     mHiddenToastsNum(0),
-    mHoveredToast(NULL),
+    mHoveredToast(nullptr),
     mControlHovering(false),
     mShowToasts(true),
     mID(p.id),
     mDisplayToastsAlways(p.display_toasts_always),
     mChannelAlignment(p.channel_align),
-    mFloaterSnapRegion(NULL),
-    mChicletRegion(NULL)
+    mFloaterSnapRegion(nullptr),
+    mChicletRegion(nullptr)
 {
     mID = p.id;
 
@@ -101,12 +101,12 @@ LLScreenChannelBase::LLScreenChannelBase(const Params& p)
 
 bool LLScreenChannelBase::postBuild()
 {
-    if (mFloaterSnapRegion == NULL)
+    if (mFloaterSnapRegion == nullptr)
     {
         mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
-    if (mChicletRegion == NULL)
+    if (mChicletRegion == nullptr)
     {
         mChicletRegion = gViewerWindow->getChicletContainer();
     }
@@ -185,7 +185,7 @@ void    LLScreenChannelBase::updateRect()
 //--------------------------------------------------------------------------
 LLScreenChannel::LLScreenChannel(const Params& p)
 :   LLScreenChannelBase(p),
-    mStartUpToastPanel(NULL)
+    mStartUpToastPanel(nullptr)
 {
 }
 
@@ -290,7 +290,7 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
         // It was assumed that the toast would take ownership of the panel pointer.
         // But since we have decided not to display the toast, kill the panel to
         // prevent the memory leak.
-        if (p.panel != NULL)
+        if (p.panel != nullptr)
         {
             p.panel()->die();
         }
@@ -347,7 +347,7 @@ void LLScreenChannel::onToastDestroyed(LLToast* toast)
     // if destroyed toast is hovered - reset hovered
     if (mHoveredToast == toast)
     {
-        mHoveredToast = NULL;
+        mHoveredToast = nullptr;
     }
 }
 
@@ -390,7 +390,7 @@ void LLScreenChannel::deleteToast(LLToast* toast)
     // turning hovering off manually because onMouseLeave won't happen if a toast was closed using a keyboard
     if(mHoveredToast == toast)
     {
-        mHoveredToast  = NULL;
+        mHoveredToast  = nullptr;
     }
 }
 
@@ -941,10 +941,10 @@ void LLScreenChannel::onStartUpToastHide()
 //--------------------------------------------------------------------------
 void LLScreenChannel::closeStartUpToast()
 {
-    if(mStartUpToastPanel != NULL)
+    if(mStartUpToastPanel != nullptr)
     {
         mStartUpToastPanel->setVisible(false);
-        mStartUpToastPanel = NULL;
+        mStartUpToastPanel = nullptr;
     }
 }
 
@@ -1012,7 +1012,7 @@ void LLScreenChannel::closeHiddenToasts(const Matcher& matcher)
     {
         LLToast* toast = it->getToast();
         // add to list valid toast that match to provided matcher criteria
-        if (toast != NULL && !toast->isDead() && toast->getNotification() != NULL
+        if (toast != nullptr && !toast->isDead() && toast->getNotification() != nullptr
                 && !toast->getVisible() && matcher.matches(toast->getNotification()))
         {
             toasts.push_back(toast);
@@ -1097,11 +1097,11 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
             mHoveredToast = toast;
         }
     }
-    else if (mHoveredToast != NULL)
+    else if (mHoveredToast != nullptr)
     {
         if (!mHoveredToast->isHovered())
         {
-            mHoveredToast = NULL;
+            mHoveredToast = nullptr;
         }
     }
 
@@ -1130,7 +1130,7 @@ LLToast* LLScreenChannel::getToastByNotificationID(LLUUID id)
             mStoredToastList.end(), id);
 
     if (it == mStoredToastList.end())
-        return NULL;
+        return nullptr;
 
     return it->getToast();
 }

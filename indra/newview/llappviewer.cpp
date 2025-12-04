@@ -321,7 +321,7 @@ LLSD gDebugInfo;
 
 U32 gFrameCount = 0;
 U32 gForegroundFrameCount = 0; // number of frames that app window was in foreground
-LLPumpIO* gServicePump = NULL;
+LLPumpIO* gServicePump = nullptr;
 
 U64MicrosecondsImplicit gFrameTime = 0;
 F32SecondsImplicit gFrameTimeSeconds = 0.f;
@@ -635,11 +635,11 @@ bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
 
 // Static members.
 // The single viewer app.
-LLAppViewer* LLAppViewer::sInstance = NULL;
-LLTextureCache* LLAppViewer::sTextureCache = NULL;
-LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL;
-LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
-LLPurgeDiskCacheThread* LLAppViewer::sPurgeDiskCacheThread = NULL;
+LLAppViewer* LLAppViewer::sInstance = nullptr;
+LLTextureCache* LLAppViewer::sTextureCache = nullptr;
+LLImageDecodeThread* LLAppViewer::sImageDecodeThread = nullptr;
+LLTextureFetch* LLAppViewer::sTextureFetch = nullptr;
+LLPurgeDiskCacheThread* LLAppViewer::sPurgeDiskCacheThread = nullptr;
 
 std::string getRuntime()
 {
@@ -662,15 +662,15 @@ LLAppViewer::LLAppViewer()
     mQuitRequested(false),
     mClosingFloaters(false),
     mLogoutRequestSent(false),
-    mMainloopTimeout(NULL),
+    mMainloopTimeout(nullptr),
     mAgentRegionLastAlive(false),
     mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", false)),
     mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", false)),
-    mFastTimerLogThread(NULL),
-    mSettingsLocationList(NULL),
+    mFastTimerLogThread(nullptr),
+    mSettingsLocationList(nullptr),
     mIsFirstRun(false)
 {
-    if(NULL != sInstance)
+    if(nullptr != sInstance)
     {
         LL_ERRS() << "Oh no! An instance of LLAppViewer already exists! LLAppViewer is sort of like a singleton." << LL_ENDL;
     }
@@ -1650,7 +1650,7 @@ bool LLAppViewer::doFrame()
         }
 
         delete gServicePump;
-        gServicePump = NULL;
+        gServicePump = nullptr;
 
         destroyMainloopTimeout();
 
@@ -1701,7 +1701,7 @@ void LLAppViewer::flushLFSIO()
 bool LLAppViewer::cleanup()
 {
     //ditch LLVOAvatarSelf instance
-    gAgentAvatarp = NULL;
+    gAgentAvatarp = nullptr;
 
     LLNotifications::instance().clear();
 
@@ -1760,7 +1760,7 @@ bool LLAppViewer::cleanup()
 
     release_start_screen(); // just in case
 
-    LLError::logToFixedBuffer(NULL); // stop the fixed buffer recorder
+    LLError::logToFixedBuffer(nullptr); // stop the fixed buffer recorder
 
     LL_INFOS() << "Cleaning Up" << LL_ENDL;
 
@@ -1796,7 +1796,7 @@ bool LLAppViewer::cleanup()
     }
 
     delete gAssetStorage;
-    gAssetStorage = NULL;
+    gAssetStorage = nullptr;
 
     LLPolyMesh::freeAllMeshes();
 
@@ -1822,13 +1822,13 @@ bool LLAppViewer::cleanup()
         // shut down the streaming audio sub-subsystem first, in case it relies on not outliving the general audio subsystem.
         LLStreamingAudioInterface *sai = gAudiop->getStreamingAudioImpl();
         delete sai;
-        gAudiop->setStreamingAudioImpl(NULL);
+        gAudiop->setStreamingAudioImpl(nullptr);
 
         // shut down the audio subsystem
         gAudiop->shutdown();
 
         delete gAudiop;
-        gAudiop = NULL;
+        gAudiop = nullptr;
     }
 
     // Note: this is where LLFeatureManager::getInstance()-> used to be deleted.
@@ -2040,7 +2040,7 @@ bool LLAppViewer::cleanup()
         // This may generate window reshape and activation events.
         // Therefore must do this before destroying the message system.
         delete gViewerWindow;
-        gViewerWindow = NULL;
+        gViewerWindow = nullptr;
         LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
     }
 
@@ -2051,7 +2051,7 @@ bool LLAppViewer::cleanup()
 
     // viewer UI relies on keyboard so keep it aound until viewer UI isa gone
     delete gKeyboard;
-    gKeyboard = NULL;
+    gKeyboard = nullptr;
 
     if (LLViewerJoystick::instanceExists())
     {
@@ -2070,22 +2070,22 @@ bool LLAppViewer::cleanup()
 
     //MUST happen AFTER SUBSYSTEM_CLEANUP(LLCurl)
     delete sTextureCache;
-    sTextureCache = NULL;
+    sTextureCache = nullptr;
     if (sTextureFetch)
     {
         sTextureFetch->shutdown();
         sTextureFetch->waitOnPending();
         delete sTextureFetch;
-        sTextureFetch = NULL;
+        sTextureFetch = nullptr;
     }
     delete sImageDecodeThread;
-    sImageDecodeThread = NULL;
+    sImageDecodeThread = nullptr;
     delete mFastTimerLogThread;
-    mFastTimerLogThread = NULL;
+    mFastTimerLogThread = nullptr;
     delete sPurgeDiskCacheThread;
-    sPurgeDiskCacheThread = NULL;
+    sPurgeDiskCacheThread = nullptr;
     delete mGeneralThreadPool;
-    mGeneralThreadPool = NULL;
+    mGeneralThreadPool = nullptr;
 
     if (LLFastTimerView::sAnalyzePerformance)
     {
@@ -2130,7 +2130,7 @@ bool LLAppViewer::cleanup()
         LL_INFOS() << "Launch file on quit." << LL_ENDL;
 #if LL_WINDOWS
         // Indicate an application is starting.
-        SetCursor(LoadCursor(NULL, IDC_WAIT));
+        SetCursor(LoadCursor(nullptr, IDC_WAIT));
 #endif
 
         // HACK: Attempt to wait until the screen res. switch is complete.
@@ -2267,7 +2267,7 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         LLAppViewer::instance()->writeDebugInfo();
 
         std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-        if (!LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
+        if (!LLAPRFile::isExist(error_marker_file, nullptr, LL_APR_RB))
         {
             // If marker doesn't exist, create a marker with llerror code for next launch
             // otherwise don't override existing file
@@ -2526,7 +2526,7 @@ bool tempSetControl(const std::string& name, const std::string& value)
 {
     std::string name_part;
     std::string group_part;
-    LLControlVariable* control = NULL;
+    LLControlVariable* control = nullptr;
 
     // Name can be further split into ControlGroup.Name, with the default control group being Global
     size_t pos = name.find('.');
@@ -2557,7 +2557,7 @@ bool LLAppViewer::initConfiguration()
     // Load settings files list
     std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
     LLXMLNodePtr root;
-    bool success = LLXMLNode::parseFile(settings_file_list, root, NULL);
+    bool success = LLXMLNode::parseFile(settings_file_list, root, nullptr);
     if (!success)
     {
         LL_WARNS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
@@ -3552,7 +3552,7 @@ std::string LLAppViewer::getViewerInfoString(bool default_string) const
 
     // SLT timestamp
     LLSD substitution;
-    substitution["datetime"] = (S32)time(NULL);//(S32)time_corrected();
+    substitution["datetime"] = (S32)time(nullptr);//(S32)time_corrected();
     support << "\n" << LLTrans::getString("AboutTime", substitution, default_string);
 
     return support.str();
@@ -3575,7 +3575,7 @@ void LLAppViewer::cleanupSavedSettings()
 
     // save window position if not maximized
     // as we don't track it in callbacks
-    if(NULL != gViewerWindow)
+    if(nullptr != gViewerWindow)
     {
         bool maximized = gViewerWindow->getWindow()->getMaximized();
         if (!maximized)
@@ -3891,7 +3891,7 @@ void LLAppViewer::processMarkerFiles()
     bool marker_is_same_version = true;
     // first, look for the marker created at startup and deleted on a clean exit
     mMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,MARKER_FILE_NAME);
-    if (LLAPRFile::isExist(mMarkerFileName, NULL, LL_APR_RB))
+    if (LLAPRFile::isExist(mMarkerFileName, nullptr, LL_APR_RB))
     {
         // File exists...
         // first, read it to see if it was created by the same version (we need this later)
@@ -3983,7 +3983,7 @@ void LLAppViewer::processMarkerFiles()
     // check for any last exec event report based on whether or not it happened during logout
     // (the logout marker is created when logout begins)
     std::string logout_marker_file =  gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
-    if(LLAPRFile::isExist(logout_marker_file, NULL, LL_APR_RB))
+    if(LLAPRFile::isExist(logout_marker_file, nullptr, LL_APR_RB))
     {
         if (markerIsSameVersion(logout_marker_file))
         {
@@ -3999,7 +3999,7 @@ void LLAppViewer::processMarkerFiles()
     }
     // and last refine based on whether or not a marker created during a non-llerr crash is found
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-    if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
+    if(LLAPRFile::isExist(error_marker_file, nullptr, LL_APR_RB))
     {
         S32 marker_code = getMarkerErrorCode(error_marker_file);
         if (marker_code >= 0)
@@ -5430,7 +5430,7 @@ void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
 bool LLAppViewer::errorMarkerExists() const
 {
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-    return LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB);
+    return LLAPRFile::isExist(error_marker_file, nullptr, LL_APR_RB);
 }
 
 void LLAppViewer::outOfMemorySoftQuit()
@@ -5699,7 +5699,7 @@ void LLAppViewer::forceErrorBreakpoint()
 void LLAppViewer::forceErrorBadMemoryAccess()
 {
     LL_WARNS() << "Forcing a deliberate bad memory access" << LL_ENDL;
-    S32* crash = NULL;
+    S32* crash = nullptr;
     *crash = 0xDEADBEEF;
     return;
 }
@@ -5739,7 +5739,7 @@ void LLAppViewer::forceErrorOSSpecificException()
 void LLAppViewer::forceErrorDriverCrash()
 {
     LL_WARNS() << "Forcing a deliberate driver crash" << LL_ENDL;
-    glDeleteTextures(1, NULL);
+    glDeleteTextures(1, nullptr);
 }
 
 void LLAppViewer::forceErrorCoroutineCrash()
@@ -5755,7 +5755,7 @@ void LLAppViewer::forceErrorCoroprocedureCrash()
         [](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t&, const LLUUID&)
     {
         LL_WARNS() << "Forcing a deliberate bad memory access from LLCoprocedureManager" << LL_ENDL;
-        S32* crash = NULL;
+        S32* crash = nullptr;
         *crash = 0xDEADBEEF;
     });
 }

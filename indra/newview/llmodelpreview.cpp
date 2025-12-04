@@ -107,7 +107,7 @@ LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& mater
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 std::string stripSuffix(std::string name)
@@ -213,14 +213,14 @@ LLModelPreview::~LLModelPreview()
     if (mModelLoader)
     {
         mModelLoader->shutdown();
-        mModelLoader = NULL;
+        mModelLoader = nullptr;
         mLoading = false;
     }
 
     if (mPreviewAvatar)
     {
         mPreviewAvatar->markDead();
-        mPreviewAvatar = NULL;
+        mPreviewAvatar = nullptr;
     }
 
     mUploadData.clear();
@@ -285,7 +285,7 @@ void LLModelPreview::rebuildUploadData()
 {
     assert_main_thread();
 
-    mDefaultPhysicsShapeP = NULL;
+    mDefaultPhysicsShapeP = nullptr;
     mUploadData.clear();
     mTextureSet.clear();
 
@@ -335,7 +335,7 @@ void LLModelPreview::rebuildUploadData()
 
             for (int i = LLModel::NUM_LODS - 1; i >= LLModel::LOD_IMPOSTOR; i--)
             {
-                LLModel* lod_model = NULL;
+                LLModel* lod_model = nullptr;
                 if (!legacyMatching)
                 {
                     // Fill LOD slots by finding matching meshes by label with name extensions
@@ -980,7 +980,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
     if (getLoadState() >= LLModelLoader::ERROR_PARSING)
     {
         mLoading = false;
-        mModelLoader = NULL;
+        mModelLoader = nullptr;
         mLodsWithParsingError.push_back(loaded_lod);
         return;
     }
@@ -1184,7 +1184,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                     {
                         std::string loaded_name = stripSuffix(mModel[loaded_lod][idx]->mLabel);
 
-                        LLModel* found_model = NULL;
+                        LLModel* found_model = nullptr;
                         LLMatrix4 transform;
                         if (FindModel(mBaseScene, loaded_name, found_model, transform))
                         { // don't rename correctly named models (even if they are placed in a wrong order)
@@ -1276,7 +1276,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 
     mModelLoadedSignal();
 
-    mModelLoader = NULL;
+    mModelLoader = nullptr;
 }
 
 void LLModelPreview::resetPreviewTarget()
@@ -1460,7 +1460,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     // II. Generate a shadow buffer if nessesary.
     // Welds together vertices if possible
 
-    U32* shadow_indices = NULL;
+    U32* shadow_indices = nullptr;
     // if MESH_OPTIMIZER_FULL, just leave as is, since generateShadowIndexBufferU32
     // won't do anything new, model was remaped on a per face basis.
     // Similar for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
@@ -1470,16 +1470,16 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     {
         // strip normals, reflections should restore relatively correctly
         shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
-        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, combined_tex_coords, size_vertices);
+        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, nullptr, combined_tex_coords, size_vertices);
     }
     if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
     {
         // strip uvs, can heavily affect textures
         shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
-        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, NULL, size_vertices);
+        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, nullptr, nullptr, size_vertices);
     }
 
-    U32* source_indices = NULL;
+    U32* source_indices = nullptr;
     if (shadow_indices)
     {
         source_indices = shadow_indices;
@@ -1526,8 +1526,8 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     // free unused buffers
     ll_aligned_free_32(combined_indices);
     ll_aligned_free_32(shadow_indices);
-    combined_indices = NULL;
-    shadow_indices = NULL;
+    combined_indices = nullptr;
+    shadow_indices = nullptr;
 
     if (size_new_indices < 3)
     {
@@ -1704,7 +1704,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     S32 size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
     U16* output_indices = (U16*)ll_aligned_malloc_16(size);
 
-    U16* shadow_indices = NULL;
+    U16* shadow_indices = nullptr;
     // if MESH_OPTIMIZER_FULL, just leave as is, since generateShadowIndexBufferU32
     // won't do anything new, model was remaped on a per face basis.
     // Similar for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
@@ -1712,16 +1712,16 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     if (simplification_mode == MESH_OPTIMIZER_NO_NORMALS)
     {
         U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
-        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, face.mTexCoords, face.mNumVertices);
+        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, nullptr, face.mTexCoords, face.mNumVertices);
     }
     if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
     {
         U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
-        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, NULL, face.mNumVertices);
+        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, nullptr, nullptr, face.mNumVertices);
     }
     // Don't run ShadowIndexBuffer for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
 
-    U16* source_indices = NULL;
+    U16* source_indices = nullptr;
     if (shadow_indices)
     {
         source_indices = shadow_indices;
@@ -2854,7 +2854,7 @@ void LLModelPreview::clearBuffers()
 
 void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 {
-    LLModelLoader::model_list* model = NULL;
+    LLModelLoader::model_list* model = nullptr;
 
     if (lod < 0 || lod >= LLModel::NUM_LODS)
     {
@@ -2907,7 +2907,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                 continue;
             }
 
-            LLVertexBuffer* vb = NULL;
+            LLVertexBuffer* vb = nullptr;
 
 
 
@@ -3212,7 +3212,7 @@ LLJoint* LLModelPreview::lookupJointByName(const std::string& str, void* opaque)
     {
         return pPreview->getPreviewAvatar()->getJoint(str);
     }
-    return NULL;
+    return nullptr;
 }
 
 U32 LLModelPreview::loadTextures(LLImportMaterial& material, LLHandle<LLModelPreview> handle)
@@ -3236,7 +3236,7 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material, LLHandle<LLModelPre
         return 1;
     }
 
-    material.mOpaqueData = NULL;
+    material.mOpaqueData = nullptr;
     return 0;
 }
 

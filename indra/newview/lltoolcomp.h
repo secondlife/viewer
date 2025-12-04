@@ -233,7 +233,7 @@ public:
     virtual void            onMouseCaptureLost() override;
     virtual void            handleSelect() override;
     virtual void            handleDeselect() override;
-    virtual LLTool*         getOverrideTool(MASK mask) override { return NULL; }
+    virtual LLTool*         getOverrideTool(MASK mask) override { return nullptr; }
 
 protected:
     LLToolGun*          mGun;

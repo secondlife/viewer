@@ -209,8 +209,8 @@ std::string build_notice_date(const U32& the_time)
 
 LLPanelGroupNotices::LLPanelGroupNotices() :
     LLPanelGroupTab(),
-    mInventoryItem(NULL),
-    mInventoryOffer(NULL)
+    mInventoryItem(nullptr),
+    mInventoryOffer(nullptr)
 {
 
 
@@ -225,7 +225,7 @@ LLPanelGroupNotices::~LLPanelGroupNotices()
         // Cancel the inventory offer.
         mInventoryOffer->forceResponse(IOR_DECLINE);
 
-        mInventoryOffer = NULL;
+        mInventoryOffer = nullptr;
     }
 }
 
@@ -353,7 +353,7 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 void LLPanelGroupNotices::onClickRemoveAttachment(void* data)
 {
     LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
-    self->mInventoryItem = NULL;
+    self->mInventoryItem = nullptr;
     self->mCreateInventoryName->clear();
     self->mCreateInventoryIcon->setVisible(false);
     self->mBtnRemoveAttachment->setEnabled(false);
@@ -365,7 +365,7 @@ void LLPanelGroupNotices::onClickOpenAttachment(void* data)
     LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
 
     self->mInventoryOffer->forceResponse(IOR_ACCEPT);
-    self->mInventoryOffer = NULL;
+    self->mInventoryOffer = nullptr;
     self->mBtnOpenAttachment->setEnabled(false);
 }
 
@@ -430,7 +430,7 @@ void LLPanelGroupNotices::onClickNewMessage(void* data)
     if (self->mInventoryOffer)
     {
         self->mInventoryOffer->forceResponse(IOR_DECLINE);
-        self->mInventoryOffer = NULL;
+        self->mInventoryOffer = nullptr;
     }
 
     self->mCreateSubject->clear();
@@ -617,7 +617,7 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
     {
         // Cancel the inventory offer for the previously viewed notice
         mInventoryOffer->forceResponse(IOR_DECLINE);
-        mInventoryOffer = NULL;
+        mInventoryOffer = nullptr;
     }
 
     if (inventory_offer)

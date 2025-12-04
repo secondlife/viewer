@@ -229,7 +229,7 @@ void LLWindowListener::getInfo(LLSD const & evt)
 void LLWindowListener::getPaths(LLSD const & request)
 {
     Response response(LLSD(), request);
-    LLView *root(LLUI::getInstance()->getRootView()), *base(NULL);
+    LLView *root(LLUI::getInstance()->getRootView()), *base(nullptr);
     // Capturing request["under"] as string means we conflate the case in
     // which there is no ["under"] key with the case in which its value is the
     // empty string. That seems to make sense to me.
@@ -483,12 +483,12 @@ void LLWindowListener::mouseDown(LLSD const & request)
     Actions actions(buttons.lookup(request["button"]));
     if (actions.valid)
     {
-        // Normally you can pass NULL to an LLWindow* without compiler
+        // Normally you can pass nullptr to an LLWindow* without compiler
         // complaint, but going through std::bind() evidently
         // bypasses that special case: it only knows you're trying to pass an
-        // int to a pointer. Explicitly cast NULL to the desired pointer type.
+        // int to a pointer. Explicitly cast nullptr to the desired pointer type.
         mouseEvent(std::bind(actions.down, mWindow,
-                             static_cast<LLWindow*>(NULL), std::placeholders::_1, std::placeholders::_2),
+                             static_cast<LLWindow*>(nullptr), std::placeholders::_1, std::placeholders::_2),
                    request);
     }
 }
@@ -498,7 +498,7 @@ void LLWindowListener::mouseUp(LLSD const & request)
     Actions actions(buttons.lookup(request["button"]));
     if (actions.valid)
     {
-        mouseEvent(std::bind(actions.up, mWindow, static_cast<LLWindow*>(NULL), std::placeholders::_1, std::placeholders::_2),
+        mouseEvent(std::bind(actions.up, mWindow, static_cast<LLWindow*>(nullptr), std::placeholders::_1, std::placeholders::_2),
                    request);
     }
 }
@@ -510,7 +510,7 @@ void LLWindowListener::mouseMove(LLSD const & request)
     // void, whereas mouseEvent() accepts a function returning bool -- and
     // uses that bool return. Use MouseFuncTrue to construct a callable that
     // returns bool anyway.
-    mouseEvent(MouseFuncTrue(std::bind(&LLWindowCallbacks::handleMouseMove, mWindow, static_cast<LLWindow*>(NULL), std::placeholders::_1,
+    mouseEvent(MouseFuncTrue(std::bind(&LLWindowCallbacks::handleMouseMove, mWindow, static_cast<LLWindow*>(nullptr), std::placeholders::_1,
                                          std::placeholders::_2)),
                request);
 }
@@ -519,5 +519,5 @@ void LLWindowListener::mouseScroll(LLSD const & request)
 {
     S32 clicks = request["clicks"].asInteger();
 
-    mWindow->handleScrollWheel(NULL, clicks);
+    mWindow->handleScrollWheel(nullptr, clicks);
 }

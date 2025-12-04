@@ -209,8 +209,8 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
                 object_cache["vo_entries_max"] = LLSD::Integer(LLVOCache::getInstance()->getCacheEntriesMax());
                 object_cache["vo_entries_curent"] = LLSD::Integer(LLVOCache::getInstance()->getCacheEntries());
                 object_cache["vo_active_entries"] = LLSD::Integer(LLWorld::getInstance()->getNumOfActiveCachedObjects());
-                U64 region_hit_count = gAgent.getRegion() != NULL ? gAgent.getRegion()->getRegionCacheHitCount() : 0;
-                U64 region_miss_count = gAgent.getRegion() != NULL ? gAgent.getRegion()->getRegionCacheMissCount() : 0;
+                U64 region_hit_count = gAgent.getRegion() != nullptr ? gAgent.getRegion()->getRegionCacheHitCount() : 0;
+                U64 region_miss_count = gAgent.getRegion() != nullptr ? gAgent.getRegion()->getRegionCacheMissCount() : 0;
                 F64 region_vocache_hit_rate = 0;
                 if (region_hit_count > 0 || region_miss_count > 0)
                 {

@@ -32,8 +32,8 @@
 
 LLDrawPoolSky::LLDrawPoolSky()
 :   LLFacePool(POOL_SKY),
-    mSkyTex(NULL),
-    mShader(NULL)
+    mSkyTex(nullptr),
+    mShader(nullptr)
 {
 }
 

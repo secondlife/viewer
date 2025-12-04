@@ -78,7 +78,7 @@ bool ll_is_part_idx_allocated(S32 idx, S32* start, S32* end)
 
 LLVOPartGroup::LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
     :   LLAlphaObject(id, pcode, regionp),
-        mViewerPartGroupp(NULL)
+        mViewerPartGroupp(nullptr)
 {
     setNumTEs(1);
     setTETexture(0, LLUUID::null);
@@ -239,7 +239,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
         {
             group->setState(LLSpatialGroup::GEOM_DIRTY);
         }
-        drawable->setNumFaces(0, NULL, getTEImage(0));
+        drawable->setNumFaces(0, nullptr, getTEImage(0));
         LLPipeline::sCompiles++;
         return true;
     }
@@ -251,7 +251,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
     if (num_parts > drawable->getNumFaces())
     {
-        drawable->setNumFacesFast(num_parts+num_parts/4, NULL, getTEImage(0));
+        drawable->setNumFacesFast(num_parts+num_parts/4, nullptr, getTEImage(0));
     }
 
     F32 tot_area = 0;
@@ -280,7 +280,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
         if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK)
         { //include ribbon segment length in scale
-            const LLVector3* pos_agent = NULL;
+            const LLVector3* pos_agent = nullptr;
             if (part->mParent)
             {
                 pos_agent = &(part->mParent->mPosAgent);
@@ -730,7 +730,7 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
     }
     else
     {
-        group->mVertexBuffer = NULL;
+        group->mVertexBuffer = nullptr;
         group->mBufferMap.clear();
     }
 

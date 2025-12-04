@@ -112,8 +112,8 @@ public:
     };
     LLOverlapPanel(Params p = Params()) : LLPanel(p),
         mSpacing(10),
-        // mClickedElement(NULL),
-        mLastClickedElement(NULL)
+        // mClickedElement(nullptr),
+        mLastClickedElement(nullptr)
     {
         mOriginalWidth = getRect().getWidth();
         mOriginalHeight = getRect().getHeight();
@@ -311,16 +311,16 @@ LLGUIPreviewLiveFile::LLGUIPreviewLiveFile(std::string path, std::string name, L
         : mFileName(name),
         mParent(parent),
         mFirstFade(true),
-        mFadeTimer(NULL),
+        mFadeTimer(nullptr),
         LLLiveFile(path, 1.0)
 {}
 
 LLGUIPreviewLiveFile::~LLGUIPreviewLiveFile()
 {
-    mParent->mLiveFile = NULL;
+    mParent->mLiveFile = nullptr;
     if(mFadeTimer)
     {
-        mFadeTimer->mParent = NULL;
+        mFadeTimer->mParent = nullptr;
         // deletes itself; see lltimer.cpp
     }
 }
@@ -337,7 +337,7 @@ bool LLGUIPreviewLiveFile::loadFile()
     {
         if(mFadeTimer)
         {
-            mFadeTimer->mParent = NULL;
+            mFadeTimer->mParent = nullptr;
         }
         mFadeTimer = new LLFadeEventTimer(0.05f,this);
     }
@@ -362,7 +362,7 @@ bool LLFadeEventTimer::tick()
         diff = -diff;
     }
 
-    if(NULL == mParent) // no more need to tick, so suicide
+    if(nullptr == mParent) // no more need to tick, so suicide
     {
         return true;
     }
@@ -393,9 +393,9 @@ bool LLFadeEventTimer::tick()
 // Constructor
 LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
   : LLFloater(key),
-    mDisplayedFloater(NULL),
-    mDisplayedFloater_2(NULL),
-    mLiveFile(NULL),
+    mDisplayedFloater(nullptr),
+    mDisplayedFloater_2(nullptr),
+    mLiveFile(nullptr),
     // sHighlightingDiffs(false),
     mHighlightingOverlaps(false),
     mLastDisplayedX(0),
@@ -417,7 +417,7 @@ LLFloaterUIPreview::~LLFloaterUIPreview()
     if(mLiveFile)
     {
         delete mLiveFile;
-        mLiveFile = NULL;
+        mLiveFile = nullptr;
     }
 }
 
@@ -598,9 +598,9 @@ void LLFloaterUIPreview::onClose(bool app_quitting)
         onClickCloseDisplayedFloater(PRIMARY_FLOATER);
         onClickCloseDisplayedFloater(SECONDARY_FLOATER);
         delete mDisplayedFloater;
-        mDisplayedFloater = NULL;
+        mDisplayedFloater = nullptr;
         delete mDisplayedFloater_2;
-        mDisplayedFloater_2 = NULL;
+        mDisplayedFloater_2 = nullptr;
     }
 }
 
@@ -744,7 +744,7 @@ void LLFloaterUIPreview::addFloaterEntry(const std::string& path)
         if(mLiveFile)
         {
             delete mLiveFile;
-            mLiveFile = NULL;
+            mLiveFile = nullptr;
         }
         return;
     }
@@ -804,21 +804,21 @@ void LLFloaterUIPreview::displayFloater(bool click, S32 ID)
     LLPreviewedFloater** floaterp = (ID == 1 ? &(mDisplayedFloater) : &(mDisplayedFloater_2));
     if(ID == 1)
     {
-        bool floater_already_open = mDisplayedFloater != NULL;
+        bool floater_already_open = mDisplayedFloater != nullptr;
         if(floater_already_open)                                            // if we are already displaying a floater
         {
             mLastDisplayedX = mDisplayedFloater->calcScreenRect().mLeft;    // save floater's last known position to put the new one there
             mLastDisplayedY = mDisplayedFloater->calcScreenRect().mBottom;
             delete mDisplayedFloater;                           // delete it (this closes it too)
-            mDisplayedFloater = NULL;                           // and reset the pointer
+            mDisplayedFloater = nullptr;                           // and reset the pointer
         }
     }
     else
     {
-        if(mDisplayedFloater_2 != NULL)
+        if(mDisplayedFloater_2 != nullptr)
         {
             delete mDisplayedFloater_2;
-            mDisplayedFloater_2 = NULL;
+            mDisplayedFloater_2 = nullptr;
         }
     }
 
@@ -910,7 +910,7 @@ void LLFloaterUIPreview::displayFloater(bool click, S32 ID)
         if(mLiveFile)
         {
             delete mLiveFile;
-            mLiveFile = NULL;
+            mLiveFile = nullptr;
         }
         mLiveFile = new LLGUIPreviewLiveFile(std::string(full_path.c_str()),std::string(path.c_str()),this);
         mLiveFile->checkAndReload();
@@ -930,8 +930,8 @@ void LLFloaterUIPreview::displayFloater(bool click, S32 ID)
     if(ID == 1)
     {
         mOverlapPanel->mOverlapMap.clear();
-        LLView::sPreviewClickedElement = NULL;  // stop overlapping elements from drawing
-        mOverlapPanel->mLastClickedElement = NULL;
+        LLView::sPreviewClickedElement = nullptr;  // stop overlapping elements from drawing
+        mOverlapPanel->mLastClickedElement = nullptr;
         findOverlapsInChildren((LLView*)mDisplayedFloater);
 
         // highlight and enable them
@@ -1035,10 +1035,10 @@ void LLFloaterUIPreview::getExecutablePath(const std::vector<std::string>& filen
     CFStringRef path_cfstr = CFStringCreateWithCString(kCFAllocatorDefault, chosen_path.c_str(), kCFStringEncodingMacRoman);        // get path as a CFStringRef
     CFURLRef path_url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path_cfstr, kCFURLPOSIXPathStyle, true);         // turn it into a CFURLRef
     CFBundleRef chosen_bundle = CFBundleCreate(kCFAllocatorDefault, path_url);                                              // get a handle for the bundle
-    if(NULL != chosen_bundle)
+    if(nullptr != chosen_bundle)
     {
         CFDictionaryRef bundleInfoDict = CFBundleGetInfoDictionary(chosen_bundle);                                              // get the bundle's dictionary
-        if(NULL != bundleInfoDict)
+        if(nullptr != bundleInfoDict)
         {
             CFStringRef executable_cfstr = (CFStringRef)CFDictionaryGetValue(bundleInfoDict, CFSTR("CFBundleExecutable"));  // get the name of the actual executable (e.g. TextEdit or firefox-bin)
             int max_file_length = 256;                                                                                      // (max file name length is 255 in OSX)
@@ -1143,7 +1143,7 @@ void LLFloaterUIPreview::onClickToggleDiffHighlighting()
             if(!strncmp("XuiDelta",root_floater->getName().c_str(),9))
             {
                 for (LLXmlTreeNode* child = root_floater->getFirstChild();      // get the first child first, then below get the next one; otherwise the iterator is invalid (bug or feature in XML code?)
-                     child != NULL;
+                     child != nullptr;
                      child = root_floater->getNextChild())  // get child for next iteration
                 {
                     if(!strncmp("file",child->getName().c_str(),5))
@@ -1211,7 +1211,7 @@ void LLFloaterUIPreview::scanDiffFile(LLXmlTreeNode* file_node)
 
     // Get a list of changed elements
     // Get the first child first, then below get the next one; otherwise the iterator is invalid (bug or feature in XML code?)
-    for (LLXmlTreeNode* child = file_node->getFirstChild(); child != NULL; child = file_node->getNextChild())
+    for (LLXmlTreeNode* child = file_node->getFirstChild(); child != nullptr; child = file_node->getNextChild())
     {
         if(!strncmp("delta",child->getName().c_str(),6))
         {
@@ -1234,7 +1234,7 @@ void LLFloaterUIPreview::scanDiffFile(LLXmlTreeNode* file_node)
 
 void LLFloaterUIPreview::highlightChangedElements()
 {
-    if(NULL == mLiveFile)
+    if(nullptr == mLiveFile)
     {
         return;
     }
@@ -1266,7 +1266,7 @@ void LLFloaterUIPreview::highlightChangedElements()
             element = element->findChild<LLView>(*token_iter,false);    // try to find element: don't recur, and don't create if missing
 
             // if we still didn't find it...
-            if(NULL == element)
+            if(nullptr == element)
             {
                 LL_INFOS() << "Unable to find element in XuiDelta file named \"" << *iter << "\" in file \"" << mLiveFile->mFileName <<
                             "\". The element may no longer exist, the path may be incorrect, or it may not be a non-displayable element (not an LLView) such as a \"string\" type." << LL_ENDL;
@@ -1324,13 +1324,13 @@ void LLFloaterUIPreview::onClickCloseDisplayedFloater(S32 caller_id)
             mLastDisplayedX = mDisplayedFloater->calcScreenRect().mLeft;
             mLastDisplayedY = mDisplayedFloater->calcScreenRect().mBottom;
             delete mDisplayedFloater;
-            mDisplayedFloater = NULL;
+            mDisplayedFloater = nullptr;
         }
 
         if(mLiveFile)
         {
             delete mLiveFile;
-            mLiveFile = NULL;
+            mLiveFile = nullptr;
         }
 
         if(mToggleOverlapButton->getToggleState())
@@ -1339,14 +1339,14 @@ void LLFloaterUIPreview::onClickCloseDisplayedFloater(S32 caller_id)
             onClickToggleOverlapping();
         }
 
-        LLView::sPreviewClickedElement = NULL;  // stop overlapping elements panel from drawing
-        mOverlapPanel->mLastClickedElement = NULL;
+        LLView::sPreviewClickedElement = nullptr;  // stop overlapping elements panel from drawing
+        mOverlapPanel->mLastClickedElement = nullptr;
     }
     else
     {
         mCloseOtherButton_2->setEnabled(false);
         delete mDisplayedFloater_2;
-        mDisplayedFloater_2 = NULL;
+        mDisplayedFloater_2 = nullptr;
     }
 
 }
@@ -1469,7 +1469,7 @@ bool LLPreviewedFloater::selectElement(LLView* parent, int x, int y, int depth)
 
 void LLPreviewedFloater::draw()
 {
-    if(NULL != mFloaterUIPreview)
+    if(nullptr != mFloaterUIPreview)
     {
         // Set and unset sDrawPreviewHighlights flag so as to avoid using two flags
         if(mFloaterUIPreview->mHighlightingOverlaps)
@@ -1567,16 +1567,16 @@ void LLFloaterUIPreview::findOverlapsInChildren(LLView* parent)
 // *NOTE: If a list of elements which have localizable content were created, this function should return false if viewp's class is in that list.
 bool LLFloaterUIPreview::overlapIgnorable(LLView* viewp)
 {
-    return  NULL != dynamic_cast<LLDragHandle*>(viewp) ||
-            NULL != dynamic_cast<LLViewBorder*>(viewp) ||
-            NULL != dynamic_cast<LLResizeBar*>(viewp);
+    return  nullptr != dynamic_cast<LLDragHandle*>(viewp) ||
+            nullptr != dynamic_cast<LLViewBorder*>(viewp) ||
+            nullptr != dynamic_cast<LLResizeBar*>(viewp);
 }
 
 // *HACK: these are the only two container types as of 8/08, per Richard
 // This is using dynamic casts because there is no object-oriented way to tell which elements are containers.
 bool LLFloaterUIPreview::containerType(LLView* viewp)
 {
-    return NULL != dynamic_cast<LLPanel*>(viewp) || NULL != dynamic_cast<LLLayoutStack*>(viewp);
+    return nullptr != dynamic_cast<LLPanel*>(viewp) || nullptr != dynamic_cast<LLLayoutStack*>(viewp);
 }
 
 // Check if two llview's rectangles overlap, with some tolerance
@@ -1630,12 +1630,12 @@ void LLOverlapPanel::draw()
 
         // recalculate required with and height; otherwise use cached
         bool need_to_recalculate_bounds = false;
-        if(mLastClickedElement == NULL)
+        if(mLastClickedElement == nullptr)
         {
             need_to_recalculate_bounds = true;
         }
 
-        if(NULL == mLastClickedElement)
+        if(nullptr == mLastClickedElement)
         {
             mLastClickedElement = LLView::sPreviewClickedElement;
         }

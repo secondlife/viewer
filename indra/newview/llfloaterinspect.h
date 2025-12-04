@@ -42,7 +42,7 @@ class LLFloaterInspect : public LLFloater
     friend class LLFloaterReg;
 public:
 
-//  static void show(void* ignored = NULL);
+//  static void show(void* ignored = nullptr);
     void onOpen(const LLSD& key);
     virtual bool postBuild();
     void dirty();

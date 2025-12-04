@@ -497,7 +497,7 @@ public:
     bool getVoiceEffectEnabled() const { return mVoiceEffectEnabled; };
     LLUUID getVoiceEffectDefault() const { return LLUUID(mVoiceEffectDefault); };
 
-    // Returns NULL if voice effects are not supported, or not enabled.
+    // Returns nullptr if voice effects are not supported, or not enabled.
     LLVoiceEffectInterface* getVoiceEffectInterface() const;
     //@}
 

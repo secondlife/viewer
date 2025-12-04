@@ -117,11 +117,11 @@ private:
 
 LLSidepanelInventory::LLSidepanelInventory()
     : LLPanel()
-    , mPanelMainInventory(NULL)
+    , mPanelMainInventory(nullptr)
     , mInboxEnabled(false)
-    , mCategoriesObserver(NULL)
-    , mInboxAddedObserver(NULL)
-    , mInboxLayoutPanel(NULL)
+    , mCategoriesObserver(nullptr)
+    , mInboxAddedObserver(nullptr)
+    , mInboxLayoutPanel(nullptr)
 {
     //buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
@@ -262,7 +262,7 @@ void LLSidepanelInventory::observeInboxCreation()
     // Set up observer to track inbox folder creation
     //
 
-    if (mInboxAddedObserver == NULL)
+    if (mInboxAddedObserver == nullptr)
     {
         mInboxAddedObserver = new LLInboxAddedObserver(this);
 
@@ -277,7 +277,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
     // (this can happen multiple times on the initial session that creates the inbox)
     //
 
-    if (mInventoryPanelInbox.get() != NULL)
+    if (mInventoryPanelInbox.get() != nullptr)
     {
         return;
     }
@@ -292,7 +292,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
         return;
     }
 
-    if (mCategoriesObserver == NULL)
+    if (mCategoriesObserver == nullptr)
     {
         mCategoriesObserver = new LLInventoryCategoriesObserver();
         gInventory.addObserver(mCategoriesObserver);
@@ -484,7 +484,7 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
     LLFolderView* root = mPanelMainInventory->getActivePanel()->getRootFolder();
     if (!root)
     {
-        return NULL;
+        return nullptr;
     }
     LLFolderViewItem* current_item = root->getCurSelectedItem();
 
@@ -497,7 +497,7 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 
         if (!current_item)
         {
-            return NULL;
+            return nullptr;
         }
     }
     const LLUUID &item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
@@ -526,13 +526,13 @@ LLInventoryPanel *LLSidepanelInventory::getActivePanel()
 {
     if (!getVisible())
     {
-        return NULL;
+        return nullptr;
     }
     if (mInventoryPanel->getVisible())
     {
         return mPanelMainInventory->getActivePanel();
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLSidepanelInventory::selectAllItemsPanel()

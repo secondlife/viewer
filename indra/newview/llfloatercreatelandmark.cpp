@@ -107,7 +107,7 @@ private:
 
 LLFloaterCreateLandmark::LLFloaterCreateLandmark(const LLSD& key)
     :   LLFloater("add_landmark"),
-        mItem(NULL)
+        mItem(nullptr)
 {
     mInventoryObserver = new LLLandmarksInventoryObserver(this);
 }
@@ -148,7 +148,7 @@ void LLFloaterCreateLandmark::onOpen(const LLSD& key)
     {
         dest_folder = key["dest_folder"].asUUID();
     }
-    mItem = NULL;
+    mItem = nullptr;
     gInventory.addObserver(mInventoryObserver);
     setLandmarkInfo(dest_folder);
     populateFoldersList(dest_folder);
@@ -363,7 +363,7 @@ void LLFloaterCreateLandmark::onCancelClicked()
     if (!mItem.isNull())
     {
         LLUUID item_id = mItem->getUUID();
-        remove_inventory_item(item_id, NULL);
+        remove_inventory_item(item_id, nullptr);
     }
     closeFloater();
 }

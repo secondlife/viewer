@@ -526,9 +526,9 @@ bool LLPanelFace::postBuild()
 LLPanelFace::LLPanelFace()
 :   LLPanel(),
     mIsAlpha(false),
-    mComboMatMedia(NULL),
-    mTitleMedia(NULL),
-    mTitleMediaText(NULL),
+    mComboMatMedia(nullptr),
+    mTitleMedia(nullptr),
+    mTitleMediaText(nullptr),
     mNeedMediaTitle(true)
 {
     USE_TEXTURE = LLTrans::getString("use_texture");
@@ -1000,7 +1000,7 @@ void LLPanelFace::sendTextureInfo()
 {
     if (mPlanarAlign->getValue().asBoolean())
     {
-        LLFace* last_face = NULL;
+        LLFace* last_face = nullptr;
         bool identical_face =false;
         LLSelectedTE::getFace(last_face, identical_face);
         LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
@@ -1018,7 +1018,7 @@ void LLPanelFace::sendTextureInfo()
 
 void LLPanelFace::alignTextureLayer()
 {
-    LLFace* last_face = NULL;
+    LLFace* last_face = nullptr;
     bool identical_face = false;
     LLSelectedTE::getFace(last_face, identical_face);
 
@@ -1034,7 +1034,7 @@ void LLPanelFace::getState()
 void LLPanelFace::updateUI(bool force_set_values /*false*/)
 { //set state of UI to match state of texture entry(ies)  (calls setEnabled, setValue, etc, but NOT setVisible)
     LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
-    LLViewerObject* objectp = node ? node->getObject() : NULL;
+    LLViewerObject* objectp = node ? node->getObject() : nullptr;
 
     if (objectp
         && objectp->getPCode() == LL_PCODE_VOLUME
@@ -1406,7 +1406,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         if (align_planar && enabled)
         {
-            LLFace* last_face = NULL;
+            LLFace* last_face = nullptr;
             bool identical_face = false;
             LLSelectedTE::getFace(last_face, identical_face);
 
@@ -2169,7 +2169,7 @@ void LLPanelFace::refreshMedia()
         {
             LLSelectNode* node = *iter;
             LLVOVolume* object = dynamic_cast<LLVOVolume*>(node->getObject());
-            if (NULL != object)
+            if (nullptr != object)
             {
                 if (!object->permModify())
                 {
@@ -3608,7 +3608,7 @@ void LLPanelFace::onCommitMaterialBumpyRot()
     {
         if (mPlanarAlign->getValue().asBoolean())
         {
-            LLFace* last_face = NULL;
+            LLFace* last_face = nullptr;
             bool identical_face = false;
             LLSelectedTE::getFace(last_face, identical_face);
             LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
@@ -3632,7 +3632,7 @@ void LLPanelFace::onCommitMaterialShinyRot()
     {
         if (mPlanarAlign->getValue().asBoolean())
         {
-            LLFace* last_face = NULL;
+            LLFace* last_face = nullptr;
             bool identical_face = false;
             LLSelectedTE::getFace(last_face, identical_face);
             LLPanelFaceSetAlignedTEFunctor setfunc(this, last_face);
@@ -3807,7 +3807,7 @@ struct LLPanelFaceSetMediaFunctor : public LLSelectedTEFunctor
         viewer_media_t pMediaImpl;
 
         const LLTextureEntry* tep = object->getTE(te);
-        if (const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL)
+        if (const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : nullptr)
         {
             pMediaImpl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
         }
@@ -4525,7 +4525,7 @@ void get_item_and_permissions(const LLUUID &id, LLViewerInventoryItem*& itemp, b
 {
     full_perm = get_full_permission(data, prefix);
     from_library = data.has(prefix + "fromlibrary") && data.get(prefix + "fromlibrary").asBoolean();
-    LLViewerInventoryItem* itemp_res = NULL;
+    LLViewerInventoryItem* itemp_res = nullptr;
 
     if (data.has(prefix + "itemid"))
     {
@@ -4614,7 +4614,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 bool img_full_perm = false;
                 bool img_from_library = false;
                 const LLUUID& imageid = te_data["te"]["imageid"].asUUID(); //texture or asset id
-                LLViewerInventoryItem* img_itemp_res = NULL;
+                LLViewerInventoryItem* img_itemp_res = nullptr;
 
                 get_item_and_permissions(imageid, img_itemp_res, img_full_perm, img_from_library, te_data["te"], "img");
 
@@ -4671,7 +4671,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 const LLUUID pbr_id = te_data["te"]["pbr"].asUUID();
                 bool pbr_full_perm = false;
                 bool pbr_from_library = false;
-                LLViewerInventoryItem* pbr_itemp_res = NULL;
+                LLViewerInventoryItem* pbr_itemp_res = nullptr;
 
                 get_item_and_permissions(pbr_id, pbr_itemp_res, pbr_full_perm, pbr_from_library, te_data["te"], "pbr");
 
@@ -4689,7 +4689,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
 
                             bool full_perm = false;
                             bool from_library = false;
-                            LLViewerInventoryItem* itemp_res = NULL;
+                            LLViewerInventoryItem* itemp_res = nullptr;
                             get_item_and_permissions(tex_id, itemp_res, full_perm, from_library, te_data["te"], prefix);
                             allow = full_perm;
                             if (!allow) break;
@@ -5247,7 +5247,7 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
     {
         LLFace* get(LLViewerObject* object, S32 te)
         {
-            return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
+            return (object->mDrawable) ? object->mDrawable->getFace(te): nullptr;
         }
     } get_te_face_func;
     identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return, false, (LLFace*)nullptr);
@@ -5334,7 +5334,7 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
             {
                 if (te)
                 {
-                    LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_STANDARD) : NULL;
+                    LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_STANDARD) : nullptr;
                     if(!tex)
                     {
                         tex = LLViewerFetchedTexture::sDefaultImagep;

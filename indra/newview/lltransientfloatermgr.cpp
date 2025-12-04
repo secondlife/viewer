@@ -110,7 +110,7 @@ bool LLTransientFloaterMgr::isControlClicked(ETransientGroup group, controls_set
     for (controls_set_t::iterator it = set.begin(); it
             != set.end(); it++)
     {
-        LLView* control_view = NULL;
+        LLView* control_view = nullptr;
 
         LLHandle<LLView> handle = *it;
         if (handle.isDead())
@@ -148,7 +148,7 @@ void LLTransientFloaterMgr::leftMouseClickCallback(S32 x, S32 y,
         MASK mask)
 {
     // don't hide transient floater if any context menu opened
-    if (LLMenuGL::sMenuContainer->getVisibleMenu() != NULL)
+    if (LLMenuGL::sMenuContainer->getVisibleMenu() != nullptr)
     {
         return;
     }

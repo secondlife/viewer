@@ -51,7 +51,7 @@
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
 
-/*static*/ LLControlGroup* LLToastAlertPanel::sSettings = NULL;
+/*static*/ LLControlGroup* LLToastAlertPanel::sSettings = nullptr;
 
 //-----------------------------------------------------------------------------
 // Private methods
@@ -65,7 +65,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
         mDefaultOption( 0 ),
         mCaution(notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH),
         mLabel(notification->getName()),
-        mLineEditor(NULL)
+        mLineEditor(nullptr)
 {
     // EXP-1822
     // save currently focused view, so that return focus to it

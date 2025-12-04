@@ -337,7 +337,7 @@ bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LL
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     LLSD itmes = notification["payload"]["items"];
-    LLInventoryItem* item = NULL;
+    LLInventoryItem* item = nullptr;
     bool give_successful = true;
     switch(option)
     {
@@ -432,7 +432,7 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
 bool LLGiveInventory::handleCopyProtectedCategory(const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    LLInventoryCategory* cat = NULL;
+    LLInventoryCategory* cat = nullptr;
     bool give_successful = true;
     switch(option)
     {

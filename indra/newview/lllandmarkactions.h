@@ -105,7 +105,7 @@ public:
      * @brief Retrieve a landmark from gLandmarkList by inventory item's id
      * If a landmark is not currently in the gLandmarkList a callback "cb" is called when it is loaded.
      *
-     * @return pointer to loaded landmark from gLandmarkList or NULL if landmark does not exist or wasn't loaded.
+     * @return pointer to loaded landmark from gLandmarkList or nullptr if landmark does not exist or wasn't loaded.
      */
     static LLLandmark* getLandmark(const LLUUID& landmarkInventoryItemID, LLLandmarkList::loaded_callback_t cb = nullptr);
 

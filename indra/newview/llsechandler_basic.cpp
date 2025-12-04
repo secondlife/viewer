@@ -76,13 +76,13 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
     // BIO_new_mem_buf returns a read only bio, but takes a void* which isn't const
     // so we need to cast it.
     BIO * pem_bio = BIO_new_mem_buf((void*)pem_cert.c_str(), static_cast<int>(pem_cert.length()));
-    if(pem_bio == NULL)
+    if(pem_bio == nullptr)
     {
         LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
         LLTHROW(LLAllocationCertException(LLSD::emptyMap()));
     }
-    mCert = NULL;
-    PEM_read_bio_X509(pem_bio, &mCert, 0, NULL);
+    mCert = nullptr;
+    PEM_read_bio_X509(pem_bio, &mCert, 0, nullptr);
     BIO_free(pem_bio);
     if (!mCert)
     {
@@ -109,7 +109,7 @@ LLBasicCertificate::~LLBasicCertificate()
     if(mCert)
     {
         X509_free(mCert);
-        mCert = NULL;
+        mCert = nullptr;
     }
 }
 
@@ -117,7 +117,7 @@ LLBasicCertificate::~LLBasicCertificate()
 // retrieve the pem using the openssl functionality
 std::string LLBasicCertificate::getPem() const
 {
-    char * pem_bio_chars = NULL;
+    char * pem_bio_chars = nullptr;
     // a BIO is the equivalent of a 'std::stream', and
     // can be a file, mem stream, whatever.  Grab a memory based
     // BIO for the result
@@ -138,7 +138,7 @@ std::string LLBasicCertificate::getPem() const
 // DER is a binary encoding format for certs...
 std::vector<U8> LLBasicCertificate::getBinary() const
 {
-    U8 * der_bio_data = NULL;
+    U8 * der_bio_data = nullptr;
     // get a memory bio
     BIO *der_bio = BIO_new(BIO_s_mem());
     if (!der_bio)
@@ -175,7 +175,7 @@ LLSD& LLBasicCertificate::_initLLSD()
     mLLSDInfo[CERT_SUBJECT_NAME_STRING] = cert_string_name_from_X509_NAME(X509_get_subject_name(mCert));
     mLLSDInfo[CERT_ISSUER_NAME_STRING] = cert_string_name_from_X509_NAME(X509_get_issuer_name(mCert));
     ASN1_INTEGER *sn = X509_get_serialNumber(mCert);
-    if (sn != NULL)
+    if (sn != nullptr)
     {
         mLLSDInfo[CERT_SERIAL_NUMBER] = cert_string_from_asn1_integer(sn);
     }
@@ -195,7 +195,7 @@ LLSD& LLBasicCertificate::_initLLSD()
 LLSD _basic_constraints_ext(X509* cert)
 {
     LLSD result;
-    BASIC_CONSTRAINTS *bs = (BASIC_CONSTRAINTS *)X509_get_ext_d2i(cert, NID_basic_constraints, NULL, NULL);
+    BASIC_CONSTRAINTS *bs = (BASIC_CONSTRAINTS *)X509_get_ext_d2i(cert, NID_basic_constraints, nullptr, nullptr);
     if(bs)
     {
         result = LLSD::emptyMap();
@@ -227,7 +227,7 @@ LLSD _basic_constraints_ext(X509* cert)
 LLSD _key_usage_ext(X509* cert)
 {
     LLSD result;
-    ASN1_STRING *usage_str = (ASN1_STRING *)X509_get_ext_d2i(cert, NID_key_usage, NULL, NULL);
+    ASN1_STRING *usage_str = (ASN1_STRING *)X509_get_ext_d2i(cert, NID_key_usage, nullptr, nullptr);
     if(usage_str)
     {
         result = LLSD::emptyArray();
@@ -261,7 +261,7 @@ LLSD _key_usage_ext(X509* cert)
 LLSD _ext_key_usage_ext(X509* cert)
 {
     LLSD result;
-    EXTENDED_KEY_USAGE *eku = (EXTENDED_KEY_USAGE *)X509_get_ext_d2i(cert, NID_ext_key_usage, NULL, NULL);
+    EXTENDED_KEY_USAGE *eku = (EXTENDED_KEY_USAGE *)X509_get_ext_d2i(cert, NID_ext_key_usage, nullptr, nullptr);
     if(eku)
     {
         result = LLSD::emptyArray();
@@ -289,7 +289,7 @@ LLSD _ext_key_usage_ext(X509* cert)
 std::string _subject_key_identifier(X509 *cert)
 {
     std::string result;
-    ASN1_OCTET_STRING *skeyid = (ASN1_OCTET_STRING *)X509_get_ext_d2i(cert, NID_subject_key_identifier, NULL, NULL);
+    ASN1_OCTET_STRING *skeyid = (ASN1_OCTET_STRING *)X509_get_ext_d2i(cert, NID_subject_key_identifier, nullptr, nullptr);
     if(skeyid)
     {
         result = cert_string_from_octet_string(skeyid);
@@ -302,7 +302,7 @@ std::string _subject_key_identifier(X509 *cert)
 LLSD _authority_key_identifier(X509* cert)
 {
     LLSD result;
-    AUTHORITY_KEYID *akeyid = (AUTHORITY_KEYID *)X509_get_ext_d2i(cert, NID_authority_key_identifier, NULL, NULL);
+    AUTHORITY_KEYID *akeyid = (AUTHORITY_KEYID *)X509_get_ext_d2i(cert, NID_authority_key_identifier, nullptr, nullptr);
     if(akeyid)
     {
         result = LLSD::emptyMap();
@@ -333,7 +333,7 @@ X509* LLBasicCertificate::getOpenSSLX509() const
 // name of the cert.
 std::string cert_string_name_from_X509_NAME(X509_NAME* name)
 {
-    char * name_bio_chars = NULL;
+    char * name_bio_chars = nullptr;
     // get a memory bio
     BIO *name_bio = BIO_new(BIO_s_mem());
     // stream the name into the bio.  The name will be in the 'short name' format
@@ -375,7 +375,7 @@ LLSD cert_name_from_X509_NAME(X509_NAME* name)
 std::string cert_string_from_asn1_integer(ASN1_INTEGER* value)
 {
     std::string result;
-    BIGNUM *bn = ASN1_INTEGER_to_BN(value, NULL);
+    BIGNUM *bn = ASN1_INTEGER_to_BN(value, nullptr);
     if(bn)
     {
         char * ascii_bn = BN_bn2hex(bn);
@@ -416,7 +416,7 @@ std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value)
 
 std::string cert_string_from_asn1_string(ASN1_STRING* value)
 {
-    char * string_bio_chars = NULL;
+    char * string_bio_chars = nullptr;
     std::string result;
     // get a memory bio
     BIO *string_bio = BIO_new(BIO_s_mem());
@@ -558,7 +558,7 @@ LLPointer<LLCertificate> LLBasicCertificateVector::erase(iterator _iter)
         mCerts.erase(basic_iter->mIter);
         return result;
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -585,9 +585,9 @@ void LLBasicCertificateStore::load_from_file(const std::string& filename)
         {
             if (BIO_read_filename(file_bio, filename.c_str()) > 0)
             {
-                X509 *cert_x509 = NULL;
-                while((PEM_read_bio_X509(file_bio, &cert_x509, 0, NULL)) &&
-                      (cert_x509 != NULL))
+                X509 *cert_x509 = nullptr;
+                while((PEM_read_bio_X509(file_bio, &cert_x509, 0, nullptr)) &&
+                      (cert_x509 != nullptr))
                 {
                     try
                     {
@@ -617,7 +617,7 @@ void LLBasicCertificateStore::load_from_file(const std::string& filename)
                         rejected++;
                     }
                     X509_free(cert_x509);
-                    cert_x509 = NULL;
+                    cert_x509 = nullptr;
                 }
                 BIO_free(file_bio);
             }
@@ -688,7 +688,7 @@ LLBasicCertificateChain::LLBasicCertificateChain(X509_STORE_CTX* store)
 
     // we're passed in a context, which contains a cert, and a blob of untrusted
     // certificates which compose the chain.
-    if((store == NULL) || X509_STORE_CTX_get0_cert(store) == NULL)
+    if((store == nullptr) || X509_STORE_CTX_get0_cert(store) == nullptr)
     {
         LL_WARNS("SECAPI") << "An invalid store context was passed in when trying to create a certificate chain" << LL_ENDL;
         return;
@@ -697,7 +697,7 @@ LLBasicCertificateChain::LLBasicCertificateChain(X509_STORE_CTX* store)
     LLPointer<LLCertificate> current = new LLBasicCertificate(X509_STORE_CTX_get0_cert(store));
 
     add(current);
-    if(X509_STORE_CTX_get0_untrusted(store) != NULL)
+    if(X509_STORE_CTX_get0_untrusted(store) != nullptr)
     {
         // if there are other certs in the chain, we build up a vector
         // of untrusted certs so we can search for the parents of each
@@ -901,7 +901,7 @@ void _validateCert(int validation_policy,
 
     if (validation_policy & VALIDATION_POLICY_TIME)
     {
-        LLDate validation_date((double)time(NULL));
+        LLDate validation_date((double)time(nullptr));
         if(validation_params.has(CERT_VALIDATION_DATE))
         {
             validation_date = validation_params[CERT_VALIDATION_DATE];
@@ -981,7 +981,7 @@ bool _verify_signature(LLPointer<LLCertificate> parent,
     child->getLLSD(cert2);
     X509 *signing_cert = parent->getOpenSSLX509();
     X509 *child_cert = child->getOpenSSLX509();
-    if((signing_cert != NULL) && (child_cert != NULL))
+    if((signing_cert != nullptr) && (child_cert != nullptr))
     {
         EVP_PKEY *pkey = X509_get_pubkey(signing_cert);
 
@@ -1092,7 +1092,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
                         << LL_ENDL;
 
     X509_free( cert_x509 );
-    cert_x509 = NULL;
+    cert_x509 = nullptr;
     if (skeyid.empty())
     {
         LLTHROW(LLCertException(current_cert_info, "No Subject Key Id"));
@@ -1111,7 +1111,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
             }
             else
             {
-                validation_date = LLDate((double)time(NULL)); // current time
+                validation_date = LLDate((double)time(nullptr)); // current time
             }
 
             if((validation_date < cache_entry->second.first) ||
@@ -1349,7 +1349,7 @@ void LLSecAPIBasicHandler::_readProtectedData(unsigned char *unique_id, U32 id_l
         EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
         // todo: ctx error handling
 
-        EVP_DecryptInit(ctx, EVP_rc4(), salt, NULL);
+        EVP_DecryptInit(ctx, EVP_rc4(), salt, nullptr);
         // allocate memory:
         std::string decrypted_data;
 
@@ -1424,14 +1424,14 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 
     llofstream protected_data_stream(tmp_filename.c_str(),
                                      std::ios_base::binary);
-    EVP_CIPHER_CTX *ctx = NULL;
+    EVP_CIPHER_CTX *ctx = nullptr;
     try
     {
 
         ctx = EVP_CIPHER_CTX_new();
         // todo: ctx error handling
 
-        EVP_EncryptInit(ctx, EVP_rc4(), salt, NULL);
+        EVP_EncryptInit(ctx, EVP_rc4(), salt, nullptr);
         unsigned char unique_id[MAC_ADDRESS_BYTES];
         LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
         LLXORCipher cipher(unique_id, sizeof(unique_id));

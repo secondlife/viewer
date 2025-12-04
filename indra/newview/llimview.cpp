@@ -113,7 +113,7 @@ const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-141
 //
 // Globals
 //
-LLIMMgr* gIMMgr = NULL;
+LLIMMgr* gIMMgr = nullptr;
 
 
 bool LLSessionTimeoutTimer::tick()
@@ -310,7 +310,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
             {
                 if (session_floater->getHost())
                 {
-                    if (NULL != im_box && im_box->isMinimized())
+                    if (nullptr != im_box && im_box->isMinimized())
                     {
                         LLFloater::onClickMinimize(im_box);
                     }
@@ -741,9 +741,9 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
     mNumUnread(0),
     mOtherParticipantID(other_participant_id),
     mInitialTargetIDs(ids),
-    mVoiceChannel(NULL),
+    mVoiceChannel(nullptr),
     mP2PAsAdhocCall(false),
-    mSpeakers(NULL),
+    mSpeakers(nullptr),
     mSessionInitialized(false),
     mCallBackEnabled(true),
     mTextIMPossible(true),
@@ -757,7 +757,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 
     if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
     {
-        mP2PAsAdhocCall = (LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info) == NULL);
+        mP2PAsAdhocCall = (LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info) == nullptr);
     }
     else
     {
@@ -822,7 +822,7 @@ void LLIMModel::LLIMSession::initVoiceChannel(const LLSD& voiceChannelInfo)
         mVoiceChannel->deactivate();
 
         delete mVoiceChannel;
-        mVoiceChannel = NULL;
+        mVoiceChannel = nullptr;
     }
     mP2PAsAdhocCall = false;
     if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
@@ -992,7 +992,7 @@ LLIMModel::LLIMSession::~LLIMSession()
     }
 
     delete mSpeakers;
-    mSpeakers = NULL;
+    mSpeakers = nullptr;
 
     mVoiceChannelStateChangeConnection.disconnect();
 
@@ -1000,7 +1000,7 @@ LLIMModel::LLIMSession::~LLIMSession()
     mVoiceChannel->deactivate();
 
     delete mVoiceChannel;
-    mVoiceChannel = NULL;
+    mVoiceChannel = nullptr;
 }
 
 void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_id)
@@ -1371,16 +1371,16 @@ void LLIMModel::LLIMSession::loadHistory()
 
 LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 {
-    return get_if_there(mId2SessionMap, session_id, (LLIMModel::LLIMSession*) NULL);
+    return get_if_there(mId2SessionMap, session_id, (LLIMModel::LLIMSession*) nullptr);
 }
 
 //*TODO consider switching to using std::set instead of std::list for holding LLUUIDs across the whole code
 LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 {
     auto num = ids.size();
-    if (!num) return NULL;
+    if (!num) return nullptr;
 
-    if (mId2SessionMap.empty()) return NULL;
+    if (mId2SessionMap.empty()) return nullptr;
 
     std::map<LLUUID, LLIMSession*>::const_iterator it = mId2SessionMap.begin();
     for (; it != mId2SessionMap.end(); ++it)
@@ -1410,7 +1410,7 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool LLIMModel::LLIMSession::isOutgoingAdHoc() const
@@ -1772,7 +1772,7 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
 
     if (!session)
     {
-        return NULL;
+        return nullptr;
     }
 
     // replace interactive system message marker with correct from string value
@@ -1857,7 +1857,7 @@ LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id) const
     if (!session)
     {
         LL_WARNS() << "session " << session_id << "does not exist " << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     return session->mVoiceChannel;
@@ -1869,7 +1869,7 @@ LLIMSpeakerMgr* LLIMModel::getSpeakerManager( const LLUUID& session_id ) const
     if (!session)
     {
         LL_WARNS() << "session " << session_id << " does not exist " << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     return session->mSpeakers;
@@ -1939,7 +1939,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
     bool sent = false;
     LLAgentUI::buildFullname(name);
 
-    const LLRelationship* info = NULL;
+    const LLRelationship* info = nullptr;
     info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
 
     U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
@@ -2029,7 +2029,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
     }
 
     // Add the recipient to the recent people list.
-    bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(other_participant_id) == NULL;
+    bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(other_participant_id) == nullptr;
 
     if (is_not_group_id)
     {
@@ -2065,7 +2065,7 @@ void LLIMModel::addSpeakersToRecent(const LLUUID& im_session_id)
 {
     LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
     LLSpeakerMgr::speaker_list_t speaker_list;
-    if(speaker_mgr != NULL)
+    if(speaker_mgr != nullptr)
     {
         speaker_mgr->getSpeakerList(&speaker_list, true);
     }
@@ -2349,7 +2349,7 @@ LLIMMgr::onConfirmForceCloseError(
 LLCallDialogManager::LLCallDialogManager():
 mPreviousSessionlName(""),
 mCurrentSessionlName(""),
-mSession(NULL),
+mSession(nullptr),
 mOldState(LLVoiceChannel::STATE_READY)
 {
 }
@@ -2425,7 +2425,7 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent)
 {
     LLSD mCallDialogPayload;
-    LLOutgoingCallDialog* ocd = NULL;
+    LLOutgoingCallDialog* ocd = nullptr;
 
     if(mOldState == new_state)
     {
@@ -2486,7 +2486,7 @@ void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::ES
 // Class LLCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLCallDialog::LLCallDialog(const LLSD& payload)
-    : LLDockableFloater(NULL, false, payload),
+    : LLDockableFloater(nullptr, false, payload),
 
       mPayload(payload),
       mLifetime(DEFAULT_LIFETIME)
@@ -2563,7 +2563,7 @@ void LLCallDialog::draw()
         onLifetimeExpired();
     }
 
-    if (getDockControl() != NULL)
+    if (getDockControl() != nullptr)
     {
         LLDockableFloater::draw();
     }
@@ -3190,7 +3190,7 @@ void LLIMMgr::addMessage(
     if (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
     {
         // Evaluate if we need to skip this message when that setting is true (default is false)
-        skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);    // Skip non friends...
+        skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == nullptr);    // Skip non friends...
         skip_message &= !(other_participant_id == gAgentID);    // You are your best friend... Don't skip yourself
     }
 
@@ -3437,7 +3437,7 @@ LLUUID LLIMMgr::addSession(
     }
     LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
 
-    bool new_session = (session == NULL);
+    bool new_session = (session == nullptr);
 
     //works only for outgoing ad-hoc sessions
     if (new_session &&
@@ -3599,7 +3599,7 @@ void LLIMMgr::inviteToSession(
     if (voice_invite)
     {
         bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
-        bool isRejectNonFriendCall = (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
+        bool isRejectNonFriendCall = (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == nullptr));
         if  (isRejectGroupCall || isRejectNonFriendCall || gAgent.isDoNotDisturb())
         {
             if (gAgent.isDoNotDisturb() && !isRejectGroupCall && !isRejectNonFriendCall)
@@ -3678,7 +3678,7 @@ void LLIMMgr::disconnectAllSessions()
 
 bool LLIMMgr::hasSession(const LLUUID& session_id)
 {
-    return LLIMModel::getInstance()->findIMSession(session_id) != NULL;
+    return LLIMModel::getInstance()->findIMSession(session_id) != nullptr;
 }
 
 void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)
@@ -3978,7 +3978,7 @@ void LLIMMgr::noteOfflineUsers(
     }
     else
     {
-        const LLRelationship* info = NULL;
+        const LLRelationship* info = nullptr;
         LLAvatarTracker& at = LLAvatarTracker::instance();
         LLIMModel& im_model = LLIMModel::instance();
         for(S32 i = 0; i < count; ++i)

@@ -642,7 +642,7 @@ bool start_chat( EKeystate s )
     if (KEYSTATE_DOWN != s) return true;
 
     // start chat
-    LLFloaterIMNearbyChat::startChat(NULL);
+    LLFloaterIMNearbyChat::startChat(nullptr);
     return true;
 }
 
@@ -660,7 +660,7 @@ bool start_gesture( EKeystate s )
         else
         {
             // Don't overwrite existing text in chat editor
-            LLFloaterIMNearbyChat::startChat(NULL);
+            LLFloaterIMNearbyChat::startChat(nullptr);
         }
     }
     return true;
@@ -1431,7 +1431,7 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
                 // this is only for the file from user_settings
                 LL_INFOS("ViewerInput") << "Updating file " << filename << " to a newer version" << LL_ENDL;
                 LLFILE *fp = LLFile::fopen(filename, "w");
-                if (fp != NULL)
+                if (fp != nullptr)
                 {
                     LLXMLNode::writeHeaderToFile(fp);
                     output_node->writeToFile(fp);

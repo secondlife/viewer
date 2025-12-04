@@ -41,7 +41,7 @@ const S32 CONVERSATION_HISTORY_PAGE_SIZE = 100;
 
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :   LLFloater(session_id),
-    mChatHistory(NULL),
+    mChatHistory(nullptr),
     mSessionID(session_id.asUUID()),
     mCurrentPage(0),
     mPageSize(CONVERSATION_HISTORY_PAGE_SIZE),
@@ -49,7 +49,7 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
     mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
     mMutex(),
     mShowHistory(false),
-    mMessages(NULL),
+    mMessages(nullptr),
     mHistoryThreadsBusy(false),
     mIsGroup(false),
     mOpened(false)
@@ -204,7 +204,7 @@ void LLFloaterConversationPreview::showHistory()
 {
     // additional protection to avoid changes of mMessages in setPages
     LLMutexLock lock(&mMutex);
-    if(mMessages == NULL || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
+    if(mMessages == nullptr || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
     {
         return;
     }

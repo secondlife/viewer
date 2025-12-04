@@ -136,7 +136,7 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 // login handler
 LLPointer<LLCredential> LLLoginHandler::initializeLoginInfo()
 {
-    LLPointer<LLCredential> result = NULL;
+    LLPointer<LLCredential> result = nullptr;
     // so try to load it from the UserLoginInfo
     result = loadSavedUserLoginInfo();
     if (result.isNull())
@@ -175,5 +175,5 @@ LLPointer<LLCredential> LLLoginHandler::loadSavedUserLoginInfo()
         return gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(),
                                                        identifier, authenticator);
     }
-    return NULL;
+    return nullptr;
 }

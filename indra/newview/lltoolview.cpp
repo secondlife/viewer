@@ -42,9 +42,9 @@
 
 LLToolContainer::LLToolContainer(LLToolView* parent)
 :   mParent(parent),
-    mButton(NULL),
-    mPanel(NULL),
-    mTool(NULL)
+    mButton(nullptr),
+    mPanel(nullptr),
+    mTool(nullptr)
 { }
 
 
@@ -54,7 +54,7 @@ LLToolContainer::~LLToolContainer()
     // mButton is owned by the tool view
     // mPanel is owned by the tool view
     delete mTool;
-    mTool = NULL;
+    mTool = nullptr;
 }
 
 
@@ -180,7 +180,7 @@ LLToolContainer* LLToolView::findToolContainer( LLTool *tool )
         }
     }
     LL_ERRS() << "LLToolView::findToolContainer - tool not found" << LL_ENDL;
-    return NULL;
+    return nullptr;
 }
 
 // static

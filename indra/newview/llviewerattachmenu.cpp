@@ -93,7 +93,7 @@ void LLViewerAttachMenu::populateMenus(const std::string& attach_to_menu_name, c
 // static
 void LLViewerAttachMenu::attachObjects(const uuid_vec_t& items, const std::string& joint_name)
 {
-    LLViewerJointAttachment* attachmentp = NULL;
+    LLViewerJointAttachment* attachmentp = nullptr;
     for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin();
          iter != gAgentAvatarp->mAttachmentPoints.end(); )
     {
@@ -105,7 +105,7 @@ void LLViewerAttachMenu::attachObjects(const uuid_vec_t& items, const std::strin
             break;
         }
     }
-    if (attachmentp == NULL)
+    if (attachmentp == nullptr)
     {
         return;
     }

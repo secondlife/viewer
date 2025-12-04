@@ -41,7 +41,7 @@
 
 
 
-LLSimpleSnapshotFloaterView* gSimpleSnapshotFloaterView = NULL;
+LLSimpleSnapshotFloaterView* gSimpleSnapshotFloaterView = nullptr;
 
 const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX = 256;
 const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN = 64;
@@ -258,7 +258,7 @@ void LLFloaterSimpleSnapshot::Impl::setStatus(EStatus status, bool ok, const std
 
 LLFloaterSimpleSnapshot::LLFloaterSimpleSnapshot(const LLSD& key)
     : LLFloaterSnapshotBase(key)
-    , mOwner(NULL)
+    , mOwner(nullptr)
     , mContextConeOpacity(0.f)
 {
     impl = new Impl(this);
@@ -501,7 +501,7 @@ void LLFloaterSimpleSnapshot::saveTexture()
     LLSnapshotLivePreview* previewp = getPreviewView();
     if (!previewp)
     {
-        llassert(previewp != NULL);
+        llassert(previewp != nullptr);
         return;
     }
 

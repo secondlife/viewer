@@ -291,7 +291,7 @@ void LLInventoryItemsList::refresh()
             for (; pair_it != panel_list.end(); ++pair_it)
             {
                 item_pair_t* item_pair = *pair_it;
-                if (item_pair->first->getParent() != NULL)
+                if (item_pair->first->getParent() != nullptr)
                 {
                     new_visible_items |= updateItemVisibility(item_pair->first, action);
                 }
@@ -386,8 +386,8 @@ LLPanel* LLInventoryItemsList::createNewItem(LLViewerInventoryItem* item)
     if (!item)
     {
         LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
-        llassert(item != NULL);
-        return NULL;
+        llassert(item != nullptr);
+        return nullptr;
     }
     return LLPanelInventoryListItemBase::create(item);
 }

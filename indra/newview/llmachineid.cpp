@@ -47,8 +47,8 @@ class LLWMIMethods
 {
 public:
     LLWMIMethods()
-    :   pLoc(NULL),
-        pSvc(NULL)
+    :   pLoc(nullptr),
+        pSvc(nullptr)
     {
         initCOMObjects();
     }
@@ -100,15 +100,15 @@ void LLWMIMethods::initCOMObjects()
     // parameter of CoInitializeSecurity ------------------------
 
     mHR = CoInitializeSecurity(
-        NULL,
+        nullptr,
         -1,                          // COM authentication
-        NULL,                        // Authentication services
-        NULL,                        // Reserved
+        nullptr,                        // Authentication services
+        nullptr,                        // Reserved
         RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication
         RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation
-        NULL,                        // Authentication info
+        nullptr,                        // Authentication info
         EOAC_NONE,                   // Additional capabilities
-        NULL                         // Reserved
+        nullptr                         // Reserved
     );
 
     if (FAILED(mHR))
@@ -142,10 +142,10 @@ void LLWMIMethods::initCOMObjects()
     // to make IWbemServices calls.
     mHR = pLoc->ConnectServer(
         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
-        NULL,                    // User name. NULL = current user
-        NULL,                    // User password. NULL = current
-        0,                       // Locale. NULL indicates current
-        NULL,                    // Security flags.
+        nullptr,                 // User name. nullptr = current user
+        nullptr,                 // User password. nullptr = current
+        0,                       // Locale. nullptr indicates current
+        0,                       // Security flags.
         0,                       // Authority (e.g. Kerberos)
         0,                       // Context object
         &pSvc                    // pointer to IWbemServices proxy
@@ -168,10 +168,10 @@ void LLWMIMethods::initCOMObjects()
         pSvc,                        // Indicates the proxy to set
         RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
         RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-        NULL,                        // Server principal name
+        nullptr,                        // Server principal name
         RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
         RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-        NULL,                        // client identity
+        nullptr,                        // client identity
         EOAC_NONE                    // proxy capabilities
     );
 
@@ -236,12 +236,12 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
     // Use the IWbemServices pointer to make requests of WMI ----
 
     // For example, get the name of the operating system
-    IEnumWbemClassObject* pEnumerator = NULL;
+    IEnumWbemClassObject* pEnumerator = nullptr;
     hres = pSvc->ExecQuery(
         bstr_t("WQL"),
         select,
         WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
-        NULL,
+        nullptr,
         &pEnumerator);
 
     if (FAILED(hres))
@@ -253,7 +253,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
     // Step 7: -------------------------------------------------
     // Get the data from the query in step 6 -------------------
 
-    IWbemClassObject *pclsObj = NULL;
+    IWbemClassObject *pclsObj = nullptr;
     ULONG uReturn = 0;
     bool found = false;
 
@@ -275,7 +275,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
         {
             LL_WARNS() << "Failed to get SerialNumber. Error code = 0x" << std::hex << hres << LL_ENDL;
             pclsObj->Release();
-            pclsObj = NULL;
+            pclsObj = nullptr;
             continue;
         }
 
@@ -286,7 +286,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
         {
             VariantClear(&vtProp);
             pclsObj->Release();
-            pclsObj = NULL;
+            pclsObj = nullptr;
             continue;
         }
 
@@ -299,7 +299,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
             {
                 VariantClear(&vtProp);
                 pclsObj->Release();
-                pclsObj = NULL;
+                pclsObj = nullptr;
                 continue;
             }
 
@@ -311,7 +311,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
                 // Not unique id
                 VariantClear(&vtProp);
                 pclsObj->Release();
-                pclsObj = NULL;
+                pclsObj = nullptr;
                 continue;
             }
         }
@@ -333,7 +333,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
         VariantClear(&vtProp);
 
         pclsObj->Release();
-        pclsObj = NULL;
+        pclsObj = nullptr;
         found = true;
         break;
     }
@@ -349,7 +349,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
 #elif LL_DARWIN
 bool getSerialNumber(unsigned char *unique_id, size_t len)
 {
-    CFStringRef serial_cf_str = NULL;
+    CFStringRef serial_cf_str = nullptr;
     io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
                                                                  IOServiceMatching("IOPlatformExpertDevice"));
     if (platformExpert)

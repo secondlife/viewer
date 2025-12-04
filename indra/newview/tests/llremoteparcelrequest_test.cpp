@@ -67,7 +67,7 @@ LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 char const* const _PREHASH_AgentID = 0;   // never dereferenced during this test
 char const* const _PREHASH_AgentData = 0; // never dereferenced during this test
 LLAgent gAgent;
-LLAgent::LLAgent() : mAgentAccess(NULL) { }
+LLAgent::LLAgent() : mAgentAccess(nullptr) { }
 LLAgent::~LLAgent() { }
 void LLAgent::sendReliableMessage(void) { }
 LLUUID gAgentSessionID;
@@ -115,7 +115,7 @@ namespace tut
         LLRemoteParcelInfoProcessor & processor = LLRemoteParcelInfoProcessor::instance();
         processor.addObserver(LLUUID(TEST_PARCEL_ID), observer.get());
 
-        processor.processParcelInfoReply(gMessageSystem, NULL);
+        processor.processParcelInfoReply(gMessageSystem, nullptr);
 
         ensure(observer->mProcessed);
     }
@@ -131,9 +131,9 @@ namespace tut
         processor.addObserver(LLUUID(TEST_PARCEL_ID), observer);
 
         delete observer;
-        observer = NULL;
+        observer = nullptr;
 
-        processor.processParcelInfoReply(gMessageSystem, NULL);
+        processor.processParcelInfoReply(gMessageSystem, nullptr);
     }
 }
 #endif

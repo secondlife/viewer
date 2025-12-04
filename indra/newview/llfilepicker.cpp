@@ -84,23 +84,23 @@ LLFilePicker::LLFilePicker()
 
 #if LL_WINDOWS && !LL_SDL_WINDOW
     mOFN.lStructSize = sizeof(OPENFILENAMEW);
-    mOFN.hwndOwner = NULL;  // Set later
-    mOFN.hInstance = NULL;
-    mOFN.lpstrCustomFilter = NULL;
+    mOFN.hwndOwner = nullptr;  // Set later
+    mOFN.hInstance = nullptr;
+    mOFN.lpstrCustomFilter = nullptr;
     mOFN.nMaxCustFilter = 0;
-    mOFN.lpstrFile = NULL;                          // set in open and close
+    mOFN.lpstrFile = nullptr;                          // set in open and close
     mOFN.nMaxFile = LL_MAX_PATH;
-    mOFN.lpstrFileTitle = NULL;
+    mOFN.lpstrFileTitle = nullptr;
     mOFN.nMaxFileTitle = 0;
-    mOFN.lpstrInitialDir = NULL;
-    mOFN.lpstrTitle = NULL;
+    mOFN.lpstrInitialDir = nullptr;
+    mOFN.lpstrTitle = nullptr;
     mOFN.Flags = 0;                                 // set in open and close
     mOFN.nFileOffset = 0;
     mOFN.nFileExtension = 0;
-    mOFN.lpstrDefExt = NULL;
+    mOFN.lpstrDefExt = nullptr;
     mOFN.lCustData = 0L;
-    mOFN.lpfnHook = NULL;
-    mOFN.lpTemplateName = NULL;
+    mOFN.lpfnHook = nullptr;
+    mOFN.lpTemplateName = nullptr;
     mFilesW[0] = '\0';
 #elif LL_DARWIN && !LL_SDL_WINDOW
     mPickOptions = 0;
@@ -869,7 +869,7 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
     switch( filter )
     {
     case FFSAVE_ALL:
-        mOFN.lpstrDefExt = NULL;
+        mOFN.lpstrDefExt = nullptr;
         mOFN.lpstrFilter =
             L"All Files (*.*)\0*.*\0" \
             L"WAV Sounds (*.wav)\0*.wav\0" \

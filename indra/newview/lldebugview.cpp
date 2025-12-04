@@ -44,7 +44,7 @@
 // Globals
 //
 
-LLDebugView* gDebugView = NULL;
+LLDebugView* gDebugView = nullptr;
 
 //
 // Methods
@@ -53,18 +53,18 @@ static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
 :   LLView(p),
-    mFastTimerView(NULL),
-    mDebugConsolep(NULL),
-    mFloaterSnapRegion(NULL)
+    mFastTimerView(nullptr),
+    mDebugConsolep(nullptr),
+    mFloaterSnapRegion(nullptr)
 {}
 
 LLDebugView::~LLDebugView()
 {
     // These have already been deleted.  Fix the globals appropriately.
-    gDebugView = NULL;
-    gTextureView = NULL;
-    gSceneView = NULL;
-    gSceneMonitorView = NULL;
+    gDebugView = nullptr;
+    gTextureView = nullptr;
+    gSceneView = nullptr;
+    gSceneMonitorView = nullptr;
 }
 
 void LLDebugView::init()
@@ -117,7 +117,7 @@ void LLDebugView::init()
 
 void LLDebugView::draw()
 {
-    if (mFloaterSnapRegion == NULL)
+    if (mFloaterSnapRegion == nullptr)
     {
         mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }

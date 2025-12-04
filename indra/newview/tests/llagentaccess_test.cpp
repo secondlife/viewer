@@ -52,7 +52,7 @@ LLControlGroup::~LLControlGroup()
 LLControlVariable* LLControlGroup::declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
     test_preferred_maturity = initial_val;
-    return NULL;
+    return nullptr;
 }
 
 void LLControlGroup::setU32(std::string_view name, U32 val)

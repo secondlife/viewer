@@ -128,7 +128,7 @@ LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_st
         LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture( textureid );
         if(gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
         {
-            image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,true,false, new LLVOAvatarSelf::LLAvatarTexData(textureid, (LLAvatarAppearanceDefines::ETextureIndex)te), NULL);
+            image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,true,false, new LLVOAvatarSelf::LLAvatarTexData(textureid, (LLAvatarAppearanceDefines::ETextureIndex)te), nullptr);
         }
     }
 
@@ -427,7 +427,7 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
         {
             te_map_t::const_iterator iter = src->mTEMap.find(te);
             LLUUID image_id;
-            LLViewerFetchedTexture *image = NULL;
+            LLViewerFetchedTexture *image = nullptr;
             if(iter != src->mTEMap.end())
             {
                 image = dynamic_cast<LLViewerFetchedTexture*> (src->getLocalTextureObject(te)->getImage());

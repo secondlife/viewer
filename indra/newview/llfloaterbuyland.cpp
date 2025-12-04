@@ -836,7 +836,7 @@ void LLFloaterBuyLandUI::updateGroupName(const LLUUID& id,
 void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLSD& params)
 {
     delete mTransaction;
-    mTransaction = NULL;
+    mTransaction = nullptr;
 
     mTransactionType = type;
 
@@ -876,7 +876,7 @@ bool LLFloaterBuyLandUI::checkTransaction()
         return false;
     }
 
-    if (mTransaction->status(NULL) != LLXMLRPCTransaction::StatusComplete)
+    if (mTransaction->status(nullptr) != LLXMLRPCTransaction::StatusComplete)
     {
         tellUserError(mTransaction->statusMessage(), mTransaction->statusURI());
     }
@@ -890,7 +890,7 @@ bool LLFloaterBuyLandUI::checkTransaction()
     }
 
     delete mTransaction;
-    mTransaction = NULL;
+    mTransaction = nullptr;
 
     return true;
 }

@@ -297,7 +297,7 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
     }
 
     LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
-    return (LLIMModel::getInstance()->findIMSession(session_id) != NULL);
+    return (LLIMModel::getInstance()->findIMSession(session_id) != nullptr);
 }*/
 
 //static
@@ -702,14 +702,14 @@ namespace action_give_inventory
     static LLInventoryPanel* get_outfit_editor_inventory_panel()
     {
         LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
-        if (NULL == panel_outfit_edit) return NULL;
+        if (nullptr == panel_outfit_edit) return nullptr;
 
         LLInventoryPanel* inventory_panel = panel_outfit_edit->findChild<LLInventoryPanel>("folder_view");
         return inventory_panel;
     }
 
     /**
-     * @return active inventory panel, or NULL if there's no such panel
+     * @return active inventory panel, or nullptr if there's no such panel
      */
     static LLInventoryPanel* get_active_inventory_panel()
     {
@@ -758,7 +758,7 @@ namespace action_give_inventory
     return acceptable;
     }
 
-    static bool is_give_inventory_acceptable(LLInventoryPanel* panel = NULL)
+    static bool is_give_inventory_acceptable(LLInventoryPanel* panel = nullptr)
     {
         // check selection in the panel
         std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs(panel);
@@ -785,13 +785,13 @@ namespace action_give_inventory
         for (std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin(); ; )
         {
             LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
-            if (NULL != inv_cat)
+            if (nullptr != inv_cat)
             {
                 items_string = inv_cat->getName();
                 break;
             }
             LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
-            if (NULL != inv_item)
+            if (nullptr != inv_item)
             {
                 items_string.append(inv_item->getName());
             }
@@ -925,7 +925,7 @@ namespace action_give_inventory
         for ( ; it != inventory_selected_uuids.end() && folders_count <=1 ; ++it)
         {
             LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
-            if (NULL != inv_cat)
+            if (nullptr != inv_cat)
             {
                 folders_count++;
             }
@@ -943,7 +943,7 @@ namespace action_give_inventory
         LLNotificationsUtil::add(notification, substitutions, LLSD(), boost::bind(&give_inventory_cb, _1, _2, inventory_selected_uuids));
     }
 
-    static void give_inventory(const uuid_vec_t& avatar_uuids, const std::vector<LLAvatarName> avatar_names, LLInventoryPanel* panel = NULL)
+    static void give_inventory(const uuid_vec_t& avatar_uuids, const std::vector<LLAvatarName> avatar_names, LLInventoryPanel* panel = nullptr)
     {
         llassert(avatar_names.size() == avatar_uuids.size());
         std::set<LLUUID> inventory_selected_uuids = LLAvatarActions::getInventorySelectedUUIDs(panel);;
@@ -1091,7 +1091,7 @@ void LLAvatarActions::shareWithAvatars(const uuid_set_t inventory_selected_uuids
 }
 
 // static
-bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NULL*/)
+bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = nullptr*/)
 {
     using namespace action_give_inventory;
 
@@ -1492,7 +1492,7 @@ void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::stri
 //static
 bool LLAvatarActions::isFriend(const LLUUID& id)
 {
-    return ( NULL != LLAvatarTracker::instance().getBuddyInfo(id) );
+    return ( nullptr != LLAvatarTracker::instance().getBuddyInfo(id) );
 }
 
 // static

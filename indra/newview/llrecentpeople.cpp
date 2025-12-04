@@ -38,7 +38,7 @@ bool LLRecentPeople::add(const LLUUID& id, const LLSD& userdata)
     if (id == gAgent.getID())
         return false;
 
-    bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(id) == NULL;
+    bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(id) == nullptr;
 
     if (is_not_group_id)
     {

@@ -86,7 +86,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
     LLPanel( p ),
     LLInstanceTracker<LLMediaCtrl, LLUUID>(LLUUID::generateNewID()),
     mTextureDepthBytes( 4 ),
-    mBorder(NULL),
+    mBorder(nullptr),
     mFrequentUpdates( true ),
     mForceUpdate( false ),
     mHomePageUrl( "" ),
@@ -104,7 +104,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
     mHomePageMimeType(p.initial_mime_type),
     mErrorPageURL(p.error_page_url),
     mTrusted(p.trusted_content),
-    mWindowShade(NULL),
+    mWindowShade(nullptr),
     mHoverTextChanged(false),
     mAllowFileDownload(false)
 {
@@ -160,7 +160,7 @@ LLMediaCtrl::~LLMediaCtrl()
     if (mMediaSource)
     {
         mMediaSource->remObserver( this );
-        mMediaSource = NULL;
+        mMediaSource = nullptr;
     }
 }
 
@@ -273,7 +273,7 @@ bool LLMediaCtrl::handleMouseUp( S32 x, S32 y, MASK mask )
         mMediaSource->mouseUp(x, y, mask);
     }
 
-    gFocusMgr.setMouseCapture( NULL );
+    gFocusMgr.setMouseCapture( nullptr );
 
     return true;
 }
@@ -318,7 +318,7 @@ bool LLMediaCtrl::handleRightMouseUp( S32 x, S32 y, MASK mask )
         }
     }
 
-    gFocusMgr.setMouseCapture( NULL );
+    gFocusMgr.setMouseCapture( nullptr );
 
     return true;
 }
@@ -351,8 +351,8 @@ bool LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
         // stinson 05/05/2014 : use this as the parent of the context menu if the static menu
         // container has yet to be created
-        LLPanel* menuParent = (LLMenuGL::sMenuContainer != NULL) ? dynamic_cast<LLPanel*>(LLMenuGL::sMenuContainer) : dynamic_cast<LLPanel*>(this);
-        llassert(menuParent != NULL);
+        LLPanel* menuParent = (LLMenuGL::sMenuContainer != nullptr) ? dynamic_cast<LLPanel*>(LLMenuGL::sMenuContainer) : dynamic_cast<LLPanel*>(this);
+        llassert(menuParent != nullptr);
         menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
             "menu_media_ctrl.xml", menuParent, LLViewerMenuHolderGL::child_registry_t::instance());
         if (menu)
@@ -422,7 +422,7 @@ void LLMediaCtrl::onFocusLost()
         if( LLEditMenuHandler::gEditMenuHandler == mMediaSource )
         {
             // Clear focus for edit menu items
-            LLEditMenuHandler::gEditMenuHandler = NULL;
+            LLEditMenuHandler::gEditMenuHandler = nullptr;
         }
     }
 
@@ -771,14 +771,14 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 //
 void LLMediaCtrl::unloadMediaSource()
 {
-    mMediaSource = NULL;
+    mMediaSource = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPluginClassMedia* LLMediaCtrl::getMediaPlugin()
 {
-    return mMediaSource.isNull() ? NULL : mMediaSource->getMediaPlugin();
+    return mMediaSource.isNull() ? nullptr : mMediaSource->getMediaPlugin();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -809,8 +809,8 @@ void LLMediaCtrl::draw()
 
     bool draw_media = false;
 
-    LLPluginClassMedia* media_plugin = NULL;
-    LLViewerMediaTexture* media_texture = NULL;
+    LLPluginClassMedia* media_plugin = nullptr;
+    LLViewerMediaTexture* media_texture = nullptr;
 
     if(mMediaSource && mMediaSource->hasMedia())
     {
@@ -1070,7 +1070,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
             LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << target << "\", uri is " << url << LL_ENDL;
 
             // try as slurl first
-            if (!LLURLDispatcher::dispatch(url, "clicked", NULL, mTrusted))
+            if (!LLURLDispatcher::dispatch(url, "clicked", nullptr, mTrusted))
             {
                 LLWeb::loadURL(url, target, uuid);
             }

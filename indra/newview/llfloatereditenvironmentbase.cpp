@@ -144,7 +144,7 @@ void LLFloaterEditEnvironmentBase::loadInventoryItem(const LLUUID  &inventoryId,
 
     if (mInventoryItem->getAssetUUID().isNull())
     {
-        LL_WARNS("ENVIRONMENT") << "Asset ID in inventory item is NULL (" << mInventoryId << ")" << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Asset ID in inventory item is nullptr (" << mInventoryId << ")" << LL_ENDL;
         LLNotificationsUtil::add("UnableEditItem");
         closeFloater();
 

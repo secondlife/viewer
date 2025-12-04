@@ -115,8 +115,8 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 LLViewerParcelOverlay::~LLViewerParcelOverlay()
 {
     delete[] mOwnership;
-    mOwnership = NULL;
-    mImageRaw = NULL;
+    mOwnership = nullptr;
+    mImageRaw = nullptr;
 }
 
 //---------------------------------------------------------------------------

@@ -50,10 +50,10 @@ extern bool gCubeSnapshot;
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");
 
-static LLGLSLShader* cloud_shader = NULL;
-static LLGLSLShader* sky_shader   = NULL;
-static LLGLSLShader* sun_shader   = NULL;
-static LLGLSLShader* moon_shader  = NULL;
+static LLGLSLShader* cloud_shader = nullptr;
+static LLGLSLShader* sky_shader   = nullptr;
+static LLGLSLShader* sun_shader   = nullptr;
+static LLGLSLShader* moon_shader  = nullptr;
 
 static float sStarTime;
 
@@ -68,7 +68,7 @@ LLDrawPoolWLSky::~LLDrawPoolWLSky()
 
 LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
 {
-    return NULL;
+    return nullptr;
 }
 
 void LLDrawPoolWLSky::beginDeferredPass(S32 pass)
@@ -94,7 +94,7 @@ void LLDrawPoolWLSky::endDeferredPass(S32 pass)
 
 void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
 {
-    llassert_always(NULL != shader);
+    llassert_always(nullptr != shader);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -503,7 +503,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 LLViewerTexture* LLDrawPoolWLSky::getTexture()
 {
-    return NULL;
+    return nullptr;
 }
 
 void LLDrawPoolWLSky::resetDrawOrders()

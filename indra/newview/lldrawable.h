@@ -80,7 +80,7 @@ public:
 
     bool isLight() const;
 
-    virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = NULL, bool for_select = false);
+    virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = nullptr, bool for_select = false);
 
     LLSpatialGroup* getSpatialGroup()const          {return (LLSpatialGroup*)getGroup();}
     LLViewerRegion* getRegion()               const { return mVObjp->getRegion(); }
@@ -115,7 +115,7 @@ public:
     LLDrawable*         getRoot();
     bool                isSpatialRoot() const       { return !mParent || mParent->isAvatar(); }
     virtual bool        isSpatialBridge() const     { return false; }
-    virtual LLSpatialPartition* asPartition()       { return NULL; }
+    virtual LLSpatialPartition* asPartition()       { return nullptr; }
     LLDrawable*         getParent() const           { return mParent; }
 
     // must set parent through LLViewerObject::     ()
@@ -315,13 +315,13 @@ inline LLFace* LLDrawable::getFace(const S32 i) const
     if ((U32) i >= mFaces.size())
     {
         LL_WARNS() << "Invalid face index." << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     if (!mFaces[i])
     {
         LL_WARNS() << "Null face found." << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     return mFaces[i];

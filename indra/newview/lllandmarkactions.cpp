@@ -191,7 +191,7 @@ LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::stri
 bool LLLandmarkActions::landmarkAlreadyExists()
 {
     // Determine whether there are landmarks pointing to the current global  agent position.
-    return findLandmarkForAgentPos() != NULL;
+    return findLandmarkForAgentPos() != nullptr;
 }
 
 //static
@@ -217,7 +217,7 @@ LLViewerInventoryItem* LLLandmarkActions::findLandmarkForGlobalPos(const LLVecto
 
     if(items.empty())
     {
-        return NULL;
+        return nullptr;
     }
 
     return items[0];
@@ -251,7 +251,7 @@ void LLLandmarkActions::createLandmarkHere(
         LLAssetType::AT_LANDMARK,
         LLInventoryType::IT_LANDMARK,
         NO_INV_SUBTYPE, PERM_ALL,
-        NULL);
+        nullptr);
 }
 
 void LLLandmarkActions::createLandmarkHere()
@@ -349,13 +349,13 @@ void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_cal
 bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal)
 {
     LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
-    if (NULL == item)
+    if (nullptr == item)
         return false;
 
     const LLUUID& asset_id = item->getAssetUUID();
 
-    LLLandmark* landmark = gLandmarkList.getAsset(asset_id, NULL);
-    if (NULL == landmark)
+    LLLandmark* landmark = gLandmarkList.getAsset(asset_id, nullptr);
+    if (nullptr == landmark)
         return false;
 
     return landmark->getGlobalPos(posGlobal);
@@ -364,8 +364,8 @@ bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItem
 LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID, LLLandmarkList::loaded_callback_t cb)
 {
     LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
-    if (NULL == item)
-        return NULL;
+    if (nullptr == item)
+        return nullptr;
 
     const LLUUID& asset_id = item->getAssetUUID();
 
@@ -375,7 +375,7 @@ LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID
         return landmark;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void LLLandmarkActions::copySLURLtoClipboard(const LLUUID& landmarkInventoryItemID)

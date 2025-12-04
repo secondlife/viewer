@@ -112,7 +112,7 @@ class LLChatHistoryHeader: public LLPanel
 public:
     LLChatHistoryHeader()
     :   LLPanel(),
-        mInfoCtrl(NULL),
+        mInfoCtrl(nullptr),
         mPopupMenuHandleAvatar(),
         mPopupMenuHandleObject(),
         mAvatarID(),
@@ -121,9 +121,9 @@ public:
         mSessionID(),
         mCreationTime(time_corrected()),
         mMinUserNameWidth(0),
-        mUserNameFont(NULL),
-        mUserNameTextBox(NULL),
-        mTimeBoxTextBox(NULL),
+        mUserNameFont(nullptr),
+        mUserNameTextBox(nullptr),
+        mTimeBoxTextBox(nullptr),
         mNeedsTimeBox(true),
         mAvatarNameCacheConnection()
     {}
@@ -532,7 +532,7 @@ public:
                 if(speaker_mgr)
                 {
                     const LLSpeaker * speakerp = speaker_mgr->findSpeaker(getAvatarId());
-                    if (NULL != speakerp)
+                    if (nullptr != speakerp)
                     {
                         return !speakerp->mModeratorMutedText;
                     }
@@ -1203,7 +1203,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 
 LLView* LLChatHistory::getSeparator()
 {
-    LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
+    LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, nullptr, LLPanel::child_registry_t::instance());
     return separator;
 }
 
@@ -1405,7 +1405,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     else // showing timestamp and name in the expanded mode
     {
         prependNewLineState = false;
-        LLView* view = NULL;
+        LLView* view = nullptr;
         LLInlineViewSegment::Params p;
         p.force_newline = true;
         p.left_pad = mLeftWidgetPad;
@@ -1469,7 +1469,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     if (chat.mNotifId.notNull())
     {
         LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
-        if (notification != NULL)
+        if (notification != nullptr)
         {
             bool create_toast = true;
             if (notification->getName() == "OfferFriendship")

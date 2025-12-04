@@ -440,14 +440,14 @@ LLInventoryModel::LLInventoryModel()
     mItemMap(),
     mParentChildCategoryTree(),
     mParentChildItemTree(),
-    mLastItem(NULL),
+    mLastItem(nullptr),
     mIsNotifyObservers(false),
     mModifyMask(LLInventoryObserver::ALL),
     mChangedItemIDs(),
     mBulkFecthCallbackSlot(),
     mObservers(),
-    mHttpRequestFG(NULL),
-    mHttpRequestBG(NULL),
+    mHttpRequestFG(nullptr),
+    mHttpRequestBG(nullptr),
     mHttpOptions(),
     mHttpHeaders(),
     mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
@@ -486,9 +486,9 @@ void LLInventoryModel::cleanupInventory()
     mHttpOptions.reset();
 
     delete mHttpRequestFG;
-    mHttpRequestFG = NULL;
+    mHttpRequestFG = nullptr;
     delete mHttpRequestBG;
-    mHttpRequestBG = NULL;
+    mHttpRequestBG = nullptr;
 }
 
 // This is a convenience function to check if one object has a parent
@@ -523,7 +523,7 @@ const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(cons
     if(!obj)
     {
         LL_WARNS(LOG_INV) << "Non-existent object [ id: " << obj_id << " ] " << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
     // Search up the parent chain until we get to root or an acceptable folder.
     // This assumes there are no cycles in the tree else we'll get a hang.
@@ -541,7 +541,7 @@ const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(cons
         }
         parent_id = cat->getParentUUID();
     }
-    return NULL;
+    return nullptr;
 }
 
 //
@@ -551,17 +551,17 @@ const LLViewerInventoryCategory* LLInventoryModel::getFirstDescendantOf(const LL
 {
     if (master_parent_id == obj_id)
     {
-        return NULL;
+        return nullptr;
     }
 
     const LLViewerInventoryCategory* current_cat = getCategory(obj_id);
 
-    if (current_cat == NULL)
+    if (current_cat == nullptr)
     {
         current_cat = getCategory(getObject(obj_id)->getParentUUID());
     }
 
-    while (current_cat != NULL)
+    while (current_cat != nullptr)
     {
         const LLUUID& current_parent_id = current_cat->getParentUUID();
 
@@ -573,7 +573,7 @@ const LLViewerInventoryCategory* LLInventoryModel::getFirstDescendantOf(const LL
         current_cat = getCategory(current_parent_id);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 LLInventoryModel::EAncestorResult LLInventoryModel::getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const
@@ -607,7 +607,7 @@ LLInventoryModel::EAncestorResult LLInventoryModel::getObjectTopmostAncestor(con
     return ANCESTOR_OK;
 }
 
-// Get the object by id. Returns NULL if not found.
+// Get the object by id. Returns nullptr if not found.
 LLInventoryObject* LLInventoryModel::getObject(const LLUUID& id) const
 {
     LLViewerInventoryCategory* cat = getCategory(id);
@@ -620,13 +620,13 @@ LLInventoryObject* LLInventoryModel::getObject(const LLUUID& id) const
     {
         return item;
     }
-    return NULL;
+    return nullptr;
 }
 
-// Get the item by id. Returns NULL if not found.
+// Get the item by id. Returns nullptr if not found.
 LLViewerInventoryItem* LLInventoryModel::getItem(const LLUUID& id) const
 {
-    LLViewerInventoryItem* item = NULL;
+    LLViewerInventoryItem* item = nullptr;
     if(mLastItem.notNull() && mLastItem->getUUID() == id)
     {
         item = mLastItem;
@@ -643,10 +643,10 @@ LLViewerInventoryItem* LLInventoryModel::getItem(const LLUUID& id) const
     return item;
 }
 
-// Get the category by id. Returns NULL if not found
+// Get the category by id. Returns nullptr if not found
 LLViewerInventoryCategory* LLInventoryModel::getCategory(const LLUUID& id) const
 {
-    LLViewerInventoryCategory* category = NULL;
+    LLViewerInventoryCategory* category = nullptr;
     cat_map_t::const_iterator iter = mCategoryMap.find(id);
     if (iter != mCategoryMap.end())
     {
@@ -808,7 +808,7 @@ void LLInventoryModel::consolidateForType(const LLUUID& main_id, LLFolderType::E
                 changeCategoryParent(cat, trash_id, true);
             }
         }
-        remove_inventory_category(folder_id, NULL);
+        remove_inventory_category(folder_id, nullptr);
     }
 }
 
@@ -1218,7 +1218,7 @@ bool LLInventoryModel::hasMatchingDirectDescendent(const LLUUID& cat_id,
         for (LLInventoryModel::cat_array_t::const_iterator it = cats->begin();
              it != cats->end(); ++it)
         {
-            if (filter(*it,NULL))
+            if (filter(*it, nullptr))
             {
                 return true;
             }
@@ -1229,7 +1229,7 @@ bool LLInventoryModel::hasMatchingDirectDescendent(const LLUUID& cat_id,
         for (LLInventoryModel::item_array_t::const_iterator it = items->begin();
              it != items->end(); ++it)
         {
-            if (filter(NULL,*it))
+            if (filter(nullptr, *it))
             {
                 return true;
             }
@@ -1287,7 +1287,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
             {
                 break;
             }
-            if(add(cat,NULL))
+            if(add(cat, nullptr))
             {
                 cats.push_back(cat);
             }
@@ -1306,7 +1306,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
             {
                 break;
             }
-            if(add(NULL, item))
+            if(add(nullptr, item))
             {
                 items.push_back(item);
             }
@@ -1329,7 +1329,7 @@ bool LLInventoryModel::hasMatchingDescendents(const LLUUID& id,
     {
         for (auto& cat : *cat_array)
         {
-            if (matches(cat, NULL))
+            if (matches(cat, nullptr))
             {
                 return true;
             }
@@ -1346,7 +1346,7 @@ bool LLInventoryModel::hasMatchingDescendents(const LLUUID& id,
     {
         for (auto& item : *item_array)
         {
-            if (matches(NULL, item))
+            if (matches(nullptr, item))
             {
                 return true;
             }
@@ -1386,7 +1386,7 @@ const LLUUID& LLInventoryModel::getLinkedItemID(const LLUUID& object_id) const
 
 LLViewerInventoryItem* LLInventoryModel::getLinkedItem(const LLUUID& object_id) const
 {
-    return object_id.notNull() ? getItem(getLinkedItemID(object_id)) : NULL;
+    return object_id.notNull() ? getItem(getLinkedItemID(object_id)) : nullptr;
 }
 
 LLInventoryModel::item_array_t LLInventoryModel::collectLinksTo(const LLUUID& id)
@@ -2048,7 +2048,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
     LLInventoryModel::item_array_t links = collectLinksTo(id);
 
     LL_DEBUGS(LOG_INV) << "Deleting inventory object " << id << LL_ENDL;
-    mLastItem = NULL;
+    mLastItem = nullptr;
     LLUUID parent_id = obj->getParentUUID();
     mCategoryMap.erase(id);
     mItemMap.erase(id);
@@ -2367,7 +2367,7 @@ void LLInventoryModel::cache(
     item_array_t items;
 
     LLCanCache can_cache(this);
-    can_cache(root_cat, NULL);
+    can_cache(root_cat, nullptr);
     collectDescendentsIf(
         parent_folder_id,
         categories,
@@ -2561,7 +2561,7 @@ void LLInventoryModel::empty()
     mBacklinkMMap.clear(); // forget all backlink information.
     mCategoryMap.clear(); // remove all references (should delete entries)
     mItemMap.clear(); // remove all references (should delete entries)
-    mLastItem = NULL;
+    mLastItem = nullptr;
     //mInventory.clear();
 }
 
@@ -2761,7 +2761,7 @@ bool LLInventoryModel::loadSkeleton(
         if(fp)
         {
             fclose(fp);
-            fp = NULL;
+            fp = nullptr;
             if(gunzip_file(gzip_filename, inventory_filename))
             {
                 // we only want to remove the inventory file if it was
@@ -3175,8 +3175,8 @@ void LLInventoryModel::buildParentChildMap()
             msg->nextBlockFast(_PREHASH_InventoryData);
             msg->addUUIDFast(_PREHASH_ItemID, (*it));
             msg->addUUIDFast(_PREHASH_FolderID, lnf);
-            msg->addString("NewName", NULL);
-            if(msg->isSendFull(NULL))
+            msg->addString("NewName", nullptr);
+            if(msg->isSendFull(nullptr))
             {
                 start_new_message = true;
                 gAgent.sendReliableMessage();
@@ -3568,28 +3568,28 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
 {
     //msg->setHandlerFuncFast(_PREHASH_InventoryUpdate,
     //                  processInventoryUpdate,
-    //                  NULL);
+    //                  nullptr);
     //msg->setHandlerFuncFast(_PREHASH_UseCachedInventory,
     //                  processUseCachedInventory,
-    //                  NULL);
+    //                  nullptr);
     msg->setHandlerFuncFast(_PREHASH_UpdateCreateInventoryItem,
                         processUpdateCreateInventoryItem,
-                        NULL);
+                        nullptr);
     msg->setHandlerFuncFast(_PREHASH_RemoveInventoryItem,
                         processRemoveInventoryItem,
-                        NULL);
+                        nullptr);
     msg->setHandlerFuncFast(_PREHASH_RemoveInventoryFolder,
                         processRemoveInventoryFolder,
-                        NULL);
+                        nullptr);
     msg->setHandlerFuncFast(_PREHASH_RemoveInventoryObjects,
                             processRemoveInventoryObjects,
-                            NULL);
+                            nullptr);
     msg->setHandlerFuncFast(_PREHASH_SaveAssetIntoInventory,
                         processSaveAssetIntoInventory,
-                        NULL);
+                        nullptr);
     msg->setHandlerFuncFast(_PREHASH_BulkUpdateInventory,
                             processBulkUpdateInventory,
-                            NULL);
+                            nullptr);
     msg->setHandlerFunc("MoveInventoryItem", processMoveInventoryItem);
 }
 
@@ -4085,7 +4085,7 @@ bool LLInventoryModel::callbackEmptyFolderType(const LLSD& notification, const L
     if (option == 0) // YES
     {
         const LLUUID folder_id = findCategoryUUIDForType(preferred_type);
-        purge_descendents_of(folder_id, NULL);
+        purge_descendents_of(folder_id, nullptr);
     }
     return false;
 }
@@ -4110,7 +4110,7 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
     else
     {
         const LLUUID folder_id = findCategoryUUIDForType(preferred_type);
-        purge_descendents_of(folder_id, NULL);
+        purge_descendents_of(folder_id, nullptr);
     }
 }
 
@@ -4876,7 +4876,7 @@ std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
 {
     std::vector<std::string> path_elts;
     std::map<LLUUID,bool> visited;
-    while (obj != NULL && !visited[obj->getUUID()])
+    while (obj != nullptr && !visited[obj->getUUID()])
     {
         path_elts.push_back(obj->getName());
         // avoid infinite loop in the unlikely event of a cycle
@@ -4899,9 +4899,9 @@ std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
 bool decompress_file(const char* src_filename, const char* dst_filename)
 {
     bool rv = false;
-    gzFile src = NULL;
-    U8* buffer = NULL;
-    LLFILE* dst = NULL;
+    gzFile src = nullptr;
+    U8* buffer = nullptr;
+    LLFILE* dst = nullptr;
     S32 bytes = 0;
     const S32 DECOMPRESS_BUFFER_SIZE = 32000;
 
@@ -4929,9 +4929,9 @@ bool decompress_file(const char* src_filename, const char* dst_filename)
     rv = true;
 
  err_decompress:
-    if(src != NULL) gzclose(src);
-    if(buffer != NULL) delete[] buffer;
-    if(dst != NULL) fclose(dst);
+    if(src != nullptr) gzclose(src);
+    if(buffer != nullptr) delete[] buffer;
+    if(dst != nullptr) fclose(dst);
     return rv;
 }
 #endif
@@ -4963,7 +4963,7 @@ void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle hand
         }
 
         LLCore::BufferArray * body(response->getBody());
-        // body = NULL;                                 // Dev tool to force error handling
+        // body = nullptr;                                 // Dev tool to force error handling
         if (! body || ! body->size())
         {
             LL_WARNS(LOG_INV) << "Missing data in inventory item query." << LL_ENDL;

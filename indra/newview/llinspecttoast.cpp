@@ -58,12 +58,12 @@ private:
 };
 
 LLInspectToast::LLInspectToast(const LLSD& notification_id) :
-    LLInspect(LLSD()), mPanel(NULL)
+    LLInspect(LLSD()), mPanel(nullptr)
 {
     LLScreenChannelBase* channel = LLChannelManager::getInstance()->findChannelByID(
         LLNotificationsUI::NOTIFICATION_CHANNEL_UUID);
     mScreenChannel = dynamic_cast<LLScreenChannel*>(channel);
-    if(NULL == mScreenChannel)
+    if(nullptr == mScreenChannel)
     {
         LL_WARNS() << "Could not get requested screen channel." << LL_ENDL;
         return;
@@ -83,7 +83,7 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
 {
     LLInspect::onOpen(notification_id);
     LLToast* toast = mScreenChannel->getToastByNotificationID(notification_id);
-    if (toast == NULL)
+    if (toast == nullptr)
     {
         LL_WARNS() << "Could not get requested toast  from screen channel." << LL_ENDL;
         return;
@@ -91,14 +91,14 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
     mConnection = toast->setOnToastDestroyedCallback(boost::bind(&LLInspectToast::onToastDestroy, this, _1));
 
     LLPanel * panel = toast->getPanel();
-    if (panel == NULL)
+    if (panel == nullptr)
     {
         LL_WARNS() << "Could not get toast's panel." << LL_ENDL;
         return;
     }
     panel->setVisible(true);
     panel->setMouseOpaque(false);
-    if(mPanel != NULL && mPanel->getParent() == this)
+    if(mPanel != nullptr && mPanel->getParent() == this)
     {
         LLInspect::removeChild(mPanel);
     }
@@ -125,7 +125,7 @@ bool LLInspectToast::handleToolTip(S32 x, S32 y, MASK mask)
 
 void LLInspectToast::deleteAllChildren()
 {
-    mPanel = NULL;
+    mPanel = nullptr;
     LLInspect::deleteAllChildren();
 }
 
@@ -134,7 +134,7 @@ void LLInspectToast::removeChild(LLView* child)
 {
     if (mPanel == child)
     {
-        mPanel = NULL;
+        mPanel = nullptr;
     }
     LLInspect::removeChild(child);
 }

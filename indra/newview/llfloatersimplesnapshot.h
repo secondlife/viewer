@@ -115,7 +115,7 @@ public:
 
     static void onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status);
 
-    LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true) { return NULL; }
+    LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true) { return nullptr; }
     LLSnapshotModel::ESnapshotFormat getImageFormat(LLFloaterSnapshotBase* floater);
     std::string getSnapshotPanelPrefix();
 

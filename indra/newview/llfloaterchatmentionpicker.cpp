@@ -35,7 +35,7 @@
 LLUUID LLFloaterChatMentionPicker::sSessionID(LLUUID::null);
 
 LLFloaterChatMentionPicker::LLFloaterChatMentionPicker(const LLSD& key)
-: LLFloater(key), mAvatarList(NULL)
+: LLFloater(key), mAvatarList(nullptr)
 {
     // This floater should hover on top of our dependent (with the dependent having the focus)
     setFocusStealsFrontmost(false);

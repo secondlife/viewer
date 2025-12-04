@@ -374,7 +374,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
                     LL_WARNS() << "Failed to allocate Vertex Buffer on rebuild to "
                         << vertex_count << " vertices and "
                         << index_count << " indices" << LL_ENDL;
-                    group->mVertexBuffer = NULL;
+                    group->mVertexBuffer = nullptr;
                     group->mBufferMap.clear();
                 }
             }
@@ -387,7 +387,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
     }
     else
     {
-        group->mVertexBuffer = NULL;
+        group->mVertexBuffer = nullptr;
         group->mBufferMap.clear();
     }
 
@@ -418,11 +418,11 @@ bool LLSpatialGroup::removeObject(LLDrawable *drawablep, bool from_octree)
     unbound();
     if (mOctreeNode && !from_octree)
     {
-        drawablep->setGroup(NULL);
+        drawablep->setGroup(nullptr);
     }
     else
     {
-        drawablep->setGroup(NULL);
+        drawablep->setGroup(nullptr);
         setState(GEOM_DIRTY);
         gPipeline.markRebuild(this);
 
@@ -578,7 +578,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) : LLO
     mGeometryBytes(0),
     mSurfaceArea(0.f),
     mBuilt(0.f),
-    mVertexBuffer(NULL),
+    mVertexBuffer(nullptr),
     mDistance(0.f),
     mDepth(0.f),
     mLastUpdateDistance(-1.f),
@@ -795,16 +795,16 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
         {
             if(entry->hasDrawable())
             {
-                ((LLDrawable*)entry->getDrawable())->setGroup(NULL);
+                ((LLDrawable*)entry->getDrawable())->setGroup(nullptr);
             }
         }
     }
 
     clearDrawMap();
-    mVertexBuffer = NULL;
+    mVertexBuffer = nullptr;
     mBufferMap.clear();
     sZombieGroups++;
-    mOctreeNode = NULL;
+    mOctreeNode = nullptr;
 }
 
 void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
@@ -871,7 +871,7 @@ void LLSpatialGroup::destroyGLState(bool keep_occlusion)
     }
 
     mLastUpdateTime = gFrameTimeSeconds;
-    mVertexBuffer = NULL;
+    mVertexBuffer = nullptr;
     mBufferMap.clear();
 
     clearDrawMap();
@@ -903,7 +903,7 @@ void LLSpatialGroup::destroyGLState(bool keep_occlusion)
 //==============================================
 
 LLSpatialPartition::LLSpatialPartition(U32 data_mask, bool render_by_group, LLViewerRegion* regionp)
-: mRenderByGroup(render_by_group), mBridge(NULL)
+: mRenderByGroup(render_by_group), mBridge(nullptr)
 {
     mRegionp = regionp;
     mPartitionType = LLViewerRegion::PARTITION_NONE;
@@ -937,7 +937,7 @@ LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, bool was_visible)
     }
 
     LLSpatialGroup* group = drawablep->getSpatialGroup();
-    //llassert(group != NULL);
+    //llassert(group != nullptr);
 
     if (group && was_visible && group->isOcclusionState(LLSpatialGroup::QUERY_PENDING))
     {
@@ -956,7 +956,7 @@ bool LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
     }
     else
     {
-        drawablep->setGroup(NULL);
+        drawablep->setGroup(nullptr);
     }
 
     assert_octree_valid(mOctree);
@@ -1463,7 +1463,7 @@ void pushVerts(LLDrawInfo* params)
 
 void pushVerts(LLSpatialGroup* group)
 {
-    LLDrawInfo* params = NULL;
+    LLDrawInfo* params = nullptr;
 
     for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
     {
@@ -1498,7 +1498,7 @@ void pushVerts(LLVolume* volume)
     for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
     {
         const LLVolumeFace& face = volume->getVolumeFace(i);
-        LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
+        LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, nullptr, face.mNumIndices, face.mIndices);
     }
 }
 
@@ -1546,7 +1546,7 @@ void pushBufferVerts(LLSpatialGroup* group, bool push_alpha = true)
 
 void pushVertsColorCoded(LLSpatialGroup* group)
 {
-    LLDrawInfo* params = NULL;
+    LLDrawInfo* params = nullptr;
 
     static const LLColor4 colors[] = {
         LLColor4::green,
@@ -2405,7 +2405,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                 gGL.diffuseColor4fv(color.mV);
 
                 LLVertexBuffer::unbind();
-                LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+                LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, nullptr, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
             }
             else
             {
@@ -2710,7 +2710,7 @@ void renderTexelDensity(LLDrawable* drawable)
         LLVertexBuffer* buffer = facep->getVertexBuffer();
         LLViewerTexture* texturep = facep->getTexture();
 
-        if (texturep == NULL) continue;
+        if (texturep == nullptr) continue;
 
         switch(LLViewerTexture::sDebugTexelsMode)
         {
@@ -2754,7 +2754,7 @@ void renderTexelDensity(LLDrawable* drawable)
     //for (S32 i = 0; i < num_textures; i++)
     //{
     //  LLViewerTexture* texturep = params->mTextureList.empty() ? params->mTexture.get() : params->mTextureList[i].get();
-    //  if (texturep == NULL) continue;
+    //  if (texturep == nullptr) continue;
 
     //  LLMatrix4 checkboard_matrix;
     //  S32 discard_level = -1;
@@ -2841,7 +2841,7 @@ class LLRenderOctreeRaycast : public LLOctreeTriangleRayIntersect
 {
 public:
     LLRenderOctreeRaycast(const LLVector4a& start, const LLVector4a& dir, F32* closest_t)
-        : LLOctreeTriangleRayIntersect(start, dir, nullptr, closest_t, NULL, NULL, NULL, NULL)
+        : LLOctreeTriangleRayIntersect(start, dir, nullptr, closest_t, nullptr, nullptr, nullptr, nullptr)
     {
 
     }
@@ -3329,11 +3329,11 @@ public:
 
                 gGL.flush();
                 gGL.pushMatrix();
-                gGLLastMatrix = NULL;
+                gGLLastMatrix = nullptr;
                 gGL.loadMatrix(gGLModelView);
                 renderXRay(group, mCamera);
                 stop_glerror();
-                gGLLastMatrix = NULL;
+                gGLLastMatrix = nullptr;
                 gGL.popMatrix();
             }
         }
@@ -3510,7 +3510,7 @@ void LLSpatialPartition::renderPhysicsShapes(bool wireframe)
 
     if (bridge)
     {
-        camera = NULL;
+        camera = nullptr;
     }
 
     gGL.flush();
@@ -3562,7 +3562,7 @@ void LLSpatialPartition::renderDebug()
 
     if (bridge)
     {
-        camera = NULL;
+        camera = nullptr;
     }
 
     LLOctreeStateCheck checker;
@@ -3644,7 +3644,7 @@ public:
           mTexCoord(tex_coord),
           mNormal(normal),
           mTangent(tangent),
-          mHit(NULL),
+          mHit(nullptr),
           mPickTransparent(pick_transparent),
           mPickRigged(pick_rigged),
           mPickUnselectable(pick_unselectable),
@@ -3875,31 +3875,31 @@ LLCullResult::LLCullResult()
     mVisibleBridgeAllocated = 0;
 
     mVisibleGroups.clear();
-    mVisibleGroups.push_back(NULL);
+    mVisibleGroups.push_back(nullptr);
     mVisibleGroupsEnd = &mVisibleGroups[0];
     mAlphaGroups.clear();
-    mAlphaGroups.push_back(NULL);
+    mAlphaGroups.push_back(nullptr);
     mAlphaGroupsEnd = &mAlphaGroups[0];
     mRiggedAlphaGroups.clear();
-    mRiggedAlphaGroups.push_back(NULL);
+    mRiggedAlphaGroups.push_back(nullptr);
     mRiggedAlphaGroupsEnd = &mRiggedAlphaGroups[0];
     mOcclusionGroups.clear();
-    mOcclusionGroups.push_back(NULL);
+    mOcclusionGroups.push_back(nullptr);
     mOcclusionGroupsEnd = &mOcclusionGroups[0];
     mDrawableGroups.clear();
-    mDrawableGroups.push_back(NULL);
+    mDrawableGroups.push_back(nullptr);
     mDrawableGroupsEnd = &mDrawableGroups[0];
     mVisibleList.clear();
-    mVisibleList.push_back(NULL);
+    mVisibleList.push_back(nullptr);
     mVisibleListEnd = &mVisibleList[0];
     mVisibleBridge.clear();
-    mVisibleBridge.push_back(NULL);
+    mVisibleBridge.push_back(nullptr);
     mVisibleBridgeEnd = &mVisibleBridge[0];
 
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {
         mRenderMap[i].clear();
-        mRenderMap[i].push_back(NULL);
+        mRenderMap[i].push_back(nullptr);
         mRenderMapEnd[i] = &mRenderMap[i][0];
         mRenderMapAllocated[i] = 0;
     }
@@ -3911,7 +3911,7 @@ template <class T, class V>
 void LLCullResult::pushBack(T& head, U32& count, V* val)
 {
     head[count] = val;
-    head.push_back(NULL);
+    head.push_back(nullptr);
     count++;
 }
 

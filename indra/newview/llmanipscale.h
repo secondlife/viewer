@@ -103,7 +103,7 @@ private:
 
     void            revert();
 
-    inline void     conditionalHighlight( U32 part, const LLColor4* highlight = NULL, const LLColor4* normal = NULL );
+    inline void     conditionalHighlight( U32 part, const LLColor4* highlight = nullptr, const LLColor4* normal = nullptr );
 
     void            drag( S32 x, S32 y );
     void            dragFace( S32 x, S32 y );

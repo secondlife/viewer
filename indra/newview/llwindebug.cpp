@@ -36,7 +36,7 @@ typedef bool (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hF
                                     CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam
                                     );
 
-MINIDUMPWRITEDUMP f_mdwp = NULL;
+MINIDUMPWRITEDUMP f_mdwp = nullptr;
 
 
 class LLMemoryReserve {
@@ -51,7 +51,7 @@ private:
 };
 
 LLMemoryReserve::LLMemoryReserve() :
-    mReserve(NULL)
+    mReserve(nullptr)
 {
 }
 
@@ -65,7 +65,7 @@ const size_t LLMemoryReserve::MEMORY_RESERVATION_SIZE = 5 * 1024 * 1024;
 
 void LLMemoryReserve::reserve()
 {
-    if(NULL == mReserve)
+    if(nullptr == mReserve)
     {
         mReserve = new unsigned char[MEMORY_RESERVATION_SIZE];
     }
@@ -73,11 +73,11 @@ void LLMemoryReserve::reserve()
 
 void LLMemoryReserve::release()
 {
-    if (NULL != mReserve)
+    if (nullptr != mReserve)
     {
         delete [] mReserve;
     }
-    mReserve = NULL;
+    mReserve = nullptr;
 }
 
 static LLMemoryReserve gEmergencyMemoryReserve;
@@ -104,7 +104,7 @@ void  LLWinDebug::initSingleton()
         // First, try loading from the directory that the app resides in.
         std::string local_dll_name = gDirUtilp->findFile("dbghelp.dll", gDirUtilp->getWorkingDir(), gDirUtilp->getExecutableDir());
 
-        HMODULE hDll = NULL;
+        HMODULE hDll = nullptr;
         hDll = LoadLibraryA(local_dll_name.c_str());
         if (!hDll)
         {
@@ -122,7 +122,7 @@ void  LLWinDebug::initSingleton()
             if (!f_mdwp)
             {
                 FreeLibrary(hDll);
-                hDll = NULL;
+                hDll = nullptr;
             }
         }
 
@@ -147,7 +147,7 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
     const bool enable_write_dump_file = false;
     if ( enable_write_dump_file )
     {
-        if(f_mdwp == NULL || gDirUtilp == NULL)
+        if(f_mdwp == nullptr || gDirUtilp == nullptr)
         {
             return;
         }
@@ -158,10 +158,10 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
             HANDLE hFile = CreateFileA(dump_path.c_str(),
                                         GENERIC_WRITE,
                                         FILE_SHARE_WRITE,
-                                        NULL,
+                                        nullptr,
                                         CREATE_ALWAYS,
                                         FILE_ATTRIBUTE_NORMAL,
-                                        NULL);
+                                        nullptr);
 
             if (hFile != INVALID_HANDLE_VALUE)
             {
@@ -171,8 +171,8 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
                         hFile,
                         type,
                         ExInfop,
-                        NULL,
-                        NULL);
+                        nullptr,
+                        nullptr);
 
                 CloseHandle(hFile);
             }
@@ -195,7 +195,7 @@ void LLWinDebug::generateMinidump(struct _EXCEPTION_POINTERS *exception_infop)
 
         ExInfo.ThreadId = ::GetCurrentThreadId();
         ExInfo.ExceptionPointers = exception_infop;
-        ExInfo.ClientPointers = NULL;
+        ExInfo.ClientPointers = FALSE;
         writeDumpToFile((MINIDUMP_TYPE)(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory), &ExInfo, "SecondLife.dmp");
     }
 }

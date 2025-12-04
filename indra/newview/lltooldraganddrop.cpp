@@ -210,7 +210,7 @@ void LLCategoryDropObserver::done()
     if (dst_obj)
     {
         // *FIX: coalesce these...
-        LLInventoryItem* item = NULL;
+        LLInventoryItem* item = nullptr;
         uuid_vec_t::iterator it = mComplete.begin();
         uuid_vec_t::iterator end = mComplete.end();
         for(; it < end; ++it)
@@ -283,7 +283,7 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 };
 
 LLToolDragAndDrop::LLToolDragAndDrop()
-:   LLTool(std::string("draganddrop"), NULL),
+:   LLTool(std::string("draganddrop"), nullptr),
     mCargoCount(0),
     mDragStartX(0),
     mDragStartY(0),
@@ -355,7 +355,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
             LLNoPreferredTypeOrItem is_not_preferred;
             uuid_vec_t folder_ids;
             uuid_vec_t item_ids;
-            if (is_not_preferred(cat, NULL))
+            if (is_not_preferred(cat, nullptr))
             {
                 folder_ids.push_back(cargo_id);
             }
@@ -412,7 +412,7 @@ void LLToolDragAndDrop::beginMultiDrag(
     if ((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
     {
         // find categories (i.e. inventory folders) in the cargo.
-        LLInventoryCategory* cat = NULL;
+        LLInventoryCategory* cat = nullptr;
         auto count = llmin(cargo_ids.size(), types.size());
         uuid_set_t cat_ids;
         for (size_t i = 0; i < count; ++i)
@@ -423,7 +423,7 @@ void LLToolDragAndDrop::beginMultiDrag(
                 LLViewerInventoryCategory::cat_array_t cats;
                 LLViewerInventoryItem::item_array_t items;
                 LLNoPreferredType is_not_preferred;
-                if (is_not_preferred(cat, NULL))
+                if (is_not_preferred(cat, nullptr))
                 {
                     cat_ids.insert(cat->getUUID());
                 }
@@ -812,7 +812,7 @@ void LLToolDragAndDrop::dragOrDrop3D( S32 x, S32 y, MASK mask, bool drop, EAccep
 
 void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 {
-    if (getInstance() != NULL)
+    if (getInstance() != nullptr)
     {
         getInstance()->pick(pick_info);
     }
@@ -827,7 +827,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
     LLSelectMgr::getInstance()->unhighlightAll();
     bool highlight_object = false;
     // Treat attachments as part of the avatar they are attached to.
-    if (hit_obj != NULL)
+    if (hit_obj != nullptr)
     {
         // don't allow drag and drop on grass, trees, etc.
         if (pick_info.mPickType == LLPickInfo::PICK_FLORA)
@@ -2105,7 +2105,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
     //                            gAgent.getGroupID())
     //           && (obj->mPermModify || obj->mFlagAllowInventoryAdd));
     bool worn = false;
-    LLVOAvatarSelf* my_avatar = NULL;
+    LLVOAvatarSelf* my_avatar = nullptr;
     switch (item->getType())
     {
     case LLAssetType::AT_OBJECT:
@@ -2176,7 +2176,7 @@ static void give_inventory_cb(const LLSD& notification, const LLSD& response)
     const LLUUID& agent_id = payload["agent_id"];
     LLViewerInventoryItem * inv_item =  gInventory.getItem(payload["item_id"]);
     LLViewerInventoryCategory * inv_cat =  gInventory.getCategory(payload["item_id"]);
-    if (NULL == inv_item && NULL == inv_cat)
+    if (nullptr == inv_item && nullptr == inv_cat)
     {
         llassert( false );
         return;
@@ -2208,7 +2208,7 @@ static void show_object_sharing_confirmation(const std::string name,
 {
     if (!inv_item)
     {
-        llassert(NULL != inv_item);
+        llassert(nullptr != inv_item);
         return;
     }
     LLSD substitutions;
@@ -2273,7 +2273,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
                 LLIMModel::LLIMSession * session = LLIMModel::instance().findIMSession(session_id);
 
                 // If no IM session found get the destination agent's name by id.
-                if (NULL == session)
+                if (nullptr == session)
                 {
                     LLAvatarName av_name;
 
@@ -2979,7 +2979,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
     LLViewerObject* obj, S32 face, MASK mask, bool drop)
 {
     LL_DEBUGS() << "LLToolDragAndDrop::dad3dUpdateInventoryCategory()" << LL_ENDL;
-    if (obj == NULL)
+    if (obj == nullptr)
     {
         LL_WARNS() << "obj is NULL; aborting func with ACCEPT_NO" << LL_ENDL;
         return ACCEPT_NO;
@@ -2994,8 +2994,8 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
         return ACCEPT_NO_LOCKED;
     }
 
-    LLViewerInventoryItem* item = NULL;
-    LLViewerInventoryCategory* cat = NULL;
+    LLViewerInventoryItem* item = nullptr;
+    LLViewerInventoryCategory* cat = nullptr;
     locateInventory(item, cat);
     if (!cat)
     {
@@ -3195,8 +3195,8 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
     LLViewerObject* obj, S32 face, MASK mask, bool drop)
 {
     LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezFromObjectOnLand()" << LL_ENDL;
-    LLViewerInventoryItem* item = NULL;
-    LLViewerInventoryCategory* cat = NULL;
+    LLViewerInventoryItem* item = nullptr;
+    LLViewerInventoryCategory* cat = nullptr;
     locateInventory(item, cat);
     if (!item || !item->isFinished()) return ACCEPT_NO;
 
@@ -3309,7 +3309,7 @@ EAcceptance LLToolDragAndDrop::dad3dAssetOnLand(
 
     if((rv >= ACCEPT_YES_COPY_SINGLE) && drop)
     {
-        createContainer(copyable_items, NULL);
+        createContainer(copyable_items, nullptr);
     }
 
     return rv;
@@ -3320,13 +3320,13 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
     LLViewerInventoryItem*& item,
     LLViewerInventoryCategory*& cat)
 {
-    item = NULL;
-    cat = NULL;
+    item = nullptr;
+    cat = nullptr;
 
     if (mCargoIDs.empty()
         || (mSource == SOURCE_PEOPLE)) ///< There is no inventory item for people drag and drop.
     {
-        return NULL;
+        return nullptr;
     }
 
     if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
@@ -3367,14 +3367,14 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 
     if(item) return item;
     if(cat) return cat;
-    return NULL;
+    return nullptr;
 }
 
 /*
 LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryCategory::cat_array_t& cats,
                                                               LLViewerInventoryItem::item_array_t& items)
 {
-    if(mCargoIDs.size() == 0) return NULL;
+    if(mCargoIDs.size() == 0) return nullptr;
     if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
     {
         // The object should be in user inventory.
@@ -3435,7 +3435,7 @@ LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryC
     }
     if(items.size()) return items[0];
     if(cats.size()) return cats[0];
-    return NULL;
+    return nullptr;
 }
 */
 

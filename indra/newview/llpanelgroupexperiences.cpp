@@ -42,7 +42,7 @@ static LLPanelInjector<LLPanelGroupExperiences> t_panel_group_experiences("panel
 
 
 LLPanelGroupExperiences::LLPanelGroupExperiences()
-:   LLPanelGroupTab(), mExperiencesList(NULL)
+:   LLPanelGroupTab(), mExperiencesList(nullptr)
 {
 }
 

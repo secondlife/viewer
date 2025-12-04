@@ -455,7 +455,7 @@ void LLPanelTopInfoBar::onContextMenuItemClicked(const LLSD::String& item)
     {
         LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 
-        if(landmark == NULL)
+        if(landmark == nullptr)
         {
             LLFloaterReg::showInstance("add_landmark");
         }

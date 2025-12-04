@@ -91,8 +91,8 @@ S32 LLSkyTex::sCurrent = 0;
 
 
 LLSkyTex::LLSkyTex() :
-    mSkyData(NULL),
-    mSkyDirs(NULL),
+    mSkyData(nullptr),
+    mSkyDirs(nullptr),
     mIsShiny(false)
 {
 }
@@ -123,8 +123,8 @@ void LLSkyTex::init(bool isShiny)
 
 void LLSkyTex::cleanupGL()
 {
-    mTexture[0] = NULL;
-    mTexture[1] = NULL;
+    mTexture[0] = nullptr;
+    mTexture[1] = nullptr;
 }
 
 void LLSkyTex::restoreGL()
@@ -139,10 +139,10 @@ void LLSkyTex::restoreGL()
 LLSkyTex::~LLSkyTex()
 {
     delete[] mSkyData;
-    mSkyData = NULL;
+    mSkyData = nullptr;
 
     delete[] mSkyDirs;
-    mSkyDirs = NULL;
+    mSkyDirs = nullptr;
 }
 
 S32 LLSkyTex::getResolution()
@@ -434,7 +434,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
     }
     for (S32 i=0; i<FACE_COUNT; i++)
     {
-        mFace[i] = NULL;
+        mFace[i] = nullptr;
     }
 
     mCameraPosAgent = gAgentCamera.getCameraPositionAgent();
@@ -456,7 +456,7 @@ LLVOSky::~LLVOSky()
     // Don't delete images - it'll get deleted by gTextureList on shutdown
     // This needs to be done for each texture
 
-    mCubeMap = NULL;
+    mCubeMap = nullptr;
 }
 
 void LLVOSky::init()
@@ -848,7 +848,7 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 
     for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
     {
-        mFace[FACE_SIDE0 + i] = mDrawable->addFace(poolp, NULL);
+        mFace[FACE_SIDE0 + i] = mDrawable->addFace(poolp, nullptr);
     }
 
     mFace[FACE_SUN]   = mDrawable->addFace(poolp, nullptr);
@@ -980,12 +980,12 @@ void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_
 bool LLVOSky::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
-    if (mFace[FACE_REFLECTION] == NULL)
+    if (mFace[FACE_REFLECTION] == nullptr)
     {
         LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
         if (gPipeline.getPool(LLDrawPool::POOL_WATER)->getShaderLevel() != 0)
         {
-            mFace[FACE_REFLECTION] = drawable->addFace(poolp, NULL);
+            mFace[FACE_REFLECTION] = drawable->addFace(poolp, nullptr);
         }
     }
 

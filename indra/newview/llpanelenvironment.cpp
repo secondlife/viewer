@@ -620,7 +620,7 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     // Very simple "adjust after the fact" method
     // Note: labels can be in any order
 
-    LLView* view_midle = NULL;
+    LLView* view_midle = nullptr;
     U32 midle_ind = 0;
     S32 shift_up = 0;
     S32 shift_down = 0;
@@ -1173,7 +1173,7 @@ void LLPanelEnvironmentInfo::onEnvironmentReceived(LLHandle<LLPanel> that_h, S32
 
 LLSettingsDropTarget::LLSettingsDropTarget(const LLSettingsDropTarget::Params& p)
     : LLView(p)
-    , mEnvironmentInfoPanel(NULL)
+    , mEnvironmentInfoPanel(nullptr)
     , mDndEnabled(false)
 {
 }

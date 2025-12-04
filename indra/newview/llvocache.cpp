@@ -182,7 +182,7 @@ LLVOCacheEntry::LLVOCacheEntry()
     mHitCount(0),
     mDupeCount(0),
     mCRCChangeCount(0),
-    mBuffer(NULL),
+    mBuffer(nullptr),
     mState(INACTIVE),
     mSceneContrib(0.f),
     mValid(true),
@@ -194,7 +194,7 @@ LLVOCacheEntry::LLVOCacheEntry()
 
 LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 :   LLViewerOctreeEntryData(LLViewerOctreeEntry::LLVOCACHEENTRY),
-    mBuffer(NULL),
+    mBuffer(nullptr),
     mUpdateFlags(-1),
     mState(INACTIVE),
     mSceneContrib(0.f),
@@ -242,7 +242,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
             // Improve logging around vocache
             LL_WARNS() << "Error loading cache entry for " << mLocalID << ", size " << size << " aborting!" << LL_ENDL;
             delete[] mBuffer ;
-            mBuffer = NULL ;
+            mBuffer = nullptr ;
         }
     }
 
@@ -253,8 +253,8 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
         mHitCount = 0;
         mDupeCount = 0;
         mCRCChangeCount = 0;
-        mBuffer = NULL;
-        mEntry = NULL;
+        mBuffer = nullptr;
+        mEntry = nullptr;
         mState = INACTIVE;
     }
 }
@@ -359,9 +359,9 @@ void LLVOCacheEntry::setState(U32 state)
 
 void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
 {
-    llassert(entry != NULL);
+    llassert(entry != nullptr);
     llassert(entry->getParentID() == mLocalID);
-    llassert(entry->getEntry() != NULL);
+    llassert(entry->getEntry() != nullptr);
 
     if(!entry || !entry->getEntry() || entry->getParentID() != mLocalID)
     {
@@ -371,7 +371,7 @@ void LLVOCacheEntry::addChild(LLVOCacheEntry* entry)
     mChildrenList.insert(entry);
 
     //update parent bbox
-    if(getEntry() != NULL && isState(INACTIVE))
+    if(getEntry() != nullptr && isState(INACTIVE))
     {
         updateParentBoundingInfo(entry);
         resetVisible();
@@ -392,7 +392,7 @@ void LLVOCacheEntry::removeChild(LLVOCacheEntry* entry)
 //remove the first child, and return it.
 LLVOCacheEntry* LLVOCacheEntry::getChild()
 {
-    LLVOCacheEntry* child = NULL;
+    LLVOCacheEntry* child = nullptr;
     vocache_entry_set_t::iterator iter = mChildrenList.begin();
     if(iter != mChildrenList.end())
     {
@@ -408,7 +408,7 @@ LLDataPackerBinaryBuffer *LLVOCacheEntry::getDP()
     if (mDP.getBufferSize() == 0)
     {
         //LL_INFOS() << "Not getting cache entry, invalid!" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     return &mDP;
@@ -774,7 +774,7 @@ bool LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
 
 void LLVOCachePartition::removeEntry(LLViewerOctreeEntry* entry)
 {
-    entry->getVOCacheEntry()->setGroup(NULL);
+    entry->getVOCacheEntry()->setGroup(nullptr);
 
     llassert(!entry->getGroup());
 }
@@ -1403,7 +1403,7 @@ void LLVOCache::readCacheHeader()
 
         if(success)
         {
-            HeaderEntryInfo* entry = NULL ;
+            HeaderEntryInfo* entry = nullptr ;
             mNumEntries = 0 ;
             U32 num_read = 0 ;
             while(num_read++ < MAX_NUM_OBJECT_ENTRIES)
@@ -1418,7 +1418,7 @@ void LLVOCache::readCacheHeader()
                 {
                     LL_WARNS() << "Error reading cache header entry. (entry_index=" << mNumEntries << ")" << LL_ENDL;
                     delete entry ;
-                    entry = NULL ;
+                    entry = nullptr ;
                     break ;
                 }
                 else if(entry->mTime == INVALID_TIME)
@@ -1429,7 +1429,7 @@ void LLVOCache::readCacheHeader()
                 entry->mIndex = mNumEntries++ ;
                 mHeaderEntryQueue.insert(entry) ;
                 mHandleEntryMap[entry->mHandle] = entry ;
-                entry = NULL ;
+                entry = nullptr ;
             }
             if(entry)
             {
@@ -1769,7 +1769,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 
         entry = new HeaderEntryInfo();
         entry->mHandle = handle ;
-        entry->mTime = (U32)time(NULL) ;
+        entry->mTime = (U32)time(nullptr) ;
         entry->mIndex = mNumEntries++;
         mHeaderEntryQueue.insert(entry) ;
         mHandleEntryMap[handle] = entry ;
@@ -1782,7 +1782,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
         //resort
         mHeaderEntryQueue.erase(entry) ;
 
-        entry->mTime = (U32)time(NULL) ;
+        entry->mTime = (U32)time(nullptr) ;
         mHeaderEntryQueue.insert(entry) ;
     }
 

@@ -85,8 +85,8 @@ static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  : LLPanel()
  , mInfoLoaded(false)
- , mScrollingPanel(NULL)
- , mScrollContainer(NULL)
+ , mScrollingPanel(nullptr)
+ , mScrollContainer(nullptr)
  , mScrollingPanelMinHeight(0)
  , mScrollingPanelWidth(0)
  , mSnapshotStreched(false)
@@ -96,7 +96,7 @@ LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  , mTeleportClicksNew(0)
  , mMapClicksNew(0)
  , mProfileClicksNew(0)
- , mSnapshotCtrl(NULL)
+ , mSnapshotCtrl(nullptr)
 {
     sAllPanels.push_back(this);
 }

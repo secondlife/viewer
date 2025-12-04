@@ -137,7 +137,7 @@ private:
     void updateAdd(const LLMute& mute);
     void updateRemove(const LLMute& mute);
 
-    // TODO: NULL out mute_id in database
+    // TODO: nullptr out mute_id in database
     static void processMuteListUpdate(LLMessageSystem* msg, void**);
     static void processUseCachedMuteList(LLMessageSystem* msg, void**);
 

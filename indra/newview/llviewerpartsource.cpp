@@ -55,7 +55,7 @@ static LLVOAvatar* find_avatar(const LLUUID& id)
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -71,7 +71,7 @@ LLViewerPartSource::LLViewerPartSource(const U32 type) :
     static U32 id_seed = 0;
     mID = ++id_seed;
 
-    mLastPart = NULL;
+    mLastPart = nullptr;
 
     mDelay = 0 ;
 }
@@ -123,8 +123,8 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 void LLViewerPartSourceScript::setDead()
 {
     mIsDead = true;
-    mSourceObjectp = NULL;
-    mTargetObjectp = NULL;
+    mSourceObjectp = nullptr;
+    mTargetObjectp = nullptr;
 }
 
 void LLViewerPartSourceScript::update(const F32 dt)
@@ -153,7 +153,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
     {
         if (mSourceObjectp->isDead())
         {
-            mSourceObjectp = NULL;
+            mSourceObjectp = nullptr;
         }
         else if (mSourceObjectp->mDrawable.notNull())
         {
@@ -176,7 +176,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
     {
         if (mTargetObjectp->isDead())
         {
-            mTargetObjectp = NULL;
+            mTargetObjectp = nullptr;
         }
         else if (mTargetObjectp->mDrawable.notNull())
         {
@@ -303,7 +303,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
             LLViewerPart* part = new LLViewerPart();
 
-            part->init(this, mImagep, NULL);
+            part->init(this, mImagep, nullptr);
             part->mFlags = mPartSysData.mPartData.mFlags;
             if (!mSourceObjectp.isNull() && mSourceObjectp->isHUDAttachment())
             {
@@ -448,12 +448,12 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
     {
         if (LLPartSysData::isNullPS(block_num))
         {
-            return NULL;
+            return nullptr;
         }
         LLPointer<LLViewerPartSourceScript> new_pssp = new LLViewerPartSourceScript(source_objp);
         if (!new_pssp->mPartSysData.unpackBlock(block_num))
         {
-            return NULL;
+            return nullptr;
         }
         if (new_pssp->mPartSysData.mTargetUUID.notNull())
         {
@@ -466,14 +466,14 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
     {
         if (LLPartSysData::isNullPS(block_num))
         {
-            return NULL;
+            return nullptr;
         }
 
         F32 prev_max_age = pssp->mPartSysData.mMaxAge;
         F32 prev_start_age = pssp->mPartSysData.mStartAge;
         if (!pssp->mPartSysData.unpackBlock(block_num))
         {
-            return NULL;
+            return nullptr;
         }
         else if (pssp->mPartSysData.mMaxAge
                  && (prev_max_age != pssp->mPartSysData.mMaxAge || prev_start_age != pssp->mPartSysData.mStartAge))
@@ -502,14 +502,14 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
         {
             if (!new_pssp->mPartSysData.unpackLegacy(dp))
             {
-                return NULL;
+                return nullptr;
             }
         }
         else
         {
             if (!new_pssp->mPartSysData.unpack(dp))
             {
-                return NULL;
+                return nullptr;
             }
         }
 
@@ -527,14 +527,14 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::unpackPSS(LLViewer
         {
             if (!pssp->mPartSysData.unpackLegacy(dp))
             {
-                return NULL;
+                return nullptr;
             }
         }
         else
         {
             if (!pssp->mPartSysData.unpack(dp))
             {
-                return NULL;
+                return nullptr;
             }
         }
 
@@ -587,7 +587,7 @@ LLViewerPartSourceSpiral::LLViewerPartSourceSpiral(const LLVector3 &pos) :
 void LLViewerPartSourceSpiral::setDead()
 {
     mIsDead = true;
-    mSourceObjectp = NULL;
+    mSourceObjectp = nullptr;
 }
 
 
@@ -691,8 +691,8 @@ LLViewerPartSourceBeam::~LLViewerPartSourceBeam()
 void LLViewerPartSourceBeam::setDead()
 {
     mIsDead = true;
-    mSourceObjectp = NULL;
-    mTargetObjectp = NULL;
+    mSourceObjectp = nullptr;
+    mTargetObjectp = nullptr;
 }
 
 void LLViewerPartSourceBeam::setColor(const LLColor4 &color)
@@ -844,7 +844,7 @@ LLViewerPartSourceChat::LLViewerPartSourceChat(const LLVector3 &pos) :
 void LLViewerPartSourceChat::setDead()
 {
     mIsDead = true;
-    mSourceObjectp = NULL;
+    mSourceObjectp = nullptr;
 }
 
 

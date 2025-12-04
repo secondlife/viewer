@@ -131,10 +131,10 @@ LLAvatarList::LLAvatarList(const Params& p)
 :   LLFlatListViewEx(p)
 , mIgnoreOnlineStatus(p.ignore_online_status)
 , mShowLastInteractionTime(p.show_last_interaction_time)
-, mContextMenu(NULL)
+, mContextMenu(nullptr)
 , mDirty(true) // to force initial update
 , mNeedUpdateNames(false)
-, mLITUpdateTimer(NULL)
+, mLITUpdateTimer(nullptr)
 , mShowIcons(true)
 , mShowInfoBtn(p.show_info_btn)
 , mShowProfileBtn(p.show_profile_btn)
@@ -472,7 +472,7 @@ bool LLAvatarList::handleMouseUp( S32 x, S32 y, MASK mask )
 {
     if(hasMouseCapture())
     {
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
     }
 
     return LLFlatListViewEx::handleMouseUp(x, y, mask);

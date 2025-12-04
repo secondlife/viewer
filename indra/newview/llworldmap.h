@@ -216,7 +216,7 @@ public:
     static bool insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID& uuid, U32 type, S32 extra, S32 extra2);
 
     // Get info on sims (region) : note that those methods only search the range of loaded sims (the one that are being browsed)
-    // *not* the entire world. So a NULL return does not mean a down or unexisting region, just an out of range region.
+    // *not* the entire world. So a nullptr return does not mean a down or unexisting region, just an out of range region.
     LLSimInfo* simInfoFromHandle(const U64 handle);
     LLSimInfo* simInfoFromPosGlobal(const LLVector3d& pos_global);
     LLSimInfo* simInfoFromName(const std::string& sim_name);

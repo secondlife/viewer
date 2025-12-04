@@ -113,7 +113,7 @@ namespace
                 if (obj)
                 {
                     LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(id);
-                    img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+                    img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : nullptr;
                 }
             }
             else

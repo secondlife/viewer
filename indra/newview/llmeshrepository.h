@@ -854,8 +854,8 @@ public:
     // Estimated triangle count of the largest LOD
     F32 getEstTrianglesMax(LLUUID mesh_id);
     F32 getEstTrianglesStreamingCost(LLUUID mesh_id);
-    F32 getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
-    static F32 getStreamingCostLegacy(LLMeshHeader& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
+    F32 getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* bytes = nullptr, S32* visible_bytes = nullptr, S32 detail = -1, F32 *unscaled_value = nullptr);
+    static F32 getStreamingCostLegacy(LLMeshHeader& header, F32 radius, S32* bytes = nullptr, S32* visible_bytes = nullptr, S32 detail = -1, F32 *unscaled_value = nullptr);
     bool getCostData(LLUUID mesh_id, LLMeshCostData& data);
     bool getCostData(LLMeshHeader& header, LLMeshCostData& data);
 

@@ -56,7 +56,7 @@ LLFloaterGLTFAssetEditor::~LLFloaterGLTFAssetEditor()
     {
         mItemListPanel->removeChild(mScroller);
         delete mScroller;
-        mScroller = NULL;
+        mScroller = nullptr;
     }
 }
 
@@ -129,7 +129,7 @@ void LLFloaterGLTFAssetEditor::initFolderRoot()
     p.tool_tip = p.name;
     p.listener = base_item;
     p.view_model = &mGLTFViewModel;
-    p.root = NULL;
+    p.root = nullptr;
     p.use_ellipses = true;
     p.options_menu = "menu_gltf.xml"; // *TODO : create this or fix to be optional
     mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
@@ -272,7 +272,7 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
         return;
     }
 
-    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(NULL);
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(nullptr);
     LLViewerObject* objectp = node->getObject();
     if (!objectp)
     {
@@ -357,7 +357,7 @@ void LLFloaterGLTFAssetEditor::dirty()
         return;
     }
 
-    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(NULL);
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(nullptr);
     if (!node)
     {
         // not yet updated?

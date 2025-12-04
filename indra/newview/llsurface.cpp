@@ -996,7 +996,7 @@ void LLSurface::createPatchData()
 
             // We make each patch point to its neighbors so we can do resolution checking
             // when butting up different resolutions.  Patches that don't have neighbors
-            // somewhere will point to NULL on that side.
+            // somewhere will point to nullptr on that side.
             if (i < mPatchesPerEdge-1)
             {
                 patchp->setNeighborPatch(EAST,getPatch(i+1, j));

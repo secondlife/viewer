@@ -48,7 +48,7 @@ public:
     LLViewerJoint(S32 joint_num);
 
     // *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
-    LLViewerJoint(const std::string &name, LLJoint *parent = NULL);
+    LLViewerJoint(const std::string &name, LLJoint *parent = nullptr);
     virtual ~LLViewerJoint();
 
     // Render character hierarchy.

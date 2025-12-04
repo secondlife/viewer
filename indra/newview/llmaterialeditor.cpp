@@ -207,7 +207,7 @@ public:
             {
                 LLSD updates;
                 updates["name"] = mNewName;
-                update_inventory_item(inv_item_id, updates, NULL);
+                update_inventory_item(inv_item_id, updates, nullptr);
             }
         }
         LLMaterialEditor::finishSaveAs(mOldKey, inv_item_id, mBuffer, mHasUnsavedChanges);
@@ -1311,7 +1311,7 @@ const std::string LLMaterialEditor::buildMaterialDescription()
 
     // add the texture names for each just so long as the material
     // we loaded has an entry for it (i think testing the texture
-    // control UUI for NULL is a valid metric for if it was loaded
+    // control UUID for NULL is a valid metric for if it was loaded
     // or not but I suspect this code will change a lot so may need
     // to revisit
     if (!mBaseColorTextureCtrl->getValue().asUUID().isNull())
@@ -1546,7 +1546,7 @@ public:
             {
                 updates["permissions"] = ll_create_sd_from_permissions(mPermissions);
             }
-            update_inventory_item(inv_item_id, updates, NULL);
+            update_inventory_item(inv_item_id, updates, nullptr);
         }
 
         // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
@@ -1563,7 +1563,7 @@ public:
                     // *HACK: Sometimes permissions do not stick in the UI. They are correct on the server-side, though.
                     if (changed)
                     {
-                        update_inventory_item(new_item_id, updates, NULL);
+                        update_inventory_item(new_item_id, updates, nullptr);
                     }
                 },
                 nullptr // failure callback, floater already closed
@@ -3442,7 +3442,7 @@ void LLMaterialEditor::loadAsset()
         {
             // It's a material in object's inventory and we failed to get it because inventory is not up to date.
             // Subscribe for callback and retry at inventoryChanged()
-            registerVOInventoryListener(objectp, NULL); //removes previous listener
+            registerVOInventoryListener(objectp, nullptr); //removes previous listener
 
             if (objectp->isInventoryDirty())
             {

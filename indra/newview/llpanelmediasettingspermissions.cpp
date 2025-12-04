@@ -49,7 +49,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsPermissions::LLPanelMediaSettingsPermissions() :
-    mControls( NULL ),
+    mControls( nullptr ),
     mPermsOwnerInteract( 0 ),
     mPermsOwnerControl( 0 ),
     mPermsGroupName( 0 ),
@@ -165,7 +165,7 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
         { LLPanelContents::PERMS_GROUP_CONTROL_KEY,     self->mPermsGroupControl,   "LLCheckBoxCtrl" },
         { LLPanelContents::PERMS_ANYONE_INTERACT_KEY,   self->mPermsWorldInteract,  "LLCheckBoxCtrl" },
         { LLPanelContents::PERMS_ANYONE_CONTROL_KEY,    self->mPermsWorldControl,   "LLCheckBoxCtrl" },
-        { "", NULL , "" }
+        { "", nullptr , "" }
     };
 
     for( int i = 0; data_set[ i ].key_name.length() > 0; ++i )

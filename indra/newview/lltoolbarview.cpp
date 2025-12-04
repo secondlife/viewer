@@ -46,7 +46,7 @@
 #include "llviewercontrol.h"  // HACK for destinations guide on startup
 #include "llinventorymodel.h" // HACK to disable starter avatars button for NUX
 
-LLToolBarView* gToolBarView = NULL;
+LLToolBarView* gToolBarView = nullptr;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
 
@@ -71,14 +71,14 @@ LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :   LLUICtrl(p),
     mDragStarted(false),
     mShowToolbars(true),
-    mDragToolbarButton(NULL),
-    mDragItem(NULL),
+    mDragToolbarButton(nullptr),
+    mDragItem(nullptr),
     mToolbarsLoaded(false),
-    mBottomToolbarPanel(NULL)
+    mBottomToolbarPanel(nullptr)
 {
     for (S32 i = 0; i < LLToolBarEnums::TOOLBAR_COUNT; i++)
     {
-        mToolbars[i] = NULL;
+        mToolbars[i] = nullptr;
     }
 }
 
@@ -226,7 +226,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
     }
 
     LLXMLNodePtr root;
-    if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
+    if(!LLXMLNode::parseFile(toolbar_file, root, nullptr))
     {
         LL_WARNS() << "Unable to load toolbars from file: " << toolbar_file << LL_ENDL;
         err = true;
@@ -324,7 +324,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
     {
         LLViewerInventoryCategory* my_outfits_cat = gInventory.getCategory(gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS));
         LL_WARNS() << "First login: checking for NUX user." << LL_ENDL;
-        if (my_outfits_cat != NULL && my_outfits_cat->getDescendentCount() > 0)
+        if (my_outfits_cat != nullptr && my_outfits_cat->getDescendentCount() > 0)
         {
             LL_WARNS() << "First login: My Outfits folder is not empty, removing the avatar picker button." << LL_ENDL;
             for (S32 i = LLToolBarEnums::TOOLBAR_FIRST; i <= LLToolBarEnums::TOOLBAR_LAST; i++)
@@ -421,7 +421,7 @@ void LLToolBarView::saveToolbars() const
     {
         const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "toolbars.xml");
         LLFILE *fp = LLFile::fopen(filename, "w");
-        if (fp != NULL)
+        if (fp != nullptr)
         {
             LLXMLNode::writeHeaderToFile(fp);
             output_node->writeToFile(fp);
@@ -470,7 +470,7 @@ void LLToolBarView::onToolBarButtonAdded(LLView* button)
             llassert(incoming);
 
             LLDockControl* dock_control = incoming->getDockControl();
-            if (dock_control->getDock() == NULL)
+            if (dock_control->getDock() == nullptr)
             {
                 incoming->dockToToolbarButton("speak");
             }
@@ -482,7 +482,7 @@ void LLToolBarView::onToolBarButtonAdded(LLView* button)
             llassert(outgoing);
 
             LLDockControl* dock_control = outgoing->getDockControl();
-            if (dock_control->getDock() == NULL)
+            if (dock_control->getDock() == nullptr)
             {
                 outgoing->dockToToolbarButton("speak");
             }
@@ -515,7 +515,7 @@ void LLToolBarView::onToolBarButtonRemoved(LLView* button)
             llassert(incoming);
 
             LLDockControl* dock_control = incoming->getDockControl();
-            dock_control->setDock(NULL);
+            dock_control->setDock(nullptr);
         }
 
         if (outgoing_floater && outgoing_floater->isShown())
@@ -524,7 +524,7 @@ void LLToolBarView::onToolBarButtonRemoved(LLView* button)
             llassert(outgoing);
 
             LLDockControl* dock_control = outgoing->getDockControl();
-            dock_control->setDock(NULL);
+            dock_control->setDock(nullptr);
         }
     }
     else if (button->getName() == "voice")
@@ -629,7 +629,7 @@ bool LLToolBarView::handleDropTool( void* cargo_data, EDragAndDropType cargo_typ
     if (cargo_type == DAD_PERSON)
     {
         // DAD_PERSON means that cargo_data contains an uuid, not an LLInventoryObject
-        resetDragTool(NULL);
+        resetDragTool(nullptr);
         return false;
     }
     bool handled = false;
@@ -648,7 +648,7 @@ bool LLToolBarView::handleDropTool( void* cargo_data, EDragAndDropType cargo_typ
             // Suppress the command from the toolbars (including the one it's dropped in,
             // this will handle move position).
             S32 old_toolbar_loc = gToolBarView->hasCommand(command_id);
-            LLToolBar* old_toolbar = NULL;
+            LLToolBar* old_toolbar = nullptr;
 
             if (old_toolbar_loc != LLToolBarEnums::TOOLBAR_NONE)
             {
@@ -684,7 +684,7 @@ bool LLToolBarView::handleDropTool( void* cargo_data, EDragAndDropType cargo_typ
         }
     }
 
-    resetDragTool(NULL);
+    resetDragTool(nullptr);
     return handled;
 }
 

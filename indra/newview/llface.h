@@ -193,7 +193,7 @@ public:
     S32         getReferenceIndex()         const   { return mReferenceIndex; }
     void        setReferenceIndex(const S32 index)  { mReferenceIndex = index; }
 
-    bool        verify(const U32* indices_array = NULL) const;
+    bool        verify(const U32* indices_array = nullptr) const;
     void        printDebugInfo() const;
 
     void        setGeomIndex(U16 idx);

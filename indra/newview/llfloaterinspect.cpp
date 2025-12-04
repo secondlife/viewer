@@ -43,7 +43,7 @@
 #include "llviewerobject.h"
 #include "lluictrlfactory.h"
 
-//LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
+//LLFloaterInspect* LLFloaterInspect::sInstance = nullptr;
 
 LLFloaterInspect::LLFloaterInspect(const LLSD& key)
   : LLFloater(key),
@@ -61,7 +61,7 @@ bool LLFloaterInspect::postBuild()
     mObjectList = getChild<LLScrollListCtrl>("object_list");
 //  childSetAction("button owner",onClickOwnerProfile, this);
 //  childSetAction("button creator",onClickCreatorProfile, this);
-//  childSetCommitCallback("object_list", onSelectObject, NULL);
+//  childSetCommitCallback("object_list", onSelectObject, nullptr);
 
     refresh();
 

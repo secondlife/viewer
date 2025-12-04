@@ -318,7 +318,7 @@ void LLPanelPermissions::refresh()
 
     //bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->isAttachment();
     //attachment_selected = false;
-    LLViewerObject* objectp = NULL;
+    LLViewerObject* objectp = nullptr;
     if(nodep) objectp = nodep->getObject();
     if(!nodep || !objectp)// || attachment_selected)
     {
@@ -1360,5 +1360,5 @@ LLViewerInventoryItem* LLPanelPermissions::findItem(LLUUID &object_id)
     {
         return gInventory.getItem(object_id);
     }
-    return NULL;
+    return nullptr;
 }

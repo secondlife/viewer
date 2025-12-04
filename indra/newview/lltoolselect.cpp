@@ -199,8 +199,8 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
                 gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(),
                                             "",
                                             &target_rot,
-                                            NULL,
-                                            NULL,
+                                            nullptr,
+                                            nullptr,
                                             MAX_FAR_CLIP /*stop_distance, don't care since we are looking, not moving*/,
                                             gAgentAvatarp->isSitting() ? SELECTION_SITTING_ROTATION_TRESHOLD : SELECTION_ROTATION_TRESHOLD);
             }

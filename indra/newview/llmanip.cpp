@@ -207,7 +207,7 @@ void LLManip::handleDeselect()
 {
     mHighlightedPart = LL_NO_PART;
     mManipPart = LL_NO_PART;
-    mObjectSelection = NULL;
+    mObjectSelection = nullptr;
 }
 
 LLObjectSelectionHandle LLManip::getSelection()

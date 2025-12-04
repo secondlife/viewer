@@ -193,7 +193,7 @@ public:
     // collection calls.
     void setRegion(region_handle_t region_handle);
 
-    // Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
+    // Retrieve current metrics for all visited regions (nullptr region UUID/handle excluded)
     // Uses AssetStats structure seen above
     void getStats(AssetStats& stats, bool compact_output);
 

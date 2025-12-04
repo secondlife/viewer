@@ -168,7 +168,7 @@ public:
     bool isLargeImage() ;
 
     void setParcelMedia(LLViewerMediaTexture* media) {mParcelMedia = media;}
-    bool hasParcelMedia() const { return mParcelMedia != NULL;}
+    bool hasParcelMedia() const { return mParcelMedia != nullptr;}
     LLViewerMediaTexture* getParcelMedia() const { return mParcelMedia;}
 
     /*virtual*/ void updateBindStatsForTester() ;
@@ -558,7 +558,7 @@ protected:
     /*virtual*/ ~LLViewerMediaTexture() ;
 
 public:
-    LLViewerMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = NULL) ;
+    LLViewerMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = nullptr) ;
 
     /*virtual*/ S8 getType() const;
     void reinit(bool usemipmaps = true);
@@ -626,7 +626,7 @@ public:
     //texture pipeline tester
     static LLTexturePipelineTester* sTesterp ;
 
-    //returns NULL if tex is not a LLViewerFetchedTexture nor derived from LLViewerFetchedTexture.
+    //returns nullptr if tex is not a LLViewerFetchedTexture nor derived from LLViewerFetchedTexture.
     static LLViewerFetchedTexture*    staticCastToFetchedTexture(LLTexture* tex, bool report_error = false) ;
 
     //
@@ -637,12 +637,12 @@ public:
     static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id, S32 tex_type);
     static LLViewerMediaTexture*      findMediaTexture(const LLUUID& id) ;
 
-    static LLViewerMediaTexture*      createMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = NULL) ;
+    static LLViewerMediaTexture*      createMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = nullptr) ;
 
     //
     //"get-texture" will create a new texture if the texture does not exist.
     //
-    static LLViewerMediaTexture*      getMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = NULL) ;
+    static LLViewerMediaTexture*      getMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = nullptr) ;
 
     static LLPointer<LLViewerTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true);
     static LLPointer<LLViewerTexture> getLocalTexture(const LLUUID& id, bool usemipmaps, bool generate_gl_tex = true) ;

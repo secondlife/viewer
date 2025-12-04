@@ -102,7 +102,7 @@ void LLDrawable::init(bool new_entry)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
     // mXform
-    mParent = NULL;
+    mParent = nullptr;
     mRenderType = 0;
     mCurrentScale = LLVector3(1,1,1);
     mDistanceWRTCamera = 0.0f;
@@ -111,11 +111,11 @@ void LLDrawable::init(bool new_entry)
     // mFaces
     mRadius = 0.f;
     mGeneration = -1;
-    mSpatialBridge = NULL;
+    mSpatialBridge = nullptr;
 
-    LLViewerOctreeEntry* entry = NULL;
-    LLVOCacheEntry* vo_entry = NULL;
-    if(!new_entry && mVObjp && getRegion() != NULL)
+    LLViewerOctreeEntry* entry = nullptr;
+    LLVOCacheEntry* vo_entry = nullptr;
+    if(!new_entry && mVObjp && getRegion() != nullptr)
     {
         vo_entry = getRegion()->getCacheEntryForOctree(mVObjp->getLocalID());
         if(vo_entry)
@@ -135,7 +135,7 @@ void LLDrawable::init(bool new_entry)
 
         if(vo_entry->getNumOfChildren() > 0)
         {
-            getRegion()->addVisibleChildCacheEntry(vo_entry, NULL); //to load all children.
+            getRegion()->addVisibleChildCacheEntry(vo_entry, nullptr); //to load all children.
         }
 
         llassert(!vo_entry->getGroup()); //not in the object cache octree.
@@ -205,7 +205,7 @@ void LLDrawable::markDead()
     if (mSpatialBridge)
     {
         mSpatialBridge->markDead();
-        mSpatialBridge = NULL;
+        mSpatialBridge = nullptr;
     }
 
     sNumZombieDrawables++;
@@ -224,7 +224,7 @@ LLVOVolume* LLDrawable::getVOVolume() const
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -266,8 +266,8 @@ void LLDrawable::cleanupReferences()
     removeFromOctree();
 
     // Cleanup references to other objects
-    mVObjp = NULL;
-    mParent = NULL;
+    mVObjp = nullptr;
+    mParent = nullptr;
 }
 
 void LLDrawable::removeFromOctree()
@@ -282,7 +282,7 @@ void LLDrawable::removeFromOctree()
     {
         getRegion()->removeActiveCacheEntry((LLVOCacheEntry*)mEntry->getVOCacheEntry(), this);
     }
-    mEntry = NULL;
+    mEntry = nullptr;
 }
 
 void LLDrawable::cleanupDeadDrawables()
@@ -598,7 +598,7 @@ void LLDrawable::makeStatic(bool warning_enabled)
         if (mSpatialBridge)
         {
             mSpatialBridge->markDead();
-            setSpatialBridge(NULL);
+            setSpatialBridge(nullptr);
         }
         updatePartition();
     }
@@ -1161,7 +1161,7 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
     if (cur_groupp != groupp && getVOVolume())
     {
         //NULL out vertex buffer references for volumes on spatial group change to maintain
-        //requirement that every face vertex buffer is either NULL or points to a vertex buffer
+        //requirement that every face vertex buffer is either nullptr or points to a vertex buffer
         //contained by its drawable's spatial group
         for (S32 i = 0; i < getNumFaces(); ++i)
         {
@@ -1172,9 +1172,9 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
         }
     }
 
-    //postcondition: if next group is NULL, previous group must be dead OR NULL OR binIndex must be -1
-    //postcondition: if next group is NOT NULL, binIndex must not be -1
-    //llassert(groupp == NULL ? (cur_groupp == NULL || cur_groupp->isDead()) || (!getEntry() || getEntry()->getBinIndex() == -1) :
+    //postcondition: if next group is nullptr, previous group must be dead OR nullptr OR binIndex must be -1
+    //postcondition: if next group is NOT nullptr, binIndex must not be -1
+    //llassert(groupp == nullptr ? (cur_groupp == nullptr || cur_groupp->isDead()) || (!getEntry() || getEntry()->getBinIndex() == -1) :
     //                      (getEntry() && getEntry()->getBinIndex() != -1));
 
     LLViewerOctreeEntryData::setGroup(groupp);
@@ -1188,7 +1188,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
-    LLSpatialPartition* retval = NULL;
+    LLSpatialPartition* retval = nullptr;
 
     if (!mVObjp ||
         !getVOVolume() ||
@@ -1203,28 +1203,28 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
         {
             U32 partition_type = mSpatialBridge->asPartition()->mPartitionType;
             bool is_hud = mVObjp->isHUDAttachment();
-            bool is_animesh = mVObjp->isAnimatedObject() && mVObjp->getControlAvatar() != NULL;
+            bool is_animesh = mVObjp->isAnimatedObject() && mVObjp->getControlAvatar() != nullptr;
             bool is_attachment = mVObjp->isAttachment() && !is_hud && !is_animesh;
             if ((partition_type == LLViewerRegion::PARTITION_HUD) != is_hud)
             {
                 // Was/became HUD
                 // remove obsolete bridge
                 mSpatialBridge->markDead();
-                setSpatialBridge(NULL);
+                setSpatialBridge(nullptr);
             }
             else if ((partition_type == LLViewerRegion::PARTITION_CONTROL_AV) != is_animesh)
             {
                 // Was/became part of animesh
                 // remove obsolete bridge
                 mSpatialBridge->markDead();
-                setSpatialBridge(NULL);
+                setSpatialBridge(nullptr);
             }
             else if ((partition_type == LLViewerRegion::PARTITION_AVATAR) != is_attachment)
             {
                 // Was/became part of avatar
                 // remove obsolete bridge
                 mSpatialBridge->markDead();
-                setSpatialBridge(NULL);
+                setSpatialBridge(nullptr);
             }
         }
         //must be an active volume
@@ -1262,7 +1262,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
     if (retval && mSpatialBridge.notNull())
     {
         mSpatialBridge->markDead();
-        setSpatialBridge(NULL);
+        setSpatialBridge(nullptr);
     }
 
     return retval;
@@ -1317,7 +1317,7 @@ LLSpatialBridge::~LLSpatialBridge()
 void LLSpatialBridge::destroyTree()
 {
     delete mOctree;
-    mOctree = NULL;
+    mOctree = nullptr;
 }
 
 void LLSpatialBridge::updateSpatialExtents()
@@ -1596,7 +1596,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
-    if (mDrawable == NULL)
+    if (mDrawable == nullptr)
     {
         markDead();
         return;
@@ -1675,7 +1675,7 @@ void LLSpatialBridge::cleanupReferences()
     LLDrawable::cleanupReferences();
     if (mDrawable)
     {
-        mDrawable->setGroup(NULL);
+        mDrawable->setGroup(nullptr);
 
         if (mDrawable->getVObj())
         {
@@ -1687,14 +1687,14 @@ void LLSpatialBridge::cleanupReferences()
                 LLDrawable* drawable = child->mDrawable;
                 if (drawable)
                 {
-                    drawable->setGroup(NULL);
+                    drawable->setGroup(nullptr);
                 }
                 }
             }
 
         LLDrawable* drawablep = mDrawable;
-        mDrawable = NULL;
-        drawablep->setSpatialBridge(NULL);
+        mDrawable = nullptr;
+        drawablep->setSpatialBridge(nullptr);
     }
 }
 

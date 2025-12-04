@@ -62,7 +62,7 @@ LLTeleportHistory::LLTeleportHistory():
     mCurrentItem(-1),
     mRequestedItem(-1),
     mGotInitialUpdate(false),
-    mTeleportHistoryStorage(NULL)
+    mTeleportHistoryStorage(nullptr)
 {
     mTeleportFinishedConn = LLViewerParcelMgr::getInstance()->
         setTeleportFinishedCallback(boost::bind(&LLTeleportHistory::updateCurrentLocation, this, _1));

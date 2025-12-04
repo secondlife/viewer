@@ -107,13 +107,13 @@ LLToast::LLToast(const LLToast::Params& p)
     mCanFade(p.can_fade),
     mCanBeStored(p.can_be_stored),
     mHideBtnEnabled(p.enable_hide_btn),
-    mHideBtn(NULL),
-    mPanel(NULL),
+    mHideBtn(nullptr),
+    mPanel(nullptr),
     mNotification(p.notification),
     mIsHidden(false),
     mHideBtnPressed(false),
     mIsTip(p.is_tip),
-    mWrapperPanel(NULL),
+    mWrapperPanel(nullptr),
     mIsFading(false),
     mIsHovered(false)
 {

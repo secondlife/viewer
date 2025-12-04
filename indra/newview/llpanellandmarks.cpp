@@ -144,12 +144,12 @@ void LLOpenFolderByID::doFolder(LLFolderViewFolder* folder)
 
 LLLandmarksPanel::LLLandmarksPanel()
     :   LLPanelPlacesTab()
-    ,   mLandmarksInventoryPanel(NULL)
-    ,   mCurrentSelectedList(NULL)
-    ,   mGearFolderMenu(NULL)
-    ,   mGearLandmarkMenu(NULL)
-    ,   mSortingMenu(NULL)
-    ,   mAddMenu(NULL)
+    ,   mLandmarksInventoryPanel(nullptr)
+    ,   mCurrentSelectedList(nullptr)
+    ,   mGearFolderMenu(nullptr)
+    ,   mGearLandmarkMenu(nullptr)
+    ,   mSortingMenu(nullptr)
+    ,   mAddMenu(nullptr)
     ,   isLandmarksPanel(true)
 {
     buildFromFile("panel_landmarks.xml");
@@ -157,12 +157,12 @@ LLLandmarksPanel::LLLandmarksPanel()
 
 LLLandmarksPanel::LLLandmarksPanel(bool is_landmark_panel)
     :   LLPanelPlacesTab()
-    ,   mLandmarksInventoryPanel(NULL)
-    ,   mCurrentSelectedList(NULL)
-    ,   mGearFolderMenu(NULL)
-    ,   mGearLandmarkMenu(NULL)
-    ,   mSortingMenu(NULL)
-    ,   mAddMenu(NULL)
+    ,   mLandmarksInventoryPanel(nullptr)
+    ,   mCurrentSelectedList(nullptr)
+    ,   mGearFolderMenu(nullptr)
+    ,   mGearLandmarkMenu(nullptr)
+    ,   mSortingMenu(nullptr)
+    ,   mAddMenu(nullptr)
     ,   isLandmarksPanel(is_landmark_panel)
 {
     if (is_landmark_panel)
@@ -199,7 +199,7 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 // virtual
 void LLLandmarksPanel::onShowOnMap()
 {
-    if (NULL == mCurrentSelectedList)
+    if (nullptr == mCurrentSelectedList)
     {
         LL_WARNS() << "There are no selected list. No actions are performed." << LL_ENDL;
         return;
@@ -240,7 +240,7 @@ bool LLLandmarksPanel::isSingleItemSelected()
 {
     bool result = false;
 
-    if (mCurrentSelectedList != NULL)
+    if (mCurrentSelectedList != nullptr)
     {
         LLFolderView* root_view = mCurrentSelectedList->getRootFolder();
 
@@ -336,7 +336,7 @@ void LLLandmarksPanel::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_call
 
 LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem() const
 {
-    return mCurrentSelectedList ?  mCurrentSelectedList->getRootFolder()->getCurSelectedItem() : NULL;
+    return mCurrentSelectedList ?  mCurrentSelectedList->getRootFolder()->getCurSelectedItem() : nullptr;
 }
 
 LLFolderViewModelItemInventory* LLLandmarksPanel::getCurSelectedViewModelItem() const
@@ -346,7 +346,7 @@ LLFolderViewModelItemInventory* LLLandmarksPanel::getCurSelectedViewModelItem() 
     {
         return  static_cast<LLFolderViewModelItemInventory*>(cur_item->getViewModelItem());
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -534,7 +534,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
     {
         if (item && mCurrentSelectedList == mLandmarksInventoryPanel)
         {
-            LLFolderViewModelItem* folder_bridge = NULL;
+            LLFolderViewModelItem* folder_bridge = nullptr;
 
             if (view_model->getInventoryType()
                     == LLInventoryType::IT_LANDMARK)
@@ -557,14 +557,14 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
         else
         {
             //in case My Landmarks tab is completely empty (thus cannot be determined as being selected)
-            menu_create_inventory_item(mLandmarksInventoryPanel, NULL,  LLSD("category"),
+            menu_create_inventory_item(mLandmarksInventoryPanel, nullptr,  LLSD("category"),
                 gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
         }
     }
     else if ("category_root" == command_name)
     {
         //in case My Landmarks tab is completely empty (thus cannot be determined as being selected)
-        menu_create_inventory_item(mLandmarksInventoryPanel, NULL, LLSD("category"),
+        menu_create_inventory_item(mLandmarksInventoryPanel, nullptr, LLSD("category"),
             gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
     }
 }
@@ -641,7 +641,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
     LLFolderView* root_folder_view = mCurrentSelectedList
         ? mCurrentSelectedList->getRootFolder()
-        : NULL;
+        : nullptr;
 
     bool is_single_selection = root_folder_view && root_folder_view->getSelectedCount() == 1;
 
@@ -866,7 +866,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
     }
     else if (command_name == "move_to_landmarks" || command_name == "move_to_favorites")
     {
-        LLFolderView* root_folder_view = mCurrentSelectedList ? mCurrentSelectedList->getRootFolder() : NULL;
+        LLFolderView* root_folder_view = mCurrentSelectedList ? mCurrentSelectedList->getRootFolder() : nullptr;
         if (root_folder_view)
         {
             LLFolderType::EType folder_type = command_name == "move_to_landmarks" ? LLFolderType::FT_LANDMARK : LLFolderType::FT_FAVORITE;
@@ -898,7 +898,7 @@ void LLLandmarksPanel::onMenuVisibilityChange(LLUICtrl* ctrl, const LLSD& param)
     bool are_any_items_in_trash = false;
     bool are_all_items_in_trash = true;
 
-    LLFolderView* root_folder_view = mCurrentSelectedList ? mCurrentSelectedList->getRootFolder() : NULL;
+    LLFolderView* root_folder_view = mCurrentSelectedList ? mCurrentSelectedList->getRootFolder() : nullptr;
     if(root_folder_view)
     {
         const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -1036,7 +1036,7 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(bool drop, EDragAndDropType carg
                 {
                     LLFolderViewItem* fv_item = mCurrentSelectedList
                         ? mCurrentSelectedList->getItemByID(item->getUUID())
-                        : NULL;
+                        : nullptr;
 
                     if (fv_item)
                     {

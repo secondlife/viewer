@@ -305,7 +305,7 @@ bool LLBlockList::isActionEnabled(const LLSD& userdata)
 
     if ("unblock_item" == command_name)
     {
-        action_enabled = getSelectedItem() != NULL;
+        action_enabled = getSelectedItem() != nullptr;
     }
 
     return action_enabled;

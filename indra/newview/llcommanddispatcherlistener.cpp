@@ -68,7 +68,7 @@ void LLCommandDispatcherListener::dispatch(const LLSD& params) const
         params["params"],
         params["query"],
         "",
-        NULL,
+        nullptr,
         LLCommandHandler::NAV_TYPE_CLICKED,
         trusted_browser);
 }

@@ -62,7 +62,7 @@ bool LLDirPicker::check_local_file_access_enabled()
     if ( ! local_file_system_browsing_enabled )
     {
         mDir.clear();   // Windows
-        mFileName = NULL; // Mac/Linux
+        mFileName = nullptr; // Mac/Linux
         return false;
     }
 
@@ -72,7 +72,7 @@ bool LLDirPicker::check_local_file_access_enabled()
 #if LL_SDL_WINDOW
 
 LLDirPicker::LLDirPicker() :
-    mFileName(NULL),
+    mFileName(nullptr),
     mLocked(false)
 {
     reset();
@@ -168,9 +168,9 @@ bool LLDirPicker::getDirModeless(std::string* filename,
 #elif LL_WINDOWS
 
 LLDirPicker::LLDirPicker() :
-    mFileName(NULL),
+    mFileName(nullptr),
     mLocked(false),
-    pDialog(NULL)
+    pDialog(nullptr)
 {
 }
 
@@ -185,7 +185,7 @@ void LLDirPicker::reset()
     {
         IFileDialog* p_file_dialog = (IFileDialog*)pDialog;
         p_file_dialog->Close(S_FALSE);
-        pDialog = NULL;
+        pDialog = nullptr;
     }
 }
 
@@ -224,10 +224,10 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
             });
     }
 
-    ::OleInitialize(NULL);
+    ::OleInitialize(nullptr);
 
     IFileDialog* p_file_dialog;
-    if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&p_file_dialog))))
+    if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&p_file_dialog))))
     {
         DWORD dwOptions;
         if (SUCCEEDED(p_file_dialog->GetOptions(&dwOptions)))
@@ -241,7 +241,7 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
             IShellItem* psi;
             if (SUCCEEDED(p_file_dialog->GetResult(&psi)))
             {
-                wchar_t* pwstr = NULL;
+                wchar_t* pwstr = nullptr;
                 if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pwstr)))
                 {
                     mDir = ll_convert_wide_to_string(pwstr);
@@ -251,7 +251,7 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
                 psi->Release();
             }
         }
-        pDialog = NULL;
+        pDialog = nullptr;
         p_file_dialog->Release();
     }
 
@@ -283,7 +283,7 @@ std::string LLDirPicker::getDirName()
 #elif LL_DARWIN
 
 LLDirPicker::LLDirPicker() :
-mFileName(NULL),
+mFileName(nullptr),
 mLocked(false)
 {
     mFilePicker = new LLFilePicker();
@@ -324,7 +324,7 @@ std::string LLDirPicker::getDirName()
 #elif LL_LINUX
 
 LLDirPicker::LLDirPicker() :
-    mFileName(NULL),
+    mFileName(nullptr),
     mLocked(false)
 {
     mFilePicker = new LLFilePicker();
@@ -408,7 +408,7 @@ std::string LLDirPicker::getDirName()
 #endif
 
 
-LLMutex* LLDirPickerThread::sMutex = NULL;
+LLMutex* LLDirPickerThread::sMutex = nullptr;
 std::queue<LLDirPickerThread*> LLDirPickerThread::sDeadQ;
 
 void LLDirPickerThread::getFile()
@@ -483,7 +483,7 @@ void LLDirPickerThread::cleanupClass()
     clearDead();
 
     delete sMutex;
-    sMutex = NULL;
+    sMutex = nullptr;
 }
 
 //static
@@ -504,7 +504,7 @@ void LLDirPickerThread::clearDead()
 
 LLDirPickerThread::LLDirPickerThread(const dir_picked_signal_t::slot_type& cb, const std::string &proposed_name)
     : LLThread("dir picker"),
-    mFilePickedSignal(NULL)
+    mFilePickedSignal(nullptr)
 {
     mFilePickedSignal = new dir_picked_signal_t();
     mFilePickedSignal->connect(cb);

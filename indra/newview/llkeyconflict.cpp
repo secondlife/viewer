@@ -576,7 +576,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
             if (!output_node->isNull())
             {
                 LLFILE *fp = LLFile::fopen(filename, "w");
-                if (fp != NULL)
+                if (fp != nullptr)
                 {
                     LLXMLNode::writeHeaderToFile(fp);
                     output_node->writeToFile(fp);

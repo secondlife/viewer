@@ -124,7 +124,7 @@ void LLPanelDirBrowser::draw()
                     childSetFocus("results", true);
                 }
                 // Request specific data from the server
-                onCommitList(NULL, this);
+                onCommitList(nullptr, this);
             }
         }
         mDidAutoSelect = true;
@@ -247,7 +247,7 @@ void LLPanelDirBrowser::selectByUUID(const LLUUID& id)
         // Don't bother looking for this in the draw loop.
         mWantSelectID.setNull();
         // Make sure UI updates.
-        onCommitList(NULL, this);
+        onCommitList(nullptr, this);
     }
     else
     {
@@ -396,7 +396,7 @@ void LLPanelDirBrowser::processDirPeopleReply(LLMessageSystem *msg, void**)
 
     msg->getUUIDFast(_PREHASH_QueryData,_PREHASH_QueryID, query_id);
 
-    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
+    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)nullptr);
     if (!self)
     {
         // data from an old query
@@ -490,7 +490,7 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
         }
     }
 
-    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
+    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)nullptr);
     if (!self)
     {
         // data from an old query
@@ -566,7 +566,7 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
     msg->getUUID("AgentData", "AgentID", agent_id);
     msg->getUUID("QueryData", "QueryID", query_id );
 
-    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
+    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)nullptr);
     if (!self)
     {
         return;
@@ -709,7 +709,7 @@ void LLPanelDirBrowser::processDirGroupsReply(LLMessageSystem* msg, void**)
 
     msg->getUUIDFast(_PREHASH_QueryData,_PREHASH_QueryID, query_id );
 
-    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
+    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)nullptr);
     if (!self)
     {
         return;
@@ -796,7 +796,7 @@ void LLPanelDirBrowser::processDirClassifiedReply(LLMessageSystem* msg, void**)
     }
 
     msg->getUUID("QueryData", "QueryID", query_id);
-    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
+    LLPanelDirBrowser* self = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)nullptr);
     if (!self)
     {
         return;
@@ -874,7 +874,7 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
     msg->getUUID("AgentData", "AgentID", agent_id);
     msg->getUUID("QueryData", "QueryID", query_id );
 
-    LLPanelDirBrowser* browser = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)NULL);
+    LLPanelDirBrowser* browser = get_if_there(gDirBrowserInstances, query_id, (LLPanelDirBrowser*)nullptr);
     if (!browser)
     {
         // data from an old query
@@ -1140,7 +1140,7 @@ void LLPanelDirBrowser::onVisibilityChange(bool new_visibility)
 {
     if (new_visibility)
     {
-        onCommitList(NULL, this);
+        onCommitList(nullptr, this);
     }
     LLPanel::onVisibilityChange(new_visibility);
 }

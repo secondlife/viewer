@@ -290,12 +290,12 @@ LLPointer<LLSpeaker> LLSpeakerMgr::setSpeaker(const LLUUID& id, const std::strin
 {
     if (!mVoiceChannel)
     {
-        return NULL;
+        return nullptr;
     }
     LLUUID session_id = getSessionID();
     if (id.isNull() || (id == session_id))
     {
-        return NULL;
+        return nullptr;
     }
 
     LLPointer<LLSpeaker> speakerp;
@@ -498,7 +498,7 @@ void LLSpeakerMgr::updateSpeakerList()
     }
     else if (mVoiceChannel)
     {
-        // If not, check if the list is empty, except if it's Nearby Chat (session_id NULL).
+        // If not, check if the list is empty, except if it's Nearby Chat (session_id nullptr).
         LLUUID session_id = getSessionID();
         if (!session_id.isNull() && !mSpeakerListUpdated)
         {
@@ -599,11 +599,11 @@ LLPointer<LLSpeaker> LLSpeakerMgr::findSpeaker(const LLUUID& speaker_id)
 {
     //In some conditions map causes crash if it is empty(Windows only), adding check (EK)
     if (mSpeakers.size() == 0)
-        return NULL;
+        return nullptr;
     speaker_map_t::iterator found_it = mSpeakers.find(speaker_id);
     if (found_it == mSpeakers.end())
     {
-        return NULL;
+        return nullptr;
     }
     return found_it->second;
 }
@@ -655,7 +655,7 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
 
 bool LLSpeakerMgr::isVoiceActive()
 {
-    // mVoiceChannel = NULL means current voice channel, whatever it is
+    // mVoiceChannel = nullptr means current voice channel, whatever it is
     return LLVoiceClient::getInstance()->voiceEnabled() && mVoiceChannel && mVoiceChannel->isActive();
 }
 
@@ -964,7 +964,7 @@ void LLIMSpeakerMgr::forceVoiceModeratedMode(bool should_be_muted)
 // LLActiveSpeakerMgr
 //
 
-LLActiveSpeakerMgr::LLActiveSpeakerMgr() : LLSpeakerMgr(NULL)
+LLActiveSpeakerMgr::LLActiveSpeakerMgr() : LLSpeakerMgr(nullptr)
 {
 }
 

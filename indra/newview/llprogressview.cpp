@@ -53,7 +53,7 @@
 #include "lluictrlfactory.h"
 #include "llpanellogin.h"
 
-LLProgressView* LLProgressView::sInstance = NULL;
+LLProgressView* LLProgressView::sInstance = nullptr;
 
 S32 gStartImageWidth = 1;
 S32 gStartImageHeight = 1;
@@ -65,7 +65,7 @@ static LLPanelInjector<LLProgressView> r("progress_view");
 LLProgressView::LLProgressView()
 :   LLPanel(),
     mPercentDone( 0.f ),
-    mMediaCtrl( NULL ),
+    mMediaCtrl( nullptr ),
     mMouseDownInActiveArea( false ),
     mUpdateEvents("LLProgressView"),
     mFadeToWorldTimer(),
@@ -93,7 +93,7 @@ bool LLProgressView::postBuild()
     LLViewerMedia::getInstance()->setOnlyAudibleMediaTextureID(mMediaCtrl->getTextureID());
 
     mCancelBtn = getChild<LLButton>("cancel_btn");
-    mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
+    mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, nullptr );
 
     mLayoutPanel4 = getChild<LLView>("panel4");
     mLayoutPanel4RectInitial = mLayoutPanel4->getRect();
@@ -122,12 +122,12 @@ LLProgressView::~LLProgressView()
 
     gFocusMgr.releaseFocusIfNeeded( this );
 
-    sInstance = NULL;
+    sInstance = nullptr;
 }
 
 bool LLProgressView::handleHover(S32 x, S32 y, MASK mask)
 {
-    if( childrenHandleHover( x, y, mask ) == NULL )
+    if( childrenHandleHover( x, y, mask ) == nullptr )
     {
         gViewerWindow->setCursor(UI_CURSOR_WAIT);
     }
@@ -334,7 +334,7 @@ void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
 {
     if (gStartTexture.notNull())
     {
-        gStartTexture = NULL;
+        gStartTexture = nullptr;
         LL_INFOS("AppInit") << "re-initializing start screen" << LL_ENDL;
     }
 
@@ -376,7 +376,7 @@ void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
     else if (!start_image_frmted->load(temp_str))
     {
         LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
-        gStartTexture = NULL;
+        gStartTexture = nullptr;
     }
     else
     {
@@ -387,7 +387,7 @@ void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
         if (!start_image_frmted->decode(raw, 0.0f))
         {
             LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
-            gStartTexture = NULL;
+            gStartTexture = nullptr;
         }
         else
         {
@@ -412,7 +412,7 @@ void LLProgressView::initTextures(S32 location_id, bool is_in_production)
 
 void LLProgressView::releaseTextures()
 {
-    gStartTexture = NULL;
+    gStartTexture = nullptr;
 }
 
 void LLProgressView::setCancelButtonVisible(bool b, const std::string& label)
@@ -446,7 +446,7 @@ void LLProgressView::onCancelButtonClicked(void*)
 void LLProgressView::onClickMessage(void* data)
 {
     LLProgressView* viewp = (LLProgressView*)data;
-    if ( viewp != NULL && ! viewp->mMessage.empty() )
+    if ( viewp != nullptr && ! viewp->mMessage.empty() )
     {
         std::string url_to_open( "" );
 

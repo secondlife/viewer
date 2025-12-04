@@ -147,7 +147,7 @@ bool LLURLDispatcherImpl::dispatch(const LLSLURL& slurl,
 bool LLURLDispatcherImpl::dispatchRightClick(const LLSLURL& slurl)
 {
     const bool right_click = true;
-    LLMediaCtrl* web = NULL;
+    LLMediaCtrl* web = nullptr;
     const bool trusted_browser = false;
     return dispatchCore(slurl, LLCommandHandler::NAV_TYPE_CLICKED, right_click, web, trusted_browser);
 }
@@ -418,7 +418,7 @@ bool LLURLDispatcher::dispatchFromTextEditor(const std::string& slurl, bool trus
     // click on it.
     // *TODO: Make this trust model more refined.  JC
 
-    LLMediaCtrl* web = NULL;
+    LLMediaCtrl* web = nullptr;
     return LLURLDispatcherImpl::dispatch(LLSLURL(slurl), LLCommandHandler::NAV_TYPE_CLICKED, web, trusted_content);
 }
 

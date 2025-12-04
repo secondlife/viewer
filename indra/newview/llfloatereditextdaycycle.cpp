@@ -221,7 +221,7 @@ bool LLFloaterEditExtDayCycle::postBuild()
     mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BTN_SAVE, BTN_FLYOUT, XML_FLYOUTMENU_FILE, false);
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD&) { onButtonApply(ctrl); });
 
-    mNameEditor->setKeystrokeCallback([this](LLLineEditor*, void*) { onNameKeystroke(); }, NULL);
+    mNameEditor->setKeystrokeCallback([this](LLLineEditor*, void*) { onNameKeystroke(); }, nullptr);
     mCancelButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onClickCloseBtn(); });
     mTimeSlider->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTimeSliderCallback(); });
     mAddFrameButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAddFrame(); });
@@ -1111,12 +1111,12 @@ void LLFloaterEditExtDayCycle::clearTabs()
     // Note: If this doesn't look good, init panels with default settings. It might be better looking
     if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
     {
-        const LLSettingsWaterPtr_t p_water = LLSettingsWaterPtr_t(NULL);
+        const LLSettingsWaterPtr_t p_water = LLSettingsWaterPtr_t(nullptr);
         updateWaterTabs(p_water);
     }
     else
     {
-        const LLSettingsSkyPtr_t p_sky = LLSettingsSkyPtr_t(NULL);
+        const LLSettingsSkyPtr_t p_sky = LLSettingsSkyPtr_t(nullptr);
         updateSkyTabs(p_sky);
     }
     updateButtons();

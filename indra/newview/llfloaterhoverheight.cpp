@@ -63,7 +63,7 @@ bool LLFloaterHoverHeight::postBuild()
     sldrCtrl->setMaxValue(MAX_HOVER_Z);
     sldrCtrl->setSliderMouseUpCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
     sldrCtrl->setSliderEditorCommitCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
-    childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, NULL);
+    childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, nullptr);
 
     // Initialize slider from pref setting.
     syncFromPreferenceSetting(this);

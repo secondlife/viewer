@@ -68,7 +68,7 @@ LLNotificationChannelPanel::~LLNotificationChannelPanel()
         LLScrollListItem* item = *data_itor;
         LLNotification* notification = (LLNotification*)item->getUserdata();
         delete notification;
-        notification = NULL;
+        notification = nullptr;
     }
 }
 

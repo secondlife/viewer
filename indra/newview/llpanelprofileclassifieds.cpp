@@ -580,8 +580,8 @@ LLPanelProfileClassified::LLPanelProfileClassified()
  , mMapClicksNew(0)
  , mProfileClicksNew(0)
  , mPriceForListing(0)
- , mSnapshotCtrl(NULL)
- , mPublishFloater(NULL)
+ , mSnapshotCtrl(nullptr)
+ , mPublishFloater(nullptr)
  , mIsNew(false)
  , mIsNewWithErrors(false)
  , mCanClose(false)
@@ -594,7 +594,7 @@ LLPanelProfileClassified::LLPanelProfileClassified()
 LLPanelProfileClassified::~LLPanelProfileClassified()
 {
     sAllPanels.remove(this);
-    gGenericDispatcher.addHandler("classifiedclickthrough", NULL); // deregister our handler
+    gGenericDispatcher.addHandler("classifiedclickthrough", nullptr); // deregister our handler
 }
 
 //static
@@ -669,7 +669,7 @@ bool LLPanelProfileClassified::postBuild()
         mCategoryCombo->add(LLTrans::getString(iter->second));
     }
 
-    mClassifiedNameEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onTitleChange, this), NULL);
+    mClassifiedNameEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onTitleChange, this), nullptr);
     mClassifiedDescEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mCategoryCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mContentTypeCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));

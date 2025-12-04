@@ -159,9 +159,9 @@ void LLAgentWearables::dump()
         for (U32 j=0; j<count; j++)
         {
             LLViewerWearable* wearable = getViewerWearable((LLWearableType::EType)i,j);
-            if (wearable == NULL)
+            if (wearable == nullptr)
             {
-                LL_INFOS() << "    " << j << " NULL wearable" << LL_ENDL;
+                LL_INFOS() << "    " << j << " nullptr wearable" << LL_ENDL;
             }
             LL_INFOS() << "    " << j << " Name " << wearable->getName()
                     << " description " << wearable->getDescription() << LL_ENDL;
@@ -356,7 +356,7 @@ void LLAgentWearables::saveWearable(const LLWearableType::EType type, const U32 
             U32 todo = AddWearableToAgentInventoryCallback::CALL_NONE;
             LLPointer<LLInventoryCallback> cb =
                 new AddWearableToAgentInventoryCallback(
-                    LLPointer<LLRefCount>(NULL),
+                    LLPointer<LLRefCount>(nullptr),
                     type,
                     index,
                     new_wearable,
@@ -401,7 +401,7 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 
     LLPointer<LLInventoryCallback> cb =
         new AddWearableToAgentInventoryCallback(
-            LLPointer<LLRefCount>(NULL),
+            LLPointer<LLRefCount>(nullptr),
             type,
             index,
             new_wearable,
@@ -530,7 +530,7 @@ bool LLAgentWearables::isWearableCopyable(LLWearableType::EType type, U32 index)
 LLInventoryItem* LLAgentWearables::getWearableInventoryItem(LLWearableType::EType type, U32 index)
 {
     LLUUID item_id = getWearableItemID(type,index);
-    LLInventoryItem* item = NULL;
+    LLInventoryItem* item = nullptr;
     if (item_id.notNull())
     {
         item = gInventory.getItem(item_id);
@@ -573,7 +573,7 @@ const LLViewerWearable* LLAgentWearables::getWearableFromItemID(const LLUUID& it
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 LLViewerWearable* LLAgentWearables::getWearableFromItemID(const LLUUID& item_id)
@@ -590,7 +590,7 @@ LLViewerWearable* LLAgentWearables::getWearableFromItemID(const LLUUID& item_id)
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 LLViewerWearable*   LLAgentWearables::getWearableFromAssetID(const LLUUID& asset_id)
@@ -606,7 +606,7 @@ LLViewerWearable*   LLAgentWearables::getWearableFromAssetID(const LLUUID& asset
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 LLViewerWearable* LLAgentWearables::getViewerWearable(const LLWearableType::EType type, U32 index /*= 0*/)
@@ -699,7 +699,7 @@ class OnWearableItemCreatedCB: public LLInventoryCallback
 {
 public:
     OnWearableItemCreatedCB():
-        mWearablesAwaitingItems(LLWearableType::WT_COUNT,NULL)
+        mWearablesAwaitingItems(LLWearableType::WT_COUNT, nullptr)
     {
         LL_INFOS() << "created callback" << LL_ENDL;
     }
@@ -1551,7 +1551,7 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
     {
         cb = new LLBoostFuncInventoryCallback(wear_cb);
     }
-    if (created_cb != NULL)
+    if (created_cb != nullptr)
     {
         cb->addOnFireFunc(created_cb);
     }

@@ -218,7 +218,7 @@ void LLConversationLogList::rebuildList()
     }
 
     // try to restore selection of item
-    if (NULL != selected_conversationp)
+    if (nullptr != selected_conversationp)
     {
         selectItemByUUID(selected_conversationp->getSessionID());
     }
@@ -247,7 +247,7 @@ void LLConversationLogList::onCustomAction(const LLSD& userdata)
 {
     const LLConversation * selected_conversationp = getSelectedConversation();
 
-    if (NULL == selected_conversationp)
+    if (nullptr == selected_conversationp)
     {
         return;
     }
@@ -357,7 +357,7 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 {
     const LLConversation * selected_conversationp = getSelectedConversation();
 
-    if (NULL == selected_conversationp || numSelected() > 1)
+    if (nullptr == selected_conversationp || numSelected() > 1)
     {
         return false;
     }
@@ -412,7 +412,7 @@ bool LLConversationLogList::isActionChecked(const LLSD& userdata)
 {
     const LLConversation * selected_conversationp = getSelectedConversation();
 
-    if (NULL == selected_conversationp)
+    if (nullptr == selected_conversationp)
     {
         return false;
     }
@@ -467,7 +467,7 @@ const LLConversation* LLConversationLogList::getSelectedConversation()
         return panel->getConversation();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 LLConversationLogListItem* LLConversationLogList::getConversationLogListItem(const LLUUID& session_id)
@@ -485,7 +485,7 @@ LLConversationLogListItem* LLConversationLogList::getConversationLogListItem(con
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 LLConversationLogList::ESortOrder LLConversationLogList::getSortOrder()

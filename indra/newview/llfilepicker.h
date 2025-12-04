@@ -36,6 +36,7 @@
 #include "stdtypes.h"
 
 #include <vector>
+#include <string>
 
 #if LL_DARWIN
 #include <Carbon/Carbon.h>
@@ -44,10 +45,9 @@
 #undef verify
 #undef check
 #undef require
+#endif
 
 #include "llstring.h"
-
-#endif
 
 // Need commdlg.h for OPENFILENAMEA
 #ifdef LL_WINDOWS
@@ -119,7 +119,7 @@ public:
     const std::string getFirstFile();
 
     // getNextFile() increments the internal representation and
-    // returns the next file specified by the user. Returns NULL when
+    // returns the next file specified by the user. Returns nullptr when
     // no more files are left. Further calls to getNextFile() are
     // undefined.
     const std::string getNextFile();

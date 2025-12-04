@@ -36,7 +36,7 @@ class LLFloaterGroupBulkBan : public LLFloater
 public:
     virtual ~LLFloaterGroupBulkBan();
 
-    static void showForGroup(const LLUUID& group_id, uuid_vec_t* agent_ids = NULL);
+    static void showForGroup(const LLUUID& group_id, uuid_vec_t* agent_ids = nullptr);
 
 protected:
     LLFloaterGroupBulkBan(const LLUUID& group_id = LLUUID::null);

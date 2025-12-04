@@ -392,7 +392,7 @@ void set_flags_and_update_appearance()
 // true when all initialization done.
 bool idle_startup()
 {
-    if (gViewerWindow == NULL)
+    if (gViewerWindow == nullptr)
     {
         // We expect window to be initialized
         LL_WARNS_ONCE() << "gViewerWindow is not initialized" << LL_ENDL;
@@ -546,7 +546,7 @@ bool idle_startup()
         std::string xml_file = LLUI::locateSkin("xui_version.xml");
         LLXMLNodePtr root;
         bool xml_ok = false;
-        if (LLXMLNode::parseFile(xml_file, root, NULL))
+        if (LLXMLNode::parseFile(xml_file, root, nullptr))
         {
             if( (root->hasName("xui_version") ) )
             {
@@ -586,7 +586,7 @@ bool idle_startup()
 
         std::string message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message_template.msg");
 
-        LLFILE* found_template = NULL;
+        LLFILE* found_template = nullptr;
         found_template = LLFile::fopen(message_template_path, "r");     /* Flawfinder: ignore */
 
         #if LL_WINDOWS
@@ -626,7 +626,7 @@ bool idle_startup()
             const F32 circuit_heartbeat_interval = 5;
             const F32 circuit_timeout = 100;
 
-            const LLUseCircuitCodeResponder* responder = NULL;
+            const LLUseCircuitCodeResponder* responder = nullptr;
             bool failure_is_fatal = true;
 
             if(!start_messaging_system(
@@ -677,20 +677,20 @@ bool idle_startup()
             LLMessageSystem* msg = gMessageSystem;
             msg->setExceptionFunc(MX_UNREGISTERED_MESSAGE,
                                   invalid_message_callback,
-                                  NULL);
+                                  nullptr);
             msg->setExceptionFunc(MX_PACKET_TOO_SHORT,
                                   invalid_message_callback,
-                                  NULL);
+                                  nullptr);
 
             // running off end of a packet is now valid in the case
             // when a reader has a newer message template than
             // the sender
             /*msg->setExceptionFunc(MX_RAN_OFF_END_OF_PACKET,
                                   invalid_message_callback,
-                                  NULL);*/
+                                  nullptr);*/
             msg->setExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE,
                                   invalid_message_callback,
-                                  NULL);
+                                  nullptr);
 
             if (gSavedSettings.getBOOL("LogMessages"))
             {
@@ -726,11 +726,11 @@ bool idle_startup()
         if (false == gSavedSettings.getBOOL("NoAudio"))
         {
             delete gAudiop;
-            gAudiop = NULL;
+            gAudiop = nullptr;
 
 #ifdef LL_OPENAL
 #if !LL_WINDOWS
-            if (NULL == getenv("LL_BAD_OPENAL_DRIVER"))
+            if (nullptr == getenv("LL_BAD_OPENAL_DRIVER"))
 #endif // !LL_WINDOWS
             {
                 gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
@@ -744,7 +744,7 @@ bool idle_startup()
                 // when window is minimized. JC
                 void* window_handle = (HWND)gViewerWindow->getPlatformWindow();
 #else
-                void* window_handle = NULL;
+                void* window_handle = nullptr;
 #endif
                 if (gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle()))
                 {
@@ -757,7 +757,7 @@ bool idle_startup()
                 {
                     LL_WARNS("AppInit") << "Unable to initialize audio engine" << LL_ENDL;
                     delete gAudiop;
-                    gAudiop = NULL;
+                    gAudiop = nullptr;
                 }
             }
         }
@@ -848,7 +848,7 @@ bool idle_startup()
 
         // Login screen needs menus for preferences, but we can enter
         // this startup phase more than once.
-        if (gLoginMenuBarView == NULL)
+        if (gLoginMenuBarView == nullptr)
         {
             LL_DEBUGS("AppInit") << "initializing menu bar" << LL_ENDL;
             initialize_spellcheck_menu();
@@ -914,7 +914,7 @@ bool idle_startup()
 #ifdef _WIN32
         LL_DEBUGS("AppInit") << "Processing PeekMessage" << LL_ENDL;
         MSG msg;
-        while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
+        while( PeekMessage( &msg, /*All hWnds owned by this thread */ nullptr, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
         {
         }
         LL_DEBUGS("AppInit") << "PeekMessage processed" << LL_ENDL;
@@ -1550,7 +1550,7 @@ bool idle_startup()
         update_texture_fetch();
         do_startup_frame();
 
-        if ( gViewerWindow != NULL)
+        if ( gViewerWindow != nullptr)
         {   // This isn't the first logon attempt, so show the UI
             gViewerWindow->setNormalControlsVisible( true );
         }
@@ -1616,8 +1616,8 @@ bool idle_startup()
         // *Note: this is where gWorldMap used to be initialized.
 
         // register null callbacks for audio until the audio system is initialized
-        gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, NULL);
-        gMessageSystem->setHandlerFuncFast(_PREHASH_AttachedSound, null_message_callback, NULL);
+        gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, nullptr);
+        gMessageSystem->setHandlerFuncFast(_PREHASH_AttachedSound, null_message_callback, nullptr);
         do_startup_frame();
 
         //reset statistics
@@ -1715,7 +1715,7 @@ bool idle_startup()
             false,
             (F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
             use_circuit_callback,
-            NULL);
+            nullptr);
 
         timeout.reset();
         do_startup_frame();
@@ -2468,7 +2468,7 @@ bool idle_startup()
         LL_INFOS("AppInit") << "Done first audio_update_volume." << LL_ENDL;
 
         // reset keyboard focus to sane state of pointing at world
-        gFocusMgr.setKeyboardFocus(NULL);
+        gFocusMgr.setKeyboardFocus(nullptr);
 
         LLAppViewer::instance()->handleLoginComplete();
 
@@ -2476,7 +2476,7 @@ bool idle_startup()
 
         do_startup_frame();
 
-        llassert(LLPathfindingManager::getInstance() != NULL);
+        llassert(LLPathfindingManager::getInstance() != nullptr);
         LLPathfindingManager::getInstance()->initSystem();
 
         gAgentAvatarp->sendHoverHeight();
@@ -2534,7 +2534,7 @@ void login_show()
         gToolBarView->setVisible(false);
     }
 
-    LLPanelLogin::show( gViewerWindow->getWindowRectScaled(), login_callback, NULL );
+    LLPanelLogin::show( gViewerWindow->getWindowRectScaled(), login_callback, nullptr );
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
@@ -2764,18 +2764,18 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFunc("RegionInfo", LLViewerRegion::processRegionInfo);
 
     msg->setHandlerFuncFast(_PREHASH_ChatFromSimulator,     process_chat_from_simulator);
-    msg->setHandlerFuncFast(_PREHASH_KillObject,                process_kill_object,    NULL);
-    msg->setHandlerFuncFast(_PREHASH_SimulatorViewerTimeMessage,    process_time_synch,     NULL);
+    msg->setHandlerFuncFast(_PREHASH_KillObject,                process_kill_object,    nullptr);
+    msg->setHandlerFuncFast(_PREHASH_SimulatorViewerTimeMessage,    process_time_synch,     nullptr);
     msg->setHandlerFuncFast(_PREHASH_EnableSimulator,           process_enable_simulator);
     msg->setHandlerFuncFast(_PREHASH_DisableSimulator,          process_disable_simulator);
-    msg->setHandlerFuncFast(_PREHASH_KickUser,                  process_kick_user,      NULL);
+    msg->setHandlerFuncFast(_PREHASH_KickUser,                  process_kick_user,      nullptr);
 
     msg->setHandlerFunc("CrossedRegion", process_crossed_region);
     msg->setHandlerFuncFast(_PREHASH_TeleportFinish, process_teleport_finish);
 
     msg->setHandlerFuncFast(_PREHASH_AlertMessage,             process_alert_message);
     msg->setHandlerFunc("AgentAlertMessage", process_agent_alert_message);
-    msg->setHandlerFuncFast(_PREHASH_MeanCollisionAlert,             process_mean_collision_alert_message,  NULL);
+    msg->setHandlerFuncFast(_PREHASH_MeanCollisionAlert,             process_mean_collision_alert_message,  nullptr);
     msg->setHandlerFunc("ViewerFrozenMessage",             process_frozen_message);
 
     msg->setHandlerFuncFast(_PREHASH_NameValuePair,         process_name_value);
@@ -2790,14 +2790,14 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
     msg->setHandlerFuncFast(_PREHASH_ImprovedInstantMessage,    process_improved_im);
     msg->setHandlerFuncFast(_PREHASH_ScriptQuestion,            process_script_question);
-    msg->setHandlerFuncFast(_PREHASH_ObjectProperties,          LLSelectMgr::processObjectProperties, NULL);
-    msg->setHandlerFuncFast(_PREHASH_ObjectPropertiesFamily,    LLSelectMgr::processObjectPropertiesFamily, NULL);
+    msg->setHandlerFuncFast(_PREHASH_ObjectProperties,          LLSelectMgr::processObjectProperties, nullptr);
+    msg->setHandlerFuncFast(_PREHASH_ObjectPropertiesFamily,    LLSelectMgr::processObjectPropertiesFamily, nullptr);
     msg->setHandlerFunc("ForceObjectSelect", LLSelectMgr::processForceObjectSelect);
 
-    msg->setHandlerFuncFast(_PREHASH_MoneyBalanceReply,     process_money_balance_reply,    NULL);
-    msg->setHandlerFuncFast(_PREHASH_CoarseLocationUpdate,      LLWorld::processCoarseUpdate, NULL);
-    msg->setHandlerFuncFast(_PREHASH_ReplyTaskInventory,        LLViewerObject::processTaskInv, NULL);
-    msg->setHandlerFuncFast(_PREHASH_DerezContainer,            process_derez_container, NULL);
+    msg->setHandlerFuncFast(_PREHASH_MoneyBalanceReply,     process_money_balance_reply,    nullptr);
+    msg->setHandlerFuncFast(_PREHASH_CoarseLocationUpdate,      LLWorld::processCoarseUpdate, nullptr);
+    msg->setHandlerFuncFast(_PREHASH_ReplyTaskInventory,        LLViewerObject::processTaskInv, nullptr);
+    msg->setHandlerFuncFast(_PREHASH_DerezContainer,            process_derez_container, nullptr);
     msg->setHandlerFuncFast(_PREHASH_ScriptRunningReply,
                         &LLLiveLSLEditor::processScriptRunningReply);
 
@@ -2870,14 +2870,14 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFuncFast(_PREHASH_UserInfoReply,
         process_user_info_reply);
 
-    msg->setHandlerFunc("RegionHandshake", process_region_handshake, NULL);
+    msg->setHandlerFunc("RegionHandshake", process_region_handshake, nullptr);
 
     msg->setHandlerFunc("TeleportStart", process_teleport_start );
     msg->setHandlerFunc("TeleportProgress", process_teleport_progress);
-    msg->setHandlerFunc("TeleportFailed", process_teleport_failed, NULL);
-    msg->setHandlerFunc("TeleportLocal", process_teleport_local, NULL);
+    msg->setHandlerFunc("TeleportFailed", process_teleport_failed, nullptr);
+    msg->setHandlerFunc("TeleportLocal", process_teleport_local, nullptr);
 
-    msg->setHandlerFunc("ImageNotInDatabase", LLViewerTextureList::processImageNotInDatabase, NULL);
+    msg->setHandlerFunc("ImageNotInDatabase", LLViewerTextureList::processImageNotInDatabase, nullptr);
 
     msg->setHandlerFuncFast(_PREHASH_GroupMembersReply,
                         LLGroupMgr::processGroupMembersReply);
@@ -3085,7 +3085,7 @@ std::string LLStartUp::getUserId()
 void release_start_screen()
 {
     LL_DEBUGS("AppInit") << "Releasing bitmap..." << LL_ENDL;
-    gStartTexture = NULL;
+    gStartTexture = nullptr;
 }
 
 
@@ -3239,7 +3239,7 @@ void LLStartUp::initExperiences()
 void LLStartUp::cleanupNameCache()
 {
     delete gCacheName;
-    gCacheName = NULL;
+    gCacheName = nullptr;
 }
 
 bool LLStartUp::dispatchURL()
@@ -3265,7 +3265,7 @@ bool LLStartUp::dispatchURL()
             || (dy*dy > SLOP*SLOP) )
         {
             LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), LLCommandHandler::NAV_TYPE_CLICKED,
-                          NULL, false);
+                          nullptr, false);
         }
         return true;
     }
@@ -3760,13 +3760,13 @@ bool process_login_success_response()
     text = response["circuit_code"].asString();
     if(!text.empty())
     {
-        gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), NULL, 10);
+        gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), nullptr, 10);
     }
     std::string sim_ip_str = response["sim_ip"];
     std::string sim_port_str = response["sim_port"];
     if(!sim_ip_str.empty() && !sim_port_str.empty())
     {
-        U32 sim_port = strtoul(sim_port_str.c_str(), NULL, 10);
+        U32 sim_port = strtoul(sim_port_str.c_str(), nullptr, 10);
         gFirstSim.set(sim_ip_str, sim_port);
         if (gFirstSim.isOk())
         {
@@ -3777,8 +3777,8 @@ bool process_login_success_response()
     std::string region_y_str = response["region_y"];
     if(!region_x_str.empty() && !region_y_str.empty())
     {
-        U32 region_x = strtoul(region_x_str.c_str(), NULL, 10);
-        U32 region_y = strtoul(region_y_str.c_str(), NULL, 10);
+        U32 region_x = strtoul(region_x_str.c_str(), nullptr, 10);
+        U32 region_y = strtoul(region_y_str.c_str(), nullptr, 10);
         gFirstSimHandle = to_region_handle(region_x, region_y);
     }
 
@@ -3797,10 +3797,10 @@ bool process_login_success_response()
     text = response["seconds_since_epoch"].asString();
     if(!text.empty())
     {
-        U32 server_utc_time = strtoul(text.c_str(), NULL, 10);
+        U32 server_utc_time = strtoul(text.c_str(), nullptr, 10);
         if(server_utc_time)
         {
-            time_t now = time(NULL);
+            time_t now = time(nullptr);
             gUTCOffset = (S32)(server_utc_time - now);
 
             // Print server timestamp

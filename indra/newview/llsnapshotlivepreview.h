@@ -112,7 +112,7 @@ public:
     void setThumbnailPlaceholderRect(const LLRect& rect) {mThumbnailPlaceholderRect = rect; }
     bool setThumbnailImageSize() ;
     void generateThumbnailImage(bool force_update = false) ;
-    void resetThumbnailImage() { mThumbnailImage = NULL ; }
+    void resetThumbnailImage() { mThumbnailImage = nullptr ; }
     void drawPreviewRect(S32 offset_x, S32 offset_y, LLColor4 alpha_color = LLColor4(0.5f, 0.5f, 0.5f, 0.8f));
     void prepareFreezeFrame();
 

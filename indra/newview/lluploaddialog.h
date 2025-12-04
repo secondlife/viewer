@@ -37,7 +37,7 @@ public:
     static LLUploadDialog*  modalUploadDialog(const std::string& msg);      // Message to display
     static void             modalUploadFinished();      // Message to display
 
-    static bool             modalUploadIsFinished() { return (sDialog == NULL); }
+    static bool             modalUploadIsFinished() { return (sDialog == nullptr); }
 
     void setMessage( const std::string& msg );
 

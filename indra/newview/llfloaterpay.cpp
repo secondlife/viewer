@@ -141,7 +141,7 @@ LLFloaterPay::~LLFloaterPay()
     std::vector<give_money_ptr>::iterator iter;
     for (iter = mCallbackData.begin(); iter != mCallbackData.end(); ++iter)
     {
-        (*iter)->mFloater = NULL;
+        (*iter)->mFloater = nullptr;
     }
     mCallbackData.clear();
     // Name callbacks will be automatically disconnected since LLFloater is trackable
@@ -218,7 +218,7 @@ bool LLFloaterPay::postBuild()
 void LLFloaterPay::onClose(bool app_quitting)
 {
     // Deselect the objects
-    mObjectSelection = NULL;
+    mObjectSelection = nullptr;
 }
 
 // static
@@ -350,7 +350,7 @@ void LLFloaterPay::processPayPriceReply(LLMessageSystem* msg, void **userdata)
 
         self->reshape( self->getRect().getWidth() + padding_required, self->getRect().getHeight(), false );
     }
-    msg->setHandlerFunc("PayPriceReply",NULL,NULL);
+    msg->setHandlerFunc("PayPriceReply", nullptr, nullptr);
 }
 
 // static
@@ -405,7 +405,7 @@ void LLFloaterPay::payDirectly(money_callback callback,
         return;
 
     floater->setCallback(callback);
-    floater->mObjectSelection = NULL;
+    floater->mObjectSelection = nullptr;
 
     floater->getChildView("amount")->setVisible(true);
     floater->getChildView("pay btn")->setVisible(true);
@@ -570,7 +570,7 @@ void LLFloaterPay::give(S32 amount)
                     S32 tx_type = TRANS_PAY_OBJECT;
                     if(dest_object->isAvatar()) tx_type = TRANS_GIFT;
                     mCallback(mTargetUUID, region, amount, false, tx_type, object_name);
-                    mObjectSelection = NULL;
+                    mObjectSelection = nullptr;
 
                     // request the object owner in order to check if the owner needs to be unmuted
                     LLMessageSystem* msg = gMessageSystem;

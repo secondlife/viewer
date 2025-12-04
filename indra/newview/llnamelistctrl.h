@@ -147,7 +147,7 @@ public:
                      bool enabled = true, const std::string& suffix = LLStringUtil::null, const std::string& prefix = LLStringUtil::null);
     LLScrollListItem* addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
-    /*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
+    /*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = nullptr);
     LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM, const std::string& suffix = LLStringUtil::null,
                                                                                             const std::string& prefix = LLStringUtil::null);
 

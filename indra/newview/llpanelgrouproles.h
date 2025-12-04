@@ -62,7 +62,7 @@ public:
     // Checks if the current tab needs to be applied, and tries to switch to the requested tab.
     bool attemptTransition();
 
-    // Switches to the requested tab (will close() if requested is NULL)
+    // Switches to the requested tab (will close() if requested is nullptr)
     void transitionToTab();
 
     // Used by attemptTransition to query the user's response to a tab that needs to apply.
@@ -132,7 +132,7 @@ protected:
                                     bool is_owner_role);
 
 protected:
-    LLPanel* mHeader; // Might not be present in xui of derived class (NULL)
+    LLPanel* mHeader; // Might not be present in xui of derived class (nullptr)
     LLPanel* mFooter;
 
     LLFilterEditor* mSearchEditor;

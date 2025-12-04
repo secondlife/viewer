@@ -79,7 +79,7 @@ const F32 PARCEL_COLLISION_DRAW_SECS_ON_PROXIMITY = 1.f;
 
 // Globals
 
-U8* LLViewerParcelMgr::sPackedOverlay = NULL;
+U8* LLViewerParcelMgr::sPackedOverlay = nullptr;
 S32 LLViewerParcelMgr::PARCEL_BAN_LINES_HIDE = 0;
 S32 LLViewerParcelMgr::PARCEL_BAN_LINES_ON_COLLISION = 1;
 S32 LLViewerParcelMgr::PARCEL_BAN_LINES_ON_PROXIMITY = 2;
@@ -171,38 +171,38 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 
 LLViewerParcelMgr::~LLViewerParcelMgr()
 {
-    mCurrentParcelSelection->setParcel(NULL);
-    mCurrentParcelSelection = NULL;
+    mCurrentParcelSelection->setParcel(nullptr);
+    mCurrentParcelSelection = nullptr;
 
-    mFloatingParcelSelection->setParcel(NULL);
-    mFloatingParcelSelection = NULL;
+    mFloatingParcelSelection->setParcel(nullptr);
+    mFloatingParcelSelection = nullptr;
 
     delete mCurrentParcel;
-    mCurrentParcel = NULL;
+    mCurrentParcel = nullptr;
 
     delete mAgentParcel;
-    mAgentParcel = NULL;
+    mAgentParcel = nullptr;
 
     delete mCollisionParcel;
-    mCollisionParcel = NULL;
+    mCollisionParcel = nullptr;
 
     delete mHoverParcel;
-    mHoverParcel = NULL;
+    mHoverParcel = nullptr;
 
     delete[] mHighlightSegments;
-    mHighlightSegments = NULL;
+    mHighlightSegments = nullptr;
 
     delete[] mCollisionSegments;
-    mCollisionSegments = NULL;
+    mCollisionSegments = nullptr;
 
     delete[] sPackedOverlay;
-    sPackedOverlay = NULL;
+    sPackedOverlay = nullptr;
 
     delete[] mAgentParcelOverlay;
-    mAgentParcelOverlay = NULL;
+    mAgentParcelOverlay = nullptr;
 
-    sBlockedImage = NULL;
-    sPassImage = NULL;
+    sBlockedImage = nullptr;
+    sPassImage = nullptr;
 }
 
 void LLViewerParcelMgr::dump()
@@ -474,7 +474,7 @@ void LLViewerParcelMgr::selectCollisionParcel()
     resetSegments(mHighlightSegments);
 
     mFloatingParcelSelection->setParcel(mCurrentParcel);
-    mCurrentParcelSelection->setParcel(NULL);
+    mCurrentParcelSelection->setParcel(nullptr);
     mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);
 
     mSelected = true;
@@ -496,7 +496,7 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
     {
         mSelected = false;
         notifyObservers();
-        return NULL;
+        return nullptr;
     }
 
     // ...y isn't more than one meter away
@@ -505,7 +505,7 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
     {
         mSelected = false;
         notifyObservers();
-        return NULL;
+        return nullptr;
     }
 
     // Can't select across region boundary
@@ -522,7 +522,7 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
     {
         // just in case they somehow selected no land.
         mSelected = false;
-        return NULL;
+        return nullptr;
     }
 
     if (region != region_other)
@@ -530,7 +530,7 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
         LLNotificationsUtil::add("CantSelectLandFromMultipleRegions");
         mSelected = false;
         notifyObservers();
-        return NULL;
+        return nullptr;
     }
 
     // Build region global copies of corners
@@ -555,7 +555,7 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectLand(const LLVector3d &corner1,
     mRequestResult = PARCEL_RESULT_NO_DATA;
 
     mFloatingParcelSelection->setParcel(mCurrentParcel);
-    mCurrentParcelSelection->setParcel(NULL);
+    mCurrentParcelSelection->setParcel(nullptr);
     mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);
 
     mSelected = true;
@@ -588,8 +588,8 @@ void LLViewerParcelMgr::deselectLand()
         mSelectedDwell = DWELL_NAN;
 
         // invalidate parcel selection so that existing users of this selection can clean up
-        mCurrentParcelSelection->setParcel(NULL);
-        mFloatingParcelSelection->setParcel(NULL);
+        mCurrentParcelSelection->setParcel(nullptr);
+        mFloatingParcelSelection->setParcel(nullptr);
         // create new parcel selection
         mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);
 
@@ -665,7 +665,7 @@ LLParcel * LLViewerParcelMgr::getAgentOrSelectedParcel() const
             parcel = selection->getParcel();
             if (parcel && (parcel->getLocalID() == INVALID_PARCEL_ID))
             {
-                parcel = NULL;
+                parcel = nullptr;
             }
         }
     }
@@ -849,7 +849,7 @@ bool LLViewerParcelMgr::inAgentParcel(const LLVector3d &pos_global) const
     }
 }
 
-// Returns NULL when there is no valid data.
+// Returns nullptr when there is no valid data.
 LLParcel* LLViewerParcelMgr::getHoverParcel() const
 {
     if (mHoverRequestResult == PARCEL_RESULT_SUCCESS)
@@ -858,11 +858,11 @@ LLParcel* LLViewerParcelMgr::getHoverParcel() const
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
-// Returns NULL when there is no valid data.
+// Returns nullptr when there is no valid data.
 LLParcel* LLViewerParcelMgr::getCollisionParcel() const
 {
     if (mRenderCollision)
@@ -871,7 +871,7 @@ LLParcel* LLViewerParcelMgr::getCollisionParcel() const
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1144,14 +1144,14 @@ LLViewerParcelMgr::ParcelBuyInfo* LLViewerParcelMgr::setupParcelBuy(
     if (!mSelected || !mCurrentParcel)
     {
         LLNotificationsUtil::add("CannotBuyLandNothingSelected");
-        return NULL;
+        return nullptr;
     }
 
     LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
     if (!region)
     {
         LLNotificationsUtil::add("CannotBuyLandNoRegion");
-        return NULL;
+        return nullptr;
     }
 
     if (is_claim)
@@ -1169,7 +1169,7 @@ LLViewerParcelMgr::ParcelBuyInfo* LLViewerParcelMgr::setupParcelBuy(
         if (region != region2)
         {
             LLNotificationsUtil::add("CantBuyLandAcrossMultipleRegions");
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -1243,7 +1243,7 @@ void LLViewerParcelMgr::deleteParcelBuy(ParcelBuyInfo* *info)
 {
     // Must be here because ParcelBuyInfo is local to this .cpp file
     delete *info;
-    *info = NULL;
+    *info = nullptr;
 }
 
 void LLViewerParcelMgr::sendParcelDeed(const LLUUID& group_id)
@@ -1584,7 +1584,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     }
 
     // Decide where the data will go.
-    LLParcel* parcel = NULL;
+    LLParcel* parcel = nullptr;
     if (sequence_id == SELECTED_PARCEL_SEQ_ID)
     {
         // ...selected parcels report this sequence id
@@ -1850,7 +1850,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mHighlightSegments );
 
                 delete[] bitmap;
-                bitmap = NULL;
+                bitmap = nullptr;
 
                 parcel_mgr.mCurrentParcelSelection->mWholeParcelSelected = true;
             }
@@ -1905,7 +1905,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mCollisionSegments );
 
         delete[] bitmap;
-        bitmap = NULL;
+        bitmap = nullptr;
 
     }
     else if (sequence_id == HOVERED_PARCEL_SEQ_ID)
@@ -2009,7 +2009,7 @@ void LLViewerParcelMgr::optionallyStartMusic(const std::string &music_url, const
         static LLCachedControl<bool> tentative_autoplay(gSavedSettings, "MediaTentativeAutoPlay", true);
         // only play music when you enter a new parcel if the UI control for this
         // was not *explicitly* stopped by the user. (part of SL-4878)
-        LLPanelNearByMedia* nearby_media_panel = gStatusBar ? gStatusBar->getNearbyMediaPanel() : NULL;
+        LLPanelNearByMedia* nearby_media_panel = gStatusBar ? gStatusBar->getNearbyMediaPanel() : nullptr;
         LLViewerAudio* viewer_audio = LLViewerAudio::getInstance();
 
         // ask mode //todo constants

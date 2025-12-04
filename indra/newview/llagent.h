@@ -501,7 +501,7 @@ public:
     void            sendRevokePermissions(const LLUUID & target, U32 permissions);
 
     void            endAnimationUpdateUI();
-    void            unpauseAnimation() { mPauseRequest = NULL; }
+    void            unpauseAnimation() { mPauseRequest = nullptr; }
     bool            getCustomAnim() const { return mCustomAnim; }
     void            setCustomAnim(bool anim) { mCustomAnim = anim; }
 
@@ -572,8 +572,8 @@ public:
 
     void            startAutoPilotGlobal(const LLVector3d &pos_global,
                                          const std::string& behavior_name = std::string(),
-                                         const LLQuaternion *target_rotation = NULL,
-                                         void (*finish_callback)(bool, void *) = NULL, void *callback_data = NULL,
+                                         const LLQuaternion *target_rotation = nullptr,
+                                         void (*finish_callback)(bool, void *) = nullptr, void *callback_data = nullptr,
                                          F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f,
                                          bool allow_flying = true);
     void            startFollowPilot(const LLUUID &leader_id, bool allow_flying = true, F32 stop_distance = 0.5f);
@@ -645,7 +645,7 @@ public:
     void            teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
     void            teleportCancel();                                       // May or may not be allowed by server
     void            restoreCanceledTeleportRequest();
-    bool            canRestoreCanceledTeleport() { return mTeleportCanceled != NULL; }
+    bool            canRestoreCanceledTeleport() { return mTeleportCanceled != nullptr; }
     bool            getTeleportKeepsLookAt() { return mbTeleportKeepsLookAt; } // Whether look-at reset after teleport
 protected:
     bool            teleportCore(bool is_local = false);                    // Stuff for all teleports; returns true if the teleport can proceed

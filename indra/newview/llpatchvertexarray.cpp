@@ -35,14 +35,14 @@ LLPatchVertexArray::LLPatchVertexArray() :
     mSurfaceWidth(0),
     mPatchWidth(0),
     mPatchOrder(0),
-    mRenderLevelp(NULL),
-    mRenderStridep(NULL)
+    mRenderLevelp(nullptr),
+    mRenderStridep(nullptr)
 {
 }
 
 LLPatchVertexArray::LLPatchVertexArray(U32 surface_width, U32 patch_width, F32 meters_per_grid) :
-    mRenderLevelp(NULL),
-    mRenderStridep(NULL)
+    mRenderLevelp(nullptr),
+    mRenderStridep(nullptr)
 {
     create(surface_width, patch_width, meters_per_grid);
 }
@@ -122,7 +122,7 @@ void LLPatchVertexArray::create(U32 surface_width, U32 patch_width, F32 meters_p
         mRenderStridep = new U32 [mPatchOrder + 1];
     }
 
-    if (NULL == mRenderLevelp || NULL == mRenderStridep)
+    if (nullptr == mRenderLevelp || nullptr == mRenderStridep)
     {
         // init() and some other things all want to deref these
         // pointers, so this is serious.

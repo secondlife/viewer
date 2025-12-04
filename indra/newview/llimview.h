@@ -179,13 +179,13 @@ public:
 
     /**
      * Find an IM Session corresponding to session_id
-     * Returns NULL if the session does not exist
+     * Returns nullptr if the session does not exist
      */
     LLIMSession* findIMSession(const LLUUID& session_id) const;
 
     /**
      * Find an Ad-Hoc IM Session with specified participants
-     * @return first found Ad-Hoc session or NULL if the session does not exist
+     * @return first found Ad-Hoc session or nullptr if the session does not exist
      */
     LLIMSession* findAdHocIMSession(const uuid_vec_t& ids);
 
@@ -285,13 +285,13 @@ public:
 
     /**
      * Get voice channel for the session specified by session_id
-     * Returns NULL if the session does not exist
+     * Returns nullptr if the session does not exist
      */
     LLVoiceChannel* getVoiceChannel(const LLUUID& session_id) const;
 
     /**
     * Get im speaker manager for the session specified by session_id
-    * Returns NULL if the session does not exist
+    * Returns nullptr if the session does not exist
     */
     LLIMSpeakerMgr* getSpeakerManager(const LLUUID& session_id) const;
 

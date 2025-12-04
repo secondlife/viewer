@@ -46,8 +46,8 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mPlaying(false),
     mGlobalScale(1.0f),
     mMarkedForDeath(false),
-    mRootVolp(NULL),
-    mControlAVBridge(NULL),
+    mRootVolp(nullptr),
+    mControlAVBridge(nullptr),
     mScaleConstraintFixup(1.0),
     mRegionChanged(false)
 {
@@ -85,7 +85,7 @@ const LLVOAvatar *LLControlAvatar::getAttachedAvatar() const
     {
         return mRootVolp->getAvatarAncestor();
     }
-    return NULL;
+    return nullptr;
 }
 
 LLVOAvatar *LLControlAvatar::getAttachedAvatar()
@@ -94,7 +94,7 @@ LLVOAvatar *LLControlAvatar::getAttachedAvatar()
     {
         return mRootVolp->getAvatarAncestor();
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
@@ -353,7 +353,7 @@ void LLControlAvatar::markForDeath()
     mMarkedForDeath = true;
     // object unlinked cav and might be dead already
     // might need to clean mControlAVBridge here as well
-    mRootVolp = NULL;
+    mRootVolp = nullptr;
 }
 
 void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
@@ -371,9 +371,9 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
 void LLControlAvatar::markDead()
 {
-    mRootVolp = NULL;
+    mRootVolp = nullptr;
     super::markDead();
-    mControlAVBridge = NULL;
+    mControlAVBridge = nullptr;
 }
 
 bool LLControlAvatar::computeNeedsUpdate()
@@ -620,10 +620,10 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
 {
     if (!mRootVolp)
     {
-        return NULL;
+        return nullptr;
     }
 
-    LLViewerObject* hit = NULL;
+    LLViewerObject* hit = nullptr;
 
     if (lineSegmentBoundingBox(start, end))
     {

@@ -144,7 +144,7 @@ void LLPanelBlockedList::showPanelAndSelect(const LLUUID& idToSelect)
 //////////////////////////////////////////////////////////////////////////
 void LLPanelBlockedList::updateButtons()
 {
-    bool hasSelected = NULL != mBlockedList->getSelectedItem();
+    bool hasSelected = nullptr != mBlockedList->getSelectedItem();
     mUnblockBtn->setEnabled(hasSelected);
     mBlockedGearBtn->setEnabled(hasSelected);
 

@@ -78,7 +78,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 
     // Always clear the current selection.  If we're setting focus on a face, we'll reselect the correct object below.
     LLSelectMgr::getInstance()->deselectAll();
-    mSelection = NULL;
+    mSelection = nullptr;
 
     if (media_impl.notNull() && objectp.notNull())
     {
@@ -143,13 +143,13 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
     {
         if(hasFocus())
         {
-            gFocusMgr.setKeyboardFocus(NULL);
+            gFocusMgr.setKeyboardFocus(nullptr);
         }
 
         LLViewerMediaImpl* impl = getFocusedMediaImpl();
         if (LLEditMenuHandler::gEditMenuHandler == impl)
         {
-            LLEditMenuHandler::gEditMenuHandler = NULL;
+            LLEditMenuHandler::gEditMenuHandler = nullptr;
         }
 
 
@@ -170,7 +170,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 
 void LLViewerMediaFocus::clearFocus()
 {
-    setFocusFace(NULL, 0, NULL);
+    setFocusFace(nullptr, 0, nullptr);
 }
 
 void LLViewerMediaFocus::setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
@@ -192,7 +192,7 @@ void LLViewerMediaFocus::setHoverFace(LLPointer<LLViewerObject> objectp, S32 fac
 
 void LLViewerMediaFocus::clearHover()
 {
-    setHoverFace(NULL, 0, NULL);
+    setHoverFace(nullptr, 0, nullptr);
 }
 
 
@@ -448,7 +448,7 @@ void LLViewerMediaFocus::update()
         // The media HUD is no longer needed.
         if(mMediaControls.get())
         {
-            mMediaControls.get()->setMediaFace(NULL, 0, NULL);
+            mMediaControls.get()->setMediaFace(nullptr, 0, nullptr);
         }
     }
 }

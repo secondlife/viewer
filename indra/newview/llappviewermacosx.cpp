@@ -68,7 +68,7 @@ namespace
     // They are not used immediately by the app.
     int gArgC;
     char** gArgV;
-    LLAppViewerMacOSX* gViewerAppPtr = NULL;
+    LLAppViewerMacOSX* gViewerAppPtr = nullptr;
     std::string gHandleSLURL;
 }
 
@@ -113,7 +113,7 @@ void handleQuit()
 bool pumpMainLoop()
 {
     bool ret = LLApp::isQuitting();
-    if (!ret && gViewerAppPtr != NULL)
+    if (!ret && gViewerAppPtr != nullptr)
     {
         ret = gViewerAppPtr->frame();
     } else {
@@ -132,7 +132,7 @@ void cleanupViewer()
     }
 
     delete gViewerAppPtr;
-    gViewerAppPtr = NULL;
+    gViewerAppPtr = nullptr;
 }
 
 void clearDumpLogsDir()
@@ -233,7 +233,7 @@ CrashMetadataSingleton::CrashMetadataSingleton()
             attributesPathname = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "CrashContext.xml");
             LLFILE* fp = LLFile::fopen(attributesPathname, "w");
 
-            if (fp != NULL)
+            if (fp != nullptr)
             {
                 LLXMLNode::writeHeaderToFile(fp);
                 out_node->writeToFile(fp);
@@ -308,7 +308,7 @@ std::pair<std::string, std::string> parse_psn(const std::string& s)
 bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 {
     // The next two lines add the support for parsing the mac -psn_XXX arg.
-    clp.addOptionDesc("psn", NULL, 1, "MacOSX process serial number");
+    clp.addOptionDesc("psn", nullptr, 1, "MacOSX process serial number");
     clp.setCustomParser(parse_psn);
 
     // parse the user's command line
@@ -325,7 +325,7 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
         // create a new localization for the language you're adding
         // set the contents of the new localization of the file to the string corresponding to our localization
         //   (i.e. "en", "ja", etc.  Use the existing ones as a guide.)
-    CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("language"), CFSTR("txt"), NULL);
+    CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("language"), CFSTR("txt"), nullptr);
     char path[MAX_PATH];
     if(CFURLGetFileSystemRepresentation(url, false, (UInt8 *)path, sizeof(path)))
     {
@@ -408,7 +408,7 @@ std::string LLAppViewerMacOSX::generateSerialNumber()
     serial_md5[0] = 0;
 
     // JC: Sample code from http://developer.apple.com/technotes/tn/tn1103.html
-    CFStringRef serialNumber = NULL;
+    CFStringRef serialNumber = nullptr;
     io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
                                                                  IOServiceMatching("IOPlatformExpertDevice"));
     if (platformExpert)
@@ -459,7 +459,7 @@ void dispatchUrl(std::string url)
         url.replace(0, prefix.length(), "secondlife:///app/");
     }
 
-    LLMediaCtrl* web = NULL;
+    LLMediaCtrl* web = nullptr;
     const bool trusted_browser = false;
     LLURLDispatcher::dispatch(url, "", web, trusted_browser);
 }

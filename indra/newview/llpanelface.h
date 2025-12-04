@@ -462,7 +462,7 @@ private:
                     {
                         LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
                         LLMaterialMgr::getInstance()->remove(object->getID(),face);
-                        new_material = NULL;
+                        new_material = nullptr;
                     }
                     else
                     {
@@ -473,7 +473,7 @@ private:
                     object->setTEMaterialParams(face, new_material);
                     return new_material;
                 }
-                return NULL;
+                return nullptr;
             }
             LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >*  _edit;
             LLPanelFace *_panel;
@@ -498,7 +498,7 @@ private:
             {
                 DataType ret = _default;
                 LLMaterialPtr material_ptr;
-                LLTextureEntry* tep = object ? object->getTE(face) : NULL;
+                LLTextureEntry* tep = object ? object->getTE(face) : nullptr;
                 if (tep)
                 {
                     material_ptr = tep->getMaterialParams();
@@ -528,7 +528,7 @@ private:
             virtual ~GetTEVal() {}
 
             DataType get(LLViewerObject* object, S32 face) {
-                LLTextureEntry* tep = object ? object->getTE(face) : NULL;
+                LLTextureEntry* tep = object ? object->getTE(face) : nullptr;
                 return tep ? ((tep->*(TEGetFunc))()) : _default;
             }
             DataType _default;

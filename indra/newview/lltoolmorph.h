@@ -79,7 +79,7 @@ public:
     const LLRect&           getRect()   { return mRect; }
 
     // Requests updates for all instances (excluding two possible exceptions)  Grungy but efficient.
-    static void             requestHintUpdates( LLVisualParamHint* exception1 = NULL, LLVisualParamHint* exception2 = NULL );
+    static void             requestHintUpdates( LLVisualParamHint* exception1 = nullptr, LLVisualParamHint* exception2 = nullptr );
 
 protected:
     bool                    mNeedsUpdate;       // does this texture need to be re-rendered?

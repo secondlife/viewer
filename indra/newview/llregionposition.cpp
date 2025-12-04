@@ -34,7 +34,7 @@
 
 LLRegionPosition::LLRegionPosition()
 {
-    mRegionp = NULL;
+    mRegionp = nullptr;
 }
 
 LLRegionPosition::LLRegionPosition(LLViewerRegion *regionp, const LLVector3 &position)

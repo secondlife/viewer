@@ -205,7 +205,7 @@ bool LLVOWLSky::updateGeometry(LLDrawable * drawable)
         // round up to a whole number of segments
         const U32 strips_segments = (total_stacks+stacks_per_seg-1) / stacks_per_seg;
 
-        mStripsVerts.resize(strips_segments, NULL);
+        mStripsVerts.resize(strips_segments, nullptr);
 
 #if RELEASE_SHOW_DEBUG
         LL_INFOS() << "WL Skydome strips in " << strips_segments << " batches." << LL_ENDL;

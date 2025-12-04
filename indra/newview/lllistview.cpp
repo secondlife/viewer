@@ -43,7 +43,7 @@ LLListView::Params::Params()
 
 LLListView::LLListView(const Params& p)
 :   LLUICtrl(p),
-    mLabel(NULL),
+    mLabel(nullptr),
     mBgColor(p.bg_color()),
     mFgSelectedColor(p.fg_selected_color()),
     mBgSelectedColor(p.bg_selected_color())

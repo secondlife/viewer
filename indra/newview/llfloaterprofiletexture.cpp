@@ -45,10 +45,10 @@ static LLDefaultChildRegistry::Register<LLProfileImageCtrl> r("profile_image");
 
 LLProfileImageCtrl::LLProfileImageCtrl(const LLProfileImageCtrl::Params& p)
     : LLIconCtrl(p)
-    , mImage(NULL)
+    , mImage(nullptr)
     , mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
     , mWasNoDelete(false)
-    , mImageLoadedSignal(NULL)
+    , mImageLoadedSignal(nullptr)
 {
 }
 
@@ -70,7 +70,7 @@ void LLProfileImageCtrl::releaseTexture()
             // In most cases setBoostLevel marks images as NO_DELETE
             mImage->forceActive();
         }
-        mImage = NULL;
+        mImage = nullptr;
     }
 }
 
@@ -185,8 +185,8 @@ LLFloaterProfileTexture::LLFloaterProfileTexture(LLView* owner)
     , mLastWidth(0)
     , mOwnerHandle(owner->getHandle())
     , mContextConeOpacity(0.f)
-    , mCloseButton(NULL)
-    , mProfileIcon(NULL)
+    , mCloseButton(nullptr)
+    , mProfileIcon(nullptr)
 {
     buildFromFile("floater_profile_texture.xml");
 }

@@ -93,7 +93,7 @@ struct Info
         groupname(request["group"]),
         group(LLControlGroup::getInstance(groupname)),
         key(request["key"]),
-        control(NULL)
+        control(nullptr)
     {
         if (! group)
         {

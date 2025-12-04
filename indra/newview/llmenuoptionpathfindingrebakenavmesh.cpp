@@ -234,7 +234,7 @@ void LLMenuOptionPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrent
     }
 
     LLViewerRegion *currentRegion = gAgent.getRegion();
-    if (currentRegion != NULL)
+    if (currentRegion != nullptr)
     {
         mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleNavMeshStatus, this, _2));
         LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);

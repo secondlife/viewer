@@ -93,9 +93,9 @@ void LLEstateInfoModel::update(const strings_t& strings)
     // it draws with a weird character at the end of the string.
     mName       = strings[0].c_str();
     mOwnerID    = LLUUID(strings[1].c_str());
-    mID         = strtoul(strings[2].c_str(), NULL, 10);
-    mFlags      = strtoul(strings[3].c_str(), NULL, 10);
-    mSunHour    = ((F32)(strtod(strings[4].c_str(), NULL)))/1024.0f;
+    mID         = strtoul(strings[2].c_str(), nullptr, 10);
+    mFlags      = strtoul(strings[3].c_str(), nullptr, 10);
+    mSunHour    = ((F32)(strtod(strings[4].c_str(), nullptr)))/1024.0f;
 
     LL_DEBUGS("WindlightSync") << "Received estate info: "
         << "is_sun_fixed = " << getUseFixedSun()

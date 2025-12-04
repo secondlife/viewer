@@ -55,7 +55,7 @@ public:
     /*virtual*/ bool verify() const { return true; }        // Verify that all data in the draw pool is correct!
     /*virtual*/ S32 getShaderLevel() const { return mShaderLevel; }
 
-    //static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
+    //static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = nullptr);
 
     /*virtual*/ LLViewerTexture* getTexture();
     /*virtual*/ bool isFacePool() { return false; }

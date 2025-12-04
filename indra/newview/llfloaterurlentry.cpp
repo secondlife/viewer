@@ -40,7 +40,7 @@
 #include "llviewerwindow.h"
 #include "llcorehttputil.h"
 
-static LLFloaterURLEntry* sInstance = NULL;
+static LLFloaterURLEntry* sInstance = nullptr;
 
 //-----------------------------------------------------------------------------
 // LLFloaterURLEntry()
@@ -57,7 +57,7 @@ LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 //-----------------------------------------------------------------------------
 LLFloaterURLEntry::~LLFloaterURLEntry()
 {
-    sInstance = NULL;
+    sInstance = nullptr;
 }
 
 bool LLFloaterURLEntry::postBuild()

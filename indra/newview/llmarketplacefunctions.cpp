@@ -628,7 +628,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
 
     if (!sProcessingQueue && !sStructureQueue.empty())
     {
-        gIdleCallbacks.addFunction(onIdleProcessQueue, NULL);
+        gIdleCallbacks.addFunction(onIdleProcessQueue, nullptr);
         // can do without sProcessingQueue, but it's usufull for simplicity and reliability
         sProcessingQueue = true;
     }
@@ -676,7 +676,7 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
     if (LLApp::isExiting() || sStructureQueue.empty())
     {
         // Nothing to do anymore
-        gIdleCallbacks.deleteFunction(onIdleProcessQueue, NULL);
+        gIdleCallbacks.deleteFunction(onIdleProcessQueue, nullptr);
         sProcessingQueue = false;
     }
 }
@@ -835,7 +835,7 @@ void LLMarketplaceData::getMerchantStatusCoro()
 
 void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)
 {
-    if (mDataFetchedSignal == NULL)
+    if (mDataFetchedSignal == nullptr)
     {
         mDataFetchedSignal = std::make_unique<status_updated_signal_t>();
     }

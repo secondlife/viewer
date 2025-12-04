@@ -282,8 +282,8 @@ public:
 
     ~LLFolderBridge();
 
-    bool dragItemIntoFolder(LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm = true, LLPointer<LLInventoryCallback> cb = NULL);
-    bool dragCategoryIntoFolder(LLInventoryCategory* inv_category, bool drop, std::string& tooltip_msg, bool is_link = false, bool user_confirm = true, LLPointer<LLInventoryCallback> cb = NULL);
+    bool dragItemIntoFolder(LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm = true, LLPointer<LLInventoryCallback> cb = nullptr);
+    bool dragCategoryIntoFolder(LLInventoryCategory* inv_category, bool drop, std::string& tooltip_msg, bool is_link = false, bool user_confirm = true, LLPointer<LLInventoryCallback> cb = nullptr);
     void callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item);
     void callback_dropCategoryIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryCategory* inv_category);
 
@@ -371,10 +371,10 @@ protected:
     void copyOutfitToClipboard();
     void determineFolderType();
 
-    void dropToFavorites(LLInventoryItem* inv_item, LLPointer<LLInventoryCallback> cb = NULL);
-    void dropToOutfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit, LLPointer<LLInventoryCallback> cb = NULL);
-    void dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLInventoryCallback> cb = NULL);
-    void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest, LLPointer<LLInventoryCallback> cb = NULL);
+    void dropToFavorites(LLInventoryItem* inv_item, LLPointer<LLInventoryCallback> cb = nullptr);
+    void dropToOutfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit, LLPointer<LLInventoryCallback> cb = nullptr);
+    void dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLInventoryCallback> cb = nullptr);
+    void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest, LLPointer<LLInventoryCallback> cb = nullptr);
 
     //--------------------------------------------------------------------
     // Messy hacks for handling folder options
@@ -834,8 +834,8 @@ bool move_inv_category_world_to_agent(const LLUUID& object_id,
                                       const LLUUID& category_id,
                                       bool drop,
                                       std::function<void(S32, void*, const LLMoveInv *)> callback = nullptr,
-                                      void* user_data = NULL,
-                                      LLInventoryFilter* filter = NULL);
+                                      void* user_data = nullptr,
+                                      LLInventoryFilter* filter = nullptr);
 
 // Utility function to hide all entries except those in the list
 // Can be called multiple times on the same menu (e.g. if multiple items

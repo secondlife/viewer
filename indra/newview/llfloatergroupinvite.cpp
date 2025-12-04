@@ -55,7 +55,7 @@ std::map<LLUUID, LLFloaterGroupInvite*> LLFloaterGroupInvite::impl::sInstances;
 
 LLFloaterGroupInvite::impl::impl(const LLUUID& group_id) :
     mGroupID(group_id),
-    mInvitePanelp(NULL)
+    mInvitePanelp(nullptr)
 {
 }
 
@@ -124,7 +124,7 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agen
     // If we don't have a floater for this group, create one.
     LLFloaterGroupInvite *fgi = get_if_there(impl::sInstances,
                                              group_id,
-                                             (LLFloaterGroupInvite*)NULL);
+                                             (LLFloaterGroupInvite*)nullptr);
 
     if (request_update)
     {
@@ -148,7 +148,7 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agen
         fgi->mImpl->mInvitePanelp->clear();
     }
 
-    if (agent_ids != NULL)
+    if (agent_ids != nullptr)
     {
         fgi->mImpl->mInvitePanelp->addUsers(*agent_ids);
     }

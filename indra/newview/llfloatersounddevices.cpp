@@ -37,7 +37,7 @@
 
 // protected
 LLFloaterSoundDevices::LLFloaterSoundDevices(const LLSD& key)
-:   LLTransientDockableFloater(NULL, false, key)
+:   LLTransientDockableFloater(nullptr, false, key)
 {
     LLTransientFloaterMgr::getInstance()->addControlView(this);
 

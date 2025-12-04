@@ -59,16 +59,16 @@
 LLPanelLandMedia::LLPanelLandMedia(LLParcelSelectionHandle& parcel)
 :   LLPanel(),
     mParcel(parcel),
-    mMediaURLEdit(NULL),
-    mMediaDescEdit(NULL),
-    mMediaTypeCombo(NULL),
-    mSetURLButton(NULL),
-    mMediaHeightCtrl(NULL),
-    mMediaWidthCtrl(NULL),
-    mMediaSizeCtrlLabel(NULL),
-    mMediaTextureCtrl(NULL),
-    mMediaAutoScaleCheck(NULL),
-    mMediaLoopCheck(NULL)
+    mMediaURLEdit(nullptr),
+    mMediaDescEdit(nullptr),
+    mMediaTypeCombo(nullptr),
+    mSetURLButton(nullptr),
+    mMediaHeightCtrl(nullptr),
+    mMediaWidthCtrl(nullptr),
+    mMediaSizeCtrlLabel(nullptr),
+    mMediaTextureCtrl(nullptr),
+    mMediaAutoScaleCheck(nullptr),
+    mMediaLoopCheck(nullptr)
 {
 }
 

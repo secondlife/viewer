@@ -78,7 +78,7 @@ void initializeSecHandler()
 
 void clearSecHandler()
 {
-    gSecAPIHandler = NULL;
+    gSecAPIHandler = nullptr;
     gHandlerMap.clear();
 }
 // start using a given security api handler.  If the string is empty
@@ -91,7 +91,7 @@ LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type)
     }
     else
     {
-        return LLPointer<LLSecAPIHandler>(NULL);
+        return LLPointer<LLSecAPIHandler>(nullptr);
     }
 }
 // register a handler

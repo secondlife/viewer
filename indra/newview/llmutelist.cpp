@@ -166,10 +166,10 @@ LLMuteList::LLMuteList() :
     // that last NULL.
     gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
                                              _PREHASH_MuteListUpdate, processMuteListUpdate,
-                                             static_cast<void**>(NULL)));
+                                             static_cast<void**>(nullptr)));
     gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
                                              _PREHASH_UseCachedMuteList, processUseCachedMuteList,
-                                             static_cast<void**>(NULL)));
+                                             static_cast<void**>(nullptr)));
 
     // make sure mute list's instance gets initialized before we start any name requests
     LLAvatarNameCache::getInstance()->setAccountNameChangedCallback([this](const LLUUID& id, const LLAvatarName& av_name)
@@ -241,7 +241,7 @@ static LLVOAvatar* find_avatar(const LLUUID& id)
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -766,7 +766,7 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
     mRequestStartTime = LLTimer::getElapsedSeconds();
     // Double amount of retries due to this request happening during busy stage
     // Ideally this should be turned into a capability
-    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, true, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);
+    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, true, LL_PING_BASED_TIMEOUT_DUMMY, nullptr, nullptr);
 }
 
 //-----------------------------------------------------------------------------

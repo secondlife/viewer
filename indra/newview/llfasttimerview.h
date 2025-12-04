@@ -108,7 +108,7 @@ private:
         TimerBarRow()
         :   mBottom(0),
             mTop(0),
-            mBars(NULL)
+            mBars(nullptr)
         {}
         S32         mBottom,
                     mTop;

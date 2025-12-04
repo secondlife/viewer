@@ -42,8 +42,8 @@
 LLConversationLogListItem::LLConversationLogListItem(const LLConversation* conversation)
 :   LLPanel(),
     mConversation(conversation),
-    mConversationName(NULL),
-    mConversationDate(NULL)
+    mConversationName(nullptr),
+    mConversationDate(nullptr)
 {
     buildFromFile("panel_conversation_log_list_item.xml");
 

@@ -206,7 +206,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateObjectMeshDetailText()
 
 void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
 {
-    if (text_box == NULL || ctrl== NULL)
+    if (text_box == nullptr || ctrl== nullptr)
         return;
 
     // get range and points when text should change

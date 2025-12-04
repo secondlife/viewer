@@ -93,7 +93,7 @@ public:
     void clearString();
 
     // Add text a line at a time, allowing custom formatting
-    void addLine(const std::string &text_utf8, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL, const LLFontGL* font = NULL);
+    void addLine(const std::string &text_utf8, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL, const LLFontGL* font = nullptr);
 
     // Sets the default font for lines with no font specified
     void setFont(const LLFontGL* font);

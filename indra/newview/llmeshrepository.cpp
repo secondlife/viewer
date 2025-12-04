@@ -608,7 +608,7 @@ void PendingRequestBase::updateScore()
 LLViewerFetchedTexture* LLMeshUploadThread::FindViewerTexture(const LLImportMaterial& material)
 {
     LLPointer< LLViewerFetchedTexture > * ppTex = static_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData);
-    return ppTex ? (*ppTex).get() : NULL;
+    return ppTex ? (*ppTex).get() : nullptr;
 }
 
 std::atomic<S32> LLMeshRepoThread::sActiveHeaderRequests = 0;
@@ -919,7 +919,7 @@ void write_preamble(LLFileSystem &file, S32 header_bytes, S32 flags)
 
 LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo"),
-  mHttpRequest(NULL),
+  mHttpRequest(nullptr),
   mHttpOptions(),
   mHttpLargeOptions(),
   mHttpHeaders(),
@@ -1385,7 +1385,7 @@ U8* LLMeshRepoThread::getDiskCacheBuffer(S32 size)
         catch (std::bad_alloc&)
         {
             LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh thread's buffer, size: " << size << LL_ENDL;
-            mDiskCacheBuffer = NULL;
+            mDiskCacheBuffer = nullptr;
 
             // Not sure what size is reasonable
             // but if 30MB allocation failed, we definitely have issues
@@ -1872,7 +1872,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
         }
         else
         { //no physics shape whatsoever, report back NULL
-            physicsShapeReceived(mesh_id, NULL, 0);
+            physicsShapeReceived(mesh_id, nullptr, 0);
         }
     }
     else
@@ -2373,7 +2373,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
 
 EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
 {
-    if (data == NULL || data_size == 0)
+    if (data == nullptr || data_size == 0)
     {
         return MESH_NO_DATA;
     }
@@ -2416,9 +2416,9 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
                 // LLPointer is not thread safe, since we added this pointer into
                 // threaded list, make sure counter gets decreased inside mutex lock
                 // and won't affect mLoadedQ processing
-                volume = NULL;
+                volume = nullptr;
                 // might be good idea to turn mesh into pointer to avoid making a copy
-                mesh.mVolume = NULL;
+                mesh.mVolume = nullptr;
             }
             {
                 // make sure skin info is not removed from list while we are decreasing reference count
@@ -2530,7 +2530,7 @@ EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_
     LLModel::Decomposition* d = new LLModel::Decomposition();
     d->mMeshID = mesh_id;
 
-    if (data == NULL)
+    if (data == nullptr)
     { //no data, no physics shape exists
         d->mPhysicsShapeMesh.clear();
     }
@@ -2616,9 +2616,9 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list_t& data
 LLMeshUploadThread::~LLMeshUploadThread()
 {
     delete mHttpRequest;
-    mHttpRequest = NULL;
+    mHttpRequest = nullptr;
     delete mMutex;
-    mMutex = NULL;
+    mMutex = nullptr;
 }
 
 LLMeshUploadThread::DecompRequest::DecompRequest(LLModel* mdl, LLModel* base_model, LLMeshUploadThread* thread)
@@ -2812,21 +2812,21 @@ void LLMeshUploadThread::packModelIntance(
             LLImportMaterial& material = instance.mMaterial[data.mBaseModel->mMaterialList[face_num]];
             LLSD face_entry = LLSD::emptyMap();
 
-            LLViewerFetchedTexture* texture = NULL;
+            LLViewerFetchedTexture* texture = nullptr;
 
             if (material.mDiffuseMapFilename.size())
             {
                 texture = FindViewerTexture(material);
             }
 
-            if ((texture != NULL) &&
+            if ((texture != nullptr) &&
                 (textures.find(texture) == textures.end()))
             {
                 textures.insert(texture);
             }
 
             std::stringstream texture_str;
-            if (texture != NULL && include_textures && mUploadTextures)
+            if (texture != nullptr && include_textures && mUploadTextures)
             {
                 if (texture->hasSavedRawImage())
                 {
@@ -2842,7 +2842,7 @@ void LLMeshUploadThread::packModelIntance(
                 }
             }
 
-            if (texture != NULL &&
+            if (texture != nullptr &&
                 mUploadTextures &&
                 texture_index.find(texture) == texture_index.end())
             {
@@ -2855,7 +2855,7 @@ void LLMeshUploadThread::packModelIntance(
             }
 
             // Subset of TextureEntry fields.
-            if (texture != NULL && mUploadTextures)
+            if (texture != nullptr && mUploadTextures)
             {
                 face_entry["image"] = texture_index[texture];
                 face_entry["scales"] = 1.0;
@@ -3025,7 +3025,7 @@ void LLMeshUploadThread::generateHulls()
         }
 
         //queue up models for hull generation
-        LLModel* physics = NULL;
+        LLModel* physics = nullptr;
 
         if (data.mModel[LLModel::LOD_PHYSICS].notNull())
         {
@@ -3044,7 +3044,7 @@ void LLMeshUploadThread::generateHulls()
             physics = data.mModel[LLModel::LOD_HIGH];
         }
 
-        llassert(physics != NULL);
+        llassert(physics != nullptr);
 
         DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
         if(request->isValid())
@@ -3521,7 +3521,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
     mProcessed = true;
 
     unsigned int retries(0U);
-    response->getRetries(NULL, &retries);
+    response->getRetries(nullptr, &retries);
     LLMeshRepository::sHTTPRetryCount += retries;
 
     LLCore::HttpStatus status(response->getStatus());
@@ -3546,7 +3546,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
         // speculative loads aren't done.
         LLCore::BufferArray * body(response->getBody());
         S32 body_offset(0);
-        U8 * data(NULL);
+        U8 * data(nullptr);
         auto data_size(body ? body->size() : 0);
 
         if (data_size > 0)
@@ -3668,7 +3668,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
     LL_PROFILE_ZONE_SCOPED;
     LLUUID mesh_id = mMeshParams.getSculptID();
     bool success = (!MESH_HEADER_PROCESS_FAILED)
-        && ((data != NULL) == (data_size > 0)); // if we have data but no size or have size but no data, something is wrong;
+        && ((data != nullptr) == (data_size > 0)); // if we have data but no size or have size but no data, something is wrong;
     llassert(success);
     EMeshProcessingResult res = MESH_UNKNOWN;
     if (success)
@@ -3860,7 +3860,7 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
 {
     LL_PROFILE_ZONE_SCOPED;
     if ((!MESH_LOD_PROCESS_FAILED)
-        && ((data != NULL) == (data_size > 0))) // if we have data but no size or have size but no data, something is wrong
+        && ((data != nullptr) == (data_size > 0))) // if we have data but no size or have size but no data, something is wrong
     {
         LLMeshHandlerBase::ptr_t shrd_handler = shared_from_this();
         bool posted = gMeshRepo.mThread->mMeshThreadPool->getQueue().post(
@@ -3978,7 +3978,7 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
 {
     LL_PROFILE_ZONE_SCOPED;
     if ((!MESH_SKIN_INFO_PROCESS_FAILED)
-        && ((data != NULL) == (data_size > 0))) // if we have data but no size or have size but no data, something is wrong
+        && ((data != nullptr) == (data_size > 0))) // if we have data but no size or have size but no data, something is wrong
     {
         LLMeshHandlerBase::ptr_t shrd_handler = shared_from_this();
         bool posted = gMeshRepo.mThread->mMeshThreadPool->getQueue().post(
@@ -4040,7 +4040,7 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
 {
     LL_PROFILE_ZONE_SCOPED;
     if ((!MESH_DECOMP_PROCESS_FAILED)
-        && ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
+        && ((data != nullptr) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
         && gMeshRepo.mThread->decompositionReceived(mMeshID, data, data_size))
     {
         // good fetch from sim, write to cache
@@ -4113,7 +4113,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
 {
     LL_PROFILE_ZONE_SCOPED;
     if ((!MESH_PHYS_SHAPE_PROCESS_FAILED)
-        && ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
+        && ((data != nullptr) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
         && gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size) == MESH_OK)
     {
         // good fetch from sim, write to cache for caching
@@ -4165,10 +4165,10 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
 }
 
 LLMeshRepository::LLMeshRepository()
-: mMeshMutex(NULL),
-  mDecompThread(NULL),
+: mMeshMutex(nullptr),
+  mDecompThread(nullptr),
   mMeshThreadCount(0),
-  mThread(NULL)
+  mThread(nullptr)
 {
     mSkinInfoCullTimer.resetWithExpiry(10.f);
 }
@@ -4201,8 +4201,8 @@ void LLMeshRepository::init()
 void LLMeshRepository::shutdown()
 {
     LL_INFOS(LOG_MESH) << "Shutting down mesh repository." << LL_ENDL;
-    llassert(mThread != NULL);
-    llassert(mThread->mSignal != NULL);
+    llassert(mThread != nullptr);
+    llassert(mThread->mSignal != nullptr);
 
     metrics_teleport_started_signal.disconnect();
 
@@ -4219,7 +4219,7 @@ void LLMeshRepository::shutdown()
         apr_sleep(10);
     }
     delete mThread;
-    mThread = NULL;
+    mThread = nullptr;
 
     for (U32 i = 0; i < mUploads.size(); ++i)
     {
@@ -4234,7 +4234,7 @@ void LLMeshRepository::shutdown()
     mUploads.clear();
 
     delete mMeshMutex;
-    mMeshMutex = NULL;
+    mMeshMutex = nullptr;
 
     LL_INFOS(LOG_MESH) << "Shutting down decomposition system." << LL_ENDL;
 
@@ -4242,7 +4242,7 @@ void LLMeshRepository::shutdown()
     {
         mDecompThread->shutdown();
         delete mDecompThread;
-        mDecompThread = NULL;
+        mDecompThread = nullptr;
     }
 
     LLConvexDecomposition::quitSystem();
@@ -4827,7 +4827,7 @@ void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 
     if (mesh_id.notNull())
     {
-        LLModel::Decomposition* decomp = NULL;
+        LLModel::Decomposition* decomp = nullptr;
         decomposition_map::iterator iter = mDecompositionMap.find(mesh_id);
         if (iter != mDecompositionMap.end())
         {
@@ -4853,7 +4853,7 @@ LLModel::Decomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh_id
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
-    LLModel::Decomposition* ret = NULL;
+    LLModel::Decomposition* ret = nullptr;
 
     if (mesh_id.notNull())
     {
@@ -5475,9 +5475,9 @@ LLPhysicsDecomp::~LLPhysicsDecomp()
     shutdown();
 
     delete mSignal;
-    mSignal = NULL;
+    mSignal = nullptr;
     delete mMutex;
-    mMutex = NULL;
+    mMutex = nullptr;
 }
 
 void LLPhysicsDecomp::shutdown()
@@ -5531,7 +5531,7 @@ void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh, bool vertex_based)
     if ((vertex_based || mesh.mNumTriangles > 0) && mesh.mNumVertices > 2)
     {
         LLCDResult ret = LLCD_OK;
-        if (LLConvexDecomposition::getInstance() != NULL)
+        if (LLConvexDecomposition::getInstance() != nullptr)
         {
             ret  = LLConvexDecomposition::getInstance()->setMeshData(&mesh, vertex_based);
         }
@@ -5548,7 +5548,7 @@ void LLPhysicsDecomp::doDecomposition()
     LLCDMeshData mesh;
     S32 stage = mStageID[mCurRequest->mStage];
 
-    if (LLConvexDecomposition::getInstance() == NULL)
+    if (LLConvexDecomposition::getInstance() == nullptr)
     {
         // stub library. do nothing.
         return;
@@ -5563,7 +5563,7 @@ void LLPhysicsDecomp::doDecomposition()
     //build parameter map
     std::map<std::string, const LLCDParam*> param_map;
 
-    static const LLCDParam* params = NULL;
+    static const LLCDParam* params = nullptr;
     static S32 param_count = 0;
     if (!params)
     {
@@ -5584,7 +5584,7 @@ void LLPhysicsDecomp::doDecomposition()
 
         const LLCDParam* param = param_map[name];
 
-        if (param == NULL)
+        if (param == nullptr)
         { //couldn't find valid parameter
             continue;
         }
@@ -5607,7 +5607,7 @@ void LLPhysicsDecomp::doDecomposition()
 
     mCurRequest->setStatusMessage("Executing.");
 
-    if (LLConvexDecomposition::getInstance() != NULL)
+    if (LLConvexDecomposition::getInstance() != nullptr)
     {
         ret = LLConvexDecomposition::getInstance()->executeStage(stage);
     }
@@ -5630,7 +5630,7 @@ void LLPhysicsDecomp::doDecomposition()
         mCurRequest->setStatusMessage("Reading results");
 
         S32 num_hulls =0;
-        if (LLConvexDecomposition::getInstance() != NULL)
+        if (LLConvexDecomposition::getInstance() != nullptr)
         {
             num_hulls = LLConvexDecomposition::getInstance()->getNumHullsFromStage(stage);
         }
@@ -5684,7 +5684,7 @@ void LLPhysicsDecomp::completeCurrent()
 {
     LLMutexLock lock(mMutex);
     mCompletedQ.push(mCurRequest);
-    mCurRequest = NULL;
+    mCurRequest = nullptr;
 }
 
 void LLPhysicsDecomp::notifyCompleted()
@@ -5733,7 +5733,7 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 {
     LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
 
-    if (decomp == NULL)
+    if (decomp == nullptr)
     {
         //stub. do nothing.
         return;
@@ -5789,7 +5789,7 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 void LLPhysicsDecomp::run()
 {
     LLConvexDecomposition* decomp = LLConvexDecomposition::getInstance();
-    if (decomp == NULL)
+    if (decomp == nullptr)
     {
         // stub library. Set init to true so the main thread
         // doesn't wait for this to finish.
@@ -5800,7 +5800,7 @@ void LLPhysicsDecomp::run()
     decomp->initThread();
     mInited = true;
 
-    static const LLCDStageData* stages = NULL;
+    static const LLCDStageData* stages = nullptr;
     static S32 num_stages = 0;
 
     if (!stages)
@@ -5943,7 +5943,7 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
 
         LLCDMeshData mesh;
         LLCDResult res = LLCD_OK;
-        if (LLConvexDecomposition::getInstance() != NULL)
+        if (LLConvexDecomposition::getInstance() != nullptr)
         {
             res = LLConvexDecomposition::getInstance()->getMeshFromHull(&hull, &mesh);
         }
@@ -5962,7 +5962,7 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
 
         LLCDMeshData mesh;
         LLCDResult res = LLCD_OK;
-        if (LLConvexDecomposition::getInstance() != NULL)
+        if (LLConvexDecomposition::getInstance() != nullptr)
         {
             res = LLConvexDecomposition::getInstance()->getMeshFromHull(&hull, &mesh);
         }

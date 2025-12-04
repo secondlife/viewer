@@ -44,7 +44,7 @@ public:
     LLParcelSelection(LLParcel* parcel);
     LLParcelSelection();
 
-    // this can return NULL at any time, as parcel selection
+    // this can return nullptr at any time, as parcel selection
     // might have been invalidated.
     LLParcel* getParcel() { return mParcel; }
 

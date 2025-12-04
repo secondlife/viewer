@@ -34,14 +34,14 @@ void LLVOInventoryListener::removeVOInventoryListener()
     if (mListenerVObject)
     {
         mListenerVObject->removeInventoryListener(this);
-        mListenerVObject = NULL;
+        mListenerVObject = nullptr;
     }
 }
 
 void LLVOInventoryListener::registerVOInventoryListener(LLViewerObject* object, void* user_data)
 {
     removeVOInventoryListener();
-    if (object != NULL)
+    if (object != nullptr)
     {
         mListenerVObject = object;
         object->registerInventoryListener(this,user_data);
@@ -59,5 +59,5 @@ void LLVOInventoryListener::requestVOInventory()
 // This assumes mListenerVObject is clearing it's own lists
 void LLVOInventoryListener::clearVOInventoryListener()
 {
-    mListenerVObject = NULL;
+    mListenerVObject = nullptr;
 }

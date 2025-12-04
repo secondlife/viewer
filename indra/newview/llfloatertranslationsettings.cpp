@@ -44,7 +44,7 @@
 
 LLFloaterTranslationSettings::LLFloaterTranslationSettings(const LLSD& key)
 :   LLFloater(key)
-,   mMachineTranslationCB(NULL)
+,   mMachineTranslationCB(nullptr)
 ,   mAzureKeyVerified(false)
 ,   mGoogleKeyVerified(false)
 ,   mDeepLKeyVerified(false)
@@ -77,9 +77,9 @@ bool LLFloaterTranslationSettings::postBuild()
     mDeepLVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnDeepLVerify, this));
 
     mAzureAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mAzureAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
+    mAzureAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), nullptr);
     mAzureAPIRegionEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mAzureAPIRegionEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
+    mAzureAPIRegionEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), nullptr);
 
     mAzureAPIEndpointEditor->setFocusLostCallback([this](LLFocusableElement*)
                                                   {
@@ -91,10 +91,10 @@ bool LLFloaterTranslationSettings::postBuild()
                                                });
 
     mGoogleAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mGoogleAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onGoogleKeyEdited, this), NULL);
+    mGoogleAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onGoogleKeyEdited, this), nullptr);
 
     mDeepLAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mDeepLAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onDeepLKeyEdited, this), NULL);
+    mDeepLAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onDeepLKeyEdited, this), nullptr);
 
     mDeepLAPIDomainCombo->setFocusLostCallback([this](LLFocusableElement*)
                                                   {

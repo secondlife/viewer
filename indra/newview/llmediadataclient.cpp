@@ -425,7 +425,7 @@ bool LLMediaDataClient::QueueTimer::tick()
         {
             // This timer won't fire again.
             mMDC->setIsRunning(false);
-            mMDC = NULL;
+            mMDC = nullptr;
         }
     }
 
@@ -566,12 +566,12 @@ void LLMediaDataClient::Request::updateScore()
 
 void LLMediaDataClient::Request::markDead()
 {
-    mMDC = NULL;
+    mMDC = nullptr;
 }
 
 bool LLMediaDataClient::Request::isDead()
 {
-    return ((mMDC == NULL) || mObject->isDead());
+    return ((mMDC == nullptr) || mObject->isDead());
 }
 
 void LLMediaDataClient::Request::startTracking()

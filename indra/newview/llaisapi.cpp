@@ -800,7 +800,7 @@ void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager
         if (sPostponedQuery.empty())
         {
             sPostponedQuery.push_back(ais_query_item_t(procFullName, proc));
-            gIdleCallbacks.addFunction(onIdle, NULL);
+            gIdleCallbacks.addFunction(onIdle, nullptr);
         }
         else
         {
@@ -828,7 +828,7 @@ void AISAPI::onIdle(void *userdata)
     if (sPostponedQuery.empty())
     {
         // Nothing to do anymore
-        gIdleCallbacks.deleteFunction(onIdle, NULL);
+        gIdleCallbacks.deleteFunction(onIdle, nullptr);
     }
 }
 

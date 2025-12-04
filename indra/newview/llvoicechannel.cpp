@@ -39,8 +39,8 @@
 #include "llcorehttputil.h"
 
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
-LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = NULL;
-LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = NULL;
+LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = nullptr;
+LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = nullptr;
 LLVoiceChannel::channel_changed_signal_t LLVoiceChannel::sCurrentVoiceChannelChangedSignal;
 
 bool LLVoiceChannel::sSuspended = false;
@@ -75,11 +75,11 @@ LLVoiceChannel::~LLVoiceChannel()
 {
     if (sSuspendedVoiceChannel == this)
     {
-        sSuspendedVoiceChannel = NULL;
+        sSuspendedVoiceChannel = nullptr;
     }
     if (sCurrentVoiceChannel == this)
     {
-        sCurrentVoiceChannel = NULL;
+        sCurrentVoiceChannel = nullptr;
     }
     LLVoiceClient::removeObserver(this);
 
@@ -282,7 +282,7 @@ LLVoiceChannel* LLVoiceChannel::getChannelByID(const LLUUID& session_id)
     voice_channel_map_t::iterator found_it = sVoiceChannelMap.find(session_id);
     if (found_it == sVoiceChannelMap.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {

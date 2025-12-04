@@ -346,7 +346,7 @@ protected:
         Container operator()(InputIterator first, InputIterator last) const {
             Container c = Container();
             for (InputIterator iter = first; iter != last; iter++) {
-                if (*iter != NULL) {
+                if (*iter != nullptr) {
                     c.push_back(*iter);
                 }
             }
@@ -834,13 +834,13 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id, S32 index)
     if(!chiclet)
     {
         LL_WARNS() << "Could not create chiclet" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
     if(!addChiclet(chiclet, index))
     {
         delete chiclet;
         LL_WARNS() << "Could not add chiclet to chiclet panel" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     if (!isAnyIMFloaterDoked())
@@ -864,7 +864,7 @@ T* LLChicletPanel::findChiclet(const LLUUID& im_session_id)
 {
     if(im_session_id.isNull())
     {
-        return NULL;
+        return nullptr;
     }
 
     chiclet_list_t::const_iterator it = mChicletList.begin();
@@ -885,14 +885,14 @@ T* LLChicletPanel::findChiclet(const LLUUID& im_session_id)
             return result;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 template<class T> T* LLChicletPanel::getChiclet(S32 index)
 {
     if(index < 0 || index >= getChicletCount())
     {
-        return NULL;
+        return nullptr;
     }
 
     LLChiclet* chiclet = mChicletList[index];

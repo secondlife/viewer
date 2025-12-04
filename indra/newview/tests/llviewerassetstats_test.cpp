@@ -248,7 +248,7 @@ namespace tut
 
         ~tst_viewerassetstats_index()
         {
-            LLTrace::set_master_thread_recorder(NULL);
+            LLTrace::set_master_thread_recorder(nullptr);
         }
 
         LLTrace::ThreadRecorder mThreadRecorder;
@@ -262,7 +262,7 @@ namespace tut
     void tst_viewerassetstats_index_object_t::test<1>()
     {
         // Check that helpers aren't bothered by missing global stats
-        ensure("Global gViewerAssetStats should be NULL", (NULL == gViewerAssetStats));
+        ensure("Global gViewerAssetStats should be NULL", (nullptr == gViewerAssetStats));
 
         LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
 
@@ -275,15 +275,15 @@ namespace tut
     template<> template<>
     void tst_viewerassetstats_index_object_t::test<2>()
     {
-        ensure("Global gViewerAssetStats should be NULL", (NULL == gViewerAssetStats));
+        ensure("Global gViewerAssetStats should be NULL", (nullptr == gViewerAssetStats));
 
         LLViewerAssetStats * it = new LLViewerAssetStats();
 
-        ensure("Global gViewerAssetStats should still be NULL", (NULL == gViewerAssetStats));
+        ensure("Global gViewerAssetStats should still be NULL", (nullptr == gViewerAssetStats));
 
         LLSD sd_full = it->asLLSD(false);
 
-        // Default (NULL) region ID doesn't produce LLSD results so should
+        // Default (nullptr) region ID doesn't produce LLSD results so should
         // get an empty map back from output
         ensure("Stat-less LLSD initially", is_no_stats_map(sd_full));
 
@@ -373,7 +373,7 @@ namespace tut
         sd = gViewerAssetStats->asLLSD(false)["regions"][region1_handle_str];
 
         delete gViewerAssetStats;
-        gViewerAssetStats = NULL;
+        gViewerAssetStats = nullptr;
 
         ensure("sd[get_texture_non_temp_udp][enqueued] is reset", (0 == sd["get_texture_non_temp_udp"]["enqueued"].asInteger()));
         ensure("sd[get_gesture_udp][dequeued] is reset", (0 == sd["get_gesture_udp"]["dequeued"].asInteger()));
@@ -432,7 +432,7 @@ namespace tut
         sd2 = sd["regions"][0];
 
         delete gViewerAssetStats;
-        gViewerAssetStats = NULL;
+        gViewerAssetStats = nullptr;
 
         ensure("sd2[get_texture_non_temp_udp][enqueued] is reset", (0 == sd2["get_texture_non_temp_udp"]["enqueued"].asInteger()));
         ensure("sd2[get_gesture_udp][enqueued] is reset", (0 == sd2["get_gesture_udp"]["enqueued"].asInteger()));
@@ -505,7 +505,7 @@ namespace tut
         ensure("Region2 is present in results", sd2.isMap());
 
         delete gViewerAssetStats;
-        gViewerAssetStats = NULL;
+        gViewerAssetStats = nullptr;
 
         ensure_equals("sd2[get_texture_non_temp_udp][enqueued] is reset", sd2["get_texture_non_temp_udp"]["enqueued"].asInteger(), 0);
         ensure_equals("sd2[get_gesture_udp][enqueued] is reset", sd2["get_gesture_udp"]["enqueued"].asInteger(), 0);
@@ -570,7 +570,7 @@ namespace tut
         ensure("Region1 is present in results", sd.isMap());
 
         delete gViewerAssetStats;
-        gViewerAssetStats = NULL;
+        gViewerAssetStats = nullptr;
 
         ensure_equals("sd[get_texture_non_temp_udp][enqueued] is reset", sd["get_texture_non_temp_udp"]["enqueued"].asInteger(), 0);
         ensure_equals("sd[get_gesture_udp][dequeued] is reset", sd["get_gesture_udp"]["dequeued"].asInteger(), 0);

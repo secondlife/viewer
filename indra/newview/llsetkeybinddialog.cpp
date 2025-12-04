@@ -69,9 +69,9 @@ bool LLSetKeyBindDialog::sRecordKeys = false;
 
 LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
     : LLModalDialog(key),
-    pParent(NULL),
+    pParent(nullptr),
     mKeyFilterMask(DEFAULT_KEY_FILTER),
-    pUpdater(NULL),
+    pUpdater(nullptr),
     mLastMaskKey(0),
     mContextConeOpacity(0.f),
     mContextConeInAlpha(CONTEXT_CONE_IN_ALPHA),
@@ -114,13 +114,13 @@ void LLSetKeyBindDialog::onClose(bool app_quiting)
     if (pParent)
     {
         pParent->onCancelKeyBind();
-        pParent = NULL;
+        pParent = nullptr;
     }
     if (pUpdater)
     {
         // Doubleclick timer has't fired, delete it
         delete pUpdater;
-        pUpdater = NULL;
+        pUpdater = nullptr;
     }
     LLModalDialog::onClose(app_quiting);
 }
@@ -349,7 +349,7 @@ void LLSetKeyBindDialog::onDefault(void* user_data)
     if (self->pParent)
     {
         self->pParent->onDefaultKeyBind(self->pCheckBox->getValue().asBoolean());
-        self->pParent = NULL;
+        self->pParent = nullptr;
     }
     self->closeFloater();
 }
@@ -360,7 +360,7 @@ void LLSetKeyBindDialog::onClickTimeout(void* user_data, MASK mask)
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
 
     // timer will delete itself after timeout
-    self->pUpdater = NULL;
+    self->pUpdater = nullptr;
 
     self->setKeyBind(CLICK_LEFT, KEY_NONE, mask, self->pCheckBox->getValue().asBoolean());
     self->closeFloater();
@@ -371,7 +371,7 @@ void LLSetKeyBindDialog::setKeyBind(EMouseClickType click, KEY key, MASK mask, b
     if (pParent)
     {
         pParent->onSetKeyBind(click, key, mask, all_modes);
-        pParent = NULL;
+        pParent = nullptr;
     }
 }
 

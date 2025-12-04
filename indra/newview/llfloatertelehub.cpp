@@ -85,7 +85,7 @@ void LLFloaterTelehub::onOpen(const LLSD& key)
 LLFloaterTelehub::~LLFloaterTelehub()
 {
     // no longer interested in this message
-    gMessageSystem->setHandlerFunc("TelehubInfo", NULL);
+    gMessageSystem->setHandlerFunc("TelehubInfo", nullptr);
 }
 
 void LLFloaterTelehub::draw()
@@ -103,7 +103,7 @@ void LLFloaterTelehub::refresh()
     constexpr bool children_ok = true;
     LLViewerObject* object = mObjectSelection->getFirstRootObject(children_ok);
 
-    bool have_selection = (object != NULL);
+    bool have_selection = (object != nullptr);
     bool all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
     getChildView("connect_btn")->setEnabled(have_selection && all_volume);
 
@@ -116,7 +116,7 @@ void LLFloaterTelehub::refresh()
     LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
     if (list)
     {
-        bool enable_remove = (list->getFirstSelected() != NULL);
+        bool enable_remove = (list->getFirstSelected() != nullptr);
         getChildView("remove_spawn_point_btn")->setEnabled(enable_remove);
     }
 }

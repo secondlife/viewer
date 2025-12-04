@@ -608,8 +608,8 @@ void LLInventoryModelBackgroundFetch::onAISContentCalback(
         else
         {
             // push descendant back to verify they are fetched fully (ex: didn't encounter depth limit)
-            LLInventoryModel::cat_array_t* categories(NULL);
-            LLInventoryModel::item_array_t* items(NULL);
+            LLInventoryModel::cat_array_t* categories(nullptr);
+            LLInventoryModel::item_array_t* items(nullptr);
             gInventory.getDirectDescendentsOf(*folder_iter, categories, items);
             if (categories)
             {
@@ -705,8 +705,8 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID& request_i
 
     if (request_descendants)
     {
-        LLInventoryModel::cat_array_t* categories(NULL);
-        LLInventoryModel::item_array_t* items(NULL);
+        LLInventoryModel::cat_array_t* categories(nullptr);
+        LLInventoryModel::item_array_t* items(nullptr);
         gInventory.getDirectDescendentsOf(request_id, categories, items);
         if (categories)
         {
@@ -874,8 +874,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                 {
                     // fetch content only, ignore cat itself
                     uuid_vec_t children;
-                    LLInventoryModel::cat_array_t* categories(NULL);
-                    LLInventoryModel::item_array_t* items(NULL);
+                    LLInventoryModel::cat_array_t* categories(nullptr);
+                    LLInventoryModel::item_array_t* items(nullptr);
                     gInventory.getDirectDescendentsOf(cat_id, categories, items);
 
                     LLViewerInventoryCategory::EFetchType target_state = LLViewerInventoryCategory::FETCH_RECURSIVE;
@@ -1000,8 +1000,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                     if (fetch_info.mFetchType == FT_RECURSIVE
                         || fetch_info.mFetchType == FT_FOLDER_AND_CONTENT)
                     {
-                        LLInventoryModel::cat_array_t* categories(NULL);
-                        LLInventoryModel::item_array_t* items(NULL);
+                        LLInventoryModel::cat_array_t* categories(nullptr);
+                        LLInventoryModel::item_array_t* items(nullptr);
                         gInventory.getDirectDescendentsOf(cat_id, categories, items);
                         if (categories)
                         {
@@ -1153,8 +1153,8 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
                         // May already have this folder, but append child folders to list.
                         if (fetch_info.mFetchType >= FT_CONTENT_RECURSIVE)
                         {
-                            LLInventoryModel::cat_array_t* categories(NULL);
-                            LLInventoryModel::item_array_t* items(NULL);
+                            LLInventoryModel::cat_array_t* categories(nullptr);
+                            LLInventoryModel::item_array_t* items(nullptr);
                             gInventory.getDirectDescendentsOf(cat_id, categories, items);
                             for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
                                 it != categories->end();
@@ -1313,7 +1313,7 @@ void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRes
 
         // Response body should be present.
         LLCore::BufferArray* body(response->getBody());
-        // body = NULL;                                 // Dev tool to force error handling
+        // body = nullptr;                                 // Dev tool to force error handling
         if (! body || ! body->size())
         {
             LL_WARNS(LOG_INV) << "Missing data in inventory folder query." << LL_ENDL;

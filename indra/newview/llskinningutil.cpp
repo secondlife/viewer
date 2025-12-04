@@ -289,7 +289,7 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
         for (U32 j = 0; j < skin->mJointNames.size(); ++j)
         {
     #if DEBUG_SKINNING
-            LLJoint *joint = NULL;
+            LLJoint *joint = nullptr;
             if (skin->mJointNums[j] == -1)
             {
                 joint = avatar->getJoint(skin->mJointNames[j]);

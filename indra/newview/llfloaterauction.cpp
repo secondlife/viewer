@@ -137,7 +137,7 @@ void LLFloaterAuction::initialize()
     }
 
     mImageID.setNull();
-    mImage = NULL;
+    mImage = nullptr;
 }
 
 void LLFloaterAuction::draw()
@@ -273,7 +273,7 @@ void LLFloaterAuction::onClickStartAuction(void* data)
 void LLFloaterAuction::cleanupAndClose()
 {
     mImageID.setNull();
-    mImage = NULL;
+    mImage = nullptr;
     mParcelID = -1;
     mParcelHost.invalidate();
     closeFloater();

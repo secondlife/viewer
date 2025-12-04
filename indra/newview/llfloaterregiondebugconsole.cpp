@@ -92,7 +92,7 @@ boost::signals2::connection LLFloaterRegionDebugConsole::setConsoleReplyCallback
 }
 
 LLFloaterRegionDebugConsole::LLFloaterRegionDebugConsole(LLSD const & key)
-: LLFloater(key), mOutput(NULL)
+: LLFloater(key), mOutput(nullptr)
 {
     mReplySignalConnection = sConsoleReplySignal.connect(
         boost::bind(
@@ -160,7 +160,7 @@ void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
     {
         LLSD postData = LLSD(input->getText());
         LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, postData,
-            NULL,
+            nullptr,
             boost::bind(&LLFloaterRegionDebugConsole::onAsyncConsoleError, this, _1));
 
     }

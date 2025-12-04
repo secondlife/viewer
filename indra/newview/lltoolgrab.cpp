@@ -64,7 +64,7 @@ const S32 SLOP_DIST_SQ = 4;
 // Override modifier key behavior with these buttons
 bool gGrabBtnVertical = false;
 bool gGrabBtnSpin = false;
-LLTool* gGrabTransientTool = NULL;
+LLTool* gGrabTransientTool = nullptr;
 extern bool gDebugClicks;
 
 //
@@ -206,7 +206,7 @@ bool LLToolGrabBase::handleObjectHit(const LLPickInfo& info)
         LL_INFOS() << "LLToolGrab handleObjectHit " << info.mMousePt.mX << "," << info.mMousePt.mY << LL_ENDL;
     }
 
-    if (NULL == objectp) // unexpected
+    if (nullptr == objectp) // unexpected
     {
         LL_WARNS() << "objectp was NULL; returning false" << LL_ENDL;
         return false;
@@ -217,7 +217,7 @@ bool LLToolGrabBase::handleObjectHit(const LLPickInfo& info)
         if (gGrabTransientTool)
         {
             gBasicToolset->selectTool( gGrabTransientTool );
-            gGrabTransientTool = NULL;
+            gGrabTransientTool = nullptr;
         }
         return true;
     }
@@ -322,7 +322,7 @@ bool LLToolGrabBase::handleObjectHit(const LLPickInfo& info)
         && (mMode == GRAB_NONPHYSICAL || mMode == GRAB_LOCKED))
     {
         gBasicToolset->selectTool( gGrabTransientTool );
-        gGrabTransientTool = NULL;
+        gGrabTransientTool = nullptr;
     }
 
     return true;
@@ -995,7 +995,7 @@ bool LLToolGrabBase::handleMouseUp(S32 x, S32 y, MASK mask)
         if (gGrabTransientTool)
         {
             gBasicToolset->selectTool( gGrabTransientTool );
-            gGrabTransientTool = NULL;
+            gGrabTransientTool = nullptr;
         }
     }
 

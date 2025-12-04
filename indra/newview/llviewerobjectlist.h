@@ -256,12 +256,12 @@ extern LLViewerObjectList gObjectList;
 // Inlines
 /**
  * Note:
- * it will return NULL for offline avatar_id
+ * it will return nullptr for offline avatar_id
  */
 inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id)
 {
     if (id.isNull())
-        return NULL;
+        return nullptr;
 
     auto iter = mUUIDObjectMap.find(id);
     if (iter != mUUIDObjectMap.end())
@@ -269,7 +269,7 @@ inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id)
         return iter->second;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 inline LLViewerObject *LLViewerObjectList::getObject(const S32 index)
@@ -279,7 +279,7 @@ inline LLViewerObject *LLViewerObjectList::getObject(const S32 index)
     if (objectp->isDead())
     {
         //LL_WARNS() << "Dead object " << objectp->mID << " in getObject" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
     return objectp;
 }

@@ -35,8 +35,8 @@
 
 //---------------------------------------------------------------------------------
 LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
-                                                mTitle(NULL),
-                                                mCloseBtn(NULL)
+                                                mTitle(nullptr),
+                                                mCloseBtn(nullptr)
 {
     buildFromFile( "panel_sys_well_item.xml");
 

@@ -66,19 +66,19 @@ LLPanelGroupGeneral::LLPanelGroupGeneral()
 :   LLPanelGroupTab(),
     mChanged(false),
     mFirstUse(true),
-    mGroupNameEditor(NULL),
-    mFounderName(NULL),
-    mInsignia(NULL),
-    mEditCharter(NULL),
-    mCtrlShowInGroupList(NULL),
-    mComboMature(NULL),
-    mCtrlOpenEnrollment(NULL),
-    mCtrlEnrollmentFee(NULL),
-    mSpinEnrollmentFee(NULL),
-    mCtrlReceiveNotices(NULL),
-    mCtrlListGroup(NULL),
-    mActiveTitleLabel(NULL),
-    mComboActiveTitle(NULL)
+    mGroupNameEditor(nullptr),
+    mFounderName(nullptr),
+    mInsignia(nullptr),
+    mEditCharter(nullptr),
+    mCtrlShowInGroupList(nullptr),
+    mComboMature(nullptr),
+    mCtrlOpenEnrollment(nullptr),
+    mCtrlEnrollmentFee(nullptr),
+    mSpinEnrollmentFee(nullptr),
+    mCtrlReceiveNotices(nullptr),
+    mCtrlListGroup(nullptr),
+    mActiveTitleLabel(nullptr),
+    mComboActiveTitle(nullptr)
 {
 
 }

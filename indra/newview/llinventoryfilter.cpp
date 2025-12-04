@@ -467,8 +467,8 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
                     gInventory.fetchDescendentsOf(object_id);
                 }
 
-                LLInventoryModel::cat_array_t* cat_array = NULL;
-                LLInventoryModel::item_array_t* item_array = NULL;
+                LLInventoryModel::cat_array_t* cat_array = nullptr;
+                LLInventoryModel::item_array_t* item_array = nullptr;
                 gInventory.getDirectDescendentsOf(object_id,cat_array,item_array);
                 size_t descendents_actual = 0;
                 if(cat_array && item_array)
@@ -599,7 +599,7 @@ bool LLInventoryFilter::checkAgainstPermissions(const LLInventoryItem* item) con
 
     LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
     PermissionMask perm = new_item->getPermissionMask();
-    new_item = NULL;
+    new_item = nullptr;
 
     return (perm & mFilterOps.mPermissions) == mFilterOps.mPermissions;
 }

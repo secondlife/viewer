@@ -38,7 +38,7 @@
 #include "llrootview.h"
 
 // static
-LLUploadDialog* LLUploadDialog::sDialog = NULL;
+LLUploadDialog* LLUploadDialog::sDialog = nullptr;
 
 // static
 LLUploadDialog* LLUploadDialog::modalUploadDialog(const std::string& msg)
@@ -52,7 +52,7 @@ void LLUploadDialog::modalUploadFinished()
 {
     // Note: object adds, removes, and destroys itself.
     delete LLUploadDialog::sDialog;
-    LLUploadDialog::sDialog = NULL;
+    LLUploadDialog::sDialog = nullptr;
 }
 
 ////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
         S32 cur_width = S32(font->getWidth(tokstr) + 0.99f) + TEXT_PAD;
         max_msg_width = llmax( max_msg_width, cur_width );
         msg_lines.push_back( tokstr );
-        token = strtok( NULL, "\n" );
+        token = strtok( nullptr, "\n" );
     }
 
     S32 line_height = font->getLineHeight();
@@ -155,7 +155,7 @@ LLUploadDialog::~LLUploadDialog()
 //    LLFilePicker::instance().reset();
 
 
-    LLUploadDialog::sDialog = NULL;
+    LLUploadDialog::sDialog = nullptr;
 }
 
 

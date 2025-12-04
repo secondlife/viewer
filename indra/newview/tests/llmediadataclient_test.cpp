@@ -104,7 +104,7 @@ const char *DATA = _DATA(VALID_OBJECT_ID,"1.0","true");
 "==================================== TEST " #N " ===================================\n" << \
 "================================================================================\n" << LL_ENDL;
 
-LLSD *gPostRecords = NULL;
+LLSD *gPostRecords = nullptr;
 F64   gMinimumInterestLevel = (F64)0.0;
 #if 0
 // stubs:

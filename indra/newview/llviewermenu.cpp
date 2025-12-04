@@ -171,35 +171,35 @@ extern bool gShaderProfileFrame;
 // Globals
 //
 
-LLMenuBarGL     *gMenuBarView = NULL;
-LLViewerMenuHolderGL    *gMenuHolder = NULL;
-LLMenuGL        *gPopupMenuView = NULL;
-LLMenuGL        *gEditMenu = NULL;
-LLMenuBarGL     *gLoginMenuBarView = NULL;
+LLMenuBarGL     *gMenuBarView = nullptr;
+LLViewerMenuHolderGL    *gMenuHolder = nullptr;
+LLMenuGL        *gPopupMenuView = nullptr;
+LLMenuGL        *gEditMenu = nullptr;
+LLMenuBarGL     *gLoginMenuBarView = nullptr;
 
 // Pie menus
-LLContextMenu   *gMenuAvatarSelf    = NULL;
-LLContextMenu   *gMenuAvatarOther = NULL;
-LLContextMenu   *gMenuObject = NULL;
-LLContextMenu   *gMenuAttachmentSelf = NULL;
-LLContextMenu   *gMenuAttachmentOther = NULL;
-LLContextMenu   *gMenuLand  = NULL;
-LLContextMenu   *gMenuMuteParticle = NULL;
+LLContextMenu   *gMenuAvatarSelf    = nullptr;
+LLContextMenu   *gMenuAvatarOther = nullptr;
+LLContextMenu   *gMenuObject = nullptr;
+LLContextMenu   *gMenuAttachmentSelf = nullptr;
+LLContextMenu   *gMenuAttachmentOther = nullptr;
+LLContextMenu   *gMenuLand  = nullptr;
+LLContextMenu   *gMenuMuteParticle = nullptr;
 
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
-LLMenuGL* gAttachSubMenu = NULL;
-LLMenuGL* gDetachSubMenu = NULL;
-LLMenuGL* gTakeOffClothes = NULL;
-LLMenuGL* gDetachAvatarMenu = NULL;
-LLMenuGL* gDetachHUDAvatarMenu = NULL;
-LLContextMenu* gAttachScreenPieMenu = NULL;
-LLContextMenu* gAttachPieMenu = NULL;
+LLMenuGL* gAttachSubMenu = nullptr;
+LLMenuGL* gDetachSubMenu = nullptr;
+LLMenuGL* gTakeOffClothes = nullptr;
+LLMenuGL* gDetachAvatarMenu = nullptr;
+LLMenuGL* gDetachHUDAvatarMenu = nullptr;
+LLContextMenu* gAttachScreenPieMenu = nullptr;
+LLContextMenu* gAttachPieMenu = nullptr;
 LLContextMenu* gAttachBodyPartPieMenus[9];
-LLContextMenu* gDetachPieMenu = NULL;
-LLContextMenu* gDetachScreenPieMenu = NULL;
-LLContextMenu* gDetachAttSelfMenu = NULL;
-LLContextMenu* gDetachHUDAttSelfMenu = NULL;
+LLContextMenu* gDetachPieMenu = nullptr;
+LLContextMenu* gDetachScreenPieMenu = nullptr;
+LLContextMenu* gDetachAttSelfMenu = nullptr;
+LLContextMenu* gDetachHUDAttSelfMenu = nullptr;
 LLContextMenu* gDetachBodyPartPieMenus[9];
 
 //
@@ -344,7 +344,7 @@ private:
     LLHandle<LLUICtrl> mLandBuyPassHandle;
 };
 
-static LLMenuParcelObserver* gMenuParcelObserver = NULL;
+static LLMenuParcelObserver* gMenuParcelObserver = nullptr;
 
 static LLUIListener sUIListener;
 
@@ -409,7 +409,7 @@ private:
     LLHandle<LLView> mMarketplaceListingsItem;
 };
 
-static LLSLMMenuUpdater* gSLMMenuUpdater = NULL;
+static LLSLMMenuUpdater* gSLMMenuUpdater = nullptr;
 
 LLSLMMenuUpdater::LLSLMMenuUpdater()
 {
@@ -1849,7 +1849,7 @@ class LLAdvancedAppearanceToXML : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-        LLVOAvatar *avatar = NULL;
+        LLVOAvatar *avatar = nullptr;
         if (obj)
         {
             if (obj->isAvatar())
@@ -2857,37 +2857,37 @@ void cleanup_menus()
     gSLMMenuUpdater = nullptr;
 
     delete gMenuParcelObserver;
-    gMenuParcelObserver = NULL;
+    gMenuParcelObserver = nullptr;
 
     delete gMenuAvatarSelf;
-    gMenuAvatarSelf = NULL;
+    gMenuAvatarSelf = nullptr;
 
     delete gMenuAvatarOther;
-    gMenuAvatarOther = NULL;
+    gMenuAvatarOther = nullptr;
 
     delete gMenuObject;
-    gMenuObject = NULL;
+    gMenuObject = nullptr;
 
     delete gMenuAttachmentSelf;
-    gMenuAttachmentSelf = NULL;
+    gMenuAttachmentSelf = nullptr;
 
     delete gMenuAttachmentOther;
-    gMenuAttachmentOther = NULL;
+    gMenuAttachmentOther = nullptr;
 
     delete gMenuLand;
-    gMenuLand = NULL;
+    gMenuLand = nullptr;
 
     delete gMenuMuteParticle;
-    gMenuMuteParticle = NULL;
+    gMenuMuteParticle = nullptr;
 
     delete gMenuBarView;
-    gMenuBarView = NULL;
+    gMenuBarView = nullptr;
 
     delete gPopupMenuView;
-    gPopupMenuView = NULL;
+    gPopupMenuView = nullptr;
 
     delete gMenuHolder;
-    gMenuHolder = NULL;
+    gMenuHolder = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -3037,7 +3037,7 @@ bool enable_object_inspect()
 {
     LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
     LLViewerObject* selected_objectp = selection->getFirstRootObject();
-    return selected_objectp != NULL;
+    return selected_objectp != nullptr;
 }
 
 struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEFunctor
@@ -3740,7 +3740,7 @@ bool callback_freeze(const LLSD& notification, const LLSD& response)
 void handle_avatar_freeze(const LLSD& avatar_id)
 {
         // Use avatar_id if available, otherwise default to right-click avatar
-        LLVOAvatar* avatar = NULL;
+        LLVOAvatar* avatar = nullptr;
         if (avatar_id.asUUID().notNull())
         {
             avatar = find_avatar_from_object(avatar_id.asUUID());
@@ -3863,7 +3863,7 @@ bool callback_eject(const LLSD& notification, const LLSD& response)
 void handle_avatar_eject(const LLSD& avatar_id)
 {
         // Use avatar_id if available, otherwise default to right-click avatar
-        LLVOAvatar* avatar = NULL;
+        LLVOAvatar* avatar = nullptr;
         if (avatar_id.asUUID().notNull())
         {
             avatar = find_avatar_from_object(avatar_id.asUUID());
@@ -3940,7 +3940,7 @@ bool picks_tab_visible()
 bool enable_freeze_eject(const LLSD& avatar_id)
 {
     // Use avatar_id if available, otherwise default to right-click avatar
-    LLVOAvatar* avatar = NULL;
+    LLVOAvatar* avatar = nullptr;
     if (avatar_id.asUUID().notNull())
     {
         avatar = find_avatar_from_object(avatar_id.asUUID());
@@ -4016,7 +4016,7 @@ bool enable_buy_object()
     // In order to buy, there must only be 1 purchaseable object in
     // the selection manager.
     if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() != 1) return false;
-    LLViewerObject* obj = NULL;
+    LLViewerObject* obj = nullptr;
     LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
     if(node)
     {
@@ -4394,7 +4394,7 @@ void process_grant_godlike_powers(LLMessageSystem* msg, void**)
 
 bool is_agent_mappable(const LLUUID& agent_id)
 {
-    const LLRelationship* buddy_info = NULL;
+    const LLRelationship* buddy_info = nullptr;
     bool is_friend = LLAvatarActions::isFriend(agent_id);
 
     if (is_friend)
@@ -4570,7 +4570,7 @@ class LLLandSit : public view_listener_t
         {
             target_rot = gAgent.getFrameAgent().getQuaternion();
         }
-        gAgent.startAutoPilotGlobal(posGlobal, "Sit", &target_rot, near_sit_down_point, NULL, 0.7f);
+        gAgent.startAutoPilotGlobal(posGlobal, "Sit", &target_rot, near_sit_down_point, nullptr, 0.7f);
         return true;
     }
 };
@@ -4903,9 +4903,9 @@ static bool get_derezzable_objects(
 
 static bool can_derez(EDeRezDestination dest)
 {
-    LLViewerRegion* first_region = NULL;
+    LLViewerRegion* first_region = nullptr;
     std::string error;
-    return get_derezzable_objects(dest, error, first_region, NULL, true);
+    return get_derezzable_objects(dest, error, first_region, nullptr, true);
 }
 
 static void derez_objects(
@@ -5004,16 +5004,16 @@ static void derez_objects(
 
 static void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 {
-    LLViewerRegion* first_region = NULL;
+    LLViewerRegion* first_region = nullptr;
     std::string error;
-    derez_objects(dest, dest_id, first_region, error, NULL);
+    derez_objects(dest, dest_id, first_region, error, nullptr);
 }
 
 static void derez_objects_separate(EDeRezDestination dest, const LLUUID &dest_id)
 {
     std::vector<LLViewerObjectPtr> derez_object_list;
     std::string error;
-    LLViewerRegion* first_region = NULL;
+    LLViewerRegion* first_region = nullptr;
     if (!get_derezzable_objects(dest, error, first_region, &derez_object_list, false))
     {
         LL_WARNS() << "No objects to derez" << LL_ENDL;
@@ -5087,10 +5087,10 @@ private:
 
         mReturnableObjects.clear();
         mError.clear();
-        mFirstRegion = NULL;
+        mFirstRegion = nullptr;
 
         // drop reference to current selection
-        mObjectSelection = NULL;
+        mObjectSelection = nullptr;
         return false;
     }
 
@@ -5496,14 +5496,14 @@ void show_buy_currency(const char* extra)
     // Don't show currency web page for branded clients.
 /*
     std::ostringstream mesg;
-    if (extra != NULL)
+    if (extra != nullptr)
     {
         mesg << extra << "\n \n";
     }
     mesg << "Go to " << LLNotifications::instance().getGlobalString("BUY_CURRENCY_URL")<< "\nfor information on purchasing currency?";
 */
     LLSD args;
-    if (extra != NULL)
+    if (extra != nullptr)
     {
         args["EXTRA"] = extra;
     }
@@ -5596,7 +5596,7 @@ class LLToolsEnablePathfinding : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
+        return (LLPathfindingManager::getInstance() != nullptr) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
     }
 };
 
@@ -5604,7 +5604,7 @@ class LLToolsEnablePathfindingView : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingViewEnabled();
+        return (LLPathfindingManager::getInstance() != nullptr) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingViewEnabled();
     }
 };
 
@@ -5612,7 +5612,7 @@ class LLToolsDoPathfindingRebakeRegion : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        bool hasPathfinding = (LLPathfindingManager::getInstance() != NULL);
+        bool hasPathfinding = (LLPathfindingManager::getInstance() != nullptr);
 
         if (hasPathfinding)
         {
@@ -5749,7 +5749,7 @@ class LLToolsSelectNextPartFace : public view_listener_t
         bool ifwd = (userdata.asString() == "includenext");
         bool iprev = (userdata.asString() == "includeprevious");
 
-        LLViewerObject* to_select = NULL;
+        LLViewerObject* to_select = nullptr;
         bool restart_face_on_part = !cycle_faces;
         S32 new_te = 0;
 
@@ -6010,7 +6010,7 @@ class LLEditDelete : public view_listener_t
 void handle_spellcheck_replace_with_suggestion(const LLUICtrl* ctrl, const LLSD& param)
 {
     const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
-    LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+    LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : nullptr;
     if ( (!spellcheck_handler) || (!spellcheck_handler->getSpellCheck()) )
     {
         return;
@@ -6028,8 +6028,8 @@ void handle_spellcheck_replace_with_suggestion(const LLUICtrl* ctrl, const LLSD&
 bool visible_spellcheck_suggestion(LLUICtrl* ctrl, const LLSD& param)
 {
     LLMenuItemGL* item = dynamic_cast<LLMenuItemGL*>(ctrl);
-    const LLContextMenu* menu = (item) ? dynamic_cast<const LLContextMenu*>(item->getParent()) : NULL;
-    const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+    const LLContextMenu* menu = (item) ? dynamic_cast<const LLContextMenu*>(item->getParent()) : nullptr;
+    const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : nullptr;
     if ( (!spellcheck_handler) || (!spellcheck_handler->getSpellCheck()) )
     {
         return false;
@@ -6048,7 +6048,7 @@ bool visible_spellcheck_suggestion(LLUICtrl* ctrl, const LLSD& param)
 void handle_spellcheck_add_to_dictionary(const LLUICtrl* ctrl)
 {
     const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
-    LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+    LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : nullptr;
     if ( (spellcheck_handler) && (spellcheck_handler->canAddToDictionary()) )
     {
         spellcheck_handler->addToDictionary();
@@ -6058,14 +6058,14 @@ void handle_spellcheck_add_to_dictionary(const LLUICtrl* ctrl)
 bool enable_spellcheck_add_to_dictionary(const LLUICtrl* ctrl)
 {
     const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
-    const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+    const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : nullptr;
     return (spellcheck_handler) && (spellcheck_handler->canAddToDictionary());
 }
 
 void handle_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
 {
     const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
-    LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+    LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<LLSpellCheckMenuHandler*>(menu->getSpawningView()) : nullptr;
     if ( (spellcheck_handler) && (spellcheck_handler->canAddToIgnore()) )
     {
         spellcheck_handler->addToIgnore();
@@ -6075,7 +6075,7 @@ void handle_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
 bool enable_spellcheck_add_to_ignore(const LLUICtrl* ctrl)
 {
     const LLContextMenu* menu = dynamic_cast<const LLContextMenu*>(ctrl->getParent());
-    const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : NULL;
+    const LLSpellCheckMenuHandler* spellcheck_handler = (menu) ? dynamic_cast<const LLSpellCheckMenuHandler*>(menu->getSpawningView()) : nullptr;
     return (spellcheck_handler) && (spellcheck_handler->canAddToIgnore());
 }
 
@@ -6109,7 +6109,7 @@ public:
         mObjectSelection.clear();
         mReturnableObjects.clear();
         mError.clear();
-        mFirstRegion = NULL;
+        mFirstRegion = nullptr;
     };
 
     LLObjectSelectionHandle mObjectSelection;
@@ -6810,7 +6810,7 @@ bool enable_pay_avatar()
 {
     LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
     LLVOAvatar* avatar = find_avatar_from_object(obj);
-    return (avatar != NULL);
+    return (avatar != nullptr);
 }
 
 bool enable_pay_object()
@@ -7274,9 +7274,9 @@ private:
         if (selectedObject)
         {
             S32 index = userdata.asInteger();
-            LLViewerJointAttachment* attachment_point = NULL;
+            LLViewerJointAttachment* attachment_point = nullptr;
             if (index > 0)
-                attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, (LLViewerJointAttachment*)NULL);
+                attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, (LLViewerJointAttachment*)nullptr);
             confirmReplaceAttachment(0, attachment_point);
         }
         return true;
@@ -7363,7 +7363,7 @@ void LLObjectAttachToAvatar::confirmReplaceAttachment(S32 option, LLViewerJointA
 
             // The callback will be called even if avatar fails to get close enough to the object, so we won't get a memory leak.
             CallbackData* user_data = new CallbackData(attachment_point, mReplace);
-            gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(walkToSpot), "Attach", NULL, onNearAttachObject, user_data, stop_distance);
+            gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(walkToSpot), "Attach", nullptr, onNearAttachObject, user_data, stop_distance);
             gAgentCamera.clearFocusObject();
         }
     }
@@ -7445,7 +7445,7 @@ class LLAttachmentDetachFromPoint : public view_listener_t
     bool handleEvent(const LLSD& user_data)
     {
         uuid_vec_t ids_to_remove;
-        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, user_data.asInteger(), (LLViewerJointAttachment*)NULL);
+        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, user_data.asInteger(), (LLViewerJointAttachment*)nullptr);
         if (attachment->getNumObjects() > 0)
         {
             for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator iter = attachment->mAttachedObjects.begin();
@@ -7470,7 +7470,7 @@ static bool onEnableAttachmentLabel(LLUICtrl* ctrl, const LLSD& data)
     LLMenuItemGL* menu = dynamic_cast<LLMenuItemGL*>(ctrl);
     if (menu)
     {
-        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, data["index"].asInteger(), (LLViewerJointAttachment*)NULL);
+        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, data["index"].asInteger(), (LLViewerJointAttachment*)nullptr);
         if (attachment)
         {
             label = data["label"].asString();
@@ -7607,14 +7607,14 @@ class LLAttachmentEnableDrop : public view_listener_t
         // item is in your inventory
 
         LLViewerObject*              object         = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-        LLViewerJointAttachment*     attachment     = NULL;
-        LLInventoryItem*             item           = NULL;
+        LLViewerJointAttachment*     attachment     = nullptr;
+        LLInventoryItem*             item           = nullptr;
 
         // Do not enable drop if all faces of object are not enabled
         if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
         {
             S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getAttachmentState());
-            attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
+            attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)nullptr);
 
             if (attachment)
             {
@@ -7710,7 +7710,7 @@ bool object_selected_and_point_valid()
         selection->getFirstRootObject()->flagObjectMove() &&
         !selection->getFirstRootObject()->flagObjectPermanent() &&
         !((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar() &&
-        (selection->getFirstRootObject()->getNVPair("AssetContainer") == NULL);
+        (selection->getFirstRootObject()->getNVPair("AssetContainer") == nullptr);
 }
 
 
@@ -8025,7 +8025,7 @@ void handle_dump_attachments()
              ++attachment_iter)
         {
             LLViewerObject *attached_object = attachment_iter->get();
-            bool visible = (attached_object != NULL &&
+            bool visible = (attached_object != nullptr &&
                             attached_object->mDrawable.notNull() &&
                             !attached_object->mDrawable->isRenderType(0));
             LLVector3 pos;
@@ -8268,7 +8268,7 @@ class LLSomethingSelectedNoHUD : public view_listener_t
 
 static bool is_editable_selected()
 {
-    return (LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() != NULL);
+    return (LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() != nullptr);
 }
 
 class LLEditableSelected : public view_listener_t
@@ -8700,7 +8700,7 @@ bool enable_grab_baked_texture(EBakedTextureIndex baked_tex_index)
 }
 
 // Returns a pointer to the avatar give the UUID of the avatar OR of an attachment the avatar is wearing.
-// Returns NULL on failure.
+// Returns nullptr on failure.
 LLVOAvatar* find_avatar_from_object(LLViewerObject* object)
 {
     if (object)
@@ -8715,7 +8715,7 @@ LLVOAvatar* find_avatar_from_object(LLViewerObject* object)
         }
         else if( !object->isAvatar() )
         {
-            object = NULL;
+            object = nullptr;
         }
     }
 
@@ -8724,7 +8724,7 @@ LLVOAvatar* find_avatar_from_object(LLViewerObject* object)
 
 
 // Returns a pointer to the avatar give the UUID of the avatar OR of an attachment the avatar is wearing.
-// Returns NULL on failure.
+// Returns nullptr on failure.
 LLVOAvatar* find_avatar_from_object(const LLUUID& object_id)
 {
     return find_avatar_from_object( gObjectList.findObject(object_id) );

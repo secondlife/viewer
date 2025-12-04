@@ -116,7 +116,7 @@ public:
     virtual bool verify() const { return true; }        // Verify that all data in the draw pool is correct!
     virtual S32 getShaderLevel() const { return mShaderLevel; }
 
-    static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
+    static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = nullptr);
     virtual LLViewerTexture* getTexture() = 0;
     virtual bool isFacePool() { return false; }
     virtual void resetDrawOrders() = 0;
@@ -345,8 +345,8 @@ public:
 
     LLRenderPass(const U32 type);
     virtual ~LLRenderPass();
-    /*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
-    LLViewerTexture* getTexture() { return NULL; }
+    /*virtual*/ LLViewerTexture* getDebugTexture() { return nullptr; }
+    LLViewerTexture* getTexture() { return nullptr; }
     bool isDead() { return false; }
     void resetDrawOrders() { }
 

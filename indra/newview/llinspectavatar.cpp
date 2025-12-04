@@ -154,7 +154,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 :   LLInspect( LLSD() ),    // single_instance, doesn't really need key
     mAvatarID(),            // set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec*
     mAvatarName(),
-    mPropertiesRequest(NULL),
+    mPropertiesRequest(nullptr),
     mAvatarNameCacheConnection()
 {
     // can't make the properties request until the widgets are constructed
@@ -173,7 +173,7 @@ LLInspectAvatar::~LLInspectAvatar()
     // clean up any pending requests so they don't call back into a deleted
     // view
     delete mPropertiesRequest;
-    mPropertiesRequest = NULL;
+    mPropertiesRequest = nullptr;
 
     LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -284,7 +284,7 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 
     // Delete the request object as it has been satisfied
     delete mPropertiesRequest;
-    mPropertiesRequest = NULL;
+    mPropertiesRequest = nullptr;
 }
 
 void LLInspectAvatar::updateVolumeSlider()

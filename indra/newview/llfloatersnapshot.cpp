@@ -67,7 +67,7 @@ LLPanelSnapshot* LLFloaterSnapshot::Impl::getActivePanel(LLFloaterSnapshotBase* 
         {
             LL_WARNS() << "No snapshot active panel, current panel index: " << panel_container->getCurrentPanelIndex() << LL_ENDL;
         }
-        llassert_always(active_panel != NULL);
+        llassert_always(active_panel != nullptr);
     }
     return active_panel;
 }
@@ -936,10 +936,10 @@ void LLFloaterSnapshot::Impl::onSendingPostcardFinished(LLFloaterSnapshotBase* f
 // Default constructor
 LLFloaterSnapshotBase::LLFloaterSnapshotBase(const LLSD& key)
     : LLFloater(key),
-      mRefreshBtn(NULL),
-      mRefreshLabel(NULL),
-      mSucceessLblPanel(NULL),
-      mFailureLblPanel(NULL)
+      mRefreshBtn(nullptr),
+      mRefreshLabel(nullptr),
+      mSucceessLblPanel(nullptr),
+      mFailureLblPanel(nullptr)
 {
 }
 
@@ -1289,7 +1289,7 @@ void LLFloaterSnapshotBase::ImplBase::updateLivePreview()
 void LLFloaterSnapshot::update()
 {
     LLFloaterSnapshot* inst = findInstance();
-    if (inst != NULL)
+    if (inst != nullptr)
     {
         inst->impl->updateLivePreview();
     }
@@ -1319,7 +1319,7 @@ void LLFloaterSnapshot::saveTexture()
     LLSnapshotLivePreview* previewp = getPreviewView();
     if (!previewp)
     {
-        llassert(previewp != NULL);
+        llassert(previewp != nullptr);
         return;
     }
 
@@ -1330,7 +1330,7 @@ void LLFloaterSnapshot::saveLocal(const snapshot_saved_signal_t::slot_type& succ
 {
     LL_DEBUGS() << "saveLocal" << LL_ENDL;
     LLSnapshotLivePreview* previewp = getPreviewView();
-    llassert(previewp != NULL);
+    llassert(previewp != nullptr);
     if (previewp)
     {
         previewp->saveLocal(success_cb, failure_cb);
@@ -1365,15 +1365,15 @@ LLPointer<LLImageFormatted> LLFloaterSnapshotBase::getImageData()
     LLSnapshotLivePreview* previewp = getPreviewView();
     if (!previewp)
     {
-        llassert(previewp != NULL);
-        return NULL;
+        llassert(previewp != nullptr);
+        return nullptr;
     }
 
     LLPointer<LLImageFormatted> img = previewp->getFormattedImage();
     if (!img.get())
     {
         LL_WARNS() << "Empty snapshot image data" << LL_ENDL;
-        llassert(img.get() != NULL);
+        llassert(img.get() != nullptr);
     }
 
     return img;
@@ -1384,7 +1384,7 @@ const LLVector3d& LLFloaterSnapshotBase::getPosTakenGlobal()
     LLSnapshotLivePreview* previewp = getPreviewView();
     if (!previewp)
     {
-        llassert(previewp != NULL);
+        llassert(previewp != nullptr);
         return LLVector3d::zero;
     }
 
@@ -1446,7 +1446,7 @@ bool LLSnapshotFloaterView::handleMouseDown(S32 x, S32 y, MASK mask)
         return LLFloaterView::handleMouseDown(x, y, mask);
     }
     // give floater a change to handle mouse, else camera tool
-    if (childrenHandleMouseDown(x, y, mask) == NULL)
+    if (childrenHandleMouseDown(x, y, mask) == nullptr)
     {
         LLToolMgr::getInstance()->getCurrentTool()->handleMouseDown( x, y, mask );
     }
@@ -1462,7 +1462,7 @@ bool LLSnapshotFloaterView::handleMouseUp(S32 x, S32 y, MASK mask)
         return LLFloaterView::handleMouseUp(x, y, mask);
     }
     // give floater a change to handle mouse, else camera tool
-    if (childrenHandleMouseUp(x, y, mask) == NULL)
+    if (childrenHandleMouseUp(x, y, mask) == nullptr)
     {
         LLToolMgr::getInstance()->getCurrentTool()->handleMouseUp( x, y, mask );
     }
@@ -1478,7 +1478,7 @@ bool LLSnapshotFloaterView::handleHover(S32 x, S32 y, MASK mask)
         return LLFloaterView::handleHover(x, y, mask);
     }
     // give floater a change to handle mouse, else camera tool
-    if (childrenHandleHover(x, y, mask) == NULL)
+    if (childrenHandleHover(x, y, mask) == nullptr)
     {
         LLToolMgr::getInstance()->getCurrentTool()->handleHover( x, y, mask );
     }

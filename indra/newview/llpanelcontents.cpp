@@ -97,7 +97,7 @@ bool LLPanelContents::postBuild()
 
 LLPanelContents::LLPanelContents()
     :   LLPanel(),
-        mPanelInventoryObject(NULL)
+        mPanelInventoryObject(nullptr)
 {
 }
 

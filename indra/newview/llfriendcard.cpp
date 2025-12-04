@@ -243,7 +243,7 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
             if ( item )
             {
                 LLUUID creator_id = item->getCreatorUUID();
-                LLViewerInventoryItem* cur_item = NULL;
+                LLViewerInventoryItem* cur_item = nullptr;
                 for (S32 i = static_cast<S32>(items->size()) - 1; i >= 0; --i)
                 {
                     cur_item = items->at(i);
@@ -260,7 +260,7 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
             // Else check that items have same type and name.
             // Note: UUID's of compared items also may be not equal.
             std::string obj_name = obj->getName();
-            LLViewerInventoryItem* cur_item = NULL;
+            LLViewerInventoryItem* cur_item = nullptr;
             for (S32 i = static_cast<S32>(items->size()) - 1; i >= 0; --i)
             {
                 cur_item = items->at(i);
@@ -280,7 +280,7 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
         // If target obj and descendent category have same type and name
         // then return true. Note: UUID's of compared items also may be not equal.
         std::string obj_name = obj->getName();
-        LLViewerInventoryCategory* cur_cat = NULL;
+        LLViewerInventoryCategory* cur_cat = nullptr;
         for (S32 i = static_cast<S32>(cats->size()) - 1; i >= 0; --i)
         {
             cur_cat = cats->at(i);
@@ -301,7 +301,7 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
 
 bool LLFriendCardsManager::isCategoryInFriendFolder(const LLViewerInventoryCategory* cat) const
 {
-    if (NULL == cat)
+    if (nullptr == cat)
         return false;
     return true == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
 }
@@ -417,7 +417,7 @@ void LLFriendCardsManager::findMatchedFriendCards(const LLUUID& avatarID, LLInve
 
 
     LLViewerInventoryCategory* friendFolder = gInventory.getCategory(friendFolderUUID);
-    if (NULL == friendFolder)
+    if (nullptr == friendFolder)
         return;
 
     LLParticularBuddyCollector matchFunctor(avatarID);

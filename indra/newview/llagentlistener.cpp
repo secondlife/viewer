@@ -212,7 +212,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
         params.append(event_data["x"]);
         params.append(event_data["y"]);
         params.append(event_data["z"]);
-        LLCommandDispatcher::dispatch("teleport", params, LLSD(), LLGridManager::getInstance()->getGrid(), NULL, LLCommandHandler::NAV_TYPE_CLICKED, true);
+        LLCommandDispatcher::dispatch("teleport", params, LLSD(), LLGridManager::getInstance()->getGrid(), nullptr, LLCommandHandler::NAV_TYPE_CLICKED, true);
         // *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "parcel", "login", login_refresh", "balance", "chat"
         // should we just compose LLCommandHandler and LLDispatchListener?
     }
@@ -222,7 +222,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
                                   LLVector3((F32)event_data["x"].asReal(),
                                             (F32)event_data["y"].asReal(),
                                             (F32)event_data["z"].asReal())).getSLURLString();
-        LLURLDispatcher::dispatch(url, LLCommandHandler::NAV_TYPE_CLICKED, NULL, false);
+        LLURLDispatcher::dispatch(url, LLCommandHandler::NAV_TYPE_CLICKED, nullptr, false);
     }
 }
 
@@ -232,7 +232,7 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     // shamelessly ripped from llviewermenu.cpp:handle_sit_or_stand()
     // *TODO - find a permanent place to share this code properly.
     Response response(LLSD(), event_data);
-    LLViewerObject *object = NULL;
+    LLViewerObject *object = nullptr;
     if (event_data.has("obj_uuid"))
     {
         object = gObjectList.findObject(event_data["obj_uuid"]);
@@ -275,7 +275,7 @@ void LLAgentListener::requestStand(LLSD const & event_data) const
 
 LLViewerObject * LLAgentListener::findObjectClosestTo(const LLVector3 & position, bool sit_target) const
 {
-    LLViewerObject *object = NULL;
+    LLViewerObject *object = nullptr;
 
     // Find the object closest to that position
     F32 min_distance = 10000.0f;        // Start big
@@ -307,7 +307,7 @@ LLViewerObject * LLAgentListener::findObjectClosestTo(const LLVector3 & position
 
 void LLAgentListener::requestTouch(LLSD const & event_data) const
 {
-    LLViewerObject *object = NULL;
+    LLViewerObject *object = nullptr;
 
     if (event_data.has("obj_uuid"))
     {
@@ -390,7 +390,7 @@ void LLAgentListener::getPosition(const LLSD& event_data) const
 
 void LLAgentListener::startAutoPilot(LLSD const & event_data)
 {
-    LLQuaternion* target_rotation = NULL;
+    LLQuaternion* target_rotation = nullptr;
     if (event_data.has("target_rotation"))
     {
         LLQuaternion target_rotation_value = ll_quaternion_from_sd(event_data["target_rotation"]);
@@ -433,7 +433,7 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
     mAgent.startAutoPilotGlobal(ll_vector3d_from_sd(event_data["target_global"]),
                                 behavior_name,
                                 target_rotation,
-                                finish_cb, NULL,
+                                finish_cb, nullptr,
                                 stop_distance,
                                 rotation_threshold,
                                 allow_flying);
@@ -552,7 +552,7 @@ void LLAgentListener::stopAutoPilot(LLSD const & event_data) const
 
 void LLAgentListener::lookAt(LLSD const & event_data) const
 {
-    LLViewerObject *object = NULL;
+    LLViewerObject *object = nullptr;
     if (event_data.has("obj_uuid"))
     {
         object = gObjectList.findObject(event_data["obj_uuid"]);
@@ -668,7 +668,7 @@ LLViewerInventoryItem* get_anim_item(LLEventAPI::Response &response, const LLSD 
     if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
     {
         response.error(stringize("Animation item ", std::quoted(event_data["item_id"].asString()), " was not found"));
-        return NULL;
+        return nullptr;
     }
     return item;
 }

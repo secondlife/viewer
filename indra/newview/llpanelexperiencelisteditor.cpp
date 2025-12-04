@@ -46,9 +46,9 @@ static LLPanelInjector<LLPanelExperienceListEditor> t_panel_experience_list_edit
 
 
 LLPanelExperienceListEditor::LLPanelExperienceListEditor()
-    :mItems(NULL)
-    ,mProfile(NULL)
-    ,mRemove(NULL)
+    :mItems(nullptr)
+    ,mProfile(nullptr)
+    ,mRemove(nullptr)
     ,mReadonly(false)
     ,mMaxExperienceIDs(0)
 {
@@ -131,7 +131,7 @@ void LLPanelExperienceListEditor::onRemove()
     std::vector<LLScrollListItem*>::iterator it = items.begin();
     for(/**/; it != items.end(); ++it)
     {
-        if((*it) != NULL)
+        if((*it) != nullptr)
         {
             //mExperienceIds.erase((*it)->getValue());
             mRemovedCallback((*it)->getValue());
@@ -163,7 +163,7 @@ void LLPanelExperienceListEditor::checkButtonsEnabled()
         std::vector<LLScrollListItem*>::iterator it = items.begin();
         for(/**/; it != items.end() && remove_enabled; ++it)
         {
-            if((*it) != NULL)
+            if((*it) != nullptr)
             {
                 remove_enabled = !mSticky((*it)->getValue());
             }

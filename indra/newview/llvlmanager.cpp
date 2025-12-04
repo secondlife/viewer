@@ -163,6 +163,6 @@ LLVLData::LLVLData(LLViewerRegion *regionp, const S8 type, U8 *data, const S32 s
 LLVLData::~LLVLData()
 {
     delete [] mData;
-    mData = NULL;
-    mRegionp = NULL;
+    mData = nullptr;
+    mRegionp = nullptr;
 }

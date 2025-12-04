@@ -42,7 +42,7 @@ LLControlGroup::~LLControlGroup() {}
 LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
-                                   LLControlVariable::ePersist persist) {return NULL;}
+                                   LLControlVariable::ePersist persist) {return nullptr;}
 void LLControlGroup::setString(std::string_view name, const std::string& val){}
 std::string LLControlGroup::getString(std::string_view name)
 {
@@ -55,24 +55,24 @@ LLControlGroup gSavedSettings("test");
 LLSecAPIBasicHandler::LLSecAPIBasicHandler() {}
 void LLSecAPIBasicHandler::init() {}
 LLSecAPIBasicHandler::~LLSecAPIBasicHandler() {}
-LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(const std::string& pem_cert) { return NULL; }
-LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(X509* openssl_cert) { return NULL; }
-LLPointer<LLCertificateChain> LLSecAPIBasicHandler::getCertificateChain(X509_STORE_CTX* chain) { return NULL; }
-LLPointer<LLCertificateStore> LLSecAPIBasicHandler::getCertificateStore(const std::string& store_id) { return NULL; }
+LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(const std::string& pem_cert) { return nullptr; }
+LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(X509* openssl_cert) { return nullptr; }
+LLPointer<LLCertificateChain> LLSecAPIBasicHandler::getCertificateChain(X509_STORE_CTX* chain) { return nullptr; }
+LLPointer<LLCertificateStore> LLSecAPIBasicHandler::getCertificateStore(const std::string& store_id) { return nullptr; }
 void LLSecAPIBasicHandler::setProtectedData(const std::string& data_type, const std::string& data_id, const LLSD& data) {}
 void LLSecAPIBasicHandler::addToProtectedMap(const std::string& data_type, const std::string& data_id, const std::string& map_elem, const LLSD& data) {}
 void LLSecAPIBasicHandler::removeFromProtectedMap(const std::string& data_type, const std::string& data_id, const std::string& map_elem) {}
 void LLSecAPIBasicHandler::syncProtectedMap() {}
 LLSD LLSecAPIBasicHandler::getProtectedData(const std::string& data_type, const std::string& data_id) { return LLSD(); }
 void LLSecAPIBasicHandler::deleteProtectedData(const std::string& data_type, const std::string& data_id) {}
-LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string& grid, const LLSD& identifier, const LLSD& authenticator) { return NULL; }
-LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& grid) { return NULL; }
+LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string& grid, const LLSD& identifier, const LLSD& authenticator) { return nullptr; }
+LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& grid) { return nullptr; }
 void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool save_authenticator) {}
 void LLSecAPIBasicHandler::deleteCredential(LLPointer<LLCredential> cred) {}
 bool LLSecAPIBasicHandler::hasCredentialMap(const std::string& storage, const std::string& grid) { return false; }
 bool LLSecAPIBasicHandler::emptyCredentialMap(const std::string& storage, const std::string& grid) { return false; }
 void LLSecAPIBasicHandler::loadCredentialMap(const std::string& storage, const std::string& grid, credential_map_t& credential_map) {}
-LLPointer<LLCredential> LLSecAPIBasicHandler::loadFromCredentialMap(const std::string& storage, const std::string& grid, const std::string& userkey) { return NULL; }
+LLPointer<LLCredential> LLSecAPIBasicHandler::loadFromCredentialMap(const std::string& storage, const std::string& grid, const std::string& userkey) { return nullptr; }
 void LLSecAPIBasicHandler::addToCredentialMap(const std::string& storage, LLPointer<LLCredential> cred, bool save_authenticator) {}
 void LLSecAPIBasicHandler::removeFromCredentialMap(const std::string& storage, LLPointer<LLCredential> cred) {}
 void LLSecAPIBasicHandler::removeFromCredentialMap(const std::string& storage, const std::string& grid, const std::string& userkey) {}

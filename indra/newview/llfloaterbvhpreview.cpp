@@ -190,8 +190,8 @@ std::map<std::string, std::string, std::less<>> LLFloaterBvhPreview::getJointAli
 //-----------------------------------------------------------------------------
 bool LLFloaterBvhPreview::postBuild()
 {
-    LLKeyframeMotion* motionp = NULL;
-    LLBVHLoader* loaderp = NULL;
+    LLKeyframeMotion* motionp = nullptr;
+    LLBVHLoader* loaderp = nullptr;
 
     if (!LLFloaterNameDesc::postBuild())
     {
@@ -233,7 +233,7 @@ bool LLFloaterBvhPreview::postBuild()
         S32 file_size;
 
         LLAPRFile infile ;
-        infile.open(mFilenameAndPath, LL_APR_RB, NULL, &file_size);
+        infile.open(mFilenameAndPath, LL_APR_RB, nullptr, &file_size);
 
         if (!infile.getFileHandle())
         {
@@ -344,7 +344,7 @@ bool LLFloaterBvhPreview::postBuild()
         }
         else
         {
-            mAnimPreview = NULL;
+            mAnimPreview = nullptr;
             mMotionID.setNull();
             getChild<LLUICtrl>("bad_animation_text")->setValue(getString("failed_to_initialize"));
         }
@@ -370,7 +370,7 @@ bool LLFloaterBvhPreview::postBuild()
 
         //setEnabled(false);
         mMotionID.setNull();
-        mAnimPreview = NULL;
+        mAnimPreview = nullptr;
     }
 
     refresh();
@@ -385,7 +385,7 @@ bool LLFloaterBvhPreview::postBuild()
 //-----------------------------------------------------------------------------
 LLFloaterBvhPreview::~LLFloaterBvhPreview()
 {
-    mAnimPreview = NULL;
+    mAnimPreview = nullptr;
 
     setEnabled(false);
 }
@@ -474,7 +474,7 @@ void LLFloaterBvhPreview::resetMotion()
     }
     else
     {
-        mPauseRequest = NULL;
+        mPauseRequest = nullptr;
     }
 }
 
@@ -598,11 +598,11 @@ void LLFloaterBvhPreview::onBtnPlay()
         if (!avatarp->isMotionActive(mMotionID))
         {
             resetMotion();
-            mPauseRequest = NULL;
+            mPauseRequest = nullptr;
         }
         else if (avatarp->areAnimationsPaused())
         {
-            mPauseRequest = NULL;
+            mPauseRequest = nullptr;
         }
     }
 }
@@ -694,7 +694,7 @@ void LLFloaterBvhPreview::onCommitBaseAnim()
 
         if (!paused)
         {
-            mPauseRequest = NULL;
+            mPauseRequest = nullptr;
         }
     }
 }

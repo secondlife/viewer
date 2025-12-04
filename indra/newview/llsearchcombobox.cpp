@@ -75,7 +75,7 @@ LLSearchComboBox::LLSearchComboBox(const Params&p)
 
     setButtonVisible(p.dropdown_button_visible);
     mTextEntry->setCommitCallback(boost::bind(&LLComboBox::onTextCommit, this, _2));
-    mTextEntry->setKeystrokeCallback(boost::bind(&LLComboBox::onTextEntry, this, _1), NULL);
+    mTextEntry->setKeystrokeCallback(boost::bind(&LLComboBox::onTextEntry, this, _1), nullptr);
     setCommitCallback(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
     setPrearrangeCallback(boost::bind(&LLSearchComboBox::onSearchPrearrange, this, _2));
     mSearchButton->setCommitCallback(boost::bind(&LLSearchComboBox::onTextCommit, this, _2));
@@ -238,7 +238,7 @@ void LLSearchHistoryBuilder::buildSearchHistory()
     mFilteredSearchHistory.clear();
 
     LLSearchHistory::search_history_list_t filtered_items;
-    LLSearchHistory::search_history_list_t* itemsp = NULL;
+    LLSearchHistory::search_history_list_t* itemsp = nullptr;
     LLSearchHistory* sh = LLSearchHistory::getInstance();
 
     if (mFilter.empty())

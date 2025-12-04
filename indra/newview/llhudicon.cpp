@@ -63,7 +63,7 @@ LLHUDIcon::icon_instance_t LLHUDIcon::sIconInstances;
 
 LLHUDIcon::LLHUDIcon(const U8 type) :
             LLHUDObject(type),
-            mImagep(NULL),
+            mImagep(nullptr),
             mScale(0.1f),
             mHidden(false)
 {
@@ -72,7 +72,7 @@ LLHUDIcon::LLHUDIcon(const U8 type) :
 
 LLHUDIcon::~LLHUDIcon()
 {
-    mImagep = NULL;
+    mImagep = nullptr;
 }
 
 void LLHUDIcon::render()
@@ -291,7 +291,7 @@ LLHUDIcon* LLHUDIcon::lineSegmentIntersectAll(const LLVector4a& start, const LLV
     LLVector4a local_end = end;
     LLVector4a position;
 
-    LLHUDIcon* ret = NULL;
+    LLHUDIcon* ret = nullptr;
     for(icon_it = sIconInstances.begin(); icon_it != sIconInstances.end(); ++icon_it)
     {
         LLHUDIcon* icon = *icon_it;

@@ -399,7 +399,7 @@ std::string LLFloaterSpellCheckerImport::parseXcuFile(const std::string& file_pa
     }
 
     // Bury down to the "Dictionaries" parent node
-    LLXMLNode* dict_node = NULL;
+    LLXMLNode* dict_node = nullptr;
     for (LLXMLNode* outer_node = xml_root->getFirstChild(); outer_node && !dict_node; outer_node = outer_node->getNextSibling())
     {
         std::string temp;

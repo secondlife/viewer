@@ -69,7 +69,7 @@
 
 //static
 S32 LLFloaterModelPreview::sUploadAmount = 10;
-LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
+LLFloaterModelPreview* LLFloaterModelPreview::sInstance = nullptr;
 
 // "Retain%" decomp parameter has values from 0.0 to 1.0 by 0.01
 // But according to the UI spec for upload model floater, this parameter
@@ -127,17 +127,17 @@ void LLMeshFilePicker::notify(const std::vector<std::string>& filenames)
 //-----------------------------------------------------------------------------
 LLFloaterModelPreview::LLFloaterModelPreview(const LLSD& key) :
 LLFloaterModelUploadBase(key),
-mUploadBtn(NULL),
-mCalculateBtn(NULL),
-mUploadLogText(NULL),
-mTabContainer(NULL),
+mUploadBtn(nullptr),
+mCalculateBtn(nullptr),
+mUploadLogText(nullptr),
+mTabContainer(nullptr),
 mAvatarTabIndex(0)
 {
     sInstance = this;
     mLastMouseX = 0;
     mLastMouseY = 0;
     mStatusLock = new LLMutex();
-    mModelPreview = NULL;
+    mModelPreview = nullptr;
 
     mLODMode[LLModel::LOD_HIGH] = LLModelPreview::LOD_FROM_FILE;
     for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
@@ -175,10 +175,10 @@ bool LLFloaterModelPreview::postBuild()
     }
 
     // Upload/avatar options, they need to refresh errors/notifications
-    childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
-    childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
-    childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
-    childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+    childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), nullptr);
+    childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), nullptr);
+    childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), nullptr);
+    childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), nullptr);
 
     childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
@@ -192,7 +192,7 @@ bool LLFloaterModelPreview::postBuild()
     childSetCommitCallback("import_scale", onImportScaleCommit, this);
     childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
 
-    getChild<LLLineEditor>("description_form")->setKeystrokeCallback(boost::bind(&LLFloaterModelPreview::onDescriptionKeystroke, this, _1), NULL);
+    getChild<LLLineEditor>("description_form")->setKeystrokeCallback(boost::bind(&LLFloaterModelPreview::onDescriptionKeystroke, this, _1), nullptr);
 
     getChild<LLCheckBoxCtrl>("show_edges")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
     getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
@@ -273,7 +273,7 @@ bool LLFloaterModelPreview::postBuild()
     mAvatarTabIndex = mTabContainer->getIndexForPanel(panel);
     panel->getChild<LLScrollListCtrl>("joints_list")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onJointListSelection, this));
 
-    if (LLConvexDecomposition::getInstance() != NULL)
+    if (LLConvexDecomposition::getInstance() != nullptr)
     {
     mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
 
@@ -310,7 +310,7 @@ void LLFloaterModelPreview::reshape(S32 width, S32 height, bool called_from_pare
 //-----------------------------------------------------------------------------
 LLFloaterModelPreview::~LLFloaterModelPreview()
 {
-    sInstance = NULL;
+    sInstance = nullptr;
 
     if ( mModelPreview )
     {
@@ -318,7 +318,7 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
     }
 
     delete mStatusLock;
-    mStatusLock = NULL;
+    mStatusLock = nullptr;
 }
 
 void LLFloaterModelPreview::initModelPreview()
@@ -971,7 +971,7 @@ void LLFloaterModelPreview::onClose(bool app_quitting)
 //static
 void LLFloaterModelPreview::onPhysicsParamCommit(LLUICtrl* ctrl, void* data)
 {
-    if (LLConvexDecomposition::getInstance() == NULL)
+    if (LLConvexDecomposition::getInstance() == nullptr)
     {
         LL_INFOS() << "convex decomposition tool is a stub on this platform. cannot get decomp." << LL_ENDL;
         return;
@@ -1140,24 +1140,24 @@ void LLFloaterModelPreview::initDecompControls()
 {
     LLSD key;
 
-    childSetCommitCallback("simplify_cancel", onPhysicsStageCancel, NULL);
-    childSetCommitCallback("decompose_cancel", onPhysicsStageCancel, NULL);
-    childSetCommitCallback("analyze_cancel", onPhysicsStageCancel, NULL);
+    childSetCommitCallback("simplify_cancel", onPhysicsStageCancel, nullptr);
+    childSetCommitCallback("decompose_cancel", onPhysicsStageCancel, nullptr);
+    childSetCommitCallback("analyze_cancel", onPhysicsStageCancel, nullptr);
 
-    childSetCommitCallback("physics_lod_combo", onPhysicsUseLOD, NULL);
-    childSetCommitCallback("physics_browse", onPhysicsBrowse, NULL);
+    childSetCommitCallback("physics_lod_combo", onPhysicsUseLOD, nullptr);
+    childSetCommitCallback("physics_browse", onPhysicsBrowse, nullptr);
 
-    static const LLCDStageData* stage = NULL;
+    static const LLCDStageData* stage = nullptr;
     static S32 stage_count = 0;
 
-    if (!stage && LLConvexDecomposition::getInstance() != NULL)
+    if (!stage && LLConvexDecomposition::getInstance() != nullptr)
     {
         stage_count = LLConvexDecomposition::getInstance()->getStages(&stage);
     }
 
-    static const LLCDParam* param = NULL;
+    static const LLCDParam* param = nullptr;
     static S32 param_count = 0;
-    if (!param && LLConvexDecomposition::getInstance() != NULL)
+    if (!param && LLConvexDecomposition::getInstance() != nullptr)
     {
         param_count = LLConvexDecomposition::getInstance()->getParameters(&param);
     }

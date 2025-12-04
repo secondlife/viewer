@@ -40,7 +40,7 @@
 static LLPanelInjector<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_effect");
 
 LLPanelVoiceEffect::LLPanelVoiceEffect()
-    : mVoiceEffectCombo(NULL)
+    : mVoiceEffectCombo(nullptr)
 {
     mCommitCallbackRegistrar.add("Voice.CommitVoiceEffect", boost::bind(&LLPanelVoiceEffect::onCommitVoiceEffect, this));
 }

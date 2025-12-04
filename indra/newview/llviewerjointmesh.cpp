@@ -101,7 +101,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 {
     S32 joint_num;
     LLPolyMesh *reference_mesh = mMesh->getReferenceMesh();
-    LLDrawPool *poolp = mFace ? mFace->getPool() : NULL;
+    LLDrawPool *poolp = mFace ? mFace->getPool() : nullptr;
     bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
 
     //calculate joint matrices
@@ -215,7 +215,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
     if (!mValid || !mMesh || !mFace || !mVisible ||
         !mFace->getVertexBuffer() ||
         mMesh->getNumFaces() == 0 ||
-        LLGLSLShader::sCurBoundShaderPtr == NULL)
+        LLGLSLShader::sCurBoundShaderPtr == nullptr)
     {
         return 0;
     }

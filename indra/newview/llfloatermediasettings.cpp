@@ -37,16 +37,16 @@
 #include "llselectmgr.h"
 #include "llsdutil.h"
 
-LLFloaterMediaSettings* LLFloaterMediaSettings::sInstance = NULL;
+LLFloaterMediaSettings* LLFloaterMediaSettings::sInstance = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLFloaterMediaSettings::LLFloaterMediaSettings(const LLSD& key)
     : LLFloater(key),
-    mTabContainer(NULL),
-    mPanelMediaSettingsGeneral(NULL),
-    mPanelMediaSettingsSecurity(NULL),
-    mPanelMediaSettingsPermissions(NULL),
+    mTabContainer(nullptr),
+    mPanelMediaSettingsGeneral(nullptr),
+    mPanelMediaSettingsSecurity(nullptr),
+    mPanelMediaSettingsPermissions(nullptr),
     mIdenticalHasMediaInfo( true ),
     mMultipleMedia(false),
     mMultipleValidMedia(false)
@@ -60,22 +60,22 @@ LLFloaterMediaSettings::~LLFloaterMediaSettings()
     if ( mPanelMediaSettingsGeneral )
     {
         delete mPanelMediaSettingsGeneral;
-        mPanelMediaSettingsGeneral = NULL;
+        mPanelMediaSettingsGeneral = nullptr;
     }
 
     if ( mPanelMediaSettingsSecurity )
     {
         delete mPanelMediaSettingsSecurity;
-        mPanelMediaSettingsSecurity = NULL;
+        mPanelMediaSettingsSecurity = nullptr;
     }
 
     if ( mPanelMediaSettingsPermissions )
     {
         delete mPanelMediaSettingsPermissions;
-        mPanelMediaSettingsPermissions = NULL;
+        mPanelMediaSettingsPermissions = nullptr;
     }
 
-    sInstance = NULL;
+    sInstance = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +297,7 @@ const std::string LLFloaterMediaSettings::getHomeUrl()
 // virtual
 void LLFloaterMediaSettings::draw()
 {
-    if (NULL != mApplyBtn)
+    if (nullptr != mApplyBtn)
     {
         // Set the enabled state of the "Apply" button if values changed
         mApplyBtn->setEnabled( haveValuesChanged() );

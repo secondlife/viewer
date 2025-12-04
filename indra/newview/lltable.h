@@ -49,7 +49,7 @@ public:
     ~LLTable()
     {
         delete[] _tab;
-        _tab = NULL;
+        _tab = nullptr;
     }
 
     void init(const T& t)

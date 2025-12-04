@@ -49,7 +49,7 @@ LLAudioSourceVO::~LLAudioSourceVO()
     {
         mObjectp->clearAttachedSound();
     }
-    mObjectp = NULL;
+    mObjectp = nullptr;
 }
 
 void LLAudioSourceVO::setGain(const F32 gain)
@@ -208,7 +208,7 @@ void LLAudioSourceVO::updateMute()
             // Muted sounds keep there data at all times, because
             // it's the place where the audio UUID is stored.
             // However, it's possible that mCurrentDatap is
-            // NULL when this source did only preload sounds.
+            // nullptr when this source did only preload sounds.
             if (mCurrentDatap)
             {
                 // Restart the sound.
@@ -229,7 +229,7 @@ void LLAudioSourceVO::update()
 
     if (mObjectp->isDead())
     {
-        mObjectp = NULL;
+        mObjectp = nullptr;
         return;
     }
 

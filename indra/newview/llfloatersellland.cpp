@@ -47,7 +47,7 @@ class LLAvatarName;
 
 // defined in llfloaterland.cpp
 void send_parcel_select_objects(S32 parcel_local_id, U32 return_type,
-                                uuid_list_t* return_ids = NULL);
+                                uuid_list_t* return_ids = nullptr);
 
 enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };
 
@@ -149,7 +149,7 @@ LLFloaterSellLandUI::~LLFloaterSellLandUI()
 void LLFloaterSellLandUI::onClose(bool app_quitting)
 {
     // Must release parcel selection to allow land to deselect, see EXT-803
-    mParcelSelection = NULL;
+    mParcelSelection = nullptr;
 }
 
 void LLFloaterSellLandUI::SelectionObserver::changed()

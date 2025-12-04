@@ -47,8 +47,8 @@ static const std::string DEFAULT_DEVICE("Default");
 LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
     : LLPanel()
 {
-    mCtrlInputDevices = NULL;
-    mCtrlOutputDevices = NULL;
+    mCtrlInputDevices = nullptr;
+    mCtrlOutputDevices = nullptr;
     mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
     mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
     mDevicesUpdated = false;  //obsolete

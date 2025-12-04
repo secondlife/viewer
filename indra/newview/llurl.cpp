@@ -262,7 +262,7 @@ const char* LLURL::updateRelativePath(const LLURL &url)
                 strncat(new_path,parse, LL_MAX_PATH - strlen(new_path) -1 );        /* Flawfinder: ignore */
                 strcat(new_path,"/");       /* Flawfinder: ignore */
             }
-            parse = strtok(NULL,"/");
+            parse = strtok(nullptr,"/");
         }
         strncpy(mPath,new_path, LL_MAX_PATH -1);        /* Flawfinder: ignore */
         mPath[LL_MAX_PATH -1] = '\0';

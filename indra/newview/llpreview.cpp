@@ -57,7 +57,7 @@ LLPreview::LLPreview(const LLSD& key)
 :   LLFloater(key),
     mItemUUID(key.has("itemid") ? key.get("itemid").asUUID() : key.asUUID()),
     mObjectUUID(),          // set later by setObjectID()
-    mCopyToInvBtn( NULL ),
+    mCopyToInvBtn( nullptr ),
     mForceClose(false),
     mUserResized(false),
     mCloseAfterSave(false),
@@ -108,7 +108,7 @@ void LLPreview::setItem( LLInventoryItem* item )
 
 const LLInventoryItem *LLPreview::getItem() const
 {
-    const LLInventoryItem *item = NULL;
+    const LLInventoryItem *item = nullptr;
     if (mItem.notNull())
     {
         item = mItem;
@@ -327,7 +327,7 @@ bool LLPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if(hasMouseCapture())
     {
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
         return true;
     }
     return LLFloater::handleMouseUp(x, y, mask);
@@ -414,7 +414,7 @@ void LLPreview::onBtnCopyToInv(void* userdata)
         }
         else
         {
-            LLPointer<LLInventoryCallback> cb = NULL;
+            LLPointer<LLInventoryCallback> cb = nullptr;
             copy_inventory_item(
                 gAgent.getID(),
                 item->getPermissions().getOwner(),
@@ -542,7 +542,7 @@ void LLMultiPreview::tabOpen(LLFloater* opened_floater, bool from_click)
 void LLPreview::setAssetId(const LLUUID& asset_id)
 {
     const LLViewerInventoryItem* item = dynamic_cast<const LLViewerInventoryItem*>(getItem());
-    if(NULL == item)
+    if(nullptr == item)
     {
         return;
     }
@@ -559,7 +559,7 @@ void LLPreview::setAssetId(const LLUUID& asset_id)
     {
         // Update object inventory asset_id.
         LLViewerObject* object = gObjectList.findObject(mObjectUUID);
-        if(NULL == object)
+        if(nullptr == object)
         {
             return;
         }

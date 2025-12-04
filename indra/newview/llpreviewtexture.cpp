@@ -77,7 +77,7 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
       mLastWidth(0),
       mAspectRatio(0.f),
       mPreviewToSave(false),
-      mImage(NULL),
+      mImage(nullptr),
       mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
 {
     updateImageID();
@@ -99,7 +99,7 @@ LLPreviewTexture::~LLPreviewTexture()
     if (mImage.notNull())
     {
         mImage->setBoostLevel(mImageOldBoostLevel);
-        mImage = NULL;
+        mImage = nullptr;
     }
 }
 

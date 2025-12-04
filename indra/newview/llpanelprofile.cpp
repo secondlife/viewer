@@ -419,7 +419,7 @@ public:
 
         // reportAbuse is here due to convoluted avatar handling
         // in LLScrollListCtrl and LLTextBase
-        if (verb == "reportAbuse" && web == NULL)
+        if (verb == "reportAbuse" && web == nullptr)
         {
             LLAvatarName av_name;
             if (LLAvatarNameCache::get(avatar_id, &av_name))
@@ -909,12 +909,12 @@ void LLPanelProfileSecondLife::processProperties(void* data, EAvatarProcessorTyp
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
 {
     const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-    if ((relationship != NULL || gAgent.isGodlike()) && !getSelfProfile())
+    if ((relationship != nullptr || gAgent.isGodlike()) && !getSelfProfile())
     {
         // Relies onto friend observer to get information about online status updates.
         // Once SL-17506 gets implemented, condition might need to become:
         // (gAgent.isGodlike() || isRightGrantedFrom || flags & AVATAR_ONLINE)
-        processOnlineStatus(relationship != NULL,
+        processOnlineStatus(relationship != nullptr,
                             gAgent.isGodlike() || relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS),
                             (avatar_data->flags & AVATAR_ONLINE));
     }
@@ -1737,7 +1737,7 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
                 PERM_NONE,
                 PERM_NONE,
                 false,
-                NULL,
+                nullptr,
                 PICK_TEXTURE);
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();
@@ -2059,7 +2059,7 @@ void LLPanelProfileFirstLife::onChangePhoto()
                 PERM_NONE,
                 PERM_NONE,
                 false,
-                NULL,
+                nullptr,
                 PICK_TEXTURE);
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();

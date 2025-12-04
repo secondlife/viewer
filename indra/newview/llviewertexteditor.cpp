@@ -127,7 +127,7 @@ class LLEmbeddedNotecardOpener : public LLInventoryCallback
 
 public:
     LLEmbeddedNotecardOpener()
-        : mTextEditor(NULL)
+        : mTextEditor(nullptr)
     {
     }
 
@@ -436,7 +436,7 @@ LLPointer<LLInventoryItem> LLEmbeddedItems::getEmbeddedItemPtr(llwchar ext_char)
             return iter->second.mItemPtr;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // static
@@ -700,7 +700,7 @@ LLViewerTextEditor::~LLViewerTextEditor()
 
     // The inventory callback may still be in use by gInventoryCallbackManager...
     // so set its reference to this to null.
-    mInventoryCallback->setEditor(NULL);
+    mInventoryCallback->setEditor(nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -721,7 +721,7 @@ bool LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
     bool    handled = false;
 
     // Let scrollbar have first dibs
-    handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
+    handled = LLView::childrenHandleMouseDown(x, y, mask) != nullptr;
 
     if( !handled)
     {
@@ -756,7 +756,7 @@ bool LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
             }
             else
             {
-                mDragItem = NULL;
+                mDragItem = nullptr;
             }
         }
 
@@ -822,7 +822,7 @@ bool LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
                 }
             }
         }
-        mDragItem = NULL;
+        mDragItem = nullptr;
     }
 
     handled = LLTextEditor::handleMouseUp(x,y,mask);
@@ -835,7 +835,7 @@ bool LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
     bool    handled = false;
 
     // let scrollbar have first dibs
-    handled = LLView::childrenHandleDoubleClick(x, y, mask) != NULL;
+    handled = LLView::childrenHandleDoubleClick(x, y, mask) != nullptr;
 
     if( !handled)
     {

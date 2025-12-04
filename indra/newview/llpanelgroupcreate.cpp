@@ -68,7 +68,7 @@ LLPanelGroupCreate::~LLPanelGroupCreate()
 
 bool LLPanelGroupCreate::postBuild()
 {
-    childSetCommitCallback("back", boost::bind(&LLPanelGroupCreate::onBackBtnClick, this), NULL);
+    childSetCommitCallback("back", boost::bind(&LLPanelGroupCreate::onBackBtnClick, this), nullptr);
 
     mComboMature = getChild<LLComboBox>("group_mature_check", true);
     mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", true);

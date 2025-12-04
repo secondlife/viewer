@@ -52,7 +52,7 @@ bool LLFloaterSaveCameraPreset::postBuild()
     mPresetCombo = getChild<LLComboBox>("preset_combo");
 
     mNameEditor = getChild<LLLineEditor>("preset_txt_editor");
-    mNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterSaveCameraPreset::onPresetNameEdited, this), NULL);
+    mNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterSaveCameraPreset::onPresetNameEdited, this), nullptr);
 
     mSaveButton = getChild<LLButton>("save");
     mSaveButton->setCommitCallback(boost::bind(&LLFloaterSaveCameraPreset::onBtnSave, this));

@@ -242,7 +242,7 @@ public:
 
         LLSD http_params = command.get("http_params");
         mTransaction = std::make_unique<LLXMLRPCTransaction>(mUri, mMethod, request_params, http_params);
-        mPreviousStatus = mTransaction->status(NULL);
+        mPreviousStatus = mTransaction->status(nullptr);
 
         // Now ensure that we get regular callbacks to poll for completion.
         mBoundListener =

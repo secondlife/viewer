@@ -48,10 +48,10 @@ const LLPanelMarketplaceInbox::Params& LLPanelMarketplaceInbox::getDefaultParams
 // protected
 LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
     : LLPanel(p)
-    , mFreshCountCtrl(NULL)
-    , mInboxButton(NULL)
-    , mInventoryPanel(NULL)
-    , mSavedFolderState(NULL)
+    , mFreshCountCtrl(nullptr)
+    , mInboxButton(nullptr)
+    , mInventoryPanel(nullptr)
+    , mSavedFolderState(nullptr)
     , mLastItemCount(-1)
     , mLastFreshItemCount(-1)
 {
@@ -253,7 +253,7 @@ void LLPanelMarketplaceInbox::draw()
 {
     U32 item_count = getTotalItemCount();
 
-    llassert(mFreshCountCtrl != NULL);
+    llassert(mFreshCountCtrl != nullptr);
 
     if (mLastItemCount != item_count)
     {

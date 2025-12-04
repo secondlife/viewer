@@ -202,7 +202,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 
     bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
 
-    LLConversationItemParticipant* participant = NULL;
+    LLConversationItemParticipant* participant = nullptr;
 
     if (is_avatar)
     {

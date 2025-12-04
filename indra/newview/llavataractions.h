@@ -228,11 +228,11 @@ public:
     /**
      * Checks whether all items selected in the given inventory panel can be shared
      *
-     * @param inv_panel Inventory panel to get selection from. If NULL, the active inventory panel is used.
+     * @param inv_panel Inventory panel to get selection from. If nullptr, the active inventory panel is used.
      *
      * @return false if the selected items cannot be shared or the active inventory panel cannot be obtained
      */
-    static bool canShareSelectedItems(LLInventoryPanel* inv_panel = NULL);
+    static bool canShareSelectedItems(LLInventoryPanel* inv_panel = nullptr);
 
     /**
      * Builds a string of residents' display names separated by "words_separator" string.
@@ -255,7 +255,7 @@ public:
      */
     static void viewChatHistory(const LLUUID& id);
 
-    static std::set<LLUUID> getInventorySelectedUUIDs(LLInventoryPanel* active_panel = NULL);
+    static std::set<LLUUID> getInventorySelectedUUIDs(LLInventoryPanel* active_panel = nullptr);
 
 private:
     static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);

@@ -141,7 +141,7 @@ private:
         //--------------------------------------
         // private methods
         //--------------------------------------
-        void setAttributesOfAllSections (LLVector3* inScale = NULL);
+        void setAttributesOfAllSections (LLVector3* inScale = nullptr);
 
         void remapSections(LLFlexibleObjectSection *source, S32 source_sections,
                                          LLFlexibleObjectSection *dest, S32 dest_sections);

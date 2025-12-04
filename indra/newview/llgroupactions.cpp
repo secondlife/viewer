@@ -182,7 +182,7 @@ public:
             LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupId);
             if (!gdatap)
             {
-                LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData() was NULL" << LL_ENDL;
+                LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData() was nullptr" << LL_ENDL;
             }
             else if (!gdatap->isMemberDataComplete())
             {
@@ -217,7 +217,7 @@ public:
              LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupId);
              if (!gdatap)
              {
-                 LL_WARNS() << "GroupData was NULL" << LL_ENDL;
+                 LL_WARNS() << "GroupData was nullptr" << LL_ENDL;
              }
              else
              {
@@ -228,7 +228,7 @@ public:
      }
 };
 
-LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
+LLFetchLeaveGroupData* gFetchLeaveGroupData = nullptr;
 
 // static
 void LLGroupActions::search()
@@ -298,7 +298,7 @@ void LLGroupActions::join(const LLUUID& group_id)
     else
     {
         LL_WARNS() << "LLGroupMgr::getInstance()->getGroupData(" << group_id
-            << ") was NULL" << LL_ENDL;
+            << ") was nullptr" << LL_ENDL;
     }
 }
 
@@ -332,10 +332,10 @@ void LLGroupActions::leave(const LLUUID& group_id)
         LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
         if (!gdatap || !gdatap->isMemberDataComplete())
         {
-            if (gFetchLeaveGroupData != NULL)
+            if (gFetchLeaveGroupData != nullptr)
             {
                 delete gFetchLeaveGroupData;
-                gFetchLeaveGroupData = NULL;
+                gFetchLeaveGroupData = nullptr;
             }
             gFetchLeaveGroupData = new LLFetchLeaveGroupData(group_id);
         }

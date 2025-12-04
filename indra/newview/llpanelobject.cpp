@@ -331,7 +331,7 @@ void LLPanelObject::getState( )
 
     LLCalc* calcp = LLCalc::getInstance();
 
-    LLVOVolume *volobjp = NULL;
+    LLVOVolume *volobjp = nullptr;
     if ( objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
         volobjp = (LLVOVolume *)objectp;
@@ -342,7 +342,7 @@ void LLPanelObject::getState( )
         //forfeit focus
         if (gFocusMgr.childHasKeyboardFocus(this))
         {
-            gFocusMgr.setKeyboardFocus(NULL);
+            gFocusMgr.setKeyboardFocus(nullptr);
         }
 
         // Disable all text input fields
@@ -1808,12 +1808,12 @@ void LLPanelObject::refresh()
     getState();
     if (mObject.notNull() && mObject->isDead())
     {
-        mObject = NULL;
+        mObject = nullptr;
     }
 
     if (mRootObject.notNull() && mRootObject->isDead())
     {
-        mRootObject = NULL;
+        mRootObject = nullptr;
     }
 
     F32 max_scale = get_default_max_prim_scale(LLPickInfo::isFlora(mObject));

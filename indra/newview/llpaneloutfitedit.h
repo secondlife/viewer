@@ -112,7 +112,7 @@ public:
     struct LLFilterItem {
         std::string displayName;
         LLInventoryCollectFunctor* collector;
-        LLFilterItem() : displayName("NONE"), collector(NULL) {}
+        LLFilterItem() : displayName("NONE"), collector(nullptr) {}
         LLFilterItem(std::string name, LLInventoryCollectFunctor* _collector) : displayName(name), collector(_collector) {}
         ~LLFilterItem() { delete collector; }
 

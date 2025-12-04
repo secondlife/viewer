@@ -61,7 +61,7 @@ mMediaParcelLocalID(0)
 LLViewerParcelMedia::~LLViewerParcelMedia()
 {
     // This needs to be destroyed before global destructor time.
-    mMediaImpl = NULL;
+    mMediaImpl = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
             // Since the texture id is different, we need to generate a new impl
 
             // Delete the old one first so they don't fight over the texture.
-            mMediaImpl = NULL;
+            mMediaImpl = nullptr;
 
             // A new impl will be created below.
         }
@@ -221,7 +221,7 @@ void LLViewerParcelMedia::stop()
     LLViewerMediaFocus::getInstance()->clearFocus();
 
     // This will unload & kill the media instance.
-    mMediaImpl = NULL;
+    mMediaImpl = nullptr;
 }
 
 // static

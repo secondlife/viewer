@@ -92,7 +92,7 @@ protected:
 class LLToolset
 {
 public:
-    LLToolset() : mSelectedTool(NULL), mIsShowFloaterTools(true) {}
+    LLToolset() : mSelectedTool(nullptr), mIsShowFloaterTools(true) {}
 
     LLTool*         getSelectedTool()               { return mSelectedTool; }
 

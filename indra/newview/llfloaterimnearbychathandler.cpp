@@ -284,7 +284,7 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
     if (mStopProcessing)
         return;
 
-    if (mFloaterSnapRegion == NULL)
+    if (mFloaterSnapRegion == nullptr)
     {
         mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
@@ -374,7 +374,7 @@ void LLFloaterIMNearbyChatScreenChannel::arrangeToasts()
     if(mStopProcessing || isHovering())
         return;
 
-    if (mFloaterSnapRegion == NULL)
+    if (mFloaterSnapRegion == nullptr)
     {
         mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }

@@ -140,9 +140,9 @@ LLVoiceModuleInterface *getVoiceModule(const std::string &voice_server_type)
 
 LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
     :
-    mSpatialVoiceModule(NULL),
-    mNonSpatialVoiceModule(NULL),
-    m_servicePump(NULL),
+    mSpatialVoiceModule(nullptr),
+    mNonSpatialVoiceModule(nullptr),
+    m_servicePump(nullptr),
     mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", true)),
     mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault", "00000000-0000-0000-0000-000000000000")),
     mVoiceEffectSupportNotified(false),
@@ -313,8 +313,8 @@ void LLVoiceClient::terminate()
     {
         LLVivoxVoiceClient::getInstance()->terminate();
     }
-    mSpatialVoiceModule = NULL;
-    m_servicePump = NULL;
+    mSpatialVoiceModule = nullptr;
+    m_servicePump = nullptr;
 
     // Shutdown speaker volume storage before LLSingletonBase::deleteAll() does it
     if (LLSpeakerVolumeStorage::instanceExists())
@@ -1007,7 +1007,7 @@ LLSD LLVoiceClient::getP2PChannelInfoTemplate(const LLUUID& id) const
 
 LLVoiceEffectInterface* LLVoiceClient::getVoiceEffectInterface() const
 {
-    return NULL;
+    return nullptr;
 }
 
 ///////////////////
@@ -1027,7 +1027,7 @@ class LLViewerRequiredVoiceVersion : public LLHTTPNode
             voice_server_type = input["body"]["voice_server_type"].asString();
         }
 
-        LLVoiceModuleInterface *voiceModule = NULL;
+        LLVoiceModuleInterface *voiceModule = nullptr;
 
         if (voice_server_type == "vivox" || voice_server_type.empty())
         {

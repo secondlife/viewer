@@ -341,7 +341,7 @@ LLConversation* LLConversationLog::findConversation(const LLIMModel::LLIMSession
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void LLConversationLog::removeConversation(const LLConversation& conversation)
@@ -370,7 +370,7 @@ const LLConversation* LLConversationLog::getConversation(const LLUUID& session_i
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void LLConversationLog::addObserver(LLConversationLogObserver* observer)

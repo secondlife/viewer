@@ -84,7 +84,7 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
             session_owner_id);
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
             session_id);
-    if (session == NULL)
+    if (session == nullptr)
     {
         // replace interactive system message marker with correct from string value
         if (INTERACTIVE_SYSTEM_FROM == from_name)
@@ -216,7 +216,7 @@ LLUUID LLHandlerUtil::spawnIMSession(const std::string& name, const LLUUID& from
 
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
             session_id);
-    if (session == NULL)
+    if (session == nullptr)
     {
         session_id = LLIMMgr::instance().addSession(name, IM_NOTHING_SPECIAL, from_id);
     }
@@ -276,7 +276,7 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
     // add offer to session
     LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
             session_id);
-    llassert_always(session != NULL);
+    llassert_always(session != nullptr);
 
     LLSD offer;
     offer["notification_id"] = notification->getID();
@@ -298,7 +298,7 @@ void LLHandlerUtil::addNotifPanelToIM(const LLNotificationPtr& notification)
 void LLHandlerUtil::updateIMFLoaterMesages(const LLUUID& session_id)
 {
     LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
-    if (im_floater != NULL && im_floater->getVisible())
+    if (im_floater != nullptr && im_floater->getVisible())
     {
         im_floater->updateMessages();
     }

@@ -62,7 +62,7 @@ public:
     /**
      * @brief Add new scrolllistitem into gesture_list.
      * @param  item_id inventory id of gesture
-     * @param  gesture can be NULL , if item was not loaded yet
+     * @param  gesture can be nullptr , if item was not loaded yet
      */
     void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface * list);
 

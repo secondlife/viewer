@@ -74,9 +74,9 @@ public:
     virtual ~LLCheckBoxToastPanel() {};
 
     // set checkboxes acording to defaults from form
-    void            setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLView *parent_view = NULL);
+    void            setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLView *parent_view = nullptr);
     // set single checkbox
-    bool            setCheckBox(const std::string&, const std::string&, const commit_signal_t::slot_type& cb, const S32 &h_pad, const S32 &v_pad, LLView *parent_view = NULL);
+    bool            setCheckBox(const std::string&, const std::string&, const commit_signal_t::slot_type& cb, const S32 &h_pad, const S32 &v_pad, LLView *parent_view = nullptr);
 protected:
     void onCommitCheckbox(LLUICtrl* ctrl);
 

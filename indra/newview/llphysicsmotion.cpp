@@ -104,7 +104,7 @@ public:
                 mParamDriverName(param_driver_name),
                 mJointName(joint_name),
                 mMotionDirectionVec(motion_direction_vec),
-                mParamDriver(NULL),
+                mParamDriver(nullptr),
                 mParamControllers(controllers),
                 mCharacter(character),
                 mLastTime(0),
@@ -116,7 +116,7 @@ public:
 
                 for (U32 i = 0; i < NUM_PARAMS; ++i)
                 {
-                    mParamCache[i] = NULL;
+                    mParamCache[i] = nullptr;
                 }
         }
 
@@ -224,7 +224,7 @@ bool LLPhysicsMotion::initialize()
         mJointState->setUsage(LLJointState::ROT);
 
         mParamDriver = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDriverName.c_str());
-        if (mParamDriver == NULL)
+        if (mParamDriver == nullptr)
         {
                 LL_INFOS() << "Failure reading in  [ " << mParamDriverName << " ]" << LL_ENDL;
                 return false;
@@ -235,7 +235,7 @@ bool LLPhysicsMotion::initialize()
 
 LLPhysicsMotionController::LLPhysicsMotionController(const LLUUID &id) :
         LLMotion(id),
-        mCharacter(NULL)
+        mCharacter(nullptr)
 {
         mName = "breast_motion";
 }
@@ -700,7 +700,7 @@ bool LLPhysicsMotion::onUpdate(F32 time)
         const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0f-lod_factor);
             const F32 pixel_area = sqrtf(mCharacter->getPixelArea());
 
-        const bool is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
+        const bool is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != nullptr);
         if ((pixel_area > area_for_this_setting) || is_self)
         {
             const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local_clamped);
@@ -727,7 +727,7 @@ bool LLPhysicsMotion::onUpdate(F32 time)
 
         /*
           // Write out debugging info into a spreadsheet.
-          if (mFileWrite != NULL && is_self)
+          if (mFileWrite != nullptr && is_self)
           {
           fprintf(mFileWrite,"%f\t%f\t%f \t\t%f \t\t%f\t%f\t%f\t \t\t%f\t%f\t%f\t%f\t%f \t\t%f\t%f\t%f\n",
           position_new_local,

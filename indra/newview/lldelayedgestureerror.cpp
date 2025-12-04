@@ -65,7 +65,7 @@ void LLDelayedGestureError::enqueue(const LLErrorEntry &ent)
 {
     if ( sQueue.empty() )
     {
-        gIdleCallbacks.addFunction(onIdle, NULL);
+        gIdleCallbacks.addFunction(onIdle, nullptr);
     }
 
     sQueue.push_back(ent);
@@ -87,7 +87,7 @@ void LLDelayedGestureError::onIdle(void *userdata)
     else
     {
         // Nothing to do anymore
-        gIdleCallbacks.deleteFunction(onIdle, NULL);
+        gIdleCallbacks.deleteFunction(onIdle, nullptr);
     }
 }
 

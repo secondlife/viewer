@@ -35,7 +35,7 @@
 #include "llworld.h"
 
 LLViewerStatsRecorder::LLViewerStatsRecorder() :
-    mStatsFile(NULL),
+    mStatsFile(nullptr),
     mTimer(),
     mFileOpenTime(0.0),
     mLastSnapshotTime(0.0),
@@ -185,7 +185,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
         << mObjectKills << " object kills"
         << LL_ENDL;
 
-    if (mStatsFile == NULL)
+    if (mStatsFile == nullptr)
     {
         // Refresh settings
         mInterval        = gSavedSettings.getF32("StatsReportFileInterval");
@@ -283,7 +283,7 @@ void LLViewerStatsRecorder::closeStatsFile()
         LL_INFOS("ILX") << "ILX: Stopped writing update information to " << mStatsFileName << " after " << getTimeSinceStart()
                         << " seconds." << LL_ENDL;
         LLFile::close(mStatsFile);
-        mStatsFile = NULL;
+        mStatsFile = nullptr;
     }
     mEnableStatsLogging = false;
 }

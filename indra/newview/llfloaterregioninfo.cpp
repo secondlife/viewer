@@ -230,7 +230,7 @@ LLUUID LLFloaterRegionInfo::sRequestInvoice;
 
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
     : LLFloater(seed),
-    mEnvironmentPanel(NULL),
+    mEnvironmentPanel(nullptr),
     mRegionChangedCallback()
 {}
 
@@ -584,7 +584,7 @@ void LLFloaterRegionInfo::sRefreshFromRegion(LLViewerRegion* region)
 LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 {
     LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-    if (!floater) return NULL;
+    if (!floater) return nullptr;
     LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
     LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
     return panel;
@@ -594,7 +594,7 @@ LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 LLPanelEstateAccess* LLFloaterRegionInfo::getPanelAccess()
 {
     LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-    if (!floater) return NULL;
+    if (!floater) return nullptr;
     LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
     LLPanelEstateAccess* panel = (LLPanelEstateAccess*)tab->getChild<LLPanel>("Access");
     return panel;
@@ -604,7 +604,7 @@ LLPanelEstateAccess* LLFloaterRegionInfo::getPanelAccess()
 LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 {
     LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-    if (!floater) return NULL;
+    if (!floater) return nullptr;
     LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
     LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)tab->getChild<LLPanel>("Covenant");
     return panel;
@@ -614,7 +614,7 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 LLPanelRegionGeneralInfo* LLFloaterRegionInfo::getPanelGeneral()
 {
     LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-    if (!floater) return NULL;
+    if (!floater) return nullptr;
     LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
     LLPanelRegionGeneralInfo* panel = (LLPanelRegionGeneralInfo*)tab->getChild<LLPanel>("General");
     return panel;
@@ -624,7 +624,7 @@ LLPanelRegionGeneralInfo* LLFloaterRegionInfo::getPanelGeneral()
 LLPanelRegionEnvironment* LLFloaterRegionInfo::getPanelEnvironment()
 {
     LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-    if (!floater) return NULL;
+    if (!floater) return nullptr;
     LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
     LLPanelRegionEnvironment* panel = (LLPanelRegionEnvironment*)tab->getChild<LLPanel>("panel_env_info");
     return panel;
@@ -647,7 +647,7 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
     if (!floater)
     {
         llassert(floater);
-        return NULL;
+        return nullptr;
     }
 
     LLTabContainer* tab_container = floater->getChild<LLTabContainer>("region_panels");
@@ -660,7 +660,7 @@ LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
 {
     LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-    if (!floater) return NULL;
+    if (!floater) return nullptr;
     LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
     return (LLPanelRegionExperiences*)tab->getChild<LLPanel>("Experiences");
 }
@@ -820,7 +820,7 @@ void LLPanelRegionInfo::sendEstateOwnerMessage(
     if(strings.empty())
     {
         msg->nextBlock("ParamList");
-        msg->addString("Parameter", NULL);
+        msg->addString("Parameter", nullptr);
     }
     else
     {
@@ -2628,7 +2628,7 @@ bool LLPanelEstateCovenant::postBuild()
     mEditor = getChild<LLViewerTextEditor>("covenant_editor");
     LLButton* reset_button = getChild<LLButton>("reset_covenant");
     reset_button->setEnabled(gAgent.canManageEstate());
-    reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, NULL);
+    reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, nullptr);
 
     return LLPanelRegionInfo::postBuild();
 }
@@ -2709,7 +2709,7 @@ bool LLPanelEstateCovenant::confirmResetCovenantCallback(const LLSD& notificatio
     switch(option)
     {
     case 0:
-        self->loadInvItem(NULL);
+        self->loadInvItem(nullptr);
         break;
     default:
         break;
@@ -2991,14 +2991,14 @@ bool LLDispatchSetEstateExperience::operator()(
 
     // Skip 2 parameters
     sparam_t::const_iterator it = strings.begin();
-    ++it; // U32 estate_id = strtol((*it).c_str(), NULL, 10);
-    ++it; // U32 send_to_agent_only = strtoul((*(++it)).c_str(), NULL, 10);
+    ++it; // U32 estate_id = strtol((*it).c_str(), nullptr, 10);
+    ++it; // U32 send_to_agent_only = strtoul((*(++it)).c_str(), nullptr, 10);
 
     // Read 3 parameters
     LLUUID id;
-    S32 num_blocked = strtol((*(it++)).c_str(), NULL, 10);
-    S32 num_trusted = strtol((*(it++)).c_str(), NULL, 10);
-    S32 num_allowed = strtol((*(it++)).c_str(), NULL, 10);
+    S32 num_blocked = strtol((*(it++)).c_str(), nullptr, 10);
+    S32 num_trusted = strtol((*(it++)).c_str(), nullptr, 10);
+    S32 num_allowed = strtol((*(it++)).c_str(), nullptr, 10);
 
     LLSD ids = LLSD::emptyMap()
         .with("blocked", getIDs(it, strings.end(), num_blocked))
@@ -3585,12 +3585,12 @@ bool LLPanelEstateAccess::accessAddCore2(const LLSD& notification, const LLSD& r
     LLEstateAccessChangeInfo* change_info = new LLEstateAccessChangeInfo(notification["payload"]);
     //Get parent floater name
     LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
-    LLFloater* parent_floater = panel ? gFloaterView->getParentFloater(panel) : NULL;
+    LLFloater* parent_floater = panel ? gFloaterView->getParentFloater(panel) : nullptr;
     const std::string& parent_floater_name = parent_floater ? parent_floater->getName() : "";
 
     //Determine the button that triggered opening of the avatar picker
     //(so that a shadow frustum from the button to the avatar picker can be created)
-    LLView * button = NULL;
+    LLView * button = nullptr;
     switch (change_info->mOperationFlag)
     {
     case ESTATE_ACCESS_ALLOWED_AGENT_ADD:
@@ -3628,7 +3628,7 @@ void LLPanelEstateAccess::accessAddCore3(const uuid_vec_t& ids, std::vector<LLAv
     {
         // User didn't select a name.
         delete change_info;
-        change_info = NULL;
+        change_info = nullptr;
         return;
     }
     // User did select a name.
