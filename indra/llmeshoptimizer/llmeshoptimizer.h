@@ -120,7 +120,7 @@ public:
     // returns amount of indices in destiantion
     // sloppy engages a variant of a mechanizm that does not respect topology as much
     // but is much more efective for simpler models
-    // result_error returns how far from original the model is in % if not NULL
+    // result_error returns how far from original the model is in % if not nullptr
     // Works with U32 indices (LLFace uses U16 indices)
     static U64 simplifyU32(
         U32 *destination,
@@ -137,7 +137,7 @@ public:
     // Returns amount of indices in destiantion
     // sloppy engages a variant of a mechanizm that does not respect topology as much
     // but is much better for simpler models
-    // result_error returns how far from original the model is in % if not NULL
+    // result_error returns how far from original the model is in % if not nullptr
     // Meant for U16 indices (LLFace uses U16 indices)
     static U64 simplify(
         U16 *destination,

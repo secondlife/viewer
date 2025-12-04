@@ -93,7 +93,7 @@ namespace tut
         {
             mContext.clear();
             const LLHTTPNode* node = mRoot.traverse(path, mContext);
-            ensure(path + " found", node != NULL);
+            ensure(path + " found", node != nullptr);
 
             ResponsePtr response = Response::create();
             node->get(LLHTTPNode::ResponsePtr(response), mContext);
@@ -104,7 +104,7 @@ namespace tut
         {
             mContext.clear();
             const LLHTTPNode* node = mRoot.traverse(path, mContext);
-            ensure(path + " found", node != NULL);
+            ensure(path + " found", node != nullptr);
 
             ResponsePtr response = Response::create();
             node->post(LLHTTPNode::ResponsePtr(response), mContext, input);
@@ -152,8 +152,8 @@ namespace tut
 
         ensureRootTraversal("", &mRoot, "");
         ensureRootTraversal("/", &mRoot, "");
-        ensureRootTraversal("foo", NULL, "foo");
-        ensureRootTraversal("foo/bar", NULL, "foo/bar");
+        ensureRootTraversal("foo", nullptr, "foo");
+        ensureRootTraversal("foo/bar", nullptr, "foo/bar");
 
         ensure_equals("root of root", mRoot.rootNode(), &mRoot);
     }
@@ -171,7 +171,7 @@ namespace tut
         ensureRootTraversal("hello/", helloNode, "");
         ensureRootTraversal("/hello/", helloNode, "");
 
-        ensureRootTraversal("hello/there", NULL, "there");
+        ensureRootTraversal("hello/there", nullptr, "there");
 
         ensure_equals("root of hello", helloNode->rootNode(), &mRoot);
     }
@@ -199,7 +199,7 @@ namespace tut
 
         ensureRootTraversal("greek/alpha", alphaNode, "");
         ensureRootTraversal("greek/beta", betaNode, "");
-        ensureRootTraversal("greek/delta", NULL, "delta");
+        ensureRootTraversal("greek/delta", nullptr, "delta");
         ensureRootTraversal("greek/gamma", gammaNode, "");
         ensureRootTraversal("hebrew/aleph", alephNode, "");
 
@@ -233,7 +233,7 @@ namespace tut
 
         ensureRootTraversal("greek/alpha", alphaNode, "");
         ensureRootTraversal("greek/beta", betaNode, "");
-        ensureRootTraversal("greek/delta", NULL, "delta");
+        ensureRootTraversal("greek/delta", nullptr, "delta");
         ensureRootTraversal("greek/gamma", gammaNode, "");
         ensureRootTraversal("hebrew/aleph", alephNode, "");
 
@@ -302,7 +302,7 @@ namespace tut
         ensure_equals("stored integer",
             context()["extra"]["value"].asInteger(), 42);
 
-        ensureRootTraversal("test/bob", NULL, "bob");
+        ensureRootTraversal("test/bob", nullptr, "bob");
         ensure("nothing stored",
             context()["extra"]["value"].isUndefined());
 
@@ -349,8 +349,8 @@ namespace tut
         ensureRootTraversal("test/alpha", aNode, "");
         ensureRootTraversal("test/alpha/abe", aNode, "abe");
         ensureRootTraversal("test/alpha/abe/amy", aNode, "abe/amy");
-        ensureRootTraversal("test/alpha/abe/bea", NULL, "abe/bea");
-        ensureRootTraversal("test/alpha/bob", NULL, "bob");
+        ensureRootTraversal("test/alpha/abe/bea", nullptr, "abe/bea");
+        ensureRootTraversal("test/alpha/bob", nullptr, "bob");
         ensureRootTraversal("test/alpha/zebra", zNode, "");
     }
 

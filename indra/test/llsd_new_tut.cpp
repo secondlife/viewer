@@ -804,10 +804,10 @@ namespace tut
 
     template<> template<>
     void SDTestObject::test<14>()
-        // make sure that assignment of char* NULL in a string does not crash.
+        // make sure that assignment of char* nullptr in a string does not crash.
     {
         LLSD v;
-        v = (const char*)NULL;
+        v = (const char*)nullptr;
         ensure("type is a string", v.isString());
     }
 

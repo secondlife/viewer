@@ -71,7 +71,7 @@ public:
 
     void init()
     {
-        mParent  = NULL;
+        mParent  = nullptr;
         mChanged = UNCHANGED;
         mPosition.setVec(0,0,0);
         mRotation.loadIdentity();

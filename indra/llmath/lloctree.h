@@ -136,7 +136,7 @@ public:
         for (U32 i = 0; i < element_count; ++i)
         {
             mData[i]->setBinIndex(-1);
-            mData[i] = NULL;
+            mData[i] = nullptr;
         }
 
         mData.clear();
@@ -208,7 +208,7 @@ public:
 
     bool contains(F32 radius)
     {
-        if (mParent == NULL)
+        if (mParent == nullptr)
         {   //root node contains nothing
             return false;
         }
@@ -312,7 +312,7 @@ public:
     {
         //LL_PROFILE_ZONE_NAMED_COLOR("Octree::insert()",OCTREE_DEBUG_COLOR_INSERT);
 
-        if (data == NULL || data->getBinIndex() != -1)
+        if (data == nullptr || data->getBinIndex() != -1)
         {
             OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << LL_ENDL;
             return false;
@@ -333,7 +333,7 @@ public:
             else
             {
                 //find a child to give it to
-                oct_node* child = NULL;
+                oct_node* child = nullptr;
                 for (U32 i = 0; i < getChildCount(); i++)
                 {
                     child = getChild(i);
@@ -435,7 +435,7 @@ public:
                 mData[i]->setBinIndex(i);
             }
 
-            mData[new_element_count] = NULL;
+            mData[new_element_count] = nullptr;
             mData.pop_back();
         }
         else
@@ -481,7 +481,7 @@ public:
         oct_node* parent = getOctParent();
         oct_node* node = this;
 
-        while (parent != NULL)
+        while (parent != nullptr)
         {
             node = parent;
             parent = node->getOctParent();

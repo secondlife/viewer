@@ -44,7 +44,7 @@ LLPathingLibImpl::~LLPathingLibImpl()
 
 LLPathingLib* LLPathingLibImpl::getInstance()
 {
-    return NULL;
+    return nullptr;
 }
 
 

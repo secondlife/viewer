@@ -48,8 +48,8 @@ namespace tut
 {
     static LLTemplateMessageBuilder::message_template_name_map_t templateNameMap;
 
-    LLMsgData* messageData = NULL;
-    LLMsgBlkData* messageBlockData = NULL;
+    LLMsgData* messageData = nullptr;
+    LLMsgBlkData* messageBlockData = nullptr;
 
     struct LLSDMessageBuilderTestData {
 

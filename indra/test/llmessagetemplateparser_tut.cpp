@@ -63,7 +63,7 @@ namespace tut
         {
             const LLMessageBlock * block = message->getBlock(prehash(name));
             identifier = identifier + ":" + message->mName + ":" + name + " block";
-            ensure(identifier + " exists", block != NULL);
+            ensure(identifier + " exists", block != nullptr);
             ensure_equals(identifier + " name", block->mName, prehash(name));
             ensure_equals(identifier + " type", block->mType, type);
             ensure_equals(identifier + " number", block->mNumber, number);
@@ -78,7 +78,7 @@ namespace tut
         {
             const LLMessageVariable * var = block->getVariable(prehash(name));
             identifier = identifier + ":" + block->mName + ":" + name + " variable";
-            ensure(identifier + " exists", var != NULL);
+            ensure(identifier + " exists", var != nullptr);
             ensure_equals(
                 identifier + " name", var->getName(), prehash(name));
             ensure_equals(

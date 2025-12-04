@@ -263,7 +263,7 @@ const char* LLSaleInfo::lookup(EForSale type)
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

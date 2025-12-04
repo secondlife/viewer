@@ -59,7 +59,7 @@ namespace tut
     void buffer_object_t::test<2>()
     {
         LLSegment segment;
-        ensure("LLSegment get functions failed", (0 == segment.getChannel() && NULL == segment.data() && 0 == segment.size()));
+        ensure("LLSegment get functions failed", (0 == segment.getChannel() && nullptr == segment.data() && 0 == segment.size()));
         segment.setChannel(50);
         ensure_equals("LLSegment setChannel() function failed", segment.getChannel(), 50);
         ensure("LLSegment isOnChannel() function failed", (true == segment.isOnChannel(50)));
@@ -131,7 +131,7 @@ namespace tut
         S32 len = static_cast<S32>(strlen(array));
         LLChannelDescriptors channelDescriptors = bufferArray.nextChannel();
         bufferArray.append(channelDescriptors.in(), (U8*)array, len);
-        S32 count = bufferArray.countAfter(channelDescriptors.in(), NULL);
+        S32 count = bufferArray.countAfter(channelDescriptors.in(), nullptr);
         ensure_equals("Appended size is:", count, len);
     }
 
@@ -153,7 +153,7 @@ namespace tut
         bufferArray.prepend(channelDescriptors.in(), (U8*)array1, len1);
         char buf[100];
         S32 len2 = 20;
-        bufferArray.readAfter(channelDescriptors.in(), NULL, (U8*)buf, len2);
+        bufferArray.readAfter(channelDescriptors.in(), nullptr, (U8*)buf, len2);
         ensure_equals("readAfter length failed", len2, 20);
 
         buf[len2] = '\0';
@@ -178,7 +178,7 @@ namespace tut
         bufferArray.append(channelDescriptors.in(), (U8*)array1, len1);
         char buf[100];
         S32 len2 = 20;
-        bufferArray.readAfter(channelDescriptors.in(), NULL, (U8*)buf, len2);
+        bufferArray.readAfter(channelDescriptors.in(), nullptr, (U8*)buf, len2);
         ensure_equals("readAfter length failed", len2, 20);
 
         buf[len2] = '\0';
@@ -199,7 +199,7 @@ namespace tut
 
         char buf[100];
         S32 len2 = len;
-        bufferArray1.readAfter(channelDescriptors.in(), NULL, (U8*)buf, len2);
+        bufferArray1.readAfter(channelDescriptors.in(), nullptr, (U8*)buf, len2);
         ensure_equals("takeContents failed to copy", buf, str);
     }
 
@@ -265,7 +265,7 @@ namespace tut
         LLBufferArray::segment_iterator_t it;
         LLSegment segment;
         LLBufferArray::segment_iterator_t end = bufferArray.endSegment();
-        it = bufferArray.constructSegmentAfter(NULL, segment);
+        it = bufferArray.constructSegmentAfter(nullptr, segment);
         ensure("constructSegmentAfter() function failed", (it == end));
     }
 }

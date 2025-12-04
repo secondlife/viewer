@@ -996,7 +996,7 @@ void LLParcel::startSale(const LLUUID& buyer_id, bool is_buyer_group)
     mSaleTimerExpires.start();
     mSaleTimerExpires.setTimerExpirySec(U64Microseconds(DEFAULT_USEC_SALE_TIMEOUT));
     mStatus = OS_LEASE_PENDING;
-    mClaimDate = time(NULL);
+    mClaimDate = time(nullptr);
     setAuctionID(0);
     // clear the autoreturn whenever land changes hands
     setCleanOtherTime(0);

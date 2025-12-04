@@ -63,7 +63,7 @@ namespace tut
                                        0,
                                        false,
                                        "notasharedsecret",
-                                       NULL,
+                                       nullptr,
                                        false,
                                        circuit_heartbeat_interval,
                                        circuit_timeout);

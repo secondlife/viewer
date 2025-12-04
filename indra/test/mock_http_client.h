@@ -38,7 +38,7 @@ namespace tut
     public:
         MockHttpClient()
         {
-            apr_pool_create(&mPool, NULL);
+            apr_pool_create(&mPool, nullptr);
             mServerPump = new LLPumpIO(mPool);
             mClientPump = new LLPumpIO(mPool);
 
@@ -83,7 +83,7 @@ namespace tut
         void killServer()
         {
             delete mServerPump;
-            mServerPump = NULL;
+            mServerPump = nullptr;
         }
 
     private:

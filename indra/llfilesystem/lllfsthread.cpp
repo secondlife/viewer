@@ -31,14 +31,14 @@
 
 //============================================================================
 
-/*static*/ LLLFSThread* LLLFSThread::sLocal = NULL;
+/*static*/ LLLFSThread* LLLFSThread::sLocal = nullptr;
 
 //============================================================================
 // Run on MAIN thread
 //static
 void LLLFSThread::initClass(bool local_is_threaded)
 {
-    llassert(sLocal == NULL);
+    llassert(sLocal == nullptr);
     sLocal = new LLLFSThread(local_is_threaded);
 }
 
@@ -51,7 +51,7 @@ S32 LLLFSThread::updateClass(U32 ms_elapsed)
 //static
 void LLLFSThread::cleanupClass()
 {
-    llassert(sLocal != NULL);
+    llassert(sLocal != nullptr);
     sLocal->setQuitting();
     while (sLocal->getPending())
     {
@@ -59,7 +59,7 @@ void LLLFSThread::cleanupClass()
     }
     sLocal->shutdown();
     delete sLocal;
-    sLocal = NULL;
+    sLocal = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ void LLLFSThread::Request::finishRequest(bool completed)
     if (mResponder.notNull())
     {
         mResponder->completed(completed ? mBytesRead : 0);
-        mResponder = NULL;
+        mResponder = nullptr;
     }
 }
 
@@ -171,7 +171,7 @@ void LLLFSThread::Request::deleteRequest()
     if (mResponder.notNull())
     {
         mResponder->completed(0);
-        mResponder = NULL;
+        mResponder = nullptr;
     }
     LLQueuedThread::QueuedRequest::deleteRequest();
 }

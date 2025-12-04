@@ -113,9 +113,9 @@ LLDir_Win32::LLDir_Win32()
     if (mOSUserDir.empty() || ! fileExists(mOSUserDir))
     {
         PRELOG("APPDATA does not exist");
-        //HRESULT okay = SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, w_str);
-        wchar_t *pwstr = NULL;
-        HRESULT okay = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pwstr);
+        //HRESULT okay = SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, w_str);
+        wchar_t* pwstr = nullptr;
+        HRESULT okay = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pwstr);
         PRELOG("SHGetKnownFolderPath(FOLDERID_RoamingAppData) returned " << okay);
         if (SUCCEEDED(okay) && pwstr)
         {
@@ -149,9 +149,9 @@ LLDir_Win32::LLDir_Win32()
     if (mOSCacheDir.empty() || ! fileExists(mOSCacheDir))
     {
         PRELOG("LOCALAPPDATA does not exist");
-        //HRESULT okay = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, w_str);
-        wchar_t *pwstr = NULL;
-        HRESULT okay = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &pwstr);
+        //HRESULT okay = SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, w_str);
+        wchar_t* pwstr = nullptr;
+        HRESULT okay = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &pwstr);
         PRELOG("SHGetKnownFolderPath(FOLDERID_LocalAppData) returned " << okay);
         if (SUCCEEDED(okay) && pwstr)
         {
@@ -228,7 +228,7 @@ LLDir_Win32::LLDir_Win32()
     mWorkingDir = ll_convert<std::string>(std::wstring(w_str));
 
     // Set the executable directory
-    S32 size = GetModuleFileName(NULL, w_str, MAX_PATH);
+    S32 size = GetModuleFileName(nullptr, w_str, MAX_PATH);
     if (size)
     {
         w_str[size] = '\0';

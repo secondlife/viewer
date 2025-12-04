@@ -50,7 +50,7 @@ namespace tut
 
             void post(ResponsePtr response, const LLSD& context, const LLSD& input) const
             {
-                ensure("response already set", mTester->mResponse == ResponsePtr(NULL));
+                ensure("response already set", mTester->mResponse == ResponsePtr(nullptr));
                 mTester->mResponse = response;
                 mTester->mResult = input;
             }
@@ -75,7 +75,7 @@ namespace tut
         };
 
         HTTPServiceTestData()
-            : mResponse(NULL)
+            : mResponse(nullptr)
         {
             LLHTTPStandardServices::useServices();
             LLHTTPRegistrar::buildAllServices(mRoot);
@@ -110,7 +110,7 @@ namespace tut
             LLPipeStringExtractor* extractor = new LLPipeStringExtractor();
 
             apr_pool_t* pool;
-            apr_pool_create(&pool, NULL);
+            apr_pool_create(&pool, nullptr);
 
             LLPumpIO* pump;
             pump = new LLPumpIO(pool);
@@ -128,7 +128,7 @@ namespace tut
             if(mResponse.notNull() && (! timeout))
             {
                 mResponse->result(mResult);
-                mResponse = NULL;
+                mResponse = nullptr;
             }
             pumpPipe(pump, 10);
 
@@ -141,7 +141,7 @@ namespace tut
             if(mResponse.notNull() && timeout)
             {
                 mResponse->result(mResult);
-                mResponse = NULL;
+                mResponse = nullptr;
             }
 
             return httpResult;

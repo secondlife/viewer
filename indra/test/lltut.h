@@ -109,7 +109,7 @@ namespace tut
 
     inline void ensure_approximately_equals(F32 actual, F32 expected, U32 frac_bits)
     {
-        ensure_approximately_equals(NULL, actual, expected, frac_bits);
+        ensure_approximately_equals(nullptr, actual, expected, frac_bits);
     }
 
     inline void ensure_approximately_equals_range(const char *msg, F32 actual, F32 expected, F32 delta)
@@ -152,7 +152,7 @@ namespace tut
     template <class T,class Q>
     void ensure_not_equals(const Q& actual,const T& expected)
     {
-        ensure_not_equals(NULL, actual, expected);
+        ensure_not_equals(nullptr, actual, expected);
     }
 }
 

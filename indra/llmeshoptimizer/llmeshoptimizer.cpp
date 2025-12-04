@@ -185,7 +185,7 @@ size_t LLMeshOptimizer::generateRemapMultiU16(
     U64 vertex_count)
 {
     S32 out_of_range_count = 0;
-    U32* indices_u32 = NULL;
+    U32* indices_u32 = nullptr;
     if (indices)
     {
         indices_u32 = (U32*)ll_aligned_malloc_32(index_count * sizeof(U32));

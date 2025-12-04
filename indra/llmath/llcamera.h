@@ -197,9 +197,9 @@ public:
     S32 sphereInFrustum(const LLVector3 &center, const F32 radius) const;
     S32 pointInFrustum(const LLVector3 &point) const { return sphereInFrustum(point, 0.0f); }
     S32 sphereInFrustumFull(const LLVector3 &center, const F32 radius) const { return sphereInFrustum(center, radius); }
-    S32 AABBInFrustum(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = NULL);
+    S32 AABBInFrustum(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = nullptr);
     S32 AABBInRegionFrustum(const LLVector4a& center, const LLVector4a& radius);
-    S32 AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = NULL);
+    S32 AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = nullptr);
     S32 AABBInRegionFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius);
 
     //does a quick 'n dirty sphere-sphere check

@@ -119,13 +119,13 @@ namespace tut
         LLNullCipher nullCipher;
         LLNullCipher nullCipher1;
 
-        U32 length = nullCipher.requiredEncryptionSpace(50);
+        U32 length = nullptrCipher.requiredEncryptionSpace(50);
         ensure("LLNullCipher::requiredEncryptionSpace() function failed", (length == 50));
 
-        U32 len1 = nullCipher.encrypt((U8 *) str, str_len, encrypted, str_len);
+        U32 len1 = nullptrCipher.encrypt((U8 *) str, str_len, encrypted, str_len);
         ensure_memory_matches("LLNullCipher - Source transformed during encryption.", encrypted, len1, str, str_len);
 
-        U32 len2 = nullCipher1.decrypt(encrypted, str_len, decrypted, str_len);
+        U32 len2 = nullptrCipher1.decrypt(encrypted, str_len, decrypted, str_len);
         ensure_memory_matches("LLNullCipher - Decryption failed", decrypted, len2, str, str_len);
     }
 }

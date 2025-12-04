@@ -67,7 +67,7 @@ const char* LLCalc::TEX_TRANSPARENCY = "TRNS";
 const char* LLCalc::TEX_GLOW = "GLOW";
 
 
-LLCalc* LLCalc::sInstance = NULL;
+LLCalc* LLCalc::sInstance = nullptr;
 
 LLCalc::LLCalc() : mLastErrorPos(0)
 {
@@ -91,7 +91,7 @@ LLCalc::~LLCalc()
 void LLCalc::cleanUp()
 {
     delete sInstance;
-    sInstance = NULL;
+    sInstance = nullptr;
 }
 
 //static

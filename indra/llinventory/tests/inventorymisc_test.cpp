@@ -89,7 +89,7 @@ LLPointer<LLInventoryItem> create_random_inventory_item()
     S32 price = rand();
     LLSaleInfo sale_info(LLSaleInfo::FS_COPY, price);
     U32 flags = rand();
-    S32 creation = (S32)time(NULL);
+    S32 creation = (S32)time(nullptr);
 
     LLPointer<LLInventoryItem> item = new LLInventoryItem(
         item_id,
@@ -225,7 +225,7 @@ namespace tut
         src->setSaleInfo(new_sale_info);
 
         U32 new_flags = rand();
-        S32 new_creation = (S32)time(NULL);
+        S32 new_creation = (S32)time(nullptr);
 
         LLPermissions new_perm;
 
@@ -296,7 +296,7 @@ namespace tut
         src->setSaleInfo(new_sale_info);
 
         U32 new_flags = rand();
-        S32 new_creation = (S32)time(NULL);
+        S32 new_creation = (S32)time(nullptr);
 
         LLPermissions new_perm;
 

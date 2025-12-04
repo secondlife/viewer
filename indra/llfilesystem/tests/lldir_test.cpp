@@ -406,7 +406,7 @@ namespace tut
    {
       std::string path = dir + file;
       LLFILE* handle = LLFile::fopen( path, "w" );
-      ensure("failed to open test file '"+path+"'", handle != NULL );
+      ensure("failed to open test file '" + path + "'", handle != nullptr);
       // Harbison & Steele, 4th ed., p. 366: "If an error occurs, fputs
       // returns EOF; otherwise, it returns some other, nonnegative value."
       ensure("failed to write to test file '"+path+"'", EOF != fputs("test file", handle) );

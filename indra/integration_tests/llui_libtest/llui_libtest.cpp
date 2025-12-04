@@ -59,7 +59,7 @@ class TestUIImage : public LLUIImage
 {
 public:
     TestUIImage()
-    :   LLUIImage( std::string(), NULL ) // NULL ImageGL, don't deref!
+    :   LLUIImage( std::string(), nullptr ) // NULL ImageGL, don't deref!
     { }
 
     /*virtual*/ S32 getWidth() const

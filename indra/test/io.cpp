@@ -50,7 +50,7 @@ namespace tut
 {
     struct heap_buffer_data
     {
-        heap_buffer_data() : mBuffer(NULL) {}
+        heap_buffer_data() : mBuffer(nullptr) {}
         ~heap_buffer_data() { if(mBuffer) delete mBuffer; }
         LLHeapBuffer* mBuffer;
     };
@@ -158,7 +158,7 @@ namespace tut
         const S32 str_len = static_cast<S32>(strlen(HELLO_WORLD));
         LLChannelDescriptors ch = mBuffer.nextChannel();
         mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
-        S32 count = mBuffer.countAfter(ch.in(), NULL);
+        S32 count = mBuffer.countAfter(ch.in(), nullptr);
         ensure_equals("total append size", count, str_len);
         LLBufferArray::segment_iterator_t it = mBuffer.beginSegment();
         U8* first = (*it).data();
@@ -174,7 +174,7 @@ namespace tut
         LLChannelDescriptors ch = mBuffer.nextChannel();
         mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
         mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
-        S32 count = mBuffer.countAfter(ch.in(), NULL);
+        S32 count = mBuffer.countAfter(ch.in(), nullptr);
         ensure_equals("total append size", count, 2 * str_len);
         LLBufferArray::segment_iterator_t it = mBuffer.beginSegment();
         U8* first = (*it).data();
@@ -194,7 +194,7 @@ namespace tut
         mBuffer.append(ch.in(), (U8*)TWO, 3);
         char buffer[255];   /* Flawfinder: ignore */
         S32 len = 6;
-        mBuffer.readAfter(ch.in(), NULL, (U8*)buffer, len);
+        mBuffer.readAfter(ch.in(), nullptr, (U8*)buffer, len);
         ensure_equals(len, 6);
         buffer[len] = '\0';
         std::string actual(buffer);
@@ -213,7 +213,7 @@ namespace tut
         mBuffer.prepend(ch.in(), (U8*)ONE, 3);
         char buffer[255];   /* Flawfinder: ignore */
         S32 len = 6;
-        mBuffer.readAfter(ch.in(), NULL, (U8*)buffer, len);
+        mBuffer.readAfter(ch.in(), nullptr, (U8*)buffer, len);
         ensure_equals(len, 6);
         buffer[len] = '\0';
         std::string actual(buffer);
@@ -251,7 +251,7 @@ namespace tut
         LLChannelDescriptors ch = mBuffer.nextChannel();
         mBuffer.append(ch.in(), (U8*)request.c_str(), static_cast<S32>(request.length()));
         mBuffer.append(ch.out(), (U8*)response.c_str(), static_cast<S32>(response.length()));
-        S32 count = mBuffer.countAfter(ch.out(), NULL);
+        S32 count = mBuffer.countAfter(ch.out(), nullptr);
         std::ostringstream header;
         header << "ContentLength: " << count << "\r\n\r\n";
         std::string head(header.str());
@@ -259,7 +259,7 @@ namespace tut
         char buffer[1024];  /* Flawfinder: ignore */
         S32 len = static_cast<S32>(response.size() + head.length());
         ensure_equals("same length", len, (S32)expected.str().length());
-        mBuffer.readAfter(ch.out(), NULL, (U8*)buffer, len);
+        mBuffer.readAfter(ch.out(), nullptr, (U8*)buffer, len);
         buffer[len] = '\0';
         std::string actual(buffer);
         ensure_equals("threaded writes", actual, expected.str());
@@ -286,7 +286,7 @@ namespace tut
         const S32 BUFFER_LEN = 1024;
         char buf[BUFFER_LEN];
         S32 len;
-        U8* last = NULL;
+        U8* last = nullptr;
         std::string last_line;
         for(i = 0; i < LINE_COUNT; ++i)
         {
@@ -313,10 +313,10 @@ namespace tut
         buffer.append(ch.in(), (U8*)"2", 1);
         mBuffer.takeContents(buffer);
         mBuffer.append(ch.in(), (U8*)"3", 1);
-        S32 count = mBuffer.countAfter(ch.in(), NULL);
+        S32 count = mBuffer.countAfter(ch.in(), nullptr);
         ensure_equals("buffer size", count, 3);
         U8* temp = new U8[count];
-        mBuffer.readAfter(ch.in(), NULL, temp, count);
+        mBuffer.readAfter(ch.in(), nullptr, temp, count);
         ensure("buffer content", (0 == memcmp(temp, (void*)"123", 3)));
         delete[] temp;
     }
@@ -332,7 +332,7 @@ namespace tut
         mBuffer.append(ch.in(), temp, capacity - 1);
         capacity = mBuffer.capacity();
         ensure("has capacity when full", capacity > 0);
-        S32 used = mBuffer.countAfter(ch.in(), NULL);
+        S32 used = mBuffer.countAfter(ch.in(), nullptr);
         ensure_equals("used equals capacity", used, capacity);
 
         LLBufferArray::segment_iterator_t iter = mBuffer.beginSegment();
@@ -341,7 +341,7 @@ namespace tut
             mBuffer.eraseSegment(iter++);
         }
 
-        used = mBuffer.countAfter(ch.in(), NULL);
+        used = mBuffer.countAfter(ch.in(), nullptr);
         ensure_equals("used is zero", used, 0);
         S32 capacity2 = mBuffer.capacity();
         ensure_equals("capacity the same after erase", capacity2, capacity);
@@ -479,7 +479,7 @@ namespace tut
         const S32 BUF_LEN = 128;
         char buf[BUF_LEN];
         S32 len = 7;
-        U8* last = mBuffer.readAfter(CHANNEL, NULL, (U8*)buf, len);
+        U8* last = mBuffer.readAfter(CHANNEL, nullptr, (U8*)buf, len);
         mBuffer.splitAfter(last);
         LLBufferArray::segment_iterator_t it = mBuffer.beginSegment();
         LLBufferArray::segment_iterator_t end = mBuffer.endSegment();
@@ -507,7 +507,7 @@ namespace tut
         char buf[BUF_LEN];
         S32 actual_len = BUF_LEN;
         S32 expected_len = static_cast<S32>(h1.size() + h2.size());
-        (void) mBuffer.readAfter(ch.out(), NULL, (U8*)buf, actual_len);
+        (void) mBuffer.readAfter(ch.out(), nullptr, (U8*)buf, actual_len);
         ensure_equals("streamed size", actual_len, expected_len);
         buf[actual_len] = '\0';
         std::string actual(buf);
@@ -551,7 +551,7 @@ namespace tut
         const S32 BUF_LEN = 512;
         char buf[BUF_LEN];      /* Flawfinder: ignore */
         S32 actual_len = BUF_LEN;
-        (void) mBuffer.readAfter(ch.out(), NULL, (U8*)buf, actual_len);
+        (void) mBuffer.readAfter(ch.out(), nullptr, (U8*)buf, actual_len);
         buf[actual_len] = '\0';
         std::string actual(buf);
         std::string expected(ostr.str());
@@ -566,19 +566,19 @@ namespace tut
         LLBufferStream bstr(ch, &mBuffer);
         bstr << "1";
         bstr.flush();
-        S32 count = mBuffer.countAfter(ch.out(), NULL);
+        S32 count = mBuffer.countAfter(ch.out(), nullptr);
         ensure_equals("buffer size 1", count, 1);
         LLBufferArray buffer;
         buffer.append(ch.out(), (U8*)"2", 1);
         mBuffer.takeContents(buffer);
-        count = mBuffer.countAfter(ch.out(), NULL);
+        count = mBuffer.countAfter(ch.out(), nullptr);
         ensure_equals("buffer size 2", count, 2);
         bstr << "3";
         bstr.flush();
-        count = mBuffer.countAfter(ch.out(), NULL);
+        count = mBuffer.countAfter(ch.out(), nullptr);
         ensure_equals("buffer size 3", count, 3);
         U8* temp = new U8[count];
-        mBuffer.readAfter(ch.out(), NULL, temp, count);
+        mBuffer.readAfter(ch.out(), nullptr, temp, count);
         ensure("buffer content", (0 == memcmp(temp, (void*)"123", 3)));
         delete[] temp;
     }
@@ -624,7 +624,7 @@ namespace tut
 
         // now that we have a bunch of data on a stream, parse it all.
         ch = mBuffer.nextChannel();
-        S32 count = mBuffer.countAfter(ch.in(), NULL);
+        S32 count = mBuffer.countAfter(ch.in(), nullptr);
         ensure_equals("size of buffer", count, total_size);
         LLBufferStream istr(ch, &mBuffer);
         LLSD data;
@@ -689,7 +689,7 @@ namespace tut
 
         // now that we have a bunch of data on a stream, parse it all.
         ch = mBuffer.nextChannel();
-        S32 count = mBuffer.countAfter(ch.in(), NULL);
+        S32 count = mBuffer.countAfter(ch.in(), nullptr);
         ensure_equals("size of buffer", count, total_size);
         LLBufferStream istr(ch, &mBuffer);
         LLSD data;
@@ -829,7 +829,7 @@ namespace tut
     public:
         PumpAndChainTestData()
         {
-            apr_pool_create(&mPool, NULL);
+            apr_pool_create(&mPool, nullptr);
             mPump = new LLPumpIO(mPool);
         }
 
@@ -909,7 +909,7 @@ namespace tut
         pipe_and_pump_fitness()
         {
             LLFrameTimer::updateFrameTime();
-            apr_pool_create(&mPool, NULL);
+            apr_pool_create(&mPool, nullptr);
             mPump = new LLPumpIO(mPool);
             mSocket = LLSocket::create(
                 mPool,

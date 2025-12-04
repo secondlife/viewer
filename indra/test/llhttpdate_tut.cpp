@@ -116,12 +116,12 @@ namespace tut
         const char *fr_locale = "fr_FR.UTF-8";
 
         std::string prev_locale = LLStringUtil::getLocale();
-        std::string prev_clocale = std::string(setlocale(LC_TIME, NULL));
+        std::string prev_clocale = std::string(setlocale(LC_TIME, nullptr));
         time_t test_time = 1252374030;  // 8 Sep 2009 01:40:01
         struct tm *t = gmtime(&test_time);
 
         setlocale(LC_TIME, en_locale);
-        if (strcmp(setlocale(LC_TIME, NULL), en_locale) != 0)
+        if (strcmp(setlocale(LC_TIME, nullptr), en_locale) != 0)
         {
             setlocale(LC_TIME, prev_clocale.c_str());
             skip("Cannot set English locale");
@@ -139,7 +139,7 @@ namespace tut
         test_date_string(en_locale, t, "%B", "september");
 
         setlocale(LC_TIME, fr_locale);
-        if (strcmp(setlocale(LC_TIME, NULL), fr_locale) != 0)
+        if (strcmp(setlocale(LC_TIME, nullptr), fr_locale) != 0)
         {
             LLStringUtil::setLocale(prev_locale);
             setlocale(LC_TIME, prev_clocale.c_str());

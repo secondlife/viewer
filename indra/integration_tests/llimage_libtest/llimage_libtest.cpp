@@ -368,7 +368,7 @@ int main(int argc, char** argv)
     // Init whatever is necessary
     ll_init_apr();
     LLImage::initClass();
-    LogThread* fast_timer_log_thread = NULL;    // For performance and metric gathering
+    LogThread* fast_timer_log_thread = nullptr;    // For performance and metric gathering
 
     // Analyze command line arguments
     for (int arg = 1; arg < argc; ++arg)

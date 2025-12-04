@@ -77,7 +77,7 @@ namespace tut
                                    0,
                                    false,
                                    "notasharedsecret",
-                                   NULL,
+                                   nullptr,
                                    false,
                                    circuit_heartbeat_interval,
                                    circuit_timeout
@@ -104,7 +104,7 @@ namespace tut
         {
             // not end_messaging_system()
             delete static_cast<LLMessageSystem*>(gMessageSystem);
-            gMessageSystem = NULL;
+            gMessageSystem = nullptr;
 
             // rm contents of temp dir
             std::ostringstream ostr;

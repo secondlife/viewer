@@ -50,7 +50,7 @@
 {
     if ( !s_isInitialized )
     {
-        return NULL;
+        return nullptr;
     }
     else
     {

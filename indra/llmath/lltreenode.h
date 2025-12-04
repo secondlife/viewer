@@ -64,7 +64,7 @@ public:
         {
             return mListeners[index];
         }
-        return NULL;
+        return nullptr;
     }
     virtual void addListener(LLTreeListener<T>* listener) { mListeners.push_back(listener); }
 

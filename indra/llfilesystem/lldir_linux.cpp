@@ -43,7 +43,7 @@ static std::string getCurrentUserHome(char* fallback)
     struct passwd *pw;
 
     pw = getpwuid(uid);
-    if ((pw != NULL) && (pw->pw_dir != NULL))
+    if ((pw != nullptr) && (pw->pw_dir != nullptr))
     {
         return pw->pw_dir;
     }
@@ -67,10 +67,10 @@ LLDir_Linux::LLDir_Linux()
     mDirDelimiter = "/";
     mCurrentDirIndex = -1;
     mCurrentDirCount = -1;
-    mDirp = NULL;
+    mDirp = nullptr;
 
     char tmp_str[LL_MAX_PATH];  /* Flawfinder: ignore */
-    if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
+    if (getcwd(tmp_str, LL_MAX_PATH) == nullptr)
     {
         strcpy(tmp_str, "/tmp");
         LL_WARNS() << "Could not get current directory; changing to "
@@ -217,7 +217,7 @@ U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &
     tmp_str = dirname;
     tmp_str += mask;
 
-    if(glob(tmp_str.c_str(), GLOB_NOSORT, NULL, &g) == 0)
+    if(glob(tmp_str.c_str(), GLOB_NOSORT, nullptr, &g) == 0)
     {
         file_count = g.gl_pathc;
 
@@ -230,7 +230,7 @@ U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &
 std::string LLDir_Linux::getCurPath()
 {
     char tmp_str[LL_MAX_PATH];  /* Flawfinder: ignore */
-    if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
+    if (getcwd(tmp_str, LL_MAX_PATH) == nullptr)
     {
         LL_WARNS() << "Could not get current directory" << LL_ENDL;
         tmp_str[0] = '\0';

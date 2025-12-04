@@ -505,7 +505,7 @@ void wouldHaveCrashed(const std::string& message)
     tut::fail("llerrs message: " + message);
 }
 
-static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
+static LLTrace::ThreadRecorder* sMasterThreadRecorder = nullptr;
 
 int main(int argc, char **argv)
 {
@@ -515,7 +515,7 @@ int main(int argc, char **argv)
     LL_PROFILER_SET_THREAD_NAME("App");
 
     ll_init_apr();
-    apr_getopt_t* os = NULL;
+    apr_getopt_t* os = nullptr;
     if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
     {
         std::cerr << "apr_getopt_init() failed" << std::endl;
@@ -533,10 +533,10 @@ int main(int argc, char **argv)
 
     // values used for options parsing
     apr_status_t apr_err;
-    const char* opt_arg = NULL;
+    const char* opt_arg = nullptr;
     int opt_id = 0;
     std::unique_ptr<llofstream> output;
-    const char *touch = NULL;
+    const char *touch = nullptr;
 
     while(true)
     {

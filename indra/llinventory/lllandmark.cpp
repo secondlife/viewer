@@ -111,7 +111,7 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer, const S32 buffer
     U32 version = 0;
 
     bool bad_block = false;
-    LLLandmark* result = NULL;
+    LLLandmark* result = nullptr;
 
     // read version
     count = sscanf( buffer, "Landmark version %u\n%n", &version, &chars_read );

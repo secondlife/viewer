@@ -121,10 +121,10 @@ LLDir_Mac::LLDir_Mac()
             mOSUserDir = rootdir;
 
             // Create our sub-dirs
-            CreateDirectory(rootdir, std::string("data"), NULL);
-            CreateDirectory(rootdir, std::string("logs"), NULL);
-            CreateDirectory(rootdir, std::string("user_settings"), NULL);
-            CreateDirectory(rootdir, std::string("browser_profile"), NULL);
+            CreateDirectory(rootdir, std::string("data"), nullptr);
+            CreateDirectory(rootdir, std::string("logs"), nullptr);
+            CreateDirectory(rootdir, std::string("user_settings"), nullptr);
+            CreateDirectory(rootdir, std::string("browser_profile"), nullptr);
         }
 
         //mOSCacheDir
@@ -133,7 +133,7 @@ LLDir_Mac::LLDir_Mac()
         {
             mOSCacheDir = cachedir;
             //TODO:  This changes from ~/Library/Cache/Secondlife to ~/Library/Cache/com.app.secondlife/Secondlife.  Last dir level could go away.
-            CreateDirectory(mOSCacheDir, secondLifeString, NULL);
+            CreateDirectory(mOSCacheDir, secondLifeString, nullptr);
         }
 
         // mOSUserAppDir
