@@ -71,7 +71,7 @@ public:
 
     DATA_TYPE *pop()
     {
-        DATA_TYPE *tempp = NULL;
+        DATA_TYPE *tempp = nullptr;
         if (!mStack.empty())
         {
             tempp = mStack.back();
@@ -83,7 +83,7 @@ public:
 
     DATA_TYPE *check()
     {
-        return mStack.empty() ? NULL : mStack.back();
+        return mStack.empty() ? nullptr : mStack.back();
     }
 
     void removeAllNodes()

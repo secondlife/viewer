@@ -1679,7 +1679,7 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
     }
     size_t src_size = string.size();
     char* c_string = new char[src_size + 1];
-    if(c_string == NULL)
+    if(c_string == nullptr)
     {
         return;
     }

@@ -97,7 +97,7 @@ protected:
     typedef SELFTYPE self_type;
 };
 
-/// Functor returning NULL, suitable for an end-iterator's 'next' functor
+/// Functor returning nullptr, suitable for an end-iterator's 'next' functor
 template <class NODE>
 typename LLPtrTo<NODE>::type LLNullNextFunctor(const typename LLPtrTo<NODE>::type&)
 {

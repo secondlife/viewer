@@ -489,7 +489,7 @@ LLLeap* LLLeap::create(const LLProcess::Params& params, bool exc)
     }
     catch (const LLLeap::Error&)
     {
-        return NULL;
+        return nullptr;
     }
 }
 

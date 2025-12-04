@@ -90,7 +90,7 @@ S32 parse_using(std::istream& istr, LLSD& data, size_t max_bytes, S32 max_depth=
 void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize type,
                               LLSDFormatter::EFormatterOptions options)
 {
-    LLPointer<LLSDFormatter> f = NULL;
+    LLPointer<LLSDFormatter> f = nullptr;
 
     switch (type)
     {
@@ -866,7 +866,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
     {
         // We probably have a valid raw binary stream. determine
         // the size, and read it.
-        auto len = strtol(buf + 2, NULL, 0);
+        auto len = strtol(buf + 2, nullptr, 0);
         if(mCheckLimits && (len > mMaxBytesLeft)) return false;
         std::vector<U8> value;
         if(len)
@@ -1803,7 +1803,7 @@ llssize deserialize_string_raw(
         // We probably have a valid raw string. determine
         // the size, and read it.
         // *FIX: This is memory inefficient.
-        auto len = strtol(buf + 1, NULL, 0);
+        auto len = strtol(buf + 1, nullptr, 0);
         if((max_bytes>0)&&(len>max_bytes)) return LLSDParser::PARSE_FAILURE;
         std::vector<char> buf;
         if(len)
@@ -2172,7 +2172,7 @@ std::string zip_llsd(LLSD& data)
 
     strm.avail_in = narrow<size_t>(source.size());
     strm.next_in = (U8*) source.data();
-    U8* output = NULL;
+    U8* output = nullptr;
 
     U32 cur_size = 0;
 
@@ -2197,7 +2197,7 @@ std::string zip_llsd(LLSD& data)
 
             have = CHUNK-strm.avail_out;
             U8* new_output = (U8*) realloc(output, cur_size+have);
-            if (new_output == NULL)
+            if (new_output == nullptr)
             {
                 LL_WARNS() << "Failed to compress LLSD block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
                 deflateEnd(&strm);
@@ -2249,7 +2249,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is,
 
 LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32 size)
 {
-    U8* result = NULL;
+    U8* result = nullptr;
     llssize cur_size = 0;
     z_stream strm;
 
@@ -2302,7 +2302,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32
         U32 have = CHUNK-strm.avail_out;
 
         U8* new_result = (U8*)realloc(result, cur_size + have);
-        if (new_result == NULL)
+        if (new_result == nullptr)
         {
             inflateEnd(&strm);
             if (result)
@@ -2349,20 +2349,20 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
     if (size == 0)
     {
         LL_WARNS() << "No data to unzip." << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
-    U8* result = NULL;
+    U8* result = nullptr;
     U32 cur_size = 0;
     z_stream strm;
 
     const U32 CHUNK = 0x4000;
 
     U8 *in = new(std::nothrow) U8[size];
-    if (in == NULL)
+    if (in == nullptr)
     {
         LL_WARNS() << "Memory allocation failure." << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
     is.read((char*) in, size);
 
@@ -2406,7 +2406,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
         U32 have = CHUNK-strm.avail_out;
 
         U8* new_result = (U8*) realloc(result, cur_size + have);
-        if (new_result == NULL)
+        if (new_result == nullptr)
         {
             LL_WARNS() << "Failed to unzip LLSD NavMesh block: can't reallocate memory, current size: " << cur_size
                 << " bytes; requested " << cur_size + have
@@ -2419,7 +2419,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
             }
             delete[] in;
             valid = false;
-            return NULL;
+            return nullptr;
         }
         result = new_result;
         memcpy(result+cur_size, out, have);
@@ -2434,7 +2434,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
     {
         free(result);
         valid = false;
-        return NULL;
+        return nullptr;
     }
 
     //result now points to the decompressed LLSD block

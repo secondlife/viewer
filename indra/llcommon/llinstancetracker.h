@@ -242,7 +242,7 @@ public:
         LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         const InstanceMap& map(lock->mMap);
         typename InstanceMap::const_iterator found = map.find(k);
-        return (found == map.end()) ? NULL : found->second;
+        return (found == map.end()) ? nullptr : found->second;
     }
 
 protected:

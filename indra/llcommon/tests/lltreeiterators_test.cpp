@@ -210,7 +210,7 @@ bool verify(const std::string& desc, NODERANGE noderange, STRINGRANGE expected)
 class PlainNode
 {
 public:
-    PlainNode(const std::string& name, PlainNode* next=NULL):
+    PlainNode(const std::string& name, PlainNode* next = nullptr) :
         mName(name),
         mNext(next)
     {}
@@ -242,7 +242,7 @@ namespace tut
 //      std::cout << desc1 << ":\n";
         // Try instantiating an iterator with NULL. This test is less about
         // "did we iterate once?" than "did we avoid blowing up?"
-        for (LLLinkedIter<PlainNode> pni(NULL, boost::bind(&PlainNode::mNext, _1)), end;
+        for (LLLinkedIter<PlainNode> pni(nullptr, boost::bind(&PlainNode::mNext, _1)), end;
              pni != end; ++pni)
         {
 //          std::cout << (*pni)->name() << '\n';

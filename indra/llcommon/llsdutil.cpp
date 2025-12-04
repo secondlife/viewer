@@ -176,7 +176,7 @@ char* ll_pretty_print_sd_ptr(const LLSD* sd)
     {
         return ll_pretty_print_sd(*sd);
     }
-    return NULL;
+    return nullptr;
 }
 
 char* ll_pretty_print_sd(const LLSD& sd)

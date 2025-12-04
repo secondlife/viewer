@@ -290,7 +290,7 @@ namespace {
             // a tty then we assume yes.  Can be turned off with
             // the LL_NO_ANSI_COLOR env var.
             return (0 != isatty(2)) &&
-                (NULL == getenv("LL_NO_ANSI_COLOR"));
+                (nullptr == getenv("LL_NO_ANSI_COLOR"));
         }
     };
 
@@ -1552,7 +1552,7 @@ namespace LLError
 
     std::string utcTime()
     {
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         const size_t BUF_SIZE = 64;
         char time_str[BUF_SIZE];    /* Flawfinder: ignore */
 

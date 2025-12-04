@@ -102,7 +102,7 @@ class LLKeyUseTracker
                 return *i;
         }
 
-        return NULL;
+        return nullptr;
     }
 
     TKeyUseTrackerNode *removeNode( TKey key )
@@ -116,7 +116,7 @@ class LLKeyUseTracker
             return i;
         }
 
-        return NULL;
+        return nullptr;
     }
 
 public:
@@ -203,7 +203,7 @@ public:
         {
             return &node->mData;
         }
-        return NULL;
+        return nullptr;
     }
 
     U32 getKeyCount()

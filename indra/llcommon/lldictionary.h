@@ -58,7 +58,7 @@ public:
     const Entry *lookup(Index index) const
     {
         const_iterator_t dictionary_iter = map_t::find(index);
-        if (dictionary_iter == map_t::end()) return NULL;
+        if (dictionary_iter == map_t::end()) return nullptr;
         return dictionary_iter->second;
     }
     const Index lookup(const std::string &name) const

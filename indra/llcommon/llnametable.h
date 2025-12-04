@@ -91,7 +91,7 @@ public:
             if (pair.second == data)
                 return pair.first;
         }
-        return NULL;
+        return nullptr;
     }
 
     typedef std::map<const char *, DATA> name_map_t;

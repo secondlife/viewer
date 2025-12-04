@@ -57,13 +57,13 @@ namespace LLTrace
 
         AccumulatorBuffer(StaticAllocationMarker m)
         :   mStorageSize(0),
-            mStorage(NULL)
+            mStorage(nullptr)
         {}
 
     public:
         AccumulatorBuffer()
             : mStorageSize(0),
-            mStorage(NULL)
+            mStorage(nullptr)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
             const AccumulatorBuffer& other = *getDefaultBuffer();
@@ -79,7 +79,7 @@ namespace LLTrace
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
             if (isCurrent())
             {
-                LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
+                LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(nullptr);
             }
             delete[] mStorage;
         }
@@ -97,7 +97,7 @@ namespace LLTrace
 
         AccumulatorBuffer(const AccumulatorBuffer& other)
             : mStorageSize(0),
-            mStorage(NULL)
+            mStorage(nullptr)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
             resize(sNextStorageSlot);
@@ -127,13 +127,13 @@ namespace LLTrace
             }
         }
 
-        void reset(const AccumulatorBuffer<ACCUMULATOR>* other = NULL)
+        void reset(const AccumulatorBuffer<ACCUMULATOR>* other = nullptr)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
             llassert(mStorageSize >= sNextStorageSlot);
             for (size_t i = 0; i < sNextStorageSlot; i++)
             {
-                mStorage[i].reset(other ? &other->mStorage[i] : NULL);
+                mStorage[i].reset(other ? &other->mStorage[i] : nullptr);
             }
         }
 
@@ -159,7 +159,7 @@ namespace LLTrace
 
         static void clearCurrent()
         {
-            LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
+            LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(nullptr);
         }
 
         // NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
@@ -241,7 +241,7 @@ namespace LLTrace
     };
 
     template<typename ACCUMULATOR> size_t AccumulatorBuffer<ACCUMULATOR>::sNextStorageSlot = 0;
-    template<typename ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>* AccumulatorBuffer<ACCUMULATOR>::sDefaultBuffer = NULL;
+    template<typename ACCUMULATOR> AccumulatorBuffer<ACCUMULATOR>* AccumulatorBuffer<ACCUMULATOR>::sDefaultBuffer = nullptr;
 
     class EventAccumulator
     {
@@ -540,7 +540,7 @@ namespace LLTrace
 
         void append(const AccumulatorBufferGroup& other);
         void merge(const AccumulatorBufferGroup& other);
-        void reset(AccumulatorBufferGroup* other = NULL);
+        void reset(AccumulatorBufferGroup* other = nullptr);
         void sync();
 
         AccumulatorBuffer<CountAccumulator>     mCounts;

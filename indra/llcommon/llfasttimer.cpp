@@ -70,7 +70,7 @@ U64         BlockTimer::sClockResolution = 1000000000; // Nanosecond resolution
 U64         BlockTimer::sClockResolution = 1000000; // Microsecond resolution
 #endif
 
-static LLMutex*         sLogLock = NULL;
+static LLMutex*         sLogLock = nullptr;
 static std::queue<LLSD> sLogQueue;
 
 block_timer_tree_df_iterator_t begin_block_timer_tree_df(BlockTimerStatHandle& id)
@@ -131,7 +131,7 @@ struct SortTimerByName
         }
 };
 
-static BlockTimerStatHandle sRootTimer("root", NULL);
+static BlockTimerStatHandle sRootTimer("root", nullptr);
 BlockTimerStatHandle& BlockTimer::getRootTimeBlock()
 {
     return sRootTimer;
@@ -314,7 +314,7 @@ void BlockTimer::processTimes()
         BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
         TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
-        accumulator.mLastCaller = NULL;
+        accumulator.mLastCaller = nullptr;
         accumulator.mMoveUpTree = false;
     }
 #endif
@@ -450,10 +450,10 @@ TimeBlockAccumulator::TimeBlockAccumulator()
 :   mTotalTimeCounter(0),
     mSelfTimeCounter(0),
     mCalls(0),
-    mLastCaller(NULL),
+    mLastCaller(nullptr),
     mActiveCount(0),
     mMoveUpTree(false),
-    mParent(NULL)
+    mParent(nullptr)
 {}
 
 void TimeBlockAccumulator::addSamples( const TimeBlockAccumulator& other, EBufferAppendType append_type )

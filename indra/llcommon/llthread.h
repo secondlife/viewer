@@ -53,7 +53,7 @@ public:
     } EThreadStatus;
     typedef std::thread::id id_t;
 
-    LLThread(const std::string& name, apr_pool_t *poolp = NULL);
+    LLThread(const std::string& name, apr_pool_t *poolp = nullptr);
     virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
     virtual void shutdown(); // stops the thread
 

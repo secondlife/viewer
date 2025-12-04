@@ -110,7 +110,7 @@ struct DeletePairedPointer
     template<typename T> void operator()(T &ptr) const
     {
         delete ptr.second;
-        ptr.second = NULL;
+        ptr.second = nullptr;
     }
 };
 struct DeletePairedPointerArray
@@ -118,7 +118,7 @@ struct DeletePairedPointerArray
     template<typename T> void operator()(T &ptr) const
     {
         delete[] ptr.second;
-        ptr.second = NULL;
+        ptr.second = nullptr;
     }
 };
 
@@ -207,7 +207,7 @@ template<typename T>
 void delete_and_clear(T*& ptr)
 {
     delete ptr;
-    ptr = NULL;
+    ptr = nullptr;
 }
 
 
@@ -215,7 +215,7 @@ template<typename T>
 void delete_and_clear_array(T*& ptr)
 {
     delete[] ptr;
-    ptr = NULL;
+    ptr = nullptr;
 }
 
 // Simple function to help with finding pointers in maps.
@@ -225,7 +225,7 @@ void delete_and_clear_array(T*& ptr)
 //  foo[18] = "there";
 //  foo[2] = "hello";
 //  const char* bar = get_ptr_in_map(foo, 2); // bar -> "hello"
-//  const char* baz = get_ptr_in_map(foo, 3); // baz == NULL
+//  const char* baz = get_ptr_in_map(foo, 3); // baz == nullptr
 template <typename T>
 inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_type const& key)
 {
@@ -234,7 +234,7 @@ inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_ty
     map_iter iter = inmap.find(key);
     if(iter == inmap.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {

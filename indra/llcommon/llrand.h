@@ -95,7 +95,7 @@ F64 LL_COMMON_API ll_drand(F64 val);
  * one, and one comparable in speed but higher periodicity without
  * outrageous memory requirements.
  * To use:
- *  LLRandLagFib607 foo((U32)time(NULL));
+ *  LLRandLagFib607 foo((U32)time(nullptr));
  *  double bar = foo();
  */
 
@@ -117,7 +117,7 @@ typedef boost::lagged_fibonacci2281 LLRandLagFib2281;
  *
  * This fairly quickly generates U32 values
  * To use:
- *  LLRandMT19937 foo((U32)time(NULL));
+ *  LLRandMT19937 foo((U32)time(nullptr));
  *  U32 bar = foo();
  *
  * lengh of cycle: 2^19,937-1

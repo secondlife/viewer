@@ -323,7 +323,7 @@ private:
 LLSDXMLParser::Impl::Impl(bool emit_errors)
     : mEmitErrors(emit_errors)
 {
-    mParser = XML_ParserCreate(NULL);
+    mParser = XML_ParserCreate(nullptr);
     reset();
 }
 
@@ -365,7 +365,7 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
     XML_Status status;
 
     static const int BUFFER_SIZE = 1024;
-    void* buffer = NULL;
+    void* buffer = nullptr;
     int count = 0;
     while (input.good() && !input.eof())
     {
@@ -538,7 +538,7 @@ void LLSDXMLParser::Impl::startSkipping()
 const XML_Char*
 LLSDXMLParser::Impl::findAttribute(const XML_Char* name, const XML_Char** pairs)
 {
-    while (NULL != pairs && NULL != *pairs)
+    while (nullptr != pairs && nullptr != *pairs)
     {
         if(0 == strcmp(name, *pairs))
         {
@@ -546,12 +546,12 @@ LLSDXMLParser::Impl::findAttribute(const XML_Char* name, const XML_Char** pairs)
         }
         pairs += 2;
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLSDXMLParser::Impl::parsePart(const char* buf, llssize len)
 {
-    if ( buf != NULL
+    if ( buf != nullptr
         && len > 0 )
     {
         XML_Status status = XML_Parse(mParser, buf, (int)len, 0);

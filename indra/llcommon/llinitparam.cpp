@@ -71,19 +71,19 @@ namespace LLInitParam
         mInspectFunc(inspect_func),
         mMinCount(min_count),
         mMaxCount(max_count),
-        mUserData(NULL)
+        mUserData(nullptr)
     {}
 
     ParamDescriptor::ParamDescriptor()
     :   mParamHandle(0),
-        mMergeFunc(NULL),
-        mDeserializeFunc(NULL),
-        mSerializeFunc(NULL),
-        mValidationFunc(NULL),
-        mInspectFunc(NULL),
+        mMergeFunc(nullptr),
+        mDeserializeFunc(nullptr),
+        mSerializeFunc(nullptr),
+        mValidationFunc(nullptr),
+        mInspectFunc(nullptr),
         mMinCount(0),
         mMaxCount(0),
-        mUserData(NULL)
+        mUserData(nullptr)
     {}
 
     ParamDescriptor::~ParamDescriptor()
@@ -153,7 +153,7 @@ namespace LLInitParam
     BlockDescriptor::BlockDescriptor()
     :   mMaxParamOffset(0),
         mInitializationState(UNINITIALIZED),
-        mCurrentBlockPtr(NULL)
+        mCurrentBlockPtr(nullptr)
     {}
 
     // called by each derived class in least to most derived order
@@ -242,7 +242,7 @@ namespace LLInitParam
             ParamDescriptor::serialize_func_t serialize_func = ptr->mSerializeFunc;
             if (serialize_func && predicate_rule.check(ll_make_predicate(PROVIDED, param->anyProvided())))
             {
-                const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
+                const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : nullptr;
                 serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
             }
         }
@@ -274,7 +274,7 @@ namespace LLInitParam
                 }
 
                 name_stack.push_back(std::make_pair(pair.first, !duplicate));
-                const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
+                const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : nullptr;
                 serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
                 name_stack.pop_back();
             }

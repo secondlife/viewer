@@ -210,7 +210,7 @@ namespace tut
                       data, "abc");
 
         std::string data2;
-        pounceable = NULL;
+        pounceable = nullptr;
         pounceable.callWhenReady(boost::bind(append, _1, "d"));
         pounceable.callWhenReady(boost::bind(append, _1, "e"));
         pounceable.callWhenReady(boost::bind(append, _1, "f"));

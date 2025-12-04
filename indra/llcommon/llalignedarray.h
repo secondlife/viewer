@@ -52,7 +52,7 @@ template <class T, U32 alignment>
 LLAlignedArray<T, alignment>::LLAlignedArray()
 {
     llassert(alignment >= 16);
-    mArray = NULL;
+    mArray = nullptr;
     mElementCount = 0;
     mCapacity = 0;
 }
@@ -61,7 +61,7 @@ template <class T, U32 alignment>
 LLAlignedArray<T, alignment>::~LLAlignedArray()
 {
     ll_aligned_free<alignment>(mArray);
-    mArray = NULL;
+    mArray = nullptr;
     mElementCount = 0;
     mCapacity = 0;
 }
@@ -69,7 +69,7 @@ LLAlignedArray<T, alignment>::~LLAlignedArray()
 template <class T, U32 alignment>
 void LLAlignedArray<T, alignment>::push_back(const T& elem)
 {
-    T* old_buf = NULL;
+    T* old_buf = nullptr;
     if (mCapacity <= mElementCount)
     {
         mCapacity++;
@@ -95,7 +95,7 @@ void LLAlignedArray<T, alignment>::resize(U32 size)
     if (mCapacity < size)
     {
         mCapacity = size+mCapacity*2;
-        T* new_buf = mCapacity > 0 ? (T*) ll_aligned_malloc<alignment>(mCapacity*sizeof(T)) : NULL;
+        T* new_buf = mCapacity > 0 ? (T*) ll_aligned_malloc<alignment>(mCapacity*sizeof(T)) : nullptr;
         if (mArray)
         {
             ll_memcpy_nonaliased_aligned_16((char*) new_buf, (char*) mArray, sizeof(T)*mElementCount);

@@ -134,7 +134,7 @@ public:                                     \
         if (0 != posix_memalign(&ret, align, size))
             return nullptr;
     #else
-        char* aligned = NULL;
+        char* aligned = nullptr;
         void* mem = malloc( size + (align - 1) + sizeof(void*) );
         if (mem)
         {
@@ -338,8 +338,8 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 #if defined(LL_ARM64)
     memcpy(dst, src, bytes);
 #else
-    assert(src != NULL);
-    assert(dst != NULL);
+    assert(src != nullptr);
+    assert(dst != nullptr);
     assert(bytes > 0);
     assert((bytes % sizeof(F32))== 0);
     ll_assert_aligned(src,16);

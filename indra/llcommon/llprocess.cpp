@@ -529,7 +529,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
     // preserve existing semantics, we promise that mAttached defaults to the
     // same setting as mAutokill.
     mAttached(params.attached.isProvided()? params.attached : params.autokill),
-    mPool(NULL)
+    mPool(nullptr)
 {
     mPipes.resize(NSLOTS);
 
@@ -547,7 +547,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
         LLTHROW(LLProcessError(STRINGIZE("failed to create apr pool")));
     }
 
-    apr_procattr_t *procattr = NULL;
+    apr_procattr_t *procattr = nullptr;
     chkapr(apr_procattr_create(&procattr, mPool));
 
     // IQA-490, CHOP-900: On Windows, ask APR to jump through hoops to
@@ -681,12 +681,12 @@ LLProcess::LLProcess(const LLSDOrParams& params):
     }
 
     // terminate with a null pointer
-    argv.push_back(NULL);
+    argv.push_back(nullptr);
 
     // Launch! The NULL would be the environment block, if we were passing
     // one. Hand-expand chkapr() macro so we can fill in the actual command
     // string instead of the variable names.
-    if (ll_apr_warn_status(apr_proc_create(&mProcess, argv[0], &argv[0], NULL, procattr,
+    if (ll_apr_warn_status(apr_proc_create(&mProcess, argv[0], &argv[0], nullptr, procattr,
                                            mPool)))
     {
         LLTHROW(LLProcessError(STRINGIZE(params << " failed")));
@@ -817,7 +817,7 @@ LLProcess::~LLProcess()
     if (mPool)
     {
         apr_pool_destroy(mPool);
-        mPool = NULL;
+        mPool = nullptr;
     }
 }
 
@@ -1053,12 +1053,12 @@ PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
     if (slot >= NSLOTS)
     {
         error = STRINGIZE(mDesc << " has no slot " << slot);
-        return NULL;
+        return nullptr;
     }
     if (!mPipes[slot])
     {
         error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a monitored pipe");
-        return NULL;
+        return nullptr;
     }
     // Make sure we dynamic_cast in pointer domain so we can test, rather than
     // accepting runtime's exception.
@@ -1066,7 +1066,7 @@ PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
     if (! ppipe)
     {
         error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a " << typeid(PIPETYPE).name());
-        return NULL;
+        return nullptr;
     }
 
     error.clear();
@@ -1248,7 +1248,7 @@ void LLProcess::autokill()
 }
 
 // Attempt to reap a process ID -- returns true if the process has exited and been reaped, false otherwise.
-static bool reap_pid(pid_t pid, LLProcess::Status* pstatus=NULL)
+static bool reap_pid(pid_t pid, LLProcess::Status* pstatus=nullptr)
 {
     LLProcess::Status dummy;
     if (! pstatus)

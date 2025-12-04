@@ -48,7 +48,7 @@ namespace tut
     {
         std::string result;
 
-        result = LLBase64::encode(NULL, 0);
+        result = LLBase64::encode(nullptr, 0);
         ensure("encode nothing", (result == "") );
 
         LLUUID nothing;

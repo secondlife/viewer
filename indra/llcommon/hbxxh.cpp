@@ -151,7 +151,7 @@ void HBXXH64::finalize()
     }
     mDigest = XXH3_64bits_digest((XXH3_state_t*)mState);
     XXH3_freeState((XXH3_state_t*)mState);
-    mState = NULL;
+    mState = nullptr;
 }
 
 U64 HBXXH64::digest() const
@@ -333,7 +333,7 @@ void HBXXH128::finalize()
     data[0] = hash.low64;
     data[1] = hash.high64;
     XXH3_freeState((XXH3_state_t*)mState);
-    mState = NULL;
+    mState = nullptr;
 }
 
 const LLUUID& HBXXH128::digest() const

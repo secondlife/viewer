@@ -49,6 +49,6 @@ private:
 };
 
 template<typename DERIVED_TYPE>
-thread_local DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
+thread_local DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = nullptr;
 
 #endif // LL_LLTHREADLOCALSTORAGE_H

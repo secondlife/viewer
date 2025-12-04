@@ -178,13 +178,13 @@ struct Vars
     void methodna(NPARAMSa)
     {
         DEBUG;
-        // Because our const char* param cp might be NULL, and because we
+        // Because our const char* param cp might be nullptr, and because we
         // intend to capture the value in a std::string, have to distinguish
         // between the NULL value and any non-NULL value. Use a convention
         // easy for a human reader: enclose any non-NULL value in single
         // quotes, reserving the unquoted string "NULL" to represent a NULL ptr.
         std::string vcp;
-        if (cp == NULL)
+        if (cp == nullptr)
             vcp = "NULL";
         else
             vcp = std::string("'") + cp + "'";
@@ -413,14 +413,14 @@ namespace tut
             addf("free1_req", "free1", &g);
             work.add(name, desc, free1, required);
             // Subclass non-const method with/out required params
-            addf("Dmethod1", "method1", NULL);
+            addf("Dmethod1", "method1", nullptr);
             work.add(name, desc, &Dispatcher::method1);
-            addf("Dmethod1_req", "method1", NULL);
+            addf("Dmethod1_req", "method1", nullptr);
             work.add(name, desc, &Dispatcher::method1, required);
             // Subclass const method with/out required params
-            addf("Dcmethod1", "cmethod1", NULL);
+            addf("Dcmethod1", "cmethod1", nullptr);
             work.add(name, desc, &Dispatcher::cmethod1);
-            addf("Dcmethod1_req", "cmethod1", NULL);
+            addf("Dcmethod1_req", "cmethod1", nullptr);
             work.add(name, desc, &Dispatcher::cmethod1, required);
             // Non-subclass method with/out required params
             addf("method1", "method1", &v);

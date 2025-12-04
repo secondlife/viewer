@@ -122,10 +122,10 @@ void AccumulatorBufferGroup::merge(const AccumulatorBufferGroup& other)
 void AccumulatorBufferGroup::reset(AccumulatorBufferGroup* other)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-    mCounts.reset(other ? &other->mCounts : NULL);
-    mSamples.reset(other ? &other->mSamples : NULL);
-    mEvents.reset(other ? &other->mEvents : NULL);
-    mStackTimers.reset(other ? &other->mStackTimers : NULL);
+    mCounts.reset(other ? &other->mCounts : nullptr);
+    mSamples.reset(other ? &other->mSamples : nullptr);
+    mEvents.reset(other ? &other->mEvents : nullptr);
+    mStackTimers.reset(other ? &other->mStackTimers : nullptr);
 }
 
 void AccumulatorBufferGroup::sync()

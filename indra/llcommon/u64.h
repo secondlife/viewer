@@ -47,7 +47,7 @@ LL_COMMON_API std::string U64_to_str(U64 value);
  *
  * The client of this function is expected to provide an allocated
  * buffer. The function then snprintf() into that buffer, so providing
- * NULL has undefined behavior. Providing a buffer which is too small
+ * nullptr has undefined behavior. Providing a buffer which is too small
  * will truncate the printable value, so usually you want to declare
  * the buffer:
  *

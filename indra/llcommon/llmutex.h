@@ -254,7 +254,7 @@ public:
     /**
     * @brief Constructor which accepts a mutex, and locks it.
     *
-    * @param mutex An allocated mutex. If you pass in NULL,
+    * @param mutex An allocated mutex. If you pass in nullptr,
     * this wrapper will not lock.
     */
     LLScopedLock(std::mutex* mutex);

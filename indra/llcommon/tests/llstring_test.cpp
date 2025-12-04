@@ -416,8 +416,8 @@ namespace tut
     template<> template<>
     void string_index_object_t::test<26>()
     {
-        const char* str1 = NULL;
-        const char* str2 = NULL;
+        const char* str1 = nullptr;
+        const char* str2 = nullptr;
 
         ensure("1: compareStrings failed", LLStringUtil::compareStrings(str1, str2) == 0);
         str2 = "A";
@@ -435,8 +435,8 @@ namespace tut
     template<> template<>
     void string_index_object_t::test<27>()
     {
-        const char* str1 = NULL;
-        const char* str2 = NULL;
+        const char* str1 = nullptr;
+        const char* str2 = nullptr;
 
         ensure("1: compareInsensitive failed", LLStringUtil::compareInsensitive(str1, str2) == 0);
         str2 = "A";

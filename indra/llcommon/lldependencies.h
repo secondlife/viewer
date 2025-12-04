@@ -433,7 +433,7 @@ public:
         {
             return &found->second.node;
         }
-        return NULL;
+        return nullptr;
     }
 
     /**

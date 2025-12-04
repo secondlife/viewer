@@ -41,7 +41,7 @@ namespace LLTrace
 
 Recording::Recording(EPlayState state)
 :   mElapsedSeconds(0),
-    mActiveBuffers(NULL)
+    mActiveBuffers(nullptr)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     mBuffers = new AccumulatorBufferGroup();
@@ -49,7 +49,7 @@ Recording::Recording(EPlayState state)
 }
 
 Recording::Recording( const Recording& other )
-:   mActiveBuffers(NULL)
+:   mActiveBuffers(nullptr)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     *this = other;
@@ -82,7 +82,7 @@ Recording::~Recording()
     // allow recording destruction without thread recorder running,
     // otherwise thread shutdown could crash if a recording outlives the thread recorder
     // besides, recording construction and destruction is fine without a recorder...just don't attempt to start one
-    if (isStarted() && LLTrace::get_thread_recorder() != NULL)
+    if (isStarted() && LLTrace::get_thread_recorder() != nullptr)
     {
         LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
     }
@@ -98,10 +98,10 @@ void Recording::update()
         mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 
         // must have
-        llassert(mActiveBuffers != NULL
-                && LLTrace::get_thread_recorder() != NULL);
+        llassert(mActiveBuffers != nullptr
+                && LLTrace::get_thread_recorder() != nullptr);
 
-        if (!mActiveBuffers->isCurrent() && LLTrace::get_thread_recorder() != NULL)
+        if (!mActiveBuffers->isCurrent() && LLTrace::get_thread_recorder() != nullptr)
         {
             AccumulatorBufferGroup* buffers = mBuffers.write();
             LLTrace::get_thread_recorder()->deactivate(buffers);
@@ -131,7 +131,7 @@ void Recording::handleStart()
     mSamplingTimer.reset();
     mBuffers.setStayUnique(true);
     // must have thread recorder running on this thread
-    llassert(LLTrace::get_thread_recorder() != NULL);
+    llassert(LLTrace::get_thread_recorder() != nullptr);
     mActiveBuffers = LLTrace::get_thread_recorder()->activate(mBuffers.write());
 #endif
 }
@@ -142,9 +142,9 @@ void Recording::handleStop()
 #if LL_TRACE_ENABLED
     mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
     // must have thread recorder running on this thread
-    llassert(LLTrace::get_thread_recorder() != NULL);
+    llassert(LLTrace::get_thread_recorder() != nullptr);
     LLTrace::get_thread_recorder()->deactivate(mBuffers.write());
-    mActiveBuffers = NULL;
+    mActiveBuffers = nullptr;
     mBuffers.setStayUnique(false);
 #endif
 }
@@ -170,7 +170,7 @@ bool Recording::hasValue(const StatType<TimeBlockAccumulator>& stat)
 {
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
+    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : nullptr;
     return accumulator.hasValue() || (active_accumulator && active_accumulator->hasValue());
 }
 
@@ -178,7 +178,7 @@ F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator>& stat)
 {
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
+    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : nullptr;
     return F64Seconds((F64)(accumulator.mTotalTimeCounter) + (F64)(active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
                 / (F64)LLTrace::BlockTimer::countsPerSecond();
 }
@@ -187,7 +187,7 @@ F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>
 {
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
+    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : nullptr;
     return F64Seconds(((F64)(accumulator.mSelfTimeCounter) + (F64)(active_accumulator ? active_accumulator->mSelfTimeCounter : 0)) / (F64)LLTrace::BlockTimer::countsPerSecond());
 }
 
@@ -195,7 +195,7 @@ S32 Recording::getSum(const StatType<TimeBlockAccumulator::CallCountFacet>& stat
 {
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
+    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : nullptr;
     return accumulator.mCalls + (active_accumulator ? active_accumulator->mCalls : 0);
 }
 
@@ -203,7 +203,7 @@ F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator>& stat)
 {
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
+    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : nullptr;
 
     return F64Seconds((F64)(accumulator.mTotalTimeCounter + (active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
                 / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds.value()));
@@ -213,7 +213,7 @@ F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator::SelfTimeFac
 {
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
-    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
+    const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : nullptr;
 
     return F64Seconds((F64)(accumulator.mSelfTimeCounter + (active_accumulator ? active_accumulator->mSelfTimeCounter : 0))
             / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds.value()));
@@ -231,7 +231,7 @@ bool Recording::hasValue(const StatType<CountAccumulator>& stat)
 {
     update();
     const CountAccumulator& accumulator = mBuffers->mCounts[stat.getIndex()];
-    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : NULL;
+    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : nullptr;
     return accumulator.hasValue() || (active_accumulator ? active_accumulator->hasValue() : false);
 }
 
@@ -239,7 +239,7 @@ F64 Recording::getSum(const StatType<CountAccumulator>& stat)
 {
     update();
     const CountAccumulator& accumulator = mBuffers->mCounts[stat.getIndex()];
-    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : NULL;
+    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : nullptr;
     return accumulator.getSum() + (active_accumulator ? active_accumulator->getSum() : 0);
 }
 
@@ -247,7 +247,7 @@ F64 Recording::getPerSec( const StatType<CountAccumulator>& stat )
 {
     update();
     const CountAccumulator& accumulator = mBuffers->mCounts[stat.getIndex()];
-    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : NULL;
+    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : nullptr;
     F64 sum = accumulator.getSum() + (active_accumulator ? active_accumulator->getSum() : 0);
     return sum / mElapsedSeconds.value();
 }
@@ -256,7 +256,7 @@ S32 Recording::getSampleCount( const StatType<CountAccumulator>& stat )
 {
     update();
     const CountAccumulator& accumulator = mBuffers->mCounts[stat.getIndex()];
-    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : NULL;
+    const CountAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mCounts[stat.getIndex()] : nullptr;
     return accumulator.getSampleCount() + (active_accumulator ? active_accumulator->getSampleCount() : 0);
 }
 
@@ -264,7 +264,7 @@ bool Recording::hasValue(const StatType<SampleAccumulator>& stat)
 {
     update();
     const SampleAccumulator& accumulator = mBuffers->mSamples[stat.getIndex()];
-    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
+    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : nullptr;
     return accumulator.hasValue() || (active_accumulator && active_accumulator->hasValue());
 }
 
@@ -272,7 +272,7 @@ F64 Recording::getMin( const StatType<SampleAccumulator>& stat )
 {
     update();
     const SampleAccumulator& accumulator = mBuffers->mSamples[stat.getIndex()];
-    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
+    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : nullptr;
     return llmin(accumulator.getMin(), active_accumulator && active_accumulator->hasValue() ? active_accumulator->getMin() : F32_MAX);
 }
 
@@ -280,7 +280,7 @@ F64 Recording::getMax( const StatType<SampleAccumulator>& stat )
 {
     update();
     const SampleAccumulator& accumulator = mBuffers->mSamples[stat.getIndex()];
-    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
+    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : nullptr;
     return llmax(accumulator.getMax(), active_accumulator && active_accumulator->hasValue() ? active_accumulator->getMax() : F32_MIN);
 }
 
@@ -288,7 +288,7 @@ F64 Recording::getMean( const StatType<SampleAccumulator>& stat )
 {
     update();
     const SampleAccumulator& accumulator = mBuffers->mSamples[stat.getIndex()];
-    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
+    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : nullptr;
     if (active_accumulator && active_accumulator->hasValue())
     {
         F64 t = 0.0;
@@ -309,7 +309,7 @@ F64 Recording::getStandardDeviation( const StatType<SampleAccumulator>& stat )
 {
     update();
     const SampleAccumulator& accumulator = mBuffers->mSamples[stat.getIndex()];
-    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
+    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : nullptr;
 
     if (active_accumulator && active_accumulator->hasValue())
     {
@@ -326,7 +326,7 @@ F64 Recording::getLastValue( const StatType<SampleAccumulator>& stat )
 {
     update();
     const SampleAccumulator& accumulator = mBuffers->mSamples[stat.getIndex()];
-    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
+    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : nullptr;
     return (active_accumulator && active_accumulator->hasValue() ? active_accumulator->getLastValue() : accumulator.getLastValue());
 }
 
@@ -334,7 +334,7 @@ S32 Recording::getSampleCount( const StatType<SampleAccumulator>& stat )
 {
     update();
     const SampleAccumulator& accumulator = mBuffers->mSamples[stat.getIndex()];
-    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : NULL;
+    const SampleAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mSamples[stat.getIndex()] : nullptr;
     return accumulator.getSampleCount() + (active_accumulator && active_accumulator->hasValue() ? active_accumulator->getSampleCount() : 0);
 }
 
@@ -342,7 +342,7 @@ bool Recording::hasValue(const StatType<EventAccumulator>& stat)
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
     return accumulator.hasValue() || (active_accumulator && active_accumulator->hasValue());
 }
 
@@ -350,7 +350,7 @@ F64 Recording::getSum( const StatType<EventAccumulator>& stat)
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
     return (F64)(accumulator.getSum() + (active_accumulator && active_accumulator->hasValue() ? active_accumulator->getSum() : 0));
 }
 
@@ -358,7 +358,7 @@ F64 Recording::getMin( const StatType<EventAccumulator>& stat )
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
     return llmin(accumulator.getMin(), active_accumulator && active_accumulator->hasValue() ? active_accumulator->getMin() : F32_MAX);
 }
 
@@ -366,7 +366,7 @@ F64 Recording::getMax( const StatType<EventAccumulator>& stat )
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
     return llmax(accumulator.getMax(), active_accumulator && active_accumulator->hasValue() ? active_accumulator->getMax() : F32_MIN);
 }
 
@@ -374,7 +374,7 @@ F64 Recording::getMean( const StatType<EventAccumulator>& stat )
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
     if (active_accumulator && active_accumulator->hasValue())
     {
         F64 t = 0.0;
@@ -395,7 +395,7 @@ F64 Recording::getStandardDeviation( const StatType<EventAccumulator>& stat )
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
 
     if (active_accumulator && active_accumulator->hasValue())
     {
@@ -412,7 +412,7 @@ F64 Recording::getLastValue( const StatType<EventAccumulator>& stat )
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
     return active_accumulator ? active_accumulator->getLastValue() : accumulator.getLastValue();
 }
 
@@ -420,7 +420,7 @@ S32 Recording::getSampleCount( const StatType<EventAccumulator>& stat )
 {
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
-    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
+    const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : nullptr;
     return accumulator.getSampleCount() + (active_accumulator ? active_accumulator->getSampleCount() : 0);
 }
 

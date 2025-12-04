@@ -41,7 +41,7 @@ to reference the LLObjectSelection and LLParcelSelection classes, but do not
 apply LLSafeHandle to other classes, or declare new instances.
 
 Instead, use LLPointer or other smart pointer types with appropriate checks
-for NULL. If you're certain the reference cannot (or must not) be NULL,
+for NULL. If you're certain the reference cannot (or must not) be nullptr,
 consider storing a C++ reference instead -- or use (e.g.) LLCheckedHandle.
 
 When an LLSafeHandle<T> containing NULL is dereferenced, it resolves to a
@@ -62,18 +62,18 @@ class LLSafeHandle
 {
 public:
     LLSafeHandle() :
-        mPointer(NULL)
+        mPointer(nullptr)
     {
     }
 
     LLSafeHandle(Type* ptr) :
-        mPointer(NULL)
+        mPointer(nullptr)
     {
         assign(ptr);
     }
 
     LLSafeHandle(const LLSafeHandle<Type>& ptr) :
-        mPointer(NULL)
+        mPointer(nullptr)
     {
         assign(ptr.mPointer);
     }
@@ -81,7 +81,7 @@ public:
     // support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
     template<typename Subclass>
     LLSafeHandle(const LLSafeHandle<Subclass>& ptr) :
-        mPointer(NULL)
+        mPointer(nullptr)
     {
         assign(ptr.get());
     }
@@ -95,17 +95,17 @@ public:
     Type*   operator->()                        { return nonNull(mPointer); }
 
     Type*   get() const                         { return mPointer; }
-    void    clear()                             { assign(NULL); }
+    void    clear()                             { assign(nullptr); }
     // we disallow these operations as they expose our null objects to direct manipulation
     // and bypass the reference counting semantics
     //const Type&   operator*() const           { return *nonNull(mPointer); }
     //Type& operator*()                         { return *nonNull(mPointer); }
 
-    operator BOOL()  const                      { return mPointer != NULL; }
-    operator bool()  const                      { return mPointer != NULL; }
-    bool operator!() const                      { return mPointer == NULL; }
-    bool isNull() const                         { return mPointer == NULL; }
-    bool notNull() const                        { return mPointer != NULL; }
+    operator BOOL()  const                      { return mPointer != nullptr; }
+    operator bool()  const                      { return mPointer != nullptr; }
+    bool operator!() const                      { return mPointer == nullptr; }
+    bool isNull() const                         { return mPointer == nullptr; }
+    bool notNull() const                        { return mPointer != nullptr; }
 
 
     operator Type*()       const                { return mPointer; }
@@ -150,9 +150,9 @@ protected:
         if (mPointer)
         {
             Type *tempp = mPointer;
-            mPointer = NULL;
+            mPointer = nullptr;
             tempp->unref();
-            if (mPointer != NULL)
+            if (mPointer != nullptr)
             {
                 LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
                 unref();

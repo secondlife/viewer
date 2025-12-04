@@ -426,7 +426,7 @@ namespace tut
         history.push_back(Item());
 
         // Run the child process.
-        apr_procattr_t *procattr = NULL;
+        apr_procattr_t *procattr = nullptr;
         aprchk(apr_procattr_create(&procattr, pool.getAPRPool()));
         aprchk(apr_procattr_io_set(procattr, APR_CHILD_BLOCK, APR_CHILD_BLOCK, APR_CHILD_BLOCK));
         aprchk(apr_procattr_cmdtype_set(procattr, APR_PROGRAM_PATH));
@@ -442,11 +442,11 @@ namespace tut
         // will persist.
         std::string scriptname(script.getName());
         argv.push_back(scriptname.c_str());
-        argv.push_back(NULL);
+        argv.push_back(nullptr);
 
         aprchk(apr_proc_create(&child, argv[0],
                                &argv[0],
-                               NULL, // if we wanted to pass explicit environment
+                               nullptr, // if we wanted to pass explicit environment
                                procattr,
                                pool.getAPRPool()));
 

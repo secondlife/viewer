@@ -55,7 +55,7 @@ public:
     void writeSD(LLSD& sd,
         const BLOCK& block,
         const LLInitParam::predicate_rule_t rules = LLInitParam::default_parse_rules(),
-        const LLInitParam::BaseBlock* diff_block = NULL)
+        const LLInitParam::BaseBlock* diff_block = nullptr)
     {
         if (!diff_block
             && !rules.isAmbivalent(LLInitParam::HAS_DEFAULT_VALUE))

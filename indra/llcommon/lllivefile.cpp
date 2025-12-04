@@ -63,7 +63,7 @@ LLLiveFile::Impl::Impl(const std::string& filename, const F32 refresh_period)
     mLastModTime(0),
     mLastStatTime(0),
     mLastExists(false),
-    mEventTimer(NULL)
+    mEventTimer(nullptr)
 {
 }
 

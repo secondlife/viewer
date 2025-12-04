@@ -40,7 +40,7 @@
 class LLTombStone : public LLRefCount
 {
 public:
-    LLTombStone(void* target = NULL) : mTarget(target) {}
+    LLTombStone(void* target = nullptr) : mTarget(target) {}
 
     void setTarget(void* target) { mTarget = target; }
     void* getTarget() const { return mTarget; }
@@ -50,7 +50,7 @@ private:
 
 /**
  *  LLHandles are used to refer to objects whose lifetime you do not control or influence.
- *  Calling get() on a handle will return a pointer to the referenced object or NULL,
+ *  Calling get() on a handle will return a pointer to the referenced object or nullptr,
  *  if the object no longer exists.  Note that during the lifetime of the returned pointer,
  *  you are assuming that the object will not be deleted by any action you perform,
  *  or any other thread, as normal when using pointers, so avoid using that pointer outside of
@@ -76,7 +76,7 @@ private:
  * Minor optimization: we want LLHandle's mTombStone to always be a valid
  * LLPointer, saving some conditionals in dereferencing. That's the
  * getDefaultTombStone() mechanism. The default LLTombStone object's target
- * pointer is always NULL, so it's semantically identical to allowing
+ * pointer is always nullptr, so it's semantically identical to allowing
  * mTombStone to be invalid.
  */
 template <typename T>
@@ -94,7 +94,7 @@ public:
 
     bool isDead() const
     {
-        return mTombStone->getTarget() == NULL;
+        return mTombStone->getTarget() == nullptr;
     }
 
     void markDead()
@@ -164,7 +164,7 @@ public:
         if (LLHandle<T>::mTombStone.notNull())
         {
             if (LLHandle<T>::mTombStone->getTarget() == (void*)object) return;
-            LLHandle<T>::mTombStone->setTarget(NULL);
+            LLHandle<T>::mTombStone->setTarget(nullptr);
         }
         // tombstone reference counted, so no paired delete
         LLHandle<T>::mTombStone = new LLTombStone((void*)object);
@@ -172,7 +172,7 @@ public:
 
     void unbind()
     {
-        LLHandle<T>::mTombStone->setTarget(NULL);
+        LLHandle<T>::mTombStone->setTarget(nullptr);
     }
 
     //don't allow copying of root handles, since there should only be one
@@ -272,7 +272,7 @@ public:
      */
     /*explicit*/ operator bool() const // explicit conversion operator not available with Linux compiler
     {
-        return (mHandle.get() != NULL);
+        return (mHandle.get() != nullptr);
     }
 
     /**

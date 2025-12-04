@@ -127,7 +127,7 @@
         // mechanism must perform correct data ordering operations
         // as dictated by architecture.
         other_thread.sendMessageAndPointer("Take This", xfer_tree);
-        xfer_tree = NULL;
+        xfer_tree = nullptr;
 
 
     Avoid this pattern which provides half of a race condition:

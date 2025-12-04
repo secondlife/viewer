@@ -58,7 +58,7 @@ bool ll_get_stack_trace(std::vector<std::string>& lines)
     // load the symbols if they're not loaded
     if(!symbolsLoaded && firstCall)
     {
-        symbolsLoaded = SymInitialize(hProc, NULL, true);
+        symbolsLoaded = SymInitialize(hProc, nullptr, true);
         firstCall = false;
     }
 
@@ -71,7 +71,7 @@ bool ll_get_stack_trace(std::vector<std::string>& lines)
         S32 depth = 0;
 
         // get the addresses
-        depth = RtlCaptureStackBackTrace_fn(FRAME_SKIP, MAX_STACK_DEPTH, frames, NULL);
+        depth = RtlCaptureStackBackTrace_fn(FRAME_SKIP, MAX_STACK_DEPTH, frames, nullptr);
 
         IMAGEHLP_LINE64 line;
         memset(&line, 0, sizeof(IMAGEHLP_LINE64));
@@ -131,11 +131,11 @@ void ll_get_stack_trace_internal(std::vector<std::string>& lines)
     const S32 STRING_NAME_LENGTH = 256;
 
     HANDLE process = GetCurrentProcess();
-    SymInitialize( process, NULL, true );
+    SymInitialize( process, nullptr, true );
 
     void *stack[MAX_STACK_DEPTH];
 
-    unsigned short frames = RtlCaptureStackBackTrace_fn( 0, MAX_STACK_DEPTH, stack, NULL );
+    unsigned short frames = RtlCaptureStackBackTrace_fn( 0, MAX_STACK_DEPTH, stack, nullptr );
     SYMBOL_INFO *symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + STRING_NAME_LENGTH * sizeof(char), 1);
     symbol->MaxNameLen = STRING_NAME_LENGTH-1;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);

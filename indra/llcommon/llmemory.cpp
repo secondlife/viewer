@@ -236,7 +236,7 @@ U64 LLMemory::getCurrentRSS()
 
 #elif defined(LL_DARWIN)
 
-//  if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
+//  if (sysctl(ctl, 2, &page_size, &size, nullptr, 0) == -1)
 //  {
 //      LL_WARNS() << "Couldn't get page size" << LL_ENDL;
 //      return 0;
@@ -315,8 +315,8 @@ void* ll_aligned_malloc_fallback( size_t size, int align )
 
     unsigned int for_alloc = (size/sysinfo.dwPageSize + !!(size%sysinfo.dwPageSize)) * sysinfo.dwPageSize;
 
-    void *p = VirtualAlloc(NULL, for_alloc+sysinfo.dwPageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-    if(NULL == p) {
+    void *p = VirtualAlloc(nullptr, for_alloc+sysinfo.dwPageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+    if(nullptr == p) {
         // call debugger
         __asm int 3;
     }

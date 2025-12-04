@@ -49,7 +49,7 @@ const LLUUID LLUUID::null;
 const LLTransactionID LLTransactionID::tnull;
 
 // static
-LLMutex* LLUUID::mMutex = NULL;
+LLMutex* LLUUID::mMutex = nullptr;
 
 
 
@@ -512,7 +512,7 @@ S32 LLUUID::getNodeID(unsigned char* node_id)
 S32 LLUUID::getNodeID(unsigned char* node_id)
 {
     int i;
-    unsigned char* a = NULL;
+    unsigned char* a = nullptr;
     struct ifaddrs* ifap, * ifa;
     int rv;
     S32 result = 0;
@@ -521,12 +521,12 @@ S32 LLUUID::getNodeID(unsigned char* node_id)
     {
         return -1;
     }
-    if (ifap == NULL)
+    if (ifap == nullptr)
     {
         return -1;
     }
 
-    for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next)
+    for (ifa = ifap; ifa != nullptr; ifa = ifa->ifa_next)
     {
         //      printf("Interface %s, address family %d, ", ifa->ifa_name, ifa->ifa_addr->sa_family);
         for (i = 0; i < ifa->ifa_addr->sa_len; i++)
@@ -874,7 +874,7 @@ U32 LLUUID::getRandomSeed()
 
 bool LLUUID::parseUUID(const std::string& buf, LLUUID* value)
 {
-    if (buf.empty() || value == NULL)
+    if (buf.empty() || value == nullptr)
     {
         return false;
     }

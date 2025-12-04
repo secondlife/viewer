@@ -90,7 +90,7 @@ void LLParamSDParser::submit(LLInitParam::BaseBlock& block, const LLSD& sd, LLIn
 
 void LLParamSDParser::readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool silent)
 {
-    mCurReadSD = NULL;
+    mCurReadSD = nullptr;
     mNameStack.clear();
     setParseSilently(silent);
 

@@ -464,11 +464,11 @@ public:
         {
             // By default, an isUndefined() LLSD object's asString() method
             // will produce an empty string. But for a function accepting
-            // const char*, it's often important to be able to pass NULL, and
+            // const char*, it's often important to be able to pass nullptr, and
             // isUndefined() seems like the best way. If you want to pass an
             // empty string, you can still pass LLSD(""). Without this special
             // case, though, no LLSD value could pass NULL.
-            return NULL;
+            return nullptr;
         }
         return value_.c_str();
     }

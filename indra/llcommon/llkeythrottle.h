@@ -69,8 +69,8 @@ protected:
         // prevMap covers the previous interval
 
     LLKeyThrottleImpl() :
-        prevMap(NULL),
-        currMap(NULL),
+        prevMap(nullptr),
+        currMap(nullptr),
         countLimit(0),
         intervalLength(1),
         startTime(0)

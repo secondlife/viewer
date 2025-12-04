@@ -697,14 +697,14 @@ private:
         char cpu_brand_string[0x40];
         len = sizeof(cpu_brand_string);
         memset(cpu_brand_string, 0, len);
-        sysctlbyname("machdep.cpu.brand_string", (void*)cpu_brand_string, &len, NULL, 0);
+        sysctlbyname("machdep.cpu.brand_string", (void*)cpu_brand_string, &len, nullptr, 0);
         cpu_brand_string[0x3f] = 0;
         setInfo(eBrandName, cpu_brand_string);
 
         char cpu_vendor[0x20];
         len = sizeof(cpu_vendor);
         memset(cpu_vendor, 0, len);
-        sysctlbyname("machdep.cpu.vendor", (void*)cpu_vendor, &len, NULL, 0);
+        sysctlbyname("machdep.cpu.vendor", (void*)cpu_vendor, &len, nullptr, 0);
         cpu_vendor[0x1f] = 0;
         // M series CPUs don't provide this field so if empty, just fall back to Apple.
         setInfo(eVendor, (cpu_vendor[0] != '\0') ? cpu_vendor : "Apple");
@@ -749,7 +749,7 @@ private:
         char cpu_features[1024];
         len = sizeof(cpu_features);
         memset(cpu_features, 0, len);
-        sysctlbyname("machdep.cpu.features", (void*)cpu_features, &len, NULL, 0);
+        sysctlbyname("machdep.cpu.features", (void*)cpu_features, &len, nullptr, 0);
 
         std::string cpu_features_str(cpu_features);
         cpu_features_str = " " + cpu_features_str + " ";
@@ -847,16 +847,16 @@ private:
                 // /proc/cpuinfo on Linux looks like:
                 // name\t*: value\n
                 char* tabspot = strchr( line, '\t' );
-                if (tabspot == NULL)
+                if (tabspot == nullptr)
                     continue;
                 char* colspot = strchr( tabspot, ':' );
-                if (colspot == NULL)
+                if (colspot == nullptr)
                     continue;
                 char* spacespot = strchr( colspot, ' ' );
-                if (spacespot == NULL)
+                if (spacespot == nullptr)
                     continue;
                 char* nlspot = strchr( line, '\n' );
-                if (nlspot == NULL)
+                if (nlspot == nullptr)
                     nlspot = line + strlen( line ); // Fallback to terminating NUL
                 std::string linename( line, tabspot );
                 std::string llinename(linename);
@@ -982,7 +982,7 @@ private:
 
 //////////////////////////////////////////////////////
 // Interface definition
-LLProcessorInfo::LLProcessorInfo() : mImpl(NULL)
+LLProcessorInfo::LLProcessorInfo() : mImpl(nullptr)
 {
     // *NOTE:Mani - not thread safe.
     if(!mImpl)

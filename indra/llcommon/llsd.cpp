@@ -1096,7 +1096,7 @@ static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
     // sStorage will point to the result of the last call.  This will actually
     // be one leak, but since this is used only when running under the
     // debugger, it should not be an issue.
-    static char *sStorage = NULL;
+    static char *sStorage = nullptr;
     delete[] sStorage;
     std::string out_string;
     {

@@ -139,7 +139,7 @@ LLMetrics::LLMetrics()
 LLMetrics::~LLMetrics()
 {
     delete mImpl;
-    mImpl = NULL;
+    mImpl = nullptr;
 }
 
 void LLMetrics::recordEvent(const std::string& location, const std::string& mesg, bool success)
