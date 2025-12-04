@@ -57,7 +57,7 @@ inline void LLImageTGA::decodeTruecolorPixel15( U8* dst, const U8* src )
 
 LLImageTGA::LLImageTGA()
     : LLImageFormatted(IMG_CODEC_TGA),
-      mColorMap( NULL ),
+      mColorMap( nullptr ),
       mColorMapStart( 0 ),
       mColorMapLength( 0 ),
       mColorMapBytesPerEntry( 0 ),
@@ -90,7 +90,7 @@ LLImageTGA::LLImageTGA()
 
 LLImageTGA::LLImageTGA(const std::string& file_name)
     : LLImageFormatted(IMG_CODEC_TGA),
-      mColorMap( NULL ),
+      mColorMap( nullptr ),
       mColorMapStart( 0 ),
       mColorMapLength( 0 ),
       mColorMapBytesPerEntry( 0 ),

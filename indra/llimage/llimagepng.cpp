@@ -72,7 +72,7 @@ bool LLImagePNG::updateData()
         }
 
         LLPngWrapper::ImageInfo infop;
-        if (!pngWrapper.readPng(getData(), getDataSize(), NULL, &infop))
+        if (!pngWrapper.readPng(getData(), getDataSize(), nullptr, &infop))
         {
             setLastError(pngWrapper.getErrorMessage());
             return false;

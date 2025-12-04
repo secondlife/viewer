@@ -135,7 +135,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
         // Load the header
         if (!image->load(src_filename, 600))
         {
-            return NULL;
+            return nullptr;
         }
         S32 h = ((LLImageJ2C*)(image.get()))->calcHeaderSize();
         S32 d = (load_size > 0 ? ((LLImageJ2C*)(image.get()))->calcDiscardLevelBytes(load_size) : 0);
@@ -153,7 +153,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
         // Load the requested byte range
         if (!image->load(src_filename, load_size))
         {
-            return NULL;
+            return nullptr;
         }
     }
     else
@@ -161,14 +161,14 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
         // This just loads the image file stream into a buffer. No decoding done.
         if (!image->load(src_filename))
         {
-            return NULL;
+            return nullptr;
         }
     }
 
     if( (image->getComponents() != 3) && (image->getComponents() != 4) )
     {
         std::cout << "Image files with less than 3 or more than 4 components are not supported\n";
-        return NULL;
+        return nullptr;
     }
 
     if (output_stats)
@@ -179,7 +179,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
     LLPointer<LLImageRaw> raw_image = new LLImageRaw;
 
     // Set the image restriction on load in the case of a j2c image
-    if ((image->getCodec() == IMG_CODEC_J2C) && ((discard_level != -1) || (region != NULL)))
+    if ((image->getCodec() == IMG_CODEC_J2C) && ((discard_level != -1) || (region != nullptr)))
     {
         // That method doesn't exist (and likely, doesn't make sense) for any other image file format
         // hence the required cryptic cast.
@@ -188,7 +188,7 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
 
     if (!image->decode(raw_image, 0.0f))
     {
-        return NULL;
+        return nullptr;
     }
 
     return raw_image;
@@ -356,7 +356,7 @@ int main(int argc, char** argv)
     // Other optional parsed arguments
     bool analyze_performance = false;
     bool image_stats = false;
-    int* region = NULL;
+    int* region = nullptr;
     int discard_level = -1;
     int load_size = 0;
     int precincts_size = -1;
@@ -425,7 +425,7 @@ int main(int argc, char** argv)
             {
                 std::cout << "--region arguments invalid" << std::endl;
                 delete [] region;
-                region = NULL;
+                region = nullptr;
             }
         }
         else if (!strcmp(argv[arg], "--discard_level") || !strcmp(argv[arg], "-d"))

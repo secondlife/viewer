@@ -618,8 +618,8 @@ void LLImage::setLastError(const std::string& message)
 // LLImageBase
 //---------------------------------------------------------------------------
 
-LLImageBase::LLImageBase()
-:   mData(NULL),
+LLImageBase::LLImageBase() :
+    mData(nullptr),
     mDataSize(0),
     mWidth(0),
     mHeight(0),
@@ -669,7 +669,7 @@ void LLImageBase::deleteData()
 {
     ll_aligned_free_16(mData);
     mDataSize = 0;
-    mData = NULL;
+    mData = nullptr;
 }
 
 // virtual
@@ -721,7 +721,7 @@ U8* LLImageBase::allocateData(S32 size)
         if (mData)
         {
             deleteData(); // virtual
-            mData = NULL;
+            mData = nullptr;
         }
     }
     mDataSize = size;
@@ -755,7 +755,7 @@ const U8* LLImageBase::getData() const
     if(mBadBufferAllocation)
     {
         LL_WARNS() << "Bad memory allocation for the image buffer!" << LL_ENDL ;
-        return NULL;
+        return nullptr;
     }
 
     return mData;
@@ -766,7 +766,7 @@ U8* LLImageBase::getData()
     if(mBadBufferAllocation)
     {
         LL_WARNS() << "Bad memory allocation for the image buffer!" << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     return mData;
@@ -774,7 +774,7 @@ U8* LLImageBase::getData()
 
 bool LLImageBase::isBufferInvalid() const
 {
-    return mBadBufferAllocation || mData == NULL;
+    return mBadBufferAllocation || mData == nullptr;
 }
 
 void LLImageBase::setSize(S32 width, S32 height, S32 ncomponents)
@@ -1614,7 +1614,7 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
         if (new_data_size > 0)
         {
             U8 *new_data = (U8*)ll_aligned_malloc_16(new_data_size);
-            if(NULL == new_data)
+            if(nullptr == new_data)
             {
                 return false;
             }
@@ -2144,7 +2144,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
         success = image->decode(this, 100000.0f);
     }
 
-    image = NULL; // deletes image
+    image = nullptr; // deletes image
     if (!success)
     {
         deleteData();
@@ -2224,7 +2224,7 @@ LLImageFormatted* LLImageFormatted::createFromType(S8 codec)
         image = new LLImageDXT();
         break;
       default:
-        image = NULL;
+        image = nullptr;
         break;
     }
     return image;
@@ -2279,7 +2279,7 @@ LLImageFormatted* LLImageFormatted::loadFromMemory(const U8* data_in, U32 size, 
         if (!image->updateData())
         {
             delete image;
-            image = NULL;
+            image = nullptr;
         }
     }
     return image;
@@ -2472,7 +2472,7 @@ bool LLImageFormatted::load(const std::string &filename, int load_size)
 
     S32 file_size = 0;
     LLAPRFile infile ;
-    infile.open(filename, LL_APR_RB, NULL, &file_size);
+    infile.open(filename, LL_APR_RB, nullptr, &file_size);
     apr_file_t* apr_file = infile.getFileHandle();
     if (!apr_file)
     {

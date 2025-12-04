@@ -276,7 +276,7 @@ bool LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 
     S32 width = getWidth(), height = getHeight();
     S32 ncomponents = getComponents();
-    U8* data = NULL;
+    U8* data = nullptr;
     if (mDiscardLevel >= 0)
     {
         data = getData() + getMipOffset(mDiscardLevel);

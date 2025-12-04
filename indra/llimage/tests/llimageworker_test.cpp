@@ -45,7 +45,7 @@
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
 LLImageBase::LLImageBase()
-: mData(NULL),
+: mData(nullptr),
 mDataSize(0),
 mWidth(0),
 mHeight(0),
@@ -58,16 +58,16 @@ LLImageBase::~LLImageBase() {}
 void LLImageBase::dump() { }
 void LLImageBase::sanityCheck() { }
 void LLImageBase::deleteData() { }
-U8* LLImageBase::allocateData(S32 size) { return NULL; }
-U8* LLImageBase::reallocateData(S32 size) { return NULL; }
+U8* LLImageBase::allocateData(S32 size) { return nullptr; }
+U8* LLImageBase::reallocateData(S32 size) { return nullptr; }
 
 LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components) { }
 LLImageRaw::~LLImageRaw() { }
 void LLImageRaw::deleteData() { }
-U8* LLImageRaw::allocateData(S32 size) { return NULL; }
-U8* LLImageRaw::reallocateData(S32 size) { return NULL; }
-const U8* LLImageBase::getData() const { return NULL; }
-U8* LLImageBase::getData() { return NULL; }
+U8* LLImageRaw::allocateData(S32 size) { return nullptr; }
+U8* LLImageRaw::reallocateData(S32 size) { return nullptr; }
+const U8* LLImageBase::getData() const { return nullptr; }
+U8* LLImageBase::getData() { return nullptr; }
 const std::string& LLImage::getLastThreadError() { static std::string msg; return msg; }
 
 // End Stubbing
@@ -118,7 +118,7 @@ namespace tut
         // Constructor and destructor of the test wrapper
         imagedecodethread_test()
         {
-            mThread = NULL;
+            mThread = nullptr;
         }
         ~imagedecodethread_test()
         {
@@ -148,10 +148,10 @@ namespace tut
     {
         // Test a *threaded* instance of the class
         mThread = new LLImageDecodeThread(true);
-        ensure("LLImageDecodeThread: threaded constructor failed", mThread != NULL);
+        ensure("LLImageDecodeThread: threaded constructor failed", mThread != nullptr);
         // Insert something in the queue
         bool done = false;
-        LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(NULL, 0, false, new responder_test(&done));
+        LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(nullptr, 0, false, new responder_test(&done));
         // Verifies we get back a valid handle
         ensure("LLImageDecodeThread:  threaded decodeImage(), returned handle is null", decodeHandle != 0);
         // Wait till the thread has time to handle the work order (though it doesn't do much per work order...)

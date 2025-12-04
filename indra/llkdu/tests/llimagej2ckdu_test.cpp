@@ -57,13 +57,13 @@
 
 LLImageRaw::LLImageRaw() { }
 LLImageRaw::~LLImageRaw() { }
-U8* LLImageRaw::allocateData(S32 ) { return NULL; }
+U8* LLImageRaw::allocateData(S32 ) { return nullptr; }
 void LLImageRaw::deleteData() { }
-U8* LLImageRaw::reallocateData(S32 ) { return NULL; }
+U8* LLImageRaw::reallocateData(S32 ) { return nullptr; }
 bool LLImageRaw::resize(U16, U16, S8) { return true; } // this method always returns true...
 
 LLImageBase::LLImageBase()
-: mData(NULL),
+: mData(nullptr),
 mDataSize(0),
 mWidth(0),
 mHeight(0),
@@ -72,12 +72,12 @@ mBadBufferAllocation(false),
 mAllowOverSize(false)
 { }
 LLImageBase::~LLImageBase() { }
-U8* LLImageBase::allocateData(S32 ) { return NULL; }
+U8* LLImageBase::allocateData(S32 ) { return nullptr; }
 void LLImageBase::deleteData() { }
 void LLImageBase::dump() { }
-const U8* LLImageBase::getData() const { return NULL; }
-U8* LLImageBase::getData() { return NULL; }
-U8* LLImageBase::reallocateData(S32 ) { return NULL; }
+const U8* LLImageBase::getData() const { return nullptr; }
+U8* LLImageBase::getData() { return nullptr; }
+U8* LLImageBase::reallocateData(S32 ) { return nullptr; }
 void LLImageBase::sanityCheck() { }
 void LLImageBase::setSize(S32 , S32 , S32 ) { }
 bool LLImageBase::isBufferInvalid() const { return false; }
@@ -86,14 +86,14 @@ LLImageJ2CImpl::~LLImageJ2CImpl() { }
 
 LLImageFormatted::LLImageFormatted(S8 ) { }
 LLImageFormatted::~LLImageFormatted() { }
-U8* LLImageFormatted::allocateData(S32 ) { return NULL; }
+U8* LLImageFormatted::allocateData(S32 ) { return nullptr; }
 S32 LLImageFormatted::calcDataSize(S32 ) { return 0; }
 S32 LLImageFormatted::calcDiscardLevelBytes(S32 ) { return 0; }
 bool LLImageFormatted::decodeChannels(LLImageRaw*, F32, S32, S32) { return false; }
 bool LLImageFormatted::copyData(U8 *, S32) { return true; }  // this method always returns true...
 void LLImageFormatted::deleteData() { }
 void LLImageFormatted::dump() { }
-U8* LLImageFormatted::reallocateData(S32 ) { return NULL; }
+U8* LLImageFormatted::reallocateData(S32 ) { return nullptr; }
 void LLImageFormatted::resetLastError() { }
 void LLImageFormatted::sanityCheck() { }
 void LLImageFormatted::setLastError(const std::string& , const std::string& ) { }
@@ -157,8 +157,8 @@ bool kdu_params::parse_string(const char*) { return false; }
 bool kdu_params::get(const char*, int, int, bool&, bool, bool, bool) { return false; }
 bool kdu_params::get(const char*, int, int, float&, bool, bool, bool) { return false; }
 bool kdu_params::get(const char*, int, int, int&, bool, bool, bool) { return false; }
-kdu_params* kdu_params::access_relation(int, int, int, bool) { return NULL; }
-kdu_params* kdu_params::access_cluster(const char*) { return NULL; }
+kdu_params* kdu_params::access_relation(int, int, int, bool) { return nullptr; }
+kdu_params* kdu_params::access_cluster(const char*) { return nullptr; }
 void kdu_codestream::set_fast() { }
 void kdu_codestream::set_fussy() { }
 void kdu_codestream::get_dims(int, kdu_dims&, bool ) const { }
@@ -190,13 +190,13 @@ void kdu_codestream::share_buffering(kdu_codestream ) { }
 int kdu_codestream::get_num_tparts() const { return 0; }
 int kdu_codestream::trans_out(kdu_long, kdu_long*, int, bool, kdu_thread_env* ) { return 0; }
 bool kdu_codestream::ready_for_flush(kdu_thread_env*) { return false; }
-siz_params* kdu_codestream::access_siz() { return NULL; }
+siz_params* kdu_codestream::access_siz() { return nullptr; }
 kdu_tile kdu_codestream::open_tile(kdu_coords , kdu_thread_env* ) { kdu_tile a; return a; }
 kdu_codestream_comment kdu_codestream::add_comment(kdu_thread_env*) { kdu_codestream_comment a; return a; }
 kdu_codestream_comment  kdu_codestream::get_comment(kdu_codestream_comment) { kdu_codestream_comment a; return a; };
 void kdu_subband::close_block(kdu_block*, kdu_thread_env*) { }
 void kdu_subband::get_valid_blocks(kdu_dims &indices) const { }
-kdu_block * kdu_subband::open_block(kdu_coords, int *, kdu_thread_env *, int, bool) { return NULL; }
+kdu_block * kdu_subband::open_block(kdu_coords, int *, kdu_thread_env *, int, bool) { return nullptr; }
 bool kdu_codestream_comment::put_text(const char*) { return false; }
 const char *kdu_codestream_comment::get_text() { return nullptr; };
 void kdu_customize_warnings(kdu_message*) { }
@@ -213,8 +213,8 @@ kdu_long kdu_multi_analysis::create(
     const kdu_push_pull_params*,
     kdu_membroker*) { return kdu_long(0); }
 void kdu_multi_analysis::destroy(kdu_thread_env *) {}
-siz_params::siz_params() : kdu_params(NULL, false, false, false, false, false) { }
-siz_params::siz_params(kd_core_local::kd_coremem*) : kdu_params(NULL, false, false, false, false, false) { }
+siz_params::siz_params() : kdu_params(nullptr, false, false, false, false, false) { }
+siz_params::siz_params(kd_core_local::kd_coremem*) : kdu_params(nullptr, false, false, false, false, false) { }
 siz_params::~siz_params() {}
 void siz_params::finalize(bool ) { }
 void siz_params::copy_with_xforms(kdu_params*, int, int, bool, bool, bool) { }
@@ -320,7 +320,7 @@ namespace tut
     {
         LLImageJ2C* image = new LLImageJ2C();
         LLImageRaw* raw = new LLImageRaw();
-        bool res = mImage->callEncodeImpl(*image, *raw, NULL);
+        bool res = mImage->callEncodeImpl(*image, *raw, nullptr);
         // Encoding returns true unless an exception was raised, so we'll get true here though nothing really was done
         ensure("encodeImpl() test failed", res);
     }

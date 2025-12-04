@@ -75,7 +75,7 @@ LLImageBMP::LLImageBMP()
     :
     LLImageFormatted(IMG_CODEC_BMP),
     mColorPaletteColors( 0 ),
-    mColorPalette( NULL ),
+    mColorPalette( nullptr ),
     mBitmapOffset( 0 ),
     mBitsPerPixel( 0 ),
     mOriginAtTop( false )

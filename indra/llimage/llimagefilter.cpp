@@ -42,11 +42,11 @@
 
 LLImageFilter::LLImageFilter(const std::string& file_path) :
     mFilterData(LLSD::emptyArray()),
-    mImage(NULL),
-    mHistoRed(NULL),
-    mHistoGreen(NULL),
-    mHistoBlue(NULL),
-    mHistoBrightness(NULL),
+    mImage(nullptr),
+    mHistoRed(nullptr),
+    mHistoGreen(nullptr),
+    mHistoBlue(nullptr),
+    mHistoBrightness(nullptr),
     mStencilBlendMode(STENCIL_BLEND_MODE_BLEND),
     mStencilShape(STENCIL_SHAPE_UNIFORM),
     mStencilGamma(1.0),
@@ -66,7 +66,7 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
 
 LLImageFilter::~LLImageFilter()
 {
-    mImage = NULL;
+    mImage = nullptr;
     ll_aligned_free_16(mHistoRed);
     ll_aligned_free_16(mHistoGreen);
     ll_aligned_free_16(mHistoBlue);

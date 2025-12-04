@@ -36,7 +36,7 @@ jmp_buf LLImageJPEG::sSetjmpBuffer ;
 #endif
 LLImageJPEG::LLImageJPEG(S32 quality)
 :   LLImageFormatted(IMG_CODEC_JPEG),
-    mOutputBuffer( NULL ),
+    mOutputBuffer( nullptr ),
     mOutputBufferSize( 0 ),
     mEncodeQuality( quality ) // on a scale from 1 to 100
 {
@@ -97,7 +97,7 @@ bool LLImageJPEG::updateData()
         ////////////////////////////////////////
         // Step 2: specify data source
         // (Code is modified version of jpeg_stdio_src();
-        if (cinfo.src == NULL)
+        if (cinfo.src == nullptr)
         {
             cinfo.src = (struct jpeg_source_mgr *)
                 (*cinfo.mem->alloc_small) ((j_common_ptr) &cinfo, JPOOL_PERMANENT,
@@ -207,7 +207,7 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
     }
 
     S32 row_stride = 0;
-    U8* raw_image_data = NULL;
+    U8* raw_image_data = nullptr;
 
     ////////////////////////////////////////
     // Step 1: allocate and initialize JPEG decompression object
@@ -243,7 +243,7 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
         ////////////////////////////////////////
         // Step 2: specify data source
         // (Code is modified version of jpeg_stdio_src();
-        if (cinfo.src == NULL)
+        if (cinfo.src == nullptr)
         {
             cinfo.src = (struct jpeg_source_mgr *)
                 (*cinfo.mem->alloc_small) ((j_common_ptr) &cinfo, JPOOL_PERMANENT,
@@ -525,14 +525,14 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
     delete[] mOutputBuffer;
     mOutputBufferSize = getWidth() * getHeight() * getComponents() + 1024;
     mOutputBuffer = new(std::nothrow) U8[ mOutputBufferSize ];
-    if (mOutputBuffer == NULL)
+    if (mOutputBuffer == nullptr)
     {
         mOutputBufferSize = 0;
         setLastError("Failed to allocate output buffer");
         return false;
     }
 
-    const U8* raw_image_data = NULL;
+    const U8* raw_image_data = nullptr;
     S32 row_stride = 0;
 
     ////////////////////////////////////////
@@ -566,7 +566,7 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
         // We need to clean up the JPEG object, close the input file, and return.
         jpeg_destroy_compress(&cinfo);
         delete[] mOutputBuffer;
-        mOutputBuffer = NULL;
+        mOutputBuffer = nullptr;
         mOutputBufferSize = 0;
         return false;
     }
@@ -580,7 +580,7 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
         ////////////////////////////////////////
         // Step 2: specify data destination
         // (code is a modified form of jpeg_stdio_dest() )
-        if( cinfo.dest == NULL)
+        if( cinfo.dest == nullptr)
         {
             cinfo.dest = (struct jpeg_destination_mgr *)
                 (*cinfo.mem->alloc_small) ((j_common_ptr) &cinfo, JPOOL_PERMANENT,
@@ -668,7 +668,7 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
 
         // After finish_compress, we can release the temp output buffer.
         delete[] mOutputBuffer;
-        mOutputBuffer = NULL;
+        mOutputBuffer = nullptr;
         mOutputBufferSize = 0;
 
         ////////////////////////////////////////
@@ -680,7 +680,7 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
     {
         jpeg_destroy_compress(&cinfo);
         delete[] mOutputBuffer;
-        mOutputBuffer = NULL;
+        mOutputBuffer = nullptr;
         mOutputBufferSize = 0;
         return false;
     }

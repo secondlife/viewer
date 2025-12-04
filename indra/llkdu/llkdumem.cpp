@@ -62,8 +62,8 @@ LLKDUMemIn::LLKDUMemIn(const U8 *data,
         siz->set(Ssigned,n,0,false);
         siz->set(Sprecision,n,0,8);
     }
-    incomplete_lines = NULL;
-    free_lines = NULL;
+    incomplete_lines = nullptr;
+    free_lines = nullptr;
     num_unread_rows = rows;
 
     mData = data;
@@ -73,7 +73,7 @@ LLKDUMemIn::LLKDUMemIn(const U8 *data,
 
 LLKDUMemIn::~LLKDUMemIn()
 {
-    if ((num_unread_rows > 0) || (incomplete_lines != NULL))
+    if ((num_unread_rows > 0) || (incomplete_lines != nullptr))
     {
         kdu_warning w;
         w << "Not all rows of image components "
@@ -82,12 +82,12 @@ LLKDUMemIn::~LLKDUMemIn()
             << " were consumed!";
     }
     image_line_buf *tmp;
-    while ((tmp=incomplete_lines) != NULL)
+    while ((tmp=incomplete_lines) != nullptr)
     {
         incomplete_lines = tmp->next;
         delete tmp;
     }
-    while ((tmp=free_lines) != NULL)
+    while ((tmp=free_lines) != nullptr)
     {
         free_lines = tmp->next;
         delete tmp;
@@ -100,8 +100,8 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
     int idx = comp_idx - this->first_comp_idx;
     assert((idx >= 0) && (idx < num_components));
     x_tnum = x_tnum*num_components+idx;
-    image_line_buf *scan, *prev=NULL;
-    for (scan = incomplete_lines; scan != NULL; prev = scan, scan = scan->next)
+    image_line_buf *scan, *prev=nullptr;
+    for (scan = incomplete_lines; scan != nullptr; prev = scan, scan = scan->next)
     {
         assert(scan->next_x_tnum >= x_tnum);
         if (scan->next_x_tnum == x_tnum)
@@ -109,19 +109,19 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
             break;
         }
     }
-    if (scan == NULL)
+    if (scan == nullptr)
     { // Need to read a new image line.
         assert(x_tnum == 0); // Must consume in very specific order.
         if (num_unread_rows == 0)
         {
             return false;
         }
-        if ((scan = free_lines) == NULL)
+        if ((scan = free_lines) == nullptr)
         {
             scan = new image_line_buf(cols+3,num_components);
         }
         free_lines = scan->next;
-        if (prev == NULL)
+        if (prev == nullptr)
         {
             incomplete_lines = scan;
         }
@@ -145,7 +145,7 @@ bool LLKDUMemIn::get(int comp_idx, kdu_line_buf &line, int x_tnum)
     kdu_byte *sp = scan->buf+num_components*scan->accessed_samples + comp_offset;
     int n=line.get_width();
 
-    if (line.get_buf32() != NULL)
+    if (line.get_buf32() != nullptr)
     {
         kdu_sample32 *dp = line.get_buf32();
         if (line.is_absolute())

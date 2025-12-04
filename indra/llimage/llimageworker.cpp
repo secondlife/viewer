@@ -145,9 +145,9 @@ ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image,
 
 ImageRequest::~ImageRequest()
 {
-    mDecodedImageRaw = NULL;
-    mDecodedImageAux = NULL;
-    mFormattedImage = NULL;
+    mDecodedImageRaw = nullptr;
+    mDecodedImageAux = nullptr;
+    mFormattedImage = nullptr;
 }
 
 //----------------------------------------------------------------------------
