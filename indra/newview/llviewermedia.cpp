@@ -83,6 +83,8 @@ extern bool gCubeSnapshot;
 
 // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
 constexpr bool USE_MIPMAPS = false;
+constexpr S32 MAX_MEDIA_INSTANCES_DEFAULT = 8;
+constexpr S32 MEDIA_INSTANCES_MIN_LIMIT = 6; // 4 'permanent' floaters plus reserve for dynamic ones
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
@@ -214,6 +216,7 @@ static bool sViewerMediaMuteListObserverInitialized = false;
 LLViewerMedia::LLViewerMedia():
 mAnyMediaShowing(false),
 mAnyMediaPlaying(false),
+mMaxIntances(MAX_MEDIA_INSTANCES_DEFAULT),
 mSpareBrowserMediaSource(NULL)
 {
 }
@@ -222,6 +225,7 @@ LLViewerMedia::~LLViewerMedia()
 {
     gIdleCallbacks.deleteFunction(LLViewerMedia::onIdle, NULL);
     mTeleportFinishConnection.disconnect();
+    mMaxInstancesConnection.disconnect();
     if (mSpareBrowserMediaSource != NULL)
     {
         delete mSpareBrowserMediaSource;
@@ -235,6 +239,35 @@ void LLViewerMedia::initSingleton()
     gIdleCallbacks.addFunction(LLViewerMedia::onIdle, NULL);
     mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
         setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished, this));
+
+    LLControlVariable* ctrl = gSavedSettings.getControl("PluginInstancesTotal");
+    if (ctrl)
+    {
+        setMaxInstances(ctrl->getValue().asInteger());
+        mMaxInstancesConnection = ctrl->getSignal()->connect([this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
+        {
+            setMaxInstances(new_val.asInteger());
+        });
+    }
+    else
+    {
+        setMaxInstances(MAX_MEDIA_INSTANCES_DEFAULT);
+    }
+}
+
+void LLViewerMedia::setMaxInstances(S32 max_instances)
+{
+    const F32Gigabytes MIN_PHYSICAL_MEMORY(8);
+    LLMemory::updateMemoryInfo();
+    F32Gigabytes physical_mem = LLMemory::getMaxMemKB();
+    if (MIN_PHYSICAL_MEMORY > physical_mem)
+    {
+        mMaxIntances = llmax(max_instances - 2, MEDIA_INSTANCES_MIN_LIMIT);
+    }
+    else
+    {
+        mMaxIntances = llmax(max_instances, MEDIA_INSTANCES_MIN_LIMIT);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -688,7 +721,6 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
     static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
     static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
-    static LLCachedControl<U32> max_instances(gSavedSettings, "PluginInstancesTotal", 8);
     static LLCachedControl<U32> max_normal(gSavedSettings, "PluginInstancesNormal", 2);
     static LLCachedControl<U32> max_low(gSavedSettings, "PluginInstancesLow", 4);
     static LLCachedControl<F32> max_cpu(gSavedSettings, "PluginInstancesCPULimit", 0.9);
@@ -709,7 +741,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
             LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-            if(pimpl->isForcedUnloaded() || (impl_count_total >= (int)max_instances))
+            if(pimpl->isForcedUnloaded() || (impl_count_total >= mMaxIntances))
             {
                 // Never load muted or failed impls.
                 // Hard limit on the number of instances that will be loaded at one time
@@ -869,7 +901,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     sLowestLoadableImplInterest = 0.0f;
 
     // Only do this calculation if we've hit the impl count limit -- up until that point we always need to load media data.
-    if(lowest_interest_loadable && (impl_count_total >= (int)max_instances))
+    if(lowest_interest_loadable && (impl_count_total >= mMaxIntances))
     {
         // Get the interest value of this impl's object for use by isInterestingEnough
         LLVOVolume *object = lowest_interest_loadable->getSomeObject();
@@ -1201,6 +1233,54 @@ LLCore::HttpHeaders::ptr_t LLViewerMedia::getHttpHeaders()
     return headers;
 }
 
+bool LLViewerMedia::getOpenIDCookie(LLMediaCtrl* media_instance) const
+{
+    if (mOpenIDCookie.empty())
+    {
+        return false;
+    }
+
+    std::string authority = mOpenIDURL.mAuthority;
+    std::string::size_type hostStart = authority.find('@');
+    if (hostStart == std::string::npos)
+    {
+        // no username/password
+        hostStart = 0;
+    }
+    else
+    {
+        // Hostname starts after the @.
+        // (If the hostname part is empty, this may put host_start at the end of the string.  In that case, it will end up passing through an empty hostname, which is correct.)
+        ++hostStart;
+    }
+    std::string::size_type hostEnd = authority.rfind(':');
+    if ((hostEnd == std::string::npos) || (hostEnd < hostStart))
+    {
+        // no port
+        hostEnd = authority.size();
+    }
+
+    std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
+    std::string cookie_name = "";
+    std::string cookie_value = "";
+    std::string cookie_path = "";
+    bool httponly = true;
+    bool secure = true;
+    if (!parseRawCookie(mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure))
+    {
+        return false;
+    }
+    std::string cefUrl(std::string(mOpenIDURL.mURI) + "://" + std::string(mOpenIDURL.mAuthority));
+    if (media_instance && media_instance->getMediaPlugin())
+    {
+        media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
+            cookie_path, httponly, secure);
+
+        media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
+            cookie_host, cookie_path, httponly, secure);
+    }
+    return true;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMedia::setOpenIDCookie(const std::string& url)
@@ -1267,7 +1347,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
                 bool secure = true;
 
                 LLViewerMedia* inst = getInstance();
-                if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure))
+                if (parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure))
                 {
                     // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
                     // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
@@ -1284,20 +1364,24 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
                         std::string browser_name;
                     };
                     struct MediaCookieInstance media_cookie_instances[] = {
-                        {"search", "search_contents" },
-                        {"marketplace", "marketplace_contents" },
+                        {"search", "webbrowser" },
+                        {"marketplace", "webbrowser" },
                         {"destinations", "destination_guide_contents" },
                     };
                     for (MediaCookieInstance mci : media_cookie_instances)
                     {
-                        LLMediaCtrl* media_instance = LLFloaterReg::getInstance(mci.floater_name)->getChild<LLMediaCtrl>(mci.browser_name);
-                        if (media_instance && media_instance->getMediaPlugin())
+                        LLFloater *floaterp = LLFloaterReg::findInstance(mci.floater_name);
+                        if (floaterp)
                         {
-                            media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
-                                cookie_path, httponly, secure);
+                            LLMediaCtrl* media_instance = floaterp->getChild<LLMediaCtrl>(mci.browser_name);
+                            if (media_instance && media_instance->getMediaPlugin())
+                            {
+                                media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
+                                    cookie_path, httponly, secure);
 
-                            media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
-                                cookie_host, cookie_path, httponly, secure);
+                                media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
+                                    cookie_host, cookie_path, httponly, secure);
+                            }
                         }
                     }
                 }
@@ -3001,7 +3085,10 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     // -Cosmic,2023-04-04
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
     LLGLuint tex_name = 0;
-    media_tex->createGLTexture(0, raw, 0, true, LLGLTexture::OTHER, true, &tex_name);
+    if (!media_tex->createGLTexture(0, raw, 0, true, LLGLTexture::OTHER, true, &tex_name))
+    {
+        LL_WARNS("Media") << "Failed to create media texture" << LL_ENDL;
+    }
 
     // copy just the subimage covered by the image raw to GL
     media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
@@ -3070,7 +3157,10 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
             mMediaSource->getTextureFormatSwapBytes());
 
         int discard_level = 0;
-        media_tex->createGLTexture(discard_level, raw);
+        if (!media_tex->createGLTexture(discard_level, raw))
+        {
+            LL_WARNS("Media") << "Failed to create media texture" << LL_ENDL;
+        }
 
         // MEDIAOPT: set this dynamically on play/stop
         // FIXME

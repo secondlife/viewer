@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llwatchdog.h"
 #include "llthread.h"
+#include "llappviewer.h"
 
 constexpr U32 WATCHDOG_SLEEP_TIME_USEC = 1000000U;
 
@@ -240,7 +241,16 @@ void LLWatchdog::run()
             {
                 mTimer->stop();
             }
-
+            if (LLAppViewer::instance()->logoutRequestSent())
+            {
+                LLAppViewer::instance()->createErrorMarker(LAST_EXEC_LOGOUT_FROZE);
+            }
+            else
+            {
+                LLAppViewer::instance()->createErrorMarker(LAST_EXEC_FROZE);
+            }
+            // Todo1: warn user?
+            // Todo2: We probably want to report even if 5 seconds passed, just not error 'yet'.
             LL_ERRS() << "Watchdog timer expired; assuming viewer is hung and crashing" << LL_ENDL;
         }
     }

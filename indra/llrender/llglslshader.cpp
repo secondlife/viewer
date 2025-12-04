@@ -57,6 +57,7 @@ S32 LLGLSLShader::sIndexedTextureChannels = 0;
 U32 LLGLSLShader::sMaxGLTFMaterials = 0;
 U32 LLGLSLShader::sMaxGLTFNodes = 0;
 bool LLGLSLShader::sProfileEnabled = false;
+bool LLGLSLShader::sCanProfile = true;
 std::set<LLGLSLShader*> LLGLSLShader::sInstances;
 LLGLSLShader::defines_map_t LLGLSLShader::sGlobalDefines;
 U64 LLGLSLShader::sTotalTimeElapsed = 0;
@@ -267,7 +268,7 @@ void LLGLSLShader::placeProfileQuery(bool for_runtime)
 
 bool LLGLSLShader::readProfileQuery(bool for_runtime, bool force_read)
 {
-    if (sProfileEnabled || for_runtime)
+    if ((sProfileEnabled || for_runtime) && sCanProfile)
     {
         if (!mProfilePending)
         {
