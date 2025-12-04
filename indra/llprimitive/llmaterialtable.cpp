@@ -86,9 +86,9 @@ F32 const LLMaterialTable::DEFAULT_FRICTION = 0.5f;
 F32 const LLMaterialTable::DEFAULT_RESTITUTION = 0.4f;
 
 LLMaterialTable::LLMaterialTable()
-    : mCollisionSoundMatrix(NULL),
-      mSlidingSoundMatrix(NULL),
-      mRollingSoundMatrix(NULL)
+    : mCollisionSoundMatrix(nullptr),
+      mSlidingSoundMatrix(nullptr),
+      mRollingSoundMatrix(nullptr)
 {
 }
 
@@ -102,19 +102,19 @@ LLMaterialTable::~LLMaterialTable()
     if (mCollisionSoundMatrix)
     {
         delete [] mCollisionSoundMatrix;
-        mCollisionSoundMatrix = NULL;
+        mCollisionSoundMatrix = nullptr;
     }
 
     if (mSlidingSoundMatrix)
     {
         delete [] mSlidingSoundMatrix;
-        mSlidingSoundMatrix = NULL;
+        mSlidingSoundMatrix = nullptr;
     }
 
     if (mRollingSoundMatrix)
     {
         delete [] mRollingSoundMatrix;
-        mRollingSoundMatrix = NULL;
+        mRollingSoundMatrix = nullptr;
     }
 
     for_each(mMaterialInfoList.begin(), mMaterialInfoList.end(), DeletePointer());

@@ -157,14 +157,14 @@ const U8 material_id_type::s_null_id[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 //static
 // LEGACY: by default we use the LLVolumeMgr::gVolumeMgr global
 // TODO -- eliminate this global from the codebase!
-LLVolumeMgr* LLPrimitive::sVolumeManager = NULL;
+LLVolumeMgr* LLPrimitive::sVolumeManager = nullptr;
 
 // static
 void LLPrimitive::setVolumeManager( LLVolumeMgr* volume_manager )
 {
     if ( !volume_manager || sVolumeManager )
     {
-        LL_ERRS() << "LLPrimitive::sVolumeManager attempting to be set to NULL or it already has been set." << LL_ENDL;
+        LL_ERRS() << "LLPrimitive::sVolumeManager attempting to be set to nullptr or it already has been set." << LL_ENDL;
     }
     sVolumeManager = volume_manager;
 }
@@ -177,7 +177,7 @@ bool LLPrimitive::cleanupVolumeManager()
     {
         res = sVolumeManager->cleanup();
         delete sVolumeManager;
-        sVolumeManager = NULL;
+        sVolumeManager = nullptr;
     }
     return res;
 }
@@ -193,7 +193,7 @@ LLPrimitive::LLPrimitive()
     mPrimitiveCode = 0;
 
     mMaterial = LL_MCODE_STONE;
-    mVolumep  = NULL;
+    mVolumep  = nullptr;
 
     mChanged  = UNCHANGED;
 
@@ -216,7 +216,7 @@ LLPrimitive::~LLPrimitive()
     {
         sVolumeManager->unrefVolume(mVolumep);
     }
-    mVolumep = NULL;
+    mVolumep = nullptr;
 }
 
 void LLPrimitive::clearTextureList()

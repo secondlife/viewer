@@ -35,7 +35,7 @@
 class DummyVolumeMgr : public LLVolumeMgr
 {
 public:
-    DummyVolumeMgr() : LLVolumeMgr(), mVolumeTest(NULL), mCurrDetailTest(0) {}
+    DummyVolumeMgr() : LLVolumeMgr(), mVolumeTest(nullptr), mCurrDetailTest(0) {}
     ~DummyVolumeMgr()
     {
     }
@@ -61,7 +61,7 @@ public:
     {
         if (mVolumeTest == volumep)
         {
-            mVolumeTest = NULL;
+            mVolumeTest = nullptr;
         }
     }
 
@@ -170,7 +170,7 @@ namespace tut
         set_test_name("Test Static llprimitive constructor and initer.");
         LLPCode code = 1;
         LLPrimitive * primitive = LLPrimitive::createPrimitive(code);
-        ensure(primitive != NULL);
+        ensure(primitive != nullptr);
         ensure_equals(primitive->getPCode(), code);
     }
 
@@ -182,7 +182,7 @@ namespace tut
         LLVolumeParams params;
 
         // Make sure volume starts off null
-        ensure(primitive.getVolume() == NULL);
+        ensure(primitive.getVolume() == nullptr);
 
         // Make sure we have no texture entries before setting the volume
         ensure_equals(primitive.getNumTEs(), 0);
@@ -195,7 +195,7 @@ namespace tut
         LLVolume* new_volume = primitive.getVolume();
 
         // make sure new volume was actually created
-        ensure(new_volume != NULL);
+        ensure(new_volume != nullptr);
 
         // Make sure that now that we've set the volume we have texture entries
         ensure_not_equals(primitive.getNumTEs(), 0);
@@ -227,7 +227,7 @@ namespace tut
         LLVolumeParams params;
 
         // Make sure volume starts off null
-        ensure(primitive.getVolume() == NULL);
+        ensure(primitive.getVolume() == nullptr);
 
         // Make sure we have no texture entries before setting the volume
         ensure_equals(primitive.getNumTEs(), 0);
@@ -241,7 +241,7 @@ namespace tut
         LLVolume* new_volume = primitive.getVolume();
 
         // make sure new volume was actually created
-        ensure(new_volume != NULL);
+        ensure(new_volume != nullptr);
 
         // Make sure that now that we've set the volume we have texture entries
         ensure_not_equals(primitive.getNumTEs(), 0);

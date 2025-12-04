@@ -93,12 +93,12 @@ LLMediaEntry::LLMediaEntry() :
     // mWhiteList
     mPermsInteract(PERM_ALL),
     mPermsControl(PERM_ALL),
-    mMediaIDp(NULL)
+    mMediaIDp(nullptr)
 {
 }
 
 LLMediaEntry::LLMediaEntry(const LLMediaEntry &rhs) :
-    mMediaIDp(NULL)
+    mMediaIDp(nullptr)
 {
     // "general" fields
     mAltImageEnable = rhs.mAltImageEnable;
@@ -124,7 +124,7 @@ LLMediaEntry::LLMediaEntry(const LLMediaEntry &rhs) :
 
 LLMediaEntry::~LLMediaEntry()
 {
-    if (NULL != mMediaIDp)
+    if (nullptr != mMediaIDp)
     {
         delete mMediaIDp;
     }
@@ -585,7 +585,7 @@ U32 LLMediaEntry::setHeightPixels(U16 height)
 const LLUUID &LLMediaEntry::getMediaID() const
 {
     // Lazily generate media ID
-    if (NULL == mMediaIDp)
+    if (nullptr == mMediaIDp)
     {
         mMediaIDp = new LLUUID();
         mMediaIDp->generate();

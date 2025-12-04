@@ -163,9 +163,9 @@ public:
     const LLMaterialID& getMaterialID() const { return mMaterialID; };
     const LLMaterialPtr getMaterialParams() const { return mMaterial; };
 
-    // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return NULL.
+    // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return nullptr.
     // CONVERSELY, it is also possible for hasMedia() to return false, but getMediaData()
-    // to NOT return NULL.
+    // to NOT return nullptr.
     bool hasMedia() const { return (bool)(mMediaFlags & MF_HAS_MEDIA); }
     LLMediaEntry* getMediaData() const { return mMediaEntry; }
 

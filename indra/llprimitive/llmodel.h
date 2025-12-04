@@ -205,7 +205,7 @@ public:
     void sortVolumeFacesByMaterialName();
     void normalizeVolumeFaces();
     void normalizeVolumeFacesAndWeights();
-    void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
+    void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = nullptr);
     void remapVolumeFaces();
     void optimizeVolumeFaces();
     void offsetMesh( const LLVector3& pivotPoint );
@@ -388,16 +388,16 @@ public:
     }
 
     LLModelInstanceBase()
-        : mModel(NULL)
+        : mModel(nullptr)
     {
     }
 
     virtual ~LLModelInstanceBase()
     {
-        mModel = NULL;
+        mModel = nullptr;
         for (int j = 0; j < LLModel::NUM_LODS; ++j)
         {
-            mLOD[j] = NULL;
+            mLOD[j] = nullptr;
         }
     };
 };

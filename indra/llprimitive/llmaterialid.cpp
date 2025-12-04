@@ -103,7 +103,7 @@ const U8* LLMaterialID::get() const
 
 void LLMaterialID::set(const void* pMemory)
 {
-    llassert(pMemory != NULL);
+    llassert(pMemory != nullptr);
 
     // assumes that the required size of memory is available
     memcpy(mID, pMemory, MATERIAL_ID_SIZE * sizeof(U8));

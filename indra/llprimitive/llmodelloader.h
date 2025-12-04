@@ -194,7 +194,7 @@ public:
     //-----------------------------------------------------------------------------
     bool isNodeAJoint(const char* name)
     {
-        return name != NULL && mJointMap.find(name) != mJointMap.end();
+        return name != nullptr && mJointMap.find(name) != mJointMap.end();
     }
 
     const LLSD logOut() const { return mWarningsArray; }
