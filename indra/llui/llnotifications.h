@@ -356,7 +356,7 @@ public:
             is_dnd("is_dnd", false)
         {
             time_stamp = LLDate::now();
-            responder = NULL;
+            responder = nullptr;
         }
 
         Params(const std::string& _name)
@@ -373,7 +373,7 @@ public:
             functor.name = _name;
             name = _name;
             time_stamp = LLDate::now();
-            responder = NULL;
+            responder = nullptr;
         }
     };
 

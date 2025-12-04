@@ -199,7 +199,7 @@ LLStatBar::LLStatBar(const Params& p)
     mFloatingTargetMinBar = mTargetMinBar;
     mFloatingTargetMaxBar = mTargetMaxBar;
 
-    mStat.valid = NULL;
+    mStat.valid = nullptr;
     // tick value will be automatically calculated later
     if (!p.tick_spacing.isProvided() && p.bar_min.isProvided() && p.bar_max.isProvided())
     {

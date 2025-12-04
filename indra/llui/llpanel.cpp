@@ -104,14 +104,14 @@ LLPanel::LLPanel(const LLPanel::Params& p)
     mBgAlphaImageOverlay(p.bg_alpha_image_overlay),
     mBgOpaqueImage(p.bg_opaque_image()),
     mBgAlphaImage(p.bg_alpha_image()),
-    mDefaultBtn(NULL),
-    mBorder(NULL),
+    mDefaultBtn(nullptr),
+    mBorder(nullptr),
     mLabel(p.label),
     mHelpTopic(p.help_topic),
     mCommitCallbackRegistrar(false),
     mEnableCallbackRegistrar(false),
     mXMLFilename(p.filename),
-    mVisibleSignal(NULL)
+    mVisibleSignal(nullptr)
     // *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
     // many classes derived from LLPanel to retrofit them all to pass in params.
 {
@@ -155,7 +155,7 @@ void LLPanel::removeBorder()
     {
         removeChild(mBorder);
         delete mBorder;
-        mBorder = NULL;
+        mBorder = nullptr;
     }
 }
 
@@ -264,7 +264,7 @@ void LLPanel::setDefaultBtn(std::string_view id)
     }
     else
     {
-        setDefaultBtn(NULL);
+        setDefaultBtn(nullptr);
     }
 }
 
@@ -372,7 +372,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
     std::string class_attr;
     node->getAttributeString("class", class_attr);
 
-    LLPanel* panelp = NULL;
+    LLPanel* panelp = nullptr;
 
     {   LL_RECORD_BLOCK_TIME(FTM_PANEL_CONSTRUCTION);
 
@@ -392,7 +392,7 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 
             if (!panelp)
             {
-                return NULL; // :(
+                return nullptr; // :(
             }
         }
 
@@ -687,7 +687,7 @@ LLCtrlSelectionInterface* LLPanel::childGetSelectionInterface(std::string_view i
     {
         return child->getSelectionInterface();
     }
-    return NULL;
+    return nullptr;
 }
 
 LLCtrlListInterface* LLPanel::childGetListInterface(std::string_view id) const
@@ -697,7 +697,7 @@ LLCtrlListInterface* LLPanel::childGetListInterface(std::string_view id) const
     {
         return child->getListInterface();
     }
-    return NULL;
+    return nullptr;
 }
 
 LLCtrlScrollInterface* LLPanel::childGetScrollInterface(std::string_view id) const
@@ -707,7 +707,7 @@ LLCtrlScrollInterface* LLPanel::childGetScrollInterface(std::string_view id) con
     {
         return child->getScrollInterface();
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLPanel::childSetValue(std::string_view id, LLSD value)
@@ -813,7 +813,7 @@ bool LLPanel::buildFromFile(const std::string& filename, const LLPanel::Params& 
         getCommitCallbackRegistrar().pushScope();
         getEnableCallbackRegistrar().pushScope();
 
-        didPost = initPanelXML(root, NULL, NULL, default_params);
+        didPost = initPanelXML(root, nullptr, nullptr, default_params);
 
         getCommitCallbackRegistrar().popScope();
         getEnableCallbackRegistrar().popScope();

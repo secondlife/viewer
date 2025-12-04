@@ -47,9 +47,9 @@ static LLDefaultChildRegistry::Register<LLSliderCtrl> r("slider");
 
 LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 :   LLF32UICtrl(p),
-    mLabelBox( NULL ),
-    mEditor( NULL ),
-    mTextBox( NULL ),
+    mLabelBox( nullptr ),
+    mEditor( nullptr ),
+    mTextBox( nullptr ),
     mFont(p.font),
     mShowText(p.show_text),
     mCanEditText(p.can_edit_text),
@@ -57,7 +57,7 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
     mTextEnabledColor(p.text_color()),
     mTextDisabledColor(p.text_disabled_color()),
     mLabelWidth(p.label_width),
-    mEditorCommitSignal(NULL)
+    mEditorCommitSignal(nullptr)
 {
     S32 top = getRect().getHeight();
     S32 bottom = 0;

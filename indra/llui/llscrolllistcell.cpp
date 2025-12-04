@@ -37,7 +37,7 @@
 //static
 LLScrollListCell* LLScrollListCell::create(const LLScrollListCell::Params& cell_p)
 {
-    LLScrollListCell* cell = NULL;
+    LLScrollListCell* cell = nullptr;
 
     if (cell_p.type() == "icon")
     {
@@ -121,7 +121,7 @@ void LLScrollListIcon::setValue(const LLSD& value)
     {
         // don't use default image specified by LLUUID::null, use no image in that case
         LLUUID image_id = value.asUUID();
-        mIcon = image_id.notNull() ? LLUI::getUIImageByID(image_id) : LLUIImagePtr(NULL);
+        mIcon = image_id.notNull() ? LLUI::getUIImageByID(image_id) : LLUIImagePtr(nullptr);
     }
     else
     {
@@ -136,7 +136,7 @@ void LLScrollListIcon::setValue(const LLSD& value)
         }
         else
         {
-            mIcon = NULL;
+            mIcon = nullptr;
         }
     }
 }
@@ -515,7 +515,7 @@ LLScrollListCheck::LLScrollListCheck(const LLScrollListCell::Params& p)
 LLScrollListCheck::~LLScrollListCheck()
 {
     delete mCheckBox;
-    mCheckBox = NULL;
+    mCheckBox = nullptr;
 }
 
 void LLScrollListCheck::draw(const LLColor4& color, const LLColor4& highlight_color)
@@ -607,7 +607,7 @@ void LLScrollListIconText::setValue(const LLSD& value)
     {
         // don't use default image specified by LLUUID::null, use no image in that case
         LLUUID image_id = value.asUUID();
-        mIcon = image_id.notNull() ? LLUI::getUIImageByID(image_id) : LLUIImagePtr(NULL);
+        mIcon = image_id.notNull() ? LLUI::getUIImageByID(image_id) : LLUIImagePtr(nullptr);
     }
     else
     {
@@ -622,7 +622,7 @@ void LLScrollListIconText::setValue(const LLSD& value)
         }
         else
         {
-            mIcon = NULL;
+            mIcon = nullptr;
         }
     }
 }

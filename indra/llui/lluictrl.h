@@ -170,14 +170,14 @@ public:
     // New virtuals
 
 
-    // Return NULL by default (overrride if the class has the appropriate interface)
+    // Return nullptr by default (overrride if the class has the appropriate interface)
     virtual class LLCtrlSelectionInterface* getSelectionInterface();
     virtual class LLCtrlListInterface* getListInterface();
     virtual class LLCtrlScrollInterface* getScrollInterface();
 
     bool setControlValue(const LLSD& value);
     void setControlVariable(LLControlVariable* control);
-    virtual void setControlName(const std::string& control, LLView *context = NULL);
+    virtual void setControlName(const std::string& control, LLView *context = nullptr);
     void removeControlVariable();
 
     LLControlVariable* getControlVariable() { return mControlVariable; }

@@ -305,7 +305,7 @@ bool LLXYVector::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
         make_ui_sound("UISndClickRelease");
     }
 

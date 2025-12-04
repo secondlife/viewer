@@ -131,7 +131,7 @@ public:
     void addBorder( LLViewBorder::Params p);
     void addBorder();
     void            removeBorder();
-    bool            hasBorder() const { return mBorder != NULL; }
+    bool            hasBorder() const { return mBorder != nullptr; }
     void            setBorderVisible( bool b );
 
     void            setBackgroundColor( const LLUIColor& color ) { mBgOpaqueColor = color; }
@@ -148,7 +148,7 @@ public:
     bool            isBackgroundVisible() const { return mBgVisible; }
     void            setBackgroundOpaque(bool b)     { mBgOpaque = b; }
     bool            isBackgroundOpaque() const { return mBgOpaque; }
-    void            setDefaultBtn(LLButton* btn = NULL);
+    void            setDefaultBtn(LLButton* btn = nullptr);
     void            setDefaultBtn(std::string_view id);
     void            updateDefaultBtn();
     void            setLabel(const LLStringExplicit& label) { mLabel = label; }
@@ -211,7 +211,7 @@ public:
     void childSetAction(std::string_view id, std::function<void(void*)> function, void* value);
     void childSetAction(std::string_view id, const commit_signal_t::slot_type& function);
 
-    static LLView*  fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
+    static LLView*  fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = nullptr);
 
     //call onOpen to let panel know when it's about to be shown or activated
     virtual void    onOpen(const LLSD& key) {}

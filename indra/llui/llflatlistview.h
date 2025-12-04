@@ -48,7 +48,7 @@
  * manage the list of pick items.
  *
  * ASSUMPTIONS AND STUFF
- * - NULL pointers and undefined LLSD's are not accepted by any method of this class unless specified otherwise
+ * - nullptr pointers and undefined LLSD's are not accepted by any method of this class unless specified otherwise
  * - Order of returned selected items are not guaranteed
  * - The control assumes that all items being added are unique.
  */
@@ -163,7 +163,7 @@ public:
 
     /**
      * Get an item by value
-     * @return the item as LLPanel if associated with value, NULL otherwise
+     * @return the item as LLPanel if associated with value, nullptr otherwise
      */
     virtual LLPanel* getItemByValue(const LLSD& value) const;
 

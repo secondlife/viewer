@@ -286,7 +286,7 @@ public:
 
     void            setReplaceNewlinesWithSpaces(bool replace);
 
-    void            resetContextMenu() { setContextMenu(NULL); };
+    void            resetContextMenu() { setContextMenu(nullptr); };
 
     void            setBgImage(LLPointer<LLUIImage> image) { mBgImage = image; }
     void            setBgImageFocused(LLPointer<LLUIImage> image) { mBgImageFocused = image; }

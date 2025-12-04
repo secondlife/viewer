@@ -34,7 +34,7 @@
 // link seams
 
 LLUIColor::LLUIColor()
-    : mColorPtr(NULL)
+    : mColorPtr(nullptr)
 {}
 
 LLStyle::Params::Params()
@@ -121,7 +121,7 @@ namespace LLInitParam
 //static
 LLFontGL* LLFontGL::getFontDefault()
 {
-    return NULL;
+    return nullptr;
 }
 
 

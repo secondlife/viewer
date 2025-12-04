@@ -64,7 +64,7 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
     mCollapsed(false),
     mCollapseAmt(0.f),
     mVisibleAmt(1.f), // default to fully visible
-    mResizeBar(NULL),
+    mResizeBar(nullptr),
     mFractionalSize(0.f),
     mTargetDim(0),
     mIgnoreReshape(false),
@@ -554,7 +554,7 @@ void LLLayoutStack::setPanelSpacing(S32 val)
 
 LLLayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
 {
-    if (!panelp) return NULL;
+    if (!panelp) return nullptr;
 
     for (LLLayoutPanel* p : mPanels)
     {
@@ -563,12 +563,12 @@ LLLayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
             return p;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 LLLayoutPanel* LLLayoutStack::findEmbeddedPanelByName(std::string_view name) const
 {
-    LLLayoutPanel* result = NULL;
+    LLLayoutPanel* result = nullptr;
 
     for (LLLayoutPanel* p : mPanels)
     {
@@ -586,7 +586,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 {
     for (LLLayoutPanel* lp : mPanels)
     {
-        if (lp->mResizeBar == NULL)
+        if (lp->mResizeBar == nullptr)
         {
             LLResizeBar::Params resize_params;
             resize_params.name("resize");
@@ -849,8 +849,8 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
     F32 delta_auto_resize_headroom = 0.f;
     F32 old_auto_resize_headroom = 0.f;
 
-    LLLayoutPanel* other_resize_panel = NULL;
-    LLLayoutPanel* following_panel = NULL;
+    LLLayoutPanel* other_resize_panel = nullptr;
+    LLLayoutPanel* following_panel = nullptr;
 
     BOOST_REVERSE_FOREACH(LLLayoutPanel* panelp, mPanels) // Should replace this when C++20 reverse view adaptor becomes available...
     {

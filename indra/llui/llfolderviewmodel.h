@@ -151,7 +151,7 @@ public:
 
     virtual LLPointer<LLUIImage> getIcon() const = 0;
     virtual LLPointer<LLUIImage> getIconOpen() const { return getIcon(); }
-    virtual LLPointer<LLUIImage> getIconOverlay() const { return NULL; }
+    virtual LLPointer<LLUIImage> getIconOverlay() const { return nullptr; }
 
     virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
     virtual std::string getLabelSuffix() const = 0;
@@ -244,12 +244,12 @@ public:
         mPassedFolderFilter(true),
         mStringMatchOffsetFilter(std::string::npos),
         mStringFilterSize(0),
-        mFolderViewItem(NULL),
+        mFolderViewItem(nullptr),
         mLastFilterGeneration(-1),
         mLastFolderFilterGeneration(-1),
         mMarkedDirtyGeneration(-1),
         mMostFilteredDescendantGeneration(-1),
-        mParent(NULL),
+        mParent(nullptr),
         mRootViewModel(root_view_model)
     {
         mChildren.clear();
@@ -301,7 +301,7 @@ public:
 
     virtual void removeChild(LLFolderViewModelItem* child) override final
     {
-        child->setParent(NULL);
+        child->setParent(nullptr);
         mChildren.remove(child);
         dirtyDescendantsFilter();
         dirtyFilter();
@@ -310,7 +310,7 @@ public:
     virtual void clearChildren() override
     {
         // We are working with models that belong to views as LLPointers, clean the list, let poiters handle the rest
-        std::for_each(mChildren.begin(), mChildren.end(), [](LLFolderViewModelItem* c) {c->setParent(NULL); });
+        std::for_each(mChildren.begin(), mChildren.end(), [](LLFolderViewModelItem* c) {c->setParent(nullptr); });
         mChildren.clear();
         dirtyDescendantsFilter();
         dirtyFilter();
@@ -365,7 +365,7 @@ public:
 protected:
     virtual void setParent(LLFolderViewModelItem* parent) override final { mParent = parent; }
     virtual const LLFolderViewModelItem* getParent() override { return mParent; };
-    virtual bool hasParent() override { return mParent != NULL; }
+    virtual bool hasParent() override { return mParent != nullptr; }
 
     S32                         mSortVersion;
     bool                        mPassedFilter;
@@ -393,7 +393,7 @@ class LLFolderViewModelCommon : public LLFolderViewModelInterface
 public:
     LLFolderViewModelCommon()
     :   mTargetSortVersion(0),
-        mFolderView(NULL)
+        mFolderView(nullptr)
     {}
 
     virtual void requestSortAll() override

@@ -93,7 +93,7 @@ static LLDefaultChildRegistry::Register<LLToolBar> register_toolbar("toolbar");
 LLUUID find_ui_sound(const char * namep)
 {
     std::string name = ll_safe_string(namep);
-    LLUUID uuid = LLUUID(NULL);
+    LLUUID uuid = LLUUID(nullptr);
     LLUI *ui_inst = LLUI::getInstance();
     if (!ui_inst->mSettingGroups["config"]->controlExists(name))
     {
@@ -116,7 +116,7 @@ LLUUID find_ui_sound(const char * namep)
                 LL_WARNS() << "UI sound named: " << name << " does not translate to a valid uuid" << LL_ENDL;
             }
         }
-        else if (ui_inst->mAudioCallback != NULL)
+        else if (ui_inst->mAudioCallback != nullptr)
         {
             if (ui_inst->mSettingGroups["config"]->getBOOL("UISndDebugSpamToggle"))
             {
@@ -153,16 +153,16 @@ LLUI::LLUI(const settings_map_t& settings,
 : mSettingGroups(settings),
 mAudioCallback(audio_callback),
 mDeferredAudioCallback(deferred_audio_callback),
-mWindow(NULL), // set later in startup
-mRootView(NULL),
-mHelpImpl(NULL)
+mWindow(nullptr), // set later in startup
+mRootView(nullptr),
+mHelpImpl(nullptr)
 {
     LLRender2D::createInstance(image_provider);
     LLSpellChecker::createInstance();
 
-    if ((get_ptr_in_map(mSettingGroups, std::string("config")) == NULL) ||
-        (get_ptr_in_map(mSettingGroups, std::string("floater")) == NULL) ||
-        (get_ptr_in_map(mSettingGroups, std::string("ignores")) == NULL))
+    if ((get_ptr_in_map(mSettingGroups, std::string("config")) == nullptr) ||
+        (get_ptr_in_map(mSettingGroups, std::string("floater")) == nullptr) ||
+        (get_ptr_in_map(mSettingGroups, std::string("ignores")) == nullptr))
     {
         LL_ERRS() << "Failure to initialize configuration groups" << LL_ENDL;
     }
@@ -376,7 +376,7 @@ LLControlGroup& LLUI::getControlControlGroup (std::string_view controlname)
          itor != mSettingGroups.end(); ++itor)
     {
         LLControlGroup* control_group = itor->second;
-        if(control_group != NULL)
+        if(control_group != nullptr)
         {
             if (control_group->controlExists(controlname))
                 return *control_group;

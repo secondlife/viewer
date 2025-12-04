@@ -70,7 +70,7 @@ void LLTabContainer::TabPositions::declareValues()
 class LLTabTuple
 {
 public:
-    LLTabTuple( LLTabContainer* c, LLPanel* p, LLButton* b, LLTextBox* placeholder = NULL)
+    LLTabTuple( LLTabContainer* c, LLPanel* p, LLButton* b, LLTextBox* placeholder = nullptr)
         :
         mTabContainer(c),
         mTabPanel(p),
@@ -117,7 +117,7 @@ protected:
 
     LLCustomButtonIconCtrl(const Params& p)
     :   LLButton(p),
-        mIcon(NULL),
+        mIcon(nullptr),
         mIconAlignment(LLFontGL::HCENTER),
         mIconCtrlPad(p.icon_ctrl_pad)
     {}
@@ -237,7 +237,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
     mScrollPos(0),
     mScrollPosPixels(0),
     mMaxScrollPos(0),
-    mTitleBox(NULL),
+    mTitleBox(nullptr),
     mTopBorderHeight(LLPANEL_BORDER_WIDTH),
     mLockedTabCount(0),
     mMinTabWidth(0),
@@ -245,13 +245,13 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
     mTabHeight(p.tab_height),
     mLabelPadBottom(p.label_pad_bottom),
     mLabelPadLeft(p.label_pad_left),
-    mPrevArrowBtn(NULL),
-    mNextArrowBtn(NULL),
+    mPrevArrowBtn(nullptr),
+    mNextArrowBtn(nullptr),
     mIsVertical( p.tab_position == LEFT ),
     mHideScrollArrows(p.hide_scroll_arrows),
     // Horizontal Specific
-    mJumpPrevArrowBtn(NULL),
-    mJumpNextArrowBtn(NULL),
+    mJumpPrevArrowBtn(nullptr),
+    mJumpNextArrowBtn(nullptr),
     mRightTabBtnOffset(p.tab_padding_right),
     mTotalTabWidth(0),
     mTabPosition(p.tab_position),
@@ -376,7 +376,7 @@ bool LLTabContainer::addChild(LLView* view, S32 tab_group)
 
     if (panelp)
     {
-        addTabPanel(TabPanelParams().panel(panelp).label(panelp->getLabel()).is_placeholder(dynamic_cast<LLPlaceHolderPanel*>(view) != NULL));
+        addTabPanel(TabPanelParams().panel(panelp).label(panelp->getLabel()).is_placeholder(dynamic_cast<LLPlaceHolderPanel*>(view) != nullptr));
         return true;
     }
     else
@@ -719,7 +719,7 @@ bool LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
                 getTab(getCurrentPanelIndex())->mButton->setFocus(true);
             }
         }
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
     }
     if (handled) {
         // Note: may need to capture local coords here
@@ -1040,8 +1040,8 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 
     // Tab button
     LLRect btn_rect;  // Note: btn_rect.mLeft is just a dummy.  Will be updated in draw().
-    LLUIImage* tab_img = NULL;
-    LLUIImage* tab_selected_img = NULL;
+    LLUIImage* tab_img = nullptr;
+    LLUIImage* tab_selected_img = nullptr;
     S32 tab_fudge = 1;      //  To make new tab art look better, nudge buttons up 1 pel
 
     if (mIsVertical)
@@ -1064,8 +1064,8 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
         tab_selected_img = mMiddleTabParams.tab_bottom_image_selected;
     }
 
-    LLTextBox* textbox = NULL;
-    LLButton* btn = NULL;
+    LLTextBox* textbox = nullptr;
+    LLButton* btn = nullptr;
     LLCustomButtonIconCtrl::Params custom_btn_params;
     {
         custom_btn_params.icon_ctrl_pad(mTabIconCtrlPad);
@@ -1280,11 +1280,11 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
                 removeChild( tuple->mButton );
             }
             delete tuple->mButton;
-            tuple->mButton = NULL;
+            tuple->mButton = nullptr;
 
             removeChild( tuple->mTabPanel );
 //          delete tuple->mTabPanel;
-            tuple->mTabPanel = NULL;
+            tuple->mTabPanel = nullptr;
 
             mTabList.erase( iter );
             delete tuple;
@@ -1346,11 +1346,11 @@ void LLTabContainer::deleteAllTabs()
 
         removeChild( tuple->mButton );
         delete tuple->mButton;
-        tuple->mButton = NULL;
+        tuple->mButton = nullptr;
 
         removeChild( tuple->mTabPanel );
 //      delete tuple->mTabPanel;
-        tuple->mTabPanel = NULL;
+        tuple->mTabPanel = nullptr;
     }
 
     // Actually delete the tuples themselves
@@ -1367,7 +1367,7 @@ LLPanel* LLTabContainer::getCurrentPanel()
     {
         return mTabList[mCurrentTabIdx]->mTabPanel;
     }
-    return NULL;
+    return nullptr;
 }
 
 S32 LLTabContainer::getCurrentPanelIndex() const
@@ -1386,7 +1386,7 @@ LLPanel* LLTabContainer::getPanelByIndex(S32 index) const
     {
         return mTabList[index]->mTabPanel;
     }
-    return NULL;
+    return nullptr;
 }
 
 S32 LLTabContainer::getIndexForPanel(LLPanel* panel) const
@@ -1423,7 +1423,7 @@ LLPanel* LLTabContainer::getPanelByName(std::string_view name)
             return panel;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // Change the name of the button for the current tab.
@@ -1706,7 +1706,7 @@ void LLTabContainer::setTabImage(LLPanel* child, LLIconCtrl* icon)
         }
     }
 
-    if (!hasButton && (icon != NULL))
+    if (!hasButton && (icon != nullptr))
     {
         // It was assumed that the tab's button would take ownership of the icon pointer.
         // But since the tab did not have a button, kill the icon to prevent the memory
@@ -1726,7 +1726,7 @@ void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
         if(mCustomIconCtrlUsed)
         {
             LLCustomButtonIconCtrl* button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
-            LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : NULL;
+            LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : nullptr;
             image_overlay_width = icon_ctrl ? icon_ctrl->getRect().getWidth() : 0;
         }
         else
@@ -2050,7 +2050,7 @@ LLTabTuple* LLTabContainer::getTabByPanel(LLPanel* child)
             return tuple;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void LLTabContainer::insertTuple(LLTabTuple * tuple, eInsertionPoint insertion_point)

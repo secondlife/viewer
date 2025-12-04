@@ -152,7 +152,7 @@ void LLToolBar::createContextMenu()
         enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
 
         // Create the context menu
-        llassert(LLMenuGL::sMenuContainer != NULL);
+        llassert(LLMenuGL::sMenuContainer != nullptr);
         LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 
         if (menu)
@@ -170,7 +170,7 @@ void LLToolBar::createContextMenu()
     if (mRemoveButtonHandle.get())
     {
         // Disable/Enable the "Remove button" menu item depending on whether or not a button was clicked
-        mRemoveButtonHandle.get()->setEnabled(mRightMouseTargetButton != NULL);
+        mRemoveButtonHandle.get()->setEnabled(mRightMouseTargetButton != nullptr);
     }
 }
 
@@ -331,7 +331,7 @@ bool LLToolBar::hasCommand(const LLCommandId& commandId) const
 
 bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
 {
-    LLButton * command_button = NULL;
+    LLButton * command_button = nullptr;
 
     if (commandId != LLCommandId::null)
     {
@@ -343,7 +343,7 @@ bool LLToolBar::enableCommand(const LLCommandId& commandId, bool enabled)
         }
     }
 
-    return (command_button != NULL);
+    return (command_button != nullptr);
 }
 
 bool LLToolBar::stopCommandInProgress(const LLCommandId& commandId)
@@ -359,7 +359,7 @@ bool LLToolBar::stopCommandInProgress(const LLCommandId& commandId)
     // to turn off the microphone for both behaviors without risking duplicate state.
     //
 
-    LLToolBarButton * command_button = NULL;
+    LLToolBarButton * command_button = nullptr;
 
     if (commandId != LLCommandId::null)
     {
@@ -385,12 +385,12 @@ bool LLToolBar::stopCommandInProgress(const LLCommandId& commandId)
         }
     }
 
-    return (command_button != NULL);
+    return (command_button != nullptr);
 }
 
 bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash, bool force_flashing/* = false */)
 {
-    LLButton * command_button = NULL;
+    LLButton * command_button = nullptr;
 
     if (commandId != LLCommandId::null)
     {
@@ -402,7 +402,7 @@ bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash, bool forc
         }
     }
 
-    return (command_button != NULL);
+    return (command_button != nullptr);
 }
 
 bool LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -415,7 +415,7 @@ bool LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
     {
         // Determine which button the mouse was over during the click in case the context menu action
         // is intended to affect the button.
-        mRightMouseTargetButton = NULL;
+        mRightMouseTargetButton = nullptr;
         for (LLToolBarButton* button : mButtons)
         {
             LLRect button_rect;
@@ -485,7 +485,7 @@ void LLToolBar::onRemoveSelectedCommand()
     {
         removeCommand(mRightMouseTargetButton->getCommandId());
 
-        mRightMouseTargetButton = NULL;
+        mRightMouseTargetButton = nullptr;
     }
 }
 
@@ -893,7 +893,7 @@ void LLToolBar::createButtons()
     }
     mButtons.clear();
     mButtonMap.clear();
-    mRightMouseTargetButton = NULL;
+    mRightMouseTargetButton = nullptr;
 
     for (const LLCommandId& command_id : mButtonCommands)
     {
@@ -928,7 +928,7 @@ void LLToolBarButton::callIfEnabled(LLUICtrl::commit_callback_t commit, LLUICtrl
 LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 {
     LLCommand* commandp = LLCommandManager::instance().getCommand(id);
-    if (!commandp) return NULL;
+    if (!commandp) return nullptr;
 
     LLToolBarButton::Params button_p;
     button_p.name = commandp->name();
@@ -951,7 +951,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
             isEnabledParam.parameter = commandp->isEnabledParameters();
             isEnabledCB = initEnableCallback(isEnabledParam);
 
-            if (NULL == button->mIsEnabledSignal)
+            if (nullptr == button->mIsEnabledSignal)
             {
                 button->mIsEnabledSignal = new enable_signal_t();
             }
@@ -994,7 +994,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
             isRunningParam.parameter = commandp->isRunningParameters();
             enable_signal_t::slot_type isRunningCB = initEnableCallback(isRunningParam);
 
-            if (NULL == button->mIsRunningSignal)
+            if (nullptr == button->mIsRunningSignal)
             {
                 button->mIsRunningSignal = new enable_signal_t();
             }

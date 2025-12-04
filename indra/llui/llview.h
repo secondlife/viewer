@@ -255,7 +255,7 @@ public:
     // implemented in terms of addChild()
     bool        addChildInBack(LLView* view,  S32 tab_group = 0);
 
-    // remove the specified child from the view, and set it's parent to NULL.
+    // remove the specified child from the view, and set it's parent to nullptr.
     virtual void    removeChild(LLView* view);
 
     virtual bool    postBuild() { return true; }
@@ -296,7 +296,7 @@ public:
     /// 'available' in this context means 'visible and enabled': in other
     /// words, can a user actually interact with this?
     virtual bool    isAvailable() const;
-    /// The static isAvailable() tests an LLView* that could be NULL.
+    /// The static isAvailable() tests an LLView* that could be nullptr.
     static bool     isAvailable(const LLView* view);
     U8              getSoundFlags() const       { return mSoundFlags; }
 
@@ -334,7 +334,7 @@ public:
 
     LLView*     getRootView();
     LLView*     getParent() const               { return mParentView; }
-    LLView*     getFirstChild() const           { return (mChildList.empty()) ? NULL : *(mChildList.begin()); }
+    LLView*     getFirstChild() const           { return (mChildList.empty()) ? nullptr : *(mChildList.begin()); }
     LLView*     findPrevSibling(LLView* child);
     LLView*     findNextSibling(LLView* child);
     S32         getChildCount() const           { return (S32)mChildList.size(); }
@@ -448,7 +448,7 @@ public:
     virtual void    onMouseLeave(S32 x, S32 y, MASK mask);
 
     std::string getPathname() const;
-    // static method handles NULL pointer too
+    // static method handles nullptr pointer too
     static std::string getPathname(const LLView*);
 
     template <class T> T* findChild(std::string_view name, bool recurse = true) const
@@ -485,7 +485,7 @@ public:
             }
             parent = parent->getParent();
         }
-        return NULL;
+        return nullptr;
     }
 
     //////////////////////////////////////////////

@@ -45,7 +45,7 @@
 // Local globals
 //
 
-LLToolTipView *gToolTipView = NULL;
+LLToolTipView *gToolTipView = nullptr;
 
 //
 // Member functions
@@ -165,10 +165,10 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
     mHasClickCallback(p.click_callback.isProvided()),
     mPadding(p.padding),
     mMaxWidth(p.max_width),
-    mTextBox(NULL),
-    mInfoButton(NULL),
-    mPlayMediaButton(NULL),
-    mHomePageButton(NULL),
+    mTextBox(nullptr),
+    mInfoButton(nullptr),
+    mPlayMediaButton(nullptr),
+    mHomePageButton(nullptr),
     mIsTooltipPastable(p.allow_paste_tooltip)
 {
     LLTextBox::Params params;
@@ -421,7 +421,7 @@ void LLToolTip::getToolTipMessage(std::string& message) const
 
 LLToolTipMgr::LLToolTipMgr()
 :       mToolTipsBlocked(false),
-    mToolTip(NULL),
+    mToolTip(nullptr),
     mNeedsToolTip(false)
 {}
 
@@ -446,7 +446,7 @@ void LLToolTipMgr::createToolTip(const LLToolTip::Params& params)
     if (tooltip_params.create_callback.isProvided())
     {
         mToolTip = tooltip_params.create_callback()(tooltip_params);
-        if (mToolTip == NULL)
+        if (mToolTip == nullptr)
         {
             return;
         }

@@ -92,7 +92,7 @@ LLTimeCtrl::Params::Params()
 
 LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 :   LLUICtrl(p),
-    mLabelBox(NULL),
+    mLabelBox(nullptr),
     mTextEnabledColor(p.text_enabled_color()),
     mTextDisabledColor(p.text_disabled_color()),
     mTime(0),

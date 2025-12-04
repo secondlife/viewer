@@ -49,7 +49,7 @@ LLContainerView::LLContainerView(const LLContainerView::Params& p)
     mLabel(utf8str_to_wstring(p.label)),
     mDisplayChildren(p.display_children)
 {
-    mScrollContainer = NULL;
+    mScrollContainer = nullptr;
 }
 
 LLContainerView::~LLContainerView()
@@ -84,7 +84,7 @@ bool LLContainerView::handleMouseDown(S32 x, S32 y, MASK mask)
     bool handled = false;
     if (mDisplayChildren)
     {
-        handled = (LLView::childrenHandleMouseDown(x, y, mask) != NULL);
+        handled = (LLView::childrenHandleMouseDown(x, y, mask) != nullptr);
     }
     if (!handled)
     {
@@ -103,7 +103,7 @@ bool LLContainerView::handleMouseUp(S32 x, S32 y, MASK mask)
     bool handled = false;
     if (mDisplayChildren)
     {
-        handled = (LLView::childrenHandleMouseUp(x, y, mask) != NULL);
+        handled = (LLView::childrenHandleMouseUp(x, y, mask) != nullptr);
     }
     return handled;
 }

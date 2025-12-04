@@ -229,7 +229,7 @@ LLLineEditor::~LLLineEditor()
     {
         menu->hide();
     }
-    setContextMenu(NULL);
+    setContextMenu(nullptr);
 
     // calls onCommit() while LLLineEditor still valid
     gFocusMgr.releaseFocusIfNeeded( this );
@@ -264,7 +264,7 @@ void LLLineEditor::onFocusLost()
 
     if( gEditMenuHandler == this )
     {
-        gEditMenuHandler = NULL;
+        gEditMenuHandler = nullptr;
     }
 
     getWindow()->showCursorFromMouseMove();
@@ -750,7 +750,7 @@ bool LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 bool LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Check first whether the "clear search" button wants to deal with this.
-    if(childrenHandleMouseDown(x, y, mask) != NULL)
+    if(childrenHandleMouseDown(x, y, mask) != nullptr)
     {
         return true;
     }
@@ -866,7 +866,7 @@ bool LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
     // Check first whether the "clear search" button wants to deal with this.
     if(!hasMouseCapture())
     {
-        if(childrenHandleHover(x, y, mask) != NULL)
+        if(childrenHandleHover(x, y, mask) != nullptr)
         {
             return true;
         }
@@ -931,12 +931,12 @@ bool LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 
     if( hasMouseCapture() )
     {
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setMouseCapture( nullptr );
         handled = true;
     }
 
     // Check first whether the "clear search" button wants to deal with this.
-    if(!handled && childrenHandleMouseUp(x, y, mask) != NULL)
+    if(!handled && childrenHandleMouseUp(x, y, mask) != nullptr)
     {
         return true;
     }
@@ -2282,7 +2282,7 @@ void LLLineEditor::setFocus( bool new_state )
         // but limited paranoia is ok.
         if( gEditMenuHandler == this )
         {
-            gEditMenuHandler = NULL;
+            gEditMenuHandler = nullptr;
         }
 
         endSelection();
@@ -2731,7 +2731,7 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
     LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
     if (!menu)
     {
-        llassert(LLMenuGL::sMenuContainer != NULL);
+        llassert(LLMenuGL::sMenuContainer != nullptr);
         menu = LLUICtrlFactory::createFromFile<LLContextMenu>
             ("menu_text_editor.xml",
                 LLMenuGL::sMenuContainer,

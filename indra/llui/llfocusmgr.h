@@ -86,13 +86,13 @@ public:
     ~LLFocusMgr();
 
     // Mouse Captor
-    void            setMouseCapture(LLMouseHandler* new_captor);    // new_captor = NULL to release the mouse.
+    void            setMouseCapture(LLMouseHandler* new_captor);    // new_captor = nullptr to release the mouse.
     LLMouseHandler* getMouseCapture() const { return mMouseCaptor; }
     void            removeMouseCaptureWithoutCallback( const LLMouseHandler* captor );
     bool            childHasMouseCapture( const LLView* parent ) const;
 
     // Keyboard Focus
-    void            setKeyboardFocus(LLFocusableElement* new_focus, bool lock = false, bool keystrokes_only = false);       // new_focus = NULL to release the focus.
+    void            setKeyboardFocus(LLFocusableElement* new_focus, bool lock = false, bool keystrokes_only = false);       // new_focus = nullptr to release the focus.
     LLFocusableElement*     getKeyboardFocus() const { return mKeyboardFocus; }
     LLFocusableElement*     getLastKeyboardFocus() const { return mLastKeyboardFocus; }
     bool            childHasKeyboardFocus( const LLView* parent ) const;
@@ -109,7 +109,7 @@ public:
     LLView*     getLastFocusForGroup(LLView* subtree_root) const;
     void            clearLastFocusForGroup(LLView* subtree_root);
 
-    // If setKeyboardFocus(NULL) is called, and there is a non-NULL default
+    // If setKeyboardFocus(nullptr) is called, and there is a non-NULL default
     // keyboard focus view, focus goes there. JC
     void            setDefaultKeyboardFocus(LLFocusableElement* default_focus) { mDefaultKeyboardFocus = default_focus; }
     LLFocusableElement*     getDefaultKeyboardFocus() const { return mDefaultKeyboardFocus; }
@@ -125,7 +125,7 @@ public:
     void            releaseFocusIfNeeded( LLView* top_view );
     void            lockFocus();
     void            unlockFocus();
-    bool            focusLocked() const { return mLockedView != NULL; }
+    bool            focusLocked() const { return mLockedView != nullptr; }
 
     bool            keyboardFocusHasAccelerators() const;
 

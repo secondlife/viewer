@@ -93,7 +93,7 @@ class LLWidgetTypeFilter : public LLQueryFilter
 {
     /*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const
     {
-        return filterResult_t(dynamic_cast<const T*>(view) != NULL, true);
+        return filterResult_t(dynamic_cast<const T*>(view) != nullptr, true);
     }
 
 };

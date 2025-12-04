@@ -1672,7 +1672,7 @@ std::string LLUrlEntryIPv6::getUrl(const std::string &string) const
 //
 LLUrlEntryKeybinding::LLUrlEntryKeybinding()
     : LLUrlEntryBase()
-    , pHandler(NULL)
+    , pHandler(nullptr)
 {
     mPattern = boost::regex(APP_HEADER_REGEX "/keybinding/\\w+(\\?mode=\\w+)?$",
                             boost::regex::perl | boost::regex::icase);

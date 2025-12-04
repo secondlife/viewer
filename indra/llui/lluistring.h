@@ -58,10 +58,10 @@ class LLUIString
 public:
     // These methods all perform appropriate argument substitution
     // and modify mOrig where appropriate
-    LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
+    LLUIString() : mArgs(nullptr), mNeedsResult(false), mNeedsWResult(false) {}
     LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
-    LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); }
-    LLUIString(const LLWString& instring) : mArgs(NULL) { assign(instring); }
+    LLUIString(const std::string& instring) : mArgs(nullptr) { assign(instring); }
+    LLUIString(const LLWString& instring) : mArgs(nullptr) { assign(instring); }
     ~LLUIString() { delete mArgs; }
 
     void assign(const std::string& instring);

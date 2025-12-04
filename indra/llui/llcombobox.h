@@ -183,7 +183,7 @@ public:
     virtual void    addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);
     virtual void    clearColumns();
     virtual void    setColumnLabel(const std::string& column, const std::string& label);
-    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
+    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = nullptr);
     virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
     virtual void    clearRows();
     virtual void    sortByColumn(const std::string& name, bool ascending);

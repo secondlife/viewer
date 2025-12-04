@@ -144,7 +144,7 @@ public:
     virtual void clearColumns();
     virtual void setColumnLabel(const std::string& column, const std::string& label);
     virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM,
-                                         void* userdata = NULL);
+                                         void* userdata = nullptr);
     virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos,
                                                const LLSD& id);
     virtual void clearRows();

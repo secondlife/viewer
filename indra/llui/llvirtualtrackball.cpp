@@ -462,7 +462,7 @@ bool LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
     {
         mPrevX = 0;
         mPrevY = 0;
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
         make_ui_sound("UISndClickRelease");
     }
     return LLView::handleMouseUp(x, y, mask);

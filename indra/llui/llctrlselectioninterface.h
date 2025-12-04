@@ -81,7 +81,7 @@ public:
     virtual void clearColumns() = 0;
     virtual void setColumnLabel(const std::string& column, const std::string& label) = 0;
     // TomY TODO: Document this
-    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL) = 0;
+    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = nullptr) = 0;
 
     LLScrollListItem* addSimpleElement(const std::string& value); // defaults to bottom
     LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos); // defaults to no LLSD() id

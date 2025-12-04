@@ -86,7 +86,7 @@ LLComboBox::Params::Params()
 
 LLComboBox::LLComboBox(const LLComboBox::Params& p)
 :   LLUICtrl(p),
-    mTextEntry(NULL),
+    mTextEntry(nullptr),
     mTextEntryTentative(p.show_text_as_tentative),
     mHasAutocompletedText(false),
     mAllowTextEntry(p.allow_text_entry),
@@ -658,7 +658,7 @@ void* LLComboBox::getCurrentUserdata()
     {
         return item->getUserdata();
     }
-    return NULL;
+    return nullptr;
 }
 
 

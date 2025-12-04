@@ -88,7 +88,7 @@ bool LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
     if (hasMouseCapture())
     {
         // Release the mouse
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setMouseCapture( nullptr );
 
         // DO THIS AT THE VERY END to allow the button  to be destroyed
         // as a result of being clicked.  If mouseup in the widget,

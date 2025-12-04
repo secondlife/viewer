@@ -75,7 +75,7 @@ void LLLoadingIndicator::draw()
         start();
     }
 
-    LLUIImagePtr cur_image = mImages.empty() ? LLUIImagePtr(NULL) : mImages[mCurImageIdx];
+    LLUIImagePtr cur_image = mImages.empty() ? LLUIImagePtr(nullptr) : mImages[mCurImageIdx];
 
     // Draw current image.
     if( cur_image.notNull() )

@@ -38,7 +38,7 @@
 
 LLMultiFloater::LLMultiFloater(const LLSD& key, const LLFloater::Params& params)
     : LLFloater(key),
-      mTabContainer(NULL),
+      mTabContainer(nullptr),
       mTabPos(LLTabContainer::TOP),
       mAutoResize(true),
       mOrigMinWidth(params.min_width),
@@ -304,7 +304,7 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
     mTabContainer->removeTabPanel(floaterp);
     floaterp->setBackgroundVisible(true);
     floaterp->setCanDrag(true);
-    floaterp->setHost(NULL);
+    floaterp->setHost(nullptr);
     floaterp->applyRectControl();
 
     updateResizeLimits();
@@ -402,7 +402,7 @@ S32 LLMultiFloater::getFloaterCount() const
     is currently in a flashing state and is hosted by this.
     False otherwise.
 
-    Requires: floaterp != NULL
+    Requires: floaterp != nullptr
 **/
 bool LLMultiFloater::isFloaterFlashing(LLFloater* floaterp)
 {
@@ -419,7 +419,7 @@ bool LLMultiFloater::isFloaterFlashing(LLFloater* floaterp)
     to by floaterp to be the bool flashing if the LLFloater pointed
     to by floaterp is hosted by this.
 
-    Requires: floaterp != NULL
+    Requires: floaterp != nullptr
 **/
 void LLMultiFloater::setFloaterFlashing(LLFloater* floaterp, bool flashing)
 {

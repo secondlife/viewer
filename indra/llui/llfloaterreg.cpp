@@ -87,14 +87,14 @@ LLFloater* LLFloaterReg::getLastFloaterInGroup(std::string_view name)
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 LLFloater* LLFloaterReg::getLastFloaterCascading()
 {
     LLRect candidate_rect;
     candidate_rect.mTop = 100000;
-    LLFloater* candidate_floater = NULL;
+    LLFloater* candidate_floater = nullptr;
 
     std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
     for( ; it != it_end; ++it)
@@ -124,7 +124,7 @@ LLFloater* LLFloaterReg::getLastFloaterCascading()
 //static
 LLFloater* LLFloaterReg::findInstance(std::string_view name, const LLSD& key)
 {
-    LLFloater* res = NULL;
+    LLFloater* res = nullptr;
     auto it = sGroupMap.find(name);
     if (it != sGroupMap.end())
     {
@@ -170,13 +170,13 @@ LLFloater* LLFloaterReg::getInstance(std::string_view name, const LLSD& key)
                         if (!res)
                         {
                             LL_WARNS() << "Failed to build floater type: '" << name << "'." << LL_ENDL;
-                            return NULL;
+                            return nullptr;
                         }
                         bool success = res->buildFromFile(xui_file);
                         if (!success)
                         {
                             LL_WARNS() << "Failed to build floater type: '" << name << "'." << LL_ENDL;
-                            return NULL;
+                            return nullptr;
                         }
 
                         // Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
@@ -186,7 +186,7 @@ LLFloater* LLFloaterReg::getInstance(std::string_view name, const LLSD& key)
                         }
                         res->setInstanceName(std::string(name));
 
-                        LLFloater* last_floater = (list.empty() ? NULL : list.back());
+                        LLFloater* last_floater = (list.empty() ? nullptr : list.back());
 
                         res->applyControlsAndPosition(last_floater);
 
@@ -208,7 +208,7 @@ LLFloater* LLFloaterReg::getInstance(std::string_view name, const LLSD& key)
 //static
 LLFloater* LLFloaterReg::removeInstance(std::string_view name, const LLSD& key)
 {
-    LLFloater* res = NULL;
+    LLFloater* res = nullptr;
     auto it = sGroupMap.find(name);
     if (it != sGroupMap.end())
     {
@@ -290,7 +290,7 @@ bool LLFloaterReg::hideInstance(std::string_view name, const LLSD& key)
     {
         instance->closeHostedFloater();
     }
-    return (instance != NULL);
+    return (instance != nullptr);
 }
 
 //static

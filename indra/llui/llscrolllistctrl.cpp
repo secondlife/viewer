@@ -402,7 +402,7 @@ void LLScrollListCtrl::clearRows()
     mScrollbar->setDocParams(0, 0);
 
     mScrollLines = 0;
-    mLastSelected = NULL;
+    mLastSelected = nullptr;
     updateLayout();
     mDirty = false;
 }
@@ -417,7 +417,7 @@ LLScrollListItem* LLScrollListCtrl::getFirstSelected() const
             return item;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
@@ -469,12 +469,12 @@ S32 LLScrollListCtrl::getFirstSelectedIndex() const
 
 LLScrollListItem* LLScrollListCtrl::getFirstData() const
 {
-    return mItemList.empty() ? NULL : mItemList.front();
+    return mItemList.empty() ? nullptr : mItemList.front();
 }
 
 LLScrollListItem* LLScrollListCtrl::getLastData() const
 {
-    return mItemList.empty() ? NULL : mItemList.back();
+    return mItemList.empty() ? nullptr : mItemList.back();
 }
 
 std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
@@ -501,7 +501,7 @@ LLScrollListItem* LLScrollListCtrl::getItem(const LLSD& sd) const
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void LLScrollListCtrl::reshape( S32 width, S32 height, bool called_from_parent )
@@ -731,7 +731,7 @@ void LLScrollListCtrl::updateColumns(bool force_update)
     // update column headers
     std::vector<LLScrollListColumn*>::iterator column_ordered_it;
     S32 left = mItemListRect.mLeft;
-    LLScrollColumnHeader* last_header = NULL;
+    LLScrollColumnHeader* last_header = nullptr;
     for (column_ordered_it = mColumnsIndexed.begin(); column_ordered_it != mColumnsIndexed.end(); ++column_ordered_it)
     {
         LLScrollListColumn* column = *column_ordered_it;
@@ -972,7 +972,7 @@ void LLScrollListCtrl::deleteSingleItem(S32 target_index)
     itemp = mItemList[target_index];
     if (itemp == mLastSelected)
     {
-        mLastSelected = NULL;
+        mLastSelected = nullptr;
     }
     delete itemp;
     mItemList.erase(mItemList.begin() + target_index);
@@ -990,7 +990,7 @@ void LLScrollListCtrl::deleteItems(const LLSD& sd)
         {
             if (itemp == mLastSelected)
             {
-                mLastSelected = NULL;
+                mLastSelected = nullptr;
             }
             delete itemp;
             iter = mItemList.erase(iter);
@@ -1020,7 +1020,7 @@ void LLScrollListCtrl::deleteSelectedItems()
             iter++;
         }
     }
-    mLastSelected = NULL;
+    mLastSelected = nullptr;
     dirtyColumns();
 }
 
@@ -1110,7 +1110,7 @@ S32 LLScrollListCtrl::getItemIndex( const LLUUID& target_id ) const
 
 void LLScrollListCtrl::selectPrevItem( bool extend_selection)
 {
-    LLScrollListItem* prev_item = NULL;
+    LLScrollListItem* prev_item = nullptr;
 
     if (!getFirstSelected())
     {
@@ -1154,7 +1154,7 @@ void LLScrollListCtrl::selectPrevItem( bool extend_selection)
 
 void LLScrollListCtrl::selectNextItem( bool extend_selection)
 {
-    LLScrollListItem* next_item = NULL;
+    LLScrollListItem* next_item = nullptr;
 
     if (!getFirstSelected())
     {
@@ -1239,7 +1239,7 @@ bool LLScrollListCtrl::selectItemByLabel(const std::string& label, bool case_sen
     deselectAllItems(true);     // ensure that no stale items are selected, even if we don't find a match
     LLScrollListItem* item = getItemByLabel(label, case_sensitive, column);
 
-    bool found = NULL != item;
+    bool found = nullptr != item;
     if (found)
     {
         selectItem(item, -1);
@@ -1257,7 +1257,7 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, boo
 {
     if (label.empty())  //RN: assume no empty items
     {
-        return NULL;
+        return nullptr;
     }
 
     std::string target_text = label;
@@ -1278,7 +1278,7 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, boo
             return item;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 LLScrollListItem* LLScrollListCtrl::getItemByIndex(S32 index)
@@ -1288,7 +1288,7 @@ LLScrollListItem* LLScrollListCtrl::getItemByIndex(S32 index)
         return mItemList[index];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool LLScrollListCtrl::selectItemByPrefix(const std::string& target, bool case_sensitive, S32 column)
@@ -1481,7 +1481,7 @@ LLScrollListItem* LLScrollListCtrl::addStringUUIDItem(const std::string& item_te
 
         return addRow( item_p, pos );
     }
-    return NULL;
+    return nullptr;
 }
 
 // Select the line or lines that match this UUID
@@ -1772,7 +1772,7 @@ bool LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
     S32 column_index = getColumnIndexFromOffset(x);
     LLScrollListColumn* columnp = getColumn(column_index);
 
-    if (columnp == NULL) return false;
+    if (columnp == nullptr) return false;
 
     bool handled = false;
     // show tooltip for full name of hovered item if it has been truncated
@@ -1826,7 +1826,7 @@ bool LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
         {
             if (mask & MASK_SHIFT)
             {
-                if (mLastSelected == NULL)
+                if (mLastSelected == nullptr)
                 {
                     selectItem(hit_item, getColumnIndexFromOffset(x));
                 }
@@ -1910,7 +1910,7 @@ bool LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
     }
     else
     {
-        //mLastSelected = NULL;
+        //mLastSelected = nullptr;
         //deselectAllItems(true);
     }
 
@@ -1920,7 +1920,7 @@ bool LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 
 bool LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    bool handled = childrenHandleMouseDown(x, y, mask) != NULL;
+    bool handled = childrenHandleMouseDown(x, y, mask) != nullptr;
 
     if( !handled )
     {
@@ -1942,7 +1942,7 @@ bool LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
     {
         // release mouse capture immediately so
         // scroll to show selected logic will work
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
         if(mask == MASK_NONE)
         {
             selectItemAt(x, y, mask);
@@ -1993,7 +1993,7 @@ bool LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
                 menu->die();
                 mPopupMenuHandle.markDead();
             }
-            llassert(LLMenuGL::sMenuContainer != NULL);
+            llassert(LLMenuGL::sMenuContainer != nullptr);
             menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
                 menu_name, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
             if (menu)
@@ -2101,7 +2101,7 @@ bool LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
     {
         // Offer the click to the children, even if we aren't enabled
         // so the scroll bars will work.
-        if (NULL == LLView::childrenHandleDoubleClick(x, y, mask))
+        if (nullptr == LLView::childrenHandleDoubleClick(x, y, mask))
         {
             // Run the callback only if an item is being double-clicked.
             if( mCanSelect && hitItem(x, y) && mOnDoubleClickCallback )
@@ -2149,7 +2149,7 @@ bool LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
                     LLScrollListCell* cellp = item->getColumn(column_index);
                     cellp->setValue(item_value);
                     cellp->onCommit();
-                    if (mLastSelected == NULL)
+                    if (mLastSelected == nullptr)
                     {
                         break;
                     }
@@ -2175,7 +2175,7 @@ bool LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
 LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 {
     // Excludes disabled items.
-    LLScrollListItem* hit_item = NULL;
+    LLScrollListItem* hit_item = nullptr;
 
     updateSort();
 
@@ -2662,7 +2662,7 @@ void LLScrollListCtrl::deselectItem(LLScrollListItem* itemp)
     {
         if (mLastSelected == itemp)
         {
-            mLastSelected = NULL;
+            mLastSelected = nullptr;
         }
 
         itemp->setSelected(false);
@@ -2880,7 +2880,7 @@ void LLScrollListCtrl::copy()
 // virtual
 bool LLScrollListCtrl::canCopy() const
 {
-    return (getFirstSelected() != NULL);
+    return (getFirstSelected() != nullptr);
 }
 
 // virtual
@@ -3064,7 +3064,7 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 
 std::string LLScrollListCtrl::getSortColumnName()
 {
-    LLScrollListColumn* column = mSortColumns.empty() ? NULL : mColumnsIndexed[mSortColumns.back().first];
+    LLScrollListColumn* column = mSortColumns.empty() ? nullptr : mColumnsIndexed[mSortColumns.back().first];
 
     return column ? column->mName : LLStringUtil::null;
 }
@@ -3117,7 +3117,7 @@ LLScrollListColumn* LLScrollListCtrl::getColumn(S32 index)
 {
     if (index < 0 || index >= (S32)mColumnsIndexed.size())
     {
-        return NULL;
+        return nullptr;
     }
     return mColumnsIndexed[index];
 }
@@ -3129,7 +3129,7 @@ LLScrollListColumn* LLScrollListCtrl::getColumn(const std::string& name)
     {
         return column_itor->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
@@ -3152,7 +3152,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_
 LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-    if (!item_p.validateBlock() || !new_item) return NULL;
+    if (!item_p.validateBlock() || !new_item) return nullptr;
     new_item->setNumColumns(static_cast<S32>(mColumns.size()));
 
     // Add any columns we don't already have
@@ -3243,7 +3243,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
     for (column_map_t::iterator column_it = mColumns.begin(); column_it != mColumns.end(); ++column_it)
     {
         S32 column_idx = column_it->second->mIndex;
-        if (new_item->getColumn(column_idx) == NULL)
+        if (new_item->getColumn(column_idx) == nullptr)
         {
             LLScrollListColumn* column_ptr = column_it->second;
             LLScrollListCell::Params cell_p;
@@ -3367,7 +3367,7 @@ void LLScrollListCtrl::onFocusLost()
 {
     if (hasMouseCapture())
     {
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
     }
 
     mSearchString.clear();

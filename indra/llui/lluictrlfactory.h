@@ -51,7 +51,7 @@ public:
     {
     public:
         // register with either the provided builder, or the generic templated builder
-        Register(const char* tag, LLWidgetCreatorFunc func = NULL);
+        Register(const char* tag, LLWidgetCreatorFunc func = nullptr);
     };
 
 protected:
@@ -131,7 +131,7 @@ public:
     void popFileName();
 
     template<typename T>
-    static T* create(typename T::Params& params, LLView* parent = NULL)
+    static T* create(typename T::Params& params, LLView* parent = nullptr)
     {
         params.fillFrom(instance().mParamDefaultsMap.obtain<
                         ParamDefaults<typename T::Params, 0> >().get());
@@ -150,7 +150,7 @@ public:
     template<typename T>
     static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
     {
-        T* widget = NULL;
+        T* widget = nullptr;
 
         instance().pushFileName(filename);
         {
@@ -162,7 +162,7 @@ public:
                 goto fail;
             }
 
-            LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, NULL);
+            LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, nullptr);
             if (view)
             {
                 widget = dynamic_cast<T*>(view);
@@ -172,7 +172,7 @@ public:
                     LL_WARNS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
 
                     deleteView(view);
-                    view = NULL;
+                    view = nullptr;
                 }
             }
         }
@@ -189,7 +189,7 @@ fail:
         return create<T>(widget_params);
     }
 
-    static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
+    static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = nullptr);
 
     static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root,
                                   LLDir::ESkinConstraint constraint=LLDir::CURRENT_SKIN);
@@ -207,15 +207,15 @@ private:
     static void loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block);
 
     template<typename T>
-    static T* createWidgetImpl(const typename T::Params& params, LLView* parent = NULL)
+    static T* createWidgetImpl(const typename T::Params& params, LLView* parent = nullptr)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-        T* widget = NULL;
+        T* widget = nullptr;
 
         if (!params.validateBlock())
         {
             LL_WARNS() << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << LL_ENDL;
-            //return NULL;
+            //return nullptr;
         }
 
         widget = new T(params);
@@ -261,7 +261,7 @@ private:
         if (widget && !widget->postBuild())
         {
             delete widget;
-            widget = NULL;
+            widget = nullptr;
         }
 
         return widget;

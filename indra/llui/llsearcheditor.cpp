@@ -33,8 +33,8 @@
 
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 :   LLUICtrl(p),
-    mSearchButton(NULL),
-    mClearButton(NULL),
+    mSearchButton(nullptr),
+    mClearButton(nullptr),
     mEditorImage(p.background_image),
     mEditorImageFocused(p.background_image_focused),
     mEditorSearchImage(p.background_image_highlight),

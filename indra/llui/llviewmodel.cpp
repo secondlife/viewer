@@ -162,13 +162,13 @@ void LLListViewModel::setColumnLabel(const std::string& column, const std::strin
 LLScrollListItem* LLListViewModel::addElement(const LLSD& value, EAddPosition pos,
                                          void* userdata)
 {
-    return NULL;
+    return nullptr;
 }
 
 LLScrollListItem* LLListViewModel::addSimpleElement(const std::string& value, EAddPosition pos,
                                                const LLSD& id)
 {
-    return NULL;
+    return nullptr;
 }
 
 void LLListViewModel::clearRows()

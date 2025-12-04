@@ -73,7 +73,7 @@ template class LLUICtrlFactory* LLSingleton<class LLUICtrlFactory>::getInstance(
 // LLUICtrlFactory()
 //-----------------------------------------------------------------------------
 LLUICtrlFactory::LLUICtrlFactory()
-    : mDummyPanel(NULL) // instantiated when first needed
+    : mDummyPanel(nullptr) // instantiated when first needed
 {
 }
 
@@ -81,7 +81,7 @@ LLUICtrlFactory::~LLUICtrlFactory()
 {
     // go ahead and leak mDummyPanel since this is static destructor time
     //delete mDummyPanel;
-    //mDummyPanel = NULL;
+    //mDummyPanel = nullptr;
 }
 
 void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block)
@@ -194,14 +194,14 @@ LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const 
     LLStringUtil::toLower(ctrl_type);
 
     const LLWidgetCreatorFunc* funcp = registry.getValue(ctrl_type);
-    if (funcp == NULL)
+    if (funcp == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
 
-    if (parent == NULL)
+    if (parent == nullptr)
     {
-        if (mDummyPanel == NULL)
+        if (mDummyPanel == nullptr)
         {
             LLPanel::Params p;
             mDummyPanel = create<LLPanel>(p);
@@ -257,7 +257,7 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 {
     // associate parameter block type with template .xml file
     std::string* existing_name = LLWidgetNameRegistry::instance().getValue(param_block_type);
-    if (existing_name != NULL)
+    if (existing_name != nullptr)
     {
         if(*existing_name != name)
         {

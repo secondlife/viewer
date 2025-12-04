@@ -57,8 +57,8 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
     mSnappingEnabled(p.snapping_enabled),
     mAllowDoubleClickSnapping(p.allow_double_click_snapping),
     mResizingView(p.resizing_view),
-    mResizeListener(NULL),
-    mImagePanel(NULL)
+    mResizeListener(nullptr),
+    mImagePanel(nullptr)
 {
     setFollowsNone();
     // set up some generically good follow code.
@@ -112,7 +112,7 @@ bool LLResizeBar::handleMouseUp(S32 x, S32 y, MASK mask)
     if( hasMouseCapture() )
     {
         // Release the mouse
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setMouseCapture( nullptr );
         handled = true;
     }
     else
@@ -192,7 +192,7 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
             scaled_rect.mRight = scaled_rect.mLeft + new_width;
             mResizingView->setRect(scaled_rect);
 
-            LLView* snap_view = NULL;
+            LLView* snap_view = nullptr;
 
             if (mSnappingEnabled)
             {
@@ -314,7 +314,7 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 
     if (mResizeListener)
     {
-        mResizeListener(NULL);
+        mResizeListener(nullptr);
     }
 
     return handled;
@@ -372,5 +372,5 @@ void LLResizeBar::setImagePanel(LLPanel * panelp)
 
 LLPanel * LLResizeBar::getImagePanel() const
 {
-    return getChildCount() > 0 ? (LLPanel *)getChildList()->back() : NULL;
+    return getChildCount() > 0 ? (LLPanel *)getChildList()->back() : nullptr;
 }

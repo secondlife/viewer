@@ -62,7 +62,7 @@ LLSpinCtrl::Params::Params()
 
 LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 :   LLF32UICtrl(p),
-    mLabelBox(NULL),
+    mLabelBox(nullptr),
     mbHasBeenSet( false ),
     mPrecision(p.decimal_digits),
     mTextEnabledColor(p.text_enabled_color()),

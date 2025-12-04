@@ -72,7 +72,7 @@ boost::signals2::connection LLCacheName::getGroup(const LLUUID& id, const LLCach
     return boost::signals2::connection();
 }
 
-LLCacheName* gCacheName = NULL;
+LLCacheName* gCacheName = nullptr;
 
 //
 // Stub implementation for LLTrans
@@ -160,7 +160,7 @@ namespace LLInitParam
 //static
 LLFontGL* LLFontGL::getFontDefault()
 {
-    return NULL;
+    return nullptr;
 }
 
 char const* const _PREHASH_AgentData = (char *)"AgentData";

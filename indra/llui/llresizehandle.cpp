@@ -52,7 +52,7 @@ LLResizeHandle::LLResizeHandle(const LLResizeHandle::Params& p)
     mDragLastScreenY( 0 ),
     mLastMouseScreenX( 0 ),
     mLastMouseScreenY( 0 ),
-    mImage( NULL ),
+    mImage( nullptr ),
     mMinWidth( p.min_width ),
     mMinHeight( p.min_height ),
     mCorner( p.corner )
@@ -102,7 +102,7 @@ bool LLResizeHandle::handleMouseUp(S32 x, S32 y, MASK mask)
     if( hasMouseCapture() )
     {
         // Release the mouse
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setMouseCapture( nullptr );
         handled = true;
     }
     else if( pointInHandle(x, y) )
@@ -210,8 +210,8 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
             scaled_rect.mTop = scaled_rect.mBottom + new_height;
             resizing_view->setRect(scaled_rect);
 
-            LLView* snap_view = NULL;
-            LLView* test_view = NULL;
+            LLView* snap_view = nullptr;
+            LLView* test_view = nullptr;
 
             static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);
             // now do snapping

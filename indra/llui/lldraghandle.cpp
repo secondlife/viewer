@@ -55,7 +55,7 @@ LLDragHandle::LLDragHandle(const LLDragHandle::Params& p)
     mDragLastScreenY( 0 ),
     mLastMouseScreenX( 0 ),
     mLastMouseScreenY( 0 ),
-    mTitleBox( NULL ),
+    mTitleBox( nullptr ),
     mMaxTitleWidth( 0 ),
     mForeground( true ),
     mDragHighlightColor(p.drag_highlight_color()),
@@ -118,7 +118,7 @@ void LLDragHandleTop::setTitle(const std::string& title)
 
 std::string LLDragHandleTop::getTitle() const
 {
-    return mTitleBox == NULL ? LLStringUtil::null : mTitleBox->getText();
+    return mTitleBox == nullptr ? LLStringUtil::null : mTitleBox->getText();
 }
 
 
@@ -128,7 +128,7 @@ void LLDragHandleLeft::setTitle(const std::string& )
     {
         removeChild(mTitleBox);
         delete mTitleBox;
-        mTitleBox = NULL;
+        mTitleBox = nullptr;
     }
     /* no title on left edge */
 }
@@ -291,7 +291,7 @@ bool LLDragHandle::handleMouseUp(S32 x, S32 y, MASK mask)
     if( hasMouseCapture() )
     {
         // Release the mouse
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setMouseCapture( nullptr );
     }
 
     // Note: don't pass on to children

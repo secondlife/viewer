@@ -101,7 +101,7 @@ public:
     static const_instance_list_t& getFloaterList(std::string_view name);
 
     // Visibility Management
-    // return NULL if instance not found or can't create instance (no builder)
+    // return nullptr if instance not found or can't create instance (no builder)
     static LLFloater* showInstance(std::string_view name, const LLSD& key = LLSD(), bool focus = false);
     // Close a floater (may destroy or set invisible)
     // return false if can't find instance

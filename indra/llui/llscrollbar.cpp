@@ -243,7 +243,7 @@ void LLScrollbar::updateThumbRect()
 bool LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Check children first
-    bool handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
+    bool handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != nullptr;
     if( !handled_by_child )
     {
         if( mThumbRect.pointInRect(x,y) )
@@ -388,7 +388,7 @@ bool LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
     }
     else
     {
-        handled = childrenHandleHover( x, y, mask ) != NULL;
+        handled = childrenHandleHover( x, y, mask ) != nullptr;
     }
 
     // Opaque
@@ -447,7 +447,7 @@ bool LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
     bool handled = false;
     if( hasMouseCapture() )
     {
-        gFocusMgr.setMouseCapture( NULL );
+        gFocusMgr.setMouseCapture( nullptr );
         handled = true;
     }
     else

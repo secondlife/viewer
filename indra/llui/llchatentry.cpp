@@ -39,7 +39,7 @@ LLChatEntry::Params::Params()
 
 LLChatEntry::LLChatEntry(const Params& p)
 :   LLTextEditor(p),
-    mTextExpandedSignal(NULL),
+    mTextExpandedSignal(nullptr),
     mHasHistory(p.has_history),
     mIsExpandable(p.is_expandable),
     mExpandLinesCount(p.expand_lines_count),

@@ -129,7 +129,7 @@ bool LLAccordionCtrl::postBuild()
     for(LLView* viewp : *getChildList())
     {
         LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(viewp);
-        if (accordion_tab == NULL)
+        if (accordion_tab == nullptr)
             continue;
         if (std::find(mAccordionTabs.begin(), mAccordionTabs.end(), accordion_tab) == mAccordionTabs.end())
         {
@@ -355,7 +355,7 @@ void LLAccordionCtrl::removeCollapsibleCtrl(LLAccordionCtrlTab* accordion_tab)
     // if removed is selected - reset selection
     if (mSelectedTab == accordion_tab)
     {
-        mSelectedTab = NULL;
+        mSelectedTab = nullptr;
     }
 }
 
@@ -566,7 +566,7 @@ bool LLAccordionCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
     if (!handled)
     {
         handled = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type,
-                                            cargo_data, accept, tooltip_msg) != NULL;
+                                            cargo_data, accept, tooltip_msg) != nullptr;
     }
     return true;
 }
@@ -674,7 +674,7 @@ void LLAccordionCtrl::onOpen(const LLSD& key)
     for (LLAccordionCtrlTab* accordion_tab : mAccordionTabs)
     {
         LLPanel* panel = dynamic_cast<LLPanel*>(accordion_tab->getAccordionView());
-        if (panel != NULL)
+        if (panel != nullptr)
         {
             panel->onOpen(key);
         }
@@ -772,7 +772,7 @@ S32 LLAccordionCtrl::notifyParent(const LLSD& info)
             if (mSelectedTab)
             {
                 mSelectedTab->setSelected(false);
-                mSelectedTab = NULL;
+                mSelectedTab = nullptr;
                 return 1;
             }
             return 0;

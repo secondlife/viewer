@@ -167,7 +167,7 @@ public:
         Optional<void*>             user_data;
 
         TabPanelParams()
-        :   panel("panel", NULL),
+        :   panel("panel", nullptr),
             label("label"),
             select_tab("select_tab"),
             is_placeholder("is_placeholder"),

@@ -111,7 +111,7 @@ public:
     void writeXUI(LLXMLNodePtr node,
                 const BLOCK& block,
                 const LLInitParam::predicate_rule_t rules = LLInitParam::default_parse_rules(),
-                const LLInitParam::BaseBlock* diff_block = NULL)
+                const LLInitParam::BaseBlock* diff_block = nullptr)
     {
         if (!diff_block
             && !rules.isAmbivalent(LLInitParam::HAS_DEFAULT_VALUE))
@@ -201,7 +201,7 @@ public:
     typedef LLInitParam::Parser::name_stack_t name_stack_t;
     typedef LLInitParam::BaseBlock* (*element_start_callback_t)(LLSimpleXUIParser&, const char* block_name);
 
-    LLSimpleXUIParser(element_start_callback_t element_cb = NULL);
+    LLSimpleXUIParser(element_start_callback_t element_cb = nullptr);
     virtual ~LLSimpleXUIParser();
 
     /*virtual*/ std::string getCurrentElementName();

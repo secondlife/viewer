@@ -270,7 +270,7 @@ private:
     static void onIdleUpdateMenu(void* user_data);
 
 protected:
-    LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
+    LLScrollContainer* mScrollContainer;  // nullptr if this is not a child of a scroll container.
 
     void commitRename( const LLSD& data );
     void onRenamerLost();

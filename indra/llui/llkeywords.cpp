@@ -565,7 +565,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
             // Check against delimiters
             {
                 S32 seg_start = 0;
-                LLKeywordToken* cur_delimiter = NULL;
+                LLKeywordToken* cur_delimiter = nullptr;
                 for (token_list_t::iterator iter = mDelimiterTokenList.begin();
                      iter != mDelimiterTokenList.end(); ++iter)
                 {

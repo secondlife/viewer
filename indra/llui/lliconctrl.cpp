@@ -71,7 +71,7 @@ LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 
 LLIconCtrl::~LLIconCtrl()
 {
-    mImagep = NULL;
+    mImagep = nullptr;
 }
 
 

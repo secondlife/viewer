@@ -117,7 +117,7 @@ LLCommand * LLCommandManager::getCommand(U32 commandIndex)
 
 LLCommand * LLCommandManager::getCommand(const LLCommandId& commandId)
 {
-    LLCommand * command_match = NULL;
+    LLCommand * command_match = nullptr;
 
     CommandIndexMap::const_iterator found = mCommandIndices.find(commandId.uuid());
 
@@ -131,7 +131,7 @@ LLCommand * LLCommandManager::getCommand(const LLCommandId& commandId)
 
 LLCommand * LLCommandManager::getCommand(const std::string& name)
 {
-    LLCommand * command_match = NULL;
+    LLCommand * command_match = nullptr;
 
     CommandVector::const_iterator it = mCommands.begin();
 

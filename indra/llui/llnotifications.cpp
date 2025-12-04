@@ -496,7 +496,7 @@ LLNotification::LLNotification(const LLSDParamAdapter<Params>& p) :
     mPriority(p.priority),
     mCancelled(false),
     mIgnored(false),
-    mResponderObj(NULL),
+    mResponderObj(nullptr),
     mId(p.id.isProvided() ? p.id : LLUUID::generateNewID()),
     mOfferFromAgent(p.offer_from_agent),
     mIsDND(p.is_dnd)
@@ -1734,7 +1734,7 @@ LLNotificationPtr LLNotifications::add(const LLNotification::Params& p)
 
 void LLNotifications::add(const LLNotificationPtr pNotif)
 {
-    if (pNotif == NULL) return;
+    if (pNotif == nullptr) return;
 
     // first see if we already have it -- if so, that's a problem
     LLNotificationSet::iterator it=mItems.find(pNotif);
@@ -1748,7 +1748,7 @@ void LLNotifications::add(const LLNotificationPtr pNotif)
 
 void LLNotifications::load(const LLNotificationPtr pNotif)
 {
-    if (pNotif == NULL) return;
+    if (pNotif == nullptr) return;
 
     // first see if we already have it -- if so, that's a problem
     LLNotificationSet::iterator it=mItems.find(pNotif);
@@ -1762,7 +1762,7 @@ void LLNotifications::load(const LLNotificationPtr pNotif)
 
 void LLNotifications::cancel(LLNotificationPtr pNotif)
 {
-    if (pNotif == NULL || pNotif->isCancelled()) return;
+    if (pNotif == nullptr || pNotif->isCancelled()) return;
 
     LLNotificationSet::iterator it=mItems.find(pNotif);
     if (it != mItems.end())
@@ -1839,7 +1839,7 @@ LLNotificationPtr LLNotifications::find(LLUUID uuid)
     if (it == mItems.end())
     {
         LL_DEBUGS("Notifications") << "Tried to dereference uuid '" << uuid << "' as a notification key but didn't find it." << LL_ENDL;
-        return LLNotificationPtr((LLNotification*)NULL);
+        return LLNotificationPtr((LLNotification*)nullptr);
     }
     else
     {

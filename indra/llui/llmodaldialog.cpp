@@ -84,7 +84,7 @@ void LLModalDialog::openFloater(const LLSD& key)
 {
     // SJB: Hack! Make sure we don't ever host a modal dialog
     LLMultiFloater* thost = LLFloater::getFloaterHost();
-    LLFloater::setFloaterHost(NULL);
+    LLFloater::setFloaterHost(nullptr);
     LLFloater::openFloater(key);
     LLFloater::setFloaterHost(thost);
 }
@@ -182,7 +182,7 @@ void LLModalDialog::setVisible( bool visible )
 bool LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
-    if (popup_menu != NULL)
+    if (popup_menu != nullptr)
     {
         S32 mx, my;
         LLUI::getInstance()->getMousePositionScreen(&mx, &my);
@@ -212,14 +212,14 @@ bool LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 
 bool LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
 {
-    if( childrenHandleHover(x, y, mask) == NULL )
+    if( childrenHandleHover(x, y, mask) == nullptr )
     {
         getWindow()->setCursor(UI_CURSOR_ARROW);
         LL_DEBUGS("UserInput") << "hover handled by " << getName() << LL_ENDL;
     }
 
     LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
-    if (popup_menu != NULL)
+    if (popup_menu != nullptr)
     {
         S32 mx, my;
         LLUI::getInstance()->getMousePositionScreen(&mx, &my);
@@ -229,7 +229,7 @@ bool LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
             S32 local_x = mx - popup_menu->getRect().mLeft;
             S32 local_y = my - popup_menu->getRect().mBottom;
             popup_menu->handleHover(local_x, local_y, mask);
-            gFocusMgr.setMouseCapture(NULL);
+            gFocusMgr.setMouseCapture(nullptr);
         }
     }
 
@@ -317,7 +317,7 @@ void LLModalDialog::onAppFocusLost()
         LLModalDialog* instance = LLModalDialog::sModalStack.front();
         if( gFocusMgr.childHasMouseCapture( instance ) )
         {
-            gFocusMgr.setMouseCapture( NULL );
+            gFocusMgr.setMouseCapture( nullptr );
         }
 
         instance->setFocus(false);

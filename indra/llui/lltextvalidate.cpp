@@ -38,8 +38,8 @@
 namespace LLTextValidate
 {
 
-static S32 strtol(const std::string& str) { return ::strtol(str.c_str(), NULL, 10); }
-static S32 strtol(const LLWString& str) { return ::strtol(wstring_to_utf8str(str).c_str(), NULL, 10); }
+static S32 strtol(const std::string& str) { return ::strtol(str.c_str(), nullptr, 10); }
+static S32 strtol(const LLWString& str) { return ::strtol(wstring_to_utf8str(str).c_str(), nullptr, 10); }
 
 static LLSD llsd(const std::string& str) { return LLSD(str); }
 static LLSD llsd(const LLWString& str) { return LLSD(wstring_to_utf8str(str)); }

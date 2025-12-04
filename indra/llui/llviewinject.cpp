@@ -20,8 +20,8 @@
 
 llview::TargetEvent::TargetEvent(LLView* view)
 {
-    // Walk up the view tree from target LLView to the root (NULL). If
-    // passed NULL, iterate 0 times.
+    // Walk up the view tree from target LLView to the root (nullptr). If
+    // passed nullptr, iterate 0 times.
     for (; view; view = view->getParent())
     {
         // At each level, operator() is going to ask: for a particular parent

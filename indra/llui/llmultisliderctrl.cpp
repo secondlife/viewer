@@ -73,9 +73,9 @@ LLMultiSliderCtrl::Params::Params()
 
 LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 :   LLF32UICtrl(p),
-    mLabelBox( NULL ),
-    mEditor( NULL ),
-    mTextBox( NULL ),
+    mLabelBox( nullptr ),
+    mEditor( nullptr ),
+    mTextBox( nullptr ),
     mTextEnabledColor(p.text_color()),
     mTextDisabledColor(p.text_disabled_color())
 {

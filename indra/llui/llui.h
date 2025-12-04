@@ -265,7 +265,7 @@ public:
      * Adjacent "//" mean that the next level of the search is done
      * recursively ("descendant" rather than "child").
      *
-     * Return values: If no match is found, NULL is returned,
+     * Return values: If no match is found, nullptr is returned,
      * otherwise the matching LLView* is returned.
      *
      * Examples:

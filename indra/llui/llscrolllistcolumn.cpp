@@ -311,7 +311,7 @@ LLScrollListColumn::LLScrollListColumn(const Params& p, LLScrollListCtrl* parent
     mParentCtrl(parent),
     mName(p.name),
     mLabel(p.header.label),
-    mHeader(NULL),
+    mHeader(nullptr),
     mMaxContentWidth(0),
     mDynamicWidth(p.width.dynamic_width),
     mRelWidth(p.width.relative_width),

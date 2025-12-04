@@ -58,7 +58,7 @@ public:
     void set(T_const_ref val)
     {
         mValue = val;
-        mValueGetter = NULL;
+        mValueGetter = nullptr;
     }
 
     T_const_ref get() const
@@ -72,7 +72,7 @@ public:
 
     bool isUsingFunction() const
     {
-        return mValueGetter != NULL;
+        return mValueGetter != nullptr;
     }
 
 private:

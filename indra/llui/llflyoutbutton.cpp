@@ -36,7 +36,7 @@ const S32 FLYOUT_BUTTON_ARROW_WIDTH = 24;
 LLFlyoutButton::LLFlyoutButton(const Params& p)
 :   LLComboBox(p),
     mToggleState(false),
-    mActionButton(NULL)
+    mActionButton(nullptr)
 {
     // Always use text box
     // Text label button

@@ -219,7 +219,7 @@ public:
     boost::signals2::connection setCloseCallback( const commit_signal_t::slot_type& cb );
 
     void initFromParams(const LLFloater::Params& p);
-    bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
+    bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = nullptr);
 
     /*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
     /*virtual*/ bool canSnapTo(const LLView* other_view);
@@ -269,7 +269,7 @@ public:
     /// isShown() differs from getVisible() in that isShown() also considers
     /// isMinimized(). isShown() is true only if visible and not minimized.
     bool            isShown() const;
-    /// The static isShown() can accept a NULL pointer (which of course
+    /// The static isShown() can accept a nullptr pointer (which of course
     /// returns false). When non-NULL, it calls the non-static isShown().
     static bool     isShown(const LLFloater* floater);
     static bool     isVisible(const LLFloater* floater);

@@ -182,10 +182,10 @@ LLTextBase::Params::Params()
 
 LLTextBase::LLTextBase(const LLTextBase::Params &p)
 :   LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
-    mURLClickSignal(NULL),
-    mIsFriendSignal(NULL),
-    mIsObjectBlockedSignal(NULL),
-    mIsObjectReachableSignal(NULL),
+    mURLClickSignal(nullptr),
+    mIsFriendSignal(nullptr),
+    mIsObjectBlockedSignal(nullptr),
+    mIsObjectReachableSignal(nullptr),
     mMaxTextByteLength( p.max_text_length ),
     mFont(p.font),
     mFontShadow(p.font_shadow),
@@ -235,7 +235,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
     mForceUrlsExternal(p.force_urls_external),
     mParseHighlights(p.parse_highlights),
     mBGVisible(p.bg_visible),
-    mScroller(NULL),
+    mScroller(nullptr),
     mStyleDirty(true)
 {
     if(p.allow_scroll)
@@ -1037,7 +1037,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     if (mUseEmoji)
     {
         LLStyleSP emoji_style;
-        LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
+        LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : nullptr;
         LLTextSegment* segmentp = nullptr;
         segment_vec_t::iterator seg_iter;
         if (segments && segments->size() > 0)
@@ -1548,7 +1548,7 @@ void LLTextBase::draw()
         gl_rect_2d( text_rect, bg_color, true );
     }
 
-    bool should_clip = mClip || mScroller != NULL;
+    bool should_clip = mClip || mScroller != nullptr;
     { LLLocalClipRect clip(text_rect, should_clip);
 
         // draw document view
@@ -2282,7 +2282,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
         menu->die();
         mPopupMenuHandle.markDead();
     }
-    llassert(LLMenuGL::sMenuContainer != NULL);
+    llassert(LLMenuGL::sMenuContainer != nullptr);
     menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(xui_file, LLMenuGL::sMenuContainer,
                                                                          LLMenuHolderGL::child_registry_t::instance());
     if (menu)
@@ -3484,7 +3484,7 @@ const LLUIColor& LLTextSegment::getColor() const { static const LLUIColor white 
 LLStyleConstSP LLTextSegment::getStyle() const {static LLStyleConstSP sp(new LLStyle()); return sp; }
 void LLTextSegment::setStyle(LLStyleConstSP style) {}
 void LLTextSegment::setToken( LLKeywordToken* token ) {}
-LLKeywordToken* LLTextSegment::getToken() const { return NULL; }
+LLKeywordToken* LLTextSegment::getToken() const { return nullptr; }
 void LLTextSegment::setToolTip( const std::string &msg ) {}
 void LLTextSegment::dump() const {}
 bool LLTextSegment::handleMouseDown(S32 x, S32 y, MASK mask) { return false; }
@@ -3514,7 +3514,7 @@ bool LLTextSegment::hasMouseCapture() { return false; }
 LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor )
 :   LLTextSegment(start, end),
     mStyle( style ),
-    mToken(NULL),
+    mToken(nullptr),
     mEditor(editor),
     mLastGeneration(-1)
 {
@@ -3535,7 +3535,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 
 LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :   LLTextSegment(start, end),
-    mToken(NULL),
+    mToken(nullptr),
     mEditor(editor),
     mLastGeneration(-1)
 {
