@@ -185,7 +185,7 @@ public:
     LLJoint(S32 joint_num);
 
     // *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
-    LLJoint( const std::string &name, LLJoint *parent=NULL );
+    LLJoint( const std::string &name, LLJoint *parent=nullptr );
     virtual ~LLJoint();
 
 private:
@@ -193,7 +193,7 @@ private:
 
 public:
     // set name and parent
-    void setup( const std::string &name, LLJoint *parent=NULL );
+    void setup(const std::string& name, LLJoint* parent = nullptr);
 
     void touch(U32 flags = ALL_DIRTY);
 

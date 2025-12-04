@@ -45,7 +45,7 @@ const F32 TORSO_TARGET_HALF_LIFE = 0.25f;
 //-----------------------------------------------------------------------------
 LLTargetingMotion::LLTargetingMotion(const LLUUID &id) : LLMotion(id)
 {
-    mCharacter = NULL;
+    mCharacter = nullptr;
     mName = "targeting";
 
     mTorsoState = new LLJointState;

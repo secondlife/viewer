@@ -46,10 +46,10 @@
 //-----------------------------------------------------------------------------
 LLJointSolverRP3::LLJointSolverRP3()
 {
-    mJointA = NULL;
-    mJointB = NULL;
-    mJointC = NULL;
-    mJointGoal = NULL;
+    mJointA = nullptr;
+    mJointB = nullptr;
+    mJointC = nullptr;
+    mJointGoal = nullptr;
     mLengthAB = 1.0f;
     mLengthBC = 1.0f;
     mPoleVector.setVec( 1.0f, 0.0f, 0.0f );

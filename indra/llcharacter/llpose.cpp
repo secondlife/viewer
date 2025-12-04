@@ -54,7 +54,7 @@ LLJointState* LLPose::getFirstJointState()
     mListIter = mJointMap.begin();
     if (mListIter == mJointMap.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {
@@ -70,7 +70,7 @@ LLJointState *LLPose::getNextJointState()
     mListIter++;
     if (mListIter == mJointMap.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {
@@ -117,7 +117,7 @@ LLJointState* LLPose::findJointState(LLJoint *joint)
 
     if (iter == mJointMap.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {
@@ -134,7 +134,7 @@ LLJointState* LLPose::findJointState(const std::string &name)
 
     if (iter == mJointMap.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {
@@ -179,7 +179,7 @@ LLJointStateBlender::LLJointStateBlender()
 {
     for(S32 i = 0; i < JSB_NUM_JOINT_STATES; i++)
     {
-        mJointStates[i] = NULL;
+        mJointStates[i] = nullptr;
         mPriorities[i] = S32_MIN;
         mAdditiveBlends[i] = false;
     }
@@ -394,7 +394,7 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
         // now clear joint states
         for(S32 i = 0; i < JSB_NUM_JOINT_STATES; i++)
         {
-            mJointStates[i] = NULL;
+            mJointStates[i] = nullptr;
         }
     }
 }
@@ -430,7 +430,7 @@ void LLJointStateBlender::clear()
     // now clear joint states
     for(S32 i = 0; i < JSB_NUM_JOINT_STATES; i++)
     {
-        mJointStates[i] = NULL;
+        mJointStates[i] = nullptr;
     }
 }
 

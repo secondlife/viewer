@@ -202,7 +202,7 @@ bool LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 
     for(const std::string& cur_token : tokens)
     {
-        LLGesture* gesture = NULL;
+        LLGesture* gesture = nullptr;
 
         if( !found_gestures ) // Only pay attention to the first gesture in the string.
         {
@@ -238,7 +238,7 @@ bool LLGestureList::triggerAndReviseString(const std::string &string, std::strin
                     found_gestures = true;
                     break;
                 }
-                gesture = NULL;
+                gesture = nullptr;
             }
         }
 

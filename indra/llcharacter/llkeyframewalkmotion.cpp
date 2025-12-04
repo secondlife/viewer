@@ -54,7 +54,7 @@ const F32 SPEED_ADJUST_TIME_CONSTANT = 0.1f;    // time constant for speed adjus
 //-----------------------------------------------------------------------------
 LLKeyframeWalkMotion::LLKeyframeWalkMotion(const LLUUID &id)
 :   LLKeyframeMotion(id),
-    mCharacter(NULL),
+    mCharacter(nullptr),
     mCyclePhase(0.0f),
     mRealTimeLast(0.0f),
     mAdjTimeLast(0.0f),

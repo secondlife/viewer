@@ -49,7 +49,7 @@ S32 LLEditingMotion::sHandPosePriority = 3;
 //-----------------------------------------------------------------------------
 LLEditingMotion::LLEditingMotion( const LLUUID &id) : LLMotion(id)
 {
-    mCharacter = NULL;
+    mCharacter = nullptr;
 
     // create kinematic chain
     mParentJoint.addChild( &mShoulderJoint );

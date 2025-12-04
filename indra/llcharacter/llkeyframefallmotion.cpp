@@ -46,7 +46,7 @@
 LLKeyframeFallMotion::LLKeyframeFallMotion(const LLUUID &id) : LLKeyframeMotion(id)
 {
     mVelocityZ = 0.f;
-    mCharacter = NULL;
+    mCharacter = nullptr;
 }
 
 

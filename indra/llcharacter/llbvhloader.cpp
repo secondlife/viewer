@@ -1334,8 +1334,8 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
         // find mergechild and mergeparent joints, if specified
         LLQuaternion mergeParentRot;
         LLQuaternion mergeChildRot;
-        Joint *mergeParent = NULL;
-        Joint *mergeChild = NULL;
+        Joint *mergeParent = nullptr;
+        Joint *mergeChild = nullptr;
 
         for (Joint* mjoint : mJoints)
         {

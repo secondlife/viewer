@@ -353,14 +353,14 @@ const char *LLAnimationLibrary::animStateToString( const LLUUID& state )
 {
     if (state.isNull())
     {
-        return NULL;
+        return nullptr;
     }
     if (mAnimMap.count(state))
     {
         return mAnimMap[state];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 

@@ -49,7 +49,7 @@ namespace tut
     {
         LLJoint lljoint;
         LLJoint* jnt = lljoint.getParent();
-        ensure("getParent() failed ", (NULL == jnt));
+        ensure("getParent() failed ", (nullptr == jnt));
         ensure("getRoot() failed ", (&lljoint == lljoint.getRoot()));
     }
 
@@ -181,14 +181,14 @@ namespace tut
         LLJoint lljoint3("child3");
         lljoint.addChild(&lljoint3);
 
-        LLJoint* jnt = NULL;
+        LLJoint* jnt = nullptr;
         jnt = lljoint2.getParent();
         ensure("addChild() failed ", (&lljoint == jnt));
         LLJoint* jnt1 = lljoint.findJoint("child3");
         ensure("findJoint() failed ", (&lljoint3 == jnt1));
         lljoint.removeChild(&lljoint3);
         LLJoint* jnt2 = lljoint.findJoint("child3");
-        ensure("removeChild() failed ", (NULL == jnt2));
+        ensure("removeChild() failed ", (nullptr == jnt2));
 
         lljointgp.addChild(&lljoint);
         ensure("GetParent() failed ", (&lljoint== lljoint2.getParent()));
@@ -198,7 +198,7 @@ namespace tut
 
         lljointgp.removeAllChildren();
         // parent removed from grandparent - so should not be able to locate child
-        ensure("removeAllChildren() failed ", (NULL == lljointgp.findJoint("child1")));
+        ensure("removeAllChildren() failed ", (nullptr == lljointgp.findJoint("child1")));
         // it should still exist in parent though
         ensure("removeAllChildren() failed ", (&lljoint1 == lljoint.findJoint("child1")));
     }
@@ -218,7 +218,7 @@ namespace tut
 
         llparent2.addChild(&lladoptedchild);
         ensure("1. addChild failed to remove prior parent", lladoptedchild.getParent() == &llparent2);
-        ensure("2. addChild failed to remove prior parent", llparent1.findJoint("child2") == NULL);
+        ensure("2. addChild failed to remove prior parent", llparent1.findJoint("child2") == nullptr);
     }
 
 

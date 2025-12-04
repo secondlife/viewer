@@ -162,8 +162,8 @@ void LLMotion::deactivate()
     if (mDeactivateCallback)
     {
         (*mDeactivateCallback)(mDeactivateCallbackUserData);
-        mDeactivateCallback = NULL; // only call callback once
-        mDeactivateCallbackUserData = NULL;
+        mDeactivateCallback = nullptr; // only call callback once
+        mDeactivateCallbackUserData = nullptr;
     }
 
     onDeactivate();

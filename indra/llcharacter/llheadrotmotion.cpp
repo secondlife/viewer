@@ -69,9 +69,9 @@ const F32 EYE_BLINK_TIME_DELTA = 0.005f; // time between one eye starting a blin
 //-----------------------------------------------------------------------------
 LLHeadRotMotion::LLHeadRotMotion(const LLUUID &id) :
     LLMotion(id),
-    mCharacter(NULL),
-    mTorsoJoint(NULL),
-    mHeadJoint(NULL)
+    mCharacter(nullptr),
+    mTorsoJoint(nullptr),
+    mHeadJoint(nullptr)
 {
     mName = "head_rot";
 
@@ -269,7 +269,7 @@ void LLHeadRotMotion::onDeactivate()
 //-----------------------------------------------------------------------------
 LLEyeMotion::LLEyeMotion(const LLUUID &id) : LLMotion(id)
 {
-    mCharacter = NULL;
+    mCharacter = nullptr;
     mEyeJitterTime = 0.f;
     mEyeJitterYaw = 0.f;
     mEyeJitterPitch = 0.f;
@@ -281,7 +281,7 @@ LLEyeMotion::LLEyeMotion(const LLUUID &id) : LLMotion(id)
     mEyeBlinkTime = 0.f;
     mEyesClosed = false;
 
-    mHeadJoint = NULL;
+    mHeadJoint = nullptr;
 
     mName = "eye_rot";
 

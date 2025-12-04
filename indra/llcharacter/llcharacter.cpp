@@ -216,7 +216,7 @@ void LLCharacter::flushAllMotions()
 void LLCharacter::dumpCharacter( LLJoint* joint )
 {
     // handle top level entry into recursion
-    if (joint == NULL)
+    if (joint == nullptr)
     {
         LL_INFOS() << "DEBUG: Dumping Character @" << this << LL_ENDL;
         dumpCharacter( getRootJoint() );
@@ -247,7 +247,7 @@ void LLCharacter::setAnimationData(std::string name, void *data)
 //-----------------------------------------------------------------------------
 void* LLCharacter::getAnimationData(std::string name)
 {
-    return get_if_there(mAnimationData, name, (void*)NULL);
+    return get_if_there(mAnimationData, name, (void*)nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -388,7 +388,7 @@ LLVisualParam*  LLCharacter::getVisualParam(const char *param_name)
         return name_iter->second;
     }
     LL_WARNS() << "LLCharacter::getVisualParam() Invalid visual parameter: " << param_name << LL_ENDL;
-    return NULL;
+    return nullptr;
 }
 
 //-----------------------------------------------------------------------------

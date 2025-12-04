@@ -48,7 +48,7 @@ bool    operator!=(const LLUniqueID &a, const LLUniqueID &b)
 //-----------------------------------------------------------------------------
 LLStateDiagram::LLStateDiagram()
 {
-    mDefaultState = NULL;
+    mDefaultState = nullptr;
     mUseDefaultState = false;
 }
 
@@ -69,7 +69,7 @@ bool LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_stat
 {
     StateMap::iterator state_it;
     state_it = mStates.find(&start_state);
-    Transitions* state_transitions = NULL;
+    Transitions* state_transitions = nullptr;
     if (state_it == mStates.end() )
     {
         addState(&start_state);
@@ -119,11 +119,11 @@ LLFSMState* LLStateDiagram::processTransition(LLFSMState& start_state, LLFSMTran
 {
     // look up transition
     //LLFSMState** dest_state = (mStates.getValue(&start_state))->getValue(&transition);
-    LLFSMState* dest_state = NULL;
+    LLFSMState* dest_state = nullptr;
     StateMap::iterator state_it = mStates.find(&start_state);
     if (state_it == mStates.end())
     {
-        return NULL;
+        return nullptr;
     }
     Transitions::iterator transition_it = state_it->second.find(&transition);
 
@@ -138,7 +138,7 @@ LLFSMState* LLStateDiagram::processTransition(LLFSMState& start_state, LLFSMTran
     }
 
     // if we have a destination state...
-    if (NULL != dest_state)
+    if (nullptr != dest_state)
     {
         // ...return it...
         return dest_state;
@@ -197,7 +197,7 @@ LLFSMState* LLStateDiagram::getState(U32 state_id)
             return state_pair.first;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 bool LLStateDiagram::saveDotFile(const std::string& filename)
@@ -284,10 +284,10 @@ std::ostream& operator<<(std::ostream &s, LLStateDiagram &FSM)
 LLStateMachine::LLStateMachine()
 {
     // we haven't received a starting state yet
-    mCurrentState = NULL;
-    mLastState = NULL;
-    mLastTransition = NULL;
-    mStateDiagram = NULL;
+    mCurrentState = nullptr;
+    mLastState = nullptr;
+    mLastTransition = nullptr;
+    mStateDiagram = nullptr;
 }
 
 LLStateMachine::~LLStateMachine()
@@ -348,17 +348,17 @@ void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_d
 {
     llassert(mStateDiagram);
 
-    if (NULL == mCurrentState)
+    if (nullptr == mCurrentState)
     {
-        LL_WARNS() << "mCurrentState == NULL; aborting processTransition()" << LL_ENDL;
+        LL_WARNS() << "mCurrentState == nullptr; aborting processTransition()" << LL_ENDL;
         return;
     }
 
     LLFSMState* new_state = mStateDiagram->processTransition(*mCurrentState, transition);
 
-    if (NULL == new_state)
+    if (nullptr == new_state)
     {
-        LL_WARNS() << "new_state == NULL; aborting processTransition()" << LL_ENDL;
+        LL_WARNS() << "new_state == nullptr; aborting processTransition()" << LL_ENDL;
         return;
     }
 

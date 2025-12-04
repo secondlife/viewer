@@ -103,7 +103,7 @@ void LLVector3OverrideMap::clear()
 void LLJoint::init()
 {
     mName = "unnamed";
-    mParent = NULL;
+    mParent = nullptr;
     mXform.setScaleChildOffset(true);
     mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
     mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
@@ -231,7 +231,7 @@ void LLJoint::setJointNum(S32 joint_num)
 //-----------------------------------------------------------------------------
 LLJoint *LLJoint::getRoot()
 {
-    if ( getParent() == NULL )
+    if ( getParent() == nullptr )
     {
         return this;
     }
@@ -284,8 +284,8 @@ void LLJoint::removeChild(LLJoint* joint)
     {
         mChildren.erase(iter);
 
-        joint->mXform.setParent(NULL);
-        joint->mParent = NULL;
+        joint->mXform.setParent(nullptr);
+        joint->mParent = nullptr;
         joint->touch();
     }
 }
@@ -300,8 +300,8 @@ void LLJoint::removeAllChildren()
     {
         if (joint)
         {
-            joint->mXform.setParent(NULL);
-            joint->mParent = NULL;
+            joint->mXform.setParent(nullptr);
+            joint->mParent = nullptr;
             joint->touch();
             //delete joint;
         }
@@ -758,7 +758,7 @@ LLVector3 LLJoint::getLastWorldPosition()
 //--------------------------------------------------------------------
 void LLJoint::setWorldPosition( const LLVector3& pos )
 {
-    if (mParent == NULL)
+    if (mParent == nullptr)
     {
         this->setPosition( pos );
         return;
@@ -830,7 +830,7 @@ LLQuaternion LLJoint::getLastWorldRotation()
 //--------------------------------------------------------------------
 void LLJoint::setWorldRotation( const LLQuaternion& rot )
 {
-    if (mParent == NULL)
+    if (mParent == nullptr)
     {
         this->setRotation( rot );
         return;

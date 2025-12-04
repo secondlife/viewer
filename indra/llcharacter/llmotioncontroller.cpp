@@ -93,7 +93,7 @@ bool LLMotionRegistry::registerMotion( const LLUUID& id, LLMotionConstructor con
 //-----------------------------------------------------------------------------
 void LLMotionRegistry::markBad( const LLUUID& id )
 {
-    mMotionTable[id] = LLMotionConstructor(NULL);
+    mMotionTable[id] = LLMotionConstructor(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -101,10 +101,10 @@ void LLMotionRegistry::markBad( const LLUUID& id )
 //-----------------------------------------------------------------------------
 LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 {
-    LLMotionConstructor constructor = get_if_there(mMotionTable, id, LLMotionConstructor(NULL));
-    LLMotion* motion = NULL;
+    LLMotionConstructor constructor = get_if_there(mMotionTable, id, LLMotionConstructor(nullptr));
+    LLMotion* motion = nullptr;
 
-    if ( constructor == NULL )
+    if ( constructor == nullptr )
     {
         // *FIX: need to replace with a better default scheme. RN
         motion = LLKeyframeMotion::create(id);
@@ -129,7 +129,7 @@ LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 //-----------------------------------------------------------------------------
 LLMotionController::LLMotionController()
     : mTimeFactor(sCurrentTimeFactor),
-      mCharacter(NULL),
+      mCharacter(nullptr),
       mAnimTime(0.f),
       mPrevTimerElapsed(0.f),
       mLastTime(0.0f),
@@ -350,7 +350,7 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
         motion = sRegistry.createMotion(id);
         if (!motion)
         {
-            return NULL;
+            return nullptr;
         }
 
         // look up name for default motions
@@ -368,7 +368,7 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
             LL_INFOS() << "Motion " << id << " init failed." << LL_ENDL;
             sRegistry.markBad(id);
             delete motion;
-            return NULL;
+            return nullptr;
         case LLMotion::STATUS_HOLD:
             mLoadingMotions.insert(motion);
             break;
@@ -404,7 +404,7 @@ bool LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
     {
         deprecateMotionInstance(motion);
         // force creation of new instance
-        motion = NULL;
+        motion = nullptr;
     }
 
     // create new motion instance
@@ -924,7 +924,7 @@ bool LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     // It's not clear why the getWeight() line seems to be crashing this, but
     // hopefully this fixes it.
-    if (motion == NULL || motion->getPose() == NULL)
+    if (motion == nullptr || motion->getPose() == nullptr)
     {
         return false;
     }
@@ -1039,7 +1039,7 @@ LLMotion* LLMotionController::findMotion(const LLUUID& id) const
     motion_map_t::const_iterator iter = mAllMotions.find(id);
     if(iter == mAllMotions.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {

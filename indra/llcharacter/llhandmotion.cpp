@@ -63,7 +63,7 @@ const F32 HAND_MORPH_BLEND_TIME = 0.2f;
 //-----------------------------------------------------------------------------
 LLHandMotion::LLHandMotion(const LLUUID &id) : LLMotion(id)
 {
-    mCharacter = NULL;
+    mCharacter = nullptr;
     mLastTime = 0.f;
     mCurrentPose = HAND_POSE_RELAXED;
     mNewPose = HAND_POSE_RELAXED;

@@ -48,8 +48,8 @@
 //-----------------------------------------------------------------------------
 LLKeyframeMotionParam::LLKeyframeMotionParam( const LLUUID &id) : LLMotion(id)
 {
-    mDefaultKeyframeMotion = NULL;
-    mCharacter = NULL;
+    mDefaultKeyframeMotion = nullptr;
+    mCharacter = nullptr;
 
     mEaseInDuration = 0.f;
     mEaseOutDuration = 0.f;
@@ -171,15 +171,15 @@ bool LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
     {
         const std::string& paramName = motion_pair.first;
         F32* paramValue = (F32 *)mCharacter->getAnimationData(paramName);
-        if (NULL == paramValue) // unexpected, but...
+        if (nullptr == paramValue) // unexpected, but...
         {
-            LL_WARNS() << "paramValue == NULL" << LL_ENDL;
+            LL_WARNS() << "paramValue == nullptr" << LL_ENDL;
             continue;
         }
 
         // DANGER! Do not modify mParameterizedMotions while using these pointers!
-        const ParameterizedMotion* firstMotion = NULL;
-        const ParameterizedMotion* secondMotion = NULL;
+        const ParameterizedMotion* firstMotion = nullptr;
+        const ParameterizedMotion* secondMotion = nullptr;
 
         motion_list_t& motionList = motion_pair.second;
         for (const ParameterizedMotion& paramMotion : motionList)
@@ -216,12 +216,12 @@ bool LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
         if (firstMotion)
             firstPose = firstMotion->mMotion->getPose();
         else
-            firstPose = NULL;
+            firstPose = nullptr;
 
         if (secondMotion)
             secondPose = secondMotion->mMotion->getPose();
         else
-            secondPose = NULL;
+            secondPose = nullptr;
 
         // now modify weight of the subanim (only if we are blending between two motions)
         if (firstMotion && secondMotion)
@@ -339,7 +339,7 @@ bool LLKeyframeMotionParam::loadMotions()
     //-------------------------------------------------------------------------
     S32 fileSize = 0;
     LLAPRFile infile ;
-    infile.open(path, LL_APR_R, NULL, &fileSize);
+    infile.open(path, LL_APR_R, nullptr, &fileSize);
     apr_file_t* fp = infile.getFileHandle() ;
     if (!fp || fileSize == 0)
     {
