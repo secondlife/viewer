@@ -351,11 +351,11 @@ void BufferArrayTestObjectType::test<8>()
 
     // zero-length allocate (we allow this with a valid pointer returned)
     void * out_buf(ba->appendBufferAlloc(0));
-    ensure("Buffer from zero-length appendBufferAlloc non-NULL", NULL != out_buf);
+    ensure("Buffer from zero-length appendBufferAlloc non-NULL", nullptr != out_buf);
 
     // Do it again
     void * out_buf2(ba->appendBufferAlloc(0));
-    ensure("Buffer from zero-length appendBufferAlloc non-NULL.2", NULL != out_buf2);
+    ensure("Buffer from zero-length appendBufferAlloc non-NULL.2", nullptr != out_buf2);
     ensure("Two zero-length appendBufferAlloc buffers distinct", out_buf != out_buf2);
 
     // And some final writes

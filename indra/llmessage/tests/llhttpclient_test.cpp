@@ -58,7 +58,7 @@ namespace tut
             local_server(STRINGIZE("http://127.0.0.1:" << PORT << "/"))
         {
             ensure("Set environment variable PORT to local test server port", !PORT.empty());
-            apr_pool_create(&mPool, NULL);
+            apr_pool_create(&mPool, nullptr);
             LLCurl::initClass(false);
             mClientPump = new LLPumpIO(mPool);
 

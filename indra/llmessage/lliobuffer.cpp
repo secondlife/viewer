@@ -33,10 +33,10 @@
 // LLIOBuffer
 //
 LLIOBuffer::LLIOBuffer() :
-    mBuffer(NULL),
+    mBuffer(nullptr),
     mBufferSize(0L),
-    mReadHead(NULL),
-    mWriteHead(NULL)
+    mReadHead(nullptr),
+    mWriteHead(nullptr)
 {
 }
 

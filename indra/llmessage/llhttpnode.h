@@ -283,7 +283,7 @@ public:
 
     virtual const LLChainIOFactory* getProtocolHandler() const;
         /**< Return a factory object for handling wire protocols.
-         *   The base class returns NULL, as it doesn't know about
+         *   The base class returns nullptr, as it doesn't know about
          *   wire protocols at all.  This is okay for most nodes
          *   as LLIOHTTPServer is smart enough to use a default
          *   wire protocol for HTTP for such nodes.  Specialized

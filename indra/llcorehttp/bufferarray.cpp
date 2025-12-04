@@ -104,7 +104,7 @@ BufferArray::~BufferArray()
          ++it)
     {
         delete *it;
-        *it = NULL;
+        *it = nullptr;
     }
     mBlocks.clear();
 }

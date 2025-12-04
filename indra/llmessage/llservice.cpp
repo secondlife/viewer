@@ -65,10 +65,10 @@ LLIOPipe* LLService::activate(
     if(name.empty())
     {
         LL_INFOS() << "LLService::activate - no service specified." << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
     creators_t::iterator it = sCreatorFunctors.find(name);
-    LLIOPipe* rv = NULL;
+    LLIOPipe* rv = nullptr;
     if(it != sCreatorFunctors.end())
     {
         if((*it).second->build(chain, context))

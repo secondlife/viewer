@@ -127,7 +127,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     {
         // Read failure, need to deal with it.
         delete[] tmpp;
-        *data_handle = NULL;
+        *data_handle = nullptr;
         returned_bytes = 0;
         delete_returned = false;
         return LLTS_ERROR;
@@ -142,7 +142,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
         if (!returned_bytes)
         {
             delete[] tmpp;
-            *data_handle = NULL;
+            *data_handle = nullptr;
             returned_bytes = 0;
             delete_returned = false;
         }
@@ -177,7 +177,7 @@ void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::E
     LLUUID *tidp = ((LLUUID*) user_data);
     LLUUID transfer_id = *(tidp);
     delete tidp;
-    tidp = NULL;
+    tidp = nullptr;
 
     LLTransferSourceAsset *tsap = (LLTransferSourceAsset *) gTransferManager.findTransferSource(transfer_id);
 

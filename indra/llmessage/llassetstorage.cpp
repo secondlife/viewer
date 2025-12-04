@@ -51,8 +51,8 @@
 #include "llmetrics.h"
 #include "lltrace.h"
 
-LLAssetStorage *gAssetStorage = NULL;
-LLMetrics *LLAssetStorage::metric_recipient = NULL;
+LLAssetStorage *gAssetStorage = nullptr;
+LLMetrics *LLAssetStorage::metric_recipient = nullptr;
 
 static LLTrace::CountStatHandle<> sFailedDownloadCount("faileddownloads", "Number of times LLAssetStorage::getAssetData() has failed");
 
@@ -196,7 +196,7 @@ LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetTy
     : mUUID(uuid),
       mType(type),
       mDownCallback(),
-      mUserData(NULL),
+      mUserData(nullptr),
       mHost(),
       mIsTemp(false),
       mIsPriority(false),
@@ -227,7 +227,7 @@ LLBaseDownloadRequest* LLBaseDownloadRequest::getCopy()
 LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
     :   LLBaseDownloadRequest(uuid, type),
         mUpCallback(),
-        mInfoCallback( NULL ),
+        mInfoCallback( nullptr ),
         mIsLocal(false),
         mIsUserWaiting(false),
         mTimeout(LL_ASSET_STORAGE_TIMEOUT),
@@ -362,7 +362,7 @@ LLAssetStorage::~LLAssetStorage()
     {
         // Warning!  This won't work if there's more than one asset storage.
         // unregister our callbacks with the message system
-        gMessageSystem->setHandlerFuncFast(_PREHASH_AssetUploadComplete, NULL, NULL);
+        gMessageSystem->setHandlerFuncFast(_PREHASH_AssetUploadComplete, nullptr, nullptr);
     }
 
     // Clear the toxic asset map
@@ -447,7 +447,7 @@ bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetTyp
     if (user_data)
     {
         // The *user_data should not be passed without a callback to clean it up.
-        llassert(callback != NULL);
+        llassert(callback != nullptr);
     }
 
     bool exists = LLFileSystem::getExists(uuid, type);
@@ -493,7 +493,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
     if (user_data)
     {
         // The *user_data should not be passed without a callback to clean it up.
-        llassert(callback != NULL);
+        llassert(callback != nullptr);
     }
 
     if (mShutDown)
@@ -1081,7 +1081,7 @@ LLAssetStorage::request_list_t* LLAssetStorage::getRequestList(LLAssetStorage::E
             return &mPendingLocalUploads;
         default:
             LL_WARNS("AssetStorage") << "Unable to find request list for request type '" << rt << "'" << LL_ENDL;
-            return NULL;
+            return nullptr;
     }
 }
 
@@ -1097,7 +1097,7 @@ const LLAssetStorage::request_list_t* LLAssetStorage::getRequestList(LLAssetStor
             return &mPendingLocalUploads;
         default:
             LL_WARNS("AssetStorage") << "Unable to find request list for request type '" << rt << "'" << LL_ENDL;
-            return NULL;
+            return nullptr;
     }
 }
 
@@ -1204,7 +1204,7 @@ const LLAssetRequest* LLAssetStorage::findRequest(const LLAssetStorage::request_
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // static
@@ -1227,7 +1227,7 @@ LLAssetRequest* LLAssetStorage::findRequest(LLAssetStorage::request_list_t* requ
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 

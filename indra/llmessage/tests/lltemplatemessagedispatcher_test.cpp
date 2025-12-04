@@ -108,7 +108,7 @@ namespace tut
     template<> template<>
     void object::test<1>()
     {
-        LLTemplateMessageReader* pReader = NULL;
+        LLTemplateMessageReader* pReader = nullptr;
         LLTemplateMessageDispatcher t(*pReader);
         t.dispatch(mMessageName, mMessage, mResponsePtr);
         ensure(! gUdpDispatchWasCalled);
@@ -119,7 +119,7 @@ namespace tut
     template<> template<>
     void object::test<2>()
     {
-        LLTemplateMessageReader* pReader = NULL;
+        LLTemplateMessageReader* pReader = nullptr;
         LLTemplateMessageDispatcher t(*pReader);
         gValidateMessage = true;
         std::vector<U8> vector_data;
@@ -133,7 +133,7 @@ namespace tut
     template<> template<>
     void object::test<3>()
     {
-        LLTemplateMessageReader* pReader = NULL;
+        LLTemplateMessageReader* pReader = nullptr;
         LLTemplateMessageDispatcher t(*pReader);
         std::vector<U8> vector_data;
         fillVector(vector_data, gBinaryTemplateData);
@@ -147,7 +147,7 @@ namespace tut
     template<> template<>
     void object::test<4>()
     {
-        LLTemplateMessageReader* pReader = NULL;
+        LLTemplateMessageReader* pReader = nullptr;
         LLTemplateMessageDispatcher t(*pReader);
         gValidateMessage = true;
         std::vector<U8> vector_data;

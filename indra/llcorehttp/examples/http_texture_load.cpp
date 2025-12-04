@@ -67,7 +67,7 @@ static char url_format[1024] = "http://example.com/some/path?texture_id=%s.textu
 #define strtok_r(_a, _b, _c)        strtok_s(_a, _b, _c)
 
 int getopt(int argc, char * const argv[], const char *optstring);
-char *optarg(NULL);
+char *optarg(nullptr);
 int optind(1);
 
 #endif
@@ -277,24 +277,24 @@ int main(int argc, char** argv)
     LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
                                                LLCore::HttpRequest::DEFAULT_POLICY_ID,
                                                concurrency_limit,
-                                               NULL);
+                                               nullptr);
     LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PER_HOST_CONNECTION_LIMIT,
                                                LLCore::HttpRequest::DEFAULT_POLICY_ID,
                                                concurrency_limit,
-                                               NULL);
+                                               nullptr);
     if (pipeline_depth)
     {
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
                                                    LLCore::HttpRequest::DEFAULT_POLICY_ID,
                                                    pipeline_depth,
-                                                   NULL);
+                                                   nullptr);
     }
     if (tracing)
     {
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE,
                                                    LLCore::HttpRequest::DEFAULT_POLICY_ID,
                                                    tracing,
-                                                   NULL);
+                                                   nullptr);
     }
     LLCore::HttpRequest::startThread();
 
@@ -577,7 +577,7 @@ void WorkingSet::loadAssetUuids(FILE * in)
     while (fgets(buffer, sizeof(buffer), in))
     {
         WorkingSet::Spec asset;
-        char * state(NULL);
+        char * state(nullptr);
         char * token = strtok_r(buffer, " \t\n,", &state);
         if (token && 36 == strlen(token))
         {
@@ -651,7 +651,7 @@ int getopt(int argc, char * const argv[], const char *optstring)
         }
         else
         {
-            optarg = NULL;
+            optarg = nullptr;
             ++pos;
         }
         return *thing;
@@ -814,7 +814,7 @@ class Metrics::MetricsImpl
 {
 public:
     MetricsImpl()
-        : mProcFS(NULL),
+        : mProcFS(nullptr),
           mUsecsPerTick(U64L(0))
         {}
 
@@ -824,7 +824,7 @@ public:
             if (mProcFS)
             {
                 fclose(mProcFS);
-                mProcFS = NULL;
+                mProcFS = nullptr;
             }
         }
 
@@ -849,7 +849,7 @@ public:
             }
 
             U64 utime, stime;
-            if (scanProcFS(&utime, &stime, NULL))
+            if (scanProcFS(&utime, &stime, nullptr))
             {
                 metrics->mStartSTime = stime;
                 metrics->mStartUTime = utime;
@@ -863,7 +863,7 @@ public:
     void sample(Metrics * metrics)
         {
             U64 vsz;
-            if (scanProcFS(NULL, NULL, &vsz))
+            if (scanProcFS(nullptr, nullptr, &vsz))
             {
                 metrics->mMaxVSZ = (std::max)(metrics->mMaxVSZ, vsz);
                 metrics->mMinVSZ = (std::min)(metrics->mMinVSZ, vsz);
@@ -874,7 +874,7 @@ public:
     void term(Metrics * metrics)
         {
             U64 utime, stime;
-            if (scanProcFS(&utime, &stime, NULL))
+            if (scanProcFS(&utime, &stime, nullptr))
             {
                 metrics->mEndSTime = stime;
                 metrics->mEndUTime = utime;
@@ -886,7 +886,7 @@ public:
             if (mProcFS)
             {
                 fclose(mProcFS);
-                mProcFS = NULL;
+                mProcFS = nullptr;
             }
         }
 
@@ -986,7 +986,7 @@ Metrics::Metrics()
 Metrics::~Metrics()
 {
     delete mImpl;
-    mImpl = NULL;
+    mImpl = nullptr;
 }
 
 

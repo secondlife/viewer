@@ -57,7 +57,7 @@ namespace tut
     {
         // LLNameValue()
         LLNameValue nValue;
-        ensure("mName should have been NULL", nValue.mName == NULL);
+        ensure("mName should have been NULL", nValue.mName == nullptr);
         ensure("getTypeEnum failed",nValue.getTypeEnum() == NVT_NULL);
         ensure("getClassEnum failed",nValue.getClassEnum() == NVC_NULL);
         ensure("getSendtoEnum failed",nValue.getSendtoEnum() == NVS_NULL);
@@ -68,7 +68,7 @@ namespace tut
 
     // LLNameValue(const char* data);
     //  LLNameValue(const char* name, const char* data, const char* type, const char* nvclass, const char* nvsendto,
-    //              TNameValueCallback nvcb = NULL, void** user_data = NULL);
+    //              TNameValueCallback nvcb = nullptr, void** user_data = nullptr);
     template<> template<>
     void namevalue_object_t::test<2>()
     {
@@ -135,7 +135,7 @@ namespace tut
     }
 
     // LLNameValue(const char* name, const char* data, const char* type, const char* nvclass,
-    //              TNameValueCallback nvcb = NULL, void** user_data = NULL);
+    //              TNameValueCallback nvcb = nullptr, void** user_data = nullptr);
     template<> template<>
     void namevalue_object_t::test<3>()
     {
@@ -194,7 +194,7 @@ namespace tut
     }
 
     // LLNameValue(const char* name, const char* type, const char* nvclass,
-    //              TNameValueCallback nvcb = NULL, void** user_data = NULL);
+    //              TNameValueCallback nvcb = nullptr, void** user_data = nullptr);
     template<> template<>
     void namevalue_object_t::test<4>()
     {

@@ -216,11 +216,11 @@ protected:
      * unless if they are not known.
      * If a STATUS_STOP returned by the next link in the chain, this
      * reader will turn of the socket polling.
-     * @param buffer Pointer to a buffer which needs processing. Probably NULL.
+     * @param buffer Pointer to a buffer which needs processing. Probably nullptr.
      * @param bytes Number of bytes to in buffer to process. Probably 0.
      * @param eos True if this function is the last. Almost always false.
      * @param read Number of bytes actually processed.
-     * @param pump The pump which is calling process. May be NULL.
+     * @param pump The pump which is calling process. May be nullptr.
      * @param context A data structure to pass structured data
      * @return STATUS_OK unless the preconditions are not met.
      */
@@ -266,7 +266,7 @@ protected:
      * @param bytes Number of bytes to in buffer to process.
      * @param eos True if this function is the last.
      * @param read Number of bytes actually processed.
-     * @param pump The pump which is calling process. May be NULL.
+     * @param pump The pump which is calling process. May be nullptr.
      * @param context A data structure to pass structured data
      * @return A return code for the write.
      */

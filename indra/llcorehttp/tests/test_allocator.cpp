@@ -77,8 +77,8 @@ static bool CAS(void * volatile * ptr, void * expected, void * new_value)
 static void * GetMem(std::size_t size)
 {
     // TRACE_MSG(size);
-    volatile Block * pBlock = NULL;
-    volatile Block * pNewNext = NULL;
+    volatile Block * pBlock = nullptr;
+    volatile Block * pNewNext = nullptr;
 
     // do a lock-free update of the global next pointer
     do

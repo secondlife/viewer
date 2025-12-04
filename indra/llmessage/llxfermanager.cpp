@@ -155,7 +155,7 @@ void LLXferManager::updateHostStatus()
     for (xfer_list_t::iterator send_iter = mSendList.begin();
             send_iter != mSendList.end(); ++send_iter)
     {
-        LLHostStatus *host_statusp = NULL;
+        LLHostStatus *host_statusp = nullptr;
         for (status_list_t::iterator iter = mOutgoingHosts.begin();
              iter != mOutgoingHosts.end(); ++iter)
         {
@@ -218,7 +218,7 @@ void LLXferManager::updateHostStatus()
 
 void LLXferManager::printHostStatus()
 {
-    LLHostStatus *host_statusp = NULL;
+    LLHostStatus *host_statusp = nullptr;
     if (!mOutgoingHosts.empty())
     {
         LL_INFOS("Xfer") << "Outgoing Xfers:" << LL_ENDL;
@@ -245,7 +245,7 @@ LLXfer * LLXferManager::findXferByID(U64 id, xfer_list_t & xfer_list)
             return(*iter);
         }
     }
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -288,7 +288,7 @@ void LLXferManager::removeXfer(LLXfer *delp, xfer_list_t & xfer_list)
 
 LLHostStatus * LLXferManager::findHostStatus(const LLHost &host)
 {
-    LLHostStatus *host_statusp = NULL;
+    LLHostStatus *host_statusp = nullptr;
 
     for (status_list_t::iterator iter = mOutgoingHosts.begin();
          iter != mOutgoingHosts.end(); ++iter)
@@ -330,7 +330,7 @@ S32 LLXferManager::numActiveXfers(const LLHost &host)
 
 void LLXferManager::changeNumActiveXfers(const LLHost &host, S32 delta)
 {
-    LLHostStatus *host_statusp = NULL;
+    LLHostStatus *host_statusp = nullptr;
 
     for (status_list_t::iterator iter = mOutgoingHosts.begin();
          iter != mOutgoingHosts.end(); ++iter)
@@ -347,10 +347,10 @@ void LLXferManager::changeNumActiveXfers(const LLHost &host, S32 delta)
 
 void LLXferManager::registerCallbacks(LLMessageSystem *msgsystem)
 {
-    msgsystem->setHandlerFuncFast(_PREHASH_ConfirmXferPacket,  process_confirm_packet, NULL);
-    msgsystem->setHandlerFuncFast(_PREHASH_RequestXfer,        process_request_xfer,        NULL);
-    msgsystem->setHandlerFuncFast(_PREHASH_SendXferPacket,      continue_file_receive,       NULL);
-    msgsystem->setHandlerFuncFast(_PREHASH_AbortXfer,       process_abort_xfer,          NULL);
+    msgsystem->setHandlerFuncFast(_PREHASH_ConfirmXferPacket,  process_confirm_packet, nullptr);
+    msgsystem->setHandlerFuncFast(_PREHASH_RequestXfer,        process_request_xfer,        nullptr);
+    msgsystem->setHandlerFuncFast(_PREHASH_SendXferPacket,      continue_file_receive,       nullptr);
+    msgsystem->setHandlerFuncFast(_PREHASH_AbortXfer,       process_abort_xfer,          nullptr);
 }
 
 ///////////////////////////////////////////////////////////
@@ -402,7 +402,7 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
                                 bool is_priority,
                                 bool use_big_packets)
 {
-    LLXfer_File* file_xfer_p = NULL;
+    LLXfer_File* file_xfer_p = nullptr;
 
     // First check to see if it's already requested
     for (xfer_list_t::iterator iter = mReceiveList.begin();
@@ -466,7 +466,7 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
                                  void** user_data,
                                  bool is_priority)
 {
-    LLXfer_VFile * xfer_p = NULL;
+    LLXfer_VFile * xfer_p = nullptr;
 
     for (xfer_list_t::iterator iter = mReceiveList.begin();
             iter != mReceiveList.end(); ++iter)
@@ -782,7 +782,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 
     if (uuid != LLUUID::null)
     {   // Request for an asset - use a cache file
-        if(NULL == LLAssetType::lookup(type))
+        if(nullptr == LLAssetType::lookup(type))
         {
             LL_WARNS("Xfer") << "Invalid type for xfer request: " << uuid << ":"
                     << type_s16 << " to " << mesgsys->getSender() << LL_ENDL;
@@ -1251,7 +1251,7 @@ void LLXferManager::addToList(LLXfer* xferp, xfer_list_t & xfer_list, bool is_pr
 //  Globals and C routines
 ///////////////////////////////////////////////////////////
 
-LLXferManager *gXferManager = NULL;
+LLXferManager *gXferManager = nullptr;
 
 
 void start_xfer_manager()
@@ -1264,7 +1264,7 @@ void cleanup_xfer_manager()
     if (gXferManager)
     {
         delete(gXferManager);
-        gXferManager = NULL;
+        gXferManager = nullptr;
     }
 }
 

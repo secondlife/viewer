@@ -41,7 +41,7 @@
 
 LLSDMessageBuilder::LLSDMessageBuilder() :
     mCurrentMessage(LLSD::emptyMap()),
-    mCurrentBlock(NULL),
+    mCurrentBlock(nullptr),
     mCurrentMessageName(""),
     mCurrentBlockName(""),
     mbSBuilt(false),
@@ -233,7 +233,7 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
     // copy the blocks
     // counting variables used to encode multiple block info
     S32 block_count = 0;
-    char* block_name = NULL;
+    char* block_name = nullptr;
 
     // loop through msg blocks to loop through variables, totalling up size
     // data and filling the new (send) message

@@ -84,7 +84,7 @@ LLDispatchHandler* LLDispatcher::addHandler(
     const key_t& name, LLDispatchHandler* func)
 {
     dispatch_map_t::iterator it = mHandlers.find(name);
-    LLDispatchHandler* old_handler = NULL;
+    LLDispatchHandler* old_handler = nullptr;
     if(it != mHandlers.end())
     {
         old_handler = (*it).second;

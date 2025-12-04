@@ -380,14 +380,14 @@ public:
 
 
     // methods for building, sending, receiving, and handling messages
-    void    setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL);
-    void    setHandlerFunc(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL)
+    void    setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = nullptr);
+    void    setHandlerFunc(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = nullptr)
     {
         setHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_func, user_data);
     }
 
     // Set a callback function for a message system exception.
-    void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = NULL);
+    void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = nullptr);
     // Call the specified exception func, and return true if a
     // function was found and called. Otherwise return false.
     bool callExceptionFunc(EMessageException exception);
@@ -396,7 +396,7 @@ public:
     // hashed message name and the time spent in the processing handler function
     // measured in seconds.  JC
     typedef void (*msg_timing_callback)(const char* hashed_name, F32 time, void* data);
-    void setTimingFunc(msg_timing_callback func, void* data = NULL);
+    void setTimingFunc(msg_timing_callback func, void* data = nullptr);
     msg_timing_callback getTimingCallback()
     {
         return mTimingCallback;
@@ -531,8 +531,8 @@ public:
     // you need to go to the next block type or need to start a new
     // message. Specify the current blockname to check block counts,
     // otherwise the method only checks against MTU.
-    bool isSendFull(const char* blockname = NULL);
-    bool isSendFullFast(const char* blockname = NULL);
+    bool isSendFull(const char* blockname = nullptr);
+    bool isSendFullFast(const char* blockname = nullptr);
 
     bool removeLastBlock();
 

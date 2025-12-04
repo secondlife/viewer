@@ -41,7 +41,7 @@
 #include "v4color.h"
 
 LLSDMessageReader::LLSDMessageReader() :
-    mMessageName(NULL)
+    mMessageName(nullptr)
 {
 }
 
@@ -55,12 +55,12 @@ LLSD getLLSD(const LLSD& input, const char* block, const char* var, S32 blocknum
 {
     // babbage: log error to LL_ERRS() if variable not found to mimic
     // LLTemplateMessageReader::getData behaviour
-    if(NULL == block)
+    if(nullptr == block)
     {
         LL_ERRS() << "NULL block name" << LL_ENDL;
         return LLSD();
     }
-    if(NULL == var)
+    if(nullptr == var)
     {
         LL_ERRS() << "NULL var name" << LL_ENDL;
         return LLSD();

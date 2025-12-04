@@ -194,7 +194,7 @@ public:
      *
      * @param data The data processed
      * @param eos True if this function call is the last because end of stream.
-     * @param pump The pump which is calling process. May be NULL.
+     * @param pump The pump which is calling process. May be nullptr.
      * @param context Shared meta-data for the process.
      * @return Returns a status code from the operation.
      */

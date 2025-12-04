@@ -62,9 +62,9 @@ HttpLibcurl::HttpLibcurl(HttpService * service)
     : mService(service),
       mHandleCache(),
       mPolicyCount(0),
-      mMultiHandles(NULL),
-      mActiveHandles(NULL),
-      mDirtyPolicy(NULL)
+      mMultiHandles(nullptr),
+      mActiveHandles(nullptr),
+      mDirtyPolicy(nullptr)
 {}
 
 
@@ -72,7 +72,7 @@ HttpLibcurl::~HttpLibcurl()
 {
     shutdown();
 
-    mService = NULL;
+    mService = nullptr;
 }
 
 
@@ -98,13 +98,13 @@ void HttpLibcurl::shutdown()
         }
 
         delete [] mMultiHandles;
-        mMultiHandles = NULL;
+        mMultiHandles = nullptr;
 
         delete [] mActiveHandles;
-        mActiveHandles = NULL;
+        mActiveHandles = nullptr;
 
         delete [] mDirtyPolicy;
-        mDirtyPolicy = NULL;
+        mDirtyPolicy = nullptr;
     }
 
     mPolicyCount = 0;
@@ -124,7 +124,7 @@ void HttpLibcurl::start(int policy_count)
 
     for (unsigned int policy_class(0); policy_class < mPolicyCount; ++policy_class)
     {
-        if (NULL == (mMultiHandles[policy_class] = curl_multi_init()))
+        if (nullptr == (mMultiHandles[policy_class] = curl_multi_init()))
         {
             LL_ERRS(LOG_CORE) << "Failed to allocate multi handle in libcurl."
                               << LL_ENDL;
@@ -177,7 +177,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
         while (0 != running && CURLM_CALL_MULTI_PERFORM == status);
 
         // Run completion on anything done
-        CURLMsg * msg(NULL);
+        CURLMsg * msg(nullptr);
         int msgs_in_queue(0);
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("httppt - curl_multi_info_read");
@@ -189,7 +189,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
                     CURLcode result(msg->data.result);
 
                     completeRequest(mMultiHandles[policy_class], handle, result);
-                    handle = NULL;                  // No longer valid on return
+                    handle = nullptr;                  // No longer valid on return
                     ret = HttpService::NORMAL;      // If anything completes, we may have a free slot.
                                                     // Turning around quickly reduces connection gap by 7-10mS.
                 }
@@ -222,7 +222,7 @@ void HttpLibcurl::addOp(const HttpOpRequest::ptr_t &op)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     llassert_always(op->mReqPolicy < mPolicyCount);
-    llassert_always(mMultiHandles[op->mReqPolicy] != NULL);
+    llassert_always(mMultiHandles[op->mReqPolicy] != nullptr);
 
     // Create standard handle
     if (! op->prepareRequest(mService))
@@ -297,7 +297,7 @@ void HttpLibcurl::cancelRequest(const HttpOpRequest::ptr_t &op)
     // Detach from multi and recycle handle
     curl_multi_remove_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
     mHandleCache.freeHandle(op->mCurlHandle);
-    op->mCurlHandle = NULL;
+    op->mCurlHandle = nullptr;
 
     // Tracing
     if (op->mTracing > HTTP_TRACE_OFF)
@@ -318,7 +318,7 @@ void HttpLibcurl::cancelRequest(const HttpOpRequest::ptr_t &op)
 bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
-    HttpHandle ophandle(NULL);
+    HttpHandle ophandle(nullptr);
 
     CURLcode ccode(CURLE_OK);
 
@@ -375,7 +375,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
             {
                 if (http_status >= 100 && http_status <= 999)
                 {
-                    char * cont_type(NULL);
+                    char * cont_type(nullptr);
                     ccode = curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
                     if (ccode == CURLE_OK)
                     {
@@ -421,7 +421,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
             << std::hex << multi_handle << " h:" << std::hex << handle << std::dec << LL_ENDL;
     }
 
-    op->mCurlHandle = NULL;
+    op->mCurlHandle = nullptr;
 
     // Tracing
     if (op->mTracing > HTTP_TRACE_OFF)
@@ -533,7 +533,7 @@ void HttpLibcurl::policyUpdated(unsigned int policy_class)
 // ---------------------------------------
 
 HttpLibcurl::HandleCache::HandleCache()
-    : mHandleTemplate(NULL)
+    : mHandleTemplate(nullptr)
 {
     mCache.reserve(50);
 }
@@ -544,7 +544,7 @@ HttpLibcurl::HandleCache::~HandleCache()
     if (mHandleTemplate)
     {
         curl_easy_cleanup(mHandleTemplate);
-        mHandleTemplate = NULL;
+        mHandleTemplate = nullptr;
     }
 
     for (handle_cache_t::iterator it(mCache.begin()); mCache.end() != it; ++it)
@@ -557,7 +557,7 @@ HttpLibcurl::HandleCache::~HandleCache()
 
 CURL * HttpLibcurl::HandleCache::getHandle()
 {
-    CURL * ret(NULL);
+    CURL * ret(nullptr);
 
     if (! mCache.empty())
     {

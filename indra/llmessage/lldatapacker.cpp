@@ -2127,7 +2127,7 @@ bool LLDataPackerAsciiFile::getValueStr(const char *name, char *out_value, S32 v
             return false;
         }
 
-        if (fgets(buffer, DP_BUFSIZE, mFP) == NULL)
+        if (fgets(buffer, DP_BUFSIZE, mFP) == nullptr)
         {
             buffer[0] = '\0';
         }

@@ -95,7 +95,7 @@ public:
 
     /// Simple getter for the response body returned as a scatter/gather
     /// buffer.  If the operation doesn't produce data (such as the Null
-    /// or StopThread operations), this may be NULL.
+    /// or StopThread operations), this may be nullptr.
     ///
     /// Caller can hold onto the response by incrementing the reference
     /// count of the returned object.
@@ -110,13 +110,13 @@ public:
 
     /// Set the response data in the instance.  Will drop the reference
     /// count to any existing data and increment the count of that passed
-    /// in.  It is legal to set the data to NULL.
+    /// in.  It is legal to set the data to nullptr.
     void setBody(BufferArray * ba);
 
     /// And a getter for the headers.  And as with @see getResponse(),
     /// if headers aren't available because the operation doesn't produce
     /// any or delivery of headers wasn't requested in the options, this
-    /// will be NULL.
+    /// will be nullptr.
     ///
     /// Caller can hold onto the headers by incrementing the reference
     /// count of the returned object.

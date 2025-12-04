@@ -53,7 +53,7 @@ LLHost  get_receiving_interface();
 U32     get_receiving_interface_ip(void);
 
 const char* u32_to_ip_string(U32 ip);                   // Returns pointer to internal string buffer, "(bad IP addr)" on failure, cannot nest calls
-char*       u32_to_ip_string(U32 ip, char *ip_string);  // NULL on failure, ip_string on success, you must allocate at least MAXADDRSTR chars
+char*       u32_to_ip_string(U32 ip, char *ip_string);  // nullptr on failure, ip_string on success, you must allocate at least MAXADDRSTR chars
 U32         ip_string_to_u32(const char* ip_string);    // Wrapper for inet_addr()
 
 extern const char* LOOPBACK_ADDRESS_STRING;

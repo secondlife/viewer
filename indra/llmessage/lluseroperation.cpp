@@ -32,7 +32,7 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-LLUserOperationMgr* gUserOperationMgr = NULL;
+LLUserOperationMgr* gUserOperationMgr = nullptr;
 
 ///----------------------------------------------------------------------------
 /// Class LLUserOperation
@@ -124,7 +124,7 @@ LLUserOperation* LLUserOperationMgr::findOperation(const LLUUID& tid)
     if (iter != mUserOperationList.end())
         return iter->second;
     else
-        return NULL;
+        return nullptr;
 }
 
 
@@ -136,7 +136,7 @@ bool LLUserOperationMgr::deleteOperation(LLUserOperation* op)
         LLUUID id = op->getTransactionID();
         rv = mUserOperationList.erase(id);
         delete op;
-        op = NULL;
+        op = nullptr;
     }
     return rv != 0;
 }
@@ -145,7 +145,7 @@ void LLUserOperationMgr::deleteExpiredOperations()
 {
     const S32 MAX_OPS_CONSIDERED = 2000;
     S32 ops_left = MAX_OPS_CONSIDERED;
-    LLUserOperation* op = NULL;
+    LLUserOperation* op = nullptr;
     user_operation_list_t::iterator it;
     if(mLastOperationConsidered.isNull())
     {

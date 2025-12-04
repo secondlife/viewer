@@ -106,7 +106,7 @@ LLTransferTargetVFile::~LLTransferTargetVFile()
     {
         // TODO: Consider doing it in LLTransferTargetParamsVFile's destructor
         delete mParams.mRequestDatap;
-        mParams.mRequestDatap = NULL;
+        mParams.mRequestDatap = nullptr;
     }
 }
 
@@ -229,6 +229,6 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
                 LLExtStat::NONE);
         }
         delete mParams.mRequestDatap;
-        mParams.mRequestDatap = NULL;
+        mParams.mRequestDatap = nullptr;
     }
 }

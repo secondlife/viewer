@@ -104,8 +104,8 @@ void ll_debug_socket(const char* msg, apr_socket_t* apr_sock)
 LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port, const char *hostname)
 {
     LLSocket::ptr_t rv;
-    apr_socket_t* socket = NULL;
-    apr_pool_t* new_pool = NULL;
+    apr_socket_t* socket = nullptr;
+    apr_pool_t* new_pool = nullptr;
     apr_status_t status = APR_EGENERAL;
 
     // create a pool for the socket
@@ -150,7 +150,7 @@ LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port, const c
     rv = ptr_t(new LLSocket(socket, new_pool));
     if(port > 0)
     {
-        apr_sockaddr_t* sa = NULL;
+        apr_sockaddr_t* sa = nullptr;
         status = apr_sockaddr_info_get(
             &sa,
             hostname,
@@ -218,7 +218,7 @@ LLSocket::ptr_t LLSocket::create(apr_socket_t* socket, apr_pool_t* pool)
 bool LLSocket::blockingConnect(const LLHost& host)
 {
     if(!mSocket) return false;
-    apr_sockaddr_t* sa = NULL;
+    apr_sockaddr_t* sa = nullptr;
     std::string ip_address;
     ip_address = host.getIPString();
     if(ll_apr_warn_status(apr_sockaddr_info_get(
@@ -253,7 +253,7 @@ LLSocket::~LLSocket()
     {
         ll_debug_socket("Destroying socket", mSocket);
         apr_socket_close(mSocket);
-        mSocket = NULL;
+        mSocket = nullptr;
     }
     if(mPool)
     {
@@ -323,12 +323,12 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
             LL_DEBUGS() << "Initializing poll descriptor for LLIOSocketReader."
                      << LL_ENDL;
             apr_pollfd_t poll_fd;
-            poll_fd.p = NULL;
+            poll_fd.p = nullptr;
             poll_fd.desc_type = APR_POLL_SOCKET;
             poll_fd.reqevents = APR_POLLIN;
             poll_fd.rtnevents = 0x0;
             poll_fd.desc.s = mSource->getSocket();
-            poll_fd.client_data = NULL;
+            poll_fd.client_data = nullptr;
             pump->setConditional(this, &poll_fd);
         }
     }
@@ -358,7 +358,7 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
         // *FIX: Should we shut down the socket read?
         if(pump)
         {
-            pump->setConditional(this, NULL);
+            pump->setConditional(this, nullptr);
         }
         rv = STATUS_DONE;
         eos = true;
@@ -388,7 +388,7 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
 
 LLIOSocketWriter::LLIOSocketWriter(LLSocket::ptr_t socket) :
     mDestination(socket),
-    mLastWritten(NULL),
+    mLastWritten(nullptr),
     mInitialized(false)
 {
 }
@@ -421,12 +421,12 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
             LL_DEBUGS() << "Initializing poll descriptor for LLIOSocketWriter."
                      << LL_ENDL;
             apr_pollfd_t poll_fd;
-            poll_fd.p = NULL;
+            poll_fd.p = nullptr;
             poll_fd.desc_type = APR_POLL_SOCKET;
             poll_fd.reqevents = APR_POLLOUT;
             poll_fd.rtnevents = 0x0;
             poll_fd.desc.s = mDestination->getSocket();
-            poll_fd.client_data = NULL;
+            poll_fd.client_data = nullptr;
             pump->setConditional(this, &poll_fd);
         }
     }
@@ -442,7 +442,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
     LLSegment segment;
     it = buffer->constructSegmentAfter(mLastWritten, segment);
     /*
-    if(NULL == mLastWritten)
+    if(nullptr == mLastWritten)
     {
         it = buffer->beginSegment();
         segment = (*it);
@@ -577,12 +577,12 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
         LL_DEBUGS() << "Initializing poll descriptor for LLIOServerSocket."
                  << LL_ENDL;
         apr_pollfd_t poll_fd;
-        poll_fd.p = NULL;
+        poll_fd.p = nullptr;
         poll_fd.desc_type = APR_POLL_SOCKET;
         poll_fd.reqevents = APR_POLLIN;
         poll_fd.rtnevents = 0x0;
         poll_fd.desc.s = mListenSocket->getSocket();
-        poll_fd.client_data = NULL;
+        poll_fd.client_data = nullptr;
         pump->setConditional(this, &poll_fd);
         mInitialized = true;
         return STATUS_OK;
@@ -593,7 +593,7 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
     LL_DEBUGS() << "accepting socket" << LL_ENDL;
 
     PUMP_DEBUG;
-    apr_pool_t* new_pool = NULL;
+    apr_pool_t* new_pool = nullptr;
     apr_status_t status = apr_pool_create(&new_pool, mPool);
     if(ll_apr_warn_status(status))
     {
@@ -604,7 +604,7 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
         return STATUS_ERROR;
     }
 
-    apr_socket_t* socket = NULL;
+    apr_socket_t* socket = nullptr;
     status = apr_socket_accept(
         &socket,
         mListenSocket->getSocket(),
@@ -655,11 +655,11 @@ LLIODataSocket::LLIODataSocket(
     U16 suggested_port,
     U16 start_discovery_port,
     apr_pool_t* pool) :
-    mSocket(NULL)
+    mSocket(nullptr)
 {
     if(!pool || (PORT_INVALID == suggested_port)) return;
     if(ll_apr_warn_status(apr_socket_create(&mSocket, APR_INET, SOCK_DGRAM, APR_PROTO_UDP, pool))) return;
-    apr_sockaddr_t* sa = NULL;
+    apr_sockaddr_t* sa = nullptr;
     if(ll_apr_warn_status(apr_sockaddr_info_get(&sa, APR_ANYADDR, APR_UNSPEC, suggested_port, 0, pool))) return;
     apr_status_t status = apr_socket_bind(mSocket, sa);
     if((start_discovery_port > 0) && is_addr_in_use(status))

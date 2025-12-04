@@ -64,7 +64,7 @@ void LLXfer_VFile::init (const LLUUID &local_id, LLAssetType::EType type)
     mLocalID = local_id;
     mType = type;
 
-    mVFile = NULL;
+    mVFile = nullptr;
 
     std::string id_string;
     mLocalID.toString(id_string);
@@ -92,7 +92,7 @@ void LLXfer_VFile::cleanup ()
     }
 
     delete mVFile;
-    mVFile = NULL;
+    mVFile = nullptr;
 
     LLXfer::cleanup();
 }
@@ -130,7 +130,7 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
     if (mBuffer)
     {
         delete[] mBuffer;
-        mBuffer = NULL;
+        mBuffer = nullptr;
     }
 
     mBuffer = new char[LL_MAX_XFER_FILE_BUFFER];
@@ -186,7 +186,7 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
     mBufferStartOffset = 0;
 
     delete mVFile;
-    mVFile = NULL;
+    mVFile = nullptr;
     if(LLFileSystem::getExists(mLocalID, mType))
     {
         mVFile = new LLFileSystem(mLocalID, mType, LLFileSystem::READ);
@@ -196,7 +196,7 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
             LL_WARNS("Xfer") << "LLXfer_VFile::startSend() cache file " << mLocalID << "." << LLAssetType::lookup(mType)
                 << " has unexpected file size of " << mVFile->getSize() << LL_ENDL;
             delete mVFile;
-            mVFile = NULL;
+            mVFile = nullptr;
 
             return LL_ERR_FILE_EMPTY;
         }
@@ -223,7 +223,7 @@ void LLXfer_VFile::closeFileHandle()
     if (mVFile)
     {
         delete mVFile;
-        mVFile = NULL;
+        mVFile = nullptr;
     }
 }
 
@@ -233,7 +233,7 @@ S32 LLXfer_VFile::reopenFileHandle()
 {
     S32 retval = LL_ERR_NOERR;  // presume success
 
-    if (mVFile == NULL)
+    if (mVFile == nullptr)
     {
         if (LLFileSystem::getExists(mLocalID, mType))
         {
@@ -357,7 +357,7 @@ S32 LLXfer_VFile::processEOF()
     if (mVFile)
     {
         delete mVFile;
-        mVFile = NULL;
+        mVFile = nullptr;
     }
 
     retval = LLXfer::processEOF();

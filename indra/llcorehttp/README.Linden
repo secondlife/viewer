@@ -41,7 +41,7 @@
 
 
         // Our request object.  Allocate during initialiation.
-        static LLCore::HttpRequest * my_request(NULL);
+        static LLCore::HttpRequest * my_request(nullptr);
 
         // The policy class for HTTP traffic.
         // Use HttpRequest::DEFAULT_POLICY_ID, but DO NOT SHIP WITH THIS VALUE!!
@@ -70,8 +70,8 @@
         handle = my_request->requestGet(my_policy,
                                         my_priority,
                                         "http://www.example.com/",
-                                        NULL,
-                                        NULL,
+                                        nullptr,
+                                        nullptr,
                                         my_handler);
         if (LLCORE_HTTP_HANDLE_INVALID == handle)
         {
@@ -275,7 +275,7 @@
                               << LL_ENDL;
 
              delete my_handler;    // No longer needed.
-             my_handler = NULL;
+             my_handler = nullptr;
         }
 
 
@@ -526,7 +526,7 @@ HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
 
         // And don't forget to release the BufferArray.
         data->release();
-        data = NULL;
+        data = nullptr;
 
 
     There are now helper functions in llmessage/llcorehttputil.h to

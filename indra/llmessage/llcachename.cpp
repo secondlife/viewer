@@ -52,7 +52,7 @@ static const std::string NAME("name");
 const U32 PENDING_TIMEOUT_SECS = 5 * 60;
 
 // Globals
-LLCacheName* gCacheName = NULL;
+LLCacheName* gCacheName = nullptr;
 
 /// ---------------------------------------------------------------------------
 /// class LLCacheNameEntry
@@ -312,7 +312,7 @@ bool LLCacheName::importFile(std::istream& istr)
     }
 
     // We'll expire entries more than a week old
-    U32 now = (U32)time(NULL);
+    U32 now = (U32)time(nullptr);
     const U32 SECS_PER_DAY = 60 * 60 * 24;
     U32 delete_before_time = now - (7 * SECS_PER_DAY);
 
@@ -464,7 +464,7 @@ bool LLCacheName::getGroupName(const LLUUID& id, std::string& group)
         // this group name was loaded from a name cache that did not
         // bother to save the group name ==> we must ask for it
         LL_DEBUGS() << "LLCacheName queuing HACK group request: " << id << LL_ENDL;
-        entry = NULL;
+        entry = nullptr;
     }
 
     if (entry)
@@ -685,7 +685,7 @@ void LLCacheName::processPending()
 
 void LLCacheName::deleteEntriesOlderThan(S32 secs)
 {
-    U32 now = (U32)time(NULL);
+    U32 now = (U32)time(nullptr);
     U32 expire_time = now - secs;
     for(Cache::iterator iter = impl.mCache.begin(); iter != impl.mCache.end(); )
     {
@@ -864,7 +864,7 @@ void LLCacheName::Impl::sendRequest(
 
 bool LLCacheName::Impl::isRequestPending(const LLUUID& id)
 {
-    U32 now = (U32)time(NULL);
+    U32 now = (U32)time(nullptr);
     U32 expire_time = now - PENDING_TIMEOUT_SECS;
 
     PendingQueue::iterator iter = mPendingQueue.find(id);
@@ -952,7 +952,7 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
         mPendingQueue.erase(id);
 
         entry->mIsGroup = isGroup;
-        entry->mCreateTime = (U32)time(NULL);
+        entry->mCreateTime = (U32)time(nullptr);
         if (!isGroup)
         {
             msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);

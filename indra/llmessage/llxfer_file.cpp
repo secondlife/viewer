@@ -70,7 +70,7 @@ LLXfer_File::~LLXfer_File ()
 void LLXfer_File::init (const std::string& local_filename, bool delete_local_on_completion, S32 chunk_size)
 {
 
-    mFp = NULL;
+    mFp = nullptr;
     mLocalFilename.clear();
     mRemoteFilename.clear();
     mRemotePath = LL_PATH_NONE;
@@ -95,7 +95,7 @@ void LLXfer_File::cleanup ()
     if (mFp)
     {
         fclose(mFp);
-        mFp = NULL;
+        mFp = nullptr;
     }
 
     LLFile::remove(mTempFilename, ENOENT);
@@ -144,7 +144,7 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
     if (mBuffer)
     {
         delete(mBuffer);
-        mBuffer = NULL;
+        mBuffer = nullptr;
     }
 
     mBuffer = new char[LL_MAX_XFER_FILE_BUFFER];
@@ -165,7 +165,7 @@ S32 LLXfer_File::startDownload()
     if (mFp)
     {
         fclose(mFp);
-        mFp = NULL;
+        mFp = nullptr;
 
         // tbd - is it premature to send this message if the queue is backed up?
         gMessageSystem->newMessageFast(_PREHASH_RequestXfer);
@@ -240,7 +240,7 @@ void LLXfer_File::closeFileHandle()
     if (mFp)
     {
         fclose(mFp);
-        mFp = NULL;
+        mFp = nullptr;
     }
 }
 
@@ -250,10 +250,10 @@ S32 LLXfer_File::reopenFileHandle()
 {
     S32 retval = LL_ERR_NOERR;  // presume success
 
-    if (mFp == NULL)
+    if (mFp == nullptr)
     {
         mFp = LLFile::fopen(mLocalFilename,"rb");       /* Flawfinder : ignore */
-        if (mFp == NULL)
+        if (mFp == nullptr)
         {
             LL_INFOS("Xfer") << "Warning: " << mLocalFilename << " not found when re-opening file" << LL_ENDL;
             retval = LL_ERR_FILE_NOT_FOUND;
@@ -327,7 +327,7 @@ S32 LLXfer_File::flush()
 
 //          LL_INFOS("Xfer") << "******* wrote " << mBufferLength << " bytes of file xfer" << LL_ENDL;
             fclose(mFp);
-            mFp = NULL;
+            mFp = nullptr;
 
             mBufferLength = 0;
         }
@@ -402,7 +402,7 @@ S32 LLXfer_File::processEOF()
     if (mFp)
     {
         fclose(mFp);
-        mFp = NULL;
+        mFp = nullptr;
     }
 
     retval = LLXfer::processEOF();

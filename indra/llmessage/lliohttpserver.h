@@ -44,7 +44,7 @@ public:
      *   Returns the root node of the new server.  Add LLHTTPNode instances
      *   to this root.
      *
-     *   Nodes that return NULL for getProtocolHandler(), will use the
+     *   Nodes that return nullptr for getProtocolHandler(), will use the
      *   default handler that interprets HTTP on the wire and converts
      *   it into calls to get(), put(), post(), del() with appropriate
      *   LLSD arguments and results.

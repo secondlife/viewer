@@ -58,7 +58,7 @@ void BufferStreamTestObjectType::test<1>()
     set_test_name("BufferArrayStreamBuf construction with NULL BufferArray");
 
     // create a new ref counted object with an implicit reference
-    BufferArrayStreamBuf * bsb = new BufferArrayStreamBuf(NULL);
+    BufferArrayStreamBuf * bsb = new BufferArrayStreamBuf(nullptr);
 
     // Not much will work with a NULL
     ensure("underflow() on NULL fails", tst_traits_t::eof() == bsb->underflow());
@@ -71,7 +71,7 @@ void BufferStreamTestObjectType::test<1>()
 
     // release the implicit reference, causing the object to be released
     delete bsb;
-    bsb = NULL;
+    bsb = nullptr;
 }
 
 
@@ -81,7 +81,7 @@ void BufferStreamTestObjectType::test<2>()
     set_test_name("BufferArrayStream construction with NULL BufferArray");
 
     // create a new ref counted object with an implicit reference
-    BufferArrayStream * bas = new BufferArrayStream(NULL);
+    BufferArrayStream * bas = new BufferArrayStream(nullptr);
 
     // Not much will work with a NULL here
     ensure("eof() is false on NULL", ! bas->eof());
@@ -90,7 +90,7 @@ void BufferStreamTestObjectType::test<2>()
 
     // release the implicit reference, causing the object to be released
     delete bas;
-    bas = NULL;
+    bas = nullptr;
 }
 
 
@@ -105,11 +105,11 @@ void BufferStreamTestObjectType::test<3>()
 
     // I can release my ref on the BA
     ba->release();
-    ba = NULL;
+    ba = nullptr;
 
     // release the implicit reference, causing the object to be released
     delete bsb;
-    bsb = NULL;
+    bsb = nullptr;
 }
 
 
@@ -128,7 +128,7 @@ void BufferStreamTestObjectType::test<4>()
 
     // release the implicit reference, causing the object to be released
     ba->release();
-    ba = NULL;
+    ba = nullptr;
 }
 
 
@@ -148,7 +148,7 @@ void BufferStreamTestObjectType::test<5>()
 
     // I can release my ref on the BA
     ba->release();
-    ba = NULL;
+    ba = nullptr;
 
     // Various static state
     ensure("underflow() returns 'T'", bsb->underflow() == 'T');
@@ -171,7 +171,7 @@ void BufferStreamTestObjectType::test<5>()
 
     // release the implicit reference, causing the object to be released
     delete bsb;
-    bsb = NULL;
+    bsb = nullptr;
 }
 
 
@@ -201,7 +201,7 @@ void BufferStreamTestObjectType::test<6>()
 
     // release the implicit reference, causing the object to be released
     ba->release();
-    ba = NULL;
+    ba = nullptr;
 }
 
 
@@ -242,7 +242,7 @@ void BufferStreamTestObjectType::test<7>()
 
     // release the implicit reference, causing the object to be released
     ba->release();
-    ba = NULL;
+    ba = nullptr;
 }
 
 

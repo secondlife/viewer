@@ -57,7 +57,7 @@
 ///   LLSDSerialize::toXML(llsd, bas);
 ///   operationOnBufferArray(ba);
 ///   ba->release();
-///   ba = NULL;
+///   ba = nullptr;
 ///   // operationOnBufferArray and bas are each holding
 ///   // references to the ba instance at this point.
 ///

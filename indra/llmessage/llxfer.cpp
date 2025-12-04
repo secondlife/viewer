@@ -65,12 +65,12 @@ void LLXfer::init (S32 chunk_size)
     mStatus = e_LL_XFER_UNINITIALIZED;
     mWaitingForACK = false;
 
-    mCallback = NULL;
-    mCallbackDataHandle = NULL;
+    mCallback = nullptr;
+    mCallbackDataHandle = nullptr;
     mCallbackResult = 0;
 
     mBufferContainsEOF = false;
-    mBuffer = NULL;
+    mBuffer = nullptr;
     mBufferLength = 0;
     mBufferStartOffset = 0;
 
@@ -90,7 +90,7 @@ void LLXfer::cleanup ()
     if (mBuffer)
     {
         delete[] mBuffer;
-        mBuffer = NULL;
+        mBuffer = nullptr;
     }
 }
 
@@ -147,7 +147,7 @@ S32 LLXfer::receiveData (char *datap, S32 data_size)
 
     if (!retval)
     {
-        if (datap != NULL)
+        if (datap != nullptr)
         {   // Append new data to mBuffer
             memcpy(&mBuffer[mBufferLength],datap,data_size);    /*Flawfinder: ignore*/
             mBufferLength += data_size;

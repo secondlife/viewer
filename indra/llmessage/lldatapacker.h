@@ -125,8 +125,8 @@ public:
 
     LLDataPackerBinaryBuffer()
     :   LLDataPacker(),
-        mBufferp(NULL),
-        mCurBufferp(NULL),
+        mBufferp(nullptr),
+        mCurBufferp(nullptr),
         mBufferSize(0)
     {
     }
@@ -180,9 +180,9 @@ public:
                 S32         getCurrentSize() const  { return (S32)(mCurBufferp - mBufferp); }
                 S32         getBufferSize() const   { return mBufferSize; }
                 const U8*   getBuffer() const   { return mBufferp; }
-                void        reset()             { mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != NULL); }
+                void        reset()             { mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != nullptr); }
                 void        shift(S32 offset)   { reset(); mCurBufferp += offset;}
-                void        freeBuffer()        { delete [] mBufferp; mBufferp = mCurBufferp = NULL; mBufferSize = 0; mWriteEnabled = false; }
+                void        freeBuffer()        { delete [] mBufferp; mBufferp = mCurBufferp = nullptr; mBufferSize = 0; mWriteEnabled = false; }
                 void        assignBuffer(U8 *bufferp, S32 size)
                 {
                     if(mBufferp && mBufferp != bufferp)
@@ -234,8 +234,8 @@ public:
 
     LLDataPackerAsciiBuffer()
     {
-        mBufferp = NULL;
-        mCurBufferp = NULL;
+        mBufferp = nullptr;
+        mCurBufferp = nullptr;
         mBufferSize = 0;
         mPassFlags = 0;
         mIncludeNames = false;
@@ -294,7 +294,7 @@ public:
     S32         getCurrentSize() const  { return (S32)(mCurBufferp - mBufferp) + 1; }
 
     S32         getBufferSize() const   { return mBufferSize; }
-    /*virtual*/ void        reset()                 { mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != NULL); }
+    /*virtual*/ void        reset()                 { mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != nullptr); }
 
     /*virtual*/ bool        hasNext() const         { return getCurrentSize() < getBufferSize(); }
 
@@ -318,7 +318,7 @@ protected:
 inline void LLDataPackerAsciiBuffer::freeBuffer()
 {
     delete [] mBufferp;
-    mBufferp = mCurBufferp = NULL;
+    mBufferp = mCurBufferp = nullptr;
     mBufferSize = 0;
     mWriteEnabled = false;
 }
@@ -350,17 +350,17 @@ public:
     :   LLDataPacker(),
         mIndent(indent),
         mFP(fp),
-        mOutputStream(NULL),
-        mInputStream(NULL)
+        mOutputStream(nullptr),
+        mInputStream(nullptr)
     {
     }
 
     LLDataPackerAsciiFile(std::ostream& output_stream, const S32 indent = 2)
     :   LLDataPacker(),
         mIndent(indent),
-        mFP(NULL),
+        mFP(nullptr),
         mOutputStream(&output_stream),
-        mInputStream(NULL)
+        mInputStream(nullptr)
     {
         mWriteEnabled = true;
     }
@@ -368,8 +368,8 @@ public:
     LLDataPackerAsciiFile(std::istream& input_stream, const S32 indent = 2)
     :   LLDataPacker(),
         mIndent(indent),
-        mFP(NULL),
-        mOutputStream(NULL),
+        mFP(nullptr),
+        mOutputStream(nullptr),
         mInputStream(&input_stream)
     {
     }

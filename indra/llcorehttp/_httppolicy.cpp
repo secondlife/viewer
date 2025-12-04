@@ -92,7 +92,7 @@ HttpPolicy::~HttpPolicy()
     }
     mClasses.clear();
 
-    mService = NULL;
+    mService = nullptr;
 }
 
 

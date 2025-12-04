@@ -56,7 +56,7 @@ public:
     std::string mWildcardKey;
     LLHTTPNode* mParentNode;
 
-    Impl() : mWildcardChild(NULL), mParentNode(NULL) { }
+    Impl() : mWildcardChild(nullptr), mParentNode(nullptr) { }
 
     LLHTTPNode* findNamedChild(const std::string& name) const;
 };
@@ -221,7 +221,7 @@ LLHTTPNode* LLHTTPNode::getChild(const std::string& name, LLSD& context) const
         return impl.mWildcardChild;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -266,7 +266,7 @@ const LLHTTPNode* LLHTTPNode::traverse(
         remainder.append(*iter);
     }
 
-    return node->handles(remainder, context) ? node : NULL;
+    return node->handles(remainder, context) ? node : nullptr;
 }
 
 
@@ -431,7 +431,7 @@ void LLHTTPNode::describe(Description& desc) const
 
 const LLChainIOFactory* LLHTTPNode::getProtocolHandler() const
 {
-    return NULL;
+    return nullptr;
 }
 
 

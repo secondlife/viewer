@@ -37,11 +37,11 @@
 #include "v4math.h"
 
 LLTemplateMessageBuilder::LLTemplateMessageBuilder(const message_template_name_map_t& name_template_map) :
-    mCurrentSMessageData(NULL),
-    mCurrentSMessageTemplate(NULL),
-    mCurrentSDataBlock(NULL),
-    mCurrentSMessageName(NULL),
-    mCurrentSBlockName(NULL),
+    mCurrentSMessageData(nullptr),
+    mCurrentSMessageTemplate(nullptr),
+    mCurrentSDataBlock(nullptr),
+    mCurrentSMessageName(nullptr),
+    mCurrentSBlockName(nullptr),
     mbSBuilt(false),
     mbSClear(true),
     mCurrentSendTotal(0),
@@ -53,7 +53,7 @@ LLTemplateMessageBuilder::LLTemplateMessageBuilder(const message_template_name_m
 LLTemplateMessageBuilder::~LLTemplateMessageBuilder()
 {
     delete mCurrentSMessageData;
-    mCurrentSMessageData = NULL;
+    mCurrentSMessageData = nullptr;
 }
 
 // virtual
@@ -65,7 +65,7 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
     mCurrentSendTotal = 0;
 
     delete mCurrentSMessageData;
-    mCurrentSMessageData = NULL;
+    mCurrentSMessageData = nullptr;
 
     char* namep = (char*)name;
     if (mMessageTemplates.count(namep) > 0)
@@ -73,8 +73,8 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
         mCurrentSMessageTemplate = mMessageTemplates.find(name)->second;
         mCurrentSMessageData = new LLMsgData(namep);
         mCurrentSMessageName = namep;
-        mCurrentSDataBlock = NULL;
-        mCurrentSBlockName = NULL;
+        mCurrentSDataBlock = nullptr;
+        mCurrentSBlockName = nullptr;
 
         // add at one of each block
         const LLMessageTemplate* msg_template = mMessageTemplates.find(name)->second;
@@ -108,14 +108,14 @@ void LLTemplateMessageBuilder::clearMessage()
 
     mCurrentSendTotal = 0;
 
-    mCurrentSMessageTemplate = NULL;
+    mCurrentSMessageTemplate = nullptr;
 
     delete mCurrentSMessageData;
-    mCurrentSMessageData = NULL;
+    mCurrentSMessageData = nullptr;
 
-    mCurrentSMessageName = NULL;
-    mCurrentSDataBlock = NULL;
-    mCurrentSBlockName = NULL;
+    mCurrentSMessageName = nullptr;
+    mCurrentSDataBlock = nullptr;
+    mCurrentSBlockName = nullptr;
 }
 
 // virtual
@@ -456,7 +456,7 @@ void LLTemplateMessageBuilder::addString(const char* varname, const char* s)
     if (s)
         addData( varname, (void *)s, MVT_VARIABLE, (S32)strlen(s) + 1);  /* Flawfinder: ignore */
     else
-        addData( varname, NULL, MVT_VARIABLE, 0);
+        addData( varname, nullptr, MVT_VARIABLE, 0);
 }
 
 void LLTemplateMessageBuilder::addString(const char* varname, const std::string& s)
@@ -464,7 +464,7 @@ void LLTemplateMessageBuilder::addString(const char* varname, const std::string&
     if (s.size())
         addData( varname, (void *)s.c_str(), MVT_VARIABLE, (S32)(s.size()) + 1);
     else
-        addData( varname, NULL, MVT_VARIABLE, 0);
+        addData( varname, nullptr, MVT_VARIABLE, 0);
 }
 
 void LLTemplateMessageBuilder::addVector3(const char *varname, const LLVector3& vec)
@@ -704,7 +704,7 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
                 }
 
                 // if there is any data to pack, pack it
-                if((mvci.getData() != NULL) && mvci.getSize())
+                if((mvci.getData() != nullptr) && mvci.getSize())
                 {
                     if(result + mvci.getSize() < buffer_size)
                     {
@@ -831,7 +831,7 @@ void LLTemplateMessageBuilder::copyFromMessageData(const LLMsgData& data)
     // copy the blocks
     // counting variables used to encode multiple block info
     S32 block_count = 0;
-    char *block_name = NULL;
+    char *block_name = nullptr;
 
     // loop through msg blocks to loop through variables, totalling up size
     // data and filling the new (send) message

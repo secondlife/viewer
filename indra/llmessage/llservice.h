@@ -70,7 +70,7 @@ public:
      * @param name The name of the service to connect to.
      * @param chain The constructed chain including the service instance.
      * @param context Context for the activation.
-     * @return An instance of the service for use or NULL on failure.
+     * @return An instance of the service for use or nullptr on failure.
      */
     static LLIOPipe* activate(
         const std::string& name,

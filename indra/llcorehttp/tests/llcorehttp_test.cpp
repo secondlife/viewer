@@ -95,7 +95,7 @@ std::string get_base_url()
     {
         std::cerr << "LL_TEST_PORT environment variable missing." << std::endl;
         std::cerr << "Test expects to run in test_llcorehttp_peer.py script." << std::endl;
-        tut::ensure("LL_TEST_PORT set in environment", NULL != env);
+        tut::ensure("LL_TEST_PORT set in environment", nullptr != env);
     }
 
     int port(atoi(env));

@@ -40,7 +40,7 @@
 // incoming packet just to do a simple bool test. The getter for this
 // member is also static
 bool LLProxy::sUDPProxyEnabled = false;
-LLProxy* LLProxy::sProxyInstance = NULL;
+LLProxy* LLProxy::sProxyInstance = nullptr;
 
 // Some helpful TCP static functions.
 static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
@@ -70,7 +70,7 @@ LLProxy::~LLProxy()
     // The primary safety of sProxyInstance is the fact that by the
     // point SUBSYSTEM_CLEANUP(LLProxy) gets called, nothing should
     // be capable of using proxy
-    sProxyInstance = NULL;
+    sProxyInstance = nullptr;
 }
 
 void LLProxy::initSingleton()
@@ -534,7 +534,7 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
  */
 static LLSocket::ptr_t tcp_open_channel(LLHost host)
 {
-    LLSocket::ptr_t socket = LLSocket::create(NULL, LLSocket::STREAM_TCP);
+    LLSocket::ptr_t socket = LLSocket::create(nullptr, LLSocket::STREAM_TCP);
     bool connected = socket->blockingConnect(host);
     if (!connected)
     {

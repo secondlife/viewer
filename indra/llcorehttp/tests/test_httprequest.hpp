@@ -94,7 +94,7 @@ public:
             {
                 ensure("Expected handle received in handler", mExpectHandle == handle);
             }
-            ensure("Handler got a response", NULL != response);
+            ensure("Handler got a response", nullptr != response);
             if (response && mState)
             {
                 const HttpStatus actual_status(response->getStatus());
@@ -109,9 +109,9 @@ public:
             }
             if (! mHeadersRequired.empty() || ! mHeadersDisallowed.empty())
             {
-                ensure("Response required with header check", response != NULL);
+                ensure("Response required with header check", response != nullptr);
                 HttpHeaders::ptr_t header(response->getHeaders());  // Will not hold onto this
-                ensure("Some quantity of headers returned", header != NULL);
+                ensure("Some quantity of headers returned", header != nullptr);
 
                 if (! mHeadersRequired.empty())
                 {
@@ -168,7 +168,7 @@ public:
 
             if (! mCheckContentType.empty())
             {
-                ensure("Response required with content type check", response != NULL);
+                ensure("Response required with content type check", response != nullptr);
                 std::string con_type(response->getContentType());
                 ensure("Content-Type as expected (" + mCheckContentType + ")",
                        mCheckContentType == con_type);
@@ -196,7 +196,7 @@ void HttpRequestTestObjectType::test<1>()
 
     set_test_name("HttpRequest construction");
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -208,7 +208,7 @@ void HttpRequestTestObjectType::test<1>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         HttpRequest::destroyService();
     }
@@ -227,7 +227,7 @@ void HttpRequestTestObjectType::test<2>()
 
     set_test_name("HttpRequest and Null Op queued");
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -243,7 +243,7 @@ void HttpRequestTestObjectType::test<2>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Request queue should have two references:  global singleton & service object
         ensure("Two references to request queue", 2 == HttpRequestQueue::instanceOf()->getRefCount());
@@ -279,7 +279,7 @@ void HttpRequestTestObjectType::test<3>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -334,7 +334,7 @@ void HttpRequestTestObjectType::test<3>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -366,8 +366,8 @@ void HttpRequestTestObjectType::test<4>()
     LLCore::HttpHandler::ptr_t handler2p(&handler2, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req1 = NULL;
-    HttpRequest * req2 = NULL;
+    HttpRequest * req1 = nullptr;
+    HttpRequest * req2 = nullptr;
 
     try
     {
@@ -432,9 +432,9 @@ void HttpRequestTestObjectType::test<4>()
 
         // release the request object
         delete req1;
-        req1 = NULL;
+        req1 = nullptr;
         delete req2;
-        req2 = NULL;
+        req2 = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -469,7 +469,7 @@ void HttpRequestTestObjectType::test<5>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -503,7 +503,7 @@ void HttpRequestTestObjectType::test<5>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -534,7 +534,7 @@ void HttpRequestTestObjectType::test<6>()
     TestHandler2 handler(this, "handler");
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -570,7 +570,7 @@ void HttpRequestTestObjectType::test<6>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -600,7 +600,7 @@ void HttpRequestTestObjectType::test<7>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t opts;
 
     try
@@ -670,7 +670,7 @@ void HttpRequestTestObjectType::test<7>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -705,7 +705,7 @@ void HttpRequestTestObjectType::test<8>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -766,7 +766,7 @@ void HttpRequestTestObjectType::test<8>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -800,7 +800,7 @@ void HttpRequestTestObjectType::test<9>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -863,7 +863,7 @@ void HttpRequestTestObjectType::test<9>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -897,7 +897,7 @@ void HttpRequestTestObjectType::test<10>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     BufferArray * body = new BufferArray;
 
     try
@@ -962,11 +962,11 @@ void HttpRequestTestObjectType::test<10>()
 
         // Lose the request body
         body->release();
-        body = NULL;
+        body = nullptr;
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1003,7 +1003,7 @@ void HttpRequestTestObjectType::test<11>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     BufferArray * body = new BufferArray;
 
     try
@@ -1068,11 +1068,11 @@ void HttpRequestTestObjectType::test<11>()
 
         // Lose the request body
         body->release();
-        body = NULL;
+        body = nullptr;
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1109,7 +1109,7 @@ void HttpRequestTestObjectType::test<12>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -1117,7 +1117,7 @@ void HttpRequestTestObjectType::test<12>()
         HttpRequest::createService();
 
         // Enable tracing
-        HttpRequest::setStaticPolicyOption(HttpRequest::PO_TRACE, HttpRequest::DEFAULT_POLICY_ID, 2, NULL);
+        HttpRequest::setStaticPolicyOption(HttpRequest::PO_TRACE, HttpRequest::DEFAULT_POLICY_ID, 2, nullptr);
 
         // Start threading early so that thread memory is invariant
         // over the test.
@@ -1175,7 +1175,7 @@ void HttpRequestTestObjectType::test<12>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1214,7 +1214,7 @@ void HttpRequestTestObjectType::test<13>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t opts;
 
     try
@@ -1223,7 +1223,7 @@ void HttpRequestTestObjectType::test<13>()
         HttpRequest::createService();
 
         // Enable tracing
-        HttpRequest::setStaticPolicyOption(HttpRequest::PO_TRACE, HttpRequest::DEFAULT_POLICY_ID, 2, NULL);
+        HttpRequest::setStaticPolicyOption(HttpRequest::PO_TRACE, HttpRequest::DEFAULT_POLICY_ID, 2, nullptr);
 
         // Start threading early so that thread memory is invariant
         // over the test.
@@ -1291,7 +1291,7 @@ void HttpRequestTestObjectType::test<13>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1324,7 +1324,7 @@ void HttpRequestTestObjectType::test<14>()
     std::string url_base(get_base_url() + "/sleep/");   // path to a 30-second sleep
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t opts;
 
     try
@@ -1395,7 +1395,7 @@ void HttpRequestTestObjectType::test<14>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1435,7 +1435,7 @@ void HttpRequestTestObjectType::test<15>()
     handler.mCheckContentType.clear();
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -1498,7 +1498,7 @@ void HttpRequestTestObjectType::test<15>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1536,7 +1536,7 @@ void HttpRequestTestObjectType::test<16>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t options;
     HttpHeaders::ptr_t headers;
 
@@ -1734,7 +1734,7 @@ void HttpRequestTestObjectType::test<16>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1773,10 +1773,10 @@ void HttpRequestTestObjectType::test<17>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t options;
     HttpHeaders::ptr_t headers;
-    BufferArray * ba = NULL;
+    BufferArray * ba = nullptr;
 
     try
     {
@@ -1866,7 +1866,7 @@ void HttpRequestTestObjectType::test<17>()
                                              handlerp);
         ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
         ba->release();
-        ba = NULL;
+        ba = nullptr;
 
         // Run the notification pump.
         int count(0);
@@ -1913,7 +1913,7 @@ void HttpRequestTestObjectType::test<17>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -1924,7 +1924,7 @@ void HttpRequestTestObjectType::test<17>()
         if (ba)
         {
             ba->release();
-            ba = NULL;
+            ba = nullptr;
         }
         options.reset();
         headers.reset();
@@ -1957,10 +1957,10 @@ void HttpRequestTestObjectType::test<18>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t options;
     HttpHeaders::ptr_t headers;
-    BufferArray * ba = NULL;
+    BufferArray * ba = nullptr;
 
     try
     {
@@ -2051,7 +2051,7 @@ void HttpRequestTestObjectType::test<18>()
                                             handlerp);
         ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
         ba->release();
-        ba = NULL;
+        ba = nullptr;
 
         // Run the notification pump.
         int count(0);
@@ -2098,7 +2098,7 @@ void HttpRequestTestObjectType::test<18>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -2109,7 +2109,7 @@ void HttpRequestTestObjectType::test<18>()
         if (ba)
         {
             ba->release();
-            ba = NULL;
+            ba = nullptr;
         }
         options.reset();
         headers.reset();
@@ -2153,7 +2153,7 @@ void HttpRequestTestObjectType::test<19>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t options;
     HttpHeaders::ptr_t headers;
 
@@ -2293,7 +2293,7 @@ void HttpRequestTestObjectType::test<19>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -2343,10 +2343,10 @@ void HttpRequestTestObjectType::test<20>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t options;
     HttpHeaders::ptr_t headers;
-    BufferArray * ba = NULL;
+    BufferArray * ba = nullptr;
 
     try
     {
@@ -2457,7 +2457,7 @@ void HttpRequestTestObjectType::test<20>()
                                              handlerp);
         ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
         ba->release();
-        ba = NULL;
+        ba = nullptr;
 
         // Run the notification pump.
         int count(0);
@@ -2504,7 +2504,7 @@ void HttpRequestTestObjectType::test<20>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -2515,7 +2515,7 @@ void HttpRequestTestObjectType::test<20>()
         if (ba)
         {
             ba->release();
-            ba = NULL;
+            ba = nullptr;
         }
         options.reset();
         headers.reset();
@@ -2558,10 +2558,10 @@ void HttpRequestTestObjectType::test<21>()
     LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t options;
     HttpHeaders::ptr_t headers;
-    BufferArray * ba = NULL;
+    BufferArray * ba = nullptr;
 
     try
     {
@@ -2665,7 +2665,7 @@ void HttpRequestTestObjectType::test<21>()
                                             handlerp);
         ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
         ba->release();
-        ba = NULL;
+        ba = nullptr;
 
         // Run the notification pump.
         int count(0);
@@ -2712,7 +2712,7 @@ void HttpRequestTestObjectType::test<21>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -2723,7 +2723,7 @@ void HttpRequestTestObjectType::test<21>()
         if (ba)
         {
             ba->release();
-            ba = NULL;
+            ba = nullptr;
         }
         options.reset();
         headers.reset();
@@ -2759,7 +2759,7 @@ void HttpRequestTestObjectType::test<22>()
     mHandlerCalls = 0;
 
     HttpOptions::ptr_t options;
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
 
     try
     {
@@ -2903,7 +2903,7 @@ void HttpRequestTestObjectType::test<22>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();
@@ -2945,7 +2945,7 @@ void HttpRequestTestObjectType::test<23>()
     std::string url_base(get_base_url() + "/503/"); // path to 503 generators
     mHandlerCalls = 0;
 
-    HttpRequest * req = NULL;
+    HttpRequest * req = nullptr;
     HttpOptions::ptr_t opts;
 
     try
@@ -3027,7 +3027,7 @@ void HttpRequestTestObjectType::test<23>()
 
         // release the request object
         delete req;
-        req = NULL;
+        req = nullptr;
 
         // Shut down service
         HttpRequest::destroyService();

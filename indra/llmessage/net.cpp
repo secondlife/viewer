@@ -115,8 +115,8 @@ const char* u32_to_ip_string(U32 ip)
     in.s_addr = ip;
     char* result = inet_ntoa(in);
 
-    // NULL indicates error in conversion
-    if (result != NULL)
+    // nullptr indicates error in conversion
+    if (result != nullptr)
     {
         strncpy( buffer, result, MAXADDRSTR );   /* Flawfinder: ignore */
         buffer[MAXADDRSTR-1] = '\0';
@@ -129,7 +129,7 @@ const char* u32_to_ip_string(U32 ip)
 }
 
 
-// Returns ip_string if successful, NULL if not.  Copies into ip_string
+// Returns ip_string if successful, nullptr if not.  Copies into ip_string
 char *u32_to_ip_string(U32 ip, char *ip_string)
 {
     char *result;
@@ -139,8 +139,8 @@ char *u32_to_ip_string(U32 ip, char *ip_string)
     in.s_addr = ip;
     result = inet_ntoa(in);
 
-    // NULL indicates error in conversion
-    if (result != NULL)
+    // nullptr indicates error in conversion
+    if (result != nullptr)
     {
         //the function signature needs to change to pass in the lengfth of first and last.
         strcpy(ip_string, result);  /*Flawfinder: ignore*/
@@ -148,7 +148,7 @@ char *u32_to_ip_string(U32 ip, char *ip_string)
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -543,7 +543,7 @@ static int recvfrom_destip( int socket, void *buf, int len, struct sockaddr *fro
         return -1;
     }
 
-    for (cmsgptr = CMSG_FIRSTHDR(&msg); cmsgptr != NULL; cmsgptr = CMSG_NXTHDR( &msg, cmsgptr))
+    for (cmsgptr = CMSG_FIRSTHDR(&msg); cmsgptr != nullptr; cmsgptr = CMSG_NXTHDR( &msg, cmsgptr))
     {
         if( cmsgptr->cmsg_level == SOL_IP && cmsgptr->cmsg_type == IP_PKTINFO )
         {

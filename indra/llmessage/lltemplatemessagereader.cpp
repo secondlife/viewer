@@ -41,8 +41,8 @@
 LLTemplateMessageReader::LLTemplateMessageReader(message_template_number_map_t&
                                                  number_template_map) :
     mReceiveSize(0),
-    mCurrentRMessageTemplate(NULL),
-    mCurrentRMessageData(NULL),
+    mCurrentRMessageTemplate(nullptr),
+    mCurrentRMessageData(nullptr),
     mMessageNumbers(number_template_map)
 {
 }
@@ -51,16 +51,16 @@ LLTemplateMessageReader::LLTemplateMessageReader(message_template_number_map_t&
 LLTemplateMessageReader::~LLTemplateMessageReader()
 {
     delete mCurrentRMessageData;
-    mCurrentRMessageData = NULL;
+    mCurrentRMessageData = nullptr;
 }
 
 //virtual
 void LLTemplateMessageReader::clearMessage()
 {
     mReceiveSize = -1;
-    mCurrentRMessageTemplate = NULL;
+    mCurrentRMessageTemplate = nullptr;
     delete mCurrentRMessageData;
-    mCurrentRMessageData = NULL;
+    mCurrentRMessageData = nullptr;
 }
 
 void LLTemplateMessageReader::getData(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum, S32 max_size)
@@ -598,7 +598,7 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
             return false;
         }
 
-        LLMsgBlkData* cur_data_block = NULL;
+        LLMsgBlkData* cur_data_block = nullptr;
 
         // now loop through the block
         for (i = 0; i < repeat_number; i++)
@@ -825,7 +825,7 @@ bool LLTemplateMessageReader::isUdpBanned() const
 //virtual
 void LLTemplateMessageReader::copyToBuilder(LLMessageBuilder& builder) const
 {
-    if(NULL == mCurrentRMessageTemplate)
+    if(nullptr == mCurrentRMessageTemplate)
     {
         return;
     }

@@ -417,7 +417,7 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     {
         // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
         LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
-        const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
+        const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : nullptr;
 
         if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
         {
@@ -436,7 +436,7 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
 #if 1
         // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
         LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
-        const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
+        const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : nullptr;
 
         if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
         {

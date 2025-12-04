@@ -272,12 +272,12 @@ namespace
 {
 CURL *getCurlTemplateHandle()
 {
-    static CURL *curlpTemplateHandle = NULL;
+    static CURL *curlpTemplateHandle = nullptr;
 
-    if (curlpTemplateHandle == NULL)
+    if (curlpTemplateHandle == nullptr)
     {   // Late creation of the template curl handle
         curlpTemplateHandle = curl_easy_init();
-        if (curlpTemplateHandle == NULL)
+        if (curlpTemplateHandle == nullptr)
         {
             LL_WARNS() << "curl error calling curl_easy_init()" << LL_ENDL;
         }
@@ -316,7 +316,7 @@ CURL *getCurlTemplateHandle()
 
 LLMutex *getCurlMutex()
 {
-    static LLMutex* sHandleMutexp = NULL;
+    static LLMutex* sHandleMutexp = nullptr;
 
     if (!sHandleMutexp)
     {

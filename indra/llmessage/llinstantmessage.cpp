@@ -145,7 +145,7 @@ void pack_instant_message_block(
     }
     else
     {
-        msg->addStringFast(_PREHASH_Message, NULL);
+        msg->addStringFast(_PREHASH_Message, nullptr);
     }
     const U8* bb;
     if(binary_bucket)

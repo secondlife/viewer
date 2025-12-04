@@ -104,7 +104,7 @@ public:
 
     virtual bool handles(const LLSD& remainder, LLSD& context) const
     {
-        return followRemainder(remainder) != NULL;
+        return followRemainder(remainder) != nullptr;
     }
 
     virtual void get(ResponsePtr response, const LLSD& context) const

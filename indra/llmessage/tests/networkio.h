@@ -46,7 +46,7 @@ class NetworkIO: public LLSingleton<NetworkIO>
 {
     LLSINGLETON(NetworkIO);
     NetworkIO():
-        mServicePump(NULL),
+        mServicePump(nullptr),
         mDone(false)
     {
         ll_init_apr();
@@ -58,7 +58,7 @@ class NetworkIO: public LLSingleton<NetworkIO>
         // Create IO Pump to use for HTTP Requests.
         mServicePump = new LLPumpIO(gAPRPoolp);
         LLHTTPClient::setPump(*mServicePump);
-        if (ll_init_ares() == NULL || !gAres->isInitialized())
+        if (ll_init_ares() == nullptr || !gAres->isInitialized())
         {
             LLTHROW(LLException("Can't start DNS resolver"));
         }

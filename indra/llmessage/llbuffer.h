@@ -415,7 +415,7 @@ public:
      */
     S32 count(S32 channel) const
     {
-        return countAfter(channel, NULL);
+        return countAfter(channel, nullptr);
     }
 
     /**

@@ -340,7 +340,7 @@ void LLAvatarNameCache::processName(const LLUUID& agent_id, const LLAvatarName& 
         mSignalMap.erase(agent_id);
 
         delete signal;
-        signal = NULL;
+        signal = nullptr;
     }
 
 

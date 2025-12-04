@@ -112,22 +112,22 @@ void HttpHeadersTestObjectType::test<3>()
 
         ensure("Headers retained", 3 == headers->size());
 
-        const std::string * result(NULL);
+        const std::string * result(nullptr);
 
         // Find a header
         result = headers->find("TRES");
-        ensure("Found the last item", result != NULL);
-        ensure("Last item is a nice", result != NULL && str3v == *result);
+        ensure("Found the last item", result != nullptr);
+        ensure("Last item is a nice", result != nullptr && str3v == *result);
 
         // appends above are raw and find is case sensitive
         result = headers->find("TReS");
-        ensure("Last item not found due to case", result == NULL);
+        ensure("Last item not found due to case", result == nullptr);
 
         result = headers->find("TRE");
-        ensure("Last item not found due to prefixing (1)", result == NULL);
+        ensure("Last item not found due to prefixing (1)", result == nullptr);
 
         result = headers->find("TRESS");
-        ensure("Last item not found due to prefixing (2)", result == NULL);
+        ensure("Last item not found due to prefixing (2)", result == nullptr);
     }
 
     // release the implicit reference, causing the object to be released
@@ -149,26 +149,26 @@ void HttpHeadersTestObjectType::test<4>()
 
         ensure("First append worked in some fashion", 1 == headers->size());
 
-        const std::string * result(NULL);
+        const std::string * result(nullptr);
 
         // Find a header
         result = headers->find("accept");
-        ensure("Found 'accept'", result != NULL);
-        ensure("accept value has face", result != NULL && *result == line1v);
+        ensure("Found 'accept'", result != nullptr);
+        ensure("accept value has face", result != nullptr && *result == line1v);
 
         // Left-clean on value
         static char line2[] = " next : \t\tlinejunk \t";
         headers->appendNormal(line2, sizeof(line2) - 1);
         ensure("Second append worked", 2 == headers->size());
         result = headers->find("next");
-        ensure("Found 'next'", result != NULL);
-        ensure("next value is left-clean", result != NULL &&
+        ensure("Found 'next'", result != nullptr);
+        ensure("next value is left-clean", result != nullptr &&
                *result == "linejunk \t");
 
         // First value unmolested
         result = headers->find("accept");
-        ensure("Found 'accept' again", result != NULL);
-        ensure("accept value has face", result != NULL && *result == line1v);
+        ensure("Found 'accept' again", result != nullptr);
+        ensure("accept value has face", result != nullptr && *result == line1v);
 
         // Colons in value are okay
         static char line3[] = "FancY-PANTs::plop:-neuf-=vleem=";
@@ -176,16 +176,16 @@ void HttpHeadersTestObjectType::test<4>()
         headers->appendNormal(line3, sizeof(line3) - 1);
         ensure("Third append worked", 3 == headers->size());
         result = headers->find("fancy-pants");
-        ensure("Found 'fancy-pants'", result != NULL);
-        ensure("fancy-pants value has colons", result != NULL && *result == line3v);
+        ensure("Found 'fancy-pants'", result != nullptr);
+        ensure("fancy-pants value has colons", result != nullptr && *result == line3v);
 
         // Zero-length value
         static char line4[] = "all-talk-no-walk:";
         headers->appendNormal(line4, sizeof(line4) - 1);
         ensure("Fourth append worked", 4 == headers->size());
         result = headers->find("all-talk-no-walk");
-        ensure("Found 'all-talk'", result != NULL);
-        ensure("al-talk value is zero-length", result != NULL && result->size() == 0);
+        ensure("Found 'all-talk'", result != nullptr);
+        ensure("al-talk value is zero-length", result != nullptr && result->size() == 0);
 
         // Zero-length name
         static char line5[] = ":all-talk-no-walk";
@@ -193,8 +193,8 @@ void HttpHeadersTestObjectType::test<4>()
         headers->appendNormal(line5, sizeof(line5) - 1);
         ensure("Fifth append worked", 5 == headers->size());
         result = headers->find("");
-        ensure("Found no-name", result != NULL);
-        ensure("no-name value is something", result != NULL && *result == line5v);
+        ensure("Found no-name", result != nullptr);
+        ensure("no-name value is something", result != nullptr && *result == line5v);
 
         // Lone colon is still something
         headers->clear();
@@ -202,24 +202,24 @@ void HttpHeadersTestObjectType::test<4>()
         headers->appendNormal(line6, sizeof(line6) - 1);
         ensure("Sixth append worked", 1 == headers->size());
         result = headers->find("");
-        ensure("Found 2nd no-name", result != NULL);
-        ensure("2nd no-name value is nothing", result != NULL && result->size() == 0);
+        ensure("Found 2nd no-name", result != nullptr);
+        ensure("2nd no-name value is nothing", result != nullptr && result->size() == 0);
 
         // Line without colons is taken as-is and unstripped in name
         static char line7[] = " \toskdgioasdghaosdghoowg28342908tg8902hg0hwedfhqew890v7qh0wdebv78q0wdevbhq>?M>BNM<ZV>?NZ? \t";
         headers->appendNormal(line7, sizeof(line7) - 1);
         ensure("Seventh append worked", 2 == headers->size());
         result = headers->find(line7);
-        ensure("Found whatsit line", result != NULL);
-        ensure("Whatsit line has no value", result != NULL && result->size() == 0);
+        ensure("Found whatsit line", result != nullptr);
+        ensure("Whatsit line has no value", result != nullptr && result->size() == 0);
 
         // Normaling interface heeds the byte count, doesn't look for NUL-terminator
         static char line8[] = "binary:ignorestuffontheendofthis";
         headers->appendNormal(line8, 13);
         ensure("Eighth append worked", 3 == headers->size());
         result = headers->find("binary");
-        ensure("Found 'binary'", result != NULL);
-        ensure("binary value was limited to 'ignore'", result != NULL &&
+        ensure("Found 'binary'", result != nullptr);
+        ensure("binary value was limited to 'ignore'", result != nullptr &&
                *result == "ignore");
 
     }

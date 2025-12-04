@@ -73,8 +73,8 @@ bool LLChainIOFactory::build(LLIOPipe* in, LLIOPipe* out) const
     {
         return false;
     }
-    LLIOPipe* first = NULL;
-    LLIOPipe* last = NULL;
+    LLIOPipe* first = nullptr;
+    LLIOPipe* last = nullptr;
     if(build_impl(first, last) && first && last)
     {
         in->connect(first);

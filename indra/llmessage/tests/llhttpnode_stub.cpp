@@ -57,14 +57,14 @@ void LLHTTPNode::put(LLHTTPNode::ResponsePtr response, const LLSD& context, cons
 void LLHTTPNode::post(LLHTTPNode::ResponsePtr response, const LLSD& context, const LLSD& input) const {}
 void LLHTTPNode::del(LLHTTPNode::ResponsePtr response, const LLSD& context) const {}
 void  LLHTTPNode::options(ResponsePtr response, const LLSD& context) const {}
-LLHTTPNode* LLHTTPNode::getChild(const std::string& name, LLSD& context) const { return NULL; }
+LLHTTPNode* LLHTTPNode::getChild(const std::string& name, LLSD& context) const { return nullptr; }
 bool LLHTTPNode::handles(const LLSD& remainder, LLSD& context) const { return false; }
 bool LLHTTPNode::validate(const std::string& name, LLSD& context) const { return false; }
-const LLHTTPNode* LLHTTPNode::traverse(const std::string& path, LLSD& context) const { return NULL; }
+const LLHTTPNode* LLHTTPNode::traverse(const std::string& path, LLSD& context) const { return nullptr; }
 void LLHTTPNode::addNode(const std::string& path, LLHTTPNode* nodeToAdd) { }
 LLSD LLHTTPNode::allNodePaths() const { return LLSD(); }
-const LLHTTPNode* LLHTTPNode::rootNode() const { return NULL; }
-const LLHTTPNode* LLHTTPNode::findNode(const std::string& name) const { return NULL; }
+const LLHTTPNode* LLHTTPNode::rootNode() const { return nullptr; }
+const LLHTTPNode* LLHTTPNode::findNode(const std::string& name) const { return nullptr; }
 
 LLHTTPNode::Response::~Response(){}
 void LLHTTPNode::Response::notFound(const std::string& message)
@@ -95,7 +95,7 @@ void LLHTTPNode::Response::addHeader(const std::string& name,const std::string& 
 void LLHTTPNode::describe(Description& desc) const { }
 
 
-const LLChainIOFactory* LLHTTPNode::getProtocolHandler() const { return NULL; }
+const LLChainIOFactory* LLHTTPNode::getProtocolHandler() const { return nullptr; }
 
 
 LLHTTPRegistrar::NodeFactory::~NodeFactory() { }

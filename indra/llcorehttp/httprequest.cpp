@@ -55,7 +55,7 @@ namespace LLCore
 
 HttpRequest::HttpRequest()
     : mReplyQueue(),
-      mRequestQueue(NULL)
+      mRequestQueue(nullptr)
 {
     mRequestQueue = HttpRequestQueue::instanceOf();
     mRequestQueue->addRef();
@@ -71,7 +71,7 @@ HttpRequest::~HttpRequest()
     if (mRequestQueue)
     {
         mRequestQueue->release();
-        mRequestQueue = NULL;
+        mRequestQueue = nullptr;
     }
 
     mReplyQueue.reset();
@@ -437,7 +437,7 @@ HttpStatus HttpRequest::update(long usecs)
                  replies.end() != iter;
                  ++iter)
             {
-                // Swap op pointer for NULL;
+                // Swap op pointer for nullptr;
                 op.reset();
                 op.swap(*iter);
 

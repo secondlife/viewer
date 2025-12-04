@@ -35,8 +35,8 @@
 ///----------------------------------------------------------------------------
 
 LLXORCipher::LLXORCipher(const U8* pad, U32 pad_len) :
-    mPad(NULL),
-    mHead(NULL),
+    mPad(nullptr),
+    mHead(nullptr),
     mPadLen(0)
 {
     init(pad, pad_len);
@@ -45,12 +45,12 @@ LLXORCipher::LLXORCipher(const U8* pad, U32 pad_len) :
 // Destroys the object
 LLXORCipher::~LLXORCipher()
 {
-    init(NULL, 0);
+    init(nullptr, 0);
 }
 
 LLXORCipher::LLXORCipher(const LLXORCipher& cipher) :
-    mPad(NULL),
-    mHead(NULL),
+    mPad(nullptr),
+    mHead(nullptr),
     mPadLen(0)
 {
     init(cipher.mPad, cipher.mPadLen);
@@ -92,14 +92,14 @@ void LLXORCipher::init(const U8* pad, U32 pad_len)
     if(mPad)
     {
         delete [] mPad;
-        mPad = NULL;
+        mPad = nullptr;
         mPadLen = 0;
     }
     if(pad && pad_len)
     {
         mPadLen = pad_len;
         mPad = new U8[mPadLen];
-        if (mPad != NULL)
+        if (mPad != nullptr)
         {
             memcpy(mPad, pad, mPadLen); /* Flawfinder : ignore */
         }

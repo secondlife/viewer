@@ -135,8 +135,8 @@
 ///     hr->requestGet(HttpRequest::DEFAULT_POLICY_ID,
 ///                    0,               // Priority, not used yet
 ///                    url,
-///                    NULL,            // options
-///                    NULL,            // additional headers
+///                    nullptr,            // options
+///                    nullptr,            // additional headers
 ///                    handler);
 ///
 /// If that returns a value other than LLCORE_HTTP_HANDLE_INVALID,
@@ -207,7 +207,7 @@ namespace LLCore
 
 typedef void * HttpHandle;
 
-#define LLCORE_HTTP_HANDLE_INVALID      (NULL)
+#define LLCORE_HTTP_HANDLE_INVALID      (nullptr)
 
 /// For internal scheduling and metrics, we use a microsecond
 /// timebase compatible with the environment.
