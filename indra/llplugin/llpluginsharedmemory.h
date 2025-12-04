@@ -82,7 +82,7 @@ public:
     *
     * @return True if memory address is non-null, false otherwise.
     */
-    bool isMapped(void) const { return (mMappedAddress != NULL); };
+    bool isMapped(void) const { return (mMappedAddress != nullptr); };
    /**
     * Get pointer to shared memory.
     *

@@ -40,7 +40,7 @@ static const F32 PLUGIN_IDLE_SECONDS = 1.0f / 100.0f;  // Each call to idle will
 LLPluginProcessChild::LLPluginProcessChild()
 {
     mState = STATE_UNINITIALIZED;
-    mInstance = NULL;
+    mInstance = nullptr;
     mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
     mSleepTime = PLUGIN_IDLE_SECONDS;   // default: send idle messages at 100Hz
     mCPUElapsed = 0.0f;
@@ -50,7 +50,7 @@ LLPluginProcessChild::LLPluginProcessChild()
 
 LLPluginProcessChild::~LLPluginProcessChild()
 {
-    if (mInstance != NULL)
+    if (mInstance != nullptr)
     {
         sendMessageToPlugin(LLPluginMessage("base", "cleanup"));
 
@@ -60,7 +60,7 @@ LLPluginProcessChild::~LLPluginProcessChild()
         // process as well as a bunch of plugin specific files are locked and cannot be overwritten.
         exit(0);
         //delete mInstance;
-        //mInstance = NULL;
+        //mInstance = nullptr;
     }
 }
 
@@ -96,7 +96,7 @@ void LLPluginProcessChild::idle(void)
                 setState(STATE_ERROR);
             }
 
-            if ((mState > STATE_INITIALIZED) && (mMessagePipe == NULL))
+            if ((mState > STATE_INITIALIZED) && (mMessagePipe == nullptr))
             {
                 // The pipe has been closed -- we're done.
                 // TODO: This could be slightly more subtle, but I'm not sure it needs to be.
@@ -110,7 +110,7 @@ void LLPluginProcessChild::idle(void)
         // When in doubt, don't do it.
         idle_again = false;
 
-        if (mInstance != NULL)
+        if (mInstance != nullptr)
         {
             // Provide some time to the plugin
             mInstance->idle();
@@ -172,7 +172,7 @@ void LLPluginProcessChild::idle(void)
             break;
 
         case STATE_RUNNING:
-            if (mInstance != NULL)
+            if (mInstance != nullptr)
             {
                 // Provide some time to the plugin
                 LLPluginMessage message("base", "idle");
@@ -207,7 +207,7 @@ void LLPluginProcessChild::idle(void)
             setState(STATE_UNLOADING);
             mWaitGoodbye.setTimerExpirySec(GOODBYE_SECONDS);
 
-            if (mInstance != NULL)
+            if (mInstance != nullptr)
             {
                 sendMessageToPlugin(LLPluginMessage("base", "cleanup"));
             }
@@ -218,7 +218,7 @@ void LLPluginProcessChild::idle(void)
             if (mWaitGoodbye.hasExpired())
             {
                 LL_WARNS() << "Wait for goodbye expired.  Advancing to UNLOADED" << LL_ENDL;
-                if (mInstance != NULL)
+                if (mInstance != nullptr)
                 {
                     // Something went wrong, at least make sure plugin will terminate
                     sendMessageToPlugin(LLPluginMessage("base", "force_exit"));
@@ -242,7 +242,7 @@ void LLPluginProcessChild::idle(void)
         case STATE_UNLOADED:
             killSockets();
             delete mInstance;
-            mInstance = NULL;
+            mInstance = nullptr;
             setState(STATE_DONE);
             break;
 
@@ -329,7 +329,7 @@ void LLPluginProcessChild::sendMessageToPlugin(const LLPluginMessage &message)
     }
     else
     {
-        LL_WARNS("Plugin") << "mInstance == NULL" << LL_ENDL;
+        LL_WARNS("Plugin") << "mInstance == nullptr" << LL_ENDL;
     }
 }
 
@@ -472,7 +472,7 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
         }
     }
 
-    if (passMessage && mInstance != NULL)
+    if (passMessage && mInstance != nullptr)
     {
         LLTimer elapsed;
 
@@ -577,7 +577,7 @@ void LLPluginProcessChild::receivePluginMessage(const std::string &message)
         // The plugin wants to block and wait for a response to this message.
         sleep(mSleepTime);  // this will pump the message pipe and process messages
 
-        if (mBlockingResponseReceived || mSocketError != APR_SUCCESS || (mMessagePipe == NULL))
+        if (mBlockingResponseReceived || mSocketError != APR_SUCCESS || (mMessagePipe == nullptr))
         {
             // Response has been received, or we've hit an error state.  Stop waiting.
             mBlockingRequest = false;

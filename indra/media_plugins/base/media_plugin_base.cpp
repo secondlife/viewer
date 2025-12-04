@@ -108,7 +108,7 @@ void MediaPluginBase::staticReceiveMessage(const char *message_string, void **us
 {
     MediaPluginBase *self = (MediaPluginBase*)*user_data;
 
-    if(self != NULL)
+    if(self != nullptr)
     {
         self->receiveMessage(message_string);
 
@@ -116,7 +116,7 @@ void MediaPluginBase::staticReceiveMessage(const char *message_string, void **us
         if(self->mDeleteMe)
         {
             delete self;
-            *user_data = NULL;
+            *user_data = nullptr;
         }
     }
 }

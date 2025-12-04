@@ -117,7 +117,7 @@ public:
 LLPluginSharedMemory::LLPluginSharedMemory()
 {
     mSize = 0;
-    mMappedAddress = NULL;
+    mMappedAddress = nullptr;
     mNeedsDestroy = false;
 
     mImpl = new LLPluginSharedMemoryPlatformImpl;
@@ -143,7 +143,7 @@ LLPluginSharedMemory::~LLPluginSharedMemory()
 
 LLPluginSharedMemoryPlatformImpl::LLPluginSharedMemoryPlatformImpl()
 {
-    mAprSharedMemory = NULL;
+    mAprSharedMemory = nullptr;
 }
 
 LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
@@ -154,7 +154,7 @@ LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
 bool LLPluginSharedMemory::map(void)
 {
     mMappedAddress = apr_shm_baseaddr_get(mImpl->mAprSharedMemory);
-    if(mMappedAddress == NULL)
+    if(mMappedAddress == nullptr)
     {
         return false;
     }
@@ -208,7 +208,7 @@ bool LLPluginSharedMemory::destroy(void)
         {
             // TODO: Is this a fatal error?  I think not...
         }
-        mImpl->mAprSharedMemory = NULL;
+        mImpl->mAprSharedMemory = nullptr;
     }
 
     return true;
@@ -239,7 +239,7 @@ bool LLPluginSharedMemory::detach(void)
         {
             // TODO: Is this a fatal error?  I think not...
         }
-        mImpl->mAprSharedMemory = NULL;
+        mImpl->mAprSharedMemory = nullptr;
     }
 
     return true;
@@ -260,8 +260,8 @@ LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
 
 bool LLPluginSharedMemory::map(void)
 {
-    mMappedAddress = ::mmap(NULL, mSize, PROT_READ | PROT_WRITE, MAP_SHARED, mImpl->mSharedMemoryFD, 0);
-    if(mMappedAddress == NULL)
+    mMappedAddress = ::mmap(nullptr, mSize, PROT_READ | PROT_WRITE, MAP_SHARED, mImpl->mSharedMemoryFD, 0);
+    if(mMappedAddress == nullptr)
     {
         return false;
     }
@@ -273,7 +273,7 @@ bool LLPluginSharedMemory::map(void)
 
 bool LLPluginSharedMemory::unmap(void)
 {
-    if(mMappedAddress != NULL)
+    if(mMappedAddress != nullptr)
     {
         LL_DEBUGS("Plugin") << "calling munmap(" << mMappedAddress << ", " << mSize << ")" << LL_ENDL;
         if(::munmap(mMappedAddress, mSize) == -1)
@@ -281,7 +281,7 @@ bool LLPluginSharedMemory::unmap(void)
             // TODO: Is this a fatal error?  I think not...
         }
 
-        mMappedAddress = NULL;
+        mMappedAddress = nullptr;
     }
 
     return true;
@@ -382,7 +382,7 @@ bool LLPluginSharedMemory::detach(void)
 
 LLPluginSharedMemoryPlatformImpl::LLPluginSharedMemoryPlatformImpl()
 {
-    mMapFile = NULL;
+    mMapFile = nullptr;
 }
 
 LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
@@ -399,7 +399,7 @@ bool LLPluginSharedMemory::map(void)
         0,
         mSize);
 
-    if(mMappedAddress == NULL)
+    if(mMappedAddress == nullptr)
     {
         LL_WARNS("Plugin") << "MapViewOfFile failed: " << GetLastError() << LL_ENDL;
         return false;
@@ -412,10 +412,10 @@ bool LLPluginSharedMemory::map(void)
 
 bool LLPluginSharedMemory::unmap(void)
 {
-    if(mMappedAddress != NULL)
+    if(mMappedAddress != nullptr)
     {
         UnmapViewOfFile(mMappedAddress);
-        mMappedAddress = NULL;
+        mMappedAddress = nullptr;
     }
 
     return true;
@@ -423,10 +423,10 @@ bool LLPluginSharedMemory::unmap(void)
 
 bool LLPluginSharedMemory::close(void)
 {
-    if(mImpl->mMapFile != NULL)
+    if(mImpl->mMapFile != nullptr)
     {
         CloseHandle(mImpl->mMapFile);
-        mImpl->mMapFile = NULL;
+        mImpl->mMapFile = nullptr;
     }
 
     return true;
@@ -447,13 +447,13 @@ bool LLPluginSharedMemory::create(size_t size)
 
     mImpl->mMapFile = CreateFileMappingA(
                  INVALID_HANDLE_VALUE,      // use paging file
-                 NULL,                      // default security
+                 nullptr,                      // default security
                  PAGE_READWRITE,            // read/write access
                  0,                         // max. object size
                  static_cast<DWORD>(mSize), // buffer size
                  mName.c_str());            // name of mapping object
 
-    if(mImpl->mMapFile == NULL)
+    if(mImpl->mMapFile == nullptr)
     {
         LL_WARNS("Plugin") << "CreateFileMapping failed: " << GetLastError() << LL_ENDL;
         return false;
@@ -481,7 +481,7 @@ bool LLPluginSharedMemory::attach(const std::string &name, size_t size)
                 false,                      // do not inherit the name
                 mName.c_str());             // name of mapping object
 
-    if(mImpl->mMapFile == NULL)
+    if(mImpl->mMapFile == nullptr)
     {
         LL_WARNS("Plugin") << "OpenFileMapping failed: " << GetLastError() << LL_ENDL;
         return false;

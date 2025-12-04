@@ -591,7 +591,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 {
                     if (mPixels == iter->second.mAddress)
                     {
-                        mPixels = NULL;
+                        mPixels = nullptr;
                         mTextureSegmentName.clear();
                     }
                     mSharedSegments.erase(iter);

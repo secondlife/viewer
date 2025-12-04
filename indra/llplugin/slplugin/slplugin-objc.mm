@@ -66,7 +66,7 @@ void LLCocoaPlugin::setupCocoa()
     }
 }
 
-static NSAutoreleasePool *sPool = NULL;
+static NSAutoreleasePool *sPool = nullptr;
 
 void LLCocoaPlugin::createAutoReleasePool()
 {
@@ -81,7 +81,7 @@ void LLCocoaPlugin::deleteAutoReleasePool()
     if(sPool)
     {
         [sPool release];
-        sPool = NULL;
+        sPool = nullptr;
     }
 }
 
@@ -131,7 +131,7 @@ void LLCocoaPlugin::updateWindows()
 //        if ( current_window == parent_window ) parent_is_front_process = true;
 //        if ( current_window == mPluginWindow ) this_is_front_process = true;
 //
-//        if (current_window != NULL && mFrontWindow == NULL)
+//        if (current_window != nullptr && mFrontWindow == nullptr)
 //        {
 //            // Opening the first window
 //
@@ -151,7 +151,7 @@ void LLCocoaPlugin::updateWindows()
 //            [NSApp activateIgnoringOtherApps:YES];
 //        }
 //
-//        else if (( current_window == NULL) && (mFrontWindow != NULL))
+//        else if (( current_window == nullptr) && (mFrontWindow != nullptr))
 //        {
 //            // Closing the last window
 //

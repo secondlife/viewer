@@ -142,7 +142,7 @@ void* MediaPluginLibVLC::lock(void* data, void** p_pixels)
 
     *p_pixels = context->texture_pixels;
 
-    return NULL;
+    return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -442,7 +442,7 @@ void MediaPluginLibVLC::setVolumeVLC()
         DWORD left_channel = (DWORD)(mCurVolume * 65535.0f);
         DWORD right_channel = (DWORD)(mCurVolume * 65535.0f);
         DWORD hw_volume = left_channel << 16 | right_channel;
-        waveOutSetVolume(NULL, hw_volume);
+        waveOutSetVolume(nullptr, hw_volume);
 #endif
     }
     else
@@ -531,7 +531,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
                         libvlc_media_player_release(mLibVLCMediaPlayer);
                         mLibVLCMediaPlayer = 0;
 
-                        mPixels = NULL;
+                        mPixels = nullptr;
                         mTextureSegmentName.clear();
                     }
                     mSharedSegments.erase(iter);

@@ -119,7 +119,7 @@ bool checkExceptionHandler()
         }
         else
         {
-            LL_WARNS("AppInit") << "Our exception handler (" << (void *)myWin32ExceptionHandler << ") replaced with NULL!" << LL_ENDL;
+            LL_WARNS("AppInit") << "Our exception handler (" << (void *)myWin32ExceptionHandler << ") replaced with nullptr!" << LL_ENDL;
         }
     }
 

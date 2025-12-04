@@ -152,7 +152,7 @@ void mediaPluginExample::receiveMessage(const char* message_string)
                     if (mPixels == iter->second.mAddress)
                     {
                         // This is the currently active pixel buffer.  Make sure we stop drawing to it.
-                        mPixels = NULL;
+                        mPixels = nullptr;
                         mTextureSegmentName.clear();
                     }
                     mSharedSegments.erase(iter);
@@ -286,7 +286,7 @@ void mediaPluginExample::update(F64 milliseconds)
         mFirstTime = false;
     };
 
-    if (time(NULL) > mLastUpdateTime + 3)
+    if (time(nullptr) > mLastUpdateTime + 3)
     {
         const int num_squares = rand() % 20 + 4;
         int sqr1_r = rand() % 0x80 + 0x20;

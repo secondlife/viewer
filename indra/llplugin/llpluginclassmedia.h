@@ -69,7 +69,7 @@ public:
     int getFullHeight() const { return mFullMediaHeight; };
     F64 getZoomFactor() const { return mZoomFactor; };
 
-    // This may return NULL.  Callers need to check for and handle this case.
+    // This may return nullptr.  Callers need to check for and handle this case.
     unsigned char* getBitsData();
 
     // gets the format details of the texture data
@@ -95,7 +95,7 @@ public:
     // until you call idle() again.
     bool textureValid(void);
 
-    bool getDirty(LLRect *dirty_rect = NULL);
+    bool getDirty(LLRect *dirty_rect = nullptr);
     void resetDirty(void);
 
     typedef enum

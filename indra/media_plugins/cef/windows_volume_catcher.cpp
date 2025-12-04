@@ -65,7 +65,7 @@ void VolumeCatcherImpl::setVolume(F32 volume)
     DWORD left_channel = (DWORD)(mVolume * 65535.0f);
     DWORD right_channel = (DWORD)(mVolume * 65535.0f);
     DWORD hw_volume = left_channel << 16 | right_channel;
-    ::waveOutSetVolume(NULL, hw_volume);
+    ::waveOutSetVolume(nullptr, hw_volume);
 }
 
 void VolumeCatcherImpl::setPan(F32 pan)

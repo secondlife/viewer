@@ -72,7 +72,7 @@ private:
     F32 mPan;
 };
 
-VolumeCatcherImpl *VolumeCatcherImpl::sInstance = NULL;;
+VolumeCatcherImpl *VolumeCatcherImpl::sInstance = nullptr;;
 
 struct VolumeCatcherStorage
 {
@@ -107,10 +107,10 @@ VolumeCatcherImpl::VolumeCatcherImpl()
     desc.componentFlagsMask = 0;
 
     // Find the original default output component
-    mOriginalDefaultOutput = FindNextComponent(NULL, &desc);
+    mOriginalDefaultOutput = FindNextComponent(nullptr, &desc);
 
     // Register our own output component with the same parameters
-    mVolumeAdjuster = RegisterComponent(&desc, NewComponentRoutineUPP(volume_catcher_component_entry), 0, NULL, NULL, NULL);
+    mVolumeAdjuster = RegisterComponent(&desc, NewComponentRoutineUPP(volume_catcher_component_entry), 0, nullptr, nullptr, nullptr);
 
     // Capture the original component, so we always get found instead.
     CaptureComponent(mOriginalDefaultOutput, mVolumeAdjuster);
@@ -152,7 +152,7 @@ static ComponentResult volume_catcher_component_open(VolumeCatcherStorage *stora
     storage = new VolumeCatcherStorage;
 
     storage->self = self;
-    storage->delegate = NULL;
+    storage->delegate = nullptr;
 
     result = OpenAComponent(impl->mOriginalDefaultOutput, &(storage->delegate));
 
@@ -187,7 +187,7 @@ static ComponentResult volume_catcher_component_close(VolumeCatcherStorage *stor
         if(storage->delegate)
         {
             CloseComponent(storage->delegate);
-            storage->delegate = NULL;
+            storage->delegate = nullptr;
         }
 
         VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();
