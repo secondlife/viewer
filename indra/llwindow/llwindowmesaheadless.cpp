@@ -33,7 +33,7 @@
 #define MESA_CHANNEL_TYPE GL_UNSIGNED_SHORT
 #define MESA_CHANNEL_SIZE 2
 
-U16 *gMesaBuffer = NULL;
+U16 *gMesaBuffer = nullptr;
 
 //
 // LLWindowMesaHeadless
@@ -47,7 +47,7 @@ LLWindowMesaHeadless::LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
     if (use_gl)
     {
         LL_INFOS() << "MESA Init" << LL_ENDL;
-        mMesaContext = OSMesaCreateContextExt( GL_RGBA, 32, 0, 0, NULL );
+        mMesaContext = OSMesaCreateContextExt( GL_RGBA, 32, 0, 0, nullptr );
 
         /* Allocate the image buffer */
         mMesaBuffer = new unsigned char [width * height * 4 * MESA_CHANNEL_SIZE];

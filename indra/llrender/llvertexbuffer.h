@@ -286,8 +286,8 @@ protected:
     U32     mIndicesStride = 2;     // size of each index in bytes
     U32     mOffsets[TYPE_MAX]; // byte offsets into mMappedData of each attribute
 
-    U8* mMappedData = nullptr;  // pointer to currently mapped data (NULL if unmapped)
-    U8* mMappedIndexData = nullptr; // pointer to currently mapped indices (NULL if unmapped)
+    U8* mMappedData = nullptr;  // pointer to currently mapped data (nullptr if unmapped)
+    U8* mMappedIndexData = nullptr; // pointer to currently mapped indices (nullptr if unmapped)
 
     U32     mTypeMask = 0;      // bitmask of present vertex attributes
 

@@ -37,7 +37,7 @@ LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
     mImage(image),
     mScaleRegion(0.f, 1.f, 1.f, 0.f),
     mClipRegion(0.f, 1.f, 1.f, 0.f),
-    mImageLoaded(NULL),
+    mImageLoaded(nullptr),
     mScaleStyle(SCALE_INNER),
     mCachedW(-1),
     mCachedH(-1)
@@ -134,7 +134,7 @@ namespace LLInitParam
         // do not default to current value. Used to overwrite template images.
         if (name() == "none")
         {
-            updateValue(NULL);
+            updateValue(nullptr);
             return;
         }
 
@@ -147,7 +147,7 @@ namespace LLInitParam
 
     void ParamValue<LLUIImage*>::updateBlockFromValue(bool make_block_authoritative)
     {
-        if (getValue() == NULL)
+        if (getValue() == nullptr)
         {
             name.set("none", make_block_authoritative);
         }

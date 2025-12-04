@@ -247,7 +247,7 @@ void LLKeyboardWin32::scanKeyboard()
 {
     S32 key;
     MSG msg;
-    PeekMessage(&msg, NULL, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE | PM_NOYIELD);
+    PeekMessage(&msg, nullptr, WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE | PM_NOYIELD);
     for (key = 0; key < KEY_COUNT; key++)
     {
         // Generate callback if any event has occurred on this key this frame.

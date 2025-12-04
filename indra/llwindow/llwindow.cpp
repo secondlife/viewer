@@ -48,7 +48,7 @@
 //
 // Globals
 //
-LLSplashScreen *gSplashScreenp = NULL;
+LLSplashScreen *gSplashScreenp = nullptr;
 bool gDebugClicks = false;
 bool gDebugWindowProc = false;
 
@@ -108,7 +108,7 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, bool fullscreen, U32 flags)
       mFullscreenWidth(0),
       mFullscreenHeight(0),
       mFullscreenRefresh(0),
-      mSupportedResolutions(NULL),
+      mSupportedResolutions(nullptr),
       mNumSupportedResolutions(0),
       mCurrentCursor(UI_CURSOR_ARROW),
       mNextCursor(UI_CURSOR_ARROW),
@@ -393,7 +393,7 @@ void LLSplashScreen::hide()
         gSplashScreenp->hideImpl();
     }
     delete gSplashScreenp;
-    gSplashScreenp = NULL;
+    gSplashScreenp = nullptr;
 }
 
 //
@@ -452,7 +452,7 @@ LLWindow* LLWindowManager::createWindow(
     {
         delete new_window;
         LL_WARNS() << "LLWindowManager::create() : Error creating window." << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
     sWindowList.insert(new_window);
     return new_window;

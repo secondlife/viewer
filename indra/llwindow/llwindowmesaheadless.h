@@ -50,7 +50,7 @@ public:
     bool getSize(LLCoordWindow *size) override {return false;};
     bool setPosition(LLCoordScreen position) override {return false;};
     bool setSizeImpl(LLCoordScreen size) override {return false;};
-    bool switchContext(bool fullscreen, const LLCoordScreen &size, bool disable_vsync, const LLCoordScreen * const posp = NULL) override {return false;};
+    bool switchContext(bool fullscreen, const LLCoordScreen &size, bool disable_vsync, const LLCoordScreen * const posp = nullptr) override {return false;};
     bool setCursorPosition(LLCoordWindow position) override {return false;};
     bool getCursorPosition(LLCoordWindow *position) override {return false;};
     bool isWrapMouse() const override { return true; }
@@ -92,7 +92,7 @@ public:
     bool convertCoords(LLCoordScreen from, LLCoordGL *to) override { return false; };
     bool convertCoords(LLCoordGL from, LLCoordScreen *to) override { return false; };
 
-    LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return NULL; };
+    LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return nullptr; };
     F32 getNativeAspectRatio() override { return 1.0f; };
     F32 getPixelAspectRatio() override { return 1.0f; };
     void setNativeAspectRatio(F32 ratio) override {}

@@ -196,7 +196,7 @@ public:
     bool attachFragmentObject(std::string object);
     bool attachVertexObject(std::string object);
     void attachObject(GLuint object);
-    void attachObjects(GLuint* objects = NULL, S32 count = 0);
+    void attachObjects(GLuint* objects = nullptr, S32 count = 0);
     bool mapAttributes();
     bool mapUniforms();
     void mapUniform(GLint index);

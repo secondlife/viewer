@@ -77,7 +77,7 @@ public:
     bool setSize(LLCoordScreen size);
     bool setSize(LLCoordWindow size);
     virtual void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true);
-    virtual bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL) = 0;
+    virtual bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = nullptr) = 0;
 
     //create a new GL context that shares a namespace with this Window's main GL context and make it current on the current thread
     // returns a pointer to be handed back to destroySharedConext/makeContextCurrent
@@ -192,7 +192,7 @@ public:
     static std::vector<std::string> getDisplaysResolutionList();
 
     // windows only DirectInput8 for joysticks
-    virtual void* getDirectInput8() { return NULL; };
+    virtual void* getDirectInput8() { return nullptr; };
     virtual bool getInputDevices(U32 device_type_filter,
                                  std::function<bool(std::string&, LLSD&, void*)> osx_callback,
                                  void* win_callback,

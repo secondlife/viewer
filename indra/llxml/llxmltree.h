@@ -152,8 +152,8 @@ public:
     LLXmlTreeNode*  getFirstChild();
     LLXmlTreeNode*  getNextChild();
     S32             getChildCount()                     { return (S32)mChildren.size(); }
-    LLXmlTreeNode*  getChildByName( const std::string& name );  // returns first child with name, NULL if none
-    LLXmlTreeNode*  getNextNamedChild();                // returns next child with name, NULL if none
+    LLXmlTreeNode*  getChildByName( const std::string& name );  // returns first child with name, nullptr if none
+    LLXmlTreeNode*  getNextNamedChild();                // returns next child with name, nullptr if none
 
 protected:
     const std::string* getAttribute( LLStdStringHandle name)

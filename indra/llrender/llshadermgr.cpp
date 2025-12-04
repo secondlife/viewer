@@ -43,7 +43,7 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
-LLShaderMgr * LLShaderMgr::sInstance = NULL;
+LLShaderMgr * LLShaderMgr::sInstance = nullptr;
 
 LLShaderMgr::LLShaderMgr()
 {
@@ -57,7 +57,7 @@ LLShaderMgr::~LLShaderMgr()
 // static
 LLShaderMgr * LLShaderMgr::instance()
 {
-    if(NULL == sInstance)
+    if(nullptr == sInstance)
     {
         LL_ERRS("Shaders") << "LLShaderMgr should already have been instantiated by the application!" << LL_ENDL;
     }
@@ -67,7 +67,7 @@ LLShaderMgr * LLShaderMgr::instance()
 
 bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 {
-    llassert_always(shader != NULL);
+    llassert_always(shader != nullptr);
     LLShaderFeatures *features = & shader->mFeatures;
 
     if (features->attachNothing)
@@ -480,7 +480,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 
     //read in from file
-    LLFILE* file = NULL;
+    LLFILE* file = nullptr;
 
     S32 try_gpu_class = shader_level;
     S32 gpu_class;
@@ -538,7 +538,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
     }
 
-    if (file == NULL)
+    if (file == nullptr)
     {
         if (gDirUtilp->fileExists(open_file_name))
         {
@@ -555,7 +555,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     //or any shaders longer than 4096 lines... deal - DaveP
     GLchar buff[1024];
     GLchar *extra_code_text[1024];
-    GLchar *shader_code_text[4096 + LL_ARRAY_SIZE(extra_code_text)] = { NULL };
+    GLchar *shader_code_text[4096 + LL_ARRAY_SIZE(extra_code_text)] = { nullptr };
     GLuint extra_code_count = 0, shader_code_count = 0;
     BOOST_STATIC_ASSERT(LL_ARRAY_SIZE(extra_code_text) < LL_ARRAY_SIZE(shader_code_text));
 
@@ -762,15 +762,15 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     bool touched = false;
 #endif
 
-    while(NULL != fgets((char *)buff, 1024, file)
+    while(nullptr != fgets((char *)buff, 1024, file)
           && shader_code_count < (LL_ARRAY_SIZE(shader_code_text) - LL_ARRAY_SIZE(extra_code_text)))
     {
         file_lines_count++;
 
-        bool extra_block_area_found = NULL != strstr((const char*)buff, "[EXTRA_CODE_HERE]");
+        bool extra_block_area_found = nullptr != strstr((const char*)buff, "[EXTRA_CODE_HERE]");
 
 #if TOUCH_SHADERS
-        if (NULL != strstr((const char*)buff, marker))
+        if (nullptr != strstr((const char*)buff, marker))
         {
             touched = true;
         }
@@ -865,7 +865,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     if (ret)
     {
         LL_DEBUGS("ShaderLoading") << "glCreateShader done" << LL_ENDL;
-        glShaderSource(ret, shader_code_count, (const GLchar**)shader_code_text, NULL);
+        glShaderSource(ret, shader_code_count, (const GLchar**)shader_code_text, nullptr);
 
         error = glGetError();
         if (error != GL_NO_ERROR)

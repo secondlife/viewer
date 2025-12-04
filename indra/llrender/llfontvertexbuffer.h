@@ -49,7 +49,7 @@ public:
         U8 style = LLFontGL::NORMAL,
         LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
         S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,
-        F32* right_x = NULL,
+        F32* right_x = nullptr,
         bool use_ellipses = false,
         bool use_color = true);
 
@@ -62,7 +62,7 @@ public:
         U8 style = LLFontGL::NORMAL,
         LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
         S32 max_chars = S32_MAX,
-        F32* right_x = NULL,
+        F32* right_x = nullptr,
         bool use_ellipses = false,
         bool use_color = true);
 
@@ -75,7 +75,7 @@ public:
         U8 style = LLFontGL::NORMAL,
         LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
         S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,
-        F32* right_x = NULL,
+        F32* right_x = nullptr,
         bool use_ellipses = false,
         bool use_color = true);
 

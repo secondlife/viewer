@@ -52,9 +52,9 @@ LLDXHardware gDXHardware;
 //-----------------------------------------------------------------------------
 // Defines, and constants
 //-----------------------------------------------------------------------------
-#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
-#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
-#define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
+#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=nullptr; } }
+#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=nullptr; } }
+#define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=nullptr; } }
 
 typedef BOOL ( WINAPI* PfnCoSetProxyBlanket )( IUnknown* pProxy, DWORD dwAuthnSvc, DWORD dwAuthzSvc,
                                                OLECHAR* pServerPrincName, DWORD dwAuthnLevel, DWORD dwImpLevel,
@@ -67,7 +67,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
     std::string mDriverVersion;
     HRESULT hres;
     CoInitializeEx(0, COINIT_APARTMENTTHREADED);
-    IWbemLocator *pLoc = NULL;
+    IWbemLocator *pLoc = nullptr;
 
     hres = CoCreateInstance(
         CLSID_WbemLocator,
@@ -81,17 +81,17 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         return std::string();                  // Program has failed.
     }
 
-    IWbemServices *pSvc = NULL;
+    IWbemServices *pSvc = nullptr;
 
     // Connect to the root\cimv2 namespace with
     // the current user and obtain pointer pSvc
     // to make IWbemServices calls.
     hres = pLoc->ConnectServer(
         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
-        NULL,                    // User name. NULL = current user
-        NULL,                    // User password. NULL = current
+        nullptr,                 // User name. NULL = current user
+        nullptr,                 // User password. NULL = current
         0,                       // Locale. NULL indicates current
-        NULL,                    // Security flags.
+        0,                       // Security flags.
         0,                       // Authority (e.g. Kerberos)
         0,                       // Context object
         &pSvc                    // pointer to IWbemServices proxy
@@ -112,10 +112,10 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         pSvc,                        // Indicates the proxy to set
         RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
         RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-        NULL,                        // Server principal name
+        nullptr,                        // Server principal name
         RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
         RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-        NULL,                        // client identity
+        nullptr,                        // client identity
         EOAC_NONE                    // proxy capabilities
         );
 
@@ -127,7 +127,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         CoUninitialize();
         return std::string();               // Program has failed.
     }
-    IEnumWbemClassObject* pEnumerator = NULL;
+    IEnumWbemClassObject* pEnumerator = nullptr;
 
     // Get the data from the query
     ULONG uReturn = 0;
@@ -135,7 +135,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         bstr_t("WQL"),
         bstr_t("SELECT * FROM Win32_VideoController"), //Consider using Availability to filter out disabled controllers
         WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
-        NULL,
+        nullptr,
         &pEnumerator);
 
     if (FAILED(hres))
@@ -149,7 +149,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
 
     while (pEnumerator)
     {
-        IWbemClassObject *pclsObj = NULL;
+        IWbemClassObject *pclsObj = nullptr;
         HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1,
             &pclsObj, &uReturn);
 
@@ -328,20 +328,20 @@ LLSD LLDXHardware::getDisplayInfo()
     LLTimer hw_timer;
     HRESULT       hr;
     LLSD ret;
-    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
-    IDxDiagProvider *dx_diag_providerp = NULL;
-    IDxDiagContainer *dx_diag_rootp = NULL;
-    IDxDiagContainer *devices_containerp = NULL;
-    IDxDiagContainer *device_containerp = NULL;
-    IDxDiagContainer *file_containerp = NULL;
-    IDxDiagContainer *driver_containerp = NULL;
+    IDxDiagProvider *dx_diag_providerp = nullptr;
+    IDxDiagContainer *dx_diag_rootp = nullptr;
+    IDxDiagContainer *devices_containerp = nullptr;
+    IDxDiagContainer *device_containerp = nullptr;
+    IDxDiagContainer *file_containerp = nullptr;
+    IDxDiagContainer *driver_containerp = nullptr;
     DWORD dw_device_count;
 
     // CoCreate a IDxDiagProvider*
     LL_INFOS() << "CoCreateInstance IID_IDxDiagProvider" << LL_ENDL;
     hr = CoCreateInstance(CLSID_DxDiagProvider,
-                          NULL,
+                          nullptr,
                           CLSCTX_INPROC_SERVER,
                           IID_IDxDiagProvider,
                           (LPVOID*) &dx_diag_providerp);
@@ -363,7 +363,7 @@ LLSD LLDXHardware::getDisplayInfo()
         dx_diag_init_params.dwSize                  = sizeof(DXDIAG_INIT_PARAMS);
         dx_diag_init_params.dwDxDiagHeaderVersion   = DXDIAG_DX9_SDK_VERSION;
         dx_diag_init_params.bAllowWHQLChecks        = TRUE;
-        dx_diag_init_params.pReserved               = NULL;
+        dx_diag_init_params.pReserved               = nullptr;
 
         LL_INFOS() << "dx_diag_providerp->Initialize" << LL_ENDL;
         hr = dx_diag_providerp->Initialize(&dx_diag_init_params);
@@ -387,7 +387,7 @@ LLSD LLDXHardware::getDisplayInfo()
         if(FAILED(hr) || !devices_containerp)
         {
             // do not release 'dirty' devices_containerp at this stage, only dx_diag_rootp
-            devices_containerp = NULL;
+            devices_containerp = nullptr;
             goto LCleanup;
         }
 
@@ -435,11 +435,11 @@ LLSD LLDXHardware::getDisplayInfo()
                 DWORD dwType = REG_SZ;
                 DWORD dwSize = sizeof(WCHAR) * RV_SIZE;
                 if(ERROR_SUCCESS == RegQueryValueEx(hKey, TEXT("ReleaseVersion"),
-                    NULL, &dwType, (LPBYTE)release_version, &dwSize))
+                    nullptr, &dwType, (LPBYTE)release_version, &dwSize))
                 {
                     // print the value
                     // windows doesn't guarantee to be null terminated
-                    release_version[RV_SIZE - 1] = NULL;
+                    release_version[RV_SIZE - 1] = 0;
                     ret["DriverVersion"] = ll_convert<std::string>(std::wstring(release_version));
 
                 }

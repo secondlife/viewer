@@ -29,6 +29,6 @@
 #include "lltexturemanagerbridge.h"
 
 // Define a null texture manager bridge.  Applications must provide their own bridge implementaton.
-LLTextureManagerBridge* gTextureManagerBridgep = NULL;
+LLTextureManagerBridge* gTextureManagerBridgep = nullptr;
 
 

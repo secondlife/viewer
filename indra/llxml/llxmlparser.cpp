@@ -37,13 +37,13 @@
 
 LLXmlParser::LLXmlParser()
     :
-    mParser( NULL ),
+    mParser( nullptr ),
     mDepth( 0 )
 {
     mAuxErrorString = "no error";
 
     // Override the document's declared encoding.
-    mParser = XML_ParserCreate(NULL);
+    mParser = XML_ParserCreate(nullptr);
 
     XML_SetUserData(mParser, this);
     XML_SetElementHandler(                  mParser,    startElementHandler, endElementHandler);

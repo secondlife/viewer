@@ -52,7 +52,7 @@ using std::make_pair;
 using std::string;
 
 GLuint LLGLSLShader::sCurBoundShader = 0;
-LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = NULL;
+LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = nullptr;
 S32 LLGLSLShader::sIndexedTextureChannels = 0;
 U32 LLGLSLShader::sMaxGLTFMaterials = 0;
 U32 LLGLSLShader::sMaxGLTFNodes = 0;
@@ -668,7 +668,7 @@ bool LLGLSLShader::mapAttributes()
 
     mAttribute.clear();
 #if LL_RELEASE_WITH_DEBUG_INFO
-    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size(), { -1, NULL });
+    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size(), { -1, nullptr });
 #else
     mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size(), -1);
 #endif
@@ -1111,7 +1111,7 @@ void LLGLSLShader::unbind(void)
 
     glUseProgram(0);
     sCurBoundShader = 0;
-    sCurBoundShaderPtr = NULL;
+    sCurBoundShaderPtr = nullptr;
 }
 
 S32 LLGLSLShader::bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode)

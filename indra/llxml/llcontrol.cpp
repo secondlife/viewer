@@ -378,7 +378,7 @@ LLControlGroup::LLControlGroup(const std::string& name)
     mSettingsProfile(false)
 {
 
-    if (NULL != getenv("LL_SETTINGS_PROFILE"))
+    if (nullptr != getenv("LL_SETTINGS_PROFILE"))
     {
         mSettingsProfile = true;
     }

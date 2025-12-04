@@ -76,7 +76,7 @@ public:
     bool setSizeImpl(LLCoordWindow size) override;
 
     bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync,
-                                   const LLCoordScreen *const posp = NULL) override;
+                                   const LLCoordScreen *const posp = nullptr) override;
 
     bool setCursorPosition(LLCoordWindow position) override;
 

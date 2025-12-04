@@ -781,7 +781,7 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos)
 void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, U32 num_indices, const U16* indicesp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-    llassert(LLGLSLShader::sCurBoundShaderPtr != NULL);
+    llassert(LLGLSLShader::sCurBoundShaderPtr != nullptr);
 
     STOP_GLERROR;
 
@@ -1545,7 +1545,7 @@ template <class T,LLVertexBuffer::AttributeType type> struct VertexBufferStrider
         {
             U8* ptr = vbo.mapIndexBuffer(index, count);
 
-            if (ptr == NULL)
+            if (ptr == nullptr)
             {
                 LL_WARNS() << "mapIndexBuffer failed!" << LL_ENDL;
                 return false;
@@ -1561,7 +1561,7 @@ template <class T,LLVertexBuffer::AttributeType type> struct VertexBufferStrider
 
             U8* ptr = vbo.mapVertexBuffer(type, index, count);
 
-            if (ptr == NULL)
+            if (ptr == nullptr)
             {
                 LL_WARNS() << "mapVertexBuffer failed!" << LL_ENDL;
                 return false;

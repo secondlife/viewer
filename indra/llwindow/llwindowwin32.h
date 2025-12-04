@@ -61,7 +61,7 @@ public:
     /*virtual*/ bool setPosition(LLCoordScreen position);
     /*virtual*/ bool setSizeImpl(LLCoordScreen size);
     /*virtual*/ bool setSizeImpl(LLCoordWindow size);
-    /*virtual*/ bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL);
+    /*virtual*/ bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = nullptr);
     /*virtual*/ void setTitle(const std::string title);
     void* createSharedContext() override;
     void makeContextCurrent(void* context) override;

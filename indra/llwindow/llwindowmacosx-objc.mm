@@ -83,7 +83,7 @@ unsigned short *copyFromPBoard()
     @autoreleasepool {
         NSPasteboard *pboard = [NSPasteboard generalPasteboard];
         NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
-        NSString *str = NULL;
+        NSString *str = nullptr;
         BOOL ok = [pboard canReadObjectForClasses:classArray options:[NSDictionary dictionary]];
         if (ok)
         {
@@ -185,7 +185,7 @@ void hideNSCursorTillMove(bool hide)
 // This is currently unused, since we want all our cursors to persist for the life of the app, but I've included it for completeness.
 OSErr releaseImageCursor(CursorRef ref)
 {
-    if( ref != NULL )
+    if( ref != nullptr )
     {
         @autoreleasepool {
             NSCursor *cursor = (NSCursor*)ref;
@@ -202,7 +202,7 @@ OSErr releaseImageCursor(CursorRef ref)
 
 OSErr setImageCursor(CursorRef ref)
 {
-    if( ref != NULL )
+    if( ref != nullptr )
     {
         @autoreleasepool {
             NSCursor *cursor = (NSCursor*)ref;

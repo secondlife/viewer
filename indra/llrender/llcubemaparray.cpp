@@ -215,5 +215,5 @@ GLuint LLCubeMapArray::getGLName()
 
 void LLCubeMapArray::destroyGL()
 {
-    mImage = NULL;
+    mImage = nullptr;
 }

@@ -114,7 +114,7 @@ class LLDragDropWin32Target:
                     mDropUrl = std::string( (char*)data );
                     // XXX MAJOR MAJOR HACK!
                     LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
-                    if (NULL != window_imp)
+                    if (nullptr != window_imp)
                     {
                         LLCoordGL gl_coord( 0, 0 );
 
@@ -169,7 +169,7 @@ class LLDragDropWin32Target:
             {
                 // XXX MAJOR MAJOR HACK!
                 LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
-                if (NULL != window_imp)
+                if (nullptr != window_imp)
                 {
                     LLCoordGL gl_coord( 0, 0 );
 
@@ -216,7 +216,7 @@ class LLDragDropWin32Target:
         {
             // XXX MAJOR MAJOR HACK!
             LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
-            if (NULL != window_imp)
+            if (nullptr != window_imp)
             {
                 LLCoordGL gl_coord( 0, 0 );
                 MASK mask = gKeyboard->currentMask(true);
@@ -233,7 +233,7 @@ class LLDragDropWin32Target:
             {
                 // window impl stored in Window data (neat!)
                 LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
-                if ( NULL != window_imp )
+                if ( nullptr != window_imp )
                 {
                     POINT pt_client;
                     pt_client.x = pt.x;
@@ -295,8 +295,8 @@ class LLDragDropWin32Target:
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLDragDropWin32::LLDragDropWin32() :
-    mDropTarget( NULL ),
-    mDropWindowHandle( NULL )
+    mDropTarget( nullptr),
+    mDropWindowHandle( nullptr)
 
 {
 }
@@ -311,7 +311,7 @@ LLDragDropWin32::~LLDragDropWin32()
 //
 bool LLDragDropWin32::init( HWND hWnd )
 {
-    if ( NOERROR != OleInitialize( NULL ) )
+    if ( NOERROR != OleInitialize( nullptr) )
         return false;
 
     mDropTarget = new LLDragDropWin32Target( hWnd );

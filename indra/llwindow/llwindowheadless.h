@@ -53,7 +53,7 @@ public:
     /*virtual*/ bool setPosition(LLCoordScreen position) override {return false;}
     /*virtual*/ bool setSizeImpl(LLCoordScreen size) override {return false;}
     /*virtual*/ bool setSizeImpl(LLCoordWindow size) override {return false;}
-    /*virtual*/ bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL) override {return false;}
+    /*virtual*/ bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = nullptr) override {return false;}
     void* createSharedContext() override  { return nullptr; }
     void makeContextCurrent(void*) override  {}
     void destroySharedContext(void*) override  {}
@@ -97,7 +97,7 @@ public:
     /*virtual*/ bool convertCoords(LLCoordScreen from, LLCoordGL *to) override { return false; }
     /*virtual*/ bool convertCoords(LLCoordGL from, LLCoordScreen *to) override { return false; }
 
-    /*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return NULL; }
+    /*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return nullptr; }
     /*virtual*/ F32 getNativeAspectRatio() override { return 1.0f; }
     /*virtual*/ F32 getPixelAspectRatio() override { return 1.0f; }
     /*virtual*/ void setNativeAspectRatio(F32 ratio) override {}

@@ -43,7 +43,7 @@
 LLStdStringTable LLXmlTree::sAttributeKeys(1024);
 
 LLXmlTree::LLXmlTree()
-    : mRoot( NULL ),
+    : mRoot(nullptr),
       mNodeNames(512)
 {
 }
@@ -56,7 +56,7 @@ LLXmlTree::~LLXmlTree()
 void LLXmlTree::cleanup()
 {
     delete mRoot;
-    mRoot = NULL;
+    mRoot = nullptr;
     mNodeNames.cleanup();
 }
 
@@ -64,7 +64,7 @@ void LLXmlTree::cleanup()
 bool LLXmlTree::parseFile(const std::string &path, bool keep_contents)
 {
     delete mRoot;
-    mRoot = NULL;
+    mRoot = nullptr;
 
     LLXmlTreeParser parser(this);
     bool success = parser.parseFile( path, &mRoot, keep_contents );
@@ -176,7 +176,7 @@ LLXmlTreeNode* LLXmlTreeNode::getChildByName(const std::string& name)
 LLXmlTreeNode* LLXmlTreeNode::getNextNamedChild()
 {
     if (mChildMapIter == mChildMapEndIter)
-        return NULL;
+        return nullptr;
     else
         return (mChildMapIter++)->second;
 }
@@ -507,8 +507,8 @@ std::string LLXmlTreeNode::getTextContents()
 
 LLXmlTreeParser::LLXmlTreeParser(LLXmlTree* tree)
     : mTree(tree),
-      mRoot( NULL ),
-      mCurrent( NULL ),
+      mRoot( nullptr ),
+      mCurrent( nullptr ),
       mDump( false ),
       mKeepContents(false)
 {
@@ -528,13 +528,13 @@ bool LLXmlTreeParser::parseFile(const std::string &path, LLXmlTreeNode** root, b
     bool success = LLXmlParser::parseFile(path);
 
     *root = mRoot;
-    mRoot = NULL;
+    mRoot = nullptr;
 
     if( success )
     {
         llassert( !mCurrent );
     }
-    mCurrent = NULL;
+    mCurrent = nullptr;
 
     return success;
 }

@@ -125,7 +125,7 @@ namespace LLInitParam
     public:
         Optional<std::string> name;
 
-        ParamValue(LLUIImage* const& image = NULL)
+        ParamValue(LLUIImage* const& image = nullptr)
         :   super_t(image)
         {
             updateBlockFromValue(false);
@@ -137,7 +137,7 @@ namespace LLInitParam
     };
 
     // Need custom comparison function for our test app, which only loads
-    // LLUIImage* as NULL.
+    // LLUIImage* as nullptr.
     template<>
     struct ParamCompare<LLUIImage*, false>
     {

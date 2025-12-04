@@ -139,7 +139,7 @@ U32 LLImageGL::sBindCount               = 0;
 S32 LLImageGL::sCount                   = 0;
 
 F32 LLImageGL::sLastFrameTime           = 0.f;
-LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
+LLImageGL* LLImageGL::sDefaultGLTexture = nullptr;
 bool LLImageGL::sCompressTextures = false;
 std::unordered_set<LLImageGL*> LLImageGL::sImageList;
 
@@ -532,7 +532,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
     mTextureMemory = S64Bytes(0);
     mLastBindTime = 0.f;
 
-    mPickMask = NULL;
+    mPickMask = nullptr;
     mPickMaskWidth = 0;
     mPickMaskHeight = 0;
     mUseMipMaps = usemipmaps;
@@ -588,7 +588,7 @@ void LLImageGL::cleanup()
     }
     freePickMask();
 
-    mSaveData = NULL; // deletes data
+    mSaveData = nullptr; // deletes data
 }
 
 //----------------------------------------------------------------------------
@@ -967,7 +967,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                 if (prev_mip_data && prev_mip_data != data_in)
                 {
                     delete[] prev_mip_data;
-                    prev_mip_data = NULL;
+                    prev_mip_data = nullptr;
                 }
             }
         }
@@ -1124,7 +1124,7 @@ bool LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
         //LL_WARNS() << "Setting subimage on image without GL texture" << LL_ENDL;
         return false;
     }
-    if (datap == NULL)
+    if (datap == nullptr)
     {
         // *TODO: Re-enable warning?  Ran into thread locking issues? DK 2011-02-18
         //LL_WARNS() << "Setting subimage on image with NULL datap" << LL_ENDL;
@@ -2305,11 +2305,11 @@ U32 LLImageGL::createPickMask(S32 pWidth, S32 pHeight)
 //----------------------------------------------------------------------------
 void LLImageGL::freePickMask()
 {
-    if (mPickMask != NULL)
+    if (mPickMask != nullptr)
     {
         delete [] mPickMask;
     }
-    mPickMask = NULL;
+    mPickMask = nullptr;
     mPickMaskWidth = mPickMaskHeight = 0;
 }
 
@@ -2520,7 +2520,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 
         if (size > sScratchPBOSize)
         {
-            glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_COPY);
+            glBufferData(GL_PIXEL_PACK_BUFFER, size, nullptr, GL_STREAM_COPY);
             sScratchPBOSize = (U32)size;
         }
 

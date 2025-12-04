@@ -60,7 +60,7 @@ const S32   DEFAULT_REFRESH_RATE = 60;
 
 namespace
 {
-    NSKeyEventRef mRawKeyEvent = NULL;
+    NSKeyEventRef mRawKeyEvent = nullptr;
 }
 //
 // LLWindowMacOSX
@@ -149,7 +149,7 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key);
 // The proper way to do this is to bracket the dialog with calls to beforeDialog() and afterDialog(), but these
 // require a pointer to the LLWindowMacOSX object.  Stash it here and maintain in the constructor and destructor.
 // This assumes that there will be only one object of this class at any time.  Hopefully this is true.
-static LLWindowMacOSX *gWindowImplementation = NULL;
+static LLWindowMacOSX *gWindowImplementation = nullptr;
 
 LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
                                const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
@@ -158,7 +158,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
                                bool enable_vsync, bool use_gl,
                                bool ignore_pixel_depth,
                                U32 fsaa_samples)
-    : LLWindow(NULL, fullscreen, flags)
+    : LLWindow(nullptr, fullscreen, flags)
 {
     // *HACK: During window construction we get lots of OS events for window
     // reshape, activate, etc. that the viewer isn't ready to handle.
@@ -174,9 +174,9 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     gKeyboard->setCallbacks(callbacks);
 
     // Ignore use_gl for now, only used for drones on PC
-    mWindow = NULL;
-    mContext = NULL;
-    mPixelFormat = NULL;
+    mWindow = nullptr;
+    mContext = nullptr;
+    mPixelFormat = nullptr;
     mDisplay = CGMainDisplayID();
     mSimulatedRightClick = false;
     mLastModifiers = 0;
@@ -190,7 +190,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     mMaximized = false;
     mMinimized = false;
     mLanguageTextInputAllowed = false;
-    mPreeditor = NULL;
+    mPreeditor = nullptr;
     mFSAASamples = fsaa_samples;
     mForceRebuild = false;
 
@@ -211,7 +211,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     // Create the GL context and set it up for windowed or fullscreen, as appropriate.
     if(createContext(x, y, width, height, 32, fullscreen, enable_vsync))
     {
-        if(mWindow != NULL)
+        if(mWindow != nullptr)
         {
             makeWindowOrderFront(mWindow);
         }
@@ -232,7 +232,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
         initCursors();
         setCursor( UI_CURSOR_ARROW );
 
-        allowLanguageTextInput(NULL, false);
+        allowLanguageTextInput(nullptr, false);
     }
 
     mCallbacks = callbacks;
@@ -248,7 +248,7 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask)
 {
     mRawKeyEvent = event;
     bool retVal = gKeyboard->handleKeyUp(key, mask);
-    mRawKeyEvent = NULL;
+    mRawKeyEvent = nullptr;
     return retVal;
 }
 
@@ -268,7 +268,7 @@ bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wch
 
     mRawKeyEvent = event;
     bool retVal = gKeyboard->handleKeyDown(key, mask);
-    mRawKeyEvent = NULL;
+    mRawKeyEvent = nullptr;
     return retVal;
 }
 
@@ -298,7 +298,7 @@ bool callUnicodeCallback(wchar_t character, unsigned int mask)
     mRawKeyEvent = &eventData;
 
     bool result = gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
-    mRawKeyEvent = NULL;
+    mRawKeyEvent = nullptr;
     return result;
 }
 
@@ -694,7 +694,7 @@ void getPreeditLocation(float *location, unsigned int length)
         LLCoordScreen screen;
         LLRect rect;
 
-        preeditor->getPreeditLocation(length, &coord, &rect, NULL);
+        preeditor->getPreeditLocation(length, &coord, &rect, nullptr);
 
         float c[4] = {float(coord.mX), float(coord.mY), 0, 0};
 
@@ -734,12 +734,12 @@ bool LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 {
     mFullscreen = fullscreen;
 
-    if (mWindow == NULL)
+    if (mWindow == nullptr)
     {
         mWindow = getMainAppWindow();
     }
 
-    if(mContext == NULL)
+    if(mContext == nullptr)
     {
         // Our OpenGL view is already defined within SecondLife.xib.
         // Get the view instead.
@@ -769,7 +769,7 @@ bool LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
             GLint numPixelFormats;
             CGLChoosePixelFormat (attribs, &mPixelFormat, &numPixelFormats);
 
-            if(mPixelFormat == NULL) {
+            if(mPixelFormat == nullptr) {
                 CGLChoosePixelFormat (attribs, &mPixelFormat, &numPixelFormats);
             }
         }
@@ -781,7 +781,7 @@ bool LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
     // Hook up the context to a drawable
 
-    if(mContext != NULL)
+    if(mContext != nullptr)
     {
 
 
@@ -826,40 +826,40 @@ void LLWindowMacOSX::destroyContext()
         return;
     }
     // Unhook the GL context from any drawable it may have
-    if(mContext != NULL)
+    if(mContext != nullptr)
     {
         LL_DEBUGS("Window") << "destroyContext: unhooking drawable " << LL_ENDL;
-        CGLSetCurrentContext(NULL);
+        CGLSetCurrentContext(nullptr);
     }
 
     // Clean up remaining GL state before blowing away window
     gGLManager.shutdownGL();
 
     // Clean up the pixel format
-    if(mPixelFormat != NULL)
+    if(mPixelFormat != nullptr)
     {
         CGLDestroyPixelFormat(mPixelFormat);
-        mPixelFormat = NULL;
+        mPixelFormat = nullptr;
     }
 
     // Clean up the GL context
-    if(mContext != NULL)
+    if(mContext != nullptr)
     {
         CGLDestroyContext(mContext);
     }
 
     // Destroy our LLOpenGLView
-    if(mGLView != NULL)
+    if(mGLView != nullptr)
     {
         removeGLView(mGLView);
-        mGLView = NULL;
+        mGLView = nullptr;
     }
 
     // Close the window
-    if(mWindow != NULL)
+    if(mWindow != nullptr)
     {
         NSWindowRef dead_window = mWindow;
-        mWindow = NULL;
+        mWindow = nullptr;
         closeWindow(dead_window);
     }
 
@@ -869,12 +869,12 @@ LLWindowMacOSX::~LLWindowMacOSX()
 {
     destroyContext();
 
-    if(mSupportedResolutions != NULL)
+    if(mSupportedResolutions != nullptr)
     {
         delete []mSupportedResolutions;
     }
 
-    gWindowImplementation = NULL;
+    gWindowImplementation = nullptr;
 
 }
 
@@ -926,7 +926,7 @@ bool LLWindowMacOSX::isValid()
         return(true);
     }
 
-    return (mWindow != NULL);
+    return (mWindow != nullptr);
 }
 
 bool LLWindowMacOSX::getVisible()
@@ -1273,7 +1273,7 @@ bool LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
     float cursor_point[2];
     LLCoordScreen screen_pos;
 
-    if(mWindow == NULL)
+    if(mWindow == nullptr)
         return false;
 
     getCursorPos(mWindow, cursor_point);
@@ -1422,7 +1422,7 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
     {
         CFArrayRef modes = CGDisplayCopyAllDisplayModes(mDisplay, nullptr);
 
-        if(modes != NULL)
+        if(modes != nullptr)
         {
             CFIndex index, cnt;
 
@@ -1842,7 +1842,7 @@ void LLWindowMacOSX::hideCursorUntilMouseMove()
 //
 LLSplashScreenMacOSX::LLSplashScreenMacOSX()
 {
-    mWindow = NULL;
+    mWindow = nullptr;
 }
 
 LLSplashScreenMacOSX::~LLSplashScreenMacOSX()
@@ -1856,18 +1856,18 @@ void LLSplashScreenMacOSX::showImpl()
 
 void LLSplashScreenMacOSX::updateImpl(const std::string& mesg)
 {
-    if(mWindow != NULL)
+    if(mWindow != nullptr)
     {
-        CFStringCreateWithCString(NULL, mesg.c_str(), kCFStringEncodingUTF8);
+        CFStringCreateWithCString(nullptr, mesg.c_str(), kCFStringEncodingUTF8);
     }
 }
 
 
 void LLSplashScreenMacOSX::hideImpl()
 {
-    if(mWindow != NULL)
+    if(mWindow != nullptr)
     {
-        mWindow = NULL;
+        mWindow = nullptr;
     }
 }
 
@@ -1900,16 +1900,16 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
     }
 
     S32 result = 0;
-    CFURLRef urlRef = NULL;
+    CFURLRef urlRef = nullptr;
 
     LL_INFOS() << "Opening URL " << escaped_url << LL_ENDL;
 
-    CFStringRef stringRef = CFStringCreateWithCString(NULL, escaped_url.c_str(), kCFStringEncodingUTF8);
+    CFStringRef stringRef = CFStringCreateWithCString(nullptr, escaped_url.c_str(), kCFStringEncodingUTF8);
     if (stringRef)
     {
         // This will succeed if the string is a full URL, including the http://
         // Note that URLs specified this way need to be properly percent-escaped.
-        urlRef = CFURLCreateWithString(NULL, stringRef, NULL);
+        urlRef = CFURLCreateWithString(nullptr, stringRef, nullptr);
 
         // Don't use CRURLCreateWithFileSystemPath -- only want valid URLs
 
@@ -1918,7 +1918,7 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 
     if (urlRef)
     {
-        result = LSOpenCFURLRef(urlRef, NULL);
+        result = LSOpenCFURLRef(urlRef, nullptr);
 
         if (result != noErr)
         {
@@ -2267,7 +2267,7 @@ HidDevice populate_device( io_object_t io_obj )
         IOReturn io_result = kIOReturnSuccess;
         HRESULT query_result = S_OK;
         SInt32 the_score = 0;
-        IOCFPlugInInterface **the_interface = NULL;
+        IOCFPlugInInterface **the_interface = nullptr;
 
 
         io_result = IOCreatePlugInInterfaceForService( io_obj, kIOHIDDeviceUserClientTypeID,
@@ -2305,7 +2305,7 @@ HidDevice populate_device( io_object_t io_obj )
 
             ( *( IOHIDDeviceInterface** ) interfacep )->Release( interfacep );
 
-            interfacep = NULL;
+            interfacep = nullptr;
         }
 
         CFRelease( device_dic );
@@ -2462,7 +2462,7 @@ bool LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 
 void *LLWindowMacOSX::getPlatformWindow()
 {
-    // NOTE: this will be NULL in fullscreen mode.  Plan accordingly.
+    // NOTE: this will be nullptr in fullscreen mode.  Plan accordingly.
     return (void*)mWindow;
 }
 
@@ -2514,7 +2514,7 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
         {
             interruptLanguageTextInput();
         }
-        mPreeditor = (b ? preeditor : NULL);
+        mPreeditor = (b ? preeditor : nullptr);
     }
 
     if (b == mLanguageTextInputAllowed)

@@ -322,9 +322,9 @@ void gl_corners_2d(S32 left, S32 top, S32 right, S32 bottom, S32 length, F32 max
 
 void gl_draw_image( S32 x, S32 y, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect )
 {
-    if (NULL == image)
+    if (nullptr == image)
     {
-        LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
+        LL_WARNS() << "image == nullptr; aborting function" << LL_ENDL;
         return;
     }
     gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), 0.f, image, color, uv_rect );
@@ -332,14 +332,14 @@ void gl_draw_image( S32 x, S32 y, LLTexture* image, const LLColor4& color, const
 
 void gl_draw_scaled_target(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* target, const LLColor4& color, const LLRectf& uv_rect)
 {
-    gl_draw_scaled_rotated_image(x, y, width, height, 0.f, NULL, color, uv_rect, target);
+    gl_draw_scaled_rotated_image(x, y, width, height, 0.f, nullptr, color, uv_rect, target);
 }
 
 void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
-    if (NULL == image)
+    if (nullptr == image)
     {
-        LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
+        LL_WARNS() << "image == nullptr; aborting function" << LL_ENDL;
         return;
     }
     gl_draw_scaled_rotated_image( x, y, width, height, 0.f, image, color, uv_rect );
@@ -347,9 +347,9 @@ void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image,
 
 void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLTexture* image, const LLColor4& color, bool solid_color, const LLRectf& uv_rect, bool scale_inner)
 {
-    if (NULL == image)
+    if (nullptr == image)
     {
-        LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
+        LL_WARNS() << "image == nullptr; aborting function" << LL_ENDL;
         return;
     }
 
@@ -365,9 +365,9 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 {
     stop_glerror();
 
-    if (NULL == image)
+    if (nullptr == image)
     {
-        LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
+        LL_WARNS() << "image == nullptr; aborting function" << LL_ENDL;
         return;
     }
 
@@ -713,11 +713,11 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 {
     if (!image && !target)
     {
-        LL_WARNS() << "image == NULL; aborting function" << LL_ENDL;
+        LL_WARNS() << "image == nullptr; aborting function" << LL_ENDL;
         return;
     }
 
-    if(image != NULL)
+    if(image != nullptr)
     {
         gGL.getTexUnit(0)->bind(image, true);
     }
@@ -785,7 +785,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
         LLMatrix3 quat(0.f, 0.f, degrees*DEG_TO_RAD);
 
-        if(image != NULL)
+        if(image != nullptr)
         {
             gGL.getTexUnit(0)->bind(image, true);
         }
@@ -1809,7 +1809,7 @@ LLPointer<LLUIImage> LLRender2D::getUIImageByID(const LLUUID& image_id, S32 prio
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1818,7 +1818,7 @@ LLPointer<LLUIImage> LLRender2D::getUIImage(const std::string& name, S32 priorit
     if (!name.empty() && mImageProvider)
         return mImageProvider->getUIImage(name, priority);
     else
-        return NULL;
+        return nullptr;
 }
 
 // static
@@ -1826,7 +1826,7 @@ void LLRender2D::resetProvider()
 {
     if (LLRender2D::instanceExists())
     {
-        LLRender2D::getInstance()->mImageProvider = NULL;
+        LLRender2D::getInstance()->mImageProvider = nullptr;
     }
 }
 
