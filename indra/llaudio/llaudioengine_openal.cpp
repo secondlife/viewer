@@ -36,8 +36,8 @@ const float LLAudioEngine_OpenAL::WIND_BUFFER_SIZE_SEC = 0.05f;
 
 LLAudioEngine_OpenAL::LLAudioEngine_OpenAL()
     :
-    mWindGen(NULL),
-    mWindBuf(NULL),
+    mWindGen(nullptr),
+    mWindBuf(nullptr),
     mWindBufFreq(0),
     mWindBufSamples(0),
     mWindBufBytes(0),
@@ -54,10 +54,10 @@ LLAudioEngine_OpenAL::~LLAudioEngine_OpenAL()
 // virtual
 bool LLAudioEngine_OpenAL::init(void* userdata, const std::string &app_title)
 {
-    mWindGen = NULL;
+    mWindGen = nullptr;
     LLAudioEngine::init(userdata, app_title);
 
-    if(!alutInit(NULL, NULL))
+    if (!alutInit(nullptr, nullptr))
     {
         LL_WARNS() << "LLAudioEngine_OpenAL::init() ALUT initialization failed: " << alutGetErrorString (alutGetError ()) << LL_ENDL;
         return false;
@@ -154,7 +154,7 @@ void LLAudioEngine_OpenAL::shutdown()
     LL_INFOS() << "LLAudioEngine_OpenAL::shutdown() OpenAL successfully shut down" << LL_ENDL;
 
     delete mListenerp;
-    mListenerp = NULL;
+    mListenerp = nullptr;
 }
 
 LLAudioBuffer *LLAudioEngine_OpenAL::createBuffer()
@@ -192,7 +192,7 @@ void LLAudioChannelOpenAL::cleanup()
     alSourceStop(mALSource);
     alSourcei(mALSource, AL_BUFFER, AL_NONE);
 
-    mCurrentBufferp = NULL;
+    mCurrentBufferp = nullptr;
 }
 
 void LLAudioChannelOpenAL::play()
@@ -408,7 +408,7 @@ bool LLAudioEngine_OpenAL::initWind()
 
     mWindBuf = new WIND_SAMPLE_T [mWindBufSamples * 2 /*stereo*/];
 
-    if(mWindBuf==NULL)
+    if (mWindBuf == nullptr)
     {
         LL_ERRS() << "LLAudioEngine_OpenAL::initWind() Error creating wind memory buffer" << LL_ENDL;
         return false;
@@ -443,10 +443,10 @@ void LLAudioEngine_OpenAL::cleanupWind()
     }
 
     delete[] mWindBuf;
-    mWindBuf = NULL;
+    mWindBuf = nullptr;
 
     delete mWindGen;
-    mWindGen = NULL;
+    mWindGen = nullptr;
 }
 
 void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)

@@ -273,7 +273,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 //   if (vorbis_encode_init(&vi, /* num_channels */ 1 ,sample_rate, -1, bitrate, -1))
      if (vorbis_encode_init_vbr(&vi, /* num_channels */ 1 ,sample_rate, quality))
 //   if (vorbis_encode_setup_managed(&vi,1,sample_rate,-1,bitrate,-1) ||
-//      vorbis_encode_ctl(&vi,OV_ECTL_RATEMANAGE_AVG,NULL) ||
+//      vorbis_encode_ctl(&vi,OV_ECTL_RATEMANAGE_AVG,nullptr) ||
 //      vorbis_encode_setup_init(&vi))
     {
         LL_WARNS() << "unable to initialize vorbis codec at quality " << quality << LL_ENDL;
@@ -421,7 +421,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 
              /* analysis */
             /* Do the main analysis, creating a packet */
-            vorbis_analysis(&vb, NULL);
+            vorbis_analysis(&vb, nullptr);
             vorbis_bitrate_addblock(&vb);
 
             while(vorbis_bitrate_flushpacket(&vd, &op))
