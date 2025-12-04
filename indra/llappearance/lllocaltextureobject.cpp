@@ -39,7 +39,7 @@ LLLocalTextureObject::LLLocalTextureObject() :
     mIsBakedReady(false),
     mDiscard(MAX_DISCARD_LEVEL+1)
 {
-    mImage = NULL;
+    mImage = nullptr;
 }
 
 LLLocalTextureObject::LLLocalTextureObject(LLGLTexture* image, const LLUUID& id) :
@@ -88,7 +88,7 @@ LLTexLayer* LLLocalTextureObject::getTexLayer(U32 index) const
 {
     if (index >= getNumTexLayers())
     {
-        return NULL;
+        return nullptr;
     }
 
     return mTexLayers[index];
@@ -104,7 +104,7 @@ LLTexLayer* LLLocalTextureObject::getTexLayer(const std::string &name)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 U32 LLLocalTextureObject::getNumTexLayers() const
@@ -139,7 +139,7 @@ bool LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
         return false;
     }
 
-    if (new_tex_layer == NULL)
+    if (new_tex_layer == nullptr)
     {
         return removeTexLayer(index);
     }
@@ -158,7 +158,7 @@ bool LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
 
 bool LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable)
 {
-    if (new_tex_layer == NULL)
+    if (new_tex_layer == nullptr)
     {
         return false;
     }
@@ -171,7 +171,7 @@ bool LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *we
 
 bool LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable)
 {
-    if (new_tex_layer == NULL)
+    if (new_tex_layer == nullptr)
     {
         return false;
     }

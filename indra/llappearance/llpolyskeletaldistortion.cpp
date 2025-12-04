@@ -53,7 +53,7 @@ bool LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 
         LLXmlTreeNode* skeletalParam = node->getChildByName("param_skeleton");
 
-        if (NULL == skeletalParam)
+        if (nullptr == skeletalParam)
         {
                 LL_WARNS() << "Failed to getChildByName(\"param_skeleton\")"
                         << LL_ENDL;

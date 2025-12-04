@@ -33,7 +33,7 @@
 #include "lldriverparam.h"
 
 LLWearableData::LLWearableData() :
-    mAvatarAppearance(NULL)
+    mAvatarAppearance(nullptr)
 {
 }
 
@@ -49,12 +49,12 @@ LLWearable* LLWearableData::getWearable(const LLWearableType::EType type, U32 in
     wearableentry_map_t::iterator wearable_iter = mWearableDatas.find(type);
     if (wearable_iter == mWearableDatas.end())
     {
-        return NULL;
+        return nullptr;
     }
     wearableentry_vec_t& wearable_vec = wearable_iter->second;
     if (index>=wearable_vec.size())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {
@@ -95,7 +95,7 @@ void LLWearableData::pushWearable(const LLWearableType::EType type,
                                    LLWearable *wearable,
                                    bool trigger_updated /* = true */)
 {
-    if (wearable == NULL)
+    if (wearable == nullptr)
     {
         // no null wearables please!
         LL_WARNS() << "Null wearable sent for type " << type << LL_ENDL;
@@ -123,7 +123,7 @@ void LLWearableData::wearableUpdated(LLWearable *wearable, bool removed)
 
 void LLWearableData::eraseWearable(LLWearable *wearable)
 {
-    if (wearable == NULL)
+    if (wearable == nullptr)
     {
         // nothing to do here. move along.
         return;
@@ -202,7 +202,7 @@ void LLWearableData::pullCrossWearableValues(const LLWearableType::EType type)
 
 bool LLWearableData::getWearableIndex(const LLWearable *wearable, U32& index_found) const
 {
-    if (wearable == NULL)
+    if (wearable == nullptr)
     {
         return false;
     }
@@ -271,12 +271,12 @@ const LLWearable* LLWearableData::getWearable(const LLWearableType::EType type, 
     wearableentry_map_t::const_iterator wearable_iter = mWearableDatas.find(type);
     if (wearable_iter == mWearableDatas.end())
     {
-        return NULL;
+        return nullptr;
     }
     const wearableentry_vec_t& wearable_vec = wearable_iter->second;
     if (index>=wearable_vec.size())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {
@@ -289,7 +289,7 @@ LLWearable* LLWearableData::getTopWearable(const LLWearableType::EType type)
     U32 count = getWearableCount(type);
     if ( count == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     return getWearable(type, count-1);
@@ -300,7 +300,7 @@ const LLWearable* LLWearableData::getTopWearable(const LLWearableType::EType typ
     U32 count = getWearableCount(type);
     if ( count == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     return getWearable(type, count-1);
@@ -310,7 +310,7 @@ LLWearable* LLWearableData::getBottomWearable(const LLWearableType::EType type)
 {
     if (getWearableCount(type) == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     return getWearable(type, 0);
@@ -320,7 +320,7 @@ const LLWearable* LLWearableData::getBottomWearable(const LLWearableType::EType 
 {
     if (getWearableCount(type) == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     return getWearable(type, 0);

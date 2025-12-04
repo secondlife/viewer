@@ -148,7 +148,7 @@ LLViewerVisualParam::~LLViewerVisualParam()
 
 bool LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 {
-    llassert(mInfo == NULL);
+    llassert(mInfo == nullptr);
     if (info->mID < 0)
         return false;
     mInfo = info;

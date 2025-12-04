@@ -138,7 +138,7 @@ public:
 
     const S32   *getSharedVert(S32 vert);
 
-    bool isLOD() { return (mReferenceData != NULL); }
+    bool isLOD() { return (mReferenceData != nullptr); }
 };
 
 
@@ -166,7 +166,7 @@ public:
     // Requests a mesh by name.
     // If the mesh already exists in the global mesh table, it is returned,
     // otherwise it is loaded from file, added to the table, and returned.
-    static LLPolyMesh *getMesh( const std::string &name, LLPolyMesh* reference_mesh = NULL);
+    static LLPolyMesh *getMesh( const std::string &name, LLPolyMesh* reference_mesh = nullptr);
 
     // Frees all loaded meshes.
     // This should only be called once you know there are no outstanding
@@ -314,7 +314,7 @@ public:
     LLPolyMesh *getReferenceMesh() { return mReferenceMesh ? mReferenceMesh : this; }
 
     // Get indices
-    U32*    getIndices() { return mSharedData ? mSharedData->mTriangleIndices : NULL; }
+    U32*    getIndices() { return mSharedData ? mSharedData->mTriangleIndices : nullptr; }
 
     bool    isLOD() { return mSharedData && mSharedData->isLOD(); }
 

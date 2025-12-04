@@ -43,9 +43,9 @@
 LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
     : LLViewerVisualParam(),
     mTexLayer(layer),
-    mAvatarAppearance(NULL)
+    mAvatarAppearance(nullptr)
 {
-    if (mTexLayer != NULL)
+    if (mTexLayer != nullptr)
     {
         mAvatarAppearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
     }
@@ -57,7 +57,7 @@ LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
 
 LLTexLayerParam::LLTexLayerParam(LLAvatarAppearance *appearance)
     : LLViewerVisualParam(),
-    mTexLayer(NULL),
+    mTexLayer(nullptr),
     mAvatarAppearance(appearance)
 {
 }
@@ -120,7 +120,7 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
     : LLTexLayerParam(layer),
-    mCachedProcessedTexture(NULL),
+    mCachedProcessedTexture(nullptr),
     mStaticImageTGA(),
     mStaticImageRaw(),
     mNeedsCreateTexture(false),
@@ -133,7 +133,7 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
 
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance)
     : LLTexLayerParam(appearance),
-    mCachedProcessedTexture(NULL),
+    mCachedProcessedTexture(nullptr),
     mStaticImageTGA(),
     mStaticImageRaw(),
     mNeedsCreateTexture(false),
@@ -170,9 +170,9 @@ LLTexLayerParamAlpha::~LLTexLayerParamAlpha()
 
 void LLTexLayerParamAlpha::deleteCaches()
 {
-    mStaticImageTGA = NULL; // deletes image
-    mCachedProcessedTexture = NULL;
-    mStaticImageRaw = NULL;
+    mStaticImageTGA = nullptr; // deletes image
+    mCachedProcessedTexture = nullptr;
+    mStaticImageRaw = nullptr;
     mNeedsCreateTexture = false;
 }
 
@@ -183,7 +183,7 @@ bool LLTexLayerParamAlpha::getMultiplyBlend() const
 
 void LLTexLayerParamAlpha::setWeight(F32 weight)
 {
-    if (mIsAnimating || mTexLayer == NULL)
+    if (mIsAnimating || mTexLayer == nullptr)
     {
         return;
     }
@@ -325,7 +325,7 @@ bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
             }
 
             // Applies domain and effective weight to data as it is decoded. Also resizes the raw image if needed.
-            mStaticImageRaw = NULL;
+            mStaticImageRaw = nullptr;
             mStaticImageRaw = new LLImageRaw;
             mStaticImageTGA->decodeAndProcess(mStaticImageRaw, info->mDomain, effective_weight);
             mNeedsCreateTexture = true;
@@ -358,7 +358,7 @@ bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
         // (It's not really a "cache" in that case, but the logic is the same)
         if (!mAvatarAppearance->isSelf())
         {
-            mCachedProcessedTexture = NULL;
+            mCachedProcessedTexture = nullptr;
         }
     }
     else

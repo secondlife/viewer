@@ -87,7 +87,7 @@ LLVector3 totalSkinOffset(LLAvatarJoint *joint)
 //-----------------------------------------------------------------------------
 LLSkinJoint::LLSkinJoint()
 {
-    mJoint       = NULL;
+    mJoint = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ LLSkinJoint::LLSkinJoint()
 //-----------------------------------------------------------------------------
 LLSkinJoint::~LLSkinJoint()
 {
-    mJoint = NULL;
+    mJoint = nullptr;
 }
 
 
@@ -138,8 +138,8 @@ LLColor4 LLAvatarJointMesh::sClothingInnerColor;
 //-----------------------------------------------------------------------------
 LLAvatarJointMesh::LLAvatarJointMesh()
     :
-    mTexture( NULL ),
-    mLayerSet( NULL ),
+    mTexture( nullptr ),
+    mLayerSet( nullptr ),
     mTestImageName( 0 ),
     mFaceIndexCount(0)
 {
@@ -151,12 +151,12 @@ LLAvatarJointMesh::LLAvatarJointMesh()
     mShiny = 0.0f;
     mCullBackFaces = true;
 
-    mMesh = NULL;
+    mMesh = nullptr;
 
     mNumSkinJoints = 0;
-    mSkinJoints = NULL;
+    mSkinJoints = nullptr;
 
-    mFace = NULL;
+    mFace = nullptr;
 
     mMeshID = 0;
     mUpdateXform = false;
@@ -173,8 +173,8 @@ LLAvatarJointMesh::LLAvatarJointMesh()
 //-----------------------------------------------------------------------------
 LLAvatarJointMesh::~LLAvatarJointMesh()
 {
-    mMesh = NULL;
-    mTexture = NULL;
+    mMesh = nullptr;
+    mTexture = nullptr;
     freeSkinData();
 }
 
@@ -196,7 +196,7 @@ void LLAvatarJointMesh::freeSkinData()
 {
     mNumSkinJoints = 0;
     delete [] mSkinJoints;
-    mSkinJoints = NULL;
+    mSkinJoints = nullptr;
 }
 
 //--------------------------------------------------------------------
@@ -245,7 +245,7 @@ void LLAvatarJointMesh::setTexture( LLGLTexture *texture )
     // texture and dynamic_texture are mutually exclusive
     if( texture )
     {
-        mLayerSet = NULL;
+        mLayerSet = nullptr;
         //texture->bindTexture(0);
         //texture->setClamp(true, true);
     }
@@ -268,7 +268,7 @@ void LLAvatarJointMesh::setLayerSet( LLTexLayerSet* layer_set )
     // texture and dynamic_texture are mutually exclusive
     if( layer_set )
     {
-        mTexture = NULL;
+        mTexture = nullptr;
     }
 }
 
@@ -297,7 +297,7 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
     // release any existing skin joints
     freeSkinData();
 
-    if ( mMesh == NULL )
+    if ( mMesh == nullptr )
     {
         return;
     }
@@ -371,7 +371,7 @@ void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
         // otherwise add our ancestor and ourselves
         else
         {
-            jrd.push_back(new LLJointRenderData(&ancestor->getWorldMatrix(), NULL));
+            jrd.push_back(new LLJointRenderData(&ancestor->getWorldMatrix(), nullptr));
             LL_DEBUGS("Avatar") << "add2 ancestor joint[" << (jrd.size()-1) << "] = " << ancestor->getName() << LL_ENDL;
             jrd.push_back(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
             LL_DEBUGS("Avatar") << "add2 joint[" << (jrd.size()-1) << "] = " << current_joint->getName() << LL_ENDL;

@@ -84,7 +84,7 @@ private:
     // Hide the default constructor.  Force construction with LLAvatarAppearance.
     LLDriverParam() {}
 public:
-    LLDriverParam(LLAvatarAppearance* appearance, LLWearable* wearable = NULL);
+    LLDriverParam(LLAvatarAppearance* appearance, LLWearable* wearable = nullptr);
     ~LLDriverParam();
 
     // Special: These functions are overridden by child classes

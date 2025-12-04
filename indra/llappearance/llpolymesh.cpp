@@ -66,25 +66,25 @@ LLPolyMesh::LLPolyMeshSharedDataTable LLPolyMesh::sGlobalSharedMeshList;
 LLPolyMeshSharedData::LLPolyMeshSharedData()
 {
         mNumVertices = 0;
-        mBaseCoords = NULL;
-        mBaseNormals = NULL;
-        mBaseBinormals = NULL;
-        mTexCoords = NULL;
-        mDetailTexCoords = NULL;
-        mWeights = NULL;
+        mBaseCoords = nullptr;
+        mBaseNormals = nullptr;
+        mBaseBinormals = nullptr;
+        mTexCoords = nullptr;
+        mDetailTexCoords = nullptr;
+        mWeights = nullptr;
         mHasWeights = false;
         mHasDetailTexCoords = false;
 
         mNumFaces = 0;
-        mFaces = NULL;
+        mFaces = nullptr;
 
         mNumJointNames = 0;
-        mJointNames = NULL;
+        mJointNames = nullptr;
 
-        mTriangleIndices = NULL;
+        mTriangleIndices = nullptr;
         mNumTriangleIndices = 0;
 
-        mReferenceData = NULL;
+        mReferenceData = nullptr;
 
         mLastIndexOffset = -1;
 }
@@ -129,34 +129,34 @@ void LLPolyMeshSharedData::freeMeshData()
                 mNumVertices = 0;
 
                 ll_aligned_free_16(mBaseCoords);
-                mBaseCoords = NULL;
+                mBaseCoords = nullptr;
 
                 ll_aligned_free_16(mBaseNormals);
-                mBaseNormals = NULL;
+                mBaseNormals = nullptr;
 
                 ll_aligned_free_16(mBaseBinormals);
-                mBaseBinormals = NULL;
+                mBaseBinormals = nullptr;
 
                 ll_aligned_free_16(mTexCoords);
-                mTexCoords = NULL;
+                mTexCoords = nullptr;
 
                 ll_aligned_free_16(mDetailTexCoords);
-                mDetailTexCoords = NULL;
+                mDetailTexCoords = nullptr;
 
                 ll_aligned_free_16(mWeights);
-                mWeights = NULL;
+                mWeights = nullptr;
         }
 
         mNumFaces = 0;
         delete [] mFaces;
-        mFaces = NULL;
+        mFaces = nullptr;
 
         mNumJointNames = 0;
         delete [] mJointNames;
-        mJointNames = NULL;
+        mJointNames = nullptr;
 
         delete [] mTriangleIndices;
-        mTriangleIndices = NULL;
+        mTriangleIndices = nullptr;
 
 //      mVertFaceMap.deleteAllData();
 }
@@ -733,7 +733,7 @@ const S32 *LLPolyMeshSharedData::getSharedVert(S32 vert)
         {
                 return &mSharedVerts[vert];
         }
-        return NULL;
+        return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -756,8 +756,8 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 
     mSharedData = shared_data;
     mReferenceMesh = reference_mesh;
-    mAvatarp = NULL;
-    mVertexData = NULL;
+    mAvatarp = nullptr;
+    mVertexData = nullptr;
 
     mCurVertexCount = 0;
     mFaceIndexCount = 0;
@@ -824,7 +824,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_m
         //-------------------------------------------------------------------------
         // search for an existing mesh by this name
         //-------------------------------------------------------------------------
-        LLPolyMeshSharedData* meshSharedData = get_if_there(sGlobalSharedMeshList, name, (LLPolyMeshSharedData*)NULL);
+        LLPolyMeshSharedData* meshSharedData = get_if_there(sGlobalSharedMeshList, name, (LLPolyMeshSharedData*)nullptr);
         if (meshSharedData)
         {
 //              LL_INFOS() << "Polymesh " << name << " found in global mesh table." << LL_ENDL;
@@ -846,7 +846,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_m
         if ( ! mesh_data->loadMesh( full_path ) )
         {
                 delete mesh_data;
-                return NULL;
+                return nullptr;
         }
 
         LLPolyMesh *poly_mesh = new LLPolyMesh(mesh_data, reference_mesh);
@@ -996,7 +996,7 @@ void LLPolyMesh::initializeForMorph()
 LLPolyMorphData*        LLPolyMesh::getMorphData(const std::string& morph_name)
 {
         if (!mSharedData)
-                return NULL;
+                return nullptr;
         for (LLPolyMorphData* morph_data : mSharedData->mMorphData)
         {
             if (morph_data->getName() == morph_name)
@@ -1004,7 +1004,7 @@ LLPolyMorphData*        LLPolyMesh::getMorphData(const std::string& morph_name)
                     return morph_data;
             }
         }
-        return NULL;
+        return nullptr;
 }
 
 //-----------------------------------------------------------------------------

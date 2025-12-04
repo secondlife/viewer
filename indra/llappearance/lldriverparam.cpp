@@ -37,7 +37,7 @@
 //-----------------------------------------------------------------------------
 
 LLDriverParamInfo::LLDriverParamInfo() :
-    mDriverParam(NULL)
+    mDriverParam(nullptr)
 {
 }
 
@@ -158,16 +158,16 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 // LLDriverParam
 //-----------------------------------------------------------------------------
 
-LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable /* = NULL */)
+LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable /* = nullptr */)
     : LLViewerVisualParam(),
     mDefaultVec(),
     mDriven(),
-    mCurrentDistortionParam( NULL ),
+    mCurrentDistortionParam( nullptr ),
     mAvatarAppearance(appearance),
     mWearablep(wearable)
 {
     llassert(mAvatarAppearance);
-    llassert((mWearablep == NULL) || mAvatarAppearance->isSelf());
+    llassert((mWearablep == nullptr) || mAvatarAppearance->isSelf());
     mDefaultVec.clear();
 }
 
@@ -180,7 +180,7 @@ LLDriverParam::LLDriverParam(const LLDriverParam& pOther)
     mWearablep(pOther.mWearablep)
 {
     llassert(mAvatarAppearance);
-    llassert((mWearablep == NULL) || mAvatarAppearance->isSelf());
+    llassert((mWearablep == nullptr) || mAvatarAppearance->isSelf());
 }
 
 LLDriverParam::~LLDriverParam()
@@ -189,7 +189,7 @@ LLDriverParam::~LLDriverParam()
 
 bool LLDriverParam::setInfo(LLDriverParamInfo *info)
 {
-    llassert(mInfo == NULL);
+    llassert(mInfo == nullptr);
     if (info->mID < 0)
         return false;
     mInfo = info;
@@ -357,8 +357,8 @@ LLVector4a  LLDriverParam::getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)
 
 const LLVector4a*   LLDriverParam::getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)
 {
-    mCurrentDistortionParam = NULL;
-    const LLVector4a* v = NULL;
+    mCurrentDistortionParam = nullptr;
+    const LLVector4a* v = nullptr;
     for(LLDrivenEntry& driven : mDriven)
     {
         v = driven.mParam->getFirstDistortion(index, poly_mesh);
@@ -377,10 +377,10 @@ const LLVector4a*   LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **po
     llassert( mCurrentDistortionParam );
     if( !mCurrentDistortionParam )
     {
-        return NULL;
+        return nullptr;
     }
 
-    LLDrivenEntry* driven = NULL;
+    LLDrivenEntry* driven = nullptr;
     entry_list_t::iterator iter;
 
     // Set mDriven iteration to the right point
@@ -396,7 +396,7 @@ const LLVector4a*   LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **po
     llassert(driven);
     if (!driven)
     {
-        return NULL; // shouldn't happen, but...
+        return nullptr; // shouldn't happen, but...
     }
 
     // We're already in the middle of a param's distortions, so get the next one.
@@ -429,7 +429,7 @@ const LLViewerVisualParam* LLDriverParam::getDrivenParam(S32 index) const
 {
     if (0 > index || index >= mDriven.size())
     {
-        return NULL;
+        return nullptr;
     }
     return mDriven[index].mParam;
 }

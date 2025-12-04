@@ -71,7 +71,7 @@ public:
     LLTexLayerParamAlpha( LLAvatarAppearance* appearance );
     /*virtual*/ ~LLTexLayerParamAlpha();
 
-    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
+    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = nullptr) const;
 
     // LLVisualParam Virtual functions
     ///*virtual*/ bool      parseData(LLXmlTreeNode* node);
@@ -85,8 +85,8 @@ public:
     /*virtual*/ const LLVector4a&   getAvgDistortion()                                      { return mAvgDistortionVec; }
     /*virtual*/ F32                 getMaxDistortion()                                      { return 3.f; }
     /*virtual*/ LLVector4a          getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)   { return LLVector4a(1.f, 1.f, 1.f);}
-    /*virtual*/ const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)  { index = 0; poly_mesh = NULL; return &mAvgDistortionVec;};
-    /*virtual*/ const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)   { index = 0; poly_mesh = NULL; return NULL;};
+    /*virtual*/ const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)  { index = 0; poly_mesh = nullptr; return &mAvgDistortionVec;};
+    /*virtual*/ const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)   { index = 0; poly_mesh = nullptr; return nullptr;};
 
     // New functions
     bool                    render( S32 x, S32 y, S32 width, S32 height );
@@ -154,7 +154,7 @@ public:
 
     /* virtual */ ~LLTexLayerParamColor();
 
-    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
+    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = nullptr) const;
 
     // LLVisualParam Virtual functions
     ///*virtual*/ bool          parseData(LLXmlTreeNode* node);
@@ -169,8 +169,8 @@ public:
     /*virtual*/ const LLVector4a&   getAvgDistortion()                                      { return mAvgDistortionVec; }
     /*virtual*/ F32                 getMaxDistortion()                                      { return 3.f; }
     /*virtual*/ LLVector4a          getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)   { return LLVector4a(1.f, 1.f, 1.f); }
-    /*virtual*/ const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)  { index = 0; poly_mesh = NULL; return &mAvgDistortionVec;};
-    /*virtual*/ const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)   { index = 0; poly_mesh = NULL; return NULL;};
+    /*virtual*/ const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)  { index = 0; poly_mesh = nullptr; return &mAvgDistortionVec;};
+    /*virtual*/ const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh)   { index = 0; poly_mesh = nullptr; return nullptr;};
 
     // New functions
     LLColor4                getNetColor() const;

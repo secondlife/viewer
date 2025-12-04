@@ -166,9 +166,9 @@ LLAvatarAppearance::LLAvatarXmlInfo::~LLAvatarXmlInfo()
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
-LLAvatarSkeletonInfo* LLAvatarAppearance::sAvatarSkeletonInfo = NULL;
-LLAvatarAppearance::LLAvatarXmlInfo* LLAvatarAppearance::sAvatarXmlInfo = NULL;
-LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAvatarDictionary = NULL;
+LLAvatarSkeletonInfo* LLAvatarAppearance::sAvatarSkeletonInfo = nullptr;
+LLAvatarAppearance::LLAvatarXmlInfo* LLAvatarAppearance::sAvatarXmlInfo = nullptr;
+LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAvatarDictionary = nullptr;
 
 
 LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
@@ -180,7 +180,7 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
     for (U32 i = 0; i < mBakedTextureDatas.size(); i++ )
     {
         mBakedTextureDatas[i].mLastTextureID = IMG_DEFAULT_AVATAR;
-        mBakedTextureDatas[i].mTexLayerSet = NULL;
+        mBakedTextureDatas[i].mTexLayerSet = nullptr;
         mBakedTextureDatas[i].mIsLoaded = false;
         mBakedTextureDatas[i].mIsUsed = false;
         mBakedTextureDatas[i].mMaskTexName = 0;
@@ -601,7 +601,7 @@ bool LLAvatarAppearance::parseSkeletonFile(const std::string& filename, LLXmlTre
 //-----------------------------------------------------------------------------
 bool LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent, S32 &volume_num, S32 &joint_num)
 {
-    LLJoint* joint = NULL;
+    LLJoint* joint = nullptr;
 
     LL_DEBUGS("BVH") << "bone info: name " << info->mName
                      << " isJoint " << info->mIsJoint
@@ -679,7 +679,7 @@ bool LLAvatarAppearance::allocateCharacterJoints( U32 num )
     if (mSkeleton.size() != num)
     {
         clearSkeleton();
-        mSkeleton = avatar_joint_list_t(num,NULL);
+        mSkeleton = avatar_joint_list_t(num, nullptr);
         mNumBones = num;
     }
 
@@ -715,7 +715,7 @@ bool LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
     S32 current_volume_num = 0;
     for (LLAvatarBoneInfo* bone_info : info->mBoneInfoList)
     {
-        if (!setupBone(bone_info, NULL, current_volume_num, current_joint_num))
+        if (!setupBone(bone_info, nullptr, current_volume_num, current_joint_num))
         {
             LL_ERRS() << "Error parsing bone in skeleton file" << LL_ENDL;
             return false;
@@ -796,7 +796,7 @@ void LLAvatarAppearance::buildCharacter()
     {
         for (LLAvatarJointMesh* mesh : joint->mMeshParts)
         {
-            mesh->setMesh(NULL);
+            mesh->setMesh(nullptr);
         }
     }
 
@@ -1084,7 +1084,7 @@ bool LLAvatarAppearance::loadMeshNodes()
         const std::string &type = info->mType;
         S32 lod = info->mLOD;
 
-        LLAvatarJointMesh* mesh = NULL;
+        LLAvatarJointMesh* mesh = nullptr;
         U8 mesh_id = 0;
         bool found_mesh_id = false;
 
@@ -1128,7 +1128,7 @@ bool LLAvatarAppearance::loadMeshNodes()
         // Do not touch!!!
         mesh->setColor( LLColor4::white );
 
-        LLPolyMesh *poly_mesh = NULL;
+        LLPolyMesh *poly_mesh = nullptr;
 
         if (!info->mReferenceMeshName.empty())
         {
@@ -1265,7 +1265,7 @@ LLJoint *LLAvatarAppearance::getCharacterJoint( U32 num )
     if ((S32)num >= mSkeleton.size()
         || (S32)num < 0)
     {
-        return NULL;
+        return nullptr;
     }
     if (!mSkeleton[num])
     {
@@ -1295,7 +1295,7 @@ LLJoint* LLAvatarAppearance::findCollisionVolume(S32 volume_id)
 {
     if ((volume_id < 0) || (volume_id >= mNumCollisionVolumes))
     {
-        return NULL;
+        return nullptr;
     }
 
     return &mCollisionVolumes[volume_id];
