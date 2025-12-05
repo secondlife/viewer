@@ -79,11 +79,6 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
 
     // not only test for existence but for the file to be not empty
     S64 size =  LLFile::size(filename);
-    if (size < 0)
-    {
-        LL_WARNS() << "Failed to get size for file '" << filename << "': " << strerror(errno) << LL_ENDL;
-        return false;
-    }
     return size > 0;
 }
 
