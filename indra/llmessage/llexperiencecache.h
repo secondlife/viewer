@@ -144,9 +144,9 @@ private:
     std::string     mCacheFileName;
     static bool     sShutdown; // control for coroutines, they exist out of LLExperienceCache's scope, so they need a static control
 
-    void idleCoro();
+    static void idleCoro();
     void eraseExpired();
-    void requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, RequestQueue_t);
+    static void requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, RequestQueue_t);
     void requestExperiences();
 
     void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID, LLUUID, std::string, ExperienceGetFn_t);
