@@ -1518,6 +1518,84 @@
             <key>comment</key>
             <string>encode lua value as json</string>
           </map>
+          <map>
+            <key>name</key>
+            <string>sldecode</string>
+            <key>parameters</key>
+            <array>
+              <map>
+                <key>name</key>
+                <string>json</string>
+                <key>type</key>
+                <string>string</string>
+              </map>
+            </array>
+            <key>returnType</key>
+            <map>
+              <key>kind</key>
+              <string>union</string>
+              <key>types</key>
+              <array>
+                <string>string</string>
+                <string>number</string>
+                <string>vector</string>
+                <string>uuid</string>
+                <string>quaternion</string>
+                <string>boolean</string>
+                <map>
+                  <key>kind</key>
+                  <string>array</string>
+                  <key>elementType</key>
+                  <string></string>
+                </map>
+                <string>nil</string>
+              </array>
+            </map>
+            <key>comment</key>
+            <string>decode json string to lua value preserving types</string>
+          </map>
+          <map>
+            <key>name</key>
+            <string>slencode</string>
+            <key>parameters</key>
+            <array>
+              <map>
+                <key>name</key>
+                <string>value</string>
+                <key>type</key>
+                <map>
+                  <key>kind</key>
+                  <string>union</string>
+                  <key>types</key>
+                  <array>
+                    <string>string</string>
+                    <string>number</string>
+                    <string>vector</string>
+                    <string>uuid</string>
+                    <string>quaternion</string>
+                    <string>boolean</string>
+                    <map>
+                      <key>kind</key>
+                      <string>array</string>
+                      <key>elementType</key>
+                      <string></string>
+                    </map>
+                    <string>nil</string>
+                  </array>
+                </map>
+              </map>
+              <map>
+                <key>name</key>
+                <string>tight</string>
+                <key>type</key>
+                <string>boolean</string>
+              </map>
+            </array>
+            <key>returnType</key>
+            <string>string</string>
+            <key>comment</key>
+            <string>encode lua value as json preserving types. use tight to encode more compactly</string>
+          </map>
         </array>
       </map>
       <map>
