@@ -1398,9 +1398,15 @@ bool LLFavoritesBarCtrl::enableSelected(const LLSD& userdata)
     else if (param == "copy_slurl"
              || param == "show_on_map")
     {
-        LLVector3d posGlobal;
-        LLLandmarkActions::getLandmarkGlobalPos(mSelectedItemID, posGlobal);
-        return !posGlobal.isExactlyZero();
+        LLViewerInventoryItem* item = gInventory.getItem(mSelectedItemID);
+        if (nullptr == item)
+            return false; // shouldn't happen as it is selected from existing items
+
+        const LLUUID& asset_id = item->getAssetUUID();
+
+        // Favorites are supposed to be loaded first, it should be here already
+        LLLandmark* landmark = gLandmarkList.getAsset(asset_id, NULL /*callback*/);
+        return nullptr != landmark;
     }
 
     return false;
@@ -1432,9 +1438,16 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
         LLVector3d posGlobal;
         LLLandmarkActions::getLandmarkGlobalPos(mSelectedItemID, posGlobal);
 
+        // inventory item and asset exist, otherwise
+        // enableSelected wouldn't have let it get here,
+        // only need to check location validity
         if (!posGlobal.isExactlyZero())
         {
             LLLandmarkActions::getSLURLfromPosGlobal(posGlobal, copy_slurl_to_clipboard_cb);
+        }
+        else
+        {
+            LLNotificationsUtil::add("LandmarkLocationUnknown");
         }
     }
     else if (action == "show_on_map")
@@ -1444,10 +1457,20 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
         LLVector3d posGlobal;
         LLLandmarkActions::getLandmarkGlobalPos(mSelectedItemID, posGlobal);
 
-        if (!posGlobal.isExactlyZero() && worldmap_instance)
+        if (worldmap_instance)
         {
-            worldmap_instance->trackLocation(posGlobal);
-            LLFloaterReg::showInstance("world_map", "center");
+            // inventory item and asset exist, otherwise
+            // enableSelected wouldn't have let it get here,
+            // only need to check location validity
+            if (!posGlobal.isExactlyZero())
+            {
+                worldmap_instance->trackLocation(posGlobal);
+                LLFloaterReg::showInstance("world_map", "center");
+            }
+            else
+            {
+                LLNotificationsUtil::add("LandmarkLocationUnknown");
+            }
         }
     }
     else if (action == "create_pick")
