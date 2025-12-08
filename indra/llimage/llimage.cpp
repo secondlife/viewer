@@ -709,8 +709,20 @@ U8* LLImageBase::allocateData(S32 size)
         mData = (U8*)ll_aligned_malloc_16(size);
         if (!mData)
         {
-            LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
-            mBadBufferAllocation = true;
+            constexpr S32 MAX_TOLERANCE = 1024 * 1024 * 4; // 4 MB
+            if (size > MAX_TOLERANCE)
+            {
+                // If a big image failed to allocate, tollerate it for now.
+                // It's insightfull when crash logs without obvious cause are being analyzed,
+                // so a crash in a random location that normally is a mystery can get proper handling.
+                LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
+            }
+            else
+            {
+                // We are too far gone if we can't allocate a small buffer.
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
+            }
         }
     }
 
