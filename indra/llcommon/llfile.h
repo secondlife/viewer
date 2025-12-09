@@ -347,7 +347,7 @@ public:
     ///  @returns bytes written on success, or -1 on failure
 
     /// return the file stat structure for filename
-    static  int     stat(const std::string& filename, llstat* file_status, const char *fname = nullptr, int suppress_warning = ENOENT);
+    static  int     stat(const std::string& filename, llstat* file_status, const char *operation = nullptr, int suppress_warning = ENOENT);
     ///< for compatibility with existing uses of LL_File::stat() we use ENOENT as default in the
     ///  optional 'suppress_warning' parameter to avoid spamming the log with warnings when the API
     ///  is used to detect if a file exists
