@@ -663,9 +663,10 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE);
 
     llassert(!gCubeSnapshot);
+    static LLCachedControl<bool> use_read_thread(gSavedSettings, "PluginUseReadThread", true);
 
     // Enable/disable the plugin read thread
-    LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
+    LLPluginProcessParent::setUseReadThread(use_read_thread());
 
     // SL-16418 We can't call LLViewerMediaImpl->update() if we are in the state of shutting down.
     if(LLApp::isExiting())
@@ -2189,16 +2190,19 @@ void LLViewerMediaImpl::updateVolume()
 
         if (mProximityCamera > 0)
         {
-            if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMax"))
+            static LLCachedControl<F32> media_rolloff_min(gSavedSettings, "MediaRollOffMin");
+            static LLCachedControl<F32> media_rolloff_max(gSavedSettings, "MediaRollOffMax");
+            static LLCachedControl<F32> media_rolloff_rate(gSavedSettings, "MediaRollOffRate");
+            if (mProximityCamera > media_rolloff_max())
             {
                 volume = 0;
             }
-            else if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMin"))
+            else if (mProximityCamera > media_rolloff_min())
             {
                 // attenuated_volume = 1 / (roll_off_rate * (d - min))^2
                 // the +1 is there so that for distance 0 the volume stays the same
-                F64 adjusted_distance = mProximityCamera - gSavedSettings.getF32("MediaRollOffMin");
-                F64 attenuation = 1.0 + (gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance);
+                F64 adjusted_distance = mProximityCamera - media_rolloff_min();
+                F64 attenuation = 1.0 + (media_rolloff_rate() * adjusted_distance);
                 attenuation = 1.0 / (attenuation * attenuation);
                 // the attenuation multiplier should never be more than one since that would increase volume
                 volume = volume * (F32)llmin(1.0, attenuation);
