@@ -911,16 +911,16 @@ S64 LLFile::read(const std::string& filename, void* buf, S64 offset, S64 nbytes,
         std::ios_base::openmode omode = LLFile::in | LLFile::binary;
 
         LLFile file(filename, omode, ec);
-        if (file)
+        if (!ec && (bool)file)
         {
-            S64 bytes_read = 0;
             if (offset > 0)
             {
                 file.seek(offset, ec);
             }
+            // else (offset == 0) file was just opened and should already be at 0.
             if (!ec)
             {
-                bytes_read = file.read(buf, nbytes, ec);
+                S64 bytes_read = file.read(buf, nbytes, ec);
                 if (!ec)
                 {
                     return bytes_read;
@@ -961,16 +961,16 @@ S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 
         }
 
         LLFile file(filename, omode, ec);
-        if (file)
+        if (!ec && (bool)file)
         {
-            S64 bytes_written = 0;
             if (offset > 0)
             {
                 file.seek(offset, ec);
             }
+            // else (offset == 0) we are not appending, file was just opened and should already be at 0.
             if (!ec)
             {
-                bytes_written = file.write(buf, nbytes, ec);
+                S64 bytes_written = file.write(buf, nbytes, ec);
                 if (!ec)
                 {
                     return bytes_written;

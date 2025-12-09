@@ -343,7 +343,8 @@ public:
     /// write nBytes from the buffer into the file, starting at offset in the file
     static  S64     write(const std::string& filename, const void* buf, S64 offset, S64 nbytes);
     static  S64     write(const std::string& filename, const void* buf, S64 offset, S64 nbytes, std::error_code& ec);
-    ///< A negative offset will append the data to the end of the file
+    ///< If a negative offset is provided, the file is opened in append mode and the
+    ///  write will be appended to the end of the file.
     ///  @returns bytes written on success, or -1 on failure
 
     /// return the file stat structure for filename
