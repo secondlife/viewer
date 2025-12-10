@@ -96,7 +96,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
             LLMotion* motion = paramMotion.mMotion;
             motion->onInitialize(character);
 
-            if (motion->getDuration() > mEaseInDuration)
+            if (motion->getEaseInDuration() > mEaseInDuration)
             {
                 mEaseInDuration = motion->getEaseInDuration();
             }
