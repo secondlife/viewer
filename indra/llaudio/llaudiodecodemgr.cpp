@@ -199,7 +199,7 @@ bool LLVorbisDecodeState::initDecode()
     LL_DEBUGS("AudioEngine") << "Initing decode from vfile: " << mUUID << LL_ENDL;
 
     mInFilep = new LLFileSystem(mUUID, LLAssetType::AT_SOUND);
-    if (!mInFilep || mInFilep->getSize() <= 0)
+    if (!mInFilep || !mInFilep->getSize())
     {
         LL_WARNS("AudioEngine") << "unable to open vorbis source vfile for reading" << LL_ENDL;
         delete mInFilep;
