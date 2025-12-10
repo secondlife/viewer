@@ -106,7 +106,7 @@ std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
         {
             if (std::filesystem::is_regular_file(dir_itr->status()))
             {
-                v.push_back(dir_itr->path().filename().string());
+                v.push_back(dir_itr->path().string());
             }
         }
     }
