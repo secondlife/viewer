@@ -2922,6 +2922,10 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                     LLWebRTCVoiceClient::getInstance()->updatePosition();
                     LLWebRTCVoiceClient::getInstance()->sendPositionUpdate(true);
                 }
+                else
+                {
+                    mWebRTCAudioInterface->setMute(mMuted);
+                }
             }
             break;
         }
