@@ -536,6 +536,8 @@ void LLFloaterIMContainer::idleUpdate()
         const LLConversationItem* nearby_session = getSessionModel(LLUUID());
         if (nearby_session)
         {
+            LLSpeakerMgr* speaker_mgr = (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance());
+
             LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = nearby_session->getChildrenBegin();
             LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = nearby_session->getChildrenEnd();
             while (current_participant_model != end_participant_model)
@@ -544,7 +546,15 @@ void LLFloaterIMContainer::idleUpdate()
                         dynamic_cast<LLConversationItemParticipant*>((*current_participant_model).get());
                 if (participant_model)
                 {
-                    participant_model->setModeratorOptionsVisible(LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator());
+                    bool show_moderator_options = LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator();
+                    LLUUID participant_id = participant_model->getUUID();
+                    if (participant_id != gAgentID)
+                    {
+                        // Don't show moderator options if participant is not connected to the same spatial channel
+                        LLSpeaker* speakerp = speaker_mgr->findSpeaker(participant_id).get();
+                        show_moderator_options &= speakerp && speakerp->isInVoiceChannel();
+                    }
+                    participant_model->setModeratorOptionsVisible(show_moderator_options);
                 }
 
                 current_participant_model++;
