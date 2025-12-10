@@ -723,9 +723,13 @@ F32 LLDrawable::updateXform(bool undamped)
     mXform.setRotation(target_rot);
     mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
     mXform.updateMatrix();
-    if (isRoot() && mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+    if (isRoot() && mVObjp->isAnimatedObject())
     {
-        mVObjp->getControlAvatar()->matchVolumeTransform();
+        LLControlAvatar* cav = mVObjp->getControlAvatar();
+        if (cav)
+        {
+            cav->matchVolumeTransform();
+        }
     }
 
     if (mSpatialBridge)

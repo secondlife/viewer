@@ -3842,11 +3842,12 @@ void LLVOVolume::onReparent(LLViewerObject *old_parent, LLViewerObject *new_pare
     }
     if (old_volp && old_volp->isAnimatedObject())
     {
-        if (old_volp->getControlAvatar())
+        LLControlAvatar* cav = old_volp->getControlAvatar();
+        if (cav)
         {
             // We have been removed from an animated object, need to do cleanup.
-            old_volp->getControlAvatar()->updateAttachmentOverrides();
-            old_volp->getControlAvatar()->updateAnimations();
+            cav->updateAttachmentOverrides();
+            cav->updateAnimations();
         }
     }
 }
@@ -5131,7 +5132,7 @@ U32 LLVOVolume::getPartitionType() const
     {
         return LLViewerRegion::PARTITION_HUD;
     }
-    if (isAnimatedObject() && getControlAvatar())
+    if (isAnimatedObjectFast() && getControlAvatar())
     {
         return LLViewerRegion::PARTITION_CONTROL_AV;
     }
@@ -5757,11 +5758,18 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             }
 
             // Standard rigged mesh attachments:
-            bool rigged = !vobj->isAnimatedObject() && skinInfo && vobj->isAttachment();
+            bool is_animated = vobj->isAnimatedObject();
+            bool rigged = !is_animated && skinInfo && vobj->isAttachment();
             // Animated objects. Have to check for isRiggedMesh() to
             // exclude static objects in animated object linksets.
-            rigged = rigged || (vobj->isAnimatedObject() && vobj->isRiggedMesh() &&
-                vobj->getControlAvatar() && vobj->getControlAvatar()->mPlaying);
+            if (!rigged && is_animated && vobj->isRiggedMesh())
+            {
+                LLControlAvatar* cav = vobj->getControlAvatar();
+                if (cav)
+                {
+                    rigged = cav->mPlaying;
+                }
+            }
 
             bool any_rigged_face = false;
 
