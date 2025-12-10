@@ -575,8 +575,7 @@ void LLPreviewNotecard::syncExternal()
 {
     // Sync with external editor.
     std::string tmp_file = getTmpFileName();
-    llstat s;
-    if (LLFile::stat(tmp_file, &s) == 0) // file exists
+    if (LLFile::isfile(tmp_file)) // file exists
     {
         if (mLiveFile) mLiveFile->ignoreNextUpdate();
         writeToFile(tmp_file);
