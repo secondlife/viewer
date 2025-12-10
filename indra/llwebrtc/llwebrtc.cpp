@@ -1004,7 +1004,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             }
 
             webrtc::PeerConnectionInterface::RTCOfferAnswerOptions offerOptions;
-            this->AddRef();
+            this->AddRef(); // CreateOffer will deref this when it's done.  Without this, the callbacks never get called.
             mPeerConnection->CreateOffer(this, offerOptions);
             mPendingJobs--;
         });
