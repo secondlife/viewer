@@ -77,8 +77,13 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     LL_PROFILE_ZONE_SCOPED;
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    // not only test for existence but for the file to be not empty
-    return LLFile::size(filename) > 0;
+    llifstream file(filename, std::ios::binary);
+    if (file.is_open())
+    {
+        file.seekg(0, std::ios::end);
+        return file.tellg() > 0;
+    }
+    return false;
 }
 
 // static
@@ -115,7 +120,15 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    return (S32)LLFile::size(filename);
+    S32 file_size = 0;
+    llifstream file(filename, std::ios::binary);
+    if (file.is_open())
+    {
+        file.seekg(0, std::ios::end);
+        file_size = (S32)file.tellg();
+    }
+
+    return file_size;
 }
 
 bool LLFileSystem::read(U8* buffer, S32 bytes)

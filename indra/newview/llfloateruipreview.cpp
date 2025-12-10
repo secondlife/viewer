@@ -892,7 +892,8 @@ void LLFloaterUIPreview::displayFloater(bool click, S32 ID)
     // Add localization to title so user knows whether it's localized or defaulted to en
     std::string full_path = getLocalizedDirectory() + path;
     std::string floater_lang = "EN";
-    if (LLFile::isfile(full_path.c_str()))    // if the file does not exist
+    llstat dummy;
+    if(!LLFile::stat(full_path.c_str(), &dummy))    // if the file does not exist
     {
         floater_lang = getLocStr(ID);
     }
@@ -965,8 +966,9 @@ void LLFloaterUIPreview::onClickEditFloater()
         }
         file_path = getLocalizedDirectory() + file_name;
 
-        // does it exist? (some localized versions may not have it there are no diffs, and then we try to open an nonexistent file
-        if(!LLFile::isfile(file_path.c_str()))                             // if the file does not exist
+        // stat file to see if it exists (some localized versions may not have it there are no diffs, and then we try to open an nonexistent file)
+        llstat dummy;
+        if(LLFile::stat(file_path.c_str(), &dummy))                             // if the file does not exist
         {
             popupAndPrintWarning("No file for this floater exists in the selected localization.  Opening the EN version instead.");
             file_path = get_xui_dir() + mDelim + "en" + mDelim + file_name; // open the en version instead, by default
@@ -1122,7 +1124,8 @@ void LLFloaterUIPreview::onClickToggleDiffHighlighting()
             error = true;
         }
 
-        if (!LLFile::isfile(path_in_textfield.c_str()) && !error)       // check if the file exists (empty check is reduntant but useful for the informative error message)
+        llstat dummy;
+        if(LLFile::stat(path_in_textfield.c_str(), &dummy) && !error)           // check if the file exists (empty check is reduntant but useful for the informative error message)
         {
             std::string warning = std::string("Unable to highlight differences because an invalid path to a difference file was provided:\"") + path_in_textfield + "\"";
             popupAndPrintWarning(warning);
