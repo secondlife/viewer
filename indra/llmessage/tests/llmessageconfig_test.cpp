@@ -62,7 +62,7 @@ namespace tut
             int rmfile = LLFile::remove((mTestConfigDir + "/message.xml"));
             ensure_equals("rmfile value", rmfile, 0);
             // rm temp dir
-            int rmdir = LLFile::rmdir(mTestConfigDir);
+            int rmdir = LLFile::remove(mTestConfigDir);
             ensure_equals("rmdir value", rmdir, 0);
         }
 
