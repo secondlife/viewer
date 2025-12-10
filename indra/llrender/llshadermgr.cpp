@@ -1014,6 +1014,7 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
 
     mShaderCacheDir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "shader_cache");
     LLFile::mkdir(mShaderCacheDir);
+
     {
         std::string meta_out_path = gDirUtilp->add(mShaderCacheDir, "shaderdata.llsd");
         if (gDirUtilp->fileExists(meta_out_path))
@@ -1077,7 +1078,7 @@ void LLShaderMgr::persistShaderCacheMetadata()
     // Settings and shader cache get saved at different time, thus making
     // RenderShaderCacheVersion unreliable when running multiple viewer
     // instances, or for cases where viewer crashes before saving settings.
-    // Duplicate version to the cache itself.
+    // Dupplicate version to the cache itself.
     out["version"] = mShaderCacheVersion;
     out["shaders"] = LLSD::emptyMap();
     LLSD &shaders = out["shaders"];
@@ -1132,7 +1133,7 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
             in_data.resize(shader_info.mBinaryLength);
             std::error_code ec;
             LLFile filep = LLFile(in_path, LLFile::in | LLFile::binary, ec);
-            if (!ec && (bool)filep)
+            if (filep)
             {
                 size_t result = filep.read(in_data.data(), in_data.size(), ec);
                 filep.close();
