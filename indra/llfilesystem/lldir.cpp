@@ -30,6 +30,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#else
+#include <direct.h>
 #endif
 
 #include "lldir.h"
@@ -41,6 +43,7 @@
 #include "lldiriterator.h"
 #include "stringize.h"
 #include "llstring.h"
+#include <boost/filesystem.hpp>
 #include <boost/bind.hpp>
 #include <algorithm>
 
@@ -90,11 +93,11 @@ LLDir::~LLDir()
 
 std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
 {
-    // Returns a vector of filenames in the directory.
+    //Returns a vector of fullpath filenames.
     std::filesystem::path p = LLFile::utf8StringToPath(dirname);
     std::vector<std::string> v;
     std::error_code ec;
-    if (std::filesystem::is_directory(p, ec))
+    if (std::filesystem::is_directory(p, ec) && !ec)
     {
         std::filesystem::directory_iterator end_iter;
         for (std::filesystem::directory_iterator dir_itr(p);
