@@ -26,9 +26,10 @@
  * $/LicenseInfo$
  */
 
-#include <tut/tut.hpp>
-#include "lltut.h"
 #include "linden_common.h"
+
+#include "lltut.h"
+
 #include "lldatapacker.h"
 #include "v4color.h"
 #include "v4coloru.h"
@@ -38,6 +39,7 @@
 #include "llsdserialize.h"
 
 #define TEST_FILE_NAME  "datapacker_test.txt"
+
 namespace tut
 {
     struct datapacker_test
@@ -188,11 +190,11 @@ namespace tut
     template<> template<>
     void datapacker_test_object_t::test<5>()
     {
-        U8 buf[] = "SecondLife is virtual World";
+        U8* buf = new U8[]("SecondLife is virtual World");
         S32 size = sizeof(buf);
         LLDataPackerBinaryBuffer lldp(buf, size);
-        U8 new_buf[] = "Its Amazing";
-        size = sizeof(new_buf);
+        U8* new_buf = new U8[]("Its Amazing");
+        size = sizeof(new_buf)-1;
         lldp.assignBuffer(new_buf, size);
         ensure("LLDataPackerBinaryBuffer::assignBuffer failed" , ((lldp.getBufferSize() == size) && (0 == lldp.getCurrentSize()))) ;
     }
