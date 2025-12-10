@@ -57,6 +57,8 @@
 #include "llprocesstexture.h"
 #include "llprocessskin.h"
 
+#include "apr_getopt.h"
+
 const std::string NOTHING_EXTRA("");
 
 ////////////////////////////////////////////

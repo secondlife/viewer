@@ -37,7 +37,7 @@
 #endif
 
 #include "llcommon.h"
-#include "llapr.h"
+
 #include "llerrorcontrol.h"
 #include "llframetimer.h"
 #include "lllivefile.h"
@@ -53,6 +53,8 @@
 //
 // Signal handling
 #ifndef LL_WINDOWS
+#include "apr_signal.h"
+
 # include <signal.h>
 # include <unistd.h> // for fork()
 void setup_signals();
