@@ -2549,10 +2549,7 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
     LL::WorkQueue::postMaybe(mMainQueue,
         [=, this] {
             LL_DEBUGS("Voice") << "Voice channel requires renegotiation." << LL_ENDL;
-            if (!mShutDown)
-            {
-                setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
-            }
+            setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
             mCurrentStatus = LLVoiceClientStatusObserver::ERROR_UNKNOWN;
         });
 }
@@ -2898,9 +2895,10 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             // this connection.
             // For spatial this connection will come up as muted, but will be set to the appropriate
             // value later on when we determine the regions we connect to.
-            if (!isSpatial())
+            if (isSpatial())
             {
-                mWebRTCAudioInterface->setMute(mMuted);
+                // we'll determine primary state later and set mute accordinly
+                mPrimary = false;
             }
             mWebRTCAudioInterface->setReceiveVolume(mSpeakerVolume);
             LLWebRTCVoiceClient::getInstance()->OnConnectionEstablished(mChannelID, mRegionID);
@@ -2923,6 +2921,10 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 {
                     LLWebRTCVoiceClient::getInstance()->updatePosition();
                     LLWebRTCVoiceClient::getInstance()->sendPositionUpdate(true);
+                }
+                else
+                {
+                    mWebRTCAudioInterface->setMute(mMuted);
                 }
             }
             break;

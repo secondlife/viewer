@@ -77,17 +77,21 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     LL_PROFILE_ZONE_SCOPED;
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    // not only test for existence but for the file to be not empty
-    S64 size =  LLFile::size(filename);
-    return size > 0;
+    llifstream file(filename, std::ios::binary);
+    if (file.is_open())
+    {
+        file.seekg(0, std::ios::end);
+        return file.tellg() > 0;
+    }
+    return false;
 }
 
 // static
-bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_warning /*= 0*/)
+bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error /*= 0*/)
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    LLFile::remove(filename.c_str(), suppress_warning);
+    LLFile::remove(filename.c_str(), suppress_error);
 
     return true;
 }
@@ -112,10 +116,19 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
 }
 
 // static
-S64 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType file_type)
+S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType file_type)
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
-    return LLFile::size(filename);
+
+    S32 file_size = 0;
+    llifstream file(filename, std::ios::binary);
+    if (file.is_open())
+    {
+        file.seekg(0, std::ios::end);
+        file_size = (S32)file.tellg();
+    }
+
+    return file_size;
 }
 
 bool LLFileSystem::read(U8* buffer, S32 bytes)
@@ -256,7 +269,7 @@ S32 LLFileSystem::tell() const
 
 S32 LLFileSystem::getSize() const
 {
-    return (S32)LLFileSystem::getFileSize(mFileID, mFileType);
+    return LLFileSystem::getFileSize(mFileID, mFileType);
 }
 
 S32 LLFileSystem::getMaxSize() const

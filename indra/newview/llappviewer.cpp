@@ -2268,7 +2268,7 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         LLAppViewer::instance()->writeDebugInfo();
 
         std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-        if (!LLFile::isfile(error_marker_file))
+        if (!LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
         {
             // If marker doesn't exist, create a marker with llerror code for next launch
             // otherwise don't override existing file
@@ -3031,11 +3031,13 @@ void LLAppViewer::initStrings()
         }
         else
         {
-            if (!LLFile::exists(strings_path_full))
+            llstat st;
+            int rc = LLFile::stat(strings_path_full, &st);
+            if (rc != 0)
             {
-                crash_reason = "The file '" + strings_path_full + "' doesn't seem to exist";
+                crash_reason = "The file '" + strings_path_full + "' failed to get status. Error code: " + std::to_string(rc);
             }
-            else if (LLFile::isdir(strings_path_full))
+            else if (S_ISDIR(st.st_mode))
             {
                 crash_reason = "The filename '" + strings_path_full + "' is a directory name";
             }
@@ -3898,7 +3900,7 @@ void LLAppViewer::processMarkerFiles()
     bool marker_is_same_version = true;
     // first, look for the marker created at startup and deleted on a clean exit
     mMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,MARKER_FILE_NAME);
-    if (LLFile::isfile(mMarkerFileName))
+    if (LLAPRFile::isExist(mMarkerFileName, NULL, LL_APR_RB))
     {
         // File exists...
         // first, read it to see if it was created by the same version (we need this later)
@@ -3990,7 +3992,7 @@ void LLAppViewer::processMarkerFiles()
     // check for any last exec event report based on whether or not it happened during logout
     // (the logout marker is created when logout begins)
     std::string logout_marker_file =  gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
-    if(LLFile::isfile(logout_marker_file))
+    if(LLAPRFile::isExist(logout_marker_file, NULL, LL_APR_RB))
     {
         if (markerIsSameVersion(logout_marker_file))
         {
@@ -4002,11 +4004,11 @@ void LLAppViewer::processMarkerFiles()
         {
             LL_INFOS("MarkerFile") << "Logout crash marker '"<< logout_marker_file << "' found, but versions did not match" << LL_ENDL;
         }
-        LLFile::remove(logout_marker_file);
+        LLAPRFile::remove(logout_marker_file);
     }
     // and last refine based on whether or not a marker created during a non-llerr crash is found
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-    if(LLFile::isfile(error_marker_file))
+    if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
     {
         S32 marker_code = getMarkerErrorCode(error_marker_file);
         if (marker_code >= 0)
@@ -4031,7 +4033,7 @@ void LLAppViewer::processMarkerFiles()
         {
             LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' marker found, but versions did not match" << LL_ENDL;
         }
-        LLFile::remove(error_marker_file);
+        LLAPRFile::remove(error_marker_file);
     }
 
 #if LL_DARWIN
@@ -4058,7 +4060,7 @@ void LLAppViewer::removeMarkerFiles()
         if (mMarkerFile.getFileHandle())
         {
             mMarkerFile.close() ;
-            LLFile::remove( mMarkerFileName );
+            LLAPRFile::remove( mMarkerFileName );
             LL_DEBUGS("MarkerFile") << "removed exec marker '"<<mMarkerFileName<<"'"<< LL_ENDL;
         }
         else
@@ -4069,7 +4071,7 @@ void LLAppViewer::removeMarkerFiles()
         if (mLogoutMarkerFile.getFileHandle())
         {
             mLogoutMarkerFile.close();
-            LLFile::remove( mLogoutMarkerFileName );
+            LLAPRFile::remove( mLogoutMarkerFileName );
             LL_DEBUGS("MarkerFile") << "removed logout marker '"<<mLogoutMarkerFileName<<"'"<< LL_ENDL;
         }
         else
@@ -4291,7 +4293,7 @@ void LLAppViewer::migrateCacheDirectory()
                 LLFile::remove(ds_store);
             }
 #endif
-            if (LLFile::remove(old_cache_dir) != 0)
+            if (LLFile::rmdir(old_cache_dir) != 0)
             {
                 LL_WARNS() << "could not delete old cache directory " << old_cache_dir << LL_ENDL;
             }
@@ -5437,7 +5439,7 @@ void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
 bool LLAppViewer::errorMarkerExists() const
 {
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-    return LLFile::isfile(error_marker_file);
+    return LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB);
 }
 
 void LLAppViewer::outOfMemorySoftQuit()

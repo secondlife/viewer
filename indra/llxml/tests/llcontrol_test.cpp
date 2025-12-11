@@ -69,7 +69,7 @@ namespace tut
                 LLFile::remove(filename);
             }
             LLFile::remove(mTestConfigFile);
-            LLFile::remove(mTestConfigDir);
+            LLFile::rmdir(mTestConfigDir);
         }
         void writeSettingsFile(const LLSD& config)
         {

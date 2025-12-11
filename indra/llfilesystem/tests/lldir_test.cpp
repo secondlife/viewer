@@ -558,8 +558,8 @@ namespace tut
          LLFile::remove(dir1files[i]);
          LLFile::remove(dir2files[i]);
       }
-      LLFile::remove(dir1);
-      LLFile::remove(dir2);
+      LLFile::rmdir(dir1);
+      LLFile::rmdir(dir2);
    }
 
     template<> template<>

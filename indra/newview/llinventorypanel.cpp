@@ -1849,6 +1849,7 @@ void LLInventoryPanel::purgeSelectedItems()
 {
     if (!mFolderRoot.get()) return;
 
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
     const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
     if (inventory_selected.empty()) return;
     LLSD args;
@@ -1858,12 +1859,17 @@ void LLInventoryPanel::purgeSelectedItems()
         it != end_it;
         ++it)
     {
+        // Selection allows items outside trash folder, only count the ones inside.
         LLUUID item_id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
-        LLInventoryModel::cat_array_t cats;
-        LLInventoryModel::item_array_t items;
-        gInventory.collectDescendents(item_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
-        count += items.size() + cats.size();
-        selected_items.push_back(item_id);
+        LLInventoryObject* obj = gInventory.getObject(item_id);
+        if (obj->getParentUUID() == trash_id)
+        {
+            LLInventoryModel::cat_array_t cats;
+            LLInventoryModel::item_array_t items;
+            gInventory.collectDescendents(item_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
+            count += items.size() + cats.size();
+            selected_items.push_back(item_id);
+        }
     }
     args["COUNT"] = static_cast<S32>(count);
     LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(callbackPurgeSelectedItems, _1, _2, selected_items));

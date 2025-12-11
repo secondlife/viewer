@@ -1250,7 +1250,7 @@ void LLVOCache::removeCache(ELLPath location, bool started)
     std::string cache_dir = gDirUtilp->getExpandedFilename(location, object_cache_dirname);
     LL_INFOS() << "Removing cache at " << cache_dir << LL_ENDL;
     gDirUtilp->deleteFilesInDir(cache_dir, mask); //delete all files
-    LLFile::remove(cache_dir);
+    LLFile::rmdir(cache_dir);
 
     clearCacheInMemory();
     mInitialized = false;
@@ -1370,7 +1370,7 @@ void LLVOCache::removeFromCache(HeaderEntryInfo* entry)
     std::string filename;
     getObjectCacheFilename(entry->mHandle, filename);
     LL_WARNS("GLTF", "VOCache") << "Removing object cache for handle " << entry->mHandle << "Filename: " << filename << LL_ENDL;
-    LLFile::remove(filename);
+    LLAPRFile::remove(filename, mLocalAPRFilePoolp);
 
     // Note: `removeFromCache` should take responsibility for cleaning up all cache artefacts specfic to the handle/entry.
     // as such this now includes the generic extras
@@ -1394,7 +1394,7 @@ void LLVOCache::readCacheHeader()
     clearCacheInMemory();
 
     bool success = true ;
-    if (LLFile::isfile(mHeaderFileName))
+    if (LLAPRFile::isExist(mHeaderFileName, mLocalAPRFilePoolp))
     {
         LLAPRFile apr_file(mHeaderFileName, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
 
