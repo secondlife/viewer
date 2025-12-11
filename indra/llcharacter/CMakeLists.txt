@@ -74,3 +74,15 @@ target_link_libraries(
 if (USE_PRECOMPILED_HEADERS)
   target_precompile_headers(llcharacter REUSE_FROM llprecompiled)
 endif ()
+
+
+if (LL_TESTS)
+  include(LLAddBuildTest)
+#   SET(llcharacter_TEST_SOURCE_FILES
+#     )
+#   LL_ADD_PROJECT_UNIT_TESTS(llcharacter "${llcharacter_TEST_SOURCE_FILES}")
+
+  #set(TEST_DEBUG on)
+  set(test_libs llcommon llmath)
+  LL_ADD_INTEGRATION_TEST(lljoint "lljoint.cpp" "${test_libs}")
+endif()
