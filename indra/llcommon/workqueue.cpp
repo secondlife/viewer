@@ -276,12 +276,30 @@ bool LL::WorkQueue::done()
 
 bool LL::WorkQueue::post(const Work& callable)
 {
-    return mQueue.pushIfOpen(callable);
+    try
+    {
+        return mQueue.pushIfOpen(callable);
+    }
+    catch (std::bad_alloc&)
+    {
+        LLError::LLUserWarningMsg::showOutOfMemory();
+        LL_ERRS("LLCoros") << "Bad memory allocation in WorkQueue::post" << LL_ENDL;
+        return false;
+    }
 }
 
 bool LL::WorkQueue::tryPost(const Work& callable)
 {
-    return mQueue.tryPush(callable);
+    try
+    {
+        return mQueue.tryPush(callable);
+    }
+    catch (std::bad_alloc&)
+    {
+        LLError::LLUserWarningMsg::showOutOfMemory();
+        LL_ERRS("LLCoros") << "Bad memory allocation in WorkQueue::tryPost" << LL_ENDL;
+        return false;
+    }
 }
 
 LL::WorkQueue::Work LL::WorkQueue::pop_()
