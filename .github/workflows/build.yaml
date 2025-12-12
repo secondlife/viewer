@@ -93,7 +93,7 @@ jobs:
       - name: Linux Disk Cleanup
         if: runner.os == 'Linux'
         run: |
-          # Prune various unused files from linux builder to fix free runner disk space exhaustion
+          # Prune various unused files from linux builder to fix runner disk space exhaustion
           df -h
           sudo docker container prune -f
           sudo docker image prune -a -f
@@ -102,6 +102,24 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/local/.ghcup
+          df -h
+
+      - name: macOS Disk Cleanup
+        if: runner.os == 'macOS'
+        run: |
+          # Prune various unused files from macOS builder to fix runner disk space exhaustion
+          df -h
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/google/chrome
+          sudo rm -rf /opt/microsoft/msedge
+          sudo rm -rf /opt/microsoft/powershell
+          sudo rm -rf /usr/lib/mono
+          sudo rm -rf /usr/local/julia*
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/share/dotnet
           df -h
 
       - name: Setup python
