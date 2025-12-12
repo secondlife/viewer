@@ -530,7 +530,7 @@ int main(int argc, char** argv)
             }
             else
             {
-                LLFastTimer::sMetricLog = TRUE;
+                LLFastTimer::sMetricLog = true;
                 LLFastTimer::sLogName = test_name;
                 arg += 1;                   // Skip that arg now we know it's a valid test name
                 if ((arg + 1) == argc)      // Break out of the loop if we reach the end of the arg list

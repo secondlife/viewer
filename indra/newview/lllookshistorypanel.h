@@ -40,7 +40,7 @@ public:
     LLLooksHistoryPanel();
     virtual ~LLLooksHistoryPanel();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onSearchEdit(const std::string& string);
     /*virtual*/ void onShowOnMap();
     /*virtual*/ void onLooks();

@@ -904,7 +904,7 @@ bool StackWalker::LoadModules()
     SetLastError(ERROR_DLL_INIT_FAILED);
     return false;
   }
-  if (m_modulesLoaded != FALSE)
+  if (m_modulesLoaded)
     return true;
 
   // Build the sym-path:

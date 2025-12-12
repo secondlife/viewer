@@ -109,8 +109,8 @@ LLToolView::~LLToolView()
 //  // Can optionally ignore panel
 //  if (contain->mPanel)
 //  {
-//      contain->mPanel->setBackgroundVisible( FALSE );
-//      contain->mPanel->setBorderVisible( FALSE );
+//      contain->mPanel->setBackgroundVisible( false );
+//      contain->mPanel->setBorderVisible( false );
 //      addChild(contain->mPanel);
 //  }
 
@@ -153,7 +153,7 @@ void LLToolView::draw()
          iter != mContainList.end(); ++iter)
     {
         LLToolContainer* contain = *iter;
-        BOOL state = (contain->mTool == selected);
+        bool state = (contain->mTool == selected);
         contain->mButton->setToggleState( state );
         if (contain->mPanel)
         {
