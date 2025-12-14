@@ -126,17 +126,17 @@ public:
     /// therefore not be used to prevent random other applications from accessing the file, but it
     /// works for other viewer processes when they use either the LLFile::open() or LLFile::fopen()
     /// functions with the appropriate lock flags to open a file.
-    static const openmode_t exclusive = (1 << 16);
-    static const openmode_t shared    = (1 << 17);
+    static const openmode_t exclusive = (1 << 16);   // exclusive lock
+    static const openmode_t shared    = (1 << 17);   // shared lock, others may read
 
     /// Additional lmode flag to indicate to rather fail instead of blocking when trying
     /// to acquire a lock with LLFile::lock()
-    static const openmode_t noblock   = (1 << 18);
+    static const openmode_t noblock   = (1 << 18);   // don't wait when lock is not available
 
     /// The mask value for the lock mask bits
     static const openmode_t lock_mask = exclusive | shared;
 
-    /// One of these can be passed to the dir parameter of LLFile::seek()
+    /// One of these can be passed to the seekdir parameter of LLFile::seek()
     typedef enum seekdir_t
     {
         beg,
@@ -220,7 +220,7 @@ public:
     int seek(S64 pos, std::error_code& ec);
     ///< @returns 0 on success, -1 on failure
 
-    /// Move the file pointer to the specified position relative to dir
+    /// Move the file pointer to the specified position relative to seekdir
     int seek(S64 offset, seekdir_t seekdir, std::error_code& ec);
     ///< @returns 0 on success, -1 on failure
 
@@ -284,7 +284,7 @@ public:
     ///
     ///  lmode is optional and allows to lock the file for other processes either as a shared lock or an
     ///  exclusive lock. If the requested lock conflicts with an already existing lock, the open fails.
-    ///  Pass either LLFIle::exclusive or LLFile::shared to this parameter if you want to prevent other
+    ///  Pass either LLFile::exclusive or LLFile::shared to this parameter if you want to prevent other
     ///  processes from reading (exclusive lock) or writing (shared lock) to the file. It will always use
     ///  LLFile::noblock, meaning the open will immediately fail if it conflicts with an existing lock on the
     ///  file.
