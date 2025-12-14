@@ -41,7 +41,7 @@
 
 #if LL_WINDOWS
 #include <windows.h>
-// The Windows version of stat function and stat data structure are called _stat64
+// The Windows version of stat function and stat data structure are called _stat or _stat64
 // We use _stat64 here to support 64-bit st_size and time_t values
 typedef struct _stat64 llstat;
 #else
@@ -102,14 +102,16 @@ public:
     +      +      +      -      +      -            "                 "
     ----------------------------------------------------------------------------------
     */
-    static const std::ios_base::openmode app       = static_cast<std::ios_base::openmode>(1 << 1);    // append to end
-    static const std::ios_base::openmode ate       = static_cast<std::ios_base::openmode>(1 << 2);    // initialize to end
-    static const std::ios_base::openmode binary    = static_cast<std::ios_base::openmode>(1 << 3);    // binary mode
-    static const std::ios_base::openmode in        = static_cast<std::ios_base::openmode>(1 << 4);    // for reading
-    static const std::ios_base::openmode out       = static_cast<std::ios_base::openmode>(1 << 5);    // for writing
-    static const std::ios_base::openmode inout     = in | out;          // for writing and reading
-    static const std::ios_base::openmode trunc     = static_cast<std::ios_base::openmode>(1 << 6);    // truncate on open
-    static const std::ios_base::openmode noreplace = static_cast<std::ios_base::openmode>(1 << 7);    // no replace if it exists
+    typedef int openmode_t;
+
+    static const openmode_t app       = (1 << 1);    // append to end
+    static const openmode_t ate       = (1 << 2);    // initialize to end
+    static const openmode_t binary    = (1 << 3);    // binary mode
+    static const openmode_t in        = (1 << 4);    // for reading
+    static const openmode_t out       = (1 << 5);    // for writing
+    static const openmode_t inout     = in | out;    // for writing and reading
+    static const openmode_t trunc     = (1 << 6);    // truncate on open
+    static const openmode_t noreplace = (1 << 7);    // no replace if it exists
 
     /// Additional optional flags to omode in open() and lmode in fopen() or lock()
     /// to indicate which sort of lock if any to attempt to get
@@ -124,20 +126,24 @@ public:
     /// therefore not be used to prevent random other applications from accessing the file, but it
     /// works for other viewer processes when they use either the LLFile::open() or LLFile::fopen()
     /// functions with the appropriate lock flags to open a file.
-    static const std::ios_base::openmode exclusive = static_cast<std::ios_base::openmode>(1 << 16);
-    static const std::ios_base::openmode shared    = static_cast<std::ios_base::openmode>(1 << 17);
+    static const openmode_t exclusive = (1 << 16);
+    static const openmode_t shared    = (1 << 17);
 
     /// Additional lmode flag to indicate to rather fail instead of blocking when trying
     /// to acquire a lock with LLFile::lock()
-    static const std::ios_base::openmode noblock   = static_cast<std::ios_base::openmode>(1 << 18);
+    static const openmode_t noblock   = (1 << 18);
 
     /// The mask value for the lock mask bits
-    static const std::ios_base::openmode lock_mask = exclusive | shared;
+    static const openmode_t lock_mask = exclusive | shared;
 
     /// One of these can be passed to the dir parameter of LLFile::seek()
-    static const std::ios_base::seekdir beg        = std::ios_base::beg;
-    static const std::ios_base::seekdir cur        = std::ios_base::cur;
-    static const std::ios_base::seekdir end        = std::ios_base::end;
+    typedef enum seekdir_t
+    {
+        beg,
+        cur,
+        end,
+    } ESeekDir;
+
     ///@}
 
     // ================================================================================
@@ -158,7 +164,7 @@ public:
     }
 
     /// constructor opening the file
-    LLFile(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666) :
+    LLFile(const std::string& filename, openmode_t omode, std::error_code& ec, int perm = 0666) :
         mHandle(InvalidHandle)
     {
         open(filename, omode, ec, perm);
@@ -199,7 +205,7 @@ public:
     ///@{
 
     /// Open a file with the specific open mode flags
-    int open(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666);
+    int open(const std::string& filename, openmode_t omode, std::error_code& ec, int perm = 0666);
     ///< @returns 0 on success, -1 on failure
 
     /// Determine the size of the opened file
@@ -215,7 +221,7 @@ public:
     ///< @returns 0 on success, -1 on failure
 
     /// Move the file pointer to the specified position relative to dir
-    int seek(S64 offset, std::ios_base::seekdir dir, std::error_code& ec);
+    int seek(S64 offset, seekdir_t seekdir, std::error_code& ec);
     ///< @returns 0 on success, -1 on failure
 
     /// Read the specified number of bytes into the buffer starting at the current file pointer
@@ -284,8 +290,8 @@ public:
     ///  file.
     ///
     ///  @returns a valid LLFILE* pointer on success that can be passed to the fread() and fwrite() functions
-    ///  and some other f<something> functions in the Standard C library that accept a FILE* as parameter
-    ///  or NULL on failure
+    ///  and some other f<something> functions in the Standard C library that accept a FILE* as parameter,
+    ///  or nullptr on failure
 
     /// Close a file handle opened with fopen() above
     static  int     close(LLFILE * file);
@@ -412,10 +418,10 @@ public:
 
 private:
 #if LL_WINDOWS
-    typedef HANDLE        llfile_handle_t;
+    typedef HANDLE llfile_handle_t;
     const llfile_handle_t InvalidHandle = INVALID_HANDLE_VALUE;
 #else
-    typedef int           llfile_handle_t;
+    typedef int    llfile_handle_t;
     const llfile_handle_t InvalidHandle = -1;
 #endif
 
@@ -439,8 +445,8 @@ private:
     ///
     ///  @returns the path as a std::wstring path
 #endif
-    llfile_handle_t mHandle;       // The file handle/descriptor
-    std::ios_base::openmode mOpen; // Used to emulate std::ios_base::app under Windows
+    llfile_handle_t mHandle; // The file handle/descriptor
+    LLFile::openmode_t mOpen;  // Used to emulate LLFile::app under Windows
 };
 
 #if LL_WINDOWS
