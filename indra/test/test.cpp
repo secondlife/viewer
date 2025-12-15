@@ -46,13 +46,6 @@
 #include "apr_pools.h"
 #include "apr_getopt.h"
 
-// the CTYPE_WORKAROUND is needed for linux dev stations that don't
-// have the broken libc6 packages needed by our out-of-date static
-// libs (such as libcrypto and libcurl). -- Leviathan 20060113
-#ifdef CTYPE_WORKAROUND
-#   include "ctype_workaround.h"
-#endif
-
 #include <boost/iostreams/tee.hpp>
 #include <boost/iostreams/stream.hpp>
 
@@ -618,10 +611,6 @@ int main(int argc, char **argv)
     std::string test_log = test_app_name + ".log";
     LLFile::remove(test_log);
     LLError::logToFile(test_log);
-
-#ifdef CTYPE_WORKAROUND
-    ctype_workaround();
-#endif
 
     if (!sMasterThreadRecorder)
     {

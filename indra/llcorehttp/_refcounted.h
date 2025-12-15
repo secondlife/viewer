@@ -30,7 +30,6 @@
 
 #include "linden_common.h"
 
-#include "fix_macros.h"
 #include <boost/intrusive_ptr.hpp>
 #include "llatomic.h"
 

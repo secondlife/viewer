@@ -117,8 +117,6 @@ set(llcommon_HEADER_FILES
     chrono.h
     classic_callback.h
     commoncontrol.h
-    ctype_workaround.h
-    fix_macros.h
     fsyspath.h
     function_types.h
     indra_constants.h
@@ -249,7 +247,6 @@ set(llcommon_HEADER_FILES
     threadpool.h
     threadpool_fwd.h
     threadsafeschedule.h
-    timer.h
     tuple.h
     u64.h
     workqueue.h

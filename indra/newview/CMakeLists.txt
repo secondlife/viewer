@@ -1430,8 +1430,6 @@ set(viewer_HEADER_FILES
     noise.h
     pipeline.h
     roles_constants.h
-    VertexCache.h
-    VorbisFramework.h
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)

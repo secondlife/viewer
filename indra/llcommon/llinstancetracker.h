@@ -37,7 +37,7 @@
 #include <memory>
 #include <type_traits>
 
-#include "mutex.h"
+#include <mutex>
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>

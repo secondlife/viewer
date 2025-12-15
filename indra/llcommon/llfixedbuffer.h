@@ -27,7 +27,7 @@
 #ifndef LL_LLFIXEDBUFFER_H
 #define LL_LLFIXEDBUFFER_H
 
-#include "timer.h"
+#include "lltimer.h"
 #include <deque>
 #include <string>
 #include "llstring.h"
