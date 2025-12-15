@@ -309,122 +309,6 @@ protected:
     std::shared_ptr<LLReplayLog> mReplayer;
 };
 
-// TeamCity specific class which emits service messages
-// http://confluence.jetbrains.net/display/TCD3/Build+Script+Interaction+with+TeamCity;#BuildScriptInteractionwithTeamCity-testReporting
-
-class LLTCTestCallback : public LLTestCallback
-{
-public:
-    LLTCTestCallback(bool verbose_mode, std::ostream *stream,
-                     std::shared_ptr<LLReplayLog> replayer) :
-        LLTestCallback(verbose_mode, stream, replayer)
-    {
-    }
-
-    ~LLTCTestCallback()
-    {
-    }
-
-    virtual void group_started(const std::string& name) {
-        LLTestCallback::group_started(name);
-        std::cout << "\n##teamcity[testSuiteStarted name='" << escape(name) << "']" << std::endl;
-    }
-
-    virtual void group_completed(const std::string& name) {
-        LLTestCallback::group_completed(name);
-        std::cout << "##teamcity[testSuiteFinished name='" << escape(name) << "']" << std::endl;
-    }
-
-    virtual void test_completed(const tut::test_result& tr)
-    {
-        std::string testname(STRINGIZE(tr.group << "." << tr.test));
-        if (! tr.name.empty())
-        {
-            testname.append(":");
-            testname.append(tr.name);
-        }
-        testname = escape(testname);
-
-        // Sadly, tut::callback doesn't give us control at test start; have to
-        // backfill start message into TC output.
-        std::cout << "##teamcity[testStarted name='" << testname << "']" << std::endl;
-
-        // now forward call to base class so any output produced there is in
-        // the right TC context
-        LLTestCallback::test_completed(tr);
-
-        switch(tr.result)
-        {
-            case tut::test_result::ok:
-                break;
-
-            case tut::test_result::fail:
-            case tut::test_result::ex:
-            case tut::test_result::warn:
-            case tut::test_result::term:
-                std::cout << "##teamcity[testFailed name='" << testname
-                          << "' message='" << escape(tr.message) << "']" << std::endl;
-                break;
-
-            case tut::test_result::skip:
-                std::cout << "##teamcity[testIgnored name='" << testname << "']" << std::endl;
-                break;
-
-            default:
-                break;
-        }
-
-        std::cout << "##teamcity[testFinished name='" << testname << "']" << std::endl;
-    }
-
-    static std::string escape(const std::string& str)
-    {
-        // Per http://confluence.jetbrains.net/display/TCD65/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-ServiceMessages
-        std::string result;
-        for (char c : str)
-        {
-            switch (c)
-            {
-            case '\'':
-                result.append("|'");
-                break;
-            case '\n':
-                result.append("|n");
-                break;
-            case '\r':
-                result.append("|r");
-                break;
-/*==========================================================================*|
-            // These are not possible 'char' values from a std::string.
-            case '\u0085':          // next line
-                result.append("|x");
-                break;
-            case '\u2028':          // line separator
-                result.append("|l");
-                break;
-            case '\u2029':          // paragraph separator
-                result.append("|p");
-                break;
-|*==========================================================================*/
-            case '|':
-                result.append("||");
-                break;
-            case '[':
-                result.append("|[");
-                break;
-            case ']':
-                result.append("|]");
-                break;
-            default:
-                result.push_back(c);
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-
 static const apr_getopt_option_t TEST_CL_OPTIONS[] =
 {
     {"help", 'h', 0, "Print the help message."},
@@ -620,15 +504,7 @@ int main(int argc, char **argv)
 
     // run the tests
 
-    LLTestCallback* mycallback;
-    if (getenv("TEAMCITY_PROJECT_NAME"))
-    {
-        mycallback = new LLTCTestCallback(verbose_mode, output.get(), replayer);
-    }
-    else
-    {
-        mycallback = new LLTestCallback(verbose_mode, output.get(), replayer);
-    }
+    LLTestCallback* mycallback = new LLTestCallback(verbose_mode, output.get(), replayer);
 
     // a chained_callback subclass must be linked with previous
     mycallback->link();
