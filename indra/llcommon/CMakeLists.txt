@@ -85,7 +85,6 @@ set(llcommon_SOURCE_FILES
     llsdutil.cpp
     llsingleton.cpp
     llstacktrace.cpp
-    llstreamqueue.cpp
     llstreamtools.cpp
     llstring.cpp
     llstringtable.cpp
@@ -215,7 +214,6 @@ set(llcommon_HEADER_FILES
     llsingleton.h
     llstacktrace.h
     llstl.h
-    llstreamqueue.h
     llstreamtools.h
     llstrider.h
     llstring.h
@@ -341,7 +339,6 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdutil "" "llcommon;llmath")
   LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstreamtools "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltrace "" "${test_libs}")
