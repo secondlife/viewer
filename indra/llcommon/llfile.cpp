@@ -199,7 +199,7 @@ static void find_locking_process(const std::string& filename)
     else
     {
         std::string tf(TEMP);
-        tf += "\\handle.tmp";
+        tf += "handle.tmp";
         // http://technet.microsoft.com/en-us/sysinternals/bb896655
         std::string cmd(STRINGIZE("handle \"" << filename
                         // "openfiles /query /v | fgrep -i \"" << filename
@@ -1113,7 +1113,18 @@ const std::string& LLFile::tmpdir()
     static std::string temppath;
     if (temppath.empty())
     {
+        // This function should rather be part of LLDir and actually is, although not as a static function
+        // LLDir::getTempDir() or LLDir::getExpandedFilename(LL_PATH_TEMP[, subdir][, filename]);
+#if LL_WINDOWS
+        char sep = '\\';
+#else
+        char sep == '/';
+#endif
         temppath = std::filesystem::temp_directory_path().string();
+        if (!temppath.empty() && temppath[temppath.size() - 1] != sep)
+        {
+            temppath += sep;
+        }
     }
     return temppath;
 }
