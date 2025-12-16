@@ -150,6 +150,7 @@ pre_build()
 
     RELEASE_CRASH_REPORTING=OFF
     HAVOK=OFF
+    TESTING=OFF
     SIGNING=()
     if [[ "$variant" != *OS ]]
     then
@@ -169,6 +170,11 @@ pre_build()
     then
       # RELEASE_CRASH_REPORTING is tuned on unconditionaly, this is fine but not for Linux as of now (due to missing breakpad/crashpad support)
       RELEASE_CRASH_REPORTING=OFF
+    fi
+
+    if $build_tests
+    then
+      TESTING=ON
     fi
 
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
@@ -195,7 +201,7 @@ pre_build()
 
     "$autobuild" configure --quiet -c $variant \
      ${eval_autobuild_configure_parameters:---} \
-     -DLL_TESTS:BOOL=ON \
+     -DLL_TESTS:BOOL="$TESTING" \
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
@@ -246,7 +252,18 @@ package_llphysicsextensions_tpv()
 build()
 {
   local variant="$1"
-  if $build_viewer
+  if $build_tests
+  then
+    begin_section "autobuild $variant tests"
+    # honor autobuild_build_parameters same as sling-buildscripts
+    export CTEST_OUTPUT_ON_FAILURE=1 # Output log on test failure
+    eval_autobuild_build_parameters=$(eval $(echo echo $autobuild_build_parameters))
+    "$autobuild" build --no-configure -c $variant \
+         $eval_autobuild_build_parameters -- --target BUILD_AND_RUN_TESTS \
+    || fatal "failed building $variant tests"
+    echo true >"$build_dir"/build_ok
+    end_section "autobuild $variant tests"
+  elif $build_viewer
   then
     begin_section "autobuild $variant"
     # honor autobuild_build_parameters same as sling-buildscripts
@@ -254,10 +271,6 @@ build()
     "$autobuild" build --no-configure -c $variant \
          $eval_autobuild_build_parameters \
     || fatal "failed building $variant"
-
-    ctest -C Release --test-dir "${build_dir}" --output-on-failure -j $(nproc --all) \
-    || fatal "failed testing $variant"
-
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
 
