@@ -45,6 +45,7 @@ jobs:
       matrix:
         runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
         configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
+        build_variant: [Viewer, Tests]
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -68,9 +69,9 @@ jobs:
       DEVELOPER_DIR: "/Applications/Xcode_16.4.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
-      build_coverity: false
       build_log_dir: ${{ github.workspace }}/.logs
-      build_viewer: true
+      build_viewer: ${{ matrix.build_variant == 'Viewer' }}
+      build_tests: ${{ matrix.build_variant == 'Tests' }}
       BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
       # extracted and committed to viewer repo
       BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/buildscripts_support_functions
@@ -91,9 +92,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Linux Disk Cleanup
-        if: runner.os == 'Linux'
+        if: matrix.build_variant == 'Viewer' && runner.os == 'Linux'
         run: |
-          # Prune various unused files from linux builder to fix runner disk space exhaustion
+          # Prune various unused files from linux builder for Viewer build to fix runner disk space exhaustion
           df -h
           sudo docker container prune -f
           sudo docker image prune -a -f
@@ -102,24 +103,6 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/local/.ghcup
-          df -h
-
-      - name: macOS Disk Cleanup
-        if: runner.os == 'macOS'
-        run: |
-          # Prune various unused files from macOS builder to fix runner disk space exhaustion
-          df -h
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/google/chrome
-          sudo rm -rf /opt/microsoft/msedge
-          sudo rm -rf /opt/microsoft/powershell
-          sudo rm -rf /usr/lib/mono
-          sudo rm -rf /usr/local/julia*
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /usr/local/share/powershell
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /usr/share/dotnet
           df -h
 
       - name: Setup python
@@ -147,8 +130,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .autobuild-installables
-          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-${{ hashFiles('autobuild.xml') }}
           restore-keys: |
+            ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-
             ${{ runner.os }}-64-${{ matrix.configuration }}-
             ${{ runner.os }}-64-
 
@@ -311,8 +295,8 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: steps.build.outputs.viewer_app
         uses: actions/upload-artifact@v4
+        if: matrix.build_variant == 'Viewer' && steps.build.outputs.viewer_app
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
           path: |
@@ -321,14 +305,15 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
-        if: steps.build.outputs.symbolfile
         uses: actions/upload-artifact@v4
+        if: matrix.build_variant == 'Viewer' && steps.build.outputs.symbolfile
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           path: ${{ steps.build.outputs.symbolfile }}
 
       - name: Upload metadata
         uses: actions/upload-artifact@v4
+        if: matrix.build_variant == 'Viewer'
         with:
           name: "${{ steps.build.outputs.artifact }}-metadata"
           # emitted by build.sh, possibly multiple lines
@@ -338,7 +323,7 @@ jobs:
       - name: Upload physics package
         uses: actions/upload-artifact@v4
         # should only be set for viewer-private
-        if: matrix.configuration == 'Release' && steps.build.outputs.physicstpv
+        if: matrix.build_variant == 'Viewer' && matrix.configuration == 'Release' && steps.build.outputs.physicstpv
         with:
           name: "${{ steps.build.outputs.artifact }}-physics"
           # emitted by build.sh, zero or one lines
@@ -347,7 +332,7 @@ jobs:
 
       - name: Upload appearance utility package
         uses: actions/upload-artifact@v4
-        if: steps.build.outputs.appearanceutility
+        if: matrix.build_variant == 'Viewer' && steps.build.outputs.appearanceutility
         with:
           name: "${{ steps.build.outputs.artifact }}-appearanceutility"
           # emitted by build.sh, zero or one lines
