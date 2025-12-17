@@ -32,9 +32,7 @@
 #include "llerror.h"
 #include "stringize.h"
 
-#if LL_WINDOWS
-#include <fcntl.h>
-#else
+#if !LL_WINDOWS
 #include <errno.h>
 #include <sys/file.h>
 #endif
@@ -312,7 +310,7 @@ inline DWORD decode_access_mode(std::ios_base::openmode omode)
             return GENERIC_READ;
         case LLFile::out:
             return GENERIC_WRITE;
-        case static_cast<std::ios_base::openmode>(LLFile::in | LLFile::out):
+        case LLFile::inout:
             return GENERIC_READ | GENERIC_WRITE;
     }
     if (omode & LLFile::app)
@@ -322,7 +320,7 @@ inline DWORD decode_access_mode(std::ios_base::openmode omode)
     return 0;
 }
 
-inline DWORD decode_open_create_flags(std::ios_base::openmode omode)
+inline DWORD decode_open_create_flags(LLFile::openmode_t omode)
 {
     if (omode & LLFile::noreplace)
     {
@@ -344,7 +342,7 @@ inline DWORD decode_open_create_flags(std::ios_base::openmode omode)
     return OPEN_ALWAYS; // open if it exists, otherwise create it
 }
 
-inline DWORD decode_share_mode(int omode)
+inline DWORD decode_share_mode(LLFile::openmode_t omode)
 {
     if (omode & LLFile::exclusive)
     {
@@ -357,14 +355,14 @@ inline DWORD decode_share_mode(int omode)
     return FILE_SHARE_READ | FILE_SHARE_WRITE; // allow read and write access to others
 }
 
-inline DWORD decode_attributes(std::ios_base::openmode omode, int perm)
+inline DWORD decode_attributes(LLFile::openmode_t omode, int perm)
 {
     return (perm & S_IWRITE) ? FILE_ATTRIBUTE_NORMAL : FILE_ATTRIBUTE_READONLY;
 }
 
-// Under Windows the values for the std::ios_base::seekdir constants match the according FILE_BEGIN
+// Under Windows the values for the LLFile::seekdir_t constants match the according FILE_BEGIN
 // and other constants but we do a programmatic translation for now to be sure
-static DWORD seek_mode_from_dir(std::ios_base::seekdir seekdir)
+static DWORD seek_mode_from_dir(LLFile::seekdir_t seekdir)
 {
     switch (seekdir)
     {
@@ -401,7 +399,7 @@ inline int set_ec_to_outofmemory_error(std::error_code& ec)
     return set_ec_from_system_error(ec, ENOMEM);
 }
 
-inline int decode_access_mode(std::ios_base::openmode omode)
+inline int decode_access_mode(LLFile::openmode_t omode)
 {
     if (omode & LLFile::out)
     {
@@ -412,18 +410,9 @@ inline int decode_access_mode(std::ios_base::openmode omode)
         return O_WRONLY;
     }
     return O_RDONLY;
-
-    /*switch (omode & (LLFile::in | LLFile::out))
-    {
-        case LLFile::out:
-            return O_WRONLY;
-        case static_cast<std::ios_base::openmode>(LLFile::in | LLFile::out):
-            return O_RDWR;
-    }
-    return O_RDONLY;*/
 }
 
-inline int decode_open_mode(std::ios_base::openmode omode)
+inline int decode_open_mode(LLFile::openmode_t omode)
 {
     int flags = O_CREAT | decode_access_mode(omode);
     if (omode & LLFile::app)
@@ -445,7 +434,7 @@ inline int decode_open_mode(std::ios_base::openmode omode)
     return flags;
 }
 
-inline int decode_lock_mode(std::ios_base::openmode omode)
+inline int decode_lock_mode(LLFile::openmode_t omode)
 {
     int lmode = omode & LLFile::noblock ? LOCK_NB : 0;
     if (omode & LLFile::lock_mask)
@@ -459,9 +448,9 @@ inline int decode_lock_mode(std::ios_base::openmode omode)
     return lmode | LOCK_UN;
 }
 
-// Under Linux and Mac the values for the std::ios_base::seekdir constants match the according SEEK_SET
+// Under Linux and Mac the values for the LLFile::seekdir_t constants match the according SEEK_SET
 // and other constants but we do a programmatic translation for now to be sure
-inline int seek_mode_from_dir(std::ios_base::seekdir seekdir)
+inline int seek_mode_from_dir(LLFile::seekdir_t seekdir)
 {
     switch (seekdir)
     {
@@ -483,10 +472,10 @@ inline int clear_error(std::error_code& ec)
     return 0;
 }
 
-inline bool are_open_mode_flags_invalid(std::ios_base::openmode omode)
+inline bool are_open_mode_flags_invalid(LLFile::openmode_t omode)
 {
     // at least one of input or output needs to be specified
-    if (!(omode & (LLFile::in | LLFile::out)))
+    if (!(omode & (LLFile::inout)))
     {
         return true;
     }
@@ -506,7 +495,7 @@ inline bool are_open_mode_flags_invalid(std::ios_base::openmode omode)
 //----------------------------------------------------------------------------------------
 // class member functions
 //----------------------------------------------------------------------------------------
-int LLFile::open(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm)
+int LLFile::open(const std::string& filename, LLFile::openmode_t omode, std::error_code& ec, int perm)
 {
     close(ec);
     if (are_open_mode_flags_invalid(omode))
@@ -592,14 +581,13 @@ int LLFile::seek(S64 pos, std::error_code& ec)
     return seek(pos, LLFile::beg, ec);
 }
 
-int LLFile::seek(S64 offset, std::ios_base::seekdir dir, std::error_code& ec)
+int LLFile::seek(S64 offset, LLFile::seekdir_t seekdir, std::error_code& ec)
 {
     S64 newOffset = 0;
 #if LL_WINDOWS
-    DWORD seekdir = seek_mode_from_dir(dir);
     LARGE_INTEGER value;
     value.QuadPart = offset;
-    if (SetFilePointerEx(mHandle, value, (PLARGE_INTEGER)&newOffset, seekdir))
+    if (SetFilePointerEx(mHandle, value, (PLARGE_INTEGER)&newOffset, seek_mode_from_dir(seekdir)))
 #else
     newOffset = lseek(mHandle, offset, seek_mode_from_dir(dir));
     if (newOffset != -1)
@@ -918,8 +906,7 @@ S64 LLFile::read(const std::string& filename, void* buf, S64 offset, S64 nbytes,
     }
     else
     {
-        std::ios_base::openmode omode = LLFile::in | LLFile::binary;
-
+        LLFile::openmode_t omode = LLFile::in | LLFile::binary;
         LLFile file(filename, omode, ec);
         if (!ec && (bool)file)
         {
@@ -964,7 +951,7 @@ S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 
     }
     else
     {
-        std::ios_base::openmode omode = LLFile::out | LLFile::binary;
+        LLFile::openmode_t omode = LLFile::out | LLFile::binary;
         if (offset < 0)
         {
             omode |= LLFile::app;
@@ -1127,17 +1114,18 @@ const std::string& LLFile::tmpdir()
     static std::string temppath;
     if (temppath.empty())
     {
-        temppath = std::filesystem::temp_directory_path().string();
-    }
-
 #if LL_WINDOWS
-    char sep = '\\';
+        char sep = '\\';
 #else
-    char sep = '/';
+        char sep = '/';
 #endif
-    if (temppath[temppath.size() - 1] != sep)
-    {
-        temppath += sep;
+        // This function should probably rather be part of LLDir and actually is, although not as a static function
+        // LLDir::getTempDir() or LLDir::getExpandedFilename(LL_PATH_TEMP[[, subdir], filename]);
+        temppath = std::filesystem::temp_directory_path().string();
+        if (!temppath.empty() && temppath[temppath.size() - 1] != sep)
+        {
+            temppath += sep;
+        }
     }
     return temppath;
 }
