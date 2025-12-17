@@ -201,7 +201,7 @@ static void find_locking_process(const std::string& filename)
     else
     {
         std::string tf(TEMP);
-        tf += "\\handle.tmp";
+        tf += "handle.tmp";
         // http://technet.microsoft.com/en-us/sysinternals/bb896655
         std::string cmd(STRINGIZE("handle \"" << filename
                         // "openfiles /query /v | fgrep -i \"" << filename
