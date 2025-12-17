@@ -67,7 +67,9 @@ private:
 };
 
 // LLWatchdogEntry
-LLWatchdogEntry::LLWatchdogEntry()
+LLWatchdogEntry::LLWatchdogEntry(const std::string& thread_name)
+    : mThreadName(thread_name)
+    , mThreadID(LLThread::currentID())
 {
 }
 
@@ -89,11 +91,16 @@ void LLWatchdogEntry::stop()
         LLWatchdog::getInstance()->remove(this);
     }
 }
+std::string LLWatchdogEntry::getThreadName() const
+{
+    return mThreadName + llformat(": %d", mThreadID);
+}
 
 // LLWatchdogTimeout
 const std::string UNINIT_STRING = "uninitialized";
 
-LLWatchdogTimeout::LLWatchdogTimeout() :
+LLWatchdogTimeout::LLWatchdogTimeout(const std::string& thread_name) :
+    LLWatchdogEntry(thread_name),
     mTimeout(0.0f),
     mPingState(UNINIT_STRING)
 {
@@ -249,9 +256,21 @@ void LLWatchdog::run()
             {
                 LLAppViewer::instance()->createErrorMarker(LAST_EXEC_FROZE);
             }
-            // Todo1: warn user?
+            // Todo1: Warn user?
             // Todo2: We probably want to report even if 5 seconds passed, just not error 'yet'.
-            LL_ERRS() << "Watchdog timer expired; assuming viewer is hung and crashing" << LL_ENDL;
+            // Todo3: This will report crash as 'llerror', consider adding 'watchdog' reason.
+            std::string last_state = (*result)->getLastState();
+            if (last_state.empty())
+            {
+                LL_ERRS() << "Watchdog timer for thread " << (*result)->getThreadName()
+                    << " expired; assuming viewer is hung and crashing" << LL_ENDL;
+            }
+            else
+            {
+                LL_ERRS() << "Watchdog timer for thread " << (*result)->getThreadName()
+                    << " expired with state: " << last_state
+                    << "; assuming viewer is hung and crashing" << LL_ENDL;
+            }
         }
     }
 
