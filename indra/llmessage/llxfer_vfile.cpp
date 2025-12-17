@@ -186,32 +186,21 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
     mBufferStartOffset = 0;
 
     delete mVFile;
-    mVFile = NULL;
-    if(LLFileSystem::getExists(mLocalID, mType))
+
+    mVFile = new LLFileSystem(mLocalID, mType, LLFileSystem::READ);
+    S32 file_size = mVFile->getSize();
+    if (file_size <= 0)
     {
-        mVFile = new LLFileSystem(mLocalID, mType, LLFileSystem::READ);
+        LL_WARNS("Xfer") << "LLXfer_VFile::startSend() cache file " << mLocalID << "." << LLAssetType::lookup(mType)
+                         << " has unexpected file size of " << file_size << LL_ENDL;
+        delete mVFile;
+        mVFile = nullptr;
 
-        if (mVFile->getSize() <= 0)
-        {
-            LL_WARNS("Xfer") << "LLXfer_VFile::startSend() cache file " << mLocalID << "." << LLAssetType::lookup(mType)
-                << " has unexpected file size of " << mVFile->getSize() << LL_ENDL;
-            delete mVFile;
-            mVFile = NULL;
-
-            return LL_ERR_FILE_EMPTY;
-        }
+        return LL_ERR_FILE_EMPTY;
     }
 
-    if(mVFile)
-    {
-        setXferSize(mVFile->getSize());
-        mStatus = e_LL_XFER_PENDING;
-    }
-    else
-    {
-        LL_WARNS("Xfer") << "LLXfer_VFile::startSend() can't read cache file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
-        retval = LL_ERR_FILE_NOT_FOUND;
-    }
+    setXferSize(file_size);
+    mStatus = e_LL_XFER_PENDING;
 
     return (retval);
 }
@@ -223,7 +212,7 @@ void LLXfer_VFile::closeFileHandle()
     if (mVFile)
     {
         delete mVFile;
-        mVFile = NULL;
+        mVFile = nullptr;
     }
 }
 
@@ -280,14 +269,14 @@ S32 LLXfer_VFile::suck(S32 start_position)
     if (mVFile)
     {
         // grab a buffer from the right place in the file
-        if (! mVFile->seek(start_position, 0))
+        if (!mVFile->seek(start_position, 0))
         {
             LL_WARNS("Xfer") << "VFile Xfer Can't seek to position " << start_position << ", file length " << mVFile->getSize() << LL_ENDL;
             LL_WARNS("Xfer") << "While sending file " << mLocalID << LL_ENDL;
             return -1;
         }
 
-        if (mVFile->read((U8*)mBuffer, LL_MAX_XFER_FILE_BUFFER))        /* Flawfinder : ignore */
+        if (mVFile->read((U8*)mBuffer, LL_MAX_XFER_FILE_BUFFER))
         {
             mBufferLength = mVFile->getLastBytesRead();
             mBufferStartOffset = start_position;

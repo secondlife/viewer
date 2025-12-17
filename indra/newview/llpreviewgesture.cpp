@@ -852,40 +852,42 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
     LLPreviewGesture* self = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", *item_idp);
     if (self)
     {
+        // set assetStatus to error, will be set to loaded if we were successful
+        self->mAssetStatus = PREVIEW_ASSET_ERROR;
         if (0 == status)
         {
+            bool ok = false;
             LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
             S32 size = file.getSize();
-
-            std::vector<char> buffer(size+1);
-            file.read((U8*)&buffer[0], size);
-            buffer[size] = '\0';
-
-            LLMultiGesture* gesture = new LLMultiGesture();
-
-            LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
-            bool ok = gesture->deserialize(dp);
-
-            if (ok)
+            if (size > 0)
             {
-                // Everything has been successful.  Load up the UI.
-                self->loadUIFromGesture(gesture);
+                std::vector<char> buffer(size + 1);
+                file.read((U8*)&buffer[0], size);
+                buffer[size] = '\0';
 
-                self->mStepList->selectFirstItem();
+                LLMultiGesture* gesture = new LLMultiGesture();
 
-                self->mDirty = false;
-                self->refresh();
-                self->refreshFromItem(); // to update description and title
+                LLDataPackerAsciiBuffer dp(&buffer[0], size + 1);
+                ok = gesture->deserialize(dp);
+                if (ok)
+                {
+                    // Everything has been successful.  Load up the UI.
+                    self->loadUIFromGesture(gesture);
+
+                    self->mStepList->selectFirstItem();
+
+                    self->mDirty = false;
+                    self->refresh();
+                    self->refreshFromItem(); // to update description and title
+                    self->mAssetStatus = PREVIEW_ASSET_LOADED;
+                }
+                delete gesture;
             }
-            else
+
+            if (!ok)
             {
                 LL_WARNS() << "Unable to load gesture" << LL_ENDL;
             }
-
-            delete gesture;
-            gesture = NULL;
-
-            self->mAssetStatus = PREVIEW_ASSET_LOADED;
         }
         else
         {
@@ -898,13 +900,10 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
             {
                 LLDelayedGestureError::gestureFailedToLoad( *item_idp );
             }
-
             LL_WARNS() << "Problem loading gesture: " << status << LL_ENDL;
-            self->mAssetStatus = PREVIEW_ASSET_ERROR;
         }
     }
     delete item_idp;
-    item_idp = NULL;
 }
 
 

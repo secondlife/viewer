@@ -357,41 +357,44 @@ void LLPreviewNotecard::onLoadComplete(const LLUUID& asset_uuid,
     LL_INFOS() << "LLPreviewNotecard::onLoadComplete()" << LL_ENDL;
     LLSD* floater_key = (LLSD*)user_data;
     LLPreviewNotecard* preview = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", *floater_key);
-    if( preview )
+    if (preview)
     {
-        if(0 == status)
+        // set assetStatus to error, will be set to loaded if we were successful
+        preview->mAssetStatus = PREVIEW_ASSET_ERROR;
+        if (0 == status)
         {
             LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 
             S32 file_length = file.getSize();
-
-            std::vector<char> buffer(file_length+1);
-            file.read((U8*)&buffer[0], file_length);
-
-            // put a EOS at the end
-            buffer[file_length] = 0;
-
-
-            LLViewerTextEditor* previewEditor = preview->mEditor;
-
-            if( (file_length > 19) && !strncmp( &buffer[0], "Linden text version", 19 ) )
+            if (file_length > 0)
             {
-                if( !previewEditor->importBuffer( &buffer[0], file_length+1 ) )
+                std::vector<char> buffer(file_length + 1);
+                file.read((U8*)&buffer[0], file_length);
+
+                // put a EOS at the end
+                buffer[file_length] = 0;
+
+                LLViewerTextEditor* previewEditor = preview->mEditor;
+
+                if ((file_length > 19) && !strncmp(&buffer[0], "Linden text version", 19))
                 {
-                    LL_WARNS() << "Problem importing notecard" << LL_ENDL;
+                    if (!previewEditor->importBuffer(&buffer[0], file_length + 1))
+                    {
+                        LL_WARNS() << "Problem importing notecard" << LL_ENDL;
+                    }
                 }
-            }
-            else
-            {
-                // Version 0 (just text, doesn't include version number)
-                previewEditor->setText(LLStringExplicit(&buffer[0]));
-            }
+                else
+                {
+                    // Version 0 (just text, doesn't include version number)
+                    previewEditor->setText(LLStringExplicit(&buffer[0]));
+                }
 
-            previewEditor->makePristine();
-            bool modifiable = preview->canModify(preview->mObjectID, preview->getItem());
-            preview->setEnabled(modifiable);
-            preview->syncExternal();
-            preview->mAssetStatus = PREVIEW_ASSET_LOADED;
+                previewEditor->makePristine();
+                bool modifiable = preview->canModify(preview->mObjectID, preview->getItem());
+                preview->setEnabled(modifiable);
+                preview->syncExternal();
+                preview->mAssetStatus = PREVIEW_ASSET_LOADED;
+            }
         }
         else
         {
@@ -408,9 +411,7 @@ void LLPreviewNotecard::onLoadComplete(const LLUUID& asset_uuid,
             {
                 LLNotificationsUtil::add("UnableToLoadNotecard");
             }
-
             LL_WARNS() << "Problem loading notecard: " << status << LL_ENDL;
-            preview->mAssetStatus = PREVIEW_ASSET_ERROR;
         }
     }
     delete floater_key;

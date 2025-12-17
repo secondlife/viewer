@@ -439,31 +439,40 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
             LLFileSystem file(id, asset_type, LLFileSystem::READ);
             std::string data;
             S32 file_size = file.getSize();
-            data.resize(file_size);
-            file.read((U8*)data.data(), file_size);
-
-            boost::json::value json = boost::json::parse(data);
-
-            std::shared_ptr<Asset> asset = std::make_shared<Asset>(json);
-            obj->mGLTFAsset = asset;
-
-            for (auto& buffer : asset->mBuffers)
+            if (file_size > 0)
             {
-                // for now just assume the buffer is already in the asset cache
-                LLUUID buffer_id;
-                if (LLUUID::parseUUID(buffer.mUri, &buffer_id))
-                {
-                    asset->mPendingBuffers++;
+                data.resize(file_size);
+                file.read((U8*)data.data(), file_size);
 
-                    gAssetStorage->getAssetData(buffer_id, LLAssetType::AT_GLTF_BIN, onGLTFBinLoadComplete, obj);
-                }
-                else
+                boost::json::value json = boost::json::parse(data);
+
+                std::shared_ptr<Asset> asset = std::make_shared<Asset>(json);
+                obj->mGLTFAsset = asset;
+
+                for (auto& buffer : asset->mBuffers)
                 {
-                    LL_WARNS("GLTF") << "Buffer URI is not a valid UUID: " << buffer.mUri << " for asset id: " << id << ". Marking as missing." << LL_ENDL;
-                    obj->mIsGLTFAssetMissing = true;
-                    obj->unref();
-                    return;
+                    // for now just assume the buffer is already in the asset cache
+                    LLUUID buffer_id;
+                    if (LLUUID::parseUUID(buffer.mUri, &buffer_id))
+                    {
+                        asset->mPendingBuffers++;
+
+                        gAssetStorage->getAssetData(buffer_id, LLAssetType::AT_GLTF_BIN, onGLTFBinLoadComplete, obj);
+                    }
+                    else
+                    {
+                        LL_WARNS("GLTF") << "Buffer URI is not a valid UUID: " << buffer.mUri << " for asset id: " << id
+                                         << ". Marking as missing." << LL_ENDL;
+                        obj->mIsGLTFAssetMissing = true;
+                        obj->unref();
+                    }
                 }
+            }
+            else
+            {
+                LL_WARNS("GLTF") << "Missing or empty file for asset id: " << id << ". Marking as missing." << LL_ENDL;
+                obj->mIsGLTFAssetMissing = true;
+                obj->unref();
             }
         }
     }

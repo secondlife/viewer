@@ -450,25 +450,20 @@ bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetTyp
         llassert(callback != NULL);
     }
 
-    bool exists = LLFileSystem::getExists(uuid, type);
-    if (exists)
+    LLFileSystem file(uuid, type);
+    S32 size = file.getSize();
+    if (size > 0)
     {
-        LLFileSystem file(uuid, type);
-        U32 size = file.getSize();
-        if (size > 0)
+        // we've already got the file
+        if (callback)
         {
-            // we've already got the file
-            if (callback)
-            {
-                callback(uuid, type, user_data, LL_ERR_NOERR, LLExtStat::CACHE_CACHED);
-            }
-            return true;
+            callback(uuid, type, user_data, LL_ERR_NOERR, LLExtStat::CACHE_CACHED);
         }
-        else
-        {
-            LL_WARNS("AssetStorage") << "Asset vfile " << uuid << ":" << type
-                                     << " found in static cache with bad size " << size << ", ignoring" << LL_ENDL;
-        }
+        return true;
+    }
+    else if (size == 0)
+    {
+        LL_WARNS("AssetStorage") << "Empty asset vfile " << uuid << ":" << type << " found in static cache, ignoring" << LL_ENDL;
     }
     return false;
 }
@@ -525,10 +520,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         return;
     }
 
-    bool exists = LLFileSystem::getExists(uuid, type);
     LLFileSystem file(uuid, type);
-    U32 size = exists ? file.getSize() : 0;
-
+    S32 size = file.getSize();
     if (size > 0)
     {
         LL_PROFILE_ZONE_NAMED("gad - file in cache");
@@ -544,9 +537,9 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
     }
     else
     {
-        if (exists)
+        if (!size)
         {
-            LL_WARNS("AssetStorage") << "Asset vfile " << uuid << ":" << type << " found with bad size " << file.getSize() << ", removing" << LL_ENDL;
+            LL_WARNS("AssetStorage") << "Empt asset vfile " << uuid << ":" << type << " found, removing" << LL_ENDL;
             file.remove();
         }
 
@@ -556,7 +549,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         for (request_list_t::iterator iter = mPendingDownloads.begin();
              iter != mPendingDownloads.end(); ++iter )
         {
-            LLAssetRequest  *tmp = *iter;
+            LLAssetRequest *tmp = *iter;
             if ((type == tmp->getType()) && (uuid == tmp->getUUID()))
             {
                 if (callback == tmp->mDownCallback && user_data == tmp->mUserData)
@@ -674,16 +667,14 @@ void LLAssetStorage::downloadCompleteCallback(
     {
         // we might have gotten a zero-size file
         LLFileSystem vfile(callback_id, callback_type);
-        if (vfile.getSize() <= 0)
+        bytes_fetched = vfile.getSize();
+        if (bytes_fetched <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset " << callback_id << LL_ENDL;
 
             result = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
             vfile.remove();
-        }
-        else
-        {
-            bytes_fetched = vfile.getSize();
+            bytes_fetched = 0;
         }
     }
 
@@ -723,10 +714,8 @@ void LLAssetStorage::getEstateAsset(
         return;
     }
 
-    bool exists = LLFileSystem::getExists(asset_id, atype);
     LLFileSystem file(asset_id, atype);
-    U32 size = exists ? file.getSize() : 0;
-
+    S32 size = file.getSize();
     if (size > 0)
     {
         // we've already got the file
@@ -739,9 +728,9 @@ void LLAssetStorage::getEstateAsset(
     }
     else
     {
-        if (exists)
+        if (size == 0)
         {
-            LL_WARNS("AssetStorage") << "Asset vfile " << asset_id << ":" << atype << " found with bad size " << file.getSize() << ", removing" << LL_ENDL;
+            LL_WARNS("AssetStorage") << "Empty asset vfile " << asset_id << ":" << atype << " found, removing" << LL_ENDL;
             file.remove();
         }
 
@@ -849,22 +838,19 @@ void LLAssetStorage::getInvItemAsset(
 {
     LL_DEBUGS() << "LLAssetStorage::getInvItemAsset() - " << asset_id << "," << LLAssetType::lookup(atype) << LL_ENDL;
 
-    bool exists = false;
-    U32 size = 0;
-
-    if(asset_id.notNull())
+    S32 size = 0;
+    if (asset_id.notNull())
     {
         if (findInCacheAndInvokeCallback( asset_id, atype, callback, user_data))
         {
             return;
         }
 
-        exists = LLFileSystem::getExists(asset_id, atype);
         LLFileSystem file(asset_id, atype);
-        size = exists ? file.getSize() : 0;
-        if(exists && size < 1)
+        size = file.getSize();
+        if (size == 0)
         {
-            LL_WARNS("AssetStorage") << "Asset vfile " << asset_id << ":" << atype << " found with bad size " << file.getSize() << ", removing" << LL_ENDL;
+            LL_WARNS("AssetStorage") << "Empty asset vfile " << asset_id << ":" << atype << " found, removing" << LL_ENDL;
             file.remove();
         }
 

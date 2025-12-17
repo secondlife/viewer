@@ -781,12 +781,15 @@ LLSD HttpCoroutineAdapter::postFileAndSuspend(LLCore::HttpRequest::ptr_t request
         LLFileSystem vfile(assetId, assetType, LLFileSystem::READ);
 
         S32 fileSize = vfile.getSize();
-        U8* fileBuffer;
-        fileBuffer = new U8[fileSize];
-        vfile.read(fileBuffer, fileSize);
+        if (fileSize > 0)
+        {
+            U8* fileBuffer;
+            fileBuffer = new U8[fileSize];
+            vfile.read(fileBuffer, fileSize);
 
-        outs.write((char*)fileBuffer, fileSize);
-        delete[] fileBuffer;
+            outs.write((char*)fileBuffer, fileSize);
+            delete[] fileBuffer;
+        }
     }
 
     return postAndSuspend(request, url, fileData, options, headers);

@@ -1119,115 +1119,120 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
     bool deactivate_similar = info->mDeactivateSimilar;
 
     delete info;
-    info = NULL;
+    info = nullptr;
     LLGestureMgr& self = LLGestureMgr::instance();
     self.mLoadingCount--;
 
     if (0 == status)
     {
+        bool ok = false;
         LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
-        S32 size = file.getSize();
-
-        std::vector<char> buffer(size+1);
-
-        file.read((U8*)&buffer[0], size);
-        // ensure there's a trailing NULL so strlen will work.
-        buffer[size] = '\0';
-
-        LLMultiGesture* gesture = new LLMultiGesture();
-
-        LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
-        bool ok = gesture->deserialize(dp);
-
-        if (ok)
+        S32 file_size = file.getSize();
+        if (file_size > 0)
         {
-            if (deactivate_similar)
-            {
-                self.deactivateSimilarGestures(gesture, item_id);
+            std::vector<char> buffer(file_size + 1);
 
-                // Display deactivation message if this was the last of the bunch.
-                if (self.mLoadingCount == 0
-                    && self.mDeactivateSimilarNames.length() > 0)
+            file.read((U8*)&buffer[0], file_size);
+            // ensure there's a trailing NULL so strlen will work.
+            buffer[file_size] = '\0';
+
+            LLMultiGesture* gesture = new LLMultiGesture();
+
+            LLDataPackerAsciiBuffer dp(&buffer[0], file_size + 1);
+            ok = gesture->deserialize(dp);
+            if (ok)
+            {
+                if (deactivate_similar)
                 {
-                    // we're done with this set of deactivations
-                    LLSD args;
-                    args["NAMES"] = self.mDeactivateSimilarNames;
-                    LLNotificationsUtil::add("DeactivatedGesturesTrigger", args);
-                }
-            }
+                    self.deactivateSimilarGestures(gesture, item_id);
 
-            LLViewerInventoryItem* item = gInventory.getItem(item_id);
-            if(item)
-            {
-                gesture->mName = item->getName();
+                    // Display deactivation message if this was the last of the bunch.
+                    if (self.mLoadingCount == 0 && self.mDeactivateSimilarNames.length() > 0)
+                    {
+                        // we're done with this set of deactivations
+                        LLSD args;
+                        args["NAMES"] = self.mDeactivateSimilarNames;
+                        LLNotificationsUtil::add("DeactivatedGesturesTrigger", args);
+                    }
+                }
+
+                LLViewerInventoryItem* item = gInventory.getItem(item_id);
+                if (item)
+                {
+                    gesture->mName = item->getName();
+                }
+                else
+                {
+                    // Watch this item and set gesture name when item exists in inventory
+                    self.setFetchID(item_id);
+                    self.startFetch();
+                }
+
+                item_map_t::iterator it = self.mActive.find(item_id);
+                if (it == self.mActive.end())
+                {
+                    // Gesture is supposed to be present, active, but NULL
+                    LL_DEBUGS("GestureMgr") << "Gesture " << item_id << " not found in active list" << LL_ENDL;
+                }
+                else
+                {
+                    LLMultiGesture* old_gesture = (*it).second;
+                    if (old_gesture && old_gesture != gesture)
+                    {
+                        LL_DEBUGS("GestureMgr") << "Received dupplicate " << item_id << " callback" << LL_ENDL;
+                        // In case somebody managest to activate, deactivate and
+                        // then activate gesture again, before asset finishes loading.
+                        // LLLoadInfo will have a different pointer, asset storage will
+                        // see it as a different request, resulting in two callbacks.
+
+                        // deactivateSimilarGestures() did not turn this one off
+                        // because of matching item_id
+                        self.stopGesture(old_gesture);
+
+                        self.mActive.erase(item_id);
+                        delete old_gesture;
+                        old_gesture = nullptr;
+                    }
+                }
+
+                self.mActive[item_id] = gesture;
+
+                // Everything has been successful.  Add to the active list.
+                gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+
+                if (inform_server)
+                {
+                    // Inform the database of this change
+                    LLMessageSystem* msg = gMessageSystem;
+                    msg->newMessage("ActivateGestures");
+                    msg->nextBlock("AgentData");
+                    msg->addUUID("AgentID", gAgent.getID());
+                    msg->addUUID("SessionID", gAgent.getSessionID());
+                    msg->addU32("Flags", 0x0);
+
+                    msg->nextBlock("Data");
+                    msg->addUUID("ItemID", item_id);
+                    msg->addUUID("AssetID", asset_uuid);
+                    msg->addU32("GestureFlags", 0x0);
+
+                    gAgent.sendReliableMessage();
+                }
+                callback_map_t::iterator i_cb = self.mCallbackMap.find(item_id);
+
+                if (i_cb != self.mCallbackMap.end())
+                {
+                    i_cb->second(gesture);
+                    self.mCallbackMap.erase(i_cb);
+                }
+
+                self.notifyObservers();
             }
             else
             {
-                // Watch this item and set gesture name when item exists in inventory
-                self.setFetchID(item_id);
-                self.startFetch();
+                delete gesture;
             }
-
-            item_map_t::iterator it = self.mActive.find(item_id);
-            if (it == self.mActive.end())
-            {
-                // Gesture is supposed to be present, active, but NULL
-                LL_DEBUGS("GestureMgr") << "Gesture " << item_id << " not found in active list" << LL_ENDL;
-            }
-            else
-            {
-                LLMultiGesture* old_gesture = (*it).second;
-                if (old_gesture && old_gesture != gesture)
-                {
-                    LL_DEBUGS("GestureMgr") << "Received dupplicate " << item_id << " callback" << LL_ENDL;
-                    // In case somebody managest to activate, deactivate and
-                    // then activate gesture again, before asset finishes loading.
-                    // LLLoadInfo will have a different pointer, asset storage will
-                    // see it as a different request, resulting in two callbacks.
-
-                    // deactivateSimilarGestures() did not turn this one off
-                    // because of matching item_id
-                    self.stopGesture(old_gesture);
-
-                    self.mActive.erase(item_id);
-                    delete old_gesture;
-                    old_gesture = NULL;
-                }
-            }
-
-            self.mActive[item_id] = gesture;
-
-            // Everything has been successful.  Add to the active list.
-            gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-
-            if (inform_server)
-            {
-                // Inform the database of this change
-                LLMessageSystem* msg = gMessageSystem;
-                msg->newMessage("ActivateGestures");
-                msg->nextBlock("AgentData");
-                msg->addUUID("AgentID", gAgent.getID());
-                msg->addUUID("SessionID", gAgent.getSessionID());
-                msg->addU32("Flags", 0x0);
-
-                msg->nextBlock("Data");
-                msg->addUUID("ItemID", item_id);
-                msg->addUUID("AssetID", asset_uuid);
-                msg->addU32("GestureFlags", 0x0);
-
-                gAgent.sendReliableMessage();
-            }
-            callback_map_t::iterator i_cb = self.mCallbackMap.find(item_id);
-
-            if(i_cb != self.mCallbackMap.end())
-            {
-                i_cb->second(gesture);
-                self.mCallbackMap.erase(i_cb);
-            }
-
-            self.notifyObservers();
         }
-        else
+        if (!ok)
         {
             LL_WARNS("GestureMgr") << "Unable to load gesture" << LL_ENDL;
 
@@ -1242,13 +1247,10 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 
                     self.stopGesture(old_gesture);
                     delete old_gesture;
-                    old_gesture = NULL;
+                    old_gesture = nullptr;
                 }
                 self.mActive.erase(item_id);
             }
-
-            delete gesture;
-            gesture = NULL;
         }
     }
     else

@@ -130,6 +130,10 @@ S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
         break;
     case SEEK_END:
         origin = file->getSize();
+        if (origin <= 0)
+        {
+            return -1;
+        }
         break;
     case SEEK_CUR:
         origin = -1;
@@ -203,11 +207,11 @@ bool LLVorbisDecodeState::initDecode()
     {
         LL_WARNS("AudioEngine") << "unable to open vorbis source vfile for reading" << LL_ENDL;
         delete mInFilep;
-        mInFilep = NULL;
+        mInFilep = nullptr;
         return false;
     }
 
-    S32 r = ov_open_callbacks(mInFilep, &mVF, NULL, 0, cache_callbacks);
+    S32 r = ov_open_callbacks(mInFilep, &mVF, nullptr, 0, cache_callbacks);
     if(r < 0)
     {
         LL_WARNS("AudioEngine") << r << " Input to vorbis decode does not appear to be an Ogg bitstream: " << mUUID << LL_ENDL;
@@ -259,7 +263,7 @@ bool LLVorbisDecodeState::initDecode()
             LL_WARNS("AudioEngine") << "Bad asset encoded by: " << comment->vendor << LL_ENDL;
         }
         delete mInFilep;
-        mInFilep = NULL;
+        mInFilep = nullptr;
         return false;
     }
 
@@ -272,7 +276,7 @@ bool LLVorbisDecodeState::initDecode()
     {
         LL_WARNS("AudioEngine") << "Out of memory when trying to alloc buffer: " << size_guess << LL_ENDL;
         delete mInFilep;
-        mInFilep = NULL;
+        mInFilep = nullptr;
         return false;
     }
 

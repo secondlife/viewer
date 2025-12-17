@@ -154,55 +154,38 @@ void LLViewerAssetStorage::storeAssetData(
 
     if (mUpstreamHost.isOk())
     {
-        if (LLFileSystem::getExists(asset_id, asset_type))
+        LLFileSystem vfile(asset_id, asset_type, LLFileSystem::READ);
+        S32 asset_size = vfile.getSize();
+        if (asset_size > 0)
         {
             // Pack data into this packet if we can fit it.
             U8 buffer[MTUBYTES];
             buffer[0] = 0;
 
-            LLFileSystem vfile(asset_id, asset_type, LLFileSystem::READ);
-            S32 asset_size = vfile.getSize();
-
             LLAssetRequest *req = new LLAssetRequest(asset_id, asset_type);
             req->mUpCallback = callback;
             req->mUserData = user_data;
 
-            if (asset_size < 1)
-            {
-                // This can happen if there's a bug in our code or if the cache has been corrupted.
-                LL_WARNS("AssetStorage") << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the cache, but it's not! " << asset_id << LL_ENDL;
+            // LLAssetStorage metric: Successful Request
+            const char *message = "Added to upload queue";
+            reportMetric(asset_id, asset_type, LLStringUtil::null, LLUUID::null, asset_size, MR_OKAY, __FILE__, __LINE__, message );
 
-                delete req;
-                if (callback)
-                {
-                    callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::CACHE_CORRUPT);
-                }
-                return;
+            if (is_priority)
+            {
+                mPendingUploads.push_front(req);
             }
             else
             {
-                // LLAssetStorage metric: Successful Request
-                S32 size = (S32)LLFileSystem::getFileSize(asset_id, asset_type);
-                const char *message = "Added to upload queue";
-                reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
-
-                if(is_priority)
-                {
-                    mPendingUploads.push_front(req);
-                }
-                else
-                {
-                    mPendingUploads.push_back(req);
-                }
+                mPendingUploads.push_back(req);
             }
 
             // Read the data from the cache if it'll fit in this packet.
             if (asset_size + 100 < MTUBYTES)
             {
-                bool res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
+                bool res = vfile.read(buffer, asset_size);
                 S32 bytes_read = res ? vfile.getLastBytesRead() : 0;
 
-                if( bytes_read == asset_size )
+                if (bytes_read == asset_size)
                 {
                     req->mDataSentInFirstPacket = true;
                     //LL_INFOS() << "LLViewerAssetStorage::createAsset sending data in first packet" << LL_ENDL;
@@ -233,13 +216,22 @@ void LLViewerAssetStorage::storeAssetData(
             mMessageSys->addBinaryDataFast( _PREHASH_AssetData, buffer, asset_size );
             mMessageSys->sendReliable(mUpstreamHost);
         }
-        else
+        else if (asset_size < 0)
         {
             LL_WARNS("AssetStorage") << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
             reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (cache - can't tell which)" );
             if (callback)
             {
                 callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::NONEXISTENT_FILE);
+            }
+        }
+        else
+        {
+            // This can happen if there's a bug in our code or if the cache has been corrupted.
+            LL_WARNS("AssetStorage") << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the cache, but it's not! " << asset_id << LL_ENDL;
+            if (callback)
+            {
+                callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::CACHE_CORRUPT);
             }
         }
     }

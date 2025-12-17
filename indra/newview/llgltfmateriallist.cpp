@@ -543,8 +543,8 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
             {
                 LL_PROFILE_ZONE_NAMED("gltf read asset");
                 LLFileSystem file(id, asset_type, LLFileSystem::READ);
-                auto size = file.getSize();
-                if (!size)
+                S32 size = file.getSize();
+                if (size <= 0)
                 {
                     return false;
                 }

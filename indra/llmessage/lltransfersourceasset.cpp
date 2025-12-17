@@ -100,8 +100,8 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     }
 
     LLFileSystem vf(mParams.getAssetID(), mParams.getAssetType(), LLFileSystem::READ);
-
-    if (!vf.getSize())
+    S32 file_size = vf.getSize();
+    if (file_size <= 0)
     {
         // Something bad happened with the asset request!
         return LLTS_ERROR;
@@ -115,7 +115,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     // grab a buffer from the right place in the file
     if (!vf.seek(mCurPos, 0))
     {
-        LL_WARNS() << "LLTransferSourceAsset Can't seek to " << mCurPos << " length " << vf.getSize() << LL_ENDL;
+        LL_WARNS() << "LLTransferSourceAsset Can't seek to " << mCurPos << " length " << file_size << LL_ENDL;
         LL_WARNS() << "While sending " << mParams.getAssetID() << LL_ENDL;
         return LLTS_ERROR;
     }
@@ -123,11 +123,11 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     delete_returned = true;
     U8 *tmpp = new U8[max_bytes];
     *data_handle = tmpp;
-    if (!vf.read(tmpp, max_bytes))      /* Flawfinder: Ignore */
+    if (!vf.read(tmpp, max_bytes))
     {
         // Read failure, need to deal with it.
         delete[] tmpp;
-        *data_handle = NULL;
+        *data_handle = nullptr;
         returned_bytes = 0;
         delete_returned = false;
         return LLTS_ERROR;
@@ -136,13 +136,12 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     returned_bytes = vf.getLastBytesRead();
     mCurPos += returned_bytes;
 
-
     if (vf.eof())
     {
         if (!returned_bytes)
         {
             delete[] tmpp;
-            *data_handle = NULL;
+            *data_handle = nullptr;
             returned_bytes = 0;
             delete_returned = false;
         }
@@ -218,8 +217,6 @@ void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::E
     tsap->sendTransferStatus(status);
 }
 
-
-
 LLTransferSourceParamsAsset::LLTransferSourceParamsAsset()
     : LLTransferSourceParams(LLTST_ASSET),
 
@@ -239,7 +236,6 @@ void LLTransferSourceParamsAsset::packParams(LLDataPacker &dp) const
     dp.packS32(mAssetType, "AssetType");
 }
 
-
 bool LLTransferSourceParamsAsset::unpackParams(LLDataPacker &dp)
 {
     S32 tmp_at;
@@ -251,4 +247,3 @@ bool LLTransferSourceParamsAsset::unpackParams(LLDataPacker &dp)
 
     return true;
 }
-

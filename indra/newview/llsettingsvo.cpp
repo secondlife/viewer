@@ -325,18 +325,19 @@ void LLSettingsVOBase::onAssetDownloadComplete(const LLUUID &asset_id, S32 statu
     {
         LLFileSystem file(asset_id, LLAssetType::AT_SETTINGS, LLFileSystem::READ);
         S32 size = file.getSize();
-
-        std::string buffer(size + 1, '\0');
-        file.read((U8 *)buffer.data(), size);
-
-        std::stringstream llsdstream(buffer);
-        LLSD llsdsettings;
-
-        if (LLSDSerialize::deserialize(llsdsettings, llsdstream, LLSDSerialize::SIZE_UNLIMITED))
+        if (size > 0)
         {
-            settings = createFromLLSD(llsdsettings);
-        }
+            std::string buffer(size + 1, '\0');
+            file.read((U8*)buffer.data(), size);
 
+            std::stringstream llsdstream(buffer);
+            LLSD llsdsettings;
+
+            if (LLSDSerialize::deserialize(llsdsettings, llsdstream, LLSDSerialize::SIZE_UNLIMITED))
+            {
+                settings = createFromLLSD(llsdsettings);
+            }
+        }
         if (!settings)
         {
             status = 1;

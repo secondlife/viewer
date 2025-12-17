@@ -3487,20 +3487,28 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
         if (0 == status)
         {
             LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
-
             S32 file_length = file.getSize();
+            if (file_length > 0)
+            {
+                std::vector<char> buffer(file_length + 1);
+                file.read((U8*)&buffer[0], file_length);
 
-            std::vector<char> buffer(file_length + 1);
-            file.read((U8*)&buffer[0], file_length);
+                editor->decodeAsset(buffer);
 
-            editor->decodeAsset(buffer);
-
-            bool allow_modify = editor->canModify(editor->mObjectUUID, editor->getItem());
-            bool source_library = editor->mObjectUUID.isNull() && gInventory.isObjectDescendentOf(editor->mItemUUID, gInventory.getLibraryRootFolderID());
-            editor->setEnableEditing(allow_modify && !source_library);
-            editor->resetUnsavedChanges();
-            editor->mAssetStatus = PREVIEW_ASSET_LOADED;
-            editor->setEnabled(true); // ready for use
+                bool allow_modify = editor->canModify(editor->mObjectUUID, editor->getItem());
+                bool source_library =
+                    editor->mObjectUUID.isNull() && gInventory.isObjectDescendentOf(editor->mItemUUID, gInventory.getLibraryRootFolderID());
+                editor->setEnableEditing(allow_modify && !source_library);
+                editor->resetUnsavedChanges();
+                editor->mAssetStatus = PREVIEW_ASSET_LOADED;
+                editor->setEnabled(true); // ready for use
+            }
+            else
+            {
+                LL_WARNS("MaterialEditor") << "Asset id file error: " << asset_uuid << LL_ENDL;
+                editor->mAssetStatus = PREVIEW_ASSET_ERROR;
+                editor->setEnabled(false);
+            }
         }
         else
         {

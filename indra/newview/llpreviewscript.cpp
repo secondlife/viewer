@@ -1862,39 +1862,43 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
          << LL_ENDL;
     LLUUID* item_uuid = (LLUUID*)user_data;
     LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", *item_uuid);
-    if( preview )
+    if (preview)
     {
-        if(0 == status)
+        // set assetStatus to error, will be reset to loaded if we were successful
+        preview->mAssetStatus = PREVIEW_ASSET_ERROR;
+        if (0 == status)
         {
             LLFileSystem file(asset_uuid, type);
             S32 file_length = file.getSize();
-
-            std::vector<char> buffer(file_length+1);
-            file.read((U8*)&buffer[0], file_length);
-
-            // put a EOS at the end
-            buffer[file_length] = 0;
-            preview->mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), true);
-            preview->mScriptEd->mEditor->makePristine();
-
-            std::string script_name = DEFAULT_SCRIPT_NAME;
-            LLInventoryItem* item = gInventory.getItem(*item_uuid);
-            bool is_modifiable = false;
-            if (item)
+            if (file_length > 0)
             {
-                if (!item->getName().empty())
+                std::vector<char> buffer(file_length + 1);
+                file.read((U8*)&buffer[0], file_length);
+
+                // put a EOS at the end
+                buffer[file_length] = 0;
+                preview->mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), true);
+                preview->mScriptEd->mEditor->makePristine();
+
+                std::string      script_name   = DEFAULT_SCRIPT_NAME;
+                LLInventoryItem* item          = gInventory.getItem(*item_uuid);
+                bool             is_modifiable = false;
+                if (item)
                 {
-                    script_name = item->getName();
+                    if (!item->getName().empty())
+                    {
+                        script_name = item->getName();
+                    }
+                    if (gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
+                    {
+                        is_modifiable = true;
+                    }
                 }
-                if (gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
-                {
-                    is_modifiable = true;
-                }
+                preview->mScriptEd->setScriptName(script_name);
+                preview->mScriptEd->setEnableEditing(is_modifiable);
+                preview->mScriptEd->setAssetID(asset_uuid);
+                preview->mAssetStatus = PREVIEW_ASSET_LOADED;
             }
-            preview->mScriptEd->setScriptName(script_name);
-            preview->mScriptEd->setEnableEditing(is_modifiable);
-            preview->mScriptEd->setAssetID(asset_uuid);
-            preview->mAssetStatus = PREVIEW_ASSET_LOADED;
         }
         else
         {
@@ -1911,8 +1915,6 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
             {
                 LLNotificationsUtil::add("UnableToLoadScript");
             }
-
-            preview->mAssetStatus = PREVIEW_ASSET_ERROR;
             LL_WARNS() << "Problem loading script: " << status << LL_ENDL;
         }
     }
@@ -2177,24 +2179,29 @@ void LLLiveLSLEditor::loadScriptText(const LLUUID &uuid, LLAssetType::EType type
 {
     LLFileSystem file(uuid, type);
     S32 file_length = file.getSize();
-    std::vector<char> buffer(file_length + 1);
-    file.read((U8*)&buffer[0], file_length);
-
-    if (file.getLastBytesRead() != file_length ||
-        file_length <= 0)
+    if (file_length > 0)
     {
-        LL_WARNS() << "Error reading " << uuid << ":" << type << LL_ENDL;
+        std::vector<char> buffer(file_length + 1);
+        file.read((U8*)&buffer[0], file_length);
+
+        if (file.getLastBytesRead() != file_length || file_length <= 0)
+        {
+            LL_WARNS() << "Error reading " << uuid << ":" << type << LL_ENDL;
+        }
+        buffer[file_length] = '\0';
+
+        mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), true);
     }
-
-    buffer[file_length] = '\0';
-
-    mScriptEd->setScriptText(LLStringExplicit(&buffer[0]), true);
+    else
+    {
+        mScriptEd->setScriptText("", false);
+    }
     mScriptEd->makeEditorPristine();
 
     std::string script_name = DEFAULT_SCRIPT_NAME;
     const LLInventoryItem* inv_item = getItem();
 
-    if(inv_item)
+    if (inv_item)
     {
         script_name = inv_item->getName();
     }

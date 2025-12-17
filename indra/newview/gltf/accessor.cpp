@@ -134,10 +134,10 @@ bool Buffer::prep(Asset& asset)
     if (mUri.size() == UUID_STR_SIZE && LLUUID::parseUUID(mUri, &id) && id.notNull())
     { // loaded from an asset, fetch the buffer data from the asset store
         LLFileSystem file(id, LLAssetType::AT_GLTF_BIN, LLFileSystem::READ);
-
-        if (mByteLength > file.getSize())
+        S32 file_size = file.getSize();
+        if (mByteLength > file_size)
         {
-            LL_WARNS("GLTF") << "Unexpected glbin size: " << id << " is " << file.getSize() << " bytes, expected " << mByteLength << LL_ENDL;
+            LL_WARNS("GLTF") << "Unexpected glbin size: " << id << " is " << file_size << " bytes, expected " << mByteLength << LL_ENDL;
             return false;
         }
 
