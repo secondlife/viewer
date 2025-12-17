@@ -36,7 +36,7 @@
 class LLWatchdogEntry
 {
 public:
-    LLWatchdogEntry();
+    LLWatchdogEntry(const std::string &thread_name);
     virtual ~LLWatchdogEntry();
 
     // isAlive is accessed by the watchdog thread.
@@ -46,12 +46,19 @@ public:
     virtual void reset() = 0;
     virtual void start();
     virtual void stop();
+    virtual std::string getLastState() const { return std::string(); }
+    typedef std::thread::id id_t;
+    std::string getThreadName() const;
+
+private:
+    id_t mThreadID; // ID of the thread being watched
+    std::string mThreadName;
 };
 
 class LLWatchdogTimeout : public LLWatchdogEntry
 {
 public:
-    LLWatchdogTimeout();
+    LLWatchdogTimeout(const std::string& thread_name);
     virtual ~LLWatchdogTimeout();
 
     bool isAlive() const override;
@@ -63,6 +70,7 @@ public:
     void setTimeout(F32 d);
     void ping(std::string_view state);
     const std::string& getState() {return mPingState; }
+    std::string getLastState() const override { return mPingState; }
 
 private:
     LLTimer mTimer;
