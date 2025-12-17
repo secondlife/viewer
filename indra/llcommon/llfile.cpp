@@ -1118,7 +1118,7 @@ const std::string& LLFile::tmpdir()
 #if LL_WINDOWS
         char sep = '\\';
 #else
-        char sep == '/';
+        char sep = '/';
 #endif
         temppath = std::filesystem::temp_directory_path().string();
         if (!temppath.empty() && temppath[temppath.size() - 1] != sep)
