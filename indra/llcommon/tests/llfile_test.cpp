@@ -1,5 +1,5 @@
 /**
- * @file llfile_tut.cpp
+ * @file llfile_test.cpp
  * @author Frederick Martian
  * @date 2025-11
  * @brief LLFile test cases.
@@ -33,10 +33,11 @@
 
 namespace tut
 {
-    static void clear_entire_dir(std::filesystem::path &dir)
+    static void clear_entire_dir(const std::string &dir)
     {
         std::error_code ec;
-        std::filesystem::remove_all(dir, ec);
+        std::filesystem::path dir_path = LLFile::utf8StringToPath(dir);
+        std::filesystem::remove_all(dir_path, ec);
     }
 
     static std::filesystem::path append_filename(const std::filesystem::path& dir, const std::string& element)
@@ -76,7 +77,7 @@ namespace tut
         ensure("LLFile::tmpdir() should not be a file", !LLFile::isfile(tempdir.string()));
 
         // Make sure there is nothing left from a previous test run
-        clear_entire_dir(testdir);
+        clear_entire_dir(testdir.string());
         ensure("llfile_test should not exist anymore", !LLFile::exists(testdir.string()));
 
         int rc = LLFile::mkdir(testdir.string());
@@ -263,8 +264,13 @@ namespace tut
         // Test file and directory operations with Unicode paths and filenames
         std::filesystem::path testdir_unicode = get_testdir_unicode(tempdir);
 
+        // Unicode filename: "ファイル_テスト.bin" (means "file_test.bin" in Japanese)
+        std::string unicode_filename = "\xE3\x83\x95\xE3\x82\xA1\xE3\x82\xA4\xE3\x83\xAB_\xE3\x83\x86\xE3\x82\xB9\xE3\x83\x88.bin";
+        std::filesystem::path testfile_unicode = testdir_unicode;
+        testfile_unicode.append(unicode_filename);
+
         // Clean up any previous test artifacts
-        clear_entire_dir(testdir_unicode);
+        clear_entire_dir(testdir_unicode.string());
         ensure("Unicode test directory should not exist", !LLFile::exists(testdir_unicode.string()));
 
         // Create the Unicode directory
@@ -272,19 +278,15 @@ namespace tut
         ensure("LLFile::mkdir() failed for Unicode directory", rc == 0);
         ensure("Unicode test directory should exist", LLFile::isdir(testdir_unicode.string()));
 
-        // Unicode filename: "ファイル_テスト.dat" (means "file_test.dat" in Japanese)
-        std::string unicode_filename = "\xE3\x83\x95\xE3\x82\xA1\xE3\x82\xA4\xE3\x83\xAB_\xE3\x83\x86\xE3\x82\xB9\xE3\x83\x88\x0A.dat";
-        std::filesystem::path testfile_unicode = testdir_unicode;
-        testfile_unicode.append(unicode_filename);
 
         ensure("Unicode test file should not exist", !LLFile::exists(testfile_unicode.string()));
 
         // Write to the Unicode file
         const char* testdata = "unicode_testdata";
         S64 bytes = LLFile::write(testfile_unicode.string(), testdata, 0, strlen(testdata));
-        ensure("LLFile::write() did not write correctly to Unicode file", bytes == (S64)strlen(testdata));
         ensure("Unicode test file should exist", LLFile::exists(testfile_unicode.string()));
         ensure("Unicode test file should be a file", LLFile::isfile(testfile_unicode.string()));
+        ensure("LLFile::write() did not write correctly to Unicode file", bytes == (S64)strlen(testdata));
 
         // Read back the data
         char buffer[64] = {};
