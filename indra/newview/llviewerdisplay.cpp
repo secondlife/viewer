@@ -1144,7 +1144,7 @@ std::string getProfileStatsFilename()
         // base + missing 2-digit seconds, append ".json"
         // post-increment sec in case we have to try again
         name = stringize(base, std::setw(2), std::setfill('0'), sec++, ".json");
-    } while (LLFile::exists(fsyspath(name)));
+    } while (LLFile::exists(name));
     return name;
 }
 

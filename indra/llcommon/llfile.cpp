@@ -226,7 +226,7 @@ static void find_locking_process(const std::string& filename)
 }
 #endif // LL_WINDOWS hack to identify processes holding file open
 
-static int warnif(const std::string& desc, const std::string& filename, int rc, int suppress_warning = 0)
+static int warnif(std::string_view desc, const std::string& filename, int rc, int suppress_warning = 0)
 {
     if (rc < 0)
     {
@@ -252,7 +252,7 @@ static int warnif(const std::string& desc, const std::string& filename, int rc, 
     return rc;
 }
 
-static int warnif(const std::string& desc, const std::string& filename, const std::error_code& ec, int suppress_warning = 0)
+static int warnif(std::string_view desc, const std::string& filename, const std::error_code& ec, int suppress_warning = 0)
 {
     if (ec)
     {
@@ -1130,11 +1130,10 @@ const std::string& LLFile::tmpdir()
         temppath = std::filesystem::temp_directory_path().string();
     }
 
-    char sep;
 #if LL_WINDOWS
-    sep = '\\';
+    char sep = '\\';
 #else
-    sep = '/';
+    char sep = '/';
 #endif
     if (temppath[temppath.size() - 1] != sep)
     {
