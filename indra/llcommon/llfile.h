@@ -203,7 +203,7 @@ public:
 
     /// Determine the size of the opened file
     S64 size(std::error_code& ec);
-    ///< @returns the number of bytes in the file or -1 on failure
+    ///< @returns the number of bytes in the file or 0 on failure
 
     /// Query the position of the current file pointer in the file
     S64 tell(std::error_code& ec);
@@ -383,7 +383,7 @@ public:
     static  S64     size(const std::string& filename, int suppress_warning = ENOENT);
     ///< we pass by default ENOENT in the optional 'suppress_warning' parameter to not spam
     ///  the log with warnings when the file does not exist
-    ///  @returns the file size on success or -1 on failure.
+    ///  @returns the file size on success or 0 on failure.
 
     /// check if filename is an existing file or directory
     static  bool    exists(const std::string& filename);

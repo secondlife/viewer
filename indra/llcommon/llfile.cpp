@@ -564,7 +564,8 @@ S64 LLFile::size(std::error_code& ec)
         return statval.st_size;
     }
 #endif
-    return set_ec_from_system_error(ec);
+    set_ec_from_system_error(ec);
+    return 0;
 }
 
 S64 LLFile::tell(std::error_code& ec)
@@ -1070,7 +1071,8 @@ S64 LLFile::size(const std::string& filename, int suppress_warning)
     std::intmax_t size = static_cast<std::intmax_t>(std::filesystem::file_size(file_path, ec));
     if (ec)
     {
-        return warnif("size", filename, ec, suppress_warning);
+        warnif("size", filename, ec, suppress_warning);
+        return 0;
     }
     return size;
 }

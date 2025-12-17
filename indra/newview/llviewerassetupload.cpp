@@ -488,7 +488,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
             }
             else if (size > INT_MAX)
             {
-                LL_ERRS() << "File is too big, size: " << size << LL_ENDL;
+                LL_ERRS() << "File " << getFileName() << " is too big, size: " << size << LL_ENDL;
             }
             U8* buffer = new(std::nothrow) U8[size];
             if (!buffer)
