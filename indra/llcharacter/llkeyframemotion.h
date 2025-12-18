@@ -154,7 +154,7 @@ public:
                                void* user_data, S32 status, LLExtStat ext_status);
 
 public:
-    U32     getFileSize();
+    S32     getFileSize();
     bool    serialize(LLDataPacker& dp) const;
     bool    deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints = true);
     bool    isLoaded() { return mJointMotionList != NULL; }

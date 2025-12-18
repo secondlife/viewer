@@ -417,7 +417,6 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
     }
 }
 
-
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // LLKeyframeMotion class
@@ -564,58 +563,48 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
     // Load named file by concatenating the character prefix with the motion name.
     // Load data into a buffer to be parsed.
     //-------------------------------------------------------------------------
-    U8 *anim_data;
-
-    bool success = false;
-    LLFileSystem* anim_file = new LLFileSystem(mID, LLAssetType::AT_ANIMATION);
-    S32 anim_file_size = anim_file->getSize();
+    S64 anim_file_size = LLFileSystem::getFileSize(mID, LLAssetType::AT_ANIMATION);
     if (anim_file_size <= 0)
     {
-        delete anim_file;
-        anim_file = NULL;
-
         // request asset over network on next call to load
         mAssetStatus = ASSET_NEEDS_FETCH;
 
         return STATUS_HOLD;
     }
-    else
+
+    U8 *anim_data = new(std::nothrow) U8[anim_file_size];
+    if (anim_data)
     {
-        anim_data = new(std::nothrow) U8[anim_file_size];
-        if (anim_data)
+        LLFileSystem anim_file(mID, LLAssetType::AT_ANIMATION);
+        bool success = anim_file.read(anim_data, anim_file_size);
+        if (success)
         {
-            success = anim_file->read(anim_data, anim_file_size);   /*Flawfinder: ignore*/
+            LL_DEBUGS() << "Loading keyframe data for: " << getName() << ":" << getID() << " (" << anim_file_size << " bytes)" << LL_ENDL;
+
+            LLDataPackerBinaryBuffer dp(anim_data, (S32)anim_file_size);
+            success = deserialize(dp, getID());
+            if (!success)
+            {
+                LL_WARNS() << "Failed to decode asset for animation " << getName() << ":" << getID() << LL_ENDL;
+            }
         }
         else
         {
-            LL_WARNS() << "Failed to allocate buffer: " << anim_file_size << mID << LL_ENDL;
+            LL_WARNS() << "Can't read animation file " << getID() << LL_ENDL;
         }
-        delete anim_file;
-        anim_file = NULL;
+        delete []anim_data;
+        if (success)
+        {
+            mAssetStatus = ASSET_LOADED;
+            return STATUS_SUCCESS;
+        }
     }
-
-    if (!success)
+    else
     {
-        LL_WARNS() << "Can't open animation file " << mID << LL_ENDL;
-        mAssetStatus = ASSET_FETCH_FAILED;
-        return STATUS_FAILURE;
+        LL_WARNS() << "Failed to allocate buffer: " << anim_file_size << getID() << LL_ENDL;
     }
-
-    LL_DEBUGS() << "Loading keyframe data for: " << getName() << ":" << getID() << " (" << anim_file_size << " bytes)" << LL_ENDL;
-
-    LLDataPackerBinaryBuffer dp(anim_data, anim_file_size);
-
-    if (!deserialize(dp, getID()))
-    {
-        LL_WARNS() << "Failed to decode asset for animation " << getName() << ":" << getID() << LL_ENDL;
-        mAssetStatus = ASSET_FETCH_FAILED;
-        return STATUS_FAILURE;
-    }
-
-    delete []anim_data;
-
-    mAssetStatus = ASSET_LOADED;
-    return STATUS_SUCCESS;
+    mAssetStatus = ASSET_FETCH_FAILED;
+    return STATUS_FAILURE;
 }
 
 //-----------------------------------------------------------------------------
@@ -2174,7 +2163,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
 //-----------------------------------------------------------------------------
 // getFileSize()
 //-----------------------------------------------------------------------------
-U32 LLKeyframeMotion::getFileSize()
+S32 LLKeyframeMotion::getFileSize()
 {
     // serialize into a dummy buffer to calculate required size
     LLDataPackerBinaryBuffer dp;
@@ -2445,8 +2434,7 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
             // set assetStatus to failed, will be set to loaded if we succeed
             motionp->mAssetStatus = ASSET_FETCH_FAILED;
 
-            LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
-            S32 size = file.getSize();
+            S64 size = LLFileSystem::getFileSize(asset_uuid, type);
             if (size > 0)
             {
                 U8* buffer = new (std::nothrow) U8[size];
@@ -2455,12 +2443,13 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
                     LLError::LLUserWarningMsg::showOutOfMemory();
                     LL_ERRS() << "Bad memory allocation for buffer of size: " << size << LL_ENDL;
                 }
-                file.read((U8*)buffer, size); /*Flawfinder: ignore*/
+                LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+                file.read(buffer, size);
 
                 LL_DEBUGS("Animation") << "Loading keyframe data for: " << motionp->getName() << ":" << motionp->getID() << " (" << size
                                        << " bytes)" << LL_ENDL;
 
-                LLDataPackerBinaryBuffer dp(buffer, size);
+                LLDataPackerBinaryBuffer dp(buffer, (S32)size);
                 if (motionp->deserialize(dp, asset_uuid))
                 {
                     motionp->mAssetStatus = ASSET_LOADED;
@@ -2469,7 +2458,6 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
                 {
                     LL_WARNS() << "Failed to decode asset for animation " << motionp->getName() << ":" << motionp->getID() << LL_ENDL;
                 }
-
                 delete[] buffer;
             }
             else
