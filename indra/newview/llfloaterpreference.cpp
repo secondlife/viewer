@@ -474,7 +474,8 @@ bool LLFloaterPreference::postBuild()
 
     getChild<LLUICtrl>("log_path_string")->setEnabled(false); // make it read-only but selectable
 
-    getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
+    mLanguageCombobox = getChild<LLComboBox>("language_combobox");
+    mLanguageCombobox->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
     mTimeFormatCombobox = getChild<LLComboBox>("time_format_combobox");
     mTimeFormatCombobox->setCommitCallback(boost::bind(&LLFloaterPreference::onTimeFormatChange, this));
 
@@ -516,18 +517,18 @@ bool LLFloaterPreference::postBuild()
         std::map<std::string, std::string>::iterator iter = labels.find(system_lang);
         if (iter != labels.end())
         {
-            getChild<LLComboBox>("language_combobox")->add(iter->second, LLSD("default"), ADD_TOP, true);
+            mLanguageCombobox->add(iter->second, LLSD("default"), ADD_TOP, true);
         }
         else
         {
             LL_WARNS() << "Language \"" << system_lang << "\" is not in default_languages.xml" << LL_ENDL;
-            getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
+            mLanguageCombobox->add("System default", LLSD("default"), ADD_TOP, true);
         }
     }
     else
     {
         LL_WARNS() << "Failed to load labels from " << user_filename << ". Using default." << LL_ENDL;
-        getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
+        mLanguageCombobox->add("System default", LLSD("default"), ADD_TOP, true);
     }
 
 #ifndef LL_DISCORD
@@ -1340,6 +1341,12 @@ void LLFloaterPreference::refresh()
     updateClickActionViews();
 
     mTimeFormatCombobox->selectByValue(gSavedSettings.getBOOL("Use24HourClock") ? "1" : "0");
+
+    std::string current_language = gSavedSettings.getString("Language");
+    if (current_language != "default" && !current_language.empty())
+    {
+        mLanguageCombobox->selectByValue(LLSD(current_language));
+    }
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
