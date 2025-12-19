@@ -3182,7 +3182,19 @@ bool LLAppViewer::initWindow()
 
     if (use_watchdog)
     {
-        LLWatchdog::getInstance()->init();
+        LLWatchdog::getInstance()->init([]()
+        {
+            LLAppViewer* app = LLAppViewer::instance();
+            if (app->logoutRequestSent())
+            {
+                app->createErrorMarker(LAST_EXEC_LOGOUT_FROZE);
+            }
+            else
+            {
+                app->createErrorMarker(LAST_EXEC_FROZE);
+            }
+        });
+        gViewerWindow->getWindow()->initWatchdog();
     }
 
     LLNotificationsUI::LLNotificationManager::getInstance();

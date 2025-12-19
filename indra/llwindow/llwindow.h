@@ -205,6 +205,8 @@ public:
     };
 
     virtual S32 getRefreshRate() { return mRefreshRate; }
+
+    virtual void initWatchdog() {} // windows runs window as a thread and it needs a watchdog
 protected:
     LLWindow(LLWindowCallbacks* callbacks, bool fullscreen, U32 flags);
     virtual ~LLWindow();

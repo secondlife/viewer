@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
+// Precompiled header
+#include "linden_common.h"
 
-#include "llviewerprecompiledheaders.h"
 #include "llwatchdog.h"
 #include "llthread.h"
-#include "llappviewer.h"
 
 constexpr U32 WATCHDOG_SLEEP_TIME_USEC = 1000000U;
 
@@ -182,7 +182,7 @@ void LLWatchdog::remove(LLWatchdogEntry* e)
     unlockThread();
 }
 
-void LLWatchdog::init()
+void LLWatchdog::init(func_t set_error_state_callback)
 {
     if (!mSuspectsAccessMutex && !mTimer)
     {
@@ -195,6 +195,7 @@ void LLWatchdog::init()
         // start needs to use the mSuspectsAccessMutex
         mTimer->start();
     }
+    mCreateMarkerFnc = set_error_state_callback;
 }
 
 void LLWatchdog::cleanup()
@@ -248,17 +249,11 @@ void LLWatchdog::run()
             {
                 mTimer->stop();
             }
-            if (LLAppViewer::instance()->logoutRequestSent())
-            {
-                LLAppViewer::instance()->createErrorMarker(LAST_EXEC_LOGOUT_FROZE);
-            }
-            else
-            {
-                LLAppViewer::instance()->createErrorMarker(LAST_EXEC_FROZE);
-            }
+
+            // Sets error marker file
+            mCreateMarkerFnc();
             // Todo1: Warn user?
             // Todo2: We probably want to report even if 5 seconds passed, just not error 'yet'.
-            // Todo3: This will report crash as 'llerror', consider adding 'watchdog' reason.
             std::string last_state = (*result)->getLastState();
             if (last_state.empty())
             {

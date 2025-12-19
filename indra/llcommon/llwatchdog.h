@@ -30,6 +30,10 @@
 #ifndef LL_TIMER_H
     #include "lltimer.h"
 #endif
+#include "llmutex.h"
+#include "llsingleton.h"
+
+#include <functional>
 
 // LLWatchdogEntry is the interface used by the tasks that
 // need to be watched.
@@ -89,9 +93,11 @@ public:
     void add(LLWatchdogEntry* e);
     void remove(LLWatchdogEntry* e);
 
-    void init();
+    typedef std::function<void()> func_t;
+    void init(func_t set_error_state_callback);
     void run();
     void cleanup();
+
 
 private:
     void lockThread();
@@ -102,6 +108,11 @@ private:
     LLMutex* mSuspectsAccessMutex;
     LLWatchdogTimerThread* mTimer;
     U64 mLastClockCount;
+
+    // At the moment watchdog expects app to set markers in mCreateMarkerFnc,
+    // but technically can be used to set any error states or do some cleanup
+    // or show warnings.
+    func_t mCreateMarkerFnc;
 };
 
 #endif // LL_LLTHREADWATCHDOG_H
