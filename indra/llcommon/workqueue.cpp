@@ -210,6 +210,7 @@ void LL::WorkQueueBase::callWork(const Work& work)
     }
     catch (...)
     {
+#ifndef LL_ARM64
         if (getKey() != "mainloop")
         {
             // Stash any other kind of uncaught exception to be rethrown by main thread.
@@ -222,6 +223,7 @@ void LL::WorkQueueBase::callWork(const Work& work)
                              [exc = std::current_exception()]() { std::rethrow_exception(exc); });
         }
         else
+#endif // !LL_ARM64
         {
             // let main loop crash
             throw;

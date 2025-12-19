@@ -225,12 +225,13 @@ void LLThread::tryRun()
         LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
         main_queue->post(
             // Bind the current exception, rethrow it in main loop.
+            // TODO: what happens if main loop waits for response from this thread?
             []() {
             LLError::LLUserWarningMsg::showOutOfMemory();
             LL_ERRS("THREAD") << "Out of memory in a thread" << LL_ENDL;
         });
     }
-#ifndef LL_WINDOWS
+#if !defined(LL_ARM64) && !defined(LL_WINDOWS)
     catch (...)
     {
         // Stash any other kind of uncaught exception to be rethrown by main thread.

@@ -403,6 +403,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         // viewer will carry on.
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
+#ifndef LL_ARM64
     catch (...)
     {
         // Stash any OTHER kind of uncaught exception in the rethrow() queue
@@ -411,6 +412,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
                             << name << LL_ENDL;
         LLCoros::instance().saveException(name, std::current_exception());
     }
+#endif
 #endif // else LL_WINDOWS
 }
 
