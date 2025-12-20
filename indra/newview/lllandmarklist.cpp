@@ -158,16 +158,21 @@ void LLLandmarkList::processGetAssetReply(
     }
     else
     {
-        // SJB: No use case for a notification here. Use LL_DEBUGS() instead
+        // SJB: No use case for a notification here.
+        //
+        // Todo: potentially cap getting obsolete due to a teleport
+        // can lead to this, so this might need a timeout or smarter
+        // handling to rerequest after a time instead of just failing
+        // al future requests.
         if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
         {
-            LL_WARNS("Landmarks") << "Missing Landmark" << LL_ENDL;
-            //LLNotificationsUtil::add("LandmarkMissing");
+            LL_WARNS("Landmarks") << "Missing Landmark " << uuid << LL_ENDL;
         }
         else
         {
-            LL_WARNS("Landmarks") << "Unable to load Landmark" << LL_ENDL;
-            //LLNotificationsUtil::add("UnableToLoadLandmark");
+            LL_WARNS("Landmarks") << "Unable to load Landmark " << uuid
+                << ". asset status: " << status
+                << ". Extended status: " << (S64)ext_status << LL_ENDL;
         }
 
         gLandmarkList.mBadList.insert(uuid);

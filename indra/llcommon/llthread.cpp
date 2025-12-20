@@ -240,7 +240,11 @@ void LLThread::tryRun()
         LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
         main_queue->post(
             // Bind the current exception, rethrow it in main loop.
-            [exc = std::current_exception()]() { std::rethrow_exception(exc); });
+            [exc = std::current_exception(), name = mName]()
+        {
+            LL_INFOS("THREAD") << "Rethrowing exception from thread " << name << LL_ENDL;
+            std::rethrow_exception(exc);
+        });
     }
 #endif // else LL_WINDOWS
 }

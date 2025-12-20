@@ -2469,7 +2469,7 @@ You already have a landmark for this location.
    icon="alert.tga"
    name="LandmarkLocationUnknown"
    type="alert">
-Viewer wasn't able to get region's location. Region might be temporarily unavailable or was removed.
+Viewer wasn't able to get region's location. Region might be temporarily unavailable, was removed or landmark failed to load.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
