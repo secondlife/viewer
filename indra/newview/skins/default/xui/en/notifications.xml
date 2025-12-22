@@ -4425,9 +4425,9 @@ Click OK to install.
   </notification>
 
   <notification
-   icon="alertmodal.tga"
+   icon="alert.tga"
    name="PromptOptionalUpdate"
-   type="alertmodal">
+   type="alert">
 Version [VERSION] has been downloaded and is ready to install.
 Release notes: [URL]
 

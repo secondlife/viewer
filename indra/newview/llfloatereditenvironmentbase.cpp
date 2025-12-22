@@ -262,7 +262,7 @@ void LLFloaterEditEnvironmentBase::onSaveAsCommit(const LLSD& notification, cons
         }
         else if (mInventoryItem)
         {
-            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
             LLUUID parent_id = mInventoryItem->getParentUUID();
             if (marketplacelistings_id == parent_id || gInventory.isObjectDescendentOf(mInventoryItem->getUUID(), gInventory.getLibraryRootFolderID()))
             {

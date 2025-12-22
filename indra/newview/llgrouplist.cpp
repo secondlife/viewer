@@ -317,7 +317,7 @@ void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LL
 // virtual
 bool LLGroupList::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-    // Why is "new group" sufficient?
+    // "new group" is sufficient because update_group_floaters always calls that on group changes
     if (event->desc() == "new group")
     {
         setDirty();

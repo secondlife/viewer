@@ -86,6 +86,15 @@ Hover your mouse over the options for more help.
      name="btn_join"
      visible="true"
      width="120" />
+    <button
+     follows="left|top"
+     left_pad="6"
+     top_delta="0"
+     height="23"
+     label="Activate"
+     name="btn_activate"
+     visible="true"
+     width="120" />
     </panel>
     <text_editor
      type="string"

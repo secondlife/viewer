@@ -329,6 +329,8 @@ public:
     // user specified one or it does not exist, creates default category if it is missing.
     const LLUUID findUserDefinedCategoryUUIDForType(LLFolderType::EType preferred_type) const;
 
+    const LLUUID getMarketplaceListingsUUID();
+
     // Get whatever special folder this object is a child of, if any.
     const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
 
@@ -360,6 +362,8 @@ public:
 
 private:
     mutable LLPointer<LLViewerInventoryItem> mLastItem; // cache recent lookups
+
+    LLUUID mMarketplaceListingsUUID;
 
     //--------------------------------------------------------------------
     // Count
