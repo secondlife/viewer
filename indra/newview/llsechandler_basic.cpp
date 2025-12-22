@@ -689,7 +689,7 @@ LLSystemCertificateVector::LLSystemCertificateVector(const std::string& storenam
         else
         {
             LL_WARNS("SECAPI") << "Failed to initialize the certificate store with valid CA certificates."
-                                  "It's probably not possible to connect to any internet service!" << LL_ENDL;
+                                  " It's probably not possible to connect to any internet service!" << LL_ENDL;
         }
     }
 }
