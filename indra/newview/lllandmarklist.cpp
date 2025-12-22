@@ -147,24 +147,55 @@ void LLLandmarkList::processGetAssetReply(
             else
             {
                 // failed to parse, shouldn't happen
+                LL_WARNS("Landmarks") << "Failed to parse landmark " << uuid << LL_ENDL;
                 gLandmarkList.eraseCallbacks(uuid);
             }
         }
         else
         {
             // got a good status, but no file, shouldn't happen
+            LL_WARNS("Landmarks") << "Empty buffer for landmark " << uuid << LL_ENDL;
             gLandmarkList.eraseCallbacks(uuid);
         }
+
+        // We got this asset, remove it from retry and bad lists.
+        gLandmarkList.mRetryList.erase(uuid);
+        gLandmarkList.mBadList.erase(uuid);
     }
     else
     {
-        // SJB: No use case for a notification here.
-        //
-        // Todo: potentially cap getting obsolete due to a teleport
-        // can lead to this, so this might need a timeout or smarter
-        // handling to rerequest after a time instead of just failing
-        // al future requests.
-        if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
+        if (LL_ERR_NO_CAP == status)
+        {
+            // A problem with asset cap, always allow retrying.
+            // Todo: should this reschedule?
+            gLandmarkList.mRequestedList.erase(uuid);
+            gLandmarkList.eraseCallbacks(uuid);
+            // If there was a previous request, it likely failed due to an obsolete cap
+            // so clear the retry marker to allow multiple retries.
+            gLandmarkList.mRetryList.erase(uuid);
+            return;
+        }
+        if (gLandmarkList.mBadList.find(uuid) != gLandmarkList.mBadList.end())
+        {
+            // Already on the 'bad' list, ignore
+            gLandmarkList.mRequestedList.erase(uuid);
+            gLandmarkList.eraseCallbacks(uuid);
+            return;
+        }
+        if (LL_ERR_ASSET_REQUEST_FAILED == status
+            && gLandmarkList.mRetryList.find(uuid) == gLandmarkList.mRetryList.end())
+        {
+            // There is a number of reasons why an asset request can fail,
+            // like a cap being obsolete due to user teleporting.
+            // Let viewer rerequest at least once more.
+            // Todo: should this reshchedule?
+            gLandmarkList.mRetryList.emplace(uuid);
+            gLandmarkList.mRequestedList.erase(uuid);
+            gLandmarkList.eraseCallbacks(uuid);
+            return;
+        }
+
+        if (LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status)
         {
             LL_WARNS("Landmarks") << "Missing Landmark " << uuid << LL_ENDL;
         }
@@ -175,6 +206,7 @@ void LLLandmarkList::processGetAssetReply(
                 << ". Extended status: " << (S64)ext_status << LL_ENDL;
         }
 
+        gLandmarkList.mRetryList.erase(uuid);
         gLandmarkList.mBadList.insert(uuid);
         gLandmarkList.mRequestedList.erase(uuid); //mBadList effectively blocks any load, so no point keeping id in requests
         gLandmarkList.eraseCallbacks(uuid);
