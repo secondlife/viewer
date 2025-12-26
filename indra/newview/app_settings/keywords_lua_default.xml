@@ -1493,7 +1493,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>45e0fcfa-2268-4490-a51c-3e51bdfe80d1</string>
          </map>
@@ -2590,7 +2590,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>9742065b-19b5-297c-858a-29711d539043</string>
          </map>
@@ -2599,7 +2599,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>03642e83-2bd1-4eb9-34b4-4c47ed586d2d</string>
          </map>
@@ -2608,7 +2608,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>edd51b77-fc10-ce7a-4b3d-011dfc349e4f</string>
          </map>
@@ -2617,7 +2617,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>52cc6bb6-2ee5-e632-d3ad-50197b1dcb8a</string>
          </map>
@@ -2626,7 +2626,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>09aac1fb-6bce-0bee-7d44-caac6dbb6c63</string>
          </map>
@@ -2635,7 +2635,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>5a9f4a74-30f2-821c-b88d-70499d3e7183</string>
          </map>
@@ -2644,7 +2644,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>ff62763f-d60a-9855-890b-0c96f8f8cd98</string>
          </map>
@@ -2653,7 +2653,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>8e915e25-31d1-cc95-ae08-d58a47488251</string>
          </map>
@@ -2662,7 +2662,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>24daea5f-0539-cfcf-047f-fbc40b2786ba</string>
          </map>
@@ -2671,7 +2671,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>43529ce8-7faa-ad92-165a-bc4078371687</string>
          </map>
@@ -2680,7 +2680,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>ae2de45c-d252-50b8-5c6e-19f39ce79317</string>
          </map>
@@ -3391,7 +3391,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>00000000-0000-0000-0000-000000000000</string>
          </map>
@@ -8098,7 +8098,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
          </map>
@@ -8107,7 +8107,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>89556747-24cb-43ed-920b-47caed15465f</string>
          </map>
@@ -8116,7 +8116,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>8b5fec65-8d8d-9dc5-cda8-8fdf2716e361</string>
          </map>
@@ -8125,7 +8125,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>89556747-24cb-43ed-920b-47caed15465f</string>
          </map>
@@ -8134,7 +8134,7 @@
             <key>tooltip</key>
             <string />
             <key>type</key>
-            <string>string</string>
+            <string>uuid</string>
             <key>value</key>
             <string>8dcd4a48-2d37-4909-9f78-f7a9eb4ef903</string>
          </map>
