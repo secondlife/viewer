@@ -79,7 +79,7 @@ public:
     RecordToTempFile()
         : LLError::Recorder(),
         mTempFile("log", ""),
-        mFile(mTempFile.getName().c_str())
+        mFile(mTempFile.getPath())
     {
     }
 
@@ -97,13 +97,13 @@ public:
     void reset()
     {
         mFile.close();
-        mFile.open(mTempFile.getName().c_str());
+        mFile.open(mTempFile.getPath());
     }
 
     void replay(std::ostream& out)
     {
         mFile.close();
-        llifstream  inf(mTempFile.getName().c_str());
+        llifstream  inf(mTempFile.getPath());
         std::string line;
         while (std::getline(inf, line))
         {

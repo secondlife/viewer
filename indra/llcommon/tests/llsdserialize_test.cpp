@@ -1808,7 +1808,7 @@ namespace tut
 #if LL_WINDOWS
         std::string q("\"");
         std::string qPYTHON(q + PYTHON + q);
-        std::string qscript(q + scriptfile.getName() + q);
+        std::string qscript(q + scriptfile.getPath().string() + q);
         int rc = (int)_spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
                          std::forward<ARGS>(args)..., NULL);
         if (rc == -1)
@@ -1825,7 +1825,7 @@ namespace tut
 #else  // LL_DARWIN, LL_LINUX
         LLProcess::Params params;
         params.executable = PYTHON;
-        params.args.add(scriptfile.getName());
+        params.args.add(scriptfile.getPath().string());
         for (const std::string& arg : StringVec{ std::forward<ARGS>(args)... })
         {
             params.args.add(arg);
@@ -2002,8 +2002,8 @@ namespace tut
                    "        yield frombytes\n"
                    << pydata <<
                    // Don't forget raw-string syntax for Windows pathnames.
-                   "debug = open(r'" << debug.getName() << "', 'w')\n"
-                   "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n";});
+                   "debug = open(r'" << debug.getPath().string() << "', 'w')\n"
+                   "verify(parse_each(open(r'" << file.getPath().string() << "', 'rb')))\n";});
         }
         catch (const failure&)
         {
@@ -2111,13 +2111,13 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << file.getName() << "', 'wb') as f:\n"
+               "with open(r'" << (const char*)file.getPath().u8string().c_str() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
                "        f.write(serialized)\n";});
 
-        llifstream inf(file.getName().c_str());
+        llifstream inf(file.getPath());
         LLSD item;
         try
         {

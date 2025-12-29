@@ -34,8 +34,8 @@
 #include "llapp.h"
 #include "llassettype.h"
 #include "lldir.h"
-#include <boost/filesystem.hpp>
 #include <chrono>
+#include <filesystem>
 
 #include "lldiskcache.h"
 
@@ -67,7 +67,7 @@ LLDiskCache::LLDiskCache(const std::string& cache_dir,
 // Interaction through the filesystem itself should be safe. Let’s say thread
 // A is accessing the cache file for reading/writing and thread B is trimming
 // the cache. Let’s also assume using llifstream to open a file and
-// boost::filesystem::remove are not atomic (which will be pretty much the
+// std::filesystem::remove are not atomic (which will be pretty much the
 // case).
 
 // Now, A is trying to open the file using llifstream ctor. It does some
@@ -83,7 +83,7 @@ LLDiskCache::LLDiskCache(const std::string& cache_dir,
 // garbage.)
 
 // Other situation: B is trimming the cache and A wants to read a file that is
-// about to get deleted. boost::filesystem::remove does whatever it is doing
+// about to get deleted. std::filesystem::remove does whatever it is doing
 // before actually deleting the file. If A opens the file before the file is
 // actually gone, the OS call from B to delete the file will fail since the OS
 // will prevent this. B continues with the next file. If the file is already
@@ -96,38 +96,34 @@ void LLDiskCache::purge()
         LL_INFOS() << "Total dir size before purge is " << dirFileSize(sCacheDir) << LL_ENDL;
     }
 
-    boost::system::error_code ec;
+    std::error_code ec;
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    typedef std::pair<std::time_t, std::pair<uintmax_t, std::string>> file_info_t;
+    typedef std::pair<std::filesystem::file_time_type, std::pair<uintmax_t, std::string>> file_info_t;
     std::vector<file_info_t> file_info;
 
-#if LL_WINDOWS
-    std::wstring cache_path(ll_convert<std::wstring>(sCacheDir));
-#else
-    std::string cache_path(sCacheDir);
-#endif
-    if (boost::filesystem::is_directory(cache_path, ec) && !ec.failed())
+    std::filesystem::path cache_path = fsyspath(sCacheDir);
+    if (std::filesystem::is_directory(cache_path, ec) && !ec)
     {
-        boost::filesystem::directory_iterator iter(cache_path, ec);
-        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
+        std::filesystem::directory_iterator iter(cache_path, ec);
+        while (iter != std::filesystem::directory_iterator() && !ec)
         {
             if(!LLApp::isRunning())
             {
                 return;
             }
-            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
+            if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
                 if ((*iter).path().string().find(CACHE_FILENAME_PREFIX) != std::string::npos)
                 {
-                    uintmax_t file_size = boost::filesystem::file_size(*iter, ec);
-                    if (ec.failed())
+                    uintmax_t file_size = std::filesystem::file_size(*iter, ec);
+                    if (ec)
                     {
                         continue;
                     }
                     const std::string file_path = (*iter).path().string();
-                    const std::time_t file_time = boost::filesystem::last_write_time(*iter, ec);
-                    if (ec.failed())
+                    const std::filesystem::file_time_type file_time = std::filesystem::last_write_time(*iter, ec);
+                    if (ec)
                     {
                         continue;
                     }
@@ -167,8 +163,8 @@ void LLDiskCache::purge()
         }
         if (should_remove)
         {
-            boost::filesystem::remove(entry.second.second, ec);
-            if (ec.failed())
+            std::filesystem::remove(entry.second.second, ec);
+            if (ec)
             {
                 LL_WARNS() << "Failed to delete cache file " << entry.second.second << ": " << ec.message() << LL_ENDL;
             }
@@ -196,7 +192,7 @@ void LLDiskCache::purge()
             std::ostringstream line;
 
             line << action << "  ";
-            line << entry.first << "  ";
+            line << S64(entry.first.time_since_epoch().count()) << "  ";
             line << entry.second.first << "  ";
             line << entry.second.second;
             line << " (" << file_size_total << "/" << mMaxSizeBytes << ")";
@@ -238,23 +234,19 @@ void LLDiskCache::clearCache()
      * the component files but it's called infrequently so it's
      * likely just fine
      */
-    boost::system::error_code ec;
-#if LL_WINDOWS
-    std::wstring cache_path(ll_convert<std::wstring>(sCacheDir));
-#else
-    std::string cache_path(sCacheDir);
-#endif
-    if (boost::filesystem::is_directory(cache_path, ec) && !ec.failed())
+    std::error_code ec;
+    std::filesystem::path cache_path = fsyspath(sCacheDir);
+    if (std::filesystem::is_directory(cache_path, ec) && !ec)
     {
-        boost::filesystem::directory_iterator iter(cache_path, ec);
-        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
+        std::filesystem::directory_iterator iter(cache_path, ec);
+        while (iter != std::filesystem::directory_iterator() && !ec)
         {
-            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
+            if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
                 if ((*iter).path().string().find(CACHE_FILENAME_PREFIX) != std::string::npos)
                 {
-                    boost::filesystem::remove(*iter, ec);
-                    if (ec.failed())
+                    std::filesystem::remove(*iter, ec);
+                    if (ec)
                     {
                         LL_WARNS() << "Failed to delete cache file " << *iter << ": " << ec.message() << LL_ENDL;
                     }
@@ -271,24 +263,20 @@ void LLDiskCache::removeOldVFSFiles()
     static const char CACHE_FORMAT[] = "inv.llsd";
     static const char DB_FORMAT[] = "db2.x";
 
-    boost::system::error_code ec;
-#if LL_WINDOWS
-    std::wstring cache_path(ll_convert<std::wstring>(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "")));
-#else
-    std::string cache_path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""));
-#endif
-    if (boost::filesystem::is_directory(cache_path, ec) && !ec.failed())
+    std::error_code ec;
+    std::filesystem::path cache_path = fsyspath(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""));
+    if (std::filesystem::is_directory(cache_path, ec) && !ec)
     {
-        boost::filesystem::directory_iterator iter(cache_path, ec);
-        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
+        std::filesystem::directory_iterator iter(cache_path, ec);
+        while (iter != std::filesystem::directory_iterator() && !ec)
         {
-            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
+            if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
                 if (((*iter).path().string().find(CACHE_FORMAT) != std::string::npos) ||
                     ((*iter).path().string().find(DB_FORMAT) != std::string::npos))
                 {
-                    boost::filesystem::remove(*iter, ec);
-                    if (ec.failed())
+                    std::filesystem::remove(*iter, ec);
+                    if (ec)
                     {
                         LL_WARNS() << "Failed to delete cache file " << *iter << ": " << ec.message() << LL_ENDL;
                     }
@@ -312,23 +300,19 @@ uintmax_t LLDiskCache::dirFileSize(const std::string& dir)
      * so if performance is ever an issue, optimizing this or removing it altogether,
      * is an easy win.
      */
-    boost::system::error_code ec;
-#if LL_WINDOWS
-    std::wstring dir_path(ll_convert<std::wstring>(dir));
-#else
-    std::string dir_path(dir);
-#endif
-    if (boost::filesystem::is_directory(dir_path, ec) && !ec.failed())
+    std::error_code ec;
+    std::filesystem::path dir_path = fsyspath(dir);
+    if (std::filesystem::is_directory(dir_path, ec) && !ec)
     {
-        boost::filesystem::directory_iterator iter(dir_path, ec);
-        while (iter != boost::filesystem::directory_iterator() && !ec.failed())
+        std::filesystem::directory_iterator iter(dir_path, ec);
+        while (iter != std::filesystem::directory_iterator() && !ec)
         {
-            if (boost::filesystem::is_regular_file(*iter, ec) && !ec.failed())
+            if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
                 if ((*iter).path().string().find(CACHE_FILENAME_PREFIX) != std::string::npos)
                 {
-                    uintmax_t file_size = boost::filesystem::file_size(*iter, ec);
-                    if (!ec.failed())
+                    uintmax_t file_size = std::filesystem::file_size(*iter, ec);
+                    if (!ec)
                     {
                         total_file_size += file_size;
                     }

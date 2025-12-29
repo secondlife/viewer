@@ -54,7 +54,6 @@
 #include "llviewertexturelist.h"
 #include "llwindow.h"
 #include "llworld.h"
-#include <boost/filesystem.hpp>
 
 constexpr F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
