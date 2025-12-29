@@ -35,7 +35,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <glob.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include "lldir_utils_objc.h"
 
 // --------------------------------------------------------------------------------
@@ -45,15 +45,15 @@ static bool CreateDirectory(const std::string &parent,
                             std::string *fullname)
 {
 
-    boost::filesystem::path p(parent);
+    std::filesystem::path p(parent);
     p /= child;
 
     if (fullname)
         *fullname = std::string(p.string());
 
-    if (! boost::filesystem::create_directory(p))
+    if (! std::filesystem::create_directory(p))
     {
-        return (boost::filesystem::is_directory(p));
+        return (std::filesystem::is_directory(p));
     }
     return true;
 }
@@ -75,10 +75,8 @@ LLDir_Mac::LLDir_Mac()
         // mExecutablePathAndName
         mExecutablePathAndName = executablepathstr;
 
-        boost::filesystem::path executablepath(executablepathstr);
+        std::filesystem::path executablepath(executablepathstr);
 
-# ifndef BOOST_SYSTEM_NO_DEPRECATED
-#endif
         mExecutableFilename = executablepath.filename().string();
         mExecutableDir = executablepath.parent_path().string();
 
@@ -140,7 +138,7 @@ LLDir_Mac::LLDir_Mac()
         mOSUserAppDir = mOSUserDir;
 
         // mTempDir
-        //Aura 120920 boost::filesystem::temp_directory_path() not yet implemented on mac. :(
+        //Aura 120920 std::filesystem::temp_directory_path() not yet implemented on mac. :(
         std::string tmpdir = getSystemTempFolder();
         if (!tmpdir.empty())
         {
@@ -174,7 +172,7 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
 
 std::string LLDir_Mac::getCurPath()
 {
-    return boost::filesystem::path( boost::filesystem::current_path() ).string();
+    return std::filesystem::path( std::filesystem::current_path() ).string();
 }
 
 /*virtual*/ std::string LLDir_Mac::getLLPluginLauncher()

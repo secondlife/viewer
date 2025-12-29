@@ -26,7 +26,7 @@
 
 #import "llappdelegate-objc.h"
 #if defined(LL_BUGSPLAT)
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <vector>
 @import CrashReporter;
 @import HockeySDK;
@@ -252,7 +252,7 @@
 
     if(!secondLogPath.empty())
     {
-        boost::filesystem::remove(secondLogPath);
+        std::filesystem::remove(secondLogPath);
     }
     clearDumpLogsDir();
 }
@@ -326,7 +326,7 @@ struct AttachmentInfo
 {
     AttachmentInfo(const std::string& path, const std::string& type):
         pathname(path),
-        basename(boost::filesystem::path(path).filename().string()),
+        basename(std::filesystem::path(path).filename().string()),
         mimetype(type)
     {}
 
@@ -361,7 +361,7 @@ struct AttachmentInfo
     // the log data to a browser, so take this opportunity to rename the file
     // from <base>.crash to <base>_log.txt
     info[0].basename =
-        boost::filesystem::path(info[0].pathname).stem().string() + "_log.txt";
+        std::filesystem::path(info[0].pathname).stem().string() + "_log.txt";
     infos("attachmentsForBugsplatStartupManager attaching log " + info[0].basename);
 
     NSMutableArray *attachments = [[NSMutableArray alloc] init];
