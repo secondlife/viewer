@@ -582,13 +582,13 @@
               <key>name</key>
               <string>other</string>
               <key>type</key>
-              <string>vector | quaternion</string>
+              <string>number | vector | quaternion</string>
             </map>
           </array>
           <key>returnType</key>
-          <string>number | vector</string>
+          <string>vector</string>
           <key>comment</key>
-          <string>LSL-style multiplication: vector * vector -&gt; number (Dot Product), vector * quaternion -&gt; vector (Rotation)</string>
+          <string>Multiplication: vector * number or vector * vector -&gt; vector, vector * quaternion -&gt; vector (Rotation)</string>
         </map>
         <map>
           <key>name</key>
@@ -603,13 +603,13 @@
               <key>name</key>
               <string>other</string>
               <key>type</key>
-              <string>number | quaternion</string>
+              <string>number | vector | quaternion</string>
             </map>
           </array>
           <key>returnType</key>
           <string>vector</string>
           <key>comment</key>
-          <string>LSL-style division: vector / number -&gt; vector (Scale), vector / quaternion -&gt; vector (Rotation by inverse)</string>
+          <string>Division: vector / number or vector / vector -&gt; vector (Scale), vector / quaternion -&gt; vector (Rotation by inverse)</string>
         </map>
         <map>
           <key>name</key>
