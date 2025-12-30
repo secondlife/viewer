@@ -1191,7 +1191,7 @@ bool LLImageTGA::loadFile( const std::string& path )
         return false;
     }
 
-    LLFILE* file = LLFile::fopen(path, "rb");   /* Flawfinder: ignore */
+    LLFILE* file = LLFile::fopen(path, TEXT("rb"));   /* Flawfinder: ignore */
     if( !file )
     {
         LL_WARNS() << "Couldn't open file " << path << LL_ENDL;

@@ -33,6 +33,7 @@
 #include "lluuid.h"
 #include "llassettype.h"
 #include "lldiskcache.h"
+#include <filesystem>
 
 class LLFileSystem
 {
@@ -58,13 +59,12 @@ class LLFileSystem
          * file in the cache is read (not written) so that the last time the file was
          * accessed is up to date (This is used in the mechanism for purging the cache)
          */
-        void updateFileAccessTime(const std::string& file_path);
+        void updateFileAccessTime();
 
         static bool getExists(const LLUUID& file_id, const LLAssetType::EType file_type);
         static bool removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_warning = 0);
         static bool renameFile(const LLUUID& old_file_id, const LLAssetType::EType old_file_type,
                                const LLUUID& new_file_id, const LLAssetType::EType new_file_type);
-        static S64 getFileSize(const LLUUID& file_id, const LLAssetType::EType file_type);
 
     public:
         static const S32 READ;
@@ -73,6 +73,7 @@ class LLFileSystem
         static const S32 APPEND;
 
     protected:
+        std::filesystem::path mPath;
         LLAssetType::EType mFileType;
         LLUUID  mFileID;
         S32     mPosition;

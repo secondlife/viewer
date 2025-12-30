@@ -91,13 +91,13 @@ LLDir::~LLDir()
 std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
 {
     // Returns a vector of filenames in the directory.
-    std::filesystem::path p = LLFile::utf8StringToPath(dirname);
+    fsyspath dir_path(dirname);
     std::vector<std::string> v;
     std::error_code ec;
-    if (std::filesystem::is_directory(p, ec))
+    if (std::filesystem::is_directory(dir_path, ec))
     {
         std::filesystem::directory_iterator end_iter;
-        for (std::filesystem::directory_iterator dir_itr(p);
+        for (std::filesystem::directory_iterator dir_itr(dir_path);
              dir_itr != end_iter;
              ++dir_itr)
         {
@@ -173,10 +173,10 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
     //Removes the directory and its contents.  Returns number of files deleted.
 
     U32 num_deleted = 0;
-    std::filesystem::path dir_path    = LLFile::utf8StringToPath(dir_name);
 
     try
     {
+       fsyspath dir_path(dir_name);
        if (std::filesystem::is_directory(dir_path))
        {
           if (!std::filesystem::is_empty(dir_path))
@@ -194,6 +194,11 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
         LL_WARNS() << "Failed to delete " << dir_name << " with error " << er.code().message() << LL_ENDL;
     }
     return num_deleted;
+}
+
+bool LLDir::fileExists(const std::string& filename) const
+{
+    return LLFile::exists(filename);
 }
 
 const std::string LLDir::findFile(const std::string &filename,
@@ -1005,7 +1010,7 @@ bool LLDir::setCacheDir(const std::string &path)
     {
         LLFile::mkdir(path);
         std::string tempname = add(path, "temp");
-        LLFILE* file = LLFile::fopen(tempname,"wt");
+        LLFILE* file = LLFile::fopen(tempname, TEXT("wt"));
         if (file)
         {
             fclose(file);

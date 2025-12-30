@@ -2037,9 +2037,13 @@ void LLFloaterPreference::changed()
     {
         // onClearLog clears list, then notifies changed() and only then clears file,
         // so check presence of conversations before checking file, file will cleared later.
-        bool has_logs = LLConversationLog::instance().getConversations().size() > 0
-                        && LLFile::isfile(LLConversationLog::instance().getFileName())
-                        && LLFile::size(LLConversationLog::instance().getFileName()) > 0;
+        bool has_logs = false;
+        if (LLConversationLog::instance().getConversations().size() > 0)
+        {
+            std::filesystem::path file_path = fsyspath(LLConversationLog::instance().getFileName());
+            has_logs = LLFile::isfile(file_path)
+                        && LLFile::size(file_path) > 0;
+        }
         getChild<LLButton>("clear_log")->setEnabled(has_logs);
     }
 

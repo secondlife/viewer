@@ -373,13 +373,6 @@ std::string LLDir_Win32::getCurPath()
     return ll_convert<std::string>(std::wstring(w_str));
 }
 
-
-bool LLDir_Win32::fileExists(const std::string &filename) const
-{
-    return LLFile::exists(filename);
-}
-
-
 /*virtual*/ std::string LLDir_Win32::getLLPluginLauncher()
 {
     return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +

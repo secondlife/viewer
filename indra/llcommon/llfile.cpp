@@ -226,7 +226,7 @@ static void find_locking_process(const std::string& filename)
 }
 #endif // LL_WINDOWS hack to identify processes holding file open
 
-static int warnif(std::string_view desc, const std::string& filename, int rc, int suppress_warning = 0)
+static int warnif(std::string_view desc, const std::filesystem::path& filename, int rc, int suppress_warning = 0)
 {
     if (rc < 0)
     {
@@ -252,7 +252,7 @@ static int warnif(std::string_view desc, const std::string& filename, int rc, in
     return rc;
 }
 
-static int warnif(std::string_view desc, const std::string& filename, const std::error_code& ec, int suppress_warning = 0)
+static int warnif(std::string_view desc, const std::filesystem::path& filename, const std::error_code& ec, int suppress_warning = 0)
 {
     if (ec)
     {
@@ -506,8 +506,9 @@ inline bool are_open_mode_flags_invalid(std::ios_base::openmode omode)
 //----------------------------------------------------------------------------------------
 // class member functions
 //----------------------------------------------------------------------------------------
-int LLFile::open(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm)
+int LLFile::open(const std::filesystem::path& file_path, std::ios_base::openmode omode, std::error_code& ec, int perm)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     close(ec);
     if (are_open_mode_flags_invalid(omode))
     {
@@ -519,14 +520,13 @@ int LLFile::open(const std::string& filename, std::ios_base::openmode omode, std
           create = decode_open_create_flags(omode),
           attributes = decode_attributes(omode, perm);
 
-    std::wstring file_path = utf8StringToWstring(filename);
-    mHandle = CreateFileW(file_path.c_str(), access, share, nullptr, create, attributes, nullptr);
+    mHandle = CreateFileW(file_path.native().c_str(), access, share, nullptr, create, attributes, nullptr);
     // The dwShareMode = share parameter takes care of locking the file for other processes if indicated,
     // no need to do anything else for file locking here
 #else
     int oflags = decode_open_mode(omode);
     int lmode = omode & LLFile::lock_mask;
-    mHandle = ::open(filename.c_str(), oflags, perm);
+    mHandle = ::open(file_path.native().c_str(), oflags, perm);
     if (mHandle != InvalidHandle && lmode && lock(lmode | LLFile::noblock, ec) != 0)
     {
         close();
@@ -549,6 +549,7 @@ int LLFile::open(const std::string& filename, std::ios_base::openmode omode, std
 
 S64 LLFile::size(std::error_code& ec)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
 #if LL_WINDOWS
     LARGE_INTEGER value = { 0 };
     if (GetFileSizeEx(mHandle, &value))
@@ -570,6 +571,7 @@ S64 LLFile::size(std::error_code& ec)
 
 S64 LLFile::tell(std::error_code& ec)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
 #if LL_WINDOWS
     LARGE_INTEGER value = { 0 };
     if (SetFilePointerEx(mHandle, value, &value, FILE_CURRENT))
@@ -595,6 +597,7 @@ int LLFile::seek(S64 pos, std::error_code& ec)
 
 int LLFile::seek(S64 offset, std::ios_base::seekdir dir, std::error_code& ec)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     S64 newOffset = 0;
 #if LL_WINDOWS
     DWORD seekdir = seek_mode_from_dir(dir);
@@ -620,6 +623,7 @@ inline DWORD next_buffer_size(S64 nbytes)
 
 S64 LLFile::read(void* buffer, S64 nbytes, std::error_code& ec)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     if (nbytes == 0)
     {
         // Nothing to do
@@ -660,6 +664,7 @@ S64 LLFile::read(void* buffer, S64 nbytes, std::error_code& ec)
 
 S64 LLFile::write(const void* buffer, S64 nbytes, std::error_code& ec)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     if (nbytes == 0)
     {
         // Nothing to do here
@@ -705,6 +710,7 @@ S64 LLFile::write(const void* buffer, S64 nbytes, std::error_code& ec)
 
 S64 LLFile::printf(const char* fmt, ...)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     va_list args1;
     va_start(args1, fmt);
     va_list args2;
@@ -732,6 +738,7 @@ S64 LLFile::printf(const char* fmt, ...)
 
 int LLFile::lock(int mode, std::error_code& ec)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
 #if LL_WINDOWS
     if (!(mode & LLFile::lock_mask))
     {
@@ -765,6 +772,7 @@ int LLFile::lock(int mode, std::error_code& ec)
 
 int LLFile::close(std::error_code& ec)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     if (mHandle != InvalidHandle)
     {
         llfile_handle_t handle = InvalidHandle;
@@ -792,8 +800,9 @@ int LLFile::close()
 //----------------------------------------------------------------------------------------
 
 // static
-LLFILE* LLFile::fopen(const std::string& filename, const char* mode, int lmode)
+LLFILE* LLFile::fopen(const std::filesystem::path& file_path, const fopen_flags_t* mode, int lmode)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     LLFILE* file;
 #if LL_WINDOWS
     int shflag = _SH_DENYNO;
@@ -806,11 +815,9 @@ LLFILE* LLFile::fopen(const std::string& filename, const char* mode, int lmode)
             shflag = _SH_DENYWR;
             break;
     }
-    std::wstring file_path = utf8StringToWstring(filename);
-    std::wstring utf16mode = ll_convert<std::wstring>(std::string(mode));
-    file = _wfsopen(file_path.c_str(), utf16mode.c_str(), shflag);
+    file = _wfsopen(file_path.native().c_str(), mode, shflag);
 #else
-    file = ::fopen(filename.c_str(), mode);
+    file = ::fopen(file_path.native().c_str(), mode);
     if (file && (lmode & (LLFile::lock_mask)))
     {
         // Rather fail on a sharing conflict than block
@@ -827,6 +834,7 @@ LLFILE* LLFile::fopen(const std::string& filename, const char* mode, int lmode)
 // static
 int LLFile::close(LLFILE* file)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     int ret_value = 0;
     if (file)
     {
@@ -836,17 +844,11 @@ int LLFile::close(LLFILE* file)
 }
 
 // static
-std::string LLFile::getContents(const std::string& filename)
+std::string LLFile::getContents(const std::filesystem::path& file_path, std::error_code& ec)
 {
-    std::error_code ec;
-    return getContents(filename, ec);
-}
-
-// static
-std::string LLFile::getContents(const std::string& filename, std::error_code& ec)
-{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     std::string buffer;
-    LLFile file(filename, LLFile::in | LLFile::binary, ec);
+    LLFile file(file_path, LLFile::in | LLFile::binary, ec);
     if (file)
     {
         S64 length = file.size(ec);
@@ -864,48 +866,41 @@ std::string LLFile::getContents(const std::string& filename, std::error_code& ec
 }
 
 // static
-int LLFile::mkdir(const std::string& dirname)
+int LLFile::mkdir(const std::filesystem::path& file_path)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     std::error_code ec;
-    std::filesystem::path file_path = utf8StringToPath(dirname);
     // We often use mkdir() to ensure the existence of a directory that might
     // already exist. There is no known case in which we want to call out as
     // an error the requested directory already existing.
     std::filesystem::create_directory(file_path, ec);
     // The return value is only true if the directory was actually created.
     // But if it already existed, ec still indicates success.
-    return warnif("mkdir", dirname, ec);
+    return warnif("mkdir", file_path, ec);
 }
 
 // static
-int LLFile::remove(const std::string& filename, int suppress_warning)
+int LLFile::remove(const std::filesystem::path& file_path, int suppress_warning)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     std::error_code ec;
-    std::filesystem::path file_path = utf8StringToPath(filename);
     std::filesystem::remove(file_path, ec);
-    return warnif("remove", filename, ec, suppress_warning);
+    return warnif("remove", file_path, ec, suppress_warning);
 }
 
 // static
-int LLFile::rename(const std::string& filename, const std::string& newname, int suppress_warning)
+int LLFile::rename(const std::filesystem::path& file_path, const std::filesystem::path& new_path, int suppress_warning)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     std::error_code ec;
-    std::filesystem::path file_path = utf8StringToPath(filename);
-    std::filesystem::path new_path = utf8StringToPath(newname);
     std::filesystem::rename(file_path, new_path, ec);
-    return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, ec, suppress_warning);
+    return warnif("rename", file_path, ec, suppress_warning);
 }
 
 // static
-S64 LLFile::read(const std::string& filename, void* buf, S64 offset, S64 nbytes)
+S64 LLFile::read(const std::filesystem::path& file_path, void* buf, S64 offset, S64 nbytes, std::error_code& ec)
 {
-    std::error_code ec;
-    return read(filename, buf, offset, nbytes, ec);
-}
-
-// static
-S64 LLFile::read(const std::string& filename, void* buf, S64 offset, S64 nbytes, std::error_code& ec)
-{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     // if number of bytes is 0 or less there is nothing to do here
     if (nbytes <= 0)
     {
@@ -921,7 +916,7 @@ S64 LLFile::read(const std::string& filename, void* buf, S64 offset, S64 nbytes,
     {
         std::ios_base::openmode omode = LLFile::in | LLFile::binary;
 
-        LLFile file(filename, omode, ec);
+        LLFile file(file_path, omode, ec);
         if (!ec && (bool)file)
         {
             if (offset > 0)
@@ -939,19 +934,13 @@ S64 LLFile::read(const std::string& filename, void* buf, S64 offset, S64 nbytes,
             }
         }
     }
-    return warnif("read from file failed", filename, ec);
+    return warnif("read from file failed", file_path, ec);
 }
 
 // static
-S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 nbytes)
+S64 LLFile::write(const std::filesystem::path& file_path, const void* buf, S64 offset, S64 nbytes, std::error_code& ec)
 {
-    std::error_code ec;
-    return write(filename, buf, offset, nbytes, ec);
-}
-
-// static
-S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 nbytes, std::error_code& ec)
-{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     // if number of bytes is 0 or less there is nothing to do here
     if (nbytes <= 0)
     {
@@ -971,7 +960,7 @@ S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 
             omode |= LLFile::app;
         }
 
-        LLFile file(filename, omode, ec);
+        LLFile file(file_path, omode, ec);
         if (!ec && (bool)file)
         {
             if (offset > 0)
@@ -989,99 +978,52 @@ S64 LLFile::write(const std::string& filename, const void* buf, S64 offset, S64 
             }
         }
     }
-    return warnif("write to file failed", filename, ec);
+    return warnif("write to file failed", file_path, ec);
 }
 
 // static
-bool LLFile::copy(const std::string& source, const std::string& target)
+bool LLFile::copy(const std::filesystem::path& source_path, const std::filesystem::path& target_path, std::filesystem::copy_options options, std::error_code& ec)
 {
-    std::error_code ec;
-    return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
-}
-
-// static
-bool LLFile::copy(const std::string& source, const std::string& target, std::filesystem::copy_options options, std::error_code& ec)
-{
-    std::filesystem::path source_path = utf8StringToPath(source);
-    std::filesystem::path target_path = utf8StringToPath(target);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     bool copied = std::filesystem::copy_file(source_path, target_path, options, ec);
     if (!copied)
     {
-        warnif(STRINGIZE("copy failed, to '" << target << "' from"), source, ec);
+        warnif(STRINGIZE("copy failed, to '" << target_path << "' from"), source_path, ec);
     }
     return copied;
 }
 
 // static
-int LLFile::stat(const std::string& filename, llstat* filestatus, const char *fname, int suppress_warning)
+int LLFile::stat(const std::filesystem::path& file_path, llstat* filestatus, const char *fname, int suppress_warning)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
 #if LL_WINDOWS
-    std::wstring file_path = utf8StringToWstring(filename);
-    int rc = _wstat64(file_path.c_str(), filestatus);
+    int rc = _wstat64(file_path.native().c_str(), filestatus);
 #else
-    int rc = ::stat(filename.c_str(), filestatus);
+    int rc = ::stat(file_path.native().c_str(), filestatus);
 #endif
-    return warnif(fname ? fname : "stat", filename, rc, suppress_warning);
+    return warnif(fname ? fname : "stat", file_path, rc, suppress_warning);
 }
 
 // static
-std::time_t LLFile::getCreationTime(const std::string& filename, int suppress_warning)
+S64 LLFile::size(const std::filesystem::path& file_path, int suppress_warning)
 {
-    // As of C++20 there is no functionality in std::filesystem to retrieve this information
-    llstat filestat;
-    int rc = stat(filename, &filestat, "getCreationTime", suppress_warning);
-    if (rc == 0)
-    {
-#if LL_DARWIN
-        return filestat.st_birthtime;
-#else
-        // Linux stat() doesn't have a creation/birth time (st_ctime really is the last status
-        // change or inode attributes change) unless we would use statx() instead. But that is
-        // a major effort, which would require Linux specific changes to LLFile::stat() above
-        // and possibly adaptions for other platforms that we leave for a later exercise if it
-        // is ever desired.
-        return filestat.st_ctime;
-#endif
-    }
-    return 0;
-}
-
-// static
-std::time_t LLFile::getModificationTime(const std::string& filename, int suppress_warning)
-{
-    // tried to use std::filesystem::last_write_time() but the whole std::chrono infrastructure is as of
-    // C++20 still not fully implemented on all platforms. Specifically MacOS C++20 seems lacking here,
-    // and Windows requires a roundabout through std::chrono::utc_clock to then get a
-    // std::chrono::system_clock that can return a more useful time_t.
-    // So we take the easy way out in a similar way as with getCreationTime().
-    llstat filestat;
-    int rc = stat(filename, &filestat, "getModificationTime", suppress_warning);
-    if (rc == 0)
-    {
-        return filestat.st_mtime;
-    }
-    return 0;
-}
-
-// static
-S64 LLFile::size(const std::string& filename, int suppress_warning)
-{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     std::error_code ec;
-    std::filesystem::path file_path = utf8StringToPath(filename);
     std::intmax_t size = static_cast<std::intmax_t>(std::filesystem::file_size(file_path, ec));
     if (ec)
     {
-        warnif("size", filename, ec, suppress_warning);
+        warnif("size", file_path, ec, suppress_warning);
         return 0;
     }
     return size;
 }
 
 // static
-std::filesystem::file_status LLFile::getStatus(const std::string& filename, bool dontFollowSymLink, int suppress_warning)
+std::filesystem::file_status LLFile::getStatus(const std::filesystem::path& file_path, bool dontFollowSymLink, int suppress_warning)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     std::error_code ec;
-    std::filesystem::path file_path = utf8StringToPath(filename);
     std::filesystem::file_status status;
     if (dontFollowSymLink)
     {
@@ -1091,99 +1033,42 @@ std::filesystem::file_status LLFile::getStatus(const std::string& filename, bool
     {
         status = std::filesystem::status(file_path, ec);
     }
-    warnif("getStatus()", filename, ec, suppress_warning);
+    warnif("getStatus()", file_path, ec, suppress_warning);
     return status;
-}
-
-// static
-bool LLFile::exists(const std::string& filename)
-{
-    std::filesystem::file_status status = getStatus(filename);
-    return std::filesystem::exists(status);
-}
-
-// static
-bool LLFile::isdir(const std::string& filename)
-{
-    std::filesystem::file_status status = getStatus(filename);
-    return std::filesystem::is_directory(status);
-}
-
-// static
-bool LLFile::isfile(const std::string& filename)
-{
-    std::filesystem::file_status status = getStatus(filename);
-    return std::filesystem::is_regular_file(status);
-}
-
-// static
-bool LLFile::islink(const std::string& filename)
-{
-    std::filesystem::file_status status = getStatus(filename, true);
-    return std::filesystem::is_symlink(status);
 }
 
 // static
 const std::string& LLFile::tmpdir()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FILE;
     static std::string temppath;
     if (temppath.empty())
     {
+#if LL_WINDOWS
+        temppath = ll_convert<std::string>(std::filesystem::temp_directory_path().native());
+        char sep = '\\';
+#else
         temppath = std::filesystem::temp_directory_path().string();
+        char sep = '/';
+#endif
+        if (temppath[temppath.size() - 1] != sep)
+        {
+            temppath += sep;
+        }
     }
 
-#if LL_WINDOWS
-    char sep = '\\';
-#else
-    char sep = '/';
-#endif
-    if (temppath[temppath.size() - 1] != sep)
-    {
-        temppath += sep;
-    }
     return temppath;
 }
 
-// static
-std::filesystem::path LLFile::utf8StringToPath(const std::string& pathname)
-{
 #if LL_WINDOWS
-    return ll_convert<std::wstring>(pathname);
-#else
-    return pathname;
-#endif
-}
-
-#if LL_WINDOWS
-
-// static
-std::wstring LLFile::utf8StringToWstring(const std::string& pathname)
-{
-    std::wstring utf16string(ll_convert<std::wstring>(pathname));
-    if (utf16string.size() >= MAX_PATH)
-    {
-        // By going through std::filesystem::path we get a lot of path sanitation done for us that
-        // is needed when passing a path with a kernel object space prefix to Windows API functions
-        // since this prefix disables the kernel32 path normalization
-        std::filesystem::path utf16path(utf16string);
-
-        // By prepending "\\?\" to a path, Windows widechar file APIs will not fail on long path names
-        utf16string.assign(L"\\\\?\\").append(utf16path);
-
-        /* remove trailing spaces and dots (yes, Windows really does that) */
-        size_t last_valid = utf16string.find_last_not_of(L" \t.");
-        if (last_valid == std::wstring::npos)
-        {
-            return std::wstring();
-        }
-        return utf16string.substr(0, last_valid + 1);
-    }
-    return utf16string;
-}
 
 /************** input file stream ********************************/
 
-llifstream::llifstream() {}
+// explicit
+llifstream::llifstream(const char* _Filename, ios_base::openmode _Mode) :
+    std::ifstream(ll_convert<std::wstring>(_Filename).c_str(), _Mode | ios_base::in)
+{
+}
 
 // explicit
 llifstream::llifstream(const std::string& _Filename, ios_base::openmode _Mode):
@@ -1192,15 +1077,37 @@ llifstream::llifstream(const std::string& _Filename, ios_base::openmode _Mode):
 {
 }
 
+// explicit
+llifstream::llifstream(const std::filesystem::path& _Filepath, ios_base::openmode _Mode) :
+    std::ifstream(_Filepath, _Mode | ios_base::in)
+{
+}
+
+void llifstream::open(const char* _Filename, ios_base::openmode _Mode)
+{
+    std::ifstream::open(ll_convert<std::wstring>(_Filename).c_str(),
+                        _Mode | ios_base::in);
+}
+
 void llifstream::open(const std::string& _Filename, ios_base::openmode _Mode)
 {
     std::ifstream::open(ll_convert<std::wstring>(_Filename).c_str(),
                         _Mode | ios_base::in);
 }
 
+void llifstream::open(const std::filesystem::path& _Filepath, ios_base::openmode _Mode)
+{
+    std::ifstream::open(_Filepath,
+                        _Mode | ios_base::in);
+}
+
 /************** output file stream ********************************/
 
-llofstream::llofstream() {}
+// explicit
+llofstream::llofstream(const char* _Filename, ios_base::openmode _Mode) :
+    std::ofstream(ll_convert<std::wstring>(_Filename).c_str(), _Mode | ios_base::out)
+{
+}
 
 // explicit
 llofstream::llofstream(const std::string& _Filename, ios_base::openmode _Mode):
@@ -1209,9 +1116,26 @@ llofstream::llofstream(const std::string& _Filename, ios_base::openmode _Mode):
 {
 }
 
+// explicit
+llofstream::llofstream(const std::filesystem::path& _Filepath, ios_base::openmode _Mode) :
+    std::ofstream(_Filepath, _Mode | ios_base::out)
+{
+}
+
+void llofstream::open(const char* _Filename, ios_base::openmode _Mode)
+{
+    std::ofstream::open(ll_convert<std::wstring>(_Filename).c_str(), _Mode | ios_base::out);
+}
+
 void llofstream::open(const std::string& _Filename, ios_base::openmode _Mode)
 {
     std::ofstream::open(ll_convert<std::wstring>( _Filename ).c_str(),
+                        _Mode | ios_base::out);
+}
+
+void llofstream::open(const std::filesystem::path& _Filepath, ios_base::openmode _Mode)
+{
+    std::ofstream::open(_Filepath,
                         _Mode | ios_base::out);
 }
 
