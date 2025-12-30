@@ -1213,6 +1213,7 @@ void LLScriptEdCore::onErrorList(LLUICtrl*, void* user_data)
         sscanf(line.c_str(), "%d %d", &row, &column);
         //LL_INFOS() << "LLScriptEdCore::onErrorList() - " << row << ", "
         //<< column << LL_ENDL;
+        row = (self->mEditor->getIsLuauLanguage() ? row - 1 : row);
         self->mEditor->setCursor(row, column);
         self->mEditor->setFocus(true);
     }
