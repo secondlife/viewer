@@ -35,6 +35,8 @@
  * Attempts to mostly mirror the POSIX style IO functions.
  */
 
+#include "stdtypes.h"
+
 #include <fstream>
 #include <filesystem>
 #include <sys/stat.h>
@@ -51,7 +53,16 @@ typedef struct stat llstat;
 
 typedef FILE LLFILE;
 
+#include "fsyspath.h"
 #include "llstring.h" // safe char* -> std::string conversion
+
+#ifndef TEXT
+#if LL_WINDOWS
+#define TEXT(flags) L##flags
+#else
+#define TEXT(flags) flags
+#endif
+#endif
 
 /// This class provides a selection of functions to operate on files through names and
 /// a class implementation to represent a file for reading and writing to it
@@ -59,7 +70,7 @@ typedef FILE LLFILE;
 ///
 /// @nosubgrouping
 ///
-class LL_COMMON_API LLFile
+class LLFile
 {
 public:
     // ================================================================================
@@ -157,10 +168,22 @@ public:
     }
 
     /// constructor opening the file
-    LLFile(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666) :
+    explicit LLFile(const char* filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666) :
         mHandle(InvalidHandle)
     {
         open(filename, omode, ec, perm);
+    }
+
+    explicit LLFile(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666) :
+        mHandle(InvalidHandle)
+    {
+        open(filename, omode, ec, perm);
+    }
+
+    explicit LLFile(const std::filesystem::path& file_path, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666) :
+        mHandle(InvalidHandle)
+    {
+        open(file_path, omode, ec, perm);
     }
 
     /// destructor always attempts to close the file
@@ -198,7 +221,17 @@ public:
     ///@{
 
     /// Open a file with the specific open mode flags
-    int open(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666);
+    inline int open(const char* filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return open(file_path, omode, ec, perm);
+    }
+    inline int open(const std::string& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return open(file_path, omode, ec, perm);
+    }
+    int open(const std::filesystem::path& filename, std::ios_base::openmode omode, std::error_code& ec, int perm = 0666);
     ///< @returns 0 on success, -1 on failure
 
     /// Determine the size of the opened file
@@ -257,7 +290,23 @@ public:
     ///
     ///@{
     /// open a file with the specified access mode
-    static LLFILE* fopen(const std::string& filename, const char* accessmode, int lmode = 0);
+    ///
+#if LL_WINDOWS
+    using fopen_flags_t = wchar_t;
+#else
+    using fopen_flags_t = char;
+#endif
+    inline static LLFILE* fopen(const char* filename, const fopen_flags_t* accessmode, int lmode = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return LLFile::fopen(file_path, accessmode, lmode);
+    }
+    inline static LLFILE* fopen(const std::string& filename, const fopen_flags_t* accessmode, int lmode = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return LLFile::fopen(file_path, accessmode, lmode);
+    }
+    static LLFILE* fopen(const std::filesystem::path& file_path, const fopen_flags_t* accessmode, int lmode = 0);
     ///< 'accessmode' follows the rules of the Posix fopen() mode parameter
     ///  "r" open the file for reading only and positions the stream at the beginning
     ///  "r+" open the file for reading and writing and positions the stream at the beginning
@@ -291,19 +340,63 @@ public:
     ///< @returns 0 on success and -1 on failure.
 
     /// create a directory
-    static  int     mkdir(const std::string& filename);
+    inline static int mkdir(const char* dirname)
+    {
+        std::filesystem::path dir_path = fsyspath(dirname);
+        return mkdir(dir_path);
+    }
+    inline static int mkdir(const std::string& dirname)
+    {
+        std::filesystem::path dir_path = fsyspath(dirname);
+        return mkdir(dir_path);
+    }
+    static int mkdir(const std::filesystem::path& dirname);
     ///< mkdir() considers "directory already exists" to be not an error.
     ///  @returns 0 on success and -1 on failure.
 
     /// remove a file or directory
-    static  int     remove(const std::string& filename, int suppress_warning = 0);
+    inline static int remove(const char* filename, int suppress_warning = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return remove(file_path, suppress_warning);
+    }
+    inline static int remove(const std::string& filename, int suppress_warning = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return remove(file_path, suppress_warning);
+    }
+    static int remove(const std::filesystem::path& file_path, int suppress_warning = 0);
     ///< pass an errno value (e.g., ENOENT) in the optional 'suppress_warning' parameter if you want to
     ///  suppress a warning in the log when the failure matches that errno (e.g., suppress warning if
     ///  the file or directory does not exist)
     ///  @returns 0 on success and -1 on failure.
 
     /// rename a file
-    static  int     rename(const std::string& filename, const std::string& newname, int suppress_warning = 0);
+    inline static int rename(const char* filename, const char* newname, int suppress_warning = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        std::filesystem::path new_path  = fsyspath(newname);
+        return rename(file_path, new_path, suppress_warning);
+    }
+    inline static int rename(const std::string& filename, const char* newname, int suppress_warning = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        std::filesystem::path new_path  = fsyspath(newname);
+        return rename(file_path, new_path, suppress_warning);
+    }
+    inline static int rename(const char* filename, const std::string& newname, int suppress_warning = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        std::filesystem::path new_path  = fsyspath(newname);
+        return rename(file_path, new_path, suppress_warning);
+    }
+    inline static int rename(const std::string& filename, const std::string& newname, int suppress_warning = 0)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        std::filesystem::path new_path  = fsyspath(newname);
+        return rename(file_path, new_path, suppress_warning);
+    }
+    static int rename(const std::filesystem::path& file_path, const std::filesystem::path& new_path, int suppress_warning = 0);
     ///< it will silently overwrite newname if it exists without returning an error
     ///  Posix guarantees that if newname already exists, then there will be no moment
     ///  in which for other processes newname does not exist. There is no such guarantee
@@ -312,7 +405,31 @@ public:
     ///  @returns 0 on success and -1 on failure.
 
     /// copy the contents of the file from 'source' to 'target'
-    static  bool    copy(const std::string& source, const std::string& target);
+    inline static bool copy(const char* source, const char* target)
+    {
+        std::error_code ec;
+        return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
+    }
+    inline static bool copy(const char* source, const std::string& target)
+    {
+        std::error_code ec;
+        return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
+    }
+    inline static bool copy(const std::string& source, char* target)
+    {
+        std::error_code ec;
+        return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
+    }
+    inline static bool copy(const std::string& source, const std::string& target)
+    {
+        std::error_code ec;
+        return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
+    }
+    inline static bool copy(const std::filesystem::path& source_path, const std::filesystem::path& target_path)
+    {
+        std::error_code ec;
+        return copy(source_path, target_path, std::filesystem::copy_options::overwrite_existing, ec);
+    }
     ///< Copies the contents of the file 'source' to the file 'target', overwriting 'target' if it already
     ///  existed.
     ///  This is a convenience function that implements the previous behavior of silently overwriting an
@@ -321,7 +438,31 @@ public:
     ///  @returns true on success and false on failure.
 
     /// copy the contents of the file from 'from' to 'to'
-    static  bool    copy(const std::string& source, const std::string& target, std::filesystem::copy_options options, std::error_code& ec);
+    inline static bool copy(const char* source, const char* target, std::filesystem::copy_options options, std::error_code& ec)
+    {
+        std::filesystem::path source_path = fsyspath(source);
+        std::filesystem::path target_path = fsyspath(target);
+        return copy(source_path, target_path, options, ec);
+    }
+    inline static bool copy(const char* source, const std::string& target, std::filesystem::copy_options options, std::error_code& ec)
+    {
+        std::filesystem::path source_path = fsyspath(source);
+        std::filesystem::path target_path = fsyspath(target);
+        return copy(source_path, target_path, options, ec);
+    }
+    inline static bool copy(const std::string& source, const char* target, std::filesystem::copy_options options, std::error_code& ec)
+    {
+        std::filesystem::path source_path = fsyspath(source);
+        std::filesystem::path target_path = fsyspath(target);
+        return copy(source_path, target_path, options, ec);
+    }
+    inline static bool copy(const std::string& source, const std::string& target, std::filesystem::copy_options options, std::error_code& ec)
+    {
+        std::filesystem::path source_path = fsyspath(source);
+        std::filesystem::path target_path = fsyspath(target);
+        return copy(source_path, target_path, options, ec);
+    }
+    static bool copy(const std::filesystem::path& source_path, const std::filesystem::path& target_path, std::filesystem::copy_options options, std::error_code& ec);
     ///< Copies the contents of the file 'source' to the file 'target'. The options parameter allows to
     ///  specify what should happen if the "target" file already exists:
     ///   std::filesystem::copy_options::none - return an error in ec and fail
@@ -331,48 +472,115 @@ public:
     ///  @returns true on success and false on failure.
 
     /// retrieve the content of a file into a string
-    static std::string getContents(const std::string& filename);
-    static std::string getContents(const std::string& filename, std::error_code& ec);
+    inline static std::string getContents(const char* filename)
+    {
+        std::error_code ec;
+        return getContents(filename, ec);
+    }
+    inline static std::string getContents(const std::string& filename)
+    {
+        std::error_code ec;
+        return getContents(filename, ec);
+    }
+    inline static std::string getContents(const std::filesystem::path& file_path)
+    {
+        std::error_code ec;
+        return getContents(file_path, ec);
+    }
+    inline static std::string getContents(const char* filename, std::error_code& ec)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return getContents(file_path, ec);
+    }
+    inline static std::string getContents(const std::string& filename, std::error_code& ec)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return getContents(file_path, ec);
+    }
+    static std::string getContents(const std::filesystem::path& file_path, std::error_code& ec);
     ///< @returns the entire content of the file as std::string or an empty string on failure
 
     /// read nBytes from the file into the buffer, starting at offset in the file
-    static  S64     read(const std::string& filename, void* buf, S64 offset, S64 nbytes);
-    static  S64     read(const std::string& filename, void* buf, S64 offset, S64 nbytes, std::error_code& ec);
+    inline static S64 read(const char* filename, void* buf, S64 offset, S64 nbytes)
+    {
+        std::error_code ec;
+        return read(filename, buf, offset, nbytes, ec);
+    }
+    inline static S64 read(const std::string& filename, void* buf, S64 offset, S64 nbytes)
+    {
+        std::error_code ec;
+        return read(filename, buf, offset, nbytes, ec);
+    }
+    inline static S64 read(const std::filesystem::path& file_path, void* buf, S64 offset, S64 nbytes)
+    {
+        std::error_code ec;
+        return read(file_path, buf, offset, nbytes, ec);
+    }
+    inline static S64 read(const char* filename, void* buf, S64 offset, S64 nbytes, std::error_code& ec)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return read(file_path, buf, offset, nbytes, ec);
+    }
+    inline static S64 read(const std::string& filename, void* buf, S64 offset, S64 nbytes, std::error_code& ec)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return read(file_path, buf, offset, nbytes, ec);
+    }
+    static S64 read(const std::filesystem::path& filename, void* buf, S64 offset, S64 nbytes, std::error_code& ec);
     ///< @returns bytes read on success, or -1 on failure
 
     /// write nBytes from the buffer into the file, starting at offset in the file
-    static  S64     write(const std::string& filename, const void* buf, S64 offset, S64 nbytes);
-    static  S64     write(const std::string& filename, const void* buf, S64 offset, S64 nbytes, std::error_code& ec);
+    inline static S64 write(const std::string& filename, const void* buf, S64 offset, S64 nbytes)
+    {
+        std::error_code ec;
+        std::filesystem::path file_path = fsyspath(filename);
+        return write(file_path, buf, offset, nbytes, ec);
+    }
+    inline static S64 write(const std::filesystem::path& filename, const void* buf, S64 offset, S64 nbytes)
+    {
+        std::error_code ec;
+        std::filesystem::path file_path = fsyspath(filename);
+        return write(file_path, buf, offset, nbytes, ec);
+    }
+    inline static S64 write(const std::string& filename, const void* buf, S64 offset, S64 nbytes, std::error_code& ec)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return write(file_path, buf, offset, nbytes, ec);
+    }
+    static S64 write(const std::filesystem::path& filename, const void* buf, S64 offset, S64 nbytes, std::error_code& ec);
     ///< If a negative offset is provided, the file is opened in append mode and the
     ///  write will be appended to the end of the file.
     ///  @returns bytes written on success, or -1 on failure
 
     /// return the file stat structure for filename
-    static  int     stat(const std::string& filename, llstat* file_status, const char *operation = nullptr, int suppress_warning = ENOENT);
+    inline static int stat(const char* filename, llstat* file_status, const char* operation = nullptr, int suppress_warning = ENOENT)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return stat(file_path, file_status, operation, suppress_warning);
+    }
+    inline static int stat(const std::string& filename, llstat* file_status, const char* operation = nullptr, int suppress_warning = ENOENT)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return stat(file_path, file_status, operation, suppress_warning);
+    }
+    static int stat(const std::filesystem::path& file_path, llstat* file_status, const char *operation = nullptr, int suppress_warning = ENOENT);
     ///< for compatibility with existing uses of LL_File::stat() we use ENOENT as default in the
     ///  optional 'suppress_warning' parameter to avoid spamming the log with warnings when the API
     ///  is used to detect if a file exists
     ///  @returns 0 on success and -1 on failure.
 
-    /// get the creation data and time of a file
-    static std::time_t getCreationTime(const std::string& filename, int suppress_warning = 0);
-    ///< Different systems have different support for this. Under Windows this is supposedly
-    ///  the actual time the file was created, on the Mac this is the actual birth date of
-    ///  the file which is in fact the creation time. The according ctime entry in the stat
-    ///  structure under Linux (and any other *nix really) is however contrary to what one
-    ///  might expect based on the c in ctime not the creation time but the time the last
-    ///  change to the inode entry was made. Changing access rights to a file will update
-    ///  this value too. In order to have a true creation time under Linux, we would have
-    ///  to use the statx() call which is available since kernel 4.19, but that will require
-    ///  considerable changes to the implementation of above stat() function.
-    ///  @returns the creation time (last status change under Linux) of the file or 0 on error
-
-    /// get the last modification data and time of a file
-    static std::time_t getModificationTime(const std::string& filename, int suppress_warning = 0);
-    ///< @returns the modification time of the file or 0 on error
-
     /// get the std::filesystem::file_status for filename
-    static std::filesystem::file_status getStatus(const std::string& filename, bool dontFollowSymLink = false, int suppress_warning  = ENOENT);
+    inline static std::filesystem::file_status getStatus(const char* filename, bool dontFollowSymLink = false, int suppress_warning = ENOENT)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return getStatus(file_path, dontFollowSymLink, suppress_warning);
+    }
+    inline static std::filesystem::file_status getStatus(const std::string& filename, bool dontFollowSymLink = false, int suppress_warning = ENOENT)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return getStatus(file_path, dontFollowSymLink, suppress_warning);
+    }
+    static std::filesystem::file_status getStatus(const std::filesystem::path& file_path, bool dontFollowSymLink = false, int suppress_warning = ENOENT);
     ///< dontFollowSymLinks set to true returns the std::filesystem::file_status of the symlink if it
     ///  is one, rather than resolving it. We pass by default ENOENT in the optional 'suppress_warning'
     ///  parameter to not spam the log with warnings when the file or directory does not exist
@@ -380,66 +588,108 @@ public:
     ///  and other APIs accepting a file_status.
 
     /// get the size of a file in bytes
-    static  S64     size(const std::string& filename, int suppress_warning = ENOENT);
+    inline static S64 size(const char* filename, int suppress_warning = ENOENT)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return size(file_path, suppress_warning);
+    }
+    inline static S64 size(const std::string& filename, int suppress_warning = ENOENT)
+    {
+        std::filesystem::path file_path = fsyspath(filename);
+        return size(file_path, suppress_warning);
+    }
+    static S64 size(const std::filesystem::path& file_path, int suppress_warning = ENOENT);
     ///< we pass by default ENOENT in the optional 'suppress_warning' parameter to not spam
     ///  the log with warnings when the file does not exist
     ///  @returns the file size on success or 0 on failure.
 
     /// check if filename is an existing file or directory
-    static  bool    exists(const std::string& filename);
+    inline static bool exists(const char* filename)
+    {
+        std::filesystem::file_status status = getStatus(filename);
+        return std::filesystem::exists(status);
+    }
+    inline static bool exists(const std::string& filename)
+    {
+        std::filesystem::file_status status = getStatus(filename);
+        return std::filesystem::exists(status);
+    }
+    inline static bool exists(const std::filesystem::path& file_path)
+    {
+        std::filesystem::file_status status = getStatus(file_path);
+        return std::filesystem::exists(status);
+    }
     ///< @returns true if the path is for an existing file or directory
 
     /// check if filename is an existing directory
-    static  bool    isdir(const std::string& filename);
+    inline static bool isdir(const char* filename)
+    {
+        std::filesystem::file_status status = getStatus(filename);
+        return std::filesystem::is_directory(status);
+    }
+    inline static bool isdir(const std::string& filename)
+    {
+        std::filesystem::file_status status = getStatus(filename);
+        return std::filesystem::is_directory(status);
+    }
+    inline static bool isdir(const std::filesystem::path& file_path)
+    {
+        std::filesystem::file_status status = getStatus(file_path);
+        return std::filesystem::is_directory(status);
+    }
     ///< @returns true if the path is for an existing directory
 
     /// check if filename is an existing file
-    static  bool    isfile(const std::string& filename);
+    inline static bool isfile(const char* filename)
+    {
+        std::filesystem::file_status status = getStatus(filename);
+        return std::filesystem::is_regular_file(status);
+    }
+    inline static bool isfile(const std::string& filename)
+    {
+        std::filesystem::file_status status = getStatus(filename);
+        return std::filesystem::is_regular_file(status);
+    }
+    inline static bool isfile(const std::filesystem::path& file_path)
+    {
+        std::filesystem::file_status status = getStatus(file_path);
+        return std::filesystem::is_regular_file(status);
+    }
     ///< @returns true if the path is for an existing file
 
     /// check if filename is a symlink
-    static  bool    islink(const std::string& filename);
+    inline static bool islink(const char* filename)
+    {
+        std::filesystem::file_status status = getStatus(filename, true);
+        return std::filesystem::is_symlink(status);
+    }
+    inline static bool islink(const std::string& filename)
+    {
+        std::filesystem::file_status status = getStatus(filename, true);
+        return std::filesystem::is_symlink(status);
+    }
+    inline static bool islink(const std::filesystem::path& file_path)
+    {
+        std::filesystem::file_status status = getStatus(file_path, true);
+        return std::filesystem::is_symlink(status);
+    }
     ///< @returns true if the path is pointing at a symlink
 
     /// return a path to the temporary directory on the system
     static const std::string& tmpdir();
 
-    /// converts a string containing a path in utf8 encoding into an explicit filesystem path
-    static std::filesystem::path utf8StringToPath(const std::string& pathname);
-    ///< @returns the path as a std::filesystem::path
-    ///@}
-
 private:
 #if LL_WINDOWS
     typedef HANDLE        llfile_handle_t;
     const llfile_handle_t InvalidHandle = INVALID_HANDLE_VALUE;
+    llfile_handle_t       mHandle       = INVALID_HANDLE_VALUE; // The file handle/descriptor
 #else
     typedef int           llfile_handle_t;
     const llfile_handle_t InvalidHandle = -1;
+    llfile_handle_t       mHandle       = -1;; // The file handle/descriptor
 #endif
 
-    /// ================================================================================
-    /// @name private static member functions
-    ///
-#if LL_WINDOWS
-    /// convert a string containing a path in utf8 encoding into a Windows format std::wstring
-    static std::wstring utf8StringToWstring(const std::string& pathname);
-    ///< this will prepend the path with the Windows kernel object space prefix when the path is
-    ///  equal or longer than MAX_PATH characters and do some sanitation on the path.
-    ///  This allows the underlaying Windows APIs to process long path names. Do not pass such a path
-    ///  to std::filesystem functions. These functions are not guaranteed to handle such paths properly.
-    ///  It's only useful to pass the resulting string buffer to Microsoft Windows widechar APIs or
-    ///  the Microsoft C runtime widechar file functions.
-    ///
-    ///  Example:
-    ///
-    ///  std::wstring file_path = utf8StringToWstring(filename);
-    ///  HANDLE CreateFileW(file_path.c_str(), ......);
-    ///
-    ///  @returns the path as a std::wstring path
-#endif
-    llfile_handle_t mHandle;       // The file handle/descriptor
-    std::ios_base::openmode mOpen; // Used to emulate std::ios_base::app under Windows
+    std::ios_base::openmode mOpen{}; // Used to emulate std::ios_base::app under Windows
 };
 
 #if LL_WINDOWS
@@ -451,7 +701,7 @@ private:
  *  Does The Right Thing when passed a non-ASCII pathname. Sadly, that isn't
  *  true of Microsoft's std::ifstream.
  */
-class LL_COMMON_API llifstream : public std::ifstream
+class llifstream : public std::ifstream
 {
     // input stream associated with a C stream
   public:
@@ -463,7 +713,7 @@ class LL_COMMON_API llifstream : public std::ifstream
      *  @c &sb to the base class initializer.  Does not open any files
      *  (you haven't given it a filename to open).
      */
-    llifstream();
+    llifstream() = default;
 
     /**
      *  @brief  Create an input file stream.
@@ -472,7 +722,11 @@ class LL_COMMON_API llifstream : public std::ifstream
      *
      *  @c ios_base::in is automatically included in @a mode.
      */
+    explicit llifstream(const char* _Filename,
+                        ios_base::openmode _Mode = ios_base::in);
     explicit llifstream(const std::string& _Filename,
+                        ios_base::openmode _Mode = ios_base::in);
+    explicit llifstream(const std::filesystem::path& _Filepath,
                         ios_base::openmode _Mode = ios_base::in);
 
     /**
@@ -483,10 +737,73 @@ class LL_COMMON_API llifstream : public std::ifstream
      *  Calls @c llstdio_filebuf::open(s,mode|in).  If that function
      *  fails, @c failbit is set in the stream's error state.
      */
+    void open(const char* _Filename,
+              ios_base::openmode _Mode = ios_base::in);
     void open(const std::string& _Filename,
+              ios_base::openmode _Mode = ios_base::in);
+    void open(const std::filesystem::path& _Filepath,
               ios_base::openmode _Mode = ios_base::in);
 };
 
+/// RAII class
+class LLUniqueFile
+{
+public:
+    // empty
+    LLUniqueFile() = default;
+    // wrap (e.g.) result of LLFile::fopen()
+    LLUniqueFile(LLFILE* f) : mFileHandle(f) {}
+    // no copy
+    LLUniqueFile(const LLUniqueFile&) = delete;
+    // move construction
+    LLUniqueFile(LLUniqueFile&& other) noexcept
+    {
+        mFileHandle       = other.mFileHandle;
+        other.mFileHandle = nullptr;
+    }
+    // The point of LLUniqueFile is to close on destruction.
+    ~LLUniqueFile() { close(); }
+
+    // simple assignment
+    LLUniqueFile& operator=(LLFILE* f)
+    {
+        close();
+        mFileHandle = f;
+        return *this;
+    }
+    // copy assignment deleted
+    LLUniqueFile& operator=(const LLUniqueFile&) = delete;
+    // move assignment
+    LLUniqueFile& operator=(LLUniqueFile&& other) noexcept
+    {
+        close();
+        std::swap(mFileHandle, other.mFileHandle);
+        return *this;
+    }
+
+    // explicit close operation
+    void close()
+    {
+        if (mFileHandle)
+        {
+            // in case close() throws, set mFileHandle null FIRST
+            LLFILE* h{ nullptr };
+            std::swap(h, mFileHandle);
+            LLFile::close(h);
+        }
+    }
+
+    // detect whether the wrapped LLFILE is open or not
+    explicit operator bool() const { return bool(mFileHandle); }
+    bool     operator!() { return !mFileHandle; }
+
+    // LLUniqueFile should be usable for any operation that accepts LLFILE*
+    // (or FILE* for that matter)
+    operator LLFILE*() const { return mFileHandle; }
+
+private:
+    LLFILE* mFileHandle = nullptr;
+};
 
 /**
  *  @brief  Controlling output for files.
@@ -496,7 +813,7 @@ class LL_COMMON_API llifstream : public std::ifstream
  *  Right Thing when passed a non-ASCII pathname. Sadly, that isn't true of
  *  Microsoft's std::ofstream.
 */
-class LL_COMMON_API llofstream : public std::ofstream
+class llofstream : public std::ofstream
 {
   public:
     // Constructors:
@@ -507,7 +824,7 @@ class LL_COMMON_API llofstream : public std::ofstream
      *  @c &sb to the base class initializer.  Does not open any files
      *  (you haven't given it a filename to open).
      */
-    llofstream();
+    llofstream() = default;
 
     /**
      *  @brief  Create an output file stream.
@@ -516,7 +833,11 @@ class LL_COMMON_API llofstream : public std::ofstream
      *
      *  @c ios_base::out is automatically included in @a mode.
      */
+    explicit llofstream(const char* _Filename,
+                        ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
     explicit llofstream(const std::string& _Filename,
+                        ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
+    explicit llofstream(const std::filesystem::path& _Filepath,
                         ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 
     /**
@@ -526,7 +847,11 @@ class LL_COMMON_API llofstream : public std::ofstream
      *
      *  @c ios_base::out is automatically included in @a mode.
      */
+    void open(const char* _Filename,
+              ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
     void open(const std::string& _Filename,
+              ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
+    void open(const std::filesystem::path& _Filepath,
               ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 };
 

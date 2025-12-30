@@ -837,7 +837,7 @@ private:
     void get_proc_cpuinfo()
     {
         std::map< std::string, std::string > cpuinfo;
-        LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
+        LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, TEXT("rb"));
         if(cpuinfo_fp)
         {
             char line[MAX_STRING];
@@ -954,7 +954,7 @@ private:
         std::ostringstream s;
 
         // *NOTE:Mani - This is for linux only.
-        LLFILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");
+        LLFILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, TEXT("rb"));
         if(cpuinfo)
         {
             char line[MAX_STRING];

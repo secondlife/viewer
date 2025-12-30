@@ -177,14 +177,6 @@ std::string LLDir_Mac::getCurPath()
     return boost::filesystem::path( boost::filesystem::current_path() ).string();
 }
 
-
-
-bool LLDir_Mac::fileExists(const std::string &filename) const
-{
-    return boost::filesystem::exists(filename);
-}
-
-
 /*virtual*/ std::string LLDir_Mac::getLLPluginLauncher()
 {
     return gDirUtilp->getAppRODataDir() + gDirUtilp->getDirDelimiter() +

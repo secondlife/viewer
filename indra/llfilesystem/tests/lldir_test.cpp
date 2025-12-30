@@ -405,7 +405,7 @@ namespace tut
    std::string makeTestFile( const std::string& dir, const std::string& file )
    {
       std::string path = dir + file;
-      LLFILE* handle = LLFile::fopen( path, "w" );
+      LLFILE* handle = LLFile::fopen(path, TEXT("w"));
       ensure("failed to open test file '"+path+"'", handle != NULL );
       // Harbison & Steele, 4th ed., p. 366: "If an error occurs, fputs
       // returns EOF; otherwise, it returns some other, nonnegative value."

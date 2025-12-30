@@ -182,7 +182,7 @@ void LLViewerAssetStorage::storeAssetData(
             else
             {
                 // LLAssetStorage metric: Successful Request
-                S32 size = (S32)LLFileSystem::getFileSize(asset_id, asset_type);
+                S32 size = vfile.getSize();
                 const char *message = "Added to upload queue";
                 reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
 
@@ -279,7 +279,7 @@ void LLViewerAssetStorage::storeAssetData(
     LL_DEBUGS("AssetStorage") << "ASSET_ID: " << asset_id << LL_ENDL;
 
     S32 size = 0;
-    LLFILE* fp = LLFile::fopen(filename, "rb");
+    LLFILE* fp = LLFile::fopen(filename, TEXT("rb"));
     if (fp)
     {
         fseek(fp, 0, SEEK_END);

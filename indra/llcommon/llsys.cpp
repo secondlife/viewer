@@ -514,7 +514,7 @@ namespace {
 #if LL_LINUX
         constexpr U32 STATUS_SIZE  = 2048;
 
-        LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
+        LLFILE* status_filep = LLFile::fopen("/proc/self/status", TEXT("rb"));
         if (status_filep)
         {
             char buff[STATUS_SIZE];     /* Flawfinder: ignore */
@@ -1273,7 +1273,7 @@ bool gunzip_file(const std::string& srcfile, const std::string& dstfile)
     src = gzopen(srcfile.c_str(), "rb");
 #endif
     if (! src) goto err;
-    dst = LLFile::fopen(tmpfile, "wb");     /* Flawfinder: ignore */
+    dst = LLFile::fopen(tmpfile, TEXT("wb"));     /* Flawfinder: ignore */
     if (! dst) goto err;
     do
     {
@@ -1314,7 +1314,7 @@ bool gzip_file(const std::string& srcfile, const std::string& dstfile)
 #endif
 
     if (! dst) goto err;
-    src = LLFile::fopen(srcfile, "rb");     /* Flawfinder: ignore */
+    src = LLFile::fopen(srcfile, TEXT("rb"));     /* Flawfinder: ignore */
     if (! src) goto err;
 
     while ((bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE, src)) > 0)

@@ -399,7 +399,7 @@ void LLControlGroup::cleanup()
     if(mSettingsProfile && getCount.size() != 0)
     {
         std::string file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, SETTINGS_PROFILE);
-        LLFILE* out = LLFile::fopen(file, "w"); /* Flawfinder: ignore */
+        LLFILE* out = LLFile::fopen(file, TEXT("w")); /* Flawfinder: ignore */
         if(!out)
         {
             LL_WARNS("SettingsProfile") << "Error opening " << SETTINGS_PROFILE << LL_ENDL;

@@ -637,7 +637,7 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
         }
     }
 
-    LLFILE* xsd_file = LLFile::fopen(file_name.c_str(), "w");
+    LLFILE* xsd_file = LLFile::fopen(file_name.c_str(), TEXT("w"));
     LLXMLNode::writeHeaderToFile(xsd_file);
     root_nodep->writeToFile(xsd_file);
     fclose(xsd_file);
@@ -1326,7 +1326,7 @@ void LLXUIParser::parserError(const std::string& message)
 
 struct ScopedFile
 {
-    ScopedFile( const std::string& filename, const char* accessmode )
+    ScopedFile( const std::string& filename, const LLFile::fopen_flags_t* accessmode )
     {
         mFile = LLFile::fopen(filename, accessmode);
     }
@@ -1397,7 +1397,7 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
     mCurReadDepth = 0;
     setParseSilently(silent);
 
-    ScopedFile file(filename, "rb");
+    ScopedFile file(filename, TEXT("rb"));
     if( !file.isOpen() )
     {
         LL_WARNS("ReadXUI") << "Unable to open file " << filename << LL_ENDL;
