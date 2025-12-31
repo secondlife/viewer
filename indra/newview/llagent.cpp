@@ -5141,7 +5141,7 @@ void LLAgent::pressGameControlButton(U8 button_index)
 
 void LLAgent::releaseGameControlButton(U8 button_index)
 {
-    mGameControlButtonsFromKeys &= !(1U << button_index);
+    mGameControlButtonsFromKeys &= ~(1U << button_index);
 }
 
 void LLAgent::updateFlycam()
