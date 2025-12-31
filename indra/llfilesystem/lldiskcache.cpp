@@ -210,7 +210,9 @@ void LLDiskCache::purge()
 
 const std::string LLDiskCache::metaDataToFilepath(const LLUUID& id, LLAssetType::EType at)
 {
-    return llformat("%s%s%s_%s_0.asset", sCacheDir.c_str(), gDirUtilp->getDirDelimiter().c_str(), CACHE_FILENAME_PREFIX.c_str(), id.asString().c_str());
+    char uuid_str[UUID_STR_LENGTH]{};
+    id.to_chars(uuid_str);
+    return llformat("%s%s%s_%s_0.asset", sCacheDir.c_str(), gDirUtilp->getDirDelimiter().c_str(), CACHE_FILENAME_PREFIX.c_str(), uuid_str);
 }
 
 const std::string LLDiskCache::getCacheInfo()

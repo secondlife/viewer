@@ -158,7 +158,8 @@ public:
     // <= 0 priority means that there's no need for more data.
     static F32 calc_download_priority(F32 virtual_size, F32 visible_area, S32 bytes_sent);
 
-    static EImageCodec getCodecFromExtension(const std::string& exten);
+    static EImageCodec getCodecFromExtension(std::string_view exten);
+    static EImageCodec getCodecFromExtension(std::wstring_view exten);
 
     //static LLTrace::MemStatHandle sMemStat;
 

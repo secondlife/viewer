@@ -157,7 +157,7 @@ protected:
     LLAtomicS32 mBytesRead;
 };
 
-class LLTextureCacheLocalFileWorker : public LLTextureCacheWorker
+class LLTextureCacheLocalFileWorker final : public LLTextureCacheWorker
 {
 public:
     LLTextureCacheLocalFileWorker(LLTextureCache* cache, const std::string& filename, const LLUUID& id,
@@ -165,7 +165,7 @@ public:
                          S32 imagesize, // for writes
                          LLTextureCache::Responder* responder)
             : LLTextureCacheWorker(cache, id, data, datasize, offset, imagesize, responder),
-            mFileName(filename)
+            mFileName(fsyspath(filename))
 
     {
     }
@@ -174,18 +174,24 @@ public:
     virtual bool doWrite();
 
 private:
-    std::string mFileName;
+    std::filesystem::path mFileName;
 };
 
 bool LLTextureCacheLocalFileWorker::doRead()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     S32 local_size = (S32)LLFile::size(mFileName);
-    if (local_size > 0 && mFileName.size() > 4)
+    if (local_size > 0 && mFileName.native().size() > 4)
     {
         mDataSize = local_size; // Only a complete file is valid
 
-        std::string extension = mFileName.substr(mFileName.size() - 3, 3);
+#if LL_WINDOWS
+        std::wstring_view native_path = mFileName.native();
+        std::wstring_view extension   = native_path.substr(native_path.size() - 3, 3);
+#else
+        std::string_view native_path = mFileName.native();
+        std::string_view extension   = native_path.substr(native_path.size() - 3, 3);
+#endif
 
         mImageFormat = LLImageBase::getCodecFromExtension(extension);
 
@@ -233,7 +239,7 @@ bool LLTextureCacheLocalFileWorker::doWrite()
     return false;
 }
 
-class LLTextureCacheRemoteWorker : public LLTextureCacheWorker
+class LLTextureCacheRemoteWorker final : public LLTextureCacheWorker
 {
 public:
     LLTextureCacheRemoteWorker(LLTextureCache* cache, const LLUUID& id,
@@ -406,7 +412,7 @@ bool LLTextureCacheRemoteWorker::doRead()
         mReadData = (U8*)ll_aligned_malloc_16(size);
         if (mReadData)
         {
-            S32 bytes_read = (S32)LLFile::read(mCache->mHeaderDataFileName, mReadData, offset, size);
+            S32 bytes_read = (S32)LLFile::read(mCache->mHeaderDataFilePath, mReadData, offset, size);
             if (bytes_read != size)
             {
                 LL_WARNS() << "LLTextureCacheWorker: "  << mID
@@ -440,8 +446,8 @@ bool LLTextureCacheRemoteWorker::doRead()
     // Fourth state / stage : read the rest of the data from the UUID based cached file
     if (!done && (mState == BODY))
     {
-        std::string filename = mCache->getTextureFileName(mID);
-        S32 filesize = (S32)LLFile::size(filename);
+        std::filesystem::path file_path = fsyspath(mCache->getTextureFileName(mID));
+        S32 filesize = (S32)LLFile::size(file_path);
 
         if (filesize > 0 && (filesize + TEXTURE_CACHE_ENTRY_SIZE) > mOffset)
         {
@@ -482,7 +488,7 @@ bool LLTextureCacheRemoteWorker::doRead()
                 mReadData = data;
 
                 // Read the data at last
-                S32 bytes_read = (S32)LLFile::read(filename,
+                S32 bytes_read = (S32)LLFile::read(file_path,
                                                    mReadData + data_offset,
                                                    file_offset, file_size);
                 if (bytes_read != file_size)
@@ -510,7 +516,7 @@ bool LLTextureCacheRemoteWorker::doRead()
         {
             // No body, we're done.
             mDataSize = llmax(TEXTURE_CACHE_ENTRY_SIZE - mOffset, 0);
-            LL_DEBUGS() << "No body file for: " << filename << LL_ENDL;
+            LL_DEBUGS() << "No body file for: " << file_path << LL_ENDL;
         }
         // Nothing else to do at that point...
         done = true;
@@ -630,13 +636,13 @@ bool LLTextureCacheRemoteWorker::doWrite()
                 U8* padBuffer = (U8*)ll_aligned_malloc_16(TEXTURE_CACHE_ENTRY_SIZE);
                 memset(padBuffer, 0, TEXTURE_CACHE_ENTRY_SIZE);     // Init with zeros
                 memcpy(padBuffer, mWriteData, mDataSize);           // Copy the write buffer
-                bytes_written = (S32)LLFile::write(mCache->mHeaderDataFileName, padBuffer, offset, size);
+                bytes_written = (S32)LLFile::write(mCache->mHeaderDataFilePath, padBuffer, offset, size);
                 ll_aligned_free_16(padBuffer);
             }
             else
             {
                 // Write the header record (== first TEXTURE_CACHE_ENTRY_SIZE bytes of the raw file) in the header file
-                bytes_written = (S32)LLFile::write(mCache->mHeaderDataFileName, mWriteData, offset, size);
+                bytes_written = (S32)LLFile::write(mCache->mHeaderDataFilePath, mWriteData, offset, size);
             }
 
             if (bytes_written <= 0)
@@ -856,9 +862,9 @@ std::string LLTextureCache::getLocalFileName(const LLUUID& id)
 
 std::string LLTextureCache::getTextureFileName(const LLUUID& id)
 {
-    std::string idstr = id.asString();
-    std::string delem = gDirUtilp->getDirDelimiter();
-    std::string filename = mTexturesDirName + delem + idstr[0] + delem + idstr + ".texture";
+    char idstr[UUID_STR_LENGTH]{};
+    id.to_chars(idstr);
+    std::string filename = llformat("%s%s%c%s%s.texture", mTexturesDirName.c_str(), gDirUtilp->getDirDelimiter().c_str(), idstr[0], gDirUtilp->getDirDelimiter().c_str(), idstr);
     return filename;
 }
 
@@ -934,7 +940,9 @@ const char* fast_cache_filename = "FastCache.cache";
 void LLTextureCache::setDirNames(ELLPath location)
 {
     mHeaderEntriesFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, entries_filename);
-    mHeaderDataFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, cache_filename);
+    mHeaderDataFilePath = fsyspath(gDirUtilp->getExpandedFilename(location, textures_dirname, cache_filename));
+    mHeaderEntriesFilePath = fsyspath(mHeaderEntriesFileName);
+
     mTexturesDirName = gDirUtilp->getExpandedFilename(location, textures_dirname);
     mFastCacheFileName =  gDirUtilp->getExpandedFilename(location, textures_dirname, fast_cache_filename);
 }
@@ -1058,9 +1066,9 @@ void LLTextureCache::readEntriesHeader()
 {
     // mHeaderEntriesInfo initializes to default values so safe not to read it
     llassert_always(mHeaderAPRFile == NULL);
-    if (LLFile::isfile(mHeaderEntriesFileName))
+    if (LLFile::isfile(mHeaderEntriesFilePath))
     {
-        LLFile::read(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
+        LLFile::read(mHeaderEntriesFilePath, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
     }
     else //create an empty entries header.
     {
@@ -1091,7 +1099,7 @@ void LLTextureCache::writeEntriesHeader()
     llassert_always(mHeaderAPRFile == NULL);
     if (!mReadOnly)
     {
-        LLFile::write(mHeaderEntriesFileName, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
+        LLFile::write(mHeaderEntriesFilePath, (U8*)&mHeaderEntriesInfo, 0, sizeof(EntriesInfo));
     }
 }
 
