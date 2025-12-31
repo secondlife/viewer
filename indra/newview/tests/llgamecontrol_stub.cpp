@@ -1,5 +1,5 @@
 /**
- * @file llgamecontrol_stub.h
+ * @file llgamecontrol_stub.cpp
  * @brief Stubbery for LLGameControl
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
@@ -28,7 +28,7 @@
 
 #include "llgamecontrol.h"
 
-#include "SDL2/SDL_events.h"
+#include "SDL3/SDL_events.h"
 
 LLGameControl::State g_state;
 
