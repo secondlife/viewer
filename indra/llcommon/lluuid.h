@@ -103,6 +103,8 @@ public:
     friend LL_COMMON_API std::ostream&   operator<<(std::ostream& s, const LLUUID &uuid);
     friend LL_COMMON_API std::istream&   operator>>(std::istream& s, LLUUID &uuid);
 
+    void to_chars(char* out) const;
+    void to_wchars(wchar_t* out) const;
     void toString(std::string& out) const;
     void toCompressedString(std::string& out) const;
 

@@ -218,7 +218,8 @@ private:
 
     // HEADERS (Include first mip)
     std::string mHeaderEntriesFileName;
-    std::string mHeaderDataFileName;
+    std::filesystem::path mHeaderEntriesFilePath;
+    std::filesystem::path mHeaderDataFilePath;
     std::string mFastCacheFileName;
     EntriesInfo mHeaderEntriesInfo;
     std::set<S32> mFreeList; // deleted entries
