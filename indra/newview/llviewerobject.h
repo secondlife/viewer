@@ -126,13 +126,15 @@ class LLViewerObject
 protected:
     virtual ~LLViewerObject(); // use unref()
 
+private:
     // TomY: Provide for a list of extra parameter structures, mapped by structure name
     struct ExtraParameter
     {
-        bool in_use;
-        LLNetworkData *data;
+        bool is_invalid = false;
+        bool* in_use = nullptr;
+        LLNetworkData* data = nullptr;
     };
-    std::unordered_map<U16, ExtraParameter*> mExtraParameterList;
+    std::vector<ExtraParameter> mExtraParameterList;
 
 public:
     typedef std::list<LLPointer<LLViewerObject> > child_list_t;
@@ -630,10 +632,16 @@ public:
     void dirtySpatialGroup() const;
     virtual void dirtyMesh();
 
-    virtual LLNetworkData* getParameterEntry(U16 param_type) const;
-    virtual bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
-    virtual bool getParameterEntryInUse(U16 param_type) const;
-    virtual bool setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin);
+    LLFlexibleObjectData* getFlexibleObjectData() const { return mFlexibleObjectDataInUse ? mFlexibleObjectData.get() : nullptr; }
+    LLLightParams* getLightParams() const { return mLightParamsInUse ? mLightParams.get() : nullptr; }
+    LLSculptParams* getSculptParams() const { return mSculptParamsInUse ? mSculptParams.get() : nullptr; }
+    LLLightImageParams* getLightImageParams() const { return mLightImageParamsInUse ? mLightImageParams.get() : nullptr; }
+    LLExtendedMeshParams* getExtendedMeshParams() const { return mExtendedMeshParamsInUse ? mExtendedMeshParams.get() : nullptr; }
+    LLRenderMaterialParams* getRenderMaterialParams() const { return mRenderMaterialParamsInUse ? mRenderMaterialParams.get() : nullptr; }
+    LLReflectionProbeParams* getReflectionProbeParams() const { return mReflectionProbeParamsInUse ? mReflectionProbeParams.get() : nullptr; }
+
+    bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
+    bool setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin);
     // Called when a parameter is changed
     virtual void parameterChanged(U16 param_type, bool local_origin);
     virtual void parameterChanged(U16 param_type, LLNetworkData* data, bool in_use, bool local_origin);
@@ -675,8 +683,31 @@ private:
     bool isAssetInInventory(LLViewerInventoryItem* item, LLAssetType::EType type);
 
     ExtraParameter* createNewParameterEntry(U16 param_type);
-    ExtraParameter* getExtraParameterEntry(U16 param_type) const;
-    ExtraParameter* getExtraParameterEntryCreate(U16 param_type);
+    const ExtraParameter& getExtraParameterEntry(U16 param_type) const
+    {
+        return mExtraParameterList[U32(param_type >> 4) - 1];
+    }
+    ExtraParameter& getExtraParameterEntry(U16 param_type)
+    {
+        return mExtraParameterList[U32(param_type >> 4) - 1];
+    }
+    ExtraParameter* getExtraParameterEntryCreate(U16 param_type)
+    {
+        if (param_type <= LLNetworkData::PARAMS_MAX)
+        {
+            ExtraParameter& param = getExtraParameterEntry(param_type);
+            if (!param.is_invalid)
+            {
+                if (!param.data)
+                {
+                    ExtraParameter* new_entry = createNewParameterEntry(param_type);
+                    return new_entry;
+                }
+                return &param;
+            }
+        }
+        return nullptr;
+    }
     bool unpackParameterEntry(U16 param_type, LLDataPacker *dp);
 
     // This function checks to see if the given media URL has changed its version
@@ -748,6 +779,21 @@ public:
 private:
     // Grabbed from UPDATE_FLAGS
     U32             mFlags;
+
+    bool mFlexibleObjectDataInUse = false,
+        mLightParamsInUse = false,
+        mSculptParamsInUse = false,
+        mLightImageParamsInUse = false,
+        mExtendedMeshParamsInUse = false,
+        mRenderMaterialParamsInUse = false,
+        mReflectionProbeParamsInUse = false;
+    std::unique_ptr<LLFlexibleObjectData> mFlexibleObjectData;
+    std::unique_ptr<LLLightParams> mLightParams;
+    std::unique_ptr<LLSculptParams> mSculptParams;
+    std::unique_ptr<LLLightImageParams> mLightImageParams;
+    std::unique_ptr<LLExtendedMeshParams> mExtendedMeshParams;
+    std::unique_ptr<LLRenderMaterialParams> mRenderMaterialParams;
+    std::unique_ptr<LLReflectionProbeParams> mReflectionProbeParams;
 
     static std::map<std::string, U32> sObjectDataMap;
 public:

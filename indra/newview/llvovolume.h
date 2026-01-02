@@ -283,9 +283,9 @@ public:
     // Get the light color in sRGB color space scaled by intensity.
     LLColor3 getLightSRGBColor() const;
 
-    LLUUID  getLightTextureID() const;
+    const LLUUID&  getLightTextureID() const;
     bool isLightSpotlight() const;
-    LLVector3 getSpotLightParams() const;
+    const LLVector3& getSpotLightParams() const;
     void    updateSpotLightPriority();
     F32     getSpotLightPriority() const;
 
