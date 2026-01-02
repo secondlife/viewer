@@ -86,7 +86,9 @@ function root_install()
 
 function install_to_prefix()
 {
-    test -e "$1" && backup_previous_installation "$1"
+    if [[ -e "$1" && -z "$_NOBACKUP" ]]; then
+        backup_previous_installation "$1"
+    fi
     mkdir -p "$1" || die "Failed to create installation directory!"
 
     echo " - Installing to $1"
@@ -99,9 +101,17 @@ function backup_previous_installation()
     local backup_dir="$1".backup-$(date -I)
     echo " - Backing up previous installation to $backup_dir"
 
-    mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!"
+    mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!\nInvoke with NOBACKUP to skip the backup step!"
 }
 
+while [[ $1 ]]; do
+    case "$1" in
+        NOBACKUP)
+            _NOBACKUP=x
+            ;;
+    esac
+    shift
+done
 
 if [ "$UID" == "0" ]; then
     root_install
