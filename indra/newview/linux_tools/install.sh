@@ -38,14 +38,14 @@ function prompt()
 
 function die()
 {
-    warn $1
+    warn "$1"
     exit 1
 }
 
 function warn()
 {
     echo -n -e $_COLOR_RED
-    echo $1
+    echo -e "$1"
     echo -n -e $_STYLE_NORMAL
 }
 
