@@ -4281,8 +4281,8 @@ void LLMeshRepository::unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& me
     auto param_iter = lod.find(mesh_params.getSculptID());
     if (param_iter != lod.end())
     {
-        vector_replace_with_last(param_iter->second.mVolumes, vobj);
-        llassert(!vector_replace_with_last(param_iter->second.mVolumes, vobj));
+        param_iter->second.mVolumes.erase(vobj);
+        llassert(!param_iter->second.mVolumes.contains(vobj));
         if (param_iter->second.mVolumes.empty())
         {
             lod.erase(param_iter);
@@ -4298,8 +4298,8 @@ void LLMeshRepository::unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vob
     auto skin_pair_iter = mLoadingSkins.find(mesh_id);
     if (skin_pair_iter != mLoadingSkins.end())
     {
-        vector_replace_with_last(skin_pair_iter->second.mVolumes, vobj);
-        llassert(!vector_replace_with_last(skin_pair_iter->second.mVolumes, vobj));
+        skin_pair_iter->second.mVolumes.erase(vobj);
+        llassert(!skin_pair_iter->second.mVolumes.contains(vobj));
         if (skin_pair_iter->second.mVolumes.empty())
         {
             mLoadingSkins.erase(skin_pair_iter);
@@ -4349,7 +4349,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
         mesh_load_map::iterator iter = mLoadingMeshes[new_lod].find(mesh_id);
         if (iter != mLoadingMeshes[new_lod].end())
         { //request pending for this mesh, append volume id to list
-            auto it = std::find(iter->second.mVolumes.begin(), iter->second.mVolumes.end(), vobj);
+            auto it = iter->second.mVolumes.find(vobj);
             if (it == iter->second.mVolumes.end()) {
                 iter->second.addVolume(vobj);
             }
@@ -4847,7 +4847,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOV
             skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
             if (iter != mLoadingSkins.end())
             { //request pending for this mesh, append volume id to list
-                auto it = std::find(iter->second.mVolumes.begin(), iter->second.mVolumes.end(), requesting_obj);
+                auto it = iter->second.mVolumes.find(requesting_obj);
                 if (it == iter->second.mVolumes.end()) {
                     iter->second.addVolume(requesting_obj);
                 }
