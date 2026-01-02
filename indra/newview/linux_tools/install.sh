@@ -3,8 +3,12 @@
 # Install the Second Life Viewer. This script can install the viewer both
 # system-wide and for an individual user.
 
-VT102_STYLE_NORMAL='\E[0m'
-VT102_COLOR_RED='\E[31m'
+exec 3>&2 2> /dev/null
+if command -v tput > /dev/null ; then
+    _STYLE_NORMAL="$(tput sgr0)"
+    _COLOR_RED="$(tput setaf 9)"
+fi
+exec 2>&3 3>&-
 
 SCRIPTSRC=`readlink -f "$0" || echo "$0"`
 RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
@@ -40,9 +44,9 @@ function die()
 
 function warn()
 {
-    echo -n -e $VT102_COLOR_RED
+    echo -n -e $_COLOR_RED
     echo $1
-    echo -n -e $VT102_STYLE_NORMAL
+    echo -n -e $_STYLE_NORMAL
 }
 
 function homedir_install()
