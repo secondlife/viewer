@@ -4271,20 +4271,95 @@ S32 LLMeshRepository::update()
     return static_cast<S32>(size);
 }
 
-void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
+#ifdef SHOW_ASSERT
+// Brute-force remove the object from all loading queues. Returns true if
+// something was removed.
+// This function is used in a debug assert to ensure unregisterMesh and
+// unregisterSkinInfo are called as intended.
+// *TODO: Consider removing at some point if we feel confident about the code
+// working as intended.
+bool LLMeshRepository::forceUnregisterMesh(LLVOVolume* vobj)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    bool found = false;
+
     for (auto& lod : mLoadingMeshes)
     {
         for (auto& param : lod)
         {
-            vector_replace_with_last(param.second.mVolumes, vobj);
+            llassert(std::find(param.second.mVolumes.begin(), param.second.mVolumes.end(), vobj) == param.second.mVolumes.end());
+            found = found || vector_replace_with_last(param.second.mVolumes, vobj);
         }
     }
 
     for (auto& skin_pair : mLoadingSkins)
     {
-        vector_replace_with_last(skin_pair.second.mVolumes, vobj);
+        llassert(std::find(skin_pair.mVolumes.second.begin(), skin_pair.mVolumes.second.end(), vobj) == skin_pair.mVolumes.second.end());
+        found = found || vector_replace_with_last(skin_pair.second.mVolumes, vobj);
     }
+
+    return found;
+}
+#endif
+
+void LLMeshRepository::unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    llassert((mesh_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH);
+    llassert(mesh_params.getSculptID().notNull());
+    auto& lod = mLoadingMeshes[detail];
+    auto param_iter = lod.find(mesh_params.getSculptID());
+    if (param_iter != lod.end())
+    {
+        vector_replace_with_last(param_iter->second.mVolumes, vobj);
+        llassert(!vector_replace_with_last(param_iter->second.mVolumes, vobj));
+        if (param_iter->second.mVolumes.empty())
+        {
+            lod.erase(param_iter);
+        }
+    }
+}
+
+void LLMeshRepository::unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vobj)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    llassert(mesh_id.notNull());
+    auto skin_pair_iter = mLoadingSkins.find(mesh_id);
+    if (skin_pair_iter != mLoadingSkins.end())
+    {
+        vector_replace_with_last(skin_pair_iter->second.mVolumes, vobj);
+        llassert(!vector_replace_with_last(skin_pair_iter->second.mVolumes, vobj));
+        if (skin_pair_iter->second.mVolumes.empty())
+        {
+            mLoadingSkins.erase(skin_pair_iter);
+        }
+    }
+}
+
+// Lots of dead objects make expensive calls to
+// LLMeshRepository::unregisterMesh which may delay shutdown. Avoid this by
+// preemptively unregistering all meshes.
+// We can also do this safely if all objects are confirmed dead for some other
+// reason.
+void LLMeshRepository::unregisterAllMeshes()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    // The size of mLoadingMeshes and mLoadingSkins may be large and thus
+    // expensive to iterate over in LLVOVolume::~LLVOVolume.
+    // This is unnecessary during shutdown, so we ignore the referenced objects in the
+    // least expensive way which is still safe: by clearing these containers.
+    // Clear now and not in LLMeshRepository::shutdown because
+    // LLMeshRepository::notifyLoadedMeshes could (depending on invocation
+    // order) reference a pointer to an object after it has been deleted.
+    for (auto& lod : mLoadingMeshes)
+    {
+        lod.clear();
+    }
+    mLoadingSkins.clear();
 }
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 new_lod, S32 last_lod)
