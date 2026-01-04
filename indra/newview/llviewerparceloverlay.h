@@ -116,7 +116,10 @@ private:
 
     struct Edge
     {
-        std::vector<LLVector3> vertices[2]; // 0 - detailized, 1 - simplified
+        void pushVertex(U32 lod, F32 x, F32 y, F32 z, F32 water_z);
+        // LOD: 0 - detailized, 1 - simplified
+        std::vector<LLVector4a> verticesAboveWater[2];
+        std::vector<LLVector4a> verticesUnderWater[2];
         LLColor4U color;
     };
 
