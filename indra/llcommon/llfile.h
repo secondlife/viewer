@@ -56,12 +56,10 @@ typedef FILE LLFILE;
 #include "fsyspath.h"
 #include "llstring.h" // safe char* -> std::string conversion
 
-#ifndef TEXT
 #if LL_WINDOWS
-#define TEXT(flags) L##flags
+#define LLFILE_MODE(flags) L##flags
 #else
-#define TEXT(flags) flags
-#endif
+#define LLFILE_MODE(flags) flags
 #endif
 
 /// This class provides a selection of functions to operate on files through names and
@@ -415,7 +413,7 @@ public:
         std::error_code ec;
         return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
     }
-    inline static bool copy(const std::string& source, char* target)
+    inline static bool copy(const std::string& source, const char* target)
     {
         std::error_code ec;
         return copy(source, target, std::filesystem::copy_options::overwrite_existing, ec);
@@ -686,7 +684,7 @@ private:
 #else
     typedef int           llfile_handle_t;
     const llfile_handle_t InvalidHandle = -1;
-    llfile_handle_t       mHandle       = -1;; // The file handle/descriptor
+    llfile_handle_t       mHandle       = -1; // The file handle/descriptor
 #endif
 
     std::ios_base::openmode mOpen{}; // Used to emulate std::ios_base::app under Windows

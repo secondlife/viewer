@@ -1010,7 +1010,7 @@ bool LLDir::setCacheDir(const std::string &path)
     {
         LLFile::mkdir(path);
         std::string tempname = add(path, "temp");
-        LLFILE* file = LLFile::fopen(tempname, TEXT("wt"));
+        LLFILE* file = LLFile::fopen(tempname, LLFILE_MODE("wt"));
         if (file)
         {
             fclose(file);

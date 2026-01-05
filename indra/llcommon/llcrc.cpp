@@ -166,7 +166,7 @@ void LLCRC::update(const std::string& filename)
         return;
     }
 
-    FILE* fp = LLFile::fopen(filename, TEXT("rb"));       /* Flawfinder: ignore */
+    FILE* fp = LLFile::fopen(filename, LLFILE_MODE("rb")); /* Flawfinder: ignore */
 
     if (fp)
     {

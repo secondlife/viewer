@@ -420,7 +420,7 @@ void LLToolBarView::saveToolbars() const
     if(!output_node->isNull())
     {
         const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "toolbars.xml");
-        LLFILE *fp = LLFile::fopen(filename, TEXT("w"));
+        LLFILE *fp = LLFile::fopen(filename, LLFILE_MODE("w"));
         if (fp != NULL)
         {
             LLXMLNode::writeHeaderToFile(fp);

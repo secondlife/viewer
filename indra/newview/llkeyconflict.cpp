@@ -575,7 +575,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
             // Write the resulting XML to file
             if (!output_node->isNull())
             {
-                LLFILE *fp = LLFile::fopen(filename, TEXT("w"));
+                LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("w"));
                 if (fp != NULL)
                 {
                     LLXMLNode::writeHeaderToFile(fp);

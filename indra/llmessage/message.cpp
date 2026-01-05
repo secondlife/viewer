@@ -2376,7 +2376,7 @@ void dump_prehash_files()
 {
     U32 i;
     std::string filename("../../indra/llmessage/message_prehash.h");
-    LLFILE* fp = LLFile::fopen(filename, TEXT("w"));  /* Flawfinder: ignore */
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("w"));  /* Flawfinder: ignore */
     if (fp)
     {
         fprintf(
@@ -2407,7 +2407,7 @@ void dump_prehash_files()
         fclose(fp);
     }
     filename = std::string("../../indra/llmessage/message_prehash.cpp");
-    fp = LLFile::fopen(filename, TEXT("w"));  /* Flawfinder: ignore */
+    fp = LLFile::fopen(filename, LLFILE_MODE("w"));  /* Flawfinder: ignore */
     if (fp)
     {
         fprintf(

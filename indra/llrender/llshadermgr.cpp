@@ -501,7 +501,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
             open_file_name = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/errorF.glsl");
         }
 
-        file = LLFile::fopen(open_file_name, TEXT("r"));
+        file = LLFile::fopen(open_file_name, LLFILE_MODE("r"));
     }
     else
 #endif
@@ -529,7 +529,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
             */
 
             LL_DEBUGS("ShaderLoading") << "Looking in " << open_file_name << LL_ENDL;
-            file = LLFile::fopen(open_file_name, TEXT("r"));      /* Flawfinder: ignore */
+            file = LLFile::fopen(open_file_name, LLFILE_MODE("r")); /* Flawfinder: ignore */
             if (file)
             {
                 LL_DEBUGS("ShaderLoading") << "Loading file: " << open_file_name << " (Want class " << gpu_class << ")" << LL_ENDL;

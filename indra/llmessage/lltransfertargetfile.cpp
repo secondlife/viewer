@@ -75,7 +75,7 @@ LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, c
 
     if (!mFP)
     {
-        mFP = LLFile::fopen(mParams.mFilename, TEXT("wb"));       /* Flawfinder: ignore */
+        mFP = LLFile::fopen(mParams.mFilename, LLFILE_MODE("wb")); /* Flawfinder: ignore */
 
         if (!mFP)
         {
