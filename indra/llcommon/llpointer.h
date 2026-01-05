@@ -26,7 +26,7 @@
 #ifndef LLPOINTER_H
 #define LLPOINTER_H
 
-#include <boost/functional/hash.hpp>
+#include <functional>
 #include <string_view>
 #include <utility>                  // std::swap()
 
@@ -293,26 +293,14 @@ bool operator==(Type0* lhs, const LLPointer<Type1>& rhs)
     return (lhs == rhs.get());
 }
 
-// boost hash adapter
-template <class Type>
-struct boost::hash<LLPointer<Type>>
-{
-    typedef LLPointer<Type> argument_type;
-    typedef std::size_t result_type;
-    result_type operator()(argument_type const& s) const
-    {
-        return (std::size_t) s.get();
-    }
-};
-
-// Adapt boost hash to std hash
+// Specialize for std::hash
 namespace std
 {
     template<class Type> struct hash<LLPointer<Type>>
     {
         std::size_t operator()(LLPointer<Type> const& s) const noexcept
         {
-            return boost::hash<LLPointer<Type>>()(s);
+            return std::hash<Type*>()(s.get());
         }
     };
 }
