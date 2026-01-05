@@ -574,7 +574,7 @@ void LLFloaterUIPreview::onClickExportSchema()
 
     //  std::string file_name(template_path + gDirUtilp->getDirDelimiter() + widget_name + ".rng");
 
-    //  LLFILE* rng_file = LLFile::fopen(file_name.c_str(), TEXT("w"));
+    //  LLFILE* rng_file = LLFile::fopen(file_name.c_str(), LLFILE_MODE("w"));
     //  {
     //      LLXMLNode::writeHeaderToFile(rng_file);
     //      const bool use_type_decorations = false;

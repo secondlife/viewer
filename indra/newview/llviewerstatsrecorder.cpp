@@ -194,7 +194,7 @@ void LLViewerStatsRecorder::writeToLog( F32 interval )
 
         // Open the data file
         makeStatsFileName();
-        mStatsFile = LLFile::fopen(mStatsFileName, TEXT("wb"));
+        mStatsFile = LLFile::fopen(mStatsFileName, LLFILE_MODE("wb"));
 
         if (mStatsFile)
         {

@@ -62,7 +62,7 @@ void LLTransferSourceFile::initTransfer()
         return;
     }
     // Look for the file.
-    mFP = LLFile::fopen(mParams.getFilename(), TEXT("rb"));       /* Flawfinder: ignore */
+    mFP = LLFile::fopen(mParams.getFilename(), LLFILE_MODE("rb")); /* Flawfinder: ignore */
     if (!mFP)
     {
         sendTransferStatus(LLTS_ERROR);
