@@ -316,7 +316,6 @@ public:
 
     //virtual
     bool isRecentlyVisible() const;
-    LLViewerOctreePartition* getSpatialPartition()const {return mSpatialPartition;}
     bool isAnyRecentlyVisible() const;
 
     static U32 getNewOcclusionQueryObjectName();

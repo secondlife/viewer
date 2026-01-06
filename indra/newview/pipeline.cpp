@@ -2729,7 +2729,7 @@ void LLPipeline::clearRebuildGroups()
 
     mGroupQ1Locked = true;
     // Iterate through all drawables on the priority build queue,
-    for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
+    for (LLSpatialGroup::sg_vector_t::const_iterator iter = mGroupQ1.begin();
          iter != mGroupQ1.end(); ++iter)
     {
         LLSpatialGroup* group = *iter;

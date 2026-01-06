@@ -264,7 +264,7 @@ public:
 
     LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
 
-    bool isHUDGroup() ;
+    bool isHUDGroup() const;
 
     void clearDrawMap();
     void validate();
@@ -310,7 +310,7 @@ public:
     );
 
 
-    LLSpatialPartition* getSpatialPartition() {return (LLSpatialPartition*)mSpatialPartition;}
+    LLSpatialPartition* getSpatialPartition() const {return (LLSpatialPartition*)mSpatialPartition;}
 
      //LISTENER FUNCTIONS
     virtual void handleInsertion(const TreeNode* node, LLViewerOctreeEntry* face);
