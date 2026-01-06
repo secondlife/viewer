@@ -157,9 +157,12 @@ LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 {
     if ((persist != PERSIST_NO) && mComment.empty())
     {
-        // File isn't actually missing, but something is wrong with it
-        // so the main point is to warn user to reinstall
-        LLError::LLUserWarningMsg::showMissingFiles();
+        std::string error_string =
+            "Second Life failed to initialize settings. Setting " + mName + " is invalid. "
+            "Either settings' files were supplied incorrectly or default files were corrupted."
+            "\n\nPlease reinstall viewer from https://secondlife.com/support/downloads/ and "
+            "contact https://support.secondlife.com if issue persists after reinstall.";
+        LLError::LLUserWarningMsg::show(error_string);
         LL_ERRS() << "Must supply a comment for control " << mName << LL_ENDL;
     }
     //Push back versus setValue'ing here, since we don't want to call a signal yet
@@ -990,7 +993,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only
     return num_saved;
 }
 
-U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values, bool save_values)
+U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values, bool save_values, bool error_when_no_comment)
 {
     LLSD settings;
     llifstream infile;
@@ -1105,10 +1108,26 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
                 }
             }
 
+            std::string comment = control_map["Comment"].asString();
+            if (!error_when_no_comment
+                && !set_default_values
+                && comment.empty())
+            {
+                // Only error for default settings that should remind the developer to provide comments
+                // and otherwise indicate a problem with viewer's files.
+                // But permit this minor transgression in user's files.
+                // Otherwise user might have a hard time figuring out source of the error or how to fix it.
+                // Instead make setting to not persist so that unrecognized invalid settings won't be saved
+                // for the next run.
+                persist = LLControlVariable::PERSIST_NO;
+                comment = "Comment not provided, setting won't persist";
+                LL_WARNS() << "Control " << name << " is missing a comment value. Setting will be marked as PERSIST_NO" << LL_ENDL;
+            }
+
             declareControl(name,
                            typeStringToEnum(control_map["Type"].asString()),
                            control_map["Value"],
-                           control_map["Comment"].asString(),
+                           comment,
                            persist,
                            hidefromsettingseditor
                            );
