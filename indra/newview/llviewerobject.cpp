@@ -130,6 +130,7 @@ F64Seconds  LLViewerObject::sPhaseOutUpdateInterpolationTime(2.0);  // For motio
 F64Seconds  LLViewerObject::sMaxRegionCrossingInterpolationTime(1.0);// For motion interpolation: don't interpolate over this time on region crossing
 
 std::map<std::string, U32> LLViewerObject::sObjectDataMap;
+std::unordered_map<LLUUID, std::vector<LLViewerObject*>> LLViewerObject::sPendingUpdatesByOwner;
 
 // The maximum size of an object extra parameters binary (packed) block
 #define MAX_OBJECT_PARAMS_SIZE 1024
@@ -520,6 +521,8 @@ void LLViewerObject::markDead()
             mReflectionProbe->mViewerObject = nullptr;
             mReflectionProbe = nullptr;
         }
+
+        removeObjectFromPendingUpdate(this);
 
         sNumZombieObjects++;
     }
@@ -7749,6 +7752,61 @@ bool LLViewerObject::isReachable()
         }
     }
     return false;
+}
+
+void LLViewerObject::markObjectsForUpdate(const LLUUID& owner_id)
+{
+    sPendingUpdatesByOwner.erase(owner_id);
+    for (S32 i = 0; i < gObjectList.getNumObjects(); ++i)
+    {
+        LLViewerObject* obj = gObjectList.getObject(i);
+        if (!obj || obj->isDead() || obj->isAvatar() || obj->permYouOwner())
+        {
+            continue;
+        }
+        sPendingUpdatesByOwner[owner_id].push_back(obj);
+    }
+}
+
+void LLViewerObject::removeObjectFromPendingUpdate(LLViewerObject* obj)
+{
+    for (auto& [owner_id, objects] : sPendingUpdatesByOwner)
+    {
+        objects.erase(std::remove(objects.begin(), objects.end(), obj), objects.end());
+    }
+}
+
+bool LLViewerObject::isObjectInPendingUpdate(const LLUUID& owner_id, LLViewerObject* obj)
+{
+    if (!obj)
+    {
+        return false;
+    }
+    auto it = sPendingUpdatesByOwner.find(owner_id);
+    if (it != sPendingUpdatesByOwner.end())
+    {
+        const auto& objects = it->second;
+        return std::find(objects.begin(), objects.end(), obj) != objects.end();
+    }
+    return false;
+}
+
+void LLViewerObject::requestObjectUpdate()
+{
+    if (LLViewerRegion* regionp = getRegion())
+    {
+        LLMessageSystem* msg = gMessageSystem;
+        msg->newMessageFast(_PREHASH_RequestMultipleObjects);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        msg->nextBlockFast(_PREHASH_ObjectData);
+        msg->addU8Fast(_PREHASH_CacheMissType, 0);
+        msg->addU32Fast(_PREHASH_ID, getLocalID());
+        msg->sendReliable(regionp->getHost());
+
+        removeObjectFromPendingUpdate(this);
+    }
 }
 
 class ObjectPhysicsProperties : public LLHTTPNode

@@ -622,6 +622,11 @@ public:
     void setPhysicsDensity(F32 density);
     void setPhysicsRestitution(F32 restitution);
 
+    static void markObjectsForUpdate(const LLUUID& owner_id);
+    static void removeObjectFromPendingUpdate(LLViewerObject* obj);
+    static bool isObjectInPendingUpdate(const LLUUID& owner_id, LLViewerObject* obj);
+    void requestObjectUpdate();
+
     virtual void dump() const;
     static U32      getNumZombieObjects()           { return sNumZombieObjects; }
 
@@ -796,6 +801,7 @@ private:
     std::unique_ptr<LLReflectionProbeParams> mReflectionProbeParams;
 
     static std::map<std::string, U32> sObjectDataMap;
+    static std::unordered_map<LLUUID, std::vector<LLViewerObject*>> sPendingUpdatesByOwner;
 public:
     // Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
     U8              mPhysicsShapeType;
