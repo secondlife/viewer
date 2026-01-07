@@ -5523,7 +5523,6 @@ void LLPanelFace::LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(U8& diffuse_a
             U8 diffuse_mode = has_alpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
             return diffuse_mode;
         }
-        bool _isAlpha; // whether or not the diffuse texture selected contains alpha information
     } get_diff_mode;
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &get_diff_mode, diffuse_alpha_mode);
 }
