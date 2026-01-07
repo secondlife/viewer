@@ -652,7 +652,7 @@ public:
         static void getCurrent(LLMaterialPtr& material_ptr, bool& identical_material);
         static void getMaxSpecularRepeats(F32& repeats, bool& identical);
         static void getMaxNormalRepeats(F32& repeats, bool& identical);
-        static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical, bool diffuse_texture_has_alpha);
+        static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical);
         static void selectionNormalScaleAutofit(LLPanelFace* panel_face, F32 repeats_per_meter);
         static void selectionSpecularScaleAutofit(LLPanelFace* panel_face, F32 repeats_per_meter);
 
