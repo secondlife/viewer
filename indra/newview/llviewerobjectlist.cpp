@@ -174,7 +174,7 @@ bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
         U32 local_id = objectp->mLocalID;
         U64 indexid = (((U64)objectp->mRegionIndex) << 32) | (U64)local_id;
 
-        std::map<U64, LLUUID>::iterator iter = mIndexAndLocalIDToUUID.find(indexid);
+        auto iter = mIndexAndLocalIDToUUID.find(indexid);
         if (iter == mIndexAndLocalIDToUUID.end())
         {
             return false;
