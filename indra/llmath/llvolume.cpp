@@ -5171,7 +5171,7 @@ void LLVolumeFace::remap()
     // Documentation for meshopt_generateVertexRemapMulti claims that remap should use vertice count
     // but all examples use indice count. There are out of bounds crashes when using vertice count.
     // To be on the safe side use bigger of the two.
-    std::vector<unsigned int> remap(llmax(mNumIndices, mNumVertices));
+    std::vector<unsigned int> remap(llmax(mNumIndices, mNumVertices), 0);
     S32 remap_vertices_count = static_cast<S32>(LLMeshOptimizer::generateRemapMultiU16(&remap[0],
         mIndices,
         mNumIndices,
