@@ -33,6 +33,21 @@
 #include "llsdutil.h"
 #include "llstring.h"
 
+#if LL_WINDOWS
+#include <tchar.h>
+
+std::string get_default_editor()
+{
+    TCHAR sysroot[MAX_PATH];
+    DWORD len = GetEnvironmentVariableW(_T("SystemRoot"), sysroot, MAX_PATH);
+    if (len > 0 && len < MAX_PATH)
+    {
+        return ll_convert<std::string>(std::wstring(sysroot)) + "\\explorer.exe \"%s\"";
+    }
+    return std::string();
+}
+#endif
+
 // static
 const std::string LLExternalEditor::sFilenameMarker = "%s";
 
@@ -46,7 +61,8 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
     {
         LL_INFOS() << "Editor command is empty or not set, falling back to OS open handler" << LL_ENDL;
 #if LL_WINDOWS
-        static const std::string os_cmd = "%SystemRoot%\\explorer.exe \"%s\"";
+        // Use GetEnvironmentVariable to expand SystemRoot
+        static const std::string os_cmd = get_default_editor();
 #elif LL_DARWIN
         static const std::string os_cmd = "/usr/bin/open \"%s\"";
 #elif LL_LINUX
