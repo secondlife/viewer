@@ -1547,11 +1547,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>874a7d2bc843554aa4facd03b3a6d681f2b5150c</string>
+              <string>3692af717636da9c2b1e0f13eb084ce022b67f6c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v220-r1/meshoptimizer-220.0.0-r1-darwin64-11968851109.tar.zst</string>
+              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v1.0.1-9d6a006/meshoptimizer-1.0.1-9d6a006-darwin64-20867041007.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1561,11 +1561,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>31a537f1a3d38ef85443214315111dd56a534d9a</string>
+              <string>22ad1be39a1196a1ca3902ba936460cb69252b9c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v220-r1/meshoptimizer-220.0.0-r1-linux64-11968851109.tar.zst</string>
+              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v1.0.1-9d6a006/meshoptimizer-1.0.1-9d6a006-linux64-20867041007.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1575,11 +1575,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6fd727a9ccb3e7a6c6b4ffef8179e266c032eb3e</string>
+              <string>2c9769f31da5de3920d7ee400d280398c911a30f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v220-r1/meshoptimizer-220.0.0-r1-windows64-11968851109.tar.zst</string>
+              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v1.0.1-9d6a006/meshoptimizer-1.0.1-9d6a006-windows64-20867041007.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
