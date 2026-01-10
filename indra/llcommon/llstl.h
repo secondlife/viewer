@@ -34,6 +34,7 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <typeindex>
 #include <typeinfo>
 
 #ifdef LL_LINUX
@@ -717,5 +718,12 @@ namespace ll
         [[nodiscard]] size_t operator()(const std::string& rhs) const { return std::hash<std::string>{}(rhs); }
     };
 } // namespace ll
+
+// Specialize ostream for std::type_index to allow log output
+inline std::ostream& operator<<(std::ostream& s, std::type_index type)
+{
+    s << type.name();
+    return s;
+}
 
 #endif // LL_LLSTL_H

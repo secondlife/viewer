@@ -253,7 +253,7 @@ const LLInitParam::BaseBlock& get_empty_param_block()
 
 // adds a widget and its param block to various registries
 //static
-void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, const std::string& name)
+void LLUICtrlFactory::registerWidget(std::type_index widget_type, std::type_index param_block_type, const std::string& name)
 {
     // associate parameter block type with template .xml file
     std::string* existing_name = LLWidgetNameRegistry::instance().getValue(param_block_type);
