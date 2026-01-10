@@ -70,7 +70,6 @@ namespace LLError
         Setting a level means log messages at that level or above.
     */
 
-    LL_COMMON_API void setPrintLocation(bool);
     LL_COMMON_API void setDefaultLevel(LLError::ELevel);
     LL_COMMON_API ELevel getDefaultLevel();
     LL_COMMON_API void setAlwaysFlush(bool flush);

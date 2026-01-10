@@ -33,8 +33,10 @@
 #include "llrect.h"
 #include "llrefcount.h"
 #include "llinstancetracker.h"
+#include "llstl.h"
 
 #include <functional>
+#include <unordered_map>
 #include <vector>
 
 #include <boost/signals2.hpp>
@@ -165,7 +167,7 @@ class LLControlGroup : public LLInstanceTracker<LLControlGroup, std::string>
     LOG_CLASS(LLControlGroup);
 
 protected:
-    typedef std::map<std::string, LLControlVariablePtr, std::less<> > ctrl_name_table_t;
+    using ctrl_name_table_t = std::unordered_map<std::string, LLControlVariablePtr, ll::string_hash, std::equal_to<>>;
     ctrl_name_table_t mNameTable;
     static const std::string mTypeString[TYPE_COUNT];
 

@@ -946,7 +946,7 @@ public:
     typedef std::vector<std::string> TemplateNames;
     TemplateNames getTemplateNames() const;  // returns a list of notification names
 
-    typedef std::map<std::string, LLNotificationTemplatePtr, std::less<>> TemplateMap;
+    typedef std::unordered_map<std::string, LLNotificationTemplatePtr, ll::string_hash, std::equal_to<>> TemplateMap;
 
     TemplateMap::const_iterator templatesBegin() { return mTemplates.begin(); }
     TemplateMap::const_iterator templatesEnd() { return mTemplates.end(); }
@@ -992,7 +992,7 @@ private:
 
     LLNotificationMap mUniqueNotifications;
 
-    typedef std::map<std::string, std::string, std::less<>> GlobalStringMap;
+    typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> GlobalStringMap;
     GlobalStringMap mGlobalStrings;
 
     bool mIgnoreAllNotifications;
