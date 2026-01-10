@@ -25,10 +25,10 @@
 #ifndef LLSINGLETON_H
 #define LLSINGLETON_H
 
-#include <boost/unordered_set.hpp>
 #include <initializer_list>
 #include <list>
 #include <typeinfo>
+#include <unordered_set>
 #include <vector>
 #include "mutex.h"
 #include "lockstatic.h"
@@ -61,7 +61,7 @@ private:
     static vec_t dep_sort();
 
     // we directly depend on these other LLSingletons
-    typedef boost::unordered_set<LLSingletonBase*> set_t;
+    typedef std::unordered_set<LLSingletonBase*> set_t;
     set_t mDepends;
 
 protected:

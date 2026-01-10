@@ -442,7 +442,7 @@ public:
     LLCondition* mSignal;
 
     //map of known mesh headers
-    typedef boost::unordered_map<LLUUID, LLMeshHeader> mesh_header_map; // pair is header_size and data
+    typedef std::unordered_map<LLUUID, LLMeshHeader> mesh_header_map; // pair is header_size and data
     mesh_header_map mMeshHeader;
 
     class HeaderRequest : public RequestStats

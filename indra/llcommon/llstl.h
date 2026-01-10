@@ -229,12 +229,10 @@ void delete_and_clear_array(T*& ptr)
 template <typename T>
 inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_type const& key)
 {
-    // Typedef here avoids warnings because of new c++ naming rules.
-    typedef typename T::const_iterator map_iter;
-    map_iter iter = inmap.find(key);
+    auto iter = inmap.find(key);
     if(iter == inmap.end())
     {
-        return NULL;
+        return nullptr;
     }
     else
     {
@@ -243,8 +241,8 @@ inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_ty
 };
 
 // helper function which returns true if key is in inmap.
-template <typename K, typename T>
-inline bool is_in_map(const std::map<K,T>& inmap, const K& key)
+template <typename T>
+inline bool is_in_map(const T& inmap, typename T::key_type const& key)
 {
     if(inmap.find(key) == inmap.end())
     {
@@ -260,12 +258,10 @@ inline bool is_in_map(const std::map<K,T>& inmap, const K& key)
 // To replace LLSkipMap getIfThere, use:
 //   get_if_there(map, key, 0)
 // WARNING: Make sure default_value (generally 0) is not a valid map entry!
-template <typename K, typename T>
-inline T get_if_there(const std::map<K,T>& inmap, const K& key, T default_value)
+template <typename T>
+inline typename T::mapped_type get_if_there(const T& inmap, typename T::key_type const& key, typename T::mapped_type default_value)
 {
-    // Typedef here avoids warnings because of new c++ naming rules.
-    typedef typename std::map<K,T>::const_iterator map_iter;
-    map_iter iter = inmap.find(key);
+    auto iter = inmap.find(key);
     if(iter == inmap.end())
     {
         return default_value;

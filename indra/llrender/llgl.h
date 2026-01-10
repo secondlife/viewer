@@ -31,7 +31,7 @@
 
 #include <functional>
 #include <string>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include <list>
 
 #include "llerror.h"
@@ -246,7 +246,7 @@ public:
     static void checkStates(GLboolean writeAlpha = GL_TRUE);
 
 protected:
-    static boost::unordered_map<LLGLenum, LLGLboolean> sStateMap;
+    static std::unordered_map<LLGLenum, LLGLboolean> sStateMap;
 
 public:
     enum { CURRENT_STATE = -2, DISABLED_STATE = 0, ENABLED_STATE = 1 };
