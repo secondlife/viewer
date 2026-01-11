@@ -91,6 +91,8 @@ LLDiskCache::LLDiskCache(const std::string& cache_dir,
 // asset will have to be re-requested.
 void LLDiskCache::purge()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (mEnableCacheDebugInfo)
     {
         LL_INFOS() << "Total dir size before purge is " << dirFileSize(sCacheDir) << LL_ENDL;

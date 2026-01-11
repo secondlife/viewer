@@ -761,6 +761,7 @@ void LLControlGroup::setUntypedValue(std::string_view name, const LLSD& val)
 // Returns number of controls loaded, so 0 if failure
 U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, bool require_declaration, eControlType declare_as)
 {
+    LL_PROFILE_ZONE_SCOPED;
     std::string name;
 
     LLXmlTree xml_controls;
@@ -995,6 +996,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only
 
 U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values, bool save_values, bool error_when_no_comment)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLSD settings;
     llifstream infile;
     infile.open(filename.c_str());

@@ -582,6 +582,8 @@ std::vector<LLMute> LLMuteList::getMutes() const
 //-----------------------------------------------------------------------------
 bool LLMuteList::loadFromFile(const std::string& filename)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if(!filename.size())
     {
         LL_WARNS() << "Mute List Filename is Empty!" << LL_ENDL;
@@ -962,6 +964,8 @@ bool LLRenderMuteList::saveToFile()
 
 bool LLRenderMuteList::loadFromFile()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "render_mute_settings.txt");
     LLFILE* fp = LLFile::fopen(filename, "rb");
     if (!fp)

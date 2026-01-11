@@ -735,6 +735,8 @@ public:
 
 bool LLAppViewer::init()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     setupErrorHandling(mSecondInstance);
 
     //
@@ -936,6 +938,7 @@ bool LLAppViewer::init()
         // Early out from user choice.
         LL_WARNS("InitInfo") << "initHardwareTest() failed." << LL_ENDL;
         // quit immediately
+        LL_PROFILER_FRAME_END;
         return false;
     }
     LL_INFOS("InitInfo") << "Hardware test initialization done." << LL_ENDL ;
@@ -954,6 +957,7 @@ bool LLAppViewer::init()
         OSMessageBox(msg.c_str(), LLStringUtil::null, OSMB_OK);
         LL_WARNS("InitInfo") << "Failed to init cache" << LL_ENDL;
         // quit immediately
+        LL_PROFILER_FRAME_END;
         return false;
     }
     LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
@@ -989,6 +993,7 @@ bool LLAppViewer::init()
         // Already handled with a MBVideoDrvErr
         LL_WARNS("InitInfo") << "gGLManager.mHasRequirements is false." << LL_ENDL;
         // quit immediately
+        LL_PROFILER_FRAME_END;
         return false;
     }
 
@@ -1002,6 +1007,7 @@ bool LLAppViewer::init()
         OSMessageBox(msg.c_str(), LLStringUtil::null, OSMB_OK);
         LL_WARNS("InitInfo") << "SSE2 is not supported" << LL_ENDL;
         // quit immediately
+        LL_PROFILER_FRAME_END;
         return false;
     }
 #endif
@@ -1272,7 +1278,7 @@ bool LLAppViewer::init()
         gDirUtilp->deleteDirAndContents(gDirUtilp->getDumpLogsDirPath());
     }
 #endif
-
+    LL_PROFILER_FRAME_END;
     return true;
 }
 
@@ -2194,6 +2200,8 @@ void LLAppViewer::initGeneralThread()
 
 bool LLAppViewer::initThreads()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     static const bool enable_threads = true;
 
     LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
@@ -3041,6 +3049,8 @@ bool LLAppViewer::initConfiguration()
 // keeps growing, necessitating a method all its own.
 void LLAppViewer::initStrings()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     std::string strings_file = "strings.xml";
     std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
     if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
@@ -3130,6 +3140,7 @@ void LLAppViewer::sendOutOfDiskSpaceNotification()
 
 bool LLAppViewer::initWindow()
 {
+    LL_PROFILE_ZONE_SCOPED;
     LL_INFOS("AppInit") << "Initializing window..." << LL_ENDL;
 
     // store setting in a global for easy access and modification
@@ -4368,6 +4379,7 @@ U32 LLAppViewer::getObjectCacheVersion()
 
 bool LLAppViewer::initCache()
 {
+    LL_PROFILE_ZONE_SCOPED;
     mPurgeCache = false;
     bool read_only = mSecondInstance;
     LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
@@ -4516,6 +4528,7 @@ void LLAppViewer::loadKeyBindings()
 // As per GHI #4498, remove old, stale CEF cache folders from previous sessions
 void LLAppViewer::purgeCefStaleCaches()
 {
+    LL_PROFILE_ZONE_SCOPED;
     // TODO: we really shouldn't use a hard coded name for the cache folder here...
     const std::string browser_parent_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
     if (LLFile::isdir(browser_parent_cache))
@@ -4723,6 +4736,8 @@ std::string get_name_cache_filename(const std::string &base_file, const std::str
 
 void LLAppViewer::loadNameCache()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     // display names cache
     std::string filename = get_name_cache_filename("avatar_name_cache", "xml");
     LL_INFOS("AvNameCache") << filename << LL_ENDL;

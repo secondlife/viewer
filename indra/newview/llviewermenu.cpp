@@ -473,6 +473,8 @@ void check_merchant_status(bool force)
 
 void init_menus()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     // Initialize actions
     initialize_menus();
 
@@ -9689,6 +9691,8 @@ void initialize_spellcheck_menu()
 
 void initialize_menus()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     // A parameterized event handler used as ctrl-8/9/0 zoom controls below.
     class LLZoomer : public view_listener_t
     {
