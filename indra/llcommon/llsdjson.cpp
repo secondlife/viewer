@@ -66,7 +66,7 @@ LLSD LlsdFromJson(const boost::json::value& val)
         const boost::json::array& array = val.as_array();
         size_t size = array.size();
         // allocate elements 0 .. (size() - 1) to avoid incremental allocation
-        if (! array.empty())
+        if (!array.empty())
         {
             result[size - 1] = LLSD();
         }
@@ -80,7 +80,7 @@ LLSD LlsdFromJson(const boost::json::value& val)
         result = LLSD::emptyMap();
         for (const auto& element : val.as_object())
         {
-            result[element.key()] = LlsdFromJson(element.value());
+            result[std::string_view(element.key())] = LlsdFromJson(element.value());
         }
         break;
     }
