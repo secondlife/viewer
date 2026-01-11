@@ -214,7 +214,7 @@ std::string LLGLTFMaterial::asJSON(bool prettyprint) const
     // to WriteGltfSceneToStream in the viewer.
     gltf.WriteGltfSceneToStream(&model_out, str, prettyprint, false);
 
-    return str.str();
+    return std::move(str).str();
 }
 
 void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
