@@ -144,6 +144,10 @@ private:
 
 };
 
+struct MainPanel : public LLPanel
+{
+};
+
 static const U32 MAX_SNAPSHOT_IMAGE_SIZE = 7680; // max snapshot image size 7680 * 7680 UHDTV2
 
 class LLViewerWindow : public LLWindowCallbacks
@@ -248,6 +252,7 @@ public:
     // ACCESSORS
     //
     LLRootView*         getRootView()       const;
+    MainPanel*          getMainView()       const { return mMainView; }
 
     // 3D world area in scaled pixels (via UI scale), use for most UI computations
     LLRect          getWorldViewRectScaled() const;
@@ -501,6 +506,7 @@ private:
     LLRect          mWorldViewRectRaw;          // area of screen for 3D world
     LLRect          mWorldViewRectScaled;       // area of screen for 3D world scaled by UI size
     LLRootView*     mRootView;                  // a view of size mWindowRectRaw, containing all child views
+    MainPanel*      mMainView;                  // a view of size mWindowRectRaw, directly containing the base elements of the ui tree
     LLView*         mFloaterSnapRegion = nullptr;
     LLView*         mNavBarContainer = nullptr;
     LLPanel*        mStatusBarContainer = nullptr;
