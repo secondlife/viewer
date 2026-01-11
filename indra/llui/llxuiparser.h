@@ -247,7 +247,7 @@ private:
     S32                             mCurReadDepth;
     std::string                     mCurFileName;
     std::string                     mTextContents;
-    const char*                     mCurAttributeValueBegin;
+    std::string                     mCurAttributeValueBegin;
     std::vector<S32>                mTokenSizeStack;
     std::vector<std::string>        mScope;
     std::vector<bool>               mEmptyLeafNode;
