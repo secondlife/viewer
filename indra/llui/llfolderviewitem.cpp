@@ -2365,9 +2365,10 @@ bool LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
         {
             // navigating is going to destroy views and change children
             // delay it untill handleDoubleClick processing is complete
-            doOnIdleOneTime([this]()
-                            {
-                                getViewModelItem()->navigateToFolder(false);
+            LLPointer<LLFolderViewModelItem> view_model_item = getViewModelItem();
+            doOnIdleOneTime([view_model_item]() mutable
+                            {;
+                                view_model_item->navigateToFolder(false);
                             });
         }
         return true;
