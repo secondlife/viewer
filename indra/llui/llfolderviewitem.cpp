@@ -28,6 +28,7 @@
 #include "llflashtimer.h"
 
 #include "linden_common.h"
+#include "llapp.h"
 #include "llfolderviewitem.h"
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
@@ -1884,6 +1885,11 @@ void LLFolderViewFolder::updateHasFavorites(bool new_childs_value)
 void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
 {
     LLFolderViewFolder* self = reinterpret_cast<LLFolderViewFolder*>(data);
+    if (gDisconnected || !self)
+    {
+        return;
+    }
+
     if (self->mFavoritesDirtyFlags == FAVORITE_CLEANUP)
     {
         // parent or child already processed the update, clean the callback

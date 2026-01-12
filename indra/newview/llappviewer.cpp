@@ -343,9 +343,6 @@ F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
 S32 gPendingMetricsUploads = 0;
 
-
-bool gDisconnected = false;
-
 // Used to restore texture state after a mode switch
 LLFrameTimer gRestoreGLTimer;
 bool gRestoreGL = false;

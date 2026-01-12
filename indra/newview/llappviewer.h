@@ -417,8 +417,6 @@ extern S32 gPendingMetricsUploads;
 extern F32 gSimLastTime;
 extern F32 gSimFrames;
 
-extern bool     gDisconnected;
-
 extern LLFrameTimer gRestoreGLTimer;
 extern bool         gRestoreGL;
 extern bool     gUseWireframe;
