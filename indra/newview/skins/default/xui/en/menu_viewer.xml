@@ -2601,18 +2601,6 @@ function="World.EnvPreset"
                  parameter="fast timers" />
             </menu_item_check>
             <menu_item_check
-             label="Memory"
-             name="Memory"
-             shortcut="control|shift|0"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="Advanced.CheckConsole"
-                 parameter="memory view" />
-                <menu_item_check.on_click
-                 function="Advanced.ToggleConsole"
-                 parameter="memory view" />
-            </menu_item_check>
-            <menu_item_check
                label="Scene Statistics"
                name="Scene Statistics">
               <menu_item_check.on_check

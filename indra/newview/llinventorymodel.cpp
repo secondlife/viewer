@@ -3456,7 +3456,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
         }
 
         {
-            LL_PROFILE_ZONE_NAMED("inventory load from file - categories");
+            LL_PROFILE_ZONE_NAMED("inventory load from file - items");
             const LLSD& llsd_items = inventory["items"];
             if (llsd_items.isArray())
             {

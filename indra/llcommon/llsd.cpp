@@ -351,18 +351,7 @@ namespace
 
     LLSD::Real ImplString::asReal() const
     {
-        F64 v = 0.0;
-        boost::iostreams::stream<boost::iostreams::array_source> i_stream(mValue.data(), mValue.size());
-        i_stream >> v;
-
-        // we would probably like to ignore all trailing whitespace as
-        // well, but for now, simply eat the next character, and make
-        // sure we reached the end of the string.
-        // *NOTE: gcc 2.95 does not generate an eof() event on the
-        // stream operation above, so we manually get here to force it
-        // across platforms.
-        int c = i_stream.get();
-        return ((EOF ==c) ? v : 0.0);
+        return llsd::string_to_real(mValue);
     }
 
 
@@ -1263,6 +1252,22 @@ LLSD::reverse_array_iterator    LLSD::rendArray()       { return makeArray(impl)
 
 namespace llsd
 {
+
+LLSD::Real string_to_real(std::string_view in_string)
+{
+    LLSD::Real v = 0.0;
+    boost::iostreams::stream<boost::iostreams::array_source> i_stream(in_string.data(), in_string.size());
+    i_stream >> v;
+
+    // we would probably like to ignore all trailing whitespace as
+    // well, but for now, simply eat the next character, and make
+    // sure we reached the end of the string.
+    // *NOTE: gcc 2.95 does not generate an eof() event on the
+    // stream operation above, so we manually get here to force it
+    // across platforms.
+    int c = i_stream.get();
+    return ((EOF == c) ? v : 0.0);
+}
 
 U32 allocationCount()                               { return LLSD::Impl::sAllocationCount; }
 U32 outstandingCount()                              { return LLSD::Impl::sOutstandingCount; }

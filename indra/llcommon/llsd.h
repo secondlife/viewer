@@ -545,6 +545,8 @@ LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLSD& llsd);
 
 namespace llsd
 {
+    // Used by LLSD::ImplString to convert string type to real
+    LLSD::Real string_to_real(std::string_view in_string);
 
 #ifdef LLSD_DEBUG_INFO
 /** @name Unit Testing Interface */

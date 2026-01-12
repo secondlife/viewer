@@ -712,7 +712,7 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 
         case ELEMENT_KEY:
             mCurrentKey = std::move(mCurrentContent); // This is safe to move as we are in the end element handler
-            mCurrentContent.clear(); // Clear to reset to valid state
+            mCurrentContent.clear(); // Ensure mCurrentContent is empty for subsequent use
             return;
 
         default:
@@ -745,38 +745,21 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
                 }
                 else
                 {
-                    // This implementation is copied from llsd.cpp
-                    F64 v = 0.0;
-                    boost::iostreams::stream<boost::iostreams::array_source> i_stream(mCurrentContent.data(), mCurrentContent.size());
-                    i_stream >> v;
+                    // This must treat "1.23" not as an error, but as a number, which is
+                    // then truncated down to an integer.  Hence, this code doesn't call
+                    // std::istringstream::operator>>(int&), which would not consume the
+                    // ".23" portion.
 
-                    // we would probably like to ignore all trailing whitespace as
-                    // well, but for now, simply eat the next character, and make
-                    // sure we reached the end of the string.
-                    // *NOTE: gcc 2.95 does not generate an eof() event on the
-                    // stream operation above, so we manually get here to force it
-                    // across platforms.
-                    int c = i_stream.get();
-                    value = (int)((EOF == c) ? v : 0.0);
+                    // Utilizes implementation used internally by LLSD::ImplString::asInteger
+                    value = (int)llsd::string_to_real(mCurrentContent);
                 }
             }
             break;
 
         case ELEMENT_REAL:
             {
-                // This implementation is copied from llsd.cpp
-                F64 v = 0.0;
-                boost::iostreams::stream<boost::iostreams::array_source> i_stream(mCurrentContent.data(), mCurrentContent.size());
-                i_stream >> v;
-
-                // we would probably like to ignore all trailing whitespace as
-                // well, but for now, simply eat the next character, and make
-                // sure we reached the end of the string.
-                // *NOTE: gcc 2.95 does not generate an eof() event on the
-                // stream operation above, so we manually get here to force it
-                // across platforms.
-                int c = i_stream.get();
-                value = ((EOF == c) ? v : 0.0);
+                // Utilizes implementation used internally by LLSD::ImplString::asReal
+                value = llsd::string_to_real(mCurrentContent);
 
                 // removed since this breaks when locale has decimal separator that isn't '.'
                 // investigated changing local to something compatible each time but deemed higher

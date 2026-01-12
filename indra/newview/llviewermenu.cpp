@@ -413,7 +413,23 @@ static LLSLMMenuUpdater* gSLMMenuUpdater = NULL;
 
 LLSLMMenuUpdater::LLSLMMenuUpdater()
 {
-    mMarketplaceListingsItem = gMenuHolder->getChild<LLView>("Me")->getChild<LLView>("MarketplaceListings")->getHandle();
+    LLView* me_menu = gMenuHolder->findChild<LLView>("Me");
+    if (!me_menu)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find 'Me' menu in 'menu_viewer'" << LL_ENDL;
+        return;
+    }
+
+    LLView* marketplace_listings = me_menu->findChild<LLView>("MarketplaceListings");
+    if (!marketplace_listings)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find 'MarketplaceListings' in 'Me' menu" << LL_ENDL;
+        return;
+    }
+
+    mMarketplaceListingsItem = marketplace_listings->getHandle();
 }
 void LLSLMMenuUpdater::setMerchantMenu()
 {
@@ -551,7 +567,29 @@ void init_menus()
         color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
     }
 
-    LLView* menu_bar_holder = gViewerWindow->getMainView()->findChildView("menu_stack")->findChildView("status_bar_container")->getChildView("menu_bar_holder");
+    LLView* menu_stack = gViewerWindow->getMainView()->findChildView("menu_stack");
+    if (!menu_stack)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find menu_stack in main_view" << LL_ENDL;
+        return;
+    }
+
+    LLView* status_bar_container = menu_stack->findChildView("status_bar_container");
+    if (!status_bar_container)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find status_bar_container in main_view" << LL_ENDL;
+        return;
+    }
+
+    LLView* menu_bar_holder = status_bar_container->findChildView("menu_bar_holder");
+    if (!menu_bar_holder)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find status_bar_container in main_view" << LL_ENDL;
+        return;
+    }
 
     gMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_viewer.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     gMenuBarView->setRect(LLRect(0, menu_bar_holder->getRect().mTop, 0, menu_bar_holder->getRect().mTop - MENU_BAR_HEIGHT));
@@ -567,8 +605,31 @@ void init_menus()
     const std::string animation_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getAnimationUploadCost());
 
     LLView* main_upload_menu = gMenuHolder->findChild<LLView>("Upload");
-    main_upload_menu->findChild<LLView>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
-    main_upload_menu->findChild<LLView>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
+    if (!main_upload_menu)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find 'Upload' menu in 'menu_viewer'" << LL_ENDL;
+        return;
+    }
+
+    LLView* upload_sound = main_upload_menu->findChild<LLView>("Upload Sound");
+    if (!upload_sound)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find 'Upload Sound' menu item in 'Upload' menu" << LL_ENDL;
+        return;
+    }
+    upload_sound->setLabelArg("[COST]", sound_upload_cost_str);
+
+    LLView* upload_anim = main_upload_menu->findChild<LLView>("Upload Animation");
+    if (!upload_anim)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Can't find 'Upload Animation' menu item in 'Upload' menu" << LL_ENDL;
+        return;
+    }
+    upload_anim->setLabelArg("[COST]", animation_upload_cost_str);
+
 
     gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", true);
     gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", true);
