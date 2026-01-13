@@ -85,9 +85,9 @@ void LLGameControlTranslator::setMappings(LLGameControlTranslator::NamedChannels
     mPrevActiveFlags = 0;
     mCachedState.clear();
 
-    for (const auto& named_channel : named_channels)
+    for (const auto& [name, channel] : named_channels)
     {
-        updateMap(named_channel.first, named_channel.second);
+        updateMap(name, channel);
     }
 }
 
@@ -161,9 +161,9 @@ void LLGameControlTranslator::updateMap(const std::string& action, const LLGameC
 
     // recompute mMappedFlags
     mMappedFlags = 0;
-    for (auto& pair : mMaskToChannel)
+    for (const auto& [mask, channel] : mMaskToChannel)
     {
-        mMappedFlags |= pair.first;
+        mMappedFlags |= mask;
     }
     mPrevActiveFlags = 0;
     mCachedState.clear();
@@ -185,12 +185,10 @@ const LLGameControl::State& LLGameControlTranslator::computeStateFromFlags(U32 a
     if (active_flags != mPrevActiveFlags)
     {
         mCachedState.clear();
-        for (const auto& pair : mMaskToChannel)
+        for (const auto& [mask, channel] : mMaskToChannel)
         {
-            U32 mask = pair.first;
             if (mask == (mask & action_flags))
             {
-                LLGameControl::InputChannel channel = pair.second;
                 if (channel.isAxis())
                 {
                     if (channel.mSign < 0)
@@ -220,22 +218,20 @@ U32 LLGameControlTranslator::computeFlagsFromState(const std::vector<S32>& axes,
     // HACK: supply hard-coded threshold for ON/OFF zones
     constexpr S32 AXIS_THRESHOLD = 32768 / 8;
     U32 action_flags = 0;
-    for (const auto& pair : mMaskToChannel)
+    for (const auto& [mask, channel] : mMaskToChannel)
     {
-        // pair = { mask, channel }
-        const LLGameControl::InputChannel& channel = pair.second;
         if (channel.isAxis())
         {
             if (channel.mSign < 0)
             {
                 if (axes[channel.mIndex] < -AXIS_THRESHOLD)
                 {
-                    action_flags |= pair.first;
+                    action_flags |= mask;
                 }
             }
             else if (axes[channel.mIndex] > AXIS_THRESHOLD)
             {
-                action_flags |= pair.first;
+                action_flags |= mask;
             }
         }
         else if (channel.isButton())
@@ -243,7 +239,7 @@ U32 LLGameControlTranslator::computeFlagsFromState(const std::vector<S32>& axes,
             U32 bit_set = buttons & (0x01U << channel.mIndex);
             if (bit_set)
             {
-                action_flags |= pair.first;
+                action_flags |= mask;
             }
         }
     }
