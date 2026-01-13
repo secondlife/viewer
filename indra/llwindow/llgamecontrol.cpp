@@ -1605,7 +1605,7 @@ void LLGameControl::processEvents(bool app_has_focus)
 {
     if (!gSDLMainHandled)
     {
-        // This method used by non-linux platforms which only use SDL for GameController input
+        // This logic is used by non-linux platforms which only use SDL for GameController input
         SDL_Event event;
         while (g_gameControl && SDL_PollEvent(&event))
         {
