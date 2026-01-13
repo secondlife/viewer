@@ -56,6 +56,7 @@ void LLFloaterMarketplace::onOpen(const LLSD& key)
     else
     {
         openMarketplaceURL(params.url);
+        set_current_url(params.url); // Fix looping back to previous url when using the viewer navigation bar
     }
 }
 
