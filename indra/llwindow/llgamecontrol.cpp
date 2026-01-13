@@ -1158,11 +1158,11 @@ static std::string getMappings(const std::vector<std::string>& actions, LLGameCo
         if (channel.mType == type)
         {
             bool mapping_differs = false;
-            for (const auto& pair : default_mappings)
+            for (const auto& [name, default_channel] : default_mappings)
             {
-                if (pair.first == action)
+                if (name == action)
                 {
-                    mapping_differs = !channel.isEqual(pair.second);
+                    mapping_differs = !channel.isEqual(default_channel);
                     break;
                 }
             }
@@ -2089,12 +2089,12 @@ void LLGameControl::saveToSettings()
 
     // construct LLSD version of g_deviceOptions but only include non-empty values
     LLSD deviceOptions = LLSD::emptyMap();
-    for (const auto& data_pair : g_deviceOptions)
+    for (const auto& [guid, options] : g_deviceOptions)
     {
-        if (!data_pair.second.empty())
+        if (!options.empty())
         {
-            LLSD value(data_pair.second);
-            deviceOptions.insert(data_pair.first, value);
+            LLSD value(options);
+            deviceOptions.insert(guid, value);
         }
     }
 
