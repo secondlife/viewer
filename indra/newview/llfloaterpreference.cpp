@@ -3354,12 +3354,12 @@ void LLPanelPreferenceGameControl::saveSettings()
     if (LLControlVariable* knownControllers = gSavedSettings.getControl("KnownGameControllers"))
     {
         LLSD deviceOptions(LLSD::emptyMap());
-        for (auto& pair : mDeviceOptions)
+        for (auto& [guid, device] : mDeviceOptions)
         {
-            pair.second.settings = pair.second.options.saveToString(pair.second.name);
-            if (!pair.second.settings.empty())
+            device.settings = device.options.saveToString(device.name);
+            if (!device.settings.empty())
             {
-                deviceOptions.insert(pair.first, pair.second.settings);
+                deviceOptions.insert(guid, device.settings);
             }
         }
         knownControllers->set(deviceOptions);
@@ -3722,11 +3722,11 @@ void LLPanelPreferenceGameControl::updateDeviceListInternal()
 {
     // Setup the 2nd tab
     mDeviceOptions.clear();
-    for (const auto& pair : LLGameControl::getDeviceOptions())
+    for (const auto& [guid, options] : LLGameControl::getDeviceOptions())
     {
-        DeviceOptions deviceOptions = { LLStringUtil::null, pair.second, LLGameControl::Options() };
+        DeviceOptions deviceOptions = { LLStringUtil::null, options, LLGameControl::Options() };
         deviceOptions.options.loadFromString(deviceOptions.name, deviceOptions.settings);
-        mDeviceOptions.emplace(pair.first, deviceOptions);
+        mDeviceOptions.emplace(guid, deviceOptions);
     }
     // Add missing device settings/options even if they are default
     for (const auto& device : LLGameControl::getDevices())
@@ -3844,9 +3844,9 @@ void LLPanelPreferenceGameControl::populateDeviceTitle()
     {
         if (showAllDevices)
         {
-            const std::pair<std::string, DeviceOptions>& pair = *mDeviceOptions.begin();
-            mSingleDevice->setValue(makeTitle(pair.first, pair.second.name));
-            populateDeviceSettings(pair.first);
+            const auto& [guid, device] = *mDeviceOptions.begin();
+            mSingleDevice->setValue(makeTitle(guid, device.name));
+            populateDeviceSettings(guid);
         }
         else
         {
@@ -3867,9 +3867,9 @@ void LLPanelPreferenceGameControl::populateDeviceTitle()
 
         if (showAllDevices)
         {
-            for (const auto& pair : mDeviceOptions)
+            for (const auto& [guid, device] : mDeviceOptions)
             {
-                mDeviceList->addElement(makeListItem(pair.first, makeTitle(pair.first, pair.second.name)));
+                mDeviceList->addElement(makeListItem(guid, makeTitle(guid, device.name)));
             }
         }
         else
