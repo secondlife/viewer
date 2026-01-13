@@ -14,5 +14,7 @@
   icon_width="16"
   text_pad="1"
   text_pad_right="4"
+  text_pad_top="1"
   arrow_size="12"
+  arrow_pad_top="1"
   max_folder_item_overlap="2"/>
