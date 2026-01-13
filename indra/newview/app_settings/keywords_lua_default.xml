@@ -2147,15 +2147,6 @@
             <key>value</key>
             <string>128</string>
          </map>
-         <key>FALSE</key>
-         <map>
-            <key>tooltip</key>
-            <string>An integer constant for boolean comparisons. Has the value &apos;0&apos;.</string>
-            <key>type</key>
-            <string>integer</string>
-            <key>value</key>
-            <string>0</string>
-         </map>
          <key>FILTER_FLAGS</key>
          <map>
             <key>tooltip</key>
@@ -8344,15 +8335,6 @@
             <string>integer</string>
             <key>value</key>
             <string>0</string>
-         </map>
-         <key>TRUE</key>
-         <map>
-            <key>tooltip</key>
-            <string>An integer constant for boolean comparisons. Has the value &apos;1&apos;.</string>
-            <key>type</key>
-            <string>integer</string>
-            <key>value</key>
-            <string>1</string>
          </map>
          <key>TWO_PI</key>
          <map>
