@@ -106,11 +106,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a4553df5b8fde2e9cd54ebb94c6efb8eb5fe3c38</string>
+              <string>61cc299413a32350175cf7139f64388d3d096ec7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.86.0-be1a669/boost-1.86-darwin64-13246092114.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.90.0-c7a9feb/boost-1.90-darwin64-20977261894.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -120,11 +120,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4a2a19dc5cb555e157ad894ba917f5a83a35b20d</string>
+              <string>6b93e323284bfab8ec20a7f3bc740c6915980bf8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.86.0-be1a669/boost-1.86-linux64-13246092114.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.90.0-c7a9feb/boost-1.90-linux64-20977261894.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -134,11 +134,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8a1fa9366bfe49009286e4805d7aaedb7c3df82e</string>
+              <string>c543437ca30a63dcd2538fffa89a43ef43f625fb</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.86.0-be1a669/boost-1.86-windows64-13246092114.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.90.0-c7a9feb/boost-1.90-windows64-20977261894.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -151,7 +151,7 @@
         <key>copyright</key>
         <string>(see individual source files)</string>
         <key>version</key>
-        <string>1.86</string>
+        <string>1.90.0-c7a9feb</string>
         <key>name</key>
         <string>boost</string>
         <key>description</key>
@@ -212,11 +212,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bf2fe4e8272e990bc8687b3b37bf4bb2b2ad6eb4</string>
+              <string>9710f82a237b95aaafbbcf708b89f6015b80d85f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r10/colladadom-2.3.0-r10-darwin64-13259816660.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r11/colladadom-2.3.0-r11-darwin64-20980076767.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -226,11 +226,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>118e509ca464182ef4b94ee8c4aa5b14a6c52a94</string>
+              <string>6a1725b1bc13634eb4dd872a4f83c3f16497475f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r10/colladadom-2.3.0-r10-linux64-13259816660.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r11/colladadom-2.3.0-r11-linux64-20980076767.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -240,11 +240,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d7aee1b2ec17bd88a2c27359281b58a11ec52d48</string>
+              <string>ba9eeb62ae3046d91f9e061db823c1863623b017</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r10/colladadom-2.3.0-r10-windows64-13259816660.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r11/colladadom-2.3.0-r11-windows64-20980076767.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -257,7 +257,7 @@
         <key>copyright</key>
         <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
         <key>version</key>
-        <string>2.3.0-r10</string>
+        <string>2.3.0-r11</string>
         <key>name</key>
         <string>colladadom</string>
       </map>
@@ -328,11 +328,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e742b1e2d0a58d607b023bf55411041ac65e8a76</string>
+              <string>5eab8167cec442e8c156bb653012d7544cca6037</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-r3/curl-7.54.1-13259824618-darwin64-13259824618.tar.zst</string>
+              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-r4/curl-7.54.1-20982000504-darwin64-20982000504.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -342,11 +342,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>49621c70f385d37c95bcb69a9a24d86ac25f4781</string>
+              <string>3465bbe70cfba2814b1fd52094c62804f4067490</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-r3/curl-7.54.1-13259824618-linux64-13259824618.tar.zst</string>
+              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-r4/curl-7.54.1-20982000504-linux64-20982000504.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -356,11 +356,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2522201692116cf0adb7203e169be9126885108c</string>
+              <string>0e64e20945eeb19259abf8e78400eb492e31eda7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-r3/curl-7.54.1-13259824618-windows64-13259824618.tar.zst</string>
+              <string>https://github.com/secondlife/3p-curl/releases/download/v7.54.1-r4/curl-7.54.1-20982000504-windows64-20982000504.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -373,7 +373,7 @@
         <key>copyright</key>
         <string>Copyright (c) 1996 - 2014, Daniel Stenberg, (daniel@haxx.se).</string>
         <key>version</key>
-        <string>7.54.1-13259824618</string>
+        <string>7.54.1-20982000504</string>
         <key>name</key>
         <string>curl</string>
         <key>description</key>
@@ -634,11 +634,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e6c7b9aaf73d90d7feab846a4024193c48eff6c</string>
+              <string>550a90bca35bdbbd615afb1a1c02383cb3b6edbe</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-r3/freetype-2.13.3-r3-darwin64-13259804885.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-r4/freetype-2.13.3-r4-darwin64-20935810762.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -648,11 +648,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a9a3c371958e64a49b07d7be8f59218dfd6b0352</string>
+              <string>f52b05392962cb6a8e5f534d8687faa525d4960a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-r3/freetype-2.13.3-r3-linux64-13259804885.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-r4/freetype-2.13.3-r4-linux64-20935810762.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -662,11 +662,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad7fbc4a01607ec43d86035a49dadd43d6f2a4e5</string>
+              <string>3c30052adcbfec572562bb1e7927d7a8f4d93f3d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-r3/freetype-2.13.3-r3-windows64-13259804885.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-r4/freetype-2.13.3-r4-windows64-20935810762.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -679,7 +679,7 @@
         <key>copyright</key>
         <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>version</key>
-        <string>2.13.3-r3</string>
+        <string>2.13.3-r4</string>
         <key>name</key>
         <string>freetype</string>
         <key>description</key>
@@ -1226,11 +1226,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a453355ee032f79aea4142218a957085a22c7656</string>
+              <string>6fa10d5f44601dda6efc3eda1a9dab22525e7a9a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.44-r2/libpng-1.6.44-r2-darwin64-13246065198.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.53-eea12b7/libpng-1.6.44-dev1.geea12b7-darwin64-20934739343.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1240,11 +1240,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>75c7608646c9f5b99b1a9e3946326e2804a304d7</string>
+              <string>112b7f46f5923e6418dfa4bc13ebe2db6911c9b9</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.44-r2/libpng-1.6.44-r2-linux64-13246065198.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.53-eea12b7/libpng-1.6.44-dev1.geea12b7-linux64-20934739343.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1254,11 +1254,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>09af51774c4ee7c03fe67a87dfc52e846aa625ea</string>
+              <string>2731c45f1e62e33b8612b3ee2b9c4cb39dafbfe2</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.44-r2/libpng-1.6.44-r2-windows64-13246065198.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.6.53-eea12b7/libpng-1.6.44-dev1.geea12b7-windows64-20934739343.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1271,7 +1271,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2004, 2006-2013 Glenn Randers-Pehrson</string>
         <key>version</key>
-        <string>1.6.44-r2</string>
+        <string>1.6.53-eea12b7</string>
         <key>name</key>
         <string>libpng</string>
         <key>description</key>
@@ -1316,11 +1316,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>372c92936d940b1cfb5ba34310691d4bb435c161</string>
+              <string>c1ad7ff9ec91049c93d2dcd832f81a00f8f4b4b9</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.13.5-r2/libxml2-2.13.5-r2-darwin64-13246071272.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.13.9-d53cd6f/libxml2-2.13.9-d53cd6f-darwin64-20936141417.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1330,11 +1330,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ba6fbc34112b1acab1c8615dcd13de983f3678d3</string>
+              <string>7fc2df91648661468a82754b26fd7dedfbef1d39</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.13.5-r2/libxml2-2.13.5-r2-linux64-13246071272.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.13.9-d53cd6f/libxml2-2.13.9-d53cd6f-linux64-20936141417.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1344,11 +1344,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71968c4b621636e8ae0c5680e631f4aa67561944</string>
+              <string>84828c26b67c33f0d3e565718943aa339582b34f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.13.5-r2/libxml2-2.13.5-r2-windows64-13246071272.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libxml2/releases/download/v2.13.9-d53cd6f/libxml2-2.13.9-d53cd6f-windows64-20936141417.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1361,7 +1361,7 @@
         <key>copyright</key>
         <string>Copyright (C) 1998-2012 Daniel Veillard.  All Rights Reserved.</string>
         <key>version</key>
-        <string>2.13.5-r2</string>
+        <string>2.13.9-d53cd6f</string>
         <key>name</key>
         <string>libxml2</string>
         <key>description</key>
@@ -1671,11 +1671,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b628d088e1f368a0cd51a6b66292aaf9a025e2d4</string>
+              <string>85179317015c5c91986000d69c9f61a01af7617f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v4.0.7-r3/minizip_ng-4.0.7-r3-darwin64-13246046977.tar.zst</string>
+              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v4.0.7-r4/minizip_ng-4.0.7-r4-darwin64-20933148061.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1685,11 +1685,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>492ce9175b730d43df63821c4481685e035af623</string>
+              <string>ef1524f507f44fed6f1c1f00ae274ddb8a1ac359</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v4.0.7-r3/minizip_ng-4.0.7-r3-linux64-13246046977.tar.zst</string>
+              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v4.0.7-r4/minizip_ng-4.0.7-r4-linux64-20933148061.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1699,11 +1699,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>58773e707ff3490822b7b8217d7729ade2186632</string>
+              <string>90be39cf789b596377458f1ea78f415a9c281a8c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v4.0.7-r3/minizip_ng-4.0.7-r3-windows64-13246046977.tar.zst</string>
+              <string>https://github.com/secondlife/3p-minizip-ng/releases/download/v4.0.7-r4/minizip_ng-4.0.7-r4-windows64-20933148061.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1716,7 +1716,7 @@
         <key>copyright</key>
         <string>This project uses the zlib license. Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
         <key>version</key>
-        <string>4.0.7-r3</string>
+        <string>4.0.7-r4</string>
         <key>name</key>
         <string>minizip-ng</string>
         <key>canonical_repo</key>
@@ -2079,11 +2079,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>157193699127ac5056c5fc1a410f9c98d39731e2</string>
+              <string>e08f640fb423f878c288426c836189b30b0c8ad0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1w-r3/openssl-1.1.1w-r3-darwin64-13246054022.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1w-r4/openssl-1.1.1w-r4-darwin64-20981673556.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2093,11 +2093,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2e29c127dbd002d64ae55bc000f8b6ed0249fad7</string>
+              <string>d83a1e910762b792c90550ce2b8f51f9aaec7570</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1w-r3/openssl-1.1.1w-r3-linux64-13246054022.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1w-r4/openssl-1.1.1w-r4-linux64-20981673556.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2107,11 +2107,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae9ced89051e03a99628c99b9ac78530fdea1e5a</string>
+              <string>eec78c22e2d1eecf375aa0c6eff08fe67d2316f4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1w-r3/openssl-1.1.1w-r3-windows64-13246054022.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openssl/releases/download/v1.1.1w-r4/openssl-1.1.1w-r4-windows64-20981673556.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2124,7 +2124,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 1998-2011 The OpenSSL Project.  All rights reserved; Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)</string>
         <key>version</key>
-        <string>1.1.1w-r3</string>
+        <string>1.1.1w-r4</string>
         <key>name</key>
         <string>openssl</string>
         <key>description</key>
@@ -2731,11 +2731,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e363e3b889c52fda7601d7aeaa9832307034651e</string>
+              <string>4906257288c61b14d2e16116fc3139af35d3374f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.3-r1/zlib_ng-2.2.3-dev0.g8aa13e3.d20250206-darwin64-13183604450.tar.zst</string>
+              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.5-0d88d03/zlib_ng-2.2.5-dev0.g0d88d03.d20260112-darwin64-20930307098.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2745,11 +2745,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3cdd52f7fb3691789d50f0b40ed6f5642321ff32</string>
+              <string>2b81a6a4ebd9ae5555d48b52eea7c2d875d68f60</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.3-r1/zlib_ng-2.2.3-dev0.g8aa13e3.d20250206-linux64-13183604450.tar.zst</string>
+              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.5-0d88d03/zlib_ng-2.2.5-dev0.g0d88d03.d20260112-linux64-20930307098.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2759,11 +2759,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e802a28139328bb2421ad39e13d996d350d8106d</string>
+              <string>e2e0f964ba44fe2e6428e1e7ca262a3f80d92e65</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.3-r1/zlib_ng-2.2.3-dev0.g8aa13e3.d20250206-windows64-13183604450.tar.zst</string>
+              <string>https://github.com/secondlife/3p-zlib-ng/releases/download/v2.2.5-0d88d03/zlib_ng-2.2.5-dev0.g0d88d03.d20260112-windows64-20930307098.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2776,7 +2776,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
         <key>version</key>
-        <string>2.2.3-dev0.g8aa13e3.d20250206</string>
+        <string>2.2.5-0d88d03</string>
         <key>name</key>
         <string>zlib-ng</string>
         <key>canonical_repo</key>
