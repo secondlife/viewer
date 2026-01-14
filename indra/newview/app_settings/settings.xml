@@ -641,7 +641,7 @@
         <key>Type</key>
         <string>String</string>
         <key>Value</key>
-        <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/vawp/index.html</string>
+        <string>https://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/vawp/index.html</string>
     </map>
     <!--AvatarBakedTextureUploadTimeout is in use by QA-->
     <key>AvatarBakedTextureUploadTimeout</key>
@@ -2467,7 +2467,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/guide.html</string>
+      <string>https://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/guide.html</string>
     </map>
   <key>DisableCameraConstraints</key>
     <map>
@@ -2775,7 +2775,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://events.[GRID]/viewer/embed/event/[EVENT_ID]</string>
+      <string>https://events.[GRID]/viewer/embed/event/[EVENT_ID]</string>
     </map>
     <key>MainWorkTime</key>
     <map>
@@ -3432,7 +3432,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC][DEBUG_MODE]</string>
+      <string>https://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC][DEBUG_MODE]</string>
     </map>
     <key>HowToHelpURL</key>
     <map>
@@ -3443,7 +3443,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/howto/index.html</string>
+      <string>https://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/howto/index.html</string>
     </map>
     <key>HomeSidePanelURL</key>
     <map>
@@ -3476,7 +3476,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://guidebooks.secondlife.io/welcome/index.html</string>
+      <string>https://guidebooks.secondlife.io/welcome/index.html</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -4059,7 +4059,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://wiki.secondlife.com/wiki/[LSL_STRING]</string>
+      <string>https://wiki.secondlife.com/wiki/[LSL_STRING]</string>
     </map>
     <key>LSLFontSizeName</key>
     <map>
@@ -14710,7 +14710,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/404.html</string>
+      <string>https://common-flash-secondlife-com.s3.amazonaws.com/viewer/v2.6/agni/404.html</string>
     </map>
     <key>OpenIMOnVoice</key>
     <map>
