@@ -241,8 +241,13 @@ void doSaveDialogModeless(const std::string* file,
 
         NSURL* url = [NSURL fileURLWithPath:fileName];
         [panel setNameFieldStringValue: fileName];
-        [panel setDirectoryURL: url];
 
+        NSURL *last_url = [[NSUserDefaults standardUserDefaults] URLForKey:@"NSNavLastRootDirectory"];
+        if(!last_url)
+        {
+            NSURL *documents_url = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+            [panel setDirectoryURL:documents_url];
+        }
 
         [panel beginWithCompletionHandler:^(NSModalResponse result)
         {
