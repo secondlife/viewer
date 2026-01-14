@@ -2,7 +2,6 @@
 *.DS_Store
 *.bak
 *.orig
-*.patch
 *.pyc
 *.rej
 *.swp
@@ -16,8 +15,10 @@
 *~
 
 # Specific paths and/or names
+.vs
 .venv
 .cache
+.zed
 CMakeCache.txt
 cmake_install.cmake
 LICENSES
