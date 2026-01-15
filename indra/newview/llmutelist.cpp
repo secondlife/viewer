@@ -803,6 +803,10 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
     std::string unclean_filename;
     msg->getStringFast(_PREHASH_MuteData, _PREHASH_Filename, unclean_filename);
     std::string filename = LLDir::getScrubbedFileName(unclean_filename);
+    if (filename.empty())
+    {
+        LL_WARNS() << "Received empty mute list filename." << LL_ENDL;
+    }
 
     LLMuteList* mute_list = getInstance();
     mute_list->mLoadState = ML_REQUESTED;
@@ -835,16 +839,16 @@ void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 
 void LLMuteList::onFileMuteList(void** user_data, S32 error_code, LLExtStat ext_status)
 {
-    LL_INFOS() << "LLMuteList::processMuteListFile()" << LL_ENDL;
-
     std::string* local_filename_and_path = (std::string*)user_data;
     if(local_filename_and_path && !local_filename_and_path->empty() && (error_code == 0))
     {
+        LL_INFOS() << "Received mute list from server" << LL_ENDL;
         LLMuteList::getInstance()->loadFromFile(*local_filename_and_path);
         LLFile::remove(*local_filename_and_path);
     }
     else
     {
+        LL_INFOS() << "LLMuteList xfer failed with code " << error_code << LL_ENDL;
         LLMuteList::getInstance()->mLoadState = ML_FAILED;
     }
     delete local_filename_and_path;
