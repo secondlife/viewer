@@ -52,7 +52,7 @@ private:
     std::map<KEY, LLKeyboard::NATIVE_KEY_TYPE> mInvTranslateNumpadMap; // inverse of the above
 
 public:
-    static U32 mapSDL2toWin( U32 );
+    static U32 mapSDLtoWin( U32 );
 };
 
 #endif

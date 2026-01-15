@@ -55,7 +55,7 @@ class LLKeyboard
 {
 public:
 #ifdef LL_SDL_WINDOW
-    // linux relies on SDL2 which uses U32 for its native key type
+    // linux relies on SDL which uses U32 for its native key type
     typedef U32 NATIVE_KEY_TYPE;
 #else
     // on non-linux platforms we can get by with a smaller native key type

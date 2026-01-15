@@ -494,164 +494,164 @@ enum class WindowsVK : U32
     LL_VK_OEM_CLEAR = 0xFE,
 };
 
-std::map< U32, U32 > mSDL2_to_Win;
+std::map< U32, U32 > mSDL_to_Win;
 
-U32 LLKeyboardSDL::mapSDL2toWin( U32 aSymbol )
+U32 LLKeyboardSDL::mapSDLtoWin( U32 aSymbol )
 {
     // <FS:ND> Map SDLK_ virtual keys to Windows LL_VK_ virtual keys.
     // Text is handled via unicode input (SDL_TEXTINPUT event) and does not need to be translated into LL_VK_ values as those match already.
-    if( mSDL2_to_Win.empty() )
+    if( mSDL_to_Win.empty() )
     {
 
-        mSDL2_to_Win[ SDLK_BACKSPACE ] = (U32)WindowsVK::LL_VK_BACK;
-        mSDL2_to_Win[ SDLK_TAB ] = (U32)WindowsVK::LL_VK_TAB;
-        mSDL2_to_Win[ 12 ] = (U32)WindowsVK::LL_VK_CLEAR;
-        mSDL2_to_Win[ SDLK_RETURN ] = (U32)WindowsVK::LL_VK_RETURN;
-        mSDL2_to_Win[ 19 ] = (U32)WindowsVK::LL_VK_PAUSE;
-        mSDL2_to_Win[ SDLK_ESCAPE ] = (U32)WindowsVK::LL_VK_ESCAPE;
-        mSDL2_to_Win[ SDLK_SPACE ] = (U32)WindowsVK::LL_VK_SPACE;
-        mSDL2_to_Win[ SDLK_APOSTROPHE ] = (U32)WindowsVK::LL_VK_OEM_7;
-        mSDL2_to_Win[ SDLK_COMMA ] = (U32)WindowsVK::LL_VK_OEM_COMMA;
-        mSDL2_to_Win[ SDLK_MINUS ] = (U32)WindowsVK::LL_VK_OEM_MINUS;
-        mSDL2_to_Win[ SDLK_PERIOD ] = (U32)WindowsVK::LL_VK_OEM_PERIOD;
-        mSDL2_to_Win[ SDLK_SLASH ] = (U32)WindowsVK::LL_VK_OEM_2;
+        mSDL_to_Win[ SDLK_BACKSPACE ] = (U32)WindowsVK::LL_VK_BACK;
+        mSDL_to_Win[ SDLK_TAB ] = (U32)WindowsVK::LL_VK_TAB;
+        mSDL_to_Win[ 12 ] = (U32)WindowsVK::LL_VK_CLEAR;
+        mSDL_to_Win[ SDLK_RETURN ] = (U32)WindowsVK::LL_VK_RETURN;
+        mSDL_to_Win[ 19 ] = (U32)WindowsVK::LL_VK_PAUSE;
+        mSDL_to_Win[ SDLK_ESCAPE ] = (U32)WindowsVK::LL_VK_ESCAPE;
+        mSDL_to_Win[ SDLK_SPACE ] = (U32)WindowsVK::LL_VK_SPACE;
+        mSDL_to_Win[ SDLK_APOSTROPHE ] = (U32)WindowsVK::LL_VK_OEM_7;
+        mSDL_to_Win[ SDLK_COMMA ] = (U32)WindowsVK::LL_VK_OEM_COMMA;
+        mSDL_to_Win[ SDLK_MINUS ] = (U32)WindowsVK::LL_VK_OEM_MINUS;
+        mSDL_to_Win[ SDLK_PERIOD ] = (U32)WindowsVK::LL_VK_OEM_PERIOD;
+        mSDL_to_Win[ SDLK_SLASH ] = (U32)WindowsVK::LL_VK_OEM_2;
 
-        mSDL2_to_Win[ SDLK_0 ] = (U32)WindowsVK::LL_VK_0;
-        mSDL2_to_Win[ SDLK_1 ] = (U32)WindowsVK::LL_VK_1;
-        mSDL2_to_Win[ SDLK_2 ] = (U32)WindowsVK::LL_VK_2;
-        mSDL2_to_Win[ SDLK_3 ] = (U32)WindowsVK::LL_VK_3;
-        mSDL2_to_Win[ SDLK_4 ] = (U32)WindowsVK::LL_VK_4;
-        mSDL2_to_Win[ SDLK_5 ] = (U32)WindowsVK::LL_VK_5;
-        mSDL2_to_Win[ SDLK_6 ] = (U32)WindowsVK::LL_VK_6;
-        mSDL2_to_Win[ SDLK_7 ] = (U32)WindowsVK::LL_VK_7;
-        mSDL2_to_Win[ SDLK_8 ] = (U32)WindowsVK::LL_VK_8;
-        mSDL2_to_Win[ SDLK_9 ] = (U32)WindowsVK::LL_VK_9;
+        mSDL_to_Win[ SDLK_0 ] = (U32)WindowsVK::LL_VK_0;
+        mSDL_to_Win[ SDLK_1 ] = (U32)WindowsVK::LL_VK_1;
+        mSDL_to_Win[ SDLK_2 ] = (U32)WindowsVK::LL_VK_2;
+        mSDL_to_Win[ SDLK_3 ] = (U32)WindowsVK::LL_VK_3;
+        mSDL_to_Win[ SDLK_4 ] = (U32)WindowsVK::LL_VK_4;
+        mSDL_to_Win[ SDLK_5 ] = (U32)WindowsVK::LL_VK_5;
+        mSDL_to_Win[ SDLK_6 ] = (U32)WindowsVK::LL_VK_6;
+        mSDL_to_Win[ SDLK_7 ] = (U32)WindowsVK::LL_VK_7;
+        mSDL_to_Win[ SDLK_8 ] = (U32)WindowsVK::LL_VK_8;
+        mSDL_to_Win[ SDLK_9 ] = (U32)WindowsVK::LL_VK_9;
 
-        mSDL2_to_Win[ SDLK_SEMICOLON ] = (U32)WindowsVK::LL_VK_OEM_1;
-        mSDL2_to_Win[ SDLK_LESS ] = (U32)WindowsVK::LL_VK_OEM_102;
-        mSDL2_to_Win[ SDLK_EQUALS ] = (U32)WindowsVK::LL_VK_OEM_PLUS;
-        mSDL2_to_Win[ SDLK_KP_EQUALS ] = (U32)WindowsVK::LL_VK_OEM_PLUS;
+        mSDL_to_Win[ SDLK_SEMICOLON ] = (U32)WindowsVK::LL_VK_OEM_1;
+        mSDL_to_Win[ SDLK_LESS ] = (U32)WindowsVK::LL_VK_OEM_102;
+        mSDL_to_Win[ SDLK_EQUALS ] = (U32)WindowsVK::LL_VK_OEM_PLUS;
+        mSDL_to_Win[ SDLK_KP_EQUALS ] = (U32)WindowsVK::LL_VK_OEM_PLUS;
 
-        mSDL2_to_Win[ SDLK_LEFTBRACKET ] = (U32)WindowsVK::LL_VK_OEM_4;
-        mSDL2_to_Win[ SDLK_BACKSLASH ] = (U32)WindowsVK::LL_VK_OEM_5;
-        mSDL2_to_Win[ SDLK_RIGHTBRACKET ] = (U32)WindowsVK::LL_VK_OEM_6;
-        mSDL2_to_Win[ SDLK_GRAVE ] = (U32)WindowsVK::LL_VK_OEM_8;
+        mSDL_to_Win[ SDLK_LEFTBRACKET ] = (U32)WindowsVK::LL_VK_OEM_4;
+        mSDL_to_Win[ SDLK_BACKSLASH ] = (U32)WindowsVK::LL_VK_OEM_5;
+        mSDL_to_Win[ SDLK_RIGHTBRACKET ] = (U32)WindowsVK::LL_VK_OEM_6;
+        mSDL_to_Win[ SDLK_GRAVE ] = (U32)WindowsVK::LL_VK_OEM_8;
 
-        mSDL2_to_Win[ SDLK_A ] = (U32)WindowsVK::LL_VK_A;
-        mSDL2_to_Win[ SDLK_B ] = (U32)WindowsVK::LL_VK_B;
-        mSDL2_to_Win[ SDLK_C ] = (U32)WindowsVK::LL_VK_C;
-        mSDL2_to_Win[ SDLK_D ] = (U32)WindowsVK::LL_VK_D;
-        mSDL2_to_Win[ SDLK_E ] = (U32)WindowsVK::LL_VK_E;
-        mSDL2_to_Win[ SDLK_F ] = (U32)WindowsVK::LL_VK_F;
-        mSDL2_to_Win[ SDLK_G ] = (U32)WindowsVK::LL_VK_G;
-        mSDL2_to_Win[ SDLK_H ] = (U32)WindowsVK::LL_VK_H;
-        mSDL2_to_Win[ SDLK_I ] = (U32)WindowsVK::LL_VK_I;
-        mSDL2_to_Win[ SDLK_J ] = (U32)WindowsVK::LL_VK_J;
-        mSDL2_to_Win[ SDLK_K ] = (U32)WindowsVK::LL_VK_K;
-        mSDL2_to_Win[ SDLK_L ] = (U32)WindowsVK::LL_VK_L;
-        mSDL2_to_Win[ SDLK_M ] = (U32)WindowsVK::LL_VK_M;
-        mSDL2_to_Win[ SDLK_N ] = (U32)WindowsVK::LL_VK_N;
-        mSDL2_to_Win[ SDLK_O ] = (U32)WindowsVK::LL_VK_O;
-        mSDL2_to_Win[ SDLK_P ] = (U32)WindowsVK::LL_VK_P;
-        mSDL2_to_Win[ SDLK_Q ] = (U32)WindowsVK::LL_VK_Q;
-        mSDL2_to_Win[ SDLK_R ] = (U32)WindowsVK::LL_VK_R;
-        mSDL2_to_Win[ SDLK_S ] = (U32)WindowsVK::LL_VK_S;
-        mSDL2_to_Win[ SDLK_T ] = (U32)WindowsVK::LL_VK_T;
-        mSDL2_to_Win[ SDLK_Y ] = (U32)WindowsVK::LL_VK_U;
-        mSDL2_to_Win[ SDLK_V ] = (U32)WindowsVK::LL_VK_V;
-        mSDL2_to_Win[ SDLK_W ] = (U32)WindowsVK::LL_VK_W;
-        mSDL2_to_Win[ SDLK_X ] = (U32)WindowsVK::LL_VK_X;
-        mSDL2_to_Win[ SDLK_Y ] = (U32)WindowsVK::LL_VK_Y;
-        mSDL2_to_Win[ SDLK_Z ] = (U32)WindowsVK::LL_VK_Z;
+        mSDL_to_Win[ SDLK_A ] = (U32)WindowsVK::LL_VK_A;
+        mSDL_to_Win[ SDLK_B ] = (U32)WindowsVK::LL_VK_B;
+        mSDL_to_Win[ SDLK_C ] = (U32)WindowsVK::LL_VK_C;
+        mSDL_to_Win[ SDLK_D ] = (U32)WindowsVK::LL_VK_D;
+        mSDL_to_Win[ SDLK_E ] = (U32)WindowsVK::LL_VK_E;
+        mSDL_to_Win[ SDLK_F ] = (U32)WindowsVK::LL_VK_F;
+        mSDL_to_Win[ SDLK_G ] = (U32)WindowsVK::LL_VK_G;
+        mSDL_to_Win[ SDLK_H ] = (U32)WindowsVK::LL_VK_H;
+        mSDL_to_Win[ SDLK_I ] = (U32)WindowsVK::LL_VK_I;
+        mSDL_to_Win[ SDLK_J ] = (U32)WindowsVK::LL_VK_J;
+        mSDL_to_Win[ SDLK_K ] = (U32)WindowsVK::LL_VK_K;
+        mSDL_to_Win[ SDLK_L ] = (U32)WindowsVK::LL_VK_L;
+        mSDL_to_Win[ SDLK_M ] = (U32)WindowsVK::LL_VK_M;
+        mSDL_to_Win[ SDLK_N ] = (U32)WindowsVK::LL_VK_N;
+        mSDL_to_Win[ SDLK_O ] = (U32)WindowsVK::LL_VK_O;
+        mSDL_to_Win[ SDLK_P ] = (U32)WindowsVK::LL_VK_P;
+        mSDL_to_Win[ SDLK_Q ] = (U32)WindowsVK::LL_VK_Q;
+        mSDL_to_Win[ SDLK_R ] = (U32)WindowsVK::LL_VK_R;
+        mSDL_to_Win[ SDLK_S ] = (U32)WindowsVK::LL_VK_S;
+        mSDL_to_Win[ SDLK_T ] = (U32)WindowsVK::LL_VK_T;
+        mSDL_to_Win[ SDLK_Y ] = (U32)WindowsVK::LL_VK_U;
+        mSDL_to_Win[ SDLK_V ] = (U32)WindowsVK::LL_VK_V;
+        mSDL_to_Win[ SDLK_W ] = (U32)WindowsVK::LL_VK_W;
+        mSDL_to_Win[ SDLK_X ] = (U32)WindowsVK::LL_VK_X;
+        mSDL_to_Win[ SDLK_Y ] = (U32)WindowsVK::LL_VK_Y;
+        mSDL_to_Win[ SDLK_Z ] = (U32)WindowsVK::LL_VK_Z;
 
-        mSDL2_to_Win[ SDLK_DELETE ] = (U32)WindowsVK::LL_VK_DELETE;
+        mSDL_to_Win[ SDLK_DELETE ] = (U32)WindowsVK::LL_VK_DELETE;
 
 
-        mSDL2_to_Win[ SDLK_NUMLOCKCLEAR ] = (U32)WindowsVK::LL_VK_NUMLOCK;
-        mSDL2_to_Win[ SDLK_SCROLLLOCK ] = (U32)WindowsVK::LL_VK_SCROLL;
+        mSDL_to_Win[ SDLK_NUMLOCKCLEAR ] = (U32)WindowsVK::LL_VK_NUMLOCK;
+        mSDL_to_Win[ SDLK_SCROLLLOCK ] = (U32)WindowsVK::LL_VK_SCROLL;
 
-        mSDL2_to_Win[ SDLK_HELP ] = (U32)WindowsVK::LL_VK_HELP;
-        mSDL2_to_Win[ SDLK_PRINTSCREEN ] = (U32)WindowsVK::LL_VK_SNAPSHOT;
-        mSDL2_to_Win[ SDLK_CANCEL ] = (U32)WindowsVK::LL_VK_CANCEL;
-        mSDL2_to_Win[ SDLK_APPLICATION ] = (U32)WindowsVK::LL_VK_APPS;
+        mSDL_to_Win[ SDLK_HELP ] = (U32)WindowsVK::LL_VK_HELP;
+        mSDL_to_Win[ SDLK_PRINTSCREEN ] = (U32)WindowsVK::LL_VK_SNAPSHOT;
+        mSDL_to_Win[ SDLK_CANCEL ] = (U32)WindowsVK::LL_VK_CANCEL;
+        mSDL_to_Win[ SDLK_APPLICATION ] = (U32)WindowsVK::LL_VK_APPS;
 
-        mSDL2_to_Win[ SDLK_UNKNOWN    ] = (U32)WindowsVK::LL_VK_UNKNOWN;
-        mSDL2_to_Win[ SDLK_BACKSPACE  ] = (U32)WindowsVK::LL_VK_BACK;
-        mSDL2_to_Win[ SDLK_TAB        ] = (U32)WindowsVK::LL_VK_TAB;
-        mSDL2_to_Win[ SDLK_CLEAR      ] = (U32)WindowsVK::LL_VK_CLEAR;
-        mSDL2_to_Win[ SDLK_RETURN     ] = (U32)WindowsVK::LL_VK_RETURN;
-        mSDL2_to_Win[ SDLK_PAUSE      ] = (U32)WindowsVK::LL_VK_PAUSE;
-        mSDL2_to_Win[ SDLK_ESCAPE     ] = (U32)WindowsVK::LL_VK_ESCAPE;
-        mSDL2_to_Win[ SDLK_DELETE     ] = (U32)WindowsVK::LL_VK_DELETE;
+        mSDL_to_Win[ SDLK_UNKNOWN    ] = (U32)WindowsVK::LL_VK_UNKNOWN;
+        mSDL_to_Win[ SDLK_BACKSPACE  ] = (U32)WindowsVK::LL_VK_BACK;
+        mSDL_to_Win[ SDLK_TAB        ] = (U32)WindowsVK::LL_VK_TAB;
+        mSDL_to_Win[ SDLK_CLEAR      ] = (U32)WindowsVK::LL_VK_CLEAR;
+        mSDL_to_Win[ SDLK_RETURN     ] = (U32)WindowsVK::LL_VK_RETURN;
+        mSDL_to_Win[ SDLK_PAUSE      ] = (U32)WindowsVK::LL_VK_PAUSE;
+        mSDL_to_Win[ SDLK_ESCAPE     ] = (U32)WindowsVK::LL_VK_ESCAPE;
+        mSDL_to_Win[ SDLK_DELETE     ] = (U32)WindowsVK::LL_VK_DELETE;
 
-        mSDL2_to_Win[ SDLK_KP_PERIOD  ] = (U32)WindowsVK::LL_VK_DELETE; // LL_VK_DECIMAL?
-        mSDL2_to_Win[ SDLK_KP_DIVIDE  ] = (U32)WindowsVK::LL_VK_DIVIDE;
-        mSDL2_to_Win[ SDLK_KP_MULTIPLY] = (U32)WindowsVK::LL_VK_MULTIPLY;
-        mSDL2_to_Win[ SDLK_KP_MINUS   ] = (U32)WindowsVK::LL_VK_OEM_MINUS; // LL_VK_SUBSTRACT?
-        mSDL2_to_Win[ SDLK_KP_PLUS    ] = (U32)WindowsVK::LL_VK_OEM_PLUS;  // LL_VK_ADD?
-        mSDL2_to_Win[ SDLK_KP_ENTER   ] = (U32)WindowsVK::LL_VK_RETURN;
-        mSDL2_to_Win[ SDLK_KP_0 ] = (U32)WindowsVK::LL_VK_INSERT;
-        mSDL2_to_Win[ SDLK_KP_1 ] = (U32)WindowsVK::LL_VK_END;
-        mSDL2_to_Win[ SDLK_KP_2 ] = (U32)WindowsVK::LL_VK_DOWN;
-        mSDL2_to_Win[ SDLK_KP_3 ] = (U32)WindowsVK::LL_VK_NEXT;
-        mSDL2_to_Win[ SDLK_KP_4 ] = (U32)WindowsVK::LL_VK_LEFT;
-        mSDL2_to_Win[ SDLK_KP_5 ] = (U32)WindowsVK::LL_VK_NUMPAD5;
-        mSDL2_to_Win[ SDLK_KP_6 ] = (U32)WindowsVK::LL_VK_RIGHT;
-        mSDL2_to_Win[ SDLK_KP_7 ] = (U32)WindowsVK::LL_VK_HOME;
-        mSDL2_to_Win[ SDLK_KP_8 ] = (U32)WindowsVK::LL_VK_UP;
-        mSDL2_to_Win[ SDLK_KP_9 ] = (U32)WindowsVK::LL_VK_PRIOR;
+        mSDL_to_Win[ SDLK_KP_PERIOD  ] = (U32)WindowsVK::LL_VK_DELETE; // LL_VK_DECIMAL?
+        mSDL_to_Win[ SDLK_KP_DIVIDE  ] = (U32)WindowsVK::LL_VK_DIVIDE;
+        mSDL_to_Win[ SDLK_KP_MULTIPLY] = (U32)WindowsVK::LL_VK_MULTIPLY;
+        mSDL_to_Win[ SDLK_KP_MINUS   ] = (U32)WindowsVK::LL_VK_OEM_MINUS; // LL_VK_SUBSTRACT?
+        mSDL_to_Win[ SDLK_KP_PLUS    ] = (U32)WindowsVK::LL_VK_OEM_PLUS;  // LL_VK_ADD?
+        mSDL_to_Win[ SDLK_KP_ENTER   ] = (U32)WindowsVK::LL_VK_RETURN;
+        mSDL_to_Win[ SDLK_KP_0 ] = (U32)WindowsVK::LL_VK_INSERT;
+        mSDL_to_Win[ SDLK_KP_1 ] = (U32)WindowsVK::LL_VK_END;
+        mSDL_to_Win[ SDLK_KP_2 ] = (U32)WindowsVK::LL_VK_DOWN;
+        mSDL_to_Win[ SDLK_KP_3 ] = (U32)WindowsVK::LL_VK_NEXT;
+        mSDL_to_Win[ SDLK_KP_4 ] = (U32)WindowsVK::LL_VK_LEFT;
+        mSDL_to_Win[ SDLK_KP_5 ] = (U32)WindowsVK::LL_VK_NUMPAD5;
+        mSDL_to_Win[ SDLK_KP_6 ] = (U32)WindowsVK::LL_VK_RIGHT;
+        mSDL_to_Win[ SDLK_KP_7 ] = (U32)WindowsVK::LL_VK_HOME;
+        mSDL_to_Win[ SDLK_KP_8 ] = (U32)WindowsVK::LL_VK_UP;
+        mSDL_to_Win[ SDLK_KP_9 ] = (U32)WindowsVK::LL_VK_PRIOR;
 
         // ?
 
-        mSDL2_to_Win[ SDLK_UP         ] = (U32)WindowsVK::LL_VK_UP;
-        mSDL2_to_Win[ SDLK_DOWN       ] = (U32)WindowsVK::LL_VK_DOWN;
-        mSDL2_to_Win[ SDLK_RIGHT      ] = (U32)WindowsVK::LL_VK_RIGHT;
-        mSDL2_to_Win[ SDLK_LEFT       ] = (U32)WindowsVK::LL_VK_LEFT;
-        mSDL2_to_Win[ SDLK_INSERT     ] = (U32)WindowsVK::LL_VK_INSERT;
-        mSDL2_to_Win[ SDLK_HOME       ] = (U32)WindowsVK::LL_VK_HOME;
-        mSDL2_to_Win[ SDLK_END        ] = (U32)WindowsVK::LL_VK_END;
-        mSDL2_to_Win[ SDLK_PAGEUP     ] = (U32)WindowsVK::LL_VK_PRIOR;
-        mSDL2_to_Win[ SDLK_PAGEDOWN   ] = (U32)WindowsVK::LL_VK_NEXT;
-        mSDL2_to_Win[ SDLK_F1         ] = (U32)WindowsVK::LL_VK_F1;
-        mSDL2_to_Win[ SDLK_F2         ] = (U32)WindowsVK::LL_VK_F2;
-        mSDL2_to_Win[ SDLK_F3         ] = (U32)WindowsVK::LL_VK_F3;
-        mSDL2_to_Win[ SDLK_F4         ] = (U32)WindowsVK::LL_VK_F4;
-        mSDL2_to_Win[ SDLK_F5         ] = (U32)WindowsVK::LL_VK_F5;
-        mSDL2_to_Win[ SDLK_F6         ] = (U32)WindowsVK::LL_VK_F6;
-        mSDL2_to_Win[ SDLK_F7         ] = (U32)WindowsVK::LL_VK_F7;
-        mSDL2_to_Win[ SDLK_F8         ] = (U32)WindowsVK::LL_VK_F8;
-        mSDL2_to_Win[ SDLK_F9         ] = (U32)WindowsVK::LL_VK_F9;
-        mSDL2_to_Win[ SDLK_F10        ] = (U32)WindowsVK::LL_VK_F10;
-        mSDL2_to_Win[ SDLK_F11        ] = (U32)WindowsVK::LL_VK_F11;
-        mSDL2_to_Win[ SDLK_F12        ] = (U32)WindowsVK::LL_VK_F12;
-        mSDL2_to_Win[ SDLK_F13        ] = (U32)WindowsVK::LL_VK_F13;
-        mSDL2_to_Win[ SDLK_F14        ] = (U32)WindowsVK::LL_VK_F14;
-        mSDL2_to_Win[ SDLK_F15        ] = (U32)WindowsVK::LL_VK_F15;
-        mSDL2_to_Win[ SDLK_CAPSLOCK   ] = (U32)WindowsVK::LL_VK_CAPITAL;
-        mSDL2_to_Win[ SDLK_RSHIFT     ] = (U32)WindowsVK::LL_VK_SHIFT;
-        mSDL2_to_Win[ SDLK_LSHIFT     ] = (U32)WindowsVK::LL_VK_SHIFT;
-        mSDL2_to_Win[ SDLK_RCTRL      ] = (U32)WindowsVK::LL_VK_CONTROL;
-        mSDL2_to_Win[ SDLK_LCTRL      ] = (U32)WindowsVK::LL_VK_CONTROL;
-        mSDL2_to_Win[ SDLK_RALT       ] = (U32)WindowsVK::LL_VK_MENU;
-        mSDL2_to_Win[ SDLK_LALT       ] = (U32)WindowsVK::LL_VK_MENU;
+        mSDL_to_Win[ SDLK_UP         ] = (U32)WindowsVK::LL_VK_UP;
+        mSDL_to_Win[ SDLK_DOWN       ] = (U32)WindowsVK::LL_VK_DOWN;
+        mSDL_to_Win[ SDLK_RIGHT      ] = (U32)WindowsVK::LL_VK_RIGHT;
+        mSDL_to_Win[ SDLK_LEFT       ] = (U32)WindowsVK::LL_VK_LEFT;
+        mSDL_to_Win[ SDLK_INSERT     ] = (U32)WindowsVK::LL_VK_INSERT;
+        mSDL_to_Win[ SDLK_HOME       ] = (U32)WindowsVK::LL_VK_HOME;
+        mSDL_to_Win[ SDLK_END        ] = (U32)WindowsVK::LL_VK_END;
+        mSDL_to_Win[ SDLK_PAGEUP     ] = (U32)WindowsVK::LL_VK_PRIOR;
+        mSDL_to_Win[ SDLK_PAGEDOWN   ] = (U32)WindowsVK::LL_VK_NEXT;
+        mSDL_to_Win[ SDLK_F1         ] = (U32)WindowsVK::LL_VK_F1;
+        mSDL_to_Win[ SDLK_F2         ] = (U32)WindowsVK::LL_VK_F2;
+        mSDL_to_Win[ SDLK_F3         ] = (U32)WindowsVK::LL_VK_F3;
+        mSDL_to_Win[ SDLK_F4         ] = (U32)WindowsVK::LL_VK_F4;
+        mSDL_to_Win[ SDLK_F5         ] = (U32)WindowsVK::LL_VK_F5;
+        mSDL_to_Win[ SDLK_F6         ] = (U32)WindowsVK::LL_VK_F6;
+        mSDL_to_Win[ SDLK_F7         ] = (U32)WindowsVK::LL_VK_F7;
+        mSDL_to_Win[ SDLK_F8         ] = (U32)WindowsVK::LL_VK_F8;
+        mSDL_to_Win[ SDLK_F9         ] = (U32)WindowsVK::LL_VK_F9;
+        mSDL_to_Win[ SDLK_F10        ] = (U32)WindowsVK::LL_VK_F10;
+        mSDL_to_Win[ SDLK_F11        ] = (U32)WindowsVK::LL_VK_F11;
+        mSDL_to_Win[ SDLK_F12        ] = (U32)WindowsVK::LL_VK_F12;
+        mSDL_to_Win[ SDLK_F13        ] = (U32)WindowsVK::LL_VK_F13;
+        mSDL_to_Win[ SDLK_F14        ] = (U32)WindowsVK::LL_VK_F14;
+        mSDL_to_Win[ SDLK_F15        ] = (U32)WindowsVK::LL_VK_F15;
+        mSDL_to_Win[ SDLK_CAPSLOCK   ] = (U32)WindowsVK::LL_VK_CAPITAL;
+        mSDL_to_Win[ SDLK_RSHIFT     ] = (U32)WindowsVK::LL_VK_SHIFT;
+        mSDL_to_Win[ SDLK_LSHIFT     ] = (U32)WindowsVK::LL_VK_SHIFT;
+        mSDL_to_Win[ SDLK_RCTRL      ] = (U32)WindowsVK::LL_VK_CONTROL;
+        mSDL_to_Win[ SDLK_LCTRL      ] = (U32)WindowsVK::LL_VK_CONTROL;
+        mSDL_to_Win[ SDLK_RALT       ] = (U32)WindowsVK::LL_VK_MENU;
+        mSDL_to_Win[ SDLK_LALT       ] = (U32)WindowsVK::LL_VK_MENU;
 
-        mSDL2_to_Win[ SDLK_MENU       ] = (U32)WindowsVK::LL_VK_MENU;
+        mSDL_to_Win[ SDLK_MENU       ] = (U32)WindowsVK::LL_VK_MENU;
 
         // LL_VK_MODECHANGE ?
-        // mSDL2_to_Win[ SDLK_MODE       ] = (U32)WindowsVK::LL_VK_MODE;
+        // mSDL_to_Win[ SDLK_MODE       ] = (U32)WindowsVK::LL_VK_MODE;
 
         // ?
-        // mSDL2_to_Win[ SDLK_SYSREQ     ] = (U32)WindowsVK::LL_VK_SYSREQ;
-        // mSDL2_to_Win[ SDLK_POWER      ] = (U32)WindowsVK::LL_VK_POWER;
-        // mSDL2_to_Win[ SDLK_UNDO       ] = (U32)WindowsVK::LL_VK_UNDO;
-        // mSDL2_to_Win[ SDLK_KP_EQUALS  ] = (U32)WindowsVK::LL_VK_EQUALS;
-        // mSDL2_to_Win[ 311 ] = (U32)WindowsVK::LL_VK_LWIN;
-        // mSDL2_to_Win[ 312 ] = (U32)WindowsVK::LL_VK_RWIN;
-        // mSDL2_to_Win[ SDLK_COLON ] = ?
+        // mSDL_to_Win[ SDLK_SYSREQ     ] = (U32)WindowsVK::LL_VK_SYSREQ;
+        // mSDL_to_Win[ SDLK_POWER      ] = (U32)WindowsVK::LL_VK_POWER;
+        // mSDL_to_Win[ SDLK_UNDO       ] = (U32)WindowsVK::LL_VK_UNDO;
+        // mSDL_to_Win[ SDLK_KP_EQUALS  ] = (U32)WindowsVK::LL_VK_EQUALS;
+        // mSDL_to_Win[ 311 ] = (U32)WindowsVK::LL_VK_LWIN;
+        // mSDL_to_Win[ 312 ] = (U32)WindowsVK::LL_VK_RWIN;
+        // mSDL_to_Win[ SDLK_COLON ] = ?
     }
 
-    auto itr = mSDL2_to_Win.find( aSymbol );
-    if( itr != mSDL2_to_Win.end() )
+    auto itr = mSDL_to_Win.find( aSymbol );
+    if( itr != mSDL_to_Win.end() )
         return itr->second;
 
     return aSymbol;

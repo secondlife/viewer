@@ -1815,7 +1815,7 @@ LLSD LLWindowSDL::getNativeKeyData()
     // *todo: NUM? - I don't care enough right now (and it's not a GDK modifier).
 
     result["virtual_key"] = (S32)mKeyVirtualKey;
-    result["virtual_key_win"] = (S32)LLKeyboardSDL::mapSDL2toWin( mKeyVirtualKey );
+    result["virtual_key_win"] = (S32)LLKeyboardSDL::mapSDLtoWin( mKeyVirtualKey );
     result["modifiers"] = (S32)modifiers;
     return result;
 }

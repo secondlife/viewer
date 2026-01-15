@@ -1,6 +1,6 @@
 /**
  * @file llsdl.cpp
- * @brief SDL2 initialization
+ * @brief SDL initialization
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
