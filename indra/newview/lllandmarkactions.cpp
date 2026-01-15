@@ -197,12 +197,51 @@ bool LLLandmarkActions::landmarkAlreadyExists()
 //static
 bool LLLandmarkActions::hasParcelLandmark()
 {
+    static LLUUID sLastItemID;
+    static S32    sLastFrame = -1;
+    if (sLastItemID.notNull())
+    {
+        LLInventoryItem* item = gInventory.getItem(sLastItemID);
+        if (item)
+        {
+            LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
+            if (landmark)
+            {
+                LLVector3d landmark_global_pos;
+                if (landmark->getGlobalPos(landmark_global_pos)
+                    && LLViewerParcelMgr::getInstance()->inAgentParcel(landmark_global_pos))
+                {
+                    return true;
+                }
+            }
+        }
+        // Cached landmark does not match current parcel anymore,
+        // repeat inventory search to find a replacement landmark
+        // or to make sure there are none.
+        sLastItemID.setNull();
+        sLastFrame = -1;
+    }
+
+    if (sLastFrame == LLFrameTimer::getFrameCount())
+    {
+        // Ideally this should also check parcel change and landmark additions,
+        // not just frame change.
+        // But should be sufficient to check only frame as this is used
+        // after inventory and parcel operations.
+        return false;
+    }
+    sLastFrame = LLFrameTimer::getFrameCount();
+
     LLFirstAgentParcelLandmark get_first_agent_landmark;
     LLInventoryModel::cat_array_t cats;
     LLInventoryModel::item_array_t items;
     fetch_landmarks(cats, items, get_first_agent_landmark);
-    return !items.empty();
-
+    if (!items.empty())
+    {
+        sLastItemID = items[0]->getUUID();
+        return true;
+    }
+    return false;
 }
 
 // *TODO: This could be made more efficient by only fetching the FIRST
