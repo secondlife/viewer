@@ -80,6 +80,40 @@ public:
     }
 };
 
+class LLFetchFirstLandmarkByPos : public LLInventoryCollectFunctor
+{
+private:
+    LLVector3d mPos;
+    bool mFound = false;
+public:
+    LLFetchFirstLandmarkByPos(const LLVector3d& pos) :
+        mPos(pos), mFound(false)
+    {
+    }
+
+    /*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+    {
+        if (mFound || !item || item->getType() != LLAssetType::AT_LANDMARK)
+            return false;
+
+        LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
+        if (!landmark) // the landmark not been loaded yet
+            return false;
+
+        LLVector3d landmark_global_pos;
+        if (!landmark->getGlobalPos(landmark_global_pos))
+            return false;
+        //we have to round off each coordinates to compare positions properly
+        mFound = ll_round(mPos.mdV[VX]) == ll_round(landmark_global_pos.mdV[VX])
+              && ll_round(mPos.mdV[VY]) == ll_round(landmark_global_pos.mdV[VY])
+              && ll_round(mPos.mdV[VZ]) == ll_round(landmark_global_pos.mdV[VZ]);
+        return mFound;
+    }
+
+    // only care about first found landmark, so stop when found
+    /*virtual*/ bool exceedsLimit() { return mFound; }
+};
+
 class LLFetchLandmarksByName : public LLInventoryCollectFunctor
 {
 private:
@@ -155,6 +189,9 @@ public:
         mFounded = LLViewerParcelMgr::getInstance()->inAgentParcel(landmark_global_pos);
         return mFounded;
     }
+
+    // only care about first found landmark, so stop when found
+    /*virtual*/ bool exceedsLimit() { return mFounded; }
 };
 
 static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
@@ -244,15 +281,14 @@ bool LLLandmarkActions::hasParcelLandmark()
     return false;
 }
 
-// *TODO: This could be made more efficient by only fetching the FIRST
-// landmark that meets the criteria
 LLViewerInventoryItem* LLLandmarkActions::findLandmarkForGlobalPos(const LLVector3d &pos)
 {
     // Determine whether there are landmarks pointing to the current parcel.
+    // Will stop after first found landmark.
     LLInventoryModel::cat_array_t cats;
     LLInventoryModel::item_array_t items;
-    LLFetchlLandmarkByPos is_current_pos_landmark(pos);
-    fetch_landmarks(cats, items, is_current_pos_landmark);
+    LLFetchFirstLandmarkByPos get_landmark_from_pos(pos);
+    fetch_landmarks(cats, items, get_landmark_from_pos);
 
     if(items.empty())
     {
