@@ -1,9 +1,5 @@
 # -*- cmake -*-
 include_guard()
+add_library(ll::mikktspace INTERFACE IMPORTED)
+target_include_directories(ll::mikktspace SYSTEM INTERFACE ${CMAKE_SOURCE_DIR}/externals/mikktspace/)
 
-include(Prebuilt)
-include(Linking)
-
-use_prebuilt_binary(mikktspace)
-
-target_include_directories(ll::mikktspace SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/)
