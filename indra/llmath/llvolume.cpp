@@ -912,7 +912,7 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
                 case LL_PCODE_HOLE_CIRCLE:
                 case LL_PCODE_HOLE_SAME:
                 default:
-                    addHole(params, true, circle_detail, 0, hollow, 1.f);
+                    addHole(params, false, circle_detail, 0, hollow, 1.f);
                     break;
                 }
             }
