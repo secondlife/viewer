@@ -1027,6 +1027,12 @@ bool Image::prepImpl(Asset& asset, const LLUUID& id)
         std::string dir = gDirUtilp->getDirName(asset.mFilename);
         std::string img_file = dir + gDirUtilp->getDirDelimiter() + mUri;
 
+        if (!gDirUtilp->fileExists(img_file))
+        {
+            // URI might be escaped, unescape.
+            img_file = dir + gDirUtilp->getDirDelimiter() + LLURI::unescape(mUri);
+        }
+
         LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(img_file);
         if (tracking_id.notNull() && mLoadIntoTexturePipe)
         {

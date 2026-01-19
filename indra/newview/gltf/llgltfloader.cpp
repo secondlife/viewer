@@ -826,7 +826,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
             }
 
-            vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], -prim.mTexCoords0[i][1]);
+            // Flip texture V coordinate
+            vert.uv0 = glm::vec2(prim.mTexCoords0[i][0], 1.f - prim.mTexCoords0[i][1]);
 
             if (skinIdx >= 0)
             {
