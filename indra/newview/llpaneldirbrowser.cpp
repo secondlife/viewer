@@ -559,9 +559,6 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
     LLUUID owner_id;
     std::string name;
     std::string date;
-    bool show_pg = gSavedSettings.getBOOL("ShowPGEvents");
-    bool show_mature = gSavedSettings.getBOOL("ShowMatureEvents");
-    bool show_adult = gSavedSettings.getBOOL("ShowAdultEvents");
 
     msg->getUUID("AgentData", "AgentID", agent_id);
     msg->getUUID("QueryData", "QueryID", query_id );
@@ -618,27 +615,6 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
             LL_WARNS() << "skipped event due to owner_id null, event_id " << event_id << LL_ENDL;
             continue;
         }
-
-        // skip events that don't match the flags
-        // there's no PG flag, so we make sure neither adult nor mature is set
-        if (((event_flags & (EVENT_FLAG_ADULT | EVENT_FLAG_MATURE)) == EVENT_FLAG_NONE) && !show_pg)
-        {
-            //llwarns << "Skipped pg event because we're not showing pg, event_id " << event_id << llendl;
-            continue;
-        }
-
-        if ((event_flags & EVENT_FLAG_MATURE) && !show_mature)
-        {
-            //llwarns << "Skipped mature event because we're not showing mature, event_id " << event_id << llendl;
-            continue;
-        }
-
-        if ((event_flags & EVENT_FLAG_ADULT) && !show_adult)
-        {
-            //llwarns << "Skipped adult event because we're not showing adult, event_id " << event_id << llendl;
-            continue;
-        }
-
         LLSD content;
 
         content["type"] = EVENT_CODE;
