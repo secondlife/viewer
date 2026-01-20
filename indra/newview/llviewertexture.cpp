@@ -2576,14 +2576,31 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
     S32 best_raw_discard = gl_discard;  // Current GL quality level
     S32 current_aux_discard = MAX_DISCARD_LEVEL + 1;
     S32 best_aux_discard = MAX_DISCARD_LEVEL + 1;
+    LLImageRaw *current_raw_image = nullptr;
 
     if (mIsRawImageValid)
     {
-        // If we have an existing raw image, we have a baseline for the raw and auxiliary quality levels.
+        // If we have an existing raw image, we have a baseline for the raw
+        // and auxiliary quality levels.
+        // Note: we call updateImagesCreateTextures before callbacks, which
+        // leads to destroyRawImage and deletes raw image. So this case
+        // might be rare or even never trigger as there is never a raw image,
+        // only a saved one.
         current_raw_discard = mRawDiscardLevel;
         best_raw_discard = llmin(best_raw_discard, mRawDiscardLevel);
         best_aux_discard = llmin(best_aux_discard, mRawDiscardLevel); // We always decode the aux when we decode the base raw
         current_aux_discard = llmin(current_aux_discard, best_aux_discard);
+        current_raw_image = mRawImage;
+    }
+    else if (mSavedRawImage.notNull())
+    {
+        // We have a saved raw image, we can use that as our baseline for
+        // raw and auxiliary quality levels.
+        current_raw_discard = mSavedRawDiscardLevel;
+        best_raw_discard = llmin(best_raw_discard, mSavedRawDiscardLevel);
+        best_aux_discard = llmin(best_aux_discard, mSavedRawDiscardLevel); // We always decode the aux when we decode the base raw
+        current_aux_discard = llmin(current_aux_discard, best_aux_discard);
+        current_raw_image = mSavedRawImage;
     }
     else
     {
@@ -2648,12 +2665,17 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
     if (need_readback)
     {
         readbackRawImage();
+        if (mIsRawImageValid)
+        {
+            current_raw_discard = mRawDiscardLevel;
+            current_raw_image = mRawImage;
+        }
     }
 
     //
     // Run raw/auxiliary data callbacks
     //
-    if (run_raw_callbacks && mIsRawImageValid && (mRawDiscardLevel <= getMaxDiscardLevel()))
+    if (run_raw_callbacks && current_raw_image != nullptr && (current_raw_discard <= getMaxDiscardLevel()))
     {
         // Do callbacks which require raw image data.
         //LL_INFOS() << "doLoadedCallbacks raw for " << getID() << LL_ENDL;
@@ -2664,7 +2686,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
         {
             callback_list_t::iterator curiter = iter++;
             LLLoadedCallbackEntry *entryp = *curiter;
-            if (entryp->mNeedsImageRaw && (entryp->mLastUsedDiscard > mRawDiscardLevel))
+            if (entryp->mNeedsImageRaw && (entryp->mLastUsedDiscard > current_raw_discard))
             {
                 // If we've loaded all the data there is to load or we've loaded enough
                 // to satisfy the interested party, then this is the last time that
@@ -2675,11 +2697,11 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
                 {
                     LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
                 }
-                bool final = mRawDiscardLevel <= entryp->mDesiredDiscard;
+                bool final = current_raw_discard <= entryp->mDesiredDiscard;
                 //LL_INFOS() << "Running callback for " << getID() << LL_ENDL;
-                //LL_INFOS() << mRawImage->getWidth() << "x" << mRawImage->getHeight() << LL_ENDL;
-                entryp->mLastUsedDiscard = mRawDiscardLevel;
-                entryp->mCallback(true, this, mRawImage, mAuxRawImage, mRawDiscardLevel, final, entryp->mUserData);
+                //LL_INFOS() << current_raw_image->getWidth() << "x" << current_raw_image->getHeight() << LL_ENDL;
+                entryp->mLastUsedDiscard = current_raw_discard;
+                entryp->mCallback(true, this, current_raw_image, mAuxRawImage, current_raw_discard, final, entryp->mUserData);
                 if (final)
                 {
                     iter = mLoadedCallbackList.erase(curiter);
