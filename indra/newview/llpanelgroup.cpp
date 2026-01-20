@@ -191,6 +191,13 @@ bool LLPanelGroup::postBuild()
         mButtonJoin->setCommitCallback(boost::bind(&LLPanelGroup::onBtnJoin,this));
 
         mJoinText = panel_general->getChild<LLUICtrl>("join_cost_text");
+
+        mButtonActivate = panel_general->getChild<LLButton>("btn_activate");
+        mButtonActivate->setVisible(false);
+        mButtonActivate->setEnabled(gAgent.getGroupID() != mID);
+        mButtonActivate->setCommitCallback(boost::bind(&LLPanelGroup::onBtnActivate, this));
+
+        gAgent.addListener(this, "new group");
     }
 
     LLVoiceClient::addObserver(this);
@@ -267,12 +274,19 @@ void LLPanelGroup::onBtnJoin()
     if (LLGroupActions::isInGroup(mID))
     {
         LLGroupActions::leave(mID);
+        mButtonActivate->setVisible(false);
     }
     else
     {
         LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
         LLGroupActions::join(mID);
     }
+}
+
+void LLPanelGroup::onBtnActivate()
+{
+    LLGroupActions::activate(mID);
+    mButtonActivate->setEnabled(false);
 }
 
 void LLPanelGroup::changed(LLGroupChange gc)
@@ -312,6 +326,8 @@ void LLPanelGroup::update(LLGroupChange gc)
         bool join_btn_visible = is_member || gdatap->mOpenEnrollment;
 
         mButtonJoin->setVisible(join_btn_visible);
+        mButtonActivate->setEnabled(gAgent.getGroupID() != mID);
+        mButtonActivate->setVisible(is_member);
         mJoinText->setVisible(join_btn_visible);
 
         if (is_member)
@@ -384,6 +400,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
     if(mButtonJoin)
         mButtonJoin->setVisible(false);
+    if (mButtonActivate)
+        mButtonActivate->setVisible(false);
 
 
     if(is_null_group_id)//creating new group
@@ -598,4 +616,20 @@ void LLPanelGroup::showNotice(const std::string& subject,
 
 }
 
+bool LLPanelGroup::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+    if (event->desc() == "new group")
+    {
+        mButtonActivate->setEnabled(gAgent.getGroupID() != mID);
+        return true;
+    }
+
+    if (event->desc() == "value_changed")
+    {
+        mButtonActivate->setEnabled(gAgent.getGroupID() != mID);
+        return true;
+    }
+
+    return false;
+}
 

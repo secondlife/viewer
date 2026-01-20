@@ -501,7 +501,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
             open_file_name = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/errorF.glsl");
         }
 
-        file = LLFile::fopen(open_file_name, "r");
+        file = LLFile::fopen(open_file_name, LLFILE_MODE("r"));
     }
     else
 #endif
@@ -529,7 +529,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
             */
 
             LL_DEBUGS("ShaderLoading") << "Looking in " << open_file_name << LL_ENDL;
-            file = LLFile::fopen(open_file_name, "r");      /* Flawfinder: ignore */
+            file = LLFile::fopen(open_file_name, LLFILE_MODE("r")); /* Flawfinder: ignore */
             if (file)
             {
                 LL_DEBUGS("ShaderLoading") << "Loading file: " << open_file_name << " (Want class " << gpu_class << ")" << LL_ENDL;
@@ -1014,7 +1014,6 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
 
     mShaderCacheDir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "shader_cache");
     LLFile::mkdir(mShaderCacheDir);
-
     {
         std::string meta_out_path = gDirUtilp->add(mShaderCacheDir, "shaderdata.llsd");
         if (gDirUtilp->fileExists(meta_out_path))
@@ -1077,7 +1076,7 @@ void LLShaderMgr::persistShaderCacheMetadata()
     // Settings and shader cache get saved at different time, thus making
     // RenderShaderCacheVersion unreliable when running multiple viewer
     // instances, or for cases where viewer crashes before saving settings.
-    // Dupplicate version to the cache itself.
+    // Duplicate version to the cache itself.
     out["version"] = mShaderCacheVersion;
     out["shaders"] = LLSD::emptyMap();
     LLSD &shaders = out["shaders"];
@@ -1130,11 +1129,11 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
         {
             std::vector<U8> in_data;
             in_data.resize(shader_info.mBinaryLength);
-
-            LLUniqueFile filep = LLFile::fopen(in_path, "rb");
-            if (filep)
+            std::error_code ec;
+            LLFile filep = LLFile(in_path, LLFile::in | LLFile::binary, ec);
+            if (!ec && (bool)filep)
             {
-                size_t result = fread(in_data.data(), sizeof(U8), in_data.size(), filep);
+                size_t result = filep.read(in_data.data(), in_data.size(), ec);
                 filep.close();
 
                 if (result == in_data.size())
@@ -1179,11 +1178,12 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
         if (error == GL_NO_ERROR)
         {
             std::string out_path = gDirUtilp->add(mShaderCacheDir, shader->mShaderHash.asString() + ".shaderbin");
-            LLUniqueFile outfile = LLFile::fopen(out_path, "wb");
-            if (outfile)
+            std::error_code ec;
+            LLFile filep = LLFile(out_path, LLFile::out | LLFile::binary, ec);
+            if (filep)
             {
-                fwrite(program_binary.data(), sizeof(U8), program_binary.size(), outfile);
-                outfile.close();
+                filep.write(program_binary.data(), program_binary.size(), ec);
+                filep.close();
 
                 binary_info.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
 

@@ -30,13 +30,8 @@
 /* own header */
 #include "lllocalgltfmaterials.h"
 
-#include <boost/filesystem.hpp>
-
-/* time headers */
-#include <time.h>
-#include <ctime>
-
 /* misc headers */
+#include "fsyspath.h"
 #include "llgltfmateriallist.h"
 #include "llimage.h"
 #include "llinventoryicon.h"
@@ -128,15 +123,8 @@ bool LLLocalGLTFMaterial::updateSelf()
         if (gDirUtilp->fileExists(mFilename))
         {
             // verifying that the file has indeed been modified
-
-#ifndef LL_WINDOWS
-            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(mFilename));
-#else
-            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(ll_convert<std::wstring>(mFilename)));
-#endif
-            LLSD new_last_modified = asctime(localtime(&temp_time));
-
-            if (mLastModified.asString() != new_last_modified.asString())
+            const std::filesystem::file_time_type new_last_modified = std::filesystem::last_write_time(fsyspath(mFilename));
+            if (mLastModified != new_last_modified)
             {
                 if (loadMaterial())
                 {

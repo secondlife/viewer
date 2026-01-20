@@ -278,7 +278,7 @@ public:
     // as the given type.
     U32 loadFromFileLegacy(const std::string& filename, bool require_declaration = true, eControlType declare_as = TYPE_STRING);
     U32 saveToFile(const std::string& filename, bool nondefault_only);
-    U32 loadFromFile(const std::string& filename, bool default_values = false, bool save_values = true);
+    U32 loadFromFile(const std::string& filename, bool default_values = false, bool save_values = true, bool error_when_no_comment = true);
     void    resetToDefaults();
     void    incrCount(std::string_view name);
 

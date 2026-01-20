@@ -2036,6 +2036,25 @@ file_extensions[] =
     { "dxt", IMG_CODEC_DXT },
     { "png", IMG_CODEC_PNG }
 };
+
+static struct
+{
+    const wchar_t* exten;
+    EImageCodec codec;
+}
+wide_file_extensions[] =
+{
+    { L"bmp", IMG_CODEC_BMP },
+    { L"tga", IMG_CODEC_TGA },
+    { L"j2c", IMG_CODEC_J2C },
+    { L"jp2", IMG_CODEC_J2C },
+    { L"texture", IMG_CODEC_J2C },
+    { L"jpg", IMG_CODEC_JPEG },
+    { L"jpeg", IMG_CODEC_JPEG },
+    { L"mip", IMG_CODEC_DXT },
+    { L"dxt", IMG_CODEC_DXT },
+    { L"png", IMG_CODEC_PNG }
+};
 #define NUM_FILE_EXTENSIONS LL_ARRAY_SIZE(file_extensions)
 #if 0
 static std::string find_file(std::string &name, S8 *codec)
@@ -2056,7 +2075,8 @@ static std::string find_file(std::string &name, S8 *codec)
     return std::string("");
 }
 #endif
-EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
+
+EImageCodec LLImageBase::getCodecFromExtension(std::string_view exten)
 {
     if (!exten.empty())
     {
@@ -2068,6 +2088,20 @@ EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
     }
     return IMG_CODEC_INVALID;
 }
+
+EImageCodec LLImageBase::getCodecFromExtension(std::wstring_view exten)
+{
+    if (!exten.empty())
+    {
+        for (int i = 0; i < (int)(NUM_FILE_EXTENSIONS); i++)
+        {
+            if (exten == wide_file_extensions[i].exten)
+                return wide_file_extensions[i].codec;
+        }
+    }
+    return IMG_CODEC_INVALID;
+}
+
 #if 0
 bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip_only)
 {

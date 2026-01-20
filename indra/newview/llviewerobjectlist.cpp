@@ -65,6 +65,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llkeyboard.h"
+#include "llmeshrepository.h"
 #include "u64.h"
 #include "llviewertexturelist.h"
 #include "lldatapacker.h"
@@ -1397,6 +1398,8 @@ void LLViewerObjectList::killAllObjects()
         // Object must be dead, or it's the LLVOAvatarSelf which never dies.
         llassert((objectp == gAgentAvatarp) || objectp->isDead());
     }
+
+    gMeshRepo.unregisterAllMeshes();
 
     cleanDeadObjects(false);
 

@@ -27,10 +27,11 @@
 #ifndef LL_LLIMAGE_H
 #define LL_LLIMAGE_H
 
-#include "lluuid.h"
-#include "llstring.h"
+#include "llmutex.h"
 #include "llpointer.h"
+#include "llstring.h"
 #include "lltrace.h"
+#include "lluuid.h"
 
 constexpr S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 constexpr S32 MAX_IMAGE_MIP = 12; // 4096x4096
@@ -158,7 +159,8 @@ public:
     // <= 0 priority means that there's no need for more data.
     static F32 calc_download_priority(F32 virtual_size, F32 visible_area, S32 bytes_sent);
 
-    static EImageCodec getCodecFromExtension(const std::string& exten);
+    static EImageCodec getCodecFromExtension(std::string_view exten);
+    static EImageCodec getCodecFromExtension(std::wstring_view exten);
 
     //static LLTrace::MemStatHandle sMemStat;
 

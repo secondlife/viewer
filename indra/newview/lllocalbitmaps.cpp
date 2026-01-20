@@ -31,8 +31,6 @@
 /* own header */
 #include "lllocalbitmaps.h"
 
-#include <boost/filesystem.hpp>
-
 /* image compression headers. */
 #include "llimagebmp.h"
 #include "llimagetga.h"
@@ -40,11 +38,8 @@
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 
-/* time headers */
-#include <time.h>
-#include <ctime>
-
 /* misc headers */
+#include "fsyspath.h"
 #include "llgltfmaterial.h"
 #include "llscrolllistctrl.h"
 #include "lllocaltextureobject.h"
@@ -190,15 +185,8 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
         if (gDirUtilp->fileExists(mFilename))
         {
             // verifying that the file has indeed been modified
-
-#ifndef LL_WINDOWS
-            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(mFilename));
-#else
-            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(ll_convert<std::wstring>(mFilename)));
-#endif
-            LLSD new_last_modified = asctime(localtime(&temp_time));
-
-            if (mLastModified.asString() != new_last_modified.asString())
+            const std::filesystem::file_time_type new_last_modified = std::filesystem::last_write_time(fsyspath(mFilename));
+            if (mLastModified != new_last_modified)
             {
                 /* loading the image file and decoding it, here is a critical point which,
                    if fails, invalidates the whole update (or unit creation) process. */
@@ -594,7 +582,7 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
             if (object->isSculpted() && object->getVolume() &&
                 object->getVolume()->getParams().getSculptID() == old_id)
             {
-                LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+                LLSculptParams* old_params = object->getSculptParams();
                 LLSculptParams new_params(*old_params);
                 new_params.setSculptTexture(new_id, (*old_params).getSculptType());
                 object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, true);

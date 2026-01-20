@@ -238,6 +238,7 @@ private:
     LLButton*       mEnablePopupBtn = nullptr;
     LLButton*       mDisablePopupBtn = nullptr;
     LLComboBox*     mTimeFormatCombobox = nullptr;
+    LLComboBox*     mLanguageCombobox = nullptr;
     std::unique_ptr< ll::prefs::SearchData > mSearchData;
     bool mSearchDataDirty;
 

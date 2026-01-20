@@ -828,7 +828,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
             // Intent is for marketplace request to happen after
             // main inventory is done, unless requested by floater
             mRecursiveMarketplaceFetchStarted = true;
-            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
             if (marketplacelistings_id.notNull())
             {
                 mFetchFolderQueue.emplace_front(marketplacelistings_id, FT_FOLDER_AND_CONTENT);

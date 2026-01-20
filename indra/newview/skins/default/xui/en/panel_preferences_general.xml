@@ -113,7 +113,7 @@
      width="70">
         <combo_box.item
          enabled="true"
-         label="1:00 AM"
+         label="1:00 PM"
          name="12H"
          value="0" />
         <combo_box.item

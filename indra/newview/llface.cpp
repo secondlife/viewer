@@ -2372,7 +2372,11 @@ F32 LLFace::adjustPartialOverlapPixelArea(F32 cos_angle_to_view_dir, F32 radius 
 
         //the above calculation is too expensive
         //the below is a good estimation: bounding box of the bounding sphere:
-        F32 alpha = 0.5f * (radius + screen_radius - d) / radius ;
+        F32 alpha = 1.f;
+        if (!is_approx_zero(radius)) // radius can be something like -1e-10
+        {
+            alpha = 0.5f * (radius + screen_radius - d) / radius;
+        }
         alpha = llclamp(alpha, 0.f, 1.f) ;
         return alpha * alpha ;
     }

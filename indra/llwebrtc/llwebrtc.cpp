@@ -814,6 +814,7 @@ LLWebRTCPeerConnectionImpl::~LLWebRTCPeerConnectionImpl()
 {
     mSignalingObserverList.clear();
     mDataObserverList.clear();
+    mPeerConnectionFactory.release();
     if (mPendingJobs > 0)
     {
         RTC_LOG(LS_ERROR) << __FUNCTION__ << "Destroying a connection that has " << std::to_string(mPendingJobs) << " unfinished jobs that might cause workers to crash";
@@ -877,7 +878,6 @@ void LLWebRTCPeerConnectionImpl::terminate()
             }
             mPendingJobs--;
         });
-    mPeerConnectionFactory.release();
 }
 
 void LLWebRTCPeerConnectionImpl::setSignalingObserver(LLWebRTCSignalingObserver *observer) { mSignalingObserverList.emplace_back(observer); }
@@ -1004,6 +1004,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             }
 
             webrtc::PeerConnectionInterface::RTCOfferAnswerOptions offerOptions;
+            this->AddRef(); // CreateOffer will deref this when it's done.  Without this, the callbacks never get called.
             mPeerConnection->CreateOffer(this, offerOptions);
             mPendingJobs--;
         });

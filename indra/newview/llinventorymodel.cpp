@@ -975,6 +975,15 @@ const LLUUID LLInventoryModel::findLibraryCategoryUUIDForType(LLFolderType::ETyp
     return findCategoryUUIDForTypeInRoot(preferred_type, gInventory.getLibraryRootFolderID());
 }
 
+const LLUUID LLInventoryModel::getMarketplaceListingsUUID()
+{
+    if (mMarketplaceListingsUUID.isNull())
+    {
+        mMarketplaceListingsUUID = findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    }
+    return mMarketplaceListingsUUID;
+}
+
 // Convenience function to create a new category. You could call
 // updateCategory() with a newly generated UUID category, but this
 // version will take care of details like what the name should be
@@ -1692,7 +1701,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
             mask |= LLInventoryObserver::LABEL;
         }
         // Under marketplace, category labels are quite complex and need extra upate
-        const LLUUID marketplace_id = findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+        const LLUUID marketplace_id = getMarketplaceListingsUUID();
         if (marketplace_id.notNull() && isObjectDescendentOf(cat->getUUID(), marketplace_id))
         {
             mask |= LLInventoryObserver::LABEL;
@@ -2745,7 +2754,7 @@ bool LLInventoryModel::loadSkeleton(
         const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
         std::string gzip_filename(inventory_filename);
         gzip_filename.append(".gz");
-        LLFILE* fp = LLFile::fopen(gzip_filename, "rb");
+        LLFILE* fp = LLFile::fopen(gzip_filename, LLFILE_MODE("rb"));
         bool remove_inventory_file = false;
         if (LLAppViewer::instance()->isSecondInstance())
         {
@@ -4908,7 +4917,7 @@ bool decompress_file(const char* src_filename, const char* dst_filename)
     // open the files
     src = gzopen(src_filename, "rb");
     if(!src) goto err_decompress;
-    dst = LLFile::fopen(dst_filename, "wb");
+    dst = LLFile::fopen(dst_filename, LLFILE_MODE("wb"));
     if(!dst) goto err_decompress;
 
     // decompress.

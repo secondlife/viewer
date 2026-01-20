@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llwatchdog.h"
+#include "llmutex.h"
 #include "llthread.h"
 #include "llappviewer.h"
 

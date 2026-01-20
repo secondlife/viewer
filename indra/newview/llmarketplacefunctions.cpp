@@ -845,7 +845,7 @@ void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot
 // Get/Post/Put requests to the SLM Server using the SLM API
 void LLMarketplaceData::getSLMListings()
 {
-    const LLUUID marketplaceFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    const LLUUID marketplaceFolderId = gInventory.getMarketplaceListingsUUID();
     setUpdating(marketplaceFolderId, true);
 
     LLCoros::instance().launch("getSLMListings",
@@ -1752,7 +1752,7 @@ bool LLMarketplaceData::isUpdating(const LLUUID& folder_id, S32 depth)
     }
     else
     {
-        const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+        const LLUUID marketplace_listings_uuid = gInventory.getMarketplaceListingsUUID();
         std::set<LLUUID>::iterator it = mPendingUpdateSet.find(marketplace_listings_uuid);
         if (it != mPendingUpdateSet.end())
         {

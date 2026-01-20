@@ -87,7 +87,7 @@ jobs:
       variants: ${{ matrix.configuration }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
@@ -110,14 +110,14 @@ jobs:
         with:
           python-version: "3.11"
       - name: Checkout build variables
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: secondlife/build-variables
           ref: master
           path: .build-variables
 
       - name: Checkout master-message-template
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: secondlife/master-message-template
           path: .master-message-template
@@ -127,7 +127,7 @@ jobs:
 
       - name: Cache autobuild packages
         id: cache-installables
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .autobuild-installables
           key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-${{ hashFiles('autobuild.xml') }}
@@ -412,13 +412,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download viewer exe
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: Windows-app
           path: _artifacts
       - name: Download Windows Symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: Windows-symbols
       - name: Extract viewer pdb
@@ -451,7 +451,7 @@ jobs:
     steps:
       - name: Download Mac Symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: macOS-symbols
       - name: Post Mac symbols
@@ -473,15 +473,15 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.setup.outputs.release_run
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           pattern: "*-installer"
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           pattern: "*-metadata"
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: "Linux-app"
 

@@ -39,6 +39,26 @@ LLFloaterMarketplace::~LLFloaterMarketplace()
 {
 }
 
+void LLFloaterMarketplace::onOpen(const LLSD& key)
+{
+    Params params(key);
+
+    if (!params.validateBlock())
+    {
+        closeFloater();
+        return;
+    }
+
+    if (params.url().empty())
+    {
+        openMarketplace();
+    }
+    else
+    {
+        openMarketplaceURL(params.url);
+    }
+}
+
 // just to override LLFloaterWebContent
 void LLFloaterMarketplace::onClose(bool app_quitting)
 {
@@ -67,4 +87,19 @@ void LLFloaterMarketplace::openMarketplace()
     {
         mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
     }
+}
+
+void LLFloaterMarketplace::openMarketplaceURL(const std::string& url)
+{
+    if (mCurrentURL != url)
+    {
+        mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+    }
+}
+
+// static
+bool LLFloaterMarketplace::isMarketplaceURL(const std::string& url)
+{
+    static LLCachedControl<std::string> marketplace_url(gSavedSettings, "MarketplaceURL", "https://marketplace.secondlife.com/");
+    return url.starts_with(marketplace_url());
 }

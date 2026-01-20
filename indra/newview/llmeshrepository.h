@@ -290,7 +290,7 @@ private:
 class MeshLoadData
 {
 public:
-    MeshLoadData() {}
+    MeshLoadData() = default;
     ~MeshLoadData()
     {
         if (std::shared_ptr<PendingRequestBase> request = mRequest.lock())
@@ -300,19 +300,19 @@ public:
     }
     void initData(LLVOVolume* vol, std::shared_ptr<PendingRequestBase>& request)
     {
-        mVolumes.push_back(vol);
+        mVolumes.insert(vol);
         request->trackData(this);
         mRequest = request;
     }
     void addVolume(LLVOVolume* vol)
     {
-        mVolumes.push_back(vol);
+        mVolumes.insert(vol);
         if (std::shared_ptr<PendingRequestBase> request = mRequest.lock())
         {
             request->setScoreDirty();
         }
     }
-    std::vector<LLVOVolume*> mVolumes;
+    std::unordered_set<LLVOVolume*> mVolumes;
 private:
     std::weak_ptr<PendingRequestBase> mRequest;
 };
@@ -862,10 +862,12 @@ public:
     LLMeshRepository();
 
     void init();
+    void unregisterAllMeshes();
     void shutdown();
     S32 update();
 
-    void unregisterMesh(LLVOVolume* volume);
+    void unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail);
+    void unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vobj);
     //mesh management functions
     S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 new_lod = 0, S32 last_lod = -1);
 

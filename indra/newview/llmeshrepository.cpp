@@ -4271,20 +4271,63 @@ S32 LLMeshRepository::update()
     return static_cast<S32>(size);
 }
 
-void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
+void LLMeshRepository::unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail)
 {
-    for (auto& lod : mLoadingMeshes)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    llassert((mesh_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH);
+    llassert(mesh_params.getSculptID().notNull());
+    auto& lod = mLoadingMeshes[detail];
+    auto param_iter = lod.find(mesh_params.getSculptID());
+    if (param_iter != lod.end())
     {
-        for (auto& param : lod)
+        param_iter->second.mVolumes.erase(vobj);
+        llassert(!param_iter->second.mVolumes.contains(vobj));
+        if (param_iter->second.mVolumes.empty())
         {
-            vector_replace_with_last(param.second.mVolumes, vobj);
+            lod.erase(param_iter);
         }
     }
+}
 
-    for (auto& skin_pair : mLoadingSkins)
+void LLMeshRepository::unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vobj)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    llassert(mesh_id.notNull());
+    auto skin_pair_iter = mLoadingSkins.find(mesh_id);
+    if (skin_pair_iter != mLoadingSkins.end())
     {
-        vector_replace_with_last(skin_pair.second.mVolumes, vobj);
+        skin_pair_iter->second.mVolumes.erase(vobj);
+        llassert(!skin_pair_iter->second.mVolumes.contains(vobj));
+        if (skin_pair_iter->second.mVolumes.empty())
+        {
+            mLoadingSkins.erase(skin_pair_iter);
+        }
     }
+}
+
+// Lots of dead objects make expensive calls to
+// LLMeshRepository::unregisterMesh which may delay shutdown. Avoid this by
+// preemptively unregistering all meshes.
+// We can also do this safely if all objects are confirmed dead for some other
+// reason.
+void LLMeshRepository::unregisterAllMeshes()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    // The size of mLoadingMeshes and mLoadingSkins may be large and thus
+    // expensive to iterate over in LLVOVolume::~LLVOVolume.
+    // This is unnecessary during shutdown, so we ignore the referenced objects in the
+    // least expensive way which is still safe: by clearing these containers.
+    // Clear now and not in LLMeshRepository::shutdown because
+    // LLMeshRepository::notifyLoadedMeshes could (depending on invocation
+    // order) reference a pointer to an object after it has been deleted.
+    for (auto& lod : mLoadingMeshes)
+    {
+        lod.clear();
+    }
+    mLoadingSkins.clear();
 }
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 new_lod, S32 last_lod)
@@ -4306,7 +4349,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
         mesh_load_map::iterator iter = mLoadingMeshes[new_lod].find(mesh_id);
         if (iter != mLoadingMeshes[new_lod].end())
         { //request pending for this mesh, append volume id to list
-            auto it = std::find(iter->second.mVolumes.begin(), iter->second.mVolumes.end(), vobj);
+            auto it = iter->second.mVolumes.find(vobj);
             if (it == iter->second.mVolumes.end()) {
                 iter->second.addVolume(vobj);
             }
@@ -4804,7 +4847,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOV
             skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
             if (iter != mLoadingSkins.end())
             { //request pending for this mesh, append volume id to list
-                auto it = std::find(iter->second.mVolumes.begin(), iter->second.mVolumes.end(), requesting_obj);
+                auto it = iter->second.mVolumes.find(requesting_obj);
                 if (it == iter->second.mVolumes.end()) {
                     iter->second.addVolume(requesting_obj);
                 }

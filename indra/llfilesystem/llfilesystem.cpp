@@ -34,8 +34,6 @@
 #include "llfasttimer.h"
 #include "lldiskcache.h"
 
-#include "boost/filesystem.hpp"
-
 constexpr S32 LLFileSystem::READ        = 0x00000001;
 constexpr S32 LLFileSystem::WRITE       = 0x00000002;
 constexpr S32 LLFileSystem::READ_WRITE  = 0x00000003;  // LLFileSystem::READ & LLFileSystem::WRITE
@@ -51,22 +49,21 @@ LLFileSystem::LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_
     mBytesRead = 0;
     mMode = mode;
 
+    // build the filepath
+    mPath = fsyspath(LLDiskCache::metaDataToFilepath(mFileID, mFileType));
+
     // This block of code was originally called in the read() method but after comments here:
     // https://bitbucket.org/lindenlab/viewer/commits/e28c1b46e9944f0215a13cab8ee7dded88d7fc90#comment-10537114
     // we decided to follow Henri's suggestion and move the code to update the last access time here.
     if (mode == LLFileSystem::READ)
     {
-        // build the filename (TODO: we do this in a few places - perhaps we should factor into a single function)
-        const std::string filename = LLDiskCache::metaDataToFilepath(mFileID, mFileType);
-
         // update the last access time for the file if it exists - this is required
         // even though we are reading and not writing because this is the
         // way the cache works - it relies on a valid "last accessed time" for
         // each file so it knows how to remove the oldest, unused files
-        bool exists = gDirUtilp->fileExists(filename);
-        if (exists)
+        if (LLFile::exists(mPath))
         {
-            updateFileAccessTime(filename);
+            updateFileAccessTime();
         }
     }
 }
@@ -77,21 +74,17 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     LL_PROFILE_ZONE_SCOPED;
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    llifstream file(filename, std::ios::binary);
-    if (file.is_open())
-    {
-        file.seekg(0, std::ios::end);
-        return file.tellg() > 0;
-    }
-    return false;
+    // not only test for existence but for the file to be not empty
+    S64 size =  LLFile::size(filename);
+    return size > 0;
 }
 
 // static
-bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error /*= 0*/)
+bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_warning /*= 0*/)
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    LLFile::remove(filename.c_str(), suppress_error);
+    LLFile::remove(filename.c_str(), suppress_warning);
 
     return true;
 }
@@ -115,29 +108,11 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
     return true;
 }
 
-// static
-S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType file_type)
-{
-    const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
-
-    S32 file_size = 0;
-    llifstream file(filename, std::ios::binary);
-    if (file.is_open())
-    {
-        file.seekg(0, std::ios::end);
-        file_size = (S32)file.tellg();
-    }
-
-    return file_size;
-}
-
 bool LLFileSystem::read(U8* buffer, S32 bytes)
 {
     bool success = false;
 
-    const std::string filename = LLDiskCache::metaDataToFilepath(mFileID, mFileType);
-
-    llifstream file(filename, std::ios::binary);
+    llifstream file(mPath, std::ios::binary);
     if (file.is_open())
     {
         file.seekg(mPosition, std::ios::beg);
@@ -177,13 +152,11 @@ bool LLFileSystem::eof() const
 
 bool LLFileSystem::write(const U8* buffer, S32 bytes)
 {
-    const std::string filename = LLDiskCache::metaDataToFilepath(mFileID, mFileType);
-
     bool success = false;
 
     if (mMode == APPEND)
     {
-        llofstream ofs(filename, std::ios::app | std::ios::binary);
+        llofstream ofs(mPath, std::ios::app | std::ios::binary);
         if (ofs)
         {
             ofs.write((const char*)buffer, bytes);
@@ -196,7 +169,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
     else if (mMode == READ_WRITE)
     {
         // Don't truncate if file already exists
-        llofstream ofs(filename, std::ios::in | std::ios::binary);
+        llofstream ofs(mPath, std::ios::in | std::ios::binary);
         if (ofs)
         {
             ofs.seekp(mPosition, std::ios::beg);
@@ -207,7 +180,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
         else
         {
             // File doesn't exist - open in write mode
-            ofs.open(filename, std::ios::binary);
+            ofs.open(mPath, std::ios::binary);
             if (ofs.is_open())
             {
                 ofs.write((const char*)buffer, bytes);
@@ -218,7 +191,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
     }
     else
     {
-        llofstream ofs(filename, std::ios::binary);
+        llofstream ofs(mPath, std::ios::binary);
         if (ofs)
         {
             ofs.write((const char*)buffer, bytes);
@@ -269,7 +242,7 @@ S32 LLFileSystem::tell() const
 
 S32 LLFileSystem::getSize() const
 {
-    return LLFileSystem::getFileSize(mFileID, mFileType);
+    return narrow(LLFile::size(mPath));
 }
 
 S32 LLFileSystem::getMaxSize() const
@@ -284,17 +257,18 @@ bool LLFileSystem::rename(const LLUUID& new_id, const LLAssetType::EType new_typ
 
     mFileID = new_id;
     mFileType = new_type;
+    mPath = fsyspath(LLDiskCache::metaDataToFilepath(mFileID, mFileType));
 
     return true;
 }
 
 bool LLFileSystem::remove() const
 {
-    LLFileSystem::removeFile(mFileID, mFileType);
+    LLFile::remove(mPath);
     return true;
 }
 
-void LLFileSystem::updateFileAccessTime(const std::string& file_path)
+void LLFileSystem::updateFileAccessTime()
 {
     /**
      * Threshold in time_t units that is used to decide if the last access time
@@ -305,52 +279,32 @@ void LLFileSystem::updateFileAccessTime(const std::string& file_path)
      *
      * Let's start with 1 hour in time_t units and see how that unfolds
      */
-    constexpr std::time_t time_threshold = 1 * 60 * 60;
+    constexpr std::chrono::hours time_threshold(1);
 
     // current time
-    const std::time_t cur_time = std::time(nullptr);
+    const std::filesystem::file_time_type cur_time = std::chrono::file_clock::now();
 
-    boost::system::error_code ec;
-#if LL_WINDOWS
+    std::error_code ec;
     // file last write time
-    const std::time_t last_write_time = boost::filesystem::last_write_time(ll_convert<std::wstring>(file_path), ec);
-    if (ec.failed())
+    const std::filesystem::file_time_type last_write_time = std::filesystem::last_write_time(mPath, ec);
+    if (ec)
     {
-        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+        LL_WARNS() << "Failed to read last write time for cache file " << mPath << ": " << ec.message() << LL_ENDL;
         return;
     }
 
     // delta between cur time and last time the file was written
-    const std::time_t delta_time = cur_time - last_write_time;
+    const auto delta_time = cur_time - last_write_time;
 
     // we only write the new value if the time in time_threshold has elapsed
     // before the last one
     if (delta_time > time_threshold)
     {
-        boost::filesystem::last_write_time(ll_convert<std::wstring>(file_path), cur_time, ec);
-    }
-#else
-    // file last write time
-    const std::time_t last_write_time = boost::filesystem::last_write_time(file_path, ec);
-    if (ec.failed())
-    {
-        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
-        return;
+        std::filesystem::last_write_time(mPath, cur_time, ec);
     }
 
-    // delta between cur time and last time the file was written
-    const std::time_t delta_time = cur_time - last_write_time;
-
-    // we only write the new value if the time in time_threshold has elapsed
-    // before the last one
-    if (delta_time > time_threshold)
+    if (ec)
     {
-        boost::filesystem::last_write_time(file_path, cur_time, ec);
-    }
-#endif
-
-    if (ec.failed())
-    {
-        LL_WARNS() << "Failed to update last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+        LL_WARNS() << "Failed to update last write time for cache file " << mPath << ": " << ec.message() << LL_ENDL;
     }
 }

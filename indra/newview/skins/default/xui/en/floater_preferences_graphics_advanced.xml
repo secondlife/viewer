@@ -76,19 +76,19 @@
     height="16"
     increment="1"
     initial_value="8"
-    label="Post process quality:"
+    label="Glow quality:"
     label_width="185"
     layout="topleft"
     left="30"
     min_val="8"
     max_val="9"
-    name="RenderPostProcess"
+    name="GlowResolution"
     show_text="false"
     top_delta="16"
     width="300">
     <slider.commit_callback
       function="Pref.UpdateSliderText"
-      parameter="PostProcessText" />
+      parameter="GlowResolutionText" />
   </slider>
   <text
     type="string"
@@ -96,7 +96,7 @@
     follows="left|top"
     height="16"
     layout="topleft"
-    name="PostProcessText"
+    name="GlowResolutionText"
     top_delta="0"
     left_delta="304"
     width="65">
@@ -689,25 +689,25 @@
   </check_box>
 
   <slider
-    control_name="WLSkyDetail"
+    control_name="RenderHighPrecisionPostProcess"
     decimal_digits="0"
     follows="left|top"
     height="16"
-    increment="8"
+    increment="1"
     initial_value="160"
-    label="Sky:"
+    label="Post Process Quality:"
     label_width="145"
     layout="topleft"
     left="420"
-    min_val="16"
-    max_val="128"
-    name="SkyMeshDetail"
+    min_val="0"
+    max_val="1"
+    name="RenderPostProcess"
     show_text="false"
     top_delta="22"
     width="260">
     <slider.commit_callback
       function="Pref.UpdateSliderText"
-      parameter="SkyMeshDetailText" />
+      parameter="PostProcessText" />
   </slider>
   <text
     type="string"
@@ -716,7 +716,7 @@
     height="16"
     layout="topleft"
     left_delta="264"
-    name="SkyMeshDetailText"
+    name="PostProcessText"
     text_readonly_color="LabelDisabledColor"
     top_delta="0"
     width="65">

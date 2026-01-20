@@ -12,26 +12,29 @@
 #if ! defined(LL_NAMEDTEMPFILE_H)
 #define LL_NAMEDTEMPFILE_H
 
+#include "fsyspath.h"
 #include "llerror.h"
 #include "llstring.h"
 #include "stringize.h"
 #include <string>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/noncopyable.hpp>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <sstream>
 #include <string_view>
+#include <random>
 
 /**
  * Create a text file with specified content "somewhere in the
  * filesystem," cleaning up when it goes out of scope.
  */
-class NamedTempFile: public boost::noncopyable
+class NamedTempFile
 {
     LOG_CLASS(NamedTempFile);
 public:
+    NamedTempFile(const NamedTempFile&) = delete;
+    NamedTempFile& operator=(const NamedTempFile&) = delete;
+
     NamedTempFile(const std::string_view& pfx,
                   const std::string_view& content,
                   const std::string_view& sfx=std::string_view(""))
@@ -62,16 +65,16 @@ public:
 
     virtual ~NamedTempFile()
     {
-        boost::filesystem::remove(mPath);
+        std::filesystem::remove(mPath);
     }
 
-    std::string getName() const { return mPath.string(); }
+    const std::filesystem::path& getPath() const { return mPath; }
 
     template <typename CALLABLE>
     void peep_via(CALLABLE&& callable) const
     {
         std::forward<CALLABLE>(callable)(stringize("File '", mPath, "' contains:"));
-        boost::filesystem::ifstream reader(mPath, std::ios::binary);
+        std::ifstream reader(mPath, std::ios::binary);
         std::string line;
         while (std::getline(reader, line))
             std::forward<CALLABLE>(callable)(line);
@@ -94,23 +97,27 @@ public:
         return out;
     }
 
-    static boost::filesystem::path temp_path(const std::string_view& pfx="",
+    static std::filesystem::path temp_path(const std::string_view& pfx="",
                                              const std::string_view& sfx="")
     {
         // This variable is set by GitHub actions and is the recommended place
         // to put temp files belonging to an actions job.
         const char* RUNNER_TEMP = getenv("RUNNER_TEMP");
-        boost::filesystem::path tempdir{
+        std::filesystem::path tempdir{
             // if RUNNER_TEMP is set and not empty
             (RUNNER_TEMP && *RUNNER_TEMP)?
-            boost::filesystem::path(RUNNER_TEMP) : // use RUNNER_TEMP if available
-            boost::filesystem::temp_directory_path()}; // else canonical temp dir
-        boost::filesystem::path tempname{
-            // use filename template recommended by unique_path() doc, but
-            // with underscores instead of hyphens: some use cases involve
-            // temporary Python scripts
-            tempdir / stringize(pfx, "%%%%_%%%%_%%%%_%%%%", sfx) };
-        return boost::filesystem::unique_path(tempname);
+            fsyspath::path(RUNNER_TEMP) : // use RUNNER_TEMP if available
+            std::filesystem::temp_directory_path()}; // else canonical temp dir
+
+        static std::mt19937 random_generator{std::random_device{}()};
+        static std::uniform_int_distribution<> distribution{0, std::numeric_limits<uint8_t>::max()};
+        std::string tempname{};
+        static constexpr auto num_bits = 128;
+        for (auto i = 0; i < (num_bits / std::numeric_limits<uint8_t>::digits); ++i) {
+            tempname += llformat("%02x", distribution(random_generator));
+        }
+        tempname = std::string(pfx) + tempname + std::string(sfx);
+        return tempdir / tempname;
     }
 
 protected:
@@ -120,12 +127,12 @@ protected:
     {
         // Create file in a temporary place.
         mPath = temp_path(pfx, sfx);
-        boost::filesystem::ofstream out{ mPath, std::ios::binary };
+        std::ofstream out{ mPath, std::ios::binary };
         // Write desired content.
         func(out);
     }
 
-    boost::filesystem::path mPath;
+    std::filesystem::path mPath;
 };
 
 /**

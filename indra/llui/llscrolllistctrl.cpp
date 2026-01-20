@@ -3198,6 +3198,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
             if (cell_p.width.isProvided())
             {
                 new_column.width.pixel_width = cell_p.width;
+                new_column.width.pixel_width.choose();
             }
             addColumn(new_column);
             columnp = mColumns[column];
