@@ -340,6 +340,12 @@ LLCDResult LLConvexDecompositionVHACD::executeStage(int stage)
         out_mesh.setVertices(ch.m_points);
         out_mesh.setIndices(ch.m_triangles);
 
+        if (!mBoundDecomp)
+        {
+            mVHACD->Clean();
+            return LLCD_NULL_PTR;
+        }
+
         mBoundDecomp->mDecomposedHulls.push_back(std::move(out_mesh));
     }
 
