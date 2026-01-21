@@ -11417,12 +11417,17 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
             LLPerfStats::tunables.userFPSTuningStrategy != LLPerfStats::TUNE_SCENE_ONLY &&
             !isVisuallyMuted())
         {
-            LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
-            LL::WorkQueue::getInstance("mainloop")->post([this, id]()
+            const LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
+            LL::WorkQueue::getInstance("mainloop")->post([id]()
                 {
-                    if (gObjectList.findObject(id) != nullptr)
+                    LLViewerObject* obj = gObjectList.findObject(id);
+                    if (obj
+                        && !obj->isDead()
+                        && obj->isAvatar()
+                        && obj->mDrawable)
                     {
-                        gPipeline.profileAvatar(this);
+                        LLVOAvatar* avatar = (LLVOAvatar*)obj;
+                        gPipeline.profileAvatar(avatar);
                     }
                 });
         }
