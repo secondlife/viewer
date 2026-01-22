@@ -264,7 +264,7 @@ public:
 
     LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
 
-    bool isHUDGroup() const;
+    bool isHUDGroup();
 
     void clearDrawMap();
     void validate();
