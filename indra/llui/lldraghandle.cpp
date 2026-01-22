@@ -59,7 +59,9 @@ LLDragHandle::LLDragHandle(const LLDragHandle::Params& p)
     mMaxTitleWidth( 0 ),
     mForeground( true ),
     mDragHighlightColor(p.drag_highlight_color()),
-    mDragShadowColor(p.drag_shadow_color())
+    mDragShadowColor(p.drag_shadow_color()),
+    mFont(p.font),
+    mLabelVPad(p.label_vpad())
 
 {
     static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);
@@ -98,12 +100,11 @@ void LLDragHandleTop::setTitle(const std::string& title)
     }
     else
     {
-        const LLFontGL* font = LLFontGL::getFontSansSerif();
         LLTextBox::Params params;
         params.name("Drag Handle Title");
         params.rect(getRect());
         params.initial_value(trimmed_title);
-        params.font(font);
+        params.font(mFont);
         params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
         params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
         params.use_ellipses = true;
@@ -236,7 +237,6 @@ void LLDragHandleLeft::draw()
 
 void LLDragHandleTop::reshapeTitleBox()
 {
-    static LLUICachedControl<S32> title_vpad("UIFloaterTitleVPad", 0);
     if( ! mTitleBox)
     {
         return;
@@ -248,7 +248,7 @@ void LLDragHandleTop::reshapeTitleBox()
     LLRect title_rect;
     title_rect.setLeftTopAndSize(
         LEFT_PAD,
-        getRect().getHeight() - title_vpad,
+        getRect().getHeight() - mLabelVPad,
         title_width,
         title_height);
 
