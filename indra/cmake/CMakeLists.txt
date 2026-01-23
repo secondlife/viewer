@@ -61,7 +61,6 @@ set(cmake_SOURCE_FILES
         VHACD.cmake
         ViewerManager.cmake
         ViewerMiscLibs.cmake
-        VisualLeakDetector.cmake
         Vorbis.cmake
         LibVLCPlugin.cmake
         WebRTC.cmake

@@ -36,7 +36,6 @@ include(Tracy)
 include(UI)
 include(ViewerMiscLibs)
 include(ViewerManager)
-include(VisualLeakDetector)
 include(ZLIBNG)
 
 # Javascript files for 3D snapshot functionality
