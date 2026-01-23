@@ -1060,7 +1060,12 @@ void AISUpdate::checkTimeout()
 {
     if (mTimer.hasExpired())
     {
-        llcoro::suspend();
+        // If we are taking too long, don't starve other tasks,
+        // yield to mainloop.
+        // If we use normal suspend(), there will be a chance of
+        // waking up from other suspends, before main coro had
+        // a chance, so wait for a frame tick instead.
+        llcoro::suspendUntilNextFrame();
         LLCoros::checkStop();
         mTimer.setTimerExpirySec(AIS_EXPIRY_SECONDS);
     }
