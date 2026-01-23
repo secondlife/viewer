@@ -85,6 +85,11 @@ void suspend();
 void suspendUntilTimeout(float seconds);
 
 /**
+ * Yield control from a coroutine until the next mainloop's newFrame event.
+ */
+void suspendUntilNextFrame();
+
+/**
  * Post specified LLSD event on the specified LLEventPump, then suspend for a
  * response on specified other LLEventPump. This is more than mere
  * convenience: the difference between this function and the sequence
