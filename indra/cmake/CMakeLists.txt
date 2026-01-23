@@ -15,7 +15,6 @@ set(cmake_SOURCE_FILES
         CEFPlugin.cmake
         CMakeCopyIfDifferent.cmake
         Copy3rdPartyLibs.cmake
-        CubemapToEquirectangularJS.cmake
         CURL.cmake
         Discord.cmake
         DragDrop.cmake
@@ -30,7 +29,6 @@ set(cmake_SOURCE_FILES
         Havok.cmake
         Hunspell.cmake
         JPEG.cmake
-        JPEGEncoderBasic.cmake
         LLAddBuildTest.cmake
         LLCA.cmake
         LLKDU.cmake
@@ -53,7 +51,6 @@ set(cmake_SOURCE_FILES
         SDL3.cmake
         SSE2NEON.cmake
         TemplateCheck.cmake
-        ThreeJS.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
         Tracy.cmake
