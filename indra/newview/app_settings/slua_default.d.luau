@@ -329,8 +329,6 @@ declare os: {
 -- Global Table: quaternion
 ---------------------------
 
-declare quaternion: {
-  identity: quaternion
 declare quaternion: ((x: number, y: number, z: number, s: number) -> quaternion) & {
   create: (x: number, y: number, z: number, s: number) -> quaternion,
   identity: quaternion,
@@ -422,7 +420,7 @@ declare uuid: ((value: string | buffer | uuid) -> uuid?) & {
 -- Global Table: vector
 ---------------------------
 
-declare vector: {
+declare vector: ((x: number, y: number, z: number?) -> vector) & {
   create: (x: number, y: number, z: number?) -> vector,
   magnitude: (v: vector) -> number,
   normalize: (v: vector) -> vector,
