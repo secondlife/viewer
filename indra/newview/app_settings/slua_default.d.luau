@@ -3,7 +3,7 @@
 ---------- LSL LUAU DEFS ---------
 ----------------------------------
 
-declare class quaternion
+declare extern type quaternion with
   x: number
   y: number
   z: number
@@ -17,13 +17,13 @@ declare class quaternion
   function __tostring(self): string
 end
 
-declare class uuid
+declare extern type uuid with
   istruthy: boolean
   bytes: string?
   function __tostring(self): string
 end
 
-declare class vector
+declare extern type vector with
   x: number
   y: number
   z: number
@@ -60,7 +60,7 @@ type OsDateTime = {
   isdst: boolean?,
 }
 
-declare class LLDetectedEvent
+declare extern type LLDetectedEvent with
   index: number
   valid: boolean
   canAdjustDamage: boolean
@@ -85,7 +85,7 @@ declare class LLDetectedEvent
   function getVel(self): vector
 end
 
-declare class LLEvents
+declare extern type LLEvents with
   at_rot_target: (TargetNumber: number, TargetRotation: quaternion, CurrentRotation: quaternion) -> () | nil
   at_target: (TargetNumber: number, TargetPosition: vector, CurrentPosition: vector) -> () | nil
   attach: (AvatarID: uuid) -> () | nil
@@ -136,7 +136,7 @@ declare class LLEvents
   function eventNames(self): {string}
 end
 
-declare class LLTimers
+declare extern type LLTimers with
   function every(self, seconds: number, callback: LLTimerEveryCallback): LLTimerCallback
   function once(self, seconds: number, callback: LLTimerOnceCallback): LLTimerCallback
   function off(self, callback: LLTimerCallback): boolean
