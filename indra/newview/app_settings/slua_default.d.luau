@@ -143,40 +143,7 @@ declare extern type LLTimers with
 end
 
 
-declare quaternion: ((x: number, y: number, z: number, s: number) -> quaternion) & {
-  create: (x: number, y: number, z: number, s: number) -> quaternion,
-  identity: quaternion,
-  normalize: (q: quaternion) -> quaternion,
-  magnitude: (q: quaternion) -> number,
-  dot: (a: quaternion, b: quaternion) -> number,
-  slerp: (a: quaternion, b: quaternion, t: number) -> quaternion,
-  conjugate: (q: quaternion) -> quaternion,
-  tofwd: (q: quaternion) -> vector,
-  toleft: (q: quaternion) -> vector,
-  toup: (q: quaternion) -> vector,
-}
 declare rotation: typeof(quaternion)
-declare uuid: ((value: string | buffer | uuid) -> uuid?) & {
-  create: (value: string | buffer | uuid) -> uuid?,
-}
-declare vector: ((x: number, y: number, z: number?) -> vector) & {
-  create: (x: number, y: number, z: number?) -> vector,
-  magnitude: (v: vector) -> number,
-  normalize: (v: vector) -> vector,
-  cross: (a: vector, b: vector) -> vector,
-  dot: (a: vector, b: vector) -> number,
-  angle: (a: vector, b: vector, axis: vector?) -> number,
-  floor: (v: vector) -> vector,
-  ceil: (v: vector) -> vector,
-  abs: (v: vector) -> vector,
-  sign: (v: vector) -> vector,
-  clamp: (v: vector, min: vector, max: vector) -> vector,
-  max: (v: vector, ...vector) -> vector,
-  min: (v: vector, ...vector) -> vector,
-  lerp: (a: vector, b: vector, t: number) -> vector,
-  zero: vector,
-  one: vector,
-}
 declare LLEvents: LLEvents
 declare LLTimers: LLTimers
 declare loadstring: nil
@@ -359,6 +326,26 @@ declare os: {
 
 
 ---------------------------
+-- Global Table: quaternion
+---------------------------
+
+declare quaternion: {
+  identity: quaternion
+declare quaternion: ((x: number, y: number, z: number, s: number) -> quaternion) & {
+  create: (x: number, y: number, z: number, s: number) -> quaternion,
+  identity: quaternion,
+  normalize: (q: quaternion) -> quaternion,
+  magnitude: (q: quaternion) -> number,
+  dot: (a: quaternion, b: quaternion) -> number,
+  slerp: (a: quaternion, b: quaternion, t: number) -> quaternion,
+  conjugate: (q: quaternion) -> quaternion,
+  tofwd: (q: quaternion) -> vector,
+  toleft: (q: quaternion) -> vector,
+  toup: (q: quaternion) -> vector,
+}
+
+
+---------------------------
 -- Global Table: string
 ---------------------------
 
@@ -419,6 +406,39 @@ declare utf8: {
   codepoint: (s: string, i: number?, j: number?) -> ...number,
   len: (s: string, i: number?, j: number?) -> (number?, number?),
   offset: (s: string, n: number, i: number?) -> number?,
+}
+
+
+---------------------------
+-- Global Table: uuid
+---------------------------
+
+declare uuid: ((value: string | buffer | uuid) -> uuid?) & {
+  create: (value: string | buffer | uuid) -> uuid?,
+}
+
+
+---------------------------
+-- Global Table: vector
+---------------------------
+
+declare vector: {
+  create: (x: number, y: number, z: number?) -> vector,
+  magnitude: (v: vector) -> number,
+  normalize: (v: vector) -> vector,
+  cross: (a: vector, b: vector) -> vector,
+  dot: (a: vector, b: vector) -> number,
+  angle: (a: vector, b: vector, axis: vector?) -> number,
+  floor: (v: vector) -> vector,
+  ceil: (v: vector) -> vector,
+  abs: (v: vector) -> vector,
+  sign: (v: vector) -> vector,
+  clamp: (v: vector, min: vector, max: vector) -> vector,
+  max: (v: vector, ...vector) -> vector,
+  min: (v: vector, ...vector) -> vector,
+  lerp: (a: vector, b: vector, t: number) -> vector,
+  zero: vector,
+  one: vector,
 }
 
 
