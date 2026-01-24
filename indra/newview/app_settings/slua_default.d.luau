@@ -60,7 +60,7 @@ type OsDateTime = {
   isdst: boolean?,
 }
 
-declare extern type LLDetectedEvent with
+declare extern type DetectedEvent with
   index: number
   valid: boolean
   canAdjustDamage: boolean
