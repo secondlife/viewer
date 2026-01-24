@@ -330,8 +330,8 @@ declare os: {
 ---------------------------
 
 declare quaternion: ((x: number, y: number, z: number, s: number) -> quaternion) & {
-  create: (x: number, y: number, z: number, s: number) -> quaternion,
   identity: quaternion,
+  create: (x: number, y: number, z: number, s: number) -> quaternion,
   normalize: (q: quaternion) -> quaternion,
   magnitude: (q: quaternion) -> number,
   dot: (a: quaternion, b: quaternion) -> number,
@@ -421,6 +421,8 @@ declare uuid: ((value: string | buffer | uuid) -> uuid?) & {
 ---------------------------
 
 declare vector: ((x: number, y: number, z: number?) -> vector) & {
+  zero: vector,
+  one: vector,
   create: (x: number, y: number, z: number?) -> vector,
   magnitude: (v: vector) -> number,
   normalize: (v: vector) -> vector,
@@ -435,8 +437,6 @@ declare vector: ((x: number, y: number, z: number?) -> vector) & {
   max: (v: vector, ...vector) -> vector,
   min: (v: vector, ...vector) -> vector,
   lerp: (a: vector, b: vector, t: number) -> vector,
-  zero: vector,
-  one: vector,
 }
 
 
