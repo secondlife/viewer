@@ -798,7 +798,7 @@ declare ll: {
   ReturnObjectsByOwner: (ID: uuid, Scope: number) -> number,
   RezAtRoot: (InventoryItem: string, Position: vector, Velocity: vector, Rotation: quaternion, StartParameter: number) -> (),
   RezObject: (InventoryItem: string, Position: vector, Velocity: vector, Rotation: quaternion, StartParameter: number) -> (),
-  RezObjectWithParams: (InventoryItem: string, Parms: list) -> uuid,
+  RezObjectWithParams: (InventoryItem: string, Params: list) -> uuid,
   Rot2Angle: (Rotation: quaternion) -> number,
   Rot2Axis: (Rotation: quaternion) -> vector,
   Rot2Euler: (Rotation: quaternion) -> vector,
