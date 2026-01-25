@@ -859,7 +859,7 @@ declare ll: {
   SetObjectDesc: (Description: string) -> (),
   SetObjectName: (Name: string) -> (),
   SetObjectPermMask: (PermissionFlag: number, PermissionMask: number) -> (),
-  SetParcelForSale: (ForSale: boolean | number, Options: list) -> boolean,
+  SetParcelForSale: (ForSale: boolean | number, Options: list) -> number,
   SetParcelMusicURL: (URL: string) -> (),
   SetPayPrice: (Price: number, QuickButtons: list) -> (),
   SetPhysicsMaterial: (MaterialBits: number, GravityMultiplier: number, Restitution: number, Friction: number, Density: number) -> (),
