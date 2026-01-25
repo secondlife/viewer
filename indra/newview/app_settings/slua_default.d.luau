@@ -44,10 +44,10 @@ type LLDetectedEventName = "collision" | "collision_end" | "collision_start" | "
 type LLNonDetectedEventName = "at_rot_target" | "at_target" | "attach" | "changed" | "control" | "dataserver" | "email" | "experience_permissions" | "experience_permissions_denied" | "game_control" | "http_request" | "http_response" | "land_collision" | "land_collision_end" | "land_collision_start" | "link_message" | "linkset_data" | "listen" | "money" | "moving_end" | "moving_start" | "no_sensor" | "not_at_rot_target" | "not_at_target" | "object_rez" | "on_death" | "on_rez" | "path_update" | "remote_data" | "run_time_permissions" | "state_entry" | "state_exit" | "timer" | "transaction_result"
 type LLEventName = LLDetectedEventName | LLNonDetectedEventName
 type LLEventHandler = (...any) -> ()
-type LLDetectedEventHandler = (detected: {LLDetectedEvent}) -> ()
+type LLDetectedEventHandler = (detected: {DetectedEvent}) -> ()
 type LLTimerEveryCallback = (scheduled: number, interval: number) -> ()
 type LLTimerOnceCallback = (scheduled: number) -> ()
-type LLTimerCallback = LLTimerEveryCallback | LLTimerOnceCallback | (...any) -> ...any
+type LLTimerCallback = LLTimerEveryCallback | LLTimerOnceCallback
 type OsDateTime = {
   year: number,
   month: number,
