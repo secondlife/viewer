@@ -143,12 +143,6 @@ declare extern type LLTimers with
 end
 
 
-declare rotation: typeof(quaternion)
-declare LLEvents: LLEvents
-declare LLTimers: LLTimers
-declare loadstring: nil
-declare getfenv: nil
-declare setfenv: nil
 declare function dangerouslyexecuterequiredmodule(f: (...any) -> ...any): ...any
 declare function touuid(val: string | buffer | uuid): uuid?
 declare function tovector(val: any): vector?
@@ -440,6 +434,12 @@ declare vector: ((x: number, y: number, z: number?) -> vector) & {
   lerp: (a: vector, b: vector, t: number) -> vector,
 }
 
+declare rotation: typeof(quaternion)
+declare LLEvents: LLEvents
+declare LLTimers: LLTimers
+declare loadstring: nil
+declare getfenv: nil
+declare setfenv: nil
 
 ---------------------------
 -- Global Table: ll
