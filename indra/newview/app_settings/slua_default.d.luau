@@ -253,10 +253,10 @@ declare llbase64: {
 ---------------------------
 
 declare lljson: {
-  null: userdata,
+  null: any,
   empty_array_mt: { [any]: any },
   array_mt: { [any]: any },
-  empty_array: userdata,
+  empty_array: any,
   _NAME: string,
   _VERSION: string,
   encode: (value: any) -> string,
