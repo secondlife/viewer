@@ -1226,7 +1226,6 @@ declare GAME_CONTROL_BUTTON_START: number
 declare GAME_CONTROL_BUTTON_TOUCHPAD: number
 declare GAME_CONTROL_BUTTON_X: number
 declare GAME_CONTROL_BUTTON_Y: number
-declare GCNP_GET_WALKABILITY: number
 declare GCNP_RADIUS: number
 declare GCNP_STATIC: number
 declare GRAVITY_MULTIPLIER: number
@@ -1298,7 +1297,6 @@ declare LAND_RAISE: number
 declare LAND_REVERT: number
 declare LAND_SMALL_BRUSH: number
 declare LAND_SMOOTH: number
-declare LEGACY_MASS_FACTOR: number
 declare LINKSETDATA_DELETE: number
 declare LINKSETDATA_EMEMORY: number
 declare LINKSETDATA_ENOKEY: number
@@ -1332,7 +1330,6 @@ declare MASK_GROUP: number
 declare MASK_NEXT: number
 declare MASK_OWNER: number
 declare NAK: string
-declare NAVIGATE_TO_GOAL_REACHED_DIST: number
 declare NULL_KEY: uuid
 declare OBJECT_ACCOUNT_LEVEL: number
 declare OBJECT_ANIMATED_COUNT: number
@@ -1438,7 +1435,6 @@ declare PARCEL_FLAG_ALLOW_GROUP_SCRIPTS: number
 declare PARCEL_FLAG_ALLOW_LANDMARK: number
 declare PARCEL_FLAG_ALLOW_SCRIPTS: number
 declare PARCEL_FLAG_ALLOW_TERRAFORM: number
-declare PARCEL_FLAG_LINDEN_HOMES: number
 declare PARCEL_FLAG_LOCAL_SOUND_ONLY: number
 declare PARCEL_FLAG_RESTRICT_PUSHOBJECT: number
 declare PARCEL_FLAG_USE_ACCESS_GROUP: number
@@ -1549,15 +1545,11 @@ declare PRIM_HOLE_SQUARE: number
 declare PRIM_HOLE_TRIANGLE: number
 declare PRIM_LINK_TARGET: number
 declare PRIM_MATERIAL: number
-declare PRIM_MATERIAL_DENSITY: number
 declare PRIM_MATERIAL_FLESH: number
-declare PRIM_MATERIAL_FRICTION: number
 declare PRIM_MATERIAL_GLASS: number
-declare PRIM_MATERIAL_GRAVITY_MULTIPLIER: number
 declare PRIM_MATERIAL_LIGHT: number
 declare PRIM_MATERIAL_METAL: number
 declare PRIM_MATERIAL_PLASTIC: number
-declare PRIM_MATERIAL_RESTITUTION: number
 declare PRIM_MATERIAL_RUBBER: number
 declare PRIM_MATERIAL_STONE: number
 declare PRIM_MATERIAL_WOOD: number
@@ -1684,7 +1676,6 @@ declare PSYS_SRC_BURST_SPEED_MAX: number
 declare PSYS_SRC_BURST_SPEED_MIN: number
 declare PSYS_SRC_INNERANGLE: number
 declare PSYS_SRC_MAX_AGE: number
-declare PSYS_SRC_OBJ_REL_MASK: number
 declare PSYS_SRC_OMEGA: number
 declare PSYS_SRC_OUTERANGLE: number
 declare PSYS_SRC_PATTERN: number
@@ -1764,7 +1755,6 @@ declare REZ_POS: number
 declare REZ_ROT: number
 declare REZ_SOUND: number
 declare REZ_SOUND_COLLIDE: number
-declare REZ_TORQUE: number
 declare REZ_VEL: number
 declare ROTATE: number
 declare SCALE: number
@@ -1808,22 +1798,18 @@ declare SIT_NOT_EXPERIENCE: number
 declare SIT_NO_ACCESS: number
 declare SIT_NO_EXPERIENCE_PERMISSION: number
 declare SIT_NO_SIT_TARGET: number
-declare SKY_ABSORPTION_CONFIG: number
 declare SKY_AMBIENT: number
 declare SKY_BLUE: number
 declare SKY_CLOUDS: number
 declare SKY_CLOUD_TEXTURE: number
-declare SKY_DENSITY_PROFILE_COUNTS: number
 declare SKY_DOME: number
 declare SKY_GAMMA: number
 declare SKY_GLOW: number
 declare SKY_HAZE: number
 declare SKY_LIGHT: number
-declare SKY_MIE_CONFIG: number
 declare SKY_MOON: number
 declare SKY_MOON_TEXTURE: number
 declare SKY_PLANET: number
-declare SKY_RAYLEIGH_CONFIG: number
 declare SKY_REFLECTION_PROBE_AMBIANCE: number
 declare SKY_REFRACTION: number
 declare SKY_STAR_BRIGHTNESS: number
