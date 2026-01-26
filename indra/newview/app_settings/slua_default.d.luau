@@ -63,7 +63,7 @@ declare extern type DetectedEvent with
   index: number
   valid: boolean
   canAdjustDamage: boolean
-  function AdjustDamage(self, Damage: number): nil
+  function adjustDamage(self, Damage: number): ()
   function getDamage(self): list
   function getGrab(self): vector
   function getGroup(self): boolean
