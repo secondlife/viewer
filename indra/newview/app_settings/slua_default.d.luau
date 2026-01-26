@@ -85,47 +85,47 @@ declare extern type DetectedEvent with
 end
 
 declare extern type LLEvents with
-  at_rot_target: (TargetNumber: number, TargetRotation: quaternion, CurrentRotation: quaternion) -> () | nil
-  at_target: (TargetNumber: number, TargetPosition: vector, CurrentPosition: vector) -> () | nil
-  attach: (AvatarID: uuid) -> () | nil
-  changed: (Changed: number) -> () | nil
+  at_rot_target: ((TargetNumber: number, TargetRotation: quaternion, CurrentRotation: quaternion) -> ())?
+  at_target: ((TargetNumber: number, TargetPosition: vector, CurrentPosition: vector) -> ())?
+  attach: ((AvatarID: uuid) -> ())?
+  changed: ((Changed: number) -> ())?
   collision: (LLDetectedEventHandler)?
   collision_end: (LLDetectedEventHandler)?
   collision_start: (LLDetectedEventHandler)?
-  control: (AvatarID: uuid, Levels: number, Edges: number) -> () | nil
-  dataserver: (RequestID: uuid, Data: string) -> () | nil
-  email: (Time: string, Address: string, Subject: string, Body: string, NumberRemaining: number) -> () | nil
-  experience_permissions: (agent_id: uuid) -> () | nil
-  experience_permissions_denied: (agent_id: uuid, Reason: number) -> () | nil
+  control: ((AvatarID: uuid, Levels: number, Edges: number) -> ())?
+  dataserver: ((RequestID: uuid, Data: string) -> ())?
+  email: ((Time: string, Address: string, Subject: string, Body: string, NumberRemaining: number) -> ())?
+  experience_permissions: ((agent_id: uuid) -> ())?
+  experience_permissions_denied: ((agent_id: uuid, Reason: number) -> ())?
   final_damage: (LLDetectedEventHandler)?
-  game_control: (id: uuid, buttons: number, axes: list) -> () | nil
-  http_request: (HTTPRequestID: uuid, HTTPMethod: string, Body: string) -> () | nil
-  http_response: (HTTPRequestID: uuid, Status: number, Metadata: list, Body: string) -> () | nil
-  land_collision: (Position: vector) -> () | nil
-  land_collision_end: (Position: vector) -> () | nil
-  land_collision_start: (Position: vector) -> () | nil
-  link_message: (SendersLink: number, Value: number, Text: string, ID: string) -> () | nil
-  linkset_data: (action: number, name: string, value: string) -> () | nil
-  listen: (Channel: number, Name: string, ID: uuid, Text: string) -> () | nil
-  money: (Payer: uuid, Amount: number) -> () | nil
-  moving_end: () -> () | nil
-  moving_start: () -> () | nil
-  no_sensor: () -> () | nil
-  not_at_rot_target: () -> () | nil
-  not_at_target: () -> () | nil
-  object_rez: (RezzedObjectsID: uuid) -> () | nil
+  game_control: ((id: uuid, buttons: number, axes: list) -> ())?
+  http_request: ((HTTPRequestID: uuid, HTTPMethod: string, Body: string) -> ())?
+  http_response: ((HTTPRequestID: uuid, Status: number, Metadata: list, Body: string) -> ())?
+  land_collision: ((Position: vector) -> ())?
+  land_collision_end: ((Position: vector) -> ())?
+  land_collision_start: ((Position: vector) -> ())?
+  link_message: ((SendersLink: number, Value: number, Text: string, ID: string) -> ())?
+  linkset_data: ((action: number, name: string, value: string) -> ())?
+  listen: ((Channel: number, Name: string, ID: uuid, Text: string) -> ())?
+  money: ((Payer: uuid, Amount: number) -> ())?
+  moving_end: (() -> ())?
+  moving_start: (() -> ())?
+  no_sensor: (() -> ())?
+  not_at_rot_target: (() -> ())?
+  not_at_target: (() -> ())?
+  object_rez: ((RezzedObjectsID: uuid) -> ())?
   on_damage: (LLDetectedEventHandler)?
-  on_death: () -> () | nil
-  on_rez: (StartParameter: number) -> () | nil
-  path_update: (Type: number, Reserved: list) -> () | nil
-  remote_data: (EventType: number, ChannelID: uuid, MessageID: uuid, Sender: string, IData: number, SData: string) -> () | nil
-  run_time_permissions: (PermissionFlags: number) -> () | nil
+  on_death: (() -> ())?
+  on_rez: ((StartParameter: number) -> ())?
+  path_update: ((Type: number, Reserved: list) -> ())?
+  remote_data: ((EventType: number, ChannelID: uuid, MessageID: uuid, Sender: string, IData: number, SData: string) -> ())?
+  run_time_permissions: ((PermissionFlags: number) -> ())?
   sensor: (LLDetectedEventHandler)?
-  timer: () -> () | nil
+  timer: (() -> ())?
   touch: (LLDetectedEventHandler)?
   touch_end: (LLDetectedEventHandler)?
   touch_start: (LLDetectedEventHandler)?
-  transaction_result: (RequestID: uuid, Success: number, Message: string) -> () | nil
+  transaction_result: ((RequestID: uuid, Success: number, Message: string) -> ())?
   function on(self, event: LLEventName, callback: LLEventHandler): LLEventHandler
   function off(self, event: LLEventName, callback: LLEventHandler): boolean
   function once(self, event: LLEventName, callback: LLEventHandler): LLEventHandler
