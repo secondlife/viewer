@@ -403,7 +403,7 @@ void LLFloater360Capture::suspendForAFrame()
     U32 curr_frame_count = LLFrameTimer::getFrameCount();
     while (LLFrameTimer::getFrameCount() <= curr_frame_count + frame_count_delta)
     {
-        llcoro::suspend();
+        llcoro::suspendUntilNextFrame();
     }
 }
 
