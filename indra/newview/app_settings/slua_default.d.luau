@@ -40,7 +40,7 @@ end
 type rotation = quaternion
 type list = {string | number | vector | uuid | quaternion | boolean}
 type LLDetectedEventName = "collision" | "collision_end" | "collision_start" | "final_damage" | "on_damage" | "sensor" | "touch" | "touch_end" | "touch_start"
-type LLNonDetectedEventName = "at_rot_target" | "at_target" | "attach" | "changed" | "control" | "dataserver" | "email" | "experience_permissions" | "experience_permissions_denied" | "game_control" | "http_request" | "http_response" | "land_collision" | "land_collision_end" | "land_collision_start" | "link_message" | "linkset_data" | "listen" | "money" | "moving_end" | "moving_start" | "no_sensor" | "not_at_rot_target" | "not_at_target" | "object_rez" | "on_death" | "on_rez" | "path_update" | "remote_data" | "run_time_permissions" | "state_entry" | "state_exit" | "timer" | "transaction_result"
+type LLNonDetectedEventName = "at_rot_target" | "at_target" | "attach" | "changed" | "control" | "dataserver" | "email" | "experience_permissions" | "experience_permissions_denied" | "game_control" | "http_request" | "http_response" | "land_collision" | "land_collision_end" | "land_collision_start" | "link_message" | "linkset_data" | "listen" | "money" | "moving_end" | "moving_start" | "no_sensor" | "not_at_rot_target" | "not_at_target" | "object_rez" | "on_death" | "on_rez" | "path_update" | "remote_data" | "run_time_permissions" | "timer" | "transaction_result"
 type LLEventName = LLDetectedEventName | LLNonDetectedEventName
 type LLEventHandler = (...any) -> ()
 type LLDetectedEventHandler = (detected: {DetectedEvent}) -> ()
@@ -121,8 +121,6 @@ declare extern type LLEvents with
   remote_data: (EventType: number, ChannelID: uuid, MessageID: uuid, Sender: string, IData: number, SData: string) -> () | nil
   run_time_permissions: (PermissionFlags: number) -> () | nil
   sensor: (LLDetectedEventHandler)?
-  state_entry: () -> () | nil
-  state_exit: () -> () | nil
   timer: () -> () | nil
   touch: (LLDetectedEventHandler)?
   touch_end: (LLDetectedEventHandler)?
