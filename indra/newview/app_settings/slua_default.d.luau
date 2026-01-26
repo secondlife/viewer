@@ -224,8 +224,11 @@ declare coroutine: {
 ---------------------------
 
 declare debug: {
-  info: ((co: thread | ((...any) -> ...any) | number, level: number, s: string) -> ...any) & ((level: number, s: string) -> ...any) & ((func: (...any) -> ...any, s: string) -> ...any),
-  traceback: ((co: thread, msg: string?, level: number?) -> string) & ((message: string?, level: number?) -> string),
+  info: ((co: thread | ((...any) -> ...any) | number, level: number, s: string) -> ...any)
+    & ((level: number, s: string) -> ...any)
+    & ((func: (...any) -> ...any, s: string) -> ...any),
+  traceback: ((co: thread, msg: string?, level: number?) -> string)
+    & ((message: string?, level: number?) -> string),
 }
 
 
@@ -235,7 +238,8 @@ declare debug: {
 
 declare llbase64: {
   encode: (data: string | buffer) -> string,
-  decode: ((data: string) -> string) & ((data: string, asBuffer: boolean?) -> string | buffer),
+  decode: ((data: string) -> string)
+    & ((data: string, asBuffer: boolean?) -> string | buffer),
 }
 
 
@@ -369,7 +373,8 @@ declare table: {
   foreachi: @deprecated <V, R>(a: {V}, f: (index: number, value: V) -> R?) -> R?,
   getn: @deprecated (a: {any}) -> number,
   maxn: (t: {any}) -> number,
-  insert: (<V>(a: {V}, i: number, v: V) -> ()) & (<V>(a: {V}, value: V) -> ()),
+  insert: (<V>(a: {V}, i: number, v: V) -> ())
+    & (<V>(a: {V}, value: V) -> ()),
   remove: <V>(a: {V}, i: number?) -> V?,
   sort: <V>(a: {V}, f: ((a: V, b: V) -> boolean)?) -> (),
   pack: <V>(...V) -> { n: number, [number]: V },
