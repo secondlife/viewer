@@ -5,6 +5,7 @@
       name="default"
       comment="default font files (global fallbacks)">
     <file load_collection="true" font_hinting="default">Inter_18pt-Regular.ttf</file>
+    <file size_delta="-0.5">DejaVuSans.ttf</file>
     <file functor="is_emoji">TwemojiSVG.ttf</file>
     <os name="Windows">
       <file>meiryo.TTC</file>
@@ -37,6 +38,7 @@
       name="SansSerifBold"
       comment="Name of bold sans-serif font">
     <file load_collection="true" font_hinting="default" flags="bold">Inter_18pt-SemiBold.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -49,6 +51,7 @@
       name="SansSerif"
       comment="Name of san-serif font (Truetype file name)">
     <file load_collection="true" font_hinting="default">Inter_18pt-Regular.ttf</file>
+    <file size_delta="-0.5">DejaVuSans.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -62,6 +65,7 @@
       comment="Name of bold sans-serif font"
       font_style="BOLD">
     <file load_collection="true" font_hinting="default" flags="bold">Inter_18pt-SemiBold.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
   </font>
 
   <font
@@ -69,6 +73,7 @@
       comment="Name of italic sans-serif font"
       font_style="ITALIC">
     <file load_collection="true">Inter_18pt-Italic.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Oblique.ttf</file>
   </font>
 
   <font
@@ -76,6 +81,7 @@
       comment="Name of bold italic sans-serif font"
       font_style="BOLD|ITALIC">
     <file load_collection="true">Inter_18pt-BoldItalic.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-BoldOblique.ttf</file>
   </font>
 
   <font name="Emoji"
@@ -116,6 +122,7 @@
       name="Helvetica"
       comment="Name of Helvetica font">
     <file font_hinting="default">Inter_18pt-Regular.ttf</file>
+    <file size_delta="-0.5">DejaVuSans.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -129,6 +136,7 @@
       comment="Name of Helvetica font (bold)"
       font_style="BOLD">
     <file font_hinting="default" flags="bold">Inter_18pt-SemiBold.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -142,6 +150,7 @@
       comment="Name of Helvetica font (italic)"
       font_style="ITALIC">
     <file>Inter_18pt-Italic.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Oblique.ttf</file>
     <os name="Windows">
       <file>ariali.ttf</file>
       </os>
@@ -155,6 +164,7 @@
       comment="Name of Helvetica font (bold italic)"
       font_style="BOLD|ITALIC">
     <file>Inter_18pt-BoldItalic.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-BoldOblique.ttf</file>
     <os name="Windows">
       <file>arialbi.ttf</file>
       </os>

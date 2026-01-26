@@ -43,19 +43,21 @@ enum class EFontHinting : S32
 
 struct LLFontFileInfo
 {
-    LLFontFileInfo(const std::string& file_name, EFontHinting hinting, S32 flags, const std::function<bool(llwchar)>& char_functor = nullptr)
+    LLFontFileInfo(const std::string& file_name, EFontHinting hinting, S32 flags, F32 size_delta, const std::function<bool(llwchar)>& char_functor = nullptr)
         : FileName(file_name)
         , CharFunctor(char_functor)
         , mHinting(hinting)
         , mFlags(flags)
+        , mSizeDelta(size_delta)
     {
     }
 
-    LLFontFileInfo(const LLFontFileInfo& ffi, EFontHinting hinting, S32 flags)
+    LLFontFileInfo(const LLFontFileInfo& ffi, EFontHinting hinting, S32 flags, F32 size_delta)
         : FileName(ffi.FileName)
         , CharFunctor(ffi.CharFunctor)
         , mHinting(hinting)
         , mFlags(flags)
+        , mSizeDelta(size_delta)
     {
     }
 
@@ -63,6 +65,11 @@ struct LLFontFileInfo
     std::function<bool(llwchar)> CharFunctor;
     EFontHinting mHinting;
     S32 mFlags;
+
+    // Not all fonts are the same size, Ex: dejavu is bigger than inter,
+    // so in some cases we want to adjust relative sizes to make characters
+    // from different files match.
+    F32 mSizeDelta;
 };
 typedef std::vector<LLFontFileInfo> font_file_info_vec_t;
 
@@ -84,10 +91,10 @@ public:
     const std::string& getSize() const { return mSize; }
     void setSize(const std::string& size) { mSize = size; }
 
-    void addFontFile(const std::string& file_name, EFontHinting hinting, S32 flags, const std::string& char_functor = LLStringUtil::null);
+    void addFontFile(const std::string& file_name, EFontHinting hinting, S32 flags, F32 size_delta, const std::string& char_functor = LLStringUtil::null);
     const font_file_info_vec_t & getFontFiles() const { return mFontFiles; }
     void setFontFiles(const font_file_info_vec_t& font_files) { mFontFiles = font_files; }
-    void addFontCollectionFile(const std::string& file_name, EFontHinting hinting, S32 flags, const std::string& char_functor = LLStringUtil::null);
+    void addFontCollectionFile(const std::string& file_name, EFontHinting hinting, S32 flags, F32 size_delta, const std::string& char_functor = LLStringUtil::null);
     const font_file_info_vec_t& getFontCollectionFiles() const { return mFontCollectionFiles; }
     void setFontCollectionFiles(const font_file_info_vec_t& font_collection_files) { mFontCollectionFiles = font_collection_files; }
 
