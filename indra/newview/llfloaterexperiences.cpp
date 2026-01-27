@@ -385,8 +385,11 @@ void LLFloaterExperiences::retrieveExperienceListCoro(std::string url,
 
     if (!status)
     {
+        LL_WARNS("Experience") << "Failed to retrieve list. Error: " << status.toTerseString()
+            << ". Type: " << errorNotify << " Message: " << status.getMessage() << LL_ENDL;
+
         LLSD subs;
-        subs["ERROR_MESSAGE"] = status.getType();
+        subs["ERROR_MESSAGE"] = llformat(" %d\n %s", (S32)status.getType(), status.getMessage().c_str());
         LLNotificationsUtil::add(errorNotify, subs);
 
         return;
