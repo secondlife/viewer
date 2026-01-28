@@ -4322,85 +4322,85 @@ globals:
   math.abs:
     args:
     - type: number
-    description: Returns the absolute value of x
+    description: Returns the absolute value of n.
   math.acos:
     args:
     - type: number
-    description: Returns the arc cosine of x (in radians)
+    description: Returns the arc cosine of n in radians.
   math.asin:
     args:
     - type: number
-    description: Returns the arc sine of x (in radians)
+    description: Returns the arc sine of n in radians.
   math.atan:
     args:
     - type: number
-    description: Returns the arc tangent of x (in radians)
+    description: Returns the arc tangent of n in radians.
   math.atan2:
     args:
     - type: number
     - type: number
-    description: Returns the arc tangent of y/x (in radians), using the signs to determine
-      the quadrant
+    description: Returns the arc tangent of y/x in radians, using the signs to determine
+      the quadrant.
   math.ceil:
     args:
     - type: number
-    description: Returns the smallest integer larger than or equal to x
+    description: Returns the smallest integer larger than or equal to n.
   math.clamp:
     args:
     - type: number
     - type: number
     - type: number
-    description: Returns n clamped between min and max
+    description: Returns n clamped between min and max.
   math.cos:
     args:
     - type: number
-    description: Returns the cosine of x (x in radians)
+    description: Returns the cosine of n (n is in radians).
   math.cosh:
     args:
     - type: number
-    description: Returns the hyperbolic cosine of x
+    description: Returns the hyperbolic cosine of n.
   math.deg:
     args:
     - type: number
-    description: Converts x from radians to degrees
+    description: Converts n from radians to degrees.
   math.exp:
     args:
     - type: number
-    description: Returns e^x
+    description: Returns the base-e exponent of n.
   math.floor:
     args:
     - type: number
-    description: Returns the largest integer smaller than or equal to x
+    description: Returns the largest integer smaller than or equal to n.
   math.fmod:
     args:
     - type: number
     - type: number
-    description: Returns the remainder of x/y that rounds towards zero
+    description: Returns the remainder of x modulo y, rounded towards zero.
   math.frexp:
     args:
     - type: number
-    description: Returns m and e such that x = m * 2^e
+    description: Returns m and e such that n = m * 2^e.
   math.ldexp:
     args:
     - type: number
     - type: number
-    description: Returns m * 2^e
+    description: Returns s * 2^e.
   math.lerp:
     args:
     - type: number
     - type: number
     - type: number
-    description: Linear interpolation between a and b by t
+    description: Linearly interpolates between a and b using factor t.
   math.log:
     args:
     - type: number
     - type: number
       required: false
-    description: Returns the logarithm of x in the given base (default e)
+    description: Returns the logarithm of n in the given base (default e).
   math.log10:
     args:
     - type: number
-    description: Returns the base-10 logarithm of x
+    description: Returns the base-10 logarithm of n.
   math.map:
     args:
     - type: number
@@ -4408,21 +4408,21 @@ globals:
     - type: number
     - type: number
     - type: number
-    description: Maps x from input range to output range
+    description: Maps n from input range to output range.
   math.max:
     args:
     - type: number
     - type: '...'
-    description: Returns the maximum value among the arguments
+    description: Returns the maximum value from the given numbers.
   math.min:
     args:
     - type: number
     - type: '...'
-    description: Returns the minimum value among the arguments
+    description: Returns the minimum value from the given numbers.
   math.modf:
     args:
     - type: number
-    description: Returns the integer and fractional parts of x
+    description: Returns the integer and fractional parts of n.
   math.noise:
     args:
     - type: number
@@ -4430,67 +4430,67 @@ globals:
       required: false
     - type: number
       required: false
-    description: Returns Perlin noise value for the given coordinates
+    description: Returns Perlin noise value for the point (x, y, z).
   math.pow:
     args:
     - type: number
     - type: number
-    description: Returns base^exponent
+    description: Returns base to the power of exponent.
   math.rad:
     args:
     - type: number
-    description: Converts x from degrees to radians
+    description: Converts n from degrees to radians.
   math.random:
     args:
     - type: number
       required: false
     - type: number
       required: false
-    description: Returns a pseudo-random number
+    description: Returns a random number within the given range.
   math.randomseed:
     args:
     - type: number
-    description: Sets the seed for the pseudo-random generator
+    description: Sets the seed for the random number generator.
   math.round:
     args:
     - type: number
-    description: Returns x rounded to the nearest integer
+    description: Rounds n to the nearest integer.
   math.sign:
     args:
     - type: number
-    description: Returns -1, 0, or 1 depending on the sign of x
+    description: Returns -1 if n is negative, 1 if positive, and 0 if zero.
   math.sin:
     args:
     - type: number
-    description: Returns the sine of x (x in radians)
+    description: Returns the sine of n (n is in radians).
   math.sinh:
     args:
     - type: number
-    description: Returns the hyperbolic sine of x
+    description: Returns the hyperbolic sine of n.
   math.sqrt:
     args:
     - type: number
-    description: Returns the square root of x
+    description: Returns the square root of n.
   math.tan:
     args:
     - type: number
-    description: Returns the tangent of x (x in radians)
+    description: Returns the tangent of n (n is in radians).
   math.tanh:
     args:
     - type: number
-    description: Returns the hyperbolic tangent of x
+    description: Returns the hyperbolic tangent of n.
   math.isnan:
     args:
     - type: number
-    description: Returns true if x is NaN
+    description: Returns true if n is NaN.
   math.isinf:
     args:
     - type: number
-    description: Returns true if x is infinite
+    description: Returns true if n is infinite.
   math.isfinite:
     args:
     - type: number
-    description: Returns true if x is finite
+    description: Returns true if n is finite.
   os.clock:
     args: []
     description: Returns CPU time used by the program in seconds
