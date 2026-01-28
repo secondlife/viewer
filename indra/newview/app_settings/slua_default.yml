@@ -4241,41 +4241,46 @@ globals:
   coroutine.create:
     args:
     - type: any
-    description: Creates a new coroutine from a function
+    description: Returns a new coroutine that, when resumed, will run function f.
   coroutine.resume:
     args:
     - type: any
     - type: '...'
-    description: Resumes a coroutine, returns success and results
+    description: Resumes a coroutine, returning true and results if successful, or
+      false and an error.
   coroutine.running:
     args: []
-    description: Returns the running coroutine, or nil if called from main thread
+    description: Returns the currently running coroutine, or nil if called from in
+      the main coroutine.
   coroutine.status:
     args:
     - type: any
-    description: Returns the status of a coroutine
+    description: 'Returns the status of the coroutine: "running", "suspended", "normal",
+      or "dead".'
   coroutine.wrap:
     args:
     - type: any
-    description: Creates a coroutine and returns a function that resumes it
+    description: Creates a coroutine and returns a function that resumes it.
   coroutine.yield:
     args:
     - type: '...'
-    description: Suspends the coroutine and returns values to resume
+    description: Yields the current coroutine, passing arguments to the resuming code.
   coroutine.isyieldable:
     args: []
-    description: Returns true if the coroutine can yield
+    description: Returns true if the currently running coroutine can yield.
   coroutine.close:
     args:
     - type: any
-    description: Closes a coroutine, returns success and optional error message
+    description: Closes a coroutine, returning true if successful or false and an
+      error.
   debug.info:
     args:
     - type: any
     - type: any
     - type: string
       required: false
-    description: 'OVERLOAD: Returns information about a function or stack level'
+    description: Returns information about a stack frame or function based on specified
+      format.
   debug.traceback:
     args:
     - type: any
@@ -4284,7 +4289,7 @@ globals:
       required: false
     - type: number
       required: false
-    description: 'OVERLOAD: Returns a string with a traceback of the call stack'
+    description: Returns a human-readable call stack starting from the specified level.
   llbase64.encode:
     args:
     - type: any
@@ -4294,7 +4299,7 @@ globals:
     - type: string
     - type: bool
       required: false
-    description: 'OVERLOAD: Decodes a base64 string to a string'
+    description: Decodes a base64 string to a string
   lljson.encode:
     args:
     - type: any
