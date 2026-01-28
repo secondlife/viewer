@@ -4522,11 +4522,12 @@ globals:
       required: false
     - type: number
       required: false
-    description: Returns the internal numeric codes of the characters
+    description: Returns the numeric code of every byte in the input string within
+      the given range.
   string.char:
     args:
     - type: '...'
-    description: Returns a string from character codes
+    description: Returns a string containing characters for the given byte values.
   string.find:
     args:
     - type: string
@@ -4535,12 +4536,12 @@ globals:
       required: false
     - type: bool
       required: false
-    description: Finds first match of pattern in string
+    description: Finds the first instance of the pattern in the string.
   string.format:
     args:
     - type: string
     - type: '...'
-    description: Returns a formatted string
+    description: Formats input values into a string using printf-style format specifiers.
   string.gmatch:
     args:
     - type: string
@@ -4553,64 +4554,64 @@ globals:
     - type: any
     - type: number
       required: false
-    description: Global substitution of pattern matches
+    description: Performs pattern-based substitution in a string.
   string.len:
     args:
     - type: string
-    description: Returns the length of the string
+    description: 'Returns the number of bytes in the string. Identical to #s'
   string.lower:
     args:
     - type: string
-    description: Converts string to lowercase
+    description: Returns a lowercase version of the input string.
   string.match:
     args:
     - type: string
     - type: string
     - type: number
       required: false
-    description: Returns captures from pattern match
+    description: Finds and returns matches for a pattern in the input string.
   string.pack:
     args:
     - type: string
     - type: '...'
-    description: Packs values into a binary string
+    description: Packs values into a binary string.
   string.packsize:
     args:
     - type: string
-    description: Returns the size of a packed string for the given format
+    description: Returns the size of a packed string for the given format.
   string.rep:
     args:
     - type: string
     - type: number
-    description: Returns a string repeated n times
+    description: Returns the input string repeated a given number of times.
   string.reverse:
     args:
     - type: string
-    description: Reverses a string
+    description: Returns the input string with bytes in reverse order.
   string.split:
     args:
     - type: string
     - type: string
       required: false
-    description: Splits a string by separator
+    description: Splits a string by separator. Returns a list of substrings.
   string.sub:
     args:
     - type: string
     - type: number
     - type: number
       required: false
-    description: Returns a substring
+    description: Returns a substring from the given range.
   string.unpack:
     args:
     - type: string
     - type: string
     - type: number
       required: false
-    description: Unpacks values from a binary string
+    description: Decodes a binary string using a pack format.
   string.upper:
     args:
     - type: string
-    description: Converts string to uppercase
+    description: Returns an uppercase version of the input string.
   table.concat:
     args:
     - type: any
