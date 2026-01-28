@@ -1929,6 +1929,11 @@ globals:
     property: read-only
     type: number
     description: Permission to override default animations.
+  PERMISSION_PRIVILEGED_LAND_ACCESS:
+    property: read-only
+    type: number
+    description: Grants the script privileged access to land parcel functions, such
+      as parcel sale.
   PERMISSION_RELEASE_OWNERSHIP:
     property: read-only
     type: number
