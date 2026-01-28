@@ -4493,26 +4493,28 @@ globals:
     description: Returns true if n is finite.
   os.clock:
     args: []
-    description: Returns CPU time used by the program in seconds
+    description: Returns a high-precision timestamp in seconds for measuring durations.
   os.date:
     args:
     - type: string
       required: false
     - type: number
       required: false
-    description: Returns a string or table containing date and time
+    description: Returns a table or string representation of the time based on the
+      provided format.
   os.difftime:
     args:
     - type: number
     - type: number
       required: false
-    description: Returns the difference in seconds between two times
+    description: Returns the difference in seconds between two timestamps.
   os.time:
     args:
     - type:
         display: OsDateTime
       required: false
-    description: Returns the current time or converts a table to time
+    description: Returns the current Unix timestamp or the timestamp of the given
+      date.
   string.byte:
     args:
     - type: string
