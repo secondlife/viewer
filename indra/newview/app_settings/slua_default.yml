@@ -4005,27 +4005,33 @@ globals:
     args:
     - type: number
     - type: number
-    description: Arithmetic right shift
+    description: 'Shifts n by i bits to the right. If i is negative, a left shift
+      is performed.
+
+      Does an arithmetic shift: The most significant bit of n is propagated during
+      the shift.'
   bit32.band:
     args:
     - type: '...'
-    description: Bitwise AND of all arguments
+    description: Performs a bitwise AND operation on input numbers.
   bit32.bnot:
     args:
     - type: number
-    description: Bitwise NOT
+    description: Returns the bitwise negation of the input number.
   bit32.bor:
     args:
     - type: '...'
-    description: Bitwise OR of all arguments
+    description: Performs a bitwise OR operation on input numbers.
   bit32.bxor:
     args:
     - type: '...'
-    description: Bitwise XOR of all arguments
+    description: Performs a bitwise XOR operation on input numbers.
   bit32.btest:
     args:
     - type: '...'
-    description: Returns true if bitwise AND of all arguments is not zero
+    description: 'Performs a bitwise AND operation on input numbers.
+
+      Returns true if result is non-zero.'
   bit32.extract:
     args:
     - type: number
@@ -4037,12 +4043,14 @@ globals:
     args:
     - type: number
     - type: number
-    description: Left rotate
+    description: Rotates n by i bits to the left. If i is negative, a right rotate
+      is performed.
   bit32.lshift:
     args:
     - type: number
     - type: number
-    description: Left shift
+    description: Shifts n by i bits to the left. If i is negative, a right shift is
+      performed.
   bit32.replace:
     args:
     - type: number
@@ -4055,12 +4063,14 @@ globals:
     args:
     - type: number
     - type: number
-    description: Right rotate
+    description: Rotates n by i bits to the right. If i is negative, a left rotate
+      is performed.
   bit32.rshift:
     args:
     - type: number
     - type: number
-    description: Right shift
+    description: Shifts n by i bits to the right. If i is negative, a left shift is
+      performed.
   bit32.countlz:
     args:
     - type: number
