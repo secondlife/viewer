@@ -852,6 +852,27 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
                 LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
                 LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
             }
+
+            // Also align GLTF material if any
+            S32 gltf_info_index = 0; // base texture
+            LLVector2 gltf_offset, gltf_scale;
+            F32 gltf_rot;
+            if (facep->calcAlignedPlanarGLTF(mCenterFace, &gltf_offset, &gltf_scale, &gltf_rot, gltf_info_index))
+            {
+                LLGLTFMaterial new_override;
+                const LLTextureEntry* tep = object->getTE(te);
+                if (tep && tep->getGLTFMaterialOverride())
+                {
+                    new_override = *tep->getGLTFMaterialOverride();
+                }
+
+                LLGLTFMaterial::TextureTransform& transform = new_override.mTextureTransform[gltf_info_index];
+                transform.mOffset.set(gltf_offset.mV[0], gltf_offset.mV[1]);
+                transform.mScale.set(gltf_scale.mV[0], gltf_scale.mV[1]);
+                transform.mRotation = gltf_rot;
+
+                LLGLTFMaterialList::queueModify(object, te, &new_override);
+            }
         }
         if (!set_aligned)
         {
