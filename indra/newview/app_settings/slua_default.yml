@@ -1949,7 +1949,7 @@ globals:
     property: read-only
     type: number
     description: If this permission enabled, the object can successfully call the
-      llTakeControls libray call.
+      llTakeControls library call.
   PERMISSION_TELEPORT:
     property: read-only
     type: number
@@ -2092,10 +2092,10 @@ globals:
   PRIM_COLOR:
     property: read-only
     type: number
-    description: "[PRIM_COLOR, integer face, vector color, float alpha]\ninteger face\
-      \ \u2013 face number or ALL_SIDES vector color \u2013 color in RGB <R, G, B>\
-      \ (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white) float alpha \u2013 from\
-      \ 0.0 (clear) to 1.0 (solid) (0.0 <= alpha <= 1.0)"
+    description: "[PRIM_COLOR, integer face, vector color, float alpha]\n\ninteger\
+      \ face \u2013 face number or ALL_SIDES\nvector color \u2013 color in RGB <R,\
+      \ G, B> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)\nfloat alpha \u2013\
+      \ from 0.0 (clear) to 1.0 (solid) (0.0 <= alpha <= 1.0)\n"
   PRIM_DAMAGE:
     property: read-only
     type: number
@@ -2108,11 +2108,11 @@ globals:
     property: read-only
     type: number
     description: "[ PRIM_FLEXIBLE, integer boolean, integer softness, float gravity,\
-      \ float friction, float wind, float tension, vector force ] + +integer boolean\
-      \ \u2013 TRUE enables, FALSE disables +integer softness \u2013 ranges from 0\
-      \ to 3 +float gravity \u2013 ranges from -10.0 to 10.0 +float friction \u2013\
-      \ ranges from 0.0 to 10.0 +float wind \u2013 ranges from 0.0 to 10.0 +float\
-      \ tension \u2013 ranges from 0.0 to 10.0 +vector force"
+      \ float friction, float wind, float tension, vector force ]\n\ninteger boolean\
+      \ \u2013 TRUE enables, FALSE disables\ninteger softness \u2013 ranges from 0\
+      \ to 3\nfloat gravity \u2013 ranges from -10.0 to 10.0\nfloat friction \u2013\
+      \ ranges from 0.0 to 10.0\nfloat wind \u2013 ranges from 0.0 to 10.0\nfloat\
+      \ tension \u2013 ranges from 0.0 to 10.0\nvector force\n"
   PRIM_FULLBRIGHT:
     property: read-only
     type: number
@@ -2179,7 +2179,10 @@ globals:
     type: number
     description: '[ PRIM_LINK_TARGET, integer link_target ]
 
-      Used to get or set multiple links with a single PrimParameters call.'
+
+      Used to get or set multiple links with a single PrimParameters call.
+
+      '
   PRIM_MATERIAL:
     property: read-only
     type: number
@@ -2332,10 +2335,10 @@ globals:
   PRIM_OMEGA:
     property: read-only
     type: number
-    description: "[ PRIM_OMEGA, vector axis, float spinrate, float gain ]\nvector\
-      \ axis \u2013 arbitrary axis to rotate the object around float spinrate \u2013\
-      \ rate of rotation in radians per second float gain \u2013 also modulates the\
-      \ final spinrate and disables the rotation behavior if zero"
+    description: "[ PRIM_OMEGA, vector axis, float spinrate, float gain ]\n\nvector\
+      \ axis \u2013 arbitrary axis to rotate the object around\nfloat spinrate \u2013\
+      \ rate of rotation in radians per second\nfloat gain \u2013 also modulates the\
+      \ final spinrate and disables the rotation behavior if zero\n"
   PRIM_PHANTOM:
     property: read-only
     type: number
@@ -2368,22 +2371,25 @@ globals:
     property: read-only
     type: number
     description: "[ PRIM_POINT_LIGHT, integer boolean, vector linear_color, float\
-      \ intensity, float radius, float falloff ]\ninteger boolean \u2013 TRUE enables,\
-      \ FALSE disables vector linear_color \u2013 linear color in RGB <R, G, B&> (<0.0,\
-      \ 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white) float intensity \u2013 ranges\
-      \ from 0.0 to 1.0 float radius \u2013 ranges from 0.1 to 20.0 float falloff\
-      \ \u2013 ranges from 0.01 to 2.0"
+      \ intensity, float radius, float falloff ]\n\ninteger boolean \u2013 TRUE enables,\
+      \ FALSE disables\nvector linear_color \u2013 linear color in RGB <R, G, B&>\
+      \ (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)\nfloat intensity \u2013\
+      \ ranges from 0.0 to 1.0\nfloat radius \u2013 ranges from 0.1 to 20.0\nfloat\
+      \ falloff \u2013 ranges from 0.01 to 2.0\n"
   PRIM_POSITION:
     property: read-only
     type: number
-    description: "[ PRIM_POSITION, vector position ]\nvector position \u2013 position\
-      \ in region or local coordinates depending upon the situation"
+    description: "[ PRIM_POSITION, vector position ]\n\nvector position \u2013 position\
+      \ in region or local coordinates depending upon the situation\n"
   PRIM_POS_LOCAL:
     property: read-only
     type: number
-    description: 'PRIM_POS_LOCAL, vector position ]
+    description: '[ PRIM_POS_LOCAL, vector position ]
 
-      vector position - position in local coordinates'
+
+      vector position - position in local coordinates
+
+      '
   PRIM_PROJECTOR:
     property: read-only
     type: number
