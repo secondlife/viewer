@@ -4621,48 +4621,49 @@ globals:
       required: false
     - type: number
       required: false
-    description: Concatenates table elements into a string
+    description: Joins an array of strings into one string, with an optional separator.
   table.foreach:
     args:
     - type: any
     - type: any
-    description: Iterates over table key-value pairs (deprecated)
+    description: Iterates over all key-value pairs in the table (deprecated).
   table.foreachi:
     args:
     - type: any
     - type: any
-    description: Iterates over array indices (deprecated)
+    description: Iterates over all index-value pairs in the array (deprecated).
   table.getn:
     args:
     - type: any
-    description: 'Returns the length of a table (deprecated, use # operator)'
+    description: 'Returns the length of an array (deprecated; use # instead).'
   table.maxn:
     args:
     - type: any
-    description: Returns the largest positive numeric index
+    description: Returns the highest numeric key in the table.
   table.insert:
     args:
     - type: any
     - type: any
     - type: any
       required: false
-    description: 'OVERLOAD: Inserts an element at the end of a list'
+    description: Inserts an element at the specified index, or at the end of the array.
   table.remove:
     args:
     - type: any
     - type: number
       required: false
-    description: Removes and returns an element from a list
+    description: Removes and returns the element at the specified index from the array,
+      or from the end of the array.
   table.sort:
     args:
     - type: any
     - type: any
       required: false
-    description: Sorts list elements in place
+    description: Sorts an array in place.
   table.pack:
     args:
     - type: '...'
-    description: Packs arguments into a table with length field n
+    description: Packs multiple arguments into a new array with length field n.
   table.unpack:
     args:
     - type: any
@@ -4670,7 +4671,7 @@ globals:
       required: false
     - type: number
       required: false
-    description: Unpacks table elements as multiple return values
+    description: Unpacks array elements into multiple return values.
   table.move:
     args:
     - type: any
@@ -4679,44 +4680,47 @@ globals:
     - type: number
     - type: any
       required: false
-    description: Moves elements from one table to another
+    description: Inserts elements [i..j] from src array into dest array at [d].
   table.create:
     args:
     - type: number
     - type: any
       required: false
-    description: Creates a new table with pre-allocated array slots
+    description: Creates a new table with pre-allocated array capacity, optionally
+      filled.
   table.find:
     args:
     - type: any
     - type: any
     - type: number
       required: false
-    description: Finds the index of a value in an array
+    description: Finds the first occurrence of a value in the array and returns its
+      index.
   table.clear:
     args:
     - type: any
-    description: Removes all elements from a table
+    description: Clears all elements from a table while keeping its capacity.
   table.freeze:
     args:
     - type: any
-    description: Makes a table read-only
+    description: Freezes a table, making it read-only.
   table.isfrozen:
     args:
     - type: any
-    description: Returns true if a table is frozen
+    description: Returns true if a table is frozen.
   table.clone:
     args:
     - type: any
-    description: Creates a shallow copy of a table
+    description: Creates a shallow copy of the table.
   utf8.char:
     args:
     - type: '...'
-    description: Returns a string from UTF-8 codepoints
+    description: Creates a string from Unicode codepoints.
   utf8.codes:
     args:
     - type: string
-    description: Returns an iterator for UTF-8 codepoints in a string
+    description: Returns an iterator that produces the byte offset and Unicode codepoint
+      for each character in the string.
   utf8.codepoint:
     args:
     - type: string
@@ -4724,7 +4728,7 @@ globals:
       required: false
     - type: number
       required: false
-    description: Returns the codepoints of characters in a string
+    description: Returns the Unicode codepoints in the specified range of the string.
   utf8.len:
     args:
     - type: string
@@ -4732,15 +4736,16 @@ globals:
       required: false
     - type: number
       required: false
-    description: Returns the number of UTF-8 characters in a string, or nil and error
-      position
+    description: Returns the number of Unicode codepoints in the specified range of
+      the string, or nil and error index.
   utf8.offset:
     args:
     - type: string
     - type: number
     - type: number
       required: false
-    description: Returns the byte position of the n-th character
+    description: Returns the byte offset of the nth Unicode codepoint in the string.
+
   ll.Abs:
     args:
     - type: number
