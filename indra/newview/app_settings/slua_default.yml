@@ -5108,8 +5108,7 @@ globals:
       \ and the Experience can run in the current location.\n                "
   ll.AllowInventoryDrop:
     args:
-    - type:
-        display: numeric
+    - type: bool
     description: If Flag == TRUE, users without object modify permissions can still
       drop inventory items into the object.
   ll.AngleBetween:
@@ -5123,8 +5122,7 @@ globals:
     args:
     - type:
         display: vector
-    - type:
-        display: numeric
+    - type: bool
     description: Applies impulse to the object.\nIf Local == TRUE, apply the Force
       in local coordinates; otherwise, apply the Force in global coordinates.\nThis
       function only works on physical objects.
@@ -5132,8 +5130,7 @@ globals:
     args:
     - type:
         display: vector
-    - type:
-        display: numeric
+    - type: bool
     description: Applies rotational impulse to the object.\nIf Local == TRUE, apply
       the Force in local coordinates; otherwise, apply the Force in global coordinates.\nThis
       function only works on physical objects.
@@ -5262,7 +5259,7 @@ globals:
     - type: string
     - type:
         display: uuid
-    - type: number
+    - type: bool
     description: Specify an empty string or NULL_KEY for Accept, to not filter on
       the corresponding parameter.
   ll.CollisionSound:
@@ -5309,7 +5306,7 @@ globals:
     args:
     - type:
         display: uuid
-    - type: number
+    - type: bool
     description: Attempt to link the object the script is in, to target (requires
       permission PERMISSION_CHANGE_LINKS be set).\nRequires permission PERMISSION_CHANGE_LINKS
       be set.
@@ -5499,8 +5496,7 @@ globals:
     description: Returns largest integer value <= Value.
   ll.ForceMouselook:
     args:
-    - type:
-        display: numeric
+    - type: bool
     description: If Enable is TRUE any avatar that sits on this object is forced into
       mouse-look mode.\nAfter calling this function with Enable set to TRUE, any agent
       sitting down on the prim will be forced into mouse-look.\nJust like llSitTarget,
@@ -5995,8 +5991,7 @@ globals:
     args:
     - type:
         display: vector
-    - type:
-        display: numeric
+    - type: bool
     description: Returns the maximum number of prims allowed on the parcel at Position
       for a given scope.\nThe scope may be set to an individual parcel or the combined
       resources of all parcels with the same ownership in the region.
@@ -6009,8 +6004,7 @@ globals:
     - type:
         display: vector
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     description: 'Returns the number of prims on the parcel at Position of the given
       category.\nCategories: PARCEL_COUNT_TOTAL, _OWNER, _GROUP, _OTHER, _SELECTED,
       _TEMP.\nReturns the number of prims used on the parcel at Position which are
@@ -6321,8 +6315,7 @@ globals:
   ll.GroundRepel:
     args:
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     - type: number
     description: "Critically damps to height if within height * 0.5 of level (either\
       \ above ground level or above the higher of land and water if water == TRUE).\\\
@@ -6486,8 +6479,7 @@ globals:
   ll.LinkSetSoundQueueing:
     args:
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     description: Limits radius for audibility of scripted sounds (both attached and
       triggered) to distance Radius around the link.
   ll.LinkSetSoundRadius:
@@ -6714,8 +6706,7 @@ globals:
     args:
     - type: any
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     description: Returns the specified list, sorted into blocks of stride in ascending
       order (if Ascending is TRUE, otherwise descending). Note that sort only works
       if the first entry of each block is the same datatype.
@@ -6724,8 +6715,7 @@ globals:
     - type: any
     - type: number
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     description: Returns the specified list, sorted by the specified element into
       blocks of stride in ascending order (if Ascending is TRUE, otherwise descending).
       Note that sort only works if the first entry of each block is the same datatype.
@@ -6755,7 +6745,7 @@ globals:
   ll.ListenControl:
     args:
     - type: number
-    - type: number
+    - type: bool
     description: Makes a listen event callback active or inactive. Pass in the value
       returned from llListen to the iChannelHandle parameter to specify which listener
       you are controlling.\nUse boolean values to specify Active
@@ -7041,16 +7031,14 @@ globals:
       format is [ rule-1, data-1, rule-2, data-2 ... rule-n, data-n ].
   ll.PassCollisions:
     args:
-    - type:
-        display: numeric
+    - type: bool
     description: Configures how collision events are passed to scripts in the linkset.\nIf
       Pass == TRUE, collisions involving collision-handling scripted child prims are
       also passed on to the root prim. If Pass == FALSE (default behavior), such collisions
       will only trigger events in the affected child prim.
   ll.PassTouches:
     args:
-    - type:
-        display: numeric
+    - type: bool
     description: Configures how touch events are passed to scripts in the linkset.\nIf
       Pass == TRUE, touches involving touch-handling scripted child prims are also
       passed on to the root prim. If Pass == FALSE (default behavior), such touches
@@ -7111,7 +7099,7 @@ globals:
         display: vector
     - type:
         display: vector
-    - type: number
+    - type: bool
     description: Applies Impulse and AngularImpulse to ObjectID.\nApplies the supplied
       impulse and angular impulse to the object specified.
   ll.ReadKeyValue:
@@ -7174,8 +7162,7 @@ globals:
         display: uuid
     - type: string
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     - type: number
     description: If the owner of the object containing this script can modify the
       object identified by the specified object key, and if the PIN matches the PIN
@@ -7588,7 +7575,7 @@ globals:
     args:
     - type:
         display: vector
-    - type: number
+    - type: bool
     description: Sets an object's angular velocity to AngVel, in local coordinates
       if Local == TRUE (if the script is physical).\nHas no effect on non-physical
       objects.
@@ -7659,8 +7646,7 @@ globals:
     args:
     - type:
         display: vector
-    - type:
-        display: numeric
+    - type: bool
     description: Sets Force on object, in object-local coordinates if Local == TRUE
       (otherwise, the region reference frame is used).\nOnly works on physical objects.
   ll.SetForceAndTorque:
@@ -7669,8 +7655,7 @@ globals:
         display: vector
     - type:
         display: vector
-    - type:
-        display: numeric
+    - type: bool
     description: Sets the Force and Torque of object, in object-local coordinates
       if Local == TRUE (otherwise, the region reference frame is used).\nOnly works
       on physical objects.
@@ -7681,8 +7666,7 @@ globals:
   ll.SetHoverHeight:
     args:
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     - type: number
     description: Critically damps a physical object to a Height (either above ground
       level or above the higher of land and water if water == TRUE).\nDo not use with
@@ -7822,8 +7806,7 @@ globals:
       by PermissionMask on the object the script is attached to.
   ll.SetParcelForSale:
     args:
-    - type:
-        display: numeric
+    - type: bool
     - type: table
     description: Sets the parcel the object is on for sale.\nForSale is a boolean,
       if TRUE the parcel is put up for sale. Options is a list of options to set for
@@ -7919,8 +7902,7 @@ globals:
   ll.SetScriptState:
     args:
     - type: string
-    - type:
-        display: numeric
+    - type: bool
     description: Enable or disable the script Running state of Script in the prim.
   ll.SetSitText:
     args:
@@ -7928,8 +7910,7 @@ globals:
     description: Displays Text rather than 'Sit' in the viewer's context menu.
   ll.SetSoundQueueing:
     args:
-    - type:
-        display: numeric
+    - type: bool
     description: Sets whether successive calls to llPlaySound, llLoopSound, etc.,
       (attached sounds) interrupt the currently playing sound.\nThe default for objects
       is FALSE. Setting this value to TRUE will make the sound wait until the current
@@ -7942,8 +7923,7 @@ globals:
   ll.SetStatus:
     args:
     - type: number
-    - type:
-        display: numeric
+    - type: bool
     description: Sets object status specified in Status bitmask (e.g. STATUS_PHYSICS|STATUS_PHANTOM)
       to boolean Value.\nFor a full list of STATUS_* constants, see wiki documentation.
   ll.SetText:
@@ -7983,8 +7963,7 @@ globals:
     args:
     - type:
         display: vector
-    - type:
-        display: numeric
+    - type: bool
     description: Sets the Torque acting on the script's object, in object-local coordinates
       if Local == TRUE (otherwise, the region reference frame is used).\nOnly works
       on physical objects.
@@ -8072,8 +8051,8 @@ globals:
     args:
     - type: string
     - type: number
-    - type: number
-    - type: number
+    - type: bool
+    - type: bool
     description: 'Deprecated: Use llPlaySound instead.\nPlays Sound at Volume and
       specifies whether the sound should loop and/or be enqueued.'
   ll.SoundPreload:
@@ -8154,10 +8133,8 @@ globals:
   ll.TakeControls:
     args:
     - type: number
-    - type:
-        display: numeric
-    - type:
-        display: numeric
+    - type: bool
+    - type: bool
     description: Take controls from the agent the script has permissions for.\nIf
       (Accept == (Controls & input)), send input to the script.  PassOn determines
       whether Controls also perform their normal functions.\nRequires the PERMISSION_TAKE_CONTROLS
@@ -8307,7 +8284,7 @@ globals:
     args:
     - type: string
     - type: string
-    - type: number
+    - type: bool
     - type: string
     description: "\n                   Starts an asychronous transaction to update\
       \ the value associated with the key given. The dataserver callback will be executed\
@@ -8346,8 +8323,7 @@ globals:
       base64-formatted Signature.
   ll.VolumeDetect:
     args:
-    - type:
-        display: numeric
+    - type: bool
     description: If DetectEnabled = TRUE, object becomes phantom but triggers collision_start
       and collision_end events when other objects start and stop interpenetrating.\nIf
       another object (including avatars) interpenetrates it, it will get a collision_start
