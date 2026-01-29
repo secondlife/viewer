@@ -8401,128 +8401,231 @@ structs:
       args: []
       description: Returns a list of all event names that have listeners.
     at_rot_target:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is triggered when a script comes within a defined angle
+        of a target rotation. The range and rotation are set by a call to llRotTarget.
     at_target:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is triggered when the scripted object comes within a
+        defined range of the target position, defined by the llTarget function call.
     attach:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is triggered whenever an object is attached or detached
+        from an avatar. If it is attached, the key of the avatar it is attached to
+        is passed in, otherwise NULL_KEY is.
     changed:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when various events change the object. The change argument
+        will be a bit-field of CHANGED_* constants.
     collision:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised while another object, or avatar, is colliding\
+        \ with the object the script is attached to.\n\t\t\tThe number of detected\
+        \ objects is passed to the script. Information on those objects may be gathered\
+        \ via the llDetected* functions."
     collision_end:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised when another object, or avatar, stops colliding\
+        \ with the object the script is attached to.\n\t\t\tThe number of detected\
+        \ objects is passed to the script. Information on those objects may be gathered\
+        \ via the llDetected* library functions."
     collision_start:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised when another object, or avatar, starts colliding\
+        \ with the object the script is attached to.\n\t\t\tThe number of detected\
+        \ objects is passed to the script. Information on those objects may be gathered\
+        \ via the llDetected* library functions."
     control:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "Once a script has the ability to grab control inputs from the\
+        \ avatar, this event will be used to pass the commands into the script.\n\t\
+        \t\tThe levels and edges are bit-fields of control constants."
     dataserver:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is triggered when the requested data is returned to\
+        \ the script.\n\t\t\tData may be requested by the llRequestAgentData, llRequestInventoryData,\
+        \ and llGetNotecardLine function calls, for example."
     email:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is triggered when an email sent to this script arrives.\n\
+        \t\t\tThe number remaining tells how many more emails are known to be still\
+        \ pending."
     experience_permissions:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when an agent has approved an experience permissions
+        request.
     experience_permissions_denied:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Describes why the Experience permissions were denied for the agent.
     final_damage:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered as damage is applied to an avatar or task, after all
+        on_damage events have been processed.
     game_control:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is raised when game controller input changes.
     http_request:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when task receives an HTTP request.
     http_response:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event handler is invoked when an HTTP response is received
+        for a pending llHTTPRequest request or if a pending request fails or times
+        out.
     land_collision:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is raised when the object the script is attached to
+        is colliding with the ground.
     land_collision_end:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is raised when the object the script is attached to
+        stops colliding with the ground.
     land_collision_start:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is raised when the object the script is attached to
+        begins to collide with the ground.
     link_message:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when object receives a link message via llMessageLinked
+        function call.
     linkset_data:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when a script modifies the linkset datastore.
     listen:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised whenever a chat message matching the constraints\
+        \ set in the llListen command is received. The name and ID of the speaker,\
+        \ as well as the message, are passed in as parameters.\n\t\t\tChannel 0 is\
+        \ the public chat channel that all avatars see as chat text. Channels 1 through\
+        \ 2,147,483,648 are private channels that are not sent to avatars but other\
+        \ scripts can listen on those channels."
     money:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is triggered when a resident has given an amount of
+        Linden dollars to the object.
     moving_end:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered whenever an object with this script stops moving.
     moving_start:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered whenever an object with this script starts moving.
     no_sensor:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is raised when sensors are active, via the llSensor
+        function call, but are not sensing anything.
     not_at_rot_target:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: When a target is set via the llRotTarget function call, but the
+        script is outside the specified angle this event is raised.
     not_at_target:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: When a target is set via the llTarget library call, but the script
+        is outside the specified range this event is raised.
     object_rez:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when an object rezzes another object from its inventory
+        via the llRezObject, or similar, functions. The id is the globally unique
+        key for the object rezzed.
     on_damage:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when an avatar or object receives damage.
     on_death:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered when an avatar reaches 0 health.
     on_rez:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered whenever an object is rezzed from inventory or by another
+        object. The start parameter is passed in from the llRezObject call, or zero
+        if from inventory.
     path_update:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is called to inform the script of changes within the
+        object's path-finding status.
     remote_data:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is deprecated.
     run_time_permissions:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "Scripts need permission from either the owner or the avatar they\
+        \ wish to act on before they may perform certain functions, such as debiting\
+        \ money from their owners account, triggering an animation on an avatar, or\
+        \ capturing control inputs. The llRequestPermissions library function is used\
+        \ to request these permissions and the various permissions integer constants\
+        \ can be supplied.\n\t\t\tThe integer returned to this event handler contains\
+        \ the current set of permissions flags, so if permissions equal 0 then no\
+        \ permissions are set."
     sensor:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised whenever objects matching the constraints\
+        \ of the llSensor command are detected.\n\t\t\tThe number of detected objects\
+        \ is passed to the script in the parameter. Information on those objects may\
+        \ be gathered via the llDetected* functions."
     timer:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: This event is raised at regular intervals set by the llSetTimerEvent
+        library function.
     touch:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised while a user is touching the object the script\
+        \ is attached to.\n\t\t\tThe number of touching objects is passed to the script\
+        \ in the parameter.\n\t\t\tInformation on those objects may be gathered via\
+        \ the llDetected* library functions."
     touch_end:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised when a user stops touching the object the\
+        \ script is attached to. The number of touches is passed to the script in\
+        \ the parameter.\n\t\t\tInformation on those objects may be gathered via the\
+        \ llDetected* library functions."
     touch_start:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: "This event is raised when a user first touches the object the\
+        \ script is attached to. The number of touches is passed to the script in\
+        \ the parameter.\n\t\t\tInformation on those objects may be gathered via the\
+        \ llDetected() library functions."
     transaction_result:
-      property: read-only
-      type: any
+      property: override-fields
+      type: function
+      description: Triggered by llTransferMoney() function.
   LLTimers:
     every:
       method: true
@@ -8541,5 +8644,5 @@ structs:
     'off':
       method: true
       args:
-      - type: any
+      - type: function
       description: Unregisters a timer callback. Returns true if found and removed.
