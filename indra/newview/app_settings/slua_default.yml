@@ -5095,6 +5095,13 @@ globals:
         display: uuid
     - type: number
     description: Add avatar ID to the land pass list, for a duration of Hours.
+  ll.AdjustDamage:
+    deprecated:
+      message: Changes the amount of damage to be delivered by this damage event.
+    args:
+    - type: number
+    - type: number
+    description: Changes the amount of damage to be delivered by this damage event.
   ll.AdjustSoundVolume:
     args:
     - type: number
@@ -5381,6 +5388,174 @@ globals:
   ll.DetachFromAvatar:
     args: []
     description: Remove the object containing the script from the avatar.
+  ll.DetectedDamage:
+    deprecated:
+      message: Returns a list containing the current damage for the event, the damage
+        type and the original damage delivered.
+    args:
+    - type: number
+    description: Returns a list containing the current damage for the event, the damage
+      type and the original damage delivered.
+  ll.DetectedGrab:
+    deprecated:
+      message: Returns the grab offset of a user touching the object.\nReturns <0.0,
+        0.0, 0.0> if Number is not a valid object.
+    args:
+    - type: number
+    description: Returns the grab offset of a user touching the object.\nReturns <0.0,
+      0.0, 0.0> if Number is not a valid object.
+  ll.DetectedGroup:
+    deprecated:
+      message: Returns TRUE if detected object or agent Number has the same user group
+        active as this object.\nIt will return FALSE if the object or agent is in
+        the group, but the group is not active.
+    args:
+    - type: number
+    description: Returns TRUE if detected object or agent Number has the same user
+      group active as this object.\nIt will return FALSE if the object or agent is
+      in the group, but the group is not active.
+  ll.DetectedKey:
+    deprecated:
+      message: Returns the key of detected object or avatar number.\nReturns NULL_KEY
+        if Number is not a valid index.
+    args:
+    - type: number
+    description: Returns the key of detected object or avatar number.\nReturns NULL_KEY
+      if Number is not a valid index.
+  ll.DetectedLinkNumber:
+    deprecated:
+      message: Returns the link position of the triggered event for touches and collisions
+        only.\n0 for a non-linked object, 1 for the root of a linked object, 2 for
+        the first child, etc.
+    args:
+    - type: number
+    description: Returns the link position of the triggered event for touches and
+      collisions only.\n0 for a non-linked object, 1 for the root of a linked object,
+      2 for the first child, etc.
+  ll.DetectedName:
+    deprecated:
+      message: Returns the name of detected object or avatar number.\nReturns the
+        name of detected object number.\nReturns empty string if Number is not a valid
+        index.
+    args:
+    - type: number
+    description: Returns the name of detected object or avatar number.\nReturns the
+      name of detected object number.\nReturns empty string if Number is not a valid
+      index.
+  ll.DetectedOwner:
+    deprecated:
+      message: Returns the key of detected object's owner.\nReturns invalid key if
+        Number is not a valid index.
+    args:
+    - type: number
+    description: Returns the key of detected object's owner.\nReturns invalid key
+      if Number is not a valid index.
+  ll.DetectedPos:
+    deprecated:
+      message: Returns the position of detected object or avatar number.\nReturns
+        <0.0, 0.0, 0.0> if Number is not a valid index.
+    args:
+    - type: number
+    description: Returns the position of detected object or avatar number.\nReturns
+      <0.0, 0.0, 0.0> if Number is not a valid index.
+  ll.DetectedRezzer:
+    deprecated:
+      message: Returns the key for the rezzer of the detected object.
+    args:
+    - type: number
+    description: Returns the key for the rezzer of the detected object.
+  ll.DetectedRot:
+    deprecated:
+      message: Returns the rotation of detected object or avatar number.\nReturns
+        <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
+    args:
+    - type: number
+    description: Returns the rotation of detected object or avatar number.\nReturns
+      <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
+  ll.DetectedTouchBinormal:
+    deprecated:
+      message: Returns the surface bi-normal for a triggered touch event.\nReturns
+        a vector that is the surface bi-normal (tangent to the surface) where the
+        touch event was triggered.
+    args:
+    - type: number
+    description: Returns the surface bi-normal for a triggered touch event.\nReturns
+      a vector that is the surface bi-normal (tangent to the surface) where the touch
+      event was triggered.
+  ll.DetectedTouchFace:
+    deprecated:
+      message: Returns the index of the face where the avatar clicked in a triggered
+        touch event.
+    args:
+    - type: number
+    description: Returns the index of the face where the avatar clicked in a triggered
+      touch event.
+  ll.DetectedTouchNormal:
+    deprecated:
+      message: Returns the surface normal for a triggered touch event.\nReturns a
+        vector that is the surface normal (perpendicular to the surface) where the
+        touch event was triggered.
+    args:
+    - type: number
+    description: Returns the surface normal for a triggered touch event.\nReturns
+      a vector that is the surface normal (perpendicular to the surface) where the
+      touch event was triggered.
+  ll.DetectedTouchPos:
+    deprecated:
+      message: Returns the position, in region coordinates, where the object was touched
+        in a triggered touch event.\nUnless it is a HUD, in which case it returns
+        the position relative to the attach point.
+    args:
+    - type: number
+    description: Returns the position, in region coordinates, where the object was
+      touched in a triggered touch event.\nUnless it is a HUD, in which case it returns
+      the position relative to the attach point.
+  ll.DetectedTouchST:
+    deprecated:
+      message: Returns a vector that is the surface coordinates where the prim was
+        touched.\nThe X and Y vector positions contain the horizontal (S) and vertical
+        (T) face coordinates respectively.\nEach component is in the interval [0.0,
+        1.0].\nTOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot
+        be determined (e.g. when the viewer does not support this function).
+    args:
+    - type: number
+    description: Returns a vector that is the surface coordinates where the prim was
+      touched.\nThe X and Y vector positions contain the horizontal (S) and vertical
+      (T) face coordinates respectively.\nEach component is in the interval [0.0,
+      1.0].\nTOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot
+      be determined (e.g. when the viewer does not support this function).
+  ll.DetectedTouchUV:
+    deprecated:
+      message: Returns a vector that is the texture coordinates for where the prim
+        was touched.\nThe X and Y vector positions contain the U and V face coordinates
+        respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates
+        cannot be determined (e.g. when the viewer does not support this function).
+    args:
+    - type: number
+    description: Returns a vector that is the texture coordinates for where the prim
+      was touched.\nThe X and Y vector positions contain the U and V face coordinates
+      respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates
+      cannot be determined (e.g. when the viewer does not support this function).
+  ll.DetectedType:
+    deprecated:
+      message: "Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object.\\\
+        nReturns 0 if number is not a valid index.\\nNote that number is a bit-field,\
+        \ so comparisons need to be a bitwise checked. e.g.:\\ninteger iType = llDetectedType(0);\\\
+        n{\\n\t// ...do stuff with the agent\\n}"
+    args:
+    - type: number
+    description: "Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected\
+      \ object.\\nReturns 0 if number is not a valid index.\\nNote that number is\
+      \ a bit-field, so comparisons need to be a bitwise checked. e.g.:\\ninteger\
+      \ iType = llDetectedType(0);\\n{\\n\t// ...do stuff with the agent\\n}"
+  ll.DetectedVel:
+    deprecated:
+      message: Returns the velocity of the detected object Number.\nReturns<0.0, 0.0,
+        0.0> if Number is not a valid offset.
+    args:
+    - type: number
+    description: Returns the velocity of the detected object Number.\nReturns<0.0,
+      0.0, 0.0> if Number is not a valid offset.
   ll.Dialog:
     args:
     - type:
