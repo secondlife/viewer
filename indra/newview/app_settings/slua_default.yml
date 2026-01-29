@@ -5352,7 +5352,7 @@ globals:
       \        "
   ll.DeleteSubList:
     args:
-    - type: any
+    - type: table
     - type: number
     - type: number
     description: Removes the slice from start to end and returns the remainder of
@@ -6605,7 +6605,7 @@ globals:
       value cannot be type-cast to a key, then null string is returned.
   ll.List2List:
     args:
-    - type: any
+    - type: table
     - type: number
     - type: number
     description: Returns a subset of entries from ListVariable, in a range specified
@@ -6615,7 +6615,7 @@ globals:
       sub string is the exclusion of the entries.
   ll.List2ListSlice:
     args:
-    - type: any
+    - type: table
     - type: number
     - type: number
     - type: number
@@ -6630,7 +6630,7 @@ globals:
       (e.g. A stride of 2 has valid indices 0,1)
   ll.List2ListStrided:
     args:
-    - type: any
+    - type: table
     - type: number
     - type: number
     - type: number
@@ -6684,8 +6684,8 @@ globals:
       Steps through ListVariable by stride.  Returns -1 if not found.
   ll.ListInsertList:
     args:
-    - type: any
-    - type: any
+    - type: table
+    - type: table
     - type: number
     description: Returns a list that contains all the elements from Target but with
       the elements from ListVariable inserted at Position start.\nReturns a new list,
@@ -6693,15 +6693,15 @@ globals:
       does not alter the Target.
   ll.ListRandomize:
     args:
-    - type: any
+    - type: table
     - type: number
     description: Returns a version of the input ListVariable which has been randomized
       by blocks of size Stride.\nIf the remainder from the length of the list, divided
       by the stride is non-zero, this function does not randomize the list.
   ll.ListReplaceList:
     args:
-    - type: any
-    - type: any
+    - type: table
+    - type: table
     - type: number
     - type: number
     description: Returns a list that is Target with Start through End removed and
@@ -6711,7 +6711,7 @@ globals:
       first list entry.
   ll.ListSort:
     args:
-    - type: any
+    - type: table
     - type: number
     - type: bool
     description: Returns the specified list, sorted into blocks of stride in ascending
@@ -6719,7 +6719,7 @@ globals:
       if the first entry of each block is the same datatype.
   ll.ListSortStrided:
     args:
-    - type: any
+    - type: table
     - type: number
     - type: number
     - type: bool
@@ -7033,16 +7033,16 @@ globals:
   ll.ParseString2List:
     args:
     - type: string
-    - type: any
-    - type: any
+    - type: table
+    - type: table
     description: Converts Text into a list, discarding Separators, keeping Spacers
       (Separators and Spacers must be lists of strings, maximum of 8 each).\nSeparators
       and Spacers are lists of strings with a maximum of 8 entries each.
   ll.ParseStringKeepNulls:
     args:
     - type: string
-    - type: any
-    - type: any
+    - type: table
+    - type: table
     description: Breaks Text into a list, discarding separators, keeping spacers,
       keeping any null values generated. (separators and spacers must be lists of
       strings, maximum of 8 each).\nllParseStringKeepNulls works almost exactly like
