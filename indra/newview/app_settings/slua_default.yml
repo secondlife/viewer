@@ -8252,8 +8252,6 @@ structs:
         - path_update
         - remote_data
         - run_time_permissions
-        - state_entry
-        - state_exit
         - timer
         - transaction_result
       - type: function
@@ -8301,8 +8299,6 @@ structs:
         - path_update
         - remote_data
         - run_time_permissions
-        - state_entry
-        - state_exit
         - timer
         - transaction_result
       - type: function
@@ -8350,8 +8346,6 @@ structs:
         - path_update
         - remote_data
         - run_time_permissions
-        - state_entry
-        - state_exit
         - timer
         - transaction_result
       - type: function
@@ -8399,8 +8393,6 @@ structs:
         - path_update
         - remote_data
         - run_time_permissions
-        - state_entry
-        - state_exit
         - timer
         - transaction_result
       description: Returns a list of all listeners for a specific event.
@@ -8514,12 +8506,6 @@ structs:
       property: read-only
       type: any
     sensor:
-      property: read-only
-      type: any
-    state_entry:
-      property: read-only
-      type: any
-    state_exit:
       property: read-only
       type: any
     timer:
