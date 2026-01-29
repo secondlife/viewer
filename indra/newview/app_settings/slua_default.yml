@@ -4697,103 +4697,129 @@ globals:
     description: Returns an uppercase version of the input string.
   table.concat:
     args:
-    - type: any
+    - type: table
     - type: string
       required: false
     - type: number
       required: false
     - type: number
       required: false
+    must_use: true
     description: Joins an array of strings into one string, with an optional separator.
   table.foreach:
+    deprecated:
+      message: Iterates over all key-value pairs in the table (deprecated).
     args:
-    - type: any
-    - type: any
+    - type: table
+    - type: function
+      required: true
     description: Iterates over all key-value pairs in the table (deprecated).
   table.foreachi:
+    deprecated:
+      message: Iterates over all index-value pairs in the array (deprecated).
     args:
-    - type: any
-    - type: any
+    - type: table
+    - type: function
+      required: false
     description: Iterates over all index-value pairs in the array (deprecated).
   table.getn:
+    deprecated:
+      message: 'Returns the length of an array (deprecated; use # instead).'
     args:
-    - type: any
+    - type: table
+    must_use: true
     description: 'Returns the length of an array (deprecated; use # instead).'
   table.maxn:
     args:
-    - type: any
+    - type: table
+    must_use: true
     description: Returns the highest numeric key in the table.
   table.insert:
     args:
-    - type: any
-    - type: any
-    - type: any
+    - type: table
+      observes: write
+    - type: number
       required: false
+    - type: any
     description: Inserts an element at the specified index, or at the end of the array.
   table.remove:
     args:
-    - type: any
+    - type: table
     - type: number
       required: false
     description: Removes and returns the element at the specified index from the array,
       or from the end of the array.
   table.sort:
     args:
-    - type: any
-    - type: any
+    - type: table
+    - type: function
       required: false
     description: Sorts an array in place.
   table.pack:
     args:
     - type: '...'
+    must_use: true
     description: Packs multiple arguments into a new array with length field n.
   table.unpack:
     args:
-    - type: any
+    - type: table
     - type: number
       required: false
     - type: number
       required: false
+    must_use: true
     description: Unpacks array elements into multiple return values.
   table.move:
     args:
-    - type: any
+    - type: table
     - type: number
     - type: number
     - type: number
-    - type: any
+    - type: table
       required: false
+      observes: write
     description: Inserts elements [i..j] from src array into dest array at [d].
   table.create:
     args:
     - type: number
     - type: any
       required: false
+    must_use: true
     description: Creates a new table with pre-allocated array capacity, optionally
       filled.
   table.find:
     args:
-    - type: any
+    - type: table
     - type: any
     - type: number
       required: false
+    must_use: true
     description: Finds the first occurrence of a value in the array and returns its
       index.
   table.clear:
     args:
-    - type: any
+    - type: table
+      observes: write
     description: Clears all elements from a table while keeping its capacity.
+  table.shrink:
+    args:
+    - type: table
+    - type: bool
+      required: false
+    description: Reduces the memory usage of the table to the minimum necessary.
   table.freeze:
     args:
-    - type: any
+    - type: table
     description: Freezes a table, making it read-only.
   table.isfrozen:
     args:
-    - type: any
+    - type: table
+    must_use: true
     description: Returns true if a table is frozen.
   table.clone:
     args:
-    - type: any
+    - type: table
+    must_use: true
     description: Creates a shallow copy of the table.
   utf8.char:
     args:
