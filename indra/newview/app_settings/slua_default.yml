@@ -4579,6 +4579,79 @@ globals:
     must_use: true
     description: Returns the current Unix timestamp or the timestamp of the given
       date.
+  quaternion:
+    args:
+    - type: number
+    - type: number
+    - type: number
+    - type: number
+    must_use: true
+    description: Creates a new quaternion with the given component values. Alias of
+      quaternion.create.
+  quaternion.identity:
+    struct: quaternion
+    description: Identity quaternion constant.
+  quaternion.create:
+    args:
+    - type: number
+    - type: number
+    - type: number
+    - type: number
+    must_use: true
+    description: Creates a new quaternion with the given component values.
+  quaternion.normalize:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the normalized version (unit quaternion) of the quaternion.
+  quaternion.magnitude:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the magnitude of the quaternion.
+  quaternion.dot:
+    args:
+    - type:
+        display: quaternion
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the dot product of two quaternions.
+  quaternion.slerp:
+    args:
+    - type:
+        display: quaternion
+    - type:
+        display: quaternion
+    - type: number
+    must_use: true
+    description: Spherical linear interpolation from a to b using factor t.
+  quaternion.conjugate:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the conjugate of the quaternion.
+  quaternion.tofwd:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the forward vector from the quaternion.
+  quaternion.toleft:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the left vector from the quaternion.
+  quaternion.toup:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the up vector from the quaternion.
   string.byte:
     args:
     - type: string
@@ -4863,7 +4936,139 @@ globals:
       required: false
     must_use: true
     description: Returns the byte offset of the nth Unicode codepoint in the string.
-
+  uuid:
+    args:
+    - type: any
+    must_use: true
+    description: Creates a new uuid from a string, buffer, or existing uuid. Returns
+      nil if the string is not a valid UUID. Throws an error if the buffer is shorter
+      than 16 bytes. Alias of uuid.create
+  uuid.create:
+    args:
+    - type: any
+    must_use: true
+    description: Creates a new uuid from a string, buffer, or existing uuid. Returns
+      nil if the string is not a valid UUID. Throws an error if the buffer is shorter
+      than 16 bytes.
+  vector:
+    args:
+    - type: number
+    - type: number
+    - type: number
+      required: false
+    must_use: true
+    description: Creates a new vector with the given component values. Alias of vector.create.
+  vector.zero:
+    struct: vector
+    description: Constant vector with all components set to 0.
+  vector.one:
+    struct: vector
+    description: Constant vector with all components set to 1.
+  vector.create:
+    args:
+    - type: number
+    - type: number
+    - type: number
+      required: false
+    must_use: true
+    description: Creates a new vector with the given component values.
+  vector.magnitude:
+    args:
+    - type:
+        display: vector
+    must_use: true
+    description: Computes the magnitude of the vector.
+  vector.normalize:
+    args:
+    - type:
+        display: vector
+    must_use: true
+    description: Computes the normalized version (unit vector) of the vector.
+  vector.cross:
+    args:
+    - type:
+        display: vector
+    - type:
+        display: vector
+    must_use: true
+    description: Computes the cross product of two vectors.
+  vector.dot:
+    args:
+    - type:
+        display: vector
+    - type:
+        display: vector
+    must_use: true
+    description: Computes the dot product of two vectors.
+  vector.angle:
+    args:
+    - type:
+        display: vector
+    - type:
+        display: vector
+    - type:
+        display: vector
+      required: false
+    must_use: true
+    description: Computes the angle between two vectors in radians. The axis, if specified,
+      is used to determine the sign of the angle.
+  vector.floor:
+    args:
+    - type:
+        display: vector
+    must_use: true
+    description: Applies math.floor to each component of the vector.
+  vector.ceil:
+    args:
+    - type:
+        display: vector
+    must_use: true
+    description: Applies math.ceil to each component of the vector.
+  vector.abs:
+    args:
+    - type:
+        display: vector
+    must_use: true
+    description: Applies math.abs to each component of the vector.
+  vector.sign:
+    args:
+    - type:
+        display: vector
+    must_use: true
+    description: Applies math.sign to each component of the vector.
+  vector.clamp:
+    args:
+    - type:
+        display: vector
+    - type:
+        display: vector
+    - type:
+        display: vector
+    must_use: true
+    description: Clamps each component of the vector between min and max values.
+  vector.max:
+    args:
+    - type:
+        display: vector
+    - type: '...'
+    must_use: true
+    description: Applies math.max to each component of the vectors.
+  vector.min:
+    args:
+    - type:
+        display: vector
+    - type: '...'
+    must_use: true
+    description: Applies math.max to each component of the vectors.
+  vector.lerp:
+    args:
+    - type:
+        display: vector
+    - type:
+        display: vector
+    - type: number
+    must_use: true
+    description: Linearly interpolates between a and b using factor t.
   ll.Abs:
     args:
     - type: number
