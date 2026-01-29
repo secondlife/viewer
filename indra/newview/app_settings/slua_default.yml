@@ -4549,6 +4549,7 @@ globals:
     description: Returns true if n is finite.
   os.clock:
     args: []
+    must_use: true
     description: Returns a high-precision timestamp in seconds for measuring durations.
   os.date:
     args:
@@ -4556,19 +4557,26 @@ globals:
       required: false
     - type: number
       required: false
+    must_use: true
     description: Returns a table or string representation of the time based on the
       provided format.
   os.difftime:
+    deprecated:
+      message: Returns the difference in seconds between two timestamps. Same as a
+        - b.
     args:
     - type: number
     - type: number
-      required: false
-    description: Returns the difference in seconds between two timestamps.
+      required: true
+    must_use: true
+    description: Returns the difference in seconds between two timestamps. Same as
+      a - b.
   os.time:
     args:
     - type:
         display: OsDateTime
       required: false
+    must_use: true
     description: Returns the current Unix timestamp or the timestamp of the given
       date.
   string.byte:
