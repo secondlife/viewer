@@ -411,7 +411,7 @@ declare math: {
 declare os: {
   clock: () -> number,
   date: (s: string?, t: number?) -> (string | OsDateTime)?,
-  difftime: (a: number, b: number?) -> number,
+  difftime: @deprecated (a: number, b: number?) -> number,
   time: (t: OsDateTime?) -> number?,
 }
 
