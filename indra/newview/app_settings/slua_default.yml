@@ -4301,14 +4301,16 @@ globals:
     description: Returns a human-readable call stack starting from the specified level.
   llbase64.encode:
     args:
-    - type: any
+    - type: string
+    must_use: true
     description: Encodes a string or buffer to base64
   llbase64.decode:
     args:
     - type: string
     - type: bool
       required: false
-    description: Decodes a base64 string to a string
+    must_use: true
+    description: Decodes a base64 string to a string, or buffer if asBuffer is true
   lljson.encode:
     args:
     - type: any

@@ -334,8 +334,8 @@ declare debug: {
 
 declare llbase64: {
   encode: (data: string | buffer) -> string,
-  decode: ((data: string) -> string)
-    & ((data: string, asBuffer: boolean?) -> string | buffer),
+  decode: ((data: string, asBuffer: false?) -> string)
+    & ((data: string, asBuffer: true) -> buffer),
 }
 
 
