@@ -5245,11 +5245,15 @@ globals:
       an integer that is a STATUS_* flag which details the success/failure of the
       operation.
   ll.CloseRemoteDataChannel:
+    deprecated:
+      message: This function is deprecated.
     args:
     - type:
         display: uuid
     description: This function is deprecated.
   ll.Cloud:
+    deprecated:
+      message: Returns the cloud density at the object's position + Offset.
     args:
     - type:
         display: vector
@@ -5270,6 +5274,9 @@ globals:
       with ImpactSound.\nThe ImpactSound must be in the object inventory.\nSupply
       an empty string to suppress collision sounds.
   ll.CollisionSprite:
+    deprecated:
+      message: Suppress default collision sprites, replace default impact sprite with
+        ImpactSprite; found in the object inventory (empty string to just suppress).
     args:
     - type: string
     description: Suppress default collision sprites, replace default impact sprite
@@ -6825,6 +6832,10 @@ globals:
       Inc., MD5 Message-Digest Algorithm of Text with Nonce used as the salt.\nReturns
       a 32-character hex string. (128-bit in binary.)
   ll.MakeExplosion:
+    deprecated:
+      message: 'Make a round explosion of particles. Deprecated: Use llParticleSystem
+        instead.\nMake a round explosion of particles using texture from the objects
+        inventory. Deprecated: Use llParticleSystem instead.'
     args:
     - type: number
     - type: number
@@ -6838,6 +6849,10 @@ globals:
       instead.\nMake a round explosion of particles using texture from the objects
       inventory. Deprecated: Use llParticleSystem instead.'
   ll.MakeFire:
+    deprecated:
+      message: 'Make fire like particles. Deprecated: Use llParticleSystem instead.\nMake
+        fire particles using texture from the objects inventory. Deprecated: Use llParticleSystem
+        instead.'
     args:
     - type: number
     - type: number
@@ -6851,6 +6866,10 @@ globals:
       fire particles using texture from the objects inventory. Deprecated: Use llParticleSystem
       instead.'
   ll.MakeFountain:
+    deprecated:
+      message: 'Make a fountain of particles. Deprecated: Use llParticleSystem instead.\nMake
+        a fountain of particles using texture from the objects inventory. Deprecated:
+        Use llParticleSystem instead.'
     args:
     - type: number
     - type: number
@@ -6866,6 +6885,10 @@ globals:
       a fountain of particles using texture from the objects inventory. Deprecated:
       Use llParticleSystem instead.'
   ll.MakeSmoke:
+    deprecated:
+      message: 'Make smoke like particles. Deprecated: Use llParticleSystem instead.\nMake
+        smoky particles using texture from the objects inventory. Deprecated: Use
+        llParticleSystem instead.'
     args:
     - type: number
     - type: number
@@ -6972,6 +6995,8 @@ globals:
     description: Returns the value for header for request_id.\nReturns a string that
       is the value of the Header for HTTPRequestID.
   ll.OpenRemoteDataChannel:
+    deprecated:
+      message: This function is deprecated.
     args: []
     description: This function is deprecated.
   ll.Ord:
@@ -7115,6 +7140,8 @@ globals:
       \ In the success case the second item will be the value associated with the\
       \ key.\n                "
   ll.RefreshPrimURL:
+    deprecated:
+      message: Reloads the web page shown on the sides of the object.
     args: []
     description: Reloads the web page shown on the sides of the object.
   ll.RegionSay:
@@ -7132,6 +7159,8 @@ globals:
       (if within region).\nIf TargetID is an avatar and Channel is nonzero, Text can
       be heard by any attachment on the avatar.
   ll.ReleaseCamera:
+    deprecated:
+      message: 'Return camera to agent.\nDeprecated: Use llClearCameraParams instead.'
     args:
     - type:
         display: uuid
@@ -7145,6 +7174,8 @@ globals:
     description: Releases the specified URL, which was previously obtained using llRequestURL.  Once
       released, the URL will no longer be usable.
   ll.RemoteDataReply:
+    deprecated:
+      message: This function is deprecated.
     args:
     - type:
         display: uuid
@@ -7154,6 +7185,8 @@ globals:
     - type: number
     description: This function is deprecated.
   ll.RemoteDataSetRegion:
+    deprecated:
+      message: This function is deprecated.
     args: []
     description: This function is deprecated.
   ll.RemoteLoadScriptPin:
@@ -7511,6 +7544,8 @@ globals:
       PROFILE_SCRIPT_MEMORY (Mono only) and PROFILE_NONE.\nMay significantly reduce
       script performance.
   ll.SendRemoteData:
+    deprecated:
+      message: This function is deprecated.
     args:
     - type:
         display: uuid
@@ -7732,6 +7767,8 @@ globals:
       order. Parameters not specified are unchanged, or if new media is added then
       set to the default specified.
   ll.SetLinkPrimitiveParams:
+    deprecated:
+      message: 'Deprecated: Use llSetLinkPrimitiveParamsFast instead.'
     args:
     - type: number
     - type: table
@@ -7857,10 +7894,14 @@ globals:
       order. Parameters not specified are unchanged, or if new media is added then
       set to the default specified.
   ll.SetPrimURL:
+    deprecated:
+      message: 'Deprecated: Use llSetPrimMediaParams instead.'
     args:
     - type: string
     description: 'Deprecated: Use llSetPrimMediaParams instead.'
   ll.SetPrimitiveParams:
+    deprecated:
+      message: 'Deprecated: Use llSetLinkPrimitiveParamsFast instead.'
     args:
     - type: table
     description: 'Deprecated: Use llSetLinkPrimitiveParamsFast instead.'
@@ -8048,6 +8089,9 @@ globals:
     - type: number
     description: Put script to sleep for Time seconds.
   ll.Sound:
+    deprecated:
+      message: 'Deprecated: Use llPlaySound instead.\nPlays Sound at Volume and specifies
+        whether the sound should loop and/or be enqueued.'
     args:
     - type: string
     - type: number
@@ -8056,6 +8100,9 @@ globals:
     description: 'Deprecated: Use llPlaySound instead.\nPlays Sound at Volume and
       specifies whether the sound should loop and/or be enqueued.'
   ll.SoundPreload:
+    deprecated:
+      message: 'Deprecated: Use llPreloadSound instead.\nPreloads a sound on viewers
+        within range.'
     args:
     - type: string
     description: 'Deprecated: Use llPreloadSound instead.\nPreloads a sound on viewers
@@ -8126,6 +8173,8 @@ globals:
     description: Returns an integer that is the index in Text where string pattern
       Sequence first appears. Returns -1 if not found.
   ll.TakeCamera:
+    deprecated:
+      message: 'Deprecated: Use llSetCameraParams instead.'
     args:
     - type:
         display: uuid
@@ -8369,6 +8418,10 @@ globals:
     description: Performs an exclusive OR on two Base64 strings and returns a Base64
       string. Text2 repeats if it is shorter than Text1.
   ll.XorBase64Strings:
+    deprecated:
+      message: 'Deprecated: Please use llXorBase64 instead.\nIncorrectly performs
+        an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats
+        if it is shorter than Text1.\nRetained for backwards compatibility.'
     args:
     - type: string
     - type: string
@@ -8376,6 +8429,10 @@ globals:
       an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats
       if it is shorter than Text1.\nRetained for backwards compatibility.'
   ll.XorBase64StringsCorrect:
+    deprecated:
+      message: 'Deprecated: Please use llXorBase64 instead.\nCorrectly (unless nulls
+        are present) performs an exclusive OR on two Base64 strings and returns a
+        Base64 string.\nText2 repeats if it is shorter than Text1.'
     args:
     - type: string
     - type: string
