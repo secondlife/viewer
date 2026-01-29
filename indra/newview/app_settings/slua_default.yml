@@ -4238,26 +4238,32 @@ globals:
     description: Writes up to 32 bits to the buffer at the given offset.
   coroutine.create:
     args:
-    - type: any
+    - type: function
+    must_use: true
     description: Returns a new coroutine that, when resumed, will run function f.
   coroutine.resume:
     args:
-    - type: any
+    - type:
+        display: thread
     - type: '...'
     description: Resumes a coroutine, returning true and results if successful, or
       false and an error.
   coroutine.running:
     args: []
+    must_use: true
     description: Returns the currently running coroutine, or nil if called from in
       the main coroutine.
   coroutine.status:
     args:
-    - type: any
+    - type:
+        display: thread
+    must_use: true
     description: 'Returns the status of the coroutine: "running", "suspended", "normal",
       or "dead".'
   coroutine.wrap:
     args:
-    - type: any
+    - type: function
+    must_use: true
     description: Creates a coroutine and returns a function that resumes it.
   coroutine.yield:
     args:
@@ -4265,28 +4271,33 @@ globals:
     description: Yields the current coroutine, passing arguments to the resuming code.
   coroutine.isyieldable:
     args: []
+    must_use: true
     description: Returns true if the currently running coroutine can yield.
   coroutine.close:
     args:
-    - type: any
+    - type:
+        display: thread
     description: Closes a coroutine, returning true if successful or false and an
       error.
   debug.info:
     args:
     - type: any
-    - type: any
-    - type: string
+    - type: number
       required: false
+    - type: string
+    must_use: true
     description: Returns information about a stack frame or function based on specified
       format.
   debug.traceback:
     args:
-    - type: any
+    - type:
+        display: thread
       required: false
-    - type: any
+    - type: string
       required: false
     - type: number
       required: false
+    must_use: true
     description: Returns a human-readable call stack starting from the specified level.
   llbase64.encode:
     args:
