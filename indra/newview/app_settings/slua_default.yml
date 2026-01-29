@@ -7,10 +7,10 @@ last_updated: 1763572449
 globals:
   LLEvents:
     struct: LLEvents
-    description: The instance of the LLEvents singleton.
+    description: Event registration and management singleton for Second Life events.
   LLTimers:
     struct: LLTimers
-    description: The instance of the LLTimers singleton.
+    description: Timer management singleton for scheduling periodic and one-time callbacks.
   loadstring:
     removed: true
     description: loadstring is removed in SLua.
@@ -3933,12 +3933,6 @@ globals:
   vector:
     type: any
     description: Global 'vector' library table
-  LLEvents:
-    struct: LLEvents
-    description: Second Life event management and registration
-  LLTimers:
-    struct: LLTimers
-    description: Second Life timer management and scheduling
   dangerouslyexecuterequiredmodule:
     args:
     - type: any
