@@ -6,11 +6,9 @@ lua_versions:
 last_updated: 1763572449
 globals:
   LLEvents:
-    property: read-only
     struct: LLEvents
     description: The instance of the LLEvents singleton.
   LLTimers:
-    property: read-only
     struct: LLTimers
     description: The instance of the LLTimers singleton.
   loadstring:
@@ -584,9 +582,7 @@ globals:
       will add the message to the combat log. A script with a chat listen active on
       COMBAT_CHANNEL may also monitor the combat log.
   COMBAT_LOG_ID:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
     description: Messages from the region to the COMBAT_CHANNEL will all be from this
       ID.\n Scripts may filter llListen calls on this ID to receive only system generated
       combat log messages.
@@ -1043,49 +1039,27 @@ globals:
     property: read-only
     type: number
   IMG_USE_BAKED_AUX1:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_AUX2:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_AUX3:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_EYES:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_HAIR:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_HEAD:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_LEFTARM:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_LEFTLEG:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_LOWER:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_SKIRT:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   IMG_USE_BAKED_UPPER:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   INVENTORY_ALL:
     property: read-only
     type: number
@@ -1361,9 +1335,7 @@ globals:
     description: Indicates a notecard read was attempted and the notecard was not
       yet cached on the server.
   NULL_KEY:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   OBJECT_ACCOUNT_LEVEL:
     property: read-only
     type: number
@@ -3492,36 +3464,22 @@ globals:
     property: read-only
     type: number
   TEXTURE_BLANK:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   TEXTURE_DEFAULT:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   TEXTURE_MEDIA:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   TEXTURE_PLYWOOD:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   TEXTURE_TRANSPARENT:
-    property: read-only
-    type:
-      display: uuid
+    struct: uuid
   TOUCH_INVALID_FACE:
     property: read-only
     type: number
   TOUCH_INVALID_TEXCOORD:
-    property: read-only
-    type:
-      display: vector
+    struct: vector
   TOUCH_INVALID_VECTOR:
-    property: read-only
-    type:
-      display: vector
+    struct: vector
   TP_ROUTING_BLOCKED:
     property: read-only
     type: number
@@ -3952,13 +3910,9 @@ globals:
     type: number
     description: Other unknown error.
   ZERO_ROTATION:
-    property: read-only
-    type:
-      display: quaternion
+    struct: quaternion
   ZERO_VECTOR:
-    property: read-only
-    type:
-      display: vector
+    struct: vector
   default:
     property: read-only
     type: any
