@@ -3913,14 +3913,6 @@ globals:
     struct: quaternion
   ZERO_VECTOR:
     struct: vector
-  default:
-    property: read-only
-    type: any
-    description: 'All scripts must have a default state, which is the first state
-      entered when the script starts.
-
-      If another state is defined before the default state, the compiler will report
-      a syntax error.'
   quaternion:
     type: any
     description: Global 'quaternion' library table with callable metatable
