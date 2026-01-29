@@ -4586,11 +4586,14 @@ globals:
       required: false
     - type: number
       required: false
+    must_use: true
     description: Returns the numeric code of every byte in the input string within
       the given range.
   string.char:
     args:
     - type: '...'
+      required: true
+    must_use: true
     description: Returns a string containing characters for the given byte values.
   string.find:
     args:
@@ -4600,16 +4603,20 @@ globals:
       required: false
     - type: bool
       required: false
+    must_use: true
     description: Finds the first instance of the pattern in the string.
   string.format:
     args:
     - type: string
     - type: '...'
+      required: true
+    must_use: true
     description: Formats input values into a string using printf-style format specifiers.
   string.gmatch:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Returns an iterator function for pattern matches
   string.gsub:
     args:
@@ -4618,14 +4625,17 @@ globals:
     - type: any
     - type: number
       required: false
+    must_use: true
     description: Performs pattern-based substitution in a string.
   string.len:
     args:
     - type: string
+    must_use: true
     description: 'Returns the number of bytes in the string. Identical to #s'
   string.lower:
     args:
     - type: string
+    must_use: true
     description: Returns a lowercase version of the input string.
   string.match:
     args:
@@ -4633,30 +4643,36 @@ globals:
     - type: string
     - type: number
       required: false
+    must_use: true
     description: Finds and returns matches for a pattern in the input string.
   string.pack:
     args:
     - type: string
     - type: '...'
+    must_use: true
     description: Packs values into a binary string.
   string.packsize:
     args:
     - type: string
+    must_use: true
     description: Returns the size of a packed string for the given format.
   string.rep:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns the input string repeated a given number of times.
   string.reverse:
     args:
     - type: string
+    must_use: true
     description: Returns the input string with bytes in reverse order.
   string.split:
     args:
     - type: string
     - type: string
       required: false
+    must_use: true
     description: Splits a string by separator. Returns a list of substrings.
   string.sub:
     args:
@@ -4664,6 +4680,7 @@ globals:
     - type: number
     - type: number
       required: false
+    must_use: true
     description: Returns a substring from the given range.
   string.unpack:
     args:
@@ -4671,10 +4688,12 @@ globals:
     - type: string
     - type: number
       required: false
+    must_use: true
     description: Decodes a binary string using a pack format.
   string.upper:
     args:
     - type: string
+    must_use: true
     description: Returns an uppercase version of the input string.
   table.concat:
     args:
