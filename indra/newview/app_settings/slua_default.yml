@@ -3937,6 +3937,7 @@ globals:
     args:
     - type: number
     - type: number
+    must_use: true
     description: 'Shifts n by i bits to the right. If i is negative, a left shift
       is performed.
 
@@ -3945,22 +3946,27 @@ globals:
   bit32.band:
     args:
     - type: '...'
+    must_use: true
     description: Performs a bitwise AND operation on input numbers.
   bit32.bnot:
     args:
     - type: number
+    must_use: true
     description: Returns the bitwise negation of the input number.
   bit32.bor:
     args:
     - type: '...'
+    must_use: true
     description: Performs a bitwise OR operation on input numbers.
   bit32.bxor:
     args:
     - type: '...'
+    must_use: true
     description: Performs a bitwise XOR operation on input numbers.
   bit32.btest:
     args:
     - type: '...'
+    must_use: true
     description: 'Performs a bitwise AND operation on input numbers.
 
       Returns true if result is non-zero.'
@@ -3970,17 +3976,20 @@ globals:
     - type: number
     - type: number
       required: false
+    must_use: true
     description: Extracts bits from n at position field with width
   bit32.lrotate:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Rotates n by i bits to the left. If i is negative, a right rotate
       is performed.
   bit32.lshift:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Shifts n by i bits to the left. If i is negative, a right shift is
       performed.
   bit32.replace:
@@ -3990,30 +3999,36 @@ globals:
     - type: number
     - type: number
       required: false
+    must_use: true
     description: Replaces bits in n at position field with width using value v
   bit32.rrotate:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Rotates n by i bits to the right. If i is negative, a left rotate
       is performed.
   bit32.rshift:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Shifts n by i bits to the right. If i is negative, a left shift is
       performed.
   bit32.countlz:
     args:
     - type: number
+    must_use: true
     description: Count leading zeros
   bit32.countrz:
     args:
     - type: number
+    must_use: true
     description: Count trailing zeros
   bit32.byteswap:
     args:
     - type: number
+    must_use: true
     description: Swap byte order
   buffer.create:
     args:
