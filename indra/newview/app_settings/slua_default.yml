@@ -3915,24 +3915,24 @@ globals:
     struct: vector
   dangerouslyexecuterequiredmodule:
     args:
-    - type: any
+    - type: function
     description: Dangerously executes a required module function
   touuid:
     args:
-    - type: any
+    - type: string
     description: Converts a string, buffer, or uuid to a uuid, returns nil if invalid
   tovector:
     args:
-    - type: any
-    description: Converts a value to a vector, returns nil if invalid
+    - type: string
+    description: Converts a string to a vector, returns nil if invalid
   toquaternion:
     args:
-    - type: any
-    description: Converts a value to a quaternion, returns nil if invalid
+    - type: string
+    description: Converts a string to a quaternion, returns nil if invalid
   torotation:
     args:
-    - type: any
-    description: Converts a value to a rotation (quaternion), returns nil if invalid
+    - type: string
+    description: Converts a string to a rotation (quaternion), returns nil if invalid
   bit32.arshift:
     args:
     - type: number

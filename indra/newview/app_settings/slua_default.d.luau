@@ -238,9 +238,9 @@ end
 
 declare function dangerouslyexecuterequiredmodule(f: (...any) -> ...any): ...any
 declare function touuid(val: string | buffer | uuid): uuid?
-declare function tovector(val: any): vector?
-declare function toquaternion(val: any): quaternion?
-declare function torotation(val: any): quaternion?
+declare function tovector(val: string | vector): vector?
+declare function toquaternion(val: string | quaternion): quaternion?
+declare function torotation(val: string | quaternion): quaternion?
 
 ---------------------------
 -- Global Table: bit32
