@@ -89,15 +89,15 @@ declare extern type LLEvents with
   at_target: ((TargetNumber: number, TargetPosition: vector, CurrentPosition: vector) -> ())?
   attach: ((AvatarID: uuid) -> ())?
   changed: ((Changed: number) -> ())?
-  collision: (LLDetectedEventHandler)?
-  collision_end: (LLDetectedEventHandler)?
-  collision_start: (LLDetectedEventHandler)?
+  collision: LLDetectedEventHandler?
+  collision_end: LLDetectedEventHandler?
+  collision_start: LLDetectedEventHandler?
   control: ((AvatarID: uuid, Levels: number, Edges: number) -> ())?
   dataserver: ((RequestID: uuid, Data: string) -> ())?
   email: ((Time: string, Address: string, Subject: string, Body: string, NumberRemaining: number) -> ())?
   experience_permissions: ((agent_id: uuid) -> ())?
   experience_permissions_denied: ((agent_id: uuid, Reason: number) -> ())?
-  final_damage: (LLDetectedEventHandler)?
+  final_damage: LLDetectedEventHandler?
   game_control: ((id: uuid, buttons: number, axes: list) -> ())?
   http_request: ((HTTPRequestID: uuid, HTTPMethod: string, Body: string) -> ())?
   http_response: ((HTTPRequestID: uuid, Status: number, Metadata: list, Body: string) -> ())?
@@ -114,17 +114,17 @@ declare extern type LLEvents with
   not_at_rot_target: (() -> ())?
   not_at_target: (() -> ())?
   object_rez: ((RezzedObjectsID: uuid) -> ())?
-  on_damage: (LLDetectedEventHandler)?
+  on_damage: LLDetectedEventHandler?
   on_death: (() -> ())?
   on_rez: ((StartParameter: number) -> ())?
   path_update: ((Type: number, Reserved: list) -> ())?
   remote_data: ((EventType: number, ChannelID: uuid, MessageID: uuid, Sender: string, IData: number, SData: string) -> ())?
   run_time_permissions: ((PermissionFlags: number) -> ())?
-  sensor: (LLDetectedEventHandler)?
+  sensor: LLDetectedEventHandler?
   timer: (() -> ())?
-  touch: (LLDetectedEventHandler)?
-  touch_end: (LLDetectedEventHandler)?
-  touch_start: (LLDetectedEventHandler)?
+  touch: LLDetectedEventHandler?
+  touch_end: LLDetectedEventHandler?
+  touch_start: LLDetectedEventHandler?
   transaction_result: ((RequestID: uuid, Success: number, Message: string) -> ())?
   on: ((self: LLEvents, event: LLDetectedEventName, callback: LLDetectedEventHandler) -> LLDetectedEventHandler)
     & ((self: LLEvents, event: "at_rot_target", callback: (TargetNumber: number, TargetRotation: quaternion, CurrentRotation: quaternion) -> ()) -> (TargetNumber: number, TargetRotation: quaternion, CurrentRotation: quaternion) -> ())
