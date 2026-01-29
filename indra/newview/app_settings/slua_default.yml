@@ -4328,87 +4328,113 @@ globals:
     args:
     - type: string
     description: Decodes a JSON string to a Lua value preserving SL types
+  math.pi:
+    property: read-only
+    type: number
+    description: The value of pi
+  math.huge:
+    property: read-only
+    type: number
+    description: A value larger than any other numeric value (infinity)
   math.abs:
     args:
     - type: number
+    must_use: true
     description: Returns the absolute value of n.
   math.acos:
     args:
     - type: number
+    must_use: true
     description: Returns the arc cosine of n in radians.
   math.asin:
     args:
     - type: number
+    must_use: true
     description: Returns the arc sine of n in radians.
   math.atan:
     args:
     - type: number
+    must_use: true
     description: Returns the arc tangent of n in radians.
   math.atan2:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the arc tangent of y/x in radians, using the signs to determine
       the quadrant.
   math.ceil:
     args:
     - type: number
+    must_use: true
     description: Returns the smallest integer larger than or equal to n.
   math.clamp:
     args:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Returns n clamped between min and max.
   math.cos:
     args:
     - type: number
+    must_use: true
     description: Returns the cosine of n (n is in radians).
   math.cosh:
     args:
     - type: number
+    must_use: true
     description: Returns the hyperbolic cosine of n.
   math.deg:
     args:
     - type: number
+    must_use: true
     description: Converts n from radians to degrees.
   math.exp:
     args:
     - type: number
+    must_use: true
     description: Returns the base-e exponent of n.
   math.floor:
     args:
     - type: number
+    must_use: true
     description: Returns the largest integer smaller than or equal to n.
   math.fmod:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the remainder of x modulo y, rounded towards zero.
   math.frexp:
     args:
     - type: number
+    must_use: true
     description: Returns m and e such that n = m * 2^e.
   math.ldexp:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns s * 2^e.
   math.lerp:
     args:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Linearly interpolates between a and b using factor t.
   math.log:
     args:
     - type: number
     - type: number
       required: false
+    must_use: true
     description: Returns the logarithm of n in the given base (default e).
   math.log10:
     args:
     - type: number
+    must_use: true
     description: Returns the base-10 logarithm of n.
   math.map:
     args:
@@ -4417,20 +4443,26 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Maps n from input range to output range.
   math.max:
     args:
     - type: number
     - type: '...'
+      required: true
+    must_use: true
     description: Returns the maximum value from the given numbers.
   math.min:
     args:
     - type: number
     - type: '...'
+      required: true
+    must_use: true
     description: Returns the minimum value from the given numbers.
   math.modf:
     args:
     - type: number
+    must_use: true
     description: Returns the integer and fractional parts of n.
   math.noise:
     args:
@@ -4439,15 +4471,18 @@ globals:
       required: false
     - type: number
       required: false
+    must_use: true
     description: Returns Perlin noise value for the point (x, y, z).
   math.pow:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns base to the power of exponent.
   math.rad:
     args:
     - type: number
+    must_use: true
     description: Converts n from degrees to radians.
   math.random:
     args:
@@ -4455,50 +4490,62 @@ globals:
       required: false
     - type: number
       required: false
+    must_use: true
     description: Returns a random number within the given range.
   math.randomseed:
     args:
     - type: number
+    must_use: true
     description: Sets the seed for the random number generator.
   math.round:
     args:
     - type: number
+    must_use: true
     description: Rounds n to the nearest integer.
   math.sign:
     args:
     - type: number
+    must_use: true
     description: Returns -1 if n is negative, 1 if positive, and 0 if zero.
   math.sin:
     args:
     - type: number
+    must_use: true
     description: Returns the sine of n (n is in radians).
   math.sinh:
     args:
     - type: number
+    must_use: true
     description: Returns the hyperbolic sine of n.
   math.sqrt:
     args:
     - type: number
+    must_use: true
     description: Returns the square root of n.
   math.tan:
     args:
     - type: number
+    must_use: true
     description: Returns the tangent of n (n is in radians).
   math.tanh:
     args:
     - type: number
+    must_use: true
     description: Returns the hyperbolic tangent of n.
   math.isnan:
     args:
     - type: number
+    must_use: true
     description: Returns true if n is NaN.
   math.isinf:
     args:
     - type: number
+    must_use: true
     description: Returns true if n is infinite.
   math.isfinite:
     args:
     - type: number
+    must_use: true
     description: Returns true if n is finite.
   os.clock:
     args: []
