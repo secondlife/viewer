@@ -4311,24 +4311,50 @@ globals:
       required: false
     must_use: true
     description: Decodes a base64 string to a string, or buffer if asBuffer is true
+  lljson.null:
+    property: read-only
+    description: A constant to pass for null to json encode
+  lljson.empty_array_mt:
+    property: read-only
+    type: table
+    description: Metatable for declaring table as an empty array for json encode
+  lljson.array_mt:
+    property: read-only
+    type: table
+    description: Metatable for declaring table as an array for json encode
+  lljson.empty_array:
+    property: read-only
+    description: A constant to pass for an empty array to json encode
+  lljson._NAME:
+    property: read-only
+    type: string
+    description: Name of the lljson library
+  lljson._VERSION:
+    property: read-only
+    type: string
+    description: Version of the lljson library
   lljson.encode:
     args:
     - type: any
+    must_use: true
     description: Encodes a Lua value as JSON
   lljson.decode:
     args:
     - type: string
+    must_use: true
     description: Decodes a JSON string to a Lua value
   lljson.slencode:
     args:
     - type: any
     - type: bool
       required: false
+    must_use: true
     description: Encodes a Lua value as JSON preserving SL types. Use tight to encode
       more compactly.
   lljson.sldecode:
     args:
     - type: string
+    must_use: true
     description: Decodes a JSON string to a Lua value preserving SL types
   math.pi:
     property: read-only
