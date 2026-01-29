@@ -5562,10 +5562,6 @@ globals:
     - type: number
     description: Returns the alpha value of Face.\nReturns the 'alpha' of the given
       face. If face is ALL_SIDES the value returned is the mean average of all faces.
-  ll.GetAndResetTime:
-    args: []
-    description: Returns the script time in seconds and then resets the script timer
-      to zero.\nGets the time in seconds since starting and resets the time to zero.
   ll.GetAnimation:
     args:
     - type:
@@ -7355,9 +7351,6 @@ globals:
   ll.ResetScript:
     args: []
     description: Resets the script.
-  ll.ResetTime:
-    args: []
-    description: Sets the time to zero.\nSets the internal timer to zero.
   ll.ReturnObjectsByID:
     args:
     - type: table
@@ -7820,12 +7813,6 @@ globals:
     - type:
         display: quaternion
     description: Sets the rotation of a child prim relative to the root prim.
-  ll.SetMemoryLimit:
-    args:
-    - type: number
-    description: Requests Limit bytes to be reserved for this script.\nReturns TRUE
-      or FALSE indicating whether the limit was set successfully.\nThis function has
-      no effect if the script is running in the LSO VM.
   ll.SetObjectDesc:
     args:
     - type: string
@@ -7995,11 +7982,6 @@ globals:
       and SizeY specify the number of horizontal and vertical frames.Start specifes
       the animation start point.\nLength specifies the animation duration.\nRate specifies
       the animation playback rate.
-  ll.SetTimerEvent:
-    args:
-    - type: number
-    description: Causes the timer event to be triggered every Rate seconds.\n Passing
-      in 0.0 stops further timer events.
   ll.SetTorque:
     args:
     - type:
