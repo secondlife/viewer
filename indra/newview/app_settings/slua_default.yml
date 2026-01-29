@@ -4033,118 +4033,158 @@ globals:
   buffer.create:
     args:
     - type: number
+    must_use: true
     description: Creates a buffer of the requested size with all bytes initialized
       to 0.
   buffer.fromstring:
     args:
     - type: string
+    must_use: true
     description: Creates a buffer initialized to the contents of the string.
   buffer.tostring:
     args:
-    - type: any
+    - type:
+        display: buffer
+    must_use: true
     description: Returns the buffer data as a string.
   buffer.readi8:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads a signed 8-bit integer from the buffer at the given offset.
   buffer.readu8:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads an unsigned 8-bit integer from the buffer at the given offset.
   buffer.readi16:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads a signed 16-bit integer from the buffer at the given offset.
   buffer.readu16:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads an unsigned 16-bit integer from the buffer at the given offset.
   buffer.readi32:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads a signed 32-bit integer from the buffer at the given offset.
   buffer.readu32:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads an unsigned 32-bit integer from the buffer at the given offset.
   buffer.readf32:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads a 32-bit floating-point number from the buffer at the given
       offset.
   buffer.readf64:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
+    must_use: true
     description: Reads a 64-bit floating-point number from the buffer at the given
       offset.
   buffer.writei8:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes a signed 8-bit integer to the buffer at the given offset.
   buffer.writeu8:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes an unsigned 8-bit integer to the buffer at the given offset.
   buffer.writei16:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes a signed 16-bit integer to the buffer at the given offset.
   buffer.writeu16:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes an unsigned 16-bit integer to the buffer at the given offset.
   buffer.writei32:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes a signed 32-bit integer to the buffer at the given offset.
   buffer.writeu32:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes an unsigned 32-bit integer to the buffer at the given offset.
   buffer.writef32:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes a 32-bit floating-point number to the buffer at the given
       offset.
   buffer.writef64:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     description: Writes a 64-bit floating-point number to the buffer at the given
       offset.
   buffer.readstring:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
     - type: number
+    must_use: true
     description: Reads a string of the given length from the buffer at the specified
       offset.
   buffer.writestring:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: string
     - type: number
@@ -4152,13 +4192,18 @@ globals:
     description: Writes data from a string into the buffer at the specified offset.
   buffer.len:
     args:
-    - type: any
+    - type:
+        display: buffer
+    must_use: true
     description: Returns the size of the buffer in bytes.
   buffer.copy:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
       required: false
     - type: number
@@ -4166,7 +4211,9 @@ globals:
     description: Copies bytes from the source buffer into the target buffer.
   buffer.fill:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     - type: number
@@ -4174,13 +4221,17 @@ globals:
     description: Fills the buffer with the specified value starting at the given offset.
   buffer.readbits:
     args:
-    - type: any
+    - type:
+        display: buffer
     - type: number
     - type: number
+    must_use: true
     description: Reads up to 32 bits from the buffer at the given offset.
   buffer.writebits:
     args:
-    - type: any
+    - type:
+        display: buffer
+      observes: write
     - type: number
     - type: number
     - type: number
