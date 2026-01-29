@@ -5,15 +5,23 @@ lua_versions:
 - lua51
 last_updated: 1763572449
 globals:
-  getfenv:
-    type: any
-    description: getfenv is removed in SLua
-  setfenv:
-    type: any
-    description: setfenv is removed in SLua
+  LLEvents:
+    property: read-only
+    struct: LLEvents
+    description: The instance of the LLEvents singleton.
+  LLTimers:
+    property: read-only
+    struct: LLTimers
+    description: The instance of the LLTimers singleton.
   loadstring:
-    type: any
-    description: loadstring is removed in SLua
+    removed: true
+    description: loadstring is removed in SLua.
+  getfenv:
+    removed: true
+    description: getfenv is removed in SLua.
+  setfenv:
+    removed: true
+    description: setfenv is removed in SLua.
   ACTIVE:
     property: read-only
     type: number
