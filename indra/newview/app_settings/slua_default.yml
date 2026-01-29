@@ -8208,6 +8208,227 @@ globals:
     description: (Index semantics) Returns the velocity of the detected object Number.\nReturns<0.0,
       0.0, 0.0> if Number is not a valid offset.
 structs:
+  quaternion:
+    __add:
+      method: true
+      args:
+      - type:
+          display: quaternion
+    __sub:
+      method: true
+      args:
+      - type:
+          display: quaternion
+    __mul:
+      method: true
+      args:
+      - type:
+          display: quaternion
+    __div:
+      method: true
+      args:
+      - type:
+          display: quaternion
+    __unm:
+      method: true
+      args: []
+    __eq:
+      method: true
+      args:
+      - type:
+          display: quaternion
+    __tostring:
+      method: true
+      args: []
+    x:
+      property: read-only
+      type: number
+    y:
+      property: read-only
+      type: number
+    z:
+      property: read-only
+      type: number
+    s:
+      property: read-only
+      type: number
+  uuid:
+    __tostring:
+      method: true
+      args: []
+    istruthy:
+      property: read-only
+      type: bool
+      description: Returns true if the UUID is not the null UUID (all zeros)
+    bytes:
+      property: read-only
+      type: string
+      description: Returns the raw 16-byte binary string of the UUID, or nil if the
+        UUID is not in a compressed state
+  vector:
+    __add:
+      method: true
+      args:
+      - type:
+          display: vector
+      description: Native component-wise addition
+    __sub:
+      method: true
+      args:
+      - type:
+          display: vector
+      description: Native component-wise subtraction
+    __unm:
+      method: true
+      args: []
+      description: Unary negation
+    __mul:
+      method: true
+      args:
+      - type: any
+      description: 'Multiplication: vector * vector / number -> vector (Scale), vector
+        * quaternion -> vector (Rotation)'
+    __div:
+      method: true
+      args:
+      - type: any
+      description: 'Division: vector / number -> vector (Scale), vector / quaternion
+        -> vector (Rotation by inverse)'
+    __mod:
+      method: true
+      args:
+      - type:
+          display: vector
+      description: 'LSL-style modulo: vector % vector -> vector (Cross Product)'
+    __tostring:
+      method: true
+      args: []
+    x:
+      property: read-only
+      type: number
+    y:
+      property: read-only
+      type: number
+    z:
+      property: read-only
+      type: number
+  DetectedEvent:
+    adjustDamage:
+      method: true
+      args:
+      - type: number
+      description: Changes the amount of damage to be delivered by this damage event.
+    getDamage:
+      method: true
+      args: []
+      description: Returns a list containing the current damage for the event, the
+        damage type and the original damage delivered.
+    getGrab:
+      method: true
+      args: []
+      description: Returns the grab offset of a user touching the object.\nReturns
+        <0.0, 0.0, 0.0> if Number is not a valid object.
+    getGroup:
+      method: true
+      args: []
+      description: Returns TRUE if detected object or agent Number has the same user
+        group active as this object.\nIt will return FALSE if the object or agent
+        is in the group, but the group is not active.
+    getKey:
+      method: true
+      args: []
+      description: Returns the key of detected object or avatar number.\nReturns NULL_KEY
+        if Number is not a valid index.
+    getLinkNumber:
+      method: true
+      args: []
+      description: Returns the link position of the triggered event for touches and
+        collisions only.\n0 for a non-linked object, 1 for the root of a linked object,
+        2 for the first child, etc.
+    getName:
+      method: true
+      args: []
+      description: Returns the name of detected object or avatar number.\nReturns
+        the name of detected object number.\nReturns empty string if Number is not
+        a valid index.
+    getOwner:
+      method: true
+      args: []
+      description: Returns the key of detected object's owner.\nReturns invalid key
+        if Number is not a valid index.
+    getPos:
+      method: true
+      args: []
+      description: Returns the position of detected object or avatar number.\nReturns
+        <0.0, 0.0, 0.0> if Number is not a valid index.
+    getRezzer:
+      method: true
+      args: []
+      description: Returns the key for the rezzer of the detected object.
+    getRot:
+      method: true
+      args: []
+      description: Returns the rotation of detected object or avatar number.\nReturns
+        <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
+    getTouchBinormal:
+      method: true
+      args: []
+      description: Returns the surface bi-normal for a triggered touch event.\nReturns
+        a vector that is the surface bi-normal (tangent to the surface) where the
+        touch event was triggered.
+    getTouchFace:
+      method: true
+      args: []
+      description: Returns the index of the face where the avatar clicked in a triggered
+        touch event.
+    getTouchNormal:
+      method: true
+      args: []
+      description: Returns the surface normal for a triggered touch event.\nReturns
+        a vector that is the surface normal (perpendicular to the surface) where the
+        touch event was triggered.
+    getTouchPos:
+      method: true
+      args: []
+      description: Returns the position, in region coordinates, where the object was
+        touched in a triggered touch event.\nUnless it is a HUD, in which case it
+        returns the position relative to the attach point.
+    getTouchST:
+      method: true
+      args: []
+      description: Returns a vector that is the surface coordinates where the prim
+        was touched.\nThe X and Y vector positions contain the horizontal (S) and
+        vertical (T) face coordinates respectively.\nEach component is in the interval
+        [0.0, 1.0].\nTOUCH_INVALID_TEXCOORD is returned if the surface coordinates
+        cannot be determined (e.g. when the viewer does not support this function).
+    getTouchUV:
+      method: true
+      args: []
+      description: Returns a vector that is the texture coordinates for where the
+        prim was touched.\nThe X and Y vector positions contain the U and V face coordinates
+        respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates
+        cannot be determined (e.g. when the viewer does not support this function).
+    getType:
+      method: true
+      args: []
+      description: "Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected\
+        \ object.\\nReturns 0 if number is not a valid index.\\nNote that number is\
+        \ a bit-field, so comparisons need to be a bitwise checked. e.g.:\\ninteger\
+        \ iType = llDetectedType(0);\\n{\\n\t// ...do stuff with the agent\\n}"
+    getVel:
+      method: true
+      args: []
+      description: Returns the velocity of the detected object Number.\nReturns<0.0,
+        0.0, 0.0> if Number is not a valid offset.
+    index:
+      property: read-only
+      type: number
+    valid:
+      property: read-only
+      type: bool
+    canAdjustDamage:
+      property: read-only
+      type: bool
   LLEvents:
     'on':
       method: true
