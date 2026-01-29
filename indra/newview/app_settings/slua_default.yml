@@ -3913,18 +3913,6 @@ globals:
     struct: quaternion
   ZERO_VECTOR:
     struct: vector
-  quaternion:
-    type: any
-    description: Global 'quaternion' library table with callable metatable
-  rotation:
-    type: any
-    description: '''rotation'' global is an alias to the ''quaternion'' library'
-  uuid:
-    type: any
-    description: Global 'uuid' library table
-  vector:
-    type: any
-    description: Global 'vector' library table
   dangerouslyexecuterequiredmodule:
     args:
     - type: any
@@ -3945,10 +3933,6 @@ globals:
     args:
     - type: any
     description: Converts a value to a rotation (quaternion), returns nil if invalid
-  LLDetectedEvent:
-    any: true
-    description: Event detection class providing access to detected object/avatar
-      information
   bit32.arshift:
     args:
     - type: number
