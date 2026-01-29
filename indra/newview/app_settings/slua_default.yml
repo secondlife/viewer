@@ -4821,13 +4821,19 @@ globals:
     - type: table
     must_use: true
     description: Creates a shallow copy of the table.
+  utf8.charpattern:
+    property: read-only
+    type: string
+    description: Pattern that matches exactly one UTF-8 byte sequence
   utf8.char:
     args:
     - type: '...'
+      required: true
     description: Creates a string from Unicode codepoints.
   utf8.codes:
     args:
     - type: string
+    must_use: true
     description: Returns an iterator that produces the byte offset and Unicode codepoint
       for each character in the string.
   utf8.codepoint:
@@ -4837,6 +4843,7 @@ globals:
       required: false
     - type: number
       required: false
+    must_use: true
     description: Returns the Unicode codepoints in the specified range of the string.
   utf8.len:
     args:
@@ -4845,6 +4852,7 @@ globals:
       required: false
     - type: number
       required: false
+    must_use: true
     description: Returns the number of Unicode codepoints in the specified range of
       the string, or nil and error index.
   utf8.offset:
@@ -4853,6 +4861,7 @@ globals:
     - type: number
     - type: number
       required: false
+    must_use: true
     description: Returns the byte offset of the nth Unicode codepoint in the string.
 
   ll.Abs:
