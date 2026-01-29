@@ -4652,6 +4652,79 @@ globals:
         display: quaternion
     must_use: true
     description: Computes the up vector from the quaternion.
+  rotation:
+    args:
+    - type: number
+    - type: number
+    - type: number
+    - type: number
+    must_use: true
+    description: Creates a new quaternion with the given component values. Alias of
+      quaternion.create.
+  rotation.identity:
+    struct: quaternion
+    description: Identity quaternion constant.
+  rotation.create:
+    args:
+    - type: number
+    - type: number
+    - type: number
+    - type: number
+    must_use: true
+    description: Creates a new quaternion with the given component values.
+  rotation.normalize:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the normalized version (unit quaternion) of the quaternion.
+  rotation.magnitude:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the magnitude of the quaternion.
+  rotation.dot:
+    args:
+    - type:
+        display: quaternion
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the dot product of two quaternions.
+  rotation.slerp:
+    args:
+    - type:
+        display: quaternion
+    - type:
+        display: quaternion
+    - type: number
+    must_use: true
+    description: Spherical linear interpolation from a to b using factor t.
+  rotation.conjugate:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the conjugate of the quaternion.
+  rotation.tofwd:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the forward vector from the quaternion.
+  rotation.toleft:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the left vector from the quaternion.
+  rotation.toup:
+    args:
+    - type:
+        display: quaternion
+    must_use: true
+    description: Computes the up vector from the quaternion.
   string.byte:
     args:
     - type: string
