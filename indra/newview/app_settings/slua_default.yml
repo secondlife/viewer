@@ -4310,7 +4310,8 @@ globals:
     - type: bool
       required: false
     must_use: true
-    description: Decodes a base64 string to a string, or buffer if asBuffer is true
+    description: Decodes a base64 string to a string, or buffer if asBuffer is true.
+      Returns an empty string/buffer if input is invalid.
   lljson.null:
     property: read-only
     description: A constant to pass for null to json encode
@@ -4337,25 +4338,28 @@ globals:
     args:
     - type: any
     must_use: true
-    description: Encodes a Lua value as JSON
+    description: Encodes a Lua value as JSON. Raises an error if value contains unsupported
+      types.
   lljson.decode:
     args:
     - type: string
     must_use: true
-    description: Decodes a JSON string to a Lua value
+    description: Decodes a JSON string to a Lua value. Raises an error if JSON is
+      invalid.
   lljson.slencode:
     args:
     - type: any
     - type: bool
       required: false
     must_use: true
-    description: Encodes a Lua value as JSON preserving SL types. Use tight to encode
-      more compactly.
+    description: Encodes a Lua value as JSON, preserving SL types. Use tight to encode
+      more compactly. Raises an error if value contains unsupported types.
   lljson.sldecode:
     args:
     - type: string
     must_use: true
-    description: Decodes a JSON string to a Lua value preserving SL types
+    description: Decodes a JSON string to a Lua value, preserving SL types. Raises
+      an error if JSON is invalid.
   math.pi:
     property: read-only
     type: number
