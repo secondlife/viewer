@@ -59,11 +59,18 @@ public:
 
     virtual void onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
     {
+        bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
         conversation->showVoiceIndicator(conversation
             && status != STATUS_JOINING
             && status != STATUS_LEFT_CHANNEL
-            && LLVoiceClient::getInstance()->voiceEnabled()
-            && LLVoiceClient::getInstance()->isVoiceWorking());
+            && voice_enabled);
+
+        static bool s_voice_enabled(false);
+        if (s_voice_enabled != voice_enabled)
+        {
+            s_voice_enabled = voice_enabled;
+            conversation->updateConversationIndicators();
+        }
     }
 
 private:
@@ -509,11 +516,25 @@ void LLConversationViewSession::refresh()
     // Update all speaking indicators
     LLSpeakingIndicatorManager::updateSpeakingIndicators();
 
+    updateConversationIndicators();
+
+    requestArrange();
+    if (vmi)
+    {
+        // Do the regular upstream refresh
+        LLFolderViewFolder::refresh();
+    }
+}
+
+void LLConversationViewSession::updateConversationIndicators()
+{
+    bool is_active_channel = isInActiveVoiceChannel();
+
     // we should show indicator for specified voice session only if this is current channel. EXT-5562.
     if (mSpeakingIndicator)
     {
-        mSpeakingIndicator->setIsActiveChannel(mIsInActiveVoiceChannel);
-        mSpeakingIndicator->setShowParticipantsSpeaking(mIsInActiveVoiceChannel);
+        mSpeakingIndicator->setIsActiveChannel(is_active_channel);
+        mSpeakingIndicator->setShowParticipantsSpeaking(is_active_channel);
     }
 
     LLConversationViewParticipant* participant = NULL;
@@ -523,15 +544,8 @@ void LLConversationViewSession::refresh()
         participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
         if (participant)
         {
-            participant->allowSpeakingIndicator(mIsInActiveVoiceChannel);
+            participant->allowSpeakingIndicator(is_active_channel);
         }
-    }
-
-    requestArrange();
-    if (vmi)
-    {
-        // Do the regular upstream refresh
-        LLFolderViewFolder::refresh();
     }
 }
 
@@ -543,7 +557,7 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
     {
         bool old_value = mIsInActiveVoiceChannel;
         mIsInActiveVoiceChannel = vmi->getUUID() == session_id;
-        mCallIconLayoutPanel->setVisible(mIsInActiveVoiceChannel && !LLVoiceChannel::isSuspended());
+        mCallIconLayoutPanel->setVisible(isInActiveVoiceChannel() && !LLVoiceChannel::isSuspended());
         if (old_value != mIsInActiveVoiceChannel)
         {
             refresh();
@@ -565,6 +579,13 @@ bool LLConversationViewSession::highlightFriendTitle(LLConversationItem* vmi)
         }
     }
     return false;
+}
+
+bool LLConversationViewSession::isInActiveVoiceChannel()
+{
+    return mIsInActiveVoiceChannel &&
+           LLVoiceClient::getInstance()->voiceEnabled() &&
+           LLVoiceClient::getInstance()->isVoiceWorking();
 }
 
 //
