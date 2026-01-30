@@ -3,7 +3,7 @@
 # Version: TODO: auto-generate
 # Last Updated: TODO: auto-generate
 base: luau
-name: SLua LSL language support
+name: Second Life SLua language support
 lua_versions:
 - luau
 - lua51
@@ -4315,7 +4315,7 @@ globals:
       required: false
     must_use: true
     description: Decodes a base64 string to a string, or buffer if asBuffer is true.
-      Returns an empty string/buffer if input is invalid.
+      The output is truncated at the first decoding error.
   lljson.null:
     property: read-only
     description: A constant to pass for null to json encode
