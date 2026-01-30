@@ -5275,7 +5275,7 @@ globals:
     - type: number
     description: Follows the same convention as llAttachToAvatar, with the exception
       that the object will not create new inventory for the user, and will disappear
-      on detach or disconnect.
+      on detach or disconnect.\nRequires the PERMISSION_ATTACH runtime permission.
   ll.AvatarOnLinkSitTarget:
     args:
     - type: number
@@ -5322,13 +5322,13 @@ globals:
       creates any unprintable characters, they are converted to question marks.
   ll.BreakAllLinks:
     args: []
-    description: De-links all prims in the link set (requires permission PERMISSION_CHANGE_LINKS
-      be set).
+    description: De-links all prims in the link set.\nRequires the PERMISSION_CHANGE_LINKS
+      runtime permission.
   ll.BreakLink:
     args:
     - type: number
-    description: De-links the prim with the given link number (requires permission
-      PERMISSION_CHANGE_LINKS be set).
+    description: De-links the prim with the given link number.\nRequires the PERMISSION_CHANGE_LINKS
+      runtime permission.
   ll.CSV2List:
     args:
     - type: string
@@ -5362,7 +5362,8 @@ globals:
   ll.ClearCameraParams:
     args: []
     description: Resets all camera parameters to default values and turns off scripted
-      camera control.
+      camera control.\nRequires the PERMISSION_CONTROL_CAMERA runtime permission (automatically
+      granted to attached or sat on objects).
   ll.ClearLinkMedia:
     args:
     - type: number
@@ -5449,9 +5450,8 @@ globals:
     - type:
         display: uuid
     - type: bool
-    description: Attempt to link the object the script is in, to target (requires
-      permission PERMISSION_CHANGE_LINKS be set).\nRequires permission PERMISSION_CHANGE_LINKS
-      be set.
+    description: Attempt to link the object the script is in, to target.\nRequires
+      the PERMISSION_CHANGE_LINKS runtime permission.
   ll.Damage:
     args:
     - type:
@@ -5517,7 +5517,9 @@ globals:
       Returns TRUE on success or FALSE if the object could not be derezzed.
   ll.DetachFromAvatar:
     args: []
-    description: Remove the object containing the script from the avatar.
+    description: Remove the object containing the script from the avatar.\nRequires
+      the PERMISSION_ATTACH runtime permission (automatically granted to attached
+      objects).
   ll.DetectedDamage:
     deprecated:
       message: Returns a list containing the current damage for the event, the damage
@@ -5921,9 +5923,9 @@ globals:
     - type: string
     must_use: true
     description: Returns a string that is the name of the animation that is used for
-      the specified animation state\nTo use this function the script must obtain either
-      the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION permission
-      (automatically granted to attached objects).
+      the specified animation state.\nRequires the PERMISSION_OVERRIDE_ANIMATIONS
+      or PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted to
+      attached objects).
   ll.GetAttached:
     args: []
     must_use: true
@@ -7860,7 +7862,9 @@ globals:
     args:
     - type: string
     description: Resets the animation of the specified animation state to the default
-      value.\nIf animation state equals "ALL", then all animation states are reset.
+      value.\nIf animation state equals "ALL", then all animation states are reset.\nRequires
+      the PERMISSION_OVERRIDE_ANIMATIONS permission (automatically granted to attached
+      objects).
   ll.ResetLandBanList:
     args: []
     description: Removes all residents from the land ban list.
@@ -8172,7 +8176,8 @@ globals:
     args:
     - type: table
     description: Sets multiple camera parameters at once. List format is [ rule-1,
-      data-1, rule-2, data-2 . . . rule-n, data-n ].
+      data-1, rule-2, data-2 . . . rule-n, data-n ].\nRequires the PERMISSION_CONTROL_CAMERA
+      runtime permission (automatically granted to attached or sat on objects).
   ll.SetClickAction:
     args:
     - type: number
@@ -8371,7 +8376,8 @@ globals:
       if TRUE the parcel is put up for sale. Options is a list of options to set for
       the sale, such as price, authorized buyer, and whether to include objects on
       the parcel.\n Setting ForSale to FALSE will remove the parcel from sale and
-      clear any options that were set.
+      clear any options that were set.\nRequires the PERMISSION_PRIVILEGED_LAND_ACCESS
+      permission.
   ll.SetParcelMusicURL:
     args:
     - type: string
@@ -8637,7 +8643,8 @@ globals:
     - type: string
     description: This function plays the specified animation from playing on the avatar
       who received the script's most recent permissions request.\nAnimation may be
-      an animation in task inventory or a built-in animation.\nRequires PERMISSION_TRIGGER_ANIMATION.
+      an animation in task inventory or a built-in animation.\nRequires the PERMISSION_TRIGGER_ANIMATION
+      runtime permission (automatically granted to attached or sat on objects).
   ll.StartObjectAnimation:
     args:
     - type: string
@@ -8650,7 +8657,8 @@ globals:
     description: This function stops the specified animation on the avatar who received
       the script's most recent permissions request.\nAnimation may be an animation
       in task inventory, a built-in animation, or the uuid of an animation.\nRequires
-      PERMISSION_TRIGGER_ANIMATION.
+      the PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted to
+      attached or sat on objects).
   ll.StopHover:
     args: []
     description: Stop hovering to a height (due to llSetHoverHeight()).
@@ -8711,7 +8719,7 @@ globals:
     description: Take controls from the agent the script has permissions for.\nIf
       (Accept == (Controls & input)), send input to the script.  PassOn determines
       whether Controls also perform their normal functions.\nRequires the PERMISSION_TAKE_CONTROLS
-      permission to run.
+      runtime permission (automatically granted to attached or sat on objects).
   ll.Tan:
     args:
     - type: number
@@ -8757,8 +8765,8 @@ globals:
       inventory. If no landmark is provided (an empty string), the avatar is teleported
       to the location position in the current region. In either case, the avatar is
       turned to face the position given by look_at in local coordinates.\nRequires
-      the PERMISSION_TELEPORT permission. This function can only teleport the owner
-      of the object.
+      the PERMISSION_TELEPORT runtime permission.\nThis function can only teleport
+      the owner of the object.
   ll.TeleportAgentGlobalCoords:
     args:
     - type:
@@ -8772,8 +8780,8 @@ globals:
     description: Teleports an agent to the RegionPosition local coordinates within
       a region which is specified by the GlobalPosition global coordinates. The agent
       lands facing the position defined by LookAtPoint local coordinates.\nRequires
-      the PERMISSION_TELEPORT permission. This function can only teleport the owner
-      of the object.
+      the PERMISSION_TELEPORT runtime permission.\nThis function can only teleport
+      the owner of the object.
   ll.TeleportAgentHome:
     args:
     - type:
@@ -8806,7 +8814,8 @@ globals:
     description: Transfer Amount of linden dollars (L$) from script owner to AvatarID.
       Returns a key to a corresponding transaction_result event for the success of
       the transfer.\nAttempts to send the amount of money to the specified avatar,
-      and trigger a transaction_result event identified by the returned key.
+      and trigger a transaction_result event identified by the returned key. Requires
+      the PERMISSION_DEBIT runtime permission.
   ll.TransferOwnership:
     args:
     - type:
@@ -8945,7 +8954,8 @@ globals:
         display: vector
     must_use: true
     description: Returns the local position that would put the origin of a HUD object
-      directly over world_pos as viewed by the current camera.
+      directly over world_pos as viewed by the current camera. Requires the PERMISSION_TRACK_CAMERA
+      runtime permission (else will return zero vector).
   ll.XorBase64:
     args:
     - type: string
@@ -9119,12 +9129,12 @@ globals:
     deprecated:
       message: Follows the same convention as llAttachToAvatar, with the exception
         that the object will not create new inventory for the user, and will disappear
-        on detach or disconnect.
+        on detach or disconnect.\nRequires the PERMISSION_ATTACH runtime permission.
     args:
     - type: number
     description: Follows the same convention as llAttachToAvatar, with the exception
       that the object will not create new inventory for the user, and will disappear
-      on detach or disconnect.
+      on detach or disconnect.\nRequires the PERMISSION_ATTACH runtime permission.
   llcompat.AvatarOnLinkSitTarget:
     deprecated:
       message: If an avatar is sitting on the link's sit target, return the avatar's
@@ -9191,19 +9201,19 @@ globals:
       creates any unprintable characters, they are converted to question marks.
   llcompat.BreakAllLinks:
     deprecated:
-      message: De-links all prims in the link set (requires permission PERMISSION_CHANGE_LINKS
-        be set).
+      message: De-links all prims in the link set.\nRequires the PERMISSION_CHANGE_LINKS
+        runtime permission.
     args: []
-    description: De-links all prims in the link set (requires permission PERMISSION_CHANGE_LINKS
-      be set).
+    description: De-links all prims in the link set.\nRequires the PERMISSION_CHANGE_LINKS
+      runtime permission.
   llcompat.BreakLink:
     deprecated:
-      message: De-links the prim with the given link number (requires permission PERMISSION_CHANGE_LINKS
-        be set).
+      message: De-links the prim with the given link number.\nRequires the PERMISSION_CHANGE_LINKS
+        runtime permission.
     args:
     - type: number
-    description: De-links the prim with the given link number (requires permission
-      PERMISSION_CHANGE_LINKS be set).
+    description: De-links the prim with the given link number.\nRequires the PERMISSION_CHANGE_LINKS
+      runtime permission.
   llcompat.CSV2List:
     deprecated:
       message: Create a list from a string of comma separated values specified in
@@ -9251,10 +9261,12 @@ globals:
   llcompat.ClearCameraParams:
     deprecated:
       message: Resets all camera parameters to default values and turns off scripted
-        camera control.
+        camera control.\nRequires the PERMISSION_CONTROL_CAMERA runtime permission
+        (automatically granted to attached or sat on objects).
     args: []
     description: Resets all camera parameters to default values and turns off scripted
-      camera control.
+      camera control.\nRequires the PERMISSION_CONTROL_CAMERA runtime permission (automatically
+      granted to attached or sat on objects).
   llcompat.ClearLinkMedia:
     deprecated:
       message: Clears (deletes) the media and all parameters from the given Face on
@@ -9371,16 +9383,14 @@ globals:
       \       "
   llcompat.CreateLink:
     deprecated:
-      message: Attempt to link the object the script is in, to target (requires permission
-        PERMISSION_CHANGE_LINKS be set).\nRequires permission PERMISSION_CHANGE_LINKS
-        be set.
+      message: Attempt to link the object the script is in, to target.\nRequires the
+        PERMISSION_CHANGE_LINKS runtime permission.
     args:
     - type:
         display: uuid
     - type: bool
-    description: Attempt to link the object the script is in, to target (requires
-      permission PERMISSION_CHANGE_LINKS be set).\nRequires permission PERMISSION_CHANGE_LINKS
-      be set.
+    description: Attempt to link the object the script is in, to target.\nRequires
+      the PERMISSION_CHANGE_LINKS runtime permission.
   llcompat.Damage:
     deprecated:
       message: Generates a damage event on the targeted agent or task.
@@ -9489,9 +9499,13 @@ globals:
       Returns TRUE on success or FALSE if the object could not be derezzed.
   llcompat.DetachFromAvatar:
     deprecated:
-      message: Remove the object containing the script from the avatar.
+      message: Remove the object containing the script from the avatar.\nRequires
+        the PERMISSION_ATTACH runtime permission (automatically granted to attached
+        objects).
     args: []
-    description: Remove the object containing the script from the avatar.
+    description: Remove the object containing the script from the avatar.\nRequires
+      the PERMISSION_ATTACH runtime permission (automatically granted to attached
+      objects).
   llcompat.DetectedDamage:
     deprecated:
       message: Returns a list containing the current damage for the event, the damage
@@ -10016,16 +10030,16 @@ globals:
   llcompat.GetAnimationOverride:
     deprecated:
       message: Returns a string that is the name of the animation that is used for
-        the specified animation state\nTo use this function the script must obtain
-        either the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION
-        permission (automatically granted to attached objects).
+        the specified animation state.\nRequires the PERMISSION_OVERRIDE_ANIMATIONS
+        or PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted
+        to attached objects).
     args:
     - type: string
     must_use: true
     description: Returns a string that is the name of the animation that is used for
-      the specified animation state\nTo use this function the script must obtain either
-      the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION permission
-      (automatically granted to attached objects).
+      the specified animation state.\nRequires the PERMISSION_OVERRIDE_ANIMATIONS
+      or PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted to
+      attached objects).
   llcompat.GetAttached:
     deprecated:
       message: Returns the object's attachment point, or 0 if not attached.
@@ -12938,11 +12952,15 @@ globals:
   llcompat.ResetAnimationOverride:
     deprecated:
       message: Resets the animation of the specified animation state to the default
-        value.\nIf animation state equals "ALL", then all animation states are reset.
+        value.\nIf animation state equals "ALL", then all animation states are reset.\nRequires
+        the PERMISSION_OVERRIDE_ANIMATIONS permission (automatically granted to attached
+        objects).
     args:
     - type: string
     description: Resets the animation of the specified animation state to the default
-      value.\nIf animation state equals "ALL", then all animation states are reset.
+      value.\nIf animation state equals "ALL", then all animation states are reset.\nRequires
+      the PERMISSION_OVERRIDE_ANIMATIONS permission (automatically granted to attached
+      objects).
   llcompat.ResetLandBanList:
     deprecated:
       message: Removes all residents from the land ban list.
@@ -13408,11 +13426,13 @@ globals:
   llcompat.SetCameraParams:
     deprecated:
       message: Sets multiple camera parameters at once. List format is [ rule-1, data-1,
-        rule-2, data-2 . . . rule-n, data-n ].
+        rule-2, data-2 . . . rule-n, data-n ].\nRequires the PERMISSION_CONTROL_CAMERA
+        runtime permission (automatically granted to attached or sat on objects).
     args:
     - type: table
     description: Sets multiple camera parameters at once. List format is [ rule-1,
-      data-1, rule-2, data-2 . . . rule-n, data-n ].
+      data-1, rule-2, data-2 . . . rule-n, data-n ].\nRequires the PERMISSION_CONTROL_CAMERA
+      runtime permission (automatically granted to attached or sat on objects).
   llcompat.SetClickAction:
     deprecated:
       message: Sets the action performed when a prim is clicked upon.
@@ -13707,7 +13727,8 @@ globals:
         TRUE the parcel is put up for sale. Options is a list of options to set for
         the sale, such as price, authorized buyer, and whether to include objects
         on the parcel.\n Setting ForSale to FALSE will remove the parcel from sale
-        and clear any options that were set.
+        and clear any options that were set.\nRequires the PERMISSION_PRIVILEGED_LAND_ACCESS
+        permission.
     args:
     - type: bool
     - type: table
@@ -13715,7 +13736,8 @@ globals:
       if TRUE the parcel is put up for sale. Options is a list of options to set for
       the sale, such as price, authorized buyer, and whether to include objects on
       the parcel.\n Setting ForSale to FALSE will remove the parcel from sale and
-      clear any options that were set.
+      clear any options that were set.\nRequires the PERMISSION_PRIVILEGED_LAND_ACCESS
+      permission.
   llcompat.SetParcelMusicURL:
     deprecated:
       message: Sets the streaming audio URL for the parcel the object is on.\nThe
@@ -14110,12 +14132,14 @@ globals:
     deprecated:
       message: This function plays the specified animation from playing on the avatar
         who received the script's most recent permissions request.\nAnimation may
-        be an animation in task inventory or a built-in animation.\nRequires PERMISSION_TRIGGER_ANIMATION.
+        be an animation in task inventory or a built-in animation.\nRequires the PERMISSION_TRIGGER_ANIMATION
+        runtime permission (automatically granted to attached or sat on objects).
     args:
     - type: string
     description: This function plays the specified animation from playing on the avatar
       who received the script's most recent permissions request.\nAnimation may be
-      an animation in task inventory or a built-in animation.\nRequires PERMISSION_TRIGGER_ANIMATION.
+      an animation in task inventory or a built-in animation.\nRequires the PERMISSION_TRIGGER_ANIMATION
+      runtime permission (automatically granted to attached or sat on objects).
   llcompat.StartObjectAnimation:
     deprecated:
       message: This function plays the specified animation on the rigged mesh object
@@ -14131,13 +14155,15 @@ globals:
       message: This function stops the specified animation on the avatar who received
         the script's most recent permissions request.\nAnimation may be an animation
         in task inventory, a built-in animation, or the uuid of an animation.\nRequires
-        PERMISSION_TRIGGER_ANIMATION.
+        the PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted
+        to attached or sat on objects).
     args:
     - type: string
     description: This function stops the specified animation on the avatar who received
       the script's most recent permissions request.\nAnimation may be an animation
       in task inventory, a built-in animation, or the uuid of an animation.\nRequires
-      PERMISSION_TRIGGER_ANIMATION.
+      the PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted to
+      attached or sat on objects).
   llcompat.StopHover:
     deprecated:
       message: Stop hovering to a height (due to llSetHoverHeight()).
@@ -14220,7 +14246,7 @@ globals:
       message: Take controls from the agent the script has permissions for.\nIf (Accept
         == (Controls & input)), send input to the script.  PassOn determines whether
         Controls also perform their normal functions.\nRequires the PERMISSION_TAKE_CONTROLS
-        permission to run.
+        runtime permission (automatically granted to attached or sat on objects).
     args:
     - type: number
     - type: bool
@@ -14228,7 +14254,7 @@ globals:
     description: Take controls from the agent the script has permissions for.\nIf
       (Accept == (Controls & input)), send input to the script.  PassOn determines
       whether Controls also perform their normal functions.\nRequires the PERMISSION_TAKE_CONTROLS
-      permission to run.
+      runtime permission (automatically granted to attached or sat on objects).
   llcompat.Tan:
     deprecated:
       message: Returns the tangent of Theta (Theta in radians).
@@ -14281,8 +14307,8 @@ globals:
         inventory. If no landmark is provided (an empty string), the avatar is teleported
         to the location position in the current region. In either case, the avatar
         is turned to face the position given by look_at in local coordinates.\nRequires
-        the PERMISSION_TELEPORT permission. This function can only teleport the owner
-        of the object.
+        the PERMISSION_TELEPORT runtime permission.\nThis function can only teleport
+        the owner of the object.
     args:
     - type:
         display: uuid
@@ -14295,15 +14321,15 @@ globals:
       inventory. If no landmark is provided (an empty string), the avatar is teleported
       to the location position in the current region. In either case, the avatar is
       turned to face the position given by look_at in local coordinates.\nRequires
-      the PERMISSION_TELEPORT permission. This function can only teleport the owner
-      of the object.
+      the PERMISSION_TELEPORT runtime permission.\nThis function can only teleport
+      the owner of the object.
   llcompat.TeleportAgentGlobalCoords:
     deprecated:
       message: Teleports an agent to the RegionPosition local coordinates within a
         region which is specified by the GlobalPosition global coordinates. The agent
         lands facing the position defined by LookAtPoint local coordinates.\nRequires
-        the PERMISSION_TELEPORT permission. This function can only teleport the owner
-        of the object.
+        the PERMISSION_TELEPORT runtime permission.\nThis function can only teleport
+        the owner of the object.
     args:
     - type:
         display: uuid
@@ -14316,8 +14342,8 @@ globals:
     description: Teleports an agent to the RegionPosition local coordinates within
       a region which is specified by the GlobalPosition global coordinates. The agent
       lands facing the position defined by LookAtPoint local coordinates.\nRequires
-      the PERMISSION_TELEPORT permission. This function can only teleport the owner
-      of the object.
+      the PERMISSION_TELEPORT runtime permission.\nThis function can only teleport
+      the owner of the object.
   llcompat.TeleportAgentHome:
     deprecated:
       message: Teleport agent over the owner's land to agent's home location.
@@ -14357,7 +14383,8 @@ globals:
       message: Transfer Amount of linden dollars (L$) from script owner to AvatarID.
         Returns a key to a corresponding transaction_result event for the success
         of the transfer.\nAttempts to send the amount of money to the specified avatar,
-        and trigger a transaction_result event identified by the returned key.
+        and trigger a transaction_result event identified by the returned key. Requires
+        the PERMISSION_DEBIT runtime permission.
     args:
     - type:
         display: uuid
@@ -14365,7 +14392,8 @@ globals:
     description: Transfer Amount of linden dollars (L$) from script owner to AvatarID.
       Returns a key to a corresponding transaction_result event for the success of
       the transfer.\nAttempts to send the amount of money to the specified avatar,
-      and trigger a transaction_result event identified by the returned key.
+      and trigger a transaction_result event identified by the returned key. Requires
+      the PERMISSION_DEBIT runtime permission.
   llcompat.TransferOwnership:
     deprecated:
       message: Transfers ownership of an object, or a copy of the object to a new
@@ -14567,13 +14595,15 @@ globals:
   llcompat.WorldPosToHUD:
     deprecated:
       message: Returns the local position that would put the origin of a HUD object
-        directly over world_pos as viewed by the current camera.
+        directly over world_pos as viewed by the current camera. Requires the PERMISSION_TRACK_CAMERA
+        runtime permission (else will return zero vector).
     args:
     - type:
         display: vector
     must_use: true
     description: Returns the local position that would put the origin of a HUD object
-      directly over world_pos as viewed by the current camera.
+      directly over world_pos as viewed by the current camera. Requires the PERMISSION_TRACK_CAMERA
+      runtime permission (else will return zero vector).
   llcompat.XorBase64:
     deprecated:
       message: Performs an exclusive OR on two Base64 strings and returns a Base64
