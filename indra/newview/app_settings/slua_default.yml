@@ -5173,10 +5173,12 @@ globals:
   ll.Abs:
     args:
     - type: number
+    must_use: true
     description: Returns the absolute (positive) version of Value.
   ll.Acos:
     args:
     - type: number
+    must_use: true
     description: Returns the arc-cosine of Value, in radians.
   ll.AddToLandBanList:
     args:
@@ -5212,6 +5214,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: "\n                   Returns TRUE if the agent is in the Experience\
       \ and the Experience can run in the current location.\n                "
   ll.AllowInventoryDrop:
@@ -5225,6 +5228,7 @@ globals:
         display: quaternion
     - type:
         display: quaternion
+    must_use: true
     description: Returns the angle, in radians, between rotations Rot1 and Rot2.
   ll.ApplyImpulse:
     args:
@@ -5245,11 +5249,13 @@ globals:
   ll.Asin:
     args:
     - type: number
+    must_use: true
     description: Returns the arc-sine, in radians, of Value.
   ll.Atan2:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the arc-tangent2 of y, x.
   ll.AttachToAvatar:
     args:
@@ -5265,11 +5271,13 @@ globals:
   ll.AvatarOnLinkSitTarget:
     args:
     - type: number
+    must_use: true
     description: If an avatar is sitting on the link's sit target, return the avatar's
       key, NULL_KEY otherwise.\nReturns a key that is the UUID of the user seated
       on the specified link's prim.
   ll.AvatarOnSitTarget:
     args: []
+    must_use: true
     description: If an avatar is seated on the sit target, returns the avatar's key,
       otherwise NULL_KEY.\nThis only will detect avatars sitting on sit targets defined
       with llSitTarget.
@@ -5281,6 +5289,7 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Returns the rotation represented by coordinate axes Forward, Left,
       and Up.
   ll.AxisAngle2Rot:
@@ -5288,16 +5297,19 @@ globals:
     - type:
         display: vector
     - type: number
+    must_use: true
     description: Returns the rotation that is a generated Angle about Axis.
   ll.Base64ToInteger:
     args:
     - type: string
+    must_use: true
     description: Returns an integer that is the Text, Base64 decoded as a big endian
       integer.\nReturns zero if Text is longer then 8 characters. If Text contains
       fewer then 6 characters, the return value is unpredictable.
   ll.Base64ToString:
     args:
     - type: string
+    must_use: true
     description: Converts a Base64 string to a conventional string.\nIf the conversion
       creates any unprintable characters, they are converted to question marks.
   ll.BreakAllLinks:
@@ -5312,6 +5324,7 @@ globals:
   ll.CSV2List:
     args:
     - type: string
+    must_use: true
     description: Create a list from a string of comma separated values specified in
       Text.
   ll.CastRay:
@@ -5321,6 +5334,7 @@ globals:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: 'Casts a ray into the physics world from ''start'' to ''end'' and
       returns data according to details in Options.\nReports collision data for intersections
       with objects.\nReturn value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1},
@@ -5329,10 +5343,12 @@ globals:
   ll.Ceil:
     args:
     - type: number
+    must_use: true
     description: Returns smallest integer value >= Value.
   ll.Char:
     args:
     - type: number
+    must_use: true
     description: Returns a single character string that is the representation of the
       unicode value.
   ll.ClearCameraParams:
@@ -5365,6 +5381,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the cloud density at the object's position + Offset.
   ll.CollisionFilter:
     args:
@@ -5393,10 +5410,12 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Returns hex-encoded Hash string of Message using digest Algorithm.
   ll.Cos:
     args:
     - type: number
+    must_use: true
     description: Returns the cosine of Theta (Theta in radians).
   ll.CreateCharacter:
     args:
@@ -5463,6 +5482,7 @@ globals:
     - type: table
     - type: number
     - type: number
+    must_use: true
     description: Removes the slice from start to end and returns the remainder of
       the list.\nRemove a slice from the list and return the remainder, start and
       end are inclusive.\nUsing negative numbers for start and/or end causes the index
@@ -5474,6 +5494,7 @@ globals:
     - type: string
     - type: number
     - type: number
+    must_use: true
     description: Removes the indicated sub-string and returns the result.\nStart and
       End are inclusive.\nUsing negative numbers for Start and/or End causes the index
       to count backwards from the length of the string, so 0, -1 would delete the
@@ -5495,6 +5516,7 @@ globals:
         type and the original damage delivered.
     args:
     - type: number
+    must_use: true
     description: Returns a list containing the current damage for the event, the damage
       type and the original damage delivered.
   ll.DetectedGrab:
@@ -5503,6 +5525,7 @@ globals:
         0.0, 0.0> if Number is not a valid object.
     args:
     - type: number
+    must_use: true
     description: Returns the grab offset of a user touching the object.\nReturns <0.0,
       0.0, 0.0> if Number is not a valid object.
   ll.DetectedGroup:
@@ -5512,6 +5535,7 @@ globals:
         the group, but the group is not active.
     args:
     - type: number
+    must_use: true
     description: Returns TRUE if detected object or agent Number has the same user
       group active as this object.\nIt will return FALSE if the object or agent is
       in the group, but the group is not active.
@@ -5521,6 +5545,7 @@ globals:
         if Number is not a valid index.
     args:
     - type: number
+    must_use: true
     description: Returns the key of detected object or avatar number.\nReturns NULL_KEY
       if Number is not a valid index.
   ll.DetectedLinkNumber:
@@ -5530,6 +5555,7 @@ globals:
         the first child, etc.
     args:
     - type: number
+    must_use: true
     description: Returns the link position of the triggered event for touches and
       collisions only.\n0 for a non-linked object, 1 for the root of a linked object,
       2 for the first child, etc.
@@ -5540,6 +5566,7 @@ globals:
         index.
     args:
     - type: number
+    must_use: true
     description: Returns the name of detected object or avatar number.\nReturns the
       name of detected object number.\nReturns empty string if Number is not a valid
       index.
@@ -5549,6 +5576,7 @@ globals:
         Number is not a valid index.
     args:
     - type: number
+    must_use: true
     description: Returns the key of detected object's owner.\nReturns invalid key
       if Number is not a valid index.
   ll.DetectedPos:
@@ -5557,6 +5585,7 @@ globals:
         <0.0, 0.0, 0.0> if Number is not a valid index.
     args:
     - type: number
+    must_use: true
     description: Returns the position of detected object or avatar number.\nReturns
       <0.0, 0.0, 0.0> if Number is not a valid index.
   ll.DetectedRezzer:
@@ -5564,6 +5593,7 @@ globals:
       message: Returns the key for the rezzer of the detected object.
     args:
     - type: number
+    must_use: true
     description: Returns the key for the rezzer of the detected object.
   ll.DetectedRot:
     deprecated:
@@ -5571,6 +5601,7 @@ globals:
         <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
     args:
     - type: number
+    must_use: true
     description: Returns the rotation of detected object or avatar number.\nReturns
       <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
   ll.DetectedTouchBinormal:
@@ -5580,6 +5611,7 @@ globals:
         touch event was triggered.
     args:
     - type: number
+    must_use: true
     description: Returns the surface bi-normal for a triggered touch event.\nReturns
       a vector that is the surface bi-normal (tangent to the surface) where the touch
       event was triggered.
@@ -5589,6 +5621,7 @@ globals:
         touch event.
     args:
     - type: number
+    must_use: true
     description: Returns the index of the face where the avatar clicked in a triggered
       touch event.
   ll.DetectedTouchNormal:
@@ -5598,6 +5631,7 @@ globals:
         touch event was triggered.
     args:
     - type: number
+    must_use: true
     description: Returns the surface normal for a triggered touch event.\nReturns
       a vector that is the surface normal (perpendicular to the surface) where the
       touch event was triggered.
@@ -5608,6 +5642,7 @@ globals:
         the position relative to the attach point.
     args:
     - type: number
+    must_use: true
     description: Returns the position, in region coordinates, where the object was
       touched in a triggered touch event.\nUnless it is a HUD, in which case it returns
       the position relative to the attach point.
@@ -5620,6 +5655,7 @@ globals:
         be determined (e.g. when the viewer does not support this function).
     args:
     - type: number
+    must_use: true
     description: Returns a vector that is the surface coordinates where the prim was
       touched.\nThe X and Y vector positions contain the horizontal (S) and vertical
       (T) face coordinates respectively.\nEach component is in the interval [0.0,
@@ -5633,6 +5669,7 @@ globals:
         cannot be determined (e.g. when the viewer does not support this function).
     args:
     - type: number
+    must_use: true
     description: Returns a vector that is the texture coordinates for where the prim
       was touched.\nThe X and Y vector positions contain the U and V face coordinates
       respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates
@@ -5645,6 +5682,7 @@ globals:
         n{\\n\t// ...do stuff with the agent\\n}"
     args:
     - type: number
+    must_use: true
     description: "Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected\
       \ object.\\nReturns 0 if number is not a valid index.\\nNote that number is\
       \ a bit-field, so comparisons need to be a bitwise checked. e.g.:\\ninteger\
@@ -5655,6 +5693,7 @@ globals:
         0.0> if Number is not a valid offset.
     args:
     - type: number
+    must_use: true
     description: Returns the velocity of the detected object Number.\nReturns<0.0,
       0.0, 0.0> if Number is not a valid offset.
   ll.Dialog:
@@ -5685,6 +5724,7 @@ globals:
     args:
     - type: table
     - type: string
+    must_use: true
     description: Returns the list as a single string, using Separator between the
       entries.\nWrite the list out as a single string, using Separator between values.
   ll.EdgeOfWorld:
@@ -5693,6 +5733,7 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Checks to see whether the border hit by Direction from Position is
       the edge of the world (has no neighboring region).\nReturns TRUE if the line
       along Direction from Position hits the edge of the world in the current simulator,
@@ -5713,6 +5754,7 @@ globals:
   ll.EscapeURL:
     args:
     - type: string
+    must_use: true
     description: "Returns an escaped/encoded version of url, replacing spaces with\
       \ %20 etc.\\nReturns the string that is the URL-escaped version of URL (replacing\
       \ spaces with %20, etc.).\\n\n                This function returns the UTF-8\
@@ -5721,6 +5763,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the rotation representation of the Euler angles.\nReturns
       the rotation represented by the Euler Angle.
   ll.Evade:
@@ -5743,6 +5786,7 @@ globals:
   ll.Fabs:
     args:
     - type: number
+    must_use: true
     description: Returns the positive version of Value.\nReturns the absolute value
       of Value.
   ll.FindNotecardTextCount:
@@ -5750,6 +5794,7 @@ globals:
     - type: string
     - type: string
     - type: table
+    must_use: true
     description: "Searches the text of a cached notecard for lines containing the\
       \ given pattern and returns the \n            number of matches found through\
       \ a dataserver event.\n            "
@@ -5760,6 +5805,7 @@ globals:
     - type: number
     - type: number
     - type: table
+    must_use: true
     description: "Searches the text of a cached notecard for lines containing the\
       \ given pattern. \n            Returns a list of line numbers and column where\
       \ a match is found. If the notecard is not in\n            the cache it returns\
@@ -5776,6 +5822,7 @@ globals:
   ll.Floor:
     args:
     - type: number
+    must_use: true
     description: Returns largest integer value <= Value.
   ll.ForceMouselook:
     args:
@@ -5789,10 +5836,12 @@ globals:
   ll.Frand:
     args:
     - type: number
+    must_use: true
     description: Returns a pseudo random number in the range [0, Magnitude] or [Magnitude,
       0].\nReturns a pseudo-random number between [0, Magnitude].
   ll.GenerateKey:
     args: []
+    must_use: true
     description: Generates a key (SHA-1 hash) using UUID generation to create a unique
       key.\nAs the UUID produced is versioned, it should never return a value of NULL_KEY.\nThe
       specific UUID version is an implementation detail that has changed in the past
@@ -5800,12 +5849,14 @@ globals:
       to be version 5 SHA-1 hash.
   ll.GetAccel:
     args: []
+    must_use: true
     description: Returns the acceleration of the object relative to the region's axes.\nGets
       the acceleration of the object.
   ll.GetAgentInfo:
     args:
     - type:
         display: uuid
+    must_use: true
     description: "Returns an integer bit-field containing the agent information about\
       \ id.\\n\n                    Returns AGENT_FLYING, AGENT_ATTACHMENTS, AGENT_SCRIPTED,\
       \ AGENT_SITTING, AGENT_ON_OBJECT, AGENT_MOUSELOOK, AGENT_AWAY, AGENT_BUSY, AGENT_TYPING,\
@@ -5815,6 +5866,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the language code of the preferred interface language of
       the avatar.\nReturns a string that is the language code of the preferred interface
       language of the resident.
@@ -5822,6 +5874,7 @@ globals:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Requests a list of agents currently in the region, limited by the
       scope parameter.\nReturns a list [key UUID-0, key UUID-1, ..., key UUID-n] or
       [string error_msg] - returns avatar keys for all agents in the region limited
@@ -5830,18 +5883,21 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: If the avatar is in the same region, returns the size of the bounding
       box of the requested avatar by id, otherwise returns ZERO_VECTOR.\nIf the agent
       is in the same region as the object, returns the size of the avatar.
   ll.GetAlpha:
     args:
     - type: number
+    must_use: true
     description: Returns the alpha value of Face.\nReturns the 'alpha' of the given
       face. If face is ALL_SIDES the value returned is the mean average of all faces.
   ll.GetAnimation:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the name of the currently playing locomotion animation for
       the avatar id.\nReturns the currently playing animation for the specified avatar
       ID.
@@ -5849,22 +5905,26 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns a list of keys of playing animations for an avatar.\nReturns
       a list of keys of all playing animations for the specified avatar ID.
   ll.GetAnimationOverride:
     args:
     - type: string
+    must_use: true
     description: Returns a string that is the name of the animation that is used for
       the specified animation state\nTo use this function the script must obtain either
       the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION permission
       (automatically granted to attached objects).
   ll.GetAttached:
     args: []
+    must_use: true
     description: Returns the object's attachment point, or 0 if not attached.
   ll.GetAttachedList:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns a list of keys of all visible (not HUD) attachments on the
       avatar identified by the ID argument
   ll.GetAttachedListFiltered:
@@ -5872,36 +5932,43 @@ globals:
     - type:
         display: uuid
     - type: table
+    must_use: true
     description: Retrieves a list of attachments on an avatar.
   ll.GetBoundingBox:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the bounding box around the object (including any linked
       prims) relative to its root prim, as a list in the format [ (vector) min_corner,
       (vector) max_corner ].
   ll.GetCameraAspect:
     args: []
+    must_use: true
     description: 'Returns the current camera aspect ratio (width / height) of the
       agent who has granted the scripted object PERMISSION_TRACK_CAMERA permissions.
       If no permissions have been granted: it returns zero.'
   ll.GetCameraFOV:
     args: []
+    must_use: true
     description: 'Returns the current camera field of view of the agent who has granted
       the scripted object PERMISSION_TRACK_CAMERA permissions. If no permissions have
       been granted: it returns zero.'
   ll.GetCameraPos:
     args: []
+    must_use: true
     description: Returns the current camera position for the agent the task has permissions
       for.\nReturns the position of the camera, of the user that granted the script
       PERMISSION_TRACK_CAMERA. If no user has granted the permission, it returns ZERO_VECTOR.
   ll.GetCameraRot:
     args: []
+    must_use: true
     description: Returns the current camera orientation for the agent the task has
       permissions for. If no user has granted the PERMISSION_TRACK_CAMERA permission,
       returns ZERO_ROTATION.
   ll.GetCenterOfMass:
     args: []
+    must_use: true
     description: Returns the prim's centre of mass (unless called from the root prim,
       where it returns the object's centre of mass).
   ll.GetClosestNavPoint:
@@ -5909,6 +5976,7 @@ globals:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: Get the closest navigable point to the point provided.\nThe function
       accepts a point in region-local space (like all the other path-finding methods)
       and returns either an empty list or a list containing a single vector which
@@ -5916,49 +5984,59 @@ globals:
   ll.GetColor:
     args:
     - type: number
+    must_use: true
     description: Returns the color on Face.\nReturns the color of Face as a vector
       of red, green, and blue values between 0 and 1. If face is ALL_SIDES the color
       returned is the mean average of each channel.
   ll.GetCreator:
     args: []
+    must_use: true
     description: Returns a key for the creator of the prim.\nReturns the key of the
       object's original creator. Similar to llGetOwner.
   ll.GetDate:
     args: []
+    must_use: true
     description: Returns the current date in the UTC time zone in the format YYYY-MM-DD.\nReturns
       the current UTC date as YYYY-MM-DD.
   ll.GetDayLength:
     args: []
+    must_use: true
     description: Returns the number of seconds in a day on this parcel.
   ll.GetDayOffset:
     args: []
+    must_use: true
     description: Returns the number of seconds in a day is offset from midnight in
       this parcel.
   ll.GetDisplayName:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the display name of an avatar, if the avatar is connected
       to the current region, or if the name has been cached.  Otherwise, returns an
       empty string. Use llRequestDisplayName if the avatar may be absent from the
       region.
   ll.GetEnergy:
     args: []
+    must_use: true
     description: Returns how much energy is in the object as a percentage of maximum.
   ll.GetEnv:
     args:
     - type: string
+    must_use: true
     description: Returns a string with the requested data about the region.
   ll.GetEnvironment:
     args:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: Returns a string with the requested data about the region.
   ll.GetExperienceDetails:
     args:
     - type:
         display: uuid
+    must_use: true
     description: "\n                   Returns a list with the following Experience\
       \ properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State\
       \ Message]. State is an integer corresponding to one of the constants XP_ERROR_...\
@@ -5967,27 +6045,33 @@ globals:
   ll.GetExperienceErrorMessage:
     args:
     - type: number
+    must_use: true
     description: "\n                   Returns a string describing the error code\
       \ passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value\
       \ is not a valid Experience error code.\n                "
   ll.GetForce:
     args: []
+    must_use: true
     description: Returns the force (if the script is physical).\nReturns the current
       force if the script is physical.
   ll.GetFreeMemory:
     args: []
+    must_use: true
     description: Returns the number of free bytes of memory the script can use.\nReturns
       the available free space for the current script. This is inaccurate with LSO.
   ll.GetFreeURLs:
     args: []
+    must_use: true
     description: Returns the number of available URLs for the current script.\nReturns
       an integer that is the number of available URLs.
   ll.GetGMTclock:
     args: []
+    must_use: true
     description: Returns the time in seconds since midnight GMT.\nGets the time in
       seconds since midnight in GMT/UTC.
   ll.GetGeometricCenter:
     args: []
+    must_use: true
     description: Returns the vector that is the geometric center of the object relative
       to the root prim.
   ll.GetHTTPHeader:
@@ -5995,44 +6079,52 @@ globals:
     - type:
         display: uuid
     - type: string
+    must_use: true
     description: Returns the value for header for request_id.\nReturns a string that
       is the value of the Header for HTTPRequestID.
   ll.GetHealth:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the current health of an avatar or object in the region.
   ll.GetInventoryAcquireTime:
     args:
     - type: string
+    must_use: true
     description: Returns the time at which the item was placed into this prim's inventory
       as a timestamp.
   ll.GetInventoryCreator:
     args:
     - type: string
+    must_use: true
     description: Returns a key for the creator of the inventory item.\nThis function
       returns the UUID of the creator of item. If item is not found in inventory,
       the object says "No item named 'name'".
   ll.GetInventoryDesc:
     args:
     - type: string
+    must_use: true
     description: Returns the item description of the item in inventory. If item is
       not found in inventory, the object says "No item named 'name'" to the debug
       channel and returns an empty string.
   ll.GetInventoryKey:
     args:
     - type: string
+    must_use: true
     description: Returns the key that is the UUID of the inventory named.\nReturns
       the key of the inventory named.
   ll.GetInventoryName:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the name of the inventory item of a given type, specified
       by index number.\nUse the inventory constants INVENTORY_* to specify the type.
   ll.GetInventoryNumber:
     args:
     - type: number
+    must_use: true
     description: Returns the quantity of items of a given type (INVENTORY_* flag)
       in the prim's inventory.\nUse the inventory constants INVENTORY_* to specify
       the type.
@@ -6040,6 +6132,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns the requested permission mask for the inventory item.\nReturns
       the requested permission mask for the inventory item defined by InventoryItem.
       If item is not in the object's inventory, llGetInventoryPermMask returns FALSE
@@ -6047,21 +6140,25 @@ globals:
   ll.GetInventoryType:
     args:
     - type: string
+    must_use: true
     description: Returns the type of the named inventory item.\nLike all inventory
       functions, llGetInventoryType is case-sensitive.
   ll.GetKey:
     args: []
+    must_use: true
     description: Returns the key of the prim the script is attached to.\nGet the key
       for the object which has this script.
   ll.GetLandOwnerAt:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the key of the land owner, returns NULL_KEY if public.\nReturns
       the key of the land owner at Position, or NULL_KEY if public.
   ll.GetLinkKey:
     args:
     - type: number
+    must_use: true
     description: Returns the key of the linked prim LinkNumber.\nReturns the key of
       LinkNumber in the link set.
   ll.GetLinkMedia:
@@ -6069,16 +6166,19 @@ globals:
     - type: number
     - type: number
     - type: table
+    must_use: true
     description: "Get the media parameters for a particular face on linked prim, given\
       \ the desired list of parameter names. Returns a list of values in the order\
       \ requested.\tReturns an empty list if no media exists on the face."
   ll.GetLinkName:
     args:
     - type: number
+    must_use: true
     description: Returns the name of LinkNumber in a link set.\nReturns the name of
       LinkNumber the link set.
   ll.GetLinkNumber:
     args: []
+    must_use: true
     description: Returns the link number of the prim containing the script (0 means
       not linked, 1 the prim is the root, 2 the prim is the first child, etc.).\nReturns
       the link number of the prim containing the script. 0 means no link, 1 the root,
@@ -6086,12 +6186,14 @@ globals:
   ll.GetLinkNumberOfSides:
     args:
     - type: number
+    must_use: true
     description: Returns the number of sides of the specified linked prim.\nReturns
       an integer that is the number of faces (or sides) of the prim link.
   ll.GetLinkPrimitiveParams:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Returns the list of primitive attributes requested in the Parameters
       list for LinkNumber.\nPRIM_* flags can be broken into three categories, face
       flags, prim flags, and object flags.\n* Supplying a prim or object flag will
@@ -6100,29 +6202,35 @@ globals:
   ll.GetLinkSitFlags:
     args:
     - type: number
+    must_use: true
     description: Returns the sit flags set on the specified prim in a linkset.
   ll.GetListEntryType:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Returns the type of the index entry in the list (TYPE_INTEGER, TYPE_FLOAT,
       TYPE_STRING, TYPE_KEY, TYPE_VECTOR, TYPE_ROTATION, or TYPE_INVALID if index
       is off list).\nReturns the type of the variable at Index in ListVariable.
   ll.GetListLength:
     args:
     - type: table
+    must_use: true
     description: Returns the number of elements in the list.\nReturns the number of
       elements in ListVariable.
   ll.GetLocalPos:
     args: []
+    must_use: true
     description: Returns the position relative to the root.\nReturns the local position
       of a child object relative to the root.
   ll.GetLocalRot:
     args: []
+    must_use: true
     description: Returns the rotation local to the root.\nReturns the local rotation
       of a child object relative to the root.
   ll.GetMass:
     args: []
+    must_use: true
     description: Returns the mass of object that the script is attached to.\nReturns
       the scripted object's mass. When called from a script in a link-set, the parent
       will return the sum of the link-set weights, while a child will return just
@@ -6130,27 +6238,33 @@ globals:
       will return the mass of the avatar it's attached to, not its own.
   ll.GetMassMKS:
     args: []
+    must_use: true
     description: Acts as llGetMass(), except that the units of the value returned
       are Kg.
   ll.GetMaxScaleFactor:
     args: []
+    must_use: true
     description: Returns the largest multiplicative uniform scale factor that can
       be successfully applied (via llScaleByFactor()) to the object without violating
       prim size or linkability rules.
   ll.GetMemoryLimit:
     args: []
+    must_use: true
     description: Get the maximum memory a script can use, in bytes.
   ll.GetMinScaleFactor:
     args: []
+    must_use: true
     description: Returns the smallest multiplicative uniform scale factor that can
       be successfully applied (via llScaleByFactor()) to the object without violating
       prim size or linkability rules.
   ll.GetMoonDirection:
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the moon in the parcel.\nReturns
       the moon's direction on the simulator in the parcel.
   ll.GetMoonRotation:
     args: []
+    must_use: true
     description: Returns the rotation applied to the moon in the parcel.
   ll.GetNextEmail:
     args:
@@ -6172,6 +6286,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns LineNumber from NotecardName. The line index starts at zero
       in LSL, one in Lua.\nIf the requested line is past the end of the note-card
       the return value will be set to the constant EOF string.\nIf the note-card is
@@ -6184,19 +6299,23 @@ globals:
       dataserver reply.
   ll.GetNumberOfPrims:
     args: []
+    must_use: true
     description: Returns the number of prims in a link set the script is attached
       to.\nReturns the number of prims in (and avatars seated on) the object the script
       is in.
   ll.GetNumberOfSides:
     args: []
+    must_use: true
     description: Returns the number of faces (or sides) of the prim.\nReturns the
       number of sides of the prim which has the script.
   ll.GetObjectAnimationNames:
     args: []
+    must_use: true
     description: Returns a list of names of playing animations for an object.\nReturns
       a list of names of all playing animations for the current object.
   ll.GetObjectDesc:
     args: []
+    must_use: true
     description: Returns the description of the prim the script is attached to.\nReturns
       the description of the scripted object/prim. You can set the description using
       llSetObjectDesc.
@@ -6205,6 +6324,7 @@ globals:
     - type:
         display: uuid
     - type: table
+    must_use: true
     description: Returns a list of object details specified in the Parameters list
       for the object or avatar in the region with key ID.\nParameters are specified
       by the OBJECT_* constants.
@@ -6213,40 +6333,48 @@ globals:
     - type:
         display: uuid
     - type: number
+    must_use: true
     description: Returns the key of the linked prim link_no in a linkset.\nReturns
       the key of link_no in the link set specified by id.
   ll.GetObjectMass:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the mass of the avatar or object in the region.\nGets the
       mass of the object or avatar corresponding to ID.
   ll.GetObjectName:
     args: []
+    must_use: true
     description: Returns the name of the prim which the script is attached to.\nReturns
       the name of the prim (not object) which contains the script.
   ll.GetObjectPermMask:
     args:
     - type: number
+    must_use: true
     description: Returns the permission mask of the requested category for the object.
   ll.GetObjectPrimCount:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the total number of prims for an object in the region.\nReturns
       the prim count for any object id in the same region.
   ll.GetOmega:
     args: []
+    must_use: true
     description: Returns the rotation velocity in radians per second.\nReturns a vector
       that is the rotation velocity of the object in radians per second.
   ll.GetOwner:
     args: []
+    must_use: true
     description: Returns the object owner's UUID.\nReturns the key for the owner of
       the object.
   ll.GetOwnerKey:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the owner of ObjectID.\nReturns the key for the owner of
       object ObjectID.
   ll.GetParcelDetails:
@@ -6254,6 +6382,7 @@ globals:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: 'Returns a list of parcel details specified in the ParcelDetails
       list for the parcel at Position.\nParameters is one or more of: PARCEL_DETAILS_NAME,
       _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS.\nReturns a list that is the
@@ -6263,6 +6392,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns a mask of the parcel flags (PARCEL_FLAG_*) for the parcel
       that includes the point Position.\nReturns a bit-field specifying the parcel
       flags (PARCEL_FLAG_*) for the parcel at Position.
@@ -6271,11 +6401,13 @@ globals:
     - type:
         display: vector
     - type: bool
+    must_use: true
     description: Returns the maximum number of prims allowed on the parcel at Position
       for a given scope.\nThe scope may be set to an individual parcel or the combined
       resources of all parcels with the same ownership in the region.
   ll.GetParcelMusicURL:
     args: []
+    must_use: true
     description: Gets the streaming audio URL for the parcel object is on.\nThe object
       owner, avatar or group, must also be the land owner.
   ll.GetParcelPrimCount:
@@ -6284,6 +6416,7 @@ globals:
         display: vector
     - type: number
     - type: bool
+    must_use: true
     description: 'Returns the number of prims on the parcel at Position of the given
       category.\nCategories: PARCEL_COUNT_TOTAL, _OWNER, _GROUP, _OTHER, _SELECTED,
       _TEMP.\nReturns the number of prims used on the parcel at Position which are
@@ -6295,6 +6428,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns a list of up to 100 residents who own objects on the parcel
       at Position, with per-owner land impact totals.\nRequires owner-like permissions
       for the parcel, and for the script owner to be present in the region.\nThe list
@@ -6303,136 +6437,167 @@ globals:
       objects owned by the corresponding agents.
   ll.GetPermissions:
     args: []
+    must_use: true
     description: Returns an integer bitmask of the permissions that have been granted
       to the script.  Individual permissions can be determined using a bit-wise "and"
       operation against the PERMISSION_* constants
   ll.GetPermissionsKey:
     args: []
+    must_use: true
     description: Returns the key of the avatar that last granted or declined permissions
       to the script.\nReturns NULL_KEY if permissions were never granted or declined.
   ll.GetPhysicsMaterial:
     args: []
+    must_use: true
     description: Returns a list of the form [float gravity_multiplier, float restitution,
       float friction, float density].
   ll.GetPos:
     args: []
+    must_use: true
     description: Returns the position of the task in region coordinates.\nReturns
       the vector position of the task in region coordinates.
   ll.GetPrimMediaParams:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Returns the media parameters for a particular face on an object,
       given the desired list of parameter names, in the order requested. Returns an
       empty list if no media exists on the face.
   ll.GetPrimitiveParams:
     args:
     - type: table
+    must_use: true
     description: Returns the primitive parameters specified in the parameters list.\nReturns
       primitive parameters specified in the Parameters list.
   ll.GetRegionAgentCount:
     args: []
+    must_use: true
     description: Returns the number of avatars in the region.\nReturns an integer
       that is the number of avatars in the region.
   ll.GetRegionCorner:
     args: []
+    must_use: true
     description: Returns a vector, in meters, that is the global location of the south-west
       corner of the region which the object is in.\nReturns the Region-Corner of the
       simulator containing the task. The region-corner is a vector (values in meters)
       representing distance from the first region.
   ll.GetRegionDayLength:
     args: []
+    must_use: true
     description: Returns the number of seconds in a day in this region.
   ll.GetRegionDayOffset:
     args: []
+    must_use: true
     description: Returns the number of seconds in a day is offset from midnight in
       this parcel.
   ll.GetRegionFPS:
     args: []
+    must_use: true
     description: Returns the mean region frames per second.
   ll.GetRegionFlags:
     args: []
+    must_use: true
     description: Returns the region flags (REGION_FLAG_*) for the region the object
       is in.\nReturns a bit-field specifying the region flags (REGION_FLAG_*) for
       the region the object is in.
   ll.GetRegionMoonDirection:
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the moon in the region.\nReturns
       the moon's direction on the simulator.
   ll.GetRegionMoonRotation:
     args: []
+    must_use: true
     description: Returns the rotation applied to the moon in the region.
   ll.GetRegionName:
     args: []
+    must_use: true
     description: Returns the current region name.
   ll.GetRegionSunDirection:
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the sun in the region.\nReturns
       the sun's direction on the simulator.
   ll.GetRegionSunRotation:
     args: []
+    must_use: true
     description: Returns the rotation applied to the sun in the region.
   ll.GetRegionTimeDilation:
     args: []
+    must_use: true
     description: Returns the current time dilation as a float between 0.0 (full dilation)
       and 1.0 (no dilation).\nReturns the current time dilation as a float between
       0.0 and 1.0.
   ll.GetRegionTimeOfDay:
     args: []
+    must_use: true
     description: Returns the time in seconds since environmental midnight for the
       entire region.
   ll.GetRenderMaterial:
     args:
     - type: number
+    must_use: true
     description: Returns a string that is the render material on face (the inventory
       name if it is a material in the prim's inventory, otherwise the key).\nReturns
       the render material of a face, if it is found in object inventory, its key otherwise.
   ll.GetRootPosition:
     args: []
+    must_use: true
     description: Returns the position (in region coordinates) of the root prim of
       the object which the script is attached to.\nThis is used to allow a child prim
       to determine where the root is.
   ll.GetRootRotation:
     args: []
+    must_use: true
     description: Returns the rotation (relative to the region) of the root prim of
       the object which the script is attached to.\nGets the global rotation of the
       root object of the object script is attached to.
   ll.GetRot:
     args: []
+    must_use: true
     description: Returns the rotation relative to the region's axes.\nReturns the
       rotation.
   ll.GetSPMaxMemory:
     args: []
+    must_use: true
     description: Returns the maximum used memory for the current script. Only valid
       after using PROFILE_SCRIPT_MEMORY. Non-mono scripts always use 16k.\nReturns
       the integer of the most bytes used while llScriptProfiler was last active.
   ll.GetScale:
     args: []
+    must_use: true
     description: Returns the scale of the prim.\nReturns a vector that is the scale
       (dimensions) of the prim.
   ll.GetScriptName:
     args: []
+    must_use: true
     description: Returns the name of the script that this function is used in.\nReturns
       the name of this script.
   ll.GetScriptState:
     args:
     - type: string
+    must_use: true
     description: Returns TRUE if the script named is running.\nReturns TRUE if ScriptName
       is running.
   ll.GetSimStats:
     args:
     - type: number
+    must_use: true
     description: Returns a float that is the requested statistic.
   ll.GetSimulatorHostname:
     args: []
+    must_use: true
     description: Returns the host-name of the machine which the script is running
       on.\nFor example, "sim225.agni.lindenlab.com".
   ll.GetStartParameter:
     args: []
+    must_use: true
     description: Returns an integer that is the script rez parameter.\nIf the object
       was rezzed by an agent, this function returns 0.
   ll.GetStartString:
     args: []
+    must_use: true
     description: Returns a string that is the value passed to llRezObjectWithParams
       with REZ_PARAM_STRING.\nIf the object was rezzed by an agent, this function
       returns an empty string.
@@ -6444,9 +6609,11 @@ globals:
         display: vector
     - type: number
     - type: table
+    must_use: true
   ll.GetStatus:
     args:
     - type: number
+    must_use: true
     description: Returns boolean value of the specified status (e.g. STATUS_PHANTOM)
       of the object the script is attached to.
   ll.GetSubString:
@@ -6454,6 +6621,7 @@ globals:
     - type: string
     - type: number
     - type: number
+    must_use: true
     description: Returns a sub-string from String, in a range specified by the Start
       and End indices (inclusive).\nUsing negative numbers for Start and/or End causes
       the index to count backwards from the length of the string, so 0, -1 would capture
@@ -6461,52 +6629,64 @@ globals:
       of the entries.
   ll.GetSunDirection:
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the sun in the parcel.\nReturns
       the sun's direction on the simulator in the parcel.
   ll.GetSunRotation:
     args: []
+    must_use: true
     description: Returns the rotation applied to the sun in the parcel.
   ll.GetTexture:
     args:
     - type: number
+    must_use: true
     description: Returns a string that is the texture on face (the inventory name
       if it is a texture in the prim's inventory, otherwise the key).\nReturns the
       texture of a face, if it is found in object inventory, its key otherwise.
   ll.GetTextureOffset:
     args:
     - type: number
+    must_use: true
     description: Returns the texture offset of face in the x and y components of a
       vector.
   ll.GetTextureRot:
     args:
     - type: number
+    must_use: true
     description: Returns the texture rotation of side.
   ll.GetTextureScale:
     args:
     - type: number
+    must_use: true
     description: Returns the texture scale of side in the x and y components of a
       vector.\nReturns the texture scale of a side in the x and y components of a
       vector.
   ll.GetTime:
     args: []
+    must_use: true
     description: Returns the time in seconds since the last region reset, script reset,
       or call to either llResetTime or llGetAndResetTime.
   ll.GetTimeOfDay:
     args: []
+    must_use: true
     description: Returns the time in seconds since environmental midnight on the parcel.
   ll.GetTimestamp:
     args: []
+    must_use: true
     description: 'Returns a time-stamp (UTC time zone) in the format: YYYY-MM-DDThh:mm:ss.ff..fZ.'
   ll.GetTorque:
     args: []
+    must_use: true
     description: Returns the torque (if the script is physical).\nReturns a vector
       that is the torque (if the script is physical).
   ll.GetUnixTime:
     args: []
+    must_use: true
     description: Returns the number of seconds elapsed since 00:00 hours, Jan 1, 1970
       UTC from the system clock.
   ll.GetUsedMemory:
     args: []
+    must_use: true
     description: Returns the current used memory for the current script. Non-mono
       scripts always use 16K.\nReturns the integer of the number of bytes of memory
       currently in use by the script. Non-mono scripts always use 16K.
@@ -6514,11 +6694,13 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the username of an avatar, if the avatar is connected to
       the current region, or if the name has been cached.  Otherwise, returns an empty
       string. Use llRequestUsername if the avatar may be absent from the region.
   ll.GetVel:
     args: []
+    must_use: true
     description: Returns the velocity of the object.\nReturns a vector that is the
       velocity of the object.
   ll.GetVisualParams:
@@ -6526,9 +6708,11 @@ globals:
     - type:
         display: uuid
     - type: table
+    must_use: true
     description: Returns a list of the current value for each requested visual parameter.
   ll.GetWallclock:
     args: []
+    must_use: true
     description: Returns the time in seconds since midnight California Pacific time
       (PST/PDT).\nReturns the time in seconds since simulator's time-zone midnight
       (Pacific Time).
@@ -6577,18 +6761,21 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground height at the object position + offset.\nReturns
       the ground height at the object's position + Offset.
   ll.GroundContour:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground contour direction below the object position +
       Offset.\nReturns the ground contour at the object's position + Offset.
   ll.GroundNormal:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground normal below the object position + offset.\nReturns
       the ground contour at the object's position + Offset.
   ll.GroundRepel:
@@ -6606,6 +6793,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground slope below the object position + Offset.\nReturns
       the ground slope at the object position + Offset.
   ll.HMAC:
@@ -6613,6 +6801,7 @@ globals:
     - type: string
     - type: string
     - type: string
+    must_use: true
     description: Returns the base64-encoded hashed message authentication code (HMAC),
       of Message using PEM-formatted Key and digest Algorithm (md5, sha1, sha224,
       sha256, sha384, sha512).
@@ -6637,12 +6826,14 @@ globals:
   ll.Hash:
     args:
     - type: string
+    must_use: true
     description: Calculates the 32bit hash value for the provided string.
   ll.InsertString:
     args:
     - type: string
     - type: number
     - type: string
+    must_use: true
     description: Inserts SourceVariable into TargetVariable at Position, and returns
       the result.\nInserts SourceVariable into TargetVariable at Position and returns
       the result. Note this does not alter TargetVariable.
@@ -6656,44 +6847,52 @@ globals:
   ll.IntegerToBase64:
     args:
     - type: number
+    must_use: true
     description: Returns a string that is a Base64 big endian encode of Value.\nEncodes
       the Value as an 8-character Base64 string.
   ll.IsFriend:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns TRUE if avatar ID is a friend of the script owner.
   ll.IsLinkGLTFMaterial:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Checks the face for a PBR render material.
   ll.Json2List:
     args:
     - type: string
+    must_use: true
     description: Converts the top level of the JSON string to a list.
   ll.JsonGetValue:
     args:
     - type: string
     - type: table
+    must_use: true
     description: Gets the value indicated by Specifiers from the JSON string.
   ll.JsonSetValue:
     args:
     - type: string
     - type: table
     - type: string
+    must_use: true
     description: Returns a new JSON string that is the JSON given with the Value indicated
       by Specifiers set to Value.
   ll.JsonValueType:
     args:
     - type: string
     - type: table
+    must_use: true
     description: Returns the type constant (JSON_*) for the value in JSON indicated
       by Specifiers.
   ll.Key2Name:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the name of the prim or avatar specified by ID. The ID must
       be a valid rezzed prim or avatar key in the current simulator, otherwise an
       empty string is returned.\nFor avatars, the returned name is the legacy name
@@ -6729,6 +6928,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Converts a color from the linear colorspace to sRGB.
   ll.LinkAdjustSoundVolume:
     args:
@@ -6783,14 +6983,17 @@ globals:
     description: Stops playback of the currently attached sound on a link.
   ll.LinksetDataAvailable:
     args: []
+    must_use: true
     description: Returns the number of bytes remaining in the linkset's datastore.
   ll.LinksetDataCountFound:
     args:
     - type: string
+    must_use: true
     description: Returns the number of keys matching the regular expression passed
       in the search parameter.
   ll.LinksetDataCountKeys:
     args: []
+    must_use: true
     description: Returns the number of keys in the linkset's datastore.
   ll.LinksetDataDelete:
     args:
@@ -6813,21 +7016,25 @@ globals:
     - type: string
     - type: number
     - type: number
+    must_use: true
     description: Returns a list of keys from the linkset's data store matching the
       search parameter.
   ll.LinksetDataListKeys:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns a list of all keys in the linkset datastore.
   ll.LinksetDataRead:
     args:
     - type: string
+    must_use: true
     description: Returns the value stored for a key in the linkset.
   ll.LinksetDataReadProtected:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Returns the value stored for a key in the linkset.
   ll.LinksetDataReset:
     args: []
@@ -6846,12 +7053,14 @@ globals:
   ll.List2CSV:
     args:
     - type: table
+    must_use: true
     description: Creates a string of comma separated values from the list.\nCreate
       a string of comma separated values from the specified list.
   ll.List2Float:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the float at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to a float, then zero is returned.
@@ -6859,6 +7068,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the integer at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to an integer, then zero is returned.
@@ -6866,12 +7076,14 @@ globals:
     args:
     - type: string
     - type: table
+    must_use: true
     description: Converts either a strided list of key:value pairs to a JSON_OBJECT,
       or a list of values to a JSON_ARRAY.
   ll.List2Key:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the key at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to a key, then null string is returned.
@@ -6880,6 +7092,7 @@ globals:
     - type: table
     - type: number
     - type: number
+    must_use: true
     description: Returns a subset of entries from ListVariable, in a range specified
       by the Start and End indicies (inclusive).\nUsing negative numbers for Start
       and/or End causes the index to count backwards from the length of the string,
@@ -6892,6 +7105,7 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Returns a subset of entries from ListVariable, in a range specified
       by Start and End indices (inclusive) return the slice_index element of each
       stride.\n Using negative numbers for Start and/or End causes the index to count
@@ -6906,12 +7120,14 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Copies the strided slice of the list from Start to End.\nReturns
       a copy of the strided slice of the specified list from Start to End.
   ll.List2Rot:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the rotation at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to rotation, thenZERO_ROTATION is returned.
@@ -6919,6 +7135,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the string at Index in the list.\nReturns the value at Index
       in the specified list as a string. If Index describes a location not in the
       list then null string is returned.
@@ -6926,6 +7143,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the vector at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to a vector, then ZERO_VECTOR is returned.
@@ -6933,6 +7151,7 @@ globals:
     args:
     - type: table
     - type: table
+    must_use: true
     description: Returns the index of the first instance of Find in ListVariable.
       Returns -1 if not found.\nReturns the position of the first instance of the
       Find list in the ListVariable. Returns -1 if not found.
@@ -6941,6 +7160,7 @@ globals:
     - type: table
     - type: table
     - type: number
+    must_use: true
     description: Returns the index of the nth instance of Find in ListVariable. Returns
       -1 if not found.
   ll.ListFindStrided:
@@ -6950,6 +7170,7 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Returns the index of the first instance of Find in ListVariable.
       Returns -1 if not found.\nReturns the position of the first instance of the
       Find list in the ListVariable after the start index and before the end index.
@@ -6959,6 +7180,7 @@ globals:
     - type: table
     - type: table
     - type: number
+    must_use: true
     description: Returns a list that contains all the elements from Target but with
       the elements from ListVariable inserted at Position start.\nReturns a new list,
       created by inserting ListVariable into the Target list at Position. Note this
@@ -6967,6 +7189,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Returns a version of the input ListVariable which has been randomized
       by blocks of size Stride.\nIf the remainder from the length of the list, divided
       by the stride is non-zero, this function does not randomize the list.
@@ -6976,6 +7199,7 @@ globals:
     - type: table
     - type: number
     - type: number
+    must_use: true
     description: Returns a list that is Target with Start through End removed and
       ListVariable inserted at Start.\nReturns a list replacing the slice of the Target
       list from Start to End with the specified ListVariable. Start and End are inclusive,
@@ -6986,6 +7210,7 @@ globals:
     - type: table
     - type: number
     - type: bool
+    must_use: true
     description: Returns the specified list, sorted into blocks of stride in ascending
       order (if Ascending is TRUE, otherwise descending). Note that sort only works
       if the first entry of each block is the same datatype.
@@ -6995,6 +7220,7 @@ globals:
     - type: number
     - type: number
     - type: bool
+    must_use: true
     description: Returns the specified list, sorted by the specified element into
       blocks of stride in ascending order (if Ascending is TRUE, otherwise descending).
       Note that sort only works if the first entry of each block is the same datatype.
@@ -7002,6 +7228,7 @@ globals:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Performs a statistical aggregate function, specified by a LIST_STAT_*
       constant, on ListVariables.\nThis function allows a script to perform a statistical
       operation as defined by operation on a list composed of integers and floats.
@@ -7046,11 +7273,13 @@ globals:
   ll.Log:
     args:
     - type: number
+    must_use: true
     description: Returns the natural logarithm of Value. Returns zero if Value <=
       0.\nReturns the base e (natural) logarithm of the specified Value.
   ll.Log10:
     args:
     - type: number
+    must_use: true
     description: Returns the base 10 logarithm of Value. Returns zero if Value <=
       0.\nReturns the base 10 (common) logarithm of the specified Value.
   ll.LookAt:
@@ -7100,6 +7329,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns a string of 32 hex characters that is an RSA Data Security
       Inc., MD5 Message-Digest Algorithm of Text with Nonce used as the salt.\nReturns
       a 32-character hex string. (128-bit in binary.)
@@ -7223,6 +7453,7 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Returns a Value raised to the Power, mod Modulus. ((a**b)%c) b is
       capped at 0xFFFF (16 bits).\nReturns (Value ^ Power) % Modulus. (Value raised
       to the Power, Modulus). Value is capped at 0xFFFF (16 bits).
@@ -7244,6 +7475,7 @@ globals:
   ll.Name2Key:
     args:
     - type: string
+    must_use: true
     description: Look up Agent ID for the named agent in the region.
   ll.NavigateTo:
     args:
@@ -7275,11 +7507,13 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns the unicode value of the indicated character in the string.
   ll.OverMyLand:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns TRUE if id ID over land owned by the script owner, otherwise
       FALSE.\nReturns TRUE if key ID is over land owned by the object owner, FALSE
       otherwise.
@@ -7297,6 +7531,7 @@ globals:
   ll.ParcelMediaQuery:
     args:
     - type: table
+    must_use: true
     description: Queries the media properties of the parcel containing the script,
       via one or more PARCEL_MEDIA_COMMAND_* arguments specified in CommandList.\nThis
       function will only work if the script is contained within an object owned by
@@ -7307,6 +7542,7 @@ globals:
     - type: string
     - type: table
     - type: table
+    must_use: true
     description: Converts Text into a list, discarding Separators, keeping Spacers
       (Separators and Spacers must be lists of strings, maximum of 8 each).\nSeparators
       and Spacers are lists of strings with a maximum of 8 entries each.
@@ -7315,6 +7551,7 @@ globals:
     - type: string
     - type: table
     - type: table
+    must_use: true
     description: Breaks Text into a list, discarding separators, keeping spacers,
       keeping any null values generated. (separators and spacers must be lists of
       strings, maximum of 8 each).\nllParseStringKeepNulls works almost exactly like
@@ -7373,6 +7610,7 @@ globals:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the Value raised to the power Exponent, or returns 0 and
       triggers Math Error for imaginary results.\nReturns the Value raised to the
       Exponent.
@@ -7519,6 +7757,7 @@ globals:
     - type: string
     - type: string
     - type: number
+    must_use: true
     description: Searches InitialString and replaces instances of SubString with NewSubString.
       Zero Count means "replace all". Positive Count moves left to right. Negative
       moves right to left.
@@ -7680,36 +7919,42 @@ globals:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the rotation angle represented by Rotation.\nReturns the
       angle represented by the Rotation.
   ll.Rot2Axis:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the rotation axis represented by Rotation.\nReturns the axis
       represented by the Rotation.
   ll.Rot2Euler:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the Euler representation (roll, pitch, yaw) of Rotation.\nReturns
       the Euler Angle representation of the Rotation.
   ll.Rot2Fwd:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the forward vector defined by Rotation.\nReturns the forward
       axis represented by the Rotation.
   ll.Rot2Left:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the left vector defined by Rotation.\nReturns the left axis
       represented by the Rotation.
   ll.Rot2Up:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the up vector defined by Rotation.\nReturns the up axis represented
       by the Rotation.
   ll.RotBetween:
@@ -7718,6 +7963,7 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Returns the rotation to rotate Vector1 to Vector2.\nReturns the rotation
       needed to rotate Vector1 to Vector2.
   ll.RotLookAt:
@@ -7752,22 +7998,26 @@ globals:
   ll.Round:
     args:
     - type: number
+    must_use: true
     description: Returns Value rounded to the nearest integer.\nReturns the Value
       rounded to the nearest integer.
   ll.SHA1String:
     args:
     - type: string
+    must_use: true
     description: Returns a string of 40 hex characters that is the SHA1 security hash
       of text.
   ll.SHA256String:
     args:
     - type: string
+    must_use: true
     description: Returns a string of 64 hex characters that is the SHA256 security
       hash of text.
   ll.SameGroup:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns TRUE if avatar ID is in the same region and has the same
       active group, otherwise FALSE.\nReturns TRUE if the object or agent identified
       is in the same simulator and has the same active group as this object. Otherwise,
@@ -7802,6 +8052,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns TRUE if Position is over public land, sandbox land, land
       that doesn't allow everyone to edit and build, or land that doesn't allow outside
       scripts.\nReturns true if the position is over public land, land that doesn't
@@ -8321,11 +8572,13 @@ globals:
     - type: string
     - type: string
     - type: string
+    must_use: true
     description: Returns the base64-encoded RSA signature of Message using PEM-formatted
       PrivateKey and digest Algorithm (sha1, sha224, sha256, sha384, sha512).
   ll.Sin:
     args:
     - type: number
+    must_use: true
     description: Returns the sine of Theta (Theta in radians).
   ll.SitOnLink:
     args:
@@ -8368,6 +8621,7 @@ globals:
   ll.Sqrt:
     args:
     - type: number
+    must_use: true
     description: Returns the square root of Value.\nTriggers a math runtime error
       for imaginary results (if Value < 0.0).
   ll.StartAnimation:
@@ -8410,16 +8664,19 @@ globals:
   ll.StringLength:
     args:
     - type: string
+    must_use: true
     description: Returns an integer that is the number of characters in Text (not
       counting the null).
   ll.StringToBase64:
     args:
     - type: string
+    must_use: true
     description: Returns the string Base64 representation of the input string.
   ll.StringTrim:
     args:
     - type: string
     - type: number
+    must_use: true
     description: 'Outputs a string, eliminating white-space from the start and/or
       end of the input string Text.\nValid options for TrimType:\nSTRING_TRIM_HEAD:
       trim all leading spaces in Text\nSTRING_TRIM_TAIL: trim all trailing spaces
@@ -8428,6 +8685,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Returns an integer that is the index in Text where string pattern
       Sequence first appears. Returns -1 if not found.
   ll.TakeCamera:
@@ -8449,6 +8707,7 @@ globals:
   ll.Tan:
     args:
     - type: number
+    must_use: true
     description: Returns the tangent of Theta (Theta in radians).
   ll.Target:
     args:
@@ -8524,10 +8783,12 @@ globals:
   ll.ToLower:
     args:
     - type: string
+    must_use: true
     description: Returns a string that is Text with all lower-case characters.
   ll.ToUpper:
     args:
     - type: string
+    must_use: true
     description: Returns a string that is Text with all upper-case characters.
   ll.TransferLindenDollars:
     args:
@@ -8581,6 +8842,7 @@ globals:
   ll.UnescapeURL:
     args:
     - type: string
+    must_use: true
     description: Returns the string that is the URL unescaped, replacing "%20" with
       spaces, etc., version of URL.\nThis function can output raw UTF-8 strings.
   ll.UpdateCharacter:
@@ -8609,16 +8871,19 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Returns the distance between Location1 and Location2.
   ll.VecMag:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the magnitude of the vector.
   ll.VecNorm:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns normalized vector.
   ll.VerifyRSA:
     args:
@@ -8626,6 +8891,7 @@ globals:
     - type: string
     - type: string
     - type: string
+    must_use: true
     description: Returns TRUE if PublicKey, Message, and Algorithm produce the same
       base64-formatted Signature.
   ll.VolumeDetect:
@@ -8649,6 +8915,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the water height below the object position + Offset.
   ll.Whisper:
     args:
@@ -8662,17 +8929,20 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the wind velocity at the object position + Offset.
   ll.WorldPosToHUD:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the local position that would put the origin of a HUD object
       directly over world_pos as viewed by the current camera.
   ll.XorBase64:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Performs an exclusive OR on two Base64 strings and returns a Base64
       string. Text2 repeats if it is shorter than Text1.
   ll.XorBase64Strings:
@@ -8683,6 +8953,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: 'Deprecated: Please use llXorBase64 instead.\nIncorrectly performs
       an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats
       if it is shorter than Text1.\nRetained for backwards compatibility.'
@@ -8694,6 +8965,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: 'Deprecated: Please use llXorBase64 instead.\nCorrectly (unless nulls
       are present) performs an exclusive OR on two Base64 strings and returns a Base64
       string.\nText2 repeats if it is shorter than Text1.'
@@ -8701,18 +8973,21 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Converts a color from the sRGB to the linear colorspace.
   llcompat.Abs:
     deprecated:
       message: Returns the absolute (positive) version of Value.
     args:
     - type: number
+    must_use: true
     description: Returns the absolute (positive) version of Value.
   llcompat.Acos:
     deprecated:
       message: Returns the arc-cosine of Value, in radians.
     args:
     - type: number
+    must_use: true
     description: Returns the arc-cosine of Value, in radians.
   llcompat.AddToLandBanList:
     deprecated:
@@ -8764,6 +9039,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: "\n                   Returns TRUE if the agent is in the Experience\
       \ and the Experience can run in the current location.\n                "
   llcompat.AllowInventoryDrop:
@@ -8782,6 +9058,7 @@ globals:
         display: quaternion
     - type:
         display: quaternion
+    must_use: true
     description: Returns the angle, in radians, between rotations Rot1 and Rot2.
   llcompat.ApplyImpulse:
     deprecated:
@@ -8812,6 +9089,7 @@ globals:
       message: Returns the arc-sine, in radians, of Value.
     args:
     - type: number
+    must_use: true
     description: Returns the arc-sine, in radians, of Value.
   llcompat.Atan2:
     deprecated:
@@ -8819,6 +9097,7 @@ globals:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the arc-tangent2 of y, x.
   llcompat.AttachToAvatar:
     deprecated:
@@ -8845,6 +9124,7 @@ globals:
         on the specified link's prim.
     args:
     - type: number
+    must_use: true
     description: If an avatar is sitting on the link's sit target, return the avatar's
       key, NULL_KEY otherwise.\nReturns a key that is the UUID of the user seated
       on the specified link's prim.
@@ -8854,6 +9134,7 @@ globals:
         otherwise NULL_KEY.\nThis only will detect avatars sitting on sit targets
         defined with llSitTarget.
     args: []
+    must_use: true
     description: If an avatar is seated on the sit target, returns the avatar's key,
       otherwise NULL_KEY.\nThis only will detect avatars sitting on sit targets defined
       with llSitTarget.
@@ -8868,6 +9149,7 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Returns the rotation represented by coordinate axes Forward, Left,
       and Up.
   llcompat.AxisAngle2Rot:
@@ -8877,6 +9159,7 @@ globals:
     - type:
         display: vector
     - type: number
+    must_use: true
     description: Returns the rotation that is a generated Angle about Axis.
   llcompat.Base64ToInteger:
     deprecated:
@@ -8885,6 +9168,7 @@ globals:
         fewer then 6 characters, the return value is unpredictable.
     args:
     - type: string
+    must_use: true
     description: Returns an integer that is the Text, Base64 decoded as a big endian
       integer.\nReturns zero if Text is longer then 8 characters. If Text contains
       fewer then 6 characters, the return value is unpredictable.
@@ -8894,6 +9178,7 @@ globals:
         creates any unprintable characters, they are converted to question marks.
     args:
     - type: string
+    must_use: true
     description: Converts a Base64 string to a conventional string.\nIf the conversion
       creates any unprintable characters, they are converted to question marks.
   llcompat.BreakAllLinks:
@@ -8917,6 +9202,7 @@ globals:
         Text.
     args:
     - type: string
+    must_use: true
     description: Create a list from a string of comma separated values specified in
       Text.
   llcompat.CastRay:
@@ -8932,6 +9218,7 @@ globals:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: 'Casts a ray into the physics world from ''start'' to ''end'' and
       returns data according to details in Options.\nReports collision data for intersections
       with objects.\nReturn value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1},
@@ -8942,6 +9229,7 @@ globals:
       message: Returns smallest integer value >= Value.
     args:
     - type: number
+    must_use: true
     description: Returns smallest integer value >= Value.
   llcompat.Char:
     deprecated:
@@ -8949,6 +9237,7 @@ globals:
         unicode value.
     args:
     - type: number
+    must_use: true
     description: Returns a single character string that is the representation of the
       unicode value.
   llcompat.ClearCameraParams:
@@ -8992,6 +9281,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the cloud density at the object's position + Offset.
   llcompat.CollisionFilter:
     deprecated:
@@ -9029,12 +9319,14 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Returns hex-encoded Hash string of Message using digest Algorithm.
   llcompat.Cos:
     deprecated:
       message: Returns the cosine of Theta (Theta in radians).
     args:
     - type: number
+    must_use: true
     description: Returns the cosine of Theta (Theta in radians).
   llcompat.CreateCharacter:
     deprecated:
@@ -9152,6 +9444,7 @@ globals:
     - type: table
     - type: number
     - type: number
+    must_use: true
     description: Removes the slice from start to end and returns the remainder of
       the list.\nRemove a slice from the list and return the remainder, start and
       end are inclusive.\nUsing negative numbers for start and/or end causes the index
@@ -9170,6 +9463,7 @@ globals:
     - type: string
     - type: number
     - type: number
+    must_use: true
     description: Removes the indicated sub-string and returns the result.\nStart and
       End are inclusive.\nUsing negative numbers for Start and/or End causes the index
       to count backwards from the length of the string, so 0, -1 would delete the
@@ -9196,6 +9490,7 @@ globals:
         type and the original damage delivered.
     args:
     - type: number
+    must_use: true
     description: Returns a list containing the current damage for the event, the damage
       type and the original damage delivered.
   llcompat.DetectedGrab:
@@ -9204,6 +9499,7 @@ globals:
         0.0, 0.0> if Number is not a valid object.
     args:
     - type: number
+    must_use: true
     description: Returns the grab offset of a user touching the object.\nReturns <0.0,
       0.0, 0.0> if Number is not a valid object.
   llcompat.DetectedGroup:
@@ -9213,6 +9509,7 @@ globals:
         the group, but the group is not active.
     args:
     - type: number
+    must_use: true
     description: Returns TRUE if detected object or agent Number has the same user
       group active as this object.\nIt will return FALSE if the object or agent is
       in the group, but the group is not active.
@@ -9222,6 +9519,7 @@ globals:
         if Number is not a valid index.
     args:
     - type: number
+    must_use: true
     description: Returns the key of detected object or avatar number.\nReturns NULL_KEY
       if Number is not a valid index.
   llcompat.DetectedLinkNumber:
@@ -9231,6 +9529,7 @@ globals:
         the first child, etc.
     args:
     - type: number
+    must_use: true
     description: Returns the link position of the triggered event for touches and
       collisions only.\n0 for a non-linked object, 1 for the root of a linked object,
       2 for the first child, etc.
@@ -9241,6 +9540,7 @@ globals:
         index.
     args:
     - type: number
+    must_use: true
     description: Returns the name of detected object or avatar number.\nReturns the
       name of detected object number.\nReturns empty string if Number is not a valid
       index.
@@ -9250,6 +9550,7 @@ globals:
         Number is not a valid index.
     args:
     - type: number
+    must_use: true
     description: Returns the key of detected object's owner.\nReturns invalid key
       if Number is not a valid index.
   llcompat.DetectedPos:
@@ -9258,6 +9559,7 @@ globals:
         <0.0, 0.0, 0.0> if Number is not a valid index.
     args:
     - type: number
+    must_use: true
     description: Returns the position of detected object or avatar number.\nReturns
       <0.0, 0.0, 0.0> if Number is not a valid index.
   llcompat.DetectedRezzer:
@@ -9265,6 +9567,7 @@ globals:
       message: Returns the key for the rezzer of the detected object.
     args:
     - type: number
+    must_use: true
     description: Returns the key for the rezzer of the detected object.
   llcompat.DetectedRot:
     deprecated:
@@ -9272,6 +9575,7 @@ globals:
         <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
     args:
     - type: number
+    must_use: true
     description: Returns the rotation of detected object or avatar number.\nReturns
       <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
   llcompat.DetectedTouchBinormal:
@@ -9281,6 +9585,7 @@ globals:
         touch event was triggered.
     args:
     - type: number
+    must_use: true
     description: Returns the surface bi-normal for a triggered touch event.\nReturns
       a vector that is the surface bi-normal (tangent to the surface) where the touch
       event was triggered.
@@ -9290,6 +9595,7 @@ globals:
         touch event.
     args:
     - type: number
+    must_use: true
     description: Returns the index of the face where the avatar clicked in a triggered
       touch event.
   llcompat.DetectedTouchNormal:
@@ -9299,6 +9605,7 @@ globals:
         touch event was triggered.
     args:
     - type: number
+    must_use: true
     description: Returns the surface normal for a triggered touch event.\nReturns
       a vector that is the surface normal (perpendicular to the surface) where the
       touch event was triggered.
@@ -9309,6 +9616,7 @@ globals:
         the position relative to the attach point.
     args:
     - type: number
+    must_use: true
     description: Returns the position, in region coordinates, where the object was
       touched in a triggered touch event.\nUnless it is a HUD, in which case it returns
       the position relative to the attach point.
@@ -9321,6 +9629,7 @@ globals:
         be determined (e.g. when the viewer does not support this function).
     args:
     - type: number
+    must_use: true
     description: Returns a vector that is the surface coordinates where the prim was
       touched.\nThe X and Y vector positions contain the horizontal (S) and vertical
       (T) face coordinates respectively.\nEach component is in the interval [0.0,
@@ -9334,6 +9643,7 @@ globals:
         cannot be determined (e.g. when the viewer does not support this function).
     args:
     - type: number
+    must_use: true
     description: Returns a vector that is the texture coordinates for where the prim
       was touched.\nThe X and Y vector positions contain the U and V face coordinates
       respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates
@@ -9346,6 +9656,7 @@ globals:
         n{\\n\t// ...do stuff with the agent\\n}"
     args:
     - type: number
+    must_use: true
     description: "Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected\
       \ object.\\nReturns 0 if number is not a valid index.\\nNote that number is\
       \ a bit-field, so comparisons need to be a bitwise checked. e.g.:\\ninteger\
@@ -9356,6 +9667,7 @@ globals:
         0.0> if Number is not a valid offset.
     args:
     - type: number
+    must_use: true
     description: Returns the velocity of the detected object Number.\nReturns<0.0,
       0.0, 0.0> if Number is not a valid offset.
   llcompat.Dialog:
@@ -9406,6 +9718,7 @@ globals:
     args:
     - type: table
     - type: string
+    must_use: true
     description: Returns the list as a single string, using Separator between the
       entries.\nWrite the list out as a single string, using Separator between values.
   llcompat.EdgeOfWorld:
@@ -9419,6 +9732,7 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Checks to see whether the border hit by Direction from Position is
       the edge of the world (has no neighboring region).\nReturns TRUE if the line
       along Direction from Position hits the edge of the world in the current simulator,
@@ -9450,6 +9764,7 @@ globals:
         \ encoded escape codes for selected characters."
     args:
     - type: string
+    must_use: true
     description: "Returns an escaped/encoded version of url, replacing spaces with\
       \ %20 etc.\\nReturns the string that is the URL-escaped version of URL (replacing\
       \ spaces with %20, etc.).\\n\n                This function returns the UTF-8\
@@ -9461,6 +9776,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the rotation representation of the Euler angles.\nReturns
       the rotation represented by the Euler Angle.
   llcompat.Evade:
@@ -9496,6 +9812,7 @@ globals:
         of Value.
     args:
     - type: number
+    must_use: true
     description: Returns the positive version of Value.\nReturns the absolute value
       of Value.
   llcompat.FindNotecardTextCount:
@@ -9507,6 +9824,7 @@ globals:
     - type: string
     - type: string
     - type: table
+    must_use: true
     description: "Searches the text of a cached notecard for lines containing the\
       \ given pattern and returns the \n            number of matches found through\
       \ a dataserver event.\n            "
@@ -9523,6 +9841,7 @@ globals:
     - type: number
     - type: number
     - type: table
+    must_use: true
     description: "Searches the text of a cached notecard for lines containing the\
       \ given pattern. \n            Returns a list of line numbers and column where\
       \ a match is found. If the notecard is not in\n            the cache it returns\
@@ -9544,6 +9863,7 @@ globals:
       message: Returns largest integer value <= Value.
     args:
     - type: number
+    must_use: true
     description: Returns largest integer value <= Value.
   llcompat.ForceMouselook:
     deprecated:
@@ -9567,6 +9887,7 @@ globals:
         0].\nReturns a pseudo-random number between [0, Magnitude].
     args:
     - type: number
+    must_use: true
     description: Returns a pseudo random number in the range [0, Magnitude] or [Magnitude,
       0].\nReturns a pseudo-random number between [0, Magnitude].
   llcompat.GenerateKey:
@@ -9577,6 +9898,7 @@ globals:
         changed in the past and may change again in the future. Do not depend upon
         the UUID that is returned to be version 5 SHA-1 hash.
     args: []
+    must_use: true
     description: Generates a key (SHA-1 hash) using UUID generation to create a unique
       key.\nAs the UUID produced is versioned, it should never return a value of NULL_KEY.\nThe
       specific UUID version is an implementation detail that has changed in the past
@@ -9587,6 +9909,7 @@ globals:
       message: Returns the acceleration of the object relative to the region's axes.\nGets
         the acceleration of the object.
     args: []
+    must_use: true
     description: Returns the acceleration of the object relative to the region's axes.\nGets
       the acceleration of the object.
   llcompat.GetAgentInfo:
@@ -9600,6 +9923,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: "Returns an integer bit-field containing the agent information about\
       \ id.\\n\n                    Returns AGENT_FLYING, AGENT_ATTACHMENTS, AGENT_SCRIPTED,\
       \ AGENT_SITTING, AGENT_ON_OBJECT, AGENT_MOUSELOOK, AGENT_AWAY, AGENT_BUSY, AGENT_TYPING,\
@@ -9613,6 +9937,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the language code of the preferred interface language of
       the avatar.\nReturns a string that is the language code of the preferred interface
       language of the resident.
@@ -9625,6 +9950,7 @@ globals:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Requests a list of agents currently in the region, limited by the
       scope parameter.\nReturns a list [key UUID-0, key UUID-1, ..., key UUID-n] or
       [string error_msg] - returns avatar keys for all agents in the region limited
@@ -9637,6 +9963,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: If the avatar is in the same region, returns the size of the bounding
       box of the requested avatar by id, otherwise returns ZERO_VECTOR.\nIf the agent
       is in the same region as the object, returns the size of the avatar.
@@ -9646,6 +9973,7 @@ globals:
         face. If face is ALL_SIDES the value returned is the mean average of all faces.
     args:
     - type: number
+    must_use: true
     description: Returns the alpha value of Face.\nReturns the 'alpha' of the given
       face. If face is ALL_SIDES the value returned is the mean average of all faces.
   llcompat.GetAndResetTime:
@@ -9663,6 +9991,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the name of the currently playing locomotion animation for
       the avatar id.\nReturns the currently playing animation for the specified avatar
       ID.
@@ -9673,6 +10002,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns a list of keys of playing animations for an avatar.\nReturns
       a list of keys of all playing animations for the specified avatar ID.
   llcompat.GetAnimationOverride:
@@ -9683,6 +10013,7 @@ globals:
         permission (automatically granted to attached objects).
     args:
     - type: string
+    must_use: true
     description: Returns a string that is the name of the animation that is used for
       the specified animation state\nTo use this function the script must obtain either
       the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION permission
@@ -9691,6 +10022,7 @@ globals:
     deprecated:
       message: Returns the object's attachment point, or 0 if not attached.
     args: []
+    must_use: true
     description: Returns the object's attachment point, or 0 if not attached.
   llcompat.GetAttachedList:
     deprecated:
@@ -9699,6 +10031,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns a list of keys of all visible (not HUD) attachments on the
       avatar identified by the ID argument
   llcompat.GetAttachedListFiltered:
@@ -9708,6 +10041,7 @@ globals:
     - type:
         display: uuid
     - type: table
+    must_use: true
     description: Retrieves a list of attachments on an avatar.
   llcompat.GetBoundingBox:
     deprecated:
@@ -9717,6 +10051,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the bounding box around the object (including any linked
       prims) relative to its root prim, as a list in the format [ (vector) min_corner,
       (vector) max_corner ].
@@ -9726,6 +10061,7 @@ globals:
         who has granted the scripted object PERMISSION_TRACK_CAMERA permissions. If
         no permissions have been granted: it returns zero.'
     args: []
+    must_use: true
     description: 'Returns the current camera aspect ratio (width / height) of the
       agent who has granted the scripted object PERMISSION_TRACK_CAMERA permissions.
       If no permissions have been granted: it returns zero.'
@@ -9735,6 +10071,7 @@ globals:
         the scripted object PERMISSION_TRACK_CAMERA permissions. If no permissions
         have been granted: it returns zero.'
     args: []
+    must_use: true
     description: 'Returns the current camera field of view of the agent who has granted
       the scripted object PERMISSION_TRACK_CAMERA permissions. If no permissions have
       been granted: it returns zero.'
@@ -9745,6 +10082,7 @@ globals:
         PERMISSION_TRACK_CAMERA. If no user has granted the permission, it returns
         ZERO_VECTOR.
     args: []
+    must_use: true
     description: Returns the current camera position for the agent the task has permissions
       for.\nReturns the position of the camera, of the user that granted the script
       PERMISSION_TRACK_CAMERA. If no user has granted the permission, it returns ZERO_VECTOR.
@@ -9754,6 +10092,7 @@ globals:
         for. If no user has granted the PERMISSION_TRACK_CAMERA permission, returns
         ZERO_ROTATION.
     args: []
+    must_use: true
     description: Returns the current camera orientation for the agent the task has
       permissions for. If no user has granted the PERMISSION_TRACK_CAMERA permission,
       returns ZERO_ROTATION.
@@ -9762,6 +10101,7 @@ globals:
       message: Returns the prim's centre of mass (unless called from the root prim,
         where it returns the object's centre of mass).
     args: []
+    must_use: true
     description: Returns the prim's centre of mass (unless called from the root prim,
       where it returns the object's centre of mass).
   llcompat.GetClosestNavPoint:
@@ -9774,6 +10114,7 @@ globals:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: Get the closest navigable point to the point provided.\nThe function
       accepts a point in region-local space (like all the other path-finding methods)
       and returns either an empty list or a list containing a single vector which
@@ -9785,6 +10126,7 @@ globals:
         returned is the mean average of each channel.
     args:
     - type: number
+    must_use: true
     description: Returns the color on Face.\nReturns the color of Face as a vector
       of red, green, and blue values between 0 and 1. If face is ALL_SIDES the color
       returned is the mean average of each channel.
@@ -9793,6 +10135,7 @@ globals:
       message: Returns a key for the creator of the prim.\nReturns the key of the
         object's original creator. Similar to llGetOwner.
     args: []
+    must_use: true
     description: Returns a key for the creator of the prim.\nReturns the key of the
       object's original creator. Similar to llGetOwner.
   llcompat.GetDate:
@@ -9800,18 +10143,21 @@ globals:
       message: Returns the current date in the UTC time zone in the format YYYY-MM-DD.\nReturns
         the current UTC date as YYYY-MM-DD.
     args: []
+    must_use: true
     description: Returns the current date in the UTC time zone in the format YYYY-MM-DD.\nReturns
       the current UTC date as YYYY-MM-DD.
   llcompat.GetDayLength:
     deprecated:
       message: Returns the number of seconds in a day on this parcel.
     args: []
+    must_use: true
     description: Returns the number of seconds in a day on this parcel.
   llcompat.GetDayOffset:
     deprecated:
       message: Returns the number of seconds in a day is offset from midnight in this
         parcel.
     args: []
+    must_use: true
     description: Returns the number of seconds in a day is offset from midnight in
       this parcel.
   llcompat.GetDisplayName:
@@ -9823,6 +10169,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the display name of an avatar, if the avatar is connected
       to the current region, or if the name has been cached.  Otherwise, returns an
       empty string. Use llRequestDisplayName if the avatar may be absent from the
@@ -9831,12 +10178,14 @@ globals:
     deprecated:
       message: Returns how much energy is in the object as a percentage of maximum.
     args: []
+    must_use: true
     description: Returns how much energy is in the object as a percentage of maximum.
   llcompat.GetEnv:
     deprecated:
       message: Returns a string with the requested data about the region.
     args:
     - type: string
+    must_use: true
     description: Returns a string with the requested data about the region.
   llcompat.GetEnvironment:
     deprecated:
@@ -9845,6 +10194,7 @@ globals:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: Returns a string with the requested data about the region.
   llcompat.GetExperienceDetails:
     deprecated:
@@ -9856,6 +10206,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: "\n                   Returns a list with the following Experience\
       \ properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State\
       \ Message]. State is an integer corresponding to one of the constants XP_ERROR_...\
@@ -9868,6 +10219,7 @@ globals:
         \ not a valid Experience error code.\n                "
     args:
     - type: number
+    must_use: true
     description: "\n                   Returns a string describing the error code\
       \ passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value\
       \ is not a valid Experience error code.\n                "
@@ -9876,6 +10228,7 @@ globals:
       message: Returns the force (if the script is physical).\nReturns the current
         force if the script is physical.
     args: []
+    must_use: true
     description: Returns the force (if the script is physical).\nReturns the current
       force if the script is physical.
   llcompat.GetFreeMemory:
@@ -9883,6 +10236,7 @@ globals:
       message: Returns the number of free bytes of memory the script can use.\nReturns
         the available free space for the current script. This is inaccurate with LSO.
     args: []
+    must_use: true
     description: Returns the number of free bytes of memory the script can use.\nReturns
       the available free space for the current script. This is inaccurate with LSO.
   llcompat.GetFreeURLs:
@@ -9890,6 +10244,7 @@ globals:
       message: Returns the number of available URLs for the current script.\nReturns
         an integer that is the number of available URLs.
     args: []
+    must_use: true
     description: Returns the number of available URLs for the current script.\nReturns
       an integer that is the number of available URLs.
   llcompat.GetGMTclock:
@@ -9897,6 +10252,7 @@ globals:
       message: Returns the time in seconds since midnight GMT.\nGets the time in seconds
         since midnight in GMT/UTC.
     args: []
+    must_use: true
     description: Returns the time in seconds since midnight GMT.\nGets the time in
       seconds since midnight in GMT/UTC.
   llcompat.GetGeometricCenter:
@@ -9904,6 +10260,7 @@ globals:
       message: Returns the vector that is the geometric center of the object relative
         to the root prim.
     args: []
+    must_use: true
     description: Returns the vector that is the geometric center of the object relative
       to the root prim.
   llcompat.GetHTTPHeader:
@@ -9914,6 +10271,7 @@ globals:
     - type:
         display: uuid
     - type: string
+    must_use: true
     description: Returns the value for header for request_id.\nReturns a string that
       is the value of the Header for HTTPRequestID.
   llcompat.GetHealth:
@@ -9922,6 +10280,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the current health of an avatar or object in the region.
   llcompat.GetInventoryAcquireTime:
     deprecated:
@@ -9929,6 +10288,7 @@ globals:
         as a timestamp.
     args:
     - type: string
+    must_use: true
     description: Returns the time at which the item was placed into this prim's inventory
       as a timestamp.
   llcompat.GetInventoryCreator:
@@ -9938,6 +10298,7 @@ globals:
         the object says "No item named 'name'".
     args:
     - type: string
+    must_use: true
     description: Returns a key for the creator of the inventory item.\nThis function
       returns the UUID of the creator of item. If item is not found in inventory,
       the object says "No item named 'name'".
@@ -9948,6 +10309,7 @@ globals:
         and returns an empty string.
     args:
     - type: string
+    must_use: true
     description: Returns the item description of the item in inventory. If item is
       not found in inventory, the object says "No item named 'name'" to the debug
       channel and returns an empty string.
@@ -9957,6 +10319,7 @@ globals:
         key of the inventory named.
     args:
     - type: string
+    must_use: true
     description: Returns the key that is the UUID of the inventory named.\nReturns
       the key of the inventory named.
   llcompat.GetInventoryName:
@@ -9966,6 +10329,7 @@ globals:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the name of the inventory item of a given type, specified
       by index number.\nUse the inventory constants INVENTORY_* to specify the type.
   llcompat.GetInventoryNumber:
@@ -9975,6 +10339,7 @@ globals:
         the type.
     args:
     - type: number
+    must_use: true
     description: Returns the quantity of items of a given type (INVENTORY_* flag)
       in the prim's inventory.\nUse the inventory constants INVENTORY_* to specify
       the type.
@@ -9987,6 +10352,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns the requested permission mask for the inventory item.\nReturns
       the requested permission mask for the inventory item defined by InventoryItem.
       If item is not in the object's inventory, llGetInventoryPermMask returns FALSE
@@ -9997,6 +10363,7 @@ globals:
         llGetInventoryType is case-sensitive.
     args:
     - type: string
+    must_use: true
     description: Returns the type of the named inventory item.\nLike all inventory
       functions, llGetInventoryType is case-sensitive.
   llcompat.GetKey:
@@ -10004,6 +10371,7 @@ globals:
       message: Returns the key of the prim the script is attached to.\nGet the key
         for the object which has this script.
     args: []
+    must_use: true
     description: Returns the key of the prim the script is attached to.\nGet the key
       for the object which has this script.
   llcompat.GetLandOwnerAt:
@@ -10013,6 +10381,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the key of the land owner, returns NULL_KEY if public.\nReturns
       the key of the land owner at Position, or NULL_KEY if public.
   llcompat.GetLinkKey:
@@ -10021,6 +10390,7 @@ globals:
         LinkNumber in the link set.
     args:
     - type: number
+    must_use: true
     description: Returns the key of the linked prim LinkNumber.\nReturns the key of
       LinkNumber in the link set.
   llcompat.GetLinkMedia:
@@ -10032,6 +10402,7 @@ globals:
     - type: number
     - type: number
     - type: table
+    must_use: true
     description: "Get the media parameters for a particular face on linked prim, given\
       \ the desired list of parameter names. Returns a list of values in the order\
       \ requested.\tReturns an empty list if no media exists on the face."
@@ -10041,6 +10412,7 @@ globals:
         LinkNumber the link set.
     args:
     - type: number
+    must_use: true
     description: Returns the name of LinkNumber in a link set.\nReturns the name of
       LinkNumber the link set.
   llcompat.GetLinkNumber:
@@ -10050,6 +10422,7 @@ globals:
         the link number of the prim containing the script. 0 means no link, 1 the
         root, 2 for first child, etc.
     args: []
+    must_use: true
     description: Returns the link number of the prim containing the script (0 means
       not linked, 1 the prim is the root, 2 the prim is the first child, etc.).\nReturns
       the link number of the prim containing the script. 0 means no link, 1 the root,
@@ -10060,6 +10433,7 @@ globals:
         an integer that is the number of faces (or sides) of the prim link.
     args:
     - type: number
+    must_use: true
     description: Returns the number of sides of the specified linked prim.\nReturns
       an integer that is the number of faces (or sides) of the prim link.
   llcompat.GetLinkPrimitiveParams:
@@ -10072,6 +10446,7 @@ globals:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Returns the list of primitive attributes requested in the Parameters
       list for LinkNumber.\nPRIM_* flags can be broken into three categories, face
       flags, prim flags, and object flags.\n* Supplying a prim or object flag will
@@ -10082,6 +10457,7 @@ globals:
       message: Returns the sit flags set on the specified prim in a linkset.
     args:
     - type: number
+    must_use: true
     description: Returns the sit flags set on the specified prim in a linkset.
   llcompat.GetListEntryType:
     deprecated:
@@ -10091,6 +10467,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Returns the type of the index entry in the list (TYPE_INTEGER, TYPE_FLOAT,
       TYPE_STRING, TYPE_KEY, TYPE_VECTOR, TYPE_ROTATION, or TYPE_INVALID if index
       is off list).\nReturns the type of the variable at Index in ListVariable.
@@ -10100,6 +10477,7 @@ globals:
         elements in ListVariable.
     args:
     - type: table
+    must_use: true
     description: Returns the number of elements in the list.\nReturns the number of
       elements in ListVariable.
   llcompat.GetLocalPos:
@@ -10107,6 +10485,7 @@ globals:
       message: Returns the position relative to the root.\nReturns the local position
         of a child object relative to the root.
     args: []
+    must_use: true
     description: Returns the position relative to the root.\nReturns the local position
       of a child object relative to the root.
   llcompat.GetLocalRot:
@@ -10114,6 +10493,7 @@ globals:
       message: Returns the rotation local to the root.\nReturns the local rotation
         of a child object relative to the root.
     args: []
+    must_use: true
     description: Returns the rotation local to the root.\nReturns the local rotation
       of a child object relative to the root.
   llcompat.GetMass:
@@ -10124,6 +10504,7 @@ globals:
         its own mass. When called from a script inside an attachment, this function
         will return the mass of the avatar it's attached to, not its own.
     args: []
+    must_use: true
     description: Returns the mass of object that the script is attached to.\nReturns
       the scripted object's mass. When called from a script in a link-set, the parent
       will return the sum of the link-set weights, while a child will return just
@@ -10134,6 +10515,7 @@ globals:
       message: Acts as llGetMass(), except that the units of the value returned are
         Kg.
     args: []
+    must_use: true
     description: Acts as llGetMass(), except that the units of the value returned
       are Kg.
   llcompat.GetMaxScaleFactor:
@@ -10142,6 +10524,7 @@ globals:
         successfully applied (via llScaleByFactor()) to the object without violating
         prim size or linkability rules.
     args: []
+    must_use: true
     description: Returns the largest multiplicative uniform scale factor that can
       be successfully applied (via llScaleByFactor()) to the object without violating
       prim size or linkability rules.
@@ -10149,6 +10532,7 @@ globals:
     deprecated:
       message: Get the maximum memory a script can use, in bytes.
     args: []
+    must_use: true
     description: Get the maximum memory a script can use, in bytes.
   llcompat.GetMinScaleFactor:
     deprecated:
@@ -10156,6 +10540,7 @@ globals:
         successfully applied (via llScaleByFactor()) to the object without violating
         prim size or linkability rules.
     args: []
+    must_use: true
     description: Returns the smallest multiplicative uniform scale factor that can
       be successfully applied (via llScaleByFactor()) to the object without violating
       prim size or linkability rules.
@@ -10164,12 +10549,14 @@ globals:
       message: Returns a normalized vector of the direction of the moon in the parcel.\nReturns
         the moon's direction on the simulator in the parcel.
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the moon in the parcel.\nReturns
       the moon's direction on the simulator in the parcel.
   llcompat.GetMoonRotation:
     deprecated:
       message: Returns the rotation applied to the moon in the parcel.
     args: []
+    must_use: true
     description: Returns the rotation applied to the moon in the parcel.
   llcompat.GetNextEmail:
     deprecated:
@@ -10206,6 +10593,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns LineNumber from NotecardName. The line index starts at zero
       in LSL, one in Lua.\nIf the requested line is past the end of the note-card
       the return value will be set to the constant EOF string.\nIf the note-card is
@@ -10225,6 +10613,7 @@ globals:
       message: Returns the number of prims in a link set the script is attached to.\nReturns
         the number of prims in (and avatars seated on) the object the script is in.
     args: []
+    must_use: true
     description: Returns the number of prims in a link set the script is attached
       to.\nReturns the number of prims in (and avatars seated on) the object the script
       is in.
@@ -10233,6 +10622,7 @@ globals:
       message: Returns the number of faces (or sides) of the prim.\nReturns the number
         of sides of the prim which has the script.
     args: []
+    must_use: true
     description: Returns the number of faces (or sides) of the prim.\nReturns the
       number of sides of the prim which has the script.
   llcompat.GetObjectAnimationNames:
@@ -10240,6 +10630,7 @@ globals:
       message: Returns a list of names of playing animations for an object.\nReturns
         a list of names of all playing animations for the current object.
     args: []
+    must_use: true
     description: Returns a list of names of playing animations for an object.\nReturns
       a list of names of all playing animations for the current object.
   llcompat.GetObjectDesc:
@@ -10248,6 +10639,7 @@ globals:
         the description of the scripted object/prim. You can set the description using
         llSetObjectDesc.
     args: []
+    must_use: true
     description: Returns the description of the prim the script is attached to.\nReturns
       the description of the scripted object/prim. You can set the description using
       llSetObjectDesc.
@@ -10260,6 +10652,7 @@ globals:
     - type:
         display: uuid
     - type: table
+    must_use: true
     description: Returns a list of object details specified in the Parameters list
       for the object or avatar in the region with key ID.\nParameters are specified
       by the OBJECT_* constants.
@@ -10271,6 +10664,7 @@ globals:
     - type:
         display: uuid
     - type: number
+    must_use: true
     description: Returns the key of the linked prim link_no in a linkset.\nReturns
       the key of link_no in the link set specified by id.
   llcompat.GetObjectMass:
@@ -10280,6 +10674,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the mass of the avatar or object in the region.\nGets the
       mass of the object or avatar corresponding to ID.
   llcompat.GetObjectName:
@@ -10287,6 +10682,7 @@ globals:
       message: Returns the name of the prim which the script is attached to.\nReturns
         the name of the prim (not object) which contains the script.
     args: []
+    must_use: true
     description: Returns the name of the prim which the script is attached to.\nReturns
       the name of the prim (not object) which contains the script.
   llcompat.GetObjectPermMask:
@@ -10294,6 +10690,7 @@ globals:
       message: Returns the permission mask of the requested category for the object.
     args:
     - type: number
+    must_use: true
     description: Returns the permission mask of the requested category for the object.
   llcompat.GetObjectPrimCount:
     deprecated:
@@ -10302,6 +10699,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the total number of prims for an object in the region.\nReturns
       the prim count for any object id in the same region.
   llcompat.GetOmega:
@@ -10309,6 +10707,7 @@ globals:
       message: Returns the rotation velocity in radians per second.\nReturns a vector
         that is the rotation velocity of the object in radians per second.
     args: []
+    must_use: true
     description: Returns the rotation velocity in radians per second.\nReturns a vector
       that is the rotation velocity of the object in radians per second.
   llcompat.GetOwner:
@@ -10316,6 +10715,7 @@ globals:
       message: Returns the object owner's UUID.\nReturns the key for the owner of
         the object.
     args: []
+    must_use: true
     description: Returns the object owner's UUID.\nReturns the key for the owner of
       the object.
   llcompat.GetOwnerKey:
@@ -10325,6 +10725,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the owner of ObjectID.\nReturns the key for the owner of
       object ObjectID.
   llcompat.GetParcelDetails:
@@ -10338,6 +10739,7 @@ globals:
     - type:
         display: vector
     - type: table
+    must_use: true
     description: 'Returns a list of parcel details specified in the ParcelDetails
       list for the parcel at Position.\nParameters is one or more of: PARCEL_DETAILS_NAME,
       _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS.\nReturns a list that is the
@@ -10351,6 +10753,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns a mask of the parcel flags (PARCEL_FLAG_*) for the parcel
       that includes the point Position.\nReturns a bit-field specifying the parcel
       flags (PARCEL_FLAG_*) for the parcel at Position.
@@ -10363,6 +10766,7 @@ globals:
     - type:
         display: vector
     - type: bool
+    must_use: true
     description: Returns the maximum number of prims allowed on the parcel at Position
       for a given scope.\nThe scope may be set to an individual parcel or the combined
       resources of all parcels with the same ownership in the region.
@@ -10371,6 +10775,7 @@ globals:
       message: Gets the streaming audio URL for the parcel object is on.\nThe object
         owner, avatar or group, must also be the land owner.
     args: []
+    must_use: true
     description: Gets the streaming audio URL for the parcel object is on.\nThe object
       owner, avatar or group, must also be the land owner.
   llcompat.GetParcelPrimCount:
@@ -10387,6 +10792,7 @@ globals:
         display: vector
     - type: number
     - type: bool
+    must_use: true
     description: 'Returns the number of prims on the parcel at Position of the given
       category.\nCategories: PARCEL_COUNT_TOTAL, _OWNER, _GROUP, _OTHER, _SELECTED,
       _TEMP.\nReturns the number of prims used on the parcel at Position which are
@@ -10405,6 +10811,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns a list of up to 100 residents who own objects on the parcel
       at Position, with per-owner land impact totals.\nRequires owner-like permissions
       for the parcel, and for the script owner to be present in the region.\nThe list
@@ -10417,6 +10824,7 @@ globals:
         to the script.  Individual permissions can be determined using a bit-wise
         "and" operation against the PERMISSION_* constants
     args: []
+    must_use: true
     description: Returns an integer bitmask of the permissions that have been granted
       to the script.  Individual permissions can be determined using a bit-wise "and"
       operation against the PERMISSION_* constants
@@ -10425,6 +10833,7 @@ globals:
       message: Returns the key of the avatar that last granted or declined permissions
         to the script.\nReturns NULL_KEY if permissions were never granted or declined.
     args: []
+    must_use: true
     description: Returns the key of the avatar that last granted or declined permissions
       to the script.\nReturns NULL_KEY if permissions were never granted or declined.
   llcompat.GetPhysicsMaterial:
@@ -10432,6 +10841,7 @@ globals:
       message: Returns a list of the form [float gravity_multiplier, float restitution,
         float friction, float density].
     args: []
+    must_use: true
     description: Returns a list of the form [float gravity_multiplier, float restitution,
       float friction, float density].
   llcompat.GetPos:
@@ -10439,6 +10849,7 @@ globals:
       message: Returns the position of the task in region coordinates.\nReturns the
         vector position of the task in region coordinates.
     args: []
+    must_use: true
     description: Returns the position of the task in region coordinates.\nReturns
       the vector position of the task in region coordinates.
   llcompat.GetPrimMediaParams:
@@ -10449,6 +10860,7 @@ globals:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Returns the media parameters for a particular face on an object,
       given the desired list of parameter names, in the order requested. Returns an
       empty list if no media exists on the face.
@@ -10458,6 +10870,7 @@ globals:
         primitive parameters specified in the Parameters list.
     args:
     - type: table
+    must_use: true
     description: Returns the primitive parameters specified in the parameters list.\nReturns
       primitive parameters specified in the Parameters list.
   llcompat.GetRegionAgentCount:
@@ -10465,6 +10878,7 @@ globals:
       message: Returns the number of avatars in the region.\nReturns an integer that
         is the number of avatars in the region.
     args: []
+    must_use: true
     description: Returns the number of avatars in the region.\nReturns an integer
       that is the number of avatars in the region.
   llcompat.GetRegionCorner:
@@ -10474,6 +10888,7 @@ globals:
         the simulator containing the task. The region-corner is a vector (values in
         meters) representing distance from the first region.
     args: []
+    must_use: true
     description: Returns a vector, in meters, that is the global location of the south-west
       corner of the region which the object is in.\nReturns the Region-Corner of the
       simulator containing the task. The region-corner is a vector (values in meters)
@@ -10482,18 +10897,21 @@ globals:
     deprecated:
       message: Returns the number of seconds in a day in this region.
     args: []
+    must_use: true
     description: Returns the number of seconds in a day in this region.
   llcompat.GetRegionDayOffset:
     deprecated:
       message: Returns the number of seconds in a day is offset from midnight in this
         parcel.
     args: []
+    must_use: true
     description: Returns the number of seconds in a day is offset from midnight in
       this parcel.
   llcompat.GetRegionFPS:
     deprecated:
       message: Returns the mean region frames per second.
     args: []
+    must_use: true
     description: Returns the mean region frames per second.
   llcompat.GetRegionFlags:
     deprecated:
@@ -10501,6 +10919,7 @@ globals:
         is in.\nReturns a bit-field specifying the region flags (REGION_FLAG_*) for
         the region the object is in.
     args: []
+    must_use: true
     description: Returns the region flags (REGION_FLAG_*) for the region the object
       is in.\nReturns a bit-field specifying the region flags (REGION_FLAG_*) for
       the region the object is in.
@@ -10509,29 +10928,34 @@ globals:
       message: Returns a normalized vector of the direction of the moon in the region.\nReturns
         the moon's direction on the simulator.
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the moon in the region.\nReturns
       the moon's direction on the simulator.
   llcompat.GetRegionMoonRotation:
     deprecated:
       message: Returns the rotation applied to the moon in the region.
     args: []
+    must_use: true
     description: Returns the rotation applied to the moon in the region.
   llcompat.GetRegionName:
     deprecated:
       message: Returns the current region name.
     args: []
+    must_use: true
     description: Returns the current region name.
   llcompat.GetRegionSunDirection:
     deprecated:
       message: Returns a normalized vector of the direction of the sun in the region.\nReturns
         the sun's direction on the simulator.
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the sun in the region.\nReturns
       the sun's direction on the simulator.
   llcompat.GetRegionSunRotation:
     deprecated:
       message: Returns the rotation applied to the sun in the region.
     args: []
+    must_use: true
     description: Returns the rotation applied to the sun in the region.
   llcompat.GetRegionTimeDilation:
     deprecated:
@@ -10539,6 +10963,7 @@ globals:
         and 1.0 (no dilation).\nReturns the current time dilation as a float between
         0.0 and 1.0.
     args: []
+    must_use: true
     description: Returns the current time dilation as a float between 0.0 (full dilation)
       and 1.0 (no dilation).\nReturns the current time dilation as a float between
       0.0 and 1.0.
@@ -10547,6 +10972,7 @@ globals:
       message: Returns the time in seconds since environmental midnight for the entire
         region.
     args: []
+    must_use: true
     description: Returns the time in seconds since environmental midnight for the
       entire region.
   llcompat.GetRenderMaterial:
@@ -10557,6 +10983,7 @@ globals:
         otherwise.
     args:
     - type: number
+    must_use: true
     description: Returns a string that is the render material on face (the inventory
       name if it is a material in the prim's inventory, otherwise the key).\nReturns
       the render material of a face, if it is found in object inventory, its key otherwise.
@@ -10566,6 +10993,7 @@ globals:
         object which the script is attached to.\nThis is used to allow a child prim
         to determine where the root is.
     args: []
+    must_use: true
     description: Returns the position (in region coordinates) of the root prim of
       the object which the script is attached to.\nThis is used to allow a child prim
       to determine where the root is.
@@ -10575,6 +11003,7 @@ globals:
         object which the script is attached to.\nGets the global rotation of the root
         object of the object script is attached to.
     args: []
+    must_use: true
     description: Returns the rotation (relative to the region) of the root prim of
       the object which the script is attached to.\nGets the global rotation of the
       root object of the object script is attached to.
@@ -10582,6 +11011,7 @@ globals:
     deprecated:
       message: Returns the rotation relative to the region's axes.\nReturns the rotation.
     args: []
+    must_use: true
     description: Returns the rotation relative to the region's axes.\nReturns the
       rotation.
   llcompat.GetSPMaxMemory:
@@ -10590,6 +11020,7 @@ globals:
         after using PROFILE_SCRIPT_MEMORY. Non-mono scripts always use 16k.\nReturns
         the integer of the most bytes used while llScriptProfiler was last active.
     args: []
+    must_use: true
     description: Returns the maximum used memory for the current script. Only valid
       after using PROFILE_SCRIPT_MEMORY. Non-mono scripts always use 16k.\nReturns
       the integer of the most bytes used while llScriptProfiler was last active.
@@ -10598,6 +11029,7 @@ globals:
       message: Returns the scale of the prim.\nReturns a vector that is the scale
         (dimensions) of the prim.
     args: []
+    must_use: true
     description: Returns the scale of the prim.\nReturns a vector that is the scale
       (dimensions) of the prim.
   llcompat.GetScriptName:
@@ -10605,6 +11037,7 @@ globals:
       message: Returns the name of the script that this function is used in.\nReturns
         the name of this script.
     args: []
+    must_use: true
     description: Returns the name of the script that this function is used in.\nReturns
       the name of this script.
   llcompat.GetScriptState:
@@ -10613,6 +11046,7 @@ globals:
         is running.
     args:
     - type: string
+    must_use: true
     description: Returns TRUE if the script named is running.\nReturns TRUE if ScriptName
       is running.
   llcompat.GetSimStats:
@@ -10620,12 +11054,14 @@ globals:
       message: Returns a float that is the requested statistic.
     args:
     - type: number
+    must_use: true
     description: Returns a float that is the requested statistic.
   llcompat.GetSimulatorHostname:
     deprecated:
       message: Returns the host-name of the machine which the script is running on.\nFor
         example, "sim225.agni.lindenlab.com".
     args: []
+    must_use: true
     description: Returns the host-name of the machine which the script is running
       on.\nFor example, "sim225.agni.lindenlab.com".
   llcompat.GetStartParameter:
@@ -10633,6 +11069,7 @@ globals:
       message: Returns an integer that is the script rez parameter.\nIf the object
         was rezzed by an agent, this function returns 0.
     args: []
+    must_use: true
     description: Returns an integer that is the script rez parameter.\nIf the object
       was rezzed by an agent, this function returns 0.
   llcompat.GetStartString:
@@ -10641,6 +11078,7 @@ globals:
         with REZ_PARAM_STRING.\nIf the object was rezzed by an agent, this function
         returns an empty string.
     args: []
+    must_use: true
     description: Returns a string that is the value passed to llRezObjectWithParams
       with REZ_PARAM_STRING.\nIf the object was rezzed by an agent, this function
       returns an empty string.
@@ -10654,12 +11092,14 @@ globals:
         display: vector
     - type: number
     - type: table
+    must_use: true
   llcompat.GetStatus:
     deprecated:
       message: Returns boolean value of the specified status (e.g. STATUS_PHANTOM)
         of the object the script is attached to.
     args:
     - type: number
+    must_use: true
     description: Returns boolean value of the specified status (e.g. STATUS_PHANTOM)
       of the object the script is attached to.
   llcompat.GetSubString:
@@ -10673,6 +11113,7 @@ globals:
     - type: string
     - type: number
     - type: number
+    must_use: true
     description: Returns a sub-string from String, in a range specified by the Start
       and End indices (inclusive).\nUsing negative numbers for Start and/or End causes
       the index to count backwards from the length of the string, so 0, -1 would capture
@@ -10683,12 +11124,14 @@ globals:
       message: Returns a normalized vector of the direction of the sun in the parcel.\nReturns
         the sun's direction on the simulator in the parcel.
     args: []
+    must_use: true
     description: Returns a normalized vector of the direction of the sun in the parcel.\nReturns
       the sun's direction on the simulator in the parcel.
   llcompat.GetSunRotation:
     deprecated:
       message: Returns the rotation applied to the sun in the parcel.
     args: []
+    must_use: true
     description: Returns the rotation applied to the sun in the parcel.
   llcompat.GetTexture:
     deprecated:
@@ -10697,6 +11140,7 @@ globals:
         texture of a face, if it is found in object inventory, its key otherwise.
     args:
     - type: number
+    must_use: true
     description: Returns a string that is the texture on face (the inventory name
       if it is a texture in the prim's inventory, otherwise the key).\nReturns the
       texture of a face, if it is found in object inventory, its key otherwise.
@@ -10705,6 +11149,7 @@ globals:
       message: Returns the texture offset of face in the x and y components of a vector.
     args:
     - type: number
+    must_use: true
     description: Returns the texture offset of face in the x and y components of a
       vector.
   llcompat.GetTextureRot:
@@ -10712,6 +11157,7 @@ globals:
       message: Returns the texture rotation of side.
     args:
     - type: number
+    must_use: true
     description: Returns the texture rotation of side.
   llcompat.GetTextureScale:
     deprecated:
@@ -10719,6 +11165,7 @@ globals:
         the texture scale of a side in the x and y components of a vector.
     args:
     - type: number
+    must_use: true
     description: Returns the texture scale of side in the x and y components of a
       vector.\nReturns the texture scale of a side in the x and y components of a
       vector.
@@ -10727,23 +11174,27 @@ globals:
       message: Returns the time in seconds since the last region reset, script reset,
         or call to either llResetTime or llGetAndResetTime.
     args: []
+    must_use: true
     description: Returns the time in seconds since the last region reset, script reset,
       or call to either llResetTime or llGetAndResetTime.
   llcompat.GetTimeOfDay:
     deprecated:
       message: Returns the time in seconds since environmental midnight on the parcel.
     args: []
+    must_use: true
     description: Returns the time in seconds since environmental midnight on the parcel.
   llcompat.GetTimestamp:
     deprecated:
       message: 'Returns a time-stamp (UTC time zone) in the format: YYYY-MM-DDThh:mm:ss.ff..fZ.'
     args: []
+    must_use: true
     description: 'Returns a time-stamp (UTC time zone) in the format: YYYY-MM-DDThh:mm:ss.ff..fZ.'
   llcompat.GetTorque:
     deprecated:
       message: Returns the torque (if the script is physical).\nReturns a vector that
         is the torque (if the script is physical).
     args: []
+    must_use: true
     description: Returns the torque (if the script is physical).\nReturns a vector
       that is the torque (if the script is physical).
   llcompat.GetUnixTime:
@@ -10751,6 +11202,7 @@ globals:
       message: Returns the number of seconds elapsed since 00:00 hours, Jan 1, 1970
         UTC from the system clock.
     args: []
+    must_use: true
     description: Returns the number of seconds elapsed since 00:00 hours, Jan 1, 1970
       UTC from the system clock.
   llcompat.GetUsedMemory:
@@ -10759,6 +11211,7 @@ globals:
         always use 16K.\nReturns the integer of the number of bytes of memory currently
         in use by the script. Non-mono scripts always use 16K.
     args: []
+    must_use: true
     description: Returns the current used memory for the current script. Non-mono
       scripts always use 16K.\nReturns the integer of the number of bytes of memory
       currently in use by the script. Non-mono scripts always use 16K.
@@ -10770,6 +11223,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the username of an avatar, if the avatar is connected to
       the current region, or if the name has been cached.  Otherwise, returns an empty
       string. Use llRequestUsername if the avatar may be absent from the region.
@@ -10778,6 +11232,7 @@ globals:
       message: Returns the velocity of the object.\nReturns a vector that is the velocity
         of the object.
     args: []
+    must_use: true
     description: Returns the velocity of the object.\nReturns a vector that is the
       velocity of the object.
   llcompat.GetVisualParams:
@@ -10787,6 +11242,7 @@ globals:
     - type:
         display: uuid
     - type: table
+    must_use: true
     description: Returns a list of the current value for each requested visual parameter.
   llcompat.GetWallclock:
     deprecated:
@@ -10794,6 +11250,7 @@ globals:
         (PST/PDT).\nReturns the time in seconds since simulator's time-zone midnight
         (Pacific Time).
     args: []
+    must_use: true
     description: Returns the time in seconds since midnight California Pacific time
       (PST/PDT).\nReturns the time in seconds since simulator's time-zone midnight
       (Pacific Time).
@@ -10862,6 +11319,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground height at the object position + offset.\nReturns
       the ground height at the object's position + Offset.
   llcompat.GroundContour:
@@ -10871,6 +11329,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground contour direction below the object position +
       Offset.\nReturns the ground contour at the object's position + Offset.
   llcompat.GroundNormal:
@@ -10880,6 +11339,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground normal below the object position + offset.\nReturns
       the ground contour at the object's position + Offset.
   llcompat.GroundRepel:
@@ -10907,6 +11367,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the ground slope below the object position + Offset.\nReturns
       the ground slope at the object position + Offset.
   llcompat.HMAC:
@@ -10918,6 +11379,7 @@ globals:
     - type: string
     - type: string
     - type: string
+    must_use: true
     description: Returns the base64-encoded hashed message authentication code (HMAC),
       of Message using PEM-formatted Key and digest Algorithm (md5, sha1, sha224,
       sha256, sha384, sha512).
@@ -10953,6 +11415,7 @@ globals:
       message: Calculates the 32bit hash value for the provided string.
     args:
     - type: string
+    must_use: true
     description: Calculates the 32bit hash value for the provided string.
   llcompat.InsertString:
     deprecated:
@@ -10963,6 +11426,7 @@ globals:
     - type: string
     - type: number
     - type: string
+    must_use: true
     description: Inserts SourceVariable into TargetVariable at Position, and returns
       the result.\nInserts SourceVariable into TargetVariable at Position and returns
       the result. Note this does not alter TargetVariable.
@@ -10982,6 +11446,7 @@ globals:
         the Value as an 8-character Base64 string.
     args:
     - type: number
+    must_use: true
     description: Returns a string that is a Base64 big endian encode of Value.\nEncodes
       the Value as an 8-character Base64 string.
   llcompat.IsFriend:
@@ -10990,6 +11455,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns TRUE if avatar ID is a friend of the script owner.
   llcompat.IsLinkGLTFMaterial:
     deprecated:
@@ -10997,12 +11463,14 @@ globals:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Checks the face for a PBR render material.
   llcompat.Json2List:
     deprecated:
       message: Converts the top level of the JSON string to a list.
     args:
     - type: string
+    must_use: true
     description: Converts the top level of the JSON string to a list.
   llcompat.JsonGetValue:
     deprecated:
@@ -11010,6 +11478,7 @@ globals:
     args:
     - type: string
     - type: table
+    must_use: true
     description: Gets the value indicated by Specifiers from the JSON string.
   llcompat.JsonSetValue:
     deprecated:
@@ -11019,6 +11488,7 @@ globals:
     - type: string
     - type: table
     - type: string
+    must_use: true
     description: Returns a new JSON string that is the JSON given with the Value indicated
       by Specifiers set to Value.
   llcompat.JsonValueType:
@@ -11028,6 +11498,7 @@ globals:
     args:
     - type: string
     - type: table
+    must_use: true
     description: Returns the type constant (JSON_*) for the value in JSON indicated
       by Specifiers.
   llcompat.Key2Name:
@@ -11038,6 +11509,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns the name of the prim or avatar specified by ID. The ID must
       be a valid rezzed prim or avatar key in the current simulator, otherwise an
       empty string is returned.\nFor avatars, the returned name is the legacy name
@@ -11099,6 +11571,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Converts a color from the linear colorspace to sRGB.
   llcompat.LinkAdjustSoundVolume:
     deprecated:
@@ -11181,6 +11654,7 @@ globals:
     deprecated:
       message: Returns the number of bytes remaining in the linkset's datastore.
     args: []
+    must_use: true
     description: Returns the number of bytes remaining in the linkset's datastore.
   llcompat.LinksetDataCountFound:
     deprecated:
@@ -11188,12 +11662,14 @@ globals:
         the search parameter.
     args:
     - type: string
+    must_use: true
     description: Returns the number of keys matching the regular expression passed
       in the search parameter.
   llcompat.LinksetDataCountKeys:
     deprecated:
       message: Returns the number of keys in the linkset's datastore.
     args: []
+    must_use: true
     description: Returns the number of keys in the linkset's datastore.
   llcompat.LinksetDataDelete:
     deprecated:
@@ -11227,6 +11703,7 @@ globals:
     - type: string
     - type: number
     - type: number
+    must_use: true
     description: Returns a list of keys from the linkset's data store matching the
       search parameter.
   llcompat.LinksetDataListKeys:
@@ -11235,12 +11712,14 @@ globals:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns a list of all keys in the linkset datastore.
   llcompat.LinksetDataRead:
     deprecated:
       message: Returns the value stored for a key in the linkset.
     args:
     - type: string
+    must_use: true
     description: Returns the value stored for a key in the linkset.
   llcompat.LinksetDataReadProtected:
     deprecated:
@@ -11248,6 +11727,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Returns the value stored for a key in the linkset.
   llcompat.LinksetDataReset:
     deprecated:
@@ -11275,6 +11755,7 @@ globals:
         string of comma separated values from the specified list.
     args:
     - type: table
+    must_use: true
     description: Creates a string of comma separated values from the list.\nCreate
       a string of comma separated values from the specified list.
   llcompat.List2Float:
@@ -11285,6 +11766,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the float at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to a float, then zero is returned.
@@ -11296,6 +11778,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the integer at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to an integer, then zero is returned.
@@ -11306,6 +11789,7 @@ globals:
     args:
     - type: string
     - type: table
+    must_use: true
     description: Converts either a strided list of key:value pairs to a JSON_OBJECT,
       or a list of values to a JSON_ARRAY.
   llcompat.List2Key:
@@ -11316,6 +11800,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the key at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to a key, then null string is returned.
@@ -11330,6 +11815,7 @@ globals:
     - type: table
     - type: number
     - type: number
+    must_use: true
     description: Returns a subset of entries from ListVariable, in a range specified
       by the Start and End indicies (inclusive).\nUsing negative numbers for Start
       and/or End causes the index to count backwards from the length of the string,
@@ -11351,6 +11837,7 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Returns a subset of entries from ListVariable, in a range specified
       by Start and End indices (inclusive) return the slice_index element of each
       stride.\n Using negative numbers for Start and/or End causes the index to count
@@ -11368,6 +11855,7 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Copies the strided slice of the list from Start to End.\nReturns
       a copy of the strided slice of the specified list from Start to End.
   llcompat.List2Rot:
@@ -11378,6 +11866,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the rotation at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to rotation, thenZERO_ROTATION is returned.
@@ -11389,6 +11878,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the string at Index in the list.\nReturns the value at Index
       in the specified list as a string. If Index describes a location not in the
       list then null string is returned.
@@ -11400,6 +11890,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Copies the vector at Index in the list.\nReturns the value at Index
       in the specified list. If Index describes a location not in the list, or the
       value cannot be type-cast to a vector, then ZERO_VECTOR is returned.
@@ -11411,6 +11902,7 @@ globals:
     args:
     - type: table
     - type: table
+    must_use: true
     description: Returns the index of the first instance of Find in ListVariable.
       Returns -1 if not found.\nReturns the position of the first instance of the
       Find list in the ListVariable. Returns -1 if not found.
@@ -11422,6 +11914,7 @@ globals:
     - type: table
     - type: table
     - type: number
+    must_use: true
     description: Returns the index of the nth instance of Find in ListVariable. Returns
       -1 if not found.
   llcompat.ListFindStrided:
@@ -11436,6 +11929,7 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Returns the index of the first instance of Find in ListVariable.
       Returns -1 if not found.\nReturns the position of the first instance of the
       Find list in the ListVariable after the start index and before the end index.
@@ -11450,6 +11944,7 @@ globals:
     - type: table
     - type: table
     - type: number
+    must_use: true
     description: Returns a list that contains all the elements from Target but with
       the elements from ListVariable inserted at Position start.\nReturns a new list,
       created by inserting ListVariable into the Target list at Position. Note this
@@ -11462,6 +11957,7 @@ globals:
     args:
     - type: table
     - type: number
+    must_use: true
     description: Returns a version of the input ListVariable which has been randomized
       by blocks of size Stride.\nIf the remainder from the length of the list, divided
       by the stride is non-zero, this function does not randomize the list.
@@ -11477,6 +11973,7 @@ globals:
     - type: table
     - type: number
     - type: number
+    must_use: true
     description: Returns a list that is Target with Start through End removed and
       ListVariable inserted at Start.\nReturns a list replacing the slice of the Target
       list from Start to End with the specified ListVariable. Start and End are inclusive,
@@ -11491,6 +11988,7 @@ globals:
     - type: table
     - type: number
     - type: bool
+    must_use: true
     description: Returns the specified list, sorted into blocks of stride in ascending
       order (if Ascending is TRUE, otherwise descending). Note that sort only works
       if the first entry of each block is the same datatype.
@@ -11504,6 +12002,7 @@ globals:
     - type: number
     - type: number
     - type: bool
+    must_use: true
     description: Returns the specified list, sorted by the specified element into
       blocks of stride in ascending order (if Ascending is TRUE, otherwise descending).
       Note that sort only works if the first entry of each block is the same datatype.
@@ -11515,6 +12014,7 @@ globals:
     args:
     - type: number
     - type: table
+    must_use: true
     description: Performs a statistical aggregate function, specified by a LIST_STAT_*
       constant, on ListVariables.\nThis function allows a script to perform a statistical
       operation as defined by operation on a list composed of integers and floats.
@@ -11584,6 +12084,7 @@ globals:
         the base e (natural) logarithm of the specified Value.
     args:
     - type: number
+    must_use: true
     description: Returns the natural logarithm of Value. Returns zero if Value <=
       0.\nReturns the base e (natural) logarithm of the specified Value.
   llcompat.Log10:
@@ -11592,6 +12093,7 @@ globals:
         the base 10 (common) logarithm of the specified Value.
     args:
     - type: number
+    must_use: true
     description: Returns the base 10 logarithm of Value. Returns zero if Value <=
       0.\nReturns the base 10 (common) logarithm of the specified Value.
   llcompat.LookAt:
@@ -11675,6 +12177,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns a string of 32 hex characters that is an RSA Data Security
       Inc., MD5 Message-Digest Algorithm of Text with Nonce used as the salt.\nReturns
       a 32-character hex string. (128-bit in binary.)
@@ -11825,6 +12328,7 @@ globals:
     - type: number
     - type: number
     - type: number
+    must_use: true
     description: Returns a Value raised to the Power, mod Modulus. ((a**b)%c) b is
       capped at 0xFFFF (16 bits).\nReturns (Value ^ Power) % Modulus. (Value raised
       to the Power, Modulus). Value is capped at 0xFFFF (16 bits).
@@ -11856,6 +12360,7 @@ globals:
       message: Look up Agent ID for the named agent in the region.
     args:
     - type: string
+    must_use: true
     description: Look up Agent ID for the named agent in the region.
   llcompat.NavigateTo:
     deprecated:
@@ -11898,6 +12403,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: Returns the unicode value of the indicated character in the string.
   llcompat.OverMyLand:
     deprecated:
@@ -11907,6 +12413,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns TRUE if id ID over land owned by the script owner, otherwise
       FALSE.\nReturns TRUE if key ID is over land owned by the object owner, FALSE
       otherwise.
@@ -11938,6 +12445,7 @@ globals:
         has been deeded to the group).
     args:
     - type: table
+    must_use: true
     description: Queries the media properties of the parcel containing the script,
       via one or more PARCEL_MEDIA_COMMAND_* arguments specified in CommandList.\nThis
       function will only work if the script is contained within an object owned by
@@ -11952,6 +12460,7 @@ globals:
     - type: string
     - type: table
     - type: table
+    must_use: true
     description: Converts Text into a list, discarding Separators, keeping Spacers
       (Separators and Spacers must be lists of strings, maximum of 8 each).\nSeparators
       and Spacers are lists of strings with a maximum of 8 entries each.
@@ -11966,6 +12475,7 @@ globals:
     - type: string
     - type: table
     - type: table
+    must_use: true
     description: Breaks Text into a list, discarding separators, keeping spacers,
       keeping any null values generated. (separators and spacers must be lists of
       strings, maximum of 8 each).\nllParseStringKeepNulls works almost exactly like
@@ -12061,6 +12571,7 @@ globals:
     args:
     - type: number
     - type: number
+    must_use: true
     description: Returns the Value raised to the power Exponent, or returns 0 and
       triggers Math Error for imaginary results.\nReturns the Value raised to the
       Exponent.
@@ -12264,6 +12775,7 @@ globals:
     - type: string
     - type: string
     - type: number
+    must_use: true
     description: Searches InitialString and replaces instances of SubString with NewSubString.
       Zero Count means "replace all". Positive Count moves left to right. Negative
       moves right to left.
@@ -12527,6 +13039,7 @@ globals:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the rotation angle represented by Rotation.\nReturns the
       angle represented by the Rotation.
   llcompat.Rot2Axis:
@@ -12536,6 +13049,7 @@ globals:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the rotation axis represented by Rotation.\nReturns the axis
       represented by the Rotation.
   llcompat.Rot2Euler:
@@ -12545,6 +13059,7 @@ globals:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the Euler representation (roll, pitch, yaw) of Rotation.\nReturns
       the Euler Angle representation of the Rotation.
   llcompat.Rot2Fwd:
@@ -12554,6 +13069,7 @@ globals:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the forward vector defined by Rotation.\nReturns the forward
       axis represented by the Rotation.
   llcompat.Rot2Left:
@@ -12563,6 +13079,7 @@ globals:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the left vector defined by Rotation.\nReturns the left axis
       represented by the Rotation.
   llcompat.Rot2Up:
@@ -12572,6 +13089,7 @@ globals:
     args:
     - type:
         display: quaternion
+    must_use: true
     description: Returns the up vector defined by Rotation.\nReturns the up axis represented
       by the Rotation.
   llcompat.RotBetween:
@@ -12583,6 +13101,7 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Returns the rotation to rotate Vector1 to Vector2.\nReturns the rotation
       needed to rotate Vector1 to Vector2.
   llcompat.RotLookAt:
@@ -12635,6 +13154,7 @@ globals:
         to the nearest integer.
     args:
     - type: number
+    must_use: true
     description: Returns Value rounded to the nearest integer.\nReturns the Value
       rounded to the nearest integer.
   llcompat.SHA1String:
@@ -12643,6 +13163,7 @@ globals:
         of text.
     args:
     - type: string
+    must_use: true
     description: Returns a string of 40 hex characters that is the SHA1 security hash
       of text.
   llcompat.SHA256String:
@@ -12651,6 +13172,7 @@ globals:
         of text.
     args:
     - type: string
+    must_use: true
     description: Returns a string of 64 hex characters that is the SHA256 security
       hash of text.
   llcompat.SameGroup:
@@ -12662,6 +13184,7 @@ globals:
     args:
     - type:
         display: uuid
+    must_use: true
     description: Returns TRUE if avatar ID is in the same region and has the same
       active group, otherwise FALSE.\nReturns TRUE if the object or agent identified
       is in the same simulator and has the same active group as this object. Otherwise,
@@ -12718,6 +13241,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns TRUE if Position is over public land, sandbox land, land
       that doesn't allow everyone to edit and build, or land that doesn't allow outside
       scripts.\nReturns true if the position is over public land, land that doesn't
@@ -13509,6 +14033,7 @@ globals:
     - type: string
     - type: string
     - type: string
+    must_use: true
     description: Returns the base64-encoded RSA signature of Message using PEM-formatted
       PrivateKey and digest Algorithm (sha1, sha224, sha256, sha384, sha512).
   llcompat.Sin:
@@ -13516,6 +14041,7 @@ globals:
       message: Returns the sine of Theta (Theta in radians).
     args:
     - type: number
+    must_use: true
     description: Returns the sine of Theta (Theta in radians).
   llcompat.SitOnLink:
     deprecated:
@@ -13569,6 +14095,7 @@ globals:
         imaginary results (if Value < 0.0).
     args:
     - type: number
+    must_use: true
     description: Returns the square root of Value.\nTriggers a math runtime error
       for imaginary results (if Value < 0.0).
   llcompat.StartAnimation:
@@ -13639,6 +14166,7 @@ globals:
         the null).
     args:
     - type: string
+    must_use: true
     description: Returns an integer that is the number of characters in Text (not
       counting the null).
   llcompat.StringToBase64:
@@ -13646,6 +14174,7 @@ globals:
       message: Returns the string Base64 representation of the input string.
     args:
     - type: string
+    must_use: true
     description: Returns the string Base64 representation of the input string.
   llcompat.StringTrim:
     deprecated:
@@ -13656,6 +14185,7 @@ globals:
     args:
     - type: string
     - type: number
+    must_use: true
     description: 'Outputs a string, eliminating white-space from the start and/or
       end of the input string Text.\nValid options for TrimType:\nSTRING_TRIM_HEAD:
       trim all leading spaces in Text\nSTRING_TRIM_TAIL: trim all trailing spaces
@@ -13667,6 +14197,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Returns an integer that is the index in Text where string pattern
       Sequence first appears. Returns -1 if not found.
   llcompat.TakeCamera:
@@ -13695,6 +14226,7 @@ globals:
       message: Returns the tangent of Theta (Theta in radians).
     args:
     - type: number
+    must_use: true
     description: Returns the tangent of Theta (Theta in radians).
   llcompat.Target:
     deprecated:
@@ -13803,12 +14335,14 @@ globals:
       message: Returns a string that is Text with all lower-case characters.
     args:
     - type: string
+    must_use: true
     description: Returns a string that is Text with all lower-case characters.
   llcompat.ToUpper:
     deprecated:
       message: Returns a string that is Text with all upper-case characters.
     args:
     - type: string
+    must_use: true
     description: Returns a string that is Text with all upper-case characters.
   llcompat.TransferLindenDollars:
     deprecated:
@@ -13892,6 +14426,7 @@ globals:
         spaces, etc., version of URL.\nThis function can output raw UTF-8 strings.
     args:
     - type: string
+    must_use: true
     description: Returns the string that is the URL unescaped, replacing "%20" with
       spaces, etc., version of URL.\nThis function can output raw UTF-8 strings.
   llcompat.UpdateCharacter:
@@ -13935,6 +14470,7 @@ globals:
         display: vector
     - type:
         display: vector
+    must_use: true
     description: Returns the distance between Location1 and Location2.
   llcompat.VecMag:
     deprecated:
@@ -13942,6 +14478,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the magnitude of the vector.
   llcompat.VecNorm:
     deprecated:
@@ -13949,6 +14486,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns normalized vector.
   llcompat.VerifyRSA:
     deprecated:
@@ -13959,6 +14497,7 @@ globals:
     - type: string
     - type: string
     - type: string
+    must_use: true
     description: Returns TRUE if PublicKey, Message, and Algorithm produce the same
       base64-formatted Signature.
   llcompat.VolumeDetect:
@@ -13993,6 +14532,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the water height below the object position + Offset.
   llcompat.Whisper:
     deprecated:
@@ -14014,6 +14554,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the wind velocity at the object position + Offset.
   llcompat.WorldPosToHUD:
     deprecated:
@@ -14022,6 +14563,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Returns the local position that would put the origin of a HUD object
       directly over world_pos as viewed by the current camera.
   llcompat.XorBase64:
@@ -14031,6 +14573,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: Performs an exclusive OR on two Base64 strings and returns a Base64
       string. Text2 repeats if it is shorter than Text1.
   llcompat.XorBase64Strings:
@@ -14041,6 +14584,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: 'Deprecated: Please use llXorBase64 instead.\nIncorrectly performs
       an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats
       if it is shorter than Text1.\nRetained for backwards compatibility.'
@@ -14052,6 +14596,7 @@ globals:
     args:
     - type: string
     - type: string
+    must_use: true
     description: 'Deprecated: Please use llXorBase64 instead.\nCorrectly (unless nulls
       are present) performs an exclusive OR on two Base64 strings and returns a Base64
       string.\nText2 repeats if it is shorter than Text1.'
@@ -14061,6 +14606,7 @@ globals:
     args:
     - type:
         display: vector
+    must_use: true
     description: Converts a color from the sRGB to the linear colorspace.
 structs:
   quaternion:
@@ -14176,81 +14722,96 @@ structs:
     getDamage:
       method: true
       args: []
+      must_use: true
       description: Returns a list containing the current damage for the event, the
         damage type and the original damage delivered.
     getGrab:
       method: true
       args: []
+      must_use: true
       description: Returns the grab offset of a user touching the object.\nReturns
         <0.0, 0.0, 0.0> if Number is not a valid object.
     getGroup:
       method: true
       args: []
+      must_use: true
       description: Returns TRUE if detected object or agent Number has the same user
         group active as this object.\nIt will return FALSE if the object or agent
         is in the group, but the group is not active.
     getKey:
       method: true
       args: []
+      must_use: true
       description: Returns the key of detected object or avatar number.\nReturns NULL_KEY
         if Number is not a valid index.
     getLinkNumber:
       method: true
       args: []
+      must_use: true
       description: Returns the link position of the triggered event for touches and
         collisions only.\n0 for a non-linked object, 1 for the root of a linked object,
         2 for the first child, etc.
     getName:
       method: true
       args: []
+      must_use: true
       description: Returns the name of detected object or avatar number.\nReturns
         the name of detected object number.\nReturns empty string if Number is not
         a valid index.
     getOwner:
       method: true
       args: []
+      must_use: true
       description: Returns the key of detected object's owner.\nReturns invalid key
         if Number is not a valid index.
     getPos:
       method: true
       args: []
+      must_use: true
       description: Returns the position of detected object or avatar number.\nReturns
         <0.0, 0.0, 0.0> if Number is not a valid index.
     getRezzer:
       method: true
       args: []
+      must_use: true
       description: Returns the key for the rezzer of the detected object.
     getRot:
       method: true
       args: []
+      must_use: true
       description: Returns the rotation of detected object or avatar number.\nReturns
         <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
     getTouchBinormal:
       method: true
       args: []
+      must_use: true
       description: Returns the surface bi-normal for a triggered touch event.\nReturns
         a vector that is the surface bi-normal (tangent to the surface) where the
         touch event was triggered.
     getTouchFace:
       method: true
       args: []
+      must_use: true
       description: Returns the index of the face where the avatar clicked in a triggered
         touch event.
     getTouchNormal:
       method: true
       args: []
+      must_use: true
       description: Returns the surface normal for a triggered touch event.\nReturns
         a vector that is the surface normal (perpendicular to the surface) where the
         touch event was triggered.
     getTouchPos:
       method: true
       args: []
+      must_use: true
       description: Returns the position, in region coordinates, where the object was
         touched in a triggered touch event.\nUnless it is a HUD, in which case it
         returns the position relative to the attach point.
     getTouchST:
       method: true
       args: []
+      must_use: true
       description: Returns a vector that is the surface coordinates where the prim
         was touched.\nThe X and Y vector positions contain the horizontal (S) and
         vertical (T) face coordinates respectively.\nEach component is in the interval
@@ -14259,6 +14820,7 @@ structs:
     getTouchUV:
       method: true
       args: []
+      must_use: true
       description: Returns a vector that is the texture coordinates for where the
         prim was touched.\nThe X and Y vector positions contain the U and V face coordinates
         respectively.\nTOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates
@@ -14266,6 +14828,7 @@ structs:
     getType:
       method: true
       args: []
+      must_use: true
       description: "Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected\
         \ object.\\nReturns 0 if number is not a valid index.\\nNote that number is\
         \ a bit-field, so comparisons need to be a bitwise checked. e.g.:\\ninteger\
@@ -14273,6 +14836,7 @@ structs:
     getVel:
       method: true
       args: []
+      must_use: true
       description: Returns the velocity of the detected object Number.\nReturns<0.0,
         0.0, 0.0> if Number is not a valid offset.
     index:
