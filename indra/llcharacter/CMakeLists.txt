@@ -1,5 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
 
 set(llcharacter_SOURCE_FILES
     llanimationstates.cpp
@@ -69,7 +68,6 @@ endif ()
 
 
 if (LL_TESTS)
-  include(LLAddBuildTest)
 #   SET(llcharacter_TEST_SOURCE_FILES
 #     )
 #   LL_ADD_PROJECT_UNIT_TESTS(llcharacter "${llcharacter_TEST_SOURCE_FILES}")

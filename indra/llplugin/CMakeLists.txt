@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(CURL)
 
 set(llplugin_SOURCE_FILES
     llpluginclassmedia.cpp

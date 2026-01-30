@@ -1,9 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(bugsplat)
-include(Boost)
-include(Mikktspace)
-include(SSE2NEON)
 
 set(llmath_SOURCE_FILES
     llbbox.cpp
@@ -103,7 +98,6 @@ endif ()
 
 # Add tests
 if (LL_TESTS)
-  include(LLAddBuildTest)
   # UNIT TESTS
   SET(llmath_TEST_SOURCE_FILES
     llbboxlocal.cpp

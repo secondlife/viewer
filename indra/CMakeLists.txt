@@ -92,10 +92,14 @@ set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
 project(${ROOT_PROJECT_NAME})
 
+# Set up Python
+include(Python)
+
 # Set up our base build system variable and compiler flags
 include(Variables)
 include(BuildVersion)
 include(00-Common)
+include(Linking)
 
 # Don't bother with a MinSizeRel build.
 set(CMAKE_CONFIGURATION_TYPES "Debug;RelWithDebInfo;Release" CACHE STRING "Supported build types." FORCE)
@@ -134,6 +138,8 @@ endif ()
 # Declare All Dependecy Includes
 include(APR)
 include(Boost)
+include(bugsplat)
+include(Collada-Dom)
 include(CURL)
 include(EXPAT)
 include(FreeType)
@@ -142,30 +148,37 @@ include(GLIB)
 include(GLM)
 include(Hunspell)
 include(JPEG)
-include(LLCA)
-include(LLPrimitive)
 include(Mikktspace)
 include(Meshoptimizer)
+include(NDOF)
 include(NanoSVG)
-include(NGHTTP2)
 include(NVAPI)
 include(OpenAL)
 include(OpenGL)
 include(OpenJPEG)
 include(OpenSSL)
+include(OpenXR)
 include(PNG)
+include(SDL3)
 include(SSE2NEON)
+include(TinyEXR)
 include(Tracy)
 include(Tut)
 include(VHACD)
+include(ViewerMiscLibs)
 include(Vorbis)
 include(ZLIBNG)
 
-# Third party system library copy step
-include(Copy3rdPartyLibs)
+# Set up UI and Window linking
+include(UI)
 
 # Add our test macros
-include(LLAddBuildTest)
+if (LL_TESTS)
+  include(LLAddBuildTest)
+endif ()
+
+# Third party system library copy step
+include(Copy3rdPartyLibs)
 
 # Add our cmake modules to cmake
 add_subdirectory(cmake)

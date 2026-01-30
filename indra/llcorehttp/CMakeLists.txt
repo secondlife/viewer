@@ -1,11 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(CURL)
-include(OpenSSL)
-include(NGHTTP2)
-include(ZLIBNG)
-include(LLAddBuildTest)
-include(bugsplat)
 
 set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
@@ -79,7 +72,6 @@ target_link_libraries(
         llcommon
         ll::libcurl
         ll::openssl
-        ll::nghttp2
   )
 target_include_directories( llcorehttp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 # llmessage depends on llcorehttp, yet llcorehttp also depends on llmessage (at least for includes).

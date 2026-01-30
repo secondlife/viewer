@@ -1,9 +1,5 @@
 # -*- cmake -*-
 
-include(00-Common)
-
-project(cmake)
-
 set(cmake_SOURCE_FILES
         CMakeLists.txt
         00-Common.cmake
@@ -14,12 +10,11 @@ set(cmake_SOURCE_FILES
         BuildVersion.cmake
         CEFPlugin.cmake
         CMakeCopyIfDifferent.cmake
+        Collada-Dom.cmake
         Copy3rdPartyLibs.cmake
         CURL.cmake
         Discord.cmake
-        DragDrop.cmake
         EXPAT.cmake
-        FindAutobuild.cmake
         FindPipeWire.cmake
         FreeType.cmake
         GLEXT.cmake
@@ -30,10 +25,8 @@ set(cmake_SOURCE_FILES
         Hunspell.cmake
         JPEG.cmake
         LLAddBuildTest.cmake
-        LLCA.cmake
         LLKDU.cmake
         LLPhysicsExtensions.cmake
-        LLPrimitive.cmake
         LLTestCommand.cmake
         Linking.cmake
         Meshoptimizer.cmake
@@ -45,8 +38,6 @@ set(cmake_SOURCE_FILES
         OpenSSL.cmake
         PNG.cmake
         PluginAPI.cmake
-        Prebuilt.cmake
-        PulseAudio.cmake
         Python.cmake
         SDL3.cmake
         SSE2NEON.cmake
@@ -59,7 +50,6 @@ set(cmake_SOURCE_FILES
         UnixInstall.cmake
         Variables.cmake
         VHACD.cmake
-        ViewerManager.cmake
         ViewerMiscLibs.cmake
         Vorbis.cmake
         LibVLCPlugin.cmake

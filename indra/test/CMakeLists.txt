@@ -1,12 +1,5 @@
 # -*- cmake -*-
 
-project (lltest)
-
-include(00-Common)
-include(Linking)
-include(LLAddBuildTest)
-include(bugsplat)
-
 set(test_lib_SOURCE_FILES
     lltut.cpp
     test.cpp

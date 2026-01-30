@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(Linking)
 
 set(llappearance_SOURCE_FILES
     llavatarappearance.cpp

@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(Meshoptimizer)
 
 set(llmeshoptimizer_SOURCE_FILES
         llmeshoptimizer.cpp

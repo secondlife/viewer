@@ -1,6 +1,5 @@
 # -*- cmake -*-
-include(00-Common)
-include(Linking)
+
 include(PluginAPI)
 
 ### media_plugin_example

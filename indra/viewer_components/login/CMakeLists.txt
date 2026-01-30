@@ -1,12 +1,5 @@
 # -*- cmake -*-
 
-project(login)
-
-include(00-Common)
-if(LL_TESTS)
-  include(LLAddBuildTest)
-endif(LL_TESTS)
-
 set(login_SOURCE_FILES
     lllogin.cpp
     )

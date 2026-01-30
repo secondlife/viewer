@@ -324,3 +324,7 @@ if (LINUX OR DARWIN)
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
 
+# Enable support for Drag and Drop
+if (OS_DRAG_DROP)
+    add_compile_definitions(LL_OS_DRAGDROP_ENABLED=1)
+endif (OS_DRAG_DROP)

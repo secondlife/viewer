@@ -1,7 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(bugsplat)
-include(LLAddBuildTest)
 
 set(llimage_SOURCE_FILES
     llimagebmp.cpp

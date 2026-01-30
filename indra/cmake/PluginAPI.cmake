@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include_guard()
 
 include(OpenGL)
 

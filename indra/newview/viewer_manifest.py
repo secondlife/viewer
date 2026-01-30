@@ -90,15 +90,12 @@ class ViewerManifest(LLManifest):
                 self.path("filters")
 
                 # ... and the included spell checking dictionaries
-                if self.args['vcpkg'] == 'ON':
-                    dicts_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-dictionaries')
-                else:
-                    dicts_dir = os.path.join(self.args['build'], os.pardir, 'packages')
+                dicts_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-dictionaries')
                 with self.prefix(src=dicts_dir):
                     self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
-                self.path(src=os.path.join(self.args['build'],"packages-info.txt"), dst="packages-info.txt")
+                # self.path(src=os.path.join(self.args['build'],"packages-info.txt"), dst="packages-info.txt")
                 # CHOP-955: If we have "sourceid" or "viewer_channel" in the
                 # build process environment, generate it into
                 # settings_install.xml.
@@ -145,10 +142,7 @@ class ViewerManifest(LLManifest):
                 self.path("*.tga")
 
             # Include our fonts
-            if self.args['vcpkg'] == 'ON':
-                fonts_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-fonts', 'fonts')
-            else:
-                fonts_dir = os.path.join(self.args['build'], os.pardir, 'packages', 'fonts')
+            fonts_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-fonts', 'fonts')
             with self.prefix(src=fonts_dir,src_dst="fonts"):
                 self.path("*.ttf")
                 self.path("*.txt")
@@ -578,15 +572,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             if self.args['discord'] == 'ON':
                 self.path("discord_partner_sdk.dll")
 
-            if self.args['openal'] == 'ON' and self.args['vcpkg'] != 'ON':
-                # Get openal dll
-                self.path("OpenAL32.dll")
-                self.path("alut.dll")
-
-            if self.args['vcpkg'] != 'ON':
-                # For textures
-                self.path("openjp2.dll")
-
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             self.path("msvcp140.dll")
@@ -609,13 +594,8 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("BugSplat64.dll")
                 self.path("BugSplatRc64.dll")
 
-            if self.args['tracy'] == 'ON' and self.args['vcpkg'] != 'ON':
-                with self.prefix(src=os.path.join(pkgdir, 'bin')):
-                    self.path("tracy-profiler.exe")
-
-        if self.is_packaging_viewer() and self.args['vcpkg'] == 'ON':
-            with self.prefix(src_dst=self.get_dst_prefix()):
-                self.path("*.dll")
+        with self.prefix(src_dst=self.get_dst_prefix()):
+            self.path("*.dll")
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -734,7 +714,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
 
-            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'plugins', 'vlc-bin', 'plugins')):
+            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'plugins', 'vlc-bin')):
                 self.path("plugins/")
 
         if not self.is_packaging_viewer():
@@ -893,25 +873,14 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             # CEF framework goes inside Contents/Frameworks.
             # Remember where we parked this car.
             with self.prefix(src=relpkgdir, dst="Frameworks"):
-                self.path("libndofdev.dylib")
-
-
                 if self.args.get('bugsplat'):
                     self.path2basename(relpkgdir, "BugsplatMac.framework")
                     self.path2basename(relpkgdir, "CrashReporter.framework")
                     self.path2basename(relpkgdir, "HockeySDK.framework")
 
-                # OpenAL dylibs
-                if self.args['openal'] == 'ON':
-                    for libfile in (
-                                "libopenal.dylib",
-                                "libalut.dylib",
-                                ):
-                        self.path(libfile)
-
                 # WebRTC libraries
                 with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                          'sharedlibs', self.args['buildtype'], 'Resources')):
+                                          'llwebrtc', self.args['configuration'])):
                     for libfile in (
                             'libllwebrtc.dylib',
                     ):
@@ -986,7 +955,8 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                     self.path("secondlife.icns")
 
                 # Copy in the updater script and helper modules
-                self.path(src=os.path.join(pkgdir, 'VMP'), dst="updater")
+                with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'viewer-manager'), dst="updater"):
+                    self.path("SLVersionChecker")
 
                 with self.prefix(src="", dst=os.path.join("updater", "icons")):
                     self.path2basename(self.icon_path(), "secondlife.ico")
@@ -1001,7 +971,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 self.path("featuretable_mac.txt")
                 self.path("cube.dae")
 
-                with self.prefix(src=pkgdir,dst=""):
+                with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-certificates'),dst=""):
                     self.path("ca-bundle.crt")
 
                 # Translations
@@ -1059,15 +1029,13 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 libfile_parent = self.get_dst_prefix()
                 dylibs=[]
                 # SLVoice executable
-                with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                    self.path("SLVoice")
-
-                # Vivox libraries
-                for libfile in (
-                                'libortp.dylib',
-                                'libvivoxsdk.dylib',
-                                ):
-                    self.path2basename(relpkgdir, libfile)
+                with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'slvoice', 'darwin64')):
+                    for libfile in (
+                                    'SLVoice',
+                                    'libortp.dylib',
+                                    'libvivoxsdk.dylib',
+                                    ):
+                        self.path(libfile)
 
                 # Discord social SDK
                 if self.args['discord'] == 'ON':
@@ -1246,7 +1214,7 @@ class LinuxManifest(ViewerManifest):
         self.path("featuretable_linux.txt")
         self.path("cube.dae")
 
-        with self.prefix(src=pkgdir, dst="bin"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-certificates'), dst="bin"):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
@@ -1355,7 +1323,6 @@ if __name__ == "__main__":
         dict(name='discord', description="""Indication discord social sdk libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
-        dict(name='vcpkg', description="""Indication vcpkg is enabled""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)

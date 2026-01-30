@@ -5,8 +5,6 @@ if (LL_TESTS)
 
 project (llimage_libtest)
 
-include(00-Common)
-
 set(llimage_libtest_SOURCE_FILES
     llimage_libtest.cpp
     )

@@ -203,9 +203,13 @@
 #endif
 
 #if LL_ARM64
+#ifndef GLM_FORCE_NEON
 #define GLM_FORCE_NEON 1
+#endif
 #else
+#ifndef GLM_FORCE_SSE2
 #define GLM_FORCE_SSE2 1
+#endif
 #endif
 
 #if LL_ARM64

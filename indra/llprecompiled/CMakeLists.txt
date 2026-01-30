@@ -1,17 +1,5 @@
 # -*- cmake -*-
 
-project(llprecompiled)
-
-include(00-Common)
-include(APR)
-include(bugsplat)
-include(Linking)
-include(Boost)
-include(ZLIBNG)
-include(Tracy)
-include(EXPAT)
-include(SSE2NEON)
-
 set(llprecompiled_SOURCE_FILES
     cmake_dummy.cpp
     )

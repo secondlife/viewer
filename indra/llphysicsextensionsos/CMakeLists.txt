@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(VHACD)
 
 set(llphysicsextensionsos_SOURCE_FILES
         llconvexdecomposition.cpp

@@ -1,5 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
 
 set(llfilesystem_SOURCE_FILES
     lldir.cpp
@@ -65,7 +64,6 @@ endif ()
 
 # Add tests
 if (LL_TESTS)
-    include(LLAddBuildTest)
     # UNIT TESTS
     SET(llfilesystem_TEST_SOURCE_FILES
     lldiriterator.cpp

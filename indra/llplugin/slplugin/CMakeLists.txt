@@ -1,5 +1,4 @@
-include(00-Common)
-include(Linking)
+
 include(PluginAPI)
 
 ### SLPlugin

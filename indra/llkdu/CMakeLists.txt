@@ -1,5 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
 include(LLKDU)
 
 set(llkdu_SOURCE_FILES
@@ -23,8 +22,6 @@ if (USE_KDU)
 
   # Add tests
   if (LL_TESTS)
-    include(LLAddBuildTest)
-    include(Tut)
     SET(llkdu_TEST_SOURCE_FILES
       llimagej2ckdu.cpp
       )

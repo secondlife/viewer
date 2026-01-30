@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(EXPAT)
 
 set(llxml_SOURCE_FILES
     llcontrol.cpp

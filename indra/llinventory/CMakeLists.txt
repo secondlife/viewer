@@ -1,5 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
 
 set(llinventory_SOURCE_FILES
     llcategory.cpp

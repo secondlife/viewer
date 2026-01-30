@@ -1,16 +1,12 @@
 # -*- cmake -*-
-include(Prebuilt)
+include_guard()
+
 include(FreeType)
 include(GLIB)
 
-include_guard()
 add_library( ll::uilibraries INTERFACE IMPORTED )
 
 if (LINUX)
-  if( USE_CONAN )
-    return()
-  endif()
-
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(WAYLAND_CLIENT wayland-client)
 
@@ -37,8 +33,7 @@ if (LINUX)
           ll::gio
   )
 
-endif (LINUX)
-if( WINDOWS )
+elseif( WINDOWS )
   target_link_libraries( ll::uilibraries INTERFACE
           opengl32
           comdlg32
@@ -54,8 +49,3 @@ if( WINDOWS )
           imm32
           )
 endif()
-
-target_include_directories( ll::uilibraries SYSTEM INTERFACE
-        ${LIBS_PREBUILT_DIR}/include
-        )
-

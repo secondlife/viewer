@@ -1,5 +1,4 @@
 # -*- cmake -*-
-include(bugsplat)
 
 set(llcommon_SOURCE_FILES
     apply.cpp
@@ -288,7 +287,6 @@ endif ()
 add_dependencies(llcommon stage_third_party_libs)
 
 if (LL_TESTS)
-  include(LLAddBuildTest)
   SET(llcommon_TEST_SOURCE_FILES
     # unit-testing llcommon is not possible right now as the test-harness *itself* depends upon llcommon, causing a circular dependency.  Add your 'unit' tests as integration tests for now.
     )

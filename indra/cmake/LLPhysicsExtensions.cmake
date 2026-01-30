@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(Prebuilt)
-
 # There are three possible solutions to provide the llphysicsextensions:
 # - The full source package, selected by -DHAVOK:BOOL=ON
 # - The stub source package, selected by -DHAVOK:BOOL=OFF
@@ -12,6 +10,9 @@ endif (INSTALL_PROPRIETARY)
 
 include_guard()
 add_library( llphysicsextensions_impl INTERFACE IMPORTED )
+
+# TODO: Reenable once Havok is integrated into vcpkg
+return()
 
 
 # Note that the use_prebuilt_binary macros below do not in fact include binaries;

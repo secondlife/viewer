@@ -1,11 +1,5 @@
 # -*- cmake -*-
 
-project(llaudio)
-
-include(00-Common)
-include(OpenAL)
-include(Vorbis)
-
 set(llaudio_SOURCE_FILES
     llaudioengine.cpp
     lllistener.cpp

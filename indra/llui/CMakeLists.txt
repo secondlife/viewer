@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(Hunspell)
 
 set(llui_SOURCE_FILES
     llaccordionctrl.cpp
@@ -270,7 +268,6 @@ endif ()
 
 # Add tests
 if(LL_TESTS)
-  include(LLAddBuildTest)
   set(test_libs llmessage llcorehttp llxml llrender llcommon ll::hunspell)
 
   SET(llui_TEST_SOURCE_FILES

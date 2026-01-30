@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(Linking)
 
 set(appearance_utility_SOURCE_FILES
     appearance_utility.cpp

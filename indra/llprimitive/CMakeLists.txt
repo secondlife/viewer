@@ -1,9 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(LLPhysicsExtensions)
-include(LLPrimitive)
-include(GLM)
-include(TinyGLTF)
 
 set(llprimitive_SOURCE_FILES
     lldaeloader.cpp

@@ -1,9 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(GLEXT)
-include(OpenGL)
-include(FreeType)
-include(NanoSVG)
 
 set(llrender_SOURCE_FILES
     llcubemap.cpp

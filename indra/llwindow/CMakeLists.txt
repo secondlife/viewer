@@ -7,13 +7,6 @@
 #
 # Unfortunately, the affected code is a rat's nest of #ifdefs, so it's
 # easier to play compilation tricks than to actually fix the problem.
-include(00-Common)
-include(DragDrop)
-include(Linking)
-include(UI)
-include(ViewerMiscLibs)
-include(GLM)
-include(SDL3)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp

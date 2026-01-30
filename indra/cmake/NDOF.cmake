@@ -15,14 +15,6 @@ if (USE_NDOF)
     return()
   endif()
 
-  include(Prebuilt)
-
-  if (WINDOWS OR DARWIN)
-    use_prebuilt_binary(libndofdev)
-  elseif (LINUX)
-    use_prebuilt_binary(open-libndofdev)
-  endif (WINDOWS OR DARWIN)
-
   find_library(NDOF_LIBRARY
       NAMES
       libndofdev

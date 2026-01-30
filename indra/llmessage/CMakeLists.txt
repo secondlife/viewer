@@ -1,8 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(Python)
-include(LLAddBuildTest)
-include(Tut)
 
 set(llmessage_SOURCE_FILES
     llassetstorage.cpp

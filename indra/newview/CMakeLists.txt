@@ -1,42 +1,15 @@
 # -*- cmake -*-
 
-project(viewer)
-
-include(00-Common)
-# DON'T move Linking.cmake to its place in the alphabetized list below: it
-# sets variables on which the 3p .cmake files depend.
-include(Linking)
-
-include(Boost)
-include(bugsplat)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
 
-include(DragDrop)
 if (USE_DISCORD)
   include(Discord)
 endif ()
-include(EXPAT)
-include(Hunspell)
-include(LLCA)
-include(LLKDU)
-include(LLPhysicsExtensions)
-include(LLPrimitive)
-include(NDOF)
-include(NVAPI)
-include(OpenAL)
-include(OpenGL)
-include(OpenSSL)
-include(OpenXR)
-include(PNG)
+
+# Message template verification macros
 include(TemplateCheck)
-include(TinyEXR)
-include(Tracy)
-include(UI)
-include(ViewerMiscLibs)
-include(ViewerManager)
-include(ZLIBNG)
 
 # Javascript files for 3D snapshot functionality
 configure_file("${CMAKE_SOURCE_DIR}/externals/js/CubemapToEquirectangular.js" "${CMAKE_SOURCE_DIR}/newview/skins/default/html/common/equirectangular/js/CubemapToEquirectangular.js" COPYONLY)
@@ -1604,20 +1577,6 @@ if (WINDOWS)
 
     list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
 
-    find_library(INTEL_MEMOPS_LIBRARY
-                 NAMES ll_intel_memops
-                 PATHS
-                 optimized ${ARCH_PREBUILT_DIRS_RELEASE}
-                 debug ${ARCH_PREBUILT_DIRS_DEBUG}
-                 )
-    mark_as_advanced(INTEL_MEMOPS_LIBRARY)
-
-
-    if (INTEL_MEMOPS_LIBRARY)
-      add_library( ll::intel_memops INTERFACE IMPORTED )
-      target_link_libraries( ll::intel_memops ${INTEL_MEMOPS_LIBRARY} )
-    endif (INTEL_MEMOPS_LIBRARY)
-
     if (ADDRESS_SIZE EQUAL 64)
         # We deliberately omit this from the 32bit build because it declares that
         # the viewer is compatible with Windows 10; we need that to properly detect
@@ -1669,7 +1628,6 @@ set(viewer_APPSETTINGS_FILES
     app_settings/viewerart.xml
     app_settings/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-    packages-info.txt
     featuretable.txt
     featuretable_mac.txt
     featuretable_linux.txt
@@ -1780,13 +1738,6 @@ if (WINDOWS)
              )
     endif ()
 
-    if (TARGET ll::openal AND NOT USE_VCPKG)
-      list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/OpenAL32.dll
-           ${SHARED_LIB_STAGING_DIR}/alut.dll
-          )
-    endif ()
-
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
       COMMAND ${PYTHON_EXECUTABLE}
@@ -1808,7 +1759,6 @@ if (WINDOWS)
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/copy_touched.bat
         --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-        "--vcpkg=${USE_VCPKG}"
         --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -1849,7 +1799,6 @@ if (WINDOWS)
             --source=${CMAKE_CURRENT_SOURCE_DIR}
             --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
             --touch=${LOCAL_DIST_DIR}/.${product}.copy_touched
-            "--vcpkg=${USE_VCPKG}"
             --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
             DEPENDS
             ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -1889,7 +1838,6 @@ if (WINDOWS)
               --source=${CMAKE_CURRENT_SOURCE_DIR}
               --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/touched.bat
               --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-              "--vcpkg=${USE_VCPKG}"
               --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
         DEPENDS
             ${VIEWER_BINARY_NAME}
@@ -2024,18 +1972,14 @@ set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
 
 message("Copying fonts")
 file(GLOB FONT_FILE_GLOB_LIST
-  "${AUTOBUILD_INSTALL_DIR}/fonts/*"
+  "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/secondlife-fonts/fonts/*"
 )
 file(COPY ${FONT_FILE_GLOB_LIST} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/fonts")
 
 # Copy over the Emoji/shortcodes mapping XML files (and create dependency
 # if they are changed, CMake will run again and copy over new versions)
 message("Copying Emoji/shortcode mappings")
-if(USE_VCPKG)
-    set(emoji_mapping_src_folder ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/secondlife-emoji-shortcodes/xui)
-else()
-    set(emoji_mapping_src_folder ${AUTOBUILD_INSTALL_DIR}/xui)
-endif()
+set(emoji_mapping_src_folder ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/secondlife-emoji-shortcodes/xui)
 set(emoji_mapping_dst_folder ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui)
 
 # Note Turkey is missing from this set (not available in Emoji package yet)
@@ -2188,6 +2132,7 @@ if (DARWIN)
       --grid=${GRID}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+      --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
@@ -2221,6 +2166,7 @@ if (DARWIN)
               --source=${CMAKE_CURRENT_SOURCE_DIR}
               --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/.${product}.bat
               --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+              --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
               ${SIGNING_SETTING}
       )
   endif (PACKAGE)
@@ -2287,7 +2233,7 @@ endif ()
 if (LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
-  include(LLAddBuildTest)
+
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     lldateutil.cpp

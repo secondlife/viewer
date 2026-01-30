@@ -6,9 +6,7 @@ if( NOT LL_TESTS )
   return()
 endif()
 
-include(00-Common)
 include(LLTestCommand)
-include(bugsplat)
 
 #*****************************************************************************
 #   LL_ADD_PROJECT_UNIT_TESTS
@@ -36,7 +34,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   set(alltest_DEP_TARGETS
           # needed by the test harness itself
           llcommon
-
+          lltut_runner_lib
           )
 
   set(alltest_LIBRARIES

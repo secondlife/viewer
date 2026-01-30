@@ -33,10 +33,6 @@
 #include "llsdutil.h"
 #include "llerror.h"
 
-#ifdef LL_BOOST
-#include <boost/json/src.hpp>
-#endif
-
 //=========================================================================
 LLSD LlsdFromJson(const boost::json::value& val)
 {

@@ -1,8 +1,6 @@
 # -*- cmake -*-
-include(00-Common)
-include(Linking)
-include(PluginAPI)
 
+include(PluginAPI)
 include(LibVLCPlugin)
 
 ### media_plugin_libvlc

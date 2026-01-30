@@ -1,6 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(OpenJPEG)
 
 set(llimagej2coj_SOURCE_FILES
     llimagej2coj.cpp

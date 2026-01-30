@@ -1,11 +1,11 @@
 # -*- cmake -*-
 # Construct the version and copyright information based on package data.
 include_guard()
-if(USE_VCPKG)
- return()
-endif()
+
+# TODO: Reenable once solution found to vcpkg license generation
+return()
+
 include(Python)
-include(FindAutobuild)
 
 # packages-formatter.py runs autobuild install --versions, which needs to know
 # the build_directory, which (on Windows) depends on AUTOBUILD_ADDRSIZE.

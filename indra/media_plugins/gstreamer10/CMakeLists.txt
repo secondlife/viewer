@@ -1,11 +1,6 @@
 # -*- cmake -*-
 
-project(media_plugin_gstreamer10)
-
-include(00-Common)
-include(Linking)
 include(PluginAPI)
-include(OpenGL)
 include(GLIB)
 
 include(GStreamer10Plugin)

@@ -30,36 +30,18 @@ endmacro()
 if(WINDOWS)
     #*******************************
     # VIVOX - *NOTE: no debug version
-
-
-    # ND, it seems there is no such thing defined. At least when building a viewer
-    # Does this maybe matter on some LL buildserver? Otherwise this and the snippet using slvoice_src_dir
-    # can all go
-    if(USE_VCPKG)
-        set(vivox_lib_dir "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/slvoice/windows64")
-    elseif( ARCH_PREBUILT_BIN_RELEASE )
-        set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
-    endif()
+    set(vivox_lib_dir "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/slvoice/windows64")
     list(APPEND vivox_libs
         vivoxsdk_x64.dll
         ortp_x64.dll
         SLVoice.exe
         )
 
-
     #*******************************
     # Misc shared libs
-
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         )
-
-    if (NOT USE_VCPKG)
-      if (USE_SDL_WINDOW)
-        list(APPEND release_files SDL3.dll)
-      endif ()
-        list(APPEND release_files openjp2.dll)
-    endif ()
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
@@ -77,10 +59,6 @@ if(WINDOWS)
 
     if (TARGET ll::discord_sdk)
         list(APPEND release_files discord_partner_sdk.dll)
-    endif ()
-
-    if (TARGET ll::openal AND NOT USE_VCPKG)
-        list(APPEND release_files openal32.dll alut.dll)
     endif ()
 
     #*******************************
@@ -188,24 +166,8 @@ to_staging_dirs(
     third_party_targets
     ${vivox_libs}
     )
-if(NOT USE_VCPKG)
-    to_staging_dirs(
-        ${release_src_dir}
-        third_party_targets
-        ${release_files}
-        )
-endif()
 
 add_custom_target(
         stage_third_party_libs ALL
         DEPENDS ${third_party_targets}
 )
-
-if(DARWIN)
-    # Support our "@executable_path/../Resources" load path for executables
-    # that end up in any of the above SHARED_LIB_STAGING_DIR_MUMBLE
-    # directories.
-    add_custom_command( TARGET stage_third_party_libs POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E create_symlink ${SHARED_LIB_STAGING_DIR} ${CMAKE_BINARY_DIR}/sharedlibs/Resources
-            )
-endif()
