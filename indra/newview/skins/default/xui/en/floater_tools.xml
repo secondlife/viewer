@@ -84,11 +84,13 @@
      left="10"
      name="button focus"
      tool_tip="Focus"
-     width="35">
-	  <button.commit_callback
-	     function="BuildTool.setTool"
-	     parameter="Focus" />
-	</button>
+     width="35"
+     font="DejaVu"
+     font.size="LSmall">
+        <button.commit_callback
+         function="BuildTool.setTool"
+         parameter="Focus" />
+    </button>
     <button
      follows="left|top"
       height="25"
@@ -99,7 +101,9 @@
      left_pad="10"
      name="button move"
      tool_tip="Move"
-     width="35">
+     width="35"
+     font="DejaVu"
+     font.size="LSmall">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Move" />
@@ -114,7 +118,9 @@
      left_pad="10"
      name="button edit"
      tool_tip="Edit"
-     width="35">
+     width="35"
+     font="DejaVu"
+     font.size="LSmall">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Edit" />
@@ -129,7 +135,9 @@
      left_pad="10"
      name="button create"
      tool_tip="Create"
-     width="35">
+     width="35"
+     font="DejaVu"
+     font.size="LSmall">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Create" />
@@ -144,7 +152,9 @@
      left_pad="10"
      name="button land"
      tool_tip="Land"
-     width="35">
+     width="35"
+     font="DejaVu"
+     font.size="LSmall">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Land" />
@@ -161,15 +171,19 @@
      left="8"
      name="text status"
      top_pad="3"
-     width="285">
+     width="285"
+     font="DejaVu"
+     font.size="LSmall">
         Drag to move, shift-drag to copy
     </text>
    <radio_group
      layout="topleft"
      left="10"
-      height="70"
-      top="59"
-     name="focus_radio_group">
+     height="70"
+     top="59"
+     name="focus_radio_group"
+     font="DejaVu"
+     font.size="LSmall" >
         <radio_item
          top_pad="6"
          label="Zoom"
@@ -198,16 +212,20 @@
      top_delta="-2"
      left_delta="100"
      name="slider zoom"
-     width="134">
+     width="134"
+     font="DejaVu"
+     font.size="LSmall">
 	 <slider_bar.commit_callback
 	     function="BuildTool.commitZoom"/>
 	</slider_bar>
    <radio_group
-      left="10"
-      height="70"
-      top="59"
+     left="10"
+     height="70"
+     top="59"
      layout="topleft"
-     name="move_radio_group">
+     name="move_radio_group"
+     font="DejaVu"
+     font.size="LSmall" >
         <radio_item
          top_pad="6"
          label="Move"
@@ -232,7 +250,9 @@
 	 top="55"
 	 height="70"
      layout="topleft"
-	 name="edit_radio_group">
+	 name="edit_radio_group"
+     font="DejaVu"
+     font.size="LSmall" >
         <radio_item
 		 label="Move"
 		 layout="topleft"
@@ -263,7 +283,9 @@
      label="Edit linked"
      layout="topleft"
      name="checkbox edit linked parts"
-     top_pad="-18">
+     top_pad="-18"
+     font="DejaVu"
+     font.size="LSmall">
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
 	</check_box>
@@ -276,7 +298,9 @@
      layout="topleft"
      left="143"
      name="link_btn"
-     width="50">
+     width="50"
+     font="DejaVu"
+     font.size="LSmall">
 	  <button.commit_callback
 	     function="BuildTool.LinkObjects"/>
     </button>
@@ -287,7 +311,9 @@
      layout="topleft"
      left_pad="2"
      name="unlink_btn"
-     width="90">
+     width="90"
+     font="DejaVu"
+     font.size="LSmall">
 	  <button.commit_callback
 	     function="BuildTool.UnlinkObjects"/>
     </button>
@@ -298,10 +324,12 @@
      layout="topleft"
      left="143"
      name="checkbox uniform"
-     top="48"
+     top="47"
      label_text.wrap="true"
      label_text.width="100"
-     width="134" />
+     width="134"
+     font="DejaVu"
+     font.size="LSmall" />
     <check_box
      control_name="ScaleStretchTextures"
      height="19"
@@ -310,18 +338,22 @@
      layout="topleft"
      left="143"
      name="checkbox stretch textures"
-     top_pad="-4"
+     top_pad="-2"
      follows="left|top"
-     width="134" />
+     width="134"
+     font="DejaVu"
+     font.size="LSmall" />
    <check_box
      control_name="SnapEnabled"
      height="18"
      initial_value="true"
      label="Snap"
      layout="topleft"
-     top_pad="0"
+     top_pad="-1"
      name="checkbox snap to grid"
-     width="134" />
+     width="134"
+     font="DejaVu"
+     font.size="LSmall"/>
     <combo_box
       height="20"
       layout="topleft"
@@ -331,7 +363,9 @@
       top="83"
       left="195"
       top_pad="0"
-      width="60">
+      width="60"
+      drop_down_button.font="DejaVu"
+      drop_down_button.font.size="LSmall">
       <combo_box.item
       label="World"
       name="World"
@@ -604,7 +638,9 @@
      left="4"
      name="land_radio_group"
      top="54"
-     width="114">
+     width="114"
+     font="DejaVu"
+     font.size="LSmall" >
         <radio_item
          height="19"
          label="Select Land"
@@ -746,7 +782,8 @@
 	  length="1"
 	  height="16"
 	  follows="left|top"
-	  font="SansSerifSmall"
+	  font="DejaVu"
+      font.size="LSmall"
 	  layout="topleft"
 	  left="10"
 	  name="selection_empty"
@@ -760,7 +797,8 @@
 	  length="1"
 	  height="16"
 	  follows="left|top"
-	  font="SansSerifSmall"
+	  font="DejaVu"
+      font.size="LSmall"
 	  layout="topleft"
 	  left="10"
 	  name="selection_faces"
@@ -775,7 +813,8 @@
 	  length="1"
 	  height="16"
 	  follows="left|top"
-	  font="SansSerifSmall"
+	  font="DejaVu"
+      font.size="LSmall"
 	  layout="topleft"
 	  left="10"
 	  name="selection_count"
@@ -904,7 +943,9 @@
              left="10"
              name="Name:"
              top="5"
-             width="90">
+             width="90"
+             font="DejaVu"
+             font.size="LSmall">
                 Name:
             </text>
             <line_editor
@@ -923,7 +964,9 @@
              left="10"
              name="Description:"
              top_pad="3"
-             width="90">
+             width="90"
+             font="DejaVu"
+             font.size="LSmall">
                 Description:
             </text>
             <line_editor
@@ -945,7 +988,9 @@
              layout="topleft"
              name="Creator:"
              top_pad="7"
-             width="90">
+             width="90"
+             font="DejaVu"
+             font.size="LSmall">
                 Creator:
             </text>
             <avatar_icon
@@ -967,7 +1012,6 @@
              height="29"
              layout="topleft"
              name="Creator Name"
-             font="SansSerifSmall"
              top_delta="-1"
              translate="false"
              width="170"
@@ -984,7 +1028,9 @@
              layout="topleft"
              name="Owner:"
              top_pad="3"
-             width="90">
+             width="90"
+             font="DejaVu"
+             font.size="LSmall">
                 Owner:
             </text>
             <avatar_icon
@@ -1015,7 +1061,8 @@
              height="29"
              layout="topleft"
              name="Owner Name"
-             font="SansSerifSmall"
+	         font="DejaVu"
+             font.size="LSmall"
              left_pad="1"
              top_delta="-1"
              translate="false"
@@ -1033,7 +1080,9 @@
              height="18"
              name="Group:"
              top_pad="3"
-             width="75">
+             width="75"
+             font="DejaVu"
+             font.size="LSmall">
                 Group:
             </text>
             <name_box
@@ -1053,7 +1102,9 @@
 			 name="button set group"
 			 tab_stop="false"
 			 tool_tip="Choose a group to share this object's permissions"
-			 width="23" />
+			 width="23"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="19"
              follows="left|top"
@@ -1063,7 +1114,9 @@
              tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
              top_pad="5"
              left="100"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <button
              follows="top|left"
              height="23"
@@ -1073,7 +1126,9 @@
              name="button deed"
              left_pad="19"
              tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
-             width="80" />
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
              type="string"
              length="1"
@@ -1083,7 +1138,9 @@
              top_pad="10"
              left="10"
              name="label click action"
-             width="82">
+             width="82"
+             font="DejaVu"
+             font.size="LSmall" >
                 Click to:
             </text>
             <combo_box
@@ -1093,7 +1150,9 @@
              name="clickaction"
              width="130"
              left_pad="10"
-             tool_tip="A click action enables you to interact with an object with a single left click. Each click action has a special cursor indicating what it does. Some click actions have requirements to function. For example Touch and Pay require scripts" >
+             tool_tip="A click action enables you to interact with an object with a single left click. Each click action has a special cursor indicating what it does. Some click actions have requirements to function. For example Touch and Pay require scripts"
+             drop_down_button.font="DejaVu"
+             drop_down_button.font.size="LSmall" >
                 <combo_box.item
                  label="Touch  (default)"
                  name="Touch/grab(default)"
@@ -1134,7 +1193,9 @@
              name="checkbox for sale"
              left="7"
              width="97"
-             tool_tip="Lets people buy this object, its content or it copy inworld for specified price." />
+             tool_tip="Lets people buy this object, its content or it copy inworld for specified price."
+             font="DejaVu"
+             font.size="LSmall" />
   <!-- NEW PRICE SPINNER
 Objects are allowed to be for sale for L$0 to invoke buy UI behavior
 even though the user gets a free copy.
@@ -1152,7 +1213,9 @@ even though the user gets a free copy.
       min_val="0"
       height="20"
       max_val="999999999"
-      tool_tip="Object cost." />
+      tool_tip="Object cost."
+      font="DejaVu"
+      font.size="LSmall" />
   <!-- NEW SALE TYPE COMBO BOX -->
       <combo_box
             left_pad="8"
@@ -1166,7 +1229,9 @@ even though the user gets a free copy.
             mouse_opaque="true"
             name="sale type"
             width="89"
-            tool_tip="Select whether purchaser will receive a copy, copy of the content or item itself." >
+            tool_tip="Select whether purchaser will receive a copy, copy of the content or item itself."
+            drop_down_button.font="DejaVu"
+            drop_down_button.font.size="LSmall" >
         <combo_box.item
            name="Copy"
            label="Copy"
@@ -1188,7 +1253,9 @@ even though the user gets a free copy.
        layout="topleft"
 	   left="7"
        name="search_check"
-       tool_tip="Let people see this object in search results" />
+       tool_tip="Let people see this object in search results"
+       font="DejaVu"
+       font.size="LSmall" />
 		<panel
          border="false"
          follows="left|top"
@@ -1212,7 +1279,9 @@ even though the user gets a free copy.
              follows="left|top|right"
              layout="topleft"
              name="perm_modify"
-             width="264">
+             width="264"
+             font="DejaVu"
+             font.size="LSmall" >
                 You can modify this object
             </text>
             <text
@@ -1220,7 +1289,9 @@ even though the user gets a free copy.
                follows="left|top"
                name="Anyone can:"
                width="250"
-               left="10">
+               left="10"
+               font="DejaVu"
+               font.size="LSmall" >
                  Anyone:
             </text>
             <check_box
@@ -1230,7 +1301,9 @@ even though the user gets a free copy.
              name="checkbox allow everyone move"
              tool_tip="Anyone can move the object."
              left="10"
-             width="85" />
+             width="85"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="19"
              label="Copy"
@@ -1238,14 +1311,18 @@ even though the user gets a free copy.
              left_pad="0"
              name="checkbox allow everyone copy"
              tool_tip="Anyone can take a copy of the object. Object and all of its contents must be copy and transfer permissive."
-             width="90" />
+             width="90"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
                type="string"
                follows="left|top"
                height="19"
                name="Next owner can:"
                width="250"
-               left="10">
+               left="10"
+               font="DejaVu"
+               font.size="LSmall" >
                   Next owner:
             </text>
             <check_box
@@ -1256,7 +1333,9 @@ even though the user gets a free copy.
              height="10"
              name="checkbox next owner can modify"
              tool_tip="Next owner can edit properties like item name or scale of this object."
-             width="85" />
+             width="85"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              follows="left|top|right"
              height="19"
@@ -1265,7 +1344,9 @@ even though the user gets a free copy.
              left_pad="0"
              name="checkbox next owner can copy"
              tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
-             width="80" />
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              follows="left|top|right"
              height="19"
@@ -1275,7 +1356,9 @@ even though the user gets a free copy.
              left_pad="0"
              top_delta="0"
              tool_tip="Next owner can give away or resell this object."
-             width="100" />
+             width="100"
+             font="DejaVu"
+             font.size="LSmall" />
 <!-- *NOTE: These "B/O/G/E/N/F fields may overlap "perm_modify" above, 
      but that's OK, this is used only for debugging. -->
             <text
@@ -1288,7 +1371,9 @@ even though the user gets a free copy.
              left="230"
              name="B:"
              height="10"
-             width="80">
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" >
                 B:
             </text>
             <text
@@ -1301,7 +1386,9 @@ even though the user gets a free copy.
              top_pad="2"
              name="O:"
              height="10"
-             width="80">
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" >
                 O:
             </text>
             <text
@@ -1314,7 +1401,9 @@ even though the user gets a free copy.
              top_pad="2"
              name="G:"
              height="10"
-             width="80">
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" >
                 G:
             </text>
             <text
@@ -1327,7 +1416,9 @@ even though the user gets a free copy.
              layout="topleft"
              name="E:"
              height="10"
-             width="80">
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" >
                 E:
             </text>
             <text
@@ -1340,7 +1431,9 @@ even though the user gets a free copy.
              top_pad="2"
              name="N:"
              height="10"
-             width="80">
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" >
                 N:
             </text>
             <text
@@ -1353,7 +1446,9 @@ even though the user gets a free copy.
              top_pad="2"
              name="F:"
              height="10"
-             width="80">
+             width="80"
+             font="DejaVu"
+             font.size="LSmall" >
                 F:
             </text>
         </panel>
@@ -1373,7 +1468,9 @@ even though the user gets a free copy.
          name="pathfinding_attributes_label"
          top_pad="4"
          width="150"
-         left="10">
+         left="10"
+         font="DejaVu"
+         font.size="LSmall" >
         Pathfinding attributes:
       </text>
       <text
@@ -1383,7 +1480,9 @@ even though the user gets a free copy.
          name="pathfinding_attributes_value"
          width="130"
          word_wrap="false"
-         left_pad="0">
+         left_pad="0"
+         font="DejaVu"
+         font.size="LSmall" >
       </text>
     </panel>
   </panel>
@@ -1408,7 +1507,9 @@ even though the user gets a free copy.
              tool_tip="Prevents object from being moved or deleted. Frequently useful during building to avoid unintended edits."
              top_pad="5"
              left="10"
-             width="123" />
+             width="123"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="19"
              label="Physical"
@@ -1416,7 +1517,9 @@ even though the user gets a free copy.
              name="Physical Checkbox Ctrl"
              tool_tip="Allows object to be pushed and affected by gravity"
              top_pad="0"
-             width="123" />
+             width="123"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="19"
              label="Temporary"
@@ -1424,7 +1527,9 @@ even though the user gets a free copy.
              name="Temporary Checkbox Ctrl"
              tool_tip="Causes object to be deleted 1 minute after creation"
              top_pad="0"
-             width="123" />
+             width="123"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="19"
              label="Phantom"
@@ -1432,7 +1537,9 @@ even though the user gets a free copy.
              name="Phantom Checkbox Ctrl"
              tool_tip="Causes object to not collide with other objects or avatars"
              top_pad="0"
-             width="123" />
+             width="123"
+             font="DejaVu"
+             font.size="LSmall" />
             <view_border
              bevel_style="none"
              follows="top|left"
@@ -1441,7 +1548,9 @@ even though the user gets a free copy.
              left_delta="0"
              name="object_horizontal"
              top_pad="10"
-             width="95" />
+             width="95"
+             font="DejaVu"
+             font.size="LSmall" />
             <menu_button
              menu_filename="menu_copy_paste_pos.xml"
              follows="top|left"
@@ -1465,7 +1574,9 @@ even though the user gets a free copy.
              tool_tip="Position (meters)"
              left_pad="8"
              top_delta="0"
-             width="121">
+             width="121"
+             font="DejaVu"
+             font.size="LSmall" >
                 Position (m)
             </text>
             <spinner
@@ -1482,7 +1593,9 @@ even though the user gets a free copy.
              name="Pos X"
              text_enabled_color="1 0 0.3 .7"
              top_pad="8"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -1497,7 +1610,9 @@ even though the user gets a free copy.
              name="Pos Y"
              text_enabled_color="EmphasisColor"
              top_pad="3"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -1512,7 +1627,9 @@ even though the user gets a free copy.
              name="Pos Z"
              text_enabled_color="0 0.8 1 .65"
              top_pad="3"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <menu_button
              menu_filename="menu_copy_paste_size.xml"
              follows="top|left"
@@ -1525,7 +1642,9 @@ even though the user gets a free copy.
              top_pad="13"
              name="clipboard_size_btn"
              tool_tip="Paste options"
-             width="19"/>
+             width="19"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
              type="string"
              length="1"
@@ -1536,7 +1655,9 @@ even though the user gets a free copy.
              top_delta="0"
              name="label size"
              tool_tip="Size (meters)"
-             width="121">
+             width="121"
+             font="DejaVu"
+             font.size="LSmall" >
                 Size (m)
             </text>
             <spinner
@@ -1553,7 +1674,9 @@ even though the user gets a free copy.
              name="Scale X"
              text_enabled_color="1 1 1 1"
              top_pad="8"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -1568,7 +1691,9 @@ even though the user gets a free copy.
              name="Scale Y"
              text_enabled_color="1 1 1 1"
              top_pad="3"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -1583,7 +1708,9 @@ even though the user gets a free copy.
              name="Scale Z"
              text_enabled_color="1 1 1 1"
              top_pad="3"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <menu_button
              menu_filename="menu_copy_paste_rot.xml"
              follows="top|left"
@@ -1607,7 +1734,9 @@ even though the user gets a free copy.
              top_delta="0"
              name="label rotation"
              tool_tip="Rotation (degrees)"
-             width="121">
+             width="121"
+             font="DejaVu"
+             font.size="LSmall" >
                 Rotation (°)
             </text>
             <spinner
@@ -1625,7 +1754,9 @@ even though the user gets a free copy.
              name="Rot X"
              text_enabled_color="1 1 1 1"
              top_pad="8"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -1641,7 +1772,9 @@ even though the user gets a free copy.
              name="Rot Y"
              text_enabled_color="1 1 1 1"
              top_pad="3"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -1657,7 +1790,9 @@ even though the user gets a free copy.
              name="Rot Z"
              text_enabled_color="1 1 1 1"
              top_pad="3"
-             width="87" />
+             width="87"
+             font="DejaVu"
+             font.size="LSmall" />
  <!--           <text
              type="string"
              length="1"
@@ -1686,7 +1821,9 @@ even though the user gets a free copy.
              name="comboBaseType"
              top="6"
              left="125"
-             width="125">
+             width="125"
+             drop_down_button.font="DejaVu"
+             drop_down_button.font.size="LSmall" >
                 <combo_box.item
                  label="Box"
                  name="Box"
@@ -1742,7 +1879,9 @@ even though the user gets a free copy.
              left="125"
              name="text cut"
              top_pad="5"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Path Cut (begin/end)
             </text>
             <spinner
@@ -1757,7 +1896,9 @@ even though the user gets a free copy.
              max_val="0.98"
              name="cut begin"
              top_pad="4"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="16"
@@ -1770,7 +1911,9 @@ even though the user gets a free copy.
              min_val="0.02"
              name="cut end"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
              type="string"
              length="1"
@@ -1780,7 +1923,9 @@ even though the user gets a free copy.
              left="125"
              name="text hollow"
              top_pad="7"
-             width="68">
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" >
                 Hollow
             </text>
             <text
@@ -1791,7 +1936,9 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="10"
              name="text skew"
-             width="63">
+             width="63"
+             font="DejaVu"
+             font.size="LSmall" >
                 Skew
             </text>
             <spinner
@@ -1805,7 +1952,9 @@ even though the user gets a free copy.
              max_val="95"
              name="Scale 1"
              top_pad="4"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -1818,7 +1967,9 @@ even though the user gets a free copy.
              min_val="-0.95"
              name="Skew"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
              type="string"
              length="1"
@@ -1828,7 +1979,9 @@ even though the user gets a free copy.
              left="125"
              name="Hollow Shape"
              top_pad="7"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Hollow Shape
             </text>
             <combo_box
@@ -1837,7 +1990,9 @@ even though the user gets a free copy.
              left_delta="0"
              name="hole"
              top_pad="-2"
-             width="150">
+             width="150"
+             drop_down_button.font="DejaVu"
+             drop_down_button.font.size="LSmall" >
                 <combo_box.item
                  label="Default"
                  name="Default"
@@ -1864,7 +2019,9 @@ even though the user gets a free copy.
              left_delta="0"
              name="text twist"
              top_pad="7"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Twist (begin/end)
             </text>
             <spinner
@@ -1881,7 +2038,9 @@ even though the user gets a free copy.
              min_val="-180"
              name="Twist Begin"
              top_pad="4"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              decimal_digits="0"
              follows="left|top"
@@ -1896,7 +2055,9 @@ even though the user gets a free copy.
              min_val="-180"
              name="Twist End"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
              type="string"
              length="1"
@@ -1906,7 +2067,9 @@ even though the user gets a free copy.
              left="125"
              name="scale_taper"
              top_pad="7"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Taper
             </text>
             <text
@@ -1919,7 +2082,9 @@ even though the user gets a free copy.
              left_delta="0"
              name="scale_hole"
              top_delta="0"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Hole Size
             </text>
             <spinner
@@ -1935,7 +2100,9 @@ even though the user gets a free copy.
              min_val="-1"
              name="Taper Scale X"
              top_pad="4"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -1949,7 +2116,9 @@ even though the user gets a free copy.
              min_val="-1"
              name="Taper Scale Y"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
              type="string"
              length="1"
@@ -1959,7 +2128,9 @@ even though the user gets a free copy.
              left="125"
              name="text topshear"
              top_pad="5"
-             width="141">
+             width="141"
+             font="DejaVu"
+             font.size="LSmall" >
                 Top Shear
             </text>
             <spinner
@@ -1976,7 +2147,9 @@ even though the user gets a free copy.
              min_val="-0.5"
              name="Shear X"
              top_pad="4"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -1991,7 +2164,9 @@ even though the user gets a free copy.
              min_val="-0.5"
              name="Shear Y"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
 			 visible="false"
              type="string"
@@ -2002,7 +2177,9 @@ even though the user gets a free copy.
              left="125"
              name="advanced_cut"
              top_pad="7"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Profile Cut (begin/end)
             </text>
             <text
@@ -2015,7 +2192,9 @@ even though the user gets a free copy.
              left_delta="0"
              name="advanced_dimple"
              top_delta="0"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Dimple (begin/end)
             </text>
             <text
@@ -2027,7 +2206,9 @@ even though the user gets a free copy.
              left_delta="0"
              name="advanced_slice"
              top_delta="0"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Slice (begin/end)
             </text>
             <spinner
@@ -2042,7 +2223,9 @@ even though the user gets a free copy.
              max_val="0.98"
              name="Path Limit Begin"
              top_pad="3"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2055,7 +2238,9 @@ even though the user gets a free copy.
              min_val="0.02"
              name="Path Limit End"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
 			 visible="false"
              type="string"
@@ -2066,7 +2251,9 @@ even though the user gets a free copy.
              left="125"
              name="text taper2"
              top_pad="7"
-             width="150">
+             width="150"
+             font="DejaVu"
+             font.size="LSmall" >
                 Taper
             </text>
             <spinner
@@ -2083,7 +2270,9 @@ even though the user gets a free copy.
              min_val="-1"
              name="Taper X"
              top_pad="3"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
 			 visible="false"
              decimal_digits="2"
@@ -2098,7 +2287,9 @@ even though the user gets a free copy.
              min_val="-1"
              name="Taper Y"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
 			 visible="false"
              type="string"
@@ -2109,7 +2300,9 @@ even though the user gets a free copy.
              left="125"
              name="text radius delta"
              top_pad="7"
-             width="78">
+             width="78"
+             font="DejaVu"
+             font.size="LSmall" >
                 Radius
             </text>
             <text
@@ -2121,7 +2314,9 @@ even though the user gets a free copy.
              layout="topleft"
              left_delta="78"
              name="text revolutions"
-             width="68">
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" >
                 Revolutions
             </text>
             <spinner
@@ -2135,7 +2330,9 @@ even though the user gets a free copy.
              min_val="-1"
              name="Radius Offset"
              top_pad="4"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
 			 visible="false"
              decimal_digits="2"
@@ -2148,7 +2345,9 @@ even though the user gets a free copy.
              min_val="1"
              name="Revolutions"
              top_delta="0"
-             width="68" />
+             width="68"
+             font="DejaVu"
+             font.size="LSmall" />
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -2161,7 +2360,9 @@ even though the user gets a free copy.
              tool_tip="Click to choose a picture"
              top="70"
              visible="false"
-             width="145" />
+             width="145"
+             caption_text.font="DejaVu"
+             caption_text.font.size="LSmall" />
             <check_box
              height="19"
              label="Mirror"
@@ -2171,7 +2372,9 @@ even though the user gets a free copy.
              tool_tip="Flips sculpted prim along the X axis"
              top_pad="8"
              visible="false"
-             width="130" />
+             width="130"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="19"
              label="Inside-out"
@@ -2181,7 +2384,9 @@ even though the user gets a free copy.
              tool_tip="Inverts the sculpted prims normals, making it appear inside-out"
              top_pad="4"
              visible="false"
-             width="121" />
+             width="121"
+             font="DejaVu"
+             font.size="LSmall" />
             <text
              type="string"
              length="1"
@@ -2192,7 +2397,9 @@ even though the user gets a free copy.
              name="label sculpt type"
              top_pad="10"
              visible="false"
-             width="130">
+             width="130"
+             font="DejaVu"
+             font.size="LSmall" >
                 Stitching type
             </text>
             <combo_box
@@ -2202,7 +2409,9 @@ even though the user gets a free copy.
              name="sculpt type control"
              top_pad="4"
              visible="false"
-             width="150">
+             width="150"
+             drop_down_button.font="DejaVu"
+             drop_down_button.font.size="LSmall" >
                 <combo_box.item
                  label="Sphere"
                  name="Sphere"
@@ -2259,7 +2468,9 @@ even though the user gets a free copy.
              name="select_single"
              top="5"
              width="252"
-             word_wrap="true">
+             word_wrap="true"
+             font="DejaVu"
+             font.size="LSmall" >
                 Select only one primitive to edit features.
             </text>
             <text
@@ -2271,7 +2482,9 @@ even though the user gets a free copy.
              left="10"
              name="edit_object"
              top="5"
-             width="252">
+             width="252"
+             font="DejaVu"
+             font.size="LSmall" >
                 Edit object features:
             </text>
             <check_box
@@ -2282,7 +2495,9 @@ even though the user gets a free copy.
              name="Animated Mesh Checkbox Ctrl"
              tool_tip="Allows rigged mesh objects to be animated independently"
              top_pad="10"
-             width="121" />
+             width="121"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="10"
              label="Flexible Path"
@@ -2292,7 +2507,9 @@ even though the user gets a free copy.
              name="Flexible1D Checkbox Ctrl"
              tool_tip="Allows object to flex about the Z axis (Client-side only)"
              top_pad="15"
-             width="121" />
+             width="121"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2305,7 +2522,9 @@ even though the user gets a free copy.
              max_val="3"
              name="FlexNumSections"
              top_pad="10"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2319,7 +2538,9 @@ even though the user gets a free copy.
              min_val="-10"
              name="FlexGravity"
              top_pad="4"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2332,7 +2553,9 @@ even though the user gets a free copy.
              max_val="10"
              name="FlexFriction"
              top_pad="4"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2345,7 +2568,9 @@ even though the user gets a free copy.
              max_val="10"
              name="FlexWind"
              top_pad="4"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2358,7 +2583,9 @@ even though the user gets a free copy.
              max_val="10"
              name="FlexTension"
              top_pad="4"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2372,7 +2599,9 @@ even though the user gets a free copy.
              min_val="-10"
              name="FlexForceX"
              top_pad="4"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2386,7 +2615,9 @@ even though the user gets a free copy.
              min_val="-10"
              name="FlexForceY"
              top_pad="4"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <spinner
              follows="left|top"
              height="19"
@@ -2400,7 +2631,9 @@ even though the user gets a free copy.
              min_val="-10"
              name="FlexForceZ"
              top_pad="4"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
             <view_border
              bevel_style="none"
              follows="top|left"
@@ -2409,7 +2642,9 @@ even though the user gets a free copy.
              left="8"
              name="object_horizontal"
              top_pad="10"
-             width="278" />
+             width="278"
+             font="DejaVu"
+             font.size="LSmall" />
             <check_box
              height="16"
              label="Light"
@@ -2418,7 +2653,9 @@ even though the user gets a free copy.
              name="Light Checkbox Ctrl"
              tool_tip="Causes object to emit light"
              top_pad="8"
-             width="60" />
+             width="60"
+             font="DejaVu"
+             font.size="LSmall" />
             <color_swatch
              can_apply_immediately="true"
              color="0.5 0.5 0.5 1"
@@ -2430,7 +2667,9 @@ even though the user gets a free copy.
              top_pad="-17"
              name="colorswatch"
              tool_tip="Click to open color picker"
-             width="40" />
+             width="40"
+             font="DejaVu"
+             font.size="LSmall" />
          <texture_picker
             allow_no_texture="true"
             top_delta="0"
@@ -2443,7 +2682,9 @@ even though the user gets a free copy.
             mouse_opaque="true"
             name="light texture control"
             tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)"
-            width="32" />
+            width="32"
+            caption_text.font="DejaVu"
+            caption_text.font.size="LSmall" />
          <menu_button
               menu_filename="menu_copy_paste_light.xml"
               follows="top|left"
@@ -2467,7 +2708,9 @@ even though the user gets a free copy.
              left="10"
              name="Light Intensity"
              top_pad="26"
-             width="128" />
+             width="128"
+             font="DejaVu"
+             font.size="LSmall" />
           <spinner bottom_delta="0"
                    decimal_digits="3"
                    follows="left|top"
@@ -2481,7 +2724,9 @@ even though the user gets a free copy.
                    min_val="0"
                    mouse_opaque="true"
                    name="Light FOV"
-                   width="120" />
+                   width="120"
+                   font="DejaVu"
+                   font.size="LSmall" />
           <spinner follows="left|top"
                    height="19"
                    initial_value="5"
@@ -2492,7 +2737,9 @@ even though the user gets a free copy.
                    max_val="20"
                    name="Light Radius"
                    top_pad="3"
-                   width="128" />
+                   width="128"
+                   font="DejaVu"
+                   font.size="LSmall" />
           <spinner bottom_delta="0"
                    decimal_digits="3"
                    follows="left|top"
@@ -2506,7 +2753,9 @@ even though the user gets a free copy.
                    min_val="-20"
                    mouse_opaque="true"
                    name="Light Focus"
-                   width="120" />
+                   width="120"
+                   font="DejaVu"
+                   font.size="LSmall" />
           <spinner follows="left|top"
                    height="19"
                    increment="0.25"
@@ -2518,7 +2767,9 @@ even though the user gets a free copy.
                    max_val="2"
                    name="Light Falloff"
                    top_pad="3"
-                   width="128" />
+                   width="128"
+                   font="DejaVu"
+                   font.size="LSmall" />
           <spinner bottom_delta="0"
                    decimal_digits="3"
                    follows="left|top"
@@ -2532,7 +2783,9 @@ even though the user gets a free copy.
                    min_val="0"
                    mouse_opaque="true"
                    name="Light Ambiance"
-                   width="120" />
+                   width="120"
+                   font="DejaVu"
+                   font.size="LSmall" />
           <check_box
              height="16"
              label="Reflection Probe"
@@ -2541,15 +2794,19 @@ even though the user gets a free copy.
              name="Reflection Probe"
              tool_tip="Adjusts how objects within this volume receive reflections when PBR is enabled"
              top_pad="10"
-             width="60" />
+             width="60"
+             font="DejaVu"
+             font.size="LSmall" />
           <combo_box
 			   height="19"
 			   top_delta="0"
-         left="144"
+               left="144"
 			   follows="left|top"
 			   name="Probe Volume Type"
 			   tool_tip="Choose the probe influence volume"
-			   width="140">
+			   width="140"
+               drop_down_button.font="DejaVu"
+               drop_down_button.font.size="LSmall" >
             <combo_box.item
              label="Sphere"
              name="Sphere"
@@ -2568,7 +2825,9 @@ even though the user gets a free copy.
            name="Probe Dynamic"
            tool_tip="When enabled, Avatars will appear in reflections within this probe's influence volume."
            bottom_delta="19"
-           width="60" />
+           width="60"
+           font="DejaVu"
+           font.size="LSmall" />
           
           <text
             bottom_delta="-8"
@@ -2580,7 +2839,9 @@ even though the user gets a free copy.
              left="10"
              name="Probe Update Label"
              text_readonly_color="LabelDisabledColor"
-             width="100">
+             width="100"
+             font="DejaVu"
+             font.size="LSmall" >
             Probe Update
           </text>
           <combo_box
@@ -2590,7 +2851,9 @@ even though the user gets a free copy.
 			   follows="left|top"
 			   name="Probe Update Type"
 			   tool_tip="Determines how the probe updates.  Static updates the slowest and without avatars.  Dynamic updates more frequently, with avatars visible in the probes.  Mirror (Environment) turns this probe into a realtime planar projected probe that only reflects the environment, but does not calculate ambiance.  Mirror (Everything) is similar to Mirror (Environment), but it reflects particles and avatars."
-			   width="140">
+			   width="140"
+               drop_down_button.font="DejaVu"
+               drop_down_button.font.size="LSmall" >
             <combo_box.item
              label="Static"
              name="Static"
@@ -2621,7 +2884,9 @@ even though the user gets a free copy.
                    min_val="0"
                    mouse_opaque="true"
                    name="Probe Ambiance"
-                   width="120" />
+                   width="120"
+                   font="DejaVu"
+                   font.size="LSmall" />
           <spinner bottom_delta="0"
                    decimal_digits="3"
                    follows="left|top"
@@ -2635,7 +2900,9 @@ even though the user gets a free copy.
                    min_val="0"
                    mouse_opaque="true"
                    name="Probe Near Clip"
-                   width="120" />
+                   width="120"
+                   font="DejaVu"
+                   font.size="LSmall" />
           <text
              type="string"
              length="1"
@@ -2644,7 +2911,9 @@ even though the user gets a free copy.
              layout="topleft"
              name="label physicsshapetype"
              top="38"
-             width="121">
+             width="121"
+             font="DejaVu"
+             font.size="LSmall" >
                 Physics Shape Type:
             </text>
 			<combo_box
@@ -2654,13 +2923,17 @@ even though the user gets a free copy.
 			   follows="left|top"
 			   name="Physics Shape Type Combo Ctrl"
 			   tool_tip="Choose the physics shape type"
-			   width="108"/>
+			   width="108"
+               drop_down_button.font="DejaVu"
+               drop_down_button.font.size="LSmall" />
             <combo_box
              height="19"
              layout="topleft"
              name="material"
              top_pad="5"
-             width="150">
+             width="150"
+             drop_down_button.font="DejaVu"
+             drop_down_button.font.size="LSmall" >
                 <combo_box.item
                  label="Stone"
                  name="Stone"
@@ -2703,7 +2976,9 @@ even though the user gets a free copy.
              max_val="28"
              name="Physics Gravity"
              top_pad="10"
-             width="132" />
+             width="132"
+             font="DejaVu"
+             font.size="LSmall" />
 
             <spinner
              follows="left|top"
@@ -2718,7 +2993,9 @@ even though the user gets a free copy.
              min_val="0"
              name="Physics Friction"
              top_pad="4"
-             width="132" />
+             width="132"
+             font="DejaVu"
+             font.size="LSmall" />
 
             <spinner
              follows="left|top"
@@ -2734,7 +3011,9 @@ even though the user gets a free copy.
              min_val="1"
              name="Physics Density"
              top_pad="4"
-             width="132" />
+             width="132"
+             font="DejaVu"
+             font.size="LSmall" />
 
             <spinner
              follows="left|top"
@@ -2749,7 +3028,9 @@ even though the user gets a free copy.
              min_val="0"
              name="Physics Restitution"
              top_pad="8"
-             width="132" />
+             width="132"
+             font="DejaVu"
+             font.size="LSmall" />
         </panel>
          <panel
          label="Texture"
@@ -2777,7 +3058,9 @@ even though the user gets a free copy.
              left="8"
              name="button new script"
              top="10"
-             width="134" />
+             width="134"
+             font="DejaVu"
+             font.size="LSmall" />
             <button
              follows="left|top"
              height="23"
@@ -2785,7 +3068,9 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="8"
              name="button permissions"
-             width="134" />
+             width="134"
+             font="DejaVu"
+             font.size="LSmall" />
             <filter_editor
              follows="left|top|right"
              label="Enter filter text"
@@ -2822,7 +3107,8 @@ even though the user gets a free copy.
     <text
          type="string"
          length="1"
-         font="SansSerifBig"
+         font="DejaVu"
+         font.size="Small"
          follows="left|top"
          height="19"
          layout="topleft"
@@ -2841,7 +3127,9 @@ even though the user gets a free copy.
          left="30"
          name="label_area_price"
          top="48"
-         width="150">
+         width="150"
+         font="DejaVu"
+         font.size="LSmall" >
             Price: L$[PRICE] for [AREA] m²
         </text>
         <text
@@ -2853,7 +3141,9 @@ even though the user gets a free copy.
          left_delta="0"
          name="label_area"
          top_delta="0"
-         width="150">
+         width="150"
+         font="DejaVu"
+         font.size="LSmall" >
             Area: [AREA] m²
         </text>
         <button
@@ -2865,7 +3155,9 @@ even though the user gets a free copy.
          left_delta="0"
          name="button about land"
          top_pad="4"
-         width="125" />
+         width="125"
+         font="DejaVu"
+         font.size="LSmall" />
         <check_box
          control_name="ShowParcelOwners"
          height="19"
@@ -2875,11 +3167,14 @@ even though the user gets a free copy.
          name="checkbox show owners"
          tool_tip="Colorize the parcels according to the type of owner: &#10;&#10;Green = Your land &#10;Aqua = Your group&apos;s land &#10;Red = Owned by others &#10;Yellow = For sale &#10;Purple = For auction &#10;Grey = Public"
          top_pad="8"
-         width="205" />
+         width="205"
+         font="DejaVu"
+         font.size="LSmall" />
         <text
          type="string"
          length="1"
-         font="SansSerifBig"
+         font="DejaVu"
+         font.size="Small"
          follows="left|top"
          height="19"
          layout="topleft"
@@ -2898,7 +3193,9 @@ even though the user gets a free copy.
          left="30"
          name="button subdivide land"
          top="172"
-         width="125" />
+         width="125"
+         font="DejaVu"
+         font.size="LSmall" />
         <button
          follows="left|top"
          height="23"
@@ -2908,11 +3205,14 @@ even though the user gets a free copy.
          left_delta="0"
          name="button join land"
          top_pad="4"
-         width="125" />
+         width="125"
+         font="DejaVu"
+         font.size="LSmall" />
         <text
          type="string"
          length="1"
-         font="SansSerifBig"
+         font="DejaVu"
+         font.size="Small"
          follows="left|top"
          height="19"
          layout="topleft"
@@ -2931,7 +3231,9 @@ even though the user gets a free copy.
          left="30"
          name="button buy land"
          top="276"
-         width="125" />
+         width="125"
+         font="DejaVu"
+         font.size="LSmall" />
         <button
          follows="left|top"
          height="23"
@@ -2941,7 +3243,9 @@ even though the user gets a free copy.
          left_delta="0"
          name="button abandon land"
          top_pad="4"
-         width="125" />
+         width="125"
+         font="DejaVu"
+         font.size="LSmall" />
  </panel>
 <!-- end of tabs -->
 </floater>

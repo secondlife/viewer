@@ -200,9 +200,9 @@
          comment="Size of small font (points, or 1/72 of an inch)"
          size="9"
          />
-   <font_size name="Smaller"
-         comment="Size of small font (points, or 1/72 of an inch)"
-         size="8"
+   <font_size name="LSmall"
+         comment="Legacy size of small font (points, or 1/72 of an inch)"
+         size="7.6"
          />
 <font_size name="SmallLSL"
          comment="Size of small font for LSL editor (points, or 1/72 of an inch)"
