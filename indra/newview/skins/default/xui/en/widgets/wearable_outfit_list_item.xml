@@ -29,14 +29,14 @@
     width="16" />
   <item_name
     follows="left|right"
-    height="20"
+    height="21"
     layout="topleft"
     left="21"
     parse_urls="false"
     use_ellipses="true"
     name="item_name"
     text_color="white"
-    top="4"
+    top="1"
     value="..."
     width="359" />
     <add_btn

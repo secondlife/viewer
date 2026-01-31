@@ -29,7 +29,7 @@ width="333">
    background_visible="true"
    bg_opaque_color="DkGray2"
    left="10"
-   top="5"
+   top="0"
    follows="left|top|right"
    layout="topleft"
    width="307"
@@ -58,7 +58,7 @@ width="333">
       follows="top|left|right"
       layout="topleft"
       left="5"
-      top="3"
+      top="0"
       mouse_opaque="false"
       name="currentlook_status" >
       (Status)

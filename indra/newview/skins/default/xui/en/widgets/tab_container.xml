@@ -6,10 +6,11 @@ label_pad_left - padding to the left of tab button labels
 <tab_container name="tab_container" 
                mouse_opaque="false"
                tab_min_width="60"
-               tab_max_width="150"
+               tab_max_width="160"
                use_custom_icon_ctrl="false"
                halign="center"
-               font="SansSerifSmall" 
+               font="SansSerif"
+               font.size="Small"
                tab_height="21"
                label_pad_bottom="1"
                label_pad_left="4">

@@ -37,8 +37,8 @@
   <font
       name="SansSerifBold"
       comment="Name of bold sans-serif font">
-    <file load_collection="true" font_hinting="default" flags="bold">Inter_18pt-SemiBold.ttf</file>
-    <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
+      <file load_collection="true" font_hinting="default" flags="bold">Inter_18pt-ExtraBold.ttf</file>
+      <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -64,7 +64,7 @@
       name="SansSerif"
       comment="Name of bold sans-serif font"
       font_style="BOLD">
-    <file load_collection="true" font_hinting="default" flags="bold">Inter_18pt-SemiBold.ttf</file>
+    <file load_collection="true" font_hinting="default" flags="bold">Inter_18pt-Bold.ttf</file>
     <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
   </font>
 
@@ -135,7 +135,7 @@
       name="Helvetica"
       comment="Name of Helvetica font (bold)"
       font_style="BOLD">
-    <file font_hinting="default" flags="bold">Inter_18pt-SemiBold.ttf</file>
+    <file font_hinting="default" flags="bold">Inter_18pt-ExtraBold.ttf</file>
     <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
@@ -181,26 +181,30 @@
   </font>
 
   <font_size name="Monospace"
-	     comment="Size for monospaced font (points, or 1/72 of an inch)"
-	     size="8.0"
-	     />
+         comment="Size for monospaced font (points, or 1/72 of an inch)"
+         size="8.0"
+         />
   <font_size name="Huge"
-	     comment="Size of huge font (points, or 1/72 of an inch)"
-	     size="16.0"
-	     />
+         comment="Size of huge font (points, or 1/72 of an inch)"
+         size="16.0"
+         />
   <font_size name="Large"
-	     comment="Size of large font (points, or 1/72 of an inch)"
-	     size="11.0"
-	     />
+         comment="Size of large font (points, or 1/72 of an inch)"
+         size="11.0"
+         />
   <font_size name="Medium"
-	     comment="Size of medium font (points, or 1/72 of an inch)"
-	     size="9"
-	     />
+         comment="Size of medium font (points, or 1/72 of an inch)"
+         size="10"
+         />
   <font_size name="Small"
-	     comment="Size of small font (points, or 1/72 of an inch)"
-	     size="8"
-	     />
-  <font_size name="SmallLSL"
+         comment="Size of small font (points, or 1/72 of an inch)"
+         size="9"
+         />
+   <font_size name="Smaller"
+         comment="Size of small font (points, or 1/72 of an inch)"
+         size="8"
+         />
+<font_size name="SmallLSL"
          comment="Size of small font for LSL editor (points, or 1/72 of an inch)"
          size="7"
          />
