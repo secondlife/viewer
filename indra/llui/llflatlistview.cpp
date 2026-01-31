@@ -121,36 +121,47 @@ bool LLFlatListView::addItemPairs(pairs_list_t panel_list, bool rearrange /*= tr
     panel_list.sort(ComparatorAdaptor(*mItemComparator));
 
     pairs_const_iterator_t new_pair_it = panel_list.begin();
-    item_pair_t* new_pair = *new_pair_it;
-    pairs_iterator_t pair_it = mItemPairs.begin();
-    item_pair_t* item_pair = *pair_it;
-
-    // sort panel_list into mItemPars
-    while (new_pair_it != panel_list.end() && pair_it != mItemPairs.end())
+    if (!mItemPairs.empty())
     {
-        if (!new_pair->first || new_pair->first->getParent() == mItemsPanel)
-        {
-            // iterator already used or we are reusing existing panel
-            new_pair_it++;
-            new_pair = *new_pair_it;
-        }
-        else if (mItemComparator->compare(new_pair->first, item_pair->first))
-        {
-            LLPanel* panel = new_pair->first;
+        item_pair_t* new_pair  = *new_pair_it;
+        pairs_iterator_t pair_it = mItemPairs.begin();
+        item_pair_t* item_pair = *pair_it;
 
-            mItemPairs.insert(pair_it, new_pair);
-            mItemsPanel->addChild(panel);
-
-            //_4 is for MASK
-            panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
-            panel->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, new_pair, _4));
-            // Children don't accept the focus
-            panel->setTabStop(false);
-        }
-        else
+        // sort panel_list into mItemPars
+        while (new_pair_it != panel_list.end() && pair_it != mItemPairs.end())
         {
-            pair_it++;
-            item_pair = *pair_it;
+            if (!new_pair->first || new_pair->first->getParent() == mItemsPanel)
+            {
+                // iterator already used or we are reusing existing panel
+                new_pair_it++;
+
+                // End of new panels, bail out
+                if (new_pair_it == panel_list.end())
+                    break;
+
+                new_pair = *new_pair_it;
+            }
+            else if (mItemComparator->compare(new_pair->first, item_pair->first))
+            {
+                LLPanel* panel = new_pair->first;
+
+                mItemPairs.insert(pair_it, new_pair);
+                mItemsPanel->addChild(panel);
+
+                //_4 is for MASK
+                panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
+                panel->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, new_pair, _4));
+                // Children don't accept the focus
+                panel->setTabStop(false);
+            }
+            else
+            {
+                pair_it++;
+                // End of existing panels, bail out
+                if (pair_it == mItemPairs.end())
+                    break;
+                item_pair = *pair_it;
+            }
         }
     }
 
