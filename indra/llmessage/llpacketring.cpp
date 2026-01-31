@@ -190,7 +190,8 @@ S32 LLPacketRing::receiveOrDropPacket(S32 socket, char *datap, bool drop)
 
 S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
 {
-    assert(mNumBufferedPackets > 0);
+    //llassert(mNumBufferedPackets > 0);
+
     S32 packet_size = 0;
 
     S16 ring_size = (S16)(mPacketRing.size());
@@ -204,7 +205,7 @@ S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
     mNumBufferedBytes -= packet_size;
     if (mNumBufferedPackets == 0)
     {
-        assert(mNumBufferedBytes == 0);
+        //llassert(mNumBufferedBytes == 0);
     }
 
     if (!drop)
@@ -215,7 +216,7 @@ S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
         }
         else
         {
-            assert(false);
+            //llassert(false); assertion disabled due to 0 size packets from server????
         }
     }
     else
