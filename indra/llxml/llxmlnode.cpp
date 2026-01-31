@@ -1234,11 +1234,14 @@ bool LLXMLNode::getAttribute(const char* name, LLXMLNodePtr& node, bool use_defa
 
 bool LLXMLNode::getAttribute(const LLStringTableEntry* name, LLXMLNodePtr& node, bool use_default_if_missing)
 {
-    LLXMLAttribList::const_iterator child_itr = mAttributes.find(name);
-    if (child_itr != mAttributes.end())
+    if (name)
     {
-        node = (*child_itr).second;
-        return true;
+        LLXMLAttribList::const_iterator child_itr = mAttributes.find(name);
+        if (child_itr != mAttributes.end())
+        {
+            node = (*child_itr).second;
+            return true;
+        }
     }
     if (use_default_if_missing && !mDefault.isNull())
     {
