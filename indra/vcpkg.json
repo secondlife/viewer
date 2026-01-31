@@ -6,7 +6,6 @@
     "boost-asio",
     "boost-circular-buffer",
     "boost-fiber",
-    "boost-filesystem",
     "boost-graph",
     "boost-iostreams",
     "boost-json",
@@ -143,9 +142,39 @@
       "description": "Build with Tracy profiler support",
       "dependencies": [
         {
+          "name": "tracy"
+        }
+      ]
+    },
+    "tracy-gui": {
+      "description": "Build with Tracy profiler GUI support",
+      "dependencies": [
+        {
           "name": "tracy",
           "features": [
-            "gui-tools",
+            "gui-tools"
+          ]
+        }
+      ]
+    },
+    "tracy-local": {
+      "description": "Build with Tracy profiler with localhost only",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "features": [
+            "localhost",
+            "no-broadcast"
+          ]
+        }
+      ]
+    },
+    "tracy-on-demand": {
+      "description": "Build with Tracy profiler support",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "features": [
             "on-demand"
           ]
         }

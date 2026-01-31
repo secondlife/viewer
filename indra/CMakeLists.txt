@@ -26,6 +26,7 @@ option(USE_TRACY "Use Tracy profiler." OFF)
 option(USE_TRACY_ON_DEMAND "Use on-demand Tracy profiling." ON)
 option(USE_TRACY_LOCAL_ONLY "Disallow remote Tracy profiling." OFF)
 option(USE_TRACY_GPU "Use Tracy GPU profiling" OFF)
+option(USE_TRACY_GUI "Enable building Tracy profiler GUI" OFF)
 option(USE_VCPKG "Build with VCPKG libraries" ON)
 
 # Configure crash reporting
@@ -70,6 +71,18 @@ endif()
 # Setup Tracy feature flag
 if (USE_TRACY)
   list(APPEND VCPKG_MANIFEST_FEATURES "tracy")
+endif()
+
+if (USE_TRACY_LOCAL_ONLY)
+  list(APPEND VCPKG_MANIFEST_FEATURES "tracy-local")
+endif()
+
+if(USE_TRACY_ON_DEMAND)
+  list(APPEND VCPKG_MANIFEST_FEATURES "tracy-on-demand")
+endif()
+
+if(USE_TRACY_GUI)
+  list(APPEND VCPKG_MANIFEST_FEATURES "tracy-gui")
 endif()
 
 include(BootstrapVcpkg)

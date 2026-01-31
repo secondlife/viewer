@@ -14,21 +14,11 @@ if (USE_TRACY)
     target_compile_definitions(ll::tracy INTERFACE LL_BUILD_TRACY=1)
   endif()
 
-  target_compile_definitions(ll::tracy INTERFACE TRACY_ENABLE=1 TRACY_ONLY_IPV4=1)
-
-  if (USE_TRACY_ON_DEMAND)
-    target_compile_definitions(ll::tracy INTERFACE TRACY_ON_DEMAND=1)
-  endif ()
-
-  if (USE_TRACY_LOCAL_ONLY)
-    target_compile_definitions(ll::tracy INTERFACE TRACY_NO_BROADCAST=1 TRACY_ONLY_LOCALHOST=1)
-  endif ()
-
   if (USE_TRACY_GPU AND NOT DARWIN) # Tracy OpenGL mode is incompatible with macOS/iOS
     target_compile_definitions(ll::tracy INTERFACE LL_PROFILER_ENABLE_TRACY_OPENGL=1)
   endif ()
 
   # See: indra/llcommon/llprofiler.h
-  target_compile_definitions(ll::tracy INTERFACE LL_PROFILER_CONFIGURATION=1)
+  target_compile_definitions(ll::tracy INTERFACE LL_PROFILER_CONFIGURATION=3)
 endif (USE_TRACY)
 
