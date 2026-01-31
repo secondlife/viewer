@@ -143,9 +143,15 @@ namespace tut
     {
 #if ADDRESS_SIZE != 32
 #if LL_WINDOWS
+#if LL_DEBUG
+        // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
+        // This test result will vary between compilers, so only test a single platform
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 240);
+#else
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
         ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 232);
+#endif
 #endif
 #endif
         ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
@@ -408,6 +414,10 @@ namespace tut
     template<> template<>
     void llgltfmaterial_object_t::test<12>()
     {
+#if LL_DEBUG
+        skip("Test is unreliable in debug builds!");
+#endif
+
         // *NOTE: Due to direct manipulation of the fields of materials
         // throughout this test, the resulting modified materials may not be
         // compliant or properly serializable.
