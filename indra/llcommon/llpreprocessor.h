@@ -207,10 +207,16 @@
 #define GLM_FORCE_NEON 1
 #endif
 #else
+#ifdef LL_DARWIN
+#ifndef GLM_FORCE_SSE42
+#define GLM_FORCE_SSE42 1
+#endif // GLM_FORCE_SSE42
+#else
 #ifndef GLM_FORCE_SSE2
 #define GLM_FORCE_SSE2 1
-#endif
-#endif
+#endif // GLM_FORCE_SSE2
+#endif // LL_DARWIN
+#endif // LL_ARM64
 
 #if LL_ARM64
 #define KDU_NEON_INTRINSICS 1

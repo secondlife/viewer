@@ -1,3 +1,5 @@
+include_guard()
+
 # Allow explicit Python path via environment variable
 if(DEFINED ENV{PYTHON})
     set(Python3_ROOT_DIR "$ENV{PYTHON}")

@@ -55,9 +55,15 @@
 #include <xmmintrin.h>
 #include <emmintrin.h>
 
+#ifdef LL_DARWIN
+#ifndef GLM_FORCE_SSE42
+#define GLM_FORCE_SSE42 1
+#endif // GLM_FORCE_SSE42
+#else
 #ifndef GLM_FORCE_SSE2
 #define GLM_FORCE_SSE2 1
-#endif
+#endif // GLM_FORCE_SSE2
+#endif // LL_DARWIN
 #endif
 
 #include "llmemory.h"

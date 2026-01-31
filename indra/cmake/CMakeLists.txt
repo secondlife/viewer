@@ -16,6 +16,7 @@ set(cmake_SOURCE_FILES
         Discord.cmake
         EXPAT.cmake
         FindPipeWire.cmake
+        FontConfig.cmake
         FreeType.cmake
         GLEXT.cmake
         GLIB.cmake
@@ -50,7 +51,6 @@ set(cmake_SOURCE_FILES
         UnixInstall.cmake
         Variables.cmake
         VHACD.cmake
-        ViewerMiscLibs.cmake
         Vorbis.cmake
         LibVLCPlugin.cmake
         WebRTC.cmake
@@ -71,3 +71,5 @@ add_library(cmake
         ${cmake_SOURCE_FILES}
         ${master_SOURCE_FILES}
         )
+
+source_group("CMake Rules" FILES CMakeLists.txt)

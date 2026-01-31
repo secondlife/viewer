@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llimage_SOURCE_FILES
+add_library (llimage)
+
+target_sources(llimage
+    PRIVATE
     llimagebmp.cpp
     llimage.cpp
     llimagedimensionsinfo.cpp
@@ -14,7 +17,10 @@ set(llimage_SOURCE_FILES
     llpngwrapper.cpp
     )
 
-set(llimage_HEADER_FILES
+target_sources(llimage
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     llimage.h
@@ -31,24 +37,22 @@ set(llimage_HEADER_FILES
     llpngwrapper.h
     )
 
-list(APPEND llimage_SOURCE_FILES ${llimage_HEADER_FILES})
-
-add_library (llimage ${llimage_SOURCE_FILES})
 target_include_directories( llimage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (USE_KDU)
-    target_link_libraries(llimage llkdu)
-else (USE_KDU)
-    target_link_libraries(llimage llimagej2coj)
-endif (USE_KDU)
+  target_link_libraries(llimage PUBLIC llkdu)
+else ()
+  target_link_libraries(llimage PUBLIC llimagej2coj)
+endif ()
 
 target_link_libraries(llimage
-        llfilesystem
-        llmath
-        llcommon
-        ll::libpng
-        ll::libjpeg
+    PUBLIC
+    llfilesystem
+    llmath
+    llcommon
+    ll::libpng
+    ll::libjpeg
     )
 
 if (USE_PRECOMPILED_HEADERS)

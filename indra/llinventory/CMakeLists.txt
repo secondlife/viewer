@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llinventory_SOURCE_FILES
+add_library(llinventory)
+
+target_sources(llinventory
+    PRIVATE
     llcategory.cpp
     llfoldertype.cpp
     llinventory.cpp
@@ -20,7 +23,10 @@ set(llinventory_SOURCE_FILES
     lluserrelations.cpp
     )
     
-set(llinventory_HEADER_FILES
+target_sources(llinventory
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     llcategory.h
@@ -46,18 +52,14 @@ set(llinventory_HEADER_FILES
     lluserrelations.h
     )
 
-list(APPEND llinventory_SOURCE_FILES ${llinventory_HEADER_FILES})
-
-add_library (llinventory ${llinventory_SOURCE_FILES})
-
-target_link_libraries( llinventory llcommon llmath llmessage llxml )
+target_link_libraries(llinventory PUBLIC llcommon llmath llmessage llxml)
 target_include_directories( llinventory  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (USE_PRECOMPILED_HEADERS)
     target_precompile_headers(llinventory REUSE_FROM llprecompiled)
 endif ()
 
-#add unit tests
+# add unit tests
 if (LL_TESTS)
     INCLUDE(LLAddBuildTest)
     SET(llinventory_TEST_SOURCE_FILES

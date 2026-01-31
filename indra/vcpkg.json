@@ -102,7 +102,7 @@
     "slvoice",
     {
       "name": "sse2neon",
-      "platform": "osx & arm64"
+      "platform": "osx"
     },
     "tinyexr",
     "tinygltf",
@@ -126,6 +126,25 @@
     }
   ],
   "features": {
+    "bugsplat": {
+      "description": "Build with support for Bugsplat crash reporting",
+      "dependencies": [
+        {
+          "name": "bugsplat",
+          "platform": "windows & x64"
+        },
+        {
+          "name": "bugsplat-apple",
+          "platform": "osx"
+        }
+      ]
+    },
+    "kdu": {
+      "description": "Build with support for Kakadu JPEG2000",
+      "dependencies": [
+        "kdu"
+      ]
+    },
     "openxr": {
       "description": "Build with support for OpenXR(experimental)",
       "dependencies": [
@@ -141,9 +160,7 @@
     "tracy": {
       "description": "Build with Tracy profiler support",
       "dependencies": [
-        {
-          "name": "tracy"
-        }
+        "tracy"
       ]
     },
     "tracy-gui": {

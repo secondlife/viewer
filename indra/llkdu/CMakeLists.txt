@@ -1,23 +1,23 @@
 # -*- cmake -*-
-include(LLKDU)
 
-set(llkdu_SOURCE_FILES
+if (USE_KDU)
+  add_library (llkdu ${llkdu_SOURCE_FILES})
+
+
+target_sources(llkdu
+    PRIVATE
     llimagej2ckdu.cpp
     llkdumem.cpp
-    )
 
-set(llkdu_HEADER_FILES
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
     llimagej2ckdu.h
     llkdumem.h
     )
 
-list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
-
-if (USE_KDU)
-  add_library (llkdu ${llkdu_SOURCE_FILES})
-
-  target_link_libraries(llkdu ll::kdu llimage llcommon)
+  target_link_libraries(llkdu PUBLIC ll::kdu llimage llcommon)
   target_include_directories( llkdu  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
   # Add tests
@@ -37,5 +37,4 @@ if (USE_KDU)
 
     LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")
   endif (LL_TESTS)
-
 endif (USE_KDU)

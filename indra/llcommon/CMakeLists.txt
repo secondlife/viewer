@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llcommon_SOURCE_FILES
+add_library(llcommon)
+
+target_sources(llcommon
+    PRIVATE
     apply.cpp
     commoncontrol.cpp
     indra_constants.cpp
@@ -93,10 +96,12 @@ set(llcommon_SOURCE_FILES
     u64.cpp
     threadpool.cpp
     workqueue.cpp
-    StackWalker.cpp
-    )
+)
 
-set(llcommon_HEADER_FILES
+target_sources(llcommon
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     always_return.h
@@ -236,12 +241,17 @@ set(llcommon_HEADER_FILES
     tuple.h
     u64.h
     workqueue.h
-    StackWalker.h
     )
 
 if (DARWIN)
-  list(APPEND llcommon_HEADER_FILES llsys_objc.h)
-  list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
+  target_sources(llcommon
+      PRIVATE
+      llsys_objc.mm
+      PUBLIC
+      FILE_SET HEADERS
+      FILES
+      llsys_objc.h
+  )
 
   set_source_files_properties(
     llsys_objc.mm
@@ -251,23 +261,17 @@ if (DARWIN)
 endif (DARWIN)
 
 if (USE_TRACY)
-  list(APPEND llcommon_SOURCE_FILES llprofiler.cpp)
-
   # Skip precompiled headers on these files due to special compilation needs
   set_source_files_properties(
     llfasttimer.cpp
-    llprofiler.cpp
     PROPERTIES
     SKIP_PRECOMPILE_HEADERS TRUE
   )
 endif ()
 
-list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
-
-add_library (llcommon ${llcommon_SOURCE_FILES})
-
 target_link_libraries(
         llcommon
+        PUBLIC
         ll::apr
         ll::expat
         ll::zlib-ng
@@ -275,6 +279,8 @@ target_link_libraries(
         ll::oslibraries
         ll::tracy
         ll::sse2neon
+        ll::xxhash
+        Threads::Threads
     )
 
 target_include_directories(llcommon PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

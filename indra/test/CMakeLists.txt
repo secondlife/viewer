@@ -1,11 +1,17 @@
 # -*- cmake -*-
 
-set(test_lib_SOURCE_FILES
+add_library(lltut_runner_lib)
+
+target_sources(lltut_runner_lib
+    PRIVATE
     lltut.cpp
     test.cpp
     )
 
-set(test_lib_HEADER_FILES
+target_sources(lltut_runner_lib
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     catch_and_store_what_in.h
@@ -21,20 +27,9 @@ set(test_lib_HEADER_FILES
     test.h
     )
 
-list(APPEND test_lib_SOURCE_FILES ${test_lib_HEADER_FILES})
-
-add_library(lltut_runner_lib ${test_lib_SOURCE_FILES})
-
-target_link_libraries(lltut_runner_lib PRIVATE llcommon ll::tut)
+target_link_libraries(lltut_runner_lib PUBLIC llcommon ll::tut)
 
 set_target_properties(lltut_runner_lib
         PROPERTIES
         FOLDER "Tests"
         )
-
-if (DARWIN)
-  set_target_properties(lltut_runner_lib
-          PROPERTIES
-          OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
-          )
-endif ()

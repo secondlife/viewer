@@ -1,7 +1,4 @@
 # -*- cmake -*-
-include(00-Common)
-include(Boost)
-include(Linking)
 include(PluginAPI)
 include(CEFPlugin)
 include(GLIB)

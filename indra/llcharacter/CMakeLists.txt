@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llcharacter_SOURCE_FILES
+add_library(llcharacter)
+
+target_sources(llcharacter
+    PRIVATE
     llanimationstates.cpp
     llbvhloader.cpp
     llcharacter.cpp
@@ -22,7 +25,11 @@ set(llcharacter_SOURCE_FILES
     llvisualparam.cpp
     )
 
-set(llcharacter_HEADER_FILES
+target_sources(llcharacter
+    PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+    FILES
     CMakeLists.txt
 
     llanimationstates.h
@@ -48,24 +55,21 @@ set(llcharacter_HEADER_FILES
     llvisualparam.h
     )
 
-list(APPEND llcharacter_SOURCE_FILES ${llcharacter_HEADER_FILES})
-
-add_library (llcharacter ${llcharacter_SOURCE_FILES})
 target_include_directories( llcharacter  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
-        llcharacter
-        llcommon
-        llmath
-        llmessage
-        llfilesystem
-        llxml
+    llcharacter
+    PUBLIC
+    llcommon
+    llmath
+    llmessage
+    llfilesystem
+    llxml
     )
 
 if (USE_PRECOMPILED_HEADERS)
   target_precompile_headers(llcharacter REUSE_FROM llprecompiled)
 endif ()
-
 
 if (LL_TESTS)
 #   SET(llcharacter_TEST_SOURCE_FILES

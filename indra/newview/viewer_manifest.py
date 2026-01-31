@@ -454,62 +454,8 @@ class Windows_x86_64_Manifest(ViewerManifest):
         build_data_dict['AppName']    = self.app_name()
         return build_data_dict
 
-    def test_msvcrt_and_copy_action(self, src, dst):
-        # This is used to test a dll manifest.
-        # It is used as a temporary override during the construct method
-        from test_win32_manifest import test_assembly_binding
-        # TODO: This is redundant with LLManifest.copy_action(). Why aren't we
-        # calling copy_action() in conjunction with test_assembly_binding()?
-        if src and (os.path.exists(src) or os.path.islink(src)):
-            # ensure that destination path exists
-            self.cmakedirs(os.path.dirname(dst))
-            self.created_paths.append(dst)
-            if not os.path.isdir(src):
-                if(self.args['buildtype'].lower() == 'debug'):
-                    test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "8.0.50727.4053")
-                else:
-                    test_assembly_binding(src, "Microsoft.VC80.CRT", "8.0.50727.4053")
-                self.ccopy(src,dst)
-            else:
-                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
-        else:
-            print("Doesn't exist:", src)
-
-    def test_for_no_msvcrt_manifest_and_copy_action(self, src, dst):
-        # This is used to test that no manifest for the msvcrt exists.
-        # It is used as a temporary override during the construct method
-        from test_win32_manifest import test_assembly_binding
-        from test_win32_manifest import NoManifestException, NoMatchingAssemblyException
-        # TODO: This is redundant with LLManifest.copy_action(). Why aren't we
-        # calling copy_action() in conjunction with test_assembly_binding()?
-        if src and (os.path.exists(src) or os.path.islink(src)):
-            # ensure that destination path exists
-            self.cmakedirs(os.path.dirname(dst))
-            self.created_paths.append(dst)
-            if not os.path.isdir(src):
-                try:
-                    if(self.args['buildtype'].lower() == 'debug'):
-                        test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "")
-                    else:
-                        test_assembly_binding(src, "Microsoft.VC80.CRT", "")
-                    raise Exception("Unknown condition")
-                except NoManifestException as err:
-                    pass
-                except NoMatchingAssemblyException as err:
-                    pass
-
-                self.ccopy(src,dst)
-            else:
-                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
-        else:
-            print("Doesn't exist:", src)
-
     def construct(self):
         super().construct()
-
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
@@ -569,9 +515,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             ):
                 self.path(libfile)
 
-            if self.args['discord'] == 'ON':
-                self.path("discord_partner_sdk.dll")
-
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             self.path("msvcp140.dll")
@@ -588,9 +531,11 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("vivoxsdk_x64.dll")
             self.path("ortp_x64.dll")
 
-            # BugSplat
-            if self.args.get('bugsplat'):
+        # BugSplat
+        if self.args.get('bugsplat'):
+            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'tools')):
                 self.path("BsSndRpt64.exe")
+            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'bin')):
                 self.path("BugSplat64.dll")
                 self.path("BugSplatRc64.dll")
 
@@ -852,9 +797,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
         # script)
         self.path(os.path.join(self.args['configuration'], self.channel() + ".app"), dst="")
 
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        relpkgdir = os.path.join(self.args['vcpkg_dir'], "lib")
 
         with self.prefix(src="", dst="Contents"):  # everything goes in Contents
             bugsplat_db = self.args.get('bugsplat')
@@ -881,10 +824,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # WebRTC libraries
                 with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'llwebrtc', self.args['configuration'])):
-                    for libfile in (
-                            'libllwebrtc.dylib',
-                    ):
-                        self.path(libfile)
+                    self.path('libllwebrtc.dylib')
 
             with self.prefix(dst="MacOS"):
                 executable = self.dst_path_of(self.channel())
@@ -1037,13 +977,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                     ):
                         self.path(libfile)
 
-                # Discord social SDK
-                if self.args['discord'] == 'ON':
-                    for libfile in (
-                                "libdiscord_partner_sdk.dylib",
-                                ):
-                        self.path2basename(relpkgdir, libfile)
-
                 # our apps
                 executable_path = {}
                 embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
@@ -1123,13 +1056,6 @@ class LinuxManifest(ViewerManifest):
 
     def construct(self):
         super(LinuxManifest, self).construct()
-
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        if "package_dir" in self.args:
-            pkgdir = self.args['package_dir']
-
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         self.path("licenses-linux.txt","licenses.txt")
         with self.prefix("linux_tools"):
@@ -1287,21 +1213,16 @@ class Linux_x86_64_Manifest(LinuxManifest):
     def construct(self):
         super(Linux_x86_64_Manifest, self).construct()
 
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        if "package_dir" in self.args:
-            pkgdir = self.args['package_dir']
-
-        relpkgdir = os.path.join(self.args['vcpkg_dir'], 'lib')
-        #debpkgdir = os.path.join(pkgdir, "lib", "debug")
-
-        with self.prefix(src=relpkgdir, dst="lib"):
+        vcpkgdir = os.path.join(self.args['vcpkg_dir'], 'lib')
+        with self.prefix(src=vcpkgdir, dst="lib"):
             if self.args['discord'] == 'ON':
                 self.path("libdiscord_partner_sdk.so*")
 
         # Vivox runtimes
-        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'slvoice', 'linux'), dst="bin"):
+        vcpkg_voicedir = os.path.join(self.args['vcpkg_dir'], 'share', 'slvoice', 'linux')
+        with self.prefix(src=vcpkg_voicedir, dst="bin"):
             self.path("SLVoice")
-        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'slvoice', 'linux'), dst="lib"):
+        with self.prefix(src=vcpkg_voicedir, dst="lib"):
             self.path("libortp.so")
             self.path("libsndfile.so.1*")
             self.path("libvivoxoal.so.1*") # no - we'll re-use the viewer's own OpenAL lib

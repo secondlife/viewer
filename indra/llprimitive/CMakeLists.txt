@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llprimitive_SOURCE_FILES
+add_library (llprimitive)
+
+target_sources(llprimitive
+    PRIVATE
     lldaeloader.cpp
     llgltfmaterial.cpp
     llmaterialid.cpp
@@ -16,9 +19,10 @@ set(llprimitive_SOURCE_FILES
     lltreeparams.cpp
     llvolumemessage.cpp
     material_codes.cpp
-    )
 
-set(llprimitive_HEADER_FILES
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
     lldaeloader.h
     llgltfmaterial.h
@@ -42,29 +46,27 @@ set(llprimitive_HEADER_FILES
     object_flags.h
     )
 
-list(APPEND llprimitive_SOURCE_FILES ${llprimitive_HEADER_FILES})
-
-add_library (llprimitive ${llprimitive_SOURCE_FILES})
 target_include_directories( llprimitive  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(llprimitive
-        llcommon
-        llmath
+        PUBLIC
+        llcharacter
+        llrender
         llmessage
         llcorehttp
         llxml
-        llcharacter
-        llrender
+        llcommon
+        llmath
         ll::colladadom
         ll::glm
         )
 
 if (HAVOK OR HAVOK_TPV)
-    target_link_libraries(llprimitive
+    target_link_libraries(llprimitive PUBLIC
         llphysicsextensions_impl
         )
 else()
-    target_link_libraries(llprimitive
+    target_link_libraries(llprimitive PUBLIC
         llphysicsextensionsos
         )
 endif ()
@@ -73,7 +75,7 @@ if (USE_PRECOMPILED_HEADERS)
     target_precompile_headers(llprimitive REUSE_FROM llprecompiled)
 endif ()
 
-#add unit tests
+# add unit tests
 if (LL_TESTS)
     INCLUDE(LLAddBuildTest)
     SET(llprimitive_TEST_SOURCE_FILES

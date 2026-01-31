@@ -73,7 +73,7 @@
 
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
-#include "BugSplat.h"
+#include "bugsplat/BugSplat.h"
 #include "boost/json.hpp"                 // Boost.Json
 #include "llagent.h"                // for agent location
 #include "llstartup.h"

@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llui_SOURCE_FILES
+add_library (llui)
+
+target_sources(llui
+    PRIVATE
     llaccordionctrl.cpp
     llaccordionctrltab.cpp
     llbadge.cpp
@@ -107,9 +110,10 @@ set(llui_SOURCE_FILES
     llwindowshade.cpp
     llxuiparser.cpp
     llxyvector.cpp
-    )
-    
-set(llui_HEADER_FILES
+
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     llaccordionctrl.h
@@ -242,13 +246,11 @@ set_source_files_properties(llurlentry.cpp
     "${llurlentry_TEST_DEPENDENCIES}"
     )
 
-list(APPEND llui_SOURCE_FILES ${llui_HEADER_FILES})
-
-add_library (llui ${llui_SOURCE_FILES})
 target_include_directories( llui  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui
+        PUBLIC
         llrender
         llwindow
         llimage
@@ -258,8 +260,8 @@ target_link_libraries(llui
         llfilesystem
         llxml
         llmath
-        ll::hunspell
         llcommon
+        ll::hunspell
     )
 
 if (USE_PRECOMPILED_HEADERS)

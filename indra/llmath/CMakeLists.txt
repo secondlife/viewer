@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llmath_SOURCE_FILES
+add_library(llmath)
+
+target_sources(llmath
+    PRIVATE
     llbbox.cpp
     llbboxlocal.cpp
     llcalc.cpp
@@ -34,7 +37,10 @@ set(llmath_SOURCE_FILES
     xform.cpp
     )
 
-set(llmath_HEADER_FILES
+target_sources(llmath
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     llbbox.h
@@ -85,11 +91,7 @@ set(llmath_HEADER_FILES
     xform.h
     )
 
-list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
-
-add_library(llmath ${llmath_SOURCE_FILES})
-
-target_link_libraries(llmath llcommon llmeshoptimizer ll::mikktspace ll::sse2neon)
+target_link_libraries(llmath PUBLIC llmeshoptimizer llcommon ll::mikktspace ll::sse2neon)
 target_include_directories(llmath  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (USE_PRECOMPILED_HEADERS)

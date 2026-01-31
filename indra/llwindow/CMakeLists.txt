@@ -80,14 +80,6 @@ if (DARWIN)
     llappdelegate-objc.h
     )
 
-  # We use a bunch of deprecated system APIs.
-  set_source_files_properties(
-      llkeyboardmacosx.cpp
-      llwindowmacosx.cpp
-      PROPERTIES
-      COMPILE_FLAGS "-fpascal-strings"
-      )
-
   set_source_files_properties(
     llwindowmacosx-objc.mm
     llopenglview-objc.mm
@@ -161,7 +153,7 @@ if (BUILD_HEADLESS)
   dl
   )
   target_include_directories(llwindowheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-  
+
   if (USE_PRECOMPILED_HEADERS)
     target_precompile_headers(llwindowheadless REUSE_FROM llprecompiled)
   endif ()

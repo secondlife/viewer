@@ -1,0 +1,178 @@
+{
+  "version": 10,
+  "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+  "configurePresets": [
+    {
+      "name": "common",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "../build-${hostSystemName}-${presetName}"
+    },
+    {
+      "name": "macos-a64",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "arm64"
+      }
+    },
+    {
+      "name": "macos-x64",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "x86_64"
+      }
+    },
+    {
+      "name": "nonfree",
+      "hidden": true,
+      "cacheVariables": {
+        "INSTALL_PROPRIETARY": true
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Ninja Debug",
+      "inherits": "common",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "Ninja RelWithDebInfo",
+      "inherits": "common",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Ninja Release",
+      "inherits": "common",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "ninja-multi",
+      "displayName": "Ninja Multi-Config",
+      "inherits": "common",
+      "generator": "Ninja Multi-Config"
+    },
+    {
+      "name": "vs2022-os",
+      "displayName": "Visual Studio 2022 OS",
+      "inherits": "common",
+      "generator": "Visual Studio 17 2022",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "vs2022",
+      "displayName": "Visual Studio 2022 Proprietary",
+      "inherits": [
+        "vs2022-os",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "vs2026-os",
+      "displayName": "Visual Studio 2026 OS",
+      "inherits": "common",
+      "generator": "Visual Studio 18 2026",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "vs2026",
+      "displayName": "Visual Studio 2026 Proprietary",
+      "inherits": [
+        "vs2026-os",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "release-a64",
+      "displayName": "Ninja Release(arm64)",
+      "inherits": [
+        "release",
+        "macos-a64"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "release-x64",
+      "displayName": "Ninja Release(x86_64)",
+      "inherits": [
+        "release",
+        "macos-x64"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "xcode-os",
+      "displayName": "Xcode OS",
+      "inherits": "common",
+      "generator": "Xcode",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "xcode-os-x64",
+      "displayName": "Xcode OS(x86_64)",
+      "inherits": [
+        "xcode-os",
+        "macos-x64"
+      ]
+    },
+    {
+      "name": "xcode-os-a64",
+      "displayName": "Xcode OS(arm64)",
+      "inherits": [
+        "xcode-os",
+        "macos-a64"
+      ]
+    },
+    {
+      "name": "xcode",
+      "displayName": "Xcode Proprietary",
+      "inherits": [
+        "xcode-os",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "xcode-a64",
+      "displayName": "Xcode Proprietary(arm64)",
+      "inherits": [
+        "xcode-os-a64",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "xcode-x64",
+      "displayName": "Xcode Proprietary(x86_64)",
+      "inherits": [
+        "xcode-os-x64",
+        "nonfree"
+      ]
+    }
+  ]
+}

@@ -106,7 +106,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     endif(DARWIN)
 
     if (USE_PRECOMPILED_HEADERS)
-      target_precompile_headers(PROJECT_${project}_TEST_${name} REUSE_FROM llprecompiled)
+      target_precompile_headers(PROJECT_${project}_TEST_${name} REUSE_FROM llprecompiled_exe)
     endif ()
 
     #
@@ -142,7 +142,6 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
       # test binaries always need to be signed for local development
       set_target_properties(PROJECT_${project}_TEST_${name}
           PROPERTIES
-              OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
               XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-")
     endif ()
 
@@ -236,7 +235,6 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     # test binaries always need to be signed for local development
     set_target_properties(INTEGRATION_TEST_${testname}
             PROPERTIES
-            OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
             BUILD_WITH_INSTALL_RPATH 1
             INSTALL_RPATH "@executable_path/Resources"
@@ -253,7 +251,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   if (USE_PRECOMPILED_HEADERS)
     target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${CMAKE_SOURCE_DIR}/llmath )
-    target_precompile_headers(INTEGRATION_TEST_${testname} REUSE_FROM llprecompiled)
+    target_precompile_headers(INTEGRATION_TEST_${testname} REUSE_FROM llprecompiled_exe)
   endif ()
 
   # Create the test running command

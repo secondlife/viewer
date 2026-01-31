@@ -1,13 +1,19 @@
 # -*- cmake -*-
 
-set(llxml_SOURCE_FILES
+add_library(llxml)
+
+target_sources(llxml
+    PRIVATE
     llcontrol.cpp
     llxmlnode.cpp
     llxmlparser.cpp
     llxmltree.cpp
     )
 
-set(llxml_HEADER_FILES
+target_sources(llxml
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     llcontrol.h
@@ -16,16 +22,14 @@ set(llxml_HEADER_FILES
     llxmltree.h
     )
 
-list(APPEND llxml_SOURCE_FILES ${llxml_HEADER_FILES})
-
-add_library (llxml ${llxml_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-target_link_libraries( llxml
-        llfilesystem
-        llmath
-        llcommon
-        ll::expat
+target_link_libraries(llxml
+    PUBLIC
+    llfilesystem
+    llmath
+    llcommon
+    ll::expat
     )
 target_include_directories( llxml  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -34,10 +38,8 @@ if (USE_PRECOMPILED_HEADERS)
 endif ()
 
 # tests
-
 if (LL_TESTS)
     # unit tests
-
     SET(llxml_TEST_SOURCE_FILES
       # none yet!
       )
@@ -45,7 +47,7 @@ if (LL_TESTS)
 
     # integration tests
 
-    #    set(TEST_DEBUG on)
+    # set(TEST_DEBUG on)
     set(test_libs
             llxml
             llmath

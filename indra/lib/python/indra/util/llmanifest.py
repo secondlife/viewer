@@ -139,7 +139,7 @@ BASE_ARGUMENTS=[
     dict(name='login_url',
          description="""The url that the login screen displays in the client.""",
          default=None),
-    dict(name='vcpkg_dir', description='vcpkg directory.', default=""),
+    dict(name='vcpkg_dir', description='vcpkg directory.', default=None),
     dict(name='platform',
          description="""The current platform, to be used for looking up which
         manifest class to run.""",

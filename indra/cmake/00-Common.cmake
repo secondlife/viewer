@@ -34,6 +34,18 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 # Speeds up cmake generation significantly in some cases
 set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY ON)
 
+# Position Independent Code/ASLR
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Hidden symbols to reduce binary size
+set(CMAKE_C_VISIBILITY_PRESET "hidden")
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
+# Setup threading options
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads)
+
 # Link Time Optimization
 if(USE_LTO)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
@@ -61,6 +73,7 @@ add_compile_definitions(
 
 # Portable compilation flags.
 add_compile_definitions(ADDRESS_SIZE=${ADDRESS_SIZE})
+
 # Because older versions of Boost.Bind dumped placeholders _1, _2 et al. into
 # the global namespace, Boost now requires either BOOST_BIND_NO_PLACEHOLDERS
 # to avoid that or BOOST_BIND_GLOBAL_PLACEHOLDERS to state that we require it
@@ -132,6 +145,7 @@ if (WINDOWS)
     /Zc:preprocessor
     /Zc:__cplusplus
     /Zc:inline
+    /Zc:wchar_t
   )
 
   if (NOT VS_DISABLE_FATAL_WARNINGS)
@@ -168,6 +182,7 @@ if (LINUX)
    # viewer doesn't need to catch SIGCHLD anyway.
 
   add_compile_definitions(
+    LL_LINUX=1
     _REENTRANT
     APPID=secondlife
     LL_IGNORE_SIGCHLD
@@ -214,8 +229,6 @@ if (LINUX)
     -fsigned-char
     -g
     -msse2
-    -pthread
-    -fvisibility=hidden
   )
 
   # Debug Options
@@ -243,6 +256,11 @@ if (LINUX)
 endif (LINUX)
 
 if (DARWIN)
+  # Set our OSX deployment target
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum OS X version to target for deployment (at runtime); newer APIs weak linked. Set to empty string for default value.")
+  # Also set the environment variable for tool calls
+  set(ENV{MACOSX_DEPLOYMENT_TARGET} ${CMAKE_OSX_DEPLOYMENT_TARGET})
+
   # Use rpath loading on macos
   set(CMAKE_MACOSX_RPATH TRUE)
 
@@ -267,21 +285,20 @@ if (DARWIN)
   set(CMAKE_XCODE_ATTRIBUTE_DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING YES)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
 
-  # Only build tests for host system architecture
-  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-    set(LL_MACOS_TEST_ARCHITECTURE "arm64")
-  else()
-    set(LL_MACOS_TEST_ARCHITECTURE "x86_64")
-  endif()
-
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-
   # Platform define
   add_compile_definitions(LL_DARWIN=1)
 
   # Ensure debug symbols are always generated
-  add_compile_options(-g --debug -fno-fast-math -fno-strict-aliasing) # --debug is a clang synonym for -g that bypasses cmake behaviors
+  add_compile_options(-g2 -gdwarf -fno-fast-math -fno-strict-aliasing)
+
+  if(DEFINED CMAKE_OSX_ARCHITECTURES)
+    set(OS_PLATFORM "${CMAKE_OSX_ARCHITECTURES}")
+  else()
+    cmake_host_system_information(RESULT OS_PLATFORM QUERY OS_PLATFORM)
+  endif()
+  if(OS_PLATFORM STREQUAL x86_64)
+    add_compile_options(-msse4.2)
+  endif()
 
   # Silence GL deprecation warnings
   add_compile_definitions(GL_SILENCE_DEPRECATION=1)
@@ -300,6 +317,8 @@ if (DARWIN)
   add_compile_options(
     $<$<CONFIG:Release>:-O3>
   )
+
+  add_link_options("LINKER:-headerpad_max_install_names" "LINKER:-search_paths_first")
 endif(DARWIN)
 
 if (LINUX OR DARWIN)
@@ -315,6 +334,9 @@ if (LINUX OR DARWIN)
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-Wno-stringop-truncation -Wno-stringop-overflow -Wno-parentheses -Wno-maybe-uninitialized -Wno-unused-local-typedefs)
+
+    # This warning is extremely false positive sensitive, including on libstdc++'s own headers.
+    add_compile_options(-Wno-array-bounds)
   endif ()
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLANG_DISABLE_FATAL_WARNINGS)

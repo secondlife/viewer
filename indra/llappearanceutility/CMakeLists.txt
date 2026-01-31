@@ -53,7 +53,7 @@ target_link_libraries(appearance-utility-bin
     )
 
 if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(appearance-utility-bin REUSE_FROM llprecompiled)
+  target_precompile_headers(appearance-utility-bin REUSE_FROM llprecompiled_exe)
 endif ()
 
 if (BUILD_HEADLESS)
@@ -69,7 +69,7 @@ if (BUILD_HEADLESS)
     )
     
   if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(appearance-utility-headless-bin REUSE_FROM llprecompiled)
+    target_precompile_headers(appearance-utility-headless-bin REUSE_FROM llprecompiled_exe)
   endif ()
 endif (BUILD_HEADLESS)
 

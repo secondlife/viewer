@@ -100,12 +100,11 @@ target_link_libraries(llrender
         )
 
 if (NOT USE_SDL_WINDOW)
-target_link_libraries(llrender
-        OpenGL::GL
-        )
-
+  target_link_libraries(llrender
+          OpenGL::GL
+          )
 endif()
 
 if (USE_PRECOMPILED_HEADERS)
- target_precompile_headers(llrender REUSE_FROM llprecompiled)
+  target_precompile_headers(llrender REUSE_FROM llprecompiled)
 endif ()

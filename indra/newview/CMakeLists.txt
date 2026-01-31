@@ -1852,11 +1852,7 @@ if (WINDOWS)
 
     endif (PACKAGE)
 elseif (DARWIN)
-    set_target_properties(${VIEWER_BINARY_NAME}
-        PROPERTIES
-        RESOURCE SecondLife.xib
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip"
-        )
+    target_link_options(${VIEWER_BINARY_NAME} PRIVATE "$<$<CONFIG:Release>:LINKER:-dead_strip>")
     if(HAVOK)
       set_target_properties(${VIEWER_BINARY_NAME}
           PROPERTIES
@@ -2106,10 +2102,18 @@ if (DARWIN)
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${product}.app")
   set(VIEWER_APP_EXE "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}")
 
-  configure_file(
-     "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
-     "${VIEWER_APP_BUNDLE}/Contents/Info.plist"
-    )
+  if(NOT (${CMAKE_GENERATOR} STREQUAL "Xcode"))
+    set(VIEWER_DEBUG_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${product}.dSYM")
+    find_program(DSYMUTIL dsymutil REQUIRED)
+    add_custom_command(TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+          COMMAND dsymutil -o ${VIEWER_DEBUG_BUNDLE} ${VIEWER_APP_EXE}
+          COMMENT "Generating SecondLife.dSYM")
+  endif()
+
+  find_program(IBTOOL ibtool REQUIRED)
+  add_custom_command(TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+          COMMAND ${IBTOOL} --compile ${VIEWER_APP_BUNDLE}/Contents/Resources/SecondLife.nib ${CMAKE_CURRENT_SOURCE_DIR}/SecondLife.xib
+          COMMENT "Compiling SecondLife.nib")
 
   add_custom_command(
     TARGET ${VIEWER_BINARY_NAME} POST_BUILD
@@ -2280,7 +2284,7 @@ if (LL_TESTS)
   set_property(SOURCE
     ${viewer_TEST_SOURCE_FILES}
     PROPERTY
-    LL_TEST_ADDITIONAL_LIBRARIES 
+    LL_TEST_ADDITIONAL_LIBRARIES
     ${test_libs}
   )
 

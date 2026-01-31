@@ -4,10 +4,6 @@
 # - The stub source package, selected by -DHAVOK:BOOL=OFF
 # - The prebuilt package available to those with sublicenses, selected by -DHAVOK_TPV:BOOL=ON
 
-if (INSTALL_PROPRIETARY)
-   set(HAVOK ON CACHE BOOL "Use Havok physics library")
-endif (INSTALL_PROPRIETARY)
-
 include_guard()
 add_library( llphysicsextensions_impl INTERFACE IMPORTED )
 

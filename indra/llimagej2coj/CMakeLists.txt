@@ -1,22 +1,23 @@
 # -*- cmake -*-
 
-set(llimagej2coj_SOURCE_FILES
-    llimagej2coj.cpp
-    )
+add_library(llimagej2coj)
 
-set(llimagej2coj_HEADER_FILES
+target_sources(llimagej2coj
+    PRIVATE
+    llimagej2coj.cpp
+
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     llimagej2coj.h
     )
 
-list(APPEND llimagej2coj_SOURCE_FILES ${llimagej2coj_HEADER_FILES})
-
-add_library (llimagej2coj ${llimagej2coj_SOURCE_FILES})
-
-target_link_libraries( llimagej2coj
-        llcommon
+target_link_libraries(llimagej2coj
+        PUBLIC
         llimage
+        llcommon
         ll::openjpeg
     )
 

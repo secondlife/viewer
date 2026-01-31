@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llcorehttp_SOURCE_FILES
+add_library (llcorehttp)
+
+target_sources(llcorehttp
+    PRIVATE
     bufferarray.cpp
     bufferstream.cpp
     httpcommon.cpp
@@ -25,7 +28,10 @@ set(llcorehttp_SOURCE_FILES
     _refcounted.cpp
     )
 
-set(llcorehttp_HEADER_FILES
+target_sources(llcorehttp
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     bufferarray.h
@@ -57,17 +63,9 @@ set(llcorehttp_HEADER_FILES
     _thread.h
     )
 
-if (DARWIN OR LINUX)
-  # Boost headers define unused members in condition_variable so...
-  set_source_files_properties(${llcorehttp_SOURCE_FILES}
-                              PROPERTIES COMPILE_FLAGS -Wno-unused-variable)
-endif (DARWIN OR LINUX)
-
-list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
-
-add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
 target_link_libraries(
         llcorehttp
+        PUBLIC
         llmath
         llcommon
         ll::libcurl
@@ -77,15 +75,14 @@ target_include_directories( llcorehttp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 # llmessage depends on llcorehttp, yet llcorehttp also depends on llmessage (at least for includes).
 # Cannot/Should not use target_link_libraries here to add llmessage to the dependencies, as that would
 # lead to circular dependencies (or in case of cmake, the first project declaring it's dependencies wins)
-target_include_directories( llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage)
+target_include_directories(llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage)
 
 if (USE_PRECOMPILED_HEADERS)
   target_precompile_headers(llcorehttp REUSE_FROM llprecompiled)
 endif ()
 
 # tests
-set(LLCOREHTTP_TESTS ON CACHE BOOL
-    "Build and run llcorehttp integration tests specifically")
+option(LLCOREHTTP_TESTS "Build and run llcorehttp integration tests specifically" ON)
 if (LL_TESTS AND LLCOREHTTP_TESTS)
   SET(llcorehttp_TEST_SOURCE_FILES
       )
@@ -154,13 +151,6 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
                           LINK_FLAGS_RELEASE ""
                           )
   endif (WINDOWS)
-
-  if(DARWIN)
-    set_target_properties(http_texture_load
-                        PROPERTIES
-                        OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
-                        )
-  endif()
 
   target_link_libraries(http_texture_load ${example_libs})
 

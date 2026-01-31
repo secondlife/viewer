@@ -1,26 +1,24 @@
 # -*- cmake -*-
 
-set(llmeshoptimizer_SOURCE_FILES
-        llmeshoptimizer.cpp
-        )
+add_library(llmeshoptimizer)
 
-set(llmeshoptimizer_HEADER_FILES
-        CMakeLists.txt
-        llmeshoptimizer.h
-        )
-
-set_source_files_properties(${llmeshoptimizer_HEADER_FILES}
-        PROPERTIES HEADER_FILE_ONLY TRUE)
-
-list(APPEND llmeshoptimizer_SOURCE_FILES ${llmeshoptimizer_HEADER_FILES})
-
-add_library (llmeshoptimizer ${llmeshoptimizer_SOURCE_FILES})
+target_sources(llmeshoptimizer
+    PRIVATE
+    llmeshoptimizer.cpp
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
+    CMakeLists.txt
+    llmeshoptimizer.h
+    )
 target_include_directories( llmeshoptimizer INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(llmeshoptimizer
-        llcommon
+        PUBLIC
         llmath
-        ll::meshoptimizer)
+        llcommon
+        ll::meshoptimizer
+        )
 
 if (USE_PRECOMPILED_HEADERS)
   target_precompile_headers(llmeshoptimizer REUSE_FROM llprecompiled)

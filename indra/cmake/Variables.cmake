@@ -44,8 +44,3 @@ set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
 set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
 
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
-
-source_group("CMake Rules" FILES CMakeLists.txt)
-
-get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-

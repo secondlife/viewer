@@ -1,6 +1,9 @@
 # -*- cmake -*-
 
-set(llmessage_SOURCE_FILES
+add_library(llmessage)
+
+target_sources(llmessage
+    PRIVATE
     llassetstorage.cpp
     llavatarname.cpp
     llavatarnamecache.cpp
@@ -74,7 +77,10 @@ set(llmessage_SOURCE_FILES
     sound_ids.cpp
     )
 
-set(llmessage_HEADER_FILES
+target_sources(llmessage
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     CMakeLists.txt
 
     llassetstorage.h
@@ -164,12 +170,9 @@ set(llmessage_HEADER_FILES
     sound_ids.h
     )
 
-list(APPEND llmessage_SOURCE_FILES ${llmessage_HEADER_FILES})
-
-add_library (llmessage ${llmessage_SOURCE_FILES})
-
 target_link_libraries(
         llmessage
+        PUBLIC
         llcommon
         llfilesystem
         llmath

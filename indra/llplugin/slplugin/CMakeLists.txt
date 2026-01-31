@@ -3,15 +3,24 @@ include(PluginAPI)
 
 ### SLPlugin
 
-set(SLPlugin_SOURCE_FILES
+add_executable(SLPlugin
+    WIN32
+    MACOSX_BUNDLE
+    )
+
+target_sources(SLPlugin
+    PRIVATE
     slplugin.cpp
     )
 
 if (DARWIN)
-  list(APPEND SLPlugin_SOURCE_FILES
+  target_sources(SLPlugin
+    PRIVATE
     slplugin-objc.mm
-  )
-  list(APPEND SLPlugin_HEADER_FILES
+
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     slplugin-objc.h
   )
 
@@ -22,16 +31,6 @@ if (DARWIN)
   )
 endif (DARWIN)
 
-if (SLPlugin_HEADER_FILES)
-  list(APPEND SLPlugin_SOURCE_FILES ${SLPlugin_HEADER_FILES})
-endif (SLPlugin_HEADER_FILES)
-
-add_executable(SLPlugin
-    WIN32
-    MACOSX_BUNDLE
-    ${SLPlugin_SOURCE_FILES}
-    )
-
 target_link_libraries(SLPlugin
         llplugin
         llmessage
@@ -40,7 +39,7 @@ target_link_libraries(SLPlugin
         )
 
 if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(SLPlugin REUSE_FROM llprecompiled)
+  target_precompile_headers(SLPlugin REUSE_FROM llprecompiled_exe)
 endif ()
 
 if (WINDOWS)

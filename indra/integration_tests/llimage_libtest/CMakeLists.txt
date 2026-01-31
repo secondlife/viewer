@@ -25,13 +25,6 @@ set_target_properties(llimage_libtest
                     FOLDER "Tests"
                     )
 
-if(DARWIN)
-    set_target_properties(llimage_libtest
-                        PROPERTIES
-                        OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
-                        )
-endif()
-
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest

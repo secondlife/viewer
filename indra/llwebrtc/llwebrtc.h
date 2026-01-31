@@ -44,10 +44,8 @@
 #ifdef LL_MAKEDLL
 #ifdef WEBRTC_WIN
 #define LLSYMEXPORT __declspec(dllexport)
-#elif WEBRTC_LINUX
-#define LLSYMEXPORT __attribute__((visibility("default")))
 #else
-#define LLSYMEXPORT /**/
+#define LLSYMEXPORT __attribute__((visibility("default")))
 #endif
 #else
 #define LLSYMEXPORT /**/
