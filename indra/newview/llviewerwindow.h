@@ -410,6 +410,7 @@ public:
     void resetSnapshotLoc();
 
     void            playSnapshotAnimAndSound();
+    static void     onSnapshotNotificationClick(const LLSD& notification, const LLSD& response);
 
     // draws selection boxes around selected objects, must call displayObjects first
     void            renderSelections( bool for_gl_pick, bool pick_parcel_walls, bool for_hud );
