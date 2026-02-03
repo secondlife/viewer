@@ -1116,7 +1116,16 @@ void LLDir::openDir(const std::string& filepath)
 
 #if LL_WINDOWS
     // Windows: Use explorer.exe with /select flag to highlight the file
-    std::string system_root = LLStringUtil::getenv("SystemRoot", "C:\\Windows");
+    std::string system_root = LLStringUtil::getenv("SystemRoot");
+    if (system_root.empty())
+    {
+        system_root = LLStringUtil::getenv("WINDIR");
+    }
+    if (system_root.empty())
+    {
+        LL_WARNS() << "Neither SystemRoot nor WINDIR environment variable is set" << LL_ENDL;
+        system_root = "C:\\Windows"; // Last resort fallback
+    }
     params.executable = system_root + "\\explorer.exe";
     params.args.add("/select,");
     params.args.add(filepath);
