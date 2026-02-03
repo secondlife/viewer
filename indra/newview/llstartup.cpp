@@ -29,6 +29,11 @@
 #include "llappviewer.h"
 #include "llstartup.h"
 
+#if LL_VELOPACK && LL_WINDOWS
+#include "llvelopack.h"
+#include <shellapi.h>
+#endif
+
 #if LL_WINDOWS
 #   include <process.h>     // _spawnl()
 #else
@@ -266,6 +271,7 @@ std::unique_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::P
 
 void login_show();
 void login_callback(S32 option, void* userdata);
+void uninstall_nsis_if_required();
 void show_release_notes_if_required();
 void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
@@ -921,6 +927,7 @@ bool idle_startup()
         LL_DEBUGS("AppInit") << "PeekMessage processed" << LL_ENDL;
 #endif
         do_startup_frame();
+        uninstall_nsis_if_required();
         timeout.reset();
         return false;
     }
@@ -2603,6 +2610,75 @@ void release_notes_coro(const std::string url)
     }
 
     LLWeb::loadURLInternal(url);
+}
+
+/**
+* Check if this is a fresh velopack install and
+* if uninstallation of old viewer is needed.
+*/
+void uninstall_nsis_if_required()
+{
+#if LL_VELOPACK && LL_WINDOWS
+    // Todo: perhaps use marker files?
+    // Debug variable isn't specific to one channel
+    // and something channel specific is needed.
+    std::string last_install_ver = gSavedSettings.getString("LastInstallVersion");
+    LLVersionInfo* ver_inst = LLVersionInfo::getInstance();
+    if (ver_inst->getChannelAndVersion() == last_install_ver)
+    {
+        return;
+    }
+    gSavedSettings.setString("LastInstallVersion",
+        ver_inst->getChannelAndVersion());
+
+    LL_INFOS() << "Looking for previous NSIS installs" << LL_ENDL;
+
+    wchar_t buffer[MAX_PATH];
+    if (!get_nsis_uninstaller_path( buffer,
+                                    MAX_PATH,
+                                    ver_inst->getMajor(),
+                                    ver_inst->getMinor(),
+                                    ver_inst->getPatch(),
+                                    ver_inst->getBuild())
+        )
+    {
+        return;
+    }
+
+    // Compose command line: "<uninstaller_path>" /S /clearreg
+    std::wstring params = L"\"";
+    params += buffer;
+    params += L"\"";
+    // params += L" /S /clearreg"; // silent uninstall and clear registry entries
+
+    LLNotificationsUtil::add("PromptRemoveNsisInstallation", LLSD(), LLSD(),
+        [params](const LLSD& notification, const LLSD& response)
+    {
+        S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+        if (option == 1) // cancel
+        {
+            return;
+        }
+
+        LL_INFOS() << "Triggering NSIS uninstall from " << ll_convert_wide_to_string(params) << LL_ENDL;
+
+        // Launch uninstaller using explorer.exe
+        SHELLEXECUTEINFOW sei = { 0 };
+        sei.cbSize = sizeof(sei);
+        sei.fMask = SEE_MASK_DEFAULT;
+        sei.hwnd = NULL;
+        sei.lpVerb = L"runas"; // Request elevation
+        sei.lpFile = L"explorer.exe";
+        sei.lpParameters = params.c_str();
+
+        sei.nShow = SW_HIDE;
+
+        if (!ShellExecuteExW(&sei))
+        {
+            LL_WARNS("AppInit") << "Failed to launch NSIS uninstaller, error code: " << GetLastError() << LL_ENDL;
+        }
+    });
+#endif
 }
 
 void validate_release_notes_coro(const std::string url)

@@ -40,6 +40,10 @@ void velopack_apply_pending_update(bool restart = true);
 void velopack_set_update_url(const std::string& url);
 void velopack_set_progress_callback(std::function<void(int)> callback);
 
+#if LL_WINDOWS
+bool get_nsis_uninstaller_path(wchar_t* path_buffer, DWORD bufSize, S32 cur_major_ver, S32 cur_minor_ver, S32 cur_patch_ver, U64 cur_build_ver);
+#endif
+
 #endif // LL_VELOPACK
 #endif
 // EOF

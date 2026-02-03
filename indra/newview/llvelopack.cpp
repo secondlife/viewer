@@ -28,6 +28,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llvelopack.h"
+#include "llstring.h"
 
 #include "Velopack.h"
 
@@ -37,6 +38,7 @@
 #include <shobjidl.h>
 #include <shlwapi.h>
 #include <objbase.h>
+#include <filesystem>
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "ole32.lib")
@@ -175,6 +177,89 @@ static void register_protocol_handler(const std::wstring& protocol,
     }
 }
 
+static void parse_version(const wchar_t* version_str, int& major, int& minor, int& patch, uint64_t& build)
+{
+    major = minor = patch = 0;
+    build = 0;
+    if (!version_str) return;
+    // Use swscanf for wide strings
+    swscanf(version_str, L"%d.%d.%d.%llu", &major, &minor, &patch, &build);
+}
+
+bool get_nsis_uninstaller_path(wchar_t* path_buffer, DWORD bufSize, S32 cur_major_ver, S32 cur_minor_ver, S32 cur_patch_ver, U64 cur_build_ver)
+{
+    // Test for presence of NSIS viewer registration, then
+    // attempt to read uninstall info
+    std::wstring app_name_oneword = get_app_name_oneword();
+    std::wstring uninstall_key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + app_name_oneword;
+    HKEY hkey;
+    LONG result = RegOpenKeyExW(HKEY_LOCAL_MACHINE, uninstall_key_path.c_str(), 0, KEY_READ, &hkey);
+    if (result != ERROR_SUCCESS)
+    {
+        return false;
+    }
+
+    // Read DisplayVersion
+    wchar_t version_buf[64] = { 0 };
+    DWORD version_buf_size = sizeof(version_buf);
+    DWORD type = 0;
+    LONG ver_rv = RegGetValueW(hkey, nullptr, L"DisplayVersion", RRF_RT_REG_SZ, &type, version_buf, &version_buf_size);
+
+    if (ver_rv != ERROR_SUCCESS)
+    {
+        RegCloseKey(hkey);
+        return false;
+    }
+
+    int nsis_major = 0, nsis_minor = 0, nsis_patch = 0;
+    uint64_t nsis_build = 0;
+    parse_version(version_buf, nsis_major, nsis_minor, nsis_patch, nsis_build);
+
+    // Compare numerically
+    if ((nsis_major > cur_major_ver) ||
+        (nsis_major == cur_major_ver && nsis_minor > cur_minor_ver) ||
+        (nsis_major == cur_major_ver && nsis_minor == cur_minor_ver && nsis_patch > cur_patch_ver) ||
+         // Assume that bigger build number means newer version, which is not always true but works for our purposes
+        (nsis_major == cur_major_ver && nsis_minor == cur_minor_ver && nsis_patch == cur_patch_ver && nsis_build > cur_build_ver))
+    {
+        LL_INFOS() << "Found installed nsis version that is newer" << nsis_major << "." << nsis_minor << "." << nsis_patch << LL_ENDL;
+        RegCloseKey(hkey);
+        return false;
+    }
+
+    LONG rv = RegGetValueW(hkey, nullptr, L"UninstallString", RRF_RT_REG_SZ, &type, path_buffer, &bufSize);
+    RegCloseKey(hkey);
+    if (rv != ERROR_SUCCESS)
+    {
+        return false;
+    }
+    size_t len = wcslen(path_buffer);
+    if (len > 0)
+    {
+        if (path_buffer[0] == L'\"')
+        {
+            // Likely to contain leading "
+            memmove(path_buffer, path_buffer + 1, len * sizeof(wchar_t));
+        }
+        wchar_t* pos = wcsstr(path_buffer, L"uninst.exe");
+        if (pos)
+        {
+            // Likely to contain trailing "
+            pos[wcslen(L"uninst.exe")] = L'\0';
+        }
+    }
+    std::error_code ec;
+    std::filesystem::path path(path_buffer);
+    if (!std::filesystem::exists(path, ec))
+    {
+        return false;
+    }
+
+    // Todo: check codesigning?
+
+    return true;
+}
+
 static void unregister_protocol_handler(const std::wstring& protocol)
 {
     std::wstring key_path = L"SOFTWARE\\Classes\\" + protocol;
@@ -205,6 +290,18 @@ static void register_uninstall_info(const std::wstring& install_dir,
                       (BYTE*)uninstall_cmd.c_str(), (DWORD)((uninstall_cmd.size() + 1) * sizeof(wchar_t)));
         RegSetValueExW(hkey, L"DisplayIcon", 0, REG_SZ,
                       (BYTE*)exe_path.c_str(), (DWORD)((exe_path.size() + 1) * sizeof(wchar_t)));
+
+        std::wstring link_url = L"https://support.secondlife.com/contact-support/";
+        RegSetValueExW(hkey, L"HelpLink", 0, REG_SZ,
+            (BYTE*)link_url.c_str(), (DWORD)((link_url.size() + 1) * sizeof(wchar_t)));
+
+        link_url = L"https://secondlife.com/whatis/";
+        RegSetValueExW(hkey, L"URLInfoAbout", 0, REG_SZ,
+            (BYTE*)link_url.c_str(), (DWORD)((link_url.size() + 1) * sizeof(wchar_t)));
+
+        link_url = L"http://secondlife.com/support/downloads/";
+        RegSetValueExW(hkey, L"URLUpdateInfo", 0, REG_SZ,
+            (BYTE*)link_url.c_str(), (DWORD)((link_url.size() + 1) * sizeof(wchar_t)));
 
         DWORD no_modify = 1;
         RegSetValueExW(hkey, L"NoModify", 0, REG_DWORD, (BYTE*)&no_modify, sizeof(DWORD));
