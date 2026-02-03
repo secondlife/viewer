@@ -130,9 +130,13 @@ private:
     void clearParseResults();
     void checkTimeout();
 
-    // Fetch can return large packets of data, throttle it to not cause lags
-    // Todo: make throttle work over all fetch requests isntead of per-request
-    const F32 AIS_EXPIRY_SECONDS = 0.008f;
+    // Fetches can return large packets of data,
+    // throttle them individually to not get stuck
+    // on a single large task. And throttle sum total
+    // to not cause lags when multiple large fetches
+    // returned results.
+    const F32 AIS_TASK_EXPIRY_SECONDS = 0.008f;
+    const F32 AIS_BATCH_EXPIRY_SECONDS = 0.010f;
 
     typedef std::map<LLUUID,size_t> uuid_int_map_t;
     uuid_int_map_t mCatDescendentDeltas;
@@ -154,7 +158,9 @@ private:
     uuid_list_t mCategoryIds;
     bool mFetch;
     S32 mFetchDepth;
-    LLTimer mTimer;
+    LLTimer mTaskTimer;
+    static LLTimer sBatchTimer;
+    static U32 sBatchFrameCount;
     AISAPI::COMMAND_TYPE mType;
 };
 

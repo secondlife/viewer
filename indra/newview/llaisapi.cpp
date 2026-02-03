@@ -1019,6 +1019,9 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 }
 
 //-------------------------------------------------------------------------
+U32 AISUpdate::sBatchFrameCount = 0;
+LLTimer AISUpdate::sBatchTimer;
+
 AISUpdate::AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body)
 : mType(type)
 {
@@ -1036,8 +1039,16 @@ AISUpdate::AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& 
         mFetchDepth = request_body["depth"].asInteger();
     }
 
-    mTimer.setTimerExpirySec(AIS_EXPIRY_SECONDS);
-    mTimer.start();
+    mTaskTimer.setTimerExpirySec(AIS_TASK_EXPIRY_SECONDS);
+    mTaskTimer.start();
+
+    U32 current_frame = LLFrameTimer::getFrameCount();
+    if (sBatchFrameCount != current_frame)
+    {
+        sBatchTimer.setTimerExpirySec(AIS_BATCH_EXPIRY_SECONDS);
+        sBatchTimer.start();
+        sBatchFrameCount = current_frame;
+    }
     parseUpdate(update);
 }
 
@@ -1058,7 +1069,7 @@ void AISUpdate::clearParseResults()
 
 void AISUpdate::checkTimeout()
 {
-    if (mTimer.hasExpired())
+    if (mTaskTimer.hasExpired() || sBatchTimer.hasExpired())
     {
         // If we are taking too long, don't starve other tasks,
         // yield to mainloop.
@@ -1067,7 +1078,16 @@ void AISUpdate::checkTimeout()
         // a chance, so wait for a frame tick instead.
         llcoro::suspendUntilNextFrame();
         LLCoros::checkStop();
-        mTimer.setTimerExpirySec(AIS_EXPIRY_SECONDS);
+        mTaskTimer.setTimerExpirySec(AIS_TASK_EXPIRY_SECONDS);
+
+        U32 current_frame = LLFrameTimer::getFrameCount();
+        if (sBatchFrameCount != current_frame)
+        {
+            // To give other tasks a chance batch timer
+            // has a longer delay.
+            sBatchTimer.setTimerExpirySec(AIS_BATCH_EXPIRY_SECONDS);
+            sBatchFrameCount = current_frame;
+        }
     }
 }
 
