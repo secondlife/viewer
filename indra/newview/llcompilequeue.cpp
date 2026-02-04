@@ -61,6 +61,7 @@
 
 #include "llviewerassetupload.h"
 #include "llcorehttputil.h"
+#include "llpreviewscript.h"
 
 namespace
 {
@@ -461,6 +462,33 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     }
 
     LLUUID assetId = result["asset_id"];
+
+    // Check if this is a SLua script that shouldn't be recompiled to Mono/LSL
+    if (compile_target == "mono" || compile_target == "lsl2")
+    {
+        // Read the script from cache to check its type
+        LLFileSystem file(assetId, LLAssetType::AT_LSL_TEXT, LLFileSystem::READ);
+        if (file.getSize() > 0)
+        {
+            S32 file_length = file.getSize();
+            std::vector<char> buffer(file_length + 1);
+            file.read((U8*)&buffer[0], file_length);
+            buffer[file_length] = 0;
+            std::string script_text(&buffer[0]);
+
+            if (is_lua_script(script_text))
+            {
+                // This is a SLua script - skip it with a warning
+                LLStringUtil::format_map_t args;
+                args["[SCRIPT_NAME]"] = inventory->getName();
+                args["[TARGET]"] = (compile_target == "mono") ? "Mono" : "LSL";
+                std::string buffer = floater->getString("SkippingSluaScript", args);
+                floater->addStringMessage(buffer);
+                LL_INFOS("SCRIPTQ") << "Skipping SLua script: " << inventory->getName() << LL_ENDL;
+                return true;
+            }
+        }
+    }
 
     std::string url = object->getRegion()->getCapability("UpdateScriptTask");
 

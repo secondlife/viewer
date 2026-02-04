@@ -56,6 +56,8 @@ class LLFloaterExperienceProfile;
 class LLScriptMovedObserver;
 class LLScriptEditorWSServer;
 
+bool is_lua_script(const std::string& code);
+
 class LLLiveLSLFile : public LLLiveFile
 {
 public:

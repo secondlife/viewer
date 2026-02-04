@@ -125,7 +125,7 @@ static bool have_lua_enabled(const LLUUID& object_id)
 
 // TEMPORARY: Quick check to see if the code is Lua
 // since we don't have another way to determine the language yet
-static bool is_lua_script(const std::string& code)
+bool is_lua_script(const std::string& code)
 {
     // Check for LSL's signature "default" state pattern
     std::regex lsl_pattern("\\s*default\\s*\\{");

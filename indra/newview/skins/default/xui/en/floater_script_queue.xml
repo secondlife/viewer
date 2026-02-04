@@ -37,6 +37,10 @@
      name="LoadingObjInv">
         Loading inventory for: [OBJECT_NAME]
     </floater.string>
+    <floater.string
+     name="SkippingSluaScript">
+        Skipping SLua script "[SCRIPT_NAME]" (cannot recompile to [TARGET])
+    </floater.string>
     <button
      follows="right|bottom"
      height="24"
