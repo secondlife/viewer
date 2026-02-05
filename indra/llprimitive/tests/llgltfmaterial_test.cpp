@@ -62,9 +62,9 @@ namespace tut
     tut::llgltfmaterial_t tut_llgltfmaterial("llgltfmaterial");
 
     // A positive 32-bit float with a long string representation
-    constexpr F32 test_fraction = 1.09045365e-32;
+    constexpr F32 test_fraction = 1.09045365e-32f;
     // A larger positive 32-bit float for values that get zeroed if below a threshold
-    constexpr F32 test_fraction_big = 0.109045;
+    constexpr F32 test_fraction_big = 0.109045f;
 
     void apply_test_material_texture_ids(LLGLTFMaterial& material)
     {

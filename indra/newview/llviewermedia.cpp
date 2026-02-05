@@ -724,7 +724,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
     static LLCachedControl<U32> max_normal(gSavedSettings, "PluginInstancesNormal", 2);
     static LLCachedControl<U32> max_low(gSavedSettings, "PluginInstancesLow", 4);
-    static LLCachedControl<F32> max_cpu(gSavedSettings, "PluginInstancesCPULimit", 0.9);
+    static LLCachedControl<F32> max_cpu(gSavedSettings, "PluginInstancesCPULimit", 0.9f);
     // Setting max_cpu to 0.0 disables CPU usage checking.
     bool check_cpu_usage = (max_cpu != 0.0f);
 

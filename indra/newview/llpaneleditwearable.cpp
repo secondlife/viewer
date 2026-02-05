@@ -1367,7 +1367,7 @@ void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
 void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 {
         const F32 ONE_METER = 1.0;
-        const F32 ONE_FOOT = 0.3048 * ONE_METER; // in meters
+        const F32 ONE_FOOT = 0.3048f * ONE_METER; // in meters
         // Update controls specific to shape editing panel.
         if (type == LLWearableType::WT_SHAPE)
         {

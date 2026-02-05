@@ -91,7 +91,7 @@ namespace {
     const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
                                                      // This is because the buffers and processing is cleared by the silence.
 
-    const F32 SPEAKING_AUDIO_LEVEL = 0.30;
+    const F32 SPEAKING_AUDIO_LEVEL = 0.30f;
 
     const uint32_t PEER_GAIN_CONVERSION_FACTOR = 220;
 

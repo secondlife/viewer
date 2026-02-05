@@ -48,7 +48,7 @@
 #include "llavatarrendernotifier.h"
 
 // when change exceeds this ration, notification is shown
-static const F32 RENDER_ALLOWED_CHANGE_PCT = 0.1;
+static const F32 RENDER_ALLOWED_CHANGE_PCT = 0.1f;
 // wait seconds before processing over limit updates after last complexity change
 static const U32 OVER_LIMIT_UPDATE_DELAY = 70;
 

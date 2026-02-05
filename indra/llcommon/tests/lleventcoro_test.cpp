@@ -280,16 +280,16 @@ namespace tut
                 LLCoros::instance().set_consuming(true);
                 // should immediately retrieve 'first' without waiting
                 LL_DEBUGS() << "listener coro waiting for first" << LL_ENDL;
-                data.append(llcoro::suspendUntilEventOnWithTimeout(pump, 0.1, LLSD()));
+                data.append(llcoro::suspendUntilEventOnWithTimeout(pump, 0.1f, LLSD()));
                 // Don't use ensure() from within the coro -- ensure() failure
                 // throws tut::fail, which won't propagate out to the main
                 // test driver, which will result in an odd failure.
                 // Wait for 'second' because it's not already pending.
                 LL_DEBUGS() << "listener coro waiting for second" << LL_ENDL;
-                data.append(llcoro::suspendUntilEventOnWithTimeout(pump, 0.1, LLSD()));
+                data.append(llcoro::suspendUntilEventOnWithTimeout(pump, 0.1f, LLSD()));
                 // and wait for 'third', which should involve no further waiting
                 LL_DEBUGS() << "listener coro waiting for third" << LL_ENDL;
-                data.append(llcoro::suspendUntilEventOnWithTimeout(pump, 0.1, LLSD()));
+                data.append(llcoro::suspendUntilEventOnWithTimeout(pump, 0.1f, LLSD()));
                 LL_DEBUGS() << "listener coro done" << LL_ENDL;
                 running = false;
             });
@@ -312,7 +312,7 @@ namespace tut
         while (running)
         {
             LL_DEBUGS() << "test() waiting for coro done" << LL_ENDL;
-            llcoro::suspendUntilTimeout(0.1);
+            llcoro::suspendUntilTimeout(0.1f);
         }
         // okay, verify expected results
         ensure_equals("should have received three values", data,

@@ -525,7 +525,7 @@ void LLModelPreview::rebuildUploadData()
                 {
                     LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(high_lod_model->mSkinInfo.mBindShapeMatrix));
                     LLQuaternion identity;
-                    if (!bind_rot.isEqualEps(identity, 0.01))
+                    if (!bind_rot.isEqualEps(identity, 0.01f))
                     {
                         // Bind shape matrix is not in standard X-forward orientation.
                         // Might be good idea to only show this once. It can be spammy.
