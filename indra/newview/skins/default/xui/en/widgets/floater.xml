@@ -11,7 +11,7 @@
  background_opaque="false"
  header_font="SansSerif"
  header_height="25"
- header_vpad="7"
+ header_vpad="5"
  close_image="Icon_Close_Foreground"
  restore_image="Icon_Restore_Foreground"
  minimize_image="Icon_Minimize_Foreground"

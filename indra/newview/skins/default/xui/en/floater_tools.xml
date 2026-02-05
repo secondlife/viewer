@@ -869,7 +869,9 @@
      tab_height="25"
      open_tabs_on_drag_and_drop="true"
      top="173"
-     width="295">
+     width="295"
+     font="SansSerif"
+     font.size="Monospace">
 	
 <panel
 	 border="false"

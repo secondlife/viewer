@@ -11,5 +11,5 @@
     header_image_focused="Accordion_Selected"
     header_text_color="AccordionHeaderTextColor"
     font="SansSerif"
-    font.size="Monospace"
+    font.size="Small"
     />
