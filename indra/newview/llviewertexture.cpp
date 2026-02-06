@@ -1898,12 +1898,10 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                 mRawDiscardLevel = INVALID_DISCARD_LEVEL;
                 mIsFetching = false;
                 mLastPacketTimer.reset();
+                return false;
             }
-            else
-            {
-                mIsRawImageValid = true;
-                addToCreateTexture();
-            }
+
+            mIsRawImageValid = true;
 
             if (mBoostLevel == LLGLTexture::BOOST_ICON)
             {
@@ -1934,6 +1932,8 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                     mRawImage = mRawImage->scaled(expected_width, expected_height);
                 }
             }
+
+            addToCreateTexture();
 
             return true;
         }
