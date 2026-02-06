@@ -433,11 +433,9 @@ namespace tut
 
         std::vector<const char*> argv;
         apr_proc_t child;
-#if defined(LL_WINDOWS)
-        argv.push_back("python");
-#else
-        argv.push_back("python3");
-#endif
+        auto PYTHON(LLStringUtil::getenv("PYTHON"));
+        tut::ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
+        argv.push_back(PYTHON.c_str());
         // Have to have a named copy of this std::string so its c_str() value
         // will persist.
         std::string scriptname(script.getPath().string());
