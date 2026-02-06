@@ -1486,11 +1486,11 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             // They are used only to display a face selection marker
             // (white square with a rounded cross at the center)
             const auto& tt = gltf_mat->mTextureTransform[gltf_info_index];
-            r = -tt.mRotation * 2;
-            ms = tt.mScale[VX];
-            mt = tt.mScale[VY];
-            os += tt.mOffset[VX] + (ms - 1) / 2;
-            ot -= tt.mOffset[VY] + (mt - 1) / 2;
+            LLGLTFMaterial::convertPBRTransformToTexture(
+                tt.mScale,
+                tt.mOffset,
+                tt.mRotation,
+                ms, mt, os, ot, r);
         }
         else
         {
