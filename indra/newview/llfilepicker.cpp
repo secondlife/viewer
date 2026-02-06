@@ -210,7 +210,8 @@ namespace
             filter_vec.push_back({ "RAW files (*.raw)", "raw" });
             break;
         case LLFilePicker::FFLOAD_MODEL:
-            filter_vec.push_back({ "Model files (*.dae)", "dae" });
+            filter_vec.push_back({ "Model files (*.dae; *.gltf; *.glb)", "dae;gltf;glb" });
+            filter_vec.push_back({ "Collada files (*.dae)", "dae" });
             filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
             break;
         case LLFilePicker::FFLOAD_MATERIAL:
