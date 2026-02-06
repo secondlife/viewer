@@ -133,8 +133,7 @@
     left="460"
     top_delta="2"
     name="exceptions_btn"
-    width="100"
-    pad_bottom="2">
+    width="100">
   </button>
 
   <text

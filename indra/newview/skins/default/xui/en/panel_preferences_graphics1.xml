@@ -355,8 +355,7 @@
     left="48"
     name="RenderExceptionsButton"
     top_delta="24"
-    width="100"
-    pad_bottom="2">
+    width="100">
     <button.commit_callback
       function="Pref.RenderExceptions"/>
   </button>

@@ -149,7 +149,8 @@
   	        left_pad="15"
             width="120"
             height="32"
-            top="0" />
+            top="0"
+            pad_bottom="1" />
           <text
             follows="left|top"
             font="SansSerifLarge"

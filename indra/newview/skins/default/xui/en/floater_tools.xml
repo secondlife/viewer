@@ -86,7 +86,8 @@
      tool_tip="Focus"
      width="35"
      font="DejaVu"
-     font.size="LSmall">
+     font.size="LSmall"
+     pad_bottom="1">
         <button.commit_callback
          function="BuildTool.setTool"
          parameter="Focus" />
@@ -103,7 +104,8 @@
      tool_tip="Move"
      width="35"
      font="DejaVu"
-     font.size="LSmall">
+     font.size="LSmall"
+     pad_bottom="1">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Move" />
@@ -120,7 +122,8 @@
      tool_tip="Edit"
      width="35"
      font="DejaVu"
-     font.size="LSmall">
+     font.size="LSmall"
+     pad_bottom="1">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Edit" />
@@ -137,7 +140,8 @@
      tool_tip="Create"
      width="35"
      font="DejaVu"
-     font.size="LSmall">
+     font.size="LSmall"
+     pad_bottom="1">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Create" />
@@ -154,7 +158,8 @@
      tool_tip="Land"
      width="35"
      font="DejaVu"
-     font.size="LSmall">
+     font.size="LSmall"
+     pad_bottom="1">
 	  <button.commit_callback
 	     function="BuildTool.setTool"
 	     parameter="Land" />
@@ -300,7 +305,8 @@
      name="link_btn"
      width="50"
      font="DejaVu"
-     font.size="LSmall">
+     font.size="LSmall"
+     pad_bottom="1">
 	  <button.commit_callback
 	     function="BuildTool.LinkObjects"/>
     </button>
@@ -313,7 +319,8 @@
      name="unlink_btn"
      width="90"
      font="DejaVu"
-     font.size="LSmall">
+     font.size="LSmall"
+     pad_bottom="1">
 	  <button.commit_callback
 	     function="BuildTool.UnlinkObjects"/>
     </button>
@@ -1106,7 +1113,8 @@
 			 tool_tip="Choose a group to share this object's permissions"
 			 width="23"
              font="DejaVu"
-             font.size="LSmall" />
+             font.size="LSmall"
+             pad_bottom="1" />
             <check_box
              height="19"
              follows="left|top"
@@ -1130,7 +1138,8 @@
              tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
              width="80"
              font="DejaVu"
-             font.size="LSmall" />
+             font.size="LSmall"
+             pad_bottom="1" />
             <text
              type="string"
              length="1"
@@ -1644,9 +1653,7 @@ even though the user gets a free copy.
              top_pad="13"
              name="clipboard_size_btn"
              tool_tip="Paste options"
-             width="19"
-             font="DejaVu"
-             font.size="LSmall" />
+             width="19" />
             <text
              type="string"
              length="1"
@@ -3062,7 +3069,8 @@ even though the user gets a free copy.
              top="10"
              width="134"
              font="DejaVu"
-             font.size="LSmall" />
+             font.size="LSmall"
+             pad_bottom="1" />
             <button
              follows="left|top"
              height="23"
@@ -3072,7 +3080,8 @@ even though the user gets a free copy.
              name="button permissions"
              width="134"
              font="DejaVu"
-             font.size="LSmall" />
+             font.size="LSmall"
+             pad_bottom="1" />
             <filter_editor
              follows="left|top|right"
              label="Enter filter text"
@@ -3159,7 +3168,8 @@ even though the user gets a free copy.
          top_pad="4"
          width="125"
          font="DejaVu"
-         font.size="LSmall" />
+         font.size="LSmall"
+         pad_bottom="1" />
         <check_box
          control_name="ShowParcelOwners"
          height="19"
@@ -3197,7 +3207,8 @@ even though the user gets a free copy.
          top="172"
          width="125"
          font="DejaVu"
-         font.size="LSmall" />
+         font.size="LSmall"
+         pad_bottom="1" />
         <button
          follows="left|top"
          height="23"
@@ -3209,7 +3220,8 @@ even though the user gets a free copy.
          top_pad="4"
          width="125"
          font="DejaVu"
-         font.size="LSmall" />
+         font.size="LSmall"
+         pad_bottom="1" />
         <text
          type="string"
          length="1"
@@ -3235,7 +3247,8 @@ even though the user gets a free copy.
          top="276"
          width="125"
          font="DejaVu"
-         font.size="LSmall" />
+         font.size="LSmall"
+         pad_bottom="1" />
         <button
          follows="left|top"
          height="23"
@@ -3247,7 +3260,8 @@ even though the user gets a free copy.
          top_pad="4"
          width="125"
          font="DejaVu"
-         font.size="LSmall" />
+         font.size="LSmall"
+         pad_bottom="1" />
  </panel>
 <!-- end of tabs -->
 </floater>

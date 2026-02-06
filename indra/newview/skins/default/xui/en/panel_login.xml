@@ -117,7 +117,8 @@
     width="120"
     height="32"
   	left_pad="15"
-    bottom_delta="0" />
+    bottom_delta="0"
+    pad_bottom="1" />
   <text
     follows="left|top"
     font="SansSerifLarge"

@@ -25,6 +25,7 @@
                         desired_height="24"
                         pad_left="10" 
                         pad_right="10"
+                        pad_bottom="1"
                         follows="left|top"
                         chrome="true"
                         image_overlay_alignment="left"
