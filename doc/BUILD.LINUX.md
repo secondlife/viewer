@@ -25,6 +25,11 @@ sudo apt install build-essential cmake git libfontconfig-dev libglib2.0-dev libg
 sudo dnf install @development-tools @c-development cmake fontconfig-devel git glib-devel gstreamer1-devel gstreamer1-plugins-base-devel libX11-devel mesa-compat-libOSMesa-devel libglvnd-devel ninja-build python3 vlc-devel wayland-devel
 ```
 
+To build with clang instead of gcc, also install:
+```
+sudo dnf install clang lld
+```
+
 ### OpenSUSE Tumbleweed
 ```
 sudo zypper in -t pattern devel_basis devel_C_C++
@@ -65,7 +70,7 @@ cd ~/code/secondlife/viewer
 autobuild configure -c ReleaseOS -A64
 ```
 
-### Clang
+### Clang (builds faster)
 ```
 autobuild configure -c ReleaseOS -- -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_LINKER_TYPE=LLD
 ```
@@ -77,3 +82,6 @@ autobuild build -c ReleaseOS --no-configure
 
 > [!NOTE]
 > If the above was successful you should find the viewer package in `viewer/build-linux-x86_64/newview`
+
+### Troubleshooting
+- If you encounter warnings, try adding `-- -DGCC_DISABLE_FATAL_WARNINGS=TRUE` or `-DCLANG_DISABLE_FATAL_WARNINGS=TRUE` to the configure command
