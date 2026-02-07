@@ -70,7 +70,7 @@ cd ~/code/secondlife/viewer
 autobuild configure -c ReleaseOS -A64
 ```
 
-### Clang (builds faster)
+### Clang (faster build; less stable)
 ```
 autobuild configure -c ReleaseOS -- -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_LINKER_TYPE=LLD
 ```
