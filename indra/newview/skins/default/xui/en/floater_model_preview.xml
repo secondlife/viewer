@@ -1879,7 +1879,7 @@ Analysed:
       top="5"
       left_pad="20"
       name="label_display"
-      width="50">
+      width="53">
       Display...
     </text>
     <check_box
@@ -1889,7 +1889,7 @@ Analysed:
       layout="topleft"
       left_delta="0"
       name="show_edges"
-      top_pad="8">
+      top_pad="10">
     </check_box>
     <check_box
       follows="top|left"
@@ -1897,7 +1897,7 @@ Analysed:
       label_text.text_color="White"
       layout="topleft"
       name="show_physics"
-      top_pad="8">
+      top_pad="10">
     </check_box>
     <check_box
       follows="top|left"
@@ -1905,7 +1905,7 @@ Analysed:
       label_text.text_color="White"
       layout="topleft"
       name="show_textures"
-      top_pad="8">
+      top_pad="10">
     </check_box>
     <check_box
       follows="top|left"
@@ -1913,7 +1913,7 @@ Analysed:
       label_text.text_color="White"
       layout="topleft"
       name="show_skin_weight"
-      top_pad="8">
+      top_pad="10">
     </check_box>
     <check_box
       follows="top|left"
@@ -1923,7 +1923,7 @@ Analysed:
       width="130"
       layout="topleft"
       name="show_joint_overrides"
-      top_pad="8">
+      top_pad="10">
     </check_box>
     <check_box
       follows="top|left"
@@ -1931,7 +1931,7 @@ Analysed:
       label_text.text_color="White"
       layout="topleft"
       name="show_joint_positions"
-      top_pad="17">
+      top_pad="21">
     </check_box>
     <text
       follows="top|left"

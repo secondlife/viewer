@@ -110,7 +110,8 @@
      left="255"
      max_chars="135"
      name="time_format_combobox"
-     width="70">
+     width="71">
+        <combo_box.drop_down_button pad_right="22" />
         <combo_box.item
          enabled="true"
          label="1:00 PM"
@@ -244,7 +245,7 @@
      height="20"
      layout="topleft"
      left="35"
-     top_pad="0" 
+     top_pad="5" 
      name="Name_Tag_Preference">
         <radio_item
          label="Off"
@@ -304,7 +305,7 @@
      width="100" 
      name="show_all_title_checkbox1"
 	 tool_tip="Show group titles, like Officer or Member"
-     top_pad="3" />
+     top_pad="5" />
     <check_box
      control_name="NameTagShowFriends"
 	 enabled_control="AvatarNameTagMode"
@@ -324,7 +325,7 @@
 	 name="display_names_check"
 	 width="237"
 	 tool_tip="Check to use display names in chat, IM, name tags, etc."
-	 top_pad="3"/>
+	 top_pad="5"/>
 	 
 	<text
 	 type="string"
@@ -343,7 +344,7 @@
      height="34"
      layout="topleft"
      left="35"
-     top_pad="0" 
+     top_pad="5" 
      name="inworld_typing_preference">
         <radio_item
          label="Starts local chat"

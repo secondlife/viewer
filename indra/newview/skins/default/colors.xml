@@ -11,6 +11,9 @@
 	<color
 	 name="EmphasisColor_35"
 	 value="0.426 0.729 1.0 0.368" />
+    <color
+     name="SelectionColor"
+     value="0.706 0.851 1 1" />
 	<color
 	 name="BeaconColor"
     value="0.749 0.298 0 1" />	 

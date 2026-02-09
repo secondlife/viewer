@@ -28,7 +28,7 @@ You can turn off Notices on the General tab.
      left="5"
      name="lbl2"
      right="-1"
-     top="5"
+     top="3"
      width="300">
      Notices are kept for 14 days.
 Maximum 200 per group daily
@@ -42,7 +42,7 @@ Maximum 200 per group daily
      left="0"
      right="-1"
      name="notice_list"
-     top_pad="0"
+     top_pad="6"
      width="304">
         <scroll_list.columns
          label=""

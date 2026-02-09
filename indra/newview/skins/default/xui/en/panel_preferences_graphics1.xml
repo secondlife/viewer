@@ -104,7 +104,7 @@
     layout="topleft"
     left="65"
     name="FasterText"
-    top_pad="4"
+    top_pad="10"
     width="80">
       Faster
   </text>
@@ -216,7 +216,7 @@
     min_val="64"
     max_val="512"
     name="DrawDistance"
-    top_delta="40"
+    top_delta="34"
     width="427" />
   <text
     type="string"

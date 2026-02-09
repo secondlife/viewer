@@ -529,7 +529,7 @@ void LLTextBase::drawSelectionBackground()
         // Draw the selection box (we're using a box instead of reversing the colors on the selected text).
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         const LLColor4& color = mSelectedBGColor;
-        F32 alpha = hasFocus() ? 0.7f : 0.3f;
+        F32 alpha = hasFocus() ? 1 : 0.7f;
         alpha *= getDrawContext().mAlpha;
 
         LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);

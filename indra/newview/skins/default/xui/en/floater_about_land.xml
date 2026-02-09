@@ -974,7 +974,7 @@
              layout="topleft"
              left="28"
              name="Set to group:"
-             top_pad="5"
+             top_pad="9"
              width="176">
                 Set to group:
             </text>
@@ -1022,7 +1022,7 @@
              layout="topleft"
              left="28"
              name="Owned by others:"
-             top_pad="5"
+             top_pad="9"
              width="176">
                 Owned by others:
             </text>

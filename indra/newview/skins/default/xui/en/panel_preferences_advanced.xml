@@ -13,18 +13,6 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="12"
-   layout="topleft"
-   left="33"
-   name="Cache:"
-   top_pad="10"
-   width="100">
-    Cache:
-  </text>
   <spinner
    control_name="CacheSize"
    decimal_digits="0"
@@ -33,9 +21,9 @@
    increment="64"
    initial_value="1024"
    label="Cache size (896 - 32768MB)"
-   label_width="150"
+   label_width="159"
    layout="topleft"
-   left="80"
+   left="33"
    max_val="32768"
    min_val="896"
    top_pad="10"
@@ -72,7 +60,7 @@
    follows="left|top"
    height="10"
    layout="topleft"
-   left="80"
+   left="33"
    name="Cache location"
    top_pad="5"
    width="300">
@@ -86,7 +74,7 @@
    font="SansSerif"
    height="23"
    layout="topleft"
-   left="80"
+   left="33"
    max_length_bytes="4096"
    name="cache_location"
    top_pad="5"
@@ -113,7 +101,7 @@
     left_pad="3"
     name="default_cache_location"
     top_delta="0"
-    width="100">
+    width="104">
     <button.commit_callback
      function="Pref.ResetCache" />
   </button>

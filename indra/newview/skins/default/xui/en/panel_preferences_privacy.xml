@@ -10,6 +10,7 @@
     top="1"
     width="517">
 
+  <!-- remove "hide_tabs" param when Discord tab is actually used -->
   <tab_container
     top_pad="0"
     enabled="true"
@@ -18,6 +19,7 @@
     width="517"
     left_delta="0"
     name="privacy_tab_container"
+    hide_tabs="true"
     tab_position="top"
     tab_stop="false">
   <panel

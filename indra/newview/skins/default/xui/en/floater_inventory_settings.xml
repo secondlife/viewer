@@ -145,7 +145,7 @@
    font="SansSerifMedium"
    text_color="White"
    top_delta="1"
-   width="300">
+   width="310">
    Clicking on "Show in inventory" or "Find original"
  </text>
  <radio_group
