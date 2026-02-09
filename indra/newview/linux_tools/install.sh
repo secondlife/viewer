@@ -70,7 +70,7 @@ function homedir_install()
 	exit 0
     fi
 
-    if [ -d "$XDG_DATA_HOME" ] ; then
+    if [ -n "$XDG_DATA_HOME" ] ; then
         local install_prefix="$XDG_DATA_HOME/$installdir_name" #$XDG_DATA_HOME is a synonym for $HOME/.local/share/ unless the user has specified otherwise (unlikely).
     else
         local install_prefix="$HOME/.local/share/$installdir_name"
@@ -120,9 +120,9 @@ function set_slurl_handler()
 {
     local install_prefix=$1
     echo
-    prompt "Would you like to set Second Life as your default SLurl handler? [Y/N]: "
+    prompt "Would you like to set Second Life as your default SLURL handler? [Y/N]: "
     if [ $? -eq 0 ]; then
-	exit 0
+	return 0
     fi
     "${install_prefix}"/etc/register_secondlifeprotocol.sh #Should prompt the desktop environment to set association. Normally not needed as it will prompt upon the first use of a SLURL after installation.
 }
