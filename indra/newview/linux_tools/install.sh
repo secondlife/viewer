@@ -3,16 +3,6 @@
 # Install the Second Life Viewer. This script can install the viewer both
 # system-wide and for an individual user.
 
-build_data_file="build_data.json"
-if [ -f "${build_data_file}" ]; then
-    version=$(sed -n 's/.*"Version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
-    channel=$(sed -n 's/.*"Channel"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
-    installdir_name=$(echo "$channel" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' )-install
-else
-    echo "Error: File ${build_data_file} not found." >&2
-    exit 1
-fi
-
 echo "Installing ${channel} version ${version}"
 
 VT102_STYLE_NORMAL='\E[0m'
@@ -21,6 +11,16 @@ VT102_COLOR_RED='\E[31m'
 SCRIPTSRC=`readlink -f "$0" || echo "$0"`
 RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
 tarball_path=${RUN_PATH}
+
+build_data_file="${RUN_PATH}/build_data.json"
+if [ -f "${build_data_file}" ]; then
+    version=$(sed -n 's/.*"Version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
+    channel=$(sed -n 's/.*"Channel"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
+    installdir_name=$(echo "$channel" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' )-install
+else
+    echo "Error: File ${build_data_file} not found." >&2
+    exit 1
+fi
 
 function prompt()
 {
