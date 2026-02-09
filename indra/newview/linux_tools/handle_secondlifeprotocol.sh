@@ -1,9 +1,11 @@
-#!/usr/bin/env sh
+#!/bin/bash
+
+# Note: This script is no longer used, as the main wrapper script is now handling SLURLs directly.
 
 # Send a URL of the form secondlife://... to any running viewer, if not, launch the default viewer.
 #
 
-sl_url="$*"
+sl_url="$1"
 
 echo "Got SLURL: ${sl_url}"
 if [ -z "${sl_url}" ]; then
@@ -24,3 +26,4 @@ else
 	#Go to .sh location (/etc), then up a directory to the viewer location
 	exec ./secondlife -url "${sl_url}"
 fi
+
