@@ -877,8 +877,8 @@
      open_tabs_on_drag_and_drop="true"
      top="173"
      width="295"
-     font="SansSerif"
-     font.size="Monospace">
+     font="DejaVu"
+     font.size="LSmall">
 	
 <panel
 	 border="false"
