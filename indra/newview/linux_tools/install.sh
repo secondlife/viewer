@@ -115,7 +115,7 @@ function backup_previous_installation()
     mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!"
 }
 
-#Below function is not currently used as the desktop environment should prompt the user to associate SLURLs upon first use following installation.
+#Below function is not currently used as the desktop environment should prompt the user to associate SLURLs upon first use following installation, however is included here if it's determined in future to be needed.
 function set_slurl_handler()
 {
     local install_prefix=$1
