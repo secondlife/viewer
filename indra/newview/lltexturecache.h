@@ -194,6 +194,7 @@ private:
     // Internal
     LLMutex mWorkersMutex;
     LLMutex mHeaderMutex;
+    LLMutex mHeaderIDMapMutex;
     LLMutex mListMutex;
     LLMutex mFastCacheMutex;
     LLAPRFile* mHeaderAPRFile;
