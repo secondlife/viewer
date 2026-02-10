@@ -15,7 +15,7 @@ function install_desktop_entry()
 	#NOTE: Above command takes the path to the icon to install && The name of the icon to be used by XDG. This should always be in the format of "xViewer" to avoid potential naming conflicts, as per XDG spec.
 	xdg-desktop-menu install --novendor "${installation_prefix}"/etc/com.secondlife.SecondLifeViewer.desktop
 
-    update-desktop-database "${desktop_entries_dir}" #Above command should update the menu system, but do it a second time just in case.
+    xdg-desktop-menu forceupdate #Above command should update the menu system, but do it a second time just in case.
 }
 
 if [ "$UID" == "0" ]; then

@@ -3,8 +3,6 @@
 # Install the Second Life Viewer. This script can install the viewer both
 # system-wide and for an individual user.
 
-echo "Installing ${channel} version ${version}"
-
 VT102_STYLE_NORMAL='\E[0m'
 VT102_COLOR_RED='\E[31m'
 
@@ -21,6 +19,8 @@ else
     echo "Error: File ${build_data_file} not found." >&2
     exit 1
 fi
+
+echo "Installing ${channel} version ${version}"
 
 function prompt()
 {
