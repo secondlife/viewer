@@ -2048,7 +2048,7 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
         LL_PROFILE_ZONE_NAMED("Read fast cache");
         LLMutexLock lock(&mFastCacheMutex);
 
-        openFastCache();
+        openFastCache(); // only reopens if needed, lasts 10 seconds
 
         mFastCachep->seek(APR_SET, offset);
 
@@ -2079,7 +2079,9 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 
         closeFastCache();
     }
-    LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true);
+
+    // directly construct image from new buffer.
+    LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true /*take ownership*/);
 
     return raw;
 }

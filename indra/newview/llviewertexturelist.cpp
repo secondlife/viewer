@@ -1191,15 +1191,19 @@ F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
 
     LLTimer timer;
     image_list_t::iterator enditer = mFastCacheList.begin();
-    for (image_list_t::iterator iter = mFastCacheList.begin();
-         iter != mFastCacheList.end();)
     {
-        image_list_t::iterator curiter = iter++;
-        enditer = iter;
-        LLViewerFetchedTexture *imagep = *curiter;
-        imagep->loadFromFastCache();
-        if (timer.getElapsedTimeF32() > max_time)
-            break;
+        // prelock fast cache mutex to avoid waiting multiple times.
+        LLMutexLock cache_lock(LLAppViewer::getTextureCache()->getFastCacheMutex());
+        for (image_list_t::iterator iter = mFastCacheList.begin();
+            iter != mFastCacheList.end();)
+        {
+            image_list_t::iterator curiter = iter++;
+            enditer = iter;
+            LLViewerFetchedTexture* imagep = *curiter;
+            imagep->loadFromFastCache();
+            if (timer.getElapsedTimeF32() > max_time)
+                break;
+        }
     }
     mFastCacheList.erase(mFastCacheList.begin(), enditer);
     return timer.getElapsedTimeF32();
