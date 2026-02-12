@@ -783,7 +783,7 @@ void LLAgent::moveUp(S32 direction)
     {
         if (!getFlying())
         {
-            mLastJumpRequestTime = LLTimer::getTotalSeconds();
+            mLastJumpInputTime = LLTimer::getTotalSeconds();
         }
         setControlFlags(AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP);
     }
