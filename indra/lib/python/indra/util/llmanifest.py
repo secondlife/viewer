@@ -73,7 +73,7 @@ def proper_windows_path(path, current_platform = sys.platform):
     rel = None
     match = re.match(r"/cygdrive/([a-z])/(.*)", path)
     if not match:
-        match = re.match(r'([a-zA-Z]):\\\(.*)', path)
+        match = re.match(r'([a-zA-Z]):\\(.*)', path)
     if not match:
         return None         # not an absolute path
     drive_letter = match.group(1)

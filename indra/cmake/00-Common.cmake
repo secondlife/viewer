@@ -36,12 +36,13 @@ set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 # Setup threading options
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads)
 
 # Link Time Optimization
 if(USE_LTO)
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
 endif()
 
 # We want warnings as errors by default
@@ -50,16 +51,18 @@ if(NOT VS__DISABLE_FATAL_WARNINGS AND NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLA
 endif()
 
 # Set up our OptDebug target
-set(CMAKE_C_FLAGS_OPTDEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-set(CMAKE_CXX_FLAGS_OPTDEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-set(CMAKE_EXE_LINKER_FLAGS_OPTDEBUG ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
-set(CMAKE_MODULE_LINKER_FLAGS_OPTDEBUG ${CMAKE_MODULE_LINKER_FLAGS_DEBUG})
-set(CMAKE_SHARED_LINKER_FLAGS_OPTDEBUG ${CMAKE_SHARED_LINKER_FLAGS_DEBUG})
-set(CMAKE_STATIC_LINKER_FLAGS_OPTDEBUG ${CMAKE_STATIC_LINKER_FLAGS_DEBUG})
+if (LL_GENERATOR_IS_MULTI_CONFIG OR CMAKE_BUILD_TYPE STREQUAL "OptDebug")
+  set(CMAKE_C_FLAGS_OPTDEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+  set(CMAKE_CXX_FLAGS_OPTDEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+  set(CMAKE_EXE_LINKER_FLAGS_OPTDEBUG ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
+  set(CMAKE_MODULE_LINKER_FLAGS_OPTDEBUG ${CMAKE_MODULE_LINKER_FLAGS_DEBUG})
+  set(CMAKE_SHARED_LINKER_FLAGS_OPTDEBUG ${CMAKE_SHARED_LINKER_FLAGS_DEBUG})
+  set(CMAKE_STATIC_LINKER_FLAGS_OPTDEBUG ${CMAKE_STATIC_LINKER_FLAGS_DEBUG})
 
-# Need to map libraries to release variants on windows and macos
-if (WINDOWS OR DARWIN)
-  set(CMAKE_MAP_IMPORTED_CONFIG_OPTDEBUG Release)
+  # Need to map libraries to release variants on windows and macos
+  if(WINDOWS)
+    set(CMAKE_MAP_IMPORTED_CONFIG_OPTDEBUG Release)
+  endif()
 endif()
 
 # Debug Global Defines
@@ -194,6 +197,22 @@ if(WINDOWS)
     $<$<CONFIG:Release>:/O2>
   )
 
+  # Flags to support building with newer instruction sets.
+  # https://learn.microsoft.com/en-us/cpp/build/reference/arch-x64?view=msvc-170
+  if(USE_AVX2)
+    add_compile_options(
+      /arch:AVX2
+    )
+  elseif(USE_AVX)
+    add_compile_options(
+      /arch:AVX
+    )
+  elseif(USE_SSE4_2)
+    add_compile_options(
+      /arch:SSE4.2
+    )
+  endif()
+
   # We want aggressive inlining on MSVC Release to better match clang/gcc at O3
   string(REPLACE "/Ob1" "/Ob3" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   string(REPLACE "/Ob1" "/Ob3" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
@@ -256,7 +275,6 @@ if(LINUX)
     -fno-strict-aliasing
     -fsigned-char
     -g
-    -msse2
   )
 
   # Debug Options
@@ -278,6 +296,31 @@ if(LINUX)
   add_compile_options(
     $<$<CONFIG:Release>:-O3>
   )
+
+  # Flags to support building with newer instruction sets.
+  # Set up using x86_64 microarchitecture levels
+  # https://en.wikipedia.org/wiki/X86-64#Microarchitecture_levels
+  if(USE_AVX2)
+    add_compile_options(
+      -march=x86-64-v3
+    )
+  elseif(USE_AVX)
+    # x86_64-v2 includes sse4.2 and we additionally add AVX support
+    add_compile_options(
+      -march=x86-64-v2
+      -mavx
+    )
+  elseif(USE_SSE4_2)
+    # x86_64-v2 includes sse4.2
+    add_compile_options(
+      -march=x86-64-v2
+    )
+  else()
+    # Baseline x86-64 support includes sse2
+    add_compile_options(
+      -march=x86-64
+    )
+  endif()
 
   add_link_options(
     "LINKER:-z,relro"

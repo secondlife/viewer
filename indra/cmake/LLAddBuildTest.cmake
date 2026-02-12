@@ -87,7 +87,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_INCLUDE_DIRS ${source} LL_TEST_ADDITIONAL_INCLUDE_DIRS)
     target_include_directories (PROJECT_${project}_TEST_${name} PRIVATE ${${name}_test_additional_INCLUDE_DIRS} )
 
-    target_include_directories (PROJECT_${project}_TEST_${name} PRIVATE ${INDRA_SOURCE_DIR}/test )
+    target_include_directories (PROJECT_${project}_TEST_${name} PRIVATE ${INDRA_SOURCE_DIR}/test ${INDRA_SOURCE_DIR}/llmath ${INDRA_SOURCE_DIR}/llui)
 
     set_target_properties(PROJECT_${project}_TEST_${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
     if (DARWIN)
@@ -245,7 +245,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   endif()
 
   target_link_libraries(INTEGRATION_TEST_${testname} ${libraries})
-  target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${INDRA_SOURCE_DIR}/test ${INDRA_SOURCE_DIR}/llmath)
+  target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${INDRA_SOURCE_DIR}/test ${INDRA_SOURCE_DIR}/llmath ${INDRA_SOURCE_DIR}/llui)
   target_precompile_headers(INTEGRATION_TEST_${testname} REUSE_FROM llprecompiled_exe)
 
   # Create the test running command

@@ -46,24 +46,38 @@
 #endif
 
 #if defined(__arm64__) || defined(__aarch64__)
-#include "sse2neon/sse2neon.h"
+    #include "sse2neon/sse2neon.h"
 
-#ifndef GLM_FORCE_NEON
-#define GLM_FORCE_NEON 1
-#endif
+    #ifndef GLM_FORCE_NEON
+    #define GLM_FORCE_NEON 1
+    #endif
 #else
-#include <xmmintrin.h>
-#include <emmintrin.h>
+    #include <xmmintrin.h>
+    #include <emmintrin.h>
 
-#ifdef LL_DARWIN
-#ifndef GLM_FORCE_SSE42
-#define GLM_FORCE_SSE42 1
-#endif // GLM_FORCE_SSE42
-#else
-#ifndef GLM_FORCE_SSE2
-#define GLM_FORCE_SSE2 1
-#endif // GLM_FORCE_SSE2
-#endif // LL_DARWIN
+    #ifdef LL_DARWIN
+        #ifndef GLM_FORCE_SSE42
+        #define GLM_FORCE_SSE42 1
+        #endif // GLM_FORCE_SSE42
+    #else
+        #if defined(__AVX2__)
+            #include <smmintrin.h>
+
+            #ifndef GLM_FORCE_AVX2
+            #define GLM_FORCE_AVX2 1
+            #endif // GLM_FORCE_AVX2
+        #elif defined(__AVX__)
+            #include <smmintrin.h>
+
+            #ifndef GLM_FORCE_AVX
+            #define GLM_FORCE_AVX 1
+            #endif // GLM_FORCE_AVX
+        #else
+            #ifndef GLM_FORCE_SSE2
+            #define GLM_FORCE_SSE2 1
+            #endif // GLM_FORCE_SSE2
+        #endif // AVX2 vs AVX
+    #endif // LL_DARWIN
 #endif
 
 #include "llmemory.h"

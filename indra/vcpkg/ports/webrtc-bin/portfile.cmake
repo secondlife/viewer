@@ -37,16 +37,14 @@ vcpkg_extract_source_archive(
     NO_REMOVE_ONE_LEVEL
 )
 
-file(INSTALL
-    DIRECTORY "${WEBRTC_DIR}/include/webrtc/"
-    DESTINATION "${CURRENT_PACKAGES_DIR}/include/webrtc"
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hh"
-    PATTERN "*.hpp"
-    PATTERN "*.inc"
-)
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/include/")
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/lib/")
+file(RENAME "${WEBRTC_DIR}/include/webrtc/" "${CURRENT_PACKAGES_DIR}/include/webrtc/")
+if (VCPKG_TARGET_IS_LINUX)
+    file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/webrtc/build/linux/debian_bullseye_i386-sysroot")
+    file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/webrtc/build/linux/debian_bullseye_amd64-sysroot")
+endif()
 
-file(INSTALL "${WEBRTC_DIR}/lib/release/${WEBRTC_LIBNAME}" DESTINATION "${CURRENT_PACKAGES_DIR}/lib")
+file(RENAME "${WEBRTC_DIR}/lib/release/${WEBRTC_LIBNAME}" "${CURRENT_PACKAGES_DIR}/lib/${WEBRTC_LIBNAME}")
 
 vcpkg_install_copyright(FILE_LIST ${WEBRTC_DIR}/LICENSES/webrtc-license.txt)

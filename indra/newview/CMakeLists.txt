@@ -1778,7 +1778,7 @@ if (WINDOWS)
       $<$<CONFIG:OptDebug,RelWithDebInfo,Release>:$<TARGET_NAME_IF_EXISTS:media_plugin_cef>>
       $<TARGET_NAME_IF_EXISTS:media_plugin_gstreamer10>
       $<$<CONFIG:OptDebug,RelWithDebInfo,Release>:$<TARGET_NAME_IF_EXISTS:media_plugin_libvlc>>
-      $<TARGET_NAME_IF_EXISTS:media_plugin_example
+      $<TARGET_NAME_IF_EXISTS:media_plugin_example>
       )
 else()
   add_custom_target(copy_input_dependencies
@@ -2150,8 +2150,6 @@ if (BUILD_TESTING)
     llcommon
     llmessage
     llcorehttp
-    llxml
-    llui
     llplugin
     llappearance
     llprimitive

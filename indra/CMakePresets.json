@@ -260,9 +260,57 @@
       "configuration": "Release"
     },
     {
+      "name": "vs2022-debug",
+      "configurePreset": "vs2022",
+      "configuration": "Debug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-optdebug",
+      "configurePreset": "vs2022",
+      "configuration": "OptDebug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-relwithdebinfo",
+      "configurePreset": "vs2022",
+      "configuration": "RelWithDebInfo",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
       "name": "vs2022-release",
       "configurePreset": "vs2022",
       "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-debug",
+      "configurePreset": "vs2022-os",
+      "configuration": "Debug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-optdebug",
+      "configurePreset": "vs2022-os",
+      "configuration": "OptDebug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-relwithdebinfo",
+      "configurePreset": "vs2022-os",
+      "configuration": "RelWithDebInfo",
       "inherits": [
         "windows"
       ]

@@ -483,11 +483,11 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                         for pattern in (
                                                 'secondlife-bin.*',
                                                 '*_Setup.exe',
-                                                '*.bat',
-                                                '*.pdb',
-                                                '*.lib',
-                                                '*.exp',
-                                                '*.tar.xz')))
+                                                '**/*.bat',
+                                                '**/*.pdb',
+                                                '**/*.lib',
+                                                '**/*.exp',
+                                                '**/*.tar.xz')))
 
             with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'viewer-manager')):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -516,15 +516,20 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("SLPlugin.exe")
             self.path("SLVoice.exe")
 
-        with self.prefix(src_dst=os.path.join(self.get_dst_prefix(), 'llplugin')):
-            self.path("*.dll")
-            self.path("*.exe")
-            self.path("*.pak")
-            self.path("*.bin")
-            self.path("*.json")
-            self.path("*.dat")
-            self.path("locales")
-            self.path("plugins")
+        # Plugins are only built in non-debug builds on windows
+        if self.args['buildtype'].lower() != 'debug':
+            with self.prefix(src_dst=os.path.join(self.get_dst_prefix(), 'llplugin')):
+                # Plugin and dependency DLL files
+                self.path("*.dll")
+                # CEF files
+                self.path("*.exe")
+                self.path("*.pak")
+                self.path("*.bin")
+                self.path("*.json")
+                # VLC files
+                self.path("*.dat")
+                self.path("locales")
+                self.path("plugins")
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -863,9 +868,9 @@ class DarwinManifest(ViewerManifest):
             # causes problems, especially with frameworks: a framework's top
             # level must contain symlinks into its Versions/Current, which
             # must itself be a symlink to some specific Versions subdir.
-            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.xz")
+            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar")
             print(f'Creating {tarpath} from {self.get_dst_prefix()}')
-            with tarfile.open(tarpath, mode="w:xz") as tarball:
+            with tarfile.open(tarpath, mode="w") as tarball:
                 # Store in the tarball as just 'Second Life Mumble.app'
                 # instead of 'Users/someone/.../newview/Release/Second...'
                 # It's at this point that we rename 'Second Life Release.app'

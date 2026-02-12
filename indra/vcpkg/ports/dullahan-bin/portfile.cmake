@@ -62,46 +62,19 @@ elseif(VCPKG_TARGET_IS_OSX)
         NO_REMOVE_ONE_LEVEL
     )
 
-    # Create versioned framework
+    # Create output directories and move files into place
+    file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/include/")
+    file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/lib/")
+    file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/")
+
     set(CEF_FRAMEWORK_DIR "${CURRENT_PACKAGES_DIR}/lib/Chromium Embedded Framework.framework")
+    file(RENAME "${DULLAHAN_DIR}/lib/release/Chromium Embedded Framework.framework" "${CEF_FRAMEWORK_DIR}")
 
-    vcpkg_execute_required_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${DULLAHAN_DIR}/lib/release/Chromium Embedded Framework.framework"
-                "${CEF_FRAMEWORK_DIR}/Versions/A"
-        WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ln -sf
-                "Versions/A/Chromium Embedded Framework"
-                "Chromium Embedded Framework"
-        WORKING_DIRECTORY ${CEF_FRAMEWORK_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ln -sf
-                "Versions/A/Libraries"
-                "Libraries"
-        WORKING_DIRECTORY ${CEF_FRAMEWORK_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ln -sf
-                "Versions/A/Resources"
-                "Resources"
-        WORKING_DIRECTORY ${CEF_FRAMEWORK_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ln -sf "A" "Current"
-        WORKING_DIRECTORY "${CEF_FRAMEWORK_DIR}/Versions"
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
+    file(RENAME "${DULLAHAN_DIR}/lib/release/DullahanHelper.app" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper.app")
+    file(RENAME "${DULLAHAN_DIR}/lib/release/DullahanHelper (Alerts).app" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (Alerts).app")
+    file(RENAME "${DULLAHAN_DIR}/lib/release/DullahanHelper (GPU).app" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (GPU).app")
+    file(RENAME "${DULLAHAN_DIR}/lib/release/DullahanHelper (Plugin).app" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (Plugin).app")
+    file(RENAME "${DULLAHAN_DIR}/lib/release/DullahanHelper (Renderer).app" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (Renderer).app")
 
     file(INSTALL "${DULLAHAN_DIR}/lib/release/libcef_dll_wrapper.a" DESTINATION "${CURRENT_PACKAGES_DIR}/lib")
     file(INSTALL "${DULLAHAN_DIR}/lib/release/libdullahan.a" DESTINATION "${CURRENT_PACKAGES_DIR}/lib")
@@ -111,36 +84,6 @@ elseif(VCPKG_TARGET_IS_OSX)
         DESTINATION "${CURRENT_PACKAGES_DIR}/include/cef"
         FILES_MATCHING
         PATTERN "*.h"
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DULLAHAN_DIR}/lib/release/DullahanHelper.app/" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper.app"
-        WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DULLAHAN_DIR}/lib/release/DullahanHelper (Alerts).app/" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (Alerts).app"
-        WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DULLAHAN_DIR}/lib/release/DullahanHelper (GPU).app/" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (GPU).app"
-        WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DULLAHAN_DIR}/lib/release/DullahanHelper (Plugin).app/" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (Plugin).app"
-        WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
-    )
-
-    vcpkg_execute_required_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DULLAHAN_DIR}/lib/release/DullahanHelper (Renderer).app/" "${CURRENT_PACKAGES_DIR}/share/${PORT}/helpers/DullahanHelper (Renderer).app"
-        WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-        LOGNAME build-${TARGET_TRIPLET}-dbg
     )
 elseif(VCPKG_TARGET_IS_LINUX)
     vcpkg_download_distfile(

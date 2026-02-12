@@ -641,10 +641,20 @@ namespace tut
         {
             LLMachineID::init();
 
+#if LL_WINDOWS
+            // We dynamiclly link openssl on windows
+            OSSL_PROVIDER_set_default_search_path(nullptr, gDirUtilp->getExecutableDir().c_str());
+#endif
+
             /* Load Legacy provider into the default (nullptr) library context */
             if (!mOSSLLegacyProvider && (OSSL_PROVIDER_available(nullptr, "legacy") == 0))
             {
                 mOSSLLegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
+            }
+
+            if (!mOSSLLegacyProvider)
+            {
+                LL_WARNS() << "Failed to load OpenSSL legacy provider, expect problems." << LL_ENDL;
             }
 
             OpenSSL_add_all_algorithms();

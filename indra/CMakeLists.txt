@@ -17,7 +17,7 @@ set(VIEWER_CHANNEL "Second Life Test" CACHE STRING "Viewer Channel Name")
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
-# Build feature options
+# Build executable options
 option(BUILD_VIEWER "Build the viewer project" ON)
 option(BUILD_APPEARANCE_UTIL "Build the appearance utility project" OFF)
 option(BUILD_TESTING "Build and run unit and integration tests: disable for build timing runs to reduce variation" OFF)
@@ -28,13 +28,24 @@ option(BUILD_CEF_PLUGIN "Build support for SLPlugin CEF web plugin." ON)
 option(BUILD_VLC_PLUGIN "Build support for SLPlugin VLC media plugin." ON)
 cmake_dependent_option(BUILD_GSTREAMER_PLUGIN "Build support for SLPlugin Gstreamer media plugin." ON "UNIX;NOT APPLE" OFF)
 
+# Build feature and optimization options
 option(OS_DRAG_DROP "Build the viewer with OS level drag and drop support" ON)
 option(USE_NDOF "Use NDOF space navigator joystick library." ON)
 option(USE_LTO "Enable Link Time Optimization" OFF)
-option(USE_NVAPI "Use NVidia NVAPI library for gpu profile support(Windows Only)" ON)
+option(USE_NVAPI "Use NVidia NVAPI library for gpu profile support (Windows Only)" ON)
 option(USE_OPENAL "Enable support for the OpenAL audio engine" ON)
-option(USE_OPENXR "Enable building with OpenXR support(Experimental)" OFF)
+option(USE_OPENXR "Enable building with OpenXR support (Experimental)" OFF)
 option(USE_PRECOMPILED_HEADERS "Enable use of precompiled header directives where supported." ON)
+
+# SIMD Options (x86_64 only)
+option(USE_SSE4_2 "Use SSE4.2/x86-64-v2 instruction sets (x86_64 only)" OFF)
+option(USE_AVX "Use AVX/x86-64-v2+avx instruction sets (x86_64 only)" OFF)
+option(USE_AVX2 "Use AVX2/x86_64-v3 instruction sets (x86_64 only)" OFF)
+
+# Sanitizers (Mac and Linux Only)
+option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
+option(ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+option(ENABLE_THREADSAN "Enable Thread Sanitizer" OFF)
 
 # Proprietary Libraries
 option(INSTALL_PROPRIETARY "Build with support for non-free libraries" OFF)
@@ -79,11 +90,6 @@ option(USE_TRACY_ON_DEMAND "Use on-demand Tracy profiling." ON)
 option(USE_TRACY_LOCAL_ONLY "Disallow remote Tracy profiling." ON)
 option(USE_TRACY_GPU "Use Tracy GPU profiling" OFF)
 option(USE_TRACY_GUI "Enable building Tracy profiler GUI" OFF)
-
-# Sanitizers (Mac and Linux Only)
-option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
-option(ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
-option(ENABLE_THREADSAN "Enable Thread Sanitizer" OFF)
 
 # Signing
 option(ENABLE_SIGNING "Enable signing the viewer" OFF)

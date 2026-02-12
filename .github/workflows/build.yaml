@@ -2,6 +2,25 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to configure the build"
+        required: true
+        type: choice
+        default: "Auto"
+        options:
+        - "Auto"
+        - "Test"
+        - "Develop"
+        - "Project"
+        - "Beta"
+        - "Release"
+        - "Release edu"
+      project:
+        description: "Project Name (used for channel name in Project builds)"
+        required: true
+        type: string
+        default: "hippo"
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
@@ -13,9 +32,13 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
+      viewer_branch: ${{ steps.which-branch.outputs.branch }}
+      relnotes: ${{ steps.which-branch.outputs.relnotes }}
       release_run: ${{ steps.setvar.outputs.release_run }}
-      configurations: ${{ steps.setvar.outputs.configurations }}
+      build_type: ${{ steps.setvar.outputs.build_type }}
       bugsplat_db: ${{ steps.setvar.outputs.bugsplat_db }}
+      viewer_channel: ${{ steps.setvar.outputs.viewer_channel }}
+      is_private_build: ${{ steps.setvar.outputs.is_private_build }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
@@ -25,131 +48,15 @@ jobs:
       RELEASE_RUN: ${{ (github.event.inputs.release_run || github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')) && 'Y' || '' }}
       FROM_FORK: ${{ github.event.pull_request.head.repo.fork }}
     steps:
-      - name: Set Variables
-        id: setvar
-        shell: bash
-        run: |
-          echo "release_run=$RELEASE_RUN" >> "$GITHUB_OUTPUT"
-
-          if [[ "$FROM_FORK" == "true" ]]; then
-            # PR from fork; don't build with Bugsplat, proprietary libs
-            echo 'configurations=["ReleaseOS"]' >> $GITHUB_OUTPUT
-            echo "bugsplat_db=" >> $GITHUB_OUTPUT
-          else
-            echo 'configurations=["Release"]' >> $GITHUB_OUTPUT
-            echo "bugsplat_db=SecondLife_Viewer_2018" >> $GITHUB_OUTPUT
-          fi
-  build:
-    needs: setup
-    strategy:
-      matrix:
-        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
-        configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
-        build_variant: [Viewer, Tests]
-    runs-on: ${{ matrix.runner }}
-    outputs:
-      viewer_channel: ${{ steps.build.outputs.viewer_channel }}
-      viewer_version: ${{ steps.build.outputs.viewer_version }}
-      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
-      relnotes:       ${{ steps.which-branch.outputs.relnotes }}
-      imagename:      ${{ steps.build.outputs.imagename }}
-      configuration:  ${{ matrix.configuration }}
-    env:
-      AUTOBUILD_ADDRSIZE: 64
-      AUTOBUILD_BUILD_ID: ${{ github.run_id }}
-      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
-      # authorizes fetching private constituent packages
-      AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
-      AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
-      AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
-      # Direct autobuild to store vcs_url, vcs_branch and vcs_revision in
-      # autobuild-package.xml.
-      AUTOBUILD_VCS_INFO: "true"
-      AUTOBUILD_VSVER: "170"
-      DEVELOPER_DIR: "/Applications/Xcode_16.4.app/Contents/Developer"
-      # Ensure that Linden viewer builds engage Bugsplat.
-      BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
-      build_log_dir: ${{ github.workspace }}/.logs
-      build_viewer: ${{ matrix.build_variant == 'Viewer' }}
-      build_tests: ${{ matrix.build_variant == 'Tests' }}
-      BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
-      # extracted and committed to viewer repo
-      BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/buildscripts_support_functions
-      GIT_REF: ${{ github.head_ref || github.ref }}
-      LL_SKIP_REQUIRE_SYSROOT: 1
-      # Setting this variable directs Linden's TUT test driver code to capture
-      # test-program log output at the specified level, but to display it only if
-      # the individual test fails.
-      LOGFAIL: DEBUG
-      master_message_template_checkout: ${{ github.workspace }}/.master-message-template
-      # Only set variants to the one configuration: don't let build.sh loop
-      # over variants, let GitHub distribute variants over multiple hosts.
-      variants: ${{ matrix.configuration }}
-    steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Linux Disk Cleanup
-        if: matrix.build_variant == 'Viewer' && runner.os == 'Linux'
-        run: |
-          # Prune various unused files from linux builder for Viewer build to fix runner disk space exhaustion
-          df -h
-          sudo docker container prune -f
-          sudo docker image prune -a -f
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/.ghcup
-          df -h
-
       - name: Setup python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
-      - name: Checkout build variables
-        uses: actions/checkout@v6
-        with:
-          repository: secondlife/build-variables
-          ref: master
-          path: .build-variables
-
-      - name: Checkout master-message-template
-        uses: actions/checkout@v6
-        with:
-          repository: secondlife/master-message-template
-          path: .master-message-template
-
-      - name: Install autobuild and python dependencies
-        run: pip3 install autobuild llsd
-
-      - name: Cache autobuild packages
-        id: cache-installables
-        uses: actions/cache@v5
-        with:
-          path: .autobuild-installables
-          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-${{ hashFiles('autobuild.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-
-            ${{ runner.os }}-64-${{ matrix.configuration }}-
-            ${{ runner.os }}-64-
-
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            libpulse-dev libunwind-dev \
-            libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
-            libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
-            libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
-            libpipewire-0.3-dev libdbus-1-dev libvlc-dev \
-            libosmesa6-dev
-          sudo locale-gen en_US.UTF-8
-          sudo locale-gen en_GB.UTF-8
-          sudo locale-gen fr_FR.UTF-8
+          python-version: "3.13"
 
       - name: Determine source branch
         id: which-branch
@@ -157,93 +64,52 @@ jobs:
         with:
           token: ${{ github.token }}
 
-      - name: Build
-        id: build
+      - name: Set Variables
+        id: setvar
         shell: bash
         env:
-          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
-          RUNNER_OS: ${{ runner.os }}
+          BUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
+          VIEWER_CHANNEL_BASE: "Second Life"
         run: |
-          # set up things the viewer's build.sh script expects
-          set -x
-          mkdir -p "$build_log_dir"
-          mkdir -p "$BUILDSCRIPTS_SHARED/packages/lib/python"
-          source "$BUILDSCRIPTS_SUPPORT_FUNCTIONS"
-          if [[ "$OSTYPE" =~ cygwin|msys ]]
-          then
-            native_path() { cygpath --windows "$1"; }
-            shell_path()  { cygpath --unix "$1"; }
+          echo "release_run=$RELEASE_RUN" >> "$GITHUB_OUTPUT"
+
+          if [[ "x$GITHUB_REPOSITORY" == "xsecondlife/viewer-private" ]]; then
+            echo 'is_private_build=true' >> $GITHUB_OUTPUT
           else
-            native_path() { echo "$1"; }
-            shell_path()  { echo "$1"; }
+            echo 'is_private_build=false' >> $GITHUB_OUTPUT
           fi
-          finalize()
-          {
-            case "$1" in
-              true|0)
-                record_success "Build Succeeded"
-                ;;
-              *)
-                record_failure "Build Failed with $1"
-                ;;
-            esac
-          }
-          initialize_build()
-          {
-            echo "initialize_build"
-          }
-          initialize_version()
-          {
-            export revision="$AUTOBUILD_BUILD_ID"
-          }
-          python_cmd()
-          {
-              if [[ "x${1:0:1}" == "x-" ]]    # -m, -c, etc.
-              then # if $1 is a switch, don't try to twiddle paths
-                   "$(shell_path "$PYTHON_COMMAND")" "$@"
-              elif [[ "$(basename "$1")" == "codeticket.py" ]]
-              then # ignore any attempt to contact codeticket
-                   echo "## $@"
-              else # running a script at an explicit path: fix path for Python
-                   local script="$1"
-                   shift
-                   "$(shell_path "$PYTHON_COMMAND")" "$(native_path "$script")" "$@"
-              fi
-          }
-          repo_branch()
-          {
-            echo "$AUTOBUILD_VCS_BRANCH"
-          }
-          record_dependencies_graph()
-          {
-            echo "TODO: generate and post dependency graph"
-          }
-          # Since we're not uploading to codeticket, DO NOT sleep for minutes.
-          sleep()
-          {
-            echo "Not sleeping for $1 seconds"
-          }
-          export -f native_path shell_path finalize initialize_build initialize_version
-          export -f python_cmd repo_branch record_dependencies_graph sleep
-          ## Useful for diagnosing Windows LLProcess/LLLeap test failures
-          ##export APR_LOG="${RUNNER_TEMP}/apr.log"
-          export arch=$(uname | cut -b-6)
-          # Surprise! GH Windows runner's MINGW6 is a $arch value we've never
-          # seen before, so numerous tests don't know about it.
-          [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
-          export AUTOBUILD="$(which autobuild)"
+
+          if [[ "x$GITHUB_REPOSITORY" != "xsecondlife/viewer" && "x$GITHUB_REPOSITORY" != "xsecondlife/viewer-private" ]]; then
+            # Non-linden viewer repository run OSS build
+            echo 'build_type=opensource' >> $GITHUB_OUTPUT
+            echo "bugsplat_db=" >> $GITHUB_OUTPUT
+          elif [[ "$FROM_FORK" == "true" ]]; then
+            # PR from fork; don't build with Bugsplat, proprietary libs
+            echo 'build_type=opensource' >> $GITHUB_OUTPUT
+            echo "bugsplat_db=" >> $GITHUB_OUTPUT
+          else
+            echo 'build_type=proprietary' >> $GITHUB_OUTPUT
+            echo "bugsplat_db=SecondLife_Viewer_2018" >> $GITHUB_OUTPUT
+          fi
 
           # determine the viewer channel from the branch or tag name
           # trigger an EDU build by including "edu" in the tag
           edu=${{ github.ref_type == 'tag' && contains(github.ref_name, 'edu') }}
           echo "ref_type=${{ github.ref_type }}, ref_name=${{ github.ref_name }}, edu='$edu'"
-          branch=$AUTOBUILD_VCS_BRANCH
-          if [[ "$edu" == "true" ]]
+          branch=$BUILD_VCS_BRANCH
+          if [[ "${{inputs.channel}}" != "" && "${{inputs.channel}}" != "Auto" ]];
           then
-              export viewer_channel="Second Life Release edu"
+              if [[ "${{inputs.channel}}" == "Project" ]];
+                  export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Project ${{inputs.project}}"
+              then
+                  export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} ${{inputs.channel}}"
+              fi
+          elif [[ "$edu" == "true" ]];
+          then
+              export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Release edu"
           elif  [[ "$branch" == "develop" ]];
           then
-              export viewer_channel="Second Life Develop"
+              export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Develop"
           else
               IFS='/' read -ra ba <<< "$branch"
               prefix=${ba[0]}
@@ -252,29 +118,231 @@ jobs:
                   prj_str="${prj[*]}"
                   # uppercase first letter of each word
                   capitalized=$(echo "$prj_str" | awk '{for (i=1; i<=NF; i++) $i = toupper(substr($i,1,1)) substr($i,2); print}')
-                  export viewer_channel="Second Life Project $capitalized"
+                  export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Project $capitalized"
               elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
               then
-                  export viewer_channel="Second Life Release"
+                  export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Release"
               else
-                  export viewer_channel="Second Life Test"
+                  export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Test"
               fi
           fi
-          echo "viewer_channel=$viewer_channel"
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
-          # On windows we need to point the build to the correct python
-          # as neither CMake's FindPython nor our custom Python.cmake module
-          # will resolve the correct interpreter location.
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            export PYTHON="$(native_path "$(which python)")"
-            echo "Python location: $PYTHON"
-            export PYTHON_COMMAND="$PYTHON"
-          else
-            export PYTHON_COMMAND="python3"
-          fi
-          export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
-          ./build.sh
+  build:
+    needs: setup
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-26-xlarge","linux-large"]' || '["windows-2025", "macos-26", "ubuntu-22.04"]') }}
+        configuration: [release, relwithdebinfo, optdebug]
+        arch: [x64, arm64]
+        build_variant: [Viewer, Tests]
+        exclude:
+          - runner: ubuntu-22.04
+            arch: arm64
+          - runner: windows-2025
+            arch: arm64
+          - build_variant: Viewer
+            configuration: relwithdebinfo
+          - build_variant: Viewer
+            configuration: optdebug
+          - runner: macos-26
+            configuration: relwithdebinfo
+          - runner: macos-26
+            configuration: optdebug
+
+    runs-on: ${{ matrix.runner }}
+    outputs:
+      viewer_version: ${{ steps.build.outputs.viewer_version }}
+      imagename: ${{ steps.build.outputs.imagename }}
+    env:
+      # Sets Xcode version used for build
+      DEVELOPER_DIR: "/Applications/Xcode_26.2.app/Contents/Developer"
+      # Ensure that Linden viewer builds engage Bugsplat.
+      BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
+      # Decide if we're building tests or the viewer
+      BUILD_VIEWER: ${{ matrix.build_variant == 'Viewer' }}
+      BUILD_APPEARANCE_UTIL: ${{ startsWith(matrix.runner, 'ubuntu-') && matrix.build_variant == 'Viewer' }}
+      BUILD_TESTS: ${{ matrix.build_variant == 'Tests' }}
+      # Build Config
+      BUILD_ARCH: ${{ matrix.arch }}
+      BUILD_CONFIG: ${{ matrix.configuration }}
+      BUILD_TYPE: ${{ needs.setup.outputs.build_type }}
+      # Crash Reporting - Disabled on linux
+      RELEASE_CRASH_REPORTING: ${{ !startsWith(matrix.runner, 'ubuntu-') && needs.setup.outputs.build_type == 'proprietary' }}
+      # Viewer Channel
+      VIEWER_CHANNEL: ${{ needs.setup.outputs.viewer_channel }}
+      VIEWER_GRID: "agni"
+      # Setting this variable directs Linden's TUT test driver code to capture
+      # test-program log output at the specified level, but to display it only if
+      # the individual test fails.
+      LOGFAIL: DEBUG
+      master_message_template_checkout: ${{ github.workspace }}/.master-message-template
+      # vcpkg Setup
+      # VCPKG_USERNAME: ${{ github.repository_owner }}
+      # VCPKG_FEED_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      # VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite"
+    steps:
+      - name: Linux Dependency Install and Disk Cleanup
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            autoconf autoconf-archive automake bison build-essential cmake curl flex gettext \
+            libasound2-dev libaudio-dev libdbus-1-dev libdbus-1-dev libdecor-0-dev libdrm-dev \
+            libegl1-mesa-dev libfribidi-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+            libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev libibus-1.0-dev libjack-dev \
+            libosmesa6-dev libpipewire-0.3-dev libpulse-dev libsndio-dev libtext-unidecode-perl \
+            libthai-dev libtool libudev-dev libunwind-dev liburing-dev libvlc-dev libwayland-dev \
+            libx11-dev libxcursor-dev libxext-dev libxfixes-dev libxft-dev libxi-dev libxinerama-dev \
+            libxkbcommon-dev libxrandr-dev libxss-dev libxtst-dev linux-libc-dev mono-complete \
+            ninja-build pkgconf tar tex-common texinfo unzip zip
+
+          sudo locale-gen en_US.UTF-8
+          sudo locale-gen en_GB.UTF-8
+          sudo locale-gen fr_FR.UTF-8
+
+      - name: macOS Homebrew Dependency Install
+        if: runner.os == 'macOS'
+        run: |
+          brew install autoconf autoconf-archive automake libtool mono unzip zip
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Checkout master-message-template
+        uses: actions/checkout@v6
+        with:
+          repository: secondlife/master-message-template
+          path: .master-message-template
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install python dependencies
+        run: pip3 install llsd cmake ninja
+
+      # - name: Set up vcpkg nuget caching
+      #   shell: bash
+      #   run: |
+      #     if [[ "$RUNNER_OS" == "Windows" ]]
+      #     then
+      #       `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #         sources add \
+      #         -Source "${{ env.VCPKG_FEED_URL }}" \
+      #         -StorePasswordInClearText \
+      #         -Name GitHubPackages \
+      #         -UserName "${{ env.VCPKG_USERNAME }}" \
+      #         -Password "${{ secrets.GITHUB_TOKEN }}"
+      #       `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #         setapikey "${{ secrets.GITHUB_TOKEN }}" \
+      #         -Source "${{ env.VCPKG_FEED_URL }}"
+      #     else
+      #       mono `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #         sources add \
+      #         -Source "${{ env.VCPKG_FEED_URL }}" \
+      #         -StorePasswordInClearText \
+      #         -Name GitHubPackages \
+      #         -UserName "${{ env.VCPKG_USERNAME }}" \
+      #         -Password "${{ secrets.GITHUB_TOKEN }}"
+      #       mono `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #         setapikey "${{ secrets.GITHUB_TOKEN }}" \
+      #         -Source "${{ env.VCPKG_FEED_URL }}"
+      #     fi
+
+      - name: Configure
+        id: configure
+        shell: bash
+        env:
+          HAVOK: false # ${{ needs.setup.outputs.build_type == 'proprietary' }}
+        run: |
+          set -x
+
+          # Set VCPKG root
+          export VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT
+
+          [ -n "$master_message_template_checkout" ] \
+          && [ -r "$master_message_template_checkout/message_template.msg" ] \
+          && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
+
+          cmake_preset_postfix=""
+          if [[ "$BUILD_TYPE" != "proprietary" ]]
+          then
+            cmake_preset_postfix="-os"
+          fi
+
+          SIGNING=()
+          case "$RUNNER_OS" in
+            Windows)
+              cmake_preset_name="vs2022$cmake_preset_postfix"
+              build_directory="build-Windows-$cmake_preset_name"
+              vcpkg_triplet="x64-windows-secondlife-release"
+              ;;
+            macOS)
+              cmake_preset_name="ninja$cmake_preset_postfix-$BUILD_ARCH"
+              build_directory="build-Darwin-$cmake_preset_name"
+              vcpkg_triplet="$BUILD_ARCH-osx-secondlife-release"
+              ;;
+            Linux)
+              cmake_preset_name="ninja$cmake_preset_postfix"
+              build_directory="build-Linux-$cmake_preset_name"
+              vcpkg_triplet="x64-linux-secondlife-release"
+              ;;
+          esac
+
+          echo "build_directory=$build_directory" >> "$GITHUB_OUTPUT"
+          echo "cmake_preset=$cmake_preset_name" >> "$GITHUB_OUTPUT"
+
+          cmake -S indra --preset $cmake_preset_name \
+            -DVCPKG_TARGET_TRIPLET="$vcpkg_triplet" \
+            -DBUILD_VIEWER:BOOL="$BUILD_VIEWER" \
+            -DBUILD_APPEARANCE_UTIL:BOOL="$BUILD_APPEARANCE_UTIL" \
+            -DBUILD_TESTING:BOOL="$BUILD_TESTS" \
+            -DPACKAGE:BOOL=ON \
+            -DHAVOK:BOOL="$HAVOK" \
+            -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
+            -DBUGSPLAT_DB:STRING="${BUGSPLAT_DB:-}" \
+            -DVIEWER_CHANNEL:STRING="${VIEWER_CHANNEL}" \
+            -DGRID:STRING="\"$VIEWER_GRID\"" \
+            -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+            "${SIGNING[@]}"
+
+      - name: Build
+        id: build
+        shell: bash
+        env:
+          CMAKE_PRESET_NAME: ${{ steps.configure.outputs.cmake_preset }}
+          CTEST_OUTPUT_ON_FAILURE: 1 # Output log on test failure
+        working-directory: "${{ github.workspace }}/indra"
+        run: |
+          set -x
+
+          # Set VCPKG root
+          export VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT
+
+          if $BUILD_TESTS
+          then
+            # Now build the tests. We want to build them in a separate step before running them.
+            cmake --build --preset $CMAKE_PRESET_NAME-$BUILD_CONFIG
+
+            # Now that we've built the tests, we can run them to validate the build.
+            # If the tests fail, their output will be visible in the logs due to
+            # CTEST_OUTPUT_ON_FAILURE above, and the build step will be marked as failed.
+            cmake --build --preset $CMAKE_PRESET_NAME-$BUILD_CONFIG --target BUILD_AND_RUN_TESTS
+          elif $BUILD_VIEWER
+          then
+            cmake --build --preset $CMAKE_PRESET_NAME-$BUILD_CONFIG || fatal "failed building $BUILD_CONFIG viewer"
+
+            # *TODO: Make this a build extension. disabled for now
+            # package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+          else
+            echo "::notice::Skipping build due to both viewer and tests being disabled"
+          fi
 
           # Each artifact is downloaded as a distinct .zip file. Multiple jobs
           # (per the matrix above) writing the same filepath to the same
@@ -288,67 +356,123 @@ jobs:
           # platform, we must disambiguate on more than the platform name.
           # e.g. if we were still running Windows 32-bit builds, we'd need to
           # qualify the artifact with bit width.
-          if [[ "$AUTOBUILD_CONFIGURATION" == "ReleaseOS" ]]
-          then cfg_suffix='OS'
+          if [[ "$BUILD_TYPE" != "proprietary" ]]
+          then cfg_suffix='-OS'
           else cfg_suffix=''
           fi
-          echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
+          echo "artifact=$RUNNER_OS$cfg_suffix-$BUILD_ARCH" >> $GITHUB_OUTPUT
+
+          # Gather version metadata
+          if [ -r "$build_dir/newview/viewer_version.txt" ]
+          then
+              viewer_version="$(<"$BUILD_DIRECTORY/newview/viewer_version.txt")"
+              echo "viewer_version=$viewer_version" >> "$GITHUB_OUTPUT"
+          fi
+
+      # TODO: Disabled for now since we don't have the necessary Havok dependency available in our open-source vcpkg.
+      # - name: Build llphysicsextensions TPV package
+      #   id: physics_tpv
+      #   if: needs.setup.outputs.is_private_build == 'true' && needs.setup.outputs.build_type == 'proprietary' && matrix.configuration == 'release' && matrix.build_variant == 'Viewer'
+      #   shell: bash
+      #   env:
+      #     BUILD_DIRECTORY: ${{ steps.configure.outputs.build_directory }}
+      #   run: |
+      #     tpv_status=0
+      #     # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
+      #     if [[ "$BUILD_TYPE" == "proprietary" && "${HAVOK:-}" != "OFF" ]]
+      #     then
+      #         tpvconfig="$build_dir/packages/llphysicsextensions/autobuild-tpv.xml"
+      #         test -r "$tpvconfig" || fatal "No llphysicsextensions_tpv autobuild configuration found"
+      #         # SL-19942: autobuild ignores -c switch if AUTOBUILD_CONFIGURATION set
+      #         unset AUTOBUILD_CONFIGURATION
+      #         "$autobuild" build --quiet --config-file "$(native_path "$tpvconfig")" -c Tpv \
+      #             || fatal "failed to build llphysicsextensions_tpv"
+
+      #         # capture the package file name for use in upload later...
+      #         PKGTMP=`mktemp -t pgktpv.XXXXXX`
+      #         cleanup="$cleanup ; rm $PKGTMP* 2>/dev/null"
+      #         trap "$cleanup" EXIT
+      #         "$autobuild" package --quiet --config-file "$tpvconfig" --results-file "$(native_path $PKGTMP)" || fatal "failed to package llphysicsextensions_tpv"
+      #         tpv_status=$?
+      #         if [ -r "${PKGTMP}" ]
+      #         then
+      #             . "${PKGTMP}" # sets autobuild_package_{name,filename,md5}
+      #             echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
+      #         fi
+      #     else
+      #         echo "::debug::Do not provide llphysicsextensions_tpv for $BUILD_TYPE"
+      #         llphysicsextensions_package=""
+      #     fi
+      #     return $tpv_status
 
       - name: Upload executable
         uses: actions/upload-artifact@v6
-        if: matrix.build_variant == 'Viewer' && steps.build.outputs.viewer_app
+        if: matrix.configuration == 'release' && matrix.build_variant == 'Viewer'
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
+          if-no-files-found: error
+          compression-level: 9
           path: |
             ${{ steps.build.outputs.viewer_app }}
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
-      - name: Upload symbol file
+      - name: Upload Windows symbol file
         uses: actions/upload-artifact@v6
-        if: matrix.build_variant == 'Viewer' && steps.build.outputs.symbolfile
+        if: matrix.configuration == 'release' && matrix.build_variant == 'Viewer' && needs.setup.outputs.build_type == 'proprietary'
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
-          path: ${{ steps.build.outputs.symbolfile }}
+          if-no-files-found: error
+          path: |
+            ${{ steps.configure.outputs.build_directory }}/symbols/Release/${{ needs.setup.outputs.viewer_channel }}.sym.tar.xz
+
+      - name: Upload macOS symbol file
+        uses: actions/upload-artifact@v6
+        if: matrix.configuration == 'release' && matrix.build_variant == 'Viewer' && needs.setup.outputs.build_type == 'proprietary'
+        with:
+          name: "${{ steps.build.outputs.artifact }}-symbols"
+          if-no-files-found: error
+          path: |
+            ${{ steps.configure.outputs.build_directory }}/symbols/Release/${{ needs.setup.outputs.viewer_channel }}.xcarchive.zip
 
       - name: Upload metadata
         uses: actions/upload-artifact@v6
-        if: matrix.build_variant == 'Viewer'
+        if: matrix.configuration == 'release' && matrix.build_variant == 'Viewer'
         with:
           name: "${{ steps.build.outputs.artifact }}-metadata"
-          # emitted by build.sh, possibly multiple lines
+          if-no-files-found: error
+          compression-level: 9
           path: |
-            ${{ steps.build.outputs.metadata }}
+            ${{ steps.configure.outputs.build_directory }}/newview/viewer_version.txt
 
-      - name: Upload physics package
-        uses: actions/upload-artifact@v6
-        # should only be set for viewer-private
-        if: matrix.build_variant == 'Viewer' && matrix.configuration == 'Release' && steps.build.outputs.physicstpv
-        with:
-          name: "${{ steps.build.outputs.artifact }}-physics"
-          # emitted by build.sh, zero or one lines
-          path: |
-            ${{ steps.build.outputs.physicstpv }}
+      # - name: Upload physics package
+      #   uses: actions/upload-artifact@v6
+      #   # should only be set for viewer-private
+      #   if: needs.setup.outputs.is_private_build == 'true' && needs.setup.outputs.build_type == 'proprietary' && matrix.configuration == 'release' && matrix.build_variant == 'Viewer'
+      #   with:
+      #     name: "${{ steps.build.outputs.artifact }}-physics"
+      #     path: |
+      #       ${{ steps.configure.outputs.build_directory }}/llphysicsextensions_package*.tar.xz
 
       - name: Upload appearance utility package
         uses: actions/upload-artifact@v6
-        if: matrix.build_variant == 'Viewer' && steps.build.outputs.appearanceutility
+        if: runner.os == 'Linux' && matrix.configuration == 'release' && matrix.build_variant == 'Viewer'
         with:
           name: "${{ steps.build.outputs.artifact }}-appearanceutility"
-          # emitted by build.sh, zero or one lines
           path: |
-            ${{ steps.build.outputs.appearanceutility }}
-
+            ${{ steps.configure.outputs.build_directory }}/llappearanceutility/Release/appearance-utility-bin
+            ${{ steps.configure.outputs.build_directory }}/llappearanceutility/Release/appearance-utility-headless-bin
 
   sign-and-package-windows:
     env:
       AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
-      AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
-      AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CERT_NAME: ${{ secrets.AZURE_CERT_NAME }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
-    needs: build
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    needs: [setup, build]
     runs-on: windows-2022
+    if: needs.setup.outputs.build_type == 'proprietary'
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
@@ -362,12 +486,13 @@ jobs:
 
   sign-and-package-mac:
     env:
-      NOTARIZE_CREDS_MACOS:        ${{ secrets.NOTARIZE_CREDS_MACOS }}
-      SIGNING_CERT_MACOS:          ${{ secrets.SIGNING_CERT_MACOS }}
+      NOTARIZE_CREDS_MACOS: ${{ secrets.NOTARIZE_CREDS_MACOS }}
+      SIGNING_CERT_MACOS: ${{ secrets.SIGNING_CERT_MACOS }}
       SIGNING_CERT_MACOS_IDENTITY: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
       SIGNING_CERT_MACOS_PASSWORD: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
-    needs: build
+    needs: [setup, build]
     runs-on: macos-latest
+    if: needs.setup.outputs.build_type == 'proprietary'
     steps:
       - name: Unpack Mac notarization credentials
         if: env.NOTARIZE_CREDS_MACOS
@@ -393,7 +518,7 @@ jobs:
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
         uses: secondlife/viewer-build-util/sign-pkg-mac@v2
         with:
-          channel: ${{ needs.build.outputs.viewer_channel }}
+          channel: ${{ needs.setup.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
           cert_base64: ${{ env.SIGNING_CERT_MACOS }}
           cert_name: ${{ env.SIGNING_CERT_MACOS_IDENTITY }}
@@ -407,25 +532,25 @@ jobs:
       BUGSPLAT_DATABASE: "${{ secrets.BUGSPLAT_DATABASE }}"
       SYMBOL_UPLOAD_CLIENT_ID: "${{ secrets.BUGSPLAT_SYMBOL_UPLOAD_CLIENT_ID }}"
       SYMBOL_UPLOAD_CLIENT_SECRET: "${{ secrets.BUGSPLAT_SYMBOL_UPLOAD_CLIENT_SECRET }}"
-    needs: build
-    if: needs.build.outputs.configuration == 'Release'
+    needs: [setup, build]
+    if: needs.setup.outputs.build_type == 'proprietary'
     runs-on: ubuntu-latest
     steps:
       - name: Download viewer exe
         uses: actions/download-artifact@v7
         with:
-          name: Windows-app
+          name: Windows-x64-app
           path: _artifacts
       - name: Download Windows Symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
         uses: actions/download-artifact@v7
         with:
-          name: Windows-symbols
+          name: Windows-x64-symbols
       - name: Extract viewer pdb
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
         shell: bash
         run: |
-          tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
+          tar -xJf "${{ needs.setup.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
         uses: BugSplat-Git/symbol-upload@095d163ae9ceb006d286a731dcd35cf6a1b458c8
@@ -433,7 +558,7 @@ jobs:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
           database: "${{ env.BUGSPLAT_DATABASE }}"
-          application: ${{ needs.build.outputs.viewer_channel }}
+          application: ${{ needs.setup.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
           directory: _artifacts
           files: "**/{SecondLifeViewer.exe,llwebrtc.dll,*.pdb}"
@@ -445,15 +570,15 @@ jobs:
       BUGSPLAT_DATABASE: "${{ secrets.BUGSPLAT_DATABASE }}"
       SYMBOL_UPLOAD_CLIENT_ID: "${{ secrets.BUGSPLAT_SYMBOL_UPLOAD_CLIENT_ID }}"
       SYMBOL_UPLOAD_CLIENT_SECRET: "${{ secrets.BUGSPLAT_SYMBOL_UPLOAD_CLIENT_SECRET }}"
-    needs: build
-    if: needs.build.outputs.configuration == 'Release'
+    needs: [setup, build]
+    if: needs.setup.outputs.build_type == 'proprietary'
     runs-on: ubuntu-latest
     steps:
       - name: Download Mac Symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
         uses: actions/download-artifact@v7
         with:
-          name: macOS-symbols
+          name: macOS-x64-symbols
       - name: Post Mac symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
         uses: BugSplat-Git/symbol-upload@095d163ae9ceb006d286a731dcd35cf6a1b458c8
@@ -461,7 +586,7 @@ jobs:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
           database: "${{ env.BUGSPLAT_DATABASE }}"
-          application: ${{ needs.build.outputs.viewer_channel }}
+          application: ${{ needs.setup.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }} (${{ needs.build.outputs.viewer_version }})
           directory: .
           files: "**/*.xcarchive.zip"
@@ -487,11 +612,8 @@ jobs:
 
       - name: Rename metadata
         run: |
-          cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
           cp Windows-metadata/newview/viewer_version.txt Windows-viewer_version.txt
-          cp macOS-metadata/autobuild-package.xml macOS-autobuild-package.xml
           cp macOS-metadata/newview/viewer_version.txt macOS-viewer_version.txt
-          cp Linux-metadata/autobuild-package.xml Linux-autobuild-package.xml
           cp Linux-metadata/newview/viewer_version.txt Linux-viewer_version.txt
 
       # forked from softprops/action-gh-release
@@ -500,14 +622,14 @@ jobs:
         uses: secondlife-3p/action-gh-release@v1
         with:
           # name the release page for the branch
-          name: "${{ needs.build.outputs.viewer_branch }}"
+          name: "${{ needs.setup.outputs.viewer_branch }}"
           # SL-20546: want the channel and version to be visible on the
           # release page
           body: |
             Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            ${{ needs.build.outputs.viewer_channel }}
+            ${{ needs.setup.outputs.viewer_channel }}
             ${{ needs.build.outputs.viewer_version }}
-            ${{ needs.build.outputs.relnotes }}
+            ${{ needs.setup.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
@@ -517,7 +639,6 @@ jobs:
             macOS-installer/*.dmg
             Windows-installer/*.exe
             *.tar.xz
-            *-autobuild-package.xml
             *-viewer_version.txt
 
       - name: post release URL
