@@ -436,7 +436,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
         {
             if (!mWindowTimeout)
             {
-                mWindowTimeout = std::make_unique<LLWatchdogTimeout>("mainloop");
+                mWindowTimeout = std::make_unique<LLWatchdogTimeout>("WindowThread");
                 // supposed to be executed within run(),
                 // so no point checking if thread is alive
                 resumeTimeout("TimeoutInit");

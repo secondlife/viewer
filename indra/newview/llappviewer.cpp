@@ -3200,7 +3200,6 @@ bool LLAppViewer::initWindow()
                 app->createErrorMarker(LAST_EXEC_FROZE);
             }
         });
-        gViewerWindow->getWindow()->initWatchdog();
     }
 
     LLNotificationsUI::LLNotificationManager::getInstance();
@@ -5924,6 +5923,11 @@ void LLAppViewer::handleLoginComplete()
 {
     gLoggedInTime.start();
     initMainloopTimeout("Mainloop Init");
+    LLWindow* viewer_window = gViewerWindow->getWindow();
+    if (viewer_window) // in case of a headless client
+    {
+        viewer_window->initWatchdog();
+    }
 
     // Store some data to DebugInfo in case of a freeze.
     gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::instance().getChannel();
