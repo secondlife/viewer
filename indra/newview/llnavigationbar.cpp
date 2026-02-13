@@ -712,7 +712,14 @@ void LLNavigationBar::resizeLayoutPanel()
 }
 void LLNavigationBar::invokeSearch(std::string search_text)
 {
-    LLFloaterReg::showInstance("search", LLSD().with("category", "standard").with("query", LLSD(search_text)));
+    LLSD key;
+    key["category"] = "standard";
+    key["query"] = search_text;
+    LLSD collections = LLSD::emptyArray();
+    collections.append("destinations");
+    collections.append("places");
+    key["collections"] = collections;
+    LLFloaterReg::showInstance("search", key);
 }
 
 void LLNavigationBar::clearHistoryCache()
