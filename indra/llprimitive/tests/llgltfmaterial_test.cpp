@@ -50,7 +50,7 @@
 // implementation to be defined in order for llprimitive to link correctly.
 #define TINYGLTF_NO_EXTERNAL_IMAGE 1
 
-#include "tinygltf/tiny_gltf.h"
+#include <tiny_gltf.h>
 
 namespace tut
 {

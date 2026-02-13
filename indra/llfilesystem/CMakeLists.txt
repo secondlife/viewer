@@ -1,9 +1,5 @@
 # -*- cmake -*-
-
-project(llfilesystem)
-
 include(00-Common)
-include(LLCommon)
 
 set(llfilesystem_SOURCE_FILES
     lldir.cpp

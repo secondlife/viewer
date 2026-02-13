@@ -38,15 +38,6 @@ class LLJoint;
 class LLVOAvatar;
 class LLTextBox;
 class LLVertexBuffer;
-class DAE;
-class daeElement;
-class domProfile_COMMON;
-class domInstance_geometry;
-class domNode;
-class domTranslate;
-class domController;
-class domSkin;
-class domMesh;
 
 // const strings needed by classes that use model preivew
 static const std::string lod_name[NUM_LOD + 1] =

@@ -1,12 +1,6 @@
 # -*- cmake -*-
-
-project(llmeshoptimizer)
-
-include(Meshoptimizer)
-
 include(00-Common)
-include(LLCommon)
-include(LLMath)
+include(Meshoptimizer)
 
 set(llmeshoptimizer_SOURCE_FILES
         llmeshoptimizer.cpp

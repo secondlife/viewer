@@ -21,15 +21,43 @@ include_guard()
 include(Variables)
 include(Linking)
 
-# We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} $ENV{LL_BUILD_RELEASE}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} $ENV{LL_BUILD_RELWITHDEBINFO}")
+if (NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 20)
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF) # This slows down build massively
+set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
 
-# Given that, all the flags you see added below are flags NOT present in
-# https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables.
-# Before adding new ones here, it's important to ask: can this flag really be
-# applied to the viewer only, or should/must it be applied to all 3p libraries
-# as well?
+# Enable colored compiler diagnostic output
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+
+# Speeds up cmake generation significantly in some cases
+set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY ON)
+
+# Link Time Optimization
+if(USE_LTO)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+endif()
+
+# Debug Global Defines
+add_compile_definitions(
+      $<$<CONFIG:Debug>:LL_DEBUG=1>
+      $<$<CONFIG:Debug>:_DEBUG>
+)
+
+# RelWithDebInfo Global Defines
+add_compile_definitions(
+      $<$<CONFIG:RelWithDebInfo>:LL_RELEASE=1>
+      $<$<CONFIG:RelWithDebInfo>:LL_RELEASE_WITH_DEBUG_INFO=1>
+      $<$<CONFIG:RelWithDebInfo>:NDEBUG=1>
+)
+
+# Release Global Defines
+add_compile_definitions(
+      $<$<CONFIG:Release>:LL_RELEASE=1>
+      $<$<CONFIG:Release>:LL_RELEASE_FOR_DOWNLOAD=1>
+      $<$<CONFIG:Release>:NDEBUG=1>
+)
 
 # Portable compilation flags.
 add_compile_definitions(ADDRESS_SIZE=${ADDRESS_SIZE})
@@ -46,88 +74,90 @@ add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_ENABLE_EXPERIME
 # SSE2NEON throws a pointless warning when compiler optimizations are enabled
 add_compile_definitions(SSE2NEON_SUPPRESS_WARNINGS=1)
 
-# Configure crash reporting
-set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
-set(NON_RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in developer builds")
-
 if(RELEASE_CRASH_REPORTING)
-  add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
+  add_compile_definitions(LL_SEND_CRASH_REPORTS=1)
 endif()
 
 if(NON_RELEASE_CRASH_REPORTING)
-  add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
+  add_compile_definitions(LL_SEND_CRASH_REPORTS=1)
 endif()
-
-set(USE_LTO OFF CACHE BOOL "Enable Link Time Optimization")
-if(USE_LTO)
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
-endif()
-
-# Don't bother with a MinSizeRel or Debug builds.
-set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "Supported build types." FORCE)
 
 # Platform-specific compilation flags.
-
 if (WINDOWS)
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "ProgramDatabase")
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+
   # Don't build DLLs.
   set(BUILD_SHARED_LIBS OFF)
 
-  # for "backwards compatibility", cmake sneaks in the Zm1000 option which royally
-  # screws incredibuild. this hack disables it.
-  # for details see: http://connect.microsoft.com/VisualStudio/feedback/details/368107/clxx-fatal-error-c1027-inconsistent-values-for-ym-between-creation-and-use-of-precompiled-headers
-  # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015
-  # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
-  string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-  add_link_options(/LARGEADDRESSAWARE
-          /NODEFAULTLIB:LIBCMT
-          /IGNORE:4099)
+  add_link_options(
+    /OPT:REF
+    /OPT:ICF
+    /DEBUG:FULL
+    /LARGEADDRESSAWARE
+    /NODEFAULTLIB:LIBCMT
+    /NODEFAULTLIB:LIBCMTD
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:/NODEFAULTLIB:MSVCRTD>
+  )
 
   add_compile_definitions(
-      WIN32_LEAN_AND_MEAN
-      NOMINMAX
-#     DOM_DYNAMIC                     # For shared library colladadom
-      _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
-      _CRT_NONSTDC_NO_DEPRECATE       # Allow use of sprintf etc
-      _CRT_OBSOLETE_NO_WARNINGS
-      _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
-      )
+    LL_WINDOWS=1
+    UNICODE
+    _UNICODE
+    WINVER=0x0A00
+    _WIN32_WINNT=0x0A00
+  )
+
+  # Set windows specific warning supressions
+  add_compile_definitions(
+    WIN32_LEAN_AND_MEAN
+    NOMINMAX
+    _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
+    _CRT_NONSTDC_NO_DEPRECATE       # Allow use of sprintf etc
+    _CRT_OBSOLETE_NO_WARNINGS
+    _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
+  )
+
+  # Options shared between all configurations
   add_compile_options(
-          /Zo
-          /GS
-          /TP
-          /W3
-          /c
-          /Zc:forScope
-          /nologo
-          /Oy-
-          /fp:fast
-          /MP
-          /permissive-
-      )
+    /Gy
+    /GS
+    /GR
+    /W3
+    /nologo
+    /Oy-
+    /fp:fast
+    /MP
+    /permissive-
+    /Zc:preprocessor
+    /Zc:__cplusplus
+    /Zc:inline
+  )
 
-  # Nicky: x64 implies SSE2
-  if( ADDRESS_SIZE EQUAL 32 )
-    add_compile_options( /arch:SSE2 )
-  endif()
-
-  # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)
   endif (NOT VS_DISABLE_FATAL_WARNINGS)
 
-  #ND: When using something like buildcache (https://github.com/mbitsnbites/buildcache)
-  # to make those wrappers work /Zi must be changed to /Z7, as /Zi due to it's nature is not compatible with caching
-  if (${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
-    add_compile_options( /Z7 )
-    string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-    string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-    string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-    string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-  endif()
-endif (WINDOWS)
+  # Debug MSVC Options
+  add_compile_options(
+  )
 
+  # RelWithDebInfo MSVC Options
+  add_compile_options(
+    $<$<CONFIG:RelWithDebInfo>:/Od>
+    $<$<CONFIG:RelWithDebInfo>:/Ob0>
+  )
+
+  # Release MSVC Options
+  add_compile_options(
+    $<$<CONFIG:Release>:/O2>
+  )
+
+  # We want aggressive inlining on MSVC Release to better match clang/gcc at O3
+  string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+  string(REPLACE "/Ob2" "/Ob3" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+endif (WINDOWS)
 
 if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
@@ -138,14 +168,11 @@ if (LINUX)
    # viewer doesn't need to catch SIGCHLD anyway.
 
   add_compile_definitions(
-          _REENTRANT
-          APPID=secondlife
-          LL_IGNORE_SIGCHLD
+    _REENTRANT
+    APPID=secondlife
+    LL_IGNORE_SIGCHLD
   )
 
-  option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
-  option(ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
-  option(ENABLE_THREADSAN "Enable Thread Sanitizer" OFF)
   if(ENABLE_ASAN OR ENABLE_UBSAN OR ENABLE_THREADSAN)
     set(GCC_DISABLE_FATAL_WARNINGS ON) # Disable warnings as errors during sanitizer builds due to false positives
 
@@ -178,24 +205,40 @@ if (LINUX)
     add_compile_definitions($<$<CONFIG:Release>:_FORTIFY_SOURCE=2>)
   endif()
 
+  # Options shared between all configs
   add_compile_options(
-          $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-fstack-protector>
-          -fexceptions
-          -fno-math-errno
-          -fno-strict-aliasing
-          -fsigned-char
-          -g
-          -msse2
-          -pthread
-          -fvisibility=hidden
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-fstack-protector>
+    -fexceptions
+    -fno-math-errno
+    -fno-strict-aliasing
+    -fsigned-char
+    -g
+    -msse2
+    -pthread
+    -fvisibility=hidden
+  )
+
+  # Debug Options
+  add_compile_options(
+    $<$<CONFIG:Debug>:-O0>
+  )
+
+  # RelWithDebInfo Options
+  add_compile_options(
+    $<$<CONFIG:RelWithDebInfo>:-Og>
+  )
+
+  # Release Options
+  add_compile_options(
+    $<$<CONFIG:Release>:-O3>
   )
 
   add_link_options(
-          "LINKER:-z,relro"
-          "LINKER:-z,now"
-          "LINKER:--build-id"
-          "LINKER:--as-needed"
-          "LINKER:--no-undefined"
+    "LINKER:-z,relro"
+    "LINKER:-z,now"
+    "LINKER:--build-id"
+    "LINKER:--as-needed"
+    "LINKER:--no-undefined"
   )
 endif (LINUX)
 
@@ -203,14 +246,60 @@ if (DARWIN)
   # Use rpath loading on macos
   set(CMAKE_MACOSX_RPATH TRUE)
 
+  # Use dwarf symbols for most libraries for compilation speed
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
+
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS sse4.2)
+  # we must hard code this to off for now.  xcode's built in signing does not
+  # handle embedded app bundles such as CEF and others. Any signing for local
+  # development must be done after the build as we do in viewer_manifest.py for
+  # released builds
+  # https://stackoverflow.com/a/54296008
+  # With Xcode 14.1, apparently you must take drastic steps to prevent
+  # implicit signing.
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO)
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
+  # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "")
+  set(CMAKE_XCODE_ATTRIBUTE_DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING YES)
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
+
+  # Only build tests for host system architecture
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    set(LL_MACOS_TEST_ARCHITECTURE "arm64")
+  else()
+    set(LL_MACOS_TEST_ARCHITECTURE "x86_64")
+  endif()
+
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
 
+  # Platform define
+  add_compile_definitions(LL_DARWIN=1)
+
   # Ensure debug symbols are always generated
-  add_compile_options(-g --debug) # --debug is a clang synonym for -g that bypasses cmake behaviors
+  add_compile_options(-g --debug -fno-fast-math -fno-strict-aliasing) # --debug is a clang synonym for -g that bypasses cmake behaviors
 
   # Silence GL deprecation warnings
   add_compile_definitions(GL_SILENCE_DEPRECATION=1)
+
+  # Debug Options
+  add_compile_options(
+    $<$<CONFIG:Debug>:-O0>
+  )
+
+  # RelWithDebInfo Options
+  add_compile_options(
+    $<$<CONFIG:RelWithDebInfo>:-Og>
+  )
+
+  # Release Options
+  add_compile_options(
+    $<$<CONFIG:Release>:-O3>
+  )
 endif(DARWIN)
 
 if (LINUX OR DARWIN)

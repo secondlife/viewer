@@ -32,13 +32,8 @@
 #include "llimage.h"
 
 extern "C" {
-#ifdef LL_USESYSTEMLIBS
 # include <jpeglib.h>
 # include <jerror.h>
-#else
-# include "jpeglib/jpeglib.h"
-# include "jpeglib/jerror.h"
-#endif
 }
 
 class LLImageJPEG : public LLImageFormatted

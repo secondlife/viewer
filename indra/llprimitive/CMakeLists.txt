@@ -1,10 +1,5 @@
 # -*- cmake -*-
-
-project(llprimitive)
-
 include(00-Common)
-include(LLCommon)
-include(LLCoreHttp)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(GLM)

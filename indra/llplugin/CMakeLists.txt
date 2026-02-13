@@ -1,12 +1,6 @@
 # -*- cmake -*-
-
-project(llplugin)
-
 include(00-Common)
 include(CURL)
-include(LLCommon)
-include(LLImage)
-include(LLWindow)
 
 set(llplugin_SOURCE_FILES
     llpluginclassmedia.cpp

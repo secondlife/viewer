@@ -1,12 +1,22 @@
 # -*- cmake -*-
-include(Prebuilt)
-
-set(NDOF ON CACHE BOOL "Use NDOF space navigator joystick library.")
-
 include_guard()
-add_library( ll::ndof INTERFACE IMPORTED )
+add_library(ll::ndof INTERFACE IMPORTED)
 
-if (NDOF)
+if (USE_NDOF)
+  target_compile_definitions(ll::ndof INTERFACE LIB_NDOF=1)
+
+  if(USE_VCPKG AND (WINDOWS OR DARWIN))
+    find_library(NDOF_LIBRARY
+      NAMES
+      libndofdev
+      ndofdev
+      REQUIRED)
+    target_link_libraries(ll::ndof INTERFACE ${NDOF_LIBRARY})
+    return()
+  endif()
+
+  include(Prebuilt)
+
   if (WINDOWS OR DARWIN)
     use_prebuilt_binary(libndofdev)
   elseif (LINUX)
@@ -25,8 +35,6 @@ if (NDOF)
   else()
     target_link_libraries(ll::ndof INTERFACE ${NDOF_LIBRARY})
   endif()
-
-  target_compile_definitions(ll::ndof INTERFACE LIB_NDOF=1)
-endif (NDOF)
+endif (USE_NDOF)
 
 

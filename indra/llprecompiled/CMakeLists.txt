@@ -7,7 +7,6 @@ include(APR)
 include(bugsplat)
 include(Linking)
 include(Boost)
-include(LLSharedLibs)
 include(ZLIBNG)
 include(Tracy)
 include(EXPAT)
@@ -20,7 +19,7 @@ set(llprecompiled_SOURCE_FILES
 add_library (llprecompiled ${llprecompiled_SOURCE_FILES})
 
 target_include_directories(llprecompiled PRIVATE
-    ${CMAKE_SOURCE_DIR}/${LIBS_OPEN_PREFIX}llmath
+    ${CMAKE_SOURCE_DIR}/llmath
     )
 
 target_link_libraries(llprecompiled

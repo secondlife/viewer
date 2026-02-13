@@ -3,13 +3,13 @@
 # The copy_win_libs folder contains file lists and a script used to
 # copy dlls, exes and such needed to run the SecondLife from within
 # VisualStudio.
-
+include_guard()
 include(CMakeCopyIfDifferent)
 include(Linking)
 if (USE_DISCORD)
   include(Discord)
 endif ()
-include(OPENAL)
+include(OpenAL)
 
 # When we copy our dependent libraries, we almost always want to copy them to
 # both the Release and the RelWithDebInfo staging directories. This has
@@ -30,34 +30,36 @@ endmacro()
 if(WINDOWS)
     #*******************************
     # VIVOX - *NOTE: no debug version
-    set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
+
 
     # ND, it seems there is no such thing defined. At least when building a viewer
     # Does this maybe matter on some LL buildserver? Otherwise this and the snippet using slvoice_src_dir
     # can all go
-    if( ARCH_PREBUILT_BIN_RELEASE )
-        set(slvoice_src_dir "${ARCH_PREBUILT_BIN_RELEASE}")
+    if(USE_VCPKG)
+        set(vivox_lib_dir "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/slvoice/windows64")
+    elseif( ARCH_PREBUILT_BIN_RELEASE )
+        set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     endif()
-    set(slvoice_files SLVoice.exe )
-    if (ADDRESS_SIZE EQUAL 64)
-        list(APPEND vivox_libs
-            vivoxsdk_x64.dll
-            ortp_x64.dll
-            )
-    else (ADDRESS_SIZE EQUAL 64)
-        list(APPEND vivox_libs
-            vivoxsdk.dll
-            ortp.dll
-            )
-    endif (ADDRESS_SIZE EQUAL 64)
+    list(APPEND vivox_libs
+        vivoxsdk_x64.dll
+        ortp_x64.dll
+        SLVoice.exe
+        )
+
 
     #*******************************
     # Misc shared libs
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        openjp2.dll
         )
+
+    if (NOT USE_VCPKG)
+      if (USE_SDL_WINDOW)
+        list(APPEND release_files SDL3.dll)
+      endif ()
+        list(APPEND release_files openjp2.dll)
+    endif ()
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
@@ -77,91 +79,25 @@ if(WINDOWS)
         list(APPEND release_files discord_partner_sdk.dll)
     endif ()
 
-    if (TARGET ll::openal)
+    if (TARGET ll::openal AND NOT USE_VCPKG)
         list(APPEND release_files openal32.dll alut.dll)
     endif ()
 
     #*******************************
     # Copy MS C runtime dlls, required for packaging.
-    if (MSVC80)
-        set(MSVC_VER 80)
-    elseif (MSVC_VERSION EQUAL 1600) # VisualStudio 2010
-        MESSAGE(STATUS "MSVC_VERSION ${MSVC_VERSION}")
-    elseif (MSVC_VERSION EQUAL 1800) # VisualStudio 2013, which is (sigh) VS 12
-        set(MSVC_VER 120)
-    elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
-        set(MSVC_VER 140)
-        set(MSVC_TOOLSET_VER 141)
-    elseif (MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS 1930) # Visual Studio 2019
-        set(MSVC_VER 140)
-        set(MSVC_TOOLSET_VER 142)
-    elseif (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS 1950) # Visual Studio 2022
-        set(MSVC_VER 140)
-        set(MSVC_TOOLSET_VER 143)
-    elseif (MSVC_VERSION GREATER_EQUAL 1950 AND MSVC_VERSION LESS 1970) # Visual Studio 2026
-        set(MSVC_VER 140)
-        set(MSVC_TOOLSET_VER 145)
-    else (MSVC80)
-        MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
-    endif (MSVC80)
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+    include(InstallRequiredSystemLibraries)
 
-    if (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
-        if(ADDRESS_SIZE EQUAL 32)
-            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x86\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
-        else(ADDRESS_SIZE EQUAL 32)
-            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x64\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
-        endif(ADDRESS_SIZE EQUAL 32)
-        get_filename_component(redist_path "${redist_find_path}" ABSOLUTE)
-        MESSAGE(STATUS "VC Runtime redist path: ${redist_path}")
-    endif (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
-
-    if(ADDRESS_SIZE EQUAL 32)
-        # this folder contains the 32bit DLLs.. (yes really!)
-        set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64")
-    else(ADDRESS_SIZE EQUAL 32)
-        # this folder contains the 64bit DLLs.. (yes really!)
-        set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32")
-    endif(ADDRESS_SIZE EQUAL 32)
-
-    # Having a string containing the system registry path is a start, but to
-    # get CMake to actually read the registry, we must engage some other
-    # operation.
-    get_filename_component(registry_path "${registry_find_path}" ABSOLUTE)
-
-    # These are candidate DLL names. Empirically, VS versions before 2015 have
-    # msvcp*.dll and msvcr*.dll. VS 2017 has msvcp*.dll and vcruntime*.dll.
-    # Check each of them.
-    foreach(release_msvc_file
-            msvcp${MSVC_VER}.dll
-            msvcp${MSVC_VER}_1.dll
-            msvcp${MSVC_VER}_2.dll
-            msvcp${MSVC_VER}_atomic_wait.dll
-            msvcp${MSVC_VER}_codecvt_ids.dll
-            msvcr${MSVC_VER}.dll
-            vccorlib${MSVC_VER}.dll
-            vcruntime${MSVC_VER}.dll
-            vcruntime${MSVC_VER}_1.dll
-            vcruntime${MSVC_VER}_threads.dll
-            )
-        if(redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
-            MESSAGE(STATUS "Copying redist file from ${redist_path}/${release_msvc_file}")
-            to_staging_dirs(
-                ${redist_path}
-                third_party_targets
-                ${release_msvc_file})
-        elseif(EXISTS "${registry_path}/${release_msvc_file}")
-            MESSAGE(STATUS "Copying redist file from ${registry_path}/${release_msvc_file}")
-            to_staging_dirs(
-                ${registry_path}
-                third_party_targets
-                ${release_msvc_file})
-        else()
-            # This isn't a WARNING because, as noted above, every VS version
-            # we've observed has only a subset of the specified DLL names.
-            MESSAGE(STATUS "Redist lib ${release_msvc_file} not found")
-        endif()
+    foreach(system_lib_file IN LISTS CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+        get_filename_component(system_lib_directory ${system_lib_file} DIRECTORY)
+        get_filename_component(system_lib_filename ${system_lib_file} NAME )
+        MESSAGE(STATUS "Copying redist file from ${system_lib_directory}/${system_lib_filename}")
+        to_staging_dirs(
+            ${system_lib_directory}
+            third_party_targets
+            ${system_lib_filename}
+        )
     endforeach()
-
 elseif(DARWIN)
     set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(slvoice_files SLVoice)
@@ -213,14 +149,11 @@ elseif(LINUX)
     set(release_files
        )
 
-     if( USE_AUTOBUILD_3P )
-         list( APPEND release_files
-                libSDL3.so
-                libSDL3.so.0
-                libSDL3.so.0.2.24
-                )
-     endif()
-
+    list( APPEND release_files
+        libSDL3.so
+        libSDL3.so.0
+        libSDL3.so.0.2.24
+        )
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
     set(vivox_lib_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
@@ -250,27 +183,18 @@ endif(WINDOWS)
 # It's unclear whether this is oversight or intentional, but anyway leave the
 # single copy_if_different command rather than using to_staging_dirs.
 
-if( slvoice_src_dir )
-    copy_if_different(
-            ${slvoice_src_dir}
-            "${SHARED_LIB_STAGING_DIR_RELEASE}"
-            out_targets
-            ${slvoice_files}
-    )
-    list(APPEND third_party_targets ${out_targets})
-endif()
-
 to_staging_dirs(
     ${vivox_lib_dir}
     third_party_targets
     ${vivox_libs}
     )
-
-to_staging_dirs(
-    ${release_src_dir}
-    third_party_targets
-    ${release_files}
-    )
+if(NOT USE_VCPKG)
+    to_staging_dirs(
+        ${release_src_dir}
+        third_party_targets
+        ${release_files}
+        )
+endif()
 
 add_custom_target(
         stage_third_party_libs ALL

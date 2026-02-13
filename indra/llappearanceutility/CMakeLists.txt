@@ -1,14 +1,5 @@
 # -*- cmake -*-
-
-project(appearance_utility)
-
 include(00-Common)
-include(Boost)
-include(LLAppearance)
-include(LLCommon)
-include(LLImage)
-include(LLMath)
-include(LLWindow)
 include(Linking)
 
 set(appearance_utility_SOURCE_FILES

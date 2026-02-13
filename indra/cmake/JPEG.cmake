@@ -1,10 +1,15 @@
 # -*- cmake -*-
-include(Prebuilt)
-
-include(Linking)
-
 include_guard()
-add_library( ll::libjpeg INTERFACE IMPORTED )
+add_library(ll::libjpeg INTERFACE IMPORTED)
+
+if(USE_VCPKG)
+    find_package(JPEG REQUIRED)
+    target_link_libraries(ll::libjpeg INTERFACE JPEG::JPEG)
+    return()
+endif()
+
+include(Prebuilt)
+include(Linking)
 
 use_system_binary(libjpeg)
 use_prebuilt_binary(libjpeg-turbo)

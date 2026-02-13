@@ -1,6 +1,9 @@
 # -*- cmake -*-
-include(Prebuilt)
+include_guard()
 
-if (NOT USESYSTEMLIBS)
-  use_prebuilt_binary(mikktspace)
-endif (NOT USESYSTEMLIBS)
+include(Prebuilt)
+include(Linking)
+
+use_prebuilt_binary(mikktspace)
+
+target_include_directories(ll::mikktspace SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/)

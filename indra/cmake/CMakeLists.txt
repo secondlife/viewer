@@ -8,17 +8,15 @@ set(cmake_SOURCE_FILES
         CMakeLists.txt
         00-Common.cmake
         APR.cmake
-        Audio.cmake
         Boost.cmake
         bugsplat.cmake
         BuildPackagesInfo.cmake
         BuildVersion.cmake
         CEFPlugin.cmake
-        CEFPlugin.cmake
         CMakeCopyIfDifferent.cmake
         Copy3rdPartyLibs.cmake
+        CubemapToEquirectangularJS.cmake
         CURL.cmake
-        DeploySharedLibs.cmake
         Discord.cmake
         DragDrop.cmake
         EXPAT.cmake
@@ -31,21 +29,19 @@ set(cmake_SOURCE_FILES
         GStreamer10Plugin.cmake
         Havok.cmake
         Hunspell.cmake
+        JPEG.cmake
+        JPEGEncoderBasic.cmake
         LLAddBuildTest.cmake
-        LLAppearance.cmake
-        LLAudio.cmake
-        LLCommon.cmake
-        LLImage.cmake
+        LLCA.cmake
         LLKDU.cmake
         LLPhysicsExtensions.cmake
         LLPrimitive.cmake
-        LLSharedLibs.cmake
         LLTestCommand.cmake
-        LLWindow.cmake
         Linking.cmake
         Meshoptimizer.cmake
         NDOF.cmake
-        OPENAL.cmake
+        NVAPI.cmake
+        OpenAL.cmake
         OpenGL.cmake
         OpenJPEG.cmake
         OpenSSL.cmake
@@ -57,6 +53,7 @@ set(cmake_SOURCE_FILES
         SDL3.cmake
         SSE2NEON.cmake
         TemplateCheck.cmake
+        ThreeJS.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
         Tracy.cmake
@@ -65,8 +62,10 @@ set(cmake_SOURCE_FILES
         UnixInstall.cmake
         Variables.cmake
         VHACD.cmake
+        ViewerManager.cmake
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake
+        Vorbis.cmake
         LibVLCPlugin.cmake
         WebRTC.cmake
         xxHash.cmake

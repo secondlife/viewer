@@ -33,11 +33,7 @@
 #include "llsys.h"
 
 #include <iostream>
-#ifdef LL_USESYSTEMLIBS
-# include <zlib.h>
-#else
-# include "zlib-ng/zlib.h"
-#endif
+#include <zlib.h>
 
 #include "llprocessor.h"
 #include "llerrorcontrol.h"

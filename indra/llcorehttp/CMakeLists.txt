@@ -1,16 +1,10 @@
 # -*- cmake -*-
-
-project(llcorehttp)
-
 include(00-Common)
 include(CURL)
 include(OpenSSL)
 include(NGHTTP2)
 include(ZLIBNG)
-include(LLCoreHttp)
 include(LLAddBuildTest)
-include(LLCommon)
-include(Tut)
 include(bugsplat)
 
 set(llcorehttp_SOURCE_FILES

@@ -1,3 +1,6 @@
-include (Prebuilt)
-use_prebuilt_binary(viewer-manager)
+include_guard()
+if(NOT USE_VCPKG)
+    include (Prebuilt)
+    use_prebuilt_binary(viewer-manager)
+endif()
 

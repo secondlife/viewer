@@ -43,11 +43,7 @@ class LLWebRTCProtocolParser;
 #include <queue>
 #include "boost/json.hpp"
 
-#ifdef LL_USESYSTEMLIBS
-# include "expat.h"
-#else
-# include "expat/expat.h"
-#endif
+#include <expat.h>
 #include "llvoiceclient.h"
 
 // WebRTC Includes

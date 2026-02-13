@@ -7,15 +7,9 @@
 #
 # Unfortunately, the affected code is a rat's nest of #ifdefs, so it's
 # easier to play compilation tricks than to actually fix the problem.
-
-project(llwindow)
-
 include(00-Common)
 include(DragDrop)
 include(Linking)
-include(LLCommon)
-include(LLImage)
-include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
 include(GLM)
@@ -58,7 +52,6 @@ set(llwindow_LINK_LIBRARIES
         llfilesystem
         llxml
         ll::glm
-        ll::glext
         ll::uilibraries
         )
 
@@ -110,7 +103,6 @@ if (DARWIN)
   )
 endif (DARWIN)
 
-
 if (WINDOWS)
   list(APPEND llwindow_SOURCE_FILES
        llwindowwin32.cpp
@@ -160,7 +152,7 @@ if (BUILD_HEADLESS)
     ${llwindowheadless_HEADER_FILES}
     )
 
-  target_compile_definitions( llwindowheadless PUBLIC LL_MESA_HEADLESS=1 )
+  target_compile_definitions(llwindowheadless PUBLIC LL_MESA_HEADLESS=1)
 
   target_link_libraries (llwindowheadless
   llcommon
@@ -170,7 +162,6 @@ if (BUILD_HEADLESS)
   llfilesystem
   llxml
   ll::glm
-  ll::glext
   ll::zlib-ng
   PkgConfig::OSMESA
   fontconfig

@@ -1,10 +1,5 @@
 # -*- cmake -*-
-
-project(llinventory)
-
 include(00-Common)
-include(LLCommon)
-include(LLCoreHttp)
 
 set(llinventory_SOURCE_FILES
     llcategory.cpp

@@ -1,6 +1,5 @@
 # -*- cmake -*-
-
-set(OS_DRAG_DROP ON CACHE BOOL "Build the viewer with OS level drag and drop turned on or off")
+include_guard()
 
 if (OS_DRAG_DROP)
     if (WINDOWS)

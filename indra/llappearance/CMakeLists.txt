@@ -1,12 +1,5 @@
 # -*- cmake -*-
-
-project(llappearance)
-
 include(00-Common)
-include(LLCommon)
-include(LLImage)
-include(LLCoreHttp)
-include(LLWindow)
 include(Linking)
 
 set(llappearance_SOURCE_FILES

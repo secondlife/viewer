@@ -1,11 +1,20 @@
 # -*- cmake -*-
+include_guard()
+
+add_library(ll::hunspell INTERFACE IMPORTED)
+if(USE_VCPKG)
+    find_package(PkgConfig REQUIRED)
+
+    pkg_check_modules(hunspell REQUIRED IMPORTED_TARGET hunspell)
+    target_link_libraries(ll::hunspell INTERFACE PkgConfig::hunspell)
+    return()
+endif()
+
 include(Linking)
 include(Prebuilt)
 
-include_guard()
 use_prebuilt_binary(dictionaries)
 
-add_library( ll::hunspell INTERFACE IMPORTED )
 use_system_binary(hunspell)
 use_prebuilt_binary(libhunspell)
 

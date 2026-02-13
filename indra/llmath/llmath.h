@@ -27,6 +27,8 @@
 #ifndef LLMATH_H
 #define LLMATH_H
 
+#include "llpreprocessor.h"
+
 #include <cmath>
 #include <cstdlib>
 #include <vector>

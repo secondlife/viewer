@@ -1,16 +1,7 @@
 # -*- cmake -*-
-
-project(llimage)
-
 include(00-Common)
-include(LLCommon)
-include(LLImage)
-include(JPEG)
-include(LLKDU)
-include(ZLIBNG)
-include(LLAddBuildTest)
 include(bugsplat)
-include(Tut)
+include(LLAddBuildTest)
 
 set(llimage_SOURCE_FILES
     llimagebmp.cpp

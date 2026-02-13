@@ -119,15 +119,6 @@
 
 #endif
 
-#if defined(LL_WINDOWS)
-#define BOOST_REGEX_NO_LIB 1
-#define CURL_STATICLIB 1
-#ifndef XML_STATIC
-#define XML_STATIC
-#endif
-#endif  //  LL_WINDOWS
-
-
 // Deal with VC++ problems
 #if LL_MSVC
 // level 4 warnings that we need to disable:

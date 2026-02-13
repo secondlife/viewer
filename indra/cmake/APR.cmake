@@ -1,9 +1,24 @@
-include(Linking)
-include(Prebuilt)
-
 include_guard()
 
 add_library( ll::apr INTERFACE IMPORTED )
+
+if(USE_VCPKG)
+    find_package(apr CONFIG REQUIRED)
+
+    find_library(APU_LIBRARY aprutil-1 libaprutil-1 REQUIRED)
+
+    target_link_libraries(ll::apr INTERFACE
+      $<$<TARGET_EXISTS:apr::apr-1>:apr::apr-1>
+      $<$<TARGET_EXISTS:apr::aprapp-1>:apr::aprapp-1>
+      $<$<TARGET_EXISTS:apr::libapr-1>:apr::libapr-1>
+      $<$<TARGET_EXISTS:apr::libaprapp-1>:apr::libaprapp-1>
+      ${APU_LIBRARY}
+    )
+    return()
+endif()
+
+include(Linking)
+include(Prebuilt)
 
 use_system_binary( apr apr-util )
 use_prebuilt_binary(apr_suite)

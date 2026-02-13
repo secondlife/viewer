@@ -30,11 +30,8 @@
 
 #include "llxmlnode.h"
 #include "llfasttimer.h"
-#ifdef LL_USESYSTEMLIBS
+
 #include <expat.h>
-#else
-#include "expat/expat.h"
-#endif
 
 #include <fstream>
 #include <boost/tokenizer.hpp>

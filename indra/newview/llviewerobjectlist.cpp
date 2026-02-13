@@ -69,11 +69,7 @@
 #include "u64.h"
 #include "llviewertexturelist.h"
 #include "lldatapacker.h"
-#ifdef LL_USESYSTEMLIBS
 #include <zlib.h>
-#else
-#include "zlib-ng/zlib.h"
-#endif
 #include "object_flags.h"
 
 #include "llappviewer.h"

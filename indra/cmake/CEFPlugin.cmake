@@ -1,9 +1,17 @@
 # -*- cmake -*-
+include_guard()
+add_library(ll::cef INTERFACE IMPORTED)
+
+if(USE_VCPKG)
+    find_library(LIBCEF_LIBRARY_RELEASE NAMES cef PATHS "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" NO_DEFAULT_PATH)
+    find_library(LIBCEF_DLL_WRAPPER_LIBRARY_RELEASE NAMES cef_dll_wrapper PATHS "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" NO_DEFAULT_PATH)
+    find_library(DULLAHAN_LIBRARY_RELEASE NAMES dullahan PATHS "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" NO_DEFAULT_PATH)
+    target_link_libraries(ll::cef INTERFACE ${DULLAHAN_LIBRARY_RELEASE} ${LIBCEF_DLL_WRAPPER_LIBRARY_RELEASE} ${LIBCEF_LIBRARY_RELEASE})
+    return()
+endif()
+
 include(Linking)
 include(Prebuilt)
-
-include_guard()
-add_library( ll::cef INTERFACE IMPORTED )
 
 use_prebuilt_binary(dullahan)
 target_include_directories( ll::cef SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/include/cef)
@@ -38,3 +46,5 @@ elseif (LINUX)
             ${ARCH_PREBUILT_DIRS_RELEASE}/libcef_dll_wrapper.a
     )
 endif (WINDOWS)
+
+target_include_directories(ll::cef SYSTEM INTERFACE ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/cef)

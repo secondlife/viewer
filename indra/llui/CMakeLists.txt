@@ -1,14 +1,6 @@
 # -*- cmake -*-
-
-project(llui)
-
 include(00-Common)
 include(Hunspell)
-include(LLCommon)
-include(LLImage)
-include(LLCoreHttp)
-include(LLWindow)
-include(LLCoreHttp)
 
 set(llui_SOURCE_FILES
     llaccordionctrl.cpp

@@ -1,9 +1,5 @@
 # -*- cmake -*-
-
-project(llcharacter)
-
 include(00-Common)
-include(LLCommon)
 
 set(llcharacter_SOURCE_FILES
     llanimationstates.cpp

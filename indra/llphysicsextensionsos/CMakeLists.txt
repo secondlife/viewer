@@ -1,10 +1,5 @@
 # -*- cmake -*-
-
-project(llphysicsextensionsos)
-
 include(00-Common)
-include(LLCommon)
-include(LLMath)
 include(VHACD)
 
 set(llphysicsextensionsos_SOURCE_FILES

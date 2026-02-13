@@ -30,7 +30,7 @@ if (USE_KDU)
 
   target_include_directories( ll::kdu SYSTEM INTERFACE
           ${AUTOBUILD_INSTALL_DIR}/include/kdu
-          ${LIBS_OPEN_DIR}/llkdu
+          ${CMAKE_SOURCE_DIR}/llkdu
           )
   target_compile_definitions(ll::kdu INTERFACE KDU_NO_THREADS=1)
 endif (USE_KDU)

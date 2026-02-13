@@ -1,17 +1,5 @@
 # -*- cmake -*-
-
-project(llkdu)
-
-# Visual Studio 2005 has a dumb bug that causes it to fail compilation
-# of KDU if building with both optimisation and /WS (treat warnings as
-# errors), even when the specific warnings that make it croak are
-# disabled.
-
-#set(VS_DISABLE_FATAL_WARNINGS ON)
-
 include(00-Common)
-include(LLCommon)
-include(LLImage)
 include(LLKDU)
 
 set(llkdu_SOURCE_FILES

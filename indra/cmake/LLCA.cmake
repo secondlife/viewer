@@ -1,4 +1,7 @@
 # -*- cmake -*-
-include(Prebuilt)
+include_guard()
+if(NOT USE_VCPKG)
+    include(Prebuilt)
 
-use_prebuilt_binary(llca)
+    use_prebuilt_binary(llca)
+endif()

@@ -1,0 +1,155 @@
+{
+  "builtin-baseline": "3895230f38e498525f2560a281223d12066fa74a",
+  "dependencies": [
+    "apr",
+    "apr-util",
+    "boost-asio",
+    "boost-circular-buffer",
+    "boost-fiber",
+    "boost-filesystem",
+    "boost-graph",
+    "boost-iostreams",
+    "boost-json",
+    "boost-program-options",
+    "boost-random",
+    "boost-regex",
+    "boost-signals2",
+    "boost-spirit",
+    "boost-stacktrace",
+    "boost-url",
+    "collada-dom",
+    {
+      "name": "curl",
+      "features": [
+        "http2",
+        "openssl"
+      ]
+    },
+    "dullahan-bin",
+    "expat",
+    {
+      "name": "fontconfig",
+      "platform": "linux"
+    },
+    {
+      "name": "fontconfig",
+      "platform": "linux"
+    },
+    "freealut",
+    {
+      "name": "freetype",
+      "features": [
+        "brotli",
+        "error-strings",
+        "png",
+        "subpixel-rendering",
+        "zlib"
+      ]
+    },
+    "glm",
+    "hunspell",
+    {
+      "name": "libjpeg-turbo",
+      "features": [
+        "jpeg8"
+      ]
+    },
+    {
+      "name": "libndofdev",
+      "platform": "windows | osx"
+    },
+    "libpng",
+    "libvorbis",
+    "meshoptimizer",
+    "minizip",
+    "nanosvg",
+    {
+      "name": "nvapi",
+      "platform": "windows & x64"
+    },
+    {
+      "name": "open-libndofdev",
+      "platform": "linux"
+    },
+    {
+      "name": "openal-soft",
+      "features": [
+        {
+          "name": "pipewire",
+          "platform": "linux"
+        },
+        {
+          "name": "pulseaudio",
+          "platform": "linux"
+        }
+      ]
+    },
+    "opengl-registry",
+    "openjpeg",
+    {
+      "name": "openssl",
+      "features": [
+        "weak-ssl-ciphers"
+      ]
+    },
+    {
+      "name": "pkgconf",
+      "platform": "windows | osx"
+    },
+    "secondlife-certificates",
+    "secondlife-dictionaries",
+    "secondlife-emoji-shortcodes",
+    "secondlife-fonts",
+    "slvoice",
+    {
+      "name": "sse2neon",
+      "platform": "osx & arm64"
+    },
+    "tinyexr",
+    "tinygltf",
+    "v-hacd",
+    {
+      "name": "viewer-manager",
+      "platform": "windows | osx"
+    },
+    {
+      "name": "vlc-bin",
+      "platform": "windows | osx"
+    },
+    "webrtc-bin",
+    "xxhash",
+    "zlib"
+  ],
+  "default-features": [
+    {
+      "name": "sdl3",
+      "platform": "linux"
+    }
+  ],
+  "features": {
+    "openxr": {
+      "description": "Build with support for OpenXR(experimental)",
+      "dependencies": [
+        "openxr-loader"
+      ]
+    },
+    "sdl3": {
+      "description": "Build with platform independent SDL window backend",
+      "dependencies": [
+        "sdl3"
+      ]
+    },
+    "tracy": {
+      "description": "Build with Tracy profiler support",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "features": [
+            "gui-tools",
+            "on-demand"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,13 +1,9 @@
 # -*- cmake -*-
-
-project(llrender)
-
 include(00-Common)
+include(GLEXT)
 include(OpenGL)
 include(FreeType)
-include(LLCommon)
-include(LLImage)
-include(LLWindow)
+include(NanoSVG)
 
 set(llrender_SOURCE_FILES
     llcubemap.cpp
@@ -34,7 +30,7 @@ set(llrender_SOURCE_FILES
     llvertexbuffer.cpp
     llglcommonfunc.cpp
     )
-    
+
 set(llrender_HEADER_FILES
     CMakeLists.txt
 
@@ -82,6 +78,8 @@ if (BUILD_HEADLESS)
           llfilesystem
           llwindowheadless
           ll::freetype
+          ll::nanosvg
+          ll::glext
           OpenGL::GL
           )
 
@@ -103,6 +101,7 @@ target_link_libraries(llrender
         llxml
         llwindow
         ll::freetype
+        ll::glext
         )
 
 if (NOT USE_SDL_WINDOW)

@@ -1,14 +1,8 @@
 # -*- cmake -*-
-
-project(media_plugin_cef)
-
-include(Boost)
 include(00-Common)
-include(LLCommon)
-include(LLWindow)
+include(Boost)
 include(Linking)
 include(PluginAPI)
-
 include(CEFPlugin)
 include(GLIB)
 

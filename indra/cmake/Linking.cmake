@@ -3,11 +3,7 @@
 include_guard()
 include(Variables)
 
-set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
-set(ARCH_PREBUILT_DIRS_PLUGINS ${AUTOBUILD_INSTALL_DIR}/plugins)
-set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
-set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
-if (WINDOWS OR DARWIN )
+if (WINDOWS OR DARWIN)
   # Kludge for older cmake versions, 3.20+ is needed to use a genex in add_custom_command( OUTPUT <var> ... )
   # Using this will work okay-ish, as Debug is not supported anyway. But for property multi config and also
   # ninja support the genex version is preferred.
@@ -30,18 +26,6 @@ elseif (LINUX)
   set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib)
   set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin)
 endif ()
-
-# Autobuild packages must provide 'release' versions of libraries, but may provide versions for
-# specific build types.  AUTOBUILD_LIBS_INSTALL_DIRS lists first the build type directory and then
-# the 'release' directory (as a default fallback).
-# *NOTE - we have to take special care to use CMAKE_CFG_INTDIR on IDE generators (like mac and
-# windows) and CMAKE_BUILD_TYPE on Makefile based generators (like linux).  The reason for this is
-# that CMAKE_BUILD_TYPE is essentially meaningless at configuration time for IDE generators and
-# CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
-if(NOT DARWIN)
-  link_directories(${AUTOBUILD_INSTALL_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
-  link_directories(${AUTOBUILD_INSTALL_DIR}/lib/release)
-endif(NOT DARWIN)
 
 add_library( ll::oslibraries INTERFACE IMPORTED )
 

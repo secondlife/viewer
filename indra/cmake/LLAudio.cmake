@@ -1,3 +1,0 @@
-# -*- cmake -*-
-
-include(Audio)

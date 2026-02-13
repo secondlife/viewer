@@ -1,17 +1,5 @@
 # -*- cmake -*-
-
-project(llcommon)
-
-include(00-Common)
-include(LLCommon)
 include(bugsplat)
-include(Linking)
-include(Boost)
-include(LLSharedLibs)
-include(Copy3rdPartyLibs)
-include(ZLIBNG)
-include(Tracy)
-include(SSE2NEON)
 
 set(llcommon_SOURCE_FILES
     apply.cpp

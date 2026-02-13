@@ -37,11 +37,7 @@
 
 extern "C"
 {
-#ifdef LL_USESYSTEMLIBS
 # include <expat.h>
-#else
-# include "expat/expat.h"
-#endif
 }
 
 /**

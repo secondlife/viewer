@@ -27,4 +27,6 @@
 
 #include "llpreprocessor.h"
 
+#ifdef LL_BUILD_TRACY
 #include "TracyClient.cpp"
+#endif

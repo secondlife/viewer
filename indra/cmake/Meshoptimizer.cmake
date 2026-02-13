@@ -1,10 +1,15 @@
 # -*- cmake -*-
+include_guard()
+add_library(ll::meshoptimizer INTERFACE IMPORTED)
+
+if(USE_VCPKG)
+    find_package(meshoptimizer CONFIG REQUIRED)
+    target_link_libraries(ll::meshoptimizer INTERFACE meshoptimizer::meshoptimizer)
+    return()
+endif()
 
 include(Linking)
 include(Prebuilt)
-
-include_guard()
-add_library( ll::meshoptimizer INTERFACE IMPORTED )
 
 use_system_binary(meshoptimizer)
 use_prebuilt_binary(meshoptimizer)

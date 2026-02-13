@@ -30,6 +30,7 @@
 #ifdef LL_WINDOWS
 #include <windows.h> // Does not include winsock.h because WIN32_LEAN_AND_MEAN is defined
 #include <winsock2.h> // Requires windows.h
+#include <Ws2ipdef.h>
 #endif
 
 #endif

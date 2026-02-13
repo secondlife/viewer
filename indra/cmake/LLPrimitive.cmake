@@ -1,11 +1,20 @@
 # -*- cmake -*-
+include_guard()
+add_library( ll::colladadom INTERFACE IMPORTED )
+if(USE_VCPKG)
+    find_path(COLLADA_DOM_INCLUDE_DIRS NAMES dae.h PATHS "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/collada-dom2.5" NO_DEFAULT_PATH)
+    find_library(COLLADA_LIBRARY_RELEASE NAMES collada-dom2.5-dp-vc140-mt PATHS "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" NO_DEFAULT_PATH)
+    find_library(COLLADA_LIBRARY_DEBUG   NAMES collada-dom2.5-dp-vc140-mt PATHS "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib" NO_DEFAULT_PATH)
+    target_link_libraries(ll::colladadom INTERFACE debug ${COLLADA_LIBRARY_DEBUG} optimized ${COLLADA_LIBRARY_RELEASE})
+    target_include_directories(ll::colladadom SYSTEM INTERFACE "${COLLADA_DOM_INCLUDE_DIRS}" "${COLLADA_DOM_INCLUDE_DIRS}/1.4")
+    target_compile_definitions(ll::colladadom INTERFACE COLLADA_DOM_SUPPORT141=1 COLLADA_DOM_SUPPORT150=1 COLLADA_DOM_DAEFLOAT_IS64=1 DOM_DYNAMIC=1)
+    return()
+endif()
 
 # these should be moved to their own cmake file
 include(Prebuilt)
 include(Linking)
 include(Boost)
-
-include_guard()
 
 add_library( ll::minizip-ng INTERFACE IMPORTED )
 add_library( ll::libxml INTERFACE IMPORTED )
@@ -31,6 +40,8 @@ find_library(MINIZIPNG_LIBRARY
     PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
 target_link_libraries(ll::minizip-ng INTERFACE ${MINIZIPNG_LIBRARY})
+
+target_include_directories(ll::minizip-ng SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/minizip-ng)
 
 find_library(LIBXML2_LIBRARY
     NAMES

@@ -20,19 +20,13 @@ endif ()
 include(EXPAT)
 include(Hunspell)
 include(JPEGEncoderBasic)
-include(LLAppearance)
-include(LLAudio)
 include(LLCA)
-include(LLCommon)
-include(LLCoreHttp)
-include(LLImage)
 include(LLKDU)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
-include(LLWindow)
 include(NDOF)
 include(NVAPI)
-include(OPENAL)
+include(OpenAL)
 include(OpenGL)
 include(OpenSSL)
 include(OpenXR)
@@ -46,7 +40,6 @@ include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
 include(ZLIBNG)
-include(LLPrimitive)
 
 if (HAVOK)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -1745,6 +1738,7 @@ endif(USE_PRECOMPILED_HEADERS)
 if (WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" # Sets VS debugger working directory
         # *TODO -reenable this once we get server usage sorted out
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
@@ -1768,12 +1762,6 @@ if (WINDOWS)
       # The following commented dependencies are determined variably at build time. Can't do this here.
       app_settings/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${SHARED_LIB_STAGING_DIR}/openjp2.dll
-      ${SHARED_LIB_STAGING_DIR}/llwebrtc.dll
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
-      ${AUTOBUILD_INSTALL_DIR}/ca-bundle.crt
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${viewer_APPSETTINGS_FILES}
@@ -1783,25 +1771,13 @@ if (WINDOWS)
       media_plugin_example
       )
 
-    if (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
-               )
-    else (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp.dll
-               )
-    endif (ADDRESS_SIZE EQUAL 64)
-
     if (TARGET ll::discord_sdk)
         list(APPEND COPY_INPUT_DEPENDENCIES
              ${SHARED_LIB_STAGING_DIR}/discord_partner_sdk.dll
              )
     endif ()
 
-    if (TARGET ll::openal)
+    if (TARGET ll::openal AND NOT USE_VCPKG)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/OpenAL32.dll
            ${SHARED_LIB_STAGING_DIR}/alut.dll
@@ -1829,6 +1805,8 @@ if (WINDOWS)
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/copy_touched.bat
         --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+        "--vcpkg=${USE_VCPKG}"
+        --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
@@ -1868,6 +1846,8 @@ if (WINDOWS)
             --source=${CMAKE_CURRENT_SOURCE_DIR}
             --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
             --touch=${LOCAL_DIST_DIR}/.${product}.copy_touched
+            "--vcpkg=${USE_VCPKG}"
+            --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
             DEPENDS
             ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
             stage_third_party_libs
@@ -1883,36 +1863,9 @@ if (WINDOWS)
         message(FATAL_ERROR "LOCAL_DIST_DIR ${LOCAL_DIST_DIR} specified but is not valid target directory to copy viewer distribution into.  Please create the directory and try again")
     endif ()  # IS_DIRECTORY ${LOCAL_DIST_DIR}
 
-    if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
-      add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
-    endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
-
     add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
 
-    # sets the 'working directory' for debugging from visual studio.
-    # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
-    if (NOT UNATTENDED)
-        set_property(
-          TARGET ${VIEWER_BINARY_NAME}
-          PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-          )
-    endif (NOT UNATTENDED)
-
     if (PACKAGE)
-      add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-          ${CMAKE_CURRENT_SOURCE_DIR}/..
-          ${CMAKE_CURRENT_BINARY_DIR}
-          ${CMAKE_CFG_INTDIR}
-        DEPENDS
-          lleventhost
-          ${EVENT_HOST_SCRIPTS}
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-        )
-
       add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
@@ -1933,6 +1886,8 @@ if (WINDOWS)
               --source=${CMAKE_CURRENT_SOURCE_DIR}
               --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/touched.bat
               --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+              "--vcpkg=${USE_VCPKG}"
+              --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
         DEPENDS
             ${VIEWER_BINARY_NAME}
             ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -1943,9 +1898,6 @@ if (WINDOWS)
       add_custom_target(llpackage ALL DEPENDS
               ${CMAKE_CFG_INTDIR}/touched.bat
         )
-        # temporarily disable packaging of event_host until hg subrepos get
-        # sorted out on the parabuild cluster...
-        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz)
 
     endif (PACKAGE)
 elseif (DARWIN)
@@ -2076,7 +2028,11 @@ file(COPY ${FONT_FILE_GLOB_LIST} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/fonts"
 # Copy over the Emoji/shortcodes mapping XML files (and create dependency
 # if they are changed, CMake will run again and copy over new versions)
 message("Copying Emoji/shortcode mappings")
-set(emoji_mapping_src_folder ${AUTOBUILD_INSTALL_DIR}/xui)
+if(USE_VCPKG)
+    set(emoji_mapping_src_folder ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/secondlife-emoji-shortcodes/xui)
+else()
+    set(emoji_mapping_src_folder ${AUTOBUILD_INSTALL_DIR}/xui)
+endif()
 set(emoji_mapping_dst_folder ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui)
 
 # Note Turkey is missing from this set (not available in Emoji package yet)
@@ -2123,6 +2079,7 @@ if (LINUX)
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
         --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+        --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         ${COPY_INPUT_DEPENDENCIES}
@@ -2151,6 +2108,7 @@ if (LINUX)
       --grid=${GRID}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+      --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       ${COPY_INPUT_DEPENDENCIES}

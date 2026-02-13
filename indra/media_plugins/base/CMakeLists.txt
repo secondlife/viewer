@@ -1,18 +1,9 @@
 # -*- cmake -*-
-
-project(media_plugin_base)
-
 include(00-Common)
-include(LLCommon)
-include(LLImage)
-include(LLWindow)
 include(Linking)
 include(PluginAPI)
 
-
 ### media_plugin_base
-
-
 set(media_plugin_base_SOURCE_FILES
     media_plugin_base.cpp
 )

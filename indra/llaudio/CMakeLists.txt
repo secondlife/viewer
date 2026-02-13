@@ -3,9 +3,8 @@
 project(llaudio)
 
 include(00-Common)
-include(LLAudio)
-include(OPENAL)
-include(LLCommon)
+include(OpenAL)
+include(Vorbis)
 
 set(llaudio_SOURCE_FILES
     llaudioengine.cpp

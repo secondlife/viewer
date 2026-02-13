@@ -1,11 +1,17 @@
 # -*- cmake -*-
+include_guard()
+add_library(ll::freetype INTERFACE IMPORTED)
+
+if(USE_VCPKG)
+    find_package(Freetype REQUIRED)
+    target_link_libraries(ll::freetype INTERFACE Freetype::Freetype)
+    return()
+endif()
+
 include(Prebuilt)
 include(Linking)
 include(PNG)
 include(ZLIBNG)
-
-include_guard()
-add_library( ll::freetype INTERFACE IMPORTED )
 
 use_system_binary(freetype)
 use_prebuilt_binary(freetype)
@@ -15,6 +21,6 @@ find_library(FREETYPE_LIBRARY
     NAMES
     freetype.lib
     libfreetype.a
-    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+    PATHS "${ARCH_PREBUILT_DIRS_ARCH_RELEASE}" "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
 target_link_libraries(ll::freetype INTERFACE ${FREETYPE_LIBRARY} ll::libpng ll::zlib-ng)

@@ -1,15 +1,21 @@
-# -*- cmake -*-
+include_guard()
+add_library(ll::boost INTERFACE IMPORTED)
+
+if(USE_VCPKG)
+    find_package(Boost REQUIRED COMPONENTS context fiber filesystem json program_options thread url)
+    target_link_libraries(ll::boost INTERFACE Boost::disable_autolinking Boost::headers Boost::fiber Boost::context Boost::filesystem Boost::thread Boost::program_options Boost::url Boost::json)
+    if(WINDOWS)
+        find_package(Boost REQUIRED COMPONENTS stacktrace_windbg)
+        target_link_libraries(ll::boost INTERFACE Boost::stacktrace_windbg)
+    else()
+        find_package(Boost REQUIRED COMPONENTS stacktrace_basic)
+        target_link_libraries(ll::boost INTERFACE Boost::stacktrace_basic)
+    endif()
+    return()
+endif()
+
 include(Prebuilt)
 include(Linking)
-
-include_guard()
-
-add_library( ll::boost INTERFACE IMPORTED )
-if( USE_CONAN )
-  target_link_libraries( ll::boost INTERFACE CONAN_PKG::boost )
-  target_compile_definitions( ll::boost INTERFACE BOOST_ALLOW_DEPRECATED_HEADERS BOOST_BIND_GLOBAL_PLACEHOLDERS )
-  return()
-endif()
 
 use_prebuilt_binary(boost)
 
@@ -78,3 +84,6 @@ if (LINUX)
     target_link_libraries(ll::boost INTERFACE rt)
 endif (LINUX)
 
+target_include_directories(ll::boost SYSTEM INTERFACE "${LIBS_PREBUILT_DIR}/include/")
+
+target_compile_definitions(ll::boost INTERFACE LL_BOOST=1 BOOST_REGEX_NO_LIB=1)

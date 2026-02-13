@@ -1,5 +1,9 @@
 # -*- cmake -*-
 # Construct the version and copyright information based on package data.
+include_guard()
+if(USE_VCPKG)
+ return()
+endif()
 include(Python)
 include(FindAutobuild)
 

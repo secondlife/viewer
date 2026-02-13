@@ -46,10 +46,18 @@
 #endif
 
 #if defined(__arm64__) || defined(__aarch64__)
-#include "sse2neon.h"
+#include "sse2neon/sse2neon.h"
+
+#ifndef GLM_FORCE_NEON
+#define GLM_FORCE_NEON 1
+#endif
 #else
 #include <xmmintrin.h>
 #include <emmintrin.h>
+
+#ifndef GLM_FORCE_SSE2
+#define GLM_FORCE_SSE2 1
+#endif
 #endif
 
 #include "llmemory.h"

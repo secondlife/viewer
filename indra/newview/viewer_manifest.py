@@ -64,6 +64,8 @@ class ViewerManifest(LLManifest):
         super(ViewerManifest, self).construct()
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
 
+        os.environ["XZ_DEFAULTS"] = "-T0"
+
         if self.is_packaging_viewer():
             with self.prefix(src_dst="app_settings"):
                 self.exclude("logcontrol.xml")
@@ -88,8 +90,11 @@ class ViewerManifest(LLManifest):
                 self.path("filters")
 
                 # ... and the included spell checking dictionaries
-                pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                with self.prefix(src=pkgdir):
+                if self.args['vcpkg'] == 'ON':
+                    dicts_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-dictionaries')
+                else:
+                    dicts_dir = os.path.join(self.args['build'], os.pardir, 'packages')
+                with self.prefix(src=dicts_dir):
                     self.path("dictionaries")
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
@@ -140,7 +145,11 @@ class ViewerManifest(LLManifest):
                 self.path("*.tga")
 
             # Include our fonts
-            with self.prefix(src="../packages/fonts",src_dst="fonts"):
+            if self.args['vcpkg'] == 'ON':
+                fonts_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-fonts', 'fonts')
+            else:
+                fonts_dir = os.path.join(self.args['build'], os.pardir, 'packages', 'fonts')
+            with self.prefix(src=fonts_dir,src_dst="fonts"):
                 self.path("*.ttf")
                 self.path("*.txt")
 
@@ -540,7 +549,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                                 '*.bat',
                                                 '*.tar.xz')))
 
-            with self.prefix(src=os.path.join(pkgdir, "VMP")):
+            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'viewer-manager')):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SLVersionChecker.exe')
 
@@ -569,13 +578,14 @@ class Windows_x86_64_Manifest(ViewerManifest):
             if self.args['discord'] == 'ON':
                 self.path("discord_partner_sdk.dll")
 
-            if self.args['openal'] == 'ON':
+            if self.args['openal'] == 'ON' and self.args['vcpkg'] != 'ON':
                 # Get openal dll
                 self.path("OpenAL32.dll")
                 self.path("alut.dll")
 
-            # For textures
-            self.path("openjp2.dll")
+            if self.args['vcpkg'] != 'ON':
+                # For textures
+                self.path("openjp2.dll")
 
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
@@ -588,11 +598,8 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path_optional("vcruntime140_1.dll")
             self.path_optional("vcruntime140_threads.dll")
 
-            # SLVoice executable
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                self.path("SLVoice.exe")
-
             # Vivox libraries
+            self.path("SLVoice.exe")
             self.path("vivoxsdk_x64.dll")
             self.path("ortp_x64.dll")
 
@@ -602,15 +609,19 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("BugSplat64.dll")
                 self.path("BugSplatRc64.dll")
 
-            if self.args['tracy'] == 'ON':
+            if self.args['tracy'] == 'ON' and self.args['vcpkg'] != 'ON':
                 with self.prefix(src=os.path.join(pkgdir, 'bin')):
                     self.path("tracy-profiler.exe")
+
+        if self.is_packaging_viewer() and self.args['vcpkg'] == 'ON':
+            with self.prefix(src_dst=self.get_dst_prefix()):
+                self.path("*.dll")
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("cube.dae")
 
-        with self.prefix(src=pkgdir):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-certificates')):
             self.path("ca-bundle.crt")
 
         # Media plugins - CEF
@@ -618,6 +629,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
             with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
                 with self.prefix(src=os.path.join('cef', self.args['configuration'])):
                     self.path("media_plugin_cef.dll")
+                    self.path("libcef.dll")
 
                 # Media plugins - LibVLC
                 with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
@@ -630,13 +642,12 @@ class Windows_x86_64_Manifest(ViewerManifest):
 
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
-            config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
-            with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
+            vcpkg_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'dullahan-bin')
+            with self.prefix(src=os.path.join(vcpkg_dir, 'bin')):
                 self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("dxcompiler.dll")
                 self.path("dxil.dll")
-                self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
                 self.path("v8_context_snapshot.bin")
@@ -649,17 +660,22 @@ class Windows_x86_64_Manifest(ViewerManifest):
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                               'sharedlibs', self.args['buildtype'])):
                 self.path("msvcp140.dll")
+                self.path_optional("msvcp140_1.dll")
+                self.path_optional("msvcp140_2.dll")
+                self.path_optional("msvcp140_atomic_wait.dll")
+                self.path_optional("msvcp140_codecvt_ids.dll")
                 self.path("vcruntime140.dll")
                 self.path_optional("vcruntime140_1.dll")
+                self.path_optional("vcruntime140_threads.dll")
 
             # CEF files common to all configurations
-            with self.prefix(src=os.path.join(pkgdir, 'resources')):
+            with self.prefix(src=os.path.join(vcpkg_dir, 'resources')):
                 self.path("chrome_100_percent.pak")
                 self.path("chrome_200_percent.pak")
                 self.path("resources.pak")
                 self.path("icudtl.dat")
 
-            with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
+            with self.prefix(src=os.path.join(vcpkg_dir, 'resources', 'locales'), dst='locales'):
                 self.path("am.pak")
                 self.path("ar.pak")
                 self.path("bg.pak")
@@ -714,9 +730,11 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("zh-CN.pak")
                 self.path("zh-TW.pak")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'bin')):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
+
+            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'plugins', 'vlc-bin', 'plugins')):
                 self.path("plugins/")
 
         if not self.is_packaging_viewer():
@@ -1075,25 +1093,29 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                     self.path2basename("../media_plugins/cef/" + self.args['configuration'],
                                        "media_plugin_cef.dylib")
 
-                    # copy LibVLC plugin
-                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
-                                       "media_plugin_libvlc.dylib")
-
                     # CEF framework and vlc libraries goes inside Contents/Frameworks.
-                    with self.prefix(src=os.path.join(pkgdir, 'lib', 'release')):
+                    with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'lib')):
                         self.path("Chromium Embedded Framework.framework")
+
+                    with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'dullahan-bin', 'helpers')):
                         self.path("DullahanHelper.app")
                         self.path("DullahanHelper (Alerts).app")
                         self.path("DullahanHelper (GPU).app")
                         self.path("DullahanHelper (Renderer).app")
                         self.path("DullahanHelper (Plugin).app")
 
-                        # Copy libvlc
+                    # copy LibVLC plugin
+                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
+                                       "media_plugin_libvlc.dylib")
+
+                    # Copy libvlc
+                    with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'lib')):
                         self.path( "libvlc*.dylib*" )
-                        # copy LibVLC plugins folder
-                        with self.prefix(src='plugins', dst="plugins"):
-                            self.path( "*.dylib" )
-                            self.path( "plugins.dat" )
+
+                    # copy LibVLC plugins folder
+                    with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'plugins', 'vlc-bin', 'plugins'), dst="plugins"):
+                        self.path( "*.dylib" )
+                        self.path( "plugins.dat" )
 
 
     def package_finish(self):
@@ -1193,32 +1215,32 @@ class LinuxManifest(ViewerManifest):
                         self.path("libmedia_plugin_example.so")
 
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'lib'), dst="lib"):
             self.path( "libcef.so" )
             self.path( "libEGL*" )
             self.path( "libvulkan*" )
             self.path( "libvk_swiftshader*" )
             self.path( "libGLESv2*" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'bin'), dst="bin"):
             self.path( "chrome-sandbox" )
             self.path( "dullahan_host" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="bin"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'lib'), dst="bin"):
             self.path( "v8_context_snapshot.bin" )
             self.path( "vk_swiftshader_icd.json")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'lib'), dst="lib"):
             self.path( "v8_context_snapshot.bin" )
             self.path( "vk_swiftshader_icd.json")
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="lib"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'dullahan-bin', 'resources'), dst="lib"):
             self.path( "chrome_100_percent.pak" )
             self.path( "chrome_200_percent.pak" )
             self.path( "resources.pak" )
             self.path( "icudtl.dat" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'dullahan-bin', 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
             self.path("*.pak")
 
         self.path("featuretable_linux.txt")
@@ -1301,25 +1323,21 @@ class Linux_x86_64_Manifest(LinuxManifest):
         if "package_dir" in self.args:
             pkgdir = self.args['package_dir']
 
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
+        relpkgdir = os.path.join(self.args['vcpkg_dir'], 'lib')
         #debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libSDL*.so.*")
-
-            self.path("libalut.so*")
-            self.path("libopenal.so*")
-
             if self.args['discord'] == 'ON':
                 self.path("libdiscord_partner_sdk.so*")
 
         # Vivox runtimes
-        with self.prefix(src=relpkgdir, dst="bin"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'slvoice', 'linux'), dst="bin"):
             self.path("SLVoice")
-        with self.prefix(src=relpkgdir, dst="lib"):
+        with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'slvoice', 'linux'), dst="lib"):
             self.path("libortp.so")
-            self.path("libsndfile.so.1")
-            #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
+            self.path("libsndfile.so.1*")
+            self.path("libvivoxoal.so.1*") # no - we'll re-use the viewer's own OpenAL lib
+            self.path("libvivoxplatform.so")
             self.path("libvivoxsdk.so")
 
         self.strip_binaries()
@@ -1337,6 +1355,7 @@ if __name__ == "__main__":
         dict(name='discord', description="""Indication discord social sdk libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
+        dict(name='vcpkg', description="""Indication vcpkg is enabled""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)

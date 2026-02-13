@@ -1,7 +1,4 @@
-project(SLPlugin)
-
 include(00-Common)
-include(LLCommon)
 include(Linking)
 include(PluginAPI)
 
@@ -70,7 +67,3 @@ elseif (DARWIN)
       ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/SLPlugin.app/Contents/Resources
   )
 endif ()
-
-if (LL_TESTS)
-  ll_deploy_sharedlibs_command(SLPlugin)
-endif (LL_TESTS)

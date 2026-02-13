@@ -6,9 +6,6 @@ if (LL_TESTS)
 project (llimage_libtest)
 
 include(00-Common)
-include(LLCommon)
-include(LLImage)
-include(LLMath)
 
 set(llimage_libtest_SOURCE_FILES
     llimage_libtest.cpp

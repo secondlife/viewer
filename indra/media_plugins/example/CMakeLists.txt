@@ -1,15 +1,7 @@
 # -*- cmake -*-
-
-project(media_plugin_example)
-
 include(00-Common)
-include(LLCommon)
-include(LLImage)
-include(LLWindow)
 include(Linking)
 include(PluginAPI)
-
-include(ExamplePlugin)
 
 ### media_plugin_example
 
@@ -30,9 +22,7 @@ if (WINDOWS)
     PROPERTIES
     LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT"
     )
-endif (WINDOWS)
-
-if (DARWIN)
+elseif (DARWIN)
   # Don't prepend 'lib' to the executable name, and don't embed a full path in the library's install name
   set_target_properties(
     media_plugin_example
@@ -43,4 +33,4 @@ if (DARWIN)
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
   )
 
-endif (DARWIN)
+endif ()

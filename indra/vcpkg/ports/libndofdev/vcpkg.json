@@ -1,0 +1,17 @@
+{
+  "name": "libndofdev",
+  "version": "1.0.1",
+  "description": "3DConnexion SDK",
+  "homepage": "https://github.com/secondlife/3p-libndofdev",
+  "license": "BSD-3-Clause",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}

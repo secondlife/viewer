@@ -1,0 +1,1718 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b8414fb..43af380 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -60,6 +60,8 @@ IF(NOT APR_BUILD_STATIC AND TEST_STATIC_LIBS)
+   MESSAGE(FATAL_ERROR "APR_BUILD_STATIC has been disabled, but TEST_STATIC_LIBS is enabled")
+ ENDIF()
+ 
++add_compile_definitions(-D_UNICODE -DUNICODE)
++
+ # create 1-or-0 representation of feature tests for apr.h
+ 
+ SET(apr_have_ipv6_10 0)
+@@ -204,6 +206,7 @@ SET(APR_SOURCES
+   misc/win32/charset.c
+   misc/win32/env.c
+   misc/win32/internal.c
++  misc/win32/log.c
+   misc/win32/misc.c
+   misc/win32/rand.c
+   misc/win32/start.c
+diff --git a/atomic/win32/apr_atomic.c b/atomic/win32/apr_atomic.c
+index 5c2a870..2764b5d 100644
+--- a/atomic/win32/apr_atomic.c
++++ b/atomic/win32/apr_atomic.c
+@@ -16,6 +16,12 @@
+ 
+ #include "apr_arch_atomic.h"
+ 
++#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
++#define castptr(ptr) (ptr)
++#else
++#define castptr(ptr) ((long *)ptr)
++#endif
++
+ APR_DECLARE(apr_status_t) apr_atomic_init(apr_pool_t *p)
+ {
+     return APR_SUCCESS;
+@@ -23,11 +29,7 @@ APR_DECLARE(apr_status_t) apr_atomic_init(apr_pool_t *p)
+ 
+ APR_DECLARE(apr_uint32_t) apr_atomic_add32(volatile apr_uint32_t *mem, apr_uint32_t val)
+ {
+-#if (defined(_M_IA64) || defined(_M_AMD64))
+-    return InterlockedExchangeAdd(mem, val);
+-#else
+-    return InterlockedExchangeAdd((long *)mem, val);
+-#endif
++    return InterlockedExchangeAdd(castptr(mem), val);
+ }
+ 
+ /* Of course we want the 2's compliment of the unsigned value, val */
+@@ -37,39 +39,23 @@ APR_DECLARE(apr_uint32_t) apr_atomic_add32(volatile apr_uint32_t *mem, apr_uint3
+ 
+ APR_DECLARE(void) apr_atomic_sub32(volatile apr_uint32_t *mem, apr_uint32_t val)
+ {
+-#if (defined(_M_IA64) || defined(_M_AMD64))
+-    InterlockedExchangeAdd(mem, -val);
+-#else
+-    InterlockedExchangeAdd((long *)mem, -val);
+-#endif
++    InterlockedExchangeAdd(castptr(mem), -val);
+ }
+ 
+ APR_DECLARE(apr_uint32_t) apr_atomic_inc32(volatile apr_uint32_t *mem)
+ {
+     /* we return old value, win32 returns new value :( */
+-#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
+-    return InterlockedIncrement(mem) - 1;
+-#else
+-    return InterlockedIncrement((long *)mem) - 1;
+-#endif
++    return InterlockedIncrement(castptr(mem)) - 1;
+ }
+ 
+ APR_DECLARE(int) apr_atomic_dec32(volatile apr_uint32_t *mem)
+ {
+-#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
+-    return InterlockedDecrement(mem);
+-#else
+-    return InterlockedDecrement((long *)mem);
+-#endif
++    return InterlockedDecrement(castptr(mem));
+ }
+ 
+ APR_DECLARE(void) apr_atomic_set32(volatile apr_uint32_t *mem, apr_uint32_t val)
+ {
+-#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
+-    InterlockedExchange(mem, val);
+-#else
+-    InterlockedExchange((long*)mem, val);
+-#endif
++    InterlockedExchange(castptr(mem), val);
+ }
+ 
+ APR_DECLARE(apr_uint32_t) apr_atomic_read32(volatile apr_uint32_t *mem)
+@@ -80,15 +66,13 @@ APR_DECLARE(apr_uint32_t) apr_atomic_read32(volatile apr_uint32_t *mem)
+ APR_DECLARE(apr_uint32_t) apr_atomic_cas32(volatile apr_uint32_t *mem, apr_uint32_t with,
+                                            apr_uint32_t cmp)
+ {
+-#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
+-    return InterlockedCompareExchange(mem, with, cmp);
+-#else
+-    return InterlockedCompareExchange((long*)mem, with, cmp);
+-#endif
++    return InterlockedCompareExchange(castptr(mem), with, cmp);
+ }
+ 
+ APR_DECLARE(void *) apr_atomic_casptr(volatile void **mem, void *with, const void *cmp)
+ {
++/* The casting in the body of this function diverges from FORWARD();
++   expand it explicitly. */
+ #if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
+     return InterlockedCompareExchangePointer((void* volatile*)mem, with, (void*)cmp);
+ #else
+@@ -98,11 +82,7 @@ APR_DECLARE(void *) apr_atomic_casptr(volatile void **mem, void *with, const voi
+ 
+ APR_DECLARE(apr_uint32_t) apr_atomic_xchg32(volatile apr_uint32_t *mem, apr_uint32_t val)
+ {
+-#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
+-    return InterlockedExchange(mem, val);
+-#else
+-    return InterlockedExchange((long *)mem, val);
+-#endif
++    return InterlockedExchange(castptr(mem), val);
+ }
+ 
+ APR_DECLARE(void*) apr_atomic_xchgptr(volatile void **mem, void *with)
+diff --git a/file_io/win32/filesys.c b/file_io/win32/filesys.c
+index e812139..bdb0e9b 100644
+--- a/file_io/win32/filesys.c
++++ b/file_io/win32/filesys.c
+@@ -77,7 +77,7 @@ apr_status_t filepath_root_test(char *path, apr_pool_t *p)
+     }
+     else
+ #endif
+-        rv = GetDriveType(path);
++        rv = GetDriveTypeA(path);
+ 
+     if (rv == DRIVE_UNKNOWN || rv == DRIVE_NO_ROOT_DIR)
+         return APR_EBADPATH;
+diff --git a/file_io/win32/pipe.c b/file_io/win32/pipe.c
+index dd8ef13..3178a4c 100644
+--- a/file_io/win32/pipe.c
++++ b/file_io/win32/pipe.c
+@@ -170,7 +170,8 @@ APR_DECLARE(apr_status_t) apr_file_pipe_create_pools(apr_file_t **in,
+         pos = apr_snprintf(name, sizeof name, FMT_PIPE_NAME, pid, id++);
+         apr_escape_hex(name + pos, rand, sizeof rand, 0, NULL);
+ 
+-        (*in)->filehand = CreateNamedPipe(name,
++        /* Don't bother with utf8_to_unicode_path(): FMT_PIPE_NAME is ASCII */
++        (*in)->filehand = CreateNamedPipeA(name,
+                                           dwOpenMode,
+                                           dwPipeMode,
+                                           1,            /* nMaxInstances,   */
+@@ -195,7 +196,8 @@ APR_DECLARE(apr_status_t) apr_file_pipe_create_pools(apr_file_t **in,
+             (*out)->timeout = 0;
+         }
+ 
+-        (*out)->filehand = CreateFile(name,
++        /* Don't bother with utf8_to_unicode_path(): FMT_PIPE_NAME is ASCII */
++        (*out)->filehand = CreateFileA(name,
+                                       GENERIC_WRITE,   /* access mode             */
+                                       0,               /* share mode              */
+                                       &sa,             /* Security attributes     */
+diff --git a/file_io/win32/readwrite.c b/file_io/win32/readwrite.c
+index 2275f51..e66a1db 100644
+--- a/file_io/win32/readwrite.c
++++ b/file_io/win32/readwrite.c
+@@ -468,7 +468,19 @@ APR_DECLARE(apr_status_t) apr_file_write(apr_file_t *thefile, const void *buf, a
+             rv = APR_SUCCESS;
+         }
+         else {
+-            (*nbytes) = 0;
++            /* nat 2012-03-14: This else case used to clear *nbytes to 0. That
++             * makes sense only if WriteFile() guarantees never to return
++             * ERROR_IO_PENDING if any bytes were written. Empirically,
++             * though, we observe that at high data volumes we sometimes get
++             * APR_EAGAIN from this function but duplicate data at the other
++             * end of the pipe. In other words, apparently a WriteFile() call
++             * can (partially) succeed despite the APR_EAGAIN return. If we
++             * unconditionally tell the caller that the APR_EAGAIN call wrote
++             * 0 bytes, that logic can only retry the whole apr_file_write()
++             * call -- hence the duplicate data. This edit expresses my hope
++             * that in the case of a partial write, WriteFile() will properly
++             * update bwrote. */
++            (*nbytes) = bwrote;
+             rv = apr_get_os_error();
+ 
+             /* XXX: This must be corrected, per the apr_file_read logic!!! */
+diff --git a/include/apr_thread_proc.h b/include/apr_thread_proc.h
+index ea3c43f..8806cbe 100644
+--- a/include/apr_thread_proc.h
++++ b/include/apr_thread_proc.h
+@@ -502,6 +502,55 @@ APR_DECLARE(apr_status_t) apr_procattr_cmdtype_set(apr_procattr_t *attr,
+ APR_DECLARE(apr_status_t) apr_procattr_detach_set(apr_procattr_t *attr, 
+                                                  apr_int32_t detach);
+ 
++/**
++ * Request OS to tie child-process lifespan to parent process.
++ * (Currently supported only on Windows.)
++ * @param attr The procattr we care about.
++ * @param autokill Nonzero means child lifespan will be tied to calling
++ * process lifespan. Default is no.
++ */
++APR_DECLARE(apr_status_t) apr_procattr_autokill_set(apr_procattr_t *attr,
++                                                    apr_int32_t autokill);
++// APR_HAS_PROCATTR_AUTOKILL_SET actually has three discernable states. Plain
++// APR doesn't define it, so #if ! defined(APR_HAS_PROCATTR_AUTOKILL_SET) can
++// detect if the APR in hand lacks the extension. Further, though, we #define
++// it to 0 on platforms where we happen to know apr_procattr_autokill_set()
++// will return APR_ENOTIMPL.
++// It doesn't seem to work to #define MACRO as defined(OTHERMACRO) because
++// apparently defined() isn't itself a macro; it doesn't get rescanned. From
++// the preprocessor's point of view, MACRO simply has a funny string value.
++#if defined(WIN32) || defined(_WIN32)
++#define APR_HAS_PROCATTR_AUTOKILL_SET 1 // useful implementation
++#else
++#define APR_HAS_PROCATTR_AUTOKILL_SET 0 // placeholder implementation
++#endif
++
++/**
++ * Request apr_proc_create() to constrain the set of handles passed to the
++ * child process. On Windows, with an ordinary CreateProcess() call, you get
++ * two choices: pass NO handles (bInheritHandles=FALSE), or pass ALL
++ * currently-open handles, from anywhere in the process (including libraries!)
++ * -- except those specifically marked with HANDLE_FLAG_INHERIT 0.
++ * apr_proc_create(), which promises to provide the child process with stdin,
++ * stdout, stderr, normally passes bInheritHandles=TRUE. But std::ofstream et
++ * al. open files as inheritable, and provide no API by which to mark them
++ * otherwise. And since Windows prevents certain operations on files held open
++ * by any process, even if inadvertently, confusing bugs ensue.
++ * Calling apr_procattr_constrain_handle_set(attr, 1) engages obscure
++ * Windows machinery to specifically pass stdin, stdout, stderr -- but no
++ * other handles.
++ * See http://blogs.msdn.com/b/oldnewthing/archive/2011/12/16/10248328.aspx .
++ * apr_procattr_constrain_handle_set() currently only affects apr_proc_create()
++ * on Windows.
++ * @param attr The procattr we care about.
++ * @param constrain On Windows, nonzero means to explicitly constrain the set
++ * of handles passed to the new child process. Default is 0, like unmodified
++ * APR.
++ */
++APR_DECLARE(apr_status_t) apr_procattr_constrain_handle_set(apr_procattr_t *attr,
++                                                            apr_int32_t constrain);
++#define APR_HAS_PROCATTR_CONSTRAIN_HANDLE_SET 1 // extension is present
++
+ #if APR_HAVE_STRUCT_RLIMIT
+ /**
+  * Set the Resource Utilization limits when starting a new process.
+diff --git a/include/arch/unix/apr_arch_threadproc.h b/include/arch/unix/apr_arch_threadproc.h
+index 7a3b3c0..02f8125 100644
+--- a/include/arch/unix/apr_arch_threadproc.h
++++ b/include/arch/unix/apr_arch_threadproc.h
+@@ -113,6 +113,8 @@ struct apr_procattr_t {
+     apr_uid_t   uid;
+     apr_gid_t   gid;
+     apr_procattr_pscb_t *perms_set_callbacks;
++    apr_int32_t autokill;
++    apr_int32_t constrain;
+ };
+ 
+ #endif  /* ! THREAD_PROC_H */
+diff --git a/include/arch/win32/apr_arch_threadproc.h b/include/arch/win32/apr_arch_threadproc.h
+index d3ce9c5..f78c75b 100644
+--- a/include/arch/win32/apr_arch_threadproc.h
++++ b/include/arch/win32/apr_arch_threadproc.h
+@@ -62,6 +62,8 @@ struct apr_procattr_t {
+     LPSECURITY_ATTRIBUTES   sa;
+     LPVOID                  sd;
+ #endif
++    apr_int32_t autokill;
++    apr_int32_t constrain;
+ };
+ 
+ struct apr_thread_once_t {
+diff --git a/include/arch/win32/apr_log.h b/include/arch/win32/apr_log.h
+new file mode 100644
+index 0000000..d5bdb37
+--- /dev/null
++++ b/include/arch/win32/apr_log.h
+@@ -0,0 +1,31 @@
++/**
++ * @file   apr_log.h
++ * @author Nat Goodspeed
++ * @date   2012-06-15
++ * @brief  Declarations for apr_log() and friends
++ * 
++ * $LicenseInfo:firstyear=2012&license=internal$
++ * Copyright (c) 2012, Linden Research, Inc.
++ * $/LicenseInfo$
++ */
++
++#if ! defined(APR_LOG_H)
++#define APR_LOG_H
++
++/*
++ * apr_log() is like printf() to an implicit log file.
++ * It's sensitive to APR_LOG environment variable:
++ * - Not set: don't log (default). This state is cached for fast exit.
++ * - Absolute pathname: append to specified log file.
++ * - Relative pathname: prefix with (e.g.) "c:/Users/You/AppData/Roaming".
++ *   That means that if you set APR_LOG="SecondLife/logs/apr.log", it should
++ *   end up in the same directory as SecondLife.log.
++ * Various errors cause apr_log() to silently fail -- if it's not working,
++ * it's got nowhere to complain!
++ */
++void apr_log(const char* format, ...);
++/* Return %s suitable for logging a const char* that might be NULL */
++const char* apr_logstr(const char* str);
++const wchar_t* apr_logwstr(const wchar_t* str);
++
++#endif /* ! defined(APR_LOG_H) */
+diff --git a/libapr.rc b/libapr.rc
+index 604fc7c..9b8db04 100644
+--- a/libapr.rc
++++ b/libapr.rc
+@@ -34,7 +34,7 @@
+  FILEFLAGS 0x00L
+ #endif
+ #endif
+-#if defined(WINNT) || defined(WIN64)
++#if defined(WINNT) || defined(_WIN64)
+  FILEOS 0x40004L
+ #else
+  FILEOS 0x4L
+diff --git a/misc/win32/log.c b/misc/win32/log.c
+new file mode 100644
+index 0000000..c1cccfc
+--- /dev/null
++++ b/misc/win32/log.c
+@@ -0,0 +1,147 @@
++/**
++ * @file   log.c
++ * @author Nat Goodspeed
++ * @date   2012-06-15
++ * @brief  Add Windows-specific apr_log() function
++ *
++ * I attempted to add this to misc.c, but APR internal headers are a mess --
++ * it proved impossible to add the requisite Microsoft headers without
++ * breaking things. I tried various orders for the #includes, which changed
++ * the errors without resolving them.  :-P
++ * 
++ * $LicenseInfo:firstyear=2012&license=internal$
++ * Copyright (c) 2012, Linden Research, Inc.
++ * $/LicenseInfo$
++ */
++
++#include <Shlobj.h>
++#include <varargs.h>
++#include <stdio.h>
++#include "apr_time.h"
++#include "apr_file_info.h"
++
++FILE* apr_open_log();
++
++/* I'm amazed that APR doesn't already have GENERAL-PURPOSE logging
++ * infrastructure.
++ * Microsoft's vfprintf() accepts "%ws" or "%ls" (lowercase L) to mean a
++ * wchar_t* string. */
++void apr_log(const char* format, ...)
++{
++    /* We could store only a static FILE*, but we must distinguish three cases:
++       - first call, try to open log file
++       - log file successfully opened
++       - open attempt failed, don't bother continually trying to reopen.
++       Hence a separate 'first' flag. No-log behavior should exit quickly so
++       we won't be shy about sprinkling apr_log() calls through the code. */
++    static int first = 1;
++    static FILE* logf = NULL;
++
++    if (first)
++    {
++        char date[APR_CTIME_LEN];
++        apr_ctime(date, apr_time_now());
++        first = 0;
++        /* Break out apr_open_log() as a separate function because some day we
++           hope to migrate apr_log() to platform-independent source -- but
++           apr_open_log() contains platform-dependent logic. */
++        logf = apr_open_log();
++        /* beware, open might fail for any of a number of reasons */
++        if (logf)
++        {
++            fputs("========================================================================\n",
++                  logf);
++            fputs(date, logf);
++            fputs("\n", logf);
++        }
++    }
++    if (logf)
++    {
++        va_list ap;
++        va_start(ap, format);
++        vfprintf(logf, format, ap);
++        va_end(ap);
++        fputs("\n", logf);
++        /* Flush but leave open for next call. If fflush() is working right,
++           we shouldn't actually need to close the file to get all its output. */
++        fflush(logf);
++    }
++}
++
++/* apr_open_log() should only be called once per process, so we can perform nontrivial
++   operations as needed. It's sensitive to APR_LOG environment variable:
++   - Not set: don't log (default).
++   - Absolute pathname: append to specified log file.
++   - Relative pathname: prefix with (e.g.) "c:/Users/You/AppData/Roaming".
++     That means that if you set APR_LOG="SecondLife/logs/apr.log", it should
++     end up in the same directory as SecondLife.log.
++*/
++FILE* apr_open_log()
++{
++    apr_status_t status = APR_SUCCESS;
++    apr_pool_t* pool = NULL;
++    FILE* logf = NULL;
++    char* APR_LOG = getenv("APR_LOG");
++    char* APR_LOG_root = APR_LOG;
++    char* APR_LOG_rel  = APR_LOG;
++    /* If APR_LOG isn't even set, don't bother with any of the rest of this. */
++    if (! APR_LOG)
++        return NULL;
++
++    /* For pathname manipulation, have to get an APR pool. Create and destroy
++       it locally; don't require caller to pass it in. */
++    if (apr_pool_create(&pool, NULL) != APR_SUCCESS)
++        return NULL;
++
++    /* Now that pool exists, don't just 'return NULL;' below this point we
++       must 'goto cleanup' instead to destroy the pool. */
++
++    /* Is APR_LOG absolute or relative? */
++    status = apr_filepath_root(&APR_LOG_root, &APR_LOG_rel, 0, pool);
++    /* Skip garbage path. This test is based on code in apr_filepath_merge().
++       APR_SUCCESS means it's an absolute path; APR_ERELATIVE is obvious;
++       APR_EINCOMPLETE means it starts with slash, which on Windows is an
++       incomplete path because it doesn't specify the drive letter. Anything
++       else means apr_filepath_root() was confused by this pathname. */
++    if (! (status == APR_SUCCESS || status == APR_ERELATIVE || status == APR_EINCOMPLETE))
++        goto cleanup;
++        
++    /* If it's a relative pathname, place it within AppData. */
++    if (status == APR_ERELATIVE || status == APR_EINCOMPLETE)
++    {
++        char appdir[MAX_PATH];
++        char* abspath = NULL;
++        /* If we can't get the special folder pathname, give up. */
++        if (S_OK != SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, appdir))
++            goto cleanup;
++
++        /* If we can't append APR_LOG to appdir, give up. */
++        if (APR_SUCCESS != apr_filepath_merge(&abspath, appdir, APR_LOG, 0, pool))
++            goto cleanup;
++
++        /* Okay, replace APR_LOG with abspath. */
++        APR_LOG = abspath;
++    }
++
++    /* Try to open the file. */
++    logf = fopen(APR_LOG, "a");
++
++cleanup:
++    apr_pool_destroy(pool);         /* clean up local temp pool */
++    return logf;
++}
++
++/* Return %s suitable for logging a const char* that might be NULL */
++const char* apr_logstr(const char* str)
++{
++    if (! str)
++        return "NULL";
++    return str;
++}
++
++const wchar_t* apr_logwstr(const wchar_t* str)
++{
++    if (! str)
++        return L"NULL";
++    return str;
++}
+diff --git a/poll/unix/epoll.c b/poll/unix/epoll.c
+index ad3cc0b..f168b54 100644
+--- a/poll/unix/epoll.c
++++ b/poll/unix/epoll.c
+@@ -92,7 +92,13 @@ static apr_status_t impl_pollset_create(apr_pollset_t *pollset,
+     apr_status_t rv;
+     int fd;
+ 
+-#ifdef HAVE_EPOLL_CREATE1
++    /* Not every system that has epoll_create1() also has EPOLL_CLOEXEC
++     * defined. This conditional depends on systems with EPOLL_CLOEXEC defining
++     * it as a macro. We observe that at least one Linux system which defines
++     * EPOLL_CLOEXEC as an enum value also defines it as a macro -- presumably
++     * for exactly this kind of test.
++     */
++#if defined(HAVE_EPOLL_CREATE1) && defined(EPOLL_CLOEXEC)
+     fd = epoll_create1(EPOLL_CLOEXEC);
+ #else
+     fd = epoll_create(size);
+@@ -343,8 +349,14 @@ static apr_status_t impl_pollcb_create(apr_pollcb_t *pollcb,
+                                        apr_uint32_t flags)
+ {
+     int fd;
+-    
+-#ifdef HAVE_EPOLL_CREATE1
++
++    /* Not every system that has epoll_create1() also has EPOLL_CLOEXEC
++     * defined. This conditional depends on systems with EPOLL_CLOEXEC defining
++     * it as a macro. We observe that at least one Linux system which defines
++     * EPOLL_CLOEXEC as an enum value also defines it as a macro -- presumably
++     * for exactly this kind of test.
++     */
++#if defined(HAVE_EPOLL_CREATE1) && defined(EPOLL_CLOEXEC)
+     fd = epoll_create1(EPOLL_CLOEXEC);
+ #else
+     fd = epoll_create(size);
+diff --git a/threadproc/beos/proc.c b/threadproc/beos/proc.c
+index e369808..1c47c49 100644
+--- a/threadproc/beos/proc.c
++++ b/threadproc/beos/proc.c
+@@ -130,6 +130,17 @@ APR_DECLARE(apr_status_t) apr_procattr_detach_set(apr_procattr_t *attr, apr_int3
+     return APR_SUCCESS;
+ }
+ 
++APR_DECLARE(apr_status_t) apr_procattr_autokill_set(apr_procattr_t *attr, apr_int32_t autokill)
++{
++    return APR_ENOTIMPL;
++}
++
++APR_DECLARE(apr_status_t) apr_procattr_constrain_handle_set(apr_procattr_t *attr,
++                                                            apr_int32_t constrain)
++{
++    return APR_SUCCESS;
++}
++
+ APR_DECLARE(apr_status_t) apr_proc_fork(apr_proc_t *proc, apr_pool_t *pool)
+ {
+     int pid;
+diff --git a/threadproc/netware/proc.c b/threadproc/netware/proc.c
+index e5306f9..7092715 100644
+--- a/threadproc/netware/proc.c
++++ b/threadproc/netware/proc.c
+@@ -217,6 +217,17 @@ APR_DECLARE(apr_status_t) apr_procattr_detach_set(apr_procattr_t *attr, apr_int3
+     return APR_SUCCESS;
+ }
+ 
++APR_DECLARE(apr_status_t) apr_procattr_autokill_set(apr_procattr_t *attr, apr_int32_t autokill)
++{
++    return APR_ENOTIMPL;
++}
++
++APR_DECLARE(apr_status_t) apr_procattr_constrain_handle_set(apr_procattr_t *attr,
++                                                            apr_int32_t constrain)
++{
++    return APR_SUCCESS;
++}
++
+ #if APR_HAS_FORK
+ APR_DECLARE(apr_status_t) apr_proc_fork(apr_proc_t *proc, apr_pool_t *pool)
+ {
+diff --git a/threadproc/os2/proc.c b/threadproc/os2/proc.c
+index 96f76d6..f617bef 100644
+--- a/threadproc/os2/proc.c
++++ b/threadproc/os2/proc.c
+@@ -219,6 +219,17 @@ APR_DECLARE(apr_status_t) apr_procattr_detach_set(apr_procattr_t *attr, apr_int3
+     return APR_SUCCESS;
+ }
+ 
++APR_DECLARE(apr_status_t) apr_procattr_autokill_set(apr_procattr_t *attr, apr_int32_t autokill)
++{
++    return APR_ENOTIMPL;
++}
++
++APR_DECLARE(apr_status_t) apr_procattr_constrain_handle_set(apr_procattr_t *attr,
++                                                            apr_int32_t constrain)
++{
++    return APR_SUCCESS;
++}
++
+ APR_DECLARE(apr_status_t) apr_proc_fork(apr_proc_t *proc, apr_pool_t *pool)
+ {
+     int pid;
+diff --git a/threadproc/unix/proc.c b/threadproc/unix/proc.c
+index 004772f..c3a4e1d 100644
+--- a/threadproc/unix/proc.c
++++ b/threadproc/unix/proc.c
+@@ -20,11 +20,17 @@
+ #include "apr_signal.h"
+ #include "apr_random.h"
+ 
++#if defined(LINUX)
++#include <sys/prctl.h>
++#endif /* LINUX */
++
+ /* Heavy on no'ops, here's what we want to pass if there is APR_NO_FILE
+  * requested for a specific child handle;
+  */
+ static apr_file_t no_file = { NULL, -1, };
+ 
++static int max_fd();
++
+ APR_DECLARE(apr_status_t) apr_procattr_create(apr_procattr_t **new,
+                                               apr_pool_t *pool)
+ {
+@@ -36,6 +42,8 @@ APR_DECLARE(apr_status_t) apr_procattr_create(apr_procattr_t **new,
+     (*new)->pool = pool;
+     (*new)->cmdtype = APR_PROGRAM;
+     (*new)->uid = (*new)->gid = -1;
++    (*new)->autokill = 0;
++    (*new)->constrain = 0;
+     return APR_SUCCESS;
+ }
+ 
+@@ -216,6 +224,24 @@ APR_DECLARE(apr_status_t) apr_procattr_detach_set(apr_procattr_t *attr,
+     return APR_SUCCESS;
+ }
+ 
++APR_DECLARE(apr_status_t) apr_procattr_autokill_set(apr_procattr_t *attr, apr_int32_t autokill)
++{
++#if ! defined(LINUX)
++    return APR_ENOTIMPL;
++
++#else /* LINUX */
++    attr->autokill = autokill;
++    return APR_SUCCESS;
++#endif /* LINUX */
++}
++
++APR_DECLARE(apr_status_t) apr_procattr_constrain_handle_set(apr_procattr_t *attr,
++                                                            apr_int32_t constrain)
++{
++    attr->constrain = constrain;
++    return APR_SUCCESS;
++}
++
+ APR_DECLARE(apr_status_t) apr_proc_fork(apr_proc_t *proc, apr_pool_t *pool)
+ {
+     int pid;
+@@ -349,6 +375,7 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+                                           apr_pool_t *pool)
+ {
+     int i;
++    pid_t ppid_before_fork = getpid();
+     const char * const empty_envp[] = {NULL};
+ 
+     if (!env) { /* Specs require an empty array instead of NULL;
+@@ -394,6 +421,34 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+     else if (new->pid == 0) {
+         /* child process */
+ 
++        /*
++         * On Linux, we can request the OS to notify this new child process
++         * with a specified signal when the parent process terminates. We
++         * choose to be "notified" with a SIGKILL: in other words, when the
++         * parent process terminates, Game Over! This setting persists across
++         * execve(). (Thank you John Dubchak for pointing out this feature.)
++         */
++#if ! defined(LINUX)
++        (void)ppid_before_fork;
++#else /* LINUX */
++        if (attr->autokill) {
++            prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0);
++            /*
++             * possible race condition if parent terminated just before our
++             * prctl() call - http://stackoverflow.com/a/36945270/5533635
++             */
++            if (getppid() != ppid_before_fork) {
++                /*
++                 * If parent terminated, we get reassigned to init, which has
++                 * a different ppid. In that case, we should voluntarily exit
++                 * immediately, never mind the execve(). Use a high
++                 * termination code because we're pretending we were killed.
++                 */
++                exit(255);
++            }
++        }
++#endif /* LINUX */
++
+         /*
+          * If we do exec cleanup before the dup2() calls to set up pipes
+          * on 0-2, we accidentally close the pipes used by programs like
+@@ -451,6 +506,16 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+             apr_file_close(attr->child_err);
+         }
+ 
++        /* If constrain was requested, explicitly close all file handles above
++         * STDERR_FILENO, up to max_fd().
++         */
++        if (attr->constrain) {
++            int fd, last = max_fd();
++            for (fd = STDERR_FILENO + 1; fd <= last; ++fd) {
++                close(fd);
++            }
++        }
++
+         apr_signal(SIGCHLD, SIG_DFL); /* not sure if this is needed or not */
+ 
+         if (attr->currdir != NULL) {
+@@ -737,3 +802,24 @@ APR_DECLARE(apr_status_t) apr_procattr_perms_set_register(apr_procattr_t *attr,
+ 
+     return APR_SUCCESS;
+ }
++
++static int max_fd()
++{
++#if ! defined(LINUX)
++    return 0;
++
++#else /* LINUX */
++    int up;
++#if defined(F_MAXFD)
++    do
++    {
++        up = fcntl(0, F_MAXFD);
++    } while (up == -1 && errno == EINTR);
++    if (up == -1)
++#endif /* F_MAXFD */
++        up = sysconf(_SC_OPEN_MAX);
++    if (up == -1)
++        up = 1000; /* completely arbitrary */
++    return up;
++#endif /* LINUX */
++}
+diff --git a/threadproc/win32/proc.c b/threadproc/win32/proc.c
+index b4dfd5f..f55b7ad 100644
+--- a/threadproc/win32/proc.c
++++ b/threadproc/win32/proc.c
+@@ -14,6 +14,16 @@
+  * limitations under the License.
+  */
+ 
++/* At least for this one compilation, we must have access to STARTUPINFOEX.
++ * That's only defined at _WIN32_WINNT >= 0x0600.
++ */
++#if defined(_WIN32_WINNT) && _WIN32_WINNT < 0x0600
++#undef _WIN32_WINNT
++#endif
++#if ! defined(_WIN32_WINNT)
++#define _WIN32_WINNT 0x0600
++#endif
++
+ #include "apr_arch_threadproc.h"
+ #include "apr_arch_file_io.h"
+ 
+@@ -31,6 +41,8 @@
+ #if APR_HAVE_PROCESS_H
+ #include <process.h>
+ #endif
++#include "apr_log.h"
++#include <VersionHelpers.h>
+ 
+ /* Heavy on no'ops, here's what we want to pass if there is APR_NO_FILE
+  * requested for a specific child handle;
+@@ -71,6 +83,8 @@ APR_DECLARE(apr_status_t) apr_procattr_create(apr_procattr_t **new,
+     (*new) = (apr_procattr_t *)apr_pcalloc(pool, sizeof(apr_procattr_t));
+     (*new)->pool = pool;
+     (*new)->cmdtype = APR_PROGRAM;
++    (*new)->autokill = 0;
++    (*new)->constrain = 0;
+     return APR_SUCCESS;
+ }
+ 
+@@ -97,9 +111,11 @@ APR_DECLARE(apr_status_t) apr_procattr_io_set(apr_procattr_t *attr,
+         else { 
+             stat = apr_file_pipe_create_ex(&attr->child_in, &attr->parent_in,
+                                            in, attr->pool);
++            if (stat == APR_SUCCESS)
++                stat = apr_file_inherit_unset(attr->parent_in);
++            if (stat == APR_SUCCESS)
++                stat = apr_file_inherit_set(attr->child_in);
+         }
+-        if (stat == APR_SUCCESS)
+-            stat = apr_file_inherit_unset(attr->parent_in);
+     }
+     if (out && stat == APR_SUCCESS) {
+         if (out == APR_NO_FILE)
+@@ -107,9 +123,11 @@ APR_DECLARE(apr_status_t) apr_procattr_io_set(apr_procattr_t *attr,
+         else { 
+             stat = apr_file_pipe_create_ex(&attr->parent_out, &attr->child_out,
+                                            out, attr->pool);
++            if (stat == APR_SUCCESS)
++                stat = apr_file_inherit_unset(attr->parent_out);
++            if (stat == APR_SUCCESS)
++                stat = apr_file_inherit_set(attr->child_out);
+         }
+-        if (stat == APR_SUCCESS)
+-            stat = apr_file_inherit_unset(attr->parent_out);
+     }
+     if (err && stat == APR_SUCCESS) {
+         if (err == APR_NO_FILE)
+@@ -117,9 +135,11 @@ APR_DECLARE(apr_status_t) apr_procattr_io_set(apr_procattr_t *attr,
+         else { 
+             stat = apr_file_pipe_create_ex(&attr->parent_err, &attr->child_err,
+                                            err, attr->pool);
++            if (stat == APR_SUCCESS)
++                stat = apr_file_inherit_unset(attr->parent_err);
++            if (stat == APR_SUCCESS)
++                stat = apr_file_inherit_set(attr->child_err);
+         }
+-        if (stat == APR_SUCCESS)
+-            stat = apr_file_inherit_unset(attr->parent_err);
+     }
+     return stat;
+ }
+@@ -226,6 +246,19 @@ APR_DECLARE(apr_status_t) apr_procattr_detach_set(apr_procattr_t *attr,
+     return APR_SUCCESS;
+ }
+ 
++APR_DECLARE(apr_status_t) apr_procattr_autokill_set(apr_procattr_t *attr, apr_int32_t autokill)
++{
++    attr->autokill = autokill;
++    return APR_SUCCESS;
++}
++
++APR_DECLARE(apr_status_t) apr_procattr_constrain_handle_set(apr_procattr_t *attr,
++                                                            apr_int32_t constrain)
++{
++    attr->constrain = constrain;
++    return APR_SUCCESS;
++}
++
+ #ifndef _WIN32_WCE
+ static apr_status_t attr_cleanup(void *theattr)
+ {
+@@ -445,6 +478,18 @@ apr_status_t apr_threadproc_init(apr_pool_t *pool)
+ 
+ #endif
+ 
++static apr_status_t apr_assign_proc_to_jobobject(HANDLE proc);
++/* Pass a pointer to the PROC_THREAD_ATTRIBUTE_LIST pointer to set. Ideally,
++ * pass &lpAttributeList member of a STARTUPINFOEX struct you will pass to
++ * CreateProcess(). This function initializes a PROC_THREAD_ATTRIBUTE_LIST,
++ * stores its pointer into the passed pointer variable and captures the passed
++ * list of handles.
++ */
++static apr_status_t apr_set_handle_list(LPPROC_THREAD_ATTRIBUTE_LIST* ppattrlist,
++                                        DWORD cHandlesToInherit,
++                                        HANDLE* rgHandlesToInherit);
++static void apr_cleanup_handle_list(LPPROC_THREAD_ATTRIBUTE_LIST* ppattrlist);
++
+ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+                                           const char *progname,
+                                           const char * const *args,
+@@ -452,7 +497,7 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+                                           apr_procattr_t *attr,
+                                           apr_pool_t *pool)
+ {
+-    apr_status_t rv;
++    apr_status_t rv = APR_SUCCESS;
+     apr_size_t i;
+     const char *argv0;
+     char *cmdline;
+@@ -460,6 +505,22 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+     PROCESS_INFORMATION pi;
+     DWORD dwCreationFlags = 0;
+ 
++    apr_log("apr_proc_create(%s):", apr_logstr(progname));
++    if (args)
++    {
++        size_t i;
++        apr_log("  args:");
++        for (i = 0; args[i]; ++i)
++            apr_log("    '%s'", args[i]);
++    }
++    if (env)
++    {
++        size_t i;
++        apr_log("  env:");
++        for (i = 0; env[i]; ++i)
++            apr_log("    '%s'", env[i]);
++    }
++
+     new->in = attr->parent_in;
+     new->out = attr->parent_out;
+     new->err = attr->parent_err;
+@@ -473,6 +534,7 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+          * bit executables if the detached attribute is set.
+          */
+         if (apr_os_level >= APR_WIN_NT) {
++            apr_log("  setting DETACHED_PROCESS");
+             /* 
+              * XXX DETACHED_PROCESS won't on Win9x at all; on NT/W2K 
+              * 16 bit executables fail (MS KB: Q150956)
+@@ -481,6 +543,46 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+         }
+     }
+ 
++#if 0
++    // Since Windows 8 / Windows Server 2012, jobs can be nested:
++    // https://learn.microsoft.com/en-us/windows/win32/procthread/nested-jobs
++    // Also, CREATE_BREAKAWAY_FROM_JOB requires JOB_OBJECT_LIMIT_BREAKAWAY_OK.
++    // Without that permission, setting CREATE_BREAKAWAY_FROM_JOB causes
++    // CreateProcessW() to fail with "Access is denied." GitHub Windows
++    // runners obviously run actions within a job that does not permit
++    // JOB_OBJECT_LIMIT_BREAKAWAY_OK: setting this flag fails in that way.
++    // While a process can query its own job limits using
++    // QueryInformationJobObject(), the API is intentionally designed to
++    // discourage updating its own job limits: SetInformationJobObject()
++    // requires a non-NULL job object handle. You can open an existing job
++    // object with a known name, but not all job objects even have names.
++    // Bottom line:
++    // - we might or might not be running with JOB_OBJECT_LIMIT_BREAKAWAY_OK
++    // - we can't explicitly set JOB_OBJECT_LIMIT_BREAKAWAY_OK for ourselves
++    // - without JOB_OBJECT_LIMIT_BREAKAWAY_OK, we can't set CREATE_BREAKAWAY_FROM_JOB
++    // - but on any modern Windows system, we shouldn't need to.
++    if (attr->autokill) // && APR_WIN_NT <= apr_os_level && apr_os_level < APR_WIN_8)
++    {
++        // It's important to pass CREATE_BREAKAWAY_FROM_JOB because Windows 7 et
++        // al. tend to implicitly launch new processes already bound to a job. From
++        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms681949%28v=vs.85%29.aspx :
++        // "The process must not already be assigned to a job; if it is, the
++        // function fails with ERROR_ACCESS_DENIED." ...
++        // "If the process is being monitored by the Program Compatibility
++        // Assistant (PCA), it is placed into a compatibility job. Therefore, the
++        // process must be created using CREATE_BREAKAWAY_FROM_JOB before it can
++        // be placed in another job."
++
++        // Should test apr_os_level as in the attr->detached logic, but at
++        // what point was CREATE_BREAKAWAY_FROM_JOB introduced?
++        //if (apr_os_level >= APR_WIN_NT?)
++        {
++            apr_log("  setting CREATE_BREAKAWAY_FROM_JOB");
++            dwCreationFlags |= CREATE_BREAKAWAY_FROM_JOB;
++        }
++    }
++#endif
++
+     /* progname must be unquoted, in native format, as there are all sorts 
+      * of bugs in the NT library loader code that fault when parsing '/'.
+      * XXX progname must be NULL if this is a 16 bit app running in WOW
+@@ -642,6 +744,8 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+             }
+         }
+     }
++    apr_log("  progname: '%s'", apr_logstr(progname));
++    apr_log("  cmdline:  '%s'", apr_logstr(cmdline));
+ 
+     if (!env || attr->cmdtype == APR_PROGRAM_ENV ||
+         attr->cmdtype == APR_SHELLCMD_ENV) {
+@@ -712,13 +816,17 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+         }
+ #endif /* APR_HAS_ANSI_FS */
+     } 
++    apr_log("  pEnvBlock is%s NULL", (pEnvBlock? " not" : ""));
+ 
+     new->invoked = cmdline;
+ 
+ #if APR_HAS_UNICODE_FS
+     IF_WIN_OS_IS_UNICODE
+     {
+-        STARTUPINFOW si;
++        STARTUPINFOEXW si;
++        HANDLE inherit[3];          /* stdin, stdout, stderr */
++        DWORD inherit_cnt = 0;      /* slots used in 'inherit' */
++        BOOL  bInheritHandles = TRUE; /* like vanilla APR */
+         DWORD stdin_reset = 0;
+         DWORD stdout_reset = 0;
+         DWORD stderr_reset = 0;
+@@ -775,13 +883,20 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+                 return rv;
+             }
+         }
++        apr_log("  wprg: '%ws'", apr_logwstr(wprg));
++        apr_log("  wcmd: '%ws'", apr_logwstr(wcmd));
++        apr_log("  wcwd: '%ws'", apr_logwstr(wcwd));
+ 
++        /* clear ALL of STARTUPINFOEXW... */
+         memset(&si, 0, sizeof(si));
+-        si.cb = sizeof(si);
++        /* but for the moment, only tell CreateProcessW() about its
++           STARTUPINFOW prefix */
++        si.StartupInfo.cb = sizeof(STARTUPINFOW);
+ 
+         if (attr->detached) {
+-            si.dwFlags |= STARTF_USESHOWWINDOW;
+-            si.wShowWindow = SW_HIDE;
++            si.StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
++            si.StartupInfo.wShowWindow = SW_HIDE;
++            apr_log("  setting STARTF_USESHOWWINDOW, SW_HIDE");
+         }
+ 
+ #ifndef _WIN32_WCE
+@@ -794,88 +909,137 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+             || (attr->child_out && attr->child_out->filehand)
+             || (attr->child_err && attr->child_err->filehand))
+         {
+-            si.dwFlags |= STARTF_USESTDHANDLES;
++            si.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
++            apr_log("  setting STARTF_USESTDHANDLES");
+ 
+-            si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
++            si.StartupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+             if (attr->child_in && attr->child_in->filehand)
+             {
+-                if (GetHandleInformation(si.hStdInput,
++                if (GetHandleInformation(si.StartupInfo.hStdInput,
+                                          &stdin_reset)
+                         && (stdin_reset &= HANDLE_FLAG_INHERIT))
+-                    SetHandleInformation(si.hStdInput,
++                    SetHandleInformation(si.StartupInfo.hStdInput,
+                                          HANDLE_FLAG_INHERIT, 0);
+ 
+-                if ( (si.hStdInput = attr->child_in->filehand) 
++                if ( (si.StartupInfo.hStdInput = attr->child_in->filehand) 
+                                    != INVALID_HANDLE_VALUE )
+-                    SetHandleInformation(si.hStdInput, HANDLE_FLAG_INHERIT,
+-                                                       HANDLE_FLAG_INHERIT);
++                {
++                    SetHandleInformation(si.StartupInfo.hStdInput, HANDLE_FLAG_INHERIT,
++                                                                   HANDLE_FLAG_INHERIT);
++                    inherit[inherit_cnt++] = si.StartupInfo.hStdInput;
++                }
+             }
+-            
+-            si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
++
++            si.StartupInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+             if (attr->child_out && attr->child_out->filehand)
+             {
+-                if (GetHandleInformation(si.hStdOutput,
++                if (GetHandleInformation(si.StartupInfo.hStdOutput,
+                                          &stdout_reset)
+                         && (stdout_reset &= HANDLE_FLAG_INHERIT))
+-                    SetHandleInformation(si.hStdOutput,
++                    SetHandleInformation(si.StartupInfo.hStdOutput,
+                                          HANDLE_FLAG_INHERIT, 0);
+ 
+-                if ( (si.hStdOutput = attr->child_out->filehand) 
++                if ( (si.StartupInfo.hStdOutput = attr->child_out->filehand) 
+                                    != INVALID_HANDLE_VALUE )
+-                    SetHandleInformation(si.hStdOutput, HANDLE_FLAG_INHERIT,
+-                                                        HANDLE_FLAG_INHERIT);
++                {
++                    SetHandleInformation(si.StartupInfo.hStdOutput, HANDLE_FLAG_INHERIT,
++                                                                    HANDLE_FLAG_INHERIT);
++                    inherit[inherit_cnt++] = si.StartupInfo.hStdOutput;
++                }
+             }
+ 
+-            si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
++            si.StartupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+             if (attr->child_err && attr->child_err->filehand)
+             {
+-                if (GetHandleInformation(si.hStdError,
++                if (GetHandleInformation(si.StartupInfo.hStdError,
+                                          &stderr_reset)
+                         && (stderr_reset &= HANDLE_FLAG_INHERIT))
+-                    SetHandleInformation(si.hStdError,
++                    SetHandleInformation(si.StartupInfo.hStdError,
+                                          HANDLE_FLAG_INHERIT, 0);
+ 
+-                if ( (si.hStdError = attr->child_err->filehand) 
++                if ( (si.StartupInfo.hStdError = attr->child_err->filehand) 
+                                    != INVALID_HANDLE_VALUE )
+-                    SetHandleInformation(si.hStdError, HANDLE_FLAG_INHERIT,
+-                                                       HANDLE_FLAG_INHERIT);
++                {
++                    SetHandleInformation(si.StartupInfo.hStdError, HANDLE_FLAG_INHERIT,
++                                                                   HANDLE_FLAG_INHERIT);
++                    inherit[inherit_cnt++] = si.StartupInfo.hStdError;
++                }
+             }
++            apr_log("  inherit_cnt = %d", inherit_cnt);
+         }
+-        if (attr->user_token) {
+-            /* XXX: for terminal services, handles can't be cannot be
+-             * inherited across sessions.  This process must be created 
+-             * in our existing session.  lpDesktop assignment appears
+-             * to be wrong according to these rules.
+-             */
+-            si.lpDesktop = L"Winsta0\\Default";
+-            if (!ImpersonateLoggedOnUser(attr->user_token)) {
+-            /* failed to impersonate the logged user */
+-                rv = apr_get_os_error();
+-                CloseHandle(attr->user_token);
+-                attr->user_token = NULL;
+-                LeaveCriticalSection(&proc_lock);
+-                return rv;
++
++        /* Only mess with apr_set_handle_list() if caller used our
++           apr_procattr_constrain_handle_set() extension */
++        if (attr->constrain)
++        {
++            /* Caller wants us to strictly constrain handles passed to child */
++            if (! inherit_cnt)
++            {
++                /* If 'inherit' is empty, simply turn off bInheritHandles. */
++                apr_log("  attr->constrain but no handles: bInheritHandles = FALSE");
++                bInheritHandles = FALSE;
++            }
++            else
++            {
++                apr_log("  attr->constrain with %d handles: "
++                        "setting EXTENDED_STARTUPINFO_PRESENT",
++                        inherit_cnt);
++                /* We need STARTUPINFOEXW::lpAttributeList. Confess to
++                   CreateProcessW() that it's really a STARTUPINFOEXW rather
++                   than a vanilla STARTUPINFOW. */
++                dwCreationFlags |= EXTENDED_STARTUPINFO_PRESENT;
++                si.StartupInfo.cb = sizeof(si);
++                /* set specific handle list */
++                rv = apr_set_handle_list(&si.lpAttributeList, inherit_cnt, inherit);
++                apr_log("  apr_set_handle_list(%d) returned %d", inherit_cnt, rv);
+             }
+-            rv = CreateProcessAsUserW(attr->user_token,
+-                                      wprg, wcmd,
+-                                      attr->sa,
+-                                      NULL,
+-                                      TRUE,
+-                                      dwCreationFlags,
+-                                      pEnvBlock,
+-                                      wcwd,
+-                                      &si, &pi);
+-
+-            RevertToSelf();
+         }
+-        else {
+-            rv = CreateProcessW(wprg, wcmd,        /* Executable & Command line */
+-                                NULL, NULL,        /* Proc & thread security attributes */
+-                                TRUE,              /* Inherit handles */
+-                                dwCreationFlags,   /* Creation flags */
+-                                pEnvBlock,         /* Environment block */
+-                                wcwd,              /* Current directory name */
+-                                &si, &pi);
++
++        if (rv == APR_SUCCESS)
++        {
++            if (attr->user_token) {
++                /* XXX: for terminal services, handles can't be cannot be
++                 * inherited across sessions.  This process must be created 
++                 * in our existing session.  lpDesktop assignment appears
++                 * to be wrong according to these rules.
++                 */
++                si.StartupInfo.lpDesktop = L"Winsta0\\Default";
++                if (!ImpersonateLoggedOnUser(attr->user_token)) {
++                /* failed to impersonate the logged user */
++                    rv = apr_get_os_error();
++                    CloseHandle(attr->user_token);
++                    attr->user_token = NULL;
++                }
++                else
++                {
++                    apr_log("  CreateProcessAsUserW()");
++                    rv = CreateProcessAsUserW(attr->user_token,
++                                              wprg, wcmd,
++                                              attr->sa,
++                                              NULL,
++                                              bInheritHandles,
++                                              dwCreationFlags,
++                                              pEnvBlock,
++                                              wcwd,
++                                              (LPSTARTUPINFOW)(&si),
++                                              &pi);
++                    apr_log("  returned %d", rv);
++
++                    RevertToSelf();
++                }
++            }
++            else {
++                apr_log("  CreateProcessW()");
++                rv = CreateProcessW(wprg, wcmd,        /* Executable & Command line */
++                                    NULL, NULL,        /* Proc & thread security attributes */
++                                    bInheritHandles,   /* Inherit handles */
++                                    dwCreationFlags,   /* Creation flags */
++                                    pEnvBlock,         /* Environment block */
++                                    wcwd,              /* Current directory name */
++                                    (LPSTARTUPINFOW)(&si),
++                                    &pi);
++                apr_log("  returned %d", rv);
++            }
+         }
+ 
+         if ((attr->child_in && attr->child_in->filehand)
+@@ -900,6 +1064,7 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+         LeaveCriticalSection(&proc_lock);
+ 
+ #else /* defined(_WIN32_WCE) */
++        apr_log("  _WIN32_WCE CreateProcessW()");
+         rv = CreateProcessW(wprg, wcmd,        /* Executable & Command line */
+                             NULL, NULL,        /* Proc & thread security attributes */
+                             FALSE,             /* must be 0 */
+@@ -908,47 +1073,101 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+                             NULL,              /* Current directory name must be NULL*/
+                             NULL,              /* STARTUPINFO not supported */
+                             &pi);
++        apr_log("  returned %d", rv);
+ #endif
++
++        /* Clean up si.lpAttributeList if we set it */
++        apr_log("  apr_cleanup_handle_list()");
++        apr_cleanup_handle_list(&si.lpAttributeList);
++        apr_log("  okay");
+     }
+ #endif /* APR_HAS_UNICODE_FS */
+ #if APR_HAS_ANSI_FS
+     ELSE_WIN_OS_IS_ANSI
+     {
+-        STARTUPINFOA si;
++        STARTUPINFOEXA si;
++        HANDLE inherit[3];          /* stdin, stdout, stderr */
++        DWORD inherit_cnt = 0;      /* slots used in 'inherit' */
++        BOOL  bInheritHandles = TRUE; /* like vanilla APR */
++        /* clear ALL of STARTUPINFOEXA... */
+         memset(&si, 0, sizeof(si));
+-        si.cb = sizeof(si);
++        /* but for the moment, only tell CreateProcessA() about its
++           STARTUPINFOA prefix */
++        si.StartupInfo.cb = sizeof(STARTUPINFOA);
+ 
+         if (attr->detached) {
+-            si.dwFlags |= STARTF_USESHOWWINDOW;
+-            si.wShowWindow = SW_HIDE;
++            si.StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
++            si.StartupInfo.wShowWindow = SW_HIDE;
++            apr_log("  setting STARTF_USESHOWWINDOW, SW_HIDE");
+         }
+ 
+         if ((attr->child_in && attr->child_in->filehand)
+             || (attr->child_out && attr->child_out->filehand)
+             || (attr->child_err && attr->child_err->filehand))
+         {
+-            si.dwFlags |= STARTF_USESTDHANDLES;
++            si.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
+ 
+-            si.hStdInput = (attr->child_in) 
++            si.StartupInfo.hStdInput = (attr->child_in) 
+                               ? attr->child_in->filehand
+                               : GetStdHandle(STD_INPUT_HANDLE);
++            inherit[inherit_cnt++] = si.StartupInfo.hStdInput;
+ 
+-            si.hStdOutput = (attr->child_out)
++            si.StartupInfo.hStdOutput = (attr->child_out)
+                               ? attr->child_out->filehand
+                               : GetStdHandle(STD_OUTPUT_HANDLE);
++            inherit[inherit_cnt++] = si.StartupInfo.hStdOutput;
+ 
+-            si.hStdError = (attr->child_err)
++            si.StartupInfo.hStdError = (attr->child_err)
+                               ? attr->child_err->filehand
+                               : GetStdHandle(STD_ERROR_HANDLE);
++            inherit[inherit_cnt++] = si.StartupInfo.hStdError;
+         }
+ 
+-        rv = CreateProcessA(progname, cmdline, /* Command line */
+-                            NULL, NULL,        /* Proc & thread security attributes */
+-                            TRUE,              /* Inherit handles */
+-                            dwCreationFlags,   /* Creation flags */
+-                            pEnvBlock,         /* Environment block */
+-                            attr->currdir,     /* Current directory name */
+-                            &si, &pi);
++        /* Only mess with apr_set_handle_list() if caller used our
++           apr_procattr_constrain_handle_set() extension */
++        if (attr->constrain)
++        {
++            /* Caller wants us to strictly constrain handles passed to child */
++            if (! inherit_cnt)
++            {
++                /* If 'inherit' is empty, simply turn off bInheritHandles. */
++                apr_log("  attr->constrain but no handles: bInheritHandles = FALSE");
++                bInheritHandles = FALSE;
++            }
++            else
++            {
++                apr_log("  attr->constrain with %d handles: "
++                        "setting EXTENDED_STARTUPINFO_PRESENT",
++                        inherit_cnt);
++                /* We need STARTUPINFOEXA::lpAttributeList. Confess to
++                   CreateProcessA() that it's really a STARTUPINFOEXA rather
++                   than a vanilla STARTUPINFOA. */
++                dwCreationFlags |= EXTENDED_STARTUPINFO_PRESENT;
++                si.StartupInfo.cb = sizeof(si);
++                /* set specific handle list */
++                rv = apr_set_handle_list(&si.lpAttributeList, inherit_cnt, inherit);
++                apr_log("  apr_set_handle_list(%d) returned %d", inherit_cnt, rv);
++            }
++        }
++
++        if (rv == APR_SUCCESS)
++        {
++            apr_log("  CreateProcessA()");
++            rv = CreateProcessA(progname, cmdline, /* Command line */
++                                NULL, NULL,        /* Proc & thread security attributes */
++                                bInheritHandles,   /* Inherit handles */
++                                dwCreationFlags,   /* Creation flags */
++                                pEnvBlock,         /* Environment block */
++                                attr->currdir,     /* Current directory name */
++                                (LPSTARTUPINFOA)(&si),
++                                &pi);
++            apr_log("  returned %d", rv);
++        }
++
++        /* Clean up si.lpAttributeList if we set it */
++        apr_log("  apr_cleanup_handle_list()");
++        apr_cleanup_handle_list(&si.lpAttributeList);
++        apr_log("  okay");
+     }
+ #endif /* APR_HAS_ANSI_FS */
+ 
+@@ -973,9 +1192,184 @@ APR_DECLARE(apr_status_t) apr_proc_create(apr_proc_t *new,
+     }
+     CloseHandle(pi.hThread);
+ 
++    if (attr->autokill)
++    {
++        apr_status_t assigned = APR_SUCCESS;
++        apr_log("  apr_assign_proc_to_jobobject()");
++        assigned = apr_assign_proc_to_jobobject(new->hproc);
++        apr_log("  returned %d", assigned);
++        if (assigned != APR_SUCCESS)
++            return assigned;
++    }
++
++    return APR_SUCCESS;
++}
++
++static apr_status_t apr_assign_proc_to_jobobject(HANDLE proc)
++{
++    // We only need one Job Object for the calling process. May as well make
++    // it static.
++    static HANDLE sJob = 0;
++    if (! sJob)
++    {
++        JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
++
++        apr_log("    CreateJobObject(NULL, NULL)");
++        sJob = CreateJobObject(NULL, NULL);
++        apr_log("    returned %08X", sJob);
++        if (! sJob)
++            return apr_get_os_error();
++
++        // Configure all child processes associated with this new job object
++        // to terminate when the calling process (us!) terminates.
++        jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
++
++        // <FS:ND> For anything lower than Windows 8, set JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK
++        // This is so all processes spawned by CEF will not be put into this job group. This is needed
++        // for sandboxing and stopping Flash from creating a console window.
++        // CEF itself will make sure that all child processes are killed when SLPlugin dies, so there's no negative
++        // side effect.
++        if( !IsWindows8OrGreater() )
++            jeli.BasicLimitInformation.LimitFlags |= JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
++        // </FS:ND>
++
++        apr_log("    SetInformationJobObject()");
++        if (! SetInformationJobObject(sJob, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
++        {
++            apr_status_t failcode = apr_get_os_error();
++            apr_log("    failed: %d", failcode);
++            // This Job Object is useless to us
++            CloseHandle(sJob);
++            sJob = 0;
++            return failcode;
++        }
++        apr_log("    okay");
++    }
++
++    // Here either sJob was already nonzero, or our calls to create it and set
++    // its info were successful.
++    apr_log("    AssignProcessToJobObject()");
++    if (! AssignProcessToJobObject(sJob, proc))
++    {
++        apr_log("    failed");
++        return apr_get_os_error();
++    }
++    apr_log("    okay");
++
+     return APR_SUCCESS;
+ }
+ 
++/* This function is liberally derived from Raymond Chen's
++ * http://blogs.msdn.com/b/oldnewthing/archive/2011/12/16/10248328.aspx
++ */
++static apr_status_t apr_set_handle_list(LPPROC_THREAD_ATTRIBUTE_LIST* ppattrlist,
++                                        DWORD cHandlesToInherit,
++                                        HANDLE* rgHandlesToInherit)
++{
++    SIZE_T size = 0;
++    DWORD error = 0;
++    LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList = NULL;
++
++    *ppattrlist = NULL;
++
++    apr_log("    cHandlesToInherit = %d", cHandlesToInherit);
++    if (! cHandlesToInherit)
++        return APR_SUCCESS;
++
++    if (cHandlesToInherit >= (0xFFFFFFFF / sizeof(HANDLE))) {
++        SetLastError(ERROR_INVALID_PARAMETER);
++        return ERROR_INVALID_PARAMETER;
++    }
++
++    /* "Initializing a PROC_THREAD_ATTRIBUTE_LIST is a two-step affair. First
++     * you call InitializeProcThreadAttributeList() with a NULL attribute list
++     * in order to determine how much memory you need to allocate for a
++     * one-entry attribute list. After allocating the memory, you call
++     * InitializeProcThreadAttributeList() a second time to do the actual
++     * initialization."
++     */
++
++    apr_log("    InitializeProcThreadAttributeList() size query");
++    InitializeProcThreadAttributeList(NULL, 1, 0, &size);
++    error = GetLastError();
++    if (error != ERROR_INSUFFICIENT_BUFFER)
++    {
++        apr_log("    returned unexpected %d", error);
++        return error;
++    }
++
++    apr_log("    HeapAlloc(%u)", size);
++    lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)(HeapAlloc(GetProcessHeap(), 0, size));
++    if (! lpAttributeList)
++    {
++        apr_log("    STATUS_NO_MEMORY");
++        /* HeapAlloc() is documented to not set GetLastError() info on fail. */
++        SetLastError(STATUS_NO_MEMORY);
++        return STATUS_NO_MEMORY;
++    }
++
++    /* Here we have an allocated but uninitialized PROC_THREAD_ATTRIBUTE_LIST.
++     * Do not yet set *ppattrlist: it does our caller no good until
++     * initialized.
++     */
++
++    apr_log("    InitializeProcThreadAttributeList() for real");
++    if (! InitializeProcThreadAttributeList(lpAttributeList, 1, 0, &size))
++    {
++        error = GetLastError();
++        apr_log("    returned %d", error);
++        /* clean up allocated but uninitialized memory */
++        HeapFree(GetProcessHeap(), 0, lpAttributeList);
++        return error;
++    }
++
++    /* "After creating the attribute list, you set the one entry by calling
++     * UpdateProcThreadAttributeList()."
++     */
++
++    apr_log("    UpdateProcThreadAttribute(PROC_THREAD_ATTRIBUTE_HANDLE_LIST, %d)",
++            cHandlesToInherit * sizeof(HANDLE));
++    if (! UpdateProcThreadAttribute(lpAttributeList,
++                                    0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
++                                    rgHandlesToInherit,
++                                    cHandlesToInherit * sizeof(HANDLE), NULL, NULL))
++    {
++        error = GetLastError();
++        apr_log("    returned %d", error);
++        /* At this point, with lpAttributeList allocated and initialized, we
++         * can use the real cleanup function.
++         */
++        apr_cleanup_handle_list(&lpAttributeList);
++        return error;
++    }
++    apr_log("    okay");
++
++    /* All systems go! Set caller's pointer. */
++    *ppattrlist = lpAttributeList;
++    return APR_SUCCESS;
++}
++
++static void apr_cleanup_handle_list(LPPROC_THREAD_ATTRIBUTE_LIST* ppattrlist)
++{
++    /* An LPPROC_THREAD_ATTRIBUTE_LIST might be in any of three states:
++     * NULL
++     * Allocated but not initialized
++     * Allocated and initialized
++     * We rely on apr_set_handle_list() to only set the caller's
++     * LPPROC_THREAD_ATTRIBUTE_LIST non-NULL if it's both allocated and
++     * initialized. That way we only have to distinguish two cases.
++     */
++
++    if (*ppattrlist)
++    {
++        apr_log("    DeleteProcThreadAttributeList()");
++        DeleteProcThreadAttributeList(*ppattrlist);
++        apr_log("    HeapFree()");
++        HeapFree(GetProcessHeap(), 0, *ppattrlist);
++        *ppattrlist = NULL;
++    }
++}
++
+ static apr_exit_why_e why_from_exit_code(DWORD exit) {
+     /* See WinNT.h STATUS_ACCESS_VIOLATION and family for how
+      * this class of failures was determined
+diff --git a/user/win32/groupinfo.c b/user/win32/groupinfo.c
+index b536569..cd76622 100644
+--- a/user/win32/groupinfo.c
++++ b/user/win32/groupinfo.c
+@@ -18,6 +18,7 @@
+ #include "apr_portable.h"
+ #include "apr_user.h"
+ #include "apr_private.h"
++#include "apr_arch_utf8.h"
+ #if APR_HAVE_SYS_TYPES_H
+ #include <sys/types.h>
+ #endif
+@@ -27,37 +28,44 @@ APR_DECLARE(apr_status_t) apr_gid_get(apr_gid_t *gid,
+ {
+ #ifdef _WIN32_WCE
+     return APR_ENOTIMPL;
++#elif ! UNICODE
++#error Linden apr_gid_get() requires wchar_t support
+ #else
+     SID_NAME_USE sidtype;
+-    char anydomain[256];
+-    char *domain;
++    wchar_t anydomain[256];
++    wchar_t *domain;
+     DWORD sidlen = 0;
+-    DWORD domlen = sizeof(anydomain);
++    DWORD domlen = sizeof(anydomain)/sizeof(anydomain[0]);
+     DWORD rv;
+-    char *pos;
++    wchar_t *pos;
+ 
+-    if ((pos = strchr(groupname, '/'))) {
+-        domain = apr_pstrmemdup(p, groupname, pos - groupname);
+-        groupname = pos + 1;
+-    }
+-    else if ((pos = strchr(groupname, '\\'))) {
+-        domain = apr_pstrmemdup(p, groupname, pos - groupname);
+-        groupname = pos + 1;
++    /* convert UTF8 groupname to wchar_t */
++    wchar_t wgroupname[256], *pgroupname;
++    apr_size_t groupname_len = strlen(groupname);
++    apr_size_t wgroupname_size = sizeof(wgroupname)/sizeof(wgroupname[0]);
++    apr_conv_utf8_to_ucs2(groupname, &groupname_len, wgroupname, &wgroupname_size);
++
++    if ((pos = wcschr(wgroupname, L'/')) ||
++        (pos = wcschr(wgroupname, L'\\'))) {
++        *pos = L'\0';
++        domain = wgroupname;
++        pgroupname = pos + 1;
+     }
+     else {
+         domain = NULL;
++        pgroupname = wgroupname;
+     }
+     /* Get nothing on the first pass ... need to size the sid buffer 
+      */
+-    rv = LookupAccountName(domain, groupname, domain, &sidlen, 
+-                           anydomain, &domlen, &sidtype);
++    rv = LookupAccountNameW(domain, pgroupname, domain, &sidlen, 
++                            anydomain, &domlen, &sidtype);
+     if (sidlen) {
+         /* Give it back on the second pass
+          */
+         *gid = apr_palloc(p, sidlen);
+-        domlen = sizeof(anydomain);
+-        rv = LookupAccountName(domain, groupname, *gid, &sidlen, 
+-                               anydomain, &domlen, &sidtype);
++        domlen = sizeof(anydomain)/sizeof(anydomain[0]);
++        rv = LookupAccountNameW(domain, pgroupname, *gid, &sidlen, 
++                                anydomain, &domlen, &sidtype);
+     }
+     if (!sidlen || !rv) {
+         return apr_get_os_error();
+@@ -70,17 +78,26 @@ APR_DECLARE(apr_status_t) apr_gid_name_get(char **groupname, apr_gid_t groupid,
+ {
+ #ifdef _WIN32_WCE
+     *groupname = apr_pstrdup(p, "Administrators");
++#elif ! UNICODE
++#error Linden apr_gid_name_get() requires wchar_t support
+ #else
+     SID_NAME_USE type;
+-    char name[MAX_PATH], domain[MAX_PATH];
+-    DWORD cbname = sizeof(name), cbdomain = sizeof(domain);
++    wchar_t wname[MAX_PATH], domain[MAX_PATH];
++    DWORD cbname = sizeof(wname)/sizeof(wname[0]), cbdomain = sizeof(domain)/sizeof(domain[0]);
++    char name[MAX_PATH];
++    apr_size_t wname_len;
++    apr_size_t name_size = sizeof(name);
++
+     if (!groupid)
+         return APR_EINVAL;
+-    if (!LookupAccountSid(NULL, groupid, name, &cbname, domain, &cbdomain, &type))
++    if (!LookupAccountSidW(NULL, groupid, wname, &cbname, domain, &cbdomain, &type))
+         return apr_get_os_error();
+     if (type != SidTypeGroup && type != SidTypeWellKnownGroup 
+                              && type != SidTypeAlias)
+         return APR_EINVAL;
++    /* convert returned wname from wchar_t to char */
++    wname_len = wcslen(wname);
++    apr_conv_ucs2_to_utf8(wname, &wname_len, name, &name_size);
+     *groupname = apr_pstrdup(p, name);
+ #endif
+     return APR_SUCCESS;
+diff --git a/user/win32/userinfo.c b/user/win32/userinfo.c
+index 89f9b8c..0a3b356 100644
+--- a/user/win32/userinfo.c
++++ b/user/win32/userinfo.c
+@@ -19,6 +19,7 @@
+ #include "apr_portable.h"
+ #include "apr_user.h"
+ #include "apr_arch_file_io.h"
++#include "apr_arch_utf8.h"
+ #if APR_HAVE_SYS_TYPES_H
+ #include <sys/types.h>
+ #endif
+@@ -95,10 +96,13 @@ APR_DECLARE(apr_status_t) apr_uid_homepath_get(char **dirname,
+         strcpy(regkey, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\"
+                        "ProfileList\\");
+         keylen = (DWORD)strlen(regkey);
++        /* Because this code path is only for Windows older than NT, we do not
++           care about the possibility of a non-ASCII username here. */
+         apr_cpystrn(regkey + keylen, username, sizeof(regkey) - keylen);
+     }
+ 
+-    if ((rv = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regkey, 0, 
++    /* regkey is specifically char[], so explicitly call RegOpenKeyExA() */
++    if ((rv = RegOpenKeyExA(HKEY_LOCAL_MACHINE, regkey, 0, 
+                            KEY_QUERY_VALUE, &key)) != ERROR_SUCCESS)
+         return APR_FROM_OS_ERROR(rv);
+ 
+@@ -136,7 +140,7 @@ APR_DECLARE(apr_status_t) apr_uid_homepath_get(char **dirname,
+     ELSE_WIN_OS_IS_ANSI
+     {
+         keylen = sizeof(regkey);
+-        rv = RegQueryValueEx(key, "ProfileImagePath", NULL, &type,
++        rv = RegQueryValueExA(key, "ProfileImagePath", NULL, &type,
+                                   (void*)regkey, &keylen);
+         RegCloseKey(key);
+         if (rv != ERROR_SUCCESS)
+@@ -146,7 +150,7 @@ APR_DECLARE(apr_status_t) apr_uid_homepath_get(char **dirname,
+         }
+         else if (type == REG_EXPAND_SZ) {
+             char path[MAX_PATH];
+-            ExpandEnvironmentStrings(regkey, path, sizeof(path));
++            ExpandEnvironmentStringsA(regkey, path, sizeof(path));
+             *dirname = apr_pstrdup(p, path);
+         }
+         else
+@@ -213,37 +217,44 @@ APR_DECLARE(apr_status_t) apr_uid_get(apr_uid_t *uid, apr_gid_t *gid,
+ {
+ #ifdef _WIN32_WCE
+     return APR_ENOTIMPL;
++#elif ! UNICODE
++#error Linden apr_uid_get() requires wchar_t support
+ #else
+     SID_NAME_USE sidtype;
+-    char anydomain[256];
+-    char *domain;
++    wchar_t anydomain[256];
++    wchar_t *domain;
+     DWORD sidlen = 0;
+-    DWORD domlen = sizeof(anydomain);
++    DWORD domlen = sizeof(anydomain)/sizeof(anydomain[0]);
+     DWORD rv;
+-    char *pos;
++    wchar_t *pos;
+ 
+-    if ((pos = strchr(username, '/'))) {
+-        domain = apr_pstrmemdup(p, username, pos - username);
+-        username = pos + 1;
+-    }
+-    else if ((pos = strchr(username, '\\'))) {
+-        domain = apr_pstrmemdup(p, username, pos - username);
+-        username = pos + 1;
++    /* convert UTF8 username to wchar_t */
++    wchar_t wusername[256], *pusername;
++    apr_size_t username_len = strlen(username);
++    apr_size_t wusername_size = sizeof(wusername)/sizeof(wusername[0]);
++    apr_conv_utf8_to_ucs2(username, &username_len, wusername, &wusername_size);
++
++    if ((pos = wcschr(wusername, L'/')) ||
++        (pos = wcschr(wusername, L'\\'))) {
++        *pos = L'\0';
++        domain = wusername;
++        pusername = pos + 1;
+     }
+     else {
+         domain = NULL;
++        pusername = wusername;
+     }
+     /* Get nothing on the first pass ... need to size the sid buffer 
+      */
+-    rv = LookupAccountName(domain, username, domain, &sidlen, 
++    rv = LookupAccountNameW(domain, pusername, domain, &sidlen, 
+                            anydomain, &domlen, &sidtype);
+     if (sidlen) {
+         /* Give it back on the second pass
+          */
+         *uid = apr_palloc(p, sidlen);
+-        domlen = sizeof(anydomain);
+-        rv = LookupAccountName(domain, username, *uid, &sidlen, 
+-                               anydomain, &domlen, &sidtype);
++        domlen = sizeof(anydomain)/sizeof(anydomain[0]);
++        rv = LookupAccountNameW(domain, pusername, *uid, &sidlen, 
++                                anydomain, &domlen, &sidtype);
+     }
+     if (!sidlen || !rv) {
+         return apr_get_os_error();
+@@ -261,16 +272,25 @@ APR_DECLARE(apr_status_t) apr_uid_name_get(char **username, apr_uid_t userid,
+ #ifdef _WIN32_WCE
+     *username = apr_pstrdup(p, "Administrator");
+     return APR_SUCCESS;
++#elif ! UNICODE
++#error Linden apr_uid_name_get() requires wchar_t support
+ #else
+     SID_NAME_USE type;
+-    char name[MAX_PATH], domain[MAX_PATH];
+-    DWORD cbname = sizeof(name), cbdomain = sizeof(domain);
++    wchar_t wname[MAX_PATH], domain[MAX_PATH];
++    DWORD cbname = sizeof(wname)/sizeof(wname[0]), cbdomain = sizeof(domain)/sizeof(domain[0]);
++    char name[MAX_PATH];
++    apr_size_t wname_len;
++    apr_size_t name_size = sizeof(name);
++
+     if (!userid)
+         return APR_EINVAL;
+-    if (!LookupAccountSid(NULL, userid, name, &cbname, domain, &cbdomain, &type))
++    if (!LookupAccountSidW(NULL, userid, wname, &cbname, domain, &cbdomain, &type))
+         return apr_get_os_error();
+     if (type != SidTypeUser && type != SidTypeAlias && type != SidTypeWellKnownGroup)
+         return APR_EINVAL;
++    /* convert returned wname from wchar_t to char */
++    wname_len = wcslen(wname);
++    apr_conv_ucs2_to_utf8(wname, &wname_len, name, &name_size);
+     *username = apr_pstrdup(p, name);
+     return APR_SUCCESS;
+ #endif

@@ -6,8 +6,6 @@ include(00-Common)
 if(LL_TESTS)
   include(LLAddBuildTest)
 endif(LL_TESTS)
-include(LLCommon)
-include(LLCoreHttp)
 
 set(login_SOURCE_FILES
     lllogin.cpp

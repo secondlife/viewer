@@ -3,10 +3,7 @@
 project (lltest)
 
 include(00-Common)
-include(LLCommon)
-include(LLCoreHttp)
 include(Linking)
-include(Tut)
 include(LLAddBuildTest)
 include(bugsplat)
 
@@ -35,7 +32,7 @@ list(APPEND test_lib_SOURCE_FILES ${test_lib_HEADER_FILES})
 
 add_library(lltut_runner_lib ${test_lib_SOURCE_FILES})
 
-target_link_libraries(lltut_runner_lib PRIVATE llcommon)
+target_link_libraries(lltut_runner_lib PRIVATE llcommon ll::tut)
 
 set_target_properties(lltut_runner_lib
         PROPERTIES

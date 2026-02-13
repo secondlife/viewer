@@ -1,0 +1,51 @@
+include_guard(GLOBAL)
+
+if(NOT DEFINED ${CMAKE_TOOLCHAIN_FILE})
+  include(FetchContent)
+
+  if(DEFINED ENV{VCPKG_ROOT})
+    set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+  else()
+    set(VCPKG_ROOT ${CMAKE_BINARY_DIR}/vcpkg_root)
+    set($ENV{VCPKG_ROOT} ${VCPKG_ROOT})
+
+    FetchContent_Populate(
+        vcpkg
+        GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
+        SOURCE_DIR ${VCPKG_ROOT}
+    )
+
+    if(WIN32)
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg.exe)
+        set(VCPKG_BOOTSTRAP ${VCPKG_ROOT}/bootstrap-vcpkg.bat)
+    else()
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg)
+        set(VCPKG_BOOTSTRAP ${VCPKG_ROOT}/bootstrap-vcpkg.sh)
+    endif()
+
+    if(NOT EXISTS ${VCPKG_EXECUTABLE})
+        message("Bootstrapping vcpkg in ${VCPKG_ROOT}")
+        execute_process(COMMAND ${VCPKG_BOOTSTRAP} WORKING_DIRECTORY ${VCPKG_ROOT})
+        if(NOT EXISTS ${VCPKG_EXECUTABLE})
+            message(FATAL_ERROR "Could not bootstrap vcpkg")
+        endif()
+    endif()
+  endif()
+
+  set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake CACHE STRING "")
+endif()
+
+if(NOT DEFINED ${VCPKG_TARGET_TRIPLET})
+    if(WIN32)
+        set(VCPKG_TARGET_TRIPLET "x64-windows-secondlife")
+    elseif(DARWIN)
+        cmake_host_system_information(RESULT OS_PLATFORM QUERY OS_PLATFORM)
+        if(OS_PLATFORM STREQUAL arm64)
+            set(VCPKG_TARGET_TRIPLET "arm64-osx-secondlife")
+        else()
+            set(VCPKG_TARGET_TRIPLET "x64-osx-secondlife")
+        endif()
+    else()
+        set(VCPKG_TARGET_TRIPLET "x64-linux-secondlife")
+    endif()
+endif()

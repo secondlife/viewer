@@ -36,11 +36,7 @@
 #include "llbufferstream.h"
 #include "llfile.h"
 #include "llmenugl.h"
-#ifdef LL_USESYSTEMLIBS
-# include "expat.h"
-#else
-# include "expat/expat.h"
-#endif
+#include <expat.h>
 #include "llcallbacklist.h"
 #include "llviewerregion.h"
 #include "llviewernetwork.h"        // for gGridChoice

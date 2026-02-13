@@ -55,7 +55,7 @@
 
 #include "mikktspace/mikktspace.hh"
 
-#include "meshoptimizer/meshoptimizer.h"
+#include "meshoptimizer.h"
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
