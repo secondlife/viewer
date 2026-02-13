@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library (llprimitive)
+add_library (llprimitive STATIC)
 
 target_sources(llprimitive
     PRIVATE
@@ -71,12 +71,10 @@ else()
         )
 endif ()
 
-if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(llprimitive REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llprimitive REUSE_FROM llprecompiled)
 
 # add unit tests
-if (LL_TESTS)
+if (BUILD_TESTING)
     INCLUDE(LLAddBuildTest)
     SET(llprimitive_TEST_SOURCE_FILES
       llmediaentry.cpp
@@ -86,4 +84,4 @@ if (LL_TESTS)
 
     set_property(SOURCE llprimitive.cpp PROPERTY LL_TEST_ADDITIONAL_LIBRARIES llmessage)
     LL_ADD_PROJECT_UNIT_TESTS(llprimitive "${llprimitive_TEST_SOURCE_FILES}")
-endif (LL_TESTS)
+endif ()

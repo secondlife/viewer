@@ -9,13 +9,9 @@ if(USE_BUGSPLAT AND NOT LINUX)
         find_path(BUGSPLAT_INCLUDE_DIRS "bugsplat/BugSplat.h" REQUIRED)
         target_include_directories(ll::bugsplat SYSTEM INTERFACE ${BUGSPLAT_INCLUDE_DIRS})
     elseif(DARWIN)
-        find_library(BUGSPLAT_LIBRARIES BugsplatMac REQUIRED)
-        find_library(CRASHREPORTED_LIBRARIES CrashReporter REQUIRED)
-        find_library(HOCKEYSDK_LIBRARIES HockeySDK REQUIRED)
-        target_link_libraries( ll::bugsplat INTERFACE
+        find_library(BUGSPLAT_LIBRARIES BugSplatMac REQUIRED)
+        target_link_libraries(ll::bugsplat INTERFACE
                 ${BUGSPLAT_LIBRARIES}
-                ${CRASHREPORTED_LIBRARIES}
-                ${HOCKEYSDK_LIBRARIES}
                 )
     else ()
         message(FATAL_ERROR "BugSplat is not supported; add -DUSE_BUGSPLAT=OFF")
@@ -28,3 +24,12 @@ if(USE_BUGSPLAT AND NOT LINUX)
     target_compile_definitions(ll::bugsplat INTERFACE LL_BUGSPLAT=1)
 endif()
 
+if (USE_BUGSPLAT)
+    if (BUGSPLAT_DB)
+        message(STATUS "Building with BugSplat; database '${BUGSPLAT_DB}'")
+    else (BUGSPLAT_DB)
+        message(WARNING "Building with BugSplat, but no database name set (BUGSPLAT_DB)")
+    endif (BUGSPLAT_DB)
+else (USE_BUGSPLAT)
+    message(STATUS "Not building with BugSplat")
+endif (USE_BUGSPLAT)

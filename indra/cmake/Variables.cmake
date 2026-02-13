@@ -11,14 +11,18 @@
 
 include_guard()
 
-set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/../scripts)
-set(VIEWER_DIR ${CMAKE_SOURCE_DIR})
+# Location of scripts directory
+set(SCRIPTS_DIR ${INDRA_SOURCE_DIR}/../scripts)
 
-set(TEMPLATE_VERIFIER_OPTIONS "" CACHE STRING "Options for scripts/template_verifier.py")
-set(TEMPLATE_VERIFIER_MASTER_URL "https://github.com/secondlife/master-message-template/raw/master/message_template.msg" CACHE STRING "Location of the master message template")
+# Select arch based on requested target processor
+string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} processor_lower)
+if(processor_lower STREQUAL "arm64")
+  set(ARCH arm64)
+else()
+  set(ARCH x86_64)
+endif()
 
-# We only support 64bit architectures currently
-set(ARCH x86_64)
+# Only 64-bit architectures are support
 set(ADDRESS_SIZE 64)
 
 # Determine build platform
@@ -26,21 +30,27 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON BOOL FORCE)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOl FORCE)
-
-  # Only turn on headless if we can find osmesa libraries.
-  find_package(PkgConfig)
-  pkg_check_modules(OSMESA IMPORTED_TARGET GLOBAL osmesa)
-  if (OSMESA_FOUND)
-   set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
-  endif (OSMESA_FOUND)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN ON BOOL FORCE)
 endif ()
 
-# Default deploy grid
-set(GRID agni CACHE STRING "Target Grid")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set(COMPILER_IS_MSVC ON BOOL FORCE)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    set(COMPILER_IS_CLANG_CL ON BOOL FORCE)
+  else()
+    set(COMPILER_IS_CLANG ON BOOL FORCE)
+  endif()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(COMPILER_IS_GCC ON BOOL FORCE)
+endif ()
 
-set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
-set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
 
-set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
+# Check if generator is multiconfig
+get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+# Compatability with legacy cmake flags
+if(DEFINED LL_TESTS)
+  set(BUILD_TESTING ${LL_TESTS} CACHE BOOL "Build and run unit and integration tests: disable for build timing runs to reduce variation" FORCE)
+endif()

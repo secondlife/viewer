@@ -61,11 +61,37 @@ target_link_libraries(media_plugin_cef
 )
 
 if (WINDOWS)
-  set_target_properties(
-    media_plugin_cef
+  set_target_properties(media_plugin_cef
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099"
-    )
+    EXCLUDE_FROM_DEFAULT_BUILD_DEBUG ON
+    RUNTIME_OUTPUT_DIRECTORY "${VIEWER_STAGING_DIR}/llplugin"
+  )
+  target_link_options(media_plugin_cef PRIVATE /MANIFEST:NO /IGNORE:4099)
+
+  # Copy plugin files to packaging directory
+  set(DULLAHAN_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/dullahan-bin")
+  add_custom_command(
+    TARGET media_plugin_cef POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DULLAHAN_DIR}/bin" "${VIEWER_STAGING_DIR}/llplugin"
+  )
+
+  set(CEF_RESOURCE_FILES
+    "${DULLAHAN_DIR}/resources/chrome_100_percent.pak"
+    "${DULLAHAN_DIR}/resources/chrome_200_percent.pak"
+    "${DULLAHAN_DIR}/resources/resources.pak"
+    "${DULLAHAN_DIR}/resources/icudtl.dat"
+  )
+  add_custom_command(
+    TARGET media_plugin_cef POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CEF_RESOURCE_FILES} "${VIEWER_STAGING_DIR}/llplugin"
+    COMMAND_EXPAND_LISTS
+  )
+
+  add_custom_command(
+    TARGET media_plugin_cef POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/dullahan-bin/resources/locales" "${VIEWER_STAGING_DIR}/llplugin/locales"
+  )
+
 elseif (DARWIN)
     find_library(CORESERVICES_LIBRARY CoreServices)
     find_library(AUDIOUNIT_LIBRARY AudioUnit)
@@ -82,7 +108,6 @@ elseif (DARWIN)
     PREFIX ""
     BUILD_WITH_INSTALL_RPATH 1
     INSTALL_RPATH "@executable_path/../Frameworks"
-    LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
   )
 
 elseif (LINUX)

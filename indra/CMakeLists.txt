@@ -6,23 +6,32 @@
 # 3.26 is our minimum required cmake version while 4.2 is our cmake policy max version(meaning any policies of version 4.2 or below are set to NEW)
 cmake_minimum_required(VERSION 3.26.0...4.2 FATAL_ERROR)
 
-# Include our cmake module directory
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"  "${CMAKE_CURRENT_BINARY_DIR}")
-
-# Check if generator is multiconfig
-get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-
-# Setup for options depending on other options
 include(CMakeDependentOption)
+
+set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
+    "The root project/makefile/solution name. Defaults to SecondLife.")
 
 # Set our base channel
 set(VIEWER_CHANNEL "Second Life Test" CACHE STRING "Viewer Channel Name")
 
+# Default deploy grid
+set(GRID agni CACHE STRING "Target Grid")
+
 # Build feature options
-option(OS_DRAG_DROP "Build the viewer with OS level drag and drop turned on or off" ON)
+option(BUILD_VIEWER "Build the viewer project" ON)
+option(BUILD_APPEARANCE_UTIL "Build the appearance utility project" OFF)
+option(BUILD_TESTING "Build and run unit and integration tests: disable for build timing runs to reduce variation" OFF)
+
+# Plugin Build Options
+option(BUILD_EXAMPLE_PLUGIN "Build support for SLPlugin example plugin" ON)
+option(BUILD_CEF_PLUGIN "Build support for SLPlugin CEF web plugin." ON)
+option(BUILD_VLC_PLUGIN "Build support for SLPlugin VLC media plugin." ON)
+cmake_dependent_option(BUILD_GSTREAMER_PLUGIN "Build support for SLPlugin Gstreamer media plugin." ON "UNIX;NOT APPLE" OFF)
+
+option(OS_DRAG_DROP "Build the viewer with OS level drag and drop support" ON)
 option(USE_NDOF "Use NDOF space navigator joystick library." ON)
 option(USE_LTO "Enable Link Time Optimization" OFF)
-option(USE_NVAPI "Use NVidia NVAPI library for gpu profile support" ON)
+option(USE_NVAPI "Use NVidia NVAPI library for gpu profile support(Windows Only)" ON)
 option(USE_OPENAL "Enable support for the OpenAL audio engine" ON)
 option(USE_OPENXR "Enable building with OpenXR support(Experimental)" OFF)
 option(USE_PRECOMPILED_HEADERS "Enable use of precompiled header directives where supported." ON)
@@ -44,7 +53,6 @@ cmake_dependent_option(USE_SDL_WINDOW "Build with SDL based window management an
 # Configure crash reporting
 option(RELEASE_CRASH_REPORTING "Enable use of crash reporting in release builds" OFF)
 option(NON_RELEASE_CRASH_REPORTING "Enable use of crash reporting in developer builds" OFF)
-set(VIEWER_SYMBOL_FILE "" CACHE STRING "Name of tarball into which to place symbol files")
 
 # Bugsplat setup
 if (INSTALL_PROPRIETARY AND (WIN32 OR APPLE))
@@ -68,22 +76,29 @@ if(channel_lower MATCHES "^second life test")
 endif()
 cmake_dependent_option(USE_TRACY "Enable support for Tracy profiler" ON "BUILDING_TEST_CHANNEL" OFF)
 option(USE_TRACY_ON_DEMAND "Use on-demand Tracy profiling." ON)
-option(USE_TRACY_LOCAL_ONLY "Disallow remote Tracy profiling." OFF)
+option(USE_TRACY_LOCAL_ONLY "Disallow remote Tracy profiling." ON)
 option(USE_TRACY_GPU "Use Tracy GPU profiling" OFF)
 option(USE_TRACY_GUI "Enable building Tracy profiler GUI" OFF)
 
-# Tests
-option(LL_TESTS "Build and run unit and integration tests: disable for build timing runs to reduce variation" OFF)
-
-# Plugins
-option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
-option(EXAMPLEPLUGIN "EXAMPLEPLUGIN support for the llplugin/llmedia test apps." ON)
-option(LIBVLCPLUGIN "LIBVLCPLUGIN support for the llplugin/llmedia test apps." ON)
-
-# Sanitizers (Linux Only)
+# Sanitizers (Mac and Linux Only)
 option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
 option(ENABLE_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
 option(ENABLE_THREADSAN "Enable Thread Sanitizer" OFF)
+
+# Signing
+option(ENABLE_SIGNING "Enable signing the viewer" OFF)
+set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
+
+# macOS deploy target(must be set BEFORE first project call)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum macOS version to target for deployment (at runtime); newer APIs weak linked. Set to empty string for default value.")
+
+# Set our supported configuration types
+set(CMAKE_CONFIGURATION_TYPES "Debug;OptDebug;RelWithDebInfo;Release" CACHE STRING "Supported build types.")
+
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Build type.  One of: Debug OptDebug Release RelWithDebInfo")
+endif (NOT CMAKE_BUILD_TYPE)
 
 ##########################################################################
 # vcpkg feature flags MUST be set before the first project() call below  #
@@ -126,34 +141,37 @@ endif()
 # Export compile_commands.json for ninja and makefile generators
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Don't bother with a MinSizeRel build.
-set(CMAKE_CONFIGURATION_TYPES "Debug;RelWithDebInfo;Release" CACHE STRING "Supported build types." FORCE)
+if(NOT USE_PRECOMPILED_HEADERS)
+    set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON)
+endif()
 
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
-endif (NOT CMAKE_BUILD_TYPE)
-
-# Now create our default project after setting vcpkg flags
-set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
-    "The root project/makefile/solution name. Defaults to SecondLife.")
+# Include our cmake module directory
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_CURRENT_BINARY_DIR}")
 
 # Setup VCPKG toolchains and targets
 include(BootstrapVcpkg)
 
-# Generate out base project after setting pre-generation variables
+# Generate base project after setting pre-generation variables
 project(${ROOT_PROJECT_NAME})
+
+# Location of indra directory
+set(INDRA_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(INDRA_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
+# Set up common variables
+include(Variables)
 
 # Set up Python
 include(Python)
 
 # Set up our base build system variable and compiler flags
-include(Variables)
-include(BuildVersion)
 include(00-Common)
 include(Linking)
 
-if (LL_TESTS)
+# Set up version number generation
+include(BuildVersion)
+
+if (BUILD_TESTING)
   set(CMAKE_SKIP_TEST_ALL_DEPENDENCY FALSE)
   include(ProcessorCount)
   ProcessorCount(NUM_CORES)
@@ -171,8 +189,6 @@ if (LL_TESTS)
         )
 
   add_custom_target(BUILD_TESTS)
-  add_dependencies(BUILD_AND_RUN_TESTS BUILD_TESTS)
-
   set_target_properties(BUILD_TESTS
         PROPERTIES
         FOLDER "CMakePredefinedTargets"
@@ -219,11 +235,8 @@ include(WebRTC)
 include(xxHash)
 include(ZLIBNG)
 
-# Set up UI and Window linking
-include(UI)
-
 # Add our test macros
-if (LL_TESTS)
+if (BUILD_TESTING)
   include(LLAddBuildTest)
 endif ()
 
@@ -233,9 +246,7 @@ include(Copy3rdPartyLibs)
 # Add our cmake modules to cmake
 add_subdirectory(cmake)
 
-if (USE_PRECOMPILED_HEADERS)
-  add_subdirectory(llprecompiled)
-endif ()
+add_subdirectory(llprecompiled)
 add_subdirectory(llaudio)
 add_subdirectory(llappearance)
 add_subdirectory(llcharacter)
@@ -255,41 +266,25 @@ add_subdirectory(llfilesystem)
 add_subdirectory(llwebrtc)
 add_subdirectory(llwindow)
 add_subdirectory(llxml)
-
-add_custom_target(viewer)
-
 add_subdirectory(llplugin)
 add_subdirectory(llui)
 add_subdirectory(viewer_components)
 
-if( LL_TESTS )
+if(BUILD_TESTING)
   # Legacy C++ tests.
   add_subdirectory(test)
 endif()
 
-if (ENABLE_MEDIA_PLUGINS)
-  # viewer media plugins
-  add_subdirectory(media_plugins)
-endif (ENABLE_MEDIA_PLUGINS)
+# viewer media plugins
+add_subdirectory(media_plugins)
 
-if (LINUX)
+if (BUILD_APPEARANCE_UTIL)
   # Avatar Appearance Utility
   add_subdirectory(llappearanceutility)
 endif()
 
-if (USE_BUGSPLAT)
-    if (BUGSPLAT_DB)
-        message(STATUS "Building with BugSplat; database '${BUGSPLAT_DB}'")
-    else (BUGSPLAT_DB)
-        message(WARNING "Building with BugSplat, but no database name set (BUGSPLAT_DB)")
-    endif (BUGSPLAT_DB)
-else (USE_BUGSPLAT)
-    message(STATUS "Not building with BugSplat")
-endif (USE_BUGSPLAT)
-
 # Viewer
 add_subdirectory(newview)
-add_dependencies(viewer secondlife-bin)
 
 add_subdirectory(doxygen EXCLUDE_FROM_ALL)
 
@@ -299,9 +294,8 @@ set_property(
         PROPERTY VS_STARTUP_PROJECT ${VIEWER_BINARY_NAME}
         )
 
-if (LL_TESTS)
+if (BUILD_TESTING)
   # Define after the custom targets are created so
   # individual apps can add themselves as dependencies
   add_subdirectory(integration_tests)
-endif (LL_TESTS)
-
+endif ()

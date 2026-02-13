@@ -4,7 +4,7 @@ include_guard()
 include(FreeType)
 include(GLIB)
 
-add_library( ll::uilibraries INTERFACE IMPORTED )
+add_library(ll::uilibraries INTERFACE IMPORTED)
 
 if (LINUX)
   find_package(PkgConfig REQUIRED)
@@ -25,16 +25,22 @@ if (LINUX)
   endif()
 
 
-  target_link_libraries( ll::uilibraries INTERFACE
+  target_link_libraries(ll::uilibraries INTERFACE
           ll::fontconfig
           ll::freetype
-          ll::SDL3
           ll::glib
           ll::gio
   )
-
-elseif( WINDOWS )
-  target_link_libraries( ll::uilibraries INTERFACE
+elseif(DARWIN)
+  target_link_libraries(ll::uilibraries INTERFACE
+          ${CARBON_LIBRARY}
+          )
+elseif(WINDOWS)
+  target_link_libraries(ll::uilibraries INTERFACE
+          comdlg32 # Common Dialogs for ChooseColor
+          ole32
+          dxgi
+          d3d9
           opengl32
           comdlg32
           dxguid

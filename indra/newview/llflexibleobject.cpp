@@ -696,7 +696,6 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
                                 LLVector4(z_axis, 0.f),
                                 LLVector4(delta_pos, 1.f));
 
-    LL_CHECK_MEMORY
     for (i=0; i<=num_render_sections; ++i)
     {
         new_point = &path->mPath[i];
@@ -715,7 +714,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         new_point->mScale.set(newSection[i].mScale.mV[0], newSection[i].mScale.mV[1], 0,1);
         new_point->mTexT = ((F32)i)/(num_render_sections);
     }
-    LL_CHECK_MEMORY
+
     mLastSegmentRotation = parentSegmentRotation;
 }
 

@@ -109,8 +109,8 @@ BASE_ARGUMENTS=[
     dict(name='arch',
          description="""This argument is appended to the platform string for
         determining which manifest class to run.
-        Example use: %(name)s --arch=i686
-        On Linux this would try to use Linux_i686Manifest.""",
+        Example use: %(name)s --arch=x86_64
+        On Linux this would try to use Linux_x86_64_Manifest.""",
          default=""),
     dict(name='artwork', description='Artwork directory.', default=DEFAULT_SRCTREE),
     dict(name='build', description='Build directory.', default=DEFAULT_SRCTREE),
@@ -129,6 +129,9 @@ BASE_ARGUMENTS=[
          description="""The build configurations sub directory used.""",
          default="Release"),
     dict(name='dest', description='Destination directory.', default=DEFAULT_SRCTREE),
+    dict(name='generator',
+         description="""Name of cmake generator used to create project""",
+         default=None),
     dict(name='grid',
          description="""Which grid the client will try to connect to.""",
          default=None),

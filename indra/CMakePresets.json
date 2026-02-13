@@ -1,15 +1,31 @@
 {
-  "version": 10,
-  "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+  "version": 6,
   "configurePresets": [
     {
       "name": "common",
       "hidden": true,
-      "generator": "Ninja",
-      "binaryDir": "../build-${hostSystemName}-${presetName}"
+      "binaryDir": "${sourceParentDir}/build-${hostSystemName}-${presetName}"
     },
     {
-      "name": "macos-a64",
+      "name": "linux",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-arm64",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": "arm64"
@@ -23,6 +39,15 @@
       }
     },
     {
+      "name": "windows",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
       "name": "nonfree",
       "hidden": true,
       "cacheVariables": {
@@ -30,45 +55,30 @@
       }
     },
     {
-      "name": "debug",
-      "displayName": "Ninja Debug",
-      "inherits": "common",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "relwithdebinfo",
-      "displayName": "Ninja RelWithDebInfo",
-      "inherits": "common",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      }
-    },
-    {
-      "name": "release",
-      "displayName": "Ninja Release",
-      "inherits": "common",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "ninja-multi",
+      "name": "ninja-os",
       "displayName": "Ninja Multi-Config",
+      "generator": "Ninja Multi-Config",
       "inherits": "common",
-      "generator": "Ninja Multi-Config"
+      "cacheVariables": {
+        "CMAKE_DEFAULT_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "ninja",
+      "displayName": "Ninja Multi-Config Proprietary",
+      "inherits": [
+        "ninja-os",
+        "nonfree"
+      ]
     },
     {
       "name": "vs2022-os",
-      "displayName": "Visual Studio 2022 OS",
-      "inherits": "common",
-      "generator": "Visual Studio 17 2022",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
+      "displayName": "Visual Studio 2022",
+      "inherits": [
+        "common",
+        "windows"
+      ],
+      "generator": "Visual Studio 17 2022"
     },
     {
       "name": "vs2022",
@@ -80,14 +90,12 @@
     },
     {
       "name": "vs2026-os",
-      "displayName": "Visual Studio 2026 OS",
-      "inherits": "common",
-      "generator": "Visual Studio 18 2026",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
+      "displayName": "Visual Studio 2026",
+      "inherits": [
+        "common",
+        "windows"
+      ],
+      "generator": "Visual Studio 18 2026"
     },
     {
       "name": "vs2026",
@@ -98,41 +106,57 @@
       ]
     },
     {
-      "name": "release-a64",
-      "displayName": "Ninja Release(arm64)",
+      "name": "ninja-os-arm64",
+      "displayName": "Ninja Multi-Config(arm64)",
       "inherits": [
-        "release",
-        "macos-a64"
-      ],
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Darwin"
-      }
+        "ninja-os",
+        "macos",
+        "macos-arm64"
+      ]
     },
     {
-      "name": "release-x64",
-      "displayName": "Ninja Release(x86_64)",
+      "name": "ninja-os-x64",
+      "displayName": "Ninja Multi-Config(x86_64)",
       "inherits": [
-        "release",
+        "ninja-os",
+        "macos",
         "macos-x64"
-      ],
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Darwin"
-      }
+      ]
+    },
+    {
+      "name": "ninja-arm64",
+      "displayName": "Ninja Multi-Config(arm64)",
+      "inherits": [
+        "ninja",
+        "macos",
+        "macos-arm64"
+      ]
+    },
+    {
+      "name": "ninja-x64",
+      "displayName": "Ninja Multi-Config(x86_64)",
+      "inherits": [
+        "ninja",
+        "macos",
+        "macos-x64"
+      ]
     },
     {
       "name": "xcode-os",
       "displayName": "Xcode OS",
-      "inherits": "common",
-      "generator": "Xcode",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Darwin"
-      }
+      "inherits": [
+        "common",
+        "macos"
+      ],
+      "generator": "Xcode"
+    },
+    {
+      "name": "xcode-os-arm64",
+      "displayName": "Xcode OS(arm64)",
+      "inherits": [
+        "xcode-os",
+        "macos-arm64"
+      ]
     },
     {
       "name": "xcode-os-x64",
@@ -140,14 +164,6 @@
       "inherits": [
         "xcode-os",
         "macos-x64"
-      ]
-    },
-    {
-      "name": "xcode-os-a64",
-      "displayName": "Xcode OS(arm64)",
-      "inherits": [
-        "xcode-os",
-        "macos-a64"
       ]
     },
     {
@@ -159,10 +175,10 @@
       ]
     },
     {
-      "name": "xcode-a64",
+      "name": "xcode-arm64",
       "displayName": "Xcode Proprietary(arm64)",
       "inherits": [
-        "xcode-os-a64",
+        "xcode-os-arm64",
         "nonfree"
       ]
     },
@@ -172,6 +188,293 @@
       "inherits": [
         "xcode-os-x64",
         "nonfree"
+      ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "windows",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-debug",
+      "configurePreset": "ninja",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-optdebug",
+      "configurePreset": "ninja",
+      "configuration": "OptDebug"
+    },
+    {
+      "name": "ninja-relwithdebinfo",
+      "configurePreset": "ninja",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "ninja-release",
+      "configurePreset": "ninja",
+      "configuration": "Release"
+    },
+    {
+      "name": "ninja-os-debug",
+      "configurePreset": "ninja-os",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-os-optdebug",
+      "configurePreset": "ninja-os",
+      "configuration": "OptDebug"
+    },
+    {
+      "name": "ninja-os-relwithdebinfo",
+      "configurePreset": "ninja-os",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "ninja-os-release",
+      "configurePreset": "ninja-os",
+      "configuration": "Release"
+    },
+    {
+      "name": "vs2022-release",
+      "configurePreset": "vs2022",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-release",
+      "configurePreset": "vs2022-os",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2026-release",
+      "configurePreset": "vs2026",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2026-os-release",
+      "configurePreset": "vs2026-os",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "ninja-arm64-release",
+      "configurePreset": "ninja-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "ninja-x64-release",
+      "configurePreset": "ninja-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "ninja-os-arm64-release",
+      "configurePreset": "ninja-os-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "ninja-os-x64-release",
+      "configurePreset": "ninja-os-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-release",
+      "configurePreset": "xcode",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-arm64-release",
+      "configurePreset": "xcode-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-x64-release",
+      "configurePreset": "xcode-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-os-release",
+      "configurePreset": "xcode-os",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-os-arm64-release",
+      "configurePreset": "xcode-os-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-os-x64-release",
+      "configurePreset": "xcode-os-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "ninja-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "ninja"
+        },
+        {
+          "type": "build",
+          "name": "ninja-release"
+        }
+      ]
+    },
+    {
+      "name": "ninja-os-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "ninja-os"
+        },
+        {
+          "type": "build",
+          "name": "ninja-os-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2022-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2022"
+        },
+        {
+          "type": "build",
+          "name": "vs2022-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2022-os",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2022-os"
+        },
+        {
+          "type": "build",
+          "name": "vs2022-os-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2026-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2026"
+        },
+        {
+          "type": "build",
+          "name": "vs2026-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2026-os-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2026-os"
+        },
+        {
+          "type": "build",
+          "name": "vs2026-os-release"
+        }
+      ]
+    },
+    {
+      "name": "xcode-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "xcode"
+        },
+        {
+          "type": "build",
+          "name": "xcode-release"
+        }
+      ]
+    },
+    {
+      "name": "xcode-os-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "xcode-os"
+        },
+        {
+          "type": "build",
+          "name": "xcode-os-release"
+        }
       ]
     }
   ]

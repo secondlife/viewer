@@ -12,7 +12,7 @@ set(media_plugin_base_HEADER_FILES
     media_plugin_base.h
 )
 
-add_library(media_plugin_base
+add_library(media_plugin_base STATIC
     ${media_plugin_base_SOURCE_FILES}
         )
 

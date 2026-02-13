@@ -38,15 +38,13 @@ target_link_libraries(SLPlugin
         ll::pluginlibraries
         )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(SLPlugin REUSE_FROM llprecompiled_exe)
-endif ()
+target_precompile_headers(SLPlugin REUSE_FROM llprecompiled_exe)
 
-if (WINDOWS)
+if(WINDOWS)
   set_target_properties(SLPlugin
     PROPERTIES
-    LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMTD\""
-    )
+    RUNTIME_OUTPUT_DIRECTORY ${VIEWER_STAGING_DIR}
+  )
 elseif (DARWIN)
   set_target_properties(SLPlugin
     PROPERTIES
@@ -54,14 +52,5 @@ elseif (DARWIN)
     INSTALL_RPATH "@executable_path/../../../../Frameworks;@executable_path/../Frameworks;@executable_path/../Frameworks/plugins"
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
     XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
-  )
-
-  # Make sure the app bundle has a Resources directory (it will get populated by viewer-manifest.py later)
-  add_custom_command(
-    TARGET SLPlugin POST_BUILD
-    COMMAND mkdir
-    ARGS
-      -p
-      ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/SLPlugin.app/Contents/Resources
   )
 endif ()

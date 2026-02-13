@@ -17,7 +17,7 @@ export mesa_glthread=true
 ##   in the bin directory will be stripped: you should replace it with
 ##   an unstripped binary before you run.
 #export LL_WRAPPER='gdb --args'
-#export LL_WRAPPER='valgrind --smc-check=all --error-limit=no --log-file=secondlife.vg --leak-check=full --suppressions=/usr/lib/valgrind/glibc-2.5.supp --suppressions=secondlife-i686.supp'
+#export LL_WRAPPER='valgrind --smc-check=all --error-limit=no --log-file=secondlife.vg --leak-check=full --suppressions=/usr/lib/valgrind/glibc-2.5.supp'
 #export ASAN_OPTIONS="halt_on_error=0 detect_leaks=1 symbolize=1"
 #export UBSAN_OPTIONS="print_stacktrace=1 print_summary=1 halt_on_error=0"
 
@@ -56,7 +56,7 @@ done
 # Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
 # command line. But DO quote "${ARGS[@]}": preserve separate args as
 # individually quoted.
-$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${ARGS[@]}"
+$LL_WRAPPER bin/secondlife-bin "${ARGS[@]}"
 LL_RUN_ERR=$?
 
 # Handle any resulting errors

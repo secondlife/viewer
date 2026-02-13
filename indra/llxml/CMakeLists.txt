@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llxml)
+add_library(llxml STATIC)
 
 target_sources(llxml
     PRIVATE
@@ -32,13 +32,10 @@ target_link_libraries(llxml
     ll::expat
     )
 target_include_directories( llxml  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llxml REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llxml REUSE_FROM llprecompiled)
 
 # tests
-if (LL_TESTS)
+if (BUILD_TESTING)
     # unit tests
     SET(llxml_TEST_SOURCE_FILES
       # none yet!
@@ -53,6 +50,7 @@ if (LL_TESTS)
             llmath
             llcommon
             )
+    set(test_project llxml)
 
-    LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}")
-endif (LL_TESTS)
+    LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}" "${test_project}")
+endif ()

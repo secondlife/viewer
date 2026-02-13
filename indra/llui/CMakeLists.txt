@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library (llui)
+add_library (llui STATIC)
 
 target_sources(llui
     PRIVATE
@@ -32,7 +32,7 @@ target_sources(llui
     llfloater.cpp
     llfloaterreg.cpp
     llfloaterreglistener.cpp
-    llflyoutbutton.cpp 
+    llflyoutbutton.cpp
     llfocusmgr.cpp
     llfolderview.cpp
     llfolderviewitem.cpp
@@ -46,7 +46,7 @@ target_sources(llui
     llmenubutton.cpp
     llmenugl.cpp
     llmodaldialog.cpp
-    llmultifloater.cpp 
+    llmultifloater.cpp
     llmultislider.cpp
     llmultisliderctrl.cpp
     llnotifications.cpp
@@ -140,13 +140,13 @@ target_sources(llui
     llemojidictionary.h
     llemojihelper.h
     llf32uictrl.h
-    llfiltereditor.h 
+    llfiltereditor.h
     llflashtimer.h
     llflatlistview.h
     llfloater.h
     llfloaterreg.h
     llfloaterreglistener.h
-    llflyoutbutton.h 
+    llflyoutbutton.h
     llfocusmgr.h
     llfolderview.h
     llfolderviewitem.h
@@ -163,7 +163,7 @@ target_sources(llui
     llmenubutton.h
     llmenugl.h
     llmodaldialog.h
-    llmultifloater.h 
+    llmultifloater.h
     llmultisliderctrl.h
     llmultislider.h
     llnotificationptr.h
@@ -180,7 +180,7 @@ target_sources(llui
     llresmgr.h
     llrngwriter.h
     llsearchablecontrol.h
-    llsearcheditor.h 
+    llsearcheditor.h
     llscrollbar.h
     llscrollcontainer.h
     llscrollingpanellist.h
@@ -264,12 +264,10 @@ target_link_libraries(llui
         ll::hunspell
     )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llui REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llui REUSE_FROM llprecompiled)
 
 # Add tests
-if(LL_TESTS)
+if(BUILD_TESTING)
   set(test_libs llmessage llcorehttp llxml llrender llcommon ll::hunspell)
 
   SET(llui_TEST_SOURCE_FILES
@@ -279,6 +277,7 @@ if(LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
 
   # INTEGRATION TESTS
-  set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell )
-  LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
-endif(LL_TESTS)
+  set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell)
+  set(test_project llmath)
+  LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}" "${test_project}")
+endif()

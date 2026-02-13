@@ -289,7 +289,7 @@ public:
     U32 mLightHash;
 
     GLuint mProgramObject;
-#if LL_RELEASE_WITH_DEBUG_INFO
+#if LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO
     struct attr_name
     {
         GLint loc;

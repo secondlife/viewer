@@ -14,7 +14,3 @@ endif()
 
 # Find Python 3 interpreter
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
-# Set legacy variable name for compatibility with existing code
-set(PYTHON_EXECUTABLE "${Python3_EXECUTABLE}" CACHE FILEPATH "Python interpreter for builds")
-mark_as_advanced(PYTHON_EXECUTABLE)

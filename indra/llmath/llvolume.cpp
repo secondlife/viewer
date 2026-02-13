@@ -2032,7 +2032,6 @@ bool LLVolume::generate()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    LL_CHECK_MEMORY
     llassert_always(mProfilep);
 
     //Added 10.03.05 Dave Parks
@@ -2135,11 +2134,10 @@ bool LLVolume::generate()
             LLFaceID id = iter->mFaceID;
             mFaceMask |= id;
         }
-        LL_CHECK_MEMORY
+
         return true;
     }
 
-    LL_CHECK_MEMORY
     return false;
 }
 
@@ -5103,17 +5101,14 @@ bool LLVolumeFace::create(LLVolume* volume, bool partial_build)
     //tree for this face is no longer valid
     destroyOctree();
 
-    LL_CHECK_MEMORY
     bool ret = false ;
     if (mTypeMask & CAP_MASK)
     {
         ret = createCap(volume, partial_build);
-        LL_CHECK_MEMORY
     }
     else if ((mTypeMask & END_MASK) || (mTypeMask & SIDE_MASK))
     {
         ret = createSide(volume, partial_build);
-        LL_CHECK_MEMORY
     }
     else
     {
@@ -5965,8 +5960,6 @@ void    LerpPlanarVertex(LLVolumeFace::VertexData& v0,
 
 bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
 {
-    LL_CHECK_MEMORY
-
     const LLAlignedArray<LLVector4a,64>& mesh = volume->getMesh();
     const LLAlignedArray<LLVector4a,64>& profile = volume->getProfile().mProfile;
     S32 max_s = volume->getProfile().getTotal();
@@ -6097,7 +6090,6 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
         }
     }
 
-    LL_CHECK_MEMORY
     return true;
 }
 
@@ -6140,8 +6132,6 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
             resizeIndices(num_indices);
         }
     }
-
-    LL_CHECK_MEMORY;
 
     S32 max_s = volume->getProfile().getTotal();
     S32 max_t = volume->getPath().mPath.size();
@@ -6236,8 +6226,6 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
         }
     }
 
-    LL_CHECK_MEMORY
-
     mCenter->setAdd(min, max);
     mCenter->mul(0.5f);
 
@@ -6254,8 +6242,6 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
         *tc++ = cuv;
         num_vertices++;
     }
-
-    LL_CHECK_MEMORY
 
     //if (partial_build)
     //{
@@ -6503,9 +6489,6 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
     }
 
     LLVector4a d0,d1;
-    LL_CHECK_MEMORY
-
-
     d0.setSub(mPositions[mIndices[1]], mPositions[mIndices[0]]);
     d1.setSub(mPositions[mIndices[2]], mPositions[mIndices[0]]);
 
@@ -6760,7 +6743,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    LL_CHECK_MEMORY
     bool flat = mTypeMask & FLAT_MASK;
 
     U8 sculpt_type = volume->getParams().getSculptType();
@@ -6790,8 +6772,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         resizeVertices(num_vertices);
         resizeIndices(num_indices);
     }
-
-    LL_CHECK_MEMORY
 
     LLVector4a* pos = (LLVector4a*) mPositions;
     LLVector2* tc = (LLVector2*) mTexCoords;
@@ -6889,7 +6869,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         }
     }
     }
-    LL_CHECK_MEMORY
 
     mCenter->clear();
 
@@ -6962,8 +6941,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         }
     }
 
-    LL_CHECK_MEMORY
-
     //clear normals
     F32* dst = (F32*) mNormals;
     F32* end = (F32*) (mNormals+mNumVertices);
@@ -6974,8 +6951,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         zero.store4a(dst);
         dst += 4;
     }
-
-    LL_CHECK_MEMORY
 
     //generate normals
     U32 count = mNumIndices/3;
@@ -7080,8 +7055,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         n1.store4a((F32*) n1p);
         n2.store4a((F32*) n2p);
     }
-
-    LL_CHECK_MEMORY
 
     // adjust normals based on wrapping and stitching
 
@@ -7213,8 +7186,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         }
 
     }
-
-    LL_CHECK_MEMORY
 
     return true;
 }

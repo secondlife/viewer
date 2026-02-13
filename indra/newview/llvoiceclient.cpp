@@ -26,9 +26,7 @@
 
 #include "llvoiceclient.h"
 #include "llvoicevivox.h"
-#ifndef DISABLE_WEBRTC
 #include "llvoicewebrtc.h"
-#endif
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llcommandhandler.h"

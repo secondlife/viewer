@@ -20,8 +20,8 @@ vcpkg_extract_source_archive(
 )
 
 file(INSTALL
-    DIRECTORY "${DICTIONARIES_DIR}/dictionaries"
-    DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}/dictionaries"
+    DIRECTORY "${DICTIONARIES_DIR}/dictionaries/"
+    DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}/dictionaries/"
     FILES_MATCHING
     PATTERN "*.xml"
     PATTERN "*.aff"

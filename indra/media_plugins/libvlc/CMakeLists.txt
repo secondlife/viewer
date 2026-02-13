@@ -21,14 +21,19 @@ target_link_libraries(media_plugin_libvlc
 )
 
 if (WINDOWS)
-  set_target_properties(
-    media_plugin_libvlc
+  set_target_properties(media_plugin_libvlc
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT"
+    EXCLUDE_FROM_DEFAULT_BUILD_DEBUG ON
+    RUNTIME_OUTPUT_DIRECTORY "${VIEWER_STAGING_DIR}/llplugin"
     )
-endif (WINDOWS)
+  target_link_options(media_plugin_libvlc PRIVATE /MANIFEST:NO)
 
-if (DARWIN)
+  # Copy plugin dlls to packaging directory
+  add_custom_command(
+    TARGET media_plugin_libvlc POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/plugins/vlc-bin/plugins" "${VIEWER_STAGING_DIR}/llplugin/plugins"
+  )
+elseif (DARWIN)
   # Don't prepend 'lib' to the executable name, and don't embed a full path in the library's install name
   set_target_properties(
     media_plugin_libvlc
@@ -36,7 +41,6 @@ if (DARWIN)
     PREFIX ""
     BUILD_WITH_INSTALL_RPATH 1
     INSTALL_RPATH "@executable_path/../Frameworks"
-    LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
   )
 
-endif (DARWIN)
+endif ()

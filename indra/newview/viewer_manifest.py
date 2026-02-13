@@ -62,7 +62,7 @@ class ViewerManifest(LLManifest):
 
     def construct(self):
         super(ViewerManifest, self).construct()
-        self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
+        self.path(src=os.path.join(self.args['source'], "..", "..", "scripts", "messages", "message_template.msg"), dst="app_settings/message_template.msg")
 
         os.environ["XZ_DEFAULTS"] = "-T0"
 
@@ -458,9 +458,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
         super().construct()
 
         if self.is_packaging_viewer():
-            # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
-            self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
-
             GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
             if GITHUB_OUTPUT:
                 # Emit the whole app image as one of the GitHub step outputs. We
@@ -487,6 +484,9 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                                 'secondlife-bin.*',
                                                 '*_Setup.exe',
                                                 '*.bat',
+                                                '*.pdb',
+                                                '*.lib',
+                                                '*.exp',
                                                 '*.tar.xz')))
 
             with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'viewer-manager')):
@@ -501,36 +501,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                     self.path("*.png")
                     self.path("*.gif")
 
-        # Plugin host application
-        self.path2basename(os.path.join(os.pardir,
-                                        'llplugin', 'slplugin', self.args['configuration']),
-                           "slplugin.exe")
-
-        # Get shared libs from the shared libs staging directory
-        with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                          'sharedlibs', self.args['buildtype'])):
-            # WebRTC libraries
-            for libfile in (
-                    'llwebrtc.dll',
-            ):
-                self.path(libfile)
-
-            # These need to be installed as a SxS assembly, currently a 'private' assembly.
-            # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
-            self.path("msvcp140.dll")
-            self.path_optional("msvcp140_1.dll")
-            self.path_optional("msvcp140_2.dll")
-            self.path_optional("msvcp140_atomic_wait.dll")
-            self.path_optional("msvcp140_codecvt_ids.dll")
-            self.path("vcruntime140.dll")
-            self.path_optional("vcruntime140_1.dll")
-            self.path_optional("vcruntime140_threads.dll")
-
-            # Vivox libraries
-            self.path("SLVoice.exe")
-            self.path("vivoxsdk_x64.dll")
-            self.path("ortp_x64.dll")
-
         # BugSplat
         if self.args.get('bugsplat'):
             with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'tools')):
@@ -539,8 +509,22 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("BugSplat64.dll")
                 self.path("BugSplatRc64.dll")
 
+        # Touch files and directories copied by cmake or vcpkg for nsi generation
         with self.prefix(src_dst=self.get_dst_prefix()):
+            self.path(self.final_exe())
             self.path("*.dll")
+            self.path("SLPlugin.exe")
+            self.path("SLVoice.exe")
+
+        with self.prefix(src_dst=os.path.join(self.get_dst_prefix(), 'llplugin')):
+            self.path("*.dll")
+            self.path("*.exe")
+            self.path("*.pak")
+            self.path("*.bin")
+            self.path("*.json")
+            self.path("*.dat")
+            self.path("locales")
+            self.path("plugins")
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -548,119 +532,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
 
         with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-certificates')):
             self.path("ca-bundle.crt")
-
-        # Media plugins - CEF
-        with self.prefix(dst="llplugin"):
-            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
-                with self.prefix(src=os.path.join('cef', self.args['configuration'])):
-                    self.path("media_plugin_cef.dll")
-                    self.path("libcef.dll")
-
-                # Media plugins - LibVLC
-                with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
-                    self.path("media_plugin_libvlc.dll")
-
-                # Media plugins - Example (useful for debugging - not shipped with release viewer)
-                if self.channel_type() != 'release':
-                    with self.prefix(src=os.path.join('example', self.args['configuration'])):
-                        self.path("media_plugin_example.dll")
-
-            # CEF runtime files - debug
-            # CEF runtime files - not debug (release, relwithdebinfo etc.)
-            vcpkg_dir = os.path.join(self.args['vcpkg_dir'], 'share', 'dullahan-bin')
-            with self.prefix(src=os.path.join(vcpkg_dir, 'bin')):
-                self.path("chrome_elf.dll")
-                self.path("d3dcompiler_47.dll")
-                self.path("dxcompiler.dll")
-                self.path("dxil.dll")
-                self.path("libEGL.dll")
-                self.path("libGLESv2.dll")
-                self.path("v8_context_snapshot.bin")
-                self.path("vk_swiftshader.dll")
-                self.path("vk_swiftshader_icd.json")
-                self.path("vulkan-1.dll")
-                self.path("dullahan_host.exe")
-
-            # MSVC DLLs needed for CEF and have to be in same directory as plugin
-            with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                              'sharedlibs', self.args['buildtype'])):
-                self.path("msvcp140.dll")
-                self.path_optional("msvcp140_1.dll")
-                self.path_optional("msvcp140_2.dll")
-                self.path_optional("msvcp140_atomic_wait.dll")
-                self.path_optional("msvcp140_codecvt_ids.dll")
-                self.path("vcruntime140.dll")
-                self.path_optional("vcruntime140_1.dll")
-                self.path_optional("vcruntime140_threads.dll")
-
-            # CEF files common to all configurations
-            with self.prefix(src=os.path.join(vcpkg_dir, 'resources')):
-                self.path("chrome_100_percent.pak")
-                self.path("chrome_200_percent.pak")
-                self.path("resources.pak")
-                self.path("icudtl.dat")
-
-            with self.prefix(src=os.path.join(vcpkg_dir, 'resources', 'locales'), dst='locales'):
-                self.path("am.pak")
-                self.path("ar.pak")
-                self.path("bg.pak")
-                self.path("bn.pak")
-                self.path("ca.pak")
-                self.path("cs.pak")
-                self.path("da.pak")
-                self.path("de.pak")
-                self.path("el.pak")
-                self.path("en-GB.pak")
-                self.path("en-US.pak")
-                self.path("es-419.pak")
-                self.path("es.pak")
-                self.path("et.pak")
-                self.path("fa.pak")
-                self.path("fi.pak")
-                self.path("fil.pak")
-                self.path("fr.pak")
-                self.path("gu.pak")
-                self.path("he.pak")
-                self.path("hi.pak")
-                self.path("hr.pak")
-                self.path("hu.pak")
-                self.path("id.pak")
-                self.path("it.pak")
-                self.path("ja.pak")
-                self.path("kn.pak")
-                self.path("ko.pak")
-                self.path("lt.pak")
-                self.path("lv.pak")
-                self.path("ml.pak")
-                self.path("mr.pak")
-                self.path("ms.pak")
-                self.path("nb.pak")
-                self.path("nl.pak")
-                self.path("pl.pak")
-                self.path("pt-BR.pak")
-                self.path("pt-PT.pak")
-                self.path("ro.pak")
-                self.path("ru.pak")
-                self.path("sk.pak")
-                self.path("sl.pak")
-                self.path("sr.pak")
-                self.path("sv.pak")
-                self.path("sw.pak")
-                self.path("ta.pak")
-                self.path("te.pak")
-                self.path("th.pak")
-                self.path("tr.pak")
-                self.path("uk.pak")
-                self.path("vi.pak")
-                self.path("zh-CN.pak")
-                self.path("zh-TW.pak")
-
-            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'bin')):
-                self.path("libvlc.dll")
-                self.path("libvlccore.dll")
-
-            with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'plugins', 'vlc-bin')):
-                self.path("plugins/")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"
@@ -774,7 +645,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
         self.package_file = installer_file
 
 
-class Darwin_x86_64_Manifest(ViewerManifest):
+class DarwinManifest(ViewerManifest):
     build_data_json_platform = 'mac'
     address_size = 64
 
@@ -816,11 +687,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             # CEF framework goes inside Contents/Frameworks.
             # Remember where we parked this car.
             with self.prefix(src=relpkgdir, dst="Frameworks"):
-                if self.args.get('bugsplat'):
-                    self.path2basename(relpkgdir, "BugsplatMac.framework")
-                    self.path2basename(relpkgdir, "CrashReporter.framework")
-                    self.path2basename(relpkgdir, "HockeySDK.framework")
-
                 # WebRTC libraries
                 with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'llwebrtc', self.args['configuration'])):
@@ -828,62 +694,18 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
             with self.prefix(dst="MacOS"):
                 executable = self.dst_path_of(self.channel())
-                if self.args.get('bugsplat'):
-                    # According to Apple Technical Note TN2206:
-                    # https://developer.apple.com/library/archive/technotes/tn2206/_index.html#//apple_ref/doc/uid/DTS40007919-CH1-TNTAG207
-                    # "If an app uses @rpath or an absolute path to link to a
-                    # dynamic library outside of the app, the app will be
-                    # rejected by Gatekeeper. ... Neither the codesign nor the
-                    # spctl tool will show the error."
-                    # (Thanks, Apple. Maybe fix spctl to warn?)
-                    # The BugsplatMac framework embeds @rpath, which is
-                    # causing scary Gatekeeper popups at viewer start. Work
-                    # around this by changing the reference baked into our
-                    # viewer. The install_name_tool -change option needs the
-                    # previous value. Instead of guessing -- which might
-                    # silently be defeated by a BugSplat SDK update that
-                    # changes their baked-in @rpath -- ask for the path
-                    # stamped into the framework.
-                    # Let exception, if any, propagate -- if this doesn't
-                    # work, we need the build to noisily fail!
-                    oldpath = subprocess.check_output(
-                        ['objdump', '--macho', '--dylib-id', '--non-verbose',
-                         os.path.join(relpkgdir, "HockeySDK.framework", "HockeySDK")],
-                        text=True
-                        ).splitlines()[-1]  # take the last line of output
-                    self.run_command(
-                        ['install_name_tool', '-change', oldpath,
-                         '@executable_path/../Frameworks/HockeySDK.framework/HockeySDK',
-                         executable])
-                    oldpath = subprocess.check_output(
-                        ['objdump', '--macho', '--dylib-id', '--non-verbose',
-                         os.path.join(relpkgdir, "CrashReporter.framework", "CrashReporter")],
-                        text=True
-                        ).splitlines()[-1]  # take the last line of output
-                    self.run_command(
-                        ['install_name_tool', '-change', oldpath,
-                         '@executable_path/../Frameworks/CrashReporter.framework/CrashReporter',
-                         executable])
-                    oldpath = subprocess.check_output(
-                        ['objdump', '--macho', '--dylib-id', '--non-verbose',
-                         os.path.join(relpkgdir, "BugsplatMac.framework", "BugsplatMac")],
-                        text=True
-                        ).splitlines()[-1]  # take the last line of output
-                    self.run_command(
-                        ['install_name_tool', '-change', oldpath,
-                         '@executable_path/../Frameworks/BugsplatMac.framework/BugsplatMac',
-                         executable])
-
-                # NOTE: the -S argument to strip causes it to keep
-                # enough info for annotated backtraces (i.e. function
-                # names in the crash log). 'strip' with no arguments
-                # yields a slightly smaller binary but makes crash
-                # logs mostly useless. This may be desirable for the
-                # final release. Or not.
-                if ("package" in self.args['actions'] or
-                    "unpacked" in self.args['actions']):
-                    self.run_command(
-                        ['strip', '-S', executable])
+                # Xcode generator handles stripping as part of deploy processing
+                if self.args['buildtype'].lower() == 'release':
+                    # NOTE: the -S argument to strip causes it to keep
+                    # enough info for annotated backtraces (i.e. function
+                    # names in the crash log). 'strip' with no arguments
+                    # yields a slightly smaller binary but makes crash
+                    # logs mostly useless. This may be desirable for the
+                    # final release. Or not.
+                    if ("package" in self.args['actions'] or
+                        "unpacked" in self.args['actions']):
+                        self.run_command(
+                            ['strip', '-S', executable])
 
             with self.prefix(dst="Resources"):
                 # defer cross-platform file copies until we're in the
@@ -1018,6 +840,8 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                         self.path( "*.dylib" )
                         self.path( "plugins.dat" )
 
+        # This will be overwritten in package_finish during the actual package step
+        self.package_file = "copied_deps"
 
     def package_finish(self):
         imagename = self.installer_base_name_mac()
@@ -1050,6 +874,11 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                             arcname=self.app_name() + ".app")
             self.set_github_output_path('viewer_app', tarpath)
 
+class Darwin_x86_64_Manifest(DarwinManifest):
+    pass
+
+class Darwin_arm64_Manifest(DarwinManifest):
+    pass
 
 class LinuxManifest(ViewerManifest):
     build_data_json_platform = 'lnx'
@@ -1067,8 +896,8 @@ class LinuxManifest(ViewerManifest):
             self.path("install.sh")
 
         with self.prefix(dst="bin"):
-            self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin")
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'llplugin', 'slplugin', self.args['configuration'])):
+                self.path("SLPlugin")
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             #with self.prefix(src="../viewer_components/manager", dst=""):
             #    self.path("*.py")
@@ -1086,26 +915,26 @@ class LinuxManifest(ViewerManifest):
             with self.prefix(dst="res-sdl") :
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
-        with self.prefix(src=os.path.join(self.args['build'], os.pardir, "llwebrtc" ), dst="lib"):
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir, "llwebrtc", self.args['configuration']), dst="lib"):
             self.path("libllwebrtc.so")
 
         # plugins
         with self.prefix(dst="bin/llplugin"):
             with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
-                with self.prefix(src='cef'):
+                with self.prefix(src=os.path.join('cef', self.args['configuration'])):
                     self.path("libmedia_plugin_cef.so")
 
                 # Media plugins - LibVLC
-                with self.prefix(src='libvlc'):
+                with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
                     self.path("libmedia_plugin_libvlc.so")
 
                 # GStreamer 1.0 Media Plugin
-                with self.prefix(src='gstreamer10'):
+                with self.prefix(src=os.path.join('gstreamer10', self.args['configuration'])):
                     self.path("libmedia_plugin_gstreamer10.so")
 
                 # Media plugins - Example (useful for debugging - not shipped with release viewer)
                 if self.channel_type() != 'release':
-                    with self.prefix(src='example'):
+                    with self.prefix(src=os.path.join('example', self.args['configuration'])):
                         self.path("libmedia_plugin_example.so")
 
 
@@ -1143,6 +972,9 @@ class LinuxManifest(ViewerManifest):
         with self.prefix(src=os.path.join(self.args['vcpkg_dir'], 'share', 'secondlife-certificates'), dst="bin"):
             self.path("ca-bundle.crt")
 
+        if not self.is_packaging_viewer():
+            self.package_file = "copied_deps"
+
     def package_finish(self):
         installer_name = self.installer_base_name()
 
@@ -1173,22 +1005,22 @@ class LinuxManifest(ViewerManifest):
         if RUNNER_TEMP:
             tarName = os.path.join(RUNNER_TEMP, self.package_file)
 
-        self.run_command(["mv", realname, versionedName])
-
-        try:
-            # only create tarball if it's a release build.
-            if self.args['buildtype'].lower() == 'release':
+        # only create tarball if it's a release build.
+        if self.args['buildtype'].lower() == 'release':
+            try:
+                self.run_command(["mv", realname, versionedName])
                 # --numeric-owner hides the username of the builder for
                 # security etc.
                 self.run_command(['tar', '-C', self.get_build_prefix(),
-                                  '--numeric-owner', '-cJf',
-                                 tarName, installer_name])
+                                '--numeric-owner', '-cJf',
+                                tarName, installer_name])
                 self.set_github_output_path('viewer_app', tarName)
-            else:
-                print("Skipping %s.tar.xz for non-Release build (%s)" % \
-                      (installer_name, self.args['buildtype']))
-        finally:
-            self.run_command(["mv", versionedName, realname])
+            finally:
+                self.run_command(["mv", versionedName, realname])
+        else:
+            print("Skipping %s.tar.xz for non-Release build (%s)" % \
+                    (installer_name, self.args['buildtype']))
+
 
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
@@ -1229,7 +1061,6 @@ class Linux_x86_64_Manifest(LinuxManifest):
             self.path("libvivoxplatform.so")
             self.path("libvivoxsdk.so")
 
-        self.strip_binaries()
 ################################################################
 
 if __name__ == "__main__":

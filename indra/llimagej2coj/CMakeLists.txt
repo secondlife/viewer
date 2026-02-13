@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llimagej2coj)
+add_library(llimagej2coj STATIC)
 
 target_sources(llimagej2coj
     PRIVATE
@@ -21,6 +21,4 @@ target_link_libraries(llimagej2coj
         ll::openjpeg
     )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llimagej2coj REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llimagej2coj REUSE_FROM llprecompiled)

@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llfilesystem)
+add_library(llfilesystem STATIC)
 
 target_sources(llfilesystem
     PRIVATE
@@ -78,13 +78,10 @@ target_link_libraries(llfilesystem
       llcommon
     )
 target_include_directories( llfilesystem  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(llfilesystem REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llfilesystem REUSE_FROM llprecompiled)
 
 # Add tests
-if (LL_TESTS)
+if (BUILD_TESTING)
     # UNIT TESTS
     SET(llfilesystem_TEST_SOURCE_FILES
       lldiriterator.cpp
@@ -94,7 +91,8 @@ if (LL_TESTS)
 
     # INTEGRATION TESTS
     set(test_libs llmath llcommon llfilesystem )
+    set(test_project llfilesystem)
 
     # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
-    LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
-endif (LL_TESTS)
+    LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}" "${test_project}")
+endif ()

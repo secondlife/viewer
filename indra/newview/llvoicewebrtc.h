@@ -26,6 +26,8 @@
 #ifndef LL_VOICE_WEBRTC_H
 #define LL_VOICE_WEBRTC_H
 
+#ifndef DISABLE_WEBRTC
+
 class LLWebRTCProtocolParser;
 
 #include "lliopipe.h"
@@ -751,6 +753,8 @@ class LLVoiceWebRTCAdHocConnection : public LLVoiceWebRTCConnection
 };
 
 #define VOICE_ELAPSED LLVoiceTimer(__FUNCTION__);
+
+#endif // DISABLE_WEBRTC
 
 #endif //LL_WebRTC_VOICE_CLIENT_H
 

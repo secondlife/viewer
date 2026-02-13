@@ -1,3 +1,8 @@
+# -*- cmake -*-
+#
+# Automatic clone and bootstrap of a vcpkg_root environment when VCPKG_ROOT or VCPKG_INSTALLATION_ROOT are not found
+# Automatic vcpkg target triplet selection based on generator and platform
+
 include_guard(GLOBAL)
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
@@ -36,6 +41,9 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 if(NOT DEFINED VCPKG_TARGET_TRIPLET)
+    # Check if generator is multiconfig
+    get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
     if(WIN32)
         if(LL_GENERATOR_IS_MULTI_CONFIG)
             set(VCPKG_TARGET_TRIPLET "x64-windows-secondlife")

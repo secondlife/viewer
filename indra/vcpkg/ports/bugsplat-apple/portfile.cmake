@@ -1,6 +1,7 @@
 set(VCPKG_POLICY_EMPTY_INCLUDE_FOLDER enabled)
 set(VCPKG_FIXUP_MACHO_RPATH OFF)
 
+# fetch 3p-bugsplat for upload scripts
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO secondlife/3p-bugsplat
@@ -9,20 +10,28 @@ vcpkg_from_github(
     HEAD_REF main
 )
 
+vcpkg_download_distfile(
+    BUGSPLAT_ARCHIVE
+    URLS https://github.com/BugSplat-Git/bugsplat-apple/releases/download/v2.0.0/BugSplat.xcframework.zip
+    FILENAME dullahan-windows64.tar.zst
+    SHA512 7934435679d021404b3929749008ba6d42725136b1eb156f7e45a915d9c3a728759edf60875e3baa02e54c2a7c90f7a84646ec03b131b500b2213dfed60e08cb
+)
+
+vcpkg_extract_source_archive(
+    BUGSPLAT_DIR
+    ARCHIVE ${BUGSPLAT_ARCHIVE}
+    NO_REMOVE_ONE_LEVEL
+)
+
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/lib")
 vcpkg_execute_required_process(
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${SOURCE_PATH}/BugSpaltxcframework/BugSplat.xcframework/macos-arm64_x86_64/BugsplatMac.framework" "${CURRENT_PACKAGES_DIR}/lib/BugsplatMac.framework"
+    COMMAND cp -a "${BUGSPLAT_DIR}/BugSplat.xcframework/macos-arm64_x86_64/BugSplatMac.framework" "${CURRENT_PACKAGES_DIR}/lib/BugSplatMac.framework"
     WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
     LOGNAME build-${TARGET_TRIPLET}-dbg
 )
 
 vcpkg_execute_required_process(
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${SOURCE_PATH}/BugSpaltxcframework/CrashReporter.xcframework/macos-arm64_x86_64/CrashReporter.framework" "${CURRENT_PACKAGES_DIR}/lib/CrashReporter.framework"
-    WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
-    LOGNAME build-${TARGET_TRIPLET}-dbg
-)
-
-vcpkg_execute_required_process(
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${SOURCE_PATH}/BugSpaltxcframework/HockeySDK.xcframework/macos-arm64_x86_64/HockeySDK.framework" "${CURRENT_PACKAGES_DIR}/lib/HockeySDK.framework"
+    COMMAND cp -a "${BUGSPLAT_DIR}/BugSplat.xcframework/macos-arm64_x86_64/dSYMs/BugSplatMac.framework.dSYM" "${CURRENT_PACKAGES_DIR}/lib/BugSplatMac.framework.dSYM"
     WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
     LOGNAME build-${TARGET_TRIPLET}-dbg
 )

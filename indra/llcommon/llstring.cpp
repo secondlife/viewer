@@ -1759,7 +1759,7 @@ void LLStringUtilBase<T>::testHarness()
 
     std::string s4 = s2;
     llassert( !s4.empty() );
-    s4.empty();
+    s4.clear();
     llassert( s4.empty() );
 
     std::string s5("");

@@ -33,6 +33,7 @@ set(cmake_SOURCE_FILES
         Meshoptimizer.cmake
         NDOF.cmake
         NVAPI.cmake
+        Mikktspace.cmake
         OpenAL.cmake
         OpenGL.cmake
         OpenJPEG.cmake
@@ -61,7 +62,7 @@ set(cmake_SOURCE_FILES
 source_group("Shared Rules" FILES ${cmake_SOURCE_FILES})
 
 set(master_SOURCE_FILES
-        ../CMakeLists.txt
+        ${CMAKE_SOURCE_DIR}/CMakeLists.txt
         )
 
 source_group("Master Rules" FILES ${master_SOURCE_FILES})

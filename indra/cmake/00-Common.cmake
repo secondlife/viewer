@@ -3,36 +3,29 @@
 # Compilation options shared by all Second Life components.
 
 #*****************************************************************************
-#   It's important to realize that CMake implicitly concatenates
-#   CMAKE_CXX_FLAGS with (e.g.) CMAKE_CXX_FLAGS_RELEASE for Release builds. So
-#   set switches in CMAKE_CXX_FLAGS that should affect all builds, but in
-#   CMAKE_CXX_FLAGS_RELEASE or CMAKE_CXX_FLAGS_RELWITHDEBINFO for switches
-#   that should affect only that build variant.
-#
-#   Also realize that CMAKE_CXX_FLAGS may already be partially populated on
-#   entry to this file.
-#
-#   Additionally CMAKE_C_FLAGS is prepended to CMAKE_CXX_FLAGS_RELEASE and
-#   CMAKE_CXX_FLAGS_RELWITHDEBINFO which risks having flags overriden by cmake
-#   inserting additional options that are part of the build config type.
+# We setup four configurations:
+# Debug - Full Debug build against Debug libraries
+# OptDebug - Debug build against Release libraries
+# RelWithDebInfo - Release build with Asserts
+# Release - Release build
 #*****************************************************************************
 include_guard()
 
 include(Variables)
 include(Linking)
 
-if (NOT DEFINED CMAKE_CXX_STANDARD)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
 endif()
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF) # This slows down build massively
+
+# Optimize static library build dependency targets
 set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
 
 # Enable colored compiler diagnostic output
 set(CMAKE_COLOR_DIAGNOSTICS ON)
-
-# Speeds up cmake generation significantly in some cases
-set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY ON)
 
 # Position Independent Code/ASLR
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -51,24 +44,48 @@ if(USE_LTO)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 endif()
 
+# We want warnings as errors by default
+if(NOT VS__DISABLE_FATAL_WARNINGS AND NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLANG_DISABLE_FATAL_WARNINGS)
+  set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+endif()
+
+# Set up our OptDebug target
+set(CMAKE_C_FLAGS_OPTDEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+set(CMAKE_CXX_FLAGS_OPTDEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+set(CMAKE_EXE_LINKER_FLAGS_OPTDEBUG ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
+set(CMAKE_MODULE_LINKER_FLAGS_OPTDEBUG ${CMAKE_MODULE_LINKER_FLAGS_DEBUG})
+set(CMAKE_SHARED_LINKER_FLAGS_OPTDEBUG ${CMAKE_SHARED_LINKER_FLAGS_DEBUG})
+set(CMAKE_STATIC_LINKER_FLAGS_OPTDEBUG ${CMAKE_STATIC_LINKER_FLAGS_DEBUG})
+
+# Need to map libraries to release variants on windows and macos
+if (WINDOWS OR DARWIN)
+  set(CMAKE_MAP_IMPORTED_CONFIG_OPTDEBUG Release)
+endif()
+
 # Debug Global Defines
 add_compile_definitions(
-      $<$<CONFIG:Debug>:LL_DEBUG=1>
-      $<$<CONFIG:Debug>:_DEBUG>
+  $<$<CONFIG:Debug>:LL_DEBUG=1>
+  $<$<CONFIG:Debug>:_DEBUG>
+)
+
+# OptDebug Global Defines
+add_compile_definitions(
+  $<$<CONFIG:OptDebug>:LL_DEBUG=1>
+  $<$<CONFIG:OptDebug>:NDEBUG>
 )
 
 # RelWithDebInfo Global Defines
 add_compile_definitions(
-      $<$<CONFIG:RelWithDebInfo>:LL_RELEASE=1>
-      $<$<CONFIG:RelWithDebInfo>:LL_RELEASE_WITH_DEBUG_INFO=1>
-      $<$<CONFIG:RelWithDebInfo>:NDEBUG=1>
+  $<$<CONFIG:RelWithDebInfo>:LL_RELEASE=1>
+  $<$<CONFIG:RelWithDebInfo>:LL_RELEASE_WITH_DEBUG_INFO=1>
+  $<$<CONFIG:RelWithDebInfo>:NDEBUG=1>
 )
 
 # Release Global Defines
 add_compile_definitions(
-      $<$<CONFIG:Release>:LL_RELEASE=1>
-      $<$<CONFIG:Release>:LL_RELEASE_FOR_DOWNLOAD=1>
-      $<$<CONFIG:Release>:NDEBUG=1>
+  $<$<CONFIG:Release>:LL_RELEASE=1>
+  $<$<CONFIG:Release>:LL_RELEASE_FOR_DOWNLOAD=1>
+  $<$<CONFIG:Release>:NDEBUG=1>
 )
 
 # Portable compilation flags.
@@ -96,21 +113,23 @@ if(NON_RELEASE_CRASH_REPORTING)
 endif()
 
 # Platform-specific compilation flags.
-if (WINDOWS)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "ProgramDatabase")
+if(WINDOWS)
+  set(CMAKE_MSVC_RUNTIME_CHECKS "$<$<CONFIG:Debug>:StackFrameErrorCheck;UninitializedVariable>")
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT $<IF:$<CONFIG:Debug,OptDebug>,EditAndContinue,ProgramDatabase>)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
   # Don't build DLLs.
   set(BUILD_SHARED_LIBS OFF)
 
   add_link_options(
-    /OPT:REF
-    /OPT:ICF
+    $<$<CONFIG:Release>:/OPT:REF>
+    $<$<CONFIG:Release>:/OPT:ICF>
     /DEBUG:FULL
     /LARGEADDRESSAWARE
     /NODEFAULTLIB:LIBCMT
     /NODEFAULTLIB:LIBCMTD
-    $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:/NODEFAULTLIB:MSVCRTD>
+    $<$<CONFIG:OptDebug,RelWithDebInfo,Release>:/NODEFAULTLIB:MSVCRTD>
+    $<$<CONFIG:Debug>:/NODEFAULTLIB:MSVCRT>
   )
 
   add_compile_definitions(
@@ -125,21 +144,26 @@ if (WINDOWS)
   add_compile_definitions(
     WIN32_LEAN_AND_MEAN
     NOMINMAX
-    _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
-    _CRT_NONSTDC_NO_DEPRECATE       # Allow use of sprintf etc
+    _CRT_SECURE_NO_WARNINGS # Allow use of sprintf etc
+    _CRT_NONSTDC_NO_DEPRECATE # Allow use of sprintf etc
     _CRT_OBSOLETE_NO_WARNINGS
     _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
   )
 
+  # Webrtc libraries incompatible with win32 debug builds
+  add_compile_definitions(
+    $<$<CONFIG:Debug>:DISABLE_WEBRTC=1>
+  )
+
   # Options shared between all configurations
   add_compile_options(
+    /EHsc
     /Gy
     /GS
     /GR
     /W3
     /nologo
-    /Oy-
-    /fp:fast
+    $<$<CONFIG:RelWithDebInfo,Release>:/fp:fast>
     /MP
     /permissive-
     /Zc:preprocessor
@@ -148,18 +172,21 @@ if (WINDOWS)
     /Zc:wchar_t
   )
 
-  if (NOT VS_DISABLE_FATAL_WARNINGS)
-    add_compile_options(/WX)
-  endif (NOT VS_DISABLE_FATAL_WARNINGS)
-
   # Debug MSVC Options
   add_compile_options(
+    $<$<CONFIG:Debug>:/Od>
+    $<$<CONFIG:Debug>:/Ob0>
+  )
+
+  # OptDebug MSVC Options
+  add_compile_options(
+    $<$<CONFIG:OptDebug>:/Od>
+    $<$<CONFIG:OptDebug>:/Ob0>
   )
 
   # RelWithDebInfo MSVC Options
   add_compile_options(
-    $<$<CONFIG:RelWithDebInfo>:/Od>
-    $<$<CONFIG:RelWithDebInfo>:/Ob0>
+    $<$<CONFIG:Release>:/O2>
   )
 
   # Release MSVC Options
@@ -168,18 +195,19 @@ if (WINDOWS)
   )
 
   # We want aggressive inlining on MSVC Release to better match clang/gcc at O3
-  string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "/Ob1" "/Ob3" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+  string(REPLACE "/Ob1" "/Ob3" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
   string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
   string(REPLACE "/Ob2" "/Ob3" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-endif (WINDOWS)
+endif(WINDOWS)
 
-if (LINUX)
+if(LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
 
-   # LL_IGNORE_SIGCHLD
-   # don't catch SIGCHLD in our base application class for the viewer - some of
-   # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
-   # viewer doesn't need to catch SIGCHLD anyway.
+  # LL_IGNORE_SIGCHLD
+  # don't catch SIGCHLD in our base application class for the viewer - some of
+  # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
+  # viewer doesn't need to catch SIGCHLD anyway.
 
   add_compile_definitions(
     LL_LINUX=1
@@ -222,7 +250,7 @@ if (LINUX)
 
   # Options shared between all configs
   add_compile_options(
-    $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-fstack-protector>
+    $<$<CONFIG:RelWithDebInfo,Release>:-fstack-protector>
     -fexceptions
     -fno-math-errno
     -fno-strict-aliasing
@@ -236,9 +264,14 @@ if (LINUX)
     $<$<CONFIG:Debug>:-O0>
   )
 
+  # OptDebug Options
+  add_compile_options(
+    $<$<CONFIG:OptDebug>:-Og>
+  )
+
   # RelWithDebInfo Options
   add_compile_options(
-    $<$<CONFIG:RelWithDebInfo>:-Og>
+    $<$<CONFIG:RelWithDebInfo>:-O3>
   )
 
   # Release Options
@@ -253,18 +286,42 @@ if (LINUX)
     "LINKER:--as-needed"
     "LINKER:--no-undefined"
   )
-endif (LINUX)
 
-if (DARWIN)
-  # Set our OSX deployment target
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum OS X version to target for deployment (at runtime); newer APIs weak linked. Set to empty string for default value.")
-  # Also set the environment variable for tool calls
-  set(ENV{MACOSX_DEPLOYMENT_TARGET} ${CMAKE_OSX_DEPLOYMENT_TARGET})
+  # Only turn on headless if we can find osmesa libraries.
+  find_package(PkgConfig)
+  pkg_check_modules(OSMESA IMPORTED_TARGET GLOBAL osmesa)
+  if(OSMESA_FOUND)
+    set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
+  endif(OSMESA_FOUND)
+endif(LINUX)
 
+if(DARWIN)
   # Use rpath loading on macos
   set(CMAKE_MACOSX_RPATH TRUE)
 
-  # Use dwarf symbols for most libraries for compilation speed
+  # Only generate top-level xcodeproj
+  set(CMAKE_XCODE_GENERATE_TOP_LEVEL_PROJECT_ONLY ON)
+
+  # Set up xcode scheme
+  set(CMAKE_XCODE_GENERATE_SCHEME ON)
+  set(CMAKE_XCODE_SCHEME_LAUNCH_CONFIGURATION "RelWithDebInfo")
+  if(ENABLE_ASAN OR ENABLE_UBSAN OR ENABLE_THREADSAN)
+    if(ENABLE_ASAN)
+      set(CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER ON)
+    endif()
+
+    if(ENABLE_UBSAN)
+      set(CMAKE_XCODE_UNDEFINED_BEHAVIOUR_SANITIZER ON)
+    endif()
+
+    if(ENABLE_THREADSAN)
+      set(CMAKE_XCODE_SCHEME_THREAD_SANITIZER ON)
+    endif()
+  endif()
+
+  # Use dwarf symbols for most libraries and executables for compilation speed
+  # per-target overrides applied where needed
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES)
   set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
@@ -291,12 +348,7 @@ if (DARWIN)
   # Ensure debug symbols are always generated
   add_compile_options(-g2 -gdwarf -fno-fast-math -fno-strict-aliasing)
 
-  if(DEFINED CMAKE_OSX_ARCHITECTURES)
-    set(OS_PLATFORM "${CMAKE_OSX_ARCHITECTURES}")
-  else()
-    cmake_host_system_information(RESULT OS_PLATFORM QUERY OS_PLATFORM)
-  endif()
-  if(OS_PLATFORM STREQUAL x86_64)
+  if(ARCH STREQUAL x86_64)
     add_compile_options(-msse4.2)
   endif()
 
@@ -308,9 +360,14 @@ if (DARWIN)
     $<$<CONFIG:Debug>:-O0>
   )
 
+  # OptDebug Options
+  add_compile_options(
+    $<$<CONFIG:OptDebug>:-Og>
+  )
+
   # RelWithDebInfo Options
   add_compile_options(
-    $<$<CONFIG:RelWithDebInfo>:-Og>
+    $<$<CONFIG:RelWithDebInfo>:-O3>
   )
 
   # Release Options
@@ -318,35 +375,29 @@ if (DARWIN)
     $<$<CONFIG:Release>:-O3>
   )
 
+  add_link_options($<$<CONFIG:RelWithDebInfo,Release>:LINKER:-dead_strip> LINKER:-dead_strip_dylibs)
+
   add_link_options("LINKER:-headerpad_max_install_names" "LINKER:-search_paths_first")
 endif(DARWIN)
 
-if (LINUX OR DARWIN)
+if(LINUX OR DARWIN)
   add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable)
 
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-Wno-unused-private-field)
+  if(COMPILER_IS_CLANG)
+    add_compile_options(-Wno-unused-private-field -Wno-unused-local-typedef -Wno-reorder-ctor)
   endif()
 
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    add_compile_options(-Wno-unused-local-typedef)
-  endif()
-
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(COMPILER_IS_GCC)
     add_compile_options(-Wno-stringop-truncation -Wno-stringop-overflow -Wno-parentheses -Wno-maybe-uninitialized -Wno-unused-local-typedefs)
 
     # This warning is extremely false positive sensitive, including on libstdc++'s own headers.
     add_compile_options(-Wno-array-bounds)
-  endif ()
-
-  if (NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLANG_DISABLE_FATAL_WARNINGS)
-    add_compile_options(-Werror)
-  endif ()
+  endif()
 
   add_compile_options(-m${ADDRESS_SIZE})
-endif (LINUX OR DARWIN)
+endif()
 
 # Enable support for Drag and Drop
-if (OS_DRAG_DROP)
-    add_compile_definitions(LL_OS_DRAGDROP_ENABLED=1)
-endif (OS_DRAG_DROP)
+if(OS_DRAG_DROP)
+  add_compile_definitions(LL_OS_DRAGDROP_ENABLED=1)
+endif(OS_DRAG_DROP)

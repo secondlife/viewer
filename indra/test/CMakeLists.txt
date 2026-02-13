@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(lltut_runner_lib)
+add_library(lltut_runner_lib STATIC)
 
 target_sources(lltut_runner_lib
     PRIVATE

@@ -60,7 +60,7 @@ set(llrender_HEADER_FILES
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 if (BUILD_HEADLESS)
-  add_library (llrenderheadless
+  add_library (llrenderheadless STATIC
     ${llrender_SOURCE_FILES}
     )
   target_include_directories(llrenderheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -78,12 +78,10 @@ if (BUILD_HEADLESS)
           OpenGL::GL
           )
 
-  if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(llrenderheadless REUSE_FROM llprecompiled)
-  endif()
+  target_precompile_headers(llrenderheadless REUSE_FROM llprecompiled)
 endif (BUILD_HEADLESS)
 
-add_library (llrender ${llrender_SOURCE_FILES})
+add_library (llrender STATIC ${llrender_SOURCE_FILES})
 target_include_directories(llrender INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Libraries on which this library depends, needed for Linux builds
@@ -99,12 +97,10 @@ target_link_libraries(llrender
         ll::glext
         )
 
+target_precompile_headers(llrender REUSE_FROM llprecompiled)
+
 if (NOT USE_SDL_WINDOW)
   target_link_libraries(llrender
           OpenGL::GL
           )
 endif()
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llrender REUSE_FROM llprecompiled)
-endif ()

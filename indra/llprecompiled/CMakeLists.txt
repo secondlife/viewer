@@ -4,10 +4,10 @@ set(llprecompiled_SOURCE_FILES
     cmake_dummy.cpp
     )
 
-add_library (llprecompiled ${llprecompiled_SOURCE_FILES})
+add_library (llprecompiled STATIC ${llprecompiled_SOURCE_FILES})
 
 target_include_directories(llprecompiled PRIVATE
-    ${CMAKE_SOURCE_DIR}/llmath
+    ${INDRA_SOURCE_DIR}/llmath
     )
 
 target_link_libraries(llprecompiled
@@ -42,7 +42,7 @@ target_precompile_headers(llprecompiled PRIVATE
 add_executable(llprecompiled_exe ${llprecompiled_SOURCE_FILES})
 
 target_include_directories(llprecompiled_exe PRIVATE
-    ${CMAKE_SOURCE_DIR}/llmath
+    ${INDRA_SOURCE_DIR}/llmath
     )
 
 target_link_libraries(llprecompiled_exe

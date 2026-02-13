@@ -341,7 +341,7 @@ namespace {
     };
 #endif
 
-#if LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY
+#if defined(LL_PROFILER_CONFIGURATION) && LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY
     class RecordToTracy : public LLError::Recorder
     {
     public:
@@ -796,7 +796,7 @@ namespace
         LLError::addRecorder(recordToWinDebug);
 #endif
 
-#if LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY
+#if defined(LL_PROFILER_CONFIGURATION) && LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY
         LLError::RecorderPtr recordToTracy(new RecordToTracy());
         LLError::addRecorder(recordToTracy);
 #endif

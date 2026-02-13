@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llphysicsextensionsos)
+add_library(llphysicsextensionsos STATIC)
 
 target_sources(llphysicsextensionsos
         PRIVATE
@@ -32,13 +32,11 @@ target_link_libraries(llphysicsextensionsos
         llcommon
         ll::vhacd)
 
+target_precompile_headers(llphysicsextensionsos REUSE_FROM llprecompiled)
+
 if(WINDOWS)
   target_compile_options(llphysicsextensionsos PRIVATE /bigobj)
 endif()
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llphysicsextensionsos REUSE_FROM llprecompiled)
-endif ()
 
 # Add tests
 

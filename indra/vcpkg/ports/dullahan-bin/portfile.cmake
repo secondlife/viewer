@@ -39,6 +39,7 @@ if(VCPKG_TARGET_IS_WINDOWS)
         FILES_MATCHING
         PATTERN "*.*"
         PATTERN "libcef.dll" EXCLUDE
+        PATTERN "libcef.lib" EXCLUDE
     )
 
     file(INSTALL
@@ -61,9 +62,44 @@ elseif(VCPKG_TARGET_IS_OSX)
         NO_REMOVE_ONE_LEVEL
     )
 
+    # Create versioned framework
+    set(CEF_FRAMEWORK_DIR "${CURRENT_PACKAGES_DIR}/lib/Chromium Embedded Framework.framework")
+
     vcpkg_execute_required_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DULLAHAN_DIR}/lib/release/Chromium Embedded Framework.framework/" "${CURRENT_PACKAGES_DIR}/lib/Chromium Embedded Framework.framework"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${DULLAHAN_DIR}/lib/release/Chromium Embedded Framework.framework"
+                "${CEF_FRAMEWORK_DIR}/Versions/A"
         WORKING_DIRECTORY ${CURRENT_BUILDTREES_DIR}
+        LOGNAME build-${TARGET_TRIPLET}-dbg
+    )
+
+    vcpkg_execute_required_process(
+        COMMAND ln -sf
+                "Versions/A/Chromium Embedded Framework"
+                "Chromium Embedded Framework"
+        WORKING_DIRECTORY ${CEF_FRAMEWORK_DIR}
+        LOGNAME build-${TARGET_TRIPLET}-dbg
+    )
+
+    vcpkg_execute_required_process(
+        COMMAND ln -sf
+                "Versions/A/Libraries"
+                "Libraries"
+        WORKING_DIRECTORY ${CEF_FRAMEWORK_DIR}
+        LOGNAME build-${TARGET_TRIPLET}-dbg
+    )
+
+    vcpkg_execute_required_process(
+        COMMAND ln -sf
+                "Versions/A/Resources"
+                "Resources"
+        WORKING_DIRECTORY ${CEF_FRAMEWORK_DIR}
+        LOGNAME build-${TARGET_TRIPLET}-dbg
+    )
+
+    vcpkg_execute_required_process(
+        COMMAND ln -sf "A" "Current"
+        WORKING_DIRECTORY "${CEF_FRAMEWORK_DIR}/Versions"
         LOGNAME build-${TARGET_TRIPLET}-dbg
     )
 

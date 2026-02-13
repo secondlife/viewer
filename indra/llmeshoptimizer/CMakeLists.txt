@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llmeshoptimizer)
+add_library(llmeshoptimizer STATIC)
 
 target_sources(llmeshoptimizer
     PRIVATE
@@ -20,9 +20,7 @@ target_link_libraries(llmeshoptimizer
         ll::meshoptimizer
         )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llmeshoptimizer REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llmeshoptimizer REUSE_FROM llprecompiled)
 
 # Add tests
 

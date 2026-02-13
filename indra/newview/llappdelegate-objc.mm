@@ -28,8 +28,6 @@
 #if defined(LL_BUGSPLAT)
 #include <filesystem>
 #include <vector>
-@import CrashReporter;
-@import HockeySDK;
 @import BugSplatMac;
 // derived from BugsplatMac's BugsplatTester/AppDelegate.m
 @interface LLAppDelegate () <BugSplatDelegate>

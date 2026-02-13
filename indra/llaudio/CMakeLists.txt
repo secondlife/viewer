@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llaudio)
+add_library(llaudio STATIC)
 
 target_sources(llaudio
     PRIVATE
@@ -33,13 +33,15 @@ target_link_libraries( llaudio
         ll::vorbis
     )
 
+target_precompile_headers(llaudio REUSE_FROM llprecompiled)
+
 if (TARGET ll::openal)
     target_sources(llaudio
         PRIVATE
         llaudioengine_openal.cpp
         lllistener_openal.cpp
         )
-  
+
     target_sources(llaudio
         PUBLIC
         FILE_SET HEADERS
@@ -49,8 +51,4 @@ if (TARGET ll::openal)
         )
 
     target_link_libraries(llaudio PUBLIC ll::openal)
-endif ()
-
-if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(llaudio REUSE_FROM llprecompiled)
 endif ()

@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library (llcorehttp)
+add_library (llcorehttp STATIC)
 
 target_sources(llcorehttp
     PRIVATE
@@ -76,14 +76,11 @@ target_include_directories( llcorehttp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 # Cannot/Should not use target_link_libraries here to add llmessage to the dependencies, as that would
 # lead to circular dependencies (or in case of cmake, the first project declaring it's dependencies wins)
 target_include_directories(llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage)
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llcorehttp REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llcorehttp REUSE_FROM llprecompiled)
 
 # tests
 option(LLCOREHTTP_TESTS "Build and run llcorehttp integration tests specifically" ON)
-if (LL_TESTS AND LLCOREHTTP_TESTS)
+if (BUILD_TESTING AND LLCOREHTTP_TESTS)
   SET(llcorehttp_TEST_SOURCE_FILES
       )
 
@@ -108,6 +105,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
           llmessage
           llcommon
       )
+  set(test_project llcorehttp)
 
   # If http_proxy is in the current environment (e.g. to fetch s3-proxy
   # autobuild packages), suppress it for this integration test: it screws up
@@ -115,8 +113,9 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
   LL_ADD_INTEGRATION_TEST(llcorehttp
                           "${llcorehttp_TEST_SOURCE_FILES}"
                           "${test_libs}"
+                          "${test_project}"
                           "-Dhttp_proxy"
-                          ${PYTHON_EXECUTABLE}
+                          ${Python3_EXECUTABLE}
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
 
@@ -139,19 +138,13 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
   set_target_properties(http_texture_load
                         PROPERTIES
                         RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
-                        FOLDER "Tests"
+                        FOLDER "Tests/llcorehttp"
                         )
-
-  if (WINDOWS)
-    # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
-    set_target_properties(http_texture_load
-                          PROPERTIES
-                          LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
-                          LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-                          LINK_FLAGS_RELEASE ""
-                          )
-  endif (WINDOWS)
 
   target_link_libraries(http_texture_load ${example_libs})
 
-endif (LL_TESTS AND LLCOREHTTP_TESTS)
+  if (WINDOWS)
+    target_link_options(http_texture_load PRIVATE $<$<CONFIG:Release>:/DEBUG:NONE>)
+  endif()
+
+endif (BUILD_TESTING AND LLCOREHTTP_TESTS)

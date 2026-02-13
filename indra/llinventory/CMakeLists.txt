@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llinventory)
+add_library(llinventory STATIC)
 
 target_sources(llinventory
     PRIVATE
@@ -22,7 +22,7 @@ target_sources(llinventory
     lltransactionflags.cpp
     lluserrelations.cpp
     )
-    
+
 target_sources(llinventory
     PUBLIC
     FILE_SET HEADERS
@@ -54,13 +54,10 @@ target_sources(llinventory
 
 target_link_libraries(llinventory PUBLIC llcommon llmath llmessage llxml)
 target_include_directories( llinventory  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(llinventory REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llinventory REUSE_FROM llprecompiled)
 
 # add unit tests
-if (LL_TESTS)
+if (BUILD_TESTING)
     INCLUDE(LLAddBuildTest)
     SET(llinventory_TEST_SOURCE_FILES
       # no real unit tests yet!
@@ -69,9 +66,10 @@ if (LL_TESTS)
 
     #set(TEST_DEBUG on)
     set(test_libs llinventory llmath llcorehttp llfilesystem )
-    LL_ADD_INTEGRATION_TEST(inventorymisc "" "${test_libs}")
-    LL_ADD_INTEGRATION_TEST(llparcel "" "${test_libs}")
-    LL_ADD_INTEGRATION_TEST(llpermissions "" "${test_libs}")
-    LL_ADD_INTEGRATION_TEST(llsaleinfo "" "${test_libs}")
-    LL_ADD_INTEGRATION_TEST(lluserrelations "" "${test_libs}")
-endif (LL_TESTS)
+    set(test_project llinventory)
+    LL_ADD_INTEGRATION_TEST(inventorymisc "" "${test_libs}" "${test_project}")
+    LL_ADD_INTEGRATION_TEST(llparcel "" "${test_libs}" "${test_project}")
+    LL_ADD_INTEGRATION_TEST(llpermissions "" "${test_libs}" "${test_project}")
+    LL_ADD_INTEGRATION_TEST(llsaleinfo "" "${test_libs}" "${test_project}")
+    LL_ADD_INTEGRATION_TEST(lluserrelations "" "${test_libs}" "${test_project}")
+endif ()

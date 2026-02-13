@@ -1,8 +1,8 @@
 include_guard()
 
-if(USE_DISCORD)
-    add_library(ll::discord_sdk INTERFACE IMPORTED)
+add_library(ll::discord_sdk INTERFACE IMPORTED)
 
+if(USE_DISCORD)
     target_compile_definitions(ll::discord_sdk INTERFACE LL_DISCORD=1)
 
     find_library(DISCORD_SDK_LIBRARY

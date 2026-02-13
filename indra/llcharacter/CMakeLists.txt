@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library(llcharacter)
+add_library(llcharacter STATIC)
 
 target_sources(llcharacter
     PRIVATE
@@ -67,16 +67,15 @@ target_link_libraries(
     llxml
     )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llcharacter REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llcharacter REUSE_FROM llprecompiled)
 
-if (LL_TESTS)
+if (BUILD_TESTING)
 #   SET(llcharacter_TEST_SOURCE_FILES
 #     )
 #   LL_ADD_PROJECT_UNIT_TESTS(llcharacter "${llcharacter_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
   set(test_libs llcommon llmath)
-  LL_ADD_INTEGRATION_TEST(lljoint "lljoint.cpp" "${test_libs}")
+  set(test_project llcharacter)
+  LL_ADD_INTEGRATION_TEST(lljoint "lljoint.cpp" "${test_libs}" "${test_project}")
 endif()

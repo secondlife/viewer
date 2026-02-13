@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-add_library (llimage)
+add_library (llimage STATIC)
 
 target_sources(llimage
     PRIVATE
@@ -55,17 +55,15 @@ target_link_libraries(llimage
     ll::libjpeg
     )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llimage REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llimage REUSE_FROM llprecompiled)
 
 # Add tests
-if (LL_TESTS)
+if (BUILD_TESTING)
   SET(llimage_TEST_SOURCE_FILES
     llimageworker.cpp
     )
   LL_ADD_PROJECT_UNIT_TESTS(llimage "${llimage_TEST_SOURCE_FILES}")
-endif (LL_TESTS)
+endif ()
 
 
 
