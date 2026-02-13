@@ -49,6 +49,7 @@
 #include <openssl/asn1.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#include <openssl/provider.h>
 #include "../llmachineid.h"
 
 #define ensure_throws(str, exc_type, cert, func, ...) \
@@ -634,10 +635,18 @@ namespace tut
     {
         X509 *mX509TestCert, *mX509RootCert, *mX509IntermediateCert, *mX509ChildCert;
         LLSD mValidationDate;
+        OSSL_PROVIDER* mOSSLLegacyProvider  = nullptr;
 
         sechandler_basic_test()
         {
             LLMachineID::init();
+
+            /* Load Legacy provider into the default (nullptr) library context */
+            if (!mOSSLLegacyProvider && (OSSL_PROVIDER_available(nullptr, "legacy") == 0))
+            {
+                mOSSLLegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
+            }
+
             OpenSSL_add_all_algorithms();
             OpenSSL_add_all_ciphers();
             OpenSSL_add_all_digests();
@@ -680,6 +689,10 @@ namespace tut
             X509_free(mX509RootCert);
             X509_free(mX509IntermediateCert);
             X509_free(mX509ChildCert);
+            if (mOSSLLegacyProvider)
+            {
+                OSSL_PROVIDER_unload(mOSSLLegacyProvider);
+            }
         }
     };
 
