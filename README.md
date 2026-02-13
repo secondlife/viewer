@@ -26,11 +26,33 @@ Third party maintained forks, which include Linux compatible builds, are indexed
 
 ## Build Instructions
 
-[Windows](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Windows)
+The Second Life viewer uses CMake for build system generation and vcpkg for dependency management. 
 
-[Mac](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_macOS)
+### Platform-specific setup guides
 
-[Linux](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Linux)
+[Windows](doc/BUILD.WINDOWS.md)
+
+[Mac](doc/BUILD.MAC.md)
+
+[Linux](doc/BUILD.LINUX.md)
+
+### Configuration Types
+| CMake                      | Description                                                                         |
+|:---------------------------|:------------------------------------------------------------------------------------|
+| Debug                      | A debug build linked against debug libraries                                        |
+| OptDebug                   | A debug build linked with release libraries                                         |
+| RelWithDebInfo             | A release optimized build with asserts linked with release libraries                |
+| Release                    | A release optimized build linked with release libraries                             |
+
+### Build Options
+
+| CMake                      | Description                                                                         | Default |
+|:---------------------------|:------------------------------------------------------------------------------------|---------|
+| BUILD_VIEWER               | Build viewer binaries                                                               | ON      |
+| BUILD_APPEARANCE_UTIL      | Build appearance utility                                                            | OFF     |
+| BUILD_TESTING              | Build test binries.                                                                 | OFF     |
+| PACKAGE                    | Build installer packages when viewer build enabled                                  | ON      |
+| USE_OPENAL                 | Build with support for the OpenAL audio engine                                      | ON      |
 
 ## Contribute
 
